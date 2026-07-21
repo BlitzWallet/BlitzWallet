@@ -73,7 +73,7 @@ export default function DepositQRView({
   const { isUsingAltAccount, currentWalletMnemoinc } =
     useActiveCustodyAccount();
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
-  const { createAddress } = useAccumulationAddresses();
+  const { createAddress, addressesForOption } = useAccumulationAddresses();
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
   const { bottomPadding } = useGlobalInsets();
 
@@ -105,10 +105,91 @@ export default function DepositQRView({
     if (isActive) setContentHeight(700);
   }, [isActive]);
 
+  const handleCreateNew = async cancelled => {
+    const triple = {
+      sourceChain: config.sourceChain,
+      sourceAsset: config.sourceAsset,
+      destinationAsset: config.destinationAsset,
+    };
+    setAddressState({
+      generatedAddress: '',
+      isGeneratingInvoice: true,
+      errorMessageText: { type: null, text: '' },
+      fee: 0,
+    });
+    try {
+      if (config.depositAddress) {
+        setAddressState(prev => ({
+          ...prev,
+          generatedAddress: config.depositAddress,
+          isGeneratingInvoice: false,
+        }));
+        return;
+      }
+      const result = await createAddress({ ...triple, forceNew: true });
+
+      // At the cap: fall back to an already-saved address instead of erroring.
+      if (result?.error === 'limit_reached') {
+        const saved = addressesForOption(triple)[0]?.depositAddress;
+        if (saved) {
+          setAddressState(prev => ({
+            ...prev,
+            generatedAddress: saved,
+            isGeneratingInvoice: false,
+          }));
+          return;
+        }
+        if (cancelled) return;
+        setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('screens.accumulationAddresses.create.limitReached'),
+        });
+        return;
+      }
+
+      if (result?.error) {
+        const saved = addressesForOption(triple)[0]?.depositAddress;
+        if (saved) {
+          if (cancelled) return;
+          setAddressState(prev => ({
+            ...prev,
+            generatedAddress: saved,
+            isGeneratingInvoice: false,
+          }));
+          return;
+        }
+        if (cancelled) return;
+        setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('screens.accumulationAddresses.errors.createFailed'),
+        });
+        return;
+      }
+
+      const newAddress =
+        typeof result.address === 'string'
+          ? result.address
+          : result.address?.depositAddress;
+      if (cancelled) return;
+      setAddressState(prev => ({
+        ...prev,
+        generatedAddress: newAddress || '',
+        isGeneratingInvoice: false,
+      }));
+    } catch {
+      if (cancelled) return;
+      setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
+    }
+  };
+
   useEffect(() => {
     if (!config) return;
-
     let cancelled = false;
+
+    if (config.selectedRecieveOption?.toLowerCase() === 'stablecoins') {
+      handleCreateNew(cancelled);
+      return; // skip initializeAddressProcess; a specific address was picked from the selector
+    }
 
     setAddressState({
       generatedAddress: '',

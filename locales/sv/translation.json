@@ -1051,6 +1051,7 @@
       "depositQRError": "Vi stötte på ett problem när din {{addressType}}-adress skulle genereras",
       "changeReceiveCurrency": "Byt mottagningsvaluta",
       "depositQRInstruction_stablecoins": "Skicka bara {{asset}} på {{chain}} till den här adressen. Du får det direkt till ditt dollarsaldo",
+      "depositQRInstruction_accumulation_bitcoin": "Skicka bara {{asset}} på {{chain}} till den här adressen. Du får det direkt till ditt bitcoin",
       "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
@@ -2624,6 +2625,7 @@
         "subtitle": "Skapa en adress för att automatiskt konvertera insättningar till Bitcoin eller dollar"
       },
       "createButton": "Skapa adress",
+      "addressCount": "{{count}} adresser",
       "info": {
         "title": "Vad är de?",
         "whatAre": "Vad är de?",
@@ -2635,13 +2637,21 @@
       },
       "detail": {
         "copyAddress": "Kopiera adress",
+        "reindex": "Kontrollera saldo",
+        "reindexThrottled": "Den här adressen har redan kontrollerats. Försök igen om {{minutes}} min.",
+        "reindexFundsFound": "Medel hittades, de kommer snart till din plånbok.",
+        "reindexNoFunds": "Inga nya medel hittades för den här adressen.",
+        "reindexError": "Det gick inte att kontrollera den här adressen. Försök igen senare.",
         "printQR": "Skriv ut QR",
         "deleteButton": "Ta bort adress",
         "deleteConfirmTitle": "Ta bort adress?",
         "deleteConfirmBody": "Att ta bort denna adress stoppar omdirigering av framtida betalningar och kan leda till förlorade medel. Se till att alla vet att den inte längre är aktiv innan du tar bort den.",
         "chain": "Kedja",
         "source": "Källa",
-        "Destination": "Destination"
+        "Destination": "Destination",
+        "selectAnotherOption": "Välj ett annat alternativ",
+        "selectAddress": "Välj adress",
+        "viewAll": "Visa alla adresser"
       },
       "create": {
         "pickAsset": "Välj betalningsvaluta",
@@ -2649,7 +2659,9 @@
         "pickDestination": "Välj destination",
         "confirm": "Bekräfta adress",
         "alreadyExists": "Du har redan en adress för denna kombination",
-        "convertDesc": "Din {{asset}} på {{chain}} kommer att konverteras till {{receiveCurrency}}"
+        "convertDesc": "Din {{asset}} på {{chain}} kommer att konverteras till {{receiveCurrency}}",
+        "createNewAddress": "Skapa ny adress",
+        "limitReached": "Du har nått det maximala antalet adresser för detta alternativ."
       },
       "summary": {
         "chain": "Kedja",

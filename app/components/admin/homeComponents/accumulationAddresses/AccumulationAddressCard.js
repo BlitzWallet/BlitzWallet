@@ -7,13 +7,13 @@ import { Image } from 'expo-image';
 import { ICONS, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 
-export default function AccumulationAddressCard({ address }) {
+export default function AccumulationAddressCard({ group }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const chainMeta = ACCUMULATION_CHAINS.find(c => c.id === address.sourceChain);
-  const chainLabel = chainMeta?.label ?? address.sourceChain ?? '';
-  const label = `${address.sourceAsset} → ${
-    address.destinationAsset === 'BTC'
+  const chainMeta = ACCUMULATION_CHAINS.find(c => c.id === group.sourceChain);
+  const chainLabel = chainMeta?.label ?? group.sourceChain ?? '';
+  const label = `${group.sourceAsset} → ${
+    group.destinationAsset === 'BTC'
       ? t('constants.bitcoin_upper')
       : t('constants.dollars_upper')
   }`;
@@ -25,7 +25,11 @@ export default function AccumulationAddressCard({ address }) {
       activeOpacity={0.7}
       style={styles.card}
       onPress={() =>
-        navigate.navigate('AccumulationAddressDetail', { address })
+        navigate.navigate('AccumulationAddressDetail', {
+          sourceChain: group.sourceChain,
+          sourceAsset: group.sourceAsset,
+          destinationAsset: group.destinationAsset,
+        })
       }
     >
       <View style={styles.leftSection}>
@@ -38,6 +42,14 @@ export default function AccumulationAddressCard({ address }) {
       <View style={styles.middleSection}>
         <ThemeText styles={styles.label} content={chainLabel} />
         <ThemeText styles={styles.swapMeta} content={label} />
+        {group.count > 1 && (
+          <ThemeText
+            styles={styles.swapMeta}
+            content={t('screens.accumulationAddresses.addressCount', {
+              count: group.count,
+            })}
+          />
+        )}
       </View>
       <ThemeIcon iconName={'ChevronRight'} size={20} />
     </TouchableOpacity>

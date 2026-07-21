@@ -930,7 +930,6 @@ export const WebViewProvider = ({ children }) => {
             sequence,
             timestamp,
           };
-          console.log('sending message to webview', action, payload);
 
           try {
             if (encrypt && aesKeyRef.current) {
@@ -1130,7 +1129,6 @@ export const WebViewProvider = ({ children }) => {
           console.warn('Dropping plaintext message received post-handshake');
           return;
         }
-        console.log('receiving message from webview', content);
 
         if (content.type === 'security:csp-violation') {
           console.error('CSP VIOLATION DETECTED:', content);

@@ -112,13 +112,9 @@ export const PushNotificationProvider = ({ children }) => {
   };
 
   const registerNotificationHandlers = () => {
-    addNotificationReceivedListener(notification => {
-      console.log('Notification received in foreground', notification);
-    });
+    addNotificationReceivedListener(() => {});
 
-    addNotificationResponseReceivedListener(response => {
-      console.log('Notification opened by device user', response.notification);
-    });
+    addNotificationResponseReceivedListener(() => {});
   };
 
   return (
@@ -184,7 +180,6 @@ async function registerForPushNotificationsAsync() {
     }
 
     const pushToken = await getExpoPushTokenAsync(options);
-    console.log(pushToken);
     return { didWork: true, token: pushToken.data };
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);

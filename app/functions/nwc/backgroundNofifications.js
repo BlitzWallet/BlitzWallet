@@ -18,7 +18,7 @@ import {
   nwcWallet,
   sendNWCSparkLightningPayment,
 } from './wallet';
-import bolt11 from 'bolt11';
+import bolt11 from '../decodeBolt11';
 import { getSparkPaymentStatus, sparkPaymentType } from '../spark';
 import { pushInstantNotification } from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
@@ -635,7 +635,6 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     await filteredEvents.forEach(async (event, index) => {
       const selectedNWCAccount = nwcAccounts[event.pubkey];
-      console.log(selectedNWCAccount, 'SELECTED NWC ACCOUNT');
       if (!selectedNWCAccount) return null;
 
       try {

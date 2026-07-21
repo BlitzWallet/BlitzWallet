@@ -39,7 +39,7 @@ import {
   bulkUpdateSparkTransactions,
   getSingleSparkLightningRequest,
 } from './transactions';
-import { decode } from 'bolt11';
+import { decode } from '../decodeBolt11';
 import fetchBackend from '../../../db/handleBackend';
 import { privateKeyFromSeedWords } from '../nostrCompatability';
 import {

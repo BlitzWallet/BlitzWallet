@@ -1,4 +1,4 @@
-import { decode } from 'bolt11';
+import { decode } from '../decodeBolt11';
 import { getSparkPaymentStatus, sparkPaymentType } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 import {

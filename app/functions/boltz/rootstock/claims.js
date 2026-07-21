@@ -2,7 +2,7 @@ import { Contract, Signature } from 'ethers';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
 import { rootstockEnvironment, satoshisToWei } from '.';
 import { updateSwap } from './swapDb';
-import bolt11 from 'bolt11';
+import bolt11 from '../../decodeBolt11';
 import { getBoltzApiUrl } from '../boltzEndpoitns';
 
 async function persistRefundError(id, message) {
@@ -58,7 +58,6 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       );
       const refundData = await refundRes.json();
 
-      console.log(refundData, 'boltz refund data');
       if (refundData.error) {
         await persistRefundError(id, refundData.error);
         return false;

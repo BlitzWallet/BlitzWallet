@@ -6,7 +6,6 @@ export let nwcWallet = null;
 export const initializeNWCWallet = async () => {
   try {
     if (nwcWallet) {
-      console.log('using cahced wallet', nwcWallet);
       return { isConnected: true };
     }
     const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;

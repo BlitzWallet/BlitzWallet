@@ -83,11 +83,6 @@ export default function PinPage() {
       comparisonHash = loginSettings.savedPin;
     }
 
-    console.log(
-      loginSettings,
-      sha256Hash(JSON.stringify(loginSettings.enteredPin)),
-      comparisonHash,
-    );
     if (loginSettings.isBiometricEnabled) return;
     if (
       comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))

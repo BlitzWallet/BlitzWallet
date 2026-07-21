@@ -1051,6 +1051,7 @@
       "depositQRError": "Возникла проблема при создании вашего адреса {{addressType}}",
       "changeReceiveCurrency": "Изменить валюту получения",
       "depositQRInstruction_stablecoins": "Отправляйте на этот адрес только {{asset}} в сети {{chain}}. Средства поступят прямо на ваш долларовый баланс",
+      "depositQRInstruction_accumulation_bitcoin": "Отправляйте на этот адрес только {{asset}} в сети {{chain}}. вы получите средства непосредственно на свой баланс в биткоинах.",
       "depositQRInstruction_bitcoin": "Отправляйте на этот адрес только Bitcoin. Средства поступят после трёх подтверждений в сети.",
       "depositQRInstruction_liquid": "Отправляйте на этот адрес только Liquid Bitcoin. Средства поступят прямо на ваш баланс Bitcoin",
       "depositQRInstruction_rootstock": "Отправляйте на этот адрес только Rootstock Bitcoin. Средства поступят прямо на ваш баланс Bitcoin.",
@@ -2631,6 +2632,7 @@
         "subtitle": "Создайте адрес, чтобы автоматически конвертировать депозиты в Bitcoin или доллары"
       },
       "createButton": "Создать адрес",
+      "addressCount": "{{count}} адресов",
       "info": {
         "title": "Что это?",
         "whatAre": "Что это?",
@@ -2642,13 +2644,21 @@
       },
       "detail": {
         "copyAddress": "Скопировать адрес",
+        "reindex": "Проверить баланс",
+        "reindexThrottled": "Этот адрес уже был проверен. Повторите попытку через {{minutes}} мин.",
+        "reindexFundsFound": "Средства найдены, они скоро поступят в ваш кошелёк.",
+        "reindexNoFunds": "Для этого адреса новых средств не найдено.",
+        "reindexError": "Не удалось проверить этот адрес. Попробуйте позже.",
         "printQR": "Печать QR",
         "deleteButton": "Удалить адрес",
         "deleteConfirmTitle": "Удалить адрес?",
         "deleteConfirmBody": "Удаление этого адреса остановит перенаправление будущих платежей и может привести к потере средств. Убедитесь, что все знают, что он больше не активен, прежде чем удалять его.",
         "source": "Источник",
         "Destination": "Назначение",
-        "chain": "Сеть"
+        "chain": "Сеть",
+        "selectAnotherOption": "Выбрать другой вариант",
+        "selectAddress": "Выбрать адрес",
+        "viewAll": "Показать все адреса"
       },
       "create": {
         "pickAsset": "Выберите валюту платежа",
@@ -2656,7 +2666,9 @@
         "pickDestination": "Выберите назначение",
         "confirm": "Подтвердить адрес",
         "alreadyExists": "У вас уже есть адрес для этой комбинации",
-        "convertDesc": "Ваш {{asset}} в сети {{chain}} будет конвертирован в {{receiveCurrency}}"
+        "convertDesc": "Ваш {{asset}} в сети {{chain}} будет конвертирован в {{receiveCurrency}}",
+        "createNewAddress": "Создать новый адрес",
+        "limitReached": "Вы достигли максимального количества адресов для этого варианта."
       },
       "summary": {
         "chain": "Сеть",

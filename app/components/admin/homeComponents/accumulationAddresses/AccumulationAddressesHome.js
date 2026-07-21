@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,7 @@ import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddre
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+import { getPairKey } from '../../../../constants/accumulationAddresses';
 
 export default function AccumulationAddressesHome() {
   const navigate = useNavigation();
@@ -36,8 +37,28 @@ export default function AccumulationAddressesHome() {
     });
   }, [isConnectedToTheInternet, navigate, t]);
 
+  const groups = useMemo(() => {
+    const byKey = new Map();
+    for (const address of addresses) {
+      const key = getPairKey(address);
+      const existing = byKey.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        byKey.set(key, {
+          sourceChain: address.sourceChain,
+          sourceAsset: address.sourceAsset,
+          destinationAsset: address.destinationAsset,
+          representative: address,
+          count: 1,
+        });
+      }
+    }
+    return Array.from(byKey.values());
+  }, [addresses]);
+
   const renderAddressItem = useCallback(({ item }) => {
-    return <AccumulationAddressCard address={item} />;
+    return <AccumulationAddressCard group={item} />;
   }, []);
 
   const renderEmptyState = () => (
@@ -56,11 +77,9 @@ export default function AccumulationAddressesHome() {
 
       <View style={styles.innerContainer}>
         <FlatList
-          data={addresses}
+          data={groups}
           renderItem={renderAddressItem}
-          keyExtractor={(item, index) =>
-            item.accumulationAddressId ?? `fallback-${index}`
-          }
+          keyExtractor={item => getPairKey(item)}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={renderEmptyState}

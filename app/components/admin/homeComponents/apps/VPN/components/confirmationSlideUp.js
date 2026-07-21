@@ -13,7 +13,7 @@ import { useSparkWallet } from '../../../../../../../context-store/sparkContext'
 import StoreErrorPage from '../../components/errorScreen';
 import { useActiveCustodyAccount } from '../../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { decode } from 'bolt11';
+import { decode } from '../../../../../../functions/decodeBolt11';
 import { useWebView } from '../../../../../../../context-store/webViewContext';
 
 export default function ConfirmVPNPage(props) {

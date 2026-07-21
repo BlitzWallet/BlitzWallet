@@ -684,7 +684,6 @@ const SparkWalletProvider = ({ children }) => {
           });
         }
 
-        console.log(lastAddedTx, txs);
         if (!lastAddedTx) return;
 
         let parsedDetails = {};
@@ -699,7 +698,6 @@ const SparkWalletProvider = ({ children }) => {
           details: parsedDetails,
         };
         const details = parsedTx.details || {};
-        console.log(parsedTx, details, from, 'testing notifications');
 
         if (parsedTx.paymentStatus === 'pending') {
           // Run a tx status check. Will delay toast message
@@ -717,7 +715,6 @@ const SparkWalletProvider = ({ children }) => {
               tx.tempId === parsedTx.sparkID &&
               tx.paymentStatus === 'completed',
           );
-          console.log(updated, didUpdateStatus);
           if (!didUpdateStatus) {
             console.log('Payment is pending, show navigation once confimred');
             return;
@@ -1972,7 +1969,6 @@ const SparkWalletProvider = ({ children }) => {
         );
 
         for (const address of depositAddresses) {
-          console.log('Checking deposit address:', address);
           if (!address) continue;
 
           const [exploraData, unclaimedUtxos, allUtxos] = await Promise.all([
@@ -2025,8 +2021,6 @@ const SparkWalletProvider = ({ children }) => {
               details: JSON.stringify({ amount: tx.amount }),
             });
           }
-
-          console.log('Unclaimed UTXOs for address:', address, unclaimedUtxos);
 
           if (!unclaimedUtxos.didWork || !unclaimedUtxos.utxos.length) continue;
 

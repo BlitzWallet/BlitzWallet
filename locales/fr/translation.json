@@ -1051,6 +1051,7 @@
       "depositQRError": "Un problème est survenu lors de la génération de votre adresse {{addressType}}",
       "changeReceiveCurrency": "Changer la devise de réception",
       "depositQRInstruction_stablecoins": "Envoyez uniquement {{asset}} sur {{chain}} à cette adresse. Vous le recevrez directement dans votre solde en dollars",
+      "depositQRInstruction_accumulation_bitcoin": "Envoyez uniquement {{asset}} sur {{chain}} à cette adresse. Vous le recevrez directement dans votre solde en bitcoin",
       "depositQRInstruction_bitcoin": "Envoyez uniquement du Bitcoin à cette adresse. Les fonds arrivent après trois confirmations on-chain.",
       "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
       "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",
@@ -2624,6 +2625,7 @@
         "subtitle": "Créez une adresse pour convertir automatiquement les dépôts en Bitcoin ou en dollars"
       },
       "createButton": "Créer une adresse",
+      "addressCount": "{{count}} adresses",
       "info": {
         "title": "Que sont-elles ?",
         "whatAre": "Que sont-elles ?",
@@ -2635,13 +2637,21 @@
       },
       "detail": {
         "copyAddress": "Copier l’adresse",
+        "reindex": "Vérifier le solde",
+        "reindexThrottled": "Cette adresse a déjà été vérifiée. Réessayez dans {{minutes}} min.",
+        "reindexFundsFound": "Des fonds ont été trouvés. Ils arriveront bientôt dans votre portefeuille.",
+        "reindexNoFunds": "Aucun nouveau fonds trouvé pour cette adresse.",
+        "reindexError": "Impossible de vérifier cette adresse. Veuillez réessayer plus tard.",
         "printQR": "Imprimer le QR",
         "deleteButton": "Supprimer l’adresse",
         "deleteConfirmTitle": "Supprimer l’adresse ?",
         "deleteConfirmBody": "La suppression de cette adresse empêche la redirection des paiements futurs et peut entraîner une perte de fonds. Assurez-vous que tout le monde sait qu’elle n’est plus active avant de la supprimer.",
         "chain": "Réseau",
         "source": "Source",
-        "Destination": "Destination"
+        "Destination": "Destination",
+        "selectAnotherOption": "Sélectionner une autre option",
+        "selectAddress": "Sélectionner une adresse",
+        "viewAll": "Voir toutes les adresses"
       },
       "create": {
         "pickAsset": "Sélectionner la devise de paiement",
@@ -2649,7 +2659,9 @@
         "pickDestination": "Sélectionner la destination",
         "confirm": "Confirmer l’adresse",
         "alreadyExists": "Vous avez déjà une adresse pour cette combinaison",
-        "convertDesc": "Votre {{asset}} sur {{chain}} sera converti en {{receiveCurrency}}"
+        "convertDesc": "Votre {{asset}} sur {{chain}} sera converti en {{receiveCurrency}}",
+        "createNewAddress": "Créer une nouvelle adresse",
+        "limitReached": "Vous avez atteint le nombre maximal d'adresses pour cette option."
       },
       "summary": {
         "chain": "Réseau",

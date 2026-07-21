@@ -1,4 +1,4 @@
-import { decode } from 'bolt11';
+import { decode } from '../decodeBolt11';
 
 export function getLightningInvoiceAmountSats(invoice, amountSats) {
   const fallbackAmount = Number(amountSats);

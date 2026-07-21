@@ -42,10 +42,6 @@ export async function initializeFirebase(publicKey, privateKey) {
       }
 
       const currentUser = firebaseAuth.currentUser;
-      console.log('current auth', {
-        currentUser,
-        publicKey,
-      });
 
       if (currentUser && currentUser?.uid === publicKey) {
         return currentUser;
@@ -60,10 +56,8 @@ export async function initializeFirebase(publicKey, privateKey) {
         publicKey,
       );
       if (!token) throw new Error('Not able to get custom token from backend');
-      console.log('custom sign in token from backend', token);
 
       const customSignIn = await signInWithCustomToken(firebaseAuth, token);
-      console.log('custom sign in user id', customSignIn.user);
       return customSignIn;
     } catch (error) {
       console.error('Error initializing Firebase:', error);
