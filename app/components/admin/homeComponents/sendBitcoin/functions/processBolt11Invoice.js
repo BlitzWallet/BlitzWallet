@@ -31,8 +31,13 @@ export default async function processBolt11Invoice(input, context) {
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
+  console.log(input);
   const currentTime = Math.floor(Date.now() / 1000);
-  const expirationTime = input.data.timestamp + input.data.expiry;
+  const neverExpires = !input.data.expiry;
+  const expirationTime = neverExpires
+    ? Number.MAX_SAFE_INTEGER
+    : input.data.timestamp + input.data.expiry;
+
   const isExpired = currentTime > expirationTime;
   const isZeroAmountInvoice = !input.data.amountMsat;
   if (isExpired)
