@@ -1230,7 +1230,7 @@
         "swapRatesChangedButton": "Ange belopp igen",
         "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen",
         "brantaVerification": "Denna betalning har verifierats av Branta",
-        "lightningPayment": "Lightning-betalning"
+        "lightningPayment": "Bitcoin-betalning"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."

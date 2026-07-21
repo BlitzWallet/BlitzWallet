@@ -1230,7 +1230,7 @@
         "swapRatesChangedButton": "Re-enter Amount",
         "feeEstimateError": "Unable to estimate fee, please try again",
         "brantaVerification": "This payment has been verified by Branta",
-        "lightningPayment": "Lightning payment"
+        "lightningPayment": "Bitcoin payment"
       },
       "selectPaymentMethod": {
         "header": "How do you want to fund your payment?"

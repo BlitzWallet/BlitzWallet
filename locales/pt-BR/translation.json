@@ -1229,7 +1229,7 @@
         "swapRatesChangedButton": "Inserir valor novamente",
         "feeEstimateError": "Não foi possível estimar a taxa, tente novamente",
         "brantaVerification": "Este pagamento foi verificado pela Branta",
-        "lightningPayment": "Pagamento Lightning"
+        "lightningPayment": "Pagamento Bitcoin"
       },
       "selectPaymentMethod": {
         "header": "Escolha o saldo para realizar esse pagamento"
