@@ -1041,7 +1041,7 @@
       "viewDetails": "Ver detalhes",
       "othersOptionTitle": "Selecionar rede",
       "stablecoinSelectedTitle": "{{curr}} na {{chain}}",
-      "bitcoinDesc": "Receba Bitcoin diretamente na sua carteira",
+      "bitcoinDesc": "Receba bitcoins na sua carteira",
       "liquidDesc": "Receba BTC pela rede Liquid",
       "roostockDesc": "Receba BTC pela rede Rootstock",
       "sparkDesc": "Receba BTC na sua carteira.",
