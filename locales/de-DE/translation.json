@@ -1060,7 +1060,13 @@
       "depositQRInstruction_spark": "Senden Sie Bitcoin an diese Adresse.",
       "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse.",
       "depositQRInstruction_spark_tokens": "Senden Sie Token an diese Adresse.",
-      "depositMinimumStablecoin": "Zahlungen müssen mindestens {{amount}} betragen"
+      "depositMinimumStablecoin": "Zahlungen müssen mindestens {{amount}} betragen",
+      "depositFeeText_network": "Netzwerkgebühren",
+      "depositFeeText_conversion": "Umwandlungsgebühr",
+      "depositFeePopup_bitcoin": "Bitcoin, die an diese Adresse gesendet werden, verursachen eine geringe Netzwerkgebühr für den Empfang. Die Gebühr wird vom empfangenen Betrag abgezogen, daher kann Ihr Guthaben etwas niedriger ausfallen als der gesendete Betrag.",
+      "depositFeePopup_liquid": "Liquid Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgetauscht, das deine Wallet nutzen kann. Der Umtausch kostet eine kleine Gebühr{{feeDisplay}}, die vom empfangenen Betrag abgezogen wird.",
+      "depositFeePopup_rootstock": "Rootstock Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgetauscht, das deine Wallet nutzen kann. Der Umtausch kostet eine kleine Gebühr, die vom empfangenen Betrag abgezogen wird.",
+      "depositFeePopup_stablecoins": "Stablecoins, die an diese Adresse gesendet werden, werden in Dollar in deiner Wallet umgewandelt. Eine kleine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
     },
     "payLinks": {
       "skip": "Überspringen",

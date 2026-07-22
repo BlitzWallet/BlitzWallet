@@ -1060,7 +1060,13 @@
       "depositQRInstruction_spark": "Envoyez des bitcoins à cette adresse.",
       "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse.",
       "depositQRInstruction_spark_tokens": "Envoyez des jetons à cette adresse.",
-      "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}"
+      "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}",
+      "depositFeeText_network": "Frais de réseau",
+      "depositFeeText_conversion": "Frais de conversion",
+      "depositFeePopup_bitcoin": "Les bitcoins envoyés à cette adresse entraînent de faibles frais de réseau à la réception. Ces frais sont déduits du montant reçu ; votre solde peut donc être légèrement inférieur au montant envoyé.",
+      "depositFeePopup_liquid": "Le Liquid Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais{{feeDisplay}}, déduits du montant reçu.",
+      "depositFeePopup_rootstock": "Le Rootstock Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais, déduits du montant reçu.",
+      "depositFeePopup_stablecoins": "Les stablecoins envoyés à cette adresse sont convertis en dollars dans votre portefeuille. De petits frais de conversion d’environ 1 % sont déduits du montant reçu."
     },
     "payLinks": {
       "skip": "Passer",

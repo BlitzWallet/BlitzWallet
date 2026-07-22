@@ -326,6 +326,13 @@ export default function ExpandedTx(props) {
     transaction?.details?.amount,
     selectedToken?.tokenMetadata?.decimals,
   );
+  const showFeeInfoRow =
+    transaction?.paymentType?.toLowerCase() !== 'bitcoin' ||
+    (transaction?.paymentType?.toLowerCase() === 'bitcoin' &&
+      transaction?.details?.direction === 'OUTGOING') ||
+    (transaction?.paymentType?.toLowerCase() === 'bitcoin' &&
+      transaction?.details?.direction === 'INCOMING' &&
+      isSuccessful);
 
   const getStatusColors = () => {
     if (isPending) {
@@ -646,15 +653,16 @@ export default function ExpandedTx(props) {
                 true,
               )}
 
-              {renderInfoRow(
-                t('constants.fee'),
-                displayCorrectDenomination({
-                  amount: transaction.details.fee || 0,
-                  fiatStats,
-                  masterInfoObject,
-                }),
-                true,
-              )}
+              {showFeeInfoRow &&
+                renderInfoRow(
+                  t('constants.fee'),
+                  displayCorrectDenomination({
+                    amount: transaction.details.fee || 0,
+                    fiatStats,
+                    masterInfoObject,
+                  }),
+                  true,
+                )}
 
               {renderInfoRow(
                 t('constants.type'),

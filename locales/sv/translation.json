@@ -1060,7 +1060,13 @@
       "depositQRInstruction_spark": "Skicka Bitcoin till den här adressen.",
       "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress.",
       "depositQRInstruction_spark_tokens": "Skicka token till den här adressen.",
-      "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}"
+      "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}",
+      "depositFeeText_network": "Nätverksavgifter",
+      "depositFeeText_conversion": "Växlingsavgift",
+      "depositFeePopup_bitcoin": "Bitcoin som skickas till den här adressen medför en liten nätverksavgift för att tas emot. Avgiften dras av från beloppet du får, så ditt saldo kan bli något lägre än det skickade beloppet.",
+      "depositFeePopup_liquid": "Liquid Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift{{feeDisplay}}, som dras från beloppet du tar emot.",
+      "depositFeePopup_rootstock": "Rootstock Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift, som dras från beloppet du tar emot.",
+      "depositFeePopup_stablecoins": "Stablecoins som skickas till den här adressen omvandlas till dollar i din plånbok. En liten växlingsavgift på cirka 1 % dras från beloppet du tar emot."
     },
     "payLinks": {
       "skip": "Hoppa över",

@@ -1060,7 +1060,13 @@
       "depositQRInstruction_spark": "Envía Bitcoin a esta dirección.",
       "depositQRInstruction_spark_dollars": "Envía USDB a esta dirección.",
       "depositQRInstruction_spark_tokens": "Envía tokens a esta dirección.",
-      "depositMinimumStablecoin": "Los pagos deben ser de al menos {{amount}}"
+      "depositMinimumStablecoin": "Los pagos deben ser de al menos {{amount}}",
+      "depositFeeText_network": "Comisiones de red",
+      "depositFeeText_conversion": "Comisión de conversión",
+      "depositFeePopup_bitcoin": "Los Bitcoin enviados a esta dirección tendrán una pequeña comisión de red por su recepción. La comisión se deduce del importe recibido, por lo que tu saldo puede ser ligeramente inferior a la cantidad enviada.",
+      "depositFeePopup_liquid": "El Liquid Bitcoin enviado a esta dirección se cambia por Bitcoin que tu billetera puede usar. El cambio tiene una pequeña comisión{{feeDisplay}}, que se descuenta del monto que recibes.",
+      "depositFeePopup_rootstock": "El Rootstock Bitcoin enviado a esta dirección se cambia por Bitcoin que tu billetera puede usar. El cambio tiene una pequeña comisión, que se descuenta del monto que recibes.",
+      "depositFeePopup_stablecoins": "Las stablecoins enviadas a esta dirección se convierten en dólares en tu billetera. Se descuenta una pequeña comisión de conversión de aproximadamente el 1% del monto que recibes."
     },
     "payLinks": {
       "skip": "Omitir",
