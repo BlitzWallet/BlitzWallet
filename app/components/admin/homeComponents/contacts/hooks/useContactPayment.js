@@ -227,7 +227,7 @@ export default function useContactPayment({
     setLnurlPayData(null);
     setIsResolvingLnurlData(true);
 
-    const MAX_ATTEMPTS = 5;
+    const MAX_ATTEMPTS = 3;
     const BASE_DELAY_MS = 375;
 
     const fetchWithBackoff = async (attempt = 0) => {
