@@ -79,7 +79,7 @@ export function SendRecieveBTNs({
     );
     navigateGuarded('CustomHalfModal', {
       wantedContent: 'depositFunds',
-      sliderHight: 0.6,
+      sliderHight: 0.55,
     });
   }, [handleSettingsCheck, navigateGuarded, t]);
 
@@ -93,7 +93,7 @@ export function SendRecieveBTNs({
     }
     navigateGuarded('CustomHalfModal', {
       wantedContent: 'swapFlow',
-      sliderHight: 0.6,
+      sliderHight: 0.55,
     });
   }, [handleSettingsCheck, navigateGuarded, t]);
 

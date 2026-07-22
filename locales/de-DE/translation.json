@@ -1042,9 +1042,11 @@
       "viewDetails": "Details anzeigen",
       "othersOptionTitle": "Netzwerk auswählen",
       "stablecoinSelectedTitle": "{{curr}} auf {{chain}}",
+      "bitcoinDesc": "Bitcoin direkt in Ihre Wallet empfangen",
       "liquidDesc": "Empfangen Sie Liquid BTC direkt in Ihrer Wallet.",
       "roostockDesc": "Empfangen Sie Rootstock BTC direkt in Ihrer Wallet.",
-      "sparkDesc": "Empfangen Sie BTC oder Token direkt in Ihrer Wallet.",
+      "sparkDesc": "BTC in Ihre Wallet empfangen.",
+      "tokensDesc": "Token in Ihre Wallet empfangen.",
       "chooseMethodTitle": "Empfangsmethode wählen",
       "selectMethodTitle": "Einzahlungsmethode auswählen",
       "copyAddress": "Adresse kopieren",
@@ -1055,8 +1057,9 @@
       "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
-      "depositQRInstruction_spark": "Senden Sie Bitcoin oder Token an diese Adresse.",
+      "depositQRInstruction_spark": "Senden Sie Bitcoin an diese Adresse.",
       "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse.",
+      "depositQRInstruction_spark_tokens": "Senden Sie Token an diese Adresse.",
       "depositMinimumStablecoin": "Zahlungen müssen mindestens {{amount}} betragen"
     },
     "payLinks": {

@@ -20,6 +20,7 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
     <View style={{ flex: 1 }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {[
+          { id: 'bitcoin', label: 'Bitcoin' },
           { id: 'liquid', label: 'Liquid' },
           { id: 'rootstock', label: 'Rootstock' },
           { id: 'spark', label: 'Spark' },
@@ -27,7 +28,12 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
           <ChainRow
             key={chain.id}
             chain={chain}
-            onSelectAsset={() => onShowQR({ selectedRecieveOption: chain.id })}
+            onSelectAsset={() =>
+              onShowQR({
+                selectedRecieveOption:
+                  chain.id === 'bitcoin' ? 'Bitcoin' : chain.id,
+              })
+            }
             theme={theme}
             darkModeType={darkModeType}
             backgroundColor={backgroundColor}
@@ -49,7 +55,9 @@ function ChainRow({
   const { t } = useTranslation();
 
   const subtext =
-    chain.id === 'liquid'
+    chain.id === 'bitcoin'
+      ? t('wallet.halfModal.bitcoinDesc')
+      : chain.id === 'liquid'
       ? t('wallet.halfModal.liquidDesc')
       : chain.id === 'rootstock'
       ? t('wallet.halfModal.roostockDesc')
@@ -66,30 +74,43 @@ function ChainRow({
           styles.chainIconContainer,
           {
             backgroundColor:
-              theme && darkModeType ? backgroundColor : COLORS.primary,
+              chain.id === 'bitcoin'
+                ? theme && darkModeType
+                  ? backgroundColor
+                  : COLORS.bitcoinOrange
+                : theme && darkModeType
+                ? backgroundColor
+                : COLORS.primary,
           },
         ]}
       >
-        <Image
-          style={styles.assetIcon}
-          source={
-            ICONS[
-              chain.id === 'liquid'
-                ? 'liquidLogo'
-                : chain.id === 'spark'
-                ? 'sparkLogoLight'
-                : 'rootstockLogo'
-            ]
-          }
-          contentFit="contain"
-        />
+        {chain.id === 'bitcoin' ? (
+          <Image
+            source={ICONS.bitcoinIcon}
+            style={{ width: 26, height: 26, tintColor: 'white' }}
+          />
+        ) : (
+          <Image
+            style={styles.assetIcon}
+            source={
+              ICONS[
+                chain.id === 'liquid'
+                  ? 'liquidLogo'
+                  : chain.id === 'spark'
+                  ? 'sparkLogoLight'
+                  : 'rootstockLogo'
+              ]
+            }
+            contentFit="contain"
+          />
+        )}
       </View>
       <View style={styles.chainTextContainer}>
         <ThemeText styles={styles.optionLabel} content={chain.label} />
         <ThemeText
           styles={styles.chainSubtext}
           content={subtext}
-          CustomNumberOfLines={1}
+          CustomNumberOfLines={2}
         />
       </View>
 

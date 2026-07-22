@@ -1042,9 +1042,11 @@
       "viewDetails": "Visa detaljer",
       "othersOptionTitle": "Välj metod",
       "stablecoinSelectedTitle": "{{curr}} på {{chain}}",
+      "bitcoinDesc": "Ta emot Bitcoin direkt till din plånbok",
       "liquidDesc": "Ta emot Liquid BTC till din plånbok.",
       "roostockDesc": "Ta emot Rootstock BTC till din plånbok.",
-      "sparkDesc": "Ta emot BTC eller token till din plånbok.",
+      "sparkDesc": "Ta emot BTC till din plånbok.",
+      "tokensDesc": "Ta emot token till din plånbok.",
       "chooseMethodTitle": "Välj mottagningsmetod",
       "selectMethodTitle": "Välj insättningsmetod",
       "copyAddress": "Kopiera adress",
@@ -1055,8 +1057,9 @@
       "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
-      "depositQRInstruction_spark": "Skicka Bitcoin eller tokens till denna adress.",
+      "depositQRInstruction_spark": "Skicka Bitcoin till den här adressen.",
       "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress.",
+      "depositQRInstruction_spark_tokens": "Skicka token till den här adressen.",
       "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}"
     },
     "payLinks": {

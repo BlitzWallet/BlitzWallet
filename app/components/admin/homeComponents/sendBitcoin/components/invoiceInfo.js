@@ -82,7 +82,7 @@ export default function InvoiceInfo({
   // easy visual validation (mirrors depositQRView).
   const addressSegments = useMemo(() => {
     const addr = formmateedSparkPaymentInfo.address || '';
-    return (addr.match(/.{1,4}/g) || []).map((group, i, all) => (
+    return (addr.match(/.{1,5}/g) || []).map((group, i, all) => (
       <Text
         key={i}
         style={{

@@ -282,7 +282,7 @@ export default function DepositQRView({
 
   const address = addressState.generatedAddress || '';
   const addressSegments = useMemo(() => {
-    return (address.match(/.{1,4}/g) || []).map((group, i, all) => (
+    return (address.match(/.{1,5}/g) || []).map((group, i, all) => (
       <Text
         key={i}
         style={{
@@ -310,7 +310,11 @@ export default function DepositQRView({
         })
       : t(
           `wallet.halfModal.depositQRInstruction_${option}${
-            option === 'spark' && config.fromStablecoin ? '_dollars' : ''
+            option === 'spark' && config.fromStablecoin
+              ? '_dollars'
+              : option === 'spark' && config.fromTokens
+              ? '_tokens'
+              : ''
           }`,
         );
 

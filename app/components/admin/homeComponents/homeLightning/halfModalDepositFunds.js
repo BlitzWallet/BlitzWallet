@@ -21,6 +21,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { Image } from 'expo-image';
 import ICONS from '../../../../constants/icons';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import SelectOtherReceiveOptionHalfModal from './halfModalOtherOptions';
 import AddFundsFromBankHalfModal from './halfModalBank';
 import DepositQRView from './depositQRView';
@@ -45,6 +46,7 @@ export default function HalfModalDepositFunds({
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const { bottomPadding, screenDimensions } = useAppStatus();
+  const { showTokensInformation } = useSparkWallet();
   const { addressesForOption } = useAccumulationAddresses();
 
   // Fix 1: Separate shared values per subview so exit animation can play
@@ -124,7 +126,7 @@ export default function HalfModalDepositFunds({
   }));
 
   const restoreOptionsHeight = useCallback(() => {
-    setContentHeight(Math.round(screenDimensions.height * 0.6));
+    setContentHeight(Math.round(screenDimensions.height * 0.55));
   }, [setContentHeight, screenDimensions]);
 
   const showView = useCallback(
@@ -267,7 +269,7 @@ export default function HalfModalDepositFunds({
           {/* On-Chain Bitcoin */}
           <TouchableOpacity
             style={styles.scanButton}
-            onPress={() => handleShowQR({ selectedRecieveOption: 'Bitcoin' })}
+            onPress={() => showView('others')}
           >
             <View
               style={[
@@ -334,39 +336,44 @@ export default function HalfModalDepositFunds({
             <ThemeIcon iconName={'ChevronRight'} size={18} />
           </TouchableOpacity>
 
-          {/* Other Bitcoin */}
-          <TouchableOpacity
-            style={styles.scanButton}
-            onPress={() => showView('others')}
-          >
-            <View
-              style={[
-                styles.scanIconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
+          {/* Deposit tokens */}
+          {showTokensInformation && (
+            <TouchableOpacity
+              style={styles.scanButton}
+              onPress={() =>
+                handleShowQR({
+                  selectedRecieveOption: 'spark',
+                  fromTokens: true,
+                })
+              }
             >
-              <ThemeIcon
-                // colorOverride={COLORS.darkModeText}
-                size={20}
-                iconName={'Ellipsis'}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={t('wallet.halfModal.otherBitcoin')}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.otherBitcoinSubtitle')}
-              />
-            </View>
+              <View
+                style={[
+                  styles.scanIconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
+                ]}
+              >
+                <ThemeIcon size={20} iconName={'Coins'} />
+              </View>
+              <View style={styles.scanTextContainer}>
+                <ThemeText
+                  styles={styles.scanButtonText}
+                  content={t('wallet.halfModal.depositTokens')}
+                />
+                <ThemeText
+                  styles={styles.scanButtonSubtext}
+                  content={t('wallet.halfModal.tokensDesc')}
+                />
+              </View>
 
-            <ThemeIcon iconName={'ChevronRight'} size={18} />
-          </TouchableOpacity>
+              <ThemeIcon iconName={'ChevronRight'} size={18} />
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </Animated.View>
 

@@ -1042,9 +1042,11 @@
       "viewDetails": "Подробнее",
       "othersOptionTitle": "Выберите метод",
       "stablecoinSelectedTitle": "{{curr}} в сети {{chain}}",
+      "bitcoinDesc": "Получайте Bitcoin напрямую в свой кошелёк",
       "liquidDesc": "Получайте Liquid BTC на свой кошелёк.",
       "roostockDesc": "Получайте Rootstock BTC на свой кошелёк.",
-      "sparkDesc": "Получайте BTC или токены на свой кошелёк.",
+      "sparkDesc": "Получайте BTC в свой кошелёк.",
+      "tokensDesc": "Получайте токены в свой кошелёк.",
       "chooseMethodTitle": "Выберите способ получения",
       "selectMethodTitle": "Выберите способ депозита",
       "copyAddress": "Скопировать адрес",
@@ -1055,8 +1057,9 @@
       "depositQRInstruction_bitcoin": "Отправляйте на этот адрес только Bitcoin. Средства поступят после трёх подтверждений в сети.",
       "depositQRInstruction_liquid": "Отправляйте на этот адрес только Liquid Bitcoin. Средства поступят прямо на ваш баланс Bitcoin",
       "depositQRInstruction_rootstock": "Отправляйте на этот адрес только Rootstock Bitcoin. Средства поступят прямо на ваш баланс Bitcoin.",
-      "depositQRInstruction_spark": "Отправляйте Bitcoin или токены на этот адрес.",
+      "depositQRInstruction_spark": "Отправьте Bitcoin на этот адрес.",
       "depositQRInstruction_spark_dollars": "Отправляйте USDB на этот адрес.",
+      "depositQRInstruction_spark_tokens": "Отправьте токены на этот адрес.",
       "depositMinimumStablecoin": "Сумма платежа должна быть не менее {{amount}}"
     },
     "payLinks": {

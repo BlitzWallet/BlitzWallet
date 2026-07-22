@@ -1042,9 +1042,11 @@
       "viewDetails": "Voir les détails",
       "othersOptionTitle": "Sélectionner une méthode",
       "stablecoinSelectedTitle": "{{curr}} sur {{chain}}",
+      "bitcoinDesc": "Recevez des bitcoins directement dans votre portefeuille",
       "liquidDesc": "Recevez du BTC Liquid dans votre portefeuille.",
       "roostockDesc": "Recevez du BTC Rootstock dans votre portefeuille.",
-      "sparkDesc": "Recevez des BTC ou des tokens dans votre portefeuille.",
+      "sparkDesc": "Recevez des BTC dans votre portefeuille.",
+      "tokensDesc": "Recevez des jetons dans votre portefeuille.",
       "chooseMethodTitle": "Choisir la méthode de réception",
       "selectMethodTitle": "Sélectionner la méthode de dépôt",
       "copyAddress": "Copier l’adresse",
@@ -1055,8 +1057,9 @@
       "depositQRInstruction_bitcoin": "Envoyez uniquement du Bitcoin à cette adresse. Les fonds arrivent après trois confirmations on-chain.",
       "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
       "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",
-      "depositQRInstruction_spark": "Envoyez du Bitcoin ou des tokens à cette adresse.",
+      "depositQRInstruction_spark": "Envoyez des bitcoins à cette adresse.",
       "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse.",
+      "depositQRInstruction_spark_tokens": "Envoyez des jetons à cette adresse.",
       "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}"
     },
     "payLinks": {
