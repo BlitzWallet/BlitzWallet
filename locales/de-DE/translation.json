@@ -387,7 +387,7 @@
         "bestValue": "Bestes Angebot",
         "feature1": "Zugriff auf die neuesten KI-Modelle",
         "feature2": "Kein Abonnement — zahlen Sie nur, was Sie nutzen",
-        "feature3": "Private, Lightning-gestützte Zahlungen",
+        "feature3": "Private, schnelle Zahlungen",
         "feature4": "Wählen Sie Ihren Plan",
         "feature5": "Einfache Einmalkäufe"
       },
@@ -1161,9 +1161,6 @@
       "noPoolsTitle": "Keine Sparpools vorhanden",
       "noPoolsSubTitle": "Sobald Sie einen Sparpool erstellt haben, wird er hier als aktiv oder inaktiv angezeigt."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Rechnung ein oder fügen Sie sie ein."
-    },
     "cameraModal": {
       "noCamera": "Kein Zugriff auf die Kamera.",
       "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf die Kamera zu erlauben.",
@@ -1215,13 +1212,8 @@
         "sparkDesc": "Sofortiger Empfang unterstützter Token",
         "sparkTitle": "Spark-Adresse",
         "bitcoinTitle": "BTC-On-Chain-Adresse",
-        "lightningTitle": "Lightning-Rechnung",
         "liquidTitle": "Liquid-Adresse",
         "rootstockTitle": "Rootstock-Adresse"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Beim Ändern Ihres Benutzernamens ändert sich auch Ihre Lightning-Adresse (benutzername@blitzwalletapp.com). Dadurch finden andere Sie einfacher in Ihren Blitz-Kontakten. Ihre Lightning-Adresse funktioniert wie eine E-Mail-Adresse für BTC: Geben Sie anderen einfach benutzername@blitzwalletapp.com an – und schon können sie Ihnen BTC senden.",
-        "usernameInputDesc": "Benutzernamen bearbeiten"
       }
     },
     "sendPages": {
@@ -1252,15 +1244,15 @@
         "processInputError": "Eingabe konnte nicht verarbeitet werden.",
         "unkonwDecodeError": "Ein unbekannter Dekodierungsfehler ist aufgetreten.",
         "invalidInputType": "Kein gültiger Adresstyp.",
-        "expiredLightningInvoice": "Diese Lightning-Rechnung ist abgelaufen.",
-        "lnurlAuthStartMeessage": "LNURL-Authentifizierung wird gestartet...",
-        "lnurlFailedAuthMessage": "LNURL-Authentifizierung fehlgeschlagen",
+        "expiredLightningInvoice": "Diese Rechnung ist abgelaufen.",
+        "lnurlAuthStartMeessage": "Anmeldevorgang wird gestartet...",
+        "lnurlFailedAuthMessage": "Authentifizierung fehlgeschlagen",
         "lnurlConfirmMessage": "LNURL-Authentifizierung erfolgreich",
-        "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für die LNURL-Zahlung. Bitte versuchen Sie es erneut.",
+        "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für diese Zahlung. Bitte versuchen Sie es erneut.",
         "lnurlPayNoInvoiceError": "Der Zahlungsdienst ist derzeit nicht erreichbar. Falls das Problem weiterhin besteht, kontaktieren Sie bitte den Anbieter.",
         "lnurlPayInvalidFormat": "Der Zahlungsdienst hat ungültige Daten zurückgegeben. Falls das Problem weiterhin besteht, kontaktieren Sie bitte den Anbieter.",
         "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert...",
-        "lnurlWithdrawlInvoiceError": "Rechnung für LNURL-Auszahlung konnte nicht generiert werden.",
+        "lnurlWithdrawlInvoiceError": "Rechnung für diese Auszahlung konnte nicht erstellt werden.",
         "waitingForLnurlWithdrawl": "Warten auf Zahlung...",
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
         "invoiceDetails": "Details werden geladen...",
@@ -1323,10 +1315,6 @@
         "noTokensText": "Sie haben keine Token",
         "noTokensFoundText": "Keine Token gefunden"
       },
-      "manualEnterSendAddress": {
-        "title": "Ziel eingeben",
-        "paymentTypesDesc": "Blitz Wallet kann an Spark-, On-Chain-, LNURL- und BOLT 11-Adressen senden."
-      },
       "sparkErrorScreen": {
         "connectionError": "Wir haben Probleme, eine Verbindung zu Ihrer Wallet herzustellen. Bitte informieren Sie uns über dieses Problem.\n\nDenken Sie daran, Ihre Wiederherstellungsphrase hält Ihre Gelder sicher.",
         "retry": "Wir konnten Ihre Wallet derzeit nicht laden. Bitte versuchen Sie es erneut.\n\nIhre Gelder sind sicher, solange Sie Ihre Wiederherstellungsphrase haben."
@@ -1362,7 +1350,6 @@
       "recipientGets": "Empfänger erhält",
       "youSend": "Sie senden",
       "quoteExpiresIn": "Angebot läuft ab in",
-      "payWithLightning": "Mit Lightning bezahlen",
       "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Swap läuft",
@@ -1475,7 +1462,7 @@
       "sendGift": "Geschenk senden",
       "requestBitcoin": "BTC anfordern",
       "requestDollars": "USD anfordern",
-      "fiatRateLoading": "Der Wechselkurs für die Währung der Lightning-Adresse wird geladen...",
+      "fiatRateLoading": "Wechselkurs wird geladen...",
       "fiatRateLoadFailed": "Der Wechselkurs konnte nicht geladen werden"
     },
     "viewGiftCardCode": {
@@ -1804,7 +1791,7 @@
       "swap": "Übertragen",
       "rescanning": "Scannen...",
       "autoClaimLabel": "Automatisch einlösen",
-      "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning umtauschen, sobald der Mindestbetrag erreicht ist."
+      "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist."
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
@@ -2204,7 +2191,7 @@
         "onchainFeeMessage": "Um eine BTC-Zahlung zu empfangen, zahlen Sie eine On-Chain-Netzwerkgebühr. Diese variiert je nach aktuellen BTC-Netzwerkgebühren.",
         "liquidFeeMessage": "Um eine Liquid-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}}, eine Claim-Gebühr von ~{{claimFee}} und eine Boltz-Servicegebühr von 0,1%.",
         "rootstockFeeMessage": "Um eine Rootstock-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}} und eine Boltz-Servicegebühr von 0,1%.",
-        "lightningConvertMessage": "Der Empfang von USD über Lightning erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
+        "lightningConvertMessage": "Der Empfang von USD erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
         "stablecoinsFeeMessage": "Für den Empfang über Stablecoin-Adressen fallen eine Blitz-Gebühr von 0,5 % und eine Flashnet-Gebühr von 0,05 % an.",
         "generatingInvoice": "Rechnung wird generiert...",
         "amountPlaceholder": "Beliebigen Betrag",
@@ -2702,8 +2689,6 @@
         "noName": "Unbekannter Händler",
         "directions": "Wegbeschreibung",
         "pay": "Bezahlen",
-        "lightning": "Lightning",
-        "lightningMessage": "Akzeptiert Bitcoin-Zahlungen sofort über das Lightning-Netzwerk",
         "dataMessage": "Daten von {{source}}"
       },
       "filter": {
@@ -2777,7 +2762,7 @@
     "lnurlLimitsLoading": "Die Zahlungslimits dieses Kontakts werden noch geladen. Bitte versuchen Sie es gleich erneut.",
     "processingDeepLinkError": "Der Link konnte nicht verarbeitet werden: {{error}}",
     "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitten Sie ihn, dies nachzuholen, um diese Funktion zu nutzen.",
-    "contactInvoiceGenerationError": "Fehler beim Generieren der Rechnung. Stellen Sie sicher, dass dies eine gültige LNURL-Adresse ist.",
+    "contactInvoiceGenerationError": "Fehler beim Erstellen der Rechnung. Stellen Sie sicher, dass es sich um eine gültige Adresse handelt.",
     "explorePagenoDataError": "Die Anzahl der Blitz-Benutzer konnte nicht abgerufen werden.",
     "savingFileError": "Fehler beim Speichern der Datei im Dokument.",
     "savingFilePermissionsError": "Fehler beim Abrufen der Berechtigungen.",
@@ -2796,7 +2781,7 @@
     "liquidInvoiceError": "Es gab ein Problem beim Generieren Ihrer Liquid-Adresse. Bitte versuchen Sie es erneut.",
     "bitcoinInvoiceError": "Es gab ein Problem beim Generieren Ihrer BTC-On-Chain-Adresse. Bitte versuchen Sie es erneut.",
     "sparkInvoiceError": "Es gab ein Problem beim Generieren Ihrer Spark-Adresse. Bitte versuchen Sie es erneut.",
-    "lightningInvoiceError": "Es gab ein Problem beim Generieren Ihrer Lightning-Adresse. Bitte versuchen Sie es erneut.",
+    "lightningInvoiceError": "Beim Erstellen Ihrer Rechnung ist ein Problem aufgetreten. Bitte versuchen Sie es erneut.",
     "sparkConnectionError": "Spark-Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "giftCardExpiration": "Geschenkkarten können nur innerhalb von 7 Tagen nach dem Versand wiederhergestellt werden. Wenn die App gelöscht wird oder der lokale Speicher nach dieser Zeit gelöscht wird, gehen Ihre Geschenkkarten verloren. Stellen Sie sicher, dass Sie die Einlösungslinks oder Geschenkkartencodes an einem sicheren Ort speichern.",
     "receivedRootstock": "Rootstock-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
@@ -3071,7 +3056,7 @@
         "earnTitle": "Täglich Erträge erzielen",
         "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie USDB einfach und erzielen Sie Erträge.",
         "accessTitle": "Sofortiger Zugriff",
-        "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet auszahlen. Ihr Geld ist nie gesperrt.",
+        "accessBody": "Sie können jederzeit innerhalb weniger Sekunden auf Ihre Wallet auszahlen. Ihr Guthaben ist nie gesperrt.",
         "backedTitle": "Vollständig gedeckt",
         "backedBody": "Jeder USDB ist vollständig 1:1 durch USD in separaten, geprüften Reservekonten gedeckt.",
         "goalTitle": "Sparziel setzen",
