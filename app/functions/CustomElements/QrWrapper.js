@@ -34,7 +34,7 @@ export default function QrCodeWrapper({
   const imageSize = Math.round(qrSize * 0.2);
 
   const content = QRData || t('constants.noData');
-  console.log(content);
+
   return (
     <View
       style={{
