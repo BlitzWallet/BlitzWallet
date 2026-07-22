@@ -50,7 +50,7 @@ export default function BTCMapMerchantContent({
 
   useEffect(() => {
     const contactRows = [phone, website, email].filter(Boolean).length;
-    setContentHeight(500 + contactRows * 48);
+    setContentHeight(425 + contactRows * 48);
   }, [setContentHeight, phone, website, email]);
 
   useEffect(() => {
@@ -82,7 +82,6 @@ export default function BTCMapMerchantContent({
 
   const directionsBTN = t('screens.btcMap.merchant.directions');
   const payBTN = t('screens.btcMap.merchant.pay');
-
 
   if (detailLoading) {
     return <FullLoadingScreen showText={false} />;
@@ -172,35 +171,6 @@ export default function BTCMapMerchantContent({
               ))}
           </View>
         )}
-
-        <View style={styles.paymentSection}>
-          <View style={styles.paymentRow}>
-            <ThemeImage
-              styles={[
-                styles.lightningIcon,
-                {
-                  tintColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-              ]}
-              lightModeIcon={ICONS.lightningReceiveIcon}
-              darkModeIcon={ICONS.lightningReceiveIcon}
-              lightsOutIcon={ICONS.lightningReceiveIcon}
-            />
-            <View style={styles.paymentInfo}>
-              <ThemeText
-                content={t('screens.btcMap.merchant.lightning')}
-                styles={styles.paymentLabel}
-              />
-              <ThemeText
-                content={t('screens.btcMap.merchant.lightningMessage')}
-                styles={styles.paymentDesc}
-              />
-            </View>
-          </View>
-        </View>
       </ScrollView>
       <AdaptiveButtonRow
         labels={[directionsBTN, payBTN]}
@@ -229,7 +199,9 @@ export default function BTCMapMerchantContent({
                 styles.actionBtn,
                 {
                   backgroundColor:
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
                 },
                 buttonStyle,
               ]}

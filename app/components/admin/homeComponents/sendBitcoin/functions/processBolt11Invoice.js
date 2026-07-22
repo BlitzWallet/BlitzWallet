@@ -33,9 +33,9 @@ export default async function processBolt11Invoice(input, context) {
   crashlyticsLogReport('Handling decode bolt11 invoices');
 
   const currentTime = Math.floor(Date.now() / 1000);
-  const neverExpires = !input.data.expiry;
-  const expirationTime = neverExpires
-    ? Number.MAX_SAFE_INTEGER
+  const useDefaultExpiry = !input.data.expiry;
+  const expirationTime = useDefaultExpiry
+    ? input.data.timestamp + 3600
     : input.data.timestamp + input.data.expiry;
 
   const isExpired = currentTime > expirationTime;

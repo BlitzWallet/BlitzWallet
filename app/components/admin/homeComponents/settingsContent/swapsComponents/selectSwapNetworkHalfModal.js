@@ -16,7 +16,7 @@ import {
 const SWAP_OPTIONS = [
   {
     id: 'liquid',
-    icon: 'blockstreamLiquid',
+    icon: 'liquidLogo',
     label: 'settings.viewSwapsHome.liquid',
   },
   {
@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 25,
-    height: 25,
+    width: '100%',
+    height: '100%',
   },
   textContainer: {
     width: '100%',

@@ -75,9 +75,9 @@ function ChainRow({
           source={
             ICONS[
               chain.id === 'liquid'
-                ? 'blockstreamLiquid'
+                ? 'liquidLogo'
                 : chain.id === 'spark'
-                ? 'sparkAsteriskWhite'
+                ? 'sparkLogoLight'
                 : 'rootstockLogo'
             ]
           }
@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   assetIcon: {
-    width: 20,
-    height: 20,
+    width: '100%',
+    height: '100%',
   },
   assetOptionsContainer: {
     overflow: 'hidden',

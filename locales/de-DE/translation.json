@@ -1230,7 +1230,7 @@
         "swapRatesChangedButton": "Betrag erneut eingeben",
         "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
         "brantaVerification": "Diese Zahlung ist von Branta verifiziert.",
-        "lightningPayment": "Lightning-Zahlung"
+        "lightningPayment": "BTC-Zahlung"
       },
       "selectPaymentMethod": {
         "header": "Wie möchten Sie diese Zahlung senden (BTC oder USD)?"

@@ -35,7 +35,6 @@ export default function HalfModalDepositFunds({
   setBackNav,
   theme,
   darkModeType,
-  showLightning = false,
 }) {
   const [activeView, setActiveView] = useState('options');
   const [qrConfig, setQrConfig] = useState(null);
@@ -260,53 +259,11 @@ export default function HalfModalDepositFunds({
       >
         <ThemeText
           styles={styles.stepTitle}
-          content={
-            showLightning
-              ? t('wallet.halfModal.chooseMethodTitle')
-              : t('wallet.halfModal.selectMethodTitle')
-          }
+          content={t('wallet.halfModal.selectMethodTitle')}
         />
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, paddingBottom: bottomPadding }}
         >
-          {/* Lightning Invoice */}
-          {showLightning && (
-            <TouchableOpacity
-              style={styles.scanButton}
-              onPress={() => showView('lightning')}
-            >
-              <View
-                style={[
-                  styles.scanIconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType ? backgroundColor : COLORS.primary,
-                  },
-                ]}
-              >
-                <Image
-                  source={ICONS.lightningReceiveIcon}
-                  style={[
-                    styles.rowIcon,
-                    { tintColor: 'white', width: 15, height: 20 },
-                  ]}
-                />
-              </View>
-              <View style={styles.scanTextContainer}>
-                <ThemeText
-                  styles={styles.scanButtonText}
-                  content={t('wallet.halfModal.lightningInvoice')}
-                />
-                <ThemeText
-                  styles={styles.scanButtonSubtext}
-                  content={t('wallet.halfModal.lightningInvoiceSubtitle')}
-                />
-              </View>
-
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </TouchableOpacity>
-          )}
-
           {/* On-Chain Bitcoin */}
           <TouchableOpacity
             style={styles.scanButton}
@@ -387,12 +344,12 @@ export default function HalfModalDepositFunds({
                 styles.scanIconContainer,
                 {
                   backgroundColor:
-                    theme && darkModeType ? backgroundColor : COLORS.primary,
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
                 },
               ]}
             >
               <ThemeIcon
-                colorOverride={COLORS.darkModeText}
+                // colorOverride={COLORS.darkModeText}
                 size={20}
                 iconName={'Ellipsis'}
               />

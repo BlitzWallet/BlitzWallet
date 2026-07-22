@@ -187,13 +187,7 @@ function ResetStack(): JSX.Element | null {
     isLoaded: null,
   });
   const [securitySettings, setSecuritySettings] = useState<any>(null);
-  const [pendingLinkData, setPendingLinkData] = useState<{
-    url: string;
-    timestamp: number | null;
-  }>({
-    url: '',
-    timestamp: null,
-  });
+  const [linkTrigger, setLinkTrigger] = useState(0);
   const { theme, darkModeType } = useGlobalThemeContext();
   const { didGetToHomepage, appState } = useAppStatus();
   const { publicKey, setAccountMnemonic } = useKeysContext();
@@ -234,32 +228,29 @@ function ResetStack(): JSX.Element | null {
           );
         }
 
+        console.log(
+          `[deeplink] handleDeepLink entry url=${url} isInitialLoad=${isInitialLoad}`,
+        );
         console.log('Deep link URL:', url);
         const linkData = {
           url: event.url,
           timestamp: Date.now(),
         };
 
-        setPendingLinkData(linkData);
         await setLocalStorageItem(
           'pendingDeepLinkData',
           JSON.stringify(linkData),
         );
-        console.log('Stored pending link in state AND AsyncStorage');
+        setLinkTrigger(t => t + 1);
+        console.log(
+          `[deeplink] stored pendingDeepLinkData + bumped trigger url=${url}`,
+        );
       } catch (error) {
         console.error('Error handling deep link:', error);
       }
     },
-    [setPendingLinkData],
+    [],
   );
-
-  const clearDeepLink = useCallback(async () => {
-    setPendingLinkData({
-      url: '',
-      timestamp: null,
-    });
-    await removeLocalStorageItem('pendingDeepLinkData');
-  }, []);
 
   const getInitialURL = useCallback(async () => {
     const url = await Linking.getInitialURL();
@@ -292,13 +283,14 @@ function ResetStack(): JSX.Element | null {
     debounceTimer = setTimeout(async () => {
       if (cancelled) return;
 
-      const { url, timestamp } = pendingLinkData;
-      if (!url) return;
       if (!navigationRef.current) return;
-
       if (appState !== 'active') return;
-
       if (!didGetToHomepage || !publicKey) return;
+
+      const stored = await getLocalStorageItem('pendingDeepLinkData');
+      if (!stored) return;
+      const { url, timestamp } = JSON.parse(stored) || {};
+      if (!url) return;
 
       try {
         // Convert URL to lowercase for case-insensitive checks
@@ -322,6 +314,16 @@ function ResetStack(): JSX.Element | null {
           (rootState.routes[0]?.name === 'Home' &&
             rootState.routes.length === 1) ||
           rootState.routes[0]?.name === 'Splash';
+
+        console.log(
+          `[deeplink] processing gate url=${url} didGetToHomepage=${didGetToHomepage} hasPublicKey=${!!publicKey} appState=${appState} navReady=${!!navigationRef.current} blockSoftReset=${blockSoftReset}`,
+        );
+
+        if (blockSoftReset) {
+          console.log(
+            `[deeplink] early-return blockSoftReset, keeping stored link url=${url}`,
+          );
+        }
 
         if (!blockSoftReset) {
           let isContactLink = false;
@@ -408,8 +410,9 @@ function ResetStack(): JSX.Element | null {
             }
           }
 
-          // Clear the pending link after successful processing
-          await clearDeepLink();
+          // Consume the pending link after successful processing
+          await removeLocalStorageItem('pendingDeepLinkData');
+          console.log(`[deeplink] consumed pendingDeepLinkData url=${url}`);
         }
       } catch (err) {
         console.error('Error processing deep link:', err);
@@ -418,8 +421,11 @@ function ResetStack(): JSX.Element | null {
           useTranslationString: true,
         });
 
-        // Clear the pending link even if there was an error
-        await clearDeepLink();
+        // Consume the pending link even if there was an error
+        await removeLocalStorageItem('pendingDeepLinkData');
+        console.log(
+          `[deeplink] consumed pendingDeepLinkData after error url=${url}`,
+        );
       }
     }, 700);
 
@@ -427,23 +433,7 @@ function ResetStack(): JSX.Element | null {
       cancelled = true;
       if (debounceTimer) clearTimeout(debounceTimer);
     };
-  }, [pendingLinkData, appState, didGetToHomepage, publicKey, clearDeepLink]);
-
-  useEffect(() => {
-    async function loadPendingDeepLink() {
-      try {
-        const stored = await getLocalStorageItem('pendingDeepLinkData');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          console.log('Loaded pending deep link from AsyncStorage:', parsed);
-          setPendingLinkData(parsed);
-        }
-      } catch (error) {
-        console.error('Error loading pending deep link:', error);
-      }
-    }
-    loadPendingDeepLink();
-  }, []);
+  }, [linkTrigger, appState, didGetToHomepage, publicKey]);
 
   useEffect(() => {
     const subscription = Linking.addEventListener('url', handleDeepLink);
@@ -509,7 +499,10 @@ function ResetStack(): JSX.Element | null {
       // persisted security-settings object) to gate its identity derivation.
       setSecuritySettings(
         isNoSecurityLogin
-          ? { ...parsedSettings, expectedMnemonicHash: sha256Hash(mnemonic.value) }
+          ? {
+              ...parsedSettings,
+              expectedMnemonicHash: sha256Hash(mnemonic.value),
+            }
           : parsedSettings,
       );
       setInitSettings(prev => {

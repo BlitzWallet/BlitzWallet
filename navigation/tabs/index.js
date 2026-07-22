@@ -1,11 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { Gift, Home, Store, Users2 } from 'lucide-react-native';
 
@@ -47,12 +42,9 @@ function renderIcon(label, focused, color) {
 // the icon — which is what made icons "disappear" on Android, where the old
 // single global pill's sibling `zIndex` was unreliable and let it draw on top.
 //
-// Each tab fades its own pill/icon toward `focused ? 1 : 0` independently. Only
-// the previously-focused and newly-focused tabs animate, so jumping between
-// non-adjacent tabs no longer sweeps a value through the tabs in between (which
-// used to flash their pill). Since the pill lives in the correct tab's subtree,
-// a lagging update (after navigation.reset / resume / a blocked JS thread) can
-// only mistime the fade — it can never hide the focused icon.
+// No animation: the pill/active-icon are simply shown when `focused` and hidden
+// otherwise, driven directly by state.index. Exactly one tab is ever focused, so
+// two tabs can never appear active at once.
 function TabButton({
   label,
   focused,
@@ -62,36 +54,21 @@ function TabButton({
   showUnread,
   onPress,
 }) {
-  const active = useSharedValue(focused ? 1 : 0);
-
-  useEffect(() => {
-    active.value = withTiming(focused ? 1 : 0, { duration: 150 });
-  }, [focused, active]);
-
-  const selectionStyle = useAnimatedStyle(() => ({
-    opacity: active.value,
-  }));
-
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
       style={styles.tabItemContainer}
     >
-      <Animated.View
-        pointerEvents="none"
-        style={[styles.tabPill, { backgroundColor: pillColor }, selectionStyle]}
-      />
+      {focused && (
+        <View
+          pointerEvents="none"
+          style={[styles.tabPill, { backgroundColor: pillColor }]}
+        />
+      )}
 
       <View style={styles.iconWrapper}>
-        {renderIcon(label, false, inactiveColor)}
-
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.iconOverlay, selectionStyle]}
-        >
-          {renderIcon(label, true, activeColor)}
-        </Animated.View>
+        {renderIcon(label, focused, focused ? activeColor : inactiveColor)}
 
         {showUnread && (
           <View
@@ -242,11 +219,6 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 44,
     height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconOverlay: {
-    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
   },
