@@ -28,7 +28,6 @@ import {
 } from 'expo-notifications';
 import sha256Hash from '../app/functions/hash';
 import { getLocalStorageItem } from '../app/functions';
-import { pushInstantNotification } from '../app/functions/notifications';
 import displayCorrectDenomination from '../app/functions/displayCorrectDenomination';
 
 const firebaseMessaging = getMessaging();
