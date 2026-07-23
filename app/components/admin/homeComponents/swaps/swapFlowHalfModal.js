@@ -2548,7 +2548,6 @@ const styles = StyleSheet.create({
   },
   amountRowText: {
     flex: 1,
-    fontWeight: '500',
     includeFontPadding: false,
   },
   amountRowCurrency: {
