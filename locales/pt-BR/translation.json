@@ -1041,7 +1041,7 @@
       "viewDetails": "Ver detalhes",
       "othersOptionTitle": "Selecionar rede",
       "stablecoinSelectedTitle": "{{curr}} na {{chain}}",
-      "bitcoinDesc": "Receba BTC pela rede nativa do Bitcoin",
+      "bitcoinDesc": "Receba BTC pela rede Bitcoin",
       "liquidDesc": "Receba BTC pela rede Liquid",
       "roostockDesc": "Receba BTC pela rede Rootstock",
       "sparkDesc": "Receba BTC pela rede Spark",
