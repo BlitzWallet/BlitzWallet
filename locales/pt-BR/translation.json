@@ -1059,7 +1059,7 @@
       "depositQRInstruction_spark": "Envie Bitcoin para este endereço.",
       "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares",
       "depositQRInstruction_spark_tokens": "Envie tokens para este endereço.",
-      "depositMinimumStablecoin": "Os pagamentos devem ser de pelo menos {{amount}}",
+      "depositMinimumStablecoin": "Os pagamentos devem ser de pelo menos {{amount}}.",
       "depositFeeText_network": "Taxas de rede",
       "depositFeeText_conversion": "Taxa de conversão",
       "depositFeePopup_bitcoin": "Existe uma taxa de rede no recebimento desse pagamento. A taxa é descontada do valor recebido, portanto o valor que chegar na sua carteira pode ser ligeiramente menor do que o valor enviado.",
