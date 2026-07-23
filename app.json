@@ -4,5 +4,9 @@
   "slug": "BlitzWallet",
   "scheme": "BlitzWallet",
   "version": "0.2.7",
-  "plugins": ["expo-sqlite", "expo-web-browser", "expo-secure-store"]
+  "plugins": ["expo-sqlite", "expo-web-browser", "expo-secure-store"],
+  "web": {
+    "bundler": "metro",
+    "output": "single"
+  }
 }

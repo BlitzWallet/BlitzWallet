@@ -2,6 +2,54 @@ const {getDefaultConfig} = require('expo/metro-config');
 const {mergeConfig} = require('@react-native/metro-config');
 const path = require('path');
 
+const shim = p => path.resolve(__dirname, 'web-shims', p);
+const EMPTY_NATIVE = shim('empty-native-module.js');
+
+// Web-only module substitutions. Applied in resolveRequest before the default
+// resolver so the browser bundle never pulls a native-only package. This is
+// the mechanism that lets the ~400 RN UI files build unchanged.
+const WEB_STUBS = {
+  'react-native-quick-crypto': shim('quick-crypto.js'),
+  crypto: shim('quick-crypto.js'),
+  '@react-native-firebase/app': shim('firebase-app.js'),
+  '@react-native-firebase/auth': shim('firebase-auth.js'),
+  '@react-native-firebase/firestore': shim('firebase-firestore.js'),
+  '@react-native-firebase/functions': shim('firebase-functions.js'),
+  '@react-native-firebase/storage': shim('firebase-storage.js'),
+  '@react-native-firebase/crashlytics': shim('firebase-crashlytics.js'),
+  '@react-native-firebase/messaging': shim('firebase-messaging.js'),
+  'expo-secure-store': shim('expo-secure-store.js'),
+  'expo-local-authentication': shim('expo-local-authentication.js'),
+  'react-native-device-info': shim('react-native-device-info.js'),
+  'react-native-restart-newarch': shim('react-native-restart-newarch.js'),
+  'react-native-webview': shim('react-native-webview.js'),
+  'react-native-pager-view': shim('pager-view.js'),
+  'react-native-vision-camera': shim('react-native-vision-camera.js'),
+  'react-native-vision-camera-barcode-scanner': shim(
+    'react-native-vision-camera-barcode-scanner.js',
+  ),
+  // Deferred-feature native deps: importable no-op stubs (entry points hidden
+  // on web). They only fail if a hidden screen is actually reached.
+  '@breeztech/react-native-breez-sdk-liquid': EMPTY_NATIVE,
+  'react-native-maps': EMPTY_NATIVE,
+  'react-native-clusterer': EMPTY_NATIVE,
+  'expo-notifications': EMPTY_NATIVE,
+  'expo-background-task': EMPTY_NATIVE,
+  'expo-task-manager': EMPTY_NATIVE,
+  'react-native-view-shot': EMPTY_NATIVE,
+  'react-native-pdf-from-image': EMPTY_NATIVE,
+  'react-native-context-menu-view': EMPTY_NATIVE,
+  'rn-qr-generator': EMPTY_NATIVE,
+  'react-native-email-link': EMPTY_NATIVE,
+  'react-native-country-picker-modal': EMPTY_NATIVE,
+  'react-native-tcp-socket': EMPTY_NATIVE,
+  'react-native-nitro-image': EMPTY_NATIVE,
+  'react-native-nitro-modules': EMPTY_NATIVE,
+  'lottie-react-native': EMPTY_NATIVE,
+  net: EMPTY_NATIVE,
+  tls: EMPTY_NATIVE,
+};
+
 /**
  * Metro configuration
  * https://reactnative.dev/docs/metro
@@ -71,6 +119,10 @@ const config = {
         };
       }
 
+      if (platform === 'web' && WEB_STUBS[moduleName]) {
+        return {filePath: WEB_STUBS[moduleName], type: 'sourceFile'};
+      }
+
       return context.resolveRequest(context, moduleName, platform);
     },
     transformer: {
@@ -83,5 +135,12 @@ const config = {
     },
   },
 };
+
+// expo-sqlite's web backend (wa-sqlite) imports a .wasm asset; register the
+// extension so Metro bundles it instead of trying to resolve it as a module.
+config.resolver.assetExts = [
+  ...(getDefaultConfig(__dirname).resolver.assetExts || []),
+  'wasm',
+];
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

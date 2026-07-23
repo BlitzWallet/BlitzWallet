@@ -128,8 +128,10 @@ const AppStatusProvider = ({ children }) => {
       setIsAppFocused(false);
     };
 
-    const focusListener = AppState.addEventListener('focus', handleFocus);
-    const blurListener = AppState.addEventListener('blur', handleBlur);
+    try {
+      const focusListener = AppState.addEventListener('focus', handleFocus);
+      const blurListener = AppState.addEventListener('blur', handleBlur);
+    } catch (err) {}
 
     return () => {
       focusListener?.remove();
