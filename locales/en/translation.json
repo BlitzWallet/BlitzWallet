@@ -1034,7 +1034,7 @@
       "otherBitcoinSubtitle": "Liquid, Rootstock, and Spark",
       "lightningInvoice": "Lightning Invoice",
       "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
-      "lightningUSDAmountRequired": "An amount is required to create a USD lightning invoice",
+      "lightningUSDAmountRequired": "An amount is required to create a USD invoice",
       "paylinkAmountRequired": "Add an amount before sharing the invoice.",
       "otherReceivingMethods": "Other receiving methods",
       "cashAppEnterAmount": "Enter amount in sats",
