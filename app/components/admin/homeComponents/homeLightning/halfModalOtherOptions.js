@@ -107,11 +107,6 @@ function ChainRow({
       </View>
       <View style={styles.chainTextContainer}>
         <ThemeText styles={styles.optionLabel} content={chain.label} />
-        <ThemeText
-          styles={styles.chainSubtext}
-          content={subtext}
-          CustomNumberOfLines={2}
-        />
       </View>
 
       <ThemeIcon iconName="ChevronRight" size={18} />
