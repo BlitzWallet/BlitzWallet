@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Добавьте средства в ваш кошелёк",
       "onChainBitcoin": "Пополнить Bitcoin",
       "onChainBitcoinSubtitle": "Получить через ончейн-адрес",
+      "depositTokens": "Пополнить токенами",
       "stablecoins": "Пополнить долларами",
       "stablecoinsSubtitle": "Пополните кошелёк долларами",
       "cashAppSubtitle": "Отправить из Cash App мгновенно",

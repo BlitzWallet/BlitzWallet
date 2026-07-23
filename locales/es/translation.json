@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Agrega fondos a tu billetera",
       "onChainBitcoin": "Depositar Bitcoin",
       "onChainBitcoinSubtitle": "Recibir mediante dirección on-chain",
+      "depositTokens": "Depositar tokens",
       "stablecoins": "Depositar dólares",
       "stablecoinsSubtitle": "Deposita dólares en tu billetera",
       "cashAppSubtitle": "Enviar desde Cash App al instante",

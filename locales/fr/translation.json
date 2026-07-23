@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Ajoutez des fonds à votre portefeuille",
       "onChainBitcoin": "Déposer du Bitcoin",
       "onChainBitcoinSubtitle": "Recevoir via une adresse on-chain",
+      "depositTokens": "Déposer des jetons",
       "stablecoins": "Déposer des dollars",
       "stablecoinsSubtitle": "Déposez des dollars dans votre portefeuille",
       "cashAppSubtitle": "Envoyer depuis Cash App instantanément",

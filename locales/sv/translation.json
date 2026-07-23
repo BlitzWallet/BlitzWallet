@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Lägg till pengar i din plånbok",
       "onChainBitcoin": "Sätt in Bitcoin",
       "onChainBitcoinSubtitle": "Ta emot via on-chain-adress",
+      "depositTokens": "Sätt in token",
       "stablecoins": "Sätt in dollar",
       "stablecoinsSubtitle": "Sätt in dollar i din plånbok",
       "cashAppSubtitle": "Skicka från Cash App direkt",

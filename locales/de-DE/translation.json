@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Fügen Sie Ihrer Wallet Guthaben hinzu",
       "onChainBitcoin": "Bitcoin einzahlen",
       "onChainBitcoinSubtitle": "Über eine On-Chain-Adresse empfangen",
+      "depositTokens": "Token einzahlen",
       "stablecoins": "Dollar einzahlen",
       "stablecoinsSubtitle": "Empfangen Sie Dollar direkt in Ihrer Wallet.",
       "cashAppSubtitle": "Sofort von Cash App senden",
