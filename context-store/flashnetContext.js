@@ -86,6 +86,7 @@ export function FlashnetProvider({ children }) {
   const flashnetRetryDelayRef = useRef(5_000);
   const { authResetkey } = useAuthContext();
   const authResetKeyRef = useRef(authResetkey);
+  const isInitialLoad = useRef(true);
 
   const REFUND_MONITOR_INTERVAL = 25_000;
   const SWAP_MONITOR_INTERVAL = 30_000;
@@ -885,6 +886,10 @@ export function FlashnetProvider({ children }) {
 
   // Clean up all intervals and timeouts when auth resets
   useEffect(() => {
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
     console.log('[Flashnet] Auth reset detected, cleaning up all processes');
 
     stopRefundMonitor();
