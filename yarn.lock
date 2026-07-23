@@ -5083,7 +5083,9 @@ __metadata:
     jest: ~29.7.0
     libphonenumber-js: 1.13.2
     light-bolt11-decoder: ^3.2.0
+    lottie-react: ^2.4.1
     lottie-react-native: ^7.3.4
+    lucide-react: ^1.26.0
     lucide-react-native: ^0.562.0
     nostr-tools: ^2.15.0
     prettier: 2.8.8
@@ -11042,6 +11044,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lottie-react@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "lottie-react@npm:2.4.1"
+  dependencies:
+    lottie-web: ^5.10.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: ac79931d98ea38fd3a9139139fb976d24a3e4e0ede86c74d69c5571b971122ee7e98432949f0f4af33f48b736fe8448918f124d48548dd46925bab484c09e73f
+  languageName: node
+  linkType: hard
+
+"lottie-web@npm:^5.10.2":
+  version: 5.13.0
+  resolution: "lottie-web@npm:5.13.0"
+  checksum: f634eddbfc49a243af598c8c3b5b2bc347c6980cb85ef3e17a394aa52e2d4d1d04ef565d9cf1581727eec598717932abf5e0e0aba111b4d64f2a9dadaeaa98e2
+  languageName: node
+  linkType: hard
+
 "lru-cache@npm:^10.0.1, lru-cache@npm:^10.2.0":
   version: 10.4.3
   resolution: "lru-cache@npm:10.4.3"
@@ -11066,6 +11087,15 @@ __metadata:
     react-native: "*"
     react-native-svg: ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0
   checksum: 3ac9f5822ecff3257d385bd1a63ae723fb6f2d2df194037fe6596abff52424a957f187ecd6f11cd8f560139f7e9bc7df27d4fa1d1ff89f9bd8e8bb1035378c80
+  languageName: node
+  linkType: hard
+
+"lucide-react@npm:^1.26.0":
+  version: 1.26.0
+  resolution: "lucide-react@npm:1.26.0"
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: efeaca22fa29470a29de3917583ea7ebe30f6996dc9bdbaa43a8d15b6dbc69edc88e88020105143cdefce3cb9811f7580012562f8d50c3786ee394752dbf043d
   languageName: node
   linkType: hard
 

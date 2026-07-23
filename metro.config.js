@@ -45,7 +45,8 @@ const WEB_STUBS = {
   'react-native-tcp-socket': EMPTY_NATIVE,
   'react-native-nitro-image': EMPTY_NATIVE,
   'react-native-nitro-modules': EMPTY_NATIVE,
-  'lottie-react-native': EMPTY_NATIVE,
+  'lottie-react-native': shim('lottie-react-native.js'),
+  'lucide-react-native': shim('lucide-react-native.js'),
   net: EMPTY_NATIVE,
   tls: EMPTY_NATIVE,
 };
