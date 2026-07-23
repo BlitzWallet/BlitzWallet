@@ -127,15 +127,28 @@ const AppStatusProvider = ({ children }) => {
       console.log('Android AppState blur event');
       setIsAppFocused(false);
     };
+    let focusListener, blurListener;
 
     try {
-      const focusListener = AppState.addEventListener('focus', handleFocus);
-      const blurListener = AppState.addEventListener('blur', handleBlur);
+      if (Platform.OS === 'web') {
+        window.addEventListener('blur', handleBlur);
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('beforeunload', handleBlur);
+      } else {
+        focusListener = AppState.addEventListener('focus', handleFocus);
+        blurListener = AppState.addEventListener('blur', handleBlur);
+      }
     } catch (err) {}
 
     return () => {
-      focusListener?.remove();
-      blurListener?.remove();
+      if (Platform.OS === 'web') {
+        window.removeEventListener('blur', handleBlur);
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('beforeunload', handleBlur);
+      } else {
+        focusListener?.remove();
+        blurListener?.remove();
+      }
     };
   }, []);
 
