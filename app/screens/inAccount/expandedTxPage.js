@@ -664,7 +664,7 @@ export default function ExpandedTx(props) {
                   true,
                 )}
 
-              {renderInfoRow(
+              {/* {renderInfoRow(
                 t('constants.type'),
                 isFlashnetStablecoin
                   ? t('screens.inAccount.expandedTxPage.chainSwap', {
@@ -683,7 +683,7 @@ export default function ExpandedTx(props) {
                       ? 'capitalize'
                       : 'none',
                 },
-              )}
+              )} */}
 
               {renderLRC20TokenRow()}
 
