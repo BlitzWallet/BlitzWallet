@@ -280,9 +280,37 @@ export default function DepositQRView({
     });
   }, [fiatStats, masterInfoObject, minMaxLiquidSwapAmounts, option, t]);
 
+  const feeInfo = useMemo(() => {
+    if (option === 'bitcoin' || option === 'liquid' || option === 'rootstock') {
+      const feeDisplay =
+        option === 'liquid' &&
+        Number.isFinite(addressState.fee) &&
+        addressState.fee > 0
+          ? ` (${displayCorrectDenomination({
+              amount: addressState.fee,
+              masterInfoObject,
+              fiatStats,
+            })})`
+          : '';
+      return {
+        label: t('wallet.halfModal.depositFeeText'),
+        explanation: t(`wallet.halfModal.depositFeePopup_${option}`, {
+          feeDisplay,
+        }),
+      };
+    }
+    if (option === 'stablecoins') {
+      return {
+        label: t('wallet.halfModal.depositFeeText'),
+        explanation: t('wallet.halfModal.depositFeePopup_stablecoins'),
+      };
+    }
+    return null;
+  }, [option, addressState.fee, masterInfoObject, fiatStats, t]);
+
   const address = addressState.generatedAddress || '';
   const addressSegments = useMemo(() => {
-    return (address.match(/.{1,4}/g) || []).map((group, i, all) => (
+    return (address.match(/.{1,5}/g) || []).map((group, i, all) => (
       <Text
         key={i}
         style={{
@@ -310,7 +338,11 @@ export default function DepositQRView({
         })
       : t(
           `wallet.halfModal.depositQRInstruction_${option}${
-            option === 'spark' && config.fromStablecoin ? '_dollars' : ''
+            option === 'spark' && config.fromStablecoin
+              ? '_dollars'
+              : option === 'spark' && config.fromTokens
+              ? '_tokens'
+              : ''
           }`,
         );
 
@@ -366,8 +398,14 @@ export default function DepositQRView({
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity
-          style={styles.qrWrapper}
+        <View
+          style={[
+            styles.qrWrapper,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
           activeOpacity={0.8}
           onPress={handleCopy}
         >
@@ -377,13 +415,37 @@ export default function DepositQRView({
             outerContainerStyle={{
               width: qrContainerSize,
               height: qrContainerSize,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
             }}
             innerContainerStyle={{
               width: qrInnerSize,
               height: qrInnerSize,
             }}
           />
-        </TouchableOpacity>
+          {feeInfo && (
+            <TouchableOpacity
+              style={{
+                maxWidth: qrInnerSize,
+                paddingBottom: 12.5,
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 5,
+                flexDirection: 'row',
+                ...CENTER,
+              }}
+              onPress={() =>
+                navigate.navigate('InformationPopup', {
+                  textContent: feeInfo.explanation,
+                  buttonText: t('constants.understandText'),
+                })
+              }
+            >
+              <ThemeText styles={styles.feeText} content={feeInfo.label} />
+              <ThemeIcon size={15} iconName={'Info'} />
+            </TouchableOpacity>
+          )}
+        </View>
 
         <ThemeText
           styles={styles.addressText}
@@ -454,6 +516,14 @@ const styles = StyleSheet.create({
   },
   qrWrapper: {
     alignSelf: 'center',
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  feeText: {
+    flexShrink: 1,
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+    textAlign: 'center',
   },
   addressHeaderRow: {
     flexDirection: 'row',
@@ -495,17 +565,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     width: '90%',
-    fontSize: SIZES.medium,
     textAlign: 'center',
     marginTop: 12,
-    includeFontPadding: false,
-  },
-  errorSubText: {
-    width: '90%',
-    fontSize: SIZES.smedium,
-    opacity: 0.5,
-    textAlign: 'center',
-    marginTop: 8,
     includeFontPadding: false,
   },
 });

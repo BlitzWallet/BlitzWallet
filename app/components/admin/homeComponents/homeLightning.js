@@ -24,7 +24,7 @@ import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
 import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
-import { COLORS, FONT, SIZES } from '../../../constants';
+import { COLORS, FONT, SIZES, USDB_TOKEN_ID } from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 import Animated, {
   useSharedValue,
@@ -204,6 +204,11 @@ export default function HomeLightning({ navigation }) {
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
   const hideSmallPaymentsHomepage = masterInfoObject?.hideSmallPaymentsHomepage;
+  const hasMoreThanUSDB = useMemo(() => {
+    return !!Object.keys(sparkInformation.tokens || {}).filter(
+      token => token !== USDB_TOKEN_ID,
+    ).length;
+  }, [sparkInformation.tokens]);
 
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
@@ -493,7 +498,7 @@ export default function HomeLightning({ navigation }) {
           </View>
         </View>
 
-        {showTokensInformation && (
+        {showTokensInformation && hasMoreThanUSDB && (
           <TokensPreview didGetToHomepage={didGetToHomepage} />
         )}
 

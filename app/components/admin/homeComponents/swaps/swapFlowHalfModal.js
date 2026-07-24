@@ -246,7 +246,7 @@ export default function SwapFlowHalfModal({
 
   const HEIGHT_FOR_STEP = useMemo(
     () => ({
-      routeSelection: screenDimensions.height * 0.6,
+      routeSelection: screenDimensions.height * 0.55,
       historyExpanded: screenDimensions.height,
       amountInput: 700,
       review: 600,
@@ -2548,7 +2548,6 @@ const styles = StyleSheet.create({
   },
   amountRowText: {
     flex: 1,
-    fontWeight: '500',
     includeFontPadding: false,
   },
   amountRowCurrency: {

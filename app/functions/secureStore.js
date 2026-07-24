@@ -12,7 +12,7 @@ import {
 } from '../constants';
 import { BIOMETRIC_KEY } from '../constants';
 import {
-  AFTER_FIRST_UNLOCK,
+  AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
   deleteItemAsync,
   getItemAsync,
   setItemAsync,
@@ -23,7 +23,7 @@ export const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
 
 const KEYCHAIN_OPTION = {
   keychainService: keychainService,
-  keychainAccessible: AFTER_FIRST_UNLOCK,
+  keychainAccessible: AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
 };
 
 async function storeData(key, value, options = {}) {

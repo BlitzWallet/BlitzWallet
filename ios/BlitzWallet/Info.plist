@@ -35,11 +35,13 @@
 			<array>
 				<string>lightning</string>
 				<string>bitcoin</string>
+				<string>lnurl</string>
 				<string>lnurlw</string>
-				<string>lnurp</string>
+				<string>lnurlp</string>
 				<string>keyauth</string>
 				<string>LIGHTNING</string>
 				<string>BITCOIN</string>
+				<string>LNURL</string>
 				<string>LNURLW</string>
 				<string>LNURLP</string>
 				<string>KEYAUTH</string>

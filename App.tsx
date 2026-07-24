@@ -103,6 +103,14 @@ import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
+// Last URL handled via getInitialURL in this JS context. Belt-and-braces only:
+// getInitialURL runs once per JS context, and this resets on a JS reload, so
+// historical-intent suppression is owned by the native side
+// (MainActivity.launchIntentIsHistorical). Deliberately not persisted: a stored
+// value would swallow genuine re-taps of reusable links (lnurlp, bitcoin address).
+let lastInitialUrl: string | null = null;
+// Pending deep links older than this are discarded instead of replayed.
+const PENDING_DEEP_LINK_MAX_AGE_MS = 10 * 60 * 1000;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
 ExpoSplashScreen.preventAutoHideAsync()
@@ -201,31 +209,30 @@ function ResetStack(): JSX.Element | null {
       const { url } = event;
       try {
         if (isInitialLoad) {
-          const savedDeepLink = await getLocalStorageItem(
-            'lastHandledDeepLink',
-          );
-          const parsedSavedDeeplink = JSON.parse(savedDeepLink) || {
-            url: '',
-            dateAdded: null,
-          };
-
+          // Suppress Android relaunches from Recents, which redeliver the
+          // original VIEW intent. A genuine re-tap of the same (possibly
+          // reusable — lnurlp, bitcoin address) link launches without the
+          // history flag, so it still goes through. Read before clearIntent.
+          let launchedFromHistory = false;
           if (
             Platform.OS === 'android' &&
-            DeepLinkIntentModule &&
-            DeepLinkIntentModule.clearIntent
+            DeepLinkIntentModule?.isLaunchedFromHistory
           ) {
+            launchedFromHistory =
+              await DeepLinkIntentModule.isLaunchedFromHistory();
+          }
+
+          if (Platform.OS === 'android' && DeepLinkIntentModule?.clearIntent) {
             DeepLinkIntentModule.clearIntent();
           }
 
-          if (parsedSavedDeeplink.url === url) {
+          // In-memory guard against duplicate delivery of the launch URL
+          // within this JS context (clearIntent covers Android natively).
+          if (launchedFromHistory || lastInitialUrl === url) {
             console.log('Deep link already handled:', url);
             return;
           }
-
-          await setLocalStorageItem(
-            'lastHandledDeepLink',
-            JSON.stringify({ url: url, dateAdded: Date.now() }),
-          );
+          lastInitialUrl = url;
         }
 
         console.log(
@@ -288,9 +295,26 @@ function ResetStack(): JSX.Element | null {
       if (!didGetToHomepage || !publicKey) return;
 
       const stored = await getLocalStorageItem('pendingDeepLinkData');
-      if (!stored) return;
-      const { url, timestamp } = JSON.parse(stored) || {};
+      if (cancelled || !stored) return;
+
+      let parsed: { url?: string; timestamp?: number } | null = null;
+      try {
+        parsed = JSON.parse(stored);
+      } catch {
+        // Corrupt value would otherwise throw on every run — drop it.
+        await removeLocalStorageItem('pendingDeepLinkData');
+        return;
+      }
+      const { url, timestamp } = parsed || {};
       if (!url) return;
+
+      // Discard stale links (e.g. tapped while locked and abandoned) instead
+      // of replaying a long-expired invoice after a much later unlock.
+      if (!timestamp || Date.now() - timestamp > PENDING_DEEP_LINK_MAX_AGE_MS) {
+        console.log(`[deeplink] discarding stale pending link url=${url}`);
+        await removeLocalStorageItem('pendingDeepLinkData');
+        return;
+      }
 
       try {
         // Convert URL to lowercase for case-insensitive checks
@@ -313,7 +337,8 @@ function ResetStack(): JSX.Element | null {
         const blockSoftReset =
           (rootState.routes[0]?.name === 'Home' &&
             rootState.routes.length === 1) ||
-          rootState.routes[0]?.name === 'Splash';
+          rootState.routes[0]?.name === 'Splash' ||
+          rootState.routes[0]?.name === 'SplashReload';
 
         console.log(
           `[deeplink] processing gate url=${url} didGetToHomepage=${didGetToHomepage} hasPublicKey=${!!publicKey} appState=${appState} navReady=${!!navigationRef.current} blockSoftReset=${blockSoftReset}`,
@@ -389,6 +414,9 @@ function ResetStack(): JSX.Element | null {
                 deepLinkContent: url,
                 userProfile: { uuid: publicKey },
               });
+              // A newer run may have started during the network await; let it
+              // own the (still stored) link instead of double-processing.
+              if (cancelled) return;
 
               if (deepLinkContact.didWork) {
                 navigationRef.current.navigate('ExpandedAddContactsPage', {
@@ -415,6 +443,9 @@ function ResetStack(): JSX.Element | null {
           console.log(`[deeplink] consumed pendingDeepLinkData url=${url}`);
         }
       } catch (err) {
+        // A cancelled run must not navigate or consume the link a newer run
+        // may be about to own (e.g. getDeepLinkUser rejecting after cleanup).
+        if (cancelled) return;
         console.error('Error processing deep link:', err);
         navigationRef.current.navigate('ErrorScreen', {
           errorMessage: 'errormessages.processingDeepLinkError',

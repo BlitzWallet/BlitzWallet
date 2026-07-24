@@ -1,5 +1,6 @@
 package com.blitzwallet
 
+import android.content.Intent
 import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -11,16 +12,44 @@ import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
 
+  companion object {
+    /**
+     * True when the current launch intent was already delivered to a previous
+     * instance of this activity (recreation after process death — recents or
+     * launcher-icon relaunch redelivers the task's base intent — or a config
+     * change). savedInstanceState is the only signal that works on every
+     * launch path and OEM; FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY is only set by
+     * the recents launch path. Read by DeepLinkIntentModule.
+     */
+    @JvmStatic @Volatile var launchIntentIsHistorical = false
+  }
+
   /**
-   * Returns the name of the main component registered from JavaScript. 
+   * Returns the name of the main component registered from JavaScript.
    * This is used to schedule rendering of the component.
    */
   override fun getMainComponentName(): String = "BlitzWallet"
 
   /**
+   * RN never calls setIntent(), and it drops intents delivered before the
+   * React context is ready — so without this, a deep link arriving via
+   * onNewIntent during startup is lost and getInitialURL() keeps returning
+   * the stale base intent. setIntent() lets JS getInitialURL() self-heal, and
+   * a genuinely new intent is by definition not historical.
+   */
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    launchIntentIsHistorical = false
+  }
+
+  /**
    * For react-native-screens
    */
   override fun onCreate(savedInstanceState: Bundle?) {
+    // Non-null savedInstanceState ⇒ this activity is a recreation, so its
+    // intent was already delivered (and handled) by a prior instance.
+    launchIntentIsHistorical = savedInstanceState != null
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     // Must run before super.onCreate(): ReactActivity calls setContentView()
     // inside super.onCreate(), and installSplashScreen() applies

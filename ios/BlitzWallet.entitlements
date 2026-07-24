@@ -8,6 +8,7 @@
 	<array>
 		<string>applinks:blitz-wallet.com</string>
 		<string>applinks:blitzwalletapp.com</string>
+		<string>applinks:blitzwallet.app</string>
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>

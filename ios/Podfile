@@ -33,6 +33,24 @@ if File.exist?(folly_podspec_path)
   File.write(folly_podspec_path, folly_content)
 end
 
+# spark-sdk >= 0.8.8 pulls in gRPC-Swift, whose "GRPC" framework name collides
+# case-insensitively with Firestore's gRPC-Core "grpc" framework.
+# Rename the gRPC-Swift module to GRPCSwift and patch spark-sdk's import to match.
+spark_grpc_path = File.join(__dir__, '..', 'node_modules', '@buildonspark', 'spark-sdk', 'ios', 'SparkGrpcModule.swift')
+if File.exist?(spark_grpc_path)
+  spark_grpc_content = File.read(spark_grpc_path)
+  unless spark_grpc_content.include?('import GRPCSwift')
+    spark_grpc_content.gsub!('import GRPC', 'import GRPCSwift')
+    File.write(spark_grpc_path, spark_grpc_content)
+  end
+end
+
+pre_install do |installer|
+  installer.analysis_result.specifications.each do |spec|
+    spec.attributes_hash['module_name'] = 'GRPCSwift' if spec.name == 'gRPC-Swift'
+  end
+end
+
 target 'BlitzWallet' do
   use_expo_modules!
 
