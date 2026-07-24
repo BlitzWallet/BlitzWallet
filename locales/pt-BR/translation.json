@@ -2152,15 +2152,17 @@
       "confirmTxPage": {
         "failedToSend": "Falha ao enviar",
         "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
-        "sendReport": "Enviar relatório ao desenvolvedor",
-        "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado.",
+        "sendReport": "Relatar um problema",
+        "lnurlAuthSuccess": "Você está conectado e tudo está pronto.",
         "emailReport": "Enviar por e-mail",
         "copyReport": "Copiar para a área de transferência",
         "confirmMessage_sent": "Enviado com sucesso",
         "confirmMessage_received": "Recebido com sucesso",
         "confirmMessage": "{{direction}} com sucesso",
         "bulkSuccess": "Solicitações enviadas com sucesso",
-        "bulkPartialSuccess": "Nenhuma solicitação enviada"
+        "bulkPartialSuccess": "Nenhuma solicitação enviada",
+        "sendingInProgress": "Seu pagamento foi enviado. Aguarde enquanto ele é confirmado.",
+        "stablecoinDesc": "{{asset}} na {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Valor enviado",

@@ -2154,14 +2154,16 @@
         "failedToSend": "Échec de l'envoi",
         "confirmMessage": "{{direction}} avec succès",
         "paymentErrorMessage": "Il y a eu un problème lors de l'envoi de ce paiement, veuillez réessayer.",
-        "sendReport": "Envoyer le rapport au développeur",
-        "lnurlAuthSuccess": "Authentification du portefeuille réussie ! Vous êtes maintenant connecté.",
+        "sendReport": "Signaler un problème",
+        "lnurlAuthSuccess": "Vous êtes connecté et prêt à continuer.",
         "emailReport": "Envoyer par courriel",
         "copyReport": "Copier dans le presse-papiers",
         "confirmMessage_sent": "Envoyé avec succès",
         "confirmMessage_received": "Reçu avec succès",
         "bulkSuccess": "Demandes envoyées avec succès",
-        "bulkPartialSuccess": "Aucune demande envoyée"
+        "bulkPartialSuccess": "Aucune demande envoyée",
+        "sendingInProgress": "Votre paiement a été envoyé. Veuillez patienter pendant sa confirmation.",
+        "stablecoinDesc": "{{asset}} sur {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Montant envoyé",

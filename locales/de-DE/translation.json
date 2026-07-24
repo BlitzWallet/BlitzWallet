@@ -2140,15 +2140,17 @@
       "confirmTxPage": {
         "failedToSend": "Senden fehlgeschlagen",
         "paymentErrorMessage": "Es gab ein Problem beim Senden dieser Zahlung, bitte versuchen Sie es erneut.",
-        "sendReport": "Bericht an Entwickler senden",
-        "lnurlAuthSuccess": "Wallet-Authentifizierung erfolgreich! Sie sind jetzt eingeloggt.",
+        "sendReport": "Problem melden",
+        "lnurlAuthSuccess": "Sie sind angemeldet und können loslegen.",
         "emailReport": "Per E-Mail senden",
         "copyReport": "In die Zwischenablage kopieren",
         "confirmMessage_sent": "Erfolgreich gesendet",
         "confirmMessage_received": "Erfolgreich empfangen",
+        "sendingInProgress": "Ihre Zahlung wurde gesendet. Bitte warten Sie, während sie bestätigt wird.",
         "confirmMessage": "{{direction}} erfolgreich",
         "bulkSuccess": "Anfragen erfolgreich gesendet",
-        "bulkPartialSuccess": "Keine Anfragen gesendet"
+        "bulkPartialSuccess": "Keine Anfragen gesendet",
+        "stablecoinDesc": "{{asset}} auf {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Gesendeter Betrag",

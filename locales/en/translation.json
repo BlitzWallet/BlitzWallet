@@ -2141,14 +2141,16 @@
         "failedToSend": "Failed to send",
         "confirmMessage": "{{direction}} successfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
-        "sendReport": "Send report to developer",
-        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in.",
+        "sendReport": "Report a problem",
+        "lnurlAuthSuccess": "You're signed in and ready to go.",
         "emailReport": "Send via Email",
         "copyReport": "Copy to Clipboard",
         "confirmMessage_sent": "Sent successfully",
         "confirmMessage_received": "Received successfully",
+        "sendingInProgress": "Your payment has been sent. Please wait while it's confirmed.",
         "bulkSuccess": "Requests sent successfully",
-        "bulkPartialSuccess": "No requests sent"
+        "bulkPartialSuccess": "No requests sent",
+        "stablecoinDesc": "{{asset}} on {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Sent amount",
