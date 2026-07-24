@@ -1062,7 +1062,7 @@
       "depositMinimumStablecoin": "Os pagamentos devem ser de pelo menos {{amount}}.",
       "depositFeeText_network": "Taxas de rede",
       "depositFeeText_conversion": "Taxa de conversão",
-      "depositFeePopup_bitcoin": "Existe uma taxa de rede no recebimento desse pagamento. A taxa é descontada do valor recebido, portanto o valor que chegar na sua carteira pode ser ligeiramente menor do que o valor esperado.",
+      "depositFeePopup_bitcoin": "Se aplica uma taxa da rede Bitcoin no recebimento desse pagamento. A taxa é descontada do valor recebido, portanto o valor que chegar na sua carteira será ligeiramente menor do que o valor esperado.",
       "depositFeePopup_liquid": "Os bitcoins recebidos na rede Liquid são convertidos para bitcoins nativos da sua carteira. A conversão tem uma pequena taxa descontada do valor recebido.",
       "depositFeePopup_rootstock": "Os bitcoins recebidos na rede Rootstock são convertidos para bitcoins nativos da sua carteira. A conversão tem uma pequena taxa, descontada do valor recebido.",
       "depositFeePopup_stablecoins": "Os dólares digitais (USDC, USDT...) enviados para este endereço são convertidos em dólares nativos da sua carteira. Uma pequena taxa de conversão de cerca de 1% é descontada do valor recebido."
