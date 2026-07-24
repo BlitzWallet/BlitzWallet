@@ -1061,7 +1061,7 @@
       "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares",
       "depositQRInstruction_spark_tokens": "Envie tokens para este endereço.",
       "depositMinimumStablecoin": "Os pagamentos devem ser de pelo menos {{amount}}",
-      "depositFeeText": "Detalhes das taxas",
+      "depositFeeText": "Taxa de recebimento",
       "depositFeePopup_bitcoin": "Existe uma taxa de rede no recebimento desse pagamento. A taxa é descontada do valor recebido, portanto o valor que chegar na sua carteira pode ser ligeiramente menor do que o valor enviado.",
       "depositFeePopup_liquid": "Os bitcoins recebidos na rede Liquid são convertidos para bitcoins que sua carteira suporta. A conversão tem uma pequena taxa de {{feeDisplay}}, descontada do valor recebido.",
       "depositFeePopup_rootstock": "Os bitcoins recebidos na rede Rootstock são convertidos para bitcoins que sua carteira suporta. A conversão tem uma pequena taxa, descontada do valor recebido.",
