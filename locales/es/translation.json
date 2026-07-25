@@ -1273,7 +1273,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Mensaje de error"
+        "title": "Algo salió mal"
       },
       "feeInfo": {
         "title": "Tarifa y velocidad",

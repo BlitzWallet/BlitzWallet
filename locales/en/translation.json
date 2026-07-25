@@ -1265,7 +1265,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Error message"
+        "title": "Something went wrong"
       },
       "feeInfo": {
         "title": "Fee and Speed",

@@ -1273,7 +1273,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Messaggio di errore"
+        "title": "Qualcosa è andato storto"
       },
       "feeInfo": {
         "title": "Commissione e Velocità",

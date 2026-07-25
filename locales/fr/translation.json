@@ -1273,7 +1273,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Message d'erreur"
+        "title": "Une erreur s’est produite"
       },
       "feeInfo": {
         "title": "Redevance et rapidité",

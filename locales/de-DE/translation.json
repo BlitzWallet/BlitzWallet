@@ -1265,7 +1265,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Fehlermeldung"
+        "title": "Etwas ist schiefgelaufen"
       },
       "feeInfo": {
         "title": "Gebühr und Geschwindigkeit",

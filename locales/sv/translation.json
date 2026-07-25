@@ -1273,7 +1273,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Felmeddelande"
+        "title": "Något gick fel"
       },
       "feeInfo": {
         "title": "Avgift och hastighet",
