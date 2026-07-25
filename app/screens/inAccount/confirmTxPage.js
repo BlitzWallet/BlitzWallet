@@ -110,7 +110,7 @@ export default function ConfirmTxPage(props) {
   const statusSubtitle = isLNURLAuth
     ? t('screens.inAccount.confirmTxPage.lnurlAuthSuccess')
     : !didSucceed
-    ? t('screens.inAccount.confirmTxPage.failedToSend')
+    ? t('screens.inAccount.confirmTxPage.paymentErrorMessage')
     : showPendingMessage
     ? t('screens.inAccount.confirmTxPage.sendingInProgress')
     : t('screens.inAccount.confirmTxPage.confirmMessage', {
@@ -152,7 +152,6 @@ export default function ConfirmTxPage(props) {
   useEffect(() => {
     animationRef.current?.play();
   }, []);
-  console.log(displayAmount, paymentDisplay, token);
 
   if (props.route.params?.isSplitPayment && props.route.params?.isRequset) {
     return (
@@ -264,6 +263,19 @@ export default function ConfirmTxPage(props) {
               marginBottom: 10,
             }}
             content={t('screens.inAccount.confirmTxPage.walletConnected')}
+          />
+        )}
+        {!didSucceed && (
+          <ThemeText
+            styles={{
+              fontFamily: FONT.Title_Medium,
+              fontSize: SIZES.large,
+              width: '95%',
+              textAlign: 'center',
+              marginTop: 20,
+              marginBottom: 10,
+            }}
+            content={t('screens.inAccount.confirmTxPage.failedToSend')}
           />
         )}
 

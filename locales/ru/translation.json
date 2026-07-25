@@ -1240,7 +1240,9 @@
         "swapRatesChangedButton": "Ввести сумму снова",
         "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова",
         "brantaVerification": "Этот платёж был подтверждён Branta",
-        "lightningPayment": "Платёж Bitcoin"
+        "lightningPayment": "Платёж Bitcoin",
+        "dollarPayment": "Платёж в долларах",
+        "tokenPayment": "Платёж токенами"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."
@@ -2157,6 +2159,7 @@
         "paymentErrorMessage": "Проблема с отправкой, попробуйте снова.",
         "sendReport": "Сообщить о проблеме",
         "lnurlAuthSuccess": "Вы вошли в систему и готовы к работе.",
+        "walletConnected": "Кошелёк подключён",
         "emailReport": "Отправить через Email",
         "copyReport": "Скопировать",
         "confirmMessage_sent": "Успешно отправлено",

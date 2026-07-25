@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Ressaisir le montant",
         "feeEstimateError": "Impossible d’estimer les frais, veuillez réessayer",
         "brantaVerification": "Ce paiement a été vérifié par Branta",
-        "lightningPayment": "Paiement Bitcoin"
+        "lightningPayment": "Paiement Bitcoin",
+        "dollarPayment": "Paiement en dollars",
+        "tokenPayment": "Paiement en jetons"
       },
       "selectPaymentMethod": {
         "header": "Veuillez sélectionner comment vous souhaitez financer votre paiement."
@@ -2156,6 +2158,7 @@
         "paymentErrorMessage": "Il y a eu un problème lors de l'envoi de ce paiement, veuillez réessayer.",
         "sendReport": "Signaler un problème",
         "lnurlAuthSuccess": "Vous êtes connecté et prêt à continuer.",
+        "walletConnected": "Portefeuille connecté",
         "emailReport": "Envoyer par courriel",
         "copyReport": "Copier dans le presse-papiers",
         "confirmMessage_sent": "Envoyé avec succès",

@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Ange belopp igen",
         "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen",
         "brantaVerification": "Denna betalning har verifierats av Branta",
-        "lightningPayment": "Bitcoin-betalning"
+        "lightningPayment": "Bitcoin-betalning",
+        "dollarPayment": "Dollarbetalning",
+        "tokenPayment": "Tokenbetalning"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."
@@ -2156,6 +2158,7 @@
         "paymentErrorMessage": "Det uppstod ett problem med att skicka betalningen, vänligen försök igen.",
         "sendReport": "Rapportera ett problem",
         "lnurlAuthSuccess": "Du är inloggad och redo att köra.",
+        "walletConnected": "Plånbok ansluten",
         "emailReport": "Skicka via e-post",
         "copyReport": "Kopiera till Urklipp",
         "confirmMessage_sent": "Skickat framgångsrikt",
