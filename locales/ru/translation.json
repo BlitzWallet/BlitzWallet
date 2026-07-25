@@ -133,7 +133,8 @@
     "total": "Итого",
     "stablecoinRefundReceived": "Возврат стейблкоина",
     "payWith": "Оплатить с помощью",
-    "receiveAs": "Получить в виде"
+    "receiveAs": "Получить в виде",
+    "tokens": "Токены"
   },
   "languages": {
     "english": "English",

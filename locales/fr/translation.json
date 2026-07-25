@@ -133,7 +133,8 @@
     "total": "Total",
     "stablecoinRefundReceived": "Remboursement de stablecoin",
     "payWith": "Payer avec",
-    "receiveAs": "Recevoir en"
+    "receiveAs": "Recevoir en",
+    "tokens": "Jetons"
   },
   "languages": {
     "english": "English",

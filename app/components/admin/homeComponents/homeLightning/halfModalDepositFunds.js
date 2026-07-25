@@ -206,6 +206,11 @@ export default function HalfModalDepositFunds({
               curr: 'USDB',
               chain: 'Spark',
             })
+          : option === 'spark' && qrConfig.fromTokens
+          ? t('wallet.halfModal.stablecoinSelectedTitle', {
+              curr: t('constants.tokens'),
+              chain: capitalize(qrConfig?.selectedRecieveOption),
+            })
           : qrConfig?.selectedRecieveOption === 'Bitcoin'
           ? capitalize(qrConfig?.selectedRecieveOption)
           : t('wallet.halfModal.stablecoinSelectedTitle', {

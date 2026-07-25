@@ -133,7 +133,8 @@
     "scan": "Scan",
     "stablecoinRefundReceived": "Stablecoin refund",
     "payWith": "Pay with",
-    "receiveAs": "Receive as"
+    "receiveAs": "Receive as",
+    "tokens": "Tokens"
   },
   "languages": {
     "english": "English",

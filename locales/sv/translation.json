@@ -133,7 +133,8 @@
     "total": "Totalt",
     "stablecoinRefundReceived": "Stablecoin-återbetalning",
     "payWith": "Betala med",
-    "receiveAs": "Ta emot som"
+    "receiveAs": "Ta emot som",
+    "tokens": "Token"
   },
   "languages": {
     "english": "English",

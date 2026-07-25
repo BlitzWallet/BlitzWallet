@@ -133,7 +133,8 @@
     "total": "Total",
     "stablecoinRefundReceived": "Reembolso de Dólar digital",
     "payWith": "Pagar com",
-    "receiveAs": "Receber em"
+    "receiveAs": "Receber em",
+    "tokens": "Tokens"
   },
   "languages": {
     "english": "English",
