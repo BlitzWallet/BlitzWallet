@@ -24,14 +24,21 @@ export const LNURL_PROVIDER_ICONS = {
 };
 
 // Names the asset that left the wallet, not the rail it took — a bolt11 paid from
-// the dollar balance is a "Dollar payment". Icons stay rail-based. Dollar wins over
-// token because USDB is an LRC20 token too.
+// the dollar balance is a "Dollar payment". Dollar wins over token because USDB is
+// an LRC20 token too.
 export function paymentAssetLabel({ isDollarBalance, isToken }) {
   if (isDollarBalance)
     return i18next.t('wallet.sendPages.sendPaymentScreen.dollarPayment');
   if (isToken)
     return i18next.t('wallet.sendPages.sendPaymentScreen.tokenPayment');
   return i18next.t('wallet.sendPages.sendPaymentScreen.lightningPayment');
+}
+
+// The icon follows the label: the user cares what they're sending, not which rail
+// carries it. Tokens are neither bitcoin nor dollars, so they keep the spark logo.
+export function resolveAssetAvatar({ isDollarBalance, isToken }) {
+  if (isToken) return { kind: 'spark', logo: 'sparkLogoLight' };
+  return { kind: 'asset', asset: isDollarBalance ? 'dollar' : 'bitcoin' };
 }
 
 // Resolves a recipient into everything the avatar + name row needs. Shared by the
@@ -113,25 +120,18 @@ export function resolveRecipientDisplay({
   const isToken = !!details.isLRC20Payment && !isDollarBalance;
   const assetLabel = paymentAssetLabel({ isDollarBalance, isToken });
 
-  if (transaction && transaction.paymentType === 'lightning') {
-    return { kind: 'bitcoin', type: 'lightning', displayName: assetLabel };
-  }
-
-  if (transaction && transaction.paymentType === 'bitcoin') {
-    return { kind: 'bitcoin', type: 'bitcoin', displayName: assetLabel };
-  }
-
-  // A bolt11 funded from the dollar balance is recorded as paymentType 'spark'
-  // with a lightning destination chain — the rail is still lightning, so keep
-  // the bolt icon the pre-send screen showed.
-  if (details.destinationChain === 'lightning') {
-    return { kind: 'bitcoin', type: 'lightning', displayName: assetLabel };
-  }
-
-  if (transaction && transaction.paymentType === 'spark') {
+  // Every rail we send over resolves to the same asset card. `destinationChain`
+  // catches a bolt11 funded from the dollar balance, which payments.js records as
+  // paymentType 'spark'. Anything else has nothing to name.
+  const paymentType = transaction?.paymentType;
+  if (
+    paymentType === 'lightning' ||
+    paymentType === 'bitcoin' ||
+    paymentType === 'spark' ||
+    details.destinationChain === 'lightning'
+  ) {
     return {
-      kind: 'spark',
-      logo: 'sparkLogoLight',
+      ...resolveAssetAvatar({ isDollarBalance, isToken }),
       displayName: assetLabel,
     };
   }
@@ -202,40 +202,23 @@ export function RecipientAvatar({
     );
   }
 
-  if (resolved?.kind === 'bitcoin') {
+  if (resolved?.kind === 'asset') {
+    const isDollar = resolved.asset === 'dollar';
     return (
       <View
         style={[
           circle,
           {
             backgroundColor:
-              resolved?.type === 'bitcoin'
-                ? theme && darkModeType
-                  ? backgroundColor
-                  : COLORS.bitcoinOrange
-                : backgroundColor,
+              theme && darkModeType
+                ? backgroundColor
+                : COLORS[isDollar ? 'dollarGreen' : 'bitcoinOrange'],
           },
         ]}
       >
         <Image
-          style={[
-            styles[resolved?.type === 'lightning' ? 'lightning' : 'bitcoin'],
-            {
-              tintColor:
-                resolved?.type === 'bitcoin'
-                  ? undefined
-                  : theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary,
-            },
-          ]}
-          source={
-            ICONS[
-              resolved?.type === 'lightning'
-                ? 'lightningReceiveIcon'
-                : 'bitcoinIcon'
-            ]
-          }
+          style={styles.assetIcon}
+          source={ICONS[isDollar ? 'dollarIcon' : 'bitcoinIcon']}
           contentFit="contain"
         />
       </View>
@@ -270,11 +253,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  lightning: {
-    width: '60%',
-    height: '60%',
-  },
-  bitcoin: {
+  assetIcon: {
     width: '50%',
     height: '50%',
   },

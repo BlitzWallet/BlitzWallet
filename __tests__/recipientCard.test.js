@@ -1,7 +1,8 @@
-// The recipient pill names the asset that LEFT the wallet, not the rail it took.
-// USDB rides the same LRC20 rails as any other token, so the token id is the only
-// thing separating "Dollar payment" from "Token payment" — these assertions are
-// what stops a dollar-funded send from reading "Bitcoin payment" again.
+// The recipient pill names AND illustrates the asset that LEFT the wallet, not the
+// rail it took — no lightning bolts or spark logos for bitcoin/dollar sends. USDB
+// rides the same LRC20 rails as any other token, so the token id is the only thing
+// separating "Dollar payment" from "Token payment" — these assertions are what stops
+// a dollar-funded send from reading "Bitcoin payment" or showing a bolt again.
 
 const USDB = 'usdb-token-id';
 
@@ -42,8 +43,8 @@ describe('resolveRecipientDisplay payment asset label', () => {
       transaction: tx('lightning', { isLRC20Payment: false }),
     });
     expect(resolved).toMatchObject({
-      kind: 'bitcoin',
-      type: 'lightning',
+      kind: 'asset',
+      asset: 'bitcoin',
       displayName: LIGHTNING,
     });
   });
@@ -55,21 +56,28 @@ describe('resolveRecipientDisplay payment asset label', () => {
         LRC20Token: USDB,
       }),
     });
-    expect(resolved.displayName).toBe(DOLLAR);
-    // Icon stays rail-based: dollars over lightning is still a lightning bolt.
-    expect(resolved.type).toBe('lightning');
+    // Asset, not rail: dollars over lightning is a dollar icon, never a bolt.
+    expect(resolved).toMatchObject({
+      kind: 'asset',
+      asset: 'dollar',
+      displayName: DOLLAR,
+    });
   });
 
   it('labels a dollar-funded spark send "Dollar payment"', () => {
     const resolved = resolveRecipientDisplay({
       transaction: tx('spark', { isLRC20Payment: true, LRC20Token: USDB }),
     });
-    expect(resolved).toMatchObject({ kind: 'spark', displayName: DOLLAR });
+    expect(resolved).toMatchObject({
+      kind: 'asset',
+      asset: 'dollar',
+      displayName: DOLLAR,
+    });
   });
 
-  it('keeps the lightning icon for a USD-funded bolt11 (recorded as spark)', () => {
+  it('shows the dollar icon for a USD-funded bolt11 (recorded as spark)', () => {
     // payments.js writes this shape: the swap leaves as USDB over spark rails,
-    // but the destination is a bolt11 — the pre-send screen showed a bolt.
+    // but the destination is a bolt11. Either way the user sent dollars.
     const resolved = resolveRecipientDisplay({
       transaction: tx('spark', {
         isLRC20Payment: true,
@@ -78,34 +86,47 @@ describe('resolveRecipientDisplay payment asset label', () => {
       }),
     });
     expect(resolved).toMatchObject({
-      kind: 'bitcoin',
-      type: 'lightning',
+      kind: 'asset',
+      asset: 'dollar',
       displayName: DOLLAR,
     });
   });
 
-  it('labels a non-USDB LRC20 send "Token payment"', () => {
+  it('labels a non-USDB LRC20 send "Token payment" and keeps the spark logo', () => {
     const resolved = resolveRecipientDisplay({
       transaction: tx('spark', {
         isLRC20Payment: true,
         LRC20Token: 'some-other-token-id',
       }),
     });
-    expect(resolved.displayName).toBe(TOKEN);
+    expect(resolved).toMatchObject({ kind: 'spark', displayName: TOKEN });
   });
 
   it('labels a bitcoin-funded spark send "Bitcoin payment"', () => {
     const resolved = resolveRecipientDisplay({
       transaction: tx('spark', { isLRC20Payment: false, LRC20Token: '' }),
     });
-    expect(resolved.displayName).toBe(LIGHTNING);
+    expect(resolved).toMatchObject({
+      asset: 'bitcoin',
+      displayName: LIGHTNING,
+    });
   });
 
   it('labels an on-chain send "Bitcoin payment"', () => {
     const resolved = resolveRecipientDisplay({
       transaction: tx('bitcoin'),
     });
-    expect(resolved).toMatchObject({ type: 'bitcoin', displayName: LIGHTNING });
+    expect(resolved).toMatchObject({
+      asset: 'bitcoin',
+      displayName: LIGHTNING,
+    });
+  });
+
+  it('shows the dollar icon for a dollar-funded on-chain send', () => {
+    const resolved = resolveRecipientDisplay({
+      transaction: tx('bitcoin', { isLRC20Payment: true, LRC20Token: USDB }),
+    });
+    expect(resolved).toMatchObject({ asset: 'dollar', displayName: DOLLAR });
   });
 
   it('names the asset + chain for an external stablecoin, not the spark type', () => {
@@ -138,6 +159,6 @@ describe('resolveRecipientDisplay payment asset label', () => {
       contactInfo: { uuid: 'abc' },
       transaction: tx('bitcoin'),
     });
-    expect(resolved).toMatchObject({ kind: 'bitcoin', type: 'bitcoin' });
+    expect(resolved).toMatchObject({ kind: 'asset', asset: 'bitcoin' });
   });
 });

@@ -1,8 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useMemo } from 'react';
-import { Image } from 'expo-image';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../../../../constants';
+import { CENTER, FONT, SIZES } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import formatSparkPaymentAddress from '../functions/formatSparkPaymentAddress';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import {
   paymentAssetLabel,
   RecipientAvatar,
+  resolveAssetAvatar,
   resolveRecipientDisplay,
 } from './recipientCard';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
@@ -105,41 +105,17 @@ export default function InvoiceInfo({
         />
       </View>
     );
-  } else if (paymentType === 'lightning') {
+  } else if (paymentType === 'lightning' || paymentType === 'spark') {
+    // Same avatar the success screen uses, so the icon can't drift between the
+    // two screens.
     paymentContent = (
       <View style={styles.contactRow}>
-        <View
-          style={[styles.profileImage, { backgroundColor: backgroundColor }]}
-        >
-          <Image
-            style={[
-              styles.lightningIcon,
-              {
-                tintColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-            source={ICONS.lightningReceiveIcon}
-            contentFit="contain"
-          />
-        </View>
-        <ThemeText
-          styles={styles.addressText}
-          CustomNumberOfLines={1}
-          content={paymentAssetLabel({ isDollarBalance, isToken })}
-        />
-      </View>
-    );
-  } else if (paymentType === 'spark') {
-    paymentContent = (
-      <View style={styles.contactRow}>
-        <View
-          style={[styles.profileImage, { backgroundColor: backgroundColor }]}
-        >
-          <Image
-            style={[styles.sparkLogo]}
-            source={ICONS.sparkLogoLight}
-            contentFit="contain"
+        <View style={styles.avatarSpacing}>
+          <RecipientAvatar
+            resolved={resolveAssetAvatar({ isDollarBalance, isToken })}
+            theme={theme}
+            darkModeType={darkModeType}
+            backgroundColor={backgroundColor}
           />
         </View>
         <ThemeText
@@ -234,9 +210,9 @@ export default function InvoiceInfo({
       ) : (
         paymentContent
       )}
-      {isClickable && (
+      {/* {isClickable && (
         <ThemeIcon iconName="ChevronRight" size={20} styles={styles.chevron} />
-      )}
+      )} */}
     </Container>
   );
 }
@@ -277,11 +253,6 @@ const styles = StyleSheet.create({
   avatarSpacing: {
     marginRight: 10,
   },
-  lightningIcon: {
-    width: 24,
-    height: 24,
-  },
-  sparkLogo: { width: '100%', height: '100%' },
   addressText: {
     includeFontPadding: false,
     flexShrink: 1,

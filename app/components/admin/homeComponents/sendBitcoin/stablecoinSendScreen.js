@@ -784,11 +784,11 @@ export default function StablecoinSendScreen() {
                   content={`${truncateAddress(address)}`}
                 />
               </View>
-              <ThemeIcon
+              {/* <ThemeIcon
                 iconName="ChevronRight"
                 size={20}
                 styles={styles.destinationChevron}
-              />
+              /> */}
             </TouchableOpacity>
           )}
         </ScrollView>

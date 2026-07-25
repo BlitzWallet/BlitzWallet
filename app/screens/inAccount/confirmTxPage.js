@@ -217,11 +217,7 @@ export default function ConfirmTxPage(props) {
                 inputDenomination={paymentDisplay.denomination}
                 forceCurrency={paymentDisplay.forceCurrency}
                 forceFiatStats={paymentDisplay.forceFiatStats}
-                customCurrencyCode={
-                  token?.tokenMetadata?.tokenTicker === 'USDB'
-                    ? undefined
-                    : token?.tokenMetadata?.tokenTicker
-                }
+                customCurrencyCode={token?.tokenMetadata?.tokenTicker}
                 maxDecimals={
                   isLRC20Payment ? token?.tokenMetadata?.decimals ?? 0 : 2
                 }
