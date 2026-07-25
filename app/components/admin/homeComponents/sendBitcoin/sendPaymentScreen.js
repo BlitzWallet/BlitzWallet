@@ -252,6 +252,12 @@ export default function SendPaymentScreen(props) {
   const tokenDecimals = seletctedToken?.tokenMetadata?.decimals ?? 0;
   const tokenBalance = seletctedToken?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
+  // The ticker actually shown on this screen. USDB-funded sends that weren't
+  // picked through the token selector display as fiat, so the confirm screen
+  // must be told the label instead of re-deriving it from the tx's token info.
+  const displayTokenTicker = isUsingLRC20
+    ? seletctedToken?.tokenMetadata?.tokenTicker
+    : '';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
   const canEditAmount = paymentInfo?.canEditPayment === true;
@@ -1309,6 +1315,7 @@ export default function SendPaymentScreen(props) {
                     blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
+                    displayTokenTicker,
                   },
                 },
               ],
@@ -1339,6 +1346,7 @@ export default function SendPaymentScreen(props) {
                     blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
+                    displayTokenTicker,
                   },
                 },
               ],
@@ -1378,6 +1386,7 @@ export default function SendPaymentScreen(props) {
     fiatValueConvertedSendAmount,
     paymentValidation,
     displayAmount,
+    displayTokenTicker,
     selectedContactInfo,
   ]);
 
@@ -1507,9 +1516,7 @@ export default function SendPaymentScreen(props) {
                 forceCurrency={primaryDisplay.forceCurrency}
                 forceFiatStats={primaryDisplay.forceFiatStats}
                 activeOpacity={!sendingAmount ? 0.5 : 1}
-                customCurrencyCode={
-                  isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-                }
+                customCurrencyCode={displayTokenTicker}
                 maxDecimals={isUsingLRC20 ? tokenDecimals : 2}
               />
               {uiState === 'CONFIRM_PAYMENT' && !isUsingLRC20 && (

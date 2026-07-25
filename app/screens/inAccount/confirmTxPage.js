@@ -60,6 +60,9 @@ export default function ConfirmTxPage(props) {
   // The display currency the user entered/reviewed the payment in (e.g. EUR),
   // passed from the send screens so the success amount matches what they saw.
   const paymentDisplay = props.route.params?.paymentDisplay;
+  // Set only when the send screen actually labelled the amount with a token
+  // ticker. USDB-funded sends carry token info on the tx but were shown as fiat.
+  const displayTokenTicker = props.route.params?.displayTokenTicker;
 
   const didSucceed = !hasError || isLNURLAuth;
 
@@ -216,9 +219,9 @@ export default function ConfirmTxPage(props) {
                 inputDenomination={paymentDisplay.denomination}
                 forceCurrency={paymentDisplay.forceCurrency}
                 forceFiatStats={paymentDisplay.forceFiatStats}
-                customCurrencyCode={token?.tokenMetadata?.tokenTicker}
+                customCurrencyCode={displayTokenTicker}
                 maxDecimals={
-                  isLRC20Payment ? token?.tokenMetadata?.decimals ?? 0 : 2
+                  displayTokenTicker ? token?.tokenMetadata?.decimals ?? 0 : 2
                 }
               />
             ) : (

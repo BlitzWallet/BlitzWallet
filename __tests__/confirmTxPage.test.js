@@ -268,7 +268,7 @@ describe('ConfirmTxPage amount rendering', () => {
     expect(props.forceCurrency).toBe('EUR');
   });
 
-  test('uses token metadata for an LRC20 send rendered through FormattedBalanceInput', async () => {
+  test('uses the send screen ticker for an LRC20 send rendered through FormattedBalanceInput', async () => {
     mockSparkInformation = {
       tokens: {
         'token-id': { tokenMetadata: { tokenTicker: 'USDB', decimals: 6 } },
@@ -284,6 +284,7 @@ describe('ConfirmTxPage amount rendering', () => {
         },
       },
       displayAmount: '12.34',
+      displayTokenTicker: 'USDB',
       paymentDisplay: {
         denomination: 'fiat',
         forceCurrency: 'USD',
@@ -295,6 +296,37 @@ describe('ConfirmTxPage amount rendering', () => {
     expect(props).not.toBeNull();
     expect(props.customCurrencyCode).toBe('USDB');
     expect(props.maxDecimals).toBe(6);
+  });
+
+  test('keeps the fiat display for a USDB-funded send the send screen showed as fiat', async () => {
+    mockSparkInformation = {
+      tokens: {
+        'token-id': { tokenMetadata: { tokenTicker: 'USDB', decimals: 6 } },
+      },
+    };
+    const renderer = await renderConfirm({
+      transaction: {
+        details: {
+          amount: 5000,
+          direction: 'OUTGOING',
+          isLRC20Payment: true,
+          LRC20Token: 'token-id',
+        },
+      },
+      displayAmount: '12.34',
+      // no displayTokenTicker: the send screen labelled this one "$"
+      paymentDisplay: {
+        denomination: 'fiat',
+        forceCurrency: 'USD',
+        forceFiatStats: null,
+      },
+    });
+
+    const props = balanceInputProps(renderer);
+    expect(props).not.toBeNull();
+    expect(props.customCurrencyCode).toBeFalsy();
+    expect(props.forceCurrency).toBe('USD');
+    expect(props.maxDecimals).toBe(2);
   });
 });
 
