@@ -502,6 +502,7 @@ export default function StablecoinSendScreen() {
                   transaction: pendingTx,
                   paymentDisplay: primaryDisplayRef.current,
                   displayAmount: rawInput,
+                  stablecoinInfo: { asset, label: chainLabel },
                 },
               },
             ],
@@ -528,6 +529,7 @@ export default function StablecoinSendScreen() {
                   error: err.message,
                   lnurlAddress: undefined,
                   blitzContactInfo: undefined,
+                  stablecoinInfo: { asset, label: chainLabel },
                 },
               },
             ],
@@ -553,6 +555,8 @@ export default function StablecoinSendScreen() {
     clearCountdown,
     t,
     rawInput,
+    chainLabel,
+    asset,
   ]);
 
   const handleEmoji = newDescription => {
@@ -780,11 +784,11 @@ export default function StablecoinSendScreen() {
                   content={`${truncateAddress(address)}`}
                 />
               </View>
-              <ThemeIcon
+              {/* <ThemeIcon
                 iconName="ChevronRight"
                 size={20}
                 styles={styles.destinationChevron}
-              />
+              /> */}
             </TouchableOpacity>
           )}
         </ScrollView>
@@ -926,20 +930,22 @@ const styles = StyleSheet.create({
     width: '80%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     padding: 12,
     borderRadius: 16,
     ...CENTER,
     marginTop: 30,
   },
   destinationContent: {
-    flexShrink: 1,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   destinationChevron: {
     opacity: 0.8,
-    marginLeft: 8,
+    position: 'absolute',
+    right: 12,
   },
   receiveAmount: {
     opacity: HIDDEN_OPACITY,
@@ -953,6 +959,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   quoteValue: {
+    flexShrink: 1,
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },

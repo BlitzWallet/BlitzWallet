@@ -4,6 +4,7 @@ import getPhonePaymentAddress, {
   getPhonePaymentCountry,
   canonicalizePhonePaymentAddress,
   getPhonePostProvider,
+  getPhonePaymentDisplay,
   fetchPhonePaymentInvoice,
   PROVIDER_COUNTRY_CURRENCY,
 } from '../../../app/functions/sendBitcoin/getPhonePaymentAddress';
@@ -333,5 +334,33 @@ describe('fetchPhonePaymentInvoice', () => {
       json: async () => ({ success: true }),
     });
     await expect(fetchPhonePaymentInvoice(args)).rejects.toThrow();
+  });
+});
+
+describe('getPhonePaymentDisplay', () => {
+  it('returns iso code + international-formatted number for a KE provider address', () => {
+    expect(getPhonePaymentDisplay(KE)).toEqual({
+      isoCode: 'KE',
+      formatted: '+254 717 252303',
+    });
+  });
+
+  it('formats a ZM address whose local part is national (0977…)', () => {
+    const res = getPhonePaymentDisplay('0977123456@bitzed.xyz');
+    expect(res.isoCode).toBe('ZM');
+    expect(res.formatted.startsWith('+260')).toBe(true);
+  });
+
+  it('handles a POST-provider (Burundi) address', () => {
+    expect(getPhonePaymentDisplay('25779561234@exchanger.mysatoshis.bi').isoCode).toBe('BI');
+  });
+
+  it('returns null for a non-phone lightning address', () => {
+    expect(getPhonePaymentDisplay('satoshi@walletofsatoshi.com')).toBeNull();
+  });
+
+  it('returns null for non-string / malformed input', () => {
+    expect(getPhonePaymentDisplay(undefined)).toBeNull();
+    expect(getPhonePaymentDisplay('no-at-sign')).toBeNull();
   });
 });

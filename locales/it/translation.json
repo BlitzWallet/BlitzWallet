@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Aggiungi fondi al tuo wallet",
       "onChainBitcoin": "Deposita Bitcoin",
       "onChainBitcoinSubtitle": "Ricevi tramite indirizzo on-chain",
+      "depositTokens": "Deposita token",
       "stablecoins": "Deposita dollari",
       "stablecoinsSubtitle": "Deposita dollari nel tuo wallet",
       "cashAppSubtitle": "Invia da Cash App istantaneamente",
@@ -1061,8 +1062,7 @@
       "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo.",
       "depositQRInstruction_spark_tokens": "Invia token a questo indirizzo.",
       "depositMinimumStablecoin": "I pagamenti devono essere di almeno {{amount}}",
-      "depositFeeText_network": "Commissioni di rete",
-      "depositFeeText_conversion": "Commissione di conversione",
+      "depositFeeText": "Dettagli delle commissioni",
       "depositFeePopup_bitcoin": "I Bitcoin inviati a questo indirizzo comportano una piccola commissione di rete per la ricezione. La commissione viene detratta dall'importo ricevuto, quindi il saldo potrebbe risultare leggermente inferiore rispetto all'importo inviato.",
       "depositFeePopup_liquid": "I Liquid Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione{{feeDisplay}}, detratta dall'importo ricevuto.",
       "depositFeePopup_rootstock": "I Rootstock Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione, detratta dall'importo ricevuto.",
@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Reinserisci importo",
         "feeEstimateError": "Impossibile stimare la commissione, riprova",
         "brantaVerification": "Questo pagamento è stato verificato da Branta",
-        "lightningPayment": "Pagamento Bitcoin"
+        "lightningPayment": "Pagamento Bitcoin",
+        "dollarPayment": "Pagamento in dollari",
+        "tokenPayment": "Pagamento con token"
       },
       "selectPaymentMethod": {
         "header": "Seleziona come desideri finanziare il pagamento."
@@ -2153,15 +2155,18 @@
       "confirmTxPage": {
         "failedToSend": "Invio fallito",
         "paymentErrorMessage": "C'è stato un problema nell'inviare questo pagamento, riprova.",
-        "sendReport": "Invia report allo sviluppatore",
+        "sendReport": "Segnala un problema",
+        "lnurlAuthSuccess": "Hai effettuato l'accesso e sei pronto.",
+        "walletConnected": "Wallet connesso",
         "emailReport": "Invia via email",
         "copyReport": "Copia negli appunti",
         "confirmMessage_sent": "Inviato con successo",
         "confirmMessage_received": "Ricevuto con successo",
         "confirmMessage": "{{direction}} con successo",
-        "lnurlAuthSuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso.",
         "bulkSuccess": "Richieste inviate con successo",
-        "bulkPartialSuccess": "Nessuna richiesta inviata"
+        "bulkPartialSuccess": "Nessuna richiesta inviata",
+        "sendingInProgress": "Il tuo pagamento è stato inviato. Attendi mentre viene confermato.",
+        "stablecoinDesc": "{{asset}} su {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_received": "Importo ricevuto",

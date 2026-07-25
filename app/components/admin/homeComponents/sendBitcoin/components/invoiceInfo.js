@@ -1,8 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useMemo } from 'react';
-import { Image } from 'expo-image';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../../../../constants';
+import { CENTER, FONT, SIZES } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import formatSparkPaymentAddress from '../functions/formatSparkPaymentAddress';
 import { useNavigation } from '@react-navigation/native';
@@ -10,24 +9,14 @@ import { InputTypes } from 'bitcoin-address-parser';
 import ContactProfileImage from '../../contacts/internalComponents/profileImage';
 import normalizeLNURLAddress from '../../../../../functions/lnurl/normalizeLNURLAddress';
 import ProfileImageRow from '../../contacts/internalComponents/profileImageRow';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
-
-// LNURL/lightning-address domain → ICONS key for the provider brand logo.
-const LNURL_PROVIDER_ICONS = {
-  'aqua.net': 'aqua',
-  'blink.sv': 'blink',
-  'breez.tips': 'breez',
-  'cake.cash': 'cake',
-  'coinos.io': 'coinos',
-  'mannabitcoin.com': 'mannabitcoin',
-  'cluborange.org': 'cluborange',
-  'strike.me': 'strike',
-  'tether.me': 'tether',
-  'walletofsatoshi.com': 'walletofsatoshi',
-  'zeuspay.com': 'zeuspay',
-};
+import {
+  paymentAssetLabel,
+  RecipientAvatar,
+  resolveAssetAvatar,
+  resolveRecipientDisplay,
+} from './recipientCard';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function InvoiceInfo({
   paymentInfo,
@@ -38,13 +27,17 @@ export default function InvoiceInfo({
   isSplitPayment,
   splitRecipients = [],
   isUsingBranta,
+  isDollarBalance,
+  isToken,
 }) {
   const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
     paymentInfo,
     undefined,
     true,
   );
-  const { t } = useTranslation();
+  // Labels come from `i18next.t` inside recipientCard, which doesn't subscribe
+  // this component to language changes — the hook does.
+  useTranslation();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
   const splitContacts = splitRecipients?.map(({ contact }) => contact);
@@ -60,23 +53,21 @@ export default function InvoiceInfo({
     !isSplitPayment &&
     fromPage !== 'contacts' &&
     !isLNURLPay &&
-    paymentType !== 'lightning';
+    paymentType !== 'lightning' &&
+    paymentType !== 'spark';
   const isClickable = !isSplitPayment && !showsFullAddress;
 
-  // LNURL: resolve the human-readable "user@host", match the host to a provider
-  // logo, and drop "@host" when we have a logo (the logo conveys the provider).
+  // LNURL: resolve the human-readable "user@host". The shared resolver picks the
+  // provider brand logo, a mobile-money country flag + formatted phone number, or
+  // the plain address, so the pre-send and post-send screens stay in sync.
   const normalizedLNURL = isLNURLPay
     ? normalizeLNURLAddress(paymentInfo?.data?.address) ??
       paymentInfo?.data?.address ??
       ''
     : '';
-  const lnurlDomain = normalizedLNURL.includes('@')
-    ? normalizedLNURL.split('@')[1]?.toLowerCase()
-    : '';
-  const providerIconKey = LNURL_PROVIDER_ICONS[lnurlDomain];
-  const lnurlDisplayText = providerIconKey
-    ? normalizedLNURL.split('@')[0]
-    : normalizedLNURL;
+  const lnurlResolved = isLNURLPay
+    ? resolveRecipientDisplay({ lnurlAddress: normalizedLNURL })
+    : null;
 
   // On-chain / spark addresses: 4-char groups with alternating weight for
   // easy visual validation (mirrors depositQRView).
@@ -99,63 +90,44 @@ export default function InvoiceInfo({
   if (isLNURLPay) {
     paymentContent = (
       <View style={styles.contactRow}>
-        <View
-          style={[
-            styles.profileImage,
-            providerIconKey
-              ? styles.providerLogoCircle
-              : { backgroundColor: backgroundColor },
-          ]}
-        >
-          {providerIconKey ? (
-            <Image
-              style={styles.providerLogo}
-              source={ICONS[providerIconKey]}
-              contentFit="contain"
-            />
-          ) : (
-            <ContactProfileImage
-              updated={undefined}
-              uri={undefined}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          )}
-        </View>
-        <ThemeText
-          styles={styles.addressText}
-          CustomNumberOfLines={1}
-          content={lnurlDisplayText}
-        />
-      </View>
-    );
-  } else if (paymentType === 'lightning') {
-    paymentContent = (
-      <View style={styles.contactRow}>
-        <View
-          style={[styles.profileImage, { backgroundColor: backgroundColor }]}
-        >
-          <Image
-            style={[
-              styles.lightningIcon,
-              {
-                tintColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-            source={ICONS.lightningReceiveIcon}
-            contentFit="contain"
+        <View style={styles.avatarSpacing}>
+          <RecipientAvatar
+            resolved={lnurlResolved}
+            theme={theme}
+            darkModeType={darkModeType}
+            backgroundColor={backgroundColor}
           />
         </View>
         <ThemeText
           styles={styles.addressText}
           CustomNumberOfLines={1}
-          content={t('wallet.sendPages.sendPaymentScreen.lightningPayment')}
+          content={lnurlResolved?.displayName}
+        />
+      </View>
+    );
+  } else if (paymentType === 'lightning' || paymentType === 'spark') {
+    // Same avatar the success screen uses, so the icon can't drift between the
+    // two screens.
+    paymentContent = (
+      <View style={styles.contactRow}>
+        <View style={styles.avatarSpacing}>
+          <RecipientAvatar
+            resolved={resolveAssetAvatar({ isDollarBalance, isToken })}
+            theme={theme}
+            darkModeType={darkModeType}
+            backgroundColor={backgroundColor}
+          />
+        </View>
+        <ThemeText
+          styles={styles.addressText}
+          CustomNumberOfLines={1}
+          content={paymentAssetLabel({ isDollarBalance, isToken })}
         />
       </View>
     );
   } else {
-    // bitcoin / spark / lrc20
+    // bitcoin / spark / lrc20: show the full address so the user can verify it
+    // against what they scanned/pasted before signing.
     paymentContent = (
       <ThemeText
         styles={styles.segmentText}
@@ -278,17 +250,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginRight: 10,
   },
-  providerLogoCircle: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.gray,
-  },
-  providerLogo: {
-    width: '100%',
-    height: '100%',
-  },
-  lightningIcon: {
-    width: 24,
-    height: 24,
+  avatarSpacing: {
+    marginRight: 10,
   },
   addressText: {
     includeFontPadding: false,

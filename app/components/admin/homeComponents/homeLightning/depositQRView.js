@@ -293,7 +293,7 @@ export default function DepositQRView({
             })})`
           : '';
       return {
-        label: t('wallet.halfModal.depositFeeText_network'),
+        label: t('wallet.halfModal.depositFeeText'),
         explanation: t(`wallet.halfModal.depositFeePopup_${option}`, {
           feeDisplay,
         }),
@@ -301,7 +301,7 @@ export default function DepositQRView({
     }
     if (option === 'stablecoins') {
       return {
-        label: t('wallet.halfModal.depositFeeText_conversion'),
+        label: t('wallet.halfModal.depositFeeText'),
         explanation: t('wallet.halfModal.depositFeePopup_stablecoins'),
       };
     }
@@ -426,11 +426,13 @@ export default function DepositQRView({
           {feeInfo && (
             <TouchableOpacity
               style={{
+                maxWidth: qrInnerSize,
                 paddingBottom: 12.5,
                 justifyContent: 'center',
                 alignItems: 'center',
                 gap: 5,
                 flexDirection: 'row',
+                ...CENTER,
               }}
               onPress={() =>
                 navigate.navigate('InformationPopup', {
@@ -518,8 +520,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   feeText: {
+    flexShrink: 1,
     fontSize: SIZES.small,
     includeFontPadding: false,
+    textAlign: 'center',
   },
   addressHeaderRow: {
     flexDirection: 'row',

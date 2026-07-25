@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Agrega fondos a tu billetera",
       "onChainBitcoin": "Depositar Bitcoin",
       "onChainBitcoinSubtitle": "Recibir mediante dirección on-chain",
+      "depositTokens": "Depositar tokens",
       "stablecoins": "Depositar dólares",
       "stablecoinsSubtitle": "Deposita dólares en tu billetera",
       "cashAppSubtitle": "Enviar desde Cash App al instante",
@@ -1061,8 +1062,7 @@
       "depositQRInstruction_spark_dollars": "Envía USDB a esta dirección.",
       "depositQRInstruction_spark_tokens": "Envía tokens a esta dirección.",
       "depositMinimumStablecoin": "Los pagos deben ser de al menos {{amount}}",
-      "depositFeeText_network": "Comisiones de red",
-      "depositFeeText_conversion": "Comisión de conversión",
+      "depositFeeText": "Detalles de la comisión",
       "depositFeePopup_bitcoin": "Los Bitcoin enviados a esta dirección tendrán una pequeña comisión de red por su recepción. La comisión se deduce del importe recibido, por lo que tu saldo puede ser ligeramente inferior a la cantidad enviada.",
       "depositFeePopup_liquid": "El Liquid Bitcoin enviado a esta dirección se cambia por Bitcoin que tu billetera puede usar. El cambio tiene una pequeña comisión{{feeDisplay}}, que se descuenta del monto que recibes.",
       "depositFeePopup_rootstock": "El Rootstock Bitcoin enviado a esta dirección se cambia por Bitcoin que tu billetera puede usar. El cambio tiene una pequeña comisión, que se descuenta del monto que recibes.",
@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Volver a ingresar el monto",
         "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo",
         "brantaVerification": "Este pago ha sido verificado por Branta",
-        "lightningPayment": "Pago Bitcoin"
+        "lightningPayment": "Pago Bitcoin",
+        "dollarPayment": "Pago en dólares",
+        "tokenPayment": "Pago con token"
       },
       "selectPaymentMethod": {
         "header": "Selecciona cómo deseas financiar tu pago."
@@ -2153,15 +2155,18 @@
       "confirmTxPage": {
         "failedToSend": "Error al enviar",
         "paymentErrorMessage": "Hubo un problema al enviar este pago, por favor intenta de nuevo.",
-        "sendReport": "Enviar informe al desarrollador",
+        "sendReport": "Informar de un problema",
+        "lnurlAuthSuccess": "Has iniciado sesión y todo está listo.",
+        "walletConnected": "Billetera conectada",
         "emailReport": "Enviar por correo electrónico",
         "copyReport": "Copiar al portapapeles",
         "confirmMessage_sent": "Enviado correctamente",
         "confirmMessage_received": "Recibido correctamente",
         "confirmMessage": "{{direction}} exitosamente",
-        "lnurlAuthSuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión.",
         "bulkSuccess": "Solicitudes enviadas correctamente",
-        "bulkPartialSuccess": "No se enviaron solicitudes"
+        "bulkPartialSuccess": "No se enviaron solicitudes",
+        "sendingInProgress": "Tu pago ha sido enviado. Espera mientras se confirma.",
+        "stablecoinDesc": "{{asset}} en {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Cantidad enviada",

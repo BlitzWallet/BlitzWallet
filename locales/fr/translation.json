@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Ajoutez des fonds à votre portefeuille",
       "onChainBitcoin": "Déposer du Bitcoin",
       "onChainBitcoinSubtitle": "Recevoir via une adresse on-chain",
+      "depositTokens": "Déposer des jetons",
       "stablecoins": "Déposer des dollars",
       "stablecoinsSubtitle": "Déposez des dollars dans votre portefeuille",
       "cashAppSubtitle": "Envoyer depuis Cash App instantanément",
@@ -1061,8 +1062,7 @@
       "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse.",
       "depositQRInstruction_spark_tokens": "Envoyez des jetons à cette adresse.",
       "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}",
-      "depositFeeText_network": "Frais de réseau",
-      "depositFeeText_conversion": "Frais de conversion",
+      "depositFeeText": "Détails des frais",
       "depositFeePopup_bitcoin": "Les bitcoins envoyés à cette adresse entraînent de faibles frais de réseau à la réception. Ces frais sont déduits du montant reçu ; votre solde peut donc être légèrement inférieur au montant envoyé.",
       "depositFeePopup_liquid": "Le Liquid Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais{{feeDisplay}}, déduits du montant reçu.",
       "depositFeePopup_rootstock": "Le Rootstock Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais, déduits du montant reçu.",
@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Ressaisir le montant",
         "feeEstimateError": "Impossible d’estimer les frais, veuillez réessayer",
         "brantaVerification": "Ce paiement a été vérifié par Branta",
-        "lightningPayment": "Paiement Bitcoin"
+        "lightningPayment": "Paiement Bitcoin",
+        "dollarPayment": "Paiement en dollars",
+        "tokenPayment": "Paiement en jetons"
       },
       "selectPaymentMethod": {
         "header": "Veuillez sélectionner comment vous souhaitez financer votre paiement."
@@ -2154,14 +2156,17 @@
         "failedToSend": "Échec de l'envoi",
         "confirmMessage": "{{direction}} avec succès",
         "paymentErrorMessage": "Il y a eu un problème lors de l'envoi de ce paiement, veuillez réessayer.",
-        "sendReport": "Envoyer le rapport au développeur",
-        "lnurlAuthSuccess": "Authentification du portefeuille réussie ! Vous êtes maintenant connecté.",
+        "sendReport": "Signaler un problème",
+        "lnurlAuthSuccess": "Vous êtes connecté et prêt à continuer.",
+        "walletConnected": "Portefeuille connecté",
         "emailReport": "Envoyer par courriel",
         "copyReport": "Copier dans le presse-papiers",
         "confirmMessage_sent": "Envoyé avec succès",
         "confirmMessage_received": "Reçu avec succès",
         "bulkSuccess": "Demandes envoyées avec succès",
-        "bulkPartialSuccess": "Aucune demande envoyée"
+        "bulkPartialSuccess": "Aucune demande envoyée",
+        "sendingInProgress": "Votre paiement a été envoyé. Veuillez patienter pendant sa confirmation.",
+        "stablecoinDesc": "{{asset}} sur {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Montant envoyé",

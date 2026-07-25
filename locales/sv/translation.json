@@ -1025,6 +1025,7 @@
       "depositFundsSubtitle": "Lägg till pengar i din plånbok",
       "onChainBitcoin": "Sätt in Bitcoin",
       "onChainBitcoinSubtitle": "Ta emot via on-chain-adress",
+      "depositTokens": "Sätt in token",
       "stablecoins": "Sätt in dollar",
       "stablecoinsSubtitle": "Sätt in dollar i din plånbok",
       "cashAppSubtitle": "Skicka från Cash App direkt",
@@ -1061,8 +1062,7 @@
       "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress.",
       "depositQRInstruction_spark_tokens": "Skicka token till den här adressen.",
       "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}",
-      "depositFeeText_network": "Nätverksavgifter",
-      "depositFeeText_conversion": "Växlingsavgift",
+      "depositFeeText": "Avgiftsinformation",
       "depositFeePopup_bitcoin": "Bitcoin som skickas till den här adressen medför en liten nätverksavgift för att tas emot. Avgiften dras av från beloppet du får, så ditt saldo kan bli något lägre än det skickade beloppet.",
       "depositFeePopup_liquid": "Liquid Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift{{feeDisplay}}, som dras från beloppet du tar emot.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift, som dras från beloppet du tar emot.",
@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Ange belopp igen",
         "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen",
         "brantaVerification": "Denna betalning har verifierats av Branta",
-        "lightningPayment": "Bitcoin-betalning"
+        "lightningPayment": "Bitcoin-betalning",
+        "dollarPayment": "Dollarbetalning",
+        "tokenPayment": "Tokenbetalning"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."
@@ -2154,14 +2156,17 @@
         "failedToSend": "Misslyckades med att skicka",
         "confirmMessage": "{{direction}} framgångsrikt",
         "paymentErrorMessage": "Det uppstod ett problem med att skicka betalningen, vänligen försök igen.",
-        "sendReport": "Skicka rapporten till utvecklaren",
-        "lnurlAuthSuccess": "Plånboksautentisering framgångsrik! Du är nu inloggad.",
+        "sendReport": "Rapportera ett problem",
+        "lnurlAuthSuccess": "Du är inloggad och redo att köra.",
+        "walletConnected": "Plånbok ansluten",
         "emailReport": "Skicka via e-post",
         "copyReport": "Kopiera till Urklipp",
         "confirmMessage_sent": "Skickat framgångsrikt",
         "confirmMessage_received": "Mottaget framgångsrikt",
         "bulkSuccess": "Förfrågningar skickades",
-        "bulkPartialSuccess": "Inga förfrågningar skickades"
+        "bulkPartialSuccess": "Inga förfrågningar skickades",
+        "sendingInProgress": "Din betalning har skickats. Vänta medan den bekräftas.",
+        "stablecoinDesc": "{{asset}} på {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Utskickat belopp",
