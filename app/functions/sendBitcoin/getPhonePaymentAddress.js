@@ -62,6 +62,30 @@ export function getPhonePaymentCountry(address) {
   return match ? match[0] : null;
 }
 
+// Human-readable display for a phone-payment provider address (either LNURL or
+// POST provider). Returns the provider country iso code (for a flag) and the
+// phone number in international format, or null for non-phone addresses. The
+// local part is national for some providers (ZM -> 0977…), so we parse trying
+// the international form first, then the resolved country.
+export function getPhonePaymentDisplay(address) {
+  const isoCode = getPhonePaymentCountry(address);
+  if (!isoCode) return null;
+  const local = address.slice(0, address.indexOf('@'));
+  const attempts = [
+    [local.startsWith('+') ? local : `+${local}`, undefined],
+    [local, isoCode],
+  ];
+  for (const [value, defaultCountry] of attempts) {
+    try {
+      const parsed = parsePhoneNumberWithError(value, defaultCountry);
+      if (parsed.isValid()) {
+        return { isoCode, formatted: parsed.formatInternational() };
+      }
+    } catch {}
+  }
+  return { isoCode, formatted: local };
+}
+
 // Returns the provider lightning addresses the input is valid for, in
 // PHONE_PAYMENT_PROVIDERS order (KE before ZM). Accepts national or
 // international input. A bare national number in the overlapping 075/076/077

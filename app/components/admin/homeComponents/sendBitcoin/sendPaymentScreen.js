@@ -217,6 +217,11 @@ export default function SendPaymentScreen(props) {
     ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
     : 'Bitcoin';
 
+  const selectedContactInfo = contactInfo || paymentInfo?.blitzContactInfo;
+
+  // Intentionally keyed off `contactInfo` only: including blitzContactInfo here
+  // would swap the token selector for the BTC/USD chooser and unpin the payment
+  // method for @username sends. Display is handled by the InvoiceInfo props.
   const useFullTokensDisplay =
     enabledLRC20 &&
     isSparkPayment &&
@@ -1301,7 +1306,7 @@ export default function SendPaymentScreen(props) {
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
-                    blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
                   },
@@ -1331,7 +1336,7 @@ export default function SendPaymentScreen(props) {
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
-                    blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
                   },
@@ -1373,6 +1378,7 @@ export default function SendPaymentScreen(props) {
     fiatValueConvertedSendAmount,
     paymentValidation,
     displayAmount,
+    selectedContactInfo,
   ]);
 
   const handleSelectPaymentMethod = useCallback(
@@ -1549,13 +1555,16 @@ export default function SendPaymentScreen(props) {
           {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
-              contactInfo={contactInfo || paymentInfo?.blitzContactInfo}
-              fromPage={
-                fromPage || (paymentInfo?.blitzContactInfo ? 'contacts' : '')
-              }
+              contactInfo={selectedContactInfo}
+              fromPage={fromPage || (selectedContactInfo ? 'contacts' : '')}
               theme={theme}
               darkModeType={darkModeType}
               isUsingBranta={isUsingBranta}
+              isDollarBalance={
+                resolvedPaymentMethod === 'USD' ||
+                selectedLRC20Asset === USDB_TOKEN_ID
+              }
+              isToken={isUsingLRC20 && selectedLRC20Asset !== USDB_TOKEN_ID}
             />
           )}
           {uiState === 'CHOOSE_METHOD' && (

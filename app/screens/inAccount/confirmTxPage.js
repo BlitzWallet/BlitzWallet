@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -20,29 +20,28 @@ import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
 import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
-import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
-import { useGlobalContextProvider } from '../../../context-store/context';
-import { useNodeContext } from '../../../context-store/nodeContext';
 import customUUID from '../../functions/customUUID';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { getSingleContact } from '../../../db';
 import { getCachedProfileImage } from '../../functions/cachedImage';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
 import { isBlitzLNURLAddress } from '../../functions/lnurl';
 import { canonicalizePhonePaymentAddress } from '../../functions/sendBitcoin/getPhonePaymentAddress';
 import FormattedBalanceInput from '../../functions/CustomElements/formattedBalanceInput';
+import {
+  RecipientAvatar,
+  resolveRecipientDisplay,
+} from '../../components/admin/homeComponents/sendBitcoin/components/recipientCard';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
   const { sparkInformation } = useSparkWallet();
   const { screenDimensions } = useAppStatus();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
   const { showToast } = useToast();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
   const { t } = useTranslation();
@@ -57,6 +56,7 @@ export default function ConfirmTxPage(props) {
   const lnurlUsername = lnurlAddress?.split('@')[0]?.toLowerCase();
   const blitzContactInfo = props.route.params?.blitzContactInfo;
   const displayAmount = props.route.params?.displayAmount;
+  const stablecoinInfo = props.route.params?.stablecoinInfo;
   // The display currency the user entered/reviewed the payment in (e.g. EUR),
   // passed from the send screens so the success amount matches what they saw.
   const paymentDisplay = props.route.params?.paymentDisplay;
@@ -87,18 +87,39 @@ export default function ConfirmTxPage(props) {
   const showAddBlitzContact =
     didSucceed && !isLNURLAuth && blitzContactInfo && !isAlreadyBlitzContact;
 
-  const paymentNetwork = paymentInformation?.sendingUUID
-    ? t('screens.inAccount.expandedTxPage.contactPaymentType')
-    : paymentInformation?.isGift
-    ? t('constants.gift')
-    : transaction?.paymentType;
+  // Only on-chain and cross-chain stablecoin sends actually leave the user
+  // waiting — a lightning tx is written 'pending' but settles immediately.
+  const showPendingMessage =
+    transaction?.paymentStatus === 'pending' &&
+    (paymentInformation?.isFlashnetStablecoin ||
+      transaction?.paymentType === 'bitcoin');
 
-  const showPendingMessage = transaction?.paymentStatus === 'pending';
-  const isFlashnetStablecoinPending =
-    paymentInformation?.isFlashnetStablecoin &&
-    transaction?.paymentStatus === 'pending';
+  // Recipient "name card": show a real avatar (branta logo, LNURL provider logo,
+  // contact image, or mobile-money country flag) + name for single-recipient sends.
+  // All the data is already in the route params / tx details — no extra wiring.
+  const recipientResolved = resolveRecipientDisplay({
+    lnurlAddress,
+    contactInfo: blitzContactInfo,
+    brantaName: paymentInformation?.brantaMerchantName,
+    brantaLogo: paymentInformation?.brantaMerchantLogo,
+    transaction,
+    stablecoinInfo,
+  });
+  const showRecipientCard = !isLNURLAuth && !!recipientResolved;
 
-  const paymentFee = paymentInformation?.fee;
+  const statusSubtitle = isLNURLAuth
+    ? t('screens.inAccount.confirmTxPage.lnurlAuthSuccess')
+    : !didSucceed
+    ? t('screens.inAccount.confirmTxPage.failedToSend')
+    : showPendingMessage
+    ? t('screens.inAccount.confirmTxPage.sendingInProgress')
+    : t('screens.inAccount.confirmTxPage.confirmMessage', {
+        context:
+          paymentInformation.direction?.toLowerCase() === 'outgoing'
+            ? 'sent'
+            : 'received',
+      });
+  const buttonText = t('constants.done');
 
   const errorMessage = hasError || t('errormessages.genericError');
 
@@ -131,102 +152,7 @@ export default function ConfirmTxPage(props) {
   useEffect(() => {
     animationRef.current?.play();
   }, []);
-
-  if (isFlashnetStablecoinPending) {
-    return (
-      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
-        <LottieView
-          ref={animationRef}
-          source={didSucceed ? confirmAnimation : errorAnimation}
-          loop={false}
-          style={{
-            width: screenDimensions.width / 1.5,
-            height: screenDimensions.width / 1.5,
-            maxWidth: 400,
-            maxHeight: 400,
-          }}
-        />
-        <ThemeText
-          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
-          content={t('wallet.stablecoinSend.swapInProgress')}
-        />
-        <ThemeText
-          styles={{
-            opacity: HIDDEN_OPACITY,
-            width: '95%',
-            maxWidth: 300,
-            textAlign: 'center',
-            marginBottom: 50,
-            fontSize: SIZES.smedium,
-          }}
-          content={t('wallet.stablecoinSend.swapInProgressDescription')}
-        />
-        <View style={styles.paymentTable}>
-          <View style={styles.paymentTableRow}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.labelText}
-              content={t('constants.fee')}
-            />
-            <ThemeText
-              content={displayCorrectDenomination({
-                amount: paymentFee,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: paymentDisplay?.denomination
-                    ? paymentDisplay.denomination
-                    : masterInfoObject.userBalanceDenomination,
-                },
-                fiatStats: paymentDisplay?.paymentDisplay
-                  ? paymentDisplay.forceFiatStats
-                  : fiatStats,
-                forceCurrency: paymentDisplay?.forceCurrency
-                  ? paymentDisplay.forceCurrency
-                  : undefined,
-              })}
-            />
-          </View>
-          <View style={styles.paymentTableRow}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.labelText}
-              content={t('constants.type')}
-            />
-            <ThemeText
-              styles={{ textTransform: 'capitalize' }}
-              content={t('screens.inAccount.expandedTxPage.chainSwap', {
-                context:
-                  paymentInformation.destinationChain === 'lightning'
-                    ? 'lightning'
-                    : 'other',
-              })}
-            />
-          </View>
-        </View>
-
-        <CustomButton
-          buttonStyles={{
-            width: INSET_WINDOW_WIDTH,
-            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
-            marginTop: 'auto',
-            paddingHorizontal: 15,
-          }}
-          textStyles={{
-            ...styles.buttonText,
-            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          actionFunction={() => {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                navigate.popToTop();
-              });
-            });
-          }}
-          textContent={t('constants.continue')}
-        />
-      </GlobalThemeView>
-    );
-  }
+  console.log(displayAmount, paymentDisplay, token);
 
   if (props.route.params?.isSplitPayment && props.route.params?.isRequset) {
     return (
@@ -272,204 +198,119 @@ export default function ConfirmTxPage(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
-      <LottieView
-        ref={animationRef}
-        source={didSucceed ? confirmAnimation : errorAnimation}
-        loop={false}
-        style={{
-          width: screenDimensions.width / 1.5,
-          height: screenDimensions.width / 1.5,
-          maxWidth: 400,
-          maxHeight: 400,
-        }}
-      />
-      {!isLNURLAuth && (
-        <ThemeText
-          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
-          content={
-            !didSucceed
-              ? t('screens.inAccount.confirmTxPage.failedToSend')
-              : t('screens.inAccount.confirmTxPage.confirmMessage', {
-                  context:
-                    paymentInformation.direction?.toLowerCase() === 'outgoing'
-                      ? 'sent'
-                      : 'received',
-                })
-          }
+      <View style={styles.contentContainer}>
+        <LottieView
+          ref={animationRef}
+          source={didSucceed ? confirmAnimation : errorAnimation}
+          loop={false}
+          style={{
+            width: 125,
+            height: 125,
+          }}
         />
-      )}
+        {(didSucceed || amount > 0) && !isLNURLAuth && (
+          <View style={{ marginBottom: 10 }}>
+            {displayAmount && paymentDisplay ? (
+              <FormattedBalanceInput
+                maxWidth={0.7}
+                amountValue={displayAmount}
+                inputDenomination={paymentDisplay.denomination}
+                forceCurrency={paymentDisplay.forceCurrency}
+                forceFiatStats={paymentDisplay.forceFiatStats}
+                customCurrencyCode={
+                  token?.tokenMetadata?.tokenTicker === 'USDB'
+                    ? undefined
+                    : token?.tokenMetadata?.tokenTicker
+                }
+                maxDecimals={
+                  isLRC20Payment ? token?.tokenMetadata?.decimals ?? 0 : 2
+                }
+              />
+            ) : (
+              <FormattedSatText
+                styles={{
+                  fontSize: 45,
+                  includeFontPadding: false,
+                }}
+                neverHideBalance={true}
+                balance={isLRC20Payment ? formattedTokensBalance : amount}
+                useCustomLabel={isLRC20Payment}
+                customLabel={token?.tokenMetadata?.tokenTicker}
+                useMillionDenomination={true}
+                globalBalanceDenomination={
+                  paymentDisplay && !isLRC20Payment
+                    ? paymentDisplay.denomination
+                    : undefined
+                }
+                forceCurrency={
+                  paymentDisplay && !isLRC20Payment
+                    ? paymentDisplay.forceCurrency
+                    : null
+                }
+                forceFiatStats={
+                  paymentDisplay && !isLRC20Payment
+                    ? paymentDisplay.forceFiatStats
+                    : null
+                }
+              />
+            )}
+          </View>
+        )}
 
-      {didSucceed && !isLNURLAuth && (
-        <View style={{ marginBottom: 10 }}>
-          {displayAmount && paymentDisplay ? (
-            <FormattedBalanceInput
-              maxWidth={0.7}
-              amountValue={displayAmount}
-              inputDenomination={paymentDisplay.denomination}
-              forceCurrency={paymentDisplay.forceCurrency}
-              forceFiatStats={paymentDisplay.forceFiatStats}
-              customCurrencyCode={token?.tokenMetadata?.tokenTicker}
-              maxDecimals={
-                isLRC20Payment ? token?.tokenMetadata?.decimals ?? 0 : 2
-              }
-            />
-          ) : (
-            <FormattedSatText
-              styles={{
-                fontSize: 45,
-                includeFontPadding: false,
-              }}
-              neverHideBalance={true}
-              balance={isLRC20Payment ? formattedTokensBalance : amount}
-              useCustomLabel={isLRC20Payment}
-              customLabel={token?.tokenMetadata?.tokenTicker}
-              useMillionDenomination={true}
-              globalBalanceDenomination={
-                paymentDisplay && !isLRC20Payment
-                  ? paymentDisplay.denomination
-                  : undefined
-              }
-              forceCurrency={
-                paymentDisplay && !isLRC20Payment
-                  ? paymentDisplay.forceCurrency
-                  : null
-              }
-              forceFiatStats={
-                paymentDisplay && !isLRC20Payment
-                  ? paymentDisplay.forceFiatStats
-                  : null
-              }
-            />
-          )}
-        </View>
-      )}
+        {isLNURLAuth && (
+          <ThemeText
+            styles={{
+              fontFamily: FONT.Title_Medium,
+              fontSize: SIZES.large,
+              width: '95%',
+              textAlign: 'center',
+              marginTop: 20,
+              marginBottom: 10,
+            }}
+            content={t('screens.inAccount.confirmTxPage.walletConnected')}
+          />
+        )}
 
-      {isLNURLAuth && (
         <ThemeText
           styles={{
+            opacity: 0.6,
             width: '95%',
             maxWidth: 300,
             textAlign: 'center',
             marginBottom: 40,
           }}
-          content={t('screens.inAccount.confirmTxPage.lnurlAuthSuccess')}
+          content={statusSubtitle}
         />
-      )}
 
-      <ThemeText
-        styles={{
-          opacity: 0.6,
-          width: '95%',
-          maxWidth: 300,
-          textAlign: 'center',
-          marginBottom: 40,
-        }}
-        content={
-          didSucceed
-            ? ''
-            : t('screens.inAccount.confirmTxPage.paymentErrorMessage')
-        }
-      />
-
-      {didSucceed && !isLNURLAuth && (
-        <View style={styles.paymentTable}>
-          <View style={styles.paymentTableRow}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.labelText}
-              content={t('constants.fee')}
-            />
-            <ThemeText
-              content={displayCorrectDenomination({
-                amount: paymentFee,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: paymentDisplay?.denomination
-                    ? paymentDisplay.denomination
-                    : masterInfoObject.userBalanceDenomination,
-                },
-                fiatStats: paymentDisplay?.paymentDisplay
-                  ? paymentDisplay.forceFiatStats
-                  : fiatStats,
-                forceCurrency: paymentDisplay?.forceCurrency
-                  ? paymentDisplay.forceCurrency
-                  : undefined,
-              })}
-            />
-          </View>
-          <View style={styles.paymentTableRow}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.labelText}
-              content={t('constants.type')}
-            />
-            <ThemeText
-              styles={{ textTransform: 'capitalize' }}
-              content={paymentNetwork}
-            />
-          </View>
-        </View>
-      )}
-      {!didSucceed && !isLNURLAuth && (
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: backgroundOffset,
-            borderRadius: 8,
-            width: '95%',
-            maxWidth: 300,
-            minHeight: 100,
-          }}
-        >
-          <ScrollView contentContainerStyle={{ padding: 10 }}>
-            <ThemeText content={t('errormessages.paymentError')} />
-          </ScrollView>
-        </View>
-      )}
-      {!didSucceed && !isLNURLAuth && (
-        <View style={{ marginTop: 10, marginBottom: 20 }}>
-          <DropdownMenu
-            options={[
-              {
-                label: t('screens.inAccount.confirmTxPage.emailReport'),
-                value: 'email',
-              },
-              {
-                label: t('screens.inAccount.confirmTxPage.copyReport'),
-                value: 'clipboard',
-              },
+        {showRecipientCard && (
+          <TouchableOpacity
+            activeOpacity={recipientResolved.fullAddress ? 0.6 : 1}
+            disabled={!recipientResolved.fullAddress}
+            onPress={() =>
+              navigate.navigate('ErrorScreen', {
+                errorMessage: recipientResolved.fullAddress,
+              })
+            }
+            style={[
+              styles.recipientCard,
+              { backgroundColor: backgroundOffset },
             ]}
-            selectedValue=""
-            placeholder={t('screens.inAccount.confirmTxPage.sendReport')}
-            onSelect={async item => {
-              if (item.value === 'email') {
-                try {
-                  await openComposer({
-                    to: 'blake@blitzwalletapp.com',
-                    subject: 'Payment Failed',
-                    body: String(errorMessage),
-                  });
-                } catch (err) {
-                  console.log('Email composer error:', err);
-                }
-              } else if (item.value === 'clipboard') {
-                copyToClipboard(String(errorMessage), showToast);
-              }
-            }}
-            showClearIcon={false}
-            showVerticalArrows={false}
-            translateLabelText={false}
-            customButtonStyles={{
-              backgroundColor: 'transparent',
-            }}
-            textStyles={{
-              ...CENTER,
-              textDecorationLine: 'underline',
-            }}
-          />
-        </View>
-      )}
-
+          >
+            <RecipientAvatar
+              resolved={recipientResolved}
+              theme={theme}
+              darkModeType={darkModeType}
+              size={30}
+              backgroundColor={backgroundColor}
+            />
+            <ThemeText
+              styles={styles.recipientName}
+              CustomNumberOfLines={1}
+              content={recipientResolved.displayName}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
       <CustomButton
         buttonStyles={{
           width: INSET_WINDOW_WIDTH,
@@ -491,8 +332,49 @@ export default function ConfirmTxPage(props) {
             });
           });
         }}
-        textContent={t('constants.continue')}
+        textContent={buttonText}
       />
+
+      {!didSucceed && !isLNURLAuth && (
+        <DropdownMenu
+          options={[
+            {
+              label: t('screens.inAccount.confirmTxPage.emailReport'),
+              value: 'email',
+            },
+            {
+              label: t('screens.inAccount.confirmTxPage.copyReport'),
+              value: 'clipboard',
+            },
+          ]}
+          selectedValue=""
+          placeholder={t('screens.inAccount.confirmTxPage.sendReport')}
+          onSelect={async item => {
+            if (item.value === 'email') {
+              try {
+                await openComposer({
+                  to: 'blake@blitzwalletapp.com',
+                  subject: 'Payment Failed',
+                  body: String(errorMessage),
+                });
+              } catch (err) {
+                console.log('Email composer error:', err);
+              }
+            } else if (item.value === 'clipboard') {
+              copyToClipboard(String(errorMessage), showToast);
+            }
+          }}
+          showClearIcon={false}
+          showVerticalArrows={false}
+          translateLabelText={false}
+          customButtonStyles={{
+            backgroundColor: 'transparent',
+          }}
+          textStyles={{
+            ...CENTER,
+          }}
+        />
+      )}
 
       {showAddContact && (
         <CustomButton
@@ -588,6 +470,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  contentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
   },
@@ -603,17 +486,19 @@ const styles = StyleSheet.create({
     width: 300, // adjust as necessary
     height: 300, // adjust as necessary
   },
-  paymentTable: {
-    rowGap: 20,
-  },
-  paymentTableRow: {
-    width: '100%',
-    minWidth: 200,
+  recipientCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    alignSelf: 'center',
+    maxWidth: '90%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 100,
+    columnGap: 10,
   },
-  labelText: {
+  recipientName: {
     flexShrink: 1,
-    marginRight: 5,
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
   },
 });
