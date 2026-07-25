@@ -217,6 +217,11 @@ export default function SendPaymentScreen(props) {
     ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
     : 'Bitcoin';
 
+  const selectedContactInfo = contactInfo || paymentInfo?.blitzContactInfo;
+
+  // Intentionally keyed off `contactInfo` only: including blitzContactInfo here
+  // would swap the token selector for the BTC/USD chooser and unpin the payment
+  // method for @username sends. Display is handled by the InvoiceInfo props.
   const useFullTokensDisplay =
     enabledLRC20 &&
     isSparkPayment &&
@@ -239,7 +244,14 @@ export default function SendPaymentScreen(props) {
     ? paymentInfo?.data?.maxSendable / 1000
     : 0;
 
-  const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
+  // Tokens only exist on Spark — a bolt11/on-chain/LNURL invoice can never be
+  // funded with the default spend token. Before the decode lands paymentNetwork
+  // is undefined, so keep the user's pick: processSparkAddress reads it to
+  // decide isLRC20.
+  const selectedLRC20Asset =
+    !paymentInfo?.paymentNetwork || useFullTokensDisplay
+      ? masterTokenInfo?.tokenName || defaultToken
+      : 'Bitcoin';
   const seletctedToken =
     masterTokenInfo?.details ||
     sparkInformation?.tokens?.[selectedLRC20Asset] ||
@@ -247,6 +259,12 @@ export default function SendPaymentScreen(props) {
   const tokenDecimals = seletctedToken?.tokenMetadata?.decimals ?? 0;
   const tokenBalance = seletctedToken?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
+  // The ticker actually shown on this screen. USDB-funded sends that weren't
+  // picked through the token selector display as fiat, so the confirm screen
+  // must be told the label instead of re-deriving it from the tx's token info.
+  const displayTokenTicker = isUsingLRC20
+    ? seletctedToken?.tokenMetadata?.tokenTicker
+    : '';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
   const canEditAmount = paymentInfo?.canEditPayment === true;
@@ -1301,9 +1319,10 @@ export default function SendPaymentScreen(props) {
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
-                    blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
+                    displayTokenTicker,
                   },
                 },
               ],
@@ -1331,9 +1350,10 @@ export default function SendPaymentScreen(props) {
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
-                    blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
+                    displayTokenTicker,
                   },
                 },
               ],
@@ -1373,6 +1393,8 @@ export default function SendPaymentScreen(props) {
     fiatValueConvertedSendAmount,
     paymentValidation,
     displayAmount,
+    displayTokenTicker,
+    selectedContactInfo,
   ]);
 
   const handleSelectPaymentMethod = useCallback(
@@ -1446,15 +1468,6 @@ export default function SendPaymentScreen(props) {
     });
   }, [paymentInfo?.verificationURL, navigate, t]);
 
-  const sendingAsset =
-    selectedLRC20Asset === 'Bitcoin'
-      ? !isLightningPayment &&
-        !isBitcoinPayment &&
-        !(isSparkPayment && receiverExpectsCurrency === 'sats')
-        ? t('constants.dollars_upper')
-        : t('constants.bitcoin_upper')
-      : seletctedToken?.tokenMetadata?.tokenTicker;
-
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -1501,9 +1514,7 @@ export default function SendPaymentScreen(props) {
                 forceCurrency={primaryDisplay.forceCurrency}
                 forceFiatStats={primaryDisplay.forceFiatStats}
                 activeOpacity={!sendingAmount ? 0.5 : 1}
-                customCurrencyCode={
-                  isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-                }
+                customCurrencyCode={displayTokenTicker}
                 maxDecimals={isUsingLRC20 ? tokenDecimals : 2}
               />
               {uiState === 'CONFIRM_PAYMENT' && !isUsingLRC20 && (
@@ -1549,13 +1560,16 @@ export default function SendPaymentScreen(props) {
           {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
-              contactInfo={contactInfo || paymentInfo?.blitzContactInfo}
-              fromPage={
-                fromPage || (paymentInfo?.blitzContactInfo ? 'contacts' : '')
-              }
+              contactInfo={selectedContactInfo}
+              fromPage={fromPage || (selectedContactInfo ? 'contacts' : '')}
               theme={theme}
               darkModeType={darkModeType}
               isUsingBranta={isUsingBranta}
+              isDollarBalance={
+                resolvedPaymentMethod === 'USD' ||
+                selectedLRC20Asset === USDB_TOKEN_ID
+              }
+              isToken={isUsingLRC20 && selectedLRC20Asset !== USDB_TOKEN_ID}
             />
           )}
           {uiState === 'CHOOSE_METHOD' && (

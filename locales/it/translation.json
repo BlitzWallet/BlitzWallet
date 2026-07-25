@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Reinserisci importo",
         "feeEstimateError": "Impossibile stimare la commissione, riprova",
         "brantaVerification": "Questo pagamento è stato verificato da Branta",
-        "lightningPayment": "Pagamento Bitcoin"
+        "lightningPayment": "Pagamento Bitcoin",
+        "dollarPayment": "Pagamento in dollari",
+        "tokenPayment": "Pagamento con token"
       },
       "selectPaymentMethod": {
         "header": "Seleziona come desideri finanziare il pagamento."
@@ -2153,15 +2155,18 @@
       "confirmTxPage": {
         "failedToSend": "Invio fallito",
         "paymentErrorMessage": "C'è stato un problema nell'inviare questo pagamento, riprova.",
-        "sendReport": "Invia report allo sviluppatore",
+        "sendReport": "Segnala un problema",
+        "lnurlAuthSuccess": "Hai effettuato l'accesso e sei pronto.",
+        "walletConnected": "Wallet connesso",
         "emailReport": "Invia via email",
         "copyReport": "Copia negli appunti",
         "confirmMessage_sent": "Inviato con successo",
         "confirmMessage_received": "Ricevuto con successo",
         "confirmMessage": "{{direction}} con successo",
-        "lnurlAuthSuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso.",
         "bulkSuccess": "Richieste inviate con successo",
-        "bulkPartialSuccess": "Nessuna richiesta inviata"
+        "bulkPartialSuccess": "Nessuna richiesta inviata",
+        "sendingInProgress": "Il tuo pagamento è stato inviato. Attendi mentre viene confermato.",
+        "stablecoinDesc": "{{asset}} su {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_received": "Importo ricevuto",

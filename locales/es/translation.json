@@ -1239,7 +1239,9 @@
         "swapRatesChangedButton": "Volver a ingresar el monto",
         "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo",
         "brantaVerification": "Este pago ha sido verificado por Branta",
-        "lightningPayment": "Pago Bitcoin"
+        "lightningPayment": "Pago Bitcoin",
+        "dollarPayment": "Pago en dólares",
+        "tokenPayment": "Pago con token"
       },
       "selectPaymentMethod": {
         "header": "Selecciona cómo deseas financiar tu pago."
@@ -2153,15 +2155,18 @@
       "confirmTxPage": {
         "failedToSend": "Error al enviar",
         "paymentErrorMessage": "Hubo un problema al enviar este pago, por favor intenta de nuevo.",
-        "sendReport": "Enviar informe al desarrollador",
+        "sendReport": "Informar de un problema",
+        "lnurlAuthSuccess": "Has iniciado sesión y todo está listo.",
+        "walletConnected": "Billetera conectada",
         "emailReport": "Enviar por correo electrónico",
         "copyReport": "Copiar al portapapeles",
         "confirmMessage_sent": "Enviado correctamente",
         "confirmMessage_received": "Recibido correctamente",
         "confirmMessage": "{{direction}} exitosamente",
-        "lnurlAuthSuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión.",
         "bulkSuccess": "Solicitudes enviadas correctamente",
-        "bulkPartialSuccess": "No se enviaron solicitudes"
+        "bulkPartialSuccess": "No se enviaron solicitudes",
+        "sendingInProgress": "Tu pago ha sido enviado. Espera mientras se confirma.",
+        "stablecoinDesc": "{{asset}} en {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Cantidad enviada",

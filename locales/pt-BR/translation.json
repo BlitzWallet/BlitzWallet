@@ -1013,6 +1013,7 @@
       "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
       "phonePaymentTitle": "Pagar {{number}}",
       "phonePaymentDesc": "Enviando para número de celular",
+      "phonePaymentDescGcash": "Enviando para número GCash",
       "mobileMoneyTitle": "Pagamentos Locais",
       "mobileMoneySubtitle": "Métodos de pagamento por país",
       "mobileMoneyCountryTitle": "Selecione um país",
@@ -1238,7 +1239,9 @@
         "swapRatesChangedButton": "Inserir valor novamente",
         "feeEstimateError": "Não foi possível estimar a taxa, tente novamente",
         "brantaVerification": "Este pagamento foi verificado pela Branta",
-        "lightningPayment": "Pagamento Bitcoin"
+        "lightningPayment": "Pagamento Bitcoin",
+        "dollarPayment": "Pagamento em dólares",
+        "tokenPayment": "Pagamento com token"
       },
       "selectPaymentMethod": {
         "header": "Escolha o saldo para realizar esse pagamento"
@@ -2152,15 +2155,18 @@
       "confirmTxPage": {
         "failedToSend": "Falha ao enviar",
         "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
-        "sendReport": "Enviar relatório ao desenvolvedor",
-        "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado.",
+        "sendReport": "Relatar um problema",
+        "lnurlAuthSuccess": "Você está conectado e tudo está pronto.",
+        "walletConnected": "Carteira conectada",
         "emailReport": "Enviar por e-mail",
         "copyReport": "Copiar para a área de transferência",
         "confirmMessage_sent": "Enviado com sucesso",
         "confirmMessage_received": "Recebido com sucesso",
         "confirmMessage": "{{direction}} com sucesso",
         "bulkSuccess": "Solicitações enviadas com sucesso",
-        "bulkPartialSuccess": "Nenhuma solicitação enviada"
+        "bulkPartialSuccess": "Nenhuma solicitação enviada",
+        "sendingInProgress": "Seu pagamento foi enviado. Aguarde enquanto ele é confirmado.",
+        "stablecoinDesc": "{{asset}} na {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Valor enviado",
