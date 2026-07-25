@@ -244,7 +244,14 @@ export default function SendPaymentScreen(props) {
     ? paymentInfo?.data?.maxSendable / 1000
     : 0;
 
-  const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
+  // Tokens only exist on Spark — a bolt11/on-chain/LNURL invoice can never be
+  // funded with the default spend token. Before the decode lands paymentNetwork
+  // is undefined, so keep the user's pick: processSparkAddress reads it to
+  // decide isLRC20.
+  const selectedLRC20Asset =
+    !paymentInfo?.paymentNetwork || useFullTokensDisplay
+      ? masterTokenInfo?.tokenName || defaultToken
+      : 'Bitcoin';
   const seletctedToken =
     masterTokenInfo?.details ||
     sparkInformation?.tokens?.[selectedLRC20Asset] ||
@@ -1460,15 +1467,6 @@ export default function SendPaymentScreen(props) {
       webViewURL: paymentInfo?.verificationURL,
     });
   }, [paymentInfo?.verificationURL, navigate, t]);
-
-  const sendingAsset =
-    selectedLRC20Asset === 'Bitcoin'
-      ? !isLightningPayment &&
-        !isBitcoinPayment &&
-        !(isSparkPayment && receiverExpectsCurrency === 'sats')
-        ? t('constants.dollars_upper')
-        : t('constants.bitcoin_upper')
-      : seletctedToken?.tokenMetadata?.tokenTicker;
 
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
