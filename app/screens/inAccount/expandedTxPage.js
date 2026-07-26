@@ -428,6 +428,7 @@ export default function ExpandedTx(props) {
 
   const renderLRC20TokenRow = () => {
     if (!isLRC20Payment) return null;
+    if (selectedToken?.tokenMetadata?.tokenTicker === 'USDB') return;
 
     return (
       <View style={styles.infoRow}>
