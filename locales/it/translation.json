@@ -1857,6 +1857,8 @@
       "chainSwapFee": "0,5% commissione Blitz + 0,1%+ commissione piattaforma",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% commissione Blitz + commissioni di rete",
+      "roostock": "Rootstock <> BTC",
+      "roostockFee": "0,1% commissione Boltz + commissioni di rete",
       "accumulationType": "Indirizzi di accumulo",
       "accumulationFee": "0,5% commissione Blitz + 0,5% commissione piattaforma",
       "othersType": "Altro",

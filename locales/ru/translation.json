@@ -1858,6 +1858,8 @@
       "chainSwapFee": "0,5% комиссия Blitz + 0,1%+ комиссия платформы",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% комиссия Blitz + сетевые комиссии",
+       "roostock": "Roostock <> BTC",
+      "roostockFee": "0,1% комиссия Boltz + сетевые комиссии",
       "accumulationType": "Адреса накопления",
       "accumulationFee": "0,5% комиссия Blitz + 0,5% комиссия платформы",
       "othersType": "Остальное",

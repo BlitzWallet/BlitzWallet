@@ -1844,6 +1844,8 @@
       "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "0.1% Boltz fee + network fees",
       "accumulationType": "Accumulation addresses",
       "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
       "othersType": "All other",

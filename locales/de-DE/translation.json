@@ -1844,6 +1844,8 @@
       "chainSwapFee": "0,5 % Blitz-Gebühr + 0,1 % Plattformgebühr",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-Gebühr + Netzwerkgebühren",
+      "roostock": "Rootstock <> BTC",
+      "rootstockFee": "0,1 % Boltz-Gebühr + Netzwerkgebühren",
       "accumulationType": "Akkumulationsadressen",
       "accumulationFee": "0,5 % Blitz-Gebühr + 0,5 % Plattformgebühr",
       "othersType": "Alle anderen",

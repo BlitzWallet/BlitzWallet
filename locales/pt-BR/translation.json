@@ -1857,6 +1857,8 @@
       "chainSwapFee": "0,5% de taxa da Blitz Wallet + 0,1%+ de taxa da Flashnet",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% de taxa da Blitz Wallet + taxas de rede",
+      "roostock": "Rootstock <> BTC",
+      "roostockFee": "0,1% de taxa da Boltz + taxas de rede",
       "accumulationType": "Conversão automática",
       "accumulationFee": "0,5% de taxa da Blitz Wallet + 0,5% de taxa da Flashnet",
       "othersType": "Outros",
