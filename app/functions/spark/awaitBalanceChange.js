@@ -1,13 +1,16 @@
 import sha256Hash from '../hash';
 import {
-  OPERATION_TYPES,
-  sendWebViewRequestGlobal,
   sparkBalanceUpdateEmitter,
   BALANCE_UPDATE_EVENT_NAME,
   sparkTokenBalanceUpdateEmitter,
   TOKEN_BALANCE_UPDATE_EVENT_NAME,
 } from '../../../context-store/webViewContext';
-import { getSparkBalance, selectSparkRuntime, getWallet } from './index';
+import {
+  getSparkBalance,
+  selectSparkRuntime,
+  getWallet,
+  attachWalletListeners,
+} from './index';
 
 /**
  * Live balance subscription for a DERIVED wallet (gift/pool/savings).
@@ -78,10 +81,16 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
     if (cancelled) return;
 
     if (runtime === 'webview') {
-      await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
-        mnemonic,
-      });
+      const attached = await attachWalletListeners(mnemonic, () => cancelled);
       if (cancelled) return;
+      if (!attached) {
+        // Subscribe anyway — awaitSparkBalance's timeoutMs fallback read is the
+        // last resort if no events ever arrive.
+        console.log(
+          'Could not attach listeners for derived wallet',
+          walletHash,
+        );
+      }
       sparkBalanceUpdateEmitter.on(BALANCE_UPDATE_EVENT_NAME, onBalanceEvent);
       sparkTokenBalanceUpdateEmitter.on(
         TOKEN_BALANCE_UPDATE_EVENT_NAME,

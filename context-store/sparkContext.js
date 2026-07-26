@@ -8,6 +8,7 @@ import {
   useCallback,
 } from 'react';
 import {
+  attachWalletListeners,
   claimnSparkStaticDepositAddress,
   clearMnemonicCache,
   getSingleTxDetails,
@@ -1533,16 +1534,19 @@ const SparkWalletProvider = ({ children }) => {
 
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
-    if (AppState.currentState !== 'active') return;
+    if (AppState.currentState !== 'active') return false;
 
     const walletHash = sha256Hash(currentMnemonicRef.current);
 
     if (listenerLock.get(walletHash)) {
       console.log('addListeners already running for this wallet, skippingdh');
-      return;
+      // Another run owns the attach — don't report it as a failure.
+      return true;
     }
 
     listenerLock.set(walletHash, true);
+
+    let attached = false;
 
     try {
       const runtime = await selectSparkRuntime(currentMnemonicRef.current);
@@ -1594,10 +1598,13 @@ const SparkWalletProvider = ({ children }) => {
               );
             }
           }
+          attached = !!nativeWallet;
         } else {
-          await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
-            mnemonic: currentMnemonicRef.current,
-          });
+          const mnemonic = currentMnemonicRef.current;
+          attached = await attachWalletListeners(
+            mnemonic,
+            () => mnemonic !== currentMnemonicRef.current,
+          );
         }
         // Single restore path for every connect (initial + subsequent). The
         // poller writes txs via bulkUpdateSparkTransactions, whose SPARK_TX
@@ -1714,6 +1721,8 @@ const SparkWalletProvider = ({ children }) => {
       listenerLock.set(walletHash, false);
       console.log('Lock released for wallet:', walletHash);
     }
+
+    return attached;
   };
 
   const removeListeners = async (onlyClearIntervals = false) => {
@@ -1752,9 +1761,14 @@ const SparkWalletProvider = ({ children }) => {
           }
         }
       } else {
-        await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
-          mnemonic: prevAccountMnemoincRef.current,
-        });
+        const response = await sendWebViewRequestGlobal(
+          OPERATION_TYPES.removeListeners,
+          { mnemonic: prevAccountMnemoincRef.current },
+        );
+        // Benign: handlers are walletId-guarded and re-adding is idempotent.
+        if (!response?.didWork) {
+          console.log('removeWalletEventListener failed', response?.error);
+        }
       }
       prevAccountMnemoincRef.current = currentMnemonicRef.current;
     }
@@ -1922,8 +1936,11 @@ const SparkWalletProvider = ({ children }) => {
         appState === 'active'
       ) {
         await removeListeners(false);
-        if (newType) await addListeners(newType);
-        prevListenerType.current = newType;
+        // Leave prevListenerType null if the attach failed so the next
+        // foreground/account change re-attempts instead of assuming listeners
+        // are live.
+        const attached = newType ? await addListeners(newType) : true;
+        prevListenerType.current = attached ? newType : null;
         prevAccountId.current = sparkInfoRef.current.identityPubKey;
       }
 

@@ -37,6 +37,7 @@ import {
 } from '../gift/deriveGiftWallet';
 import { DEFAULT_PAYMENT_EXPIRY_SEC, USDB_TOKEN_ID } from '../../constants';
 import { FlashnetClient } from '@flashnet/sdk';
+import { AppState } from 'react-native';
 
 export let sparkWallet = {};
 export let flashnetClients = {};
@@ -115,6 +116,35 @@ export const selectSparkRuntime = async (
   }
 
   return 'native';
+};
+
+/**
+ * Attaches the WebView wallet's event listeners, retrying a failed attach.
+ * addWalletEventListener returns {didWork: false} when the webview's wallet map
+ * is empty (post reset/reload or dispose), which races the foreground attach —
+ * without a retry the session loses all balance:update/transfer:claimed events.
+ * Bails on account switch (isStale) or backgrounding.
+ * @param {string} mnemonic
+ * @param {() => boolean} [isStale]
+ * @returns {Promise<boolean>} whether listeners are attached
+ */
+export const attachWalletListeners = async (
+  mnemonic,
+  isStale = () => false,
+) => {
+  for (const delay of [0, 3000, 6000]) {
+    if (delay) await new Promise(res => setTimeout(res, delay));
+    if (isStale() || AppState.currentState !== 'active') return false;
+    const response = await sendWebViewRequestGlobal(
+      OPERATION_TYPES.addListeners,
+      {
+        mnemonic,
+      },
+    );
+    if (response?.didWork) return true;
+    console.log('addWalletEventListener failed, retrying', response?.error);
+  }
+  return false;
 };
 
 // Clear cache when needed (call this on logout/cleanup)
