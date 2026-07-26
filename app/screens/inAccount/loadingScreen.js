@@ -76,6 +76,11 @@ export default function ConnectingToNodeLoadingScreen() {
   // so a stall in the wild names its own phase in Crashlytics.
   const phaseRef = useRef('mounted');
 
+  // Latched by the watchdog below. Blocks the navigation dispatch only — a login
+  // that resumes after the watchdog fired still applies its cached state (keys,
+  // balance, fiat rate), which is what makes the doomsday settings screen useful.
+  const didAbortLogin = useRef(false);
+
   const transformedAnimation = useMemo(
     () =>
       updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue'),
@@ -191,6 +196,7 @@ export default function ConnectingToNodeLoadingScreen() {
           setTimeout(resolve, Math.round(minDuration - elapsed)),
         );
 
+        if (didAbortLogin.current) return;
         // Idempotent + dispatched through the container (not this instance's
         // possibly-stale navigation prop): if a duplicate instance already
         // moved us to HomeAdmin, skip — re-committing the screen is what throws
@@ -267,8 +273,9 @@ export default function ConnectingToNodeLoadingScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (didCompleteRef.current) return;
+      didAbortLogin.current = true;
       crashlyticsRecordErrorReport(
-        `Login watchdog fired after 30s. Last phase reached: ${phaseRef.current}`,
+        `Login watchdog fired after 45s. Last phase reached: ${phaseRef.current}`,
       );
       setHasError({
         title: i18next.t('screens.inAccount.loadingScreen.initErrorTitle'),
@@ -276,7 +283,7 @@ export default function ConnectingToNodeLoadingScreen() {
           'screens.inAccount.loadingScreen.userSettingsError',
         ),
       });
-    }, 30000);
+    }, 45000);
     return () => clearTimeout(timer);
   }, []);
 
