@@ -1056,7 +1056,7 @@
       "changeReceiveCurrency": "Alterar moeda de recebimento",
       "depositQRInstruction_stablecoins": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em dólares.",
       "depositQRInstruction_accumulation_bitcoin": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em bitcoin.",
-      "depositQRInstruction_bitcoin": "Envie apenas BTC na rede principal para este endereço. Os fundos chegam após três confirmações na rede Bitcoin.",
+      "depositQRInstruction_bitcoin": "Envie apenas BTC para este endereço. Os fundos chegam após três confirmações na rede Bitcoin.",
       "depositQRInstruction_liquid": "Envie apenas LBTC na rede Liquid para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
       "depositQRInstruction_rootstock": "Envie apenas RBTC na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
       "depositQRInstruction_spark": "Envie apenas BTC na rede Spark para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
