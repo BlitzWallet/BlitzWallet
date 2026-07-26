@@ -105,7 +105,9 @@ export default function DepositQRView({
     if (isActive) setContentHeight(700);
   }, [isActive]);
 
-  const handleCreateNew = async cancelled => {
+  // `isCancelled` is a getter, not a boolean: the effect's flag flips after this
+  // function has already awaited, so a snapshot would always read false.
+  const handleCreateNew = async isCancelled => {
     const triple = {
       sourceChain: config.sourceChain,
       sourceAsset: config.sourceAsset,
@@ -132,6 +134,7 @@ export default function DepositQRView({
       if (result?.error === 'limit_reached') {
         const saved = addressesForOption(triple)[0]?.depositAddress;
         if (saved) {
+          if (isCancelled()) return;
           setAddressState(prev => ({
             ...prev,
             generatedAddress: saved,
@@ -139,7 +142,7 @@ export default function DepositQRView({
           }));
           return;
         }
-        if (cancelled) return;
+        if (isCancelled()) return;
         setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
         navigate.navigate('ErrorScreen', {
           errorMessage: t('screens.accumulationAddresses.create.limitReached'),
@@ -150,7 +153,7 @@ export default function DepositQRView({
       if (result?.error) {
         const saved = addressesForOption(triple)[0]?.depositAddress;
         if (saved) {
-          if (cancelled) return;
+          if (isCancelled()) return;
           setAddressState(prev => ({
             ...prev,
             generatedAddress: saved,
@@ -158,7 +161,7 @@ export default function DepositQRView({
           }));
           return;
         }
-        if (cancelled) return;
+        if (isCancelled()) return;
         setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
         navigate.navigate('ErrorScreen', {
           errorMessage: t('screens.accumulationAddresses.errors.createFailed'),
@@ -170,14 +173,14 @@ export default function DepositQRView({
         typeof result.address === 'string'
           ? result.address
           : result.address?.depositAddress;
-      if (cancelled) return;
+      if (isCancelled()) return;
       setAddressState(prev => ({
         ...prev,
         generatedAddress: newAddress || '',
         isGeneratingInvoice: false,
       }));
     } catch {
-      if (cancelled) return;
+      if (isCancelled()) return;
       setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
     }
   };
@@ -185,10 +188,16 @@ export default function DepositQRView({
   useEffect(() => {
     if (!config) return;
     let cancelled = false;
+    const cleanup = () => {
+      cancelled = true;
+    };
 
     if (config.selectedRecieveOption?.toLowerCase() === 'stablecoins') {
-      handleCreateNew(cancelled);
-      return; // skip initializeAddressProcess; a specific address was picked from the selector
+      handleCreateNew(() => cancelled);
+      // skip initializeAddressProcess; a specific address was picked from the
+      // selector. Still return the cleanup so an unmount/config change cancels
+      // the in-flight createAddress instead of letting it navigate or setState.
+      return cleanup;
     }
 
     setAddressState({
@@ -239,9 +248,7 @@ export default function DepositQRView({
     }
 
     runAddressInit();
-    return () => {
-      cancelled = true;
-    };
+    return cleanup;
   }, [config]);
 
   const minimumDepositWarning = useMemo(() => {
