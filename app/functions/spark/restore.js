@@ -37,7 +37,7 @@ import i18next from 'i18next';
 import { getBalanceWithTimeout } from './timeoutHelpers';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
-const MAX_BATCH_SIZE = 400;
+const MAX_BATCH_SIZE = 100;
 const DEFAULT_BATCH_SIZE = 5;
 const INCREMENTAL_SAVE_THRESHOLD = 200;
 // Max consecutive failed/suspicious page fetches before a restore run gives up.
