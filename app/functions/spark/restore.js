@@ -307,7 +307,7 @@ const restoreSparkTxState = async (
             return (
               tx.transferDirection === details.direction &&
               details?.createdAt - new Date(tx.createdTime) < 1000 * 30 &&
-              details.amount === txs.totalValue
+              details.amount === tx.totalValue
             );
           });
 
