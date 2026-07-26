@@ -16,11 +16,6 @@ import {
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 import {
-  getLocalStorageItem,
-  setLocalStorageItem,
-} from '../app/functions/localStorage';
-
-import {
   clearContactRaceRetryTimers,
   CONTACTS_TRANSACTION_UPDATE_NAME,
   contactsSQLEventEmitter,
@@ -48,9 +43,6 @@ import { useAuthContext } from './authContext';
 const GlobalContactsInfoContext = createContext(null);
 const GlobalContactsMessagesContext = createContext(null);
 
-const CONTACT_RECEIVE_OPTIONS_CACHE_KEY = 'blitzContactReceiveOptionsCache';
-const CONTACT_RECEIVE_OPTION_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
-
 const normalizeContactReceiveOption = receiveOption =>
   receiveOption?.toString()?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
 
@@ -61,11 +53,6 @@ export const GlobalContactsList = ({ children }) => {
     {},
   );
   const [contactsMessags, setContactsMessagses] = useState({});
-  const [contactReceiveOptions, setContactReceiveOptions] = useState({});
-  const [
-    isContactReceiveOptionCacheLoaded,
-    setIsContactReceiveOptionCacheLoaded,
-  ] = useState(false);
   const unsubscribeMessagesRef = useRef(null);
   const isInitialLoad = useRef(true);
 
@@ -74,44 +61,7 @@ export const GlobalContactsList = ({ children }) => {
     globalContactsInformationRef.current = globalContactsInformation;
   });
 
-  const contactReceiveOptionsRef = useRef(contactReceiveOptions);
-  useEffect(() => {
-    contactReceiveOptionsRef.current = contactReceiveOptions;
-  });
-
   const addedContacts = globalContactsInformation.addedContacts;
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadContactReceiveOptions() {
-      const savedOptions = await getLocalStorageItem(
-        CONTACT_RECEIVE_OPTIONS_CACHE_KEY,
-      );
-
-      if (!isMounted) return;
-
-      try {
-        const parsedOptions = savedOptions ? JSON.parse(savedOptions) : {};
-        setContactReceiveOptions(
-          parsedOptions && typeof parsedOptions === 'object'
-            ? parsedOptions
-            : {},
-        );
-      } catch (error) {
-        console.warn('Failed to parse contact receive options cache.', error);
-        setContactReceiveOptions({});
-      } finally {
-        setIsContactReceiveOptionCacheLoaded(true);
-      }
-    }
-
-    loadContactReceiveOptions();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const toggleGlobalContactsInformation = useCallback(
     (newData, writeToDB) => {
@@ -130,101 +80,23 @@ export const GlobalContactsList = ({ children }) => {
     [publicKey],
   );
 
-  const updateCachedContactReceiveOption = useCallback(
-    (contactUUID, receiveOption) => {
-      if (!contactUUID) return null;
+  const getContactReceiveOption = useCallback(async contactUUID => {
+    if (!contactUUID) return { receiveOption: null, contactDoc: null };
 
-      const normalizedReceiveOption =
-        normalizeContactReceiveOption(receiveOption);
-      const nextCacheEntry = {
-        receiveOption: normalizedReceiveOption,
-        dateChanged: Date.now(),
-      };
+    const contactDoc = await getDataFromCollection(
+      'blitzWalletUsers',
+      contactUUID,
+    );
 
-      setContactReceiveOptions(prev => {
-        const nextOptions = {
-          ...prev,
-          [contactUUID]: nextCacheEntry,
-        };
-
-        setLocalStorageItem(
-          CONTACT_RECEIVE_OPTIONS_CACHE_KEY,
-          JSON.stringify(nextOptions),
-        );
-
-        return nextOptions;
-      });
-
-      return nextCacheEntry;
-    },
-    [],
-  );
-
-  const getCachedContactReceiveOption = useCallback(contactUUID => {
-    if (!contactUUID) return null;
-
-    const cachedOption = contactReceiveOptionsRef.current[contactUUID];
-    const cachedDateChanged = Number(cachedOption?.dateChanged);
-
-    if (!cachedOption?.receiveOption || !cachedDateChanged) return null;
-    if (Date.now() - cachedDateChanged > CONTACT_RECEIVE_OPTION_CACHE_TTL_MS) {
-      return null;
-    }
+    if (!contactDoc) return { receiveOption: null, contactDoc: null };
 
     return {
-      receiveOption: normalizeContactReceiveOption(cachedOption.receiveOption),
-      dateChanged: cachedDateChanged,
+      receiveOption: normalizeContactReceiveOption(
+        contactDoc.lnurlReceiveCurrency,
+      ),
+      contactDoc,
     };
   }, []);
-
-  const getContactReceiveOption = useCallback(
-    async contactUUID => {
-      if (!contactUUID) {
-        return {
-          receiveOption: null,
-          dateChanged: null,
-          contactDoc: null,
-          fromCache: false,
-        };
-      }
-
-      const cachedOption = getCachedContactReceiveOption(contactUUID);
-
-      if (cachedOption) {
-        return {
-          ...cachedOption,
-          contactDoc: null,
-          fromCache: true,
-        };
-      }
-
-      const contactDoc = await getDataFromCollection(
-        'blitzWalletUsers',
-        contactUUID,
-      );
-
-      if (!contactDoc) {
-        return {
-          receiveOption: null,
-          dateChanged: null,
-          contactDoc: null,
-          fromCache: false,
-        };
-      }
-
-      const updatedOption = updateCachedContactReceiveOption(
-        contactUUID,
-        contactDoc.lnurlReceiveCurrency,
-      );
-
-      return {
-        ...updatedOption,
-        contactDoc,
-        fromCache: false,
-      };
-    },
-    [getCachedContactReceiveOption, updateCachedContactReceiveOption],
-  );
 
   const decodedAddedContacts = useMemo(() => {
     if (!publicKey || !addedContacts) return [];
@@ -768,24 +640,16 @@ export const GlobalContactsList = ({ children }) => {
     () => ({
       decodedAddedContacts,
       globalContactsInformation,
-      contactReceiveOptions,
       toggleGlobalContactsInformation,
       getContactReceiveOption,
-      getCachedContactReceiveOption,
-      updateCachedContactReceiveOption,
-      isContactReceiveOptionCacheLoaded,
       deleteContact,
       addContact,
     }),
     [
       decodedAddedContacts,
       globalContactsInformation,
-      contactReceiveOptions,
       toggleGlobalContactsInformation,
       getContactReceiveOption,
-      getCachedContactReceiveOption,
-      updateCachedContactReceiveOption,
-      isContactReceiveOptionCacheLoaded,
       deleteContact,
       addContact,
     ],
