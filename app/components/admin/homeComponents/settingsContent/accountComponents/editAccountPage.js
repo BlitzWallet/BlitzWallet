@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
   FONT,
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
@@ -40,17 +41,22 @@ import {
   initializeSparkWalletViewer,
 } from '../../../../../functions/spark/walletViewer';
 import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
+import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
   const selectedAccount = props?.route?.params?.account;
   const fromPage = props?.route?.params?.from;
-  const { getAccountMnemonic, custodyAccounts, activeAccount } =
-    useActiveCustodyAccount();
+  const {
+    getAccountMnemonic,
+    custodyAccounts,
+    activeAccount,
+    custodyAccountsList,
+  } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
   const { toggleMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
@@ -222,6 +228,29 @@ export default function EditAccountPage(props) {
     }
   }, []);
 
+  const handleAddMoney = useCallback(() => {
+    navigate.navigate('CustodyAccountPaymentPage', {
+      to: accountInformation.uuid,
+    });
+  }, [navigate, accountInformation.uuid]);
+
+  const handleWithdrawMoney = useCallback(() => {
+    navigate.navigate('CustodyAccountPaymentPage', {
+      from: accountInformation.uuid,
+      fromBalance: balance,
+    });
+  }, [navigate, accountInformation.uuid, balance]);
+
+  const addLabel = t(
+    'settings.accountComponents.editAccountPage.addMoneyButton',
+  );
+  const withdrawLabel = t('savings.actionButtons.withdraw');
+  const depositBg =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
+  const addTextColor =
+    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
@@ -250,7 +279,7 @@ export default function EditAccountPage(props) {
             onPress={handleProfileImage}
             style={[styles.avatar, { backgroundColor: backgroundOffset }]}
           >
-            <AccountProfileImage imageSize={120} account={accountInformation} />
+            <AccountProfileImage imageSize={90} account={accountInformation} />
             {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
               <View
                 style={[
@@ -261,7 +290,7 @@ export default function EditAccountPage(props) {
                 <ThemeIcon
                   colorOverride={COLORS.lightModeText}
                   iconName="Edit"
-                  size={18}
+                  size={15}
                 />
               </View>
             )}
@@ -293,7 +322,7 @@ export default function EditAccountPage(props) {
             height: layout.height,
             justifyContent: 'center',
             alignItems: 'center',
-            marginBottom: 50,
+            marginBottom: 30,
           }}
         >
           <SkeletonTextPlaceholder
@@ -314,6 +343,50 @@ export default function EditAccountPage(props) {
             />
           </SkeletonTextPlaceholder>
         </View>
+
+        {custodyAccountsList?.length >= 2 && (
+          <AdaptiveButtonRow
+            labels={[addLabel, withdrawLabel]}
+            containerStyle={{
+              width: INSET_WINDOW_WIDTH,
+              ...CENTER,
+              marginBottom: 25,
+            }}
+          >
+            {({ buttonStyle }) => (
+              <>
+                <TouchableOpacity
+                  onPress={handleAddMoney}
+                  style={[
+                    styles.actionButton,
+                    buttonStyle,
+                    { backgroundColor: depositBg },
+                  ]}
+                >
+                  <ThemeText
+                    styles={{ includeFontPadding: false, color: addTextColor }}
+                    content={addLabel}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  disabled={isBalanceLoading}
+                  onPress={handleWithdrawMoney}
+                  style={[
+                    styles.actionButton,
+                    buttonStyle,
+                    { backgroundColor: buttonBg },
+                    isBalanceLoading && { opacity: HIDDEN_OPACITY },
+                  ]}
+                >
+                  <ThemeText
+                    styles={{ includeFontPadding: false }}
+                    content={withdrawLabel}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
+          </AdaptiveButtonRow>
+        )}
 
         <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
           {/* Account Name */}
@@ -446,8 +519,8 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 120,
-    height: 120,
+    width: 90,
+    height: 90,
     borderRadius: 60,
     alignItems: 'center',
     justifyContent: 'center',
@@ -455,10 +528,10 @@ const styles = StyleSheet.create({
 
   editBadge: {
     position: 'absolute',
-    bottom: 6,
-    right: 6,
-    width: 28,
-    height: 28,
+    bottom: 0,
+    right: 0,
+    width: 25,
+    height: 25,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -544,6 +617,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
+  },
+
+  actionButton: {
+    minHeight: 50,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   accountTypePill: {
