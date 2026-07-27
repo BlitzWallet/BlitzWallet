@@ -8,6 +8,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
+  SIZES,
 } from '../../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -114,16 +115,20 @@ export default function ChildEnterName(props) {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    paddingTop: 10,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   title: {
-    fontSize: 20,
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    includeFontPadding: false,
+    marginTop: 28,
     marginBottom: 8,
   },
   subtitle: {
-    opacity: 0.7,
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
     marginBottom: 20,
   },
 });
