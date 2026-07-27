@@ -1,22 +1,20 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { CENTER, SIZES } from '../../../../../constants';
+import { SIZES } from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo, useRef } from 'react';
 import { applyErrorAnimationTheme } from '../../../../../functions/lottieViewColorTransformer';
 import { useTranslation } from 'react-i18next';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function ErrorWithPayment({ reason }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const animationRef = useRef(null);
   const { t } = useTranslation();
@@ -37,25 +35,27 @@ export default function ErrorWithPayment({ reason }) {
   }, []);
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
-      <LottieView
-        ref={animationRef}
-        source={errorAnimation}
-        loop={false}
-        style={{
-          width: screenDimensions.width / 1.5,
-          height: screenDimensions.width / 1.5,
-        }}
-      />
-      <ThemeText
-        styles={styles.text}
-        content={t('wallet.sendPages.errorScreen.title')}
-      />
-      <ScrollView
-        style={{ flex: 1, width: '90%', ...CENTER }}
-        contentContainerStyle={{ alignItems: 'center', paddingVertical: 20 }}
-      >
-        <ThemeText styles={{ textAlign: 'center' }} content={String(reason)} />
-      </ScrollView>
+      <View style={styles.contentContainer}>
+        <LottieView
+          ref={animationRef}
+          source={errorAnimation}
+          loop={false}
+          style={{
+            width: 125,
+            height: 125,
+          }}
+        />
+        <ThemeText
+          styles={styles.title}
+          content={t('wallet.sendPages.errorScreen.title')}
+        />
+        <ScrollView
+          style={styles.errorScroll}
+          contentContainerStyle={styles.errorScrollContent}
+        >
+          <ThemeText styles={styles.errorText} content={String(reason)} />
+        </ScrollView>
+      </View>
       <CustomButton
         buttonStyles={styles.buttonStyle}
         textContent={t('constants.continue')}
@@ -70,12 +70,34 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
   },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   buttonStyle: {
     marginTop: 'auto',
     width: INSET_WINDOW_WIDTH,
   },
-  text: {
-    textAlign: 'center',
+  title: {
+    fontFamily: FONT.Title_Medium,
     fontSize: SIZES.large,
+    width: '95%',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  errorScroll: {
+    width: INSET_WINDOW_WIDTH,
+    maxHeight: 250,
+    flexShrink: 1,
+    marginBottom: 40,
+  },
+  errorScrollContent: {
+    flexGrow: 0,
+  },
+  errorText: {
+    opacity: 0.6,
+    textAlign: 'center',
   },
 });

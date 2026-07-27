@@ -133,7 +133,8 @@
     "total": "Итого",
     "stablecoinRefundReceived": "Возврат стейблкоина",
     "payWith": "Оплатить с помощью",
-    "receiveAs": "Получить в виде"
+    "receiveAs": "Получить в виде",
+    "tokens": "Токены"
   },
   "languages": {
     "english": "English",
@@ -1240,7 +1241,9 @@
         "swapRatesChangedButton": "Ввести сумму снова",
         "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова",
         "brantaVerification": "Этот платёж был подтверждён Branta",
-        "lightningPayment": "Платёж Bitcoin"
+        "lightningPayment": "Платёж Bitcoin",
+        "dollarPayment": "Платёж в долларах",
+        "tokenPayment": "Платёж токенами"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."
@@ -1271,7 +1274,7 @@
       },
       "errorScreen": {
         "ok": "ОК",
-        "title": "Сообщение об ошибке"
+        "title": "Что-то пошло не так"
       },
       "feeInfo": {
         "title": "Комиссия и скорость",
@@ -1855,6 +1858,8 @@
       "chainSwapFee": "0,5% комиссия Blitz + 0,1%+ комиссия платформы",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% комиссия Blitz + сетевые комиссии",
+       "roostock": "Roostock <> BTC",
+      "roostockFee": "0,1% комиссия Boltz + сетевые комиссии",
       "accumulationType": "Адреса накопления",
       "accumulationFee": "0,5% комиссия Blitz + 0,5% комиссия платформы",
       "othersType": "Остальное",
@@ -2155,14 +2160,17 @@
         "failedToSend": "Не удалось отправить",
         "confirmMessage": "{{direction}} успешно",
         "paymentErrorMessage": "Проблема с отправкой, попробуйте снова.",
-        "sendReport": "Отправить отчет разработчику",
-        "lnurlAuthSuccess": "Вход выполнен успешно!",
+        "sendReport": "Сообщить о проблеме",
+        "lnurlAuthSuccess": "Вы вошли в систему и готовы к работе.",
+        "walletConnected": "Кошелёк подключён",
         "emailReport": "Отправить через Email",
         "copyReport": "Скопировать",
         "confirmMessage_sent": "Успешно отправлено",
         "confirmMessage_received": "Успешно получено",
         "bulkSuccess": "Запросы успешно отправлены",
-        "bulkPartialSuccess": "Запросы не отправлены"
+        "bulkPartialSuccess": "Запросы не отправлены",
+        "sendingInProgress": "Ваш платёж отправлен. Пожалуйста, подождите, пока он будет подтверждён.",
+        "stablecoinDesc": "{{asset}} в сети {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Отправлено",

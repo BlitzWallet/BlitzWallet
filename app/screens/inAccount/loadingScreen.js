@@ -17,7 +17,10 @@ import { navigationRef } from '../../../navigation/navigationService';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useKeysContext } from '../../../context-store/keys';
 import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
-import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { removeLocalStorageItem } from '../../functions/localStorage';
 import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshots';
@@ -34,6 +37,7 @@ import openWebBrowser from '../../functions/openWebBrowser';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
+import i18next from 'i18next';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
@@ -64,6 +68,18 @@ export default function ConnectingToNodeLoadingScreen() {
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
   const didRunConnectionRef = useRef(null);
+  // Latched once startConnectProcess has fully settled (navigated, or errored
+  // into the recoverable UI). The watchdog below keys off this, NOT off
+  // didRunConnectionRef — see the comment there.
+  const didCompleteRef = useRef(false);
+  // Last boundary startConnectProcess got past. Reported with the watchdog error
+  // so a stall in the wild names its own phase in Crashlytics.
+  const phaseRef = useRef('mounted');
+
+  // Latched by the watchdog below. Blocks the navigation dispatch only — a login
+  // that resumes after the watchdog fired still applies its cached state (keys,
+  // balance, fiat rate), which is what makes the doomsday settings screen useful.
+  const didAbortLogin = useRef(false);
 
   const transformedAnimation = useMemo(
     () =>
@@ -83,6 +99,7 @@ export default function ConnectingToNodeLoadingScreen() {
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
+        phaseRef.current = 'deriving keys + webview handshake + db init';
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
 
         // ── Phase 1: Derive keys + wait for webview handshake in parallel ──
@@ -107,6 +124,9 @@ export default function ConnectingToNodeLoadingScreen() {
           waitForHandshake(),
           initializeAllDatabases(),
         ]);
+
+        crashlyticsLogReport('Derived keys, webview handshake and db ready');
+        phaseRef.current = 'loading user settings + cached balance/txs';
 
         // Start wallet connection after keys are derived — passes identityPubKey
         // so initializeSparkSession can skip getSparkBalance when snapshot exists
@@ -153,6 +173,8 @@ export default function ConnectingToNodeLoadingScreen() {
         //https://github.com/firebase/firebase-ios-sdk/pull/15991
         toggleContactsPrivateKey(privateKey);
         console.log(balanceSnapshot, placeholderTxs, 'balance and tx snapshot');
+        crashlyticsLogReport('Loaded user settings and cached balance/txs');
+        phaseRef.current = 'applying cached state + navigating home';
 
         // ── Phase 3: Apply cached balance ─────────────────────────────────
         setSparkInformation(prev => ({
@@ -174,6 +196,7 @@ export default function ConnectingToNodeLoadingScreen() {
           setTimeout(resolve, Math.round(minDuration - elapsed)),
         );
 
+        if (didAbortLogin.current) return;
         // Idempotent + dispatched through the container (not this instance's
         // possibly-stale navigation prop): if a duplicate instance already
         // moved us to HomeAdmin, skip — re-committing the screen is what throws
@@ -199,6 +222,10 @@ export default function ConnectingToNodeLoadingScreen() {
             subtitle: err.message,
           });
         }
+      } finally {
+        // Settled either way (navigated, bailed as a stale duplicate, or errored
+        // into the recoverable UI) — disarm the watchdog.
+        didCompleteRef.current = true;
       }
     }
 
@@ -229,20 +256,36 @@ export default function ConnectingToNodeLoadingScreen() {
     expectedMnemonicHash,
   ]);
 
-  // Safety valve for the seed gate: if the in-context seed never converges to
-  // the expected one (should not happen once the eager restore-path generation
-  // is fixed), surface the recoverable error UI instead of spinning forever.
+  // Safety valve for the WHOLE login process, not just the seed gate.
+  //
+  // This previously keyed off didRunConnectionRef, which is set the instant
+  // startConnectProcess is scheduled — so the only timeout in the login flow was
+  // switched off at exactly the moment the risky work began. Everything after it
+  // (firebase auth, firestore reads/writes, the NWC spark wallet init) is network
+  // bound and can stay pending forever without ever rejecting, which no try/catch
+  // can see. That produced the reported symptom: an endless mascot animation with
+  // no error and no way out.
+  //
+  // Keying off didCompleteRef instead means no reachable path can spin forever —
+  // any stall lands on the recoverable error UI below, which carries the doomsday
+  // settings button and the recovery link. Deps are empty (t is read through a
+  // ref) so an i18n language change can't restart the timer.
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!didRunConnectionRef.current) {
-        setHasError({
-          title: t('screens.inAccount.loadingScreen.initErrorTitle'),
-          subtitle: t('screens.inAccount.loadingScreen.userSettingsError'),
-        });
-      }
-    }, 30000);
+      if (didCompleteRef.current) return;
+      didAbortLogin.current = true;
+      crashlyticsRecordErrorReport(
+        `Login watchdog fired after 45s. Last phase reached: ${phaseRef.current}`,
+      );
+      setHasError({
+        title: i18next.t('screens.inAccount.loadingScreen.initErrorTitle'),
+        subtitle: i18next.t(
+          'screens.inAccount.loadingScreen.userSettingsError',
+        ),
+      });
+    }, 45000);
     return () => clearTimeout(timer);
-  }, [t]);
+  }, []);
 
   return (
     <GlobalThemeView useStandardWidth={true}>

@@ -23,6 +23,8 @@ jest.mock('../app/constants', () => {
   return {
     ...theme,
     CENTER: {},
+    ICONS: {},
+    USDB_TOKEN_ID: 'usdb-token-id',
   };
 });
 
@@ -33,6 +35,22 @@ jest.mock('lottie-react-native', () => {
 
 jest.mock('react-native-email-link', () => ({
   openComposer: jest.fn(),
+}));
+
+// Pulled in transitively by the recipient card. Ships untranspiled ESM.
+jest.mock('expo-image', () => ({ Image: () => null }));
+jest.mock('react-native-country-flag', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+// The recipient pill's labels come from `i18next.t` directly (recipientCard is
+// shared with the pre-send screen, which is not a hook context).
+jest.mock('i18next', () => ({
+  __esModule: true,
+  default: {
+    t: (key, params) => (params ? `${key}:${JSON.stringify(params)}` : key),
+  },
 }));
 
 jest.mock('../app/functions', () => ({
@@ -47,11 +65,6 @@ jest.mock('../app/functions/lottieViewColorTransformer', () => ({
 jest.mock('../app/functions/lrc20/formatTokensBalance', () => ({
   __esModule: true,
   default: (amount, decimals) => `tokens-${amount}-${decimals}`,
-}));
-
-jest.mock('../app/functions/displayCorrectDenomination', () => ({
-  __esModule: true,
-  default: ({ amount }) => `denom-${amount}`,
 }));
 
 jest.mock('../app/functions/customUUID', () => ({
@@ -78,6 +91,7 @@ jest.mock('../app/functions/lnurl', () => ({
 
 jest.mock('../app/functions/sendBitcoin/getPhonePaymentAddress', () => ({
   canonicalizePhonePaymentAddress: value => value,
+  getPhonePaymentDisplay: () => null,
 }));
 
 jest.mock('../app/hooks/themeColors', () => () => ({
@@ -99,19 +113,6 @@ jest.mock('../context-store/sparkContext', () => ({
 
 jest.mock('../context-store/appStatus', () => ({
   useAppStatus: () => ({ screenDimensions: { width: 400, height: 800 } }),
-}));
-
-jest.mock('../context-store/context', () => ({
-  useGlobalContextProvider: () => ({
-    masterInfoObject: {
-      fiatCurrency: 'USD',
-      userBalanceDenomination: 'sats',
-    },
-  }),
-}));
-
-jest.mock('../context-store/nodeContext', () => ({
-  useNodeContext: () => ({ fiatStats: { coin: 'USD', value: 100000000 } }),
 }));
 
 jest.mock('../context-store/globalContacts', () => ({
@@ -189,13 +190,24 @@ function balanceInputProps(renderer) {
   return nodes.length ? nodes[0].props.componentProps : null;
 }
 
+function renderedText(renderer) {
+  const RN = require('react-native');
+  return renderer.root
+    .findAllByType(RN.Text)
+    .flatMap(node => node.props.children)
+    .filter(child => typeof child === 'string');
+}
+
 function satTextProps(renderer) {
   const nodes = renderer.root.findAllByProps({ testID: 'formatted-sat-text' });
   return nodes.length ? nodes[0].props.componentProps : null;
 }
 
+// paymentType lives at the top level of a transaction, not in `details` — the
+// recipient pill reads it from there.
 const successfulOutgoingTx = {
-  details: { amount: 1500, direction: 'OUTGOING', paymentType: 'lightning' },
+  paymentType: 'lightning',
+  details: { amount: 1500, direction: 'OUTGOING' },
 };
 
 const fiatPaymentDisplay = {
@@ -256,7 +268,7 @@ describe('ConfirmTxPage amount rendering', () => {
     expect(props.forceCurrency).toBe('EUR');
   });
 
-  test('uses token metadata for an LRC20 send rendered through FormattedBalanceInput', async () => {
+  test('uses the send screen ticker for an LRC20 send rendered through FormattedBalanceInput', async () => {
     mockSparkInformation = {
       tokens: {
         'token-id': { tokenMetadata: { tokenTicker: 'USDB', decimals: 6 } },
@@ -272,12 +284,81 @@ describe('ConfirmTxPage amount rendering', () => {
         },
       },
       displayAmount: '12.34',
-      paymentDisplay: { denomination: 'fiat', forceCurrency: 'USD', forceFiatStats: null },
+      displayTokenTicker: 'USDB',
+      paymentDisplay: {
+        denomination: 'fiat',
+        forceCurrency: 'USD',
+        forceFiatStats: null,
+      },
     });
 
     const props = balanceInputProps(renderer);
     expect(props).not.toBeNull();
     expect(props.customCurrencyCode).toBe('USDB');
     expect(props.maxDecimals).toBe(6);
+  });
+
+  test('keeps the fiat display for a USDB-funded send the send screen showed as fiat', async () => {
+    mockSparkInformation = {
+      tokens: {
+        'token-id': { tokenMetadata: { tokenTicker: 'USDB', decimals: 6 } },
+      },
+    };
+    const renderer = await renderConfirm({
+      transaction: {
+        details: {
+          amount: 5000,
+          direction: 'OUTGOING',
+          isLRC20Payment: true,
+          LRC20Token: 'token-id',
+        },
+      },
+      displayAmount: '12.34',
+      // no displayTokenTicker: the send screen labelled this one "$"
+      paymentDisplay: {
+        denomination: 'fiat',
+        forceCurrency: 'USD',
+        forceFiatStats: null,
+      },
+    });
+
+    const props = balanceInputProps(renderer);
+    expect(props).not.toBeNull();
+    expect(props.customCurrencyCode).toBeFalsy();
+    expect(props.forceCurrency).toBe('USD');
+    expect(props.maxDecimals).toBe(2);
+  });
+});
+
+describe('ConfirmTxPage recipient pill', () => {
+  beforeEach(() => {
+    mockSparkInformation = { tokens: {} };
+  });
+
+  test('names the funding asset for a bitcoin-funded lightning send', async () => {
+    const renderer = await renderConfirm({ transaction: successfulOutgoingTx });
+
+    expect(renderedText(renderer)).toContain(
+      'wallet.sendPages.sendPaymentScreen.lightningPayment',
+    );
+  });
+
+  test('names the dollar balance for a USD-funded bolt11 (recorded as spark)', async () => {
+    const renderer = await renderConfirm({
+      transaction: {
+        paymentType: 'spark',
+        details: {
+          amount: 1500,
+          direction: 'OUTGOING',
+          isLRC20Payment: true,
+          LRC20Token: 'usdb-token-id',
+          destinationChain: 'lightning',
+        },
+      },
+    });
+
+    expect(renderedText(renderer)).toContain(
+      'wallet.sendPages.sendPaymentScreen.dollarPayment',
+    );
   });
 });

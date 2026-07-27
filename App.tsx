@@ -102,6 +102,10 @@ import { useTranslation } from 'react-i18next';
 import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from './app/functions/crashlyticsLogs';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 // Last URL handled via getInitialURL in this JS context. Belt-and-braces only:
 // getInitialURL runs once per JS context, and this resets on a JS reload, so
@@ -477,8 +481,10 @@ function ResetStack(): JSX.Element | null {
   useEffect(() => {
     let cancelled = false;
     async function initWallet(skipURL = false) {
+      crashlyticsLogReport('initWallet: start');
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
+      crashlyticsLogReport('initWallet: secure store migrations done');
       const [
         initialURL,
         loginModeType,
@@ -501,7 +507,16 @@ function ResetStack(): JSX.Element | null {
         }),
       ]);
 
-      const storedSettings = JSON.parse(securitySettings);
+      crashlyticsLogReport('initWallet: read secure store + local settings');
+
+      // A corrupt value here would otherwise throw and strand the app on the
+      // native splash forever — fall back to the defaults below instead.
+      let storedSettings = null;
+      try {
+        storedSettings = JSON.parse(securitySettings);
+      } catch {
+        console.log('Corrupt stored security settings, using defaults');
+      }
 
       const isPinFromMode = loginModeType?.value === 'pin';
       const isBiometricFromMode = loginModeType?.value === 'biometric';
@@ -566,23 +581,30 @@ function ResetStack(): JSX.Element | null {
 
     if (appState === 'background') return;
 
+    // initWallet is the ONLY thing that sets isLoaded, and the render gate below
+    // returns null until it does. Because preventAutoHideAsync() runs at module
+    // scope and only SplashScreen ever calls hideAsync(), a rejection here leaves
+    // the native splash on screen forever with no error and no way out. Always
+    // open the gate — landing on a screen is recoverable, an endless splash isn't.
+    const onInitFailure = (err: unknown) => {
+      console.log('initWallet error', err);
+      crashlyticsRecordErrorReport(
+        `initWallet failed: ${(err as Error)?.message}`,
+      );
+      setInitSettings(prev => ({ ...prev, isLoaded: true }));
+    };
+
     if (!didInitializeSettings.current) {
       didInitializeSettings.current = true;
-      initWallet(false);
+      initWallet(false).catch(onInitFailure);
     } else {
       didInitializeSettings.current = true;
-      initWallet(true);
+      initWallet(true).catch(onInitFailure);
     }
     return () => {
       cancelled = true;
     };
   }, [appState]);
-
-  const handleAnimationFinish = () => {
-    setInitSettings(prev => {
-      return { ...prev, isLoaded: true };
-    });
-  };
   const navigationTheme = useMemo(
     () => ({
       ...DefaultTheme,
@@ -638,7 +660,6 @@ function ResetStack(): JSX.Element | null {
           name="Splash"
           component={SplashScreen}
           options={{ animation: 'fade', gestureEnabled: false }}
-          // initialParams={{ onAnimationFinish: handleAnimationFinish }}
         />
         <Stack.Screen
           name="SplashReload"

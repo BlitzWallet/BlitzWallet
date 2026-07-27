@@ -133,7 +133,8 @@
     "scan": "Scan",
     "stablecoinRefundReceived": "Stablecoin refund",
     "payWith": "Pay with",
-    "receiveAs": "Receive as"
+    "receiveAs": "Receive as",
+    "tokens": "Tokens"
   },
   "languages": {
     "english": "English",
@@ -1231,7 +1232,9 @@
         "swapRatesChangedButton": "Re-enter Amount",
         "feeEstimateError": "Unable to estimate fee, please try again",
         "brantaVerification": "This payment has been verified by Branta",
-        "lightningPayment": "Bitcoin payment"
+        "lightningPayment": "Bitcoin payment",
+        "dollarPayment": "Dollar payment",
+        "tokenPayment": "Token payment"
       },
       "selectPaymentMethod": {
         "header": "How do you want to fund your payment?"
@@ -1262,7 +1265,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Error message"
+        "title": "Something went wrong"
       },
       "feeInfo": {
         "title": "Fee and Speed",
@@ -1841,6 +1844,8 @@
       "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "0.1% Boltz fee + network fees",
       "accumulationType": "Accumulation addresses",
       "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
       "othersType": "All other",
@@ -2141,14 +2146,17 @@
         "failedToSend": "Failed to send",
         "confirmMessage": "{{direction}} successfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
-        "sendReport": "Send report to developer",
-        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in.",
+        "sendReport": "Report a problem",
+        "lnurlAuthSuccess": "You're signed in and ready to go.",
         "emailReport": "Send via Email",
         "copyReport": "Copy to Clipboard",
         "confirmMessage_sent": "Sent successfully",
         "confirmMessage_received": "Received successfully",
+        "sendingInProgress": "Your payment has been sent. Please wait while it's confirmed.",
         "bulkSuccess": "Requests sent successfully",
-        "bulkPartialSuccess": "No requests sent"
+        "bulkPartialSuccess": "No requests sent",
+        "stablecoinDesc": "{{asset}} on {{chain}}",
+        "walletConnected": "Wallet connected"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Sent amount",

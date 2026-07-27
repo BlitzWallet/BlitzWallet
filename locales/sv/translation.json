@@ -133,7 +133,8 @@
     "total": "Totalt",
     "stablecoinRefundReceived": "Stablecoin-återbetalning",
     "payWith": "Betala med",
-    "receiveAs": "Ta emot som"
+    "receiveAs": "Ta emot som",
+    "tokens": "Token"
   },
   "languages": {
     "english": "English",
@@ -1239,7 +1240,9 @@
         "swapRatesChangedButton": "Ange belopp igen",
         "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen",
         "brantaVerification": "Denna betalning har verifierats av Branta",
-        "lightningPayment": "Bitcoin-betalning"
+        "lightningPayment": "Bitcoin-betalning",
+        "dollarPayment": "Dollarbetalning",
+        "tokenPayment": "Tokenbetalning"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."
@@ -1270,7 +1273,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Felmeddelande"
+        "title": "Något gick fel"
       },
       "feeInfo": {
         "title": "Avgift och hastighet",
@@ -1854,6 +1857,8 @@
       "chainSwapFee": "0,5 % Blitz-avgift + 0,1 %+ plattformsavgift",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-avgift + nätverksavgifter",
+      "roostock": "Roostock <> BTC",
+      "roostockFee": "0,1 % Boltz-avgift + nätverksavgifter",
       "accumulationType": "Ackumuleringsadresser",
       "accumulationFee": "0,5 % Blitz-avgift + 0,5 % plattformsavgift",
       "othersType": "Övrigt",
@@ -2154,14 +2159,17 @@
         "failedToSend": "Misslyckades med att skicka",
         "confirmMessage": "{{direction}} framgångsrikt",
         "paymentErrorMessage": "Det uppstod ett problem med att skicka betalningen, vänligen försök igen.",
-        "sendReport": "Skicka rapporten till utvecklaren",
-        "lnurlAuthSuccess": "Plånboksautentisering framgångsrik! Du är nu inloggad.",
+        "sendReport": "Rapportera ett problem",
+        "lnurlAuthSuccess": "Du är inloggad och redo att köra.",
+        "walletConnected": "Plånbok ansluten",
         "emailReport": "Skicka via e-post",
         "copyReport": "Kopiera till Urklipp",
         "confirmMessage_sent": "Skickat framgångsrikt",
         "confirmMessage_received": "Mottaget framgångsrikt",
         "bulkSuccess": "Förfrågningar skickades",
-        "bulkPartialSuccess": "Inga förfrågningar skickades"
+        "bulkPartialSuccess": "Inga förfrågningar skickades",
+        "sendingInProgress": "Din betalning har skickats. Vänta medan den bekräftas.",
+        "stablecoinDesc": "{{asset}} på {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Utskickat belopp",

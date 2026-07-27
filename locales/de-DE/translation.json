@@ -133,7 +133,8 @@
     "total": "Gesamt",
     "stablecoinRefundReceived": "Stablecoin-Rückerstattung",
     "payWith": "Bezahlen mit",
-    "receiveAs": "Empfangen als"
+    "receiveAs": "Empfangen als",
+    "tokens": "Token"
   },
   "languages": {
     "english": "English",
@@ -1231,7 +1232,9 @@
         "swapRatesChangedButton": "Betrag erneut eingeben",
         "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
         "brantaVerification": "Diese Zahlung ist von Branta verifiziert.",
-        "lightningPayment": "BTC-Zahlung"
+        "lightningPayment": "BTC-Zahlung",
+        "dollarPayment": "Dollar-Zahlung",
+        "tokenPayment": "Token-Zahlung"
       },
       "selectPaymentMethod": {
         "header": "Wie möchten Sie diese Zahlung senden (BTC oder USD)?"
@@ -1262,7 +1265,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Fehlermeldung"
+        "title": "Etwas ist schiefgelaufen"
       },
       "feeInfo": {
         "title": "Gebühr und Geschwindigkeit",
@@ -1841,6 +1844,8 @@
       "chainSwapFee": "0,5 % Blitz-Gebühr + 0,1 % Plattformgebühr",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-Gebühr + Netzwerkgebühren",
+      "roostock": "Rootstock <> BTC",
+      "rootstockFee": "0,1 % Boltz-Gebühr + Netzwerkgebühren",
       "accumulationType": "Akkumulationsadressen",
       "accumulationFee": "0,5 % Blitz-Gebühr + 0,5 % Plattformgebühr",
       "othersType": "Alle anderen",
@@ -2140,15 +2145,18 @@
       "confirmTxPage": {
         "failedToSend": "Senden fehlgeschlagen",
         "paymentErrorMessage": "Es gab ein Problem beim Senden dieser Zahlung, bitte versuchen Sie es erneut.",
-        "sendReport": "Bericht an Entwickler senden",
-        "lnurlAuthSuccess": "Wallet-Authentifizierung erfolgreich! Sie sind jetzt eingeloggt.",
+        "sendReport": "Problem melden",
+        "lnurlAuthSuccess": "Sie sind angemeldet und können loslegen.",
+        "walletConnected": "Wallet verbunden",
         "emailReport": "Per E-Mail senden",
         "copyReport": "In die Zwischenablage kopieren",
         "confirmMessage_sent": "Erfolgreich gesendet",
         "confirmMessage_received": "Erfolgreich empfangen",
+        "sendingInProgress": "Ihre Zahlung wurde gesendet. Bitte warten Sie, während sie bestätigt wird.",
         "confirmMessage": "{{direction}} erfolgreich",
         "bulkSuccess": "Anfragen erfolgreich gesendet",
-        "bulkPartialSuccess": "Keine Anfragen gesendet"
+        "bulkPartialSuccess": "Keine Anfragen gesendet",
+        "stablecoinDesc": "{{asset}} auf {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Gesendeter Betrag",

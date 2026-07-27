@@ -70,11 +70,8 @@ export default function useContactPayment({
   const { contactsPrivateKey } = useKeysContext();
   const { isConnectedToTheInternet } = useAppStatus();
   const { fiatStats } = useNodeContext();
-  const {
-    globalContactsInformation,
-    getContactReceiveOption,
-    isContactReceiveOptionCacheLoaded,
-  } = useGlobalContactsInfo();
+  const { globalContactsInformation, getContactReceiveOption } =
+    useGlobalContactsInfo();
   const getServerTime = useServerTimeOnly();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToast();
@@ -168,21 +165,18 @@ export default function useContactPayment({
     setPrefetchedDoc(null);
     setContactReceiveOption(null);
 
-    if (!isContactReceiveOptionCacheLoaded) {
-      return () => {
-        isCurrent = false;
-      };
-    }
-
     const MAX_ATTEMPTS = 5;
     const BASE_DELAY_MS = 375;
 
     const fetchWithBackoff = async (attempt = 0) => {
       try {
         const result = await getContactReceiveOption(selectedContact.uuid);
+        // getDataFromCollection swallows its errors and returns null, so a
+        // missing doc is the only signal a read failed. Throw so the retry runs.
+        if (!result.contactDoc) throw new Error('contact doc unavailable');
         if (isCurrent) {
-          setContactReceiveOption(result.receiveOption ?? null);
-          setPrefetchedDoc(result.contactDoc ?? null);
+          setContactReceiveOption(result.receiveOption);
+          setPrefetchedDoc(result.contactDoc);
         }
       } catch {
         if (!isCurrent) return;
@@ -202,12 +196,7 @@ export default function useContactPayment({
     return () => {
       isCurrent = false;
     };
-  }, [
-    getContactReceiveOption,
-    isContactReceiveOptionCacheLoaded,
-    requiresContactDoc,
-    selectedContact?.uuid,
-  ]);
+  }, [getContactReceiveOption, requiresContactDoc, selectedContact?.uuid]);
 
   // For LNURL contacts the receive address must be resolved against its
   // .well-known/lnurlp endpoint to learn the min/max sendable bounds. Fetch it

@@ -190,6 +190,33 @@ describe('reconcile pointers on load', () => {
     // Stale pointer to a purged file is dropped so nothing loads a dead path.
     expect(ctx.cache.missing).toBeUndefined();
   });
+
+  test('keeps + rehydrates entry stored with a stale (pre-update) absolute path', async () => {
+    // Simulates an app version update: iOS moved the container so the persisted
+    // path points at an old dir, but the file survives at the current dir.
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/moved`]);
+    mockGetMultipleItems.mockResolvedValue([
+      [
+        `${PREFIX}/moved`,
+        JSON.stringify({
+          uri: 'file:///OLD-CONTAINER/profile_images/moved.jpg',
+          localUri: 'file:///OLD-CONTAINER/profile_images/moved.jpg',
+          updated: 'updated-moved',
+        }),
+      ],
+    ]);
+    // Only the current-dir path exists; the stale stored path would 404.
+    mockGetInfoAsync.mockImplementation(async path => ({
+      exists: path === 'file:///cache/profile_images/moved.jpg',
+    }));
+
+    await mount();
+
+    expect(ctx.cache.moved).toBeDefined();
+    expect(ctx.cache.moved.localUri).toBe(
+      'file:///cache/profile_images/moved.jpg',
+    );
+  });
 });
 
 describe('hardened write path', () => {

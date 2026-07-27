@@ -33,6 +33,7 @@ export default async function initializeUserSettingsFromHistory({
     let needsToUpdate = false;
     let tempObject = {};
 
+    crashlyticsLogReport('Authenticating with firebase');
     const [
       _,
       // pastExploreData,
@@ -44,6 +45,8 @@ export default async function initializeUserSettingsFromHistory({
     ]);
 
     // const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
+
+    crashlyticsLogReport('Firebase authenticated, reading user document');
 
     // Wrap both of thses in promise.all to fetch together.
     let [
@@ -66,6 +69,8 @@ export default async function initializeUserSettingsFromHistory({
       //     )
       //   : Promise.resolve(null),
     ]);
+
+    crashlyticsLogReport('Read user document and local storage items');
 
     if (preloadedData) {
       // clear refrenace to remove uneeded object
@@ -331,13 +336,18 @@ export default async function initializeUserSettingsFromHistory({
     // }
 
     if (!nwc_identity_pub_key) {
-      const didInit = await initializeNWCWallet();
-
-      if (didInit.isConnected) {
+      // Deliberately not awaited. This backfills nwc_identity_pub_key, which
+      // nothing below reads, but it runs a full SparkWallet.initialize() network
+      // handshake with no timeout — and because the key is only persisted on
+      // success, it re-runs on every cold start for anyone whose NWC wallet has
+      // never initialized. Awaiting it made an optional side quest a hard gate on
+      // login. Let it settle on its own.
+      (async () => {
+        const didInit = await initializeNWCWallet();
+        if (!didInit.isConnected) return;
         const pubkey = await getNWCSparkIdentityPubKey();
-
         toggleMasterInfoObject({ [NWC_IDENTITY_PUB_KEY]: pubkey });
-      }
+      })().catch(err => console.log('NWC identity backfill error', err));
     }
 
     if (!userBalanceDenomination) {
@@ -429,7 +439,13 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['didViewNWCMessage'] = didViewNWCMessage;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
-      await sendDataToDB(tempObject, publicKey);
+      // Deliberately not awaited. tempObject is already fully built in memory, so
+      // this is pure persistence — and a firestore write promise only settles on
+      // server ack, meaning offline it stays pending forever without rejecting.
+      // Firestore queues the write durably and flushes on reconnect either way.
+      sendDataToDB(tempObject, publicKey).catch(err =>
+        console.log('Deferred settings write error', err),
+      );
     }
     delete tempObject['contacts'];
     // delete tempObject['eCashInformation'];
