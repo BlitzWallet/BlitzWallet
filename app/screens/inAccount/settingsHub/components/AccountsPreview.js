@@ -16,7 +16,6 @@ export default function AccountsPreview({
   selectedAltAccount,
   isSwitchingAccount,
   onAccountPress,
-  onAccountEdit,
   onViewAll,
   onLongPress,
 }) {
@@ -54,7 +53,6 @@ export default function AccountsPreview({
             account={account}
             isActive={activeAccount.uuid === account.uuid}
             onPress={() => onAccountPress(account)}
-            onEdit={() => onAccountEdit(account)}
             isLoading={
               isSwitchingAccount.accountBeingLoaded ===
                 (account.uuid || account.name) && isSwitchingAccount.isLoading
