@@ -80,14 +80,10 @@ export default function SelectCreateAccountType() {
           </View>
         </TouchableOpacity>
 
-        {/* Imported Account Option */}
+        {/* Child Account Option */}
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() =>
-            navigate.navigate('CreateCustodyAccount', {
-              accountType: 'imported',
-            })
-          }
+          onPress={() => navigate.navigate('ChildEnterName')}
           style={[
             styles.rowContainer,
             {
@@ -103,19 +99,19 @@ export default function SelectCreateAccountType() {
               },
             ]}
           >
-            <ThemeIcon size={20} iconName={'FileKey'} />
+            <ThemeIcon size={20} iconName={'Users'} />
           </View>
           <View style={styles.textContainer}>
             <ThemeText
               styles={styles.titleText}
               content={t(
-                'settings.accountComponents.selectCreateAccountType.importRecoveryPhraseTitle',
+                'settings.accountComponents.selectCreateAccountType.createChildAccountTitle',
               )}
             />
             <ThemeText
               styles={styles.descText}
               content={t(
-                'settings.accountComponents.selectCreateAccountType.importRecoveryPhraseDescription',
+                'settings.accountComponents.selectCreateAccountType.createChildAccountDescription',
               )}
             />
           </View>
