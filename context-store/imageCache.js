@@ -33,6 +33,11 @@ import {
   getMultipleItems,
 } from '../app/functions/localStorage';
 const FILE_DIR = cacheDirectory + 'profile_images/';
+// The on-disk path is fully derived from the uuid + the CURRENT cache
+// directory. iOS changes the app's container path on every version update, so
+// any absolute path we persisted earlier is stale even though the file itself
+// survives — always reconstruct it here instead of trusting a stored value.
+const fileUriForUuid = uuid => `${FILE_DIR}${uuid}.jpg`;
 const ImageCacheContext = createContext();
 
 export function ImageCacheProvider({ children }) {
@@ -88,10 +93,15 @@ export function ImageCacheProvider({ children }) {
               validatedCache[uuid] = entry;
               return;
             }
+            // Check (and rehydrate) against the current cache directory, not the
+            // stored absolute path — after a version update the stored path is
+            // stale but the file is still present, so trusting it would drop
+            // every pointer and re-download the whole contact list.
+            const localUri = fileUriForUuid(uuid);
             try {
-              const fileInfo = await getInfoAsync(entry.localUri);
+              const fileInfo = await getInfoAsync(localUri);
               if (fileInfo.exists) {
-                validatedCache[uuid] = entry;
+                validatedCache[uuid] = { ...entry, uri: localUri, localUri };
               } else {
                 console.log(
                   'Dropping stale image pointer (file missing)',
@@ -100,7 +110,7 @@ export function ImageCacheProvider({ children }) {
               }
             } catch (err) {
               // If we can't stat the file, keep the pointer rather than lose it.
-              validatedCache[uuid] = entry;
+              validatedCache[uuid] = { ...entry, uri: localUri, localUri };
             }
           }),
         );
@@ -159,10 +169,11 @@ export function ImageCacheProvider({ children }) {
 
             const cached = cacheRef.current[uuid];
             if (cached && cached.updated === updated) {
-              const fileInfo = await getInfoAsync(cached.localUri);
+              const currentUri = fileUriForUuid(uuid);
+              const fileInfo = await getInfoAsync(currentUri);
               if (fileInfo.exists) {
                 autoHealCooldownRef.current.delete(uuid);
-                return cached;
+                return { ...cached, uri: currentUri, localUri: currentUri };
               }
             }
 
@@ -172,7 +183,7 @@ export function ImageCacheProvider({ children }) {
             updated = new Date().toISOString();
           }
 
-          const localUri = `${FILE_DIR}${uuid}.jpg`;
+          const localUri = fileUriForUuid(uuid);
 
           await makeDirectoryAsync(FILE_DIR, { intermediates: true });
 
