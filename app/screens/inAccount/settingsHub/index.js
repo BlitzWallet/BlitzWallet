@@ -185,16 +185,6 @@ export default function SettingsHub(props) {
     copyToClipboard(myContact?.uniqueName, showToast);
   }, [myContact?.uniqueName, showToast]);
 
-  const handleAccountEdit = useCallback(
-    account => {
-      navigate.navigate('EditAccountPage', {
-        account,
-        from: 'SettingsHome',
-      });
-    },
-    [navigate],
-  );
-
   const handleSavingsPress = useCallback(() => {
     navigate.navigate('SavingsStack');
   }, [navigate]);
@@ -241,7 +231,6 @@ export default function SettingsHub(props) {
               selectedAltAccount={selectedAltAccount}
               isSwitchingAccount={isSwitchingAccount}
               onAccountPress={handleAccountPress}
-              onAccountEdit={handleAccountEdit}
               onViewAll={handleViewAllAccounts}
             />
           );
@@ -271,7 +260,6 @@ export default function SettingsHub(props) {
     },
     [
       activePoolsArray,
-      handleAccountEdit,
       handleAccountPress,
       handleAnalyticsPress,
       handleOpenGifts,
