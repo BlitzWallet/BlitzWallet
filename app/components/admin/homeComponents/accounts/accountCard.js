@@ -82,6 +82,8 @@ export default function AccountCard({
               backgroundColor: useAltBackground
                 ? backgroundOffset
                 : backgroundColor,
+              width: fromSettings ? 42 : 45,
+              height: fromSettings ? 42 : 45,
             },
           ]}
         >
