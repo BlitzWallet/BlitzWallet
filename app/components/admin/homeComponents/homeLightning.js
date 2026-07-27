@@ -84,6 +84,7 @@ const MemoizedStickyNavbarContainer = memo(
           sparkBalance={sparkBalance}
           sparkTokens={sparkTokens}
           didViewSeedPhrase={didViewSeedPhrase}
+          isChildAccount={masterInfoObject?.isChildAccount}
         />
 
         <Animated.View
