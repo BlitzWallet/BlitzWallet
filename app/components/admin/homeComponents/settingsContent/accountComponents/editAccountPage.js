@@ -3,28 +3,43 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
+  FONT,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
 import {
+  MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
   useActiveCustodyAccount,
 } from '../../../../../../context-store/activeAccount';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useToast } from '../../../../../../context-store/toastManager';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import { CENTER } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  SKELETON_ANIMATION_SPEED,
+} from '../../../../../constants';
 import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
+import useAccountSwitcher from '../../../../../hooks/useAccountSwitcher';
+import { getSparkAddress } from '../../../../../functions/spark';
+import {
+  getBitcoinBalance,
+  initializeSparkWalletViewer,
+} from '../../../../../functions/spark/walletViewer';
+import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
@@ -32,11 +47,13 @@ export default function EditAccountPage(props) {
   const fromPage = props?.route?.params?.from;
   const { getAccountMnemonic, custodyAccounts, activeAccount } =
     useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
   const { toggleMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
+  const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
 
   const accountInformation = useMemo(() => {
     return (
@@ -52,21 +69,63 @@ export default function EditAccountPage(props) {
     accountInformation.uuid || accountInformation.name,
   );
   const isActive = activeAccount.uuid === accountInformation.uuid;
+  const isActivating =
+    isSwitchingAccount.isLoading &&
+    isSwitchingAccount.accountBeingLoaded ===
+      (accountInformation.uuid || accountInformation.name);
 
   const navigate = useNavigation();
+
+  const [otherAccountBalance, setOtherAccountBalance] = useState({
+    isLoading: true,
+    balance: 0,
+  });
+
+  const [layout, setlayout] = useState({ height: 45, width: 87 });
+  const maxLayoutRef = useRef({ height: 45, width: 87 });
+
+  useEffect(() => {
+    if (isActive) return;
+    let isMounted = true;
+    (async () => {
+      try {
+        setOtherAccountBalance({ isLoading: true, balance: 0 });
+        const mnemonic = await getAccountMnemonic(accountInformation);
+        const addressResponse = await getSparkAddress(mnemonic);
+        if (!addressResponse.didWork) {
+          throw new Error('Unable to derive account spark address');
+        }
+        await initializeSparkWalletViewer(mnemonic);
+        const balance = await getBitcoinBalance(addressResponse.response);
+        if (!isMounted) return;
+        setOtherAccountBalance({
+          isLoading: false,
+          balance: Number(balance || 0),
+        });
+      } catch (err) {
+        console.log('load account balance error', err);
+        if (!isMounted) return;
+        setOtherAccountBalance(prev => ({ ...prev, isLoading: false }));
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, [isActive, accountInformation.uuid]);
+
+  const balance = isActive
+    ? Number(sparkInformation?.balance || 0)
+    : otherAccountBalance.balance;
+  const isBalanceLoading = isActive ? false : otherAccountBalance.isLoading;
+
+  const handleActivate = useCallback(() => {
+    handleAccountPress(accountInformation);
+  }, [handleAccountPress, accountInformation]);
 
   const handleProfileImage = () => {
     if (accountInformation.uuid === NWC_ACCOUNT_UUID) return;
     navigate.navigate('EmojiAvatarSelector', { account: accountInformation });
   };
-
-  console.log(
-    'Selected Account:',
-    selectedAccount,
-    accountInformation,
-    custodyAccounts,
-    'redndering',
-  );
 
   const handleNavigateView = useCallback(async () => {
     const mnemonic = await getAccountMnemonic(selectedAccount);
@@ -133,13 +192,53 @@ export default function EditAccountPage(props) {
     accountInformation,
   ]);
 
+  const handleDeleteAccount = useCallback(() => {
+    if (isActive) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t(
+          'settings.accountComponents.editAccountPage.activeAccountError',
+        ),
+      });
+      return;
+    }
+    navigate.navigate('RemoveAccountPage', {
+      account: accountInformation,
+      from: fromPage,
+    });
+  }, [isActive, accountInformation, fromPage, navigate, t]);
+
+  const handleLayoutMeasurement = useCallback(event => {
+    const { height, width } = event.nativeEvent.layout;
+
+    const newMaxHeight = Math.max(maxLayoutRef.current.height, height);
+    const newMaxWidth = Math.max(maxLayoutRef.current.width, width);
+
+    if (
+      newMaxHeight !== maxLayoutRef.current.height ||
+      newMaxWidth !== maxLayoutRef.current.width
+    ) {
+      maxLayoutRef.current = { height: newMaxHeight, width: newMaxWidth };
+      setlayout({ height: newMaxHeight, width: newMaxWidth });
+    }
+  }, []);
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('settings.accountComponents.editAccountPage.title')}
+        showLeftImage={
+          accountInformation.uuid !== NWC_ACCOUNT_UUID &&
+          accountInformation.uuid !== MAIN_ACCOUNT_UUID
+        }
+        iconNew="Trash2"
+        leftImageStyles={{ height: 25 }}
+        leftImageFunction={handleDeleteAccount}
       />
       <ScrollView
-        contentContainerStyle={{ paddingTop: 10 }}
+        contentContainerStyle={{
+          paddingTop: 10,
+          flexGrow: 1,
+        }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps={'handled'}
       >
@@ -169,33 +268,52 @@ export default function EditAccountPage(props) {
           </TouchableOpacity>
         </View>
 
-        {/* Account info */}
-        {accountInformation.uuid === NWC_ACCOUNT_UUID && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Account Name */}
-            <View style={styles.row}>
-              <View style={styles.infoContainer}>
-                <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.account',
-                    {
-                      context: isPinned ? 'unpin' : 'pin',
-                    },
-                  )}
-                />
-                <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon size={20} iconName={'Info'} />
-                </TouchableOpacity>
-              </View>
-              <CustomToggleSwitch
-                stateValue={isPinned}
-                toggleSwitchFunction={handlePinToggle}
-                page={'pinAccount'}
-              />
-            </View>
-          </View>
-        )}
+        <ThemeText
+          styles={styles.balanceLabel}
+          content={t('constants.sat_balance')}
+        />
+
+        {/* Hidden component for layout measurement */}
+        <View
+          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+          onLayout={handleLayoutMeasurement}
+        >
+          <FormattedSatText
+            autoAdjustFontSize={true}
+            styles={styles.valueText}
+            balance={balance}
+            useSizing={true}
+            globalBalanceDenomination={'sats'}
+            forceCurrency={null}
+            useBalance={null}
+          />
+        </View>
+        <View
+          style={{
+            height: layout.height,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 50,
+          }}
+        >
+          <SkeletonTextPlaceholder
+            highlightColor={backgroundColor}
+            backgroundColor={COLORS.opaicityGray}
+            speed={SKELETON_ANIMATION_SPEED}
+            enabled={isBalanceLoading}
+            layout={layout}
+          >
+            <FormattedSatText
+              autoAdjustFontSize={true}
+              styles={styles.valueText}
+              balance={balance}
+              useSizing={true}
+              globalBalanceDenomination={'sats'}
+              forceCurrency={null}
+              useBalance={null}
+            />
+          </SkeletonTextPlaceholder>
+        </View>
 
         <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
           {/* Account Name */}
@@ -274,53 +392,47 @@ export default function EditAccountPage(props) {
         </View>
 
         {/* Pin Contact */}
-        {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Account Name */}
-            <View style={styles.row}>
-              <View style={styles.infoContainer}>
-                <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.account',
-                    {
-                      context: isPinned ? 'unpin' : 'pin',
-                    },
-                  )}
-                />
-                <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon size={20} iconName={'Info'} />
-                </TouchableOpacity>
-              </View>
-              <CustomToggleSwitch
-                stateValue={isPinned}
-                toggleSwitchFunction={handlePinToggle}
-                page={'pinAccount'}
+
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: backgroundOffset,
+            },
+          ]}
+        >
+          {/* Account Name */}
+          <View style={styles.row}>
+            <View style={styles.infoContainer}>
+              <ThemeText
+                styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
+                content={t(
+                  'settings.accountComponents.editAccountPage.account',
+                  {
+                    context: isPinned ? 'unpin' : 'pin',
+                  },
+                )}
               />
+              <TouchableOpacity onPress={handlePinInfo}>
+                <ThemeIcon size={20} iconName={'Info'} />
+              </TouchableOpacity>
             </View>
+            <CustomToggleSwitch
+              stateValue={isPinned}
+              toggleSwitchFunction={handlePinToggle}
+              page={'pinAccount'}
+            />
           </View>
-        )}
+        </View>
       </ScrollView>
-      {/* Danger Zone */}
-      {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
+      {/* Activate */}
+      {!isActive && (
         <CustomButton
           textContent={t(
-            'settings.accountComponents.editAccountPage.removeAccountLabel',
+            'settings.accountComponents.editAccountPage.activateButton',
           )}
-          actionFunction={() => {
-            if (isActive) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t(
-                  'settings.accountComponents.editAccountPage.activeAccountError',
-                ),
-              });
-              return;
-            }
-            navigate.navigate('RemoveAccountPage', {
-              account: accountInformation,
-              from: fromPage,
-            });
-          }}
+          useLoading={isActivating}
+          actionFunction={handleActivate}
           buttonStyles={styles.buttonContainer}
         />
       )}
@@ -405,6 +517,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   dangerText: {
     color: COLORS.cancelRed,
@@ -417,6 +530,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  balanceLabel: {
+    textTransform: 'uppercase',
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+    textAlign: 'center',
+  },
+
+  valueText: {
+    fontSize: SIZES.huge,
+    textAlign: 'center',
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
 
   accountTypePill: {
