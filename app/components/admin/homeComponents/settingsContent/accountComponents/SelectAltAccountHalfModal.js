@@ -1,6 +1,10 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, SIZES } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  SIZES,
+} from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -88,7 +92,6 @@ export default function SelectAltAccountHalfModal(props) {
           isLoading={
             isLoading.accountBeingLoaded === account.uuid && isLoading.isLoading
           }
-          useSelection={true}
           isAccountSwitching={isLoading.accountBeingLoaded}
         />
       );
@@ -120,7 +123,7 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: SIZES.large,
     fontWeight: 500,
-    marginBottom: 10,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
   accountRow: {
