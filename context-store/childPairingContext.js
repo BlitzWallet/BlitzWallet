@@ -135,43 +135,56 @@ export function ChildPairingProvider({ children }) {
     const session = sessionRef.current;
     if (!session?.sharedX || !session?.childMnemonic) return;
     setStatus('granting');
-    try {
-      const seedKey = deriveSeedKey(session.sharedX);
-      const enc = encryptSeedPayload(seedKey, {
-        v: 1,
-        mnemonic: session.childMnemonic,
-        parentPublicKey: publicKey,
-        name: session.name,
-        spendingLimit: session.spendingLimit,
-        childIndex: session.childIndex,
-        grantedAt: Date.now(),
-      });
-      const didGrant = await setPairingDoc(session.rid, 'grant', {
-        v: 1,
-        iv: enc.iv,
-        ciphertext: enc.ct,
-        tag: enc.tag,
-        expiresAt: Date.now() + PAIRING_TTL_MS,
-      });
-      if (!didGrant) throw new Error('Failed to deliver grant');
 
-      session.granted = true;
-      session.childMnemonic = null; // wipe seed from memory
-      if (unsubRef.current) {
-        unsubRef.current();
-        unsubRef.current = null;
-      }
-      setStatus('done');
-    } catch (err) {
-      console.log('child grant error', err);
-      crashlyticsRecordErrorReport(err.message);
-      setStatus('error');
+    // Wait for the child to confirm the match before delivering the grant, so the
+    // parent doesn't jump to success while the child is still verifying. Fires
+    // immediately if the child already confirmed. Mirror of the child waiting on
+    // the parent's grant doc.
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
     }
+    unsubRef.current = subscribePairingDoc(session.rid, 'childConfirm', async () => {
+      if (session.granted || !session.childMnemonic) return;
+      try {
+        const seedKey = deriveSeedKey(session.sharedX);
+        const enc = encryptSeedPayload(seedKey, {
+          v: 1,
+          mnemonic: session.childMnemonic,
+          parentPublicKey: publicKey,
+          name: session.name,
+          spendingLimit: session.spendingLimit,
+          childIndex: session.childIndex,
+          grantedAt: Date.now(),
+        });
+        const didGrant = await setPairingDoc(session.rid, 'grant', {
+          v: 1,
+          iv: enc.iv,
+          ciphertext: enc.ct,
+          tag: enc.tag,
+          expiresAt: Date.now() + PAIRING_TTL_MS,
+        });
+        if (!didGrant) throw new Error('Failed to deliver grant');
+
+        session.granted = true;
+        session.childMnemonic = null; // wipe seed from memory
+        if (unsubRef.current) {
+          unsubRef.current();
+          unsubRef.current = null;
+        }
+        setStatus('done');
+      } catch (err) {
+        console.log('child grant error', err);
+        crashlyticsRecordErrorReport(err.message);
+        setStatus('error');
+      }
+    });
   }, [publicKey]);
 
   // Expiry backstop.
   useEffect(() => {
-    if (status !== 'waiting' && status !== 'confirm') return;
+    if (status !== 'waiting' && status !== 'confirm' && status !== 'granting')
+      return;
     const timer = setTimeout(() => {
       resetSession('expired');
     }, PAIRING_TTL_MS);

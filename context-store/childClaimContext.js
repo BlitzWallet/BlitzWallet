@@ -173,7 +173,7 @@ export function ChildClaimProvider({ children }) {
     [status, t],
   );
 
-  const confirmMatch = useCallback(() => {
+  const confirmMatch = useCallback(async () => {
     const session = sessionRef.current;
     if (!session?.sharedX || status === 'awaiting') return;
     // The human has visually compared the SAS on both phones. Now wait for the
@@ -181,6 +181,13 @@ export function ChildClaimProvider({ children }) {
     // have produced a different SAS, so a matched SAS means we can trust it.
     setErrorMessage('');
     setStatus('awaiting');
+
+    // Tell the parent we confirmed the match so it can deliver the grant and
+    // advance — the mirror of the child waiting on the parent's grant doc.
+    await setPairingDoc(session.rid, 'childConfirm', {
+      v: 1,
+      expiresAt: Date.now() + PAIRING_TTL_MS,
+    });
 
     unsubRef.current = subscribePairingDoc(session.rid, 'grant', grant => {
       if (grant?.ciphertext) importSeed(grant);
