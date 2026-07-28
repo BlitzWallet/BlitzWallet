@@ -47,14 +47,10 @@ export default function CreateCustodyAccounts() {
 
   const handleOpenAccount = useCallback(
     item => {
-      if (item.__type === 'child') {
-        navigate.navigate('ChildAccountPage', { child: item });
-      } else {
-        navigate.navigate('EditAccountPage', {
-          account: item,
-          from: 'SettingsContentHome',
-        });
-      }
+      navigate.navigate('EditAccountPage', {
+        account: item,
+        from: 'SettingsContentHome',
+      });
     },
     [navigate],
   );
