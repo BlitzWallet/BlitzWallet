@@ -30,6 +30,7 @@ import { useActiveCustodyAccount } from '../../../../../../context-store/activeA
 import {
   getSparkAddress,
   getSparkIdentityPubKey,
+  initializeSparkWallet,
 } from '../../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/transactions';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
@@ -72,10 +73,15 @@ export default function AccountPaymentPage(props) {
   const { backgroundColor, textColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const fromAccount =
-    custodyAccountsList.find(item => item.uuid === from)?.name || '';
-  const toAccount =
-    custodyAccountsList.find(item => item.uuid === to)?.name || '';
+  // Linked (child) accounts aren't in custodyAccountsList; merge them in so the
+  // standardized page can resolve a child on the prefilled side.
+  const accountLookup = useMemo(
+    () => [...custodyAccountsList, ...(masterInfoObject?.childAccounts || [])],
+    [custodyAccountsList, masterInfoObject?.childAccounts],
+  );
+
+  const fromAccount = accountLookup.find(item => item.uuid === from)?.name || '';
+  const toAccount = accountLookup.find(item => item.uuid === to)?.name || '';
 
   // The customInputText modal now returns the amount already in sats.
   const convertedSendAmount = Math.round(Number(sendingAmount));
@@ -168,17 +174,21 @@ export default function AccountPaymentPage(props) {
       }
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: true }));
 
-      const sendingFromAccount = custodyAccountsList.find(
+      const sendingFromAccount = accountLookup.find(
         item => item.uuid === from,
       );
-      const sendingToAccount = custodyAccountsList.find(
-        item => item.uuid === to,
-      );
+      const sendingToAccount = accountLookup.find(item => item.uuid === to);
 
       const [fromMnemonic, toMnemonic] = await Promise.all([
         getAccountMnemonic(sendingFromAccount),
         getAccountMnemonic(sendingToAccount),
       ]);
+
+      // Ensure the spending wallet is initialized. The picker inits a chosen
+      // `from`, but a prefilled `from` (child withdraw, custody withdraw) never
+      // passes through it — the WebView runtime can't spend from an uninited
+      // wallet. Idempotent, so it's a no-op when already synced.
+      await initializeSparkWallet(fromMnemonic, false, { maxRetries: 4 });
 
       const toSparkAddress = await getSparkAddress(toMnemonic);
 
