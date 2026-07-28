@@ -1,0 +1,222 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useKeysContext } from './keys';
+import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
+import {
+  computeSAS,
+  deriveSeedKey,
+  deriveSharedX,
+  encryptSeedPayload,
+  makePairingCode,
+  rendezvousId,
+} from '../app/functions/accounts/childPairing';
+import {
+  deletePairingHandshake,
+  setPairingDoc,
+  subscribePairingDoc,
+} from '../db';
+import { crashlyticsRecordErrorReport } from '../app/functions/crashlyticsLogs';
+
+const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rule.
+
+// Shared session for the parent-side child-pairing handshake. Owns the live
+// Firestore listener, the child's secret seed in memory, and TTL cleanup so the
+// four pairing screens can read/drive one session instead of each re-running it.
+const ChildPairingContext = createContext(null);
+
+export function ChildPairingProvider({ children }) {
+  const { accountMnemoinc, publicKey, contactsPrivateKey } = useKeysContext();
+
+  // status: idle | preparing | waiting | confirm | granting | done | error | expired
+  const [status, setStatus] = useState('idle');
+  const [code, setCode] = useState('');
+  const [sas, setSas] = useState('');
+
+  const sessionRef = useRef(null);
+  const unsubRef = useRef(null);
+
+  const resetSession = useCallback(async (status = 'idle') => {
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
+    }
+    const session = sessionRef.current;
+    sessionRef.current = null;
+    if (session?.childMnemonic) session.childMnemonic = null; // wipe seed from memory
+    if (session?.rid && !session?.granted) {
+      await deletePairingHandshake(session.rid);
+    }
+    setCode('');
+    setSas('');
+    setStatus(status);
+  }, []);
+
+  const startPairing = useCallback(
+    async reshareChild => {
+      // The child account already exists (created on the spending-limit screen).
+      // This only runs the pairing handshake — re-runnable any time, e.g. if the
+      // child loses their wallet and must re-pair.
+      const startTime = Date.now();
+      await resetSession();
+      setStatus('preparing');
+      try {
+        if (!reshareChild) throw new Error('No child provided for pairing');
+
+        const childIndex = reshareChild.childIndex;
+        const childPublicKey = reshareChild.childPublicKey;
+        const childName = reshareChild.name;
+        const childLimit = reshareChild.spendingLimit ?? null;
+        const childMnemonic = await deriveChildMnemonic(
+          accountMnemoinc,
+          childIndex,
+        );
+
+        const pairingCode = makePairingCode();
+        const rid = rendezvousId(pairingCode);
+        const expiresAt = Date.now() + PAIRING_TTL_MS;
+
+        sessionRef.current = {
+          rid,
+          childIndex,
+          childPublicKey,
+          childMnemonic,
+          name: childName,
+          spendingLimit: childLimit,
+        };
+
+        const didHello = await setPairingDoc(rid, 'parentHello', {
+          v: 1,
+          parentWalletPub: publicKey,
+          name: childName,
+          expiresAt,
+        });
+        if (!didHello) throw new Error('Failed to open pairing session');
+
+        // Listen for the child's ephemeral pubkey, then compute the SAS.
+        unsubRef.current = subscribePairingDoc(
+          rid,
+          'childHello',
+          childHello => {
+            if (!childHello?.childEphPub || sessionRef.current?.sharedX) return;
+            const sharedX = deriveSharedX(
+              contactsPrivateKey,
+              childHello.childEphPub,
+            );
+            sessionRef.current.sharedX = sharedX;
+            sessionRef.current.childEphPub = childHello.childEphPub;
+            setSas(computeSAS(sharedX, childHello.childEphPub, publicKey));
+            setStatus('confirm');
+          },
+        );
+
+        const now = Date.now();
+        const runTime = now - startTime;
+        const timeLeft = 1000 - runTime;
+        if (timeLeft > 0) await new Promise(res => setTimeout(res, timeLeft));
+        setCode(pairingCode);
+        setStatus('waiting');
+      } catch (err) {
+        console.log('child pairing setup error', err);
+        crashlyticsRecordErrorReport(err.message);
+        setStatus('error');
+      }
+    },
+    [resetSession, accountMnemoinc, publicKey, contactsPrivateKey],
+  );
+
+  const confirmMatch = useCallback(async () => {
+    const session = sessionRef.current;
+    if (!session?.sharedX || !session?.childMnemonic) return;
+    setStatus('granting');
+    try {
+      const seedKey = deriveSeedKey(session.sharedX);
+      const enc = encryptSeedPayload(seedKey, {
+        v: 1,
+        mnemonic: session.childMnemonic,
+        parentPublicKey: publicKey,
+        name: session.name,
+        spendingLimit: session.spendingLimit,
+        childIndex: session.childIndex,
+        grantedAt: Date.now(),
+      });
+      const didGrant = await setPairingDoc(session.rid, 'grant', {
+        v: 1,
+        iv: enc.iv,
+        ciphertext: enc.ct,
+        tag: enc.tag,
+        expiresAt: Date.now() + PAIRING_TTL_MS,
+      });
+      if (!didGrant) throw new Error('Failed to deliver grant');
+
+      session.granted = true;
+      session.childMnemonic = null; // wipe seed from memory
+      if (unsubRef.current) {
+        unsubRef.current();
+        unsubRef.current = null;
+      }
+      setStatus('done');
+    } catch (err) {
+      console.log('child grant error', err);
+      crashlyticsRecordErrorReport(err.message);
+      setStatus('error');
+    }
+  }, [publicKey]);
+
+  // Expiry backstop.
+  useEffect(() => {
+    if (status !== 'waiting' && status !== 'confirm') return;
+    const timer = setTimeout(() => {
+      resetSession('expired');
+    }, PAIRING_TTL_MS);
+    return () => clearTimeout(timer);
+  }, [status, resetSession]);
+
+  useEffect(() => {
+    return () => {
+      // On unmount (flow popped off the stack): tear down the listener and delete
+      // the handshake docs unless the grant was already delivered (then TTL cleans
+      // up so the child can still read it).
+      if (unsubRef.current) unsubRef.current();
+      const session = sessionRef.current;
+      if (session?.childMnemonic) session.childMnemonic = null;
+      if (session?.rid && !session?.granted)
+        deletePairingHandshake(session.rid);
+    };
+  }, []);
+
+  const isEnded = status === 'error' || status === 'expired';
+
+  const contextValue = useMemo(
+    () => ({
+      status,
+      code,
+      sas,
+      startPairing,
+      confirmMatch,
+      resetSession,
+      isEnded,
+    }),
+    [status, code, sas, startPairing, confirmMatch, resetSession, isEnded],
+  );
+
+  return (
+    <ChildPairingContext.Provider value={contextValue}>
+      {children}
+    </ChildPairingContext.Provider>
+  );
+}
+
+export function useChildPairing() {
+  const ctx = useContext(ChildPairingContext);
+  if (!ctx) {
+    throw new Error('useChildPairing must be used within ChildPairingProvider');
+  }
+  return ctx;
+}

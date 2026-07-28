@@ -91,7 +91,7 @@ import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/rece
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
-
+import ChooseAccountTypeHalfModal from '../../components/login/accountTypeSelection';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -804,6 +804,12 @@ export default function CustomHalfModal(props) {
         return (
           <ExportLeavesProgress
             onExported={props?.route?.params?.onExported}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'chooseAccountTypeHalfModal':
+        return (
+          <ChooseAccountTypeHalfModal
             handleBackPressFunction={handleBackPressFunction}
           />
         );

@@ -419,6 +419,21 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
     tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
     tempObject['monthlyBudget'] = monthlyBudget;
+    // Child accounts: preserve the parent's registry + the child wallet's flags.
+    // The parent already created the doc at pairing time, so a child just fills
+    // defaults into it and marks itself claimed on first login.
+    tempObject['childAccounts'] = blitzStoredData.childAccounts || [];
+    tempObject['nextChildDerivationIndex'] =
+      blitzStoredData.nextChildDerivationIndex || 0;
+    tempObject['isChildAccount'] = blitzStoredData.isChildAccount || false;
+    tempObject['parentPublicKey'] = blitzStoredData.parentPublicKey || null;
+    tempObject['spendingLimit'] = blitzStoredData.spendingLimit ?? null;
+    // On first login the parent's doc has claimed:false; flip it (and force a
+    // write) so the parent's re-share option disappears.
+    if (blitzStoredData.isChildAccount && !blitzStoredData.claimed) {
+      tempObject['claimed'] = true;
+      needsToUpdate = true;
+    }
     tempObject['lnurlReceiveCurrency'] = lnurlReceiveCurrency;
     tempObject['bitrefillEmail'] = bitrefillEmail;
     tempObject[SPEND_AND_REPLACE_STORAGE_KEY] = spendAndReplace;

@@ -195,7 +195,11 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
             buttonStyles={styles.primaryBtn}
             textStyles={styles.primaryBtnText}
             textContent={t('createAccount.homePage.buttons.button2')}
-            actionFunction={() => go('DisclaimerPage', 'PinSetup')}
+            actionFunction={() =>
+              navigate('CustomHalfModal', {
+                wantedContent: 'chooseAccountTypeHalfModal',
+              })
+            }
           />
 
           <CustomButton
@@ -254,6 +258,14 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     // fontWeight: '600',
     fontSize: 16,
+  },
+  linkedBtn: {
+    width: '100%',
+    backgroundColor: 'transparent',
+  },
+  linkedBtnText: {
+    fontSize: 14,
+    opacity: HIDDEN_OPACITY,
   },
   disclaimer: {
     fontSize: SIZES.xSmall,

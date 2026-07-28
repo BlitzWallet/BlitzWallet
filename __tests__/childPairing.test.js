@@ -1,0 +1,80 @@
+// Exercises the real pairing crypto in app/functions/accounts/childPairing.js.
+// It only pulls in @noble/* (transpiled) and react-native-quick-crypto (mapped
+// to node:crypto in jest.setup.js), so no native/context mocks are needed.
+import {
+  makeChildEphKey,
+  makePairingCode,
+  rendezvousId,
+  deriveSharedX,
+  deriveSeedKey,
+  computeSAS,
+  encryptSeedPayload,
+  decryptSeedPayload,
+} from '../app/functions/accounts/childPairing';
+
+describe('child pairing crypto', () => {
+  // Parent uses its wallet keypair; child a fresh ephemeral one. Same shape.
+  const parent = makeChildEphKey();
+  const child = makeChildEphKey();
+
+  const parentSharedX = deriveSharedX(parent.priv, child.pub);
+  const childSharedX = deriveSharedX(child.priv, parent.pub);
+
+  it('both sides derive the same sharedX', () => {
+    expect(parentSharedX.toString('hex')).toBe(childSharedX.toString('hex'));
+    expect(parentSharedX.length).toBe(32);
+  });
+
+  it('both sides derive the same seed key', () => {
+    expect(deriveSeedKey(parentSharedX).toString('hex')).toBe(
+      deriveSeedKey(childSharedX).toString('hex'),
+    );
+  });
+
+  it('both sides compute the same 6-digit SAS', () => {
+    const a = computeSAS(parentSharedX, child.pub, parent.pub);
+    const b = computeSAS(childSharedX, child.pub, parent.pub);
+    expect(a).toBe(b);
+    expect(a).toMatch(/^\d{6}$/);
+  });
+
+  it('GCM round-trips the seed payload', () => {
+    const payload = { v: 1, mnemonic: 'abandon abandon about', childIndex: 3 };
+    const enc = encryptSeedPayload(deriveSeedKey(parentSharedX), payload);
+    const dec = decryptSeedPayload(deriveSeedKey(childSharedX), {
+      iv: enc.iv,
+      ct: enc.ct,
+      tag: enc.tag,
+    });
+    expect(dec).toEqual(payload);
+  });
+
+  it('throws when the ciphertext is tampered', () => {
+    const seedKey = deriveSeedKey(parentSharedX);
+    const enc = encryptSeedPayload(seedKey, { mnemonic: 'secret words' });
+    // Flip a byte of the base64 ciphertext.
+    const badCt =
+      enc.ct.slice(0, -2) + (enc.ct.slice(-2) === 'AA' ? 'BB' : 'AA');
+    expect(() =>
+      decryptSeedPayload(seedKey, { iv: enc.iv, ct: badCt, tag: enc.tag }),
+    ).toThrow();
+  });
+
+  it('SAS diverges when a MITM substitutes a peer pubkey', () => {
+    const attacker = makeChildEphKey();
+    // Child derives its shared secret against the attacker's key, not the parent.
+    const childVsAttacker = deriveSharedX(child.priv, attacker.pub);
+    const parentSAS = computeSAS(parentSharedX, child.pub, parent.pub);
+    const childSAS = computeSAS(childVsAttacker, child.pub, attacker.pub);
+    expect(childSAS).not.toBe(parentSAS);
+  });
+
+  it('rendezvousId is deterministic and code-normalized', () => {
+    expect(rendezvousId('ABC234')).toBe(rendezvousId('  abc234 '));
+    expect(rendezvousId('ABC234')).not.toBe(rendezvousId('XYZ789'));
+  });
+
+  it('makePairingCode is 6 chars from the safe alphabet', () => {
+    expect(makePairingCode()).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/);
+  });
+});

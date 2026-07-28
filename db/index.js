@@ -22,6 +22,7 @@ import {
   runTransaction,
   serverTimestamp,
   Timestamp,
+  onSnapshot,
 } from '@react-native-firebase/firestore';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
@@ -640,6 +641,47 @@ export async function deleteGift(uuid) {
     crashlyticsRecordErrorReport(e.message);
     return false;
   }
+}
+
+// ── Family pairing handshake: short-lived write-once docs at
+// familyPairing/{rid}/handshake/{party}. TTL on expiresAt is the backstop.
+function pairingDocRef(rid, party) {
+  return doc(getFirestore(), 'familyPairing', rid, 'handshake', party);
+}
+
+export async function setPairingDoc(rid, party, data) {
+  try {
+    await setDoc(pairingDocRef(rid, party), data);
+    return true;
+  } catch (e) {
+    console.error('Error writing pairing doc:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function getPairingDoc(rid, party) {
+  try {
+    const snap = await getDoc(pairingDocRef(rid, party));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    console.error('Error reading pairing doc:', e);
+    return null;
+  }
+}
+
+export function subscribePairingDoc(rid, party, onData) {
+  return onSnapshot(pairingDocRef(rid, party), snap => {
+    if (snap.exists()) onData(snap.data());
+  });
+}
+
+export async function deletePairingHandshake(rid) {
+  await Promise.all(
+    ['parentHello', 'childHello', 'grant'].map(party =>
+      deleteDoc(pairingDocRef(rid, party)).catch(() => {}),
+    ),
+  );
 }
 
 export async function handleGiftCheck(cardUUID) {

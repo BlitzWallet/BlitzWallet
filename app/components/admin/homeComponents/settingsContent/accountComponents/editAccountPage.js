@@ -181,8 +181,9 @@ export default function EditAccountPage(props) {
   }, [navigate, accountInformation]);
 
   const handlePairDevice = useCallback(() => {
-    navigate.navigate('ChildCreatedConfirmation', {
-      reshareChild: accountInformation,
+    navigate.navigate('ChildPairingStack', {
+      screen: 'ChildPairInfoPage',
+      params: { reshareChild: accountInformation },
     });
   }, [navigate, accountInformation]);
 
