@@ -23,6 +23,7 @@ import {
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
+import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import customUUID from '../app/functions/customUUID';
 import isValidMnemonic from '../app/functions/isValidMnemonic';
 import { useAppStatus } from './appStatus';
@@ -376,6 +377,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const getAccountMnemonic = async account => {
     try {
       if (!account) throw new Error('No account provided');
+      // Linked (child) accounts derive from the parent seed via childIndex.
+      if (account.childIndex !== undefined) {
+        return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+      }
       // For derived accounts, re-derive on demand from main seed
       if (account.derivationIndex !== undefined) {
         const derivedMnemonic = await deriveAccountMnemonic(
