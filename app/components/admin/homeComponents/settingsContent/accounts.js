@@ -80,18 +80,20 @@ export default function CreateCustodyAccounts() {
         label={t('constants.accounts')}
         leftImageStyles={{ height: 25 }}
         iconNew="Info"
-        showLeftImage={true}
+        showLeftImage={!masterInfoObject.isChildAccount}
         leftImageFunction={handleAboutClick}
       />
-      <WordsQrToggle
-        selectedDisplayOption={activeTab}
-        setSelectedDisplayOption={setActiveTab}
-        option1Text={t('settings.accounts.tabs.personal')}
-        option1Value="personal"
-        option2Text={t('settings.accounts.tabs.linked')}
-        option2Value="linked"
-        containerStyle={styles.toggle}
-      />
+      {!masterInfoObject.isChildAccount && (
+        <WordsQrToggle
+          selectedDisplayOption={activeTab}
+          setSelectedDisplayOption={setActiveTab}
+          option1Text={t('settings.accounts.tabs.personal')}
+          option1Value="personal"
+          option2Text={t('settings.accounts.tabs.linked')}
+          option2Value="linked"
+          containerStyle={styles.toggle}
+        />
+      )}
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}

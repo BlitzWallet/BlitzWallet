@@ -81,41 +81,43 @@ export default function SelectCreateAccountType() {
         </TouchableOpacity>
 
         {/* Child Account Option */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => navigate.navigate('ChildEnterName')}
-          style={[
-            styles.rowContainer,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
-        >
-          <View
+        {!masterInfoObject.isChildAccount && (
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => navigate.navigate('ChildEnterName')}
             style={[
-              styles.iconContainer,
+              styles.rowContainer,
               {
-                backgroundColor: backgroundColor,
+                backgroundColor: backgroundOffset,
               },
             ]}
           >
-            <ThemeIcon size={20} iconName={'Users'} />
-          </View>
-          <View style={styles.textContainer}>
-            <ThemeText
-              styles={styles.titleText}
-              content={t(
-                'settings.accountComponents.selectCreateAccountType.createChildAccountTitle',
-              )}
-            />
-            <ThemeText
-              styles={styles.descText}
-              content={t(
-                'settings.accountComponents.selectCreateAccountType.createChildAccountDescription',
-              )}
-            />
-          </View>
-        </TouchableOpacity>
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor: backgroundColor,
+                },
+              ]}
+            >
+              <ThemeIcon size={20} iconName={'Users'} />
+            </View>
+            <View style={styles.textContainer}>
+              <ThemeText
+                styles={styles.titleText}
+                content={t(
+                  'settings.accountComponents.selectCreateAccountType.createChildAccountTitle',
+                )}
+              />
+              <ThemeText
+                styles={styles.descText}
+                content={t(
+                  'settings.accountComponents.selectCreateAccountType.createChildAccountDescription',
+                )}
+              />
+            </View>
+          </TouchableOpacity>
+        )}
         {/* Restore already created Account */}
         <TouchableOpacity
           activeOpacity={!restorableIndices.length ? HIDDEN_OPACITY : 0.7}
