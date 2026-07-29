@@ -63,6 +63,10 @@ export function ChildPairingProvider({ children }) {
       // The child account already exists (created on the spending-limit screen).
       // This only runs the pairing handshake — re-runnable any time, e.g. if the
       // child loses their wallet and must re-pair.
+      // Only one live handshake at a time. Re-entry — e.g. the link screen
+      // re-focusing after the user backs out of the match screen — must not tear
+      // down the in-flight session and mint a new pairing code.
+      if (sessionRef.current) return;
       const startTime = Date.now();
       await resetSession();
       setStatus('preparing');

@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
@@ -14,11 +14,18 @@ import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
 
-export default function ChildLinkCode() {
+export default function ChildLinkCode(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
-  const { status, code, isEnded } = useChildPairing();
+  const { status, code, isEnded, startPairing } = useChildPairing();
+  const reshareChild = props?.route?.params?.reshareChild ?? null;
+
+  useFocusEffect(
+    useCallback(() => {
+      startPairing(reshareChild);
+    }, [reshareChild]),
+  );
 
   // Child joined and the SAS is ready -> move to the verify screen.
   useEffect(() => {

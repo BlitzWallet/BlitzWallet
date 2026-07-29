@@ -83,7 +83,12 @@ export default function EditAccountPage(props) {
       selectedAccount ||
       {}
     );
-  }, [isChild, custodyAccounts, masterInfoObject?.childAccounts, selectedAccount]);
+  }, [
+    isChild,
+    custodyAccounts,
+    masterInfoObject?.childAccounts,
+    selectedAccount,
+  ]);
 
   const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
 
@@ -157,14 +162,22 @@ export default function EditAccountPage(props) {
 
   const handleNavigateView = useCallback(async () => {
     const mnemonic = isChild
-      ? await deriveChildMnemonic(accountMnemoinc, accountInformation.childIndex)
+      ? await deriveChildMnemonic(
+          accountMnemoinc,
+          accountInformation.childIndex,
+        )
       : await getAccountMnemonic(selectedAccount);
     navigate.navigate('SeedPhraseWarning', {
       mnemonic: mnemonic,
       extraData: { canViewQrCode: false },
       fromPage: 'accounts',
     });
-  }, [selectedAccount, isChild, accountMnemoinc, accountInformation.childIndex]);
+  }, [
+    selectedAccount,
+    isChild,
+    accountMnemoinc,
+    accountInformation.childIndex,
+  ]);
 
   const handleEditName = useCallback(async () => {
     if (isChild) {
@@ -182,7 +195,7 @@ export default function EditAccountPage(props) {
 
   const handlePairDevice = useCallback(() => {
     navigate.navigate('ChildPairingStack', {
-      screen: 'ChildPairInfoPage',
+      screen: 'ChildLinkCode',
       params: { reshareChild: accountInformation },
     });
   }, [navigate, accountInformation]);
