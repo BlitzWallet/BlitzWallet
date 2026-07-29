@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   INSET_WINDOW_WIDTH,
@@ -19,11 +19,17 @@ import AccountCard from '../accounts/accountCard';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
+  const route = useRoute();
   const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const { textColor } = GetThemeColors();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('personal');
+  const params = route.params || {};
+  const [activeTab, setActiveTab] = useState(params?.initialTab || 'personal');
+
+  useEffect(() => {
+    if (params?.initialTab) setActiveTab(params.initialTab);
+  }, [params?.initialTab]);
 
   const childAccounts = useMemo(
     () => masterInfoObject?.childAccounts || [],

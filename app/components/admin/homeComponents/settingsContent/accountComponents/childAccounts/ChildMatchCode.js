@@ -33,7 +33,10 @@ export default function ChildMatchCode() {
     setIsResetting(true);
     await declineMatch();
     setIsResetting(false);
-    navigate.popTo('SettingsContentHome', { for: 'Accounts' });
+    navigate.popTo('SettingsContentHome', {
+      for: 'Accounts',
+      initialTab: 'linked',
+    });
   };
 
   if (isEnded) {

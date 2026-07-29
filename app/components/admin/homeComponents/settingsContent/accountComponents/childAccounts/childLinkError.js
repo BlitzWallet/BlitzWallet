@@ -29,7 +29,10 @@ export default function ChildLinkError() {
 
   const handleDone = () => {
     resetSession();
-    navigate.popTo('SettingsContentHome', { for: 'Accounts' });
+    navigate.popTo('SettingsContentHome', {
+      for: 'Accounts',
+      initialTab: 'linked',
+    });
   };
 
   const confirmAnimation = useMemo(() => {
