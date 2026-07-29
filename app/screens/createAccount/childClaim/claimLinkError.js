@@ -1,35 +1,28 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../../functions/CustomElements';
-import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../../constants';
-import {
-  FONT,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../../constants/theme';
-import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
+import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
+import CustomButton from '../../../functions/CustomElements/button';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../constants';
+import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import { useMemo } from 'react';
-import { applyErrorAnimationTheme } from '../../../../../../functions/lottieViewColorTransformer';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
+import { applyErrorAnimationTheme } from '../../../functions/lottieViewColorTransformer';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
+import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import { useChildClaim } from '../../../../context-store/childClaimContext';
 
-const confirmTxAnimation = require('../../../../../../assets/errorTxAnimation.json');
+const confirmTxAnimation = require('../../../assets/errorTxAnimation.json');
 
-export default function ChildLinkError() {
+export default function ClaimLinkError() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { resetSession, status, errorMessage } = useChildPairing();
+  const { resetSession, status, errorMessage } = useChildClaim();
 
   const handleDone = () => {
     resetSession();
-    navigate.popTo('SettingsContentHome', { for: 'Accounts' });
+    navigate.popTo('ChildClaimInfo');
   };
 
   const confirmAnimation = useMemo(() => {

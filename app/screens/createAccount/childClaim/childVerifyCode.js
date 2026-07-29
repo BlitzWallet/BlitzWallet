@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +9,14 @@ import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
+import ClaimLinkError from './claimLinkError';
 
 export default function ChildVerifyCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
-  const { status, sas, errorMessage, confirmMatch, isEnded } = useChildClaim();
+  const { backgroundOffset, textColor } = GetThemeColors();
+  const [isResetting, setIsResetting] = useState(false);
+  const { status, sas, confirmMatch, isEnded, declineMatch } = useChildClaim();
 
   // Seed imported -> continue straight to PIN setup (no success screen).
   useEffect(() => {
@@ -23,59 +25,57 @@ export default function ChildVerifyCode() {
     }
   }, [status, navigate]);
 
+  const handleNoMatch = async () => {
+    setIsResetting(true);
+    await declineMatch();
+    setIsResetting(false);
+    navigate.popTo('ChildClaimInfo');
+  };
+
+  if (isEnded) return <ClaimLinkError />;
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('settings.childAccounts.claim.sasNavTitle')}
       />
       <View style={styles.content}>
-        {isEnded ? (
-          <ThemeText
-            styles={styles.message}
-            content={
-              errorMessage ||
-              t(
-                status === 'expired'
-                  ? 'settings.childAccounts.claim.expired'
-                  : 'settings.childAccounts.claim.errorTitle',
-              )
-            }
-          />
-        ) : (
-          <>
-            <ThemeText
-              styles={styles.title}
-              content={t('settings.childAccounts.claim.sasTitle')}
-            />
-            <ThemeText
-              styles={styles.subtitle}
-              content={t('settings.childAccounts.claim.sasSubtitle')}
-            />
-            <View style={styles.boxes}>
-              {sas.split('').map((digit, index) => (
-                <View
-                  key={index}
-                  style={[styles.box, { backgroundColor: backgroundOffset }]}
-                >
-                  <ThemeText styles={styles.boxText} content={digit} />
-                </View>
-              ))}
+        <ThemeText
+          styles={styles.title}
+          content={t('settings.childAccounts.claim.sasTitle')}
+        />
+        <ThemeText
+          styles={styles.subtitle}
+          content={t('settings.childAccounts.claim.sasSubtitle')}
+        />
+        <View style={styles.boxes}>
+          {sas.split('').map((digit, index) => (
+            <View
+              key={index}
+              style={[styles.box, { backgroundColor: backgroundOffset }]}
+            >
+              <ThemeText styles={styles.boxText} content={digit} />
             </View>
-            <ThemeText
-              styles={styles.hint}
-              content={t('settings.childAccounts.claim.sasHint')}
-            />
-          </>
-        )}
+          ))}
+        </View>
+        <ThemeText
+          styles={styles.hint}
+          content={t('settings.childAccounts.claim.sasHint')}
+        />
         <View style={{ flex: 1 }} />
-        {!isEnded && (
-          <CustomButton
-            buttonStyles={styles.button}
-            useLoading={status === 'awaiting'}
-            textContent={t('settings.childAccounts.claim.confirmMatch')}
-            actionFunction={confirmMatch}
-          />
-        )}
+        <CustomButton
+          buttonStyles={styles.button}
+          useLoading={status === 'awaiting'}
+          textContent={t('constants.confirm')}
+          actionFunction={confirmMatch}
+        />
+        <CustomButton
+          buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}
+          useLoading={isResetting}
+          textStyles={{ color: textColor }}
+          textContent={t('settings.childAccounts.dontMatch')}
+          actionFunction={handleNoMatch}
+        />
       </View>
     </GlobalThemeView>
   );

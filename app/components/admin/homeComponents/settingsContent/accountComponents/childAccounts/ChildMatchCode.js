@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -17,8 +17,10 @@ import ChildLinkError from './childLinkError';
 export default function ChildMatchCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
-  const { status, sas, confirmMatch, isEnded } = useChildPairing();
+  const { backgroundOffset, textColor } = GetThemeColors();
+  const [isResetting, setIsResetting] = useState(false);
+  const { status, sas, confirmMatch, isEnded, declineMatch } =
+    useChildPairing();
 
   // Grant delivered -> show the success screen.
   useEffect(() => {
@@ -26,6 +28,13 @@ export default function ChildMatchCode() {
       navigate.navigate('ChildLinkSuccess');
     }
   }, [status, navigate]);
+
+  const handleNoMatch = async () => {
+    setIsResetting(true);
+    await declineMatch();
+    setIsResetting(false);
+    navigate.popTo('SettingsContentHome', { for: 'Accounts' });
+  };
 
   if (isEnded) {
     return <ChildLinkError />;
@@ -60,12 +69,21 @@ export default function ChildMatchCode() {
 
         <View style={{ flex: 1 }} />
         {!isEnded && (
-          <CustomButton
-            buttonStyles={styles.button}
-            useLoading={status === 'granting'}
-            textContent={t('settings.childAccounts.pairing.confirmMatch')}
-            actionFunction={confirmMatch}
-          />
+          <>
+            <CustomButton
+              buttonStyles={styles.button}
+              useLoading={status === 'granting'}
+              textContent={t('constants.confirm')}
+              actionFunction={confirmMatch}
+            />
+            <CustomButton
+              buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}
+              useLoading={isResetting}
+              textStyles={{ color: textColor }}
+              textContent={t('settings.childAccounts.dontMatch')}
+              actionFunction={handleNoMatch}
+            />
+          </>
         )}
       </View>
     </GlobalThemeView>

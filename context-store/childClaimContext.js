@@ -24,6 +24,7 @@ import {
   getPairingDoc,
   setPairingDoc,
   subscribePairingDoc,
+  subscribePairingDocDeleted,
 } from '../db';
 import { firebaseAuth } from '../db/initializeFirebase';
 
@@ -47,12 +48,22 @@ export function ChildClaimProvider({ children }) {
 
   const sessionRef = useRef(null);
   const unsubRef = useRef(null);
+  const cancelUnsubRef = useRef(null);
+  const parentGoneUnsubRef = useRef(null);
   const expiryRef = useRef(null);
 
   const resetSession = useCallback(async (status = 'idle') => {
     if (unsubRef.current) {
       unsubRef.current();
       unsubRef.current = null;
+    }
+    if (cancelUnsubRef.current) {
+      cancelUnsubRef.current();
+      cancelUnsubRef.current = null;
+    }
+    if (parentGoneUnsubRef.current) {
+      parentGoneUnsubRef.current();
+      parentGoneUnsubRef.current = null;
     }
     if (expiryRef.current) {
       clearTimeout(expiryRef.current);
@@ -61,7 +72,9 @@ export function ChildClaimProvider({ children }) {
     const session = sessionRef.current;
     sessionRef.current = null;
     if (session?.eph) session.eph = null;
-    if (session?.rid && !session?.imported) {
+    // A declined session leaves its docs (incl. the cancel signal) for the peer to
+    // read; TTL cleans up. Otherwise tear the handshake down unless the seed landed.
+    if (session?.rid && !session?.imported && !session?.declined) {
       await deletePairingHandshake(session.rid);
     }
     setSas('');
@@ -94,6 +107,10 @@ export function ChildClaimProvider({ children }) {
         if (unsubRef.current) {
           unsubRef.current();
           unsubRef.current = null;
+        }
+        if (parentGoneUnsubRef.current) {
+          parentGoneUnsubRef.current();
+          parentGoneUnsubRef.current = null;
         }
         if (expiryRef.current) {
           clearTimeout(expiryRef.current);
@@ -163,6 +180,30 @@ export function ChildClaimProvider({ children }) {
         });
         if (!didHello) throw new Error('Failed to join pairing session');
 
+        // Listen the whole session for the parent cancelling so we don't hang
+        // waiting on the grant until the TTL expires.
+        cancelUnsubRef.current = subscribePairingDoc(rid, 'cancel', () => {
+          const s = sessionRef.current;
+          if (!s || s.imported || s.declined) return;
+          setErrorMessage(t('settings.childAccounts.claim.canceledByParent'));
+          setStatus('error');
+        });
+
+        // The parent deletes the whole handshake when it times out or leaves;
+        // deletion is invisible to subscribePairingDoc, so watch parentHello
+        // disappearing and treat it as expiry instead of hanging on the SAS
+        // screen forever.
+        parentGoneUnsubRef.current = subscribePairingDocDeleted(
+          rid,
+          'parentHello',
+          () => {
+            const s = sessionRef.current;
+            console.log('parent helo is deleted', s);
+            if (!s || s.imported || s.declined) return;
+            setStatus('expired');
+          },
+        );
+
         setSas(localSas);
         setStatus('confirm');
       } catch (err) {
@@ -204,15 +245,29 @@ export function ChildClaimProvider({ children }) {
     }, PAIRING_TTL_MS);
   }, [status, importSeed]);
 
+  const declineMatch = useCallback(async () => {
+    const session = sessionRef.current;
+    if (session?.rid && !session?.imported) {
+      session.declined = true; // guards our own cancel listener + skips doc delete
+      await setPairingDoc(session.rid, 'cancel', {
+        v: 1,
+        expiresAt: Date.now() + PAIRING_TTL_MS,
+      });
+    }
+    await resetSession();
+  }, [resetSession]);
+
   useEffect(() => {
     return () => {
       // On unmount (flow popped off the stack): tear down the listener and delete
       // the handshake docs unless the grant was already imported.
       if (unsubRef.current) unsubRef.current();
+      if (cancelUnsubRef.current) cancelUnsubRef.current();
+      if (parentGoneUnsubRef.current) parentGoneUnsubRef.current();
       if (expiryRef.current) clearTimeout(expiryRef.current);
       const session = sessionRef.current;
       if (session?.eph) session.eph = null;
-      if (session?.rid && !session?.imported)
+      if (session?.rid && !session?.imported && !session?.declined)
         deletePairingHandshake(session.rid);
     };
   }, []);
@@ -226,6 +281,7 @@ export function ChildClaimProvider({ children }) {
       errorMessage,
       submitCode,
       confirmMatch,
+      declineMatch,
       resetSession,
       isEnded,
     }),
@@ -235,6 +291,7 @@ export function ChildClaimProvider({ children }) {
       errorMessage,
       submitCode,
       confirmMatch,
+      declineMatch,
       resetSession,
       isEnded,
     ],

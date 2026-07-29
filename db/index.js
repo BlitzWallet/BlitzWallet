@@ -676,9 +676,20 @@ export function subscribePairingDoc(rid, party, onData) {
   });
 }
 
+// subscribePairingDoc is deliberately silent on deletion; this sibling fires
+// onDeleted for a true existing -> deleted transition (the sawDoc latch skips
+// the initial snapshot when the doc simply isn't there yet).
+export function subscribePairingDocDeleted(rid, party, onDeleted) {
+  let sawDoc = false;
+  return onSnapshot(pairingDocRef(rid, party), snap => {
+    if (snap.exists()) sawDoc = true;
+    else if (sawDoc) onDeleted();
+  });
+}
+
 export async function deletePairingHandshake(rid) {
   await Promise.all(
-    ['parentHello', 'childHello', 'childConfirm', 'grant'].map(party =>
+    ['parentHello', 'childHello', 'childConfirm', 'grant', 'cancel'].map(party =>
       deleteDoc(pairingDocRef(rid, party)).catch(() => {}),
     ),
   );

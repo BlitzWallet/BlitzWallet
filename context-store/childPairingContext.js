@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useKeysContext } from './keys';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import {
@@ -32,29 +33,39 @@ const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rul
 const ChildPairingContext = createContext(null);
 
 export function ChildPairingProvider({ children }) {
+  const { t } = useTranslation();
   const { accountMnemoinc, publicKey, contactsPrivateKey } = useKeysContext();
 
   // status: idle | preparing | waiting | confirm | granting | done | error | expired
   const [status, setStatus] = useState('idle');
   const [code, setCode] = useState('');
   const [sas, setSas] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const sessionRef = useRef(null);
   const unsubRef = useRef(null);
+  const cancelUnsubRef = useRef(null);
 
   const resetSession = useCallback(async (status = 'idle') => {
     if (unsubRef.current) {
       unsubRef.current();
       unsubRef.current = null;
     }
+    if (cancelUnsubRef.current) {
+      cancelUnsubRef.current();
+      cancelUnsubRef.current = null;
+    }
     const session = sessionRef.current;
     sessionRef.current = null;
     if (session?.childMnemonic) session.childMnemonic = null; // wipe seed from memory
-    if (session?.rid && !session?.granted) {
+    // A declined session leaves its docs (incl. the cancel signal) for the peer to
+    // read; TTL cleans up. Otherwise tear the handshake down unless the grant landed.
+    if (session?.rid && !session?.granted && !session?.declined) {
       await deletePairingHandshake(session.rid);
     }
     setCode('');
     setSas('');
+    setErrorMessage('');
     setStatus(status);
   }, []);
 
@@ -103,6 +114,15 @@ export function ChildPairingProvider({ children }) {
         });
         if (!didHello) throw new Error('Failed to open pairing session');
 
+        // Listen the whole session for a decline from the child so we don't hang
+        // waiting on childConfirm/grant until the TTL expires.
+        cancelUnsubRef.current = subscribePairingDoc(rid, 'cancel', () => {
+          const s = sessionRef.current;
+          if (!s || s.granted || s.declined) return;
+          setErrorMessage(t('settings.childAccounts.pairing.declinedByChild'));
+          setStatus('error');
+        });
+
         // Listen for the child's ephemeral pubkey, then compute the SAS.
         unsubRef.current = subscribePairingDoc(
           rid,
@@ -132,8 +152,20 @@ export function ChildPairingProvider({ children }) {
         setStatus('error');
       }
     },
-    [resetSession, accountMnemoinc, publicKey, contactsPrivateKey],
+    [resetSession, accountMnemoinc, publicKey, contactsPrivateKey, t],
   );
+
+  const declineMatch = useCallback(async () => {
+    const session = sessionRef.current;
+    if (session?.rid && !session?.granted) {
+      session.declined = true; // guards our own cancel listener + skips doc delete
+      await setPairingDoc(session.rid, 'cancel', {
+        v: 1,
+        expiresAt: Date.now() + PAIRING_TTL_MS,
+      });
+    }
+    await resetSession();
+  }, [resetSession]);
 
   const confirmMatch = useCallback(async () => {
     const session = sessionRef.current;
@@ -148,41 +180,45 @@ export function ChildPairingProvider({ children }) {
       unsubRef.current();
       unsubRef.current = null;
     }
-    unsubRef.current = subscribePairingDoc(session.rid, 'childConfirm', async () => {
-      if (session.granted || !session.childMnemonic) return;
-      try {
-        const seedKey = deriveSeedKey(session.sharedX);
-        const enc = encryptSeedPayload(seedKey, {
-          v: 1,
-          mnemonic: session.childMnemonic,
-          parentPublicKey: publicKey,
-          name: session.name,
-          spendingLimit: session.spendingLimit,
-          childIndex: session.childIndex,
-          grantedAt: Date.now(),
-        });
-        const didGrant = await setPairingDoc(session.rid, 'grant', {
-          v: 1,
-          iv: enc.iv,
-          ciphertext: enc.ct,
-          tag: enc.tag,
-          expiresAt: Date.now() + PAIRING_TTL_MS,
-        });
-        if (!didGrant) throw new Error('Failed to deliver grant');
+    unsubRef.current = subscribePairingDoc(
+      session.rid,
+      'childConfirm',
+      async () => {
+        if (session.granted || !session.childMnemonic) return;
+        try {
+          const seedKey = deriveSeedKey(session.sharedX);
+          const enc = encryptSeedPayload(seedKey, {
+            v: 1,
+            mnemonic: session.childMnemonic,
+            parentPublicKey: publicKey,
+            name: session.name,
+            spendingLimit: session.spendingLimit,
+            childIndex: session.childIndex,
+            grantedAt: Date.now(),
+          });
+          const didGrant = await setPairingDoc(session.rid, 'grant', {
+            v: 1,
+            iv: enc.iv,
+            ciphertext: enc.ct,
+            tag: enc.tag,
+            expiresAt: Date.now() + PAIRING_TTL_MS,
+          });
+          if (!didGrant) throw new Error('Failed to deliver grant');
 
-        session.granted = true;
-        session.childMnemonic = null; // wipe seed from memory
-        if (unsubRef.current) {
-          unsubRef.current();
-          unsubRef.current = null;
+          session.granted = true;
+          session.childMnemonic = null; // wipe seed from memory
+          if (unsubRef.current) {
+            unsubRef.current();
+            unsubRef.current = null;
+          }
+          setStatus('done');
+        } catch (err) {
+          console.log('child grant error', err);
+          crashlyticsRecordErrorReport(err.message);
+          setStatus('error');
         }
-        setStatus('done');
-      } catch (err) {
-        console.log('child grant error', err);
-        crashlyticsRecordErrorReport(err.message);
-        setStatus('error');
-      }
-    });
+      },
+    );
   }, [publicKey]);
 
   // Expiry backstop.
@@ -201,9 +237,10 @@ export function ChildPairingProvider({ children }) {
       // the handshake docs unless the grant was already delivered (then TTL cleans
       // up so the child can still read it).
       if (unsubRef.current) unsubRef.current();
+      if (cancelUnsubRef.current) cancelUnsubRef.current();
       const session = sessionRef.current;
       if (session?.childMnemonic) session.childMnemonic = null;
-      if (session?.rid && !session?.granted)
+      if (session?.rid && !session?.granted && !session?.declined)
         deletePairingHandshake(session.rid);
     };
   }, []);
@@ -215,12 +252,24 @@ export function ChildPairingProvider({ children }) {
       status,
       code,
       sas,
+      errorMessage,
       startPairing,
       confirmMatch,
+      declineMatch,
       resetSession,
       isEnded,
     }),
-    [status, code, sas, startPairing, confirmMatch, resetSession, isEnded],
+    [
+      status,
+      code,
+      sas,
+      errorMessage,
+      startPairing,
+      confirmMatch,
+      declineMatch,
+      resetSession,
+      isEnded,
+    ],
   );
 
   return (
