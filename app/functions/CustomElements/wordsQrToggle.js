@@ -89,10 +89,16 @@ export default function WordsQrToggle({
     setQrTextWidth(width);
   }, []);
 
+  // Keep the animated pill in sync with the controlled selection (and with the
+  // real button width once measured), so externally-set selections animate too.
+  useEffect(() => {
+    if (buttonWidth === 999) return;
+    handleSlide(selectedDisplayOption);
+  }, [selectedDisplayOption, buttonWidth, handleSlide]);
+
   const wordsFunction = useCallback(() => {
     setSelectedDisplayOption(option1Value);
-    handleSlide(option1Value);
-  }, [handleSlide, option1Value]);
+  }, [option1Value]);
 
   const qrFunction = useCallback(() => {
     if (canViewOption2 !== undefined && !canViewOption2) {
@@ -104,14 +110,7 @@ export default function WordsQrToggle({
       return;
     }
     setSelectedDisplayOption(option2Value);
-    handleSlide(option2Value);
-  }, [
-    canViewOption2,
-    navigate,
-    handleSlide,
-    option2Value,
-    option2BlockedNavFunc,
-  ]);
+  }, [canViewOption2, navigate, option2Value, option2BlockedNavFunc]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: sliderAnimation.value }, { translateY: 3 }],
