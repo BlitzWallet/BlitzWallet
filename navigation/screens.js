@@ -78,6 +78,7 @@ import {
   PinSetupPage,
   RestoreWallet,
   SkipCreateAccountPathMessage,
+  WalletSetupFork,
 } from '../app/screens/createAccount';
 import {
   AdminHomeIndex,
@@ -163,6 +164,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   { name: 'POSStack', component: POSStack },
   // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
+  { name: 'WalletSetupFork', component: WalletSetupFork },
   { name: 'DisclaimerPage', component: DislaimerPage },
   { name: 'GenerateKey', component: GenerateKey },
   { name: 'PinSetup', component: PinSetupPage },

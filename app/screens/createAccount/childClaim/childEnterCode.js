@@ -12,7 +12,10 @@ import SegmentedCodeInput from '../../../functions/CustomElements/segmentedCodeI
 import { CENTER, COLORS } from '../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
-import { keyboardNavigate } from '../../../functions/customNavigation';
+import {
+  keyboardGoBack,
+  keyboardNavigate,
+} from '../../../functions/customNavigation';
 
 const CODE_LENGTH = 6;
 
@@ -31,7 +34,7 @@ export default function ChildEnterCode() {
 
   const handleBack = useCallback(() => {
     resetSession();
-    navigate.goBack();
+    keyboardGoBack(navigate);
   }, [resetSession]);
 
   return (
@@ -42,7 +45,7 @@ export default function ChildEnterCode() {
     >
       <CustomSettingsTopBar
         customBackFunction={handleBack}
-        label={t('settings.childAccounts.claim.title')}
+        label={t('settings.childAccounts.claim.codeNavTitle')}
       />
       <View style={styles.content}>
         <ThemeText

@@ -25,7 +25,9 @@ export default function ChildVerifyCode() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('settings.childAccounts.claim.title')} />
+      <CustomSettingsTopBar
+        label={t('settings.childAccounts.claim.sasNavTitle')}
+      />
       <View style={styles.content}>
         {isEnded ? (
           <ThemeText

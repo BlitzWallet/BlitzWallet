@@ -115,11 +115,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
               ]}
             >
               <View style={styles.infoIcon}>
-                <ThemeIcon
-                  size={20}
-                  iconName={icon}
-                  colorOverride={COLORS.darkModeText}
-                />
+                <ThemeIcon size={20} iconName={icon} />
               </View>
               <View style={styles.infoText}>
                 <ThemeText styles={styles.infoLabel} content={label} />
@@ -127,7 +123,6 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
               </View>
             </View>
           ))}
-
           {/* ── Dedicated, tappable Terms row ── */}
           <TouchableOpacity
             onPress={openTermsAndConditions}
@@ -137,11 +132,9 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
               { borderTopWidth: 1, borderTopColor: backgroundColor },
             ]}
           >
-            <ThemeIcon
-              size={20}
-              iconName={'FileText'}
-              colorOverride={COLORS.primary}
-            />
+            <View style={{ width: 38, alignItems: 'center' }}>
+              <ThemeIcon size={20} iconName={'FileText'} />
+            </View>
             <ThemeText
               styles={styles.termsRowLabel}
               content={t('createAccount.disclaimerPage.readTerms')}
@@ -198,12 +191,13 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
     ...CENTER,
+    flexGrow: 1,
   },
 
   // ── Header ──
   headerText: {
     width: '100%',
-    fontSize: SIZES.huge,
+    fontSize: SIZES.xLarge,
     fontWeight: '500',
     marginTop: 16,
     marginBottom: 12,
@@ -220,13 +214,12 @@ const styles = StyleSheet.create({
   // ── Card ──
   card: {
     width: '100%',
-    borderRadius: 22,
+    borderRadius: 24,
     overflow: 'hidden',
-    marginBottom: 32,
   },
   infoRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 14,
     paddingVertical: 15,
     paddingHorizontal: 16,
@@ -234,8 +227,6 @@ const styles = StyleSheet.create({
   infoIcon: {
     width: 38,
     height: 38,
-    borderRadius: 11,
-    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
@@ -243,7 +234,6 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     gap: 3,
-    paddingTop: 1,
   },
   infoLabel: {
     fontSize: SIZES.smedium,

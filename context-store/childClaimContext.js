@@ -117,6 +117,7 @@ export function ChildClaimProvider({ children }) {
         .trim()
         .toUpperCase();
       if (!code || status === 'joining') return;
+      if (code.length <= 5) return;
       setErrorMessage('');
       setStatus('joining');
 

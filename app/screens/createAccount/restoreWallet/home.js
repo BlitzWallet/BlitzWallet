@@ -302,13 +302,13 @@ export default function RestoreWallet({ navigation: { reset } }) {
           <ThemeText
             CustomNumberOfLines={1}
             adjustsFontSizeToFit={true}
-            styles={styles.headerText}
+            styles={styles.title}
             content={t('createAccount.restoreWallet.home.header')}
           />
           <ThemeText
             CustomNumberOfLines={2}
             adjustsFontSizeToFit={true}
-            styles={styles.subHeader}
+            styles={styles.subtitle}
             content={t('createAccount.restoreWallet.home.desc')}
           />
           {inputKeys}
@@ -369,20 +369,18 @@ const styles = StyleSheet.create({
   navContainer: {
     marginRight: 'auto',
   },
-  headerText: {
-    width: '100%',
-    fontSize: SIZES.xLarge,
-    fontWeight: 500,
-    textAlign: 'center',
-    marginBottom: 5,
-    ...CENTER,
+  title: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    includeFontPadding: false,
+    marginTop: 28,
+    marginBottom: 8,
   },
-  subHeader: {
-    width: INSET_WINDOW_WIDTH,
-    textAlign: 'center',
-    opacity: HIDDEN_OPACITY,
-    marginBottom: 30,
-    ...CENTER,
+  subtitle: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+    marginBottom: 20,
   },
   contentContainer: {
     flexGrow: 1,
