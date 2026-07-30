@@ -193,7 +193,10 @@ export default function SettingsHub(props) {
   }, [navigate]);
 
   const handleViewAllAccounts = useCallback(() => {
-    navigate.navigate('SettingsContentHome', { for: 'Accounts' });
+    navigate.navigate('SettingsContentHome', {
+      for: 'Accounts',
+      initialTab: 'personal',
+    });
   }, [navigate]);
 
   const handleViewAllPools = useCallback(() => {

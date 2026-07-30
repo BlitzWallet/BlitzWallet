@@ -193,6 +193,7 @@ export default function CreateCustodyAccountPage(props) {
       setIsCreatingAccount(false);
       navigate.popTo('SettingsContentHome', {
         for: 'Accounts',
+        initialTab: 'personal',
       });
     } catch (err) {
       console.log('Create custody account error', err);
