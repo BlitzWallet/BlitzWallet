@@ -13,6 +13,7 @@ import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../../constants/theme';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
+import PairingExpiryClock from './pairingExpiryClock';
 
 export default function ChildMatchCode() {
   const navigate = useNavigation();
@@ -45,7 +46,10 @@ export default function ChildMatchCode() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('settings.childAccounts.pairing.title')} />
+      <CustomSettingsTopBar
+        label={t('settings.childAccounts.pairing.title')}
+        rightContent={isEnded ? null : <PairingExpiryClock />}
+      />
       <View style={styles.content}>
         <ThemeText
           styles={styles.title}

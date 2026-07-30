@@ -45,6 +45,7 @@ export function ChildPairingProvider({ children }) {
   const sessionRef = useRef(null);
   const unsubRef = useRef(null);
   const cancelUnsubRef = useRef(null);
+  const pairingStartTime = useRef(null);
 
   const resetSession = useCallback(async (status = 'idle') => {
     if (unsubRef.current) {
@@ -61,7 +62,7 @@ export function ChildPairingProvider({ children }) {
     // A declined session leaves its docs (incl. the cancel signal) for the peer to
     // read; TTL cleans up. Otherwise tear the handshake down unless the grant landed.
     if (session?.rid && !session?.granted && !session?.declined) {
-      await deletePairingHandshake(session.rid);
+      deletePairingHandshake(session.rid);
     }
     setCode('');
     setSas('');
@@ -79,6 +80,7 @@ export function ChildPairingProvider({ children }) {
       // down the in-flight session and mint a new pairing code.
       if (sessionRef.current) return;
       const startTime = Date.now();
+      pairingStartTime.current = startTime;
       await resetSession();
       setStatus('preparing');
       try {
@@ -255,6 +257,7 @@ export function ChildPairingProvider({ children }) {
       declineMatch,
       resetSession,
       isEnded,
+      pairingStartTime,
     }),
     [
       status,
@@ -266,6 +269,7 @@ export function ChildPairingProvider({ children }) {
       declineMatch,
       resetSession,
       isEnded,
+      pairingStartTime,
     ],
   );
 
