@@ -1,7 +1,12 @@
 import { getPublicKey } from 'nostr-tools';
+import { HDKey } from '@scure/bip32';
+import { bytesToHex } from '@noble/hashes/utils';
 import { STARTING_INDEX_FOR_CHILDREN_DERIVE } from '../../constants';
 import { deriveSparkGiftMnemonic } from '../gift/deriveGiftWallet';
-import { privateKeyFromSeedWords } from '../nostrCompatability';
+import {
+  mnemonicToSeedAsync,
+  privateKeyFromSeedWords,
+} from '../nostrCompatability';
 
 /**
  * Derive a child account's mnemonic from the parent's main seed.
@@ -58,4 +63,37 @@ export async function reserveChild({ mainSeed, childIndex }) {
   const childMnemonic = await deriveChildMnemonic(mainSeed, childIndex);
   const childPublicKey = await getChildPublicKey(childMnemonic);
   return { childIndex, childPublicKey, childMnemonic };
+}
+
+/**
+ * Derive the parent-only authority keypair for a child. This is the proof the
+ * backend (updateChildAccount) uses to know the caller is the PARENT and not the
+ * child itself: it lives in the same HD tree as the child's key but under the
+ * key-type field 1' instead of 0', so it is never the child's spend key and the
+ * child — which holds only its own independent mnemonic — cannot derive it.
+ * Per-child (keyed by childIndex) so sibling children never share an authPub.
+ * authPub is produced via the same getPublicKey path as childPublicKey, so it is
+ * ECDH-compatible with the encriptMessage/decryptMessage backend proof.
+ * @param {string} mainSeed - Parent's main wallet mnemonic
+ * @param {number} childIndex - Sequential child index
+ * @returns {Promise<{ authPriv: string, authPub: string }>}
+ */
+export async function deriveChildAuthKey(mainSeed, childIndex) {
+  if (
+    typeof childIndex !== 'number' ||
+    childIndex < 0 ||
+    !Number.isInteger(childIndex)
+  ) {
+    throw new Error(`Child index ${childIndex} is invalid`);
+  }
+  if (!mainSeed || typeof mainSeed !== 'string') {
+    throw new Error('Main seed must be a non-empty string');
+  }
+  const path = `m/8797555'/${
+    STARTING_INDEX_FOR_CHILDREN_DERIVE + childIndex
+  }'/1'`;
+  const seed = await mnemonicToSeedAsync(mainSeed);
+  const node = HDKey.fromMasterSeed(seed).derive(path);
+  const authPriv = bytesToHex(node.privateKey);
+  return { authPriv, authPub: getPublicKey(authPriv) };
 }

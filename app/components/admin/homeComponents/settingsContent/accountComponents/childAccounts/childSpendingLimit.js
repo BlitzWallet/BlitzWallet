@@ -17,9 +17,11 @@ import {
   reserveChild,
   deriveChildMnemonic,
   getChildPublicKey,
+  deriveChildAuthKey,
 } from '../../../../../../functions/accounts/childAccounts';
 import customUUID from '../../../../../../functions/customUUID';
 import { privateKeyFromSeedWords } from '../../../../../../functions/nostrCompatability';
+import { encriptMessage } from '../../../../../../functions/messaging/encodingAndDecodingMessages';
 import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashlyticsLogs';
 import CustomNumberKeyboard from '../../../../../../functions/CustomElements/customNumberKeyboard';
 import FormattedBalanceInput from '../../../../../../functions/CustomElements/formattedBalanceInput';
@@ -44,21 +46,33 @@ export default function ChildSpendingLimit(props) {
   }, [limit]);
 
   // Set/adjust the child's spendingLimit + isChildAccount through the
-  // updateChildAccount Cloud Function. The parent re-derives the child key from
-  // its own seed + childIndex and encrypts as the child, proving control; the
-  // function writes the (client-locked) fields via the admin SDK.
+  // updateChildAccount Cloud Function. Two proofs travel inside the single em
+  // payload: the outer em (encrypted as the child) proves the caller controls
+  // the child key — anti-squat — and emParent (encrypted with the parent-only
+  // per-child auth key, which the child cannot derive) proves the caller is the
+  // parent — anti-escalation. The function writes the (client-locked) fields via
+  // the admin SDK.
   const setChildLimit = useCallback(
-    async (childPublicKey, childMnemonic, spendingLimit) => {
+    async (childPublicKey, childMnemonic, spendingLimit, childIndex) => {
       const childPriv = await privateKeyFromSeedWords(childMnemonic);
+      const { authPriv, authPub } = await deriveChildAuthKey(
+        accountMnemoinc,
+        childIndex,
+      );
+      const emParent = encriptMessage(
+        authPriv,
+        process.env.BACKEND_PUB_KEY,
+        JSON.stringify({ spendingLimit, childPublicKey, ts: Date.now() }),
+      );
       const res = await fetchBackend(
         'updateChildAccount',
-        { spendingLimit },
+        { spendingLimit, authPub, emParent },
         childPriv,
         childPublicKey,
       );
       if (!res?.didWork) throw new Error('Failed to update child account');
     },
-    [],
+    [accountMnemoinc],
   );
 
   const handleSaveEdit = useCallback(async () => {
@@ -68,7 +82,12 @@ export default function ChildSpendingLimit(props) {
       editChild.childIndex,
     );
     const childPublicKey = await getChildPublicKey(childMnemonic);
-    await setChildLimit(childPublicKey, childMnemonic, spendingLimit);
+    await setChildLimit(
+      childPublicKey,
+      childMnemonic,
+      spendingLimit,
+      editChild.childIndex,
+    );
 
     const existing = masterInfoObject?.childAccounts || [];
     const updated = existing.map(item =>
@@ -104,7 +123,12 @@ export default function ChildSpendingLimit(props) {
         childIndex,
       });
 
-      await setChildLimit(childPublicKey, childMnemonic, spendingLimit);
+      await setChildLimit(
+        childPublicKey,
+        childMnemonic,
+        spendingLimit,
+        childIndex,
+      );
 
       const existing = masterInfoObject?.childAccounts || [];
       const newEntry = {
