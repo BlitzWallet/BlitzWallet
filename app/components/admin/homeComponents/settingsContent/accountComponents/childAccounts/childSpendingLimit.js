@@ -12,8 +12,14 @@ import CustomButton from '../../../../../../functions/CustomElements/button';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../../context-store/keys';
-import { addDataToCollection } from '../../../../../../../db';
-import { reserveChild } from '../../../../../../functions/accounts/childAccounts';
+import fetchBackend from '../../../../../../../db/handleBackend';
+import {
+  reserveChild,
+  deriveChildMnemonic,
+  getChildPublicKey,
+} from '../../../../../../functions/accounts/childAccounts';
+import customUUID from '../../../../../../functions/customUUID';
+import { privateKeyFromSeedWords } from '../../../../../../functions/nostrCompatability';
 import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashlyticsLogs';
 import CustomNumberKeyboard from '../../../../../../functions/CustomElements/customNumberKeyboard';
 import FormattedBalanceInput from '../../../../../../functions/CustomElements/formattedBalanceInput';
@@ -25,7 +31,7 @@ export default function ChildSpendingLimit(props) {
   const editChild = props?.route?.params?.editChild;
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { accountMnemoinc, publicKey } = useKeysContext();
+  const { accountMnemoinc } = useKeysContext();
   const [limit, setLimit] = useState(
     editChild?.spendingLimit ? String(editChild.spendingLimit) : '',
   );
@@ -37,67 +43,77 @@ export default function ChildSpendingLimit(props) {
     return parsed && Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   }, [limit]);
 
+  // Set/adjust the child's spendingLimit + isChildAccount through the
+  // updateChildAccount Cloud Function. The parent re-derives the child key from
+  // its own seed + childIndex and encrypts as the child, proving control; the
+  // function writes the (client-locked) fields via the admin SDK.
+  const setChildLimit = useCallback(
+    async (childPublicKey, childMnemonic, spendingLimit) => {
+      const childPriv = await privateKeyFromSeedWords(childMnemonic);
+      const res = await fetchBackend(
+        'updateChildAccount',
+        { spendingLimit },
+        childPriv,
+        childPublicKey,
+      );
+      if (!res?.didWork) throw new Error('Failed to update child account');
+    },
+    [],
+  );
+
   const handleSaveEdit = useCallback(async () => {
     const spendingLimit = parseLimit();
+    const childMnemonic = await deriveChildMnemonic(
+      accountMnemoinc,
+      editChild.childIndex,
+    );
+    const childPublicKey = await getChildPublicKey(childMnemonic);
+    await setChildLimit(childPublicKey, childMnemonic, spendingLimit);
+
     const existing = masterInfoObject?.childAccounts || [];
     const updated = existing.map(item =>
       item.uuid === editChild.uuid ? { ...item, spendingLimit } : item,
     );
     await toggleMasterInfoObject({ childAccounts: updated });
-    // Cross-user single-field write into the child's top-level doc; Firestore
-    // rules authorize it via auth.uid == doc.parentPublicKey (== publicKey here).
-    await addDataToCollection(
-      { spendingLimit },
-      'blitzWalletUsers',
-      editChild.childPublicKey,
-    );
     navigate.goBack();
-  }, [parseLimit, masterInfoObject, editChild, toggleMasterInfoObject, navigate]);
+  }, [
+    parseLimit,
+    accountMnemoinc,
+    editChild,
+    setChildLimit,
+    masterInfoObject,
+    toggleMasterInfoObject,
+    navigate,
+  ]);
 
   const handleCreate = useCallback(async () => {
-    if (editChild) {
-      handleSaveEdit();
-      return;
-    }
     if (isCreatingRef.current) return;
     isCreatingRef.current = true;
     setIsCreating(true);
     try {
+      if (editChild) {
+        await handleSaveEdit();
+        return;
+      }
       const spendingLimit = parseLimit();
-      const childIndex = Number(masterInfoObject?.nextChildDerivationIndex || 0);
-      const { childPublicKey } = await reserveChild({
+      const childIndex = Number(
+        masterInfoObject?.nextChildDerivationIndex || 0,
+      );
+      const { childPublicKey, childMnemonic } = await reserveChild({
         mainSeed: accountMnemoinc,
         childIndex,
       });
 
-      // Child doc lives top-level at blitzWalletUsers/{childPublicKey}, like any
-      // user. parentPublicKey links it back; Firestore rules let the parent
-      // create/limit-edit it.
-      const didWrite = await addDataToCollection(
-        {
-          name,
-          spendingLimit,
-          parentPublicKey: publicKey,
-          isChildAccount: true,
-          childPublicKey,
-          dateCreated: Date.now(),
-          claimed: false,
-        },
-        'blitzWalletUsers',
-        childPublicKey,
-      );
-      if (!didWrite) throw new Error('Failed to create child account');
+      await setChildLimit(childPublicKey, childMnemonic, spendingLimit);
 
       const existing = masterInfoObject?.childAccounts || [];
       const newEntry = {
-        uuid: childPublicKey,
+        uuid: customUUID(),
         name,
         childIndex,
-        childPublicKey,
         spendingLimit,
         profileEmoji: '',
         dateCreated: Date.now(),
-        claimed: false,
       };
       await toggleMasterInfoObject({
         childAccounts: [...existing, newEntry],
@@ -108,7 +124,10 @@ export default function ChildSpendingLimit(props) {
       // open the standard account page on top, so Back returns to the list
       // rather than the spending-limit keyboard. Pairing is started manually
       // from there, not automatically.
-      navigate.popTo('SettingsContentHome', { for: 'Accounts' });
+      navigate.popTo('SettingsContentHome', {
+        for: 'Accounts',
+        initialTab: 'linked',
+      });
       navigate.navigate('EditAccountPage', {
         account: newEntry,
         from: 'SettingsContentHome',
@@ -116,11 +135,12 @@ export default function ChildSpendingLimit(props) {
     } catch (err) {
       console.log('create child error', err);
       crashlyticsRecordErrorReport(err.message);
-      isCreatingRef.current = false;
-      setIsCreating(false);
       navigate.navigate('ErrorScreen', {
         errorMessage: t('settings.childAccounts.creating.errorTitle'),
       });
+    } finally {
+      isCreatingRef.current = false;
+      setIsCreating(false);
     }
   }, [
     editChild,
@@ -130,7 +150,7 @@ export default function ChildSpendingLimit(props) {
     navigate,
     masterInfoObject,
     accountMnemoinc,
-    publicKey,
+    setChildLimit,
     toggleMasterInfoObject,
     t,
   ]);

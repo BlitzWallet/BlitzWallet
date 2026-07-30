@@ -66,6 +66,7 @@ export default function RestoreDerivedAccountPage() {
         // Navigate back to show the restored account
         navigate.popTo('SettingsContentHome', {
           for: 'Accounts',
+          initialTab: 'personal',
         });
       } else {
         navigate.navigate('ErrorScreen', {

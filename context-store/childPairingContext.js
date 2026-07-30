@@ -85,7 +85,6 @@ export function ChildPairingProvider({ children }) {
         if (!reshareChild) throw new Error('No child provided for pairing');
 
         const childIndex = reshareChild.childIndex;
-        const childPublicKey = reshareChild.childPublicKey;
         const childName = reshareChild.name;
         const childLimit = reshareChild.spendingLimit ?? null;
         const childMnemonic = await deriveChildMnemonic(
@@ -100,7 +99,6 @@ export function ChildPairingProvider({ children }) {
         sessionRef.current = {
           rid,
           childIndex,
-          childPublicKey,
           childMnemonic,
           name: childName,
           spendingLimit: childLimit,
@@ -190,7 +188,6 @@ export function ChildPairingProvider({ children }) {
           const enc = encryptSeedPayload(seedKey, {
             v: 1,
             mnemonic: session.childMnemonic,
-            parentPublicKey: publicKey,
             name: session.name,
             spendingLimit: session.spendingLimit,
             childIndex: session.childIndex,
@@ -219,7 +216,7 @@ export function ChildPairingProvider({ children }) {
         }
       },
     );
-  }, [publicKey]);
+  }, []);
 
   // Expiry backstop.
   useEffect(() => {

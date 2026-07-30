@@ -426,14 +426,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['nextChildDerivationIndex'] =
       blitzStoredData.nextChildDerivationIndex || 0;
     tempObject['isChildAccount'] = blitzStoredData.isChildAccount || false;
-    tempObject['parentPublicKey'] = blitzStoredData.parentPublicKey || null;
     tempObject['spendingLimit'] = blitzStoredData.spendingLimit ?? null;
-    // On first login the parent's doc has claimed:false; flip it (and force a
-    // write) so the parent's re-share option disappears.
-    if (blitzStoredData.isChildAccount && !blitzStoredData.claimed) {
-      tempObject['claimed'] = true;
-      needsToUpdate = true;
-    }
     tempObject['lnurlReceiveCurrency'] = lnurlReceiveCurrency;
     tempObject['bitrefillEmail'] = bitrefillEmail;
     tempObject[SPEND_AND_REPLACE_STORAGE_KEY] = spendAndReplace;
