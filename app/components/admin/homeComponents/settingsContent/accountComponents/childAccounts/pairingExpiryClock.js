@@ -11,12 +11,11 @@ const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rul
 export default function PairingExpiryClock() {
   const { pairingStartTime } = useChildPairing();
   const { backgroundOffset } = GetThemeColors();
-  const currentTimeTick = useAccountsExpiryTimeTick();
+  useAccountsExpiryTimeTick(); // 1s re-render heartbeat only
 
   if (!pairingStartTime.current) return null;
 
-  const timeLeft =
-    PAIRING_TTL_MS - Math.abs(currentTimeTick - pairingStartTime.current);
+  const timeLeft = pairingStartTime.current + PAIRING_TTL_MS - Date.now();
 
   return (
     <ThemeText

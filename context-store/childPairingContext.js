@@ -224,9 +224,10 @@ export function ChildPairingProvider({ children }) {
   useEffect(() => {
     if (status !== 'waiting' && status !== 'confirm' && status !== 'granting')
       return;
+    const expiresAt = pairingStartTime.current + PAIRING_TTL_MS;
     const timer = setTimeout(() => {
       resetSession('expired');
-    }, PAIRING_TTL_MS);
+    }, Math.max(0, expiresAt - Date.now()));
     return () => clearTimeout(timer);
   }, [status, resetSession]);
 
