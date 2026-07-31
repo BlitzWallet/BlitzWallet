@@ -96,6 +96,13 @@ export const OPERATION_TYPES = {
   checkIfOptimizationNeeded: 'checkIfOptimizationNeeded',
   runLeafOptimization: 'runLeafOptimization',
   runTokenOptimization: 'runTokenOptimization',
+
+  // Wallet Viewer
+  initializeSparkWalletViewer: 'initializeSparkWalletViewer',
+  getWalletViewerTokens: 'getWalletViewerTokens',
+  getWalletViewerBitcoin: 'getWalletViewerBitcoin',
+  getWalletViewerTokenTransactions: 'getWalletViewerTokenTransactions',
+  getWalletViewerBitcoinTransactions: 'getWalletViewerBitcoinTransactions',
 };
 
 const longOperations = new Set([
@@ -121,6 +128,7 @@ const longOperations = new Set([
   OPERATION_TYPES.batchTransferTokens,
   OPERATION_TYPES.getSparkLeaves,
   OPERATION_TYPES.getSparkLeafExitNodes,
+  OPERATION_TYPES.initializeSparkWalletViewer,
 ]);
 
 const mediumOperations = new Set([
@@ -150,6 +158,10 @@ const mediumOperations = new Set([
   OPERATION_TYPES.checkClawbackEligibility,
   OPERATION_TYPES.checkClawbackStatus,
   OPERATION_TYPES.isOptimizationInProgress,
+  OPERATION_TYPES.getWalletViewerTokens,
+  OPERATION_TYPES.getWalletViewerBitcoin,
+  OPERATION_TYPES.getWalletViewerTokenTransactions,
+  OPERATION_TYPES.getWalletViewerBitcoinTransactions,
 ]);
 
 const rejectIfNotConnectedToInternet = new Set([
@@ -916,7 +928,11 @@ export const WebViewProvider = ({ children }) => {
           // Hash into a copy, and only after every queue/store branch above:
           // originalRequest and queued entries must hold the pre-hash args so a
           // replay through this function hashes exactly once.
-          if (args.mnemonic && action !== 'initializeSparkWallet') {
+          if (
+            args.mnemonic &&
+            action !== 'initializeSparkWallet' &&
+            action !== 'initializeSparkWalletViewer'
+          ) {
             args = { ...args, mnemonic: sha256Hash(args.mnemonic) };
           }
 

@@ -5057,7 +5057,7 @@ __metadata:
     react-native-worklets: ^0.8.3
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#19a49e63caeee2065b74994f63ddbd0f9e6f54f2"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#f392c3d5d3a931e82a1efe80c22c4af4fb1a7db9"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     typescript: ^5.8.3
@@ -13912,16 +13912,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#19a49e63caeee2065b74994f63ddbd0f9e6f54f2":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#f392c3d5d3a931e82a1efe80c22c4af4fb1a7db9":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=19a49e63caeee2065b74994f63ddbd0f9e6f54f2"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=f392c3d5d3a931e82a1efe80c22c4af4fb1a7db9"
   dependencies:
     "@buildonspark/spark-sdk": ^0.8.8
     "@ecies/ciphers": ^0.2.4
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: 568eb3b2f74d694462cd008676b45c724890d5dc950813480c749db3320c23e51978ddaba661f6db55f007939664e6bb7f4e9beb4042a7f3bab9ebf999fa6b02
+  checksum: 4f9ea8980b77256a65514b50f831ee9353128813582927d0ca24da62eb953ce08a3b0d03bbe3a92d2106c28ee68dd187a39f32b4a5ed32b66790bb63ee4ba4a4
   languageName: node
   linkType: hard
 
