@@ -158,20 +158,7 @@ export async function initLeavesDb() {
 // ---------------------------------------------------------------------------
 
 // Accepts a Uint8Array, a plain number[], or the {"0":n,"1":n,...} object form
-// that a JSON round-trip produces, and returns a lowercase hex string.
-function bytesToHex(value) {
-  if (value == null) return null;
-  if (typeof value === 'string') return value; // already hex (webview path)
-  if (value instanceof Uint8Array || Array.isArray(value)) {
-    return Buffer.from(value).toString('hex');
-  }
-  if (typeof value === 'object') {
-    return Buffer.from(Object.values(value)).toString('hex');
-  }
-  return null;
-}
-
-// Accepts the same shapes as bytesToHex and returns a Uint8Array. The TreeNode
+// (or a hex string) and returns a Uint8Array. The TreeNode
 // protobuf encoder reads `.length` on every bytes field, so callers must never
 // hand it undefined — empty bytes default to a zero-length array.
 function bytesToUint8(value) {
@@ -245,38 +232,14 @@ export function treeNodeHexFromRaw(raw) {
   }
 }
 
-const TX_FIELDS = [
-  'nodeTx',
-  'refundTx',
-  'directTx',
-  'directRefundTx',
-  'directFromCpfpRefundTx',
-];
-const PUBKEY_FIELDS = [
-  'verifyingPublicKey',
-  'ownerIdentityPublicKey',
-  'ownerSigningPublicKey',
-];
-
-function normalizeSigningKeyshare(keyshare) {
-  if (!keyshare || typeof keyshare !== 'object') return keyshare ?? null;
-  const publicShares = {};
-  if (keyshare.publicShares && typeof keyshare.publicShares === 'object') {
-    for (const [id, share] of Object.entries(keyshare.publicShares)) {
-      publicShares[id] = bytesToHex(share);
-    }
-  }
-  return {
-    ownerIdentifiers: keyshare.ownerIdentifiers ?? [],
-    threshold: keyshare.threshold ?? null,
-    publicKey: bytesToHex(keyshare.publicKey),
-    publicShares,
-  };
-}
-
-// Returns the fully hex-encoded leaf (safe to JSON.stringify) for one raw node.
+// Returns the JSON-serializable stored/exported leaf for one raw node. The raw
+// per-field bytes (tx blobs, pubkeys, signing keyshare) are intentionally NOT
+// kept: they only ever fed treeNodeHex, and nothing reads them back. treeNodeHex
+// is the single canonical TreeNode the spark-unilateral-exit tooling decodes.
+// The webview path supplies a prebuilt treeNodeHex (its bytes were dropped over
+// the bridge); the native path builds it here from the raw leaf's bytes.
 export function normalizeLeaf(raw) {
-  const normalized = {
+  return {
     id: raw.id,
     treeId: raw.treeId,
     value: Number(raw.value || 0),
@@ -284,22 +247,18 @@ export function normalizeLeaf(raw) {
     valueSats: Number(raw.value || 0),
     status: raw.status ?? 'UNKNOWN',
     parentNodeId: raw.parentNodeId ?? null,
-    vout: raw.vout ?? 0,
     network: raw.network ?? null,
-    createdTime: raw.createdTime ?? null,
+    // Kept for the upsert staleness CASE (json_extract $.updatedTime /
+    // $.treenodeStatus in replaceAllLeavesInternal).
     updatedTime: raw.updatedTime ?? null,
     treenodeStatus: raw.treenodeStatus ?? null,
-    signingKeyshare: normalizeSigningKeyshare(raw.signingKeyshare),
-    // Single protobuf-encoded TreeNode the recovery tooling decodes.
-    treeNodeHex: treeNodeHexFromRaw(raw),
+    // Webview always sets the key: a hex string, or null for sub-EXIT_MIN_SATS
+    // dust it deliberately didn't encode — null must stay null (rebuilding from
+    // a slim leaf with no bytes would forge a treeNodeHex missing nodeTx). Only
+    // the native path (key absent → undefined) builds it here from raw bytes.
+    treeNodeHex:
+      raw.treeNodeHex !== undefined ? raw.treeNodeHex : treeNodeHexFromRaw(raw),
   };
-  for (const field of TX_FIELDS) {
-    if (raw[field] != null) normalized[field] = bytesToHex(raw[field]);
-  }
-  for (const field of PUBKEY_FIELDS) {
-    if (raw[field] != null) normalized[field] = bytesToHex(raw[field]);
-  }
-  return normalized;
 }
 
 /**
@@ -327,6 +286,7 @@ async function replaceAllLeavesInternal(identityPubKey, rawTreeNodes) {
   const leaves = Array.isArray(rawTreeNodes) ? rawTreeNodes : [];
   const now = Date.now();
 
+  console.log(rawTreeNodes, 'leafs from response');
   // Bump this account's snapshot version. Every leaf in the new snapshot is
   // stamped with it; anything left on an older version is stale and swept below.
   const metaRow = await db.getFirstAsync(
