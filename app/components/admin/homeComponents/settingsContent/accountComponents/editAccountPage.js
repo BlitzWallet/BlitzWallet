@@ -5,7 +5,7 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   COLORS,
   FONT,
@@ -111,39 +111,41 @@ export default function EditAccountPage(props) {
   const [layout, setlayout] = useState({ height: 45, width: 87 });
   const maxLayoutRef = useRef({ height: 45, width: 87 });
 
-  useEffect(() => {
-    if (isActive) return;
-    let isMounted = true;
-    (async () => {
-      try {
-        setOtherAccountBalance({ isLoading: true, balance: 0 });
-        const mnemonic = isChild
-          ? await deriveChildMnemonic(
-              accountMnemoinc,
-              accountInformation.childIndex,
-            )
-          : await getAccountMnemonic(accountInformation);
-        const addressResponse = await getSparkAddress(mnemonic);
-        if (!addressResponse.didWork) {
-          throw new Error('Unable to derive account spark address');
+  useFocusEffect(
+    useCallback(() => {
+      if (isActive) return;
+      let isMounted = true;
+      (async () => {
+        try {
+          setOtherAccountBalance({ isLoading: true, balance: 0 });
+          const mnemonic = isChild
+            ? await deriveChildMnemonic(
+                accountMnemoinc,
+                accountInformation.childIndex,
+              )
+            : await getAccountMnemonic(accountInformation);
+          const addressResponse = await getSparkAddress(mnemonic);
+          if (!addressResponse.didWork) {
+            throw new Error('Unable to derive account spark address');
+          }
+          await initializeSparkWalletViewer(mnemonic);
+          const balance = await getBitcoinBalance(addressResponse.response);
+          if (!isMounted) return;
+          setOtherAccountBalance({
+            isLoading: false,
+            balance: Number(balance || 0),
+          });
+        } catch (err) {
+          console.log('load account balance error', err);
+          if (!isMounted) return;
+          setOtherAccountBalance(prev => ({ ...prev, isLoading: false }));
         }
-        await initializeSparkWalletViewer(mnemonic);
-        const balance = await getBitcoinBalance(addressResponse.response);
-        if (!isMounted) return;
-        setOtherAccountBalance({
-          isLoading: false,
-          balance: Number(balance || 0),
-        });
-      } catch (err) {
-        console.log('load account balance error', err);
-        if (!isMounted) return;
-        setOtherAccountBalance(prev => ({ ...prev, isLoading: false }));
-      }
-    })();
-    return () => {
-      isMounted = false;
-    };
-  }, [isActive, accountInformation.uuid, isChild, accountMnemoinc]);
+      })();
+      return () => {
+        isMounted = false;
+      };
+    }, [isActive, accountInformation.uuid, isChild, accountMnemoinc]),
+  );
 
   const balance = isActive
     ? Number(sparkInformation?.balance || 0)
