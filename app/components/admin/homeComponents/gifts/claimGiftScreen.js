@@ -12,7 +12,6 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   CENTER,
-  GIFT_DERIVE_PATH_CUTOFF,
   SIZES,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
@@ -41,8 +40,10 @@ import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transac
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
-import { deriveKeyFromMnemonic } from '../../../../functions/seed';
+import {
+  deriveGiftRestoreKey,
+  deriveSparkGiftMnemonic,
+} from '../../../../functions/gift/deriveGiftWallet';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 
@@ -109,22 +110,15 @@ export default function ClaimGiftScreen({
       throw new Error(t('screens.inAccount.giftPages.claimPage.notExpired'));
     }
 
-    let giftWalletMnemonic;
-    if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
-      giftWalletMnemonic = await deriveSparkGiftMnemonic(
-        accountMnemoinc,
-        savedGift.giftNum,
-      );
-    } else {
-      giftWalletMnemonic = await deriveKeyFromMnemonic(
-        accountMnemoinc,
-        savedGift.giftNum,
-      );
-    }
+    const giftSeed = await deriveGiftRestoreKey(
+      accountMnemoinc,
+      savedGift.giftNum,
+      savedGift.createdTime,
+    );
 
     return {
       ...savedGift,
-      giftSeed: giftWalletMnemonic.derivedMnemonic,
+      giftSeed,
     };
   }, [expertMode, url, customGiftIndex, accountMnemoinc, t]);
 
