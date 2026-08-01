@@ -2,6 +2,18 @@ import * as SQLite from 'expo-sqlite';
 
 export const CACHED_GIFTS = 'SAVED_GIFTS';
 
+// The derived gift seed used to be persisted as `restoreKey` before it was
+// re-derived on demand. Never let it cross the storage boundary in either
+// direction so it can't leak to SQLite (and legacy rows get scrubbed on write).
+const withoutRestoreKey = gift => {
+  if (gift && typeof gift === 'object' && 'restoreKey' in gift) {
+    const clean = { ...gift };
+    delete clean.restoreKey;
+    return clean;
+  }
+  return gift;
+};
+
 let sqlLiteDB = null;
 let isInitialized = false;
 let initPromise = null;
@@ -71,6 +83,29 @@ export const initGiftDb = async () => {
       console.warn('Index creation warning (can be ignored):', indexError);
     }
 
+    // One-time scrub of any legacy rows that still hold a plaintext `restoreKey`
+    // at rest. New writes are already clean and reads strip it, but a gift
+    // already marked Expired is never rewritten, so its seed would otherwise
+    // sit on disk forever. LIKE no-ops on clean databases.
+    try {
+      const dirty = await sqlLiteDB.getAllAsync(
+        `SELECT uuid, storageObject FROM giftsTable WHERE storageObject LIKE '%"restoreKey"%'`,
+      );
+      for (const row of dirty) {
+        try {
+          const clean = withoutRestoreKey(JSON.parse(row.storageObject));
+          await sqlLiteDB.runAsync(
+            `UPDATE giftsTable SET storageObject = ? WHERE uuid = ?`,
+            [JSON.stringify(clean), row.uuid],
+          );
+        } catch (rowErr) {
+          console.warn('Skipping unscrubbable gift row:', row.uuid, rowErr);
+        }
+      }
+    } catch (scrubErr) {
+      console.warn('Legacy restoreKey scrub failed (non-fatal):', scrubErr);
+    }
+
     isInitialized = true;
     console.log('Gift database initialized successfully');
     return true;
@@ -118,7 +153,7 @@ export const saveGiftLocal = async giftObj => {
       );
     }
 
-    const serialized = JSON.stringify(giftObj);
+    const serialized = JSON.stringify(withoutRestoreKey(giftObj));
     const lastUpdated = giftObj.lastUpdated || Date.now();
 
     if (!existing) {
@@ -199,7 +234,7 @@ export const getAllLocalGifts = async (limit = null) => {
     const gifts = result
       .map(r => {
         try {
-          return JSON.parse(r.storageObject);
+          return withoutRestoreKey(JSON.parse(r.storageObject));
         } catch (parseErr) {
           console.error(
             'Error parsing gift object:',
@@ -238,7 +273,7 @@ export const getGiftByUuid = async uuid => {
     }
 
     try {
-      return JSON.parse(result.storageObject);
+      return withoutRestoreKey(JSON.parse(result.storageObject));
     } catch (parseErr) {
       console.error('Error parsing gift object:', parseErr);
       return null;
@@ -280,7 +315,7 @@ export const updateGiftLocal = async (uuid, updatedFields) => {
     // Parse existing gift and merge with updates
     let existingGift;
     try {
-      existingGift = JSON.parse(existing.storageObject);
+      existingGift = withoutRestoreKey(JSON.parse(existing.storageObject));
     } catch (parseErr) {
       throw new Error('Failed to parse existing gift data');
     }
@@ -343,7 +378,7 @@ export const bulkSaveGiftsLocal = async gifts => {
     const values = gifts.flatMap(gift => [
       gift.uuid,
       gift.createdBy,
-      JSON.stringify(gift),
+      JSON.stringify(withoutRestoreKey(gift)),
       gift.lastUpdated || now,
     ]);
     await db.withTransactionAsync(async () => {
