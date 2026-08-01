@@ -3,6 +3,8 @@ import { entropyToMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { mnemonicToSeedAsync } from '../nostrCompatability';
 import { bech32m } from 'bech32';
+import { GIFT_DERIVE_PATH_CUTOFF } from '../../constants';
+import { deriveKeyFromMnemonic } from '../seed';
 
 /**
  * Derives a mnemonic for a Spark Wallet gift at a specific index
@@ -42,6 +44,37 @@ export async function deriveSparkGiftMnemonic(
     console.log('derive spark gift mnemonic error:', err);
     return { success: false, error: err.message };
   }
+}
+
+/**
+ * Re-derives a gift's restore key (the gift wallet's BIP39 seed) on demand from
+ * the account mnemonic + gift index. The seed is deliberately NOT stored
+ * anywhere — it is always recomputed when a gift needs to be reclaimed, mirroring
+ * the pool wallet approach.
+ *
+ * The derivation scheme is chosen by the gift's creation time so the re-derived
+ * mnemonic is identical to the one used when the gift was created, keeping
+ * backwards compatibility with gifts persisted before the scheme change.
+ *
+ * @param {string} accountMnemonic - The master account mnemonic phrase
+ * @param {number} giftNum - The gift's derivation index
+ * @param {number} createdTime - The gift's creation timestamp; selects the pre/post-cutoff derivation scheme
+ * @returns {Promise<string>} The derived restore mnemonic
+ */
+export async function deriveGiftRestoreKey(
+  accountMnemonic,
+  giftNum,
+  createdTime,
+) {
+  const result =
+    createdTime > GIFT_DERIVE_PATH_CUTOFF
+      ? await deriveSparkGiftMnemonic(accountMnemonic, giftNum)
+      : await deriveKeyFromMnemonic(accountMnemonic, giftNum);
+
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to derive gift restore key');
+  }
+  return result.derivedMnemonic;
 }
 
 /**
