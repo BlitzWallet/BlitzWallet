@@ -7,10 +7,13 @@ import CustomButton from '../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { validateMnemonic } from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
 import { retrieveData, storeData } from '../../../functions';
 import {
   decryptMnemonicWithBiometrics,
   handleLoginSecuritySwitch,
+  PIN_MARKER,
 } from '../../../functions/handleMnemonic';
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
@@ -132,6 +135,23 @@ export default function BiometricsLogin() {
       if (didNavigate.current) return;
 
       const savedMnemonic = await retrieveData('encryptedMnemonic');
+
+      // Only migrate when encryptedMnemonic is still the plaintext seed. If a
+      // prior migration already encrypted it but crashed before writing the
+      // marker, re-running handleLoginSecuritySwitch would double-encrypt the
+      // ciphertext (under the biometric key) and corrupt the wallet identity.
+      // In that case the migration is effectively done — just finish the marker
+      // and fall through to the normal biometric decrypt path.
+      const isPlaintextSeed =
+        !!savedMnemonic.value &&
+        validateMnemonic(savedMnemonic.value, wordlist);
+
+      if (!isPlaintextSeed) {
+        await storeData('pinHash', PIN_MARKER);
+        await handleFaceID();
+        return;
+      }
+
       const migrationResponse = await handleLoginSecuritySwitch(
         savedMnemonic.value,
         '',
@@ -140,7 +160,9 @@ export default function BiometricsLogin() {
       console.log('after login security switch');
 
       if (migrationResponse) {
-        storeData('pinHash', sha256Hash(storedPin.value));
+        // Marker last (handleLoginSecuritySwitch wrote the ciphertext first), so
+        // a crash before this line self-heals via the isPlaintextSeed guard above.
+        await storeData('pinHash', PIN_MARKER);
         setAccountMnemonic(savedMnemonic.value);
         didNavigate.current = true;
         navigate.replace('ConnectingToNodeLoadingScreen', {
