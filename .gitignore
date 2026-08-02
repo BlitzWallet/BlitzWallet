@@ -89,3 +89,4 @@ android/secrets.properties
 .superpowers/
 CVE_AUDIT_REPORT.md
 app/assets/social_logos/normalize.py
+docs/security-audit-2026-08.md
