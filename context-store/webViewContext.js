@@ -375,7 +375,7 @@ export const WebViewProvider = ({ children }) => {
     return true;
   }, []);
 
-  const fileHash = !!verifiedPath ? process.env.WEBVIEW_BUNDLE_HASH : '';
+  const fileHash = !!verifiedPath ? process.env.SPARK_WEBVIEW_SIGNING_PUBKEY : '';
 
   useEffect(() => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
@@ -616,7 +616,7 @@ export const WebViewProvider = ({ children }) => {
       transitionWvState(WV_STATES.VERIFYING, 'reload verification');
 
       // Re-verify the file
-      const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
+      const { htmlPath, nonceHex } = await verifyAndPrepareWebView(
         Platform.OS === 'ios'
           ? require('spark-web-context')
           : 'file:///android_asset/sparkContext.html',
@@ -1496,7 +1496,7 @@ export const WebViewProvider = ({ children }) => {
     (async () => {
       transitionWvState(WV_STATES.VERIFYING, 'initial verification');
       try {
-        const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
+        const { htmlPath, nonceHex } = await verifyAndPrepareWebView(
           Platform.OS === 'ios'
             ? require('spark-web-context')
             : 'file:///android_asset/sparkContext.html',
