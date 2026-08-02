@@ -2098,6 +2098,7 @@
     "hub": {
       "viewAll": "Ver todo",
       "accounts": "Cuentas",
+      "accountsEmptyDesc": "Consulta, crea, administra y mueve fondos entre todas tus cuentas.",
       "pinAccount": "Fijar",
       "unpinAccount": "Desfijar",
       "maxPinsReached": "Máximo 2 cuentas fijadas. Desfija una primero.",

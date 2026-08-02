@@ -232,8 +232,6 @@ export default function SettingsHub(props) {
               pinnedAccountUUIDs={pinnedAccountUUIDs}
               isUsingNostr={isUsingNostr}
               selectedAltAccount={selectedAltAccount}
-              isSwitchingAccount={isSwitchingAccount}
-              onAccountPress={handleAccountPress}
               onViewAll={handleViewAllAccounts}
             />
           );
@@ -263,14 +261,12 @@ export default function SettingsHub(props) {
     },
     [
       activePoolsArray,
-      handleAccountPress,
       handleAnalyticsPress,
       handleOpenGifts,
       handlePOS,
       handleViewAllAccounts,
       handleViewAllPools,
       handleSavingsPress,
-      isSwitchingAccount,
       isUsingNostr,
       pinnedAccountUUIDs,
       poolsArray,

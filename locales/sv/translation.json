@@ -2100,6 +2100,7 @@
     },
     "hub": {
       "viewAll": "Visa alla",
+      "accountsEmptyDesc": "Visa, skapa, hantera och flytta pengar mellan alla dina konton.",
       "accounts": "Konton",
       "pinAccount": "Fäst",
       "unpinAccount": "Lossa",

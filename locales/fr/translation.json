@@ -2100,6 +2100,7 @@
     "hub": {
       "viewAll": "Tout voir",
       "accounts": "Comptes",
+      "accountsEmptyDesc": "Consultez, créez, gérez et transférez des fonds entre tous vos comptes.",
       "pinAccount": "Épingler",
       "unpinAccount": "Désépingler",
       "maxPinsReached": "Maximum 2 comptes épinglés. Désépinglez-en un d'abord.",

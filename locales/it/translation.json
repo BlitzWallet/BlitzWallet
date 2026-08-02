@@ -2101,6 +2101,7 @@
     "hub": {
       "viewAll": "Vedi tutto",
       "accounts": "Account",
+      "accountsEmptyDesc": "Visualizza, crea, gestisci e trasferisci fondi tra tutti i tuoi conti.",
       "pinAccount": "Fissa",
       "unpinAccount": "Rimuovi",
       "maxPinsReached": "Massimo 2 account fissati. Rimuovine uno prima.",

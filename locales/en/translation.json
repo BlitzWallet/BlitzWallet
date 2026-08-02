@@ -2192,6 +2192,7 @@
     "hub": {
       "viewAll": "View All",
       "accounts": "Accounts",
+      "accountsEmptyDesc": "View, create, manage, and move funds between all of your accounts.",
       "pinAccount": "Pin",
       "unpinAccount": "Unpin",
       "maxPinsReached": "Maximum 2 pinned accounts. Unpin one first.",

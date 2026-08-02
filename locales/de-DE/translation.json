@@ -2086,6 +2086,7 @@
     "hub": {
       "viewAll": "Alle anzeigen",
       "accounts": "Konten",
+      "accountsEmptyDesc": "Alle Ihre Konten anzeigen, erstellen, verwalten und Geld zwischen ihnen verschieben.",
       "pinAccount": "Anheften",
       "unpinAccount": "Loslösen",
       "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines davon.",
