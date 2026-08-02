@@ -33,6 +33,11 @@ import {
   getAccountTransferFee,
 } from '../../../../../functions/spark/accountTransfer';
 import {
+  getSparkBalance,
+  initializeSparkWallet,
+} from '../../../../../functions/spark';
+import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
+import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
 } from '../../../../../functions/lottieViewColorTransformer';
@@ -44,6 +49,7 @@ import {
   SIZES,
 } from '../../../../../constants/theme';
 import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
+import { useKeysContext } from '../../../../../../context-store/keys';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../../../../assets/errorTxAnimation.json');
@@ -60,6 +66,7 @@ export default function AccountTransferHalfModal({
   handleBackPressFunction,
   setBackNav,
   setContentHeight,
+  onTransferComplete,
 }) {
   const isAdd = mode === 'add';
   const { t } = useTranslation();
@@ -68,6 +75,7 @@ export default function AccountTransferHalfModal({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { accountMnemoinc } = useKeysContext();
   const { getAccountMnemonic, custodyAccountsList, activeAccount } =
     useActiveCustodyAccount();
   const { bitcoinBalance: activeAccountBalance } = useUserBalanceContext();
@@ -233,9 +241,7 @@ export default function AccountTransferHalfModal({
     )
       return;
     setBackNav?.({
-      title: isAdd
-        ? t('settings.accountComponents.editAccountPage.addMoneyButton')
-        : t('settings.accountComponents.editAccountPage.withdrawMoneyButton'),
+      title: '',
       // The currency switcher is meaningless on the confirmation step.
       rightElement: (
         <CurrencySwitchButton
@@ -250,11 +256,11 @@ export default function AccountTransferHalfModal({
   }, [setBackNav, openCurrencyPicker, isAdd, displayCurrency, isSelfTransfer]);
 
   const debouncedFee = useDebounce(async amountSats => {
-    const mnemonic = sourceMnemonicRef.current;
-    if (!mnemonic || !amountSats) return;
+    if (!amountSats) return;
+    // we use the main account because we know it will be initialized
     const feeResponse = await getAccountTransferFee({
       amountSats,
-      mnemonic,
+      mnemonic: accountMnemoinc,
       sendWebViewRequest,
     });
     if (!feeResponse?.didWork) {
@@ -271,7 +277,7 @@ export default function AccountTransferHalfModal({
       paymentFee: feeResponse.fee,
       feeError: false,
     });
-  }, 200);
+  }, 500);
 
   useEffect(() => {
     if (!localSatAmount) {
@@ -303,6 +309,38 @@ export default function AccountTransferHalfModal({
     if (isSubmittingRef.current || !canDoTransfer) return;
     isSubmittingRef.current = true;
     setPageState('loading');
+
+    // Add-mode: before sending, connect the receiver wallet, read its baseline
+    // balance, and ATTACH the balance listener — the listener must be wired
+    // before the send so no balance:update push event is missed. The send is
+    // not gated on any of this; a failure just falls back to the optimistic
+    // value.
+    let destMnemonic = null;
+    let baseline = currentBalance;
+    let subscription = null;
+    let balanceReached = null; // resolves with the result once the target is met
+    if (isAdd) {
+      try {
+        destMnemonic = await getAccountMnemonic(destinationAccount);
+        await initializeSparkWallet(destMnemonic, false, { maxRetries: 4 });
+        const base = await getSparkBalance(destMnemonic);
+        if (base?.didWork) baseline = Number(base.balance);
+
+        const target = baseline + localSatAmount;
+        balanceReached = new Promise(res => {
+          subscription = subscribeToSparkBalance({
+            mnemonic: destMnemonic,
+            onUpdate: r => {
+              if (r?.didWork && Number(r.balance) >= target) res(r);
+            },
+          });
+        });
+        await subscription.ready;
+      } catch {}
+    }
+
+    const target = baseline + localSatAmount;
+
     try {
       await executeAccountTransfer({
         fromAccount: sourceAccount,
@@ -316,8 +354,33 @@ export default function AccountTransferHalfModal({
         sendWebViewRequest,
         t,
       });
+
+      if (isAdd) {
+        // Payment is sent — now wait up to 30s for the receiver balance to
+        // reflect it, so editAccountPage shows the new number the moment the
+        // sheet closes. On timeout, push the optimistic value.
+        let confirmed = null;
+        if (subscription) {
+          try {
+            confirmed = await Promise.race([
+              balanceReached,
+              new Promise(res => setTimeout(() => res(null), 30000)),
+            ]);
+          } catch {}
+          subscription.unsubscribe();
+        }
+        const met = confirmed?.didWork && Number(confirmed.balance) >= target;
+        onTransferComplete?.(met ? Number(confirmed.balance) : target);
+      } else {
+        // Withdraw: the source balance drops immediately, so push the
+        // optimistic value without waiting on any receiver claim.
+        onTransferComplete?.(
+          Math.max(0, sourceBalance - localSatAmount - transferInfo.paymentFee),
+        );
+      }
       setPageState('confirmed');
     } catch (err) {
+      subscription?.unsubscribe();
       isSubmittingRef.current = false;
       console.log('account transfer error', err);
       setErrorMessage(err?.message || t('errormessages.paymentError'));
@@ -325,6 +388,7 @@ export default function AccountTransferHalfModal({
     }
   }, [
     canDoTransfer,
+    isAdd,
     sourceAccount,
     destinationAccount,
     localSatAmount,
@@ -335,6 +399,8 @@ export default function AccountTransferHalfModal({
     sendWebViewRequest,
     t,
     handleBackPressFunction,
+    onTransferComplete,
+    currentBalance,
   ]);
 
   if (isSelfTransfer) {
@@ -455,8 +521,10 @@ export default function AccountTransferHalfModal({
       <CustomButton
         buttonStyles={{
           ...CENTER,
-          opacity: canDoTransfer ? 1 : HIDDEN_OPACITY,
+          opacity:
+            canDoTransfer | transferInfo.isCalculatingFee ? 1 : HIDDEN_OPACITY,
         }}
+        useLoading={transferInfo.isCalculatingFee}
         actionFunction={handleConfirm}
         textContent={t('constants.confirm')}
       />

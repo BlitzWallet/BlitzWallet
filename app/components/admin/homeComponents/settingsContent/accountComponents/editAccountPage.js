@@ -293,9 +293,14 @@ export default function EditAccountPage(props) {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'accountAddMoney',
       to: accountInformation.uuid,
+      balance: balance,
       sliderHight: 0.8,
+      onTransferComplete: newBalance => {
+        if (typeof newBalance === 'number')
+          setOtherAccountBalance({ isLoading: false, balance: newBalance });
+      },
     });
-  }, [navigate, accountInformation.uuid]);
+  }, [navigate, accountInformation.uuid, setOtherAccountBalance, balance]);
 
   const handleWithdrawMoney = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
@@ -303,8 +308,12 @@ export default function EditAccountPage(props) {
       from: accountInformation.uuid,
       balance: balance,
       sliderHight: 0.8,
+      onTransferComplete: newBalance => {
+        if (typeof newBalance === 'number')
+          setOtherAccountBalance({ isLoading: false, balance: newBalance });
+      },
     });
-  }, [navigate, accountInformation.uuid, balance]);
+  }, [navigate, accountInformation.uuid, balance, setOtherAccountBalance]);
 
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
@@ -423,10 +432,12 @@ export default function EditAccountPage(props) {
               <>
                 <TouchableOpacity
                   onPress={handleAddMoney}
+                  disabled={isBalanceLoading}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: depositBg },
+                    isBalanceLoading && { opacity: HIDDEN_OPACITY },
                   ]}
                 >
                   <ThemeText

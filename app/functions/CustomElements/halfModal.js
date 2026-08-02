@@ -821,6 +821,8 @@ export default function CustomHalfModal(props) {
         return (
           <AddMoney
             to={props?.route?.params?.to}
+            onTransferComplete={props?.route?.params?.onTransferComplete}
+            balance={props?.route?.params?.balance}
             handleBackPressFunction={handleBackPressFunction}
             setBackNav={setBackNav}
             setContentHeight={setContentHeight}
@@ -831,6 +833,7 @@ export default function CustomHalfModal(props) {
           <WithdrawlMoney
             from={props?.route?.params?.from}
             balance={props?.route?.params?.balance}
+            onTransferComplete={props?.route?.params?.onTransferComplete}
             handleBackPressFunction={handleBackPressFunction}
             setBackNav={setBackNav}
             setContentHeight={setContentHeight}

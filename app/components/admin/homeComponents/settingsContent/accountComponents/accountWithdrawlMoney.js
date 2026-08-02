@@ -6,6 +6,7 @@ export default function WithdrawlMoney({
   handleBackPressFunction,
   setBackNav,
   setContentHeight,
+  onTransferComplete,
 }) {
   return (
     <AccountTransferHalfModal
@@ -15,6 +16,7 @@ export default function WithdrawlMoney({
       handleBackPressFunction={handleBackPressFunction}
       setBackNav={setBackNav}
       setContentHeight={setContentHeight}
+      onTransferComplete={onTransferComplete}
     />
   );
 }
