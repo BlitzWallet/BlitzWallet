@@ -15,6 +15,8 @@ import {
   deriveSeedKey,
   deriveSharedX,
   encryptSeedPayload,
+  makeChildEphKey,
+  makeKeyCommitment,
   makePairingCode,
   rendezvousId,
 } from '../app/functions/accounts/childPairing';
@@ -34,7 +36,7 @@ const ChildPairingContext = createContext(null);
 
 export function ChildPairingProvider({ children }) {
   const { t } = useTranslation();
-  const { accountMnemoinc, publicKey, contactsPrivateKey } = useKeysContext();
+  const { accountMnemoinc, publicKey } = useKeysContext();
 
   // status: idle | preparing | waiting | confirm | granting | done | error | expired
   const [status, setStatus] = useState('idle');
@@ -98,17 +100,28 @@ export function ChildPairingProvider({ children }) {
         const rid = rendezvousId(pairingCode);
         const expiresAt = Date.now() + PAIRING_TTL_MS;
 
+        // Fresh per-session ephemeral key. We publish only a commitment to its
+        // pubkey now and reveal the pubkey after the child reveals theirs, so a
+        // MITM can't grind either key to force a matching SAS.
+        const parentEph = makeChildEphKey();
+
         sessionRef.current = {
           rid,
           childIndex,
           childMnemonic,
           name: childName,
           spendingLimit: childLimit,
+          parentEph,
         };
 
+        // parentWalletPub is the parent's real wallet identity (== auth.uid), used
+        // ONLY to satisfy the Firestore anti-squat rule for the parentHello slot.
+        // The ECDH/SAS run on parentEph (below), never on this key, so it doesn't
+        // reintroduce the static-key precompute weakness.
         const didHello = await setPairingDoc(rid, 'parentHello', {
           v: 1,
           parentWalletPub: publicKey,
+          commit: makeKeyCommitment(parentEph.pub),
           name: childName,
           expiresAt,
         });
@@ -123,19 +136,27 @@ export function ChildPairingProvider({ children }) {
           setStatus('error');
         });
 
-        // Listen for the child's ephemeral pubkey, then compute the SAS.
+        // Listen for the child's ephemeral pubkey. Only then reveal our own
+        // ephemeral pubkey (the child verifies it against the commitment), and
+        // compute the SAS.
         unsubRef.current = subscribePairingDoc(
           rid,
           'childHello',
-          childHello => {
-            if (!childHello?.childEphPub || sessionRef.current?.sharedX) return;
+          async childHello => {
+            const s = sessionRef.current;
+            if (!childHello?.childEphPub || !s || s.sharedX) return;
             const sharedX = deriveSharedX(
-              contactsPrivateKey,
+              s.parentEph.priv,
               childHello.childEphPub,
             );
-            sessionRef.current.sharedX = sharedX;
-            sessionRef.current.childEphPub = childHello.childEphPub;
-            setSas(computeSAS(sharedX, childHello.childEphPub, publicKey));
+            s.sharedX = sharedX;
+            s.childEphPub = childHello.childEphPub;
+            await setPairingDoc(rid, 'parentReveal', {
+              v: 1,
+              parentEphPub: s.parentEph.pub,
+              expiresAt: Date.now() + PAIRING_TTL_MS,
+            });
+            setSas(computeSAS(sharedX, childHello.childEphPub, s.parentEph.pub));
             setStatus('confirm');
           },
         );
@@ -152,7 +173,7 @@ export function ChildPairingProvider({ children }) {
         setStatus('error');
       }
     },
-    [resetSession, accountMnemoinc, publicKey, contactsPrivateKey, t],
+    [resetSession, accountMnemoinc, publicKey, t],
   );
 
   const declineMatch = useCallback(async () => {

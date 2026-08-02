@@ -10,7 +10,11 @@ import {
   computeSAS,
   encryptSeedPayload,
   decryptSeedPayload,
+  makeKeyCommitment,
+  verifyKeyCommitment,
 } from '../app/functions/accounts/childPairing';
+
+const SAS_RE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/;
 
 describe('child pairing crypto', () => {
   // Parent uses its wallet keypair; child a fresh ephemeral one. Same shape.
@@ -31,11 +35,11 @@ describe('child pairing crypto', () => {
     );
   });
 
-  it('both sides compute the same 6-digit SAS', () => {
+  it('both sides compute the same 6-char SAS', () => {
     const a = computeSAS(parentSharedX, child.pub, parent.pub);
     const b = computeSAS(childSharedX, child.pub, parent.pub);
     expect(a).toBe(b);
-    expect(a).toMatch(/^\d{6}$/);
+    expect(a).toMatch(SAS_RE);
   });
 
   it('GCM round-trips the seed payload', () => {
@@ -69,12 +73,24 @@ describe('child pairing crypto', () => {
     expect(childSAS).not.toBe(parentSAS);
   });
 
+  it('key commitment round-trips and rejects a substituted key', () => {
+    const commit = makeKeyCommitment(parent.pub);
+    expect(commit).toMatch(/^[0-9a-f]{64}$/);
+    expect(makeKeyCommitment(parent.pub)).toBe(commit); // deterministic
+    expect(verifyKeyCommitment(commit, parent.pub)).toBe(true);
+    // A MITM revealing a different pubkey than it committed to is caught.
+    const attacker = makeChildEphKey();
+    expect(verifyKeyCommitment(commit, attacker.pub)).toBe(false);
+    expect(verifyKeyCommitment('', parent.pub)).toBe(false);
+    expect(verifyKeyCommitment(commit, '')).toBe(false);
+  });
+
   it('rendezvousId is deterministic and code-normalized', () => {
     expect(rendezvousId('ABC234')).toBe(rendezvousId('  abc234 '));
     expect(rendezvousId('ABC234')).not.toBe(rendezvousId('XYZ789'));
   });
 
   it('makePairingCode is 6 chars from the safe alphabet', () => {
-    expect(makePairingCode()).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/);
+    expect(makePairingCode()).toMatch(SAS_RE);
   });
 });

@@ -18,6 +18,7 @@ import {
   deriveSharedX,
   makeChildEphKey,
   rendezvousId,
+  verifyKeyCommitment,
 } from '../app/functions/accounts/childPairing';
 import {
   deletePairingHandshake,
@@ -50,6 +51,7 @@ export function ChildClaimProvider({ children }) {
   const unsubRef = useRef(null);
   const cancelUnsubRef = useRef(null);
   const parentGoneUnsubRef = useRef(null);
+  const revealUnsubRef = useRef(null);
   const expiryRef = useRef(null);
 
   const resetSession = useCallback(async (status = 'idle') => {
@@ -64,6 +66,10 @@ export function ChildClaimProvider({ children }) {
     if (parentGoneUnsubRef.current) {
       parentGoneUnsubRef.current();
       parentGoneUnsubRef.current = null;
+    }
+    if (revealUnsubRef.current) {
+      revealUnsubRef.current();
+      revealUnsubRef.current = null;
     }
     if (expiryRef.current) {
       clearTimeout(expiryRef.current);
@@ -153,24 +159,19 @@ export function ChildClaimProvider({ children }) {
           parentHello = await getPairingDoc(rid, 'parentHello');
           if (!parentHello) await new Promise(r => setTimeout(r, 800));
         }
-        if (!parentHello?.parentWalletPub) {
+        if (!parentHello?.commit) {
           setStatus('idle');
           setErrorMessage(t('settings.childAccounts.claim.notFound'));
           return;
         }
 
-        const sharedX = deriveSharedX(eph.priv, parentHello.parentWalletPub);
-        const localSas = computeSAS(
-          sharedX,
-          eph.pub,
-          parentHello.parentWalletPub,
-        );
-
+        // Commit-reveal: we reveal childEphPub now; the parent reveals its own
+        // pubkey afterwards. We only derive the shared secret + SAS once the
+        // revealed pubkey matches the commitment, so a MITM can't grind keys.
         sessionRef.current = {
           rid,
           eph,
-          sharedX,
-          parentWalletPub: parentHello.parentWalletPub,
+          commit: parentHello.commit,
         };
 
         const didHello = await setPairingDoc(rid, 'childHello', {
@@ -198,14 +199,39 @@ export function ChildClaimProvider({ children }) {
           'parentHello',
           () => {
             const s = sessionRef.current;
-            console.log('parent helo is deleted', s);
             if (!s || s.imported || s.declined) return;
             setStatus('expired');
           },
         );
 
-        setSas(localSas);
-        setStatus('confirm');
+        // Wait for the parent to reveal its ephemeral pubkey, verify it against
+        // the commitment, then compute the SAS.
+        revealUnsubRef.current = subscribePairingDoc(
+          rid,
+          'parentReveal',
+          reveal => {
+            const s = sessionRef.current;
+            if (!s || s.sharedX || !reveal?.parentEphPub) return;
+            if (!verifyKeyCommitment(s.commit, reveal.parentEphPub)) {
+              // Revealed key doesn't match the commitment -> possible MITM.
+              setErrorMessage(t('settings.childAccounts.claim.tamper'));
+              setStatus('error');
+              return;
+            }
+            const sharedX = deriveSharedX(s.eph.priv, reveal.parentEphPub);
+            s.sharedX = sharedX;
+            s.parentEphPub = reveal.parentEphPub;
+            setSas(computeSAS(sharedX, s.eph.pub, reveal.parentEphPub));
+            setStatus('confirm');
+          },
+        );
+
+        // If the parent never reveals, surface expiry instead of spinning.
+        expiryRef.current = setTimeout(() => {
+          const s = sessionRef.current;
+          if (!s || s.sharedX || s.imported || s.declined) return;
+          setStatus('expired');
+        }, PAIRING_TTL_MS);
       } catch (err) {
         console.log('child claim code error', err);
         setStatus('idle');
@@ -234,6 +260,8 @@ export function ChildClaimProvider({ children }) {
     unsubRef.current = subscribePairingDoc(session.rid, 'grant', grant => {
       if (grant?.ciphertext) importSeed(grant);
     });
+    // Replace the reveal-wait timer with the grant-wait timer.
+    if (expiryRef.current) clearTimeout(expiryRef.current);
     // If the parent never confirms, the handshake TTL-expires — surface it.
     expiryRef.current = setTimeout(() => {
       if (sessionRef.current?.imported) return;
@@ -264,6 +292,7 @@ export function ChildClaimProvider({ children }) {
       if (unsubRef.current) unsubRef.current();
       if (cancelUnsubRef.current) cancelUnsubRef.current();
       if (parentGoneUnsubRef.current) parentGoneUnsubRef.current();
+      if (revealUnsubRef.current) revealUnsubRef.current();
       if (expiryRef.current) clearTimeout(expiryRef.current);
       const session = sessionRef.current;
       if (session?.eph) session.eph = null;

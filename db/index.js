@@ -689,9 +689,14 @@ export function subscribePairingDocDeleted(rid, party, onDeleted) {
 
 export async function deletePairingHandshake(rid) {
   await Promise.all(
-    ['parentHello', 'childHello', 'childConfirm', 'grant', 'cancel'].map(party =>
-      deleteDoc(pairingDocRef(rid, party)).catch(() => {}),
-    ),
+    [
+      'parentHello',
+      'childHello',
+      'parentReveal',
+      'childConfirm',
+      'grant',
+      'cancel',
+    ].map(party => deleteDoc(pairingDocRef(rid, party)).catch(() => {})),
   );
 }
 

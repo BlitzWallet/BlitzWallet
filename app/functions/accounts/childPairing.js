@@ -10,8 +10,12 @@ import {
 
 // ECDH pairing crypto for the child-account seed handoff. Nothing secret ever
 // crosses the wire: the parent encrypts the child seed under a key derived from
-// ECDH(parentWalletPriv, childEphPub). A 6-digit SAS binding the two pubkeys
-// (NOT the ciphertext) lets the two people defeat an active MITM by voice.
+// ECDH(parentEphPriv, childEphPub). Both sides use fresh per-session ephemeral
+// keys (no long-term key, so nothing to precompute against). A commit-reveal
+// binds the SAS: the parent publishes H(parentEphPub) before the child reveals
+// childEphPub, and only reveals parentEphPub afterwards, so neither side can
+// grind its key to force a matching SAS. The 6-char SAS (over the 32-char code
+// alphabet) then lets the two people defeat an active MITM by voice.
 // nostr pubkeys are x-only, so we reuse the `'02'+pub` even-y convention that
 // app/functions/messaging/encodingAndDecodingMessages.js already relies on.
 
@@ -76,19 +80,38 @@ export function deriveSasKey(sharedX) {
   return hkdfKey(sharedX, SAS_INFO);
 }
 
+/** Commitment to an ephemeral pubkey, published before the peer reveals theirs. */
+export function makeKeyCommitment(pubHex) {
+  return Buffer.from(sha256(Buffer.from(pubHex, 'hex'))).toString('hex');
+}
+
+/** Verify a revealed pubkey matches the earlier commitment. */
+export function verifyKeyCommitment(commitHex, pubHex) {
+  if (!commitHex || !pubHex) return false;
+  return makeKeyCommitment(pubHex) === String(commitHex);
+}
+
+const SAS_LENGTH = 6; // over CODE_ALPHABET (32 chars) => 32^6 = 2^30
+
 /**
- * 6-digit short-authentication-string binding the two pubkeys. Excludes the
- * ciphertext so both sides can compute and compare it before the seed is sent.
+ * 6-char short-authentication-string binding the two ephemeral pubkeys, encoded
+ * over the 32-char code alphabet (30 bits). Excludes the ciphertext so both
+ * sides can compute and compare it before the seed is sent.
  */
-export function computeSAS(sharedX, childEphPub, parentWalletPub) {
+export function computeSAS(sharedX, childEphPub, parentEphPub) {
   const transcript = Buffer.concat([
     deriveSasKey(sharedX),
     Buffer.from(childEphPub, 'hex'),
-    Buffer.from(parentWalletPub, 'hex'),
+    Buffer.from(parentEphPub, 'hex'),
   ]);
   const digest = Buffer.from(sha256(transcript));
-  const n = digest.readUInt32BE(0) % 1000000;
-  return String(n).padStart(6, '0');
+  let n = digest.readUInt32BE(0) % 32 ** SAS_LENGTH; // 2^32 % 2^30 === 0 -> unbiased
+  let out = '';
+  for (let i = 0; i < SAS_LENGTH; i++) {
+    out = CODE_ALPHABET[n % 32] + out;
+    n = Math.floor(n / 32);
+  }
+  return out;
 }
 
 /** AES-256-GCM encrypt the seed payload. Returns base64 iv/ct/tag. */
