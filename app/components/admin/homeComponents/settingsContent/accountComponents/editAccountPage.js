@@ -117,7 +117,8 @@ export default function EditAccountPage(props) {
       let isMounted = true;
       (async () => {
         try {
-          setOtherAccountBalance({ isLoading: true, balance: 0 });
+          if (!otherAccountBalance.balance)
+            setOtherAccountBalance({ isLoading: true, balance: 0 });
           const mnemonic = isChild
             ? await deriveChildMnemonic(
                 accountMnemoinc,
@@ -144,7 +145,13 @@ export default function EditAccountPage(props) {
       return () => {
         isMounted = false;
       };
-    }, [isActive, accountInformation.uuid, isChild, accountMnemoinc]),
+    }, [
+      isActive,
+      accountInformation.uuid,
+      isChild,
+      accountMnemoinc,
+      otherAccountBalance.balance,
+    ]),
   );
 
   const balance = isActive
@@ -283,15 +290,19 @@ export default function EditAccountPage(props) {
   }, []);
 
   const handleAddMoney = useCallback(() => {
-    navigate.navigate('CustodyAccountPaymentPage', {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'accountAddMoney',
       to: accountInformation.uuid,
+      sliderHight: 0.8,
     });
   }, [navigate, accountInformation.uuid]);
 
   const handleWithdrawMoney = useCallback(() => {
-    navigate.navigate('CustodyAccountPaymentPage', {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'accountWithdrawlMoney',
       from: accountInformation.uuid,
-      fromBalance: balance,
+      balance: balance,
+      sliderHight: 0.8,
     });
   }, [navigate, accountInformation.uuid, balance]);
 

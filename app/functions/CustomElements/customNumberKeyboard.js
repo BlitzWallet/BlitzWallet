@@ -91,7 +91,9 @@ export default function CustomNumberKeyboard({
       styles.keyboardContainer,
       {
         marginTop:
-          frompage === 'sendContactsPage' || frompage === 'sendSMSPage'
+          frompage === 'sendContactsPage' ||
+          frompage === 'sendSMSPage' ||
+          frompage === 'accountsPayments'
             ? 0
             : 'auto',
       },
