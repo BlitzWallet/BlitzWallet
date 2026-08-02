@@ -220,7 +220,7 @@
       "buttons": {
         "button1": "Restore Account",
         "button2": "Get Started",
-        "joinAccount": "Join someone's account",
+        "joinAccount": "Join linked account",
         "linkedWallet": "Set up a linked wallet"
       },
       "accountType": {
@@ -1798,7 +1798,7 @@
       "pairing": {
         "title": "Set up account",
         "codeTitle": "Share your code",
-        "codeSubtitle": "Open Blitz on their phone, choose \"Join someone's account\" and have them enter this code.",
+        "codeSubtitle": "Open Blitz on their phone, choose \"Join linked account\" and have them enter this code.",
         "waiting": "Waiting for them to enter the code…",
         "sasTitle": "Verify the code",
         "sasSubtitle": "Read this 6-digit code out loud and ask them if they see the same code on their phone.",
@@ -1824,7 +1824,7 @@
         "title": "Set up your wallet",
         "info": {
           "navTitle": "Set up your wallet",
-          "title": "Set up your managed wallet",
+          "title": "Set up your wallet",
           "intro": "You're setting up a wallet managed by someone else.",
           "row1Label": "Your own wallet",
           "row1Description": "Send and receive with your own balance.",
