@@ -9,7 +9,10 @@
 jest.mock('expo-sqlite', () => ({}));
 
 const { TreeNode } = require('@buildonspark/spark-sdk/proto/spark');
-const { treeNodeHexFromRaw } = require('../../../app/functions/spark/leavesStorage');
+const {
+  treeNodeHexFromRaw,
+  normalizeLeaf,
+} = require('../../../app/functions/spark/leavesStorage');
 
 // A byte value encoded as the {"0":n,"1":n,...} object a JSON round-trip makes.
 const toByteMap = arr => Object.fromEntries(arr.map((n, i) => [String(i), n]));
@@ -95,5 +98,75 @@ describe('treeNodeHexFromRaw', () => {
       },
     };
     expect(treeNodeHexFromRaw(bad)).toBeNull();
+  });
+});
+
+// The stored/exported leaf carries only what downstream reads. The raw per-field
+// bytes are never kept — treeNodeHex is the canonical artifact. Both runtimes
+// produce the same slim shape: native builds treeNodeHex from raw bytes; webview
+// hands one in already-built (its bytes were dropped over the bridge).
+describe('normalizeLeaf', () => {
+  const DROPPED = [
+    'nodeTx',
+    'refundTx',
+    'directTx',
+    'directRefundTx',
+    'directFromCpfpRefundTx',
+    'verifyingPublicKey',
+    'ownerIdentityPublicKey',
+    'ownerSigningPublicKey',
+    'signingKeyshare',
+    'vout',
+    'createdTime',
+  ];
+
+  test('native raw leaf: builds treeNodeHex, drops raw byte fields', () => {
+    const normalized = normalizeLeaf(rawLeaf);
+
+    expect(normalized.treeNodeHex).toBe(treeNodeHexFromRaw(rawLeaf));
+    expect(normalized.value).toBe(1024);
+    expect(normalized.valueSats).toBe(1024);
+    for (const key of DROPPED) expect(normalized).not.toHaveProperty(key);
+  });
+
+  test('webview slim leaf: passes prebuilt treeNodeHex through unchanged', () => {
+    const prebuilt = treeNodeHexFromRaw(rawLeaf);
+    // Bytes already dropped on the webview path — only slim fields arrive.
+    const slim = {
+      id: rawLeaf.id,
+      treeId: rawLeaf.treeId,
+      value: 1024,
+      status: 'AVAILABLE',
+      parentNodeId: rawLeaf.parentNodeId,
+      network: 1,
+      updatedTime: rawLeaf.updatedTime,
+      treenodeStatus: 1,
+      treeNodeHex: prebuilt,
+    };
+
+    const normalized = normalizeLeaf(slim);
+
+    expect(normalized.treeNodeHex).toBe(prebuilt); // not rebuilt
+    expect(normalized.valueSats).toBe(1024);
+    for (const key of DROPPED) expect(normalized).not.toHaveProperty(key);
+  });
+
+  test('webview dust leaf: treeNodeHex:null stays null, never rebuilt', () => {
+    // Sub-EXIT_MIN_SATS dust arrives with treeNodeHex explicitly null and no raw
+    // bytes. Rebuilding from it would forge a nodeTx-less hex the exit tooling
+    // rejects — null must survive (null !== undefined, so no build).
+    const dust = {
+      id: rawLeaf.id,
+      treeId: rawLeaf.treeId,
+      value: 500,
+      status: 'AVAILABLE',
+      parentNodeId: rawLeaf.parentNodeId,
+      network: 1,
+      updatedTime: rawLeaf.updatedTime,
+      treenodeStatus: 1,
+      treeNodeHex: null,
+    };
+
+    expect(normalizeLeaf(dust).treeNodeHex).toBeNull();
   });
 });

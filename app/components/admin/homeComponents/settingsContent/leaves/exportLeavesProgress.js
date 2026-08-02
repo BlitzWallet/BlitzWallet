@@ -124,13 +124,27 @@ export default function ExportLeavesProgress({
 
         const parts = [];
         let btcSats = 0n;
+        let excludedCount = 0;
+        let excludedSats = 0n;
         let networkInt = null;
         await getAllLeavesStream(identityPubKey, batch => {
           for (const leaf of batch) {
-            parts.push(JSON.stringify(leaf));
-            btcSats += BigInt(leaf.value || 0);
+            const value = BigInt(leaf.value || 0);
+            // btcSats stays the TOTAL wallet balance (all leaves), unchanged.
+            btcSats += value;
             if (networkInt == null && leaf.network != null)
               networkInt = leaf.network;
+
+            // Sub-threshold leaves have no cached ancestor chain. The exit
+            // tooling hard-fails on any leaf in leaves[] whose chain is
+            // incomplete, so they must NOT appear in leaves[]. Their value still
+            // counts toward btcSats and is recorded separately below.
+            if (Number(leaf.value || 0) < EXIT_MIN_SATS) {
+              excludedCount++;
+              excludedSats += value;
+              continue;
+            }
+            parts.push(JSON.stringify(leaf));
           }
         });
         if (!mountedRef.current) return;
@@ -159,12 +173,16 @@ export default function ExportLeavesProgress({
           `"walletIdentityPublicKey":${JSON.stringify(
             sparkInformation.identityPubKey || '',
           )},` +
-          `"sparkSdkVersion":"0.8.5",` +
+          `"sparkSdkVersion":"0.8.8",` +
           `"appVersion":${JSON.stringify(DeviceInfo.getVersion())},` +
           `"leafCount":${parts.length},` +
           `"leaves":[${parts.join(',')}],` +
           `"nodes":[${nodeParts.join(',')}],` +
           `"balances":{"btcSats":${JSON.stringify(btcSats.toString())},` +
+          `"exitMinSats":${EXIT_MIN_SATS},` +
+          `"excludedSubThresholdLeaves":{"count":${excludedCount},` +
+          `"sats":${JSON.stringify(excludedSats.toString())},` +
+          `"reason":"below-unilateral-exit-minimum"},` +
           `"usdb":{"amount":"unknown",` +
           `"status":"not-covered-by-bitcoin-unilateral-exit"}},` +
           `"_recoveryNotes":${JSON.stringify(recoveryNotes)}}`;

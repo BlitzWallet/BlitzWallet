@@ -110,7 +110,7 @@
     "react-native-webview": "^13.16.1",
     "react-native-worklets": "^0.8.3",
     "rn-qr-generator": "^2.0.0",
-    "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#19a49e63caeee2065b74994f63ddbd0f9e6f54f2",
+    "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#795ded86ef1c2a71fc27bec496c499ad16b364b5",
     "stream-browserify": "^3.0.0",
     "text-encoding": "^0.7.0",
     "unique-names-generator": "^4.7.1",

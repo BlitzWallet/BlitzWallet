@@ -268,18 +268,26 @@ describe('replaceAllLeaves — snapshot versioning & stale sweep', () => {
     await saveExitNodesForLeaf(ACCT_A, id, [rawAncestor()]);
     expect((await getExitNodeSyncProgress(ACCT_A)).complete).toBe(1);
 
+    // Snapshot the first serialization so we can prove the blob actually changes.
+    const firstData = first(
+      `SELECT data FROM wallet_leaves WHERE id = ?`,
+      [id],
+    ).data;
+
     // Same leaf, identical stable fields, only the identifiers array reordered —
-    // the serialized `data` blob differs but nothing exit-relevant changed.
+    // the serialized `data` blob differs (treeNodeHex re-encodes the repeated
+    // ownerIdentifiers field in array order) but nothing exit-relevant changed.
     await replaceAllLeaves(ACCT_A, [
       rawLeaf({ ...stable, ownerIdentifiers: ['03', '02', '01'] }),
     ]);
 
-    // Guard against a vacuous test: prove the stored blob actually reordered
+    // Guard against a vacuous test: prove the stored blob actually changed
     // (so a whole-`data` comparison WOULD have mis-fired here)...
-    const stored = JSON.parse(
-      first(`SELECT data FROM wallet_leaves WHERE id = ?`, [id]).data,
-    );
-    expect(stored.signingKeyshare.ownerIdentifiers).toEqual(['03', '02', '01']);
+    const secondData = first(
+      `SELECT data FROM wallet_leaves WHERE id = ?`,
+      [id],
+    ).data;
+    expect(secondData).not.toBe(firstData);
     // ...yet the cached-ancestor status survived (no needless refetch).
     expect(await getExitNodeSyncProgress(ACCT_A)).toEqual({
       pending: 0,
