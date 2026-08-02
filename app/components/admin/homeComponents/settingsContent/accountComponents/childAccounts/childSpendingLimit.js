@@ -115,9 +115,13 @@ export default function ChildSpendingLimit(props) {
         return;
       }
       const spendingLimit = parseLimit();
-      const childIndex = Number(
-        masterInfoObject?.nextChildDerivationIndex || 0,
+      const existing = masterInfoObject?.childAccounts || [];
+      const counter = Number(masterInfoObject?.nextChildDerivationIndex || 0);
+      const maxExisting = existing.reduce(
+        (m, c) => Math.max(m, Number(c.childIndex ?? -1)),
+        -1,
       );
+      const childIndex = Math.max(counter, maxExisting + 1);
       const { childPublicKey, childMnemonic } = await reserveChild({
         mainSeed: accountMnemoinc,
         childIndex,
@@ -130,7 +134,6 @@ export default function ChildSpendingLimit(props) {
         childIndex,
       );
 
-      const existing = masterInfoObject?.childAccounts || [];
       const newEntry = {
         uuid: customUUID(),
         name,

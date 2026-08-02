@@ -45,6 +45,7 @@ export function ChildPairingProvider({ children }) {
   const [errorMessage, setErrorMessage] = useState('');
 
   const sessionRef = useRef(null);
+  const startingRef = useRef(false);
   const unsubRef = useRef(null);
   const cancelUnsubRef = useRef(null);
   const pairingStartTime = useRef(null);
@@ -80,7 +81,8 @@ export function ChildPairingProvider({ children }) {
       // Only one live handshake at a time. Re-entry — e.g. the link screen
       // re-focusing after the user backs out of the match screen — must not tear
       // down the in-flight session and mint a new pairing code.
-      if (sessionRef.current) return;
+      if (sessionRef.current || startingRef.current) return;
+      startingRef.current = true;
       const startTime = Date.now();
       pairingStartTime.current = startTime;
       await resetSession();
@@ -171,6 +173,8 @@ export function ChildPairingProvider({ children }) {
         console.log('child pairing setup error', err);
         crashlyticsRecordErrorReport(err.message);
         setStatus('error');
+      } finally {
+        startingRef.current = false;
       }
     },
     [resetSession, accountMnemoinc, publicKey, t],
