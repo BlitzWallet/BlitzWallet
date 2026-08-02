@@ -219,7 +219,16 @@
       "subtitle": "Votre portefeuille. Votre argent. Open source.",
       "buttons": {
         "button1": "Restaurer le compte",
-        "button2": "Commencer"
+        "button2": "Commencer",
+        "joinAccount": "Rejoindre le compte de quelqu'un",
+        "linkedWallet": "Configurer un portefeuille lié"
+      },
+      "accountType": {
+        "title": "Quel compte souhaitez-vous créer ?",
+        "personalTitle": "Compte personnel",
+        "personalDesc": "Votre propre portefeuille en auto-conservation, sécurisé par une phrase de récupération.",
+        "managedTitle": "Compte géré",
+        "managedDesc": "Récupérez un portefeuille configuré et géré par une personne de confiance."
       }
     },
     "disclaimerPage": {
@@ -230,7 +239,7 @@
       "row2Label": "Votre phrase de récupération est la clé",
       "row2Description": "12 mots sécurisent votre wallet.",
       "row3Label": "Si vous perdez la phrase, vous perdez l’accès",
-      "row3Description": "Personne ne peut récupérer votre wallet pour vous.",
+      "row3Description": "Personne ne peut le récupérer pour vous.",
       "readTerms": "Lire les Conditions et la Politique de confidentialité complètes",
       "acceptPrefix": "Je comprends que je suis seul responsable de ma phrase de récupération et j’accepte les",
       "terms&Conditions": "Conditions",
@@ -281,6 +290,14 @@
       "header": "Nous vous recommandons d'écrire votre phrase de semence",
       "subHeader": "Si vous n'avez pas écrit votre phrase de départ, vous risquez de perdre votre argent.",
       "btn": "Je comprends"
+    },
+    "walletSetup": {
+      "title": "Configurer votre portefeuille",
+      "subtitle": "Créez un nouveau portefeuille ou restaurez-en un existant.",
+      "createTitle": "Créer un nouveau portefeuille",
+      "createDesc": "Commencez avec un nouveau portefeuille.",
+      "restoreTitle": "Restaurer un portefeuille existant",
+      "restoreDesc": "Vous avez déjà un portefeuille ? Importez-le."
     }
   },
   "adminLogin": {
@@ -1725,7 +1742,27 @@
     "accounts": {
       "inputPlaceholder": "Rechercher un compte existant",
       "mainWalletPlace": "Portefeuille principal",
-      "nwcWalletPlace": "NWC"
+      "nwcWalletPlace": "NWC",
+      "tabs": {
+        "personal": "Personnel",
+        "linked": "Lié"
+      },
+      "personalInfo": {
+        "title": "Qu'est-ce qu'un compte personnel ?",
+        "body": "Les comptes personnels sont des portefeuilles que vous contrôlez entièrement, tous dérivés de votre unique phrase de récupération — votre compte principal ainsi que tous les comptes que vous créez. Basculez entre eux à tout moment et déplacez des fonds avec Transférer. Vous gérez et sauvegardez chaque compte personnel vous-même."
+      },
+      "linkedInfo": {
+        "title": "Qu'est-ce qu'un compte lié ?",
+        "body": "Un compte lié est un portefeuille que vous créez pour quelqu'un d'autre — comme un enfant ou un ami — sans jamais partager votre phrase de récupération. Ils commencent avec un lien et une clé que vous leur donnez, et vous pouvez toujours redériver leur portefeuille depuis votre propre phrase. Vous pouvez ajouter et retirer des fonds et définir une limite de dépenses."
+      },
+      "emptyLinked": {
+        "title": "Aucun compte lié pour le moment",
+        "subtitle": "Créez un compte pour une personne de confiance. Ils peuvent utiliser Blitz sans jamais voir de phrase de récupération."
+      },
+      "noResults": {
+        "title": "Aucun compte trouvé",
+        "subtitle": "Vous n'avez pas encore de comptes."
+      }
     },
     "resetWallet": {
       "header": "Êtes-vous sûr ?",
@@ -1857,13 +1894,14 @@
       "chainSwapFee": "0,5 % de frais Blitz + 0,1 %+ de frais de plateforme",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % de frais Blitz + frais de réseau",
-       "roostock": "Rootstock <> BTC",
+      "roostock": "Rootstock <> BTC",
       "rootstockFee": "0,1 % de frais Boltz + frais de réseau",
       "accumulationType": "Adresses d'accumulation",
       "accumulationFee": "0,5 % de frais Blitz + 0,5 % de frais de plateforme",
       "othersType": "Autres",
       "othersFee": "Frais de réseau",
-      "networkFeeLinkDesc": "Appuyez pour voir le détail des frais du réseau Spark"
+      "networkFeeLinkDesc": "Appuyez pour voir le détail des frais du réseau Spark",
+      "rootstock": "Rootstock <> BTC"
     },
     "nip5": {
       "noNameError": "Le nom ne peut pas être vide.",
@@ -1950,6 +1988,10 @@
         "balanceError": "Le montant de l'envoi est supérieur au solde et aux frais.",
         "noSendAddressError": "Impossible d'obtenir l'adresse de transfert",
         "noAccountInformation": "Impossible d'obtenir des informations sur le compte",
+        "invalidAmountError": "Veuillez saisir un montant valide à transférer",
+        "invalidFeeError": "Impossible de calculer des frais de transfert valides",
+        "invalidBalanceError": "Impossible de vérifier le solde du compte",
+        "sameAccountError": "Veuillez sélectionner deux comptes différents",
         "title": "Transfert",
         "selectAccount": "Sélectionner un compte",
         "inputPlaceHolderText": "Transfert de compte"
@@ -1975,7 +2017,7 @@
         "namePlaceholder": "Nom"
       },
       "editAccountPage": {
-        "title": "Modifier le compte",
+        "title": "Compte",
         "accountNameLabel": "Nom du compte",
         "showRecoveryPhraseLabel": "Afficher la phrase de récupération",
         "removeAccountLabel": "Supprimer le compte",
@@ -1987,16 +2029,24 @@
         "accountType_derived": "Dérivé",
         "accountType_imported": "Importé",
         "accountTypeDerivedInfo": "Ce compte est lié à votre phrase de récupération Blitz et sera restauré lorsque vous restaurerez votre portefeuille Blitz.",
-        "accountTypeImportedInfo": "Ce compte possède sa propre phrase de récupération et ne sera pas restauré lorsque vous restaurerez votre portefeuille Blitz. Assurez-vous de sauvegarder cette phrase."
+        "accountTypeImportedInfo": "Ce compte possède sa propre phrase de récupération et ne sera pas restauré lorsque vous restaurerez votre portefeuille Blitz. Assurez-vous de sauvegarder cette phrase.",
+        "accountType_main": "Principal",
+        "balanceLabel": "Solde",
+        "activeLabel": "Compte actif",
+        "activateButton": "Activer le compte",
+        "addMoneyButton": "Ajouter de l'argent",
+        "withdrawMoneyButton": "Retirer de l'argent"
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",
-        "createNewAccountTitle": "Créer un nouveau compte",
-        "createNewAccountDescription": "Récupérable via la phrase seed principale",
+        "createNewAccountTitle": "Créer un compte personnel",
+        "createNewAccountDescription": "Créez un portefeuille pour vous-même",
         "importRecoveryPhraseTitle": "Importer une phrase de récupération",
         "importRecoveryPhraseDescription": "Importer des comptes depuis un autre wallet",
         "recoverRecoveryPhraseTitle": "Récupérer un compte",
-        "recoverRecoveryPhraseDescription": "Restaurer un compte déjà créé"
+        "recoverRecoveryPhraseDescription": "Restaurer un compte déjà créé",
+        "createChildAccountTitle": "Créer un compte lié",
+        "createChildAccountDescription": "Créez un portefeuille pour quelqu'un d'autre que vous gérez"
       },
       "selectProfileImage": {
         "title": "Choisir un avatar",
@@ -2027,6 +2077,15 @@
         "explanation_imported": "Ce compte a été importé. Si vous le supprimez, vous devrez réimporter votre clé privée pour y accéder.",
         "cancelButton": "Annuler",
         "removeButton": "Supprimer le compte"
+      },
+      "transferModal": {
+        "selectAccount": "Sélectionner un compte",
+        "availableToAdd": "Disponible à ajouter",
+        "availableToWithdraw": "Disponible à retirer",
+        "using": "Utilisation",
+        "amount": "Montant",
+        "transferComplete": "Envoyé à {{name}}",
+        "selfTransfer": "Vous ne pouvez pas transférer vers vous-même"
       }
     },
     "accountsPoolsScreen": {
@@ -2137,6 +2196,112 @@
       "confirmActionPage": {
         "defaultMessage": "Êtes-vous sûr de vouloir vider votre portefeuille ?",
         "ctaBTN": "Marquer comme {{option}}"
+      }
+    },
+    "childAccounts": {
+      "tabs": {
+        "blitz": "Comptes Blitz",
+        "children": "Enfants"
+      },
+      "blitzInfo": {
+        "title": "Que sont les comptes Blitz ?",
+        "body": "Les comptes Blitz sont des portefeuilles supplémentaires que vous contrôlez, tous dérivés de votre unique phrase de récupération. Basculez entre eux à tout moment et déplacez des fonds avec Transférer. Vous gérez et sauvegardez chaque compte Blitz vous-même."
+      },
+      "childInfo": {
+        "title": "Que sont les comptes enfants ?",
+        "body": "Un compte enfant est un portefeuille que vous créez pour quelqu'un d'autre — comme un enfant ou un ami — sans jamais partager votre phrase de récupération. Ils commencent avec un lien et une clé que vous leur donnez, et vous pouvez toujours redériver leur portefeuille depuis votre propre phrase. Vous pouvez ajouter et retirer des fonds et définir une limite de dépenses."
+      },
+      "empty": {
+        "title": "Aucun compte enfant pour le moment",
+        "subtitle": "Créez un compte pour une personne de confiance. Ils peuvent utiliser Blitz sans jamais voir de phrase de récupération.",
+        "button": "Créer un compte enfant"
+      },
+      "createButton": "Créer un compte enfant",
+      "dontMatch": "Ne correspondent pas",
+      "list": {
+        "spendingLimitLabel": "Limite",
+        "noLimit": "Aucune limite"
+      },
+      "enterName": {
+        "title": "Nommer ce compte",
+        "subtitle": "Donnez un nom au compte pour pouvoir le reconnaître plus tard.",
+        "placeholder": "Nom du compte",
+        "next": "Suivant"
+      },
+      "spendingLimit": {
+        "title": "Définir une limite de dépenses",
+        "subtitle": "Définissez une limite de dépenses mensuelle pour ce compte. Il s'agit d'un budget souple suivi sur leur appareil.",
+        "placeholder": "Limite mensuelle",
+        "noLimit": "Aucune limite",
+        "create": "Créer le compte"
+      },
+      "creating": {
+        "loadingText": "Création du compte...",
+        "errorTitle": "Impossible de créer le compte. Veuillez réessayer."
+      },
+      "confirmation": {
+        "done": "Terminé"
+      },
+      "pairing": {
+        "title": "Configurer le compte",
+        "codeTitle": "Partagez votre code",
+        "codeSubtitle": "Ouvrez Blitz sur leur téléphone, choisissez « Rejoindre le compte de quelqu'un » et demandez-leur de saisir ce code.",
+        "waiting": "En attente de leur saisie du code…",
+        "sasTitle": "Vérifier le code",
+        "sasSubtitle": "Lisez ce code à 6 chiffres à voix haute et demandez-leur s'ils voient le même code sur leur téléphone.",
+        "sasHint": "Ne continuez qu'après avoir confirmé que les deux téléphones affichent le même code.",
+        "confirmMatch": "Ils correspondent",
+        "linkedTitle": "Portefeuille lié",
+        "linkedSubtitle": "Leur portefeuille lié est prêt à être utilisé.",
+        "done": "Envoyé. Ils termineront la configuration sur leur téléphone.",
+        "expired": "Cette association a expiré. Veuillez recommencer.",
+        "errorTitle": "Session d'association terminée",
+        "declinedByChild": "L'enfant a refusé la demande d'association."
+      },
+      "page": {
+        "title": "Compte enfant",
+        "balanceLabel": "Solde",
+        "transactionsLabel": "Activité récente",
+        "noTransactions": "Aucune activité pour le moment",
+        "spendingLimitLabel": "Limite de dépenses",
+        "loadingBalance": "Chargement du solde...",
+        "shareLink": "Partager le compte"
+      },
+      "claim": {
+        "title": "Configurer votre portefeuille",
+        "info": {
+          "navTitle": "Configurer votre portefeuille",
+          "title": "Configurer votre portefeuille géré",
+          "intro": "Vous configurez un portefeuille géré par une autre personne.",
+          "row1Label": "Votre propre portefeuille",
+          "row1Description": "Envoyez et recevez avec votre propre solde.",
+          "row2Label": "Facile à utiliser",
+          "row2Description": "Votre portefeuille est géré en toute sécurité pour vous.",
+          "row3Label": "Connecté à une personne de confiance",
+          "row3Description": "Ne continuez que si vous faites confiance à la personne avec qui vous vous associez.",
+          "bullet2": "Ils restent le titulaire du compte principal",
+          "bullet3": "Ne continuez que si vous faites confiance au propriétaire du compte.",
+          "continue": "Continuer"
+        },
+        "codeNavTitle": "Saisir le code",
+        "codeTitle": "Saisir le code d'association",
+        "codeSubtitle": "Saisissez le code d'association affiché sur le téléphone de l'autre personne.",
+        "next": "Suivant",
+        "sasNavTitle": "Vérifier le code",
+        "sasTitle": "Vérifiez le code",
+        "sasSubtitle": "Vérifiez que ce code à 6 chiffres correspond à celui de l'autre téléphone.",
+        "sasHint": "Les deux téléphones doivent afficher le même code à 6 chiffres.",
+        "confirmMatch": "Ils correspondent",
+        "tamper": "Nous n'avons pas pu vérifier ce transfert. Veuillez recommencer.",
+        "notFound": "Nous n'avons pas trouvé ce code d'association. Demandez-en un nouveau.",
+        "loading": "Configuration de votre portefeuille...",
+        "expired": "Cette association a expiré. Veuillez recommencer.",
+        "errorTitle": "Session d'association terminée",
+        "canceledByParent": "Le parent a annulé la demande d'association."
+      },
+      "limitGate": {
+        "title": "Limite de dépenses atteinte",
+        "message": "Ce paiement dépasserait la limite de dépenses définie pour ce compte."
       }
     }
   },

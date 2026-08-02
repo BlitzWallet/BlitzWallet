@@ -219,18 +219,35 @@
       "subtitle": "Your wallet. Your money. Open-source.",
       "buttons": {
         "button1": "Restore Account",
-        "button2": "Get Started"
+        "button2": "Get Started",
+        "joinAccount": "Join someone's account",
+        "linkedWallet": "Set up a linked wallet"
+      },
+      "accountType": {
+        "title": "Which account would you like to create?",
+        "personalTitle": "Personal account",
+        "personalDesc": "Your own self-custodial wallet secured by a recovery phrase.",
+        "managedTitle": "Managed account",
+        "managedDesc": "Claim a wallet set up and managed by someone you trust."
       }
     },
+    "walletSetup": {
+      "title": "Set up your wallet",
+      "subtitle": "Create a new wallet or restore an existing one.",
+      "createTitle": "Create new wallet",
+      "createDesc": "Start fresh with a new wallet.",
+      "restoreTitle": "Restore existing wallet",
+      "restoreDesc": "Already have a wallet? Bring it over."
+    },
     "disclaimerPage": {
-      "header": "Your money. Your Control.",
+      "header": "Your money. Your control.",
       "subHeader": "A few things to know before you start.",
       "row1Label": "Only you control your funds",
       "row1Description": "Blitz can't hold, freeze, or touch it.",
       "row2Label": "Your recovery phrase is the key",
       "row2Description": "12 words secure your wallet.",
       "row3Label": "Lose the phrase, lose access",
-      "row3Description": "No one can recover your wallet for you.",
+      "row3Description": "No one can recover it for you.",
       "readTerms": "Read full Terms & Privacy",
       "acceptPrefix": "I understand I'm solely responsible for my recovery phrase, and I agree to the",
       "terms&Conditions": "Terms",
@@ -1712,7 +1729,133 @@
     "accounts": {
       "inputPlaceholder": "Search existing account",
       "mainWalletPlace": "Main Account",
-      "nwcWalletPlace": "NWC Account"
+      "nwcWalletPlace": "NWC Account",
+      "tabs": {
+        "personal": "Personal",
+        "linked": "Linked"
+      },
+      "personalInfo": {
+        "title": "What is a personal account?",
+        "body": "Personal accounts are wallets you fully control, all derived from your single seed phrase — your main account plus any accounts you create. Switch between them anytime and move funds with Transfer. You manage and back up every personal account yourself."
+      },
+      "linkedInfo": {
+        "title": "What is a linked account?",
+        "body": "A linked account is a wallet you create for someone else — like a child or a friend — without ever sharing your seed phrase. They onboard with a link and a key you give them, and you can always re-derive their wallet from your own seed. You can push and pull funds and set a spending limit."
+      },
+      "emptyLinked": {
+        "title": "No linked accounts yet",
+        "subtitle": "Create an account for someone you trust. They can use Blitz without ever seeing a seed phrase."
+      },
+      "noResults": {
+        "title": "No accounts found",
+        "subtitle": "You don't have any accounts yet."
+      }
+    },
+    "childAccounts": {
+      "tabs": {
+        "blitz": "Blitz accounts",
+        "children": "Children"
+      },
+      "blitzInfo": {
+        "title": "What are Blitz accounts?",
+        "body": "Blitz accounts are extra wallets you control, all derived from your single seed phrase. Switch between them anytime and move funds with Transfer. You manage and back up every Blitz account yourself."
+      },
+      "childInfo": {
+        "title": "What are children accounts?",
+        "body": "A children account is a wallet you create for someone else — like a child or a friend — without ever sharing your seed phrase. They onboard with a link and a key you give them, and you can always re-derive their wallet from your own seed. You can push and pull funds and set a spending limit."
+      },
+      "empty": {
+        "title": "No children accounts yet",
+        "subtitle": "Create an account for someone you trust. They can use Blitz without ever seeing a seed phrase.",
+        "button": "Create children account"
+      },
+      "createButton": "Create children account",
+      "dontMatch": "Don't match",
+      "list": {
+        "spendingLimitLabel": "Limit",
+        "noLimit": "No limit"
+      },
+      "enterName": {
+        "title": "Name this account",
+        "subtitle": "Give the account a name so you can recognize it later.",
+        "placeholder": "Account name",
+        "next": "Next"
+      },
+      "spendingLimit": {
+        "title": "Set a spending limit",
+        "subtitle": "Set a monthly spending limit for this account. This is a soft budget tracked on their device.",
+        "placeholder": "Monthly limit",
+        "noLimit": "No limit",
+        "create": "Create account"
+      },
+      "creating": {
+        "loadingText": "Creating account...",
+        "errorTitle": "Could not create the account. Please try again."
+      },
+      "confirmation": {
+        "done": "Done"
+      },
+      "pairing": {
+        "title": "Set up account",
+        "codeTitle": "Share your code",
+        "codeSubtitle": "Open Blitz on their phone, choose \"Join someone's account\" and have them enter this code.",
+        "waiting": "Waiting for them to enter the code…",
+        "sasTitle": "Verify the code",
+        "sasSubtitle": "Read this 6-digit code out loud and ask them if they see the same code on their phone.",
+        "sasHint": "Only continue once you've confirmed both phones show the same code.",
+        "confirmMatch": "They match",
+        "linkedTitle": "Wallet linked",
+        "linkedSubtitle": "Their linked wallet is ready to use.",
+        "done": "Sent. They'll finish setup on their phone.",
+        "expired": "This pairing expired. Please start again.",
+        "errorTitle": "Pairing session ended",
+        "declinedByChild": "The child declined the pairing request."
+      },
+      "page": {
+        "title": "Children account",
+        "balanceLabel": "Balance",
+        "transactionsLabel": "Recent activity",
+        "noTransactions": "No activity yet",
+        "spendingLimitLabel": "Spending limit",
+        "loadingBalance": "Loading balance...",
+        "shareLink": "Share account"
+      },
+      "claim": {
+        "title": "Set up your wallet",
+        "info": {
+          "navTitle": "Set up your wallet",
+          "title": "Set up your managed wallet",
+          "intro": "You're setting up a wallet managed by someone else.",
+          "row1Label": "Your own wallet",
+          "row1Description": "Send and receive with your own balance.",
+          "row2Label": "Easy to use",
+          "row2Description": "Your wallet is securely managed for you.",
+          "row3Label": "Connected to someone you trust",
+          "row3Description": "Only continue if you trust the person you're pairing with.",
+          "bullet2": "They remain the main account holder",
+          "bullet3": "Only continue if you trust the account owner.",
+          "continue": "Continue"
+        },
+        "codeNavTitle": "Enter Code",
+        "codeTitle": "Enter pairing code",
+        "codeSubtitle": "Enter the pairing code shown on the other person's phone.",
+        "next": "Next",
+        "sasNavTitle": "Verify Code",
+        "sasTitle": "Verify the code",
+        "sasSubtitle": "Check that this 6-digit code matches the one on the other phone.",
+        "sasHint": "Both phones should display the same 6-digit code.",
+        "confirmMatch": "They match",
+        "tamper": "We couldn't verify this handoff. Please start again.",
+        "notFound": "We couldn't find that pairing code. Ask for a new one.",
+        "loading": "Setting up your wallet...",
+        "expired": "This pairing expired. Please start again.",
+        "errorTitle": "Pairing session ended",
+        "canceledByParent": "The parent canceled the pairing request."
+      },
+      "limitGate": {
+        "title": "Spending limit reached",
+        "message": "This payment would go over the spending limit set for this account."
+      }
     },
     "resetWallet": {
       "header": "Are you sure?",
@@ -1937,6 +2080,10 @@
         "balanceError": "Sending amount is greater than your balance and fees",
         "noSendAddressError": "Unable to get transfer address",
         "noAccountInformation": "Unable to get account information",
+        "invalidAmountError": "Please enter a valid amount to transfer",
+        "invalidFeeError": "Unable to calculate a valid transfer fee",
+        "invalidBalanceError": "Unable to verify the account balance",
+        "sameAccountError": "Please select two different accounts",
         "title": "Transfer",
         "selectAccount": "Select Account",
         "inputPlaceHolderText": "Account Transfer"
@@ -1962,7 +2109,7 @@
         "namePlaceholder": "Name"
       },
       "editAccountPage": {
-        "title": "Edit Account",
+        "title": "Account",
         "accountNameLabel": "Account Name",
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
         "removeAccountLabel": "Remove Account",
@@ -1973,8 +2120,14 @@
         "accountTypeLabel": "Account type",
         "accountType_derived": "Derived",
         "accountType_imported": "Imported",
+        "accountType_main": "Main",
         "accountTypeDerivedInfo": "This account is tied to your Blitz seed phrase and will be restored when you restore your Blitz wallet.",
-        "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up."
+        "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up.",
+        "balanceLabel": "Balance",
+        "activeLabel": "Active account",
+        "activateButton": "Activate account",
+        "addMoneyButton": "Add money",
+        "withdrawMoneyButton": "Withdraw money"
       },
       "removeAccountPage": {
         "title": "Remove",
@@ -1985,12 +2138,14 @@
       },
       "selectCreateAccountType": {
         "title": "Add Account",
-        "createNewAccountTitle": "Create New Account",
-        "createNewAccountDescription": "Recoverable from main recovery phrase",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
         "importRecoveryPhraseDescription": "Import accounts from another wallet",
         "recoverRecoveryPhraseTitle": "Recover Account",
-        "recoverRecoveryPhraseDescription": "Restore an already created account"
+        "recoverRecoveryPhraseDescription": "Restore an already created account",
+        "createNewAccountTitle": "Create Personal Account",
+        "createNewAccountDescription": "Create a wallet for yourself",
+        "createChildAccountTitle": "Create Linked Account",
+        "createChildAccountDescription": "Create a wallet for someone else that you manage"
       },
       "selectProfileImage": {
         "title": "Choose Avatar",
@@ -2014,6 +2169,15 @@
       "selectAltAccount": {
         "from": "Select the account you want to send from.",
         "to": "Select the account you want to receive to."
+      },
+      "transferModal": {
+        "selectAccount": "Select an account",
+        "availableToAdd": "Available to add",
+        "availableToWithdraw": "Available to withdraw",
+        "using": "Using",
+        "amount": "Amount",
+        "transferComplete": "Sent to {{name}}",
+        "selfTransfer": "You cannot transfer to yourself"
       }
     },
     "accountsPoolsScreen": {

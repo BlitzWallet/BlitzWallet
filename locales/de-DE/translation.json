@@ -219,18 +219,27 @@
       "subtitle": "Ihre Wallet - Ihre Coins - 100 % Open Source.",
       "buttons": {
         "button1": "Konto wiederherstellen",
-        "button2": "Loslegen"
+        "button2": "Loslegen",
+        "joinAccount": "Einem Konto einer anderen Person beitreten",
+        "linkedWallet": "Verknüpftes Wallet einrichten"
+      },
+      "accountType": {
+        "title": "Welches Konto möchtest du erstellen?",
+        "personalTitle": "Persönliches Konto",
+        "personalDesc": "Dein eigenes selbstverwahrtes Wallet, das durch eine Wiederherstellungsphrase geschützt ist.",
+        "managedTitle": "Verwaltetes Konto",
+        "managedDesc": "Übernimm ein Wallet, das von einer Person deines Vertrauens eingerichtet und verwaltet wird."
       }
     },
     "disclaimerPage": {
-      "header": "Ihr Geld. Ihre Kontrolle.",
+      "header": "Dein Geld. Deine Kontrolle.",
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
       "row1Label": "Nur Sie kontrollieren Ihre Gelder.",
       "row1Description": "Blitz kann es nicht verwahren, einfrieren oder darauf zugreifen.",
       "row2Label": "Ihre Wiederherstellungsphrase ist der Schlüssel",
       "row2Description": "12 Wörter sichern Ihre Wallet.",
       "row3Label": "Phrase verloren, Zugriff verloren",
-      "row3Description": "Niemand kann Ihre Wallet für Sie wiederherstellen.",
+      "row3Description": "Niemand kann es für dich wiederherstellen.",
       "readTerms": "Vollständige Bedingungen und Datenschutz lesen",
       "acceptPrefix": "Ich verstehe, dass ich allein für meine Wiederherstellungsphrase verantwortlich bin, und akzeptiere die",
       "terms&Conditions": "Bedingungen",
@@ -281,6 +290,14 @@
       "header": "Wir empfehlen dringend, Ihre Wiederherstellungsphrase (Seed-Phrase) aufzuschreiben.",
       "subHeader": "Ohne gesicherte Wiederherstellungsphrase (Seed-Phrase) riskieren Sie den vollständigen Verlust Ihrer Gelder.",
       "btn": "Ich verstehe"
+    },
+    "walletSetup": {
+      "title": "Richte dein Wallet ein",
+      "subtitle": "Erstelle ein neues Wallet oder stelle ein vorhandenes wieder her.",
+      "createTitle": "Neues Wallet erstellen",
+      "createDesc": "Starte mit einem neuen Wallet.",
+      "restoreTitle": "Vorhandenes Wallet wiederherstellen",
+      "restoreDesc": "Du hast bereits ein Wallet? Übernimm es."
     }
   },
   "adminLogin": {
@@ -1712,7 +1729,27 @@
     "accounts": {
       "inputPlaceholder": "Kontoname",
       "mainWalletPlace": "Haupt-Konto",
-      "nwcWalletPlace": "NWC-Konto"
+      "nwcWalletPlace": "NWC-Konto",
+      "tabs": {
+        "personal": "Persönlich",
+        "linked": "Verknüpft"
+      },
+      "personalInfo": {
+        "title": "Was ist ein persönliches Konto?",
+        "body": "Persönliche Konten sind Wallets, die du vollständig kontrollierst und die alle aus deiner einzigen Wiederherstellungsphrase abgeleitet werden – dein Hauptkonto sowie alle von dir erstellten Konten. Wechsle jederzeit zwischen ihnen und verschiebe Guthaben mit Übertragen. Du verwaltest und sicherst jedes persönliche Konto selbst."
+      },
+      "linkedInfo": {
+        "title": "Was ist ein verknüpftes Konto?",
+        "body": "Ein verknüpftes Konto ist ein Wallet, das du für eine andere Person erstellst – etwa für ein Kind oder einen Freund – ohne jemals deine Wiederherstellungsphrase zu teilen. Sie starten mit einem Link und einem Schlüssel, den du ihnen gibst, und du kannst ihr Wallet jederzeit aus deiner eigenen Phrase neu ableiten. Du kannst Guthaben hinzufügen, abheben und ein Ausgabenlimit festlegen."
+      },
+      "emptyLinked": {
+        "title": "Noch keine verknüpften Konten",
+        "subtitle": "Erstelle ein Konto für eine Person deines Vertrauens. Sie kann Blitz nutzen, ohne jemals eine Wiederherstellungsphrase zu sehen."
+      },
+      "noResults": {
+        "title": "Keine Konten gefunden",
+        "subtitle": "Du hast noch keine Konten."
+      }
     },
     "resetWallet": {
       "header": "Sind Sie sicher?",
@@ -1937,6 +1974,10 @@
         "balanceError": "Der Betrag übersteigt Ihr Guthaben einschließlich Gebühren.",
         "noSendAddressError": "Die Übertragungsadresse konnte nicht abgerufen werden.",
         "noAccountInformation": "Kontoinformationen konnten nicht abgerufen werden.",
+        "invalidAmountError": "Bitte geben Sie einen gültigen Betrag zum Übertragen ein.",
+        "invalidFeeError": "Es konnte keine gültige Übertragungsgebühr berechnet werden.",
+        "invalidBalanceError": "Das Kontoguthaben konnte nicht überprüft werden.",
+        "sameAccountError": "Bitte wählen Sie zwei verschiedene Konten aus.",
         "title": "Übertragung",
         "selectAccount": "Konto auswählen",
         "inputPlaceHolderText": "Kontoübertragung"
@@ -1962,7 +2003,7 @@
         "namePlaceholder": "Name"
       },
       "editAccountPage": {
-        "title": "Konto bearbeiten",
+        "title": "Konto",
         "accountNameLabel": "Kontoname",
         "showRecoveryPhraseLabel": "Wiederherstellungsphrase anzeigen",
         "removeAccountLabel": "Konto entfernen",
@@ -1974,16 +2015,24 @@
         "accountType_derived": "Abgeleitet",
         "accountType_imported": "Importiert",
         "accountTypeDerivedInfo": "Dieses Konto ist mit Ihrer Blitz-Seed-Phrase verknüpft und wird wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen.",
-        "accountTypeImportedInfo": "Dieses Konto hat eine eigene Seed-Phrase und wird nicht wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen. Bewahren Sie die Wiederherstellungsphrase sicher auf."
+        "accountTypeImportedInfo": "Dieses Konto hat eine eigene Seed-Phrase und wird nicht wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen. Bewahren Sie die Wiederherstellungsphrase sicher auf.",
+        "accountType_main": "Hauptkonto",
+        "balanceLabel": "Saldo",
+        "activeLabel": "Aktives Konto",
+        "activateButton": "Konto aktivieren",
+        "addMoneyButton": "Geld hinzufügen",
+        "withdrawMoneyButton": "Geld abheben"
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
-        "createNewAccountTitle": "Neues Konto erstellen",
-        "createNewAccountDescription": "Wiederherstellbar über die Haupt-Wiederherstellungsphrase (Seed-Phrase).",
+        "createNewAccountTitle": "Persönliches Konto erstellen",
+        "createNewAccountDescription": "Erstelle ein Wallet für dich selbst",
         "importRecoveryPhraseTitle": "Wiederherstellungsphrase (Seed-Phrase) importieren.",
         "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren.",
         "recoverRecoveryPhraseTitle": "Konto wiederherstellen",
-        "recoverRecoveryPhraseDescription": "Ein bereits erstelltes Konto wiederherstellen."
+        "recoverRecoveryPhraseDescription": "Ein bereits erstelltes Konto wiederherstellen.",
+        "createChildAccountTitle": "Verknüpftes Konto erstellen",
+        "createChildAccountDescription": "Erstelle ein Wallet für eine andere Person, das du verwaltest"
       },
       "selectProfileImage": {
         "title": "Avatar auswählen",
@@ -2014,6 +2063,15 @@
         "explanation_imported": "Dieses Konto wurde importiert. Wenn Sie es entfernen, müssen Sie Ihre Wiederherstellungsphrase erneut importieren, um darauf zuzugreifen.",
         "cancelButton": "Abbrechen",
         "removeButton": "Konto entfernen"
+      },
+      "transferModal": {
+        "selectAccount": "Konto auswählen",
+        "availableToAdd": "Verfügbar zum Hinzufügen",
+        "availableToWithdraw": "Verfügbar zum Abheben",
+        "using": "Verwenden",
+        "amount": "Betrag",
+        "transferComplete": "An {{name}} gesendet",
+        "selfTransfer": "Du kannst keine Übertragung an dich selbst durchführen"
       }
     },
     "accountsPoolsScreen": {
@@ -2124,6 +2182,112 @@
       "confirmActionPage": {
         "defaultMessage": "Sind Sie sicher, dass Sie Ihre Wallet leeren möchten?",
         "ctaBTN": "Als {{option}} markieren"
+      }
+    },
+    "childAccounts": {
+      "tabs": {
+        "blitz": "Blitz-Konten",
+        "children": "Kinder"
+      },
+      "blitzInfo": {
+        "title": "Was sind Blitz-Konten?",
+        "body": "Blitz-Konten sind zusätzliche Wallets, die du kontrollierst und die alle aus deiner einzigen Wiederherstellungsphrase abgeleitet werden. Wechsle jederzeit zwischen ihnen und verschiebe Guthaben mit Übertragen. Du verwaltest und sicherst jedes Blitz-Konto selbst."
+      },
+      "childInfo": {
+        "title": "Was sind Kinder-Konten?",
+        "body": "Ein Kinder-Konto ist ein Wallet, das du für eine andere Person erstellst – etwa für ein Kind oder einen Freund – ohne jemals deine Wiederherstellungsphrase zu teilen. Sie starten mit einem Link und einem Schlüssel, den du ihnen gibst, und du kannst ihr Wallet jederzeit aus deiner eigenen Phrase neu ableiten. Du kannst Guthaben hinzufügen, abheben und ein Ausgabenlimit festlegen."
+      },
+      "empty": {
+        "title": "Noch keine Kinder-Konten",
+        "subtitle": "Erstelle ein Konto für eine Person deines Vertrauens. Sie kann Blitz nutzen, ohne jemals eine Wiederherstellungsphrase zu sehen.",
+        "button": "Kinder-Konto erstellen"
+      },
+      "createButton": "Kinder-Konto erstellen",
+      "dontMatch": "Stimmt nicht überein",
+      "list": {
+        "spendingLimitLabel": "Limit",
+        "noLimit": "Kein Limit"
+      },
+      "enterName": {
+        "title": "Konto benennen",
+        "subtitle": "Gib dem Konto einen Namen, damit du es später wiedererkennst.",
+        "placeholder": "Kontoname",
+        "next": "Weiter"
+      },
+      "spendingLimit": {
+        "title": "Ausgabenlimit festlegen",
+        "subtitle": "Lege ein monatliches Ausgabenlimit für dieses Konto fest. Es ist ein weiches Budget, das auf ihrem Gerät verfolgt wird.",
+        "placeholder": "Monatliches Limit",
+        "noLimit": "Kein Limit",
+        "create": "Konto erstellen"
+      },
+      "creating": {
+        "loadingText": "Konto wird erstellt...",
+        "errorTitle": "Das Konto konnte nicht erstellt werden. Bitte versuche es erneut."
+      },
+      "confirmation": {
+        "done": "Fertig"
+      },
+      "pairing": {
+        "title": "Konto einrichten",
+        "codeTitle": "Teile deinen Code",
+        "codeSubtitle": "Öffne Blitz auf ihrem Telefon, wähle „Einem Konto einer anderen Person beitreten“ und lass sie diesen Code eingeben.",
+        "waiting": "Warten darauf, dass sie den Code eingeben…",
+        "sasTitle": "Code überprüfen",
+        "sasSubtitle": "Lies diesen 6-stelligen Code laut vor und frage, ob auf ihrem Telefon derselbe Code angezeigt wird.",
+        "sasHint": "Fahre nur fort, wenn du bestätigt hast, dass beide Telefone denselben Code anzeigen.",
+        "confirmMatch": "Sie stimmen überein",
+        "linkedTitle": "Wallet verknüpft",
+        "linkedSubtitle": "Ihr verknüpftes Wallet ist einsatzbereit.",
+        "done": "Gesendet. Sie schließen die Einrichtung auf ihrem Telefon ab.",
+        "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
+        "errorTitle": "Kopplungssitzung beendet",
+        "declinedByChild": "Das Kind hat die Kopplungsanfrage abgelehnt."
+      },
+      "page": {
+        "title": "Kinder-Konto",
+        "balanceLabel": "Saldo",
+        "transactionsLabel": "Letzte Aktivität",
+        "noTransactions": "Noch keine Aktivität",
+        "spendingLimitLabel": "Ausgabenlimit",
+        "loadingBalance": "Saldo wird geladen...",
+        "shareLink": "Konto teilen"
+      },
+      "claim": {
+        "title": "Richte dein Wallet ein",
+        "info": {
+          "navTitle": "Richte dein Wallet ein",
+          "title": "Richte dein verwaltetes Wallet ein",
+          "intro": "Du richtest ein Wallet ein, das von einer anderen Person verwaltet wird.",
+          "row1Label": "Dein eigenes Wallet",
+          "row1Description": "Sende und empfange mit deinem eigenen Guthaben.",
+          "row2Label": "Einfach zu bedienen",
+          "row2Description": "Dein Wallet wird sicher für dich verwaltet.",
+          "row3Label": "Verbunden mit einer Person deines Vertrauens",
+          "row3Description": "Fahre nur fort, wenn du der Person vertraust, mit der du dich koppelst.",
+          "bullet2": "Sie bleiben der Hauptkontoinhaber",
+          "bullet3": "Fahre nur fort, wenn du dem Kontoinhaber vertraust.",
+          "continue": "Weiter"
+        },
+        "codeNavTitle": "Code eingeben",
+        "codeTitle": "Kopplungscode eingeben",
+        "codeSubtitle": "Gib den Kopplungscode ein, der auf dem Telefon der anderen Person angezeigt wird.",
+        "next": "Weiter",
+        "sasNavTitle": "Code überprüfen",
+        "sasTitle": "Überprüfe den Code",
+        "sasSubtitle": "Prüfe, ob dieser 6-stellige Code mit dem auf dem anderen Telefon übereinstimmt.",
+        "sasHint": "Beide Telefone sollten denselben 6-stelligen Code anzeigen.",
+        "confirmMatch": "Sie stimmen überein",
+        "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
+        "notFound": "Wir konnten diesen Kopplungscode nicht finden. Bitte fordere einen neuen an.",
+        "loading": "Dein Wallet wird eingerichtet...",
+        "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
+        "errorTitle": "Kopplungssitzung beendet",
+        "canceledByParent": "Der Elternteil hat die Kopplungsanfrage abgebrochen."
+      },
+      "limitGate": {
+        "title": "Ausgabenlimit erreicht",
+        "message": "Diese Zahlung würde das für dieses Konto festgelegte Ausgabenlimit überschreiten."
       }
     }
   },

@@ -219,7 +219,16 @@
       "subtitle": "Tu billetera. Tu dinero. Código abierto.",
       "buttons": {
         "button1": "Restaurar cuenta",
-        "button2": "Comenzar"
+        "button2": "Comenzar",
+        "joinAccount": "Unirse a la cuenta de alguien",
+        "linkedWallet": "Configurar una wallet vinculada"
+      },
+      "accountType": {
+        "title": "¿Qué cuenta te gustaría crear?",
+        "personalTitle": "Cuenta personal",
+        "personalDesc": "Tu propia wallet autocustodiada protegida por una frase de recuperación.",
+        "managedTitle": "Cuenta gestionada",
+        "managedDesc": "Reclama una wallet configurada y gestionada por alguien de confianza."
       }
     },
     "disclaimerPage": {
@@ -230,7 +239,7 @@
       "row2Label": "Tu frase de recuperación es la clave",
       "row2Description": "12 palabras protegen tu wallet.",
       "row3Label": "Si pierdes la frase, pierdes el acceso",
-      "row3Description": "Nadie puede recuperar tu wallet por ti.",
+      "row3Description": "Nadie puede recuperarla por ti.",
       "readTerms": "Leer Términos y Privacidad completos",
       "acceptPrefix": "Entiendo que soy el único responsable de mi frase de recuperación y acepto los",
       "terms&Conditions": "Términos",
@@ -281,6 +290,14 @@
       "header": "Recomendamos que escribas tu frase semilla",
       "subHeader": "Si no tienes tu frase semilla escrita, corres el riesgo de perder tu dinero.",
       "btn": "Entiendo"
+    },
+    "walletSetup": {
+      "title": "Configura tu wallet",
+      "subtitle": "Crea una nueva wallet o restaura una existente.",
+      "createTitle": "Crear nueva wallet",
+      "createDesc": "Empieza de cero con una nueva wallet.",
+      "restoreTitle": "Restaurar wallet existente",
+      "restoreDesc": "¿Ya tienes una wallet? Tráela contigo."
     }
   },
   "adminLogin": {
@@ -1722,7 +1739,27 @@
     "accounts": {
       "inputPlaceholder": "Buscar cuenta existente",
       "mainWalletPlace": "Billetera principal",
-      "nwcWalletPlace": "NWC"
+      "nwcWalletPlace": "NWC",
+      "tabs": {
+        "personal": "Personal",
+        "linked": "Vinculadas"
+      },
+      "personalInfo": {
+        "title": "¿Qué es una cuenta personal?",
+        "body": "Las cuentas personales son wallets que controlas por completo, todas derivadas de tu única frase de recuperación: tu cuenta principal más cualquier cuenta que crees. Cambia entre ellas cuando quieras y mueve fondos con Transferir. Tú gestionas y respaldas cada cuenta personal."
+      },
+      "linkedInfo": {
+        "title": "¿Qué es una cuenta vinculada?",
+        "body": "Una cuenta vinculada es una wallet que creas para otra persona — como un hijo o un amigo — sin compartir nunca tu frase de recuperación. Ellos se incorporan con un enlace y una clave que les das, y siempre puedes re-derivar su wallet desde tu propia frase. Puedes enviar y retirar fondos y establecer un límite de gasto."
+      },
+      "emptyLinked": {
+        "title": "Aún no hay cuentas vinculadas",
+        "subtitle": "Crea una cuenta para alguien de confianza. Podrán usar Blitz sin ver nunca una frase de recuperación."
+      },
+      "noResults": {
+        "title": "No se encontraron cuentas",
+        "subtitle": "Aún no tienes cuentas."
+      }
     },
     "resetWallet": {
       "header": "¿Estás seguro?",
@@ -1860,7 +1897,9 @@
       "accumulationFee": "0,5 % de comisión de Blitz + 0,5 % de comisión de plataforma",
       "othersType": "Otros",
       "othersFee": "Comisiones de red",
-      "networkFeeLinkDesc": "Toca para ver un desglose de las comisiones de la red Spark"
+      "networkFeeLinkDesc": "Toca para ver un desglose de las comisiones de la red Spark",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "Comisión de Boltz del 0,1 % + comisiones de la red"
     },
     "nip5": {
       "noNameError": "El nombre no puede estar vacío.",
@@ -1947,6 +1986,10 @@
         "balanceError": "La cantidad supera tu saldo incluyendo comisiones",
         "noSendAddressError": "No se pudo obtener la dirección de transferencia",
         "noAccountInformation": "No se pudo obtener la información de la cuenta",
+        "invalidAmountError": "Por favor ingresa una cantidad válida para transferir",
+        "invalidFeeError": "No se pudo calcular una comisión de transferencia válida",
+        "invalidBalanceError": "No se pudo verificar el saldo de la cuenta",
+        "sameAccountError": "Por favor selecciona dos cuentas diferentes",
         "title": "Transferencia",
         "selectAccount": "Seleccionar cuenta",
         "inputPlaceHolderText": "Transferencia entre cuentas"
@@ -1972,7 +2015,7 @@
         "namePlaceholder": "Nombre"
       },
       "editAccountPage": {
-        "title": "Editar cuenta",
+        "title": "Cuenta",
         "accountNameLabel": "Nombre de la cuenta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperación",
         "removeAccountLabel": "Eliminar cuenta",
@@ -1984,16 +2027,24 @@
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
         "accountTypeDerivedInfo": "Esta cuenta está vinculada a tu frase semilla de Blitz y se restaurará cuando restaures tu billetera Blitz.",
-        "accountTypeImportedInfo": "Esta cuenta tiene su propia frase semilla y no se restaurará cuando restaures tu billetera Blitz. Guarda su frase de recuperación en un lugar seguro."
+        "accountTypeImportedInfo": "Esta cuenta tiene su propia frase semilla y no se restaurará cuando restaures tu billetera Blitz. Guarda su frase de recuperación en un lugar seguro.",
+        "accountType_main": "Principal",
+        "balanceLabel": "Saldo",
+        "activeLabel": "Cuenta activa",
+        "activateButton": "Activar cuenta",
+        "addMoneyButton": "Añadir dinero",
+        "withdrawMoneyButton": "Retirar dinero"
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",
-        "createNewAccountTitle": "Crear nueva cuenta",
-        "createNewAccountDescription": "Recuperable desde la frase semilla principal",
+        "createNewAccountTitle": "Crear cuenta personal",
+        "createNewAccountDescription": "Crea una wallet para ti",
         "importRecoveryPhraseTitle": "Importar frase de recuperación",
         "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet",
         "recoverRecoveryPhraseTitle": "Recuperar cuenta",
-        "recoverRecoveryPhraseDescription": "Restaurar una cuenta ya creada"
+        "recoverRecoveryPhraseDescription": "Restaurar una cuenta ya creada",
+        "createChildAccountTitle": "Crear cuenta vinculada",
+        "createChildAccountDescription": "Crea una wallet para otra persona que tú gestiones"
       },
       "selectProfileImage": {
         "title": "Elegir avatar",
@@ -2024,6 +2075,15 @@
         "explanation_imported": "Esta cuenta fue importada. Si la eliminas, necesitarás volver a importar tu clave privada para acceder a ella.",
         "cancelButton": "Cancelar",
         "removeButton": "Eliminar cuenta"
+      },
+      "transferModal": {
+        "selectAccount": "Selecciona una cuenta",
+        "availableToAdd": "Disponible para añadir",
+        "availableToWithdraw": "Disponible para retirar",
+        "using": "Usando",
+        "amount": "Importe",
+        "transferComplete": "Enviado a {{name}}",
+        "selfTransfer": "No puedes transferirte a ti mismo"
       }
     },
     "accountsPoolsScreen": {
@@ -2138,6 +2198,112 @@
     },
     "language": {
       "inputPlaceHolder": "Buscar idioma"
+    },
+    "childAccounts": {
+      "tabs": {
+        "blitz": "Cuentas Blitz",
+        "children": "Hijos"
+      },
+      "blitzInfo": {
+        "title": "¿Qué son las cuentas Blitz?",
+        "body": "Las cuentas Blitz son wallets adicionales que controlas, todas derivadas de tu única frase de recuperación. Cambia entre ellas cuando quieras y mueve fondos con Transferir. Tú gestionas y respaldas cada cuenta Blitz."
+      },
+      "childInfo": {
+        "title": "¿Qué son las cuentas de hijos?",
+        "body": "Una cuenta de hijo es una wallet que creas para otra persona — como un hijo o un amigo — sin compartir nunca tu frase de recuperación. Ellos se incorporan con un enlace y una clave que les das, y siempre puedes re-derivar su wallet desde tu propia frase. Puedes enviar y retirar fondos y establecer un límite de gasto."
+      },
+      "empty": {
+        "title": "Aún no hay cuentas de hijos",
+        "subtitle": "Crea una cuenta para alguien de confianza. Podrán usar Blitz sin ver nunca una frase de recuperación.",
+        "button": "Crear cuenta de hijo"
+      },
+      "createButton": "Crear cuenta de hijo",
+      "dontMatch": "No coinciden",
+      "list": {
+        "spendingLimitLabel": "Límite",
+        "noLimit": "Sin límite"
+      },
+      "enterName": {
+        "title": "Nombra esta cuenta",
+        "subtitle": "Ponle un nombre a la cuenta para poder reconocerla más adelante.",
+        "placeholder": "Nombre de la cuenta",
+        "next": "Siguiente"
+      },
+      "spendingLimit": {
+        "title": "Establecer un límite de gasto",
+        "subtitle": "Establece un límite de gasto mensual para esta cuenta. Es un presupuesto flexible controlado en su dispositivo.",
+        "placeholder": "Límite mensual",
+        "noLimit": "Sin límite",
+        "create": "Crear cuenta"
+      },
+      "creating": {
+        "loadingText": "Creando cuenta...",
+        "errorTitle": "No se pudo crear la cuenta. Inténtalo de nuevo."
+      },
+      "confirmation": {
+        "done": "Listo"
+      },
+      "pairing": {
+        "title": "Configurar cuenta",
+        "codeTitle": "Comparte tu código",
+        "codeSubtitle": "Abre Blitz en su teléfono, elige «Unirse a la cuenta de alguien» y haz que introduzcan este código.",
+        "waiting": "Esperando a que introduzcan el código…",
+        "sasTitle": "Verifica el código",
+        "sasSubtitle": "Lee este código de 6 dígitos en voz alta y pregúntales si ven el mismo código en su teléfono.",
+        "sasHint": "Solo continúa cuando hayas confirmado que ambos teléfonos muestran el mismo código.",
+        "confirmMatch": "Coinciden",
+        "linkedTitle": "Wallet vinculada",
+        "linkedSubtitle": "Su wallet vinculada está lista para usarse.",
+        "done": "Enviado. Terminarán la configuración en su teléfono.",
+        "expired": "Este emparejamiento expiró. Vuelve a empezar.",
+        "errorTitle": "La sesión de emparejamiento terminó",
+        "declinedByChild": "El hijo rechazó la solicitud de emparejamiento."
+      },
+      "page": {
+        "title": "Cuenta de hijo",
+        "balanceLabel": "Saldo",
+        "transactionsLabel": "Actividad reciente",
+        "noTransactions": "Aún no hay actividad",
+        "spendingLimitLabel": "Límite de gasto",
+        "loadingBalance": "Cargando saldo...",
+        "shareLink": "Compartir cuenta"
+      },
+      "claim": {
+        "title": "Configura tu wallet",
+        "info": {
+          "navTitle": "Configura tu wallet",
+          "title": "Configura tu wallet gestionada",
+          "intro": "Estás configurando una wallet gestionada por otra persona.",
+          "row1Label": "Tu propia wallet",
+          "row1Description": "Envía y recibe con tu propio saldo.",
+          "row2Label": "Fácil de usar",
+          "row2Description": "Tu wallet se gestiona de forma segura por ti.",
+          "row3Label": "Conectada a alguien de confianza",
+          "row3Description": "Solo continúa si confías en la persona con la que te estás emparejando.",
+          "bullet2": "Ellos siguen siendo el titular de la cuenta principal",
+          "bullet3": "Solo continúa si confías en el dueño de la cuenta.",
+          "continue": "Continuar"
+        },
+        "codeNavTitle": "Introducir código",
+        "codeTitle": "Introduce el código de emparejamiento",
+        "codeSubtitle": "Introduce el código de emparejamiento que se muestra en el teléfono de la otra persona.",
+        "next": "Siguiente",
+        "sasNavTitle": "Verificar código",
+        "sasTitle": "Verifica el código",
+        "sasSubtitle": "Comprueba que este código de 6 dígitos coincide con el del otro teléfono.",
+        "sasHint": "Ambos teléfonos deben mostrar el mismo código de 6 dígitos.",
+        "confirmMatch": "Coinciden",
+        "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
+        "notFound": "No pudimos encontrar ese código de emparejamiento. Pide uno nuevo.",
+        "loading": "Configurando tu wallet...",
+        "expired": "Este emparejamiento expiró. Vuelve a empezar.",
+        "errorTitle": "La sesión de emparejamiento terminó",
+        "canceledByParent": "El padre canceló la solicitud de emparejamiento."
+      },
+      "limitGate": {
+        "title": "Límite de gasto alcanzado",
+        "message": "Este pago superaría el límite de gasto establecido para esta cuenta."
+      }
     }
   },
   "screens": {
