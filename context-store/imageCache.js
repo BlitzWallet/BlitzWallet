@@ -27,6 +27,7 @@ import {
   downloadAsync,
   getInfoAsync,
   makeDirectoryAsync,
+  readDirectoryAsync,
 } from 'expo-file-system/legacy';
 import {
   getAllLocalKeys,
@@ -58,6 +59,11 @@ export function ImageCacheProvider({ children }) {
   // per cooldown window, even across component remounts / navigation storms.
   const autoHealCooldownRef = useRef(new Map());
   const AUTO_HEAL_COOLDOWN_MS = 60 * 1000;
+  // Per-uuid timestamp of the last successful automatic freshness check. Bounds
+  // cost: profile images change rarely, so once an image is verified current we
+  // don't hit getMetadata again for this uuid for a full day, even across app
+  // relaunches (the timestamp is persisted inside the cache entry itself).
+  const SUCCESS_TTL_MS = 24 * 60 * 60 * 1000;
 
   const refreshCacheObject = useCallback(async () => {
     try {
@@ -70,8 +76,14 @@ export function ImageCacheProvider({ children }) {
       stores.forEach(([key, value]) => {
         if (value) {
           const uuid = key.replace(BLITZ_PROFILE_IMG_STORAGE_REF + '/', '');
-          const parsed = JSON.parse(value);
-          initialCache[uuid] = parsed;
+          try {
+            initialCache[uuid] = JSON.parse(value);
+          } catch (err) {
+            // A crash mid-write can leave a truncated/corrupt pointer. Skip just
+            // that entry instead of aborting the whole reconcile (which would
+            // also drop every healthy entry).
+            console.log('Dropping corrupt image cache entry', uuid);
+          }
         }
       });
 
@@ -80,41 +92,35 @@ export function ImageCacheProvider({ children }) {
       // localUri whose file no longer exists. Drop those entries so the UI
       // falls back to the identicon and the freshness pass re-downloads them,
       // rather than trying to load a dead path forever. Entries with a null
-      // localUri (an intentionally deleted image) are kept as-is. Processed in
-      // small batches so a large contact list doesn't block the JS thread.
+      // localUri (an intentionally deleted image) are kept as-is. Done with a
+      // single directory listing rather than one getInfoAsync per entry, so a
+      // large contact list doesn't issue N stat calls on every launch. The
+      // listing reflects the current cache dir, so a moved storage location
+      // (post app-update) rehydrates correctly.
+      const existingFiles = new Set();
+      try {
+        (await readDirectoryAsync(FILE_DIR)).forEach(file =>
+          existingFiles.add(file),
+        );
+      } catch (err) {
+        // Directory doesn't exist yet (no images downloaded) — an empty set
+        // drops pointers to files that can't exist, matching the old per-file
+        // `exists: false` path.
+      }
       const entries = Object.entries(initialCache);
       const validatedCache = {};
-      const BATCH_SIZE = 10;
-      for (let i = 0; i < entries.length; i += BATCH_SIZE) {
-        const batch = entries.slice(i, i + BATCH_SIZE);
-        await Promise.all(
-          batch.map(async ([uuid, entry]) => {
-            if (!entry?.localUri) {
-              validatedCache[uuid] = entry;
-              return;
-            }
-            // Check (and rehydrate) against the current cache directory, not the
-            // stored absolute path — after a version update the stored path is
-            // stale but the file is still present, so trusting it would drop
-            // every pointer and re-download the whole contact list.
-            const localUri = fileUriForUuid(uuid);
-            try {
-              const fileInfo = await getInfoAsync(localUri);
-              if (fileInfo.exists) {
-                validatedCache[uuid] = { ...entry, uri: localUri, localUri };
-              } else {
-                console.log(
-                  'Dropping stale image pointer (file missing)',
-                  uuid,
-                );
-              }
-            } catch (err) {
-              // If we can't stat the file, keep the pointer rather than lose it.
-              validatedCache[uuid] = { ...entry, uri: localUri, localUri };
-            }
-          }),
-        );
-      }
+      entries.forEach(([uuid, entry]) => {
+        if (!entry?.localUri) {
+          validatedCache[uuid] = entry;
+          return;
+        }
+        const localUri = fileUriForUuid(uuid);
+        if (existingFiles.has(`${uuid}.jpg`)) {
+          validatedCache[uuid] = { ...entry, uri: localUri, localUri };
+        } else {
+          console.log('Dropping stale image pointer (file missing)', uuid);
+        }
+      });
 
       setCache(validatedCache);
     } catch (e) {
@@ -122,14 +128,44 @@ export function ImageCacheProvider({ children }) {
     }
   }, []);
 
+  // Only reload the cache when the actual SET of contacts changes (a contact was
+  // added or removed). Metadata-only edits (name, bio, pin/favorite) re-encrypt
+  // addedContacts → new decodedAddedContacts reference, but they don't introduce
+  // any new image uuid, so reloading the whole cache for them is wasted work.
+  const previousContactUuidsRef = useRef(null);
   useEffect(() => {
+    const uuids = [...decodedAddedContacts]
+      .map(c => c?.uuid)
+      .sort()
+      .join(',');
+    if (uuids === previousContactUuidsRef.current) {
+      return;
+    }
+    previousContactUuidsRef.current = uuids;
     refreshCacheObject();
-  }, [decodedAddedContacts, refreshCacheObject]); //rerun the cache when adding or removing contacts
+  }, [decodedAddedContacts, refreshCacheObject]);
 
   const refreshCache = useCallback(
     async (uuid, hasDownloadURL, skipCacheUpdate = false) => {
       if (inFlightRequests.current.has(uuid)) {
         return inFlightRequests.current.get(uuid);
+      }
+
+      // Automatic refreshes (hasDownloadURL falsy) are bounded by a success TTL:
+      // once an image was verified current, don't re-hit getMetadata for it
+      // within the window. User-driven calls always run.
+      if (!hasDownloadURL) {
+        const cached = cacheRef.current[uuid];
+        if (
+          cached?.lastChecked &&
+          Date.now() - cached.lastChecked < SUCCESS_TTL_MS
+        ) {
+          console.log(
+            'Image still fresh (within success TTL), skipping refresh for',
+            uuid,
+          );
+          return cached;
+        }
       }
 
       // Automatic heals (hasDownloadURL falsy) are rate-limited per uuid, but
@@ -173,7 +209,17 @@ export function ImageCacheProvider({ children }) {
               const fileInfo = await getInfoAsync(currentUri);
               if (fileInfo.exists) {
                 autoHealCooldownRef.current.delete(uuid);
-                return { ...cached, uri: currentUri, localUri: currentUri };
+                const freshEntry = {
+                  ...cached,
+                  uri: currentUri,
+                  localUri: currentUri,
+                  lastChecked: Date.now(),
+                };
+                await setLocalStorageItem(key, JSON.stringify(freshEntry));
+                if (!skipCacheUpdate) {
+                  setCache(prev => ({ ...prev, [uuid]: freshEntry }));
+                }
+                return freshEntry;
               }
             }
 
@@ -207,11 +253,9 @@ export function ImageCacheProvider({ children }) {
             throw new Error('Saved image is missing or empty');
           }
 
-          const newEntry = {
-            uri: localUri,
-            localUri,
-            updated,
-          };
+          const newEntry = hasDownloadURL
+            ? { uri: localUri, localUri, updated }
+            : { uri: localUri, localUri, updated, lastChecked: Date.now() };
 
           await setLocalStorageItem(key, JSON.stringify(newEntry));
 
@@ -262,29 +306,45 @@ export function ImageCacheProvider({ children }) {
   }, []);
 
   const lastFreshnessPassRef = useRef(0);
+  const staggerTimerRef = useRef(null);
 
   const runFreshnessPass = useCallback(() => {
     if (!masterInfoObject?.uuid) return;
     const now = Date.now();
     if (now - lastFreshnessPassRef.current < 30 * 1000) return;
     lastFreshnessPassRef.current = now;
+    // Supersede any stagger chain still pending from a prior pass.
+    if (staggerTimerRef.current) clearTimeout(staggerTimerRef.current);
 
     // Always check every image; refreshCache returns the cached copy when it's
-    // already current, so this only downloads what's stale or missing. This is
-    // intentionally independent of the Spark wallet — profile images don't need
-    // it, and gating on it stranded images on degraded-wallet devices.
+    // already current (and skips entirely within the success TTL), so this only
+    // downloads what's stale or missing. This is intentionally independent of
+    // the Spark wallet — profile images don't need it, and gating on it stranded
+    // images on degraded-wallet devices. Contacts are processed in small batches
+    // so a large contact list doesn't fire a wall of metadata calls at once.
     const validContacts = [
       ...decodedAddedContacts.filter(c => !c.isLNURL),
       { uuid: masterInfoObject.uuid },
     ];
     console.log('valid contacts', validContacts);
 
-    validContacts.forEach(contact => {
-      refreshCache(contact.uuid, null, false) // skipCacheUpdate = false → streams in
-        .catch(err => {
-          console.log(`Image refresh failed for ${contact.uuid}`, err);
-        });
-    });
+    const STAGGER_BATCH_SIZE = 5;
+    const STAGGER_DELAY_MS = 5000;
+    let index = 0;
+    const processBatch = () => {
+      const batch = validContacts.slice(index, index + STAGGER_BATCH_SIZE);
+      index += STAGGER_BATCH_SIZE;
+      batch.forEach(contact => {
+        refreshCache(contact.uuid, null, false) // skipCacheUpdate = false → streams in
+          .catch(err => {
+            console.log(`Image refresh failed for ${contact.uuid}`, err);
+          });
+      });
+      if (index < validContacts.length) {
+        staggerTimerRef.current = setTimeout(processBatch, STAGGER_DELAY_MS);
+      }
+    };
+    processBatch();
   }, [decodedAddedContacts, masterInfoObject?.uuid, refreshCache]);
 
   // Initial pass shortly after reaching the homepage.
@@ -298,6 +358,14 @@ export function ImageCacheProvider({ children }) {
     }, 5000); //delay to allow homepage to settle
     return () => clearTimeout(timer);
   }, [didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
+
+  // Cancel any pending stagger chain on unmount so it can't fire setCache on a
+  // torn-down provider.
+  useEffect(() => {
+    return () => {
+      if (staggerTimerRef.current) clearTimeout(staggerTimerRef.current);
+    };
+  }, []);
 
   const contextValue = useMemo(
     () => ({

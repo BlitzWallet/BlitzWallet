@@ -13,6 +13,7 @@ import { Buffer } from '@craftzdog/react-native-buffer';
 import QuickCrypto, {
   pbkdf2Sync,
   createHash,
+  createHmac,
   subtle,
 } from 'react-native-quick-crypto';
 global.Buffer = Buffer;
@@ -41,9 +42,23 @@ import 'text-encoding'; // needed for spark
 //Fixing js blocking from ethers package
 import { ethers } from 'ethers';
 
-// --- Register native SHA512 implementation ---
+// --- Register native SHA256 / SHA512 implementations ---
+ethers.sha256.register(data => {
+  return Uint8Array.from(createHash('sha256').update(data).digest());
+});
+
 ethers.sha512.register(data => {
   return Uint8Array.from(createHash('sha512').update(data).digest());
+});
+
+// --- Register native HMAC implementation ---
+ethers.computeHmac.register((algorithm, key, data) => {
+  return Uint8Array.from(createHmac(algorithm, key).update(data).digest());
+});
+
+// --- Register native RIPEMD160 implementation ---
+ethers.ripemd160.register(data => {
+  return Uint8Array.from(createHash('ripemd160').update(data).digest());
 });
 
 // --- Register native PBKDF2 implementation ---

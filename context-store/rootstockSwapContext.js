@@ -32,6 +32,9 @@ import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
 import { useSparkWallet } from './sparkContext';
 import { useWebView } from './webViewContext';
 import { useAuthContext } from './authContext';
+import { retrieveData, storeData } from '../app/functions';
+import sha256Hash from '../app/functions/hash';
+import { ROOTSTOCK_SWAP_SIGNER_KEY } from '../app/constants';
 
 export const RootstockSwapContext = createContext();
 
@@ -138,10 +141,33 @@ export const RootstockSwapProvider = ({ children }) => {
       : new FallbackProvider(providers, network, { quorum: 1 });
   }, []);
 
-  const createSigner = useCallback(() => {
+  const createSigner = useCallback(async () => {
     try {
       console.log('PROCESSS WALLET', new Date().getTime());
-      const wallet = Wallet.fromPhrase(accountMnemoinc);
+      const mnemonicHash = sha256Hash(accountMnemoinc);
+      const cached = await retrieveData(ROOTSTOCK_SWAP_SIGNER_KEY);
+      let wallet;
+      if (cached.didWork && cached.value) {
+        try {
+          const parsed = JSON.parse(cached.value);
+          if (parsed.mnemonicHash === mnemonicHash) {
+            wallet = new Wallet(parsed.privateKey);
+          }
+        } catch (error) {
+          console.log('Error parsing cached rootstock signer:', error);
+        }
+      }
+
+      if (!wallet) {
+        wallet = Wallet.fromPhrase(accountMnemoinc);
+        storeData(
+          ROOTSTOCK_SWAP_SIGNER_KEY,
+          JSON.stringify({
+            mnemonicHash,
+            privateKey: wallet.privateKey,
+          }),
+        );
+      }
 
       console.log('PROCESSS WALLET 2', new Date().getTime());
       const connectedSigner = wallet.connect(provider);
