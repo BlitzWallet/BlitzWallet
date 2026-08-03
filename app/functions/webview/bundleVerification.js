@@ -1,7 +1,15 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 import { Platform } from 'react-native';
-import { randomBytes } from 'react-native-quick-crypto';
+import {
+  randomBytes,
+  verify,
+  createPublicKey,
+  createHash,
+} from 'react-native-quick-crypto';
+
+// Fixed ASN.1 SPKI header for a raw-32-byte Ed25519 public key (no secret).
+const ED25519_SPKI_PREFIX = '302a300506032b6570032100';
 
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.
@@ -10,8 +18,6 @@ export async function verifyAndPrepareWebView(bundleSource) {
   try {
     let html;
     let fileUri;
-
-    const expectedHash = process.env.WEBVIEW_BUNDLE_HASH;
 
     // Load the HTML asset
     if (Platform.OS === 'ios') {
@@ -28,18 +34,45 @@ export async function verifyAndPrepareWebView(bundleSource) {
       });
     }
 
-    // Compute hash
-    /**
-     * Note: Uses MD5 for performance (native, non-blocking).
-     * While MD5 has known collision vulnerabilities, second-preimage attacks
-     * (finding a different file with the same hash) remain computationally
-     * infeasible. The runtime nonce-based handshake provides additional
-     * verification that the bundle is legitimate.
-     */
-    const info = await FileSystem.getInfoAsync(fileUri, { md5: true });
-    const hashHex = info.md5;
-    if (hashHex !== expectedHash)
-      throw new Error('Bundle has been tampered with — aborting.');
+    // Verify the bundle's Ed25519 signature against the pinned public key. The
+    // signature is computed offline over sha256(canonical HTML) with the
+    // signature slot holding the __SIGNATURE__ placeholder, so reconstruct those
+    // exact bytes before hashing. The 5.3MB digest runs via JSI (quick-crypto)
+    // so it never crosses the bridge as a string; Ed25519 then verifies just the
+    // 32-byte digest. Runs before nonce injection, so the shipped bytes (with
+    // __INJECT_NONCE__ intact) match what was signed.
+    const SIG_META = /<meta name="blitz-webview-sig" content="([0-9a-f]{128})"/;
+    const sigMatch = html.match(SIG_META);
+
+    if (!sigMatch) throw new Error('WebView bundle missing signature meta.');
+
+    const canonicalHtml = html.replace(
+      /(<meta name="blitz-webview-sig" content=")[0-9a-f]{128}(")/,
+      '$1__SIGNATURE__$2',
+    );
+
+    const digestHex = createHash('sha256')
+      .update(canonicalHtml, 'utf8')
+      .digest('hex');
+
+    const pubKey = createPublicKey({
+      key: Buffer.concat([
+        Buffer.from(ED25519_SPKI_PREFIX, 'hex'),
+        Buffer.from(process.env.SPARK_WEBVIEW_SIGNING_PUBKEY, 'hex'),
+      ]),
+      format: 'der',
+      type: 'spki',
+    });
+    if (
+      !verify(
+        null,
+        Buffer.from(digestHex, 'hex'),
+        pubKey,
+        Buffer.from(sigMatch[1], 'hex'),
+      )
+    ) {
+      throw new Error('WebView bundle signature invalid — aborting.');
+    }
 
     // Generate fresh nonce per load
     const nonceBytes = randomBytes(16);
@@ -71,7 +104,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
       encoding: FileSystem.EncodingType.UTF8,
     });
 
-    return { htmlPath: verifiedPath, nonceHex, hashHex };
+    return { htmlPath: verifiedPath, nonceHex };
   } catch (error) {
     console.error('[WebView] Verification failed:', error);
     throw error;
