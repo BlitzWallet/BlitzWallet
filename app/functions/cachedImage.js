@@ -1,15 +1,19 @@
-import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../constants';
-import {getDownloadURL, getMetadata, ref} from '@react-native-firebase/storage';
-import {storage} from '../../db/initializeFirebase';
+import { BLITZ_PROFILE_IMG_STORAGE_REF } from '../constants';
+import {
+  getDownloadURL,
+  getMetadata,
+  ref,
+} from '@react-native-firebase/storage';
+import { storage } from '../../db/initializeFirebase';
 import {
   cacheDirectory,
   downloadAsync,
   getInfoAsync,
   makeDirectoryAsync,
 } from 'expo-file-system/legacy';
-import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
+import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
 
-const FILE_DIR = cacheDirectory + 'profileImages/';
+const FILE_DIR = cacheDirectory + 'profile_images/';
 const CACHE_KEY = uuid => `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
 
 export async function getCachedProfileImage(uuid) {
@@ -30,19 +34,19 @@ export async function getCachedProfileImage(uuid) {
     if (parsed?.updated === updated) {
       const exists = await getInfoAsync(parsed.localUri);
       if (exists.exists)
-        return {localUri: parsed.localUri, updated: parsed?.updated};
+        return { localUri: parsed.localUri, updated: parsed?.updated };
     }
 
     const url = await getDownloadURL(reference);
 
-    await makeDirectoryAsync(FILE_DIR, {intermediates: true});
+    await makeDirectoryAsync(FILE_DIR, { intermediates: true });
     const localUri = `${FILE_DIR}${uuid}.jpg`;
 
     await downloadAsync(url, localUri);
-    const newEntry = {localUri, updated};
+    const newEntry = { localUri, updated };
     await setLocalStorageItem(key, JSON.stringify(newEntry));
 
-    return {localUri, updated};
+    return { localUri, updated };
   } catch (e) {
     console.log('Error caching profile image', e);
     return null;
