@@ -363,7 +363,9 @@ export const WebViewProvider = ({ children }) => {
     return true;
   }, []);
 
-  const fileHash = !!verifiedPath ? process.env.SPARK_WEBVIEW_SIGNING_PUBKEY : '';
+  const fileHash = !!verifiedPath
+    ? process.env.SPARK_WEBVIEW_SIGNING_PUBKEY
+    : '';
 
   useEffect(() => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
@@ -395,6 +397,7 @@ export const WebViewProvider = ({ children }) => {
       });
     }
     blockAndResetWebview();
+    currentWalletMnemoincRef.current = null;
   }, [authResetkey]);
 
   useEffect(() => {
