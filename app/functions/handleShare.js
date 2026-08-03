@@ -152,66 +152,6 @@ export async function writeFileToDocumentDirectory(
 }
 
 /**
- * Write file using Android's Storage Access Framework
- *
- * @param {string} fileData - The file content
- * @param {string} fileName - Name of the file
- * @param {string} fileType - MIME type of the file
- * @param {string} sourceFileUri - Source file URI to copy from (optional)
- * @returns {Promise<{success: boolean, destUri?: string, error?: string}>}
- */
-export async function writeFileUsingSAF(
-  fileData,
-  fileName,
-  fileType,
-  sourceFileUri = null,
-) {
-  try {
-    // Request directory permissions
-    const permissions =
-      await StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-    if (!permissions.granted) {
-      return {
-        success: false,
-        error: 'Storage permission denied',
-        permissionDenied: true,
-      };
-    }
-
-    // Create destination file
-    const destUri = await StorageAccessFramework.createFileAsync(
-      permissions.directoryUri,
-      fileName,
-      fileType,
-    );
-
-    // Determine encoding
-    const encoding = getEncodingForFileType(fileType);
-
-    // If source file URI provided, read from it first
-    let dataToWrite = fileData;
-    if (sourceFileUri) {
-      dataToWrite = await readAsStringAsync(normalizeFileUri(sourceFileUri), {
-        encoding,
-      });
-    }
-
-    // Write to SAF destination
-    await writeAsStringAsync(destUri, dataToWrite, { encoding });
-
-    return { success: true, destUri, error: null };
-  } catch (error) {
-    console.error('SAF write failed:', error);
-    return {
-      success: false,
-      error: 'errormessages.savingFileError',
-      originalError: error,
-    };
-  }
-}
-
-/**
  * Universal share function that automatically determines the best sharing method
  *
  * @param {Object} content - Content to share
