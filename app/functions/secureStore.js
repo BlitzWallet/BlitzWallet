@@ -107,10 +107,18 @@ async function runPinAndMnemoicMigration() {
     ]);
 
     if (oldPin || oldMnemonic) {
-      if (oldPin) await storeData('pinHash', oldPin);
-      if (oldMnemonic) await storeData('encryptedMnemonic', oldMnemonic);
-      await deleteItemAsync('pin');
-      await deleteItemAsync('mnemonic');
+      const pinStored = oldPin ? await storeData('pinHash', oldPin) : true;
+      const mnemonicStored = oldMnemonic
+        ? await storeData('encryptedMnemonic', oldMnemonic)
+        : true;
+      // Only delete the legacy source-of-truth once the copy is confirmed
+      // written; storeData swallows errors and returns false. If we deleted on
+      // a failed write we'd destroy the only seed copy with no retry.
+      if (!pinStored || !mnemonicStored) {
+        throw new Error('SecureStore migration write failed; will retry');
+      }
+      if (oldPin) await deleteItemAsync('pin');
+      if (oldMnemonic) await deleteItemAsync('mnemonic');
     }
 
     await setLocalStorageItem(MIGRATION_FLAG, 'true');
@@ -137,8 +145,14 @@ async function runSecureStoreMigrationV2() {
     ]);
 
     if (plainPin && plainMnemonic) {
-      await storeData('pinHash', plainPin);
-      await storeData('encryptedMnemonic', plainMnemonic);
+      const pinStored = await storeData('pinHash', plainPin);
+      const mnemonicStored = await storeData('encryptedMnemonic', plainMnemonic);
+
+      // Only delete once the copy is confirmed written (storeData returns false
+      // on failure); otherwise a failed write would destroy the only seed copy.
+      if (!pinStored || !mnemonicStored) {
+        throw new Error('V2 SecureStore migration write failed; will retry');
+      }
 
       // Delete old unencrypted values
       await deleteItem('pin');
