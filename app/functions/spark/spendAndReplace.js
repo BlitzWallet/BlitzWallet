@@ -234,13 +234,13 @@ export const runSpendAndReplace = async ({
     t,
     quote,
     sparkTxHash,
-    amountInMicro: amountIn,
+    amountInMicro: Number(quote.amountIn),
   });
 
   return {
     status: 'completed',
     swapRequestId: quote.quoteId,
-    amountSwappedMicro: amountIn,
+    amountSwappedMicro: Number(quote.amountIn),
   };
 };
 
