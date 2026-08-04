@@ -51,15 +51,12 @@ export default function GiftConfirmation(props) {
       })
     : giftsArray.find(gift => gift?.uuid === giftId);
 
-  console.log('Gifts to display:', gifts);
-
   const handleCopy = data => {
     copyToClipboard(data, showToast);
   };
 
   const handleCopyAllLinks = () => {
     const allLinks = gifts.map(g => g.claimURL).join('\n');
-    console.log(allLinks);
     copyToClipboard(allLinks, showToast);
   };
 
