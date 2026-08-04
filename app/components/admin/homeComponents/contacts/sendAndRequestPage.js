@@ -316,6 +316,7 @@ export default function SendAndRequestPage(props) {
         <EmojiQuickBar
           description={payment.descriptionValue}
           onEmojiSelect={payment.setDescriptionValue}
+          maxLength={149}
         />
       )}
     </CustomKeyboardAvoidingView>
