@@ -1,4 +1,4 @@
-const BLITZ_DOMAINS = [
+export const BLITZ_DOMAINS = [
   'blitz-wallet.com',
   'blitzwalletapp.com',
   'blitzwallet.app',
