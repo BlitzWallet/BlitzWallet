@@ -915,6 +915,8 @@ export function FlashnetProvider({ children }) {
 
     // Reset retry delay
     flashnetRetryDelayRef.current = 5_000;
+
+    currentWalletMnemoincRef.current = null;
   }, [authResetkey]);
 
   const contextValue = useMemo(() => {

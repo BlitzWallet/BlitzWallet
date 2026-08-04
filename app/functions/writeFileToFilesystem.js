@@ -1,9 +1,9 @@
 import {Platform, Share} from 'react-native';
+import * as Sharing from 'expo-sharing';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {
   documentDirectory,
   EncodingType,
-  StorageAccessFramework,
   writeAsStringAsync,
 } from 'expo-file-system/legacy';
 
@@ -29,47 +29,28 @@ export default async function writeAndShareFileToFilesystem(
         type: fileType,
       });
       return {success: true, error: null};
-    } else {
-      try {
-        const permissions =
-          await StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-        if (permissions.granted) {
-          const data = await StorageAccessFramework.readAsStringAsync(fileUri);
-
-          try {
-            const uri = await StorageAccessFramework.createFileAsync(
-              permissions.directoryUri,
-              fileName,
-              fileType,
-            );
-            await writeAsStringAsync(uri, data);
-            return {success: true, error: null};
-          } catch (err) {
-            console.log('writting file to filesystem for android err', err);
-            return {
-              success: false,
-              error: 'errormessages.savingFileError',
-              originalError: err,
-            };
-          }
-        } else {
-          await Share.share({
-            title: `${fileName}`,
-            url: `${fileUri}`,
-            type: fileType,
-          });
-          return {success: true, error: null};
-        }
-      } catch (err) {
-        console.log('android permission error', err);
-        return {
-          success: false,
-          error: 'errormessages.savingFilePermissionsError',
-          originalError: err,
-        };
-      }
     }
+
+    // Android: share the file through expo-sharing (FileProvider content://
+    // URI). This intentionally avoids StorageAccessFramework
+    // .requestDirectoryPermissionsAsync, whose native OnActivityResult handler
+    // double-resolves its promise and crashes the app with
+    // PromiseAlreadySettledException (uncatchable from JS). The share sheet
+    // still lets users "Save to Files"/Downloads.
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: fileType,
+        dialogTitle: fileName,
+      });
+      return {success: true, error: null};
+    }
+
+    await Share.share({
+      title: `${fileName}`,
+      url: `${fileUri}`,
+      type: fileType,
+    });
+    return {success: true, error: null};
   } catch (e) {
     console.log('saving to filesystem error', e);
     return {

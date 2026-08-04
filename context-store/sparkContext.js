@@ -21,6 +21,7 @@ import {
   sparkWallet,
   isOptimizationInProgress,
 } from '../app/functions/spark';
+import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
 import {
   bulkUpdateSparkTransactions,
   insertSparkTransactionPlaceholders,
@@ -1823,6 +1824,7 @@ const SparkWalletProvider = ({ children }) => {
       await removeListeners(true);
       if (shouldClearMnemonicCache) {
         clearMnemonicCache();
+        disposeWalletViewer();
       }
       prevAccountMnemoincRef.current = null;
       isRunningAddListeners.current = false;
@@ -1878,6 +1880,8 @@ const SparkWalletProvider = ({ children }) => {
       if (!internalRefresh) {
         setDidRunNormalConnection(false);
         setNormalConnectionTimeout(false);
+        currentMnemonicRef.current = null;
+        mainWalletHashRef.current = null;
       }
     },
     [],

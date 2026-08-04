@@ -9,6 +9,7 @@ import {
   LOGIN_SECURITY_MODE_TYPE_KEY,
   NWC_SECURE_STORE_KEY,
   NWC_SECURE_STORE_MNEMOINC,
+  ROOTSTOCK_SWAP_SIGNER_KEY,
 } from '../constants';
 import { BIOMETRIC_KEY } from '../constants';
 import {
@@ -67,6 +68,7 @@ async function terminateAccount() {
     await deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION);
+    await deleteItemAsync(ROOTSTOCK_SWAP_SIGNER_KEY, KEYCHAIN_OPTION);
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');
