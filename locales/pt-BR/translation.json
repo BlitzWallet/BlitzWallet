@@ -2086,7 +2086,9 @@
         "using": "Usando",
         "amount": "Valor",
         "transferComplete": "Enviado para {{name}}",
-        "selfTransfer": "Você não pode transferir para si mesmo"
+        "selfTransfer": "Você não pode transferir para si mesmo",
+        "addFunds": "{{name}} adicionou dinheiro",
+        "withdrawFunds": "{{name}} retirou dinheiro"
       }
     },
     "accountsPoolsScreen": {

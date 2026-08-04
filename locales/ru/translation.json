@@ -2087,7 +2087,9 @@
         "using": "Используется",
         "amount": "Сумма",
         "transferComplete": "Отправлено {{name}}",
-        "selfTransfer": "Нельзя перевести самому себе"
+        "selfTransfer": "Нельзя перевести самому себе",
+        "addFunds": "{{name}} пополнил(а) счет",
+        "withdrawFunds": "{{name}} снял(а) деньги"
       }
     },
     "accountsPoolsScreen": {

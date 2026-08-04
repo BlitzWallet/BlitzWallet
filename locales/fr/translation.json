@@ -2085,7 +2085,9 @@
         "using": "Utilisation",
         "amount": "Montant",
         "transferComplete": "Envoyé à {{name}}",
-        "selfTransfer": "Vous ne pouvez pas transférer vers vous-même"
+        "selfTransfer": "Vous ne pouvez pas transférer vers vous-même",
+        "addFunds": "{{name}} a ajouté de l'argent",
+        "withdrawFunds": "{{name}} a retiré de l'argent"
       }
     },
     "accountsPoolsScreen": {

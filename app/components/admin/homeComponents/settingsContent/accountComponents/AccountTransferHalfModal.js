@@ -37,6 +37,7 @@ import {
   initializeSparkWallet,
 } from '../../../../../functions/spark';
 import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
+import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
 import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
@@ -50,6 +51,7 @@ import {
 } from '../../../../../constants/theme';
 import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
 import { useKeysContext } from '../../../../../../context-store/keys';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../../../../assets/errorTxAnimation.json');
@@ -75,7 +77,8 @@ export default function AccountTransferHalfModal({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, contactsPrivateKey } = useKeysContext();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { getAccountMnemonic, custodyAccountsList, activeAccount } =
     useActiveCustodyAccount();
   const { bitcoinBalance: activeAccountBalance } = useUserBalanceContext();
@@ -342,7 +345,7 @@ export default function AccountTransferHalfModal({
     const target = baseline + localSatAmount;
 
     try {
-      await executeAccountTransfer({
+      const transferResult = await executeAccountTransfer({
         fromAccount: sourceAccount,
         toAccount: destinationAccount,
         amountSats: localSatAmount,
@@ -354,6 +357,27 @@ export default function AccountTransferHalfModal({
         sendWebViewRequest,
         t,
       });
+
+      // Parent ↔ linked-child transfer: tag the child's tx with a contact
+      // message so it renders "{parentName} deposited/withdrew" instead of the
+      // generic Sent/Received. Description-only — the child never auto-adds the
+      // parent as a contact (marker suppressed in updatedCachedMessagesStateFunction).
+      const childAccount = masterInfoObject?.childAccounts?.find(
+        account => account.uuid === currentAccount.uuid,
+      );
+      if (childAccount?.childIndex !== undefined) {
+        publishParentAccountTransferMessage({
+          isDeposit: isAdd,
+          parentName:
+            globalContactsInformation?.myProfile?.name ||
+            globalContactsInformation?.myProfile?.uniqueName,
+          txid: transferResult?.response?.id,
+          parentMnemonic: accountMnemoinc,
+          childIndex: childAccount.childIndex,
+          parentContactsPrivateKey: contactsPrivateKey,
+          parentContactsPubKey: globalContactsInformation?.myProfile?.uuid,
+        }).catch(err => console.log('parent transfer message error', err));
+      }
 
       if (isAdd) {
         // Payment is sent — now wait up to 30s for the receiver balance to
@@ -389,12 +413,16 @@ export default function AccountTransferHalfModal({
   }, [
     canDoTransfer,
     isAdd,
+    currentAccount,
     sourceAccount,
     destinationAccount,
     localSatAmount,
     transferInfo.paymentFee,
     sourceBalance,
     masterInfoObject,
+    globalContactsInformation,
+    accountMnemoinc,
+    contactsPrivateKey,
     getAccountMnemonic,
     sendWebViewRequest,
     t,

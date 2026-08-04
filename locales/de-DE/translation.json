@@ -2071,7 +2071,9 @@
         "using": "Verwenden",
         "amount": "Betrag",
         "transferComplete": "An {{name}} gesendet",
-        "selfTransfer": "Du kannst keine Übertragung an dich selbst durchführen"
+        "selfTransfer": "Du kannst keine Übertragung an dich selbst durchführen",
+        "addFunds": "{{name}} hat Geld hinzugefügt",
+        "withdrawFunds": "{{name}} hat Geld abgehoben"
       }
     },
     "accountsPoolsScreen": {

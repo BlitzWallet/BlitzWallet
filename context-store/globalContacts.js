@@ -36,6 +36,7 @@ import {
 } from '@react-native-firebase/firestore';
 import { getCachedProfileImage } from '../app/functions/cachedImage';
 import { useAuthContext } from './authContext';
+import { isParentAccountTransferSender } from '../app/functions/messaging/parentAccountTransferMessage';
 
 // ─── Split contexts ────────────────────────────────────────────────────────────
 // Consumers that only need profile/contacts info won't re-render when messages
@@ -139,6 +140,11 @@ export const GlobalContactsList = ({ children }) => {
             !currentDecoded.find(
               contactElement => contactElement.uuid === contact,
             ) && contact !== currentInfo.myProfile.uuid,
+        )
+        // Parent↔child account transfers are description-only: the sender is
+        // not a real contact and must never be auto-added.
+        .filter(
+          contact => !isParentAccountTransferSender(savedMessages, contact),
         )
         .map(contact => getDataFromCollection('blitzWalletUsers', contact)),
     );
@@ -627,7 +633,13 @@ export const GlobalContactsList = ({ children }) => {
           return false;
         }
         const messages = contactsMessags[contactUUID]?.messages;
-        return messages?.some(message => !message.message.wasSeen) ?? false;
+        return (
+          messages?.some(
+            message =>
+              !message.message.wasSeen &&
+              !message.message.isParentAccountTransfer,
+          ) ?? false
+        );
       });
     } catch (err) {
       return false;

@@ -7,6 +7,7 @@ const onTransferComplete = jest.fn();
 // start with `mock` because the jest.mock factories below reference them lazily.
 let mockActiveAccount = { uuid: 'active-uuid', name: 'Active' };
 let mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
+let mockCustodyAccounts = [];
 let mockActiveAccountBalance = 50000;
 let mockGetSparkBalance = jest.fn();
 let mockInitializeSparkWallet = jest.fn();
@@ -15,6 +16,10 @@ let mockExecuteAccountTransfer = jest.fn();
 let mockGetAccountTransferFee = jest.fn();
 let mockGetAccountMnemonic = jest.fn();
 let mockConvertDisplayToSats = jest.fn();
+let mockPublishParentAccountTransferMessage = jest.fn();
+let mockGlobalContactsInformation = {
+  myProfile: { name: 'Parent', uuid: 'parent-pubkey' },
+};
 // Captured from the most recent subscribeToSparkBalance call so tests can drive
 // a balance push; the unsubscribe spy asserts cleanup on every exit path.
 let capturedOnUpdate = null;
@@ -56,7 +61,7 @@ jest.mock('../context-store/theme', () => ({
 jest.mock('../context-store/activeAccount', () => ({
   useActiveCustodyAccount: () => ({
     getAccountMnemonic: mockGetAccountMnemonic,
-    custodyAccountsList: [],
+    custodyAccountsList: mockCustodyAccounts,
     activeAccount: mockActiveAccount,
   }),
 }));
@@ -166,6 +171,27 @@ jest.mock('../app/functions/lottieViewColorTransformer', () => ({
   updateConfirmAnimation: animation => animation,
 }));
 
+jest.mock(
+  '../app/functions/messaging/parentAccountTransferMessage',
+  () => ({
+    publishParentAccountTransferMessage: (...args) =>
+      mockPublishParentAccountTransferMessage(...args),
+  }),
+);
+
+jest.mock('../context-store/globalContacts', () => ({
+  useGlobalContactsInfo: () => ({
+    globalContactsInformation: mockGlobalContactsInformation,
+  }),
+}));
+
+jest.mock('../context-store/keys', () => ({
+  useKeysContext: () => ({
+    accountMnemoinc: 'parent-seed',
+    contactsPrivateKey: 'parent-priv',
+  }),
+}));
+
 jest.mock('../app/functions/CustomElements/currencySwitchButton', () => ({
   __esModule: true,
   default: () => null,
@@ -235,7 +261,8 @@ beforeEach(() => {
   jest.useFakeTimers();
   jest.clearAllMocks();
   mockActiveAccount = { uuid: 'active-uuid', name: 'Active' };
-  mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
+  mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child', childIndex: 0 }];
+  mockCustodyAccounts = [];
   mockActiveAccountBalance = 50000;
   mockConvertDisplayToSats.mockReturnValue(1000);
   mockGetAccountMnemonic.mockImplementation(
@@ -244,13 +271,17 @@ beforeEach(() => {
   mockGetAccountTransferFee.mockResolvedValue({ didWork: true, fee: 10 });
   mockGetSparkBalance.mockResolvedValue({ didWork: true, balance: 2000n });
   mockInitializeSparkWallet.mockResolvedValue({ isConnected: true });
+  mockPublishParentAccountTransferMessage = jest.fn(async () => {});
   capturedOnUpdate = null;
   mockUnsubscribe = jest.fn();
   mockSubscribeToSparkBalance.mockImplementation(({ onUpdate }) => {
     capturedOnUpdate = onUpdate;
     return { ready: Promise.resolve(), unsubscribe: mockUnsubscribe };
   });
-  mockExecuteAccountTransfer.mockResolvedValue({ didWork: true });
+  mockExecuteAccountTransfer.mockResolvedValue({
+    didWork: true,
+    response: { id: 'spark-transfer-id' },
+  });
 });
 
 afterEach(() => {
@@ -273,7 +304,10 @@ describe('AccountTransferHalfModal confirm -> balance push', () => {
         amountSats: 1000,
         fee: 10,
         fromAccount: { uuid: 'active-uuid', name: 'Active' },
-        toAccount: { uuid: 'child-uuid', name: 'Child' },
+        toAccount: expect.objectContaining({
+          uuid: 'child-uuid',
+          name: 'Child',
+        }),
       }),
     );
     // Baseline read used the destination (child) mnemonic before the send.
@@ -330,5 +364,46 @@ describe('AccountTransferHalfModal confirm -> balance push', () => {
 
     expect(mockSubscribeToSparkBalance).not.toHaveBeenCalled();
     expect(onTransferComplete).toHaveBeenCalledWith(8990); // 10000 - 1000 - 10
+  });
+
+  test('add mode to a linked child publishes a deposit tag for the child', async () => {
+    const renderer = await renderModal();
+    await confirmTransfer(renderer);
+
+    expect(mockPublishParentAccountTransferMessage).toHaveBeenCalledWith({
+      isDeposit: true,
+      parentName: 'Parent',
+      txid: 'spark-transfer-id',
+      parentMnemonic: 'parent-seed',
+      childIndex: 0,
+      parentContactsPrivateKey: 'parent-priv',
+      parentContactsPubKey: 'parent-pubkey',
+    });
+  });
+
+  test('withdraw mode from a linked child publishes a withdraw tag', async () => {
+    const renderer = await renderModal({
+      mode: 'withdraw',
+      currentBalance: 10000,
+    });
+    await confirmTransfer(renderer);
+
+    expect(mockPublishParentAccountTransferMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isDeposit: false,
+        childIndex: 0,
+        txid: 'spark-transfer-id',
+      }),
+    );
+  });
+
+  test('does not publish a tag when the account is not a linked child', async () => {
+    mockChildAccounts = [];
+    mockCustodyAccounts = [{ uuid: 'child-uuid', name: 'Custody' }];
+    const renderer = await renderModal();
+    await confirmTransfer(renderer);
+
+    expect(mockExecuteAccountTransfer).toHaveBeenCalledTimes(1);
+    expect(mockPublishParentAccountTransferMessage).not.toHaveBeenCalled();
   });
 });

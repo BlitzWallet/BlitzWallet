@@ -2086,7 +2086,9 @@
         "using": "Använder",
         "amount": "Belopp",
         "transferComplete": "Skickat till {{name}}",
-        "selfTransfer": "Du kan inte överföra till dig själv"
+        "selfTransfer": "Du kan inte överföra till dig själv",
+        "addFunds": "{{name}} lade till pengar",
+        "withdrawFunds": "{{name}} tog ut pengar"
       }
     },
     "accountsPoolsScreen": {

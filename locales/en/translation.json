@@ -2177,7 +2177,9 @@
         "using": "Using",
         "amount": "Amount",
         "transferComplete": "Sent to {{name}}",
-        "selfTransfer": "You cannot transfer to yourself"
+        "selfTransfer": "You cannot transfer to yourself",
+        "addFunds": "{{name}} added money",
+        "withdrawFunds": "{{name}} withdrew money"
       }
     },
     "accountsPoolsScreen": {

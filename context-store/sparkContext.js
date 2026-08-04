@@ -35,6 +35,7 @@ import {
 import { useAppStatus } from './appStatus';
 import {
   checkHodlInvoicePaymentStatuses,
+  fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
 import { useGlobalContactsInfo } from './globalContacts';
@@ -908,6 +909,13 @@ const SparkWalletProvider = ({ children }) => {
       );
 
       reconcileLeaves();
+      fullRestoreSparkState({
+        sparkAddress: sparkInfoRef.current.sparkAddress,
+        isSendingPayment: isSendingPaymentRef.current,
+        mnemonic: currentMnemonicRef.current,
+        identityPubKey: sparkInfoRef.current.identityPubKey,
+        sendWebViewRequest,
+      });
 
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;

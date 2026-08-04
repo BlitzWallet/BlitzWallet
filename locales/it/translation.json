@@ -2086,7 +2086,9 @@
         "using": "In uso",
         "amount": "Importo",
         "transferComplete": "Inviato a {{name}}",
-        "selfTransfer": "Non puoi trasferire a te stesso"
+        "selfTransfer": "Non puoi trasferire a te stesso",
+        "addFunds": "{{name}} ha aggiunto denaro",
+        "withdrawFunds": "{{name}} ha prelevato denaro"
       }
     },
     "accountsPoolsScreen": {
