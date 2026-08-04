@@ -12,7 +12,6 @@ import {
 } from '../../components/admin';
 import {
   ConfirmSMSPayment,
-  ConfirmVPNPage,
   SwitchGenerativeAIModel,
 } from '../../components/admin/homeComponents/apps';
 import ThemeText from './textTheme';
@@ -280,18 +279,6 @@ export default function CustomHalfModal(props) {
             title={props.route.params?.title}
             imgSrc={props.route.params?.imgSrc}
             getReceiveCode={props.route.params?.getReceiveCode}
-          />
-        );
-      case 'confirmVPN':
-        return (
-          <ConfirmVPNPage
-            theme={theme}
-            darkModeType={darkModeType}
-            price={props.route.params?.price}
-            duration={props.route.params?.duration}
-            country={props.route.params?.country}
-            createVPN={props.route.params?.createVPN}
-            slideHeight={slideHeight}
           />
         );
       case 'giftCardConfirm':

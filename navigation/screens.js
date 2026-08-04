@@ -12,11 +12,9 @@ import {
   CountryList,
   CreateGiftCardAccount,
   ExpandedGiftCardPage,
-  GeneratedVPNFile,
   GiftCardOrderDetails,
   GiftCardPage,
   HistoricalGiftCardPurchases,
-  HistoricalVPNPurchases,
   SwitchGenerativeAIModel,
 } from '../app/components/admin/homeComponents/apps';
 import ConfirmSMSReceivePage from '../app/components/admin/homeComponents/apps/sms4sats/confirmReceivePaymentScreen';
@@ -145,8 +143,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'AddFriendsToSplit', component: AddFriendsToSplit },
   { name: 'CreateSplitBill', component: CreateSplitBill },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
-  { name: 'HistoricalVPNPurchases', component: HistoricalVPNPurchases },
-  { name: 'GeneratedVPNFile', component: GeneratedVPNFile },
   { name: 'POSInstructionsPath', component: POSInstructionsPath },
   { name: 'CreateGiftCardAccount', component: CreateGiftCardAccount },
   { name: 'GiftCardsPage', component: GiftCardPage },
