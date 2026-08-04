@@ -77,6 +77,7 @@ const { storeData, retrieveData } = require('../../app/functions/secureStore');
 const {
   storeMnemonicWithPinSecurity,
   decryptMnemonicWithPin,
+  decryptMnemonic,
   encryptMnemonic,
   isArgon2Format,
 } = require('../../app/functions/handleMnemonic');
@@ -232,6 +233,42 @@ describe('decryptMnemonicWithPin – legacy EvpKDF format migration', () => {
 
     const result = await decryptMnemonicWithPin(WRONG_PIN_JSON);
     expect(result).toBeNull();
+  });
+
+  it('never overwrites the stored ciphertext when the pin is wrong (legacy EvpKDF)', async () => {
+    // crypto-es never validates PKCS7 padding, so a wrong PIN on a legacy
+    // EvpKDF ciphertext returns a truthy garbage string a small fraction of the
+    // time (~0.3% empirically — NOT the ~1/3 sometimes quoted, but still a
+    // permanent-fund-loss event). The login path must NOT re-encrypt that
+    // garbage: doing so overwrites the real encryptedMnemonic with an Argon2
+    // wrapper around random bytes, so the user's correct PIN can no longer
+    // unlock the wallet.
+    //
+    // LEGACY_CT is a real crypto-es blob captured by brute-force search: the
+    // correct PIN [1,2,3,4] recovers MNEMONIC, and the wrong PIN [9,9,9,9]
+    // decrypts to the truthy string " " — the exact vulnerable input.
+    const LEGACY_CT =
+      'U2FsdGVkX1+wWbWkXaf6ltLTLW3mTN/8jBaQOKSI/X0djVc/cL15l4gao5+w07Nz318TVWGtFEsey48Yk7s7oqhXGQZD0XgSd4fudFGfrn39/MKctOlaa2UnhphrIxQPZrAOZKfIzRFA07CEwArBsQ==';
+    expect(decryptMnemonic(LEGACY_CT, PIN_JSON)).toBe(MNEMONIC);
+    expect(decryptMnemonic(LEGACY_CT, WRONG_PIN_JSON)).toBeTruthy();
+
+    let stored = LEGACY_CT;
+    storeData.mockImplementation((key, value) => {
+      if (key === 'encryptedMnemonic') stored = value;
+      return Promise.resolve(true);
+    });
+    retrieveData.mockImplementation(() =>
+      Promise.resolve({ didWork: true, value: stored }),
+    );
+
+    const result = await decryptMnemonicWithPin(WRONG_PIN_JSON);
+    expect(result).toBeNull();
+
+    for (let i = 0; i < 8; i++) await flushAsync();
+
+    // The real ciphertext must be untouched. Buggy code re-encrypts the garbage
+    // and writes it here, destroying the wallet.
+    expect(stored).toBe(LEGACY_CT);
   });
 });
 
