@@ -416,16 +416,16 @@ const handlePayInvoice = async (
     );
   }
 
-  // await splitAndStoreNWCData({
-  //   ...fullStorageObject,
-  //   accounts: {
-  //     ...fullStorageObject.accounts,
-  //     [selectedNWCAccount.publicKey]: {
-  //       ...selectedNWCAccount,
-  //       shouldGetNewBalance: true,
-  //     },
-  //   },
-  // });
+  await splitAndStoreNWCData({
+    ...fullStorageObject,
+    accounts: {
+      ...fullStorageObject.accounts,
+      [selectedNWCAccount.publicKey]: {
+        ...selectedNWCAccount,
+        totalSent: selectedNWCAccount.totalSent + paymentAmount,
+      },
+    },
+  });
 
   return {
     result_type: 'pay_invoice',
@@ -621,15 +621,23 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     const filteredEvents = newEvents
       .map((event, index) => {
-        const selectedNWCAccount = nwcAccounts[event.pubkey];
-        const parsedData = decryptEventMessage(selectedNWCAccount, event);
+        try {
+          const selectedNWCAccount = nwcAccounts[event.pubkey];
+          if (!selectedNWCAccount) return false;
 
-        const { method: requestMethod, params: requestParams } = parsedData;
-        const handledKey = `${event.clientPubKey}-${requestMethod}`;
+          const parsedData = decryptEventMessage(selectedNWCAccount, event);
+          if (!parsedData) return false;
 
-        if (handledEventIds.has(handledKey)) return false;
-        handledEventIds.add(handledKey);
-        return { requestMethod, requestParams, ...event, content: parsedData };
+          const { method: requestMethod, params: requestParams } = parsedData;
+          const handledKey = `${event.clientPubKey}-${requestMethod}`;
+
+          if (handledEventIds.has(handledKey)) return false;
+          handledEventIds.add(handledKey);
+          return { requestMethod, requestParams, ...event, content: parsedData };
+        } catch (e) {
+          console.error('Error decrypting/parsing event:', event.id, e);
+          return false;
+        }
       })
       .filter(Boolean);
 
