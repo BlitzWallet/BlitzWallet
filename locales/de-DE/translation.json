@@ -806,58 +806,6 @@
         "errorMessage": "Ihre Konversation konnte leider nicht gespeichert werden."
       }
     },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Nach einer Geschenkkarte suchen",
-        "leftPageMessage": "Sie haben die Seite verlassen!",
-        "loadingCardsMessage": "Geschenkkarten werden geladen...",
-        "noCardsAvailable": "Keine Geschenkkarten verfügbar"
-      },
-      "confimPurchase": {
-        "quantity": "Menge: {{quantity}}",
-        "cardAmount": "Kartenbetrag: {{amount}} {{currency}}",
-        "price": "Preis: ",
-        "fee": "Gebühr: "
-      },
-      "createAccount": {
-        "title": "Bereitgestellt von",
-        "saveEmail": "Sie haben noch keine E-Mail-Adresse gespeichert. Beschleunigen Sie den Bezahlvorgang, indem Sie eine E-Mail-Adresse hinterlegen.",
-        "termsAndConditions1": "Mit dem Fortfahren akzeptieren Sie die",
-        "termsAndConditions2": "Nutzungsbedingungen",
-        "termsAndConditions3": "und die",
-        "termsAndConditions4": "Datenschutzerklärung"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Geschenkkarte wird gekauft – verlassen Sie die Seite nicht.",
-        "selectamount": "Betrag auswählen",
-        "sendingto": "Senden an: ",
-        "minMaxPurchaseAmount": "Sie können einen Betrag von {{min}} bis {{max}} {{currency}} kaufen.",
-        "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein.",
-        "purchaseBTN": "Geschenkkarte kaufen",
-        "differentEmailMessage": "Die eingegebene E-Mail-Adresse unterscheidet sich von der gespeicherten. Möchten Sie diese als Standard festlegen?",
-        "terms": "Bedingungen",
-        "cardDescription": "Kartenbeschreibung",
-        "cardTerms": "Kartenbedingungen",
-        "dailyPurchaseAmountError": "Sie haben Ihr tägliches Kaufmaximum erreicht.",
-        "giftMessage": "Fügen Sie eine Nachricht zu Ihrem Geschenk hinzu.",
-        "giftMessagePlaceholder": "Ihre Nachricht hier eingeben...",
-        "selectForContactBTN": "Geschenkkarte auswählen",
-        "noAmountError": "Bitte wählen Sie einen Geschenkkartenbetrag aus."
-      },
-      "giftCardOrderDetails": {
-        "title": "Bestelldetails",
-        "invoice": "Rechnung",
-        "orderId": "Bestell-ID",
-        "uuid": "UUID",
-        "openInbox": "Posteingang öffnen"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Möchten Sie diese Geschenkkarte wirklich entfernen?",
-        "purchased": "Gekauft am:",
-        "noPurchases": "Sie haben noch keine Geschenkkarten gekauft. Ihre gekauften Geschenkkarten werden hier angezeigt.",
-        "customCopyMessage": "Support-E-Mail wurde kopiert"
-      }
-    },
     "sms4sats": {
       "home": {
         "pageDescription": "Senden und empfangen Sie SMS-Nachrichten, ohne Ihre persönliche Telefonnummer preiszugeben.",
@@ -1484,11 +1432,6 @@
       "claimed": "Verwendet",
       "markAsClaimed": "Als verwendet markieren"
     },
-    "selectGiftPage": {
-      "noCards": "Keine Karten verfügbar",
-      "header": "Bitte wählen Sie die Geschenkkarte aus, die Sie senden möchten.",
-      "inputPlaceholder": "Nach einer Geschenkkarte suchen..."
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Möchten Sie {{option}} {{option2}} Foto"
@@ -1506,9 +1449,6 @@
         "header": "Ihre Geschenkkarten",
         "cardsLengthSingular": "{{num}} Karte",
         "cardsLengthPlural": "{{num}} Karten"
-      },
-      "editGiftCard": {
-        "header": "Was möchten Sie mit Ihrem Geschenk tun?"
       }
     },
     "showProfileQr": {

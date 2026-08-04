@@ -806,58 +806,6 @@
         "errorMessage": "Lo sentimos, no pudimos guardar tu conversación."
       }
     },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Buscar una tarjeta de regalo",
-        "leftPageMessage": "¿A dónde fuiste?",
-        "loadingCardsMessage": "Obteniendo tarjetas de regalo",
-        "noCardsAvailable": "No hay tarjetas de regalo disponibles"
-      },
-      "confimPurchase": {
-        "quantity": "Cantidad {{quantity}}",
-        "cardAmount": "Monto de la tarjeta: {{amount}} {{currency}}",
-        "price": "Precio: ",
-        "fee": "Tarifa: "
-      },
-      "createAccount": {
-        "title": "Con tecnología de",
-        "saveEmail": "No tienes un correo electrónico guardado. Acelera el proceso de pago guardando un correo.",
-        "termsAndConditions1": "Al continuar, aceptas los",
-        "termsAndConditions2": "Términos de servicio",
-        "termsAndConditions3": "y",
-        "termsAndConditions4": "Política de privacidad"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Comprando tarjeta de regalo, no abandones la página.",
-        "selectamount": "Selecciona un monto",
-        "sendingto": "Enviando a: ",
-        "minMaxPurchaseAmount": "Puedes comprar un mínimo de {{min}} y un máximo de {{max}} {{currency}}",
-        "emailPlaceholder": "Introduce dirección de correo electrónico",
-        "purchaseBTN": "Comprar tarjeta de regalo",
-        "differentEmailMessage": "El correo actual es diferente al guardado. ¿Quieres hacerlo tu correo principal?",
-        "terms": "Términos",
-        "cardDescription": "Descripción de la tarjeta",
-        "cardTerms": "Términos de la tarjeta",
-        "dailyPurchaseAmountError": "Has alcanzado tu límite diario de compras",
-        "giftMessage": "Añade una nota a tu regalo",
-        "giftMessagePlaceholder": "Escribe tu mensaje aquí",
-        "selectForContactBTN": "Selecciona la tarjeta de regalo",
-        "noAmountError": "Seleccione un importe para la tarjeta de regalo"
-      },
-      "giftCardOrderDetails": {
-        "title": "Detalles del pedido",
-        "invoice": "Factura",
-        "orderId": "ID de pedido",
-        "uuid": "UUID",
-        "openInbox": "Abrir bandeja de entrada"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "¿Estás seguro de que quieres eliminar esta tarjeta de regalo?",
-        "purchased": "Comprado:",
-        "noPurchases": "Todavía no has comprado ninguna tarjeta de regalo. Una vez que lo hagas, aparecerá aquí.",
-        "customCopyMessage": "Correo de soporte copiado"
-      }
-    },
     "sms4sats": {
       "home": {
         "pageDescription": "Envía y recibe mensajes SMS sin revelar tu número personal.",
@@ -1497,11 +1445,6 @@
       "claimed": "Usato",
       "markAsClaimed": "Contrassegna come usato"
     },
-    "selectGiftPage": {
-      "noCards": "No hay tarjetas disponibles",
-      "header": "Selecciona la tarjeta de regalo que quieres enviar",
-      "inputPlaceholder": "Buscar una tarjeta de regalo"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "¿Quieres {{option}} la foto {{option2}}?"
@@ -1519,9 +1462,6 @@
         "header": "Tus tarjetas regalo",
         "cardsLengthSingular": "{{num}} tarjeta",
         "cardsLengthPlural": "{{num}} tarjetas"
-      },
-      "editGiftCard": {
-        "header": " ¿Qué te gustaría hacer con tu regalo?"
       }
     },
     "showProfileQr": {

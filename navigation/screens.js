@@ -9,12 +9,6 @@ import {
 } from '../app/components/admin';
 import {
   ConfirmLeaveChatGPT,
-  CountryList,
-  CreateGiftCardAccount,
-  ExpandedGiftCardPage,
-  GiftCardOrderDetails,
-  GiftCardPage,
-  HistoricalGiftCardPurchases,
   SwitchGenerativeAIModel,
 } from '../app/components/admin/homeComponents/apps';
 import ConfirmSMSReceivePage from '../app/components/admin/homeComponents/apps/sms4sats/confirmReceivePaymentScreen';
@@ -32,7 +26,6 @@ import {
   ExpandedAddContactsPage,
   ExpandedContactsPage,
   // MyContactProfilePage,
-  SelectGiftCardForContacts,
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
@@ -144,14 +137,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'CreateSplitBill', component: CreateSplitBill },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
   { name: 'POSInstructionsPath', component: POSInstructionsPath },
-  { name: 'CreateGiftCardAccount', component: CreateGiftCardAccount },
-  { name: 'GiftCardsPage', component: GiftCardPage },
-  { name: 'CountryList', component: CountryList },
-  { name: 'ExpandedGiftCardPage', component: ExpandedGiftCardPage },
-  {
-    name: 'HistoricalGiftCardPurchases',
-    component: HistoricalGiftCardPurchases,
-  },
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   { name: 'POSStack', component: POSStack },
   // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
@@ -174,7 +159,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
   // {name: 'NWCWallet', component: NWCWallet},
   { name: 'Nip5VerificationPage', component: Nip5VerificationPage },
-  { name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts },
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },
   { name: 'SMSMessagingSendPhonePage', component: SMSMessagingSendPhonePage },
@@ -217,7 +201,6 @@ const FADE_SCREENS = [
   { name: 'ErrorScreen', component: ErrorScreen },
   { name: 'SparkErrorScreen', component: SparkErrorScreen },
   // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
-  { name: 'GiftCardOrderDetails', component: GiftCardOrderDetails },
   {
     name: 'ContactsPageLongPressActions',
     component: ContactsPageLongPressActions,

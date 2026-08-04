@@ -806,58 +806,6 @@
         "errorMessage": "Désolé, nous n'avons pas pu enregistrer votre conversation."
       }
     },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Rechercher une carte-cadeau",
-        "leftPageMessage": "Où es-tu allé ?",
-        "loadingCardsMessage": "Obtenir des cartes-cadeaux",
-        "noCardsAvailable": "Pas de cartes cadeaux disponibles"
-      },
-      "confimPurchase": {
-        "quantity": "Quantité {{quantity}}",
-        "cardAmount": "Montant de la carte : {{amount}} {{currency}}",
-        "price": "Prix : ",
-        "fee": "Frais : "
-      },
-      "createAccount": {
-        "title": "Propulsé par",
-        "saveEmail": "Vous n'avez pas enregistré d'e-mail. Accélérez le processus de paiement en enregistrant un courriel.",
-        "termsAndConditions1": "En continuant, vous acceptez les conditions d'utilisation de The Bitcoin Company.",
-        "termsAndConditions2": "Conditions d'utilisation",
-        "termsAndConditions3": "et",
-        "termsAndConditions4": "Politique de confidentialité"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Achat d'une carte cadeau, ne pas quitter la page.",
-        "selectamount": "Sélectionner un montant",
-        "sendingto": "Envoi à : ",
-        "minMaxPurchaseAmount": "Vous pouvez acheter une quantité de {{min}} {{max}} {{currency}}",
-        "emailPlaceholder": "Saisir l'adresse électronique",
-        "purchaseBTN": "Achat d'une carte cadeau",
-        "differentEmailMessage": "L'adresse électronique actuelle est différente de celle qui a été enregistrée. Souhaitez-vous que cet e-mail devienne votre e-mail principal ?",
-        "terms": "Conditions",
-        "cardDescription": "Description de la carte",
-        "cardTerms": "Conditions d'utilisation de la carte",
-        "dailyPurchaseAmountError": "Vous avez atteint votre limite d'achat journalière",
-        "giftMessage": "Ajoutez une note à votre cadeau",
-        "giftMessagePlaceholder": "Tapez votre message ici",
-        "selectForContactBTN": "Choisir une carte-cadeau",
-        "noAmountError": "Veuillez choisir le montant de la carte cadeau"
-      },
-      "giftCardOrderDetails": {
-        "title": "Détails de la commande",
-        "invoice": "Facture",
-        "orderId": "Numéro d'ordre",
-        "uuid": "UUID",
-        "openInbox": "Ouvrir la boîte de réception"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Êtes-vous sûr de vouloir supprimer cette carte-cadeau ?",
-        "purchased": "Acheté :",
-        "noPurchases": "Vous n'avez pas encore acheté de carte-cadeau. Une fois que vous le faites, elle apparaîtra ici.",
-        "customCopyMessage": "Courriel d'assistance copié"
-      }
-    },
     "sms4sats": {
       "home": {
         "pageDescription": "Envoyez et recevez des messages sms sans donner votre numéro de téléphone personnel.",
@@ -1497,11 +1445,6 @@
       "claimed": "Utilisé",
       "markAsClaimed": "Marquer comme utilisé"
     },
-    "selectGiftPage": {
-      "noCards": "Pas de cartes disponibles",
-      "header": "Sélectionnez la carte cadeau que vous souhaitez envoyer",
-      "inputPlaceholder": "Rechercher une carte-cadeau"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Voulez-vous {{option}} {{option2}} photo"
@@ -1519,9 +1462,6 @@
         "header": "Vos cartes-cadeaux",
         "cardsLengthSingular": "{{num}} carte",
         "cardsLengthPlural": "{{num}} cartes"
-      },
-      "editGiftCard": {
-        "header": "Que souhaitez-vous faire de votre cadeau ?"
       }
     },
     "showProfileQr": {
