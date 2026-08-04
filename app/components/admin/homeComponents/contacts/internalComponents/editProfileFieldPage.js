@@ -87,6 +87,7 @@ export default function EditProfileFieldPage(props) {
   const isMountedRef = useRef(true);
   const inputRef = useRef(null);
   const isGoingBackRef = useRef(false);
+  const usernameQueryIdRef = useRef(0);
 
   const isValidContent =
     fieldKey === 'uniquename' || VALID_NAME_BIO_REGEX.test(value);
@@ -144,16 +145,20 @@ export default function EditProfileFieldPage(props) {
     }
 
     setUsernameState(USERNAME_STATE.CHECKING);
+    usernameQueryIdRef.current += 1;
+    const queryId = usernameQueryIdRef.current;
     debounceRef.current = setTimeout(async () => {
       try {
         const isFree = await isValidUniqueName('blitzWalletUsers', trimmed);
-        if (isMountedRef.current) {
+        if (isMountedRef.current && usernameQueryIdRef.current === queryId) {
           setUsernameState(
             isFree ? USERNAME_STATE.AVAILABLE : USERNAME_STATE.TAKEN,
           );
         }
       } catch {
-        if (isMountedRef.current) setUsernameState(USERNAME_STATE.IDLE);
+        if (isMountedRef.current && usernameQueryIdRef.current === queryId) {
+          setUsernameState(USERNAME_STATE.IDLE);
+        }
       }
     }, 600);
 
