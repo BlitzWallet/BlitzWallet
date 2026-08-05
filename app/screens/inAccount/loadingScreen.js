@@ -37,6 +37,7 @@ import openWebBrowser from '../../functions/openWebBrowser';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
+import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
 import i18next from 'i18next';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
@@ -99,6 +100,24 @@ export default function ConnectingToNodeLoadingScreen() {
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
+
+        // Onboarding (create/restore) routes here with shouldWipeLocalData so a
+        // previous wallet's stale AsyncStorage + SQLite can't render as the new
+        // wallet's live data. Runs first, before any init/cache reads, and only
+        // after the seed gate below has committed the correct seed. A failure
+        // throws into the catch (recoverable error UI) and a hang is caught by
+        // the 45s watchdog — neither was possible on the PIN page.
+        if (route.params?.shouldWipeLocalData) {
+          phaseRef.current = 'wiping previous wallet local data';
+          crashlyticsLogReport('Wiping previous wallet local data before init');
+          const wiped = await wipeLocalWalletData();
+          if (!wiped)
+            throw new Error(t('createAccount.keySetup.pin.wipeError'));
+          // Small settle so re-created DB handles / dropped tables quiesce
+          // before the parallel init + cache reads below touch them.
+          await new Promise(res => setTimeout(res, 1000));
+        }
+
         phaseRef.current = 'deriving keys + webview handshake + db init';
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
 
