@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Impossibile salvare il PIN",
         "removeWalletError": "Errore nella rimozione del portafoglio",
+        "wipeError": "Impossibile cancellare i dati del portafoglio precedente di questo dispositivo. Il tuo PIN è stato salvato, ma riprova prima di continuare.",
         "wrongPinError": "Riprova",
         "enterPinMessage": "Crea PIN",
         "confirmPin": "Conferma PIN",

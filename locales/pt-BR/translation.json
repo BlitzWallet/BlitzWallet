@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
         "removeWalletError": "Erro ao excluir a carteira",
+        "wipeError": "Não foi possível limpar os dados da carteira anterior neste dispositivo. Seu PIN foi salvo, mas tente novamente antes de continuar.",
         "wrongPinError": "Tente novamente",
         "enterPinMessage": "Criar PIN",
         "confirmPin": "Confirmar PIN",

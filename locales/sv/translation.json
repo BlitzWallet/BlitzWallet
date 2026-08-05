@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Det går inte att spara pinnen",
         "removeWalletError": "Fel vid borttagning av plånbok",
+        "wipeError": "Det gick inte att rensa den tidigare plånbokens data på den här enheten. Din PIN-kod är sparad, men försök igen innan du fortsätter.",
         "wrongPinError": "Försök igen",
         "enterPinMessage": "Skapa PIN-kod",
         "confirmPin": "Bekräfta stift",

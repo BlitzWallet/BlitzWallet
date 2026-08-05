@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Unable to save pin",
         "removeWalletError": "Error removing wallet",
+        "wipeError": "Unable to clear this device's previous wallet data. Your PIN is saved, but please retry before continuing.",
         "wrongPinError": "Try again",
         "enterPinMessage": "Create PIN",
         "confirmPin": "Confirm Pin",

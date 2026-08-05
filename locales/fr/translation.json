@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Impossible d'enregistrer la broche",
         "removeWalletError": "Erreur lors de la suppression du portefeuille",
+        "wipeError": "Impossible d'effacer les données de l'ancien portefeuille de cet appareil. Votre code PIN est enregistré, mais veuillez réessayer avant de continuer.",
         "wrongPinError": "Réessayer",
         "enterPinMessage": "Créer un code PIN",
         "confirmPin": "Confirmer la broche",

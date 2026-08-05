@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "No se pudo guardar el PIN",
         "removeWalletError": "Error al eliminar la billetera",
+        "wipeError": "No se pudieron borrar los datos de la billetera anterior de este dispositivo. Tu PIN está guardado, pero reinténtalo antes de continuar.",
         "wrongPinError": "Intenta de nuevo",
         "enterPinMessage": "Crear PIN",
         "confirmPin": "Confirmar PIN",
