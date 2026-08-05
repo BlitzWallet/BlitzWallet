@@ -60,3 +60,17 @@ export async function getAllAccountBalanceSnapshots() {
     return [];
   }
 }
+
+// Drops the cached per-account balance snapshot table. The table lives in the
+// shared Spark database and is recreated by initializeSparkDatabase, so the
+// wipe's re-init pass brings it back empty. Returns true/false.
+export async function deleteAccountBalanceSnapshotsTable() {
+  try {
+    const db = await ensureSparkDatabaseReady();
+    await db.execAsync(`DROP TABLE IF EXISTS ${TABLE}`);
+    return true;
+  } catch (err) {
+    console.log('Error deleting account balance snapshots table', err);
+    return false;
+  }
+}

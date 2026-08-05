@@ -58,6 +58,27 @@ class EventLedger {
     `);
   }
 
+  // Wipes all wallet-local event/idempotency + budget ledger state. Mirrors
+  // NWCInvoiceManager.resetDatabase(): DROP both tables, recreate them empty,
+  // keep the cached handle + isInitialized (DROP + CREATE on the same live
+  // connection is safe).
+  async resetDatabase() {
+    await this.ensureInitialized();
+
+    try {
+      await this.db.execAsync(`
+        DROP TABLE IF EXISTS handled_events;
+        DROP TABLE IF EXISTS nwc_ledger_state;
+      `);
+      await this.createTables();
+      console.log('NWC event ledger reset completed successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to reset event ledger:', error);
+      throw error;
+    }
+  }
+
   // Atomically claim an event id for processing.
   // Returns 'claimed' when this caller may process the event, or the terminal
   // status ('done' | 'failed') / 'busy' when it must be skipped.

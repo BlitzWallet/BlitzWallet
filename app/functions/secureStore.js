@@ -68,7 +68,6 @@ async function terminateAccount() {
     await deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION);
-    await deleteItemAsync(ROOTSTOCK_SWAP_SIGNER_KEY, KEYCHAIN_OPTION);
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');
@@ -146,7 +145,10 @@ async function runSecureStoreMigrationV2() {
 
     if (plainPin && plainMnemonic) {
       const pinStored = await storeData('pinHash', plainPin);
-      const mnemonicStored = await storeData('encryptedMnemonic', plainMnemonic);
+      const mnemonicStored = await storeData(
+        'encryptedMnemonic',
+        plainMnemonic,
+      );
 
       // Only delete once the copy is confirmed written (storeData returns false
       // on failure); otherwise a failed write would destroy the only seed copy.

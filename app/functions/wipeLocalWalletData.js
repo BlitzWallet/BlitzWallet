@@ -1,0 +1,145 @@
+import { cacheDirectory, deleteAsync } from 'expo-file-system/legacy';
+import {
+  getLocalStorageItem,
+  removeAllLocalData,
+  setLocalStorageItem,
+} from './localStorage';
+import { deleteTable } from './messaging/cachedMessages';
+import { deletePOSTransactionsTable } from './pos';
+import {
+  deleteSparkContactsTransactionsTable,
+  deleteSparkTransactionTable,
+  deleteSpendAndReplaceTable,
+  deleteUnpaidSparkLightningTransactionTable,
+} from './spark/transactions';
+import { deleteAccountBalanceSnapshotsTable } from './spark/balanceSnapshots';
+import { deleteGiftsTable } from './gift/giftsStorage';
+import { deleteGiftCardsTable } from './contacts/giftCardStorage';
+import {
+  deleteContributionsTable,
+  deletePoolTable,
+} from './pools/poolsStorage';
+import {
+  deleteSavingsGoalsTable,
+  deleteSavingsPayoutsTable,
+  deleteSavingsTransactionsTable,
+} from './savings/savingsStorage';
+import { deleteBtcMapTable } from './btcMap/btcMapStorage';
+import { deleteLeavesTable } from './spark/leavesStorage';
+import { deleteRootstockSwapTable } from './boltz/rootstock/swapDb';
+import { NWCInvoiceManager } from './nwc/cachedNWCTxs';
+import { nwcEventLedger } from './nwc/eventLedger';
+import {
+  initializeAllDatabases,
+  resetDatabaseInitialization,
+} from './initializeAllDatabases';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from './crashlyticsLogs';
+
+// AsyncStorage keys carried across the wipe. userSelectedLanguage keeps
+// non-English users from flipping to en mid-onboarding; didViewSeedPhrase holds
+// the value pin.js just wrote for the new wallet (a null default would flip a
+// brand-new wallet to "already viewed" and suppress the backup nudge).
+const PRESERVED_KEYS = ['userSelectedLanguage', 'didViewSeedPhrase'];
+
+// Every wallet-local SQLite table. Do NOT gate on per-delete return values:
+// several legacy deletes resolve undefined on success and some swallow their own
+// errors, so truthiness is meaningless. The batch only fails on a thrown /
+// rejected delete; a silently-failed drop is caught by the re-init pass in
+// wipeLocalWalletData (a broken db makes initializeAllDatabases reject).
+const tableDeletes = [
+  deleteTable,
+  deletePOSTransactionsTable,
+  deleteSparkTransactionTable,
+  deleteUnpaidSparkLightningTransactionTable,
+  deleteSparkContactsTransactionsTable,
+  deleteSpendAndReplaceTable,
+  deleteAccountBalanceSnapshotsTable,
+  deleteGiftsTable,
+  deleteGiftCardsTable,
+  deletePoolTable,
+  deleteContributionsTable,
+  deleteSavingsGoalsTable,
+  deleteSavingsTransactionsTable,
+  deleteSavingsPayoutsTable,
+  deleteBtcMapTable,
+  deleteLeavesTable,
+  deleteRootstockSwapTable,
+  () => NWCInvoiceManager.resetDatabase(),
+  () => nwcEventLedger.resetDatabase(),
+];
+
+export async function deleteAllLocalWalletTables() {
+  const results = await Promise.allSettled(tableDeletes.map(run => run()));
+  const rejected = results.filter(result => result.status === 'rejected');
+  if (rejected.length > 0) {
+    crashlyticsRecordErrorReport(
+      `wipeLocalWalletData: ${rejected.length} table deletes rejected`,
+    );
+    return false;
+  }
+  return true;
+}
+
+// Filesystem caches (profile + token images) are keyed by pointers in
+// AsyncStorage, which the wipe clears, so orphans are never rendered. Deleting
+// them is belt-and-suspenders; a failure here is not worth blocking onboarding.
+const IMAGE_CACHE_DIRS = ['profile_images/', 'tokenImages/'];
+
+async function wipeImageCacheDirectories() {
+  for (const dir of IMAGE_CACHE_DIRS) {
+    try {
+      await deleteAsync(cacheDirectory + dir, { idempotent: true });
+    } catch (err) {
+      console.log('Error wiping image cache directory', dir, err);
+    }
+  }
+}
+
+// Wipes everything wallet-local EXCEPT the keychain (the freshly written
+// encryptedMnemonic/pinHash must survive). Used by create/restore onboarding so
+// a previous wallet's stale AsyncStorage + SQLite cache can never render as the
+// new wallet's live data. Returns true only when the wipe fully succeeded.
+export default async function wipeLocalWalletData() {
+  const preservedValues = {};
+  for (const key of PRESERVED_KEYS) {
+    preservedValues[key] = await getLocalStorageItem(key);
+  }
+
+  const didClearStorage = await removeAllLocalData();
+  const didDeleteTables = await deleteAllLocalWalletTables();
+
+  await wipeImageCacheDirectories();
+
+  let didReinitialize = false;
+  try {
+    resetDatabaseInitialization();
+    await initializeAllDatabases();
+    didReinitialize = true;
+  } catch (err) {
+    console.log('wipeLocalWalletData re-init error', err);
+    crashlyticsLogReport('wipeLocalWalletData re-init failed');
+    crashlyticsRecordErrorReport(
+      `wipeLocalWalletData re-init failed: ${err?.message ?? err}`,
+    );
+  }
+
+  // Restore the preserved keys across the wipe; Firestore re-sync restores the
+  // rest of the settings on the loading screen.
+  for (const key of PRESERVED_KEYS) {
+    const value = preservedValues[key];
+    if (value !== null && value !== undefined) {
+      await setLocalStorageItem(key, value);
+    }
+  }
+
+  if (!didClearStorage || !didDeleteTables || !didReinitialize) {
+    crashlyticsLogReport(
+      `wipeLocalWalletData failed: clearStorage=${didClearStorage} deleteTables=${didDeleteTables} reinit=${didReinitialize}`,
+    );
+    return false;
+  }
+  return true;
+}
