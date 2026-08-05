@@ -4,43 +4,33 @@ import {
   isWithinNWCBalanceTimeFrame,
   splitAndStoreNWCData,
 } from '.';
+import { publishToSingleRelay } from './publishResponse';
+import { nwcEventLedger } from './eventLedger';
+import bolt11 from '../decodeBolt11';
+import { pushInstantNotification } from '../notifications';
+import NWCInvoiceManager from './cachedNWCTxs';
+import { NOSTR_RELAY_URL } from '../../constants';
+import { finalizeEvent, verifyEvent, nip44 } from 'nostr-tools';
+import sha256Hash from '../hash';
 import {
   decryptMessage,
   encriptMessage,
 } from '../messaging/encodingAndDecodingMessages';
-import { publishToSingleRelay } from './publishResponse';
-import {
-  getNWCLightningReceiveRequest,
-  getNWCSparkBalance,
-  getNWCSparkTransactions,
-  initializeNWCWallet,
-  NWCSparkLightningPaymentStatus,
-  nwcWallet,
-  sendNWCSparkLightningPayment,
-} from './wallet';
-import bolt11 from '../decodeBolt11';
-import { getSparkPaymentStatus, sparkPaymentType } from '../spark';
-import { pushInstantNotification } from '../notifications';
-import NWCInvoiceManager from './cachedNWCTxs';
-import { NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY } from '../../constants';
-import { finalizeEvent } from 'nostr-tools';
-import { getFunctions } from '@react-native-firebase/functions';
-import { Platform } from 'react-native';
-import fetchBackend from '../../../db/handleBackend';
-import { getLocalStorageItem } from '../localStorage';
-import sha256Hash from '../hash';
-import { transformTxToPaymentObject } from '../spark/transformTxToPayment';
 
-const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
 let walletInitializationPromise = null;
+let walletModule = null;
 
 const RELAY_URL = NOSTR_RELAY_URL;
+const MAX_EVENT_AGE_SECONDS = 300;
+const BALANCE_CACHE_MS = 5 * 60 * 1000;
+const DEFAULT_INVOICE_EXPIRY_SECONDS = 60 * 60 * 12;
 
 const ERROR_CODES = {
   INTERNAL: 'INTERNAL',
   RESTRICTED: 'RESTRICTED',
   QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
+  NOT_FOUND: 'NOT_FOUND',
 };
 
 const createErrorResponse = (method, code, message) => ({
@@ -48,8 +38,81 @@ const createErrorResponse = (method, code, message) => ({
   error: { code, message },
 });
 
+// Publishes an NWC notification (NWC-02) to the client. The tester and other
+// legacy clients listen for kind 23196 with legacy encryption, while NIP-44
+// capable clients listen for kind 23197.
+const publishNWCNotification = async ({
+  clientPubKey,
+  accountPrivateKey,
+  notificationPayload,
+}) => {
+  const now = Math.floor(Date.now() / 1000);
+  const serializedContent = JSON.stringify(notificationPayload);
+  const events = [];
+
+  const legacyContent = encriptMessage(
+    accountPrivateKey,
+    clientPubKey,
+    serializedContent,
+  );
+  if (legacyContent) {
+    events.push(
+      finalizeEvent(
+        {
+          kind: 23196,
+          created_at: now,
+          tags: [['p', clientPubKey]],
+          content: legacyContent,
+        },
+        Buffer.from(accountPrivateKey, 'hex'),
+      ),
+    );
+  }
+
+  try {
+    const nip44Content = nip44.encrypt(
+      serializedContent,
+      nip44.getConversationKey(
+        Buffer.from(accountPrivateKey, 'hex'),
+        clientPubKey,
+      ),
+    );
+    events.push(
+      finalizeEvent(
+        {
+          kind: 23197,
+          created_at: now,
+          tags: [['p', clientPubKey]],
+          content: nip44Content,
+        },
+        Buffer.from(accountPrivateKey, 'hex'),
+      ),
+    );
+  } catch (err) {
+    console.error('Error encrypting NIP-44 notification', err);
+  }
+
+  if (events.length > 0) {
+    await publishToSingleRelay(events, RELAY_URL);
+  }
+};
+
+// The Spark SDK is heavy; it is only required on demand by methods that need a
+// live wallet (make_invoice, pay_invoice, pending lookup, uncached balance,
+// list_transactions). get_info, cached lookups and cached balance never load it.
+const getWalletModule = () => {
+  if (!walletModule) {
+    walletModule = require('./wallet');
+  }
+  return walletModule;
+};
+
+const getSparkModule = () => require('../spark');
+
 const ensureWalletConnection = async () => {
-  if (nwcWallet) {
+  const wallet = getWalletModule();
+
+  if (wallet.nwcWallet) {
     return { isConnected: true };
   }
 
@@ -58,7 +121,7 @@ const ensureWalletConnection = async () => {
     return await walletInitializationPromise;
   }
 
-  walletInitializationPromise = initializeNWCWallet();
+  walletInitializationPromise = wallet.initializeNWCWallet();
 
   try {
     const result = await walletInitializationPromise;
@@ -96,14 +159,20 @@ const handleGetTransactions = async requestParams => {
   }
 
   const { from, until, limit = 20, offset = 0, type } = requestParams;
+  const chunkSize = limit * 2;
 
   let allTransactions = [];
   let currentOffset = 0;
-  const chunkSize = limit * 1.5;
   let hasMore = true;
 
+  const wallet = getWalletModule();
+  const spark = getSparkModule();
+
   while (hasMore) {
-    const chunk = await getNWCSparkTransactions(chunkSize, currentOffset);
+    const chunk = await wallet.getNWCSparkTransactions(
+      chunkSize,
+      currentOffset,
+    );
 
     if (!chunk || chunk.transfers.length === 0) {
       hasMore = false;
@@ -124,11 +193,12 @@ const handleGetTransactions = async requestParams => {
     }
   }
 
-  let filteredTransactions = allTransactions.filter(tx => {
-    // Filter by timestamp range if provided
-    const type = sparkPaymentType(tx);
+  const filteredTransactions = allTransactions.filter(tx => {
+    // Drop internal spark transfers (not lightning invoices)
+    const txType = spark.sparkPaymentType(tx);
+    if (txType === 'spark') return false;
 
-    if (type === 'spark') return false;
+    // Filter by timestamp range if provided
     if (from || until) {
       const txTime = tx.createdTime
         ? new Date(tx.createdTime).getTime() / 1000
@@ -155,6 +225,10 @@ const handleGetTransactions = async requestParams => {
     offset,
     offset + limit,
   );
+
+  const {
+    transformTxToPaymentObject,
+  } = require('../spark/transformTxToPayment');
 
   const formatted = await Promise.all(
     paginatedTransactions.map(async tx => {
@@ -196,17 +270,9 @@ const handleGetTransactions = async requestParams => {
   };
 };
 
-const handleMakeInvoice = async (
-  requestParams,
-  selectedNWCAccount,
-  fullStorageObject,
-  event,
-) => {
-  const sparkPubKey = JSON.parse(
-    await getLocalStorageItem(NWC_IDENTITY_PUB_KEY),
-  );
-
-  if (!sparkPubKey) {
+const handleMakeInvoice = async (requestParams, selectedNWCAccount) => {
+  const connectResponse = await ensureWalletConnection();
+  if (!connectResponse.isConnected) {
     return createErrorResponse(
       'make_invoice',
       ERROR_CODES.INTERNAL,
@@ -214,40 +280,73 @@ const handleMakeInvoice = async (
     );
   }
 
-  await fetchBackend(
-    'handleNWCEvent',
-    {
-      requestMethod: 'make_invoice',
-      amount: Math.round(requestParams.amount / 1000),
-      description: requestParams.description,
-      expiry: requestParams.expiry,
-      publicKey: selectedNWCAccount.publicKey,
-      privateKey: selectedNWCAccount.privateKey,
-      sparkIdentityPubKey: sparkPubKey,
-      event: { clientPubKey: event.clientPubKey, id: event.id },
+  const amountMsat = requestParams.amount;
+  if (!Number.isInteger(amountMsat) || amountMsat <= 0) {
+    return createErrorResponse(
+      'make_invoice',
+      ERROR_CODES.INTERNAL,
+      'Invalid amount',
+    );
+  }
+
+  const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
+  const expirySeconds =
+    Number.isInteger(requestParams.expiry) && requestParams.expiry > 0
+      ? requestParams.expiry
+      : DEFAULT_INVOICE_EXPIRY_SECONDS;
+
+  const wallet = getWalletModule();
+  const receive = await wallet.receiveNWCSparkLightningPayment({
+    amountSats,
+    memo: requestParams.description,
+    expirySeconds,
+  });
+
+  if (!receive.didWork || !receive.response) {
+    return createErrorResponse(
+      'make_invoice',
+      ERROR_CODES.INTERNAL,
+      receive.error || 'Unable to create invoice',
+    );
+  }
+
+  const response = receive.response;
+  const encodedInvoice = response.invoice?.encodedInvoice;
+  if (!encodedInvoice) {
+    return createErrorResponse(
+      'make_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to create invoice',
+    );
+  }
+
+  try {
+    await NWCInvoiceManager.storeCreatedInvoice({
+      payment_hash: response.invoice.paymentHash,
+      invoice: encodedInvoice,
+      amount: amountSats,
+      description: requestParams.description || null,
+      created_at: response.invoice.createdAt,
+      expires_at: response.invoice.expiresAt,
+      sparkID: response.id,
+      type: 'INCOMING',
+      fee: 0,
+      preimage: '',
+    });
+  } catch (err) {
+    console.error('Failed to store created invoice', err);
+  }
+
+  return {
+    result_type: 'make_invoice',
+    result: {
+      invoice: encodedInvoice,
     },
-    selectedNWCAccount.privateKey,
-    selectedNWCAccount.publicKey,
-  );
-  // await splitAndStoreNWCData({
-  //   ...fullStorageObject,
-  //   accounts: {
-  //     ...fullStorageObject.accounts,
-  //     [selectedNWCAccount.publicKey]: {
-  //       ...selectedNWCAccount,
-  //       shouldGetNewBalance: true,
-  //     },
-  //   },
-  // });
+  };
 };
 
-const handleLookupInvoice = async (
-  requestParams,
-  event,
-  selectedNWCAccount,
-) => {
+const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
   let foundInvoice = null;
-  const { payment_hash, invoice } = requestParams;
   try {
     foundInvoice = await NWCInvoiceManager.handleLookupInvoice(requestParams);
   } catch (err) {
@@ -277,11 +376,18 @@ const handleLookupInvoice = async (
       );
     }
 
+    const wallet = getWalletModule();
+    const spark = getSparkModule();
+
     let sparkPaymentResponse;
     if (invoiceWithoutSparkID.type === 'INCOMING') {
-      sparkPaymentResponse = await getNWCLightningReceiveRequest(sparkID);
+      sparkPaymentResponse = await wallet.getNWCLightningReceiveRequest(
+        sparkID,
+      );
     } else {
-      sparkPaymentResponse = await NWCSparkLightningPaymentStatus(sparkID);
+      sparkPaymentResponse = await wallet.NWCSparkLightningPaymentStatus(
+        sparkID,
+      );
     }
 
     if (!sparkPaymentResponse.didWork)
@@ -291,7 +397,7 @@ const handleLookupInvoice = async (
         'Unable to lookup invoice.',
       );
     const data = sparkPaymentResponse.paymentResponse;
-    const status = getSparkPaymentStatus(data.status);
+    const status = spark.getSparkPaymentStatus(data.status);
 
     if (status !== 'pending') {
       await NWCInvoiceManager.markInvoiceAsNotPending(
@@ -315,18 +421,10 @@ const handleLookupInvoice = async (
     };
   }
 
-  await fetchBackend(
-    'handleNWCEvent',
-    {
-      requestMethod: 'lookup_invoice',
-      invoice: invoice,
-      payment_hash: payment_hash,
-      publicKey: selectedNWCAccount.publicKey,
-      privateKey: selectedNWCAccount.privateKey,
-      event: { clientPubKey: event.clientPubKey, id: event.id },
-    },
-    selectedNWCAccount.privateKey,
-    selectedNWCAccount.publicKey,
+  return createErrorResponse(
+    'lookup_invoice',
+    ERROR_CODES.NOT_FOUND,
+    'Invoice not found',
   );
 };
 
@@ -334,43 +432,58 @@ const handlePayInvoice = async (
   requestParams,
   selectedNWCAccount,
   fullStorageObject,
+  clientPubKey,
 ) => {
-  const connectResponse = await ensureWalletConnection();
-
   const decoded = bolt11.decode(requestParams.invoice);
-  const paymentAmount = Math.round(decoded.millisatoshis / 1000);
-  const timeFrame = isWithinNWCBalanceTimeFrame(
-    selectedNWCAccount.budgetRenewalSettings.option,
-    selectedNWCAccount.lastRotated,
-  );
+  const amountMsat = Number(decoded.millisatoshis);
+  console.log(decoded);
+  if (!Number.isInteger(amountMsat) || amountMsat <= 0) {
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Invalid invoice amount',
+    );
+  }
 
+  const renewalSettings = selectedNWCAccount.budgetRenewalSettings || {};
+  const now = Date.now();
+
+  let spendState = null;
+  try {
+    spendState = await nwcEventLedger.getSpendState(
+      selectedNWCAccount.publicKey,
+    );
+  } catch (err) {
+    console.error('Error reading spend state', err);
+  }
+
+  let windowStart =
+    spendState?.windowStart ?? selectedNWCAccount.lastRotated ?? now;
+  let budgetSentMsat =
+    spendState?.budgetSentMsat ?? (selectedNWCAccount.totalSent || 0) * 1000;
+
+  if (!isWithinNWCBalanceTimeFrame(renewalSettings.option, windowStart)) {
+    windowStart = now;
+    budgetSentMsat = 0;
+  }
+
+  const budgetLimitMsat =
+    renewalSettings.amount === 'Unlimited'
+      ? null
+      : (renewalSettings.amount || 0) * 1000;
   if (
-    selectedNWCAccount.budgetRenewalSettings.amount !== 'Unlimited' &&
-    selectedNWCAccount.budgetRenewalSettings.amount <
-      selectedNWCAccount.totalSent + paymentAmount &&
-    timeFrame
+    budgetLimitMsat !== null &&
+    budgetLimitMsat < budgetSentMsat + amountMsat
   ) {
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.QUOTA_EXCEEDED,
       'The wallet has exceeded its spending quota.',
     );
-  } else if (!timeFrame) {
-    await splitAndStoreNWCData({
-      ...fullStorageObject,
-      accounts: {
-        ...fullStorageObject.accounts,
-        [selectedNWCAccount.publicKey]: {
-          ...selectedNWCAccount,
-          lastRotated: new Date().getTime(),
-          totalSent: 0,
-        },
-      },
-    });
   }
 
+  const connectResponse = await ensureWalletConnection();
   if (!connectResponse.isConnected) {
-    // const currentExpense
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.INTERNAL,
@@ -378,7 +491,8 @@ const handlePayInvoice = async (
     );
   }
 
-  const invoice = await sendNWCSparkLightningPayment({
+  const wallet = getWalletModule();
+  const invoice = await wallet.sendNWCSparkLightningPayment({
     invoice: requestParams.invoice,
   });
 
@@ -393,15 +507,24 @@ const handlePayInvoice = async (
   const response = invoice.paymentResponse;
   await new Promise(res => setTimeout(res, 1000));
 
-  const status = await NWCSparkLightningPaymentStatus(response.id);
+  const status = await wallet.NWCSparkLightningPaymentStatus(response.id);
+
+  const spark = getSparkModule();
+  const paymentStatus = spark.getSparkPaymentStatus(
+    status?.paymentResponse?.status,
+  );
+
+  const feeMsat = response.fee?.originalValue || 0;
+  const fee = (feeMsat - (feeMsat % 1000)) / 1000;
+  const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
 
   await NWCInvoiceManager.storeCreatedInvoice({
     payment_hash: sha256Hash(status?.paymentResponse?.paymentPreimage || ''),
     invoice: response.encodedInvoice,
-    amount: paymentAmount,
-    fee: Math.round(response.fee.originalValue / 1000),
+    amount: amountSats,
+    fee,
     description: '',
-    status: getSparkPaymentStatus(status?.paymentResponse.status),
+    status: paymentStatus,
     created_at: response.createdAt,
     sparkID: response.id,
     type: 'OUTGOING',
@@ -416,16 +539,70 @@ const handlePayInvoice = async (
     );
   }
 
+  const newTotalMsat = budgetSentMsat + amountMsat;
+  await nwcEventLedger.setSpendState(
+    selectedNWCAccount.publicKey,
+    newTotalMsat,
+    windowStart,
+  );
   await splitAndStoreNWCData({
     ...fullStorageObject,
     accounts: {
       ...fullStorageObject.accounts,
       [selectedNWCAccount.publicKey]: {
         ...selectedNWCAccount,
-        totalSent: selectedNWCAccount.totalSent + paymentAmount,
+        totalSent: (newTotalMsat - (newTotalMsat % 1000)) / 1000,
+        lastRotated: windowStart,
       },
     },
   });
+
+  try {
+    const paymentPreimage = status?.paymentResponse?.paymentPreimage || '';
+    const decodedTags = decoded.tags || [];
+    const descriptionTag = decodedTags.find(
+      tag => tag.tagName === 'description',
+    );
+    const descriptionHashTag = decodedTags.find(
+      tag => tag.tagName === 'description_hash',
+    );
+    const paymentHashTag = decodedTags.find(
+      tag => tag.tagName === 'payment_hash',
+    );
+    const timestampTag = decodedTags.find(
+      tag => tag.tagName === 'timestamp',
+    );
+    const expiryTag = decodedTags.find(tag => tag.tagName === 'expiry');
+
+    const invoiceCreatedAt =
+      Number(timestampTag?.data) || Math.floor(Date.now() / 1000);
+    const invoiceExpiry = Number(expiryTag?.data) || 0;
+
+    await publishNWCNotification({
+      clientPubKey,
+      accountPrivateKey: selectedNWCAccount.privateKey,
+      notificationPayload: {
+        notification_type: 'payment_sent',
+        notification: {
+          type: 'outgoing',
+          state: paymentStatus === 'completed' ? 'settled' : paymentStatus,
+          invoice: requestParams.invoice,
+          description: descriptionTag?.data || null,
+          description_hash: descriptionHashTag?.data || null,
+          preimage: paymentPreimage,
+          payment_hash: paymentHashTag?.data || sha256Hash(paymentPreimage),
+          amount: amountMsat,
+          fees_paid: feeMsat,
+          created_at: invoiceCreatedAt,
+          expires_at: expiryTag ? invoiceCreatedAt + invoiceExpiry : null,
+          settled_at: Math.floor(Date.now() / 1000),
+          metadata: {},
+        },
+      },
+    });
+  } catch (err) {
+    console.error('Error publishing payment_sent notification', err);
+  }
 
   return {
     result_type: 'pay_invoice',
@@ -436,22 +613,24 @@ const handlePayInvoice = async (
 };
 
 const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
-  console.log('running in get balance');
-  // if (
-  //   // !selectedNWCAccount.shouldGetNewBalance &&
-  //   // selectedNWCAccount.walletBalance &&
-  //   // selectedNWCAccount.lastChecked - Date.now() < 60 * 5
-  // ) {
-  //   console.log('running cached wallet balance');
-  //   return {
-  //     result_type: 'get_balance',
-  //     result: {
-  //       balance: Number(selectedNWCAccount.walletBalance) * 1000,
-  //     },
-  //   };
-  // }
+  const now = Date.now();
+  const lastChecked = selectedNWCAccount.lastChecked || 0;
+  const cachedBalance = Number(selectedNWCAccount.walletBalance);
+
+  if (
+    !selectedNWCAccount.shouldGetNewBalance &&
+    Number.isFinite(cachedBalance) &&
+    now - lastChecked < BALANCE_CACHE_MS
+  ) {
+    return {
+      result_type: 'get_balance',
+      result: {
+        balance: cachedBalance * 1000,
+      },
+    };
+  }
+
   const connectResponse = await ensureWalletConnection();
-  console.log('conection response');
   if (!connectResponse.isConnected) {
     return createErrorResponse(
       'get_balance',
@@ -460,20 +639,28 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
     );
   }
 
-  const balance = await getNWCSparkBalance();
+  const balance = await getWalletModule().getNWCSparkBalance();
+  if (!balance || balance.balance === undefined) {
+    return createErrorResponse(
+      'get_balance',
+      ERROR_CODES.INTERNAL,
+      'Unable to retrieve balance',
+    );
+  }
 
-  // await splitAndStoreNWCData({
-  //   ...fullStorageObject,
-  //   accounts: {
-  //     ...fullStorageObject.accounts,
-  //     [selectedNWCAccount.publicKey]: {
-  //       ...selectedNWCAccount,
-  //       shouldGetNewBalance: false,
-  //       walletBalance: Number(balance.balance),
-  //       lastChecked: Date.now(),
-  //     },
-  //   },
-  // });
+  await splitAndStoreNWCData({
+    ...fullStorageObject,
+    accounts: {
+      ...fullStorageObject.accounts,
+      [selectedNWCAccount.publicKey]: {
+        ...selectedNWCAccount,
+        shouldGetNewBalance: false,
+        walletBalance: Number(balance.balance),
+        lastChecked: now,
+      },
+    },
+  });
+
   return {
     result_type: 'get_balance',
     result: {
@@ -515,12 +702,7 @@ const processEvent = async (event, selectedNWCAccount) => {
         );
         break;
       }
-      await handleMakeInvoice(
-        requestParams,
-        selectedNWCAccount,
-        fullStorageObject,
-        event,
-      );
+      returnObject = await handleMakeInvoice(requestParams, selectedNWCAccount);
       break;
     case 'lookup_invoice':
       if (!selectedNWCAccount.permissions.lookupInvoice) {
@@ -531,7 +713,10 @@ const processEvent = async (event, selectedNWCAccount) => {
         );
         break;
       }
-      await handleLookupInvoice(requestParams, event, selectedNWCAccount);
+      returnObject = await handleLookupInvoice(
+        requestParams,
+        selectedNWCAccount,
+      );
       break;
     case 'pay_invoice':
       if (!selectedNWCAccount.permissions.sendPayments) {
@@ -546,6 +731,7 @@ const processEvent = async (event, selectedNWCAccount) => {
         requestParams,
         selectedNWCAccount,
         fullStorageObject,
+        event.clientPubKey,
       );
       break;
 
@@ -581,22 +767,110 @@ const processEvent = async (event, selectedNWCAccount) => {
 };
 
 function decryptEventMessage(selectedNWCAccount, event) {
-  const decryptedContent = decryptMessage(
-    selectedNWCAccount.privateKey,
-    event.clientPubKey,
-    event.content,
-  );
+  let decryptedContent = null;
+  let encryptionScheme = 'legacy';
+
+  try {
+    decryptedContent = nip44.decrypt(
+      event.content,
+      nip44.getConversationKey(
+        Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+        event.clientPubKey,
+      ),
+    );
+    encryptionScheme = 'nip44';
+  } catch (e) {
+    decryptedContent = decryptMessage(
+      selectedNWCAccount.privateKey,
+      event.clientPubKey,
+      event.content,
+    );
+  }
+
+  if (!decryptedContent) {
+    throw new Error('Unable to decrypt NWC event content');
+  }
 
   const data = JSON.parse(decryptedContent);
-  return data;
+  return { data, encryptionScheme };
+}
+
+function verifyAndNormalizeEvent(rawEvent, accounts) {
+  if (
+    !rawEvent ||
+    typeof rawEvent !== 'object' ||
+    typeof rawEvent.id !== 'string' ||
+    typeof rawEvent.pubkey !== 'string' ||
+    typeof rawEvent.created_at !== 'number' ||
+    typeof rawEvent.content !== 'string' ||
+    !Array.isArray(rawEvent.tags) ||
+    typeof rawEvent.sig !== 'string'
+  ) {
+    console.error(
+      'Rejected NWC event: missing raw event fields (backend must forward the signed kind 23194 event verbatim)',
+      rawEvent?.id,
+    );
+    return null;
+  }
+
+  if (rawEvent.kind !== 23194) {
+    console.error(
+      'Rejected NWC event: unexpected kind',
+      rawEvent.id,
+      rawEvent.kind,
+    );
+    return null;
+  }
+
+  try {
+    let newEvent = JSON.parse(JSON.stringify(rawEvent));
+    if (!verifyEvent({ ...newEvent, pubkey: newEvent.clientPubKey })) {
+      console.error('Rejected NWC event: invalid signature', rawEvent.id);
+      return null;
+    }
+  } catch (e) {
+    console.error('Rejected NWC event: verification error', rawEvent.id, e);
+    return null;
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+
+  if (Math.abs(rawEvent.created_at - now) > MAX_EVENT_AGE_SECONDS) {
+    console.error('Rejected NWC event: outside freshness window', rawEvent.id);
+    return null;
+  }
+
+  const expirationTag = rawEvent.tags.find(tag => tag[0] === 'expiration');
+  if (expirationTag) {
+    const expiration = Number(expirationTag[1]);
+    if (Number.isFinite(expiration) && expiration <= now) {
+      console.error('Rejected NWC event: expired', rawEvent.id);
+      return null;
+    }
+  }
+
+  const accountPubkey =
+    rawEvent.tags.find(tag => tag[0] === 'p')?.[1] || rawEvent.pubkey;
+  const selectedNWCAccount = accounts[accountPubkey];
+
+  if (!selectedNWCAccount) {
+    console.error(
+      'Rejected NWC event: no matching account',
+      rawEvent.id,
+      accountPubkey,
+    );
+    return null;
+  }
+
+  return {
+    ...rawEvent,
+    accountPubkey,
+    selectedNWCAccount,
+  };
 }
 
 export default async function handleNWCBackgroundEvent(notificationData) {
   try {
-    // Initialize accounts if not already done
-    if (__DEV__) {
-      getFunctions().useEmulator(process.env.DEVICE_IP, 5001);
-    }
     let {
       data: { body: nwcEvent },
     } = notificationData;
@@ -607,47 +881,82 @@ export default async function handleNWCBackgroundEvent(notificationData) {
       nwcEvent = JSON.parse(nwcEvent);
     } catch (err) {}
 
-    // // Filter out already handled events upfront
     const newEvents = nwcEvent?.events;
     if (!newEvents) return;
 
     fullStorageObject = await getNWCData();
-    nwcAccounts = fullStorageObject.accounts;
+    nwcAccounts = fullStorageObject.accounts || {};
 
     pushInstantNotification(
       `Received ${newEvents.length} event${newEvents.length === 1 ? '' : 's'}`,
       'Nostr Connect',
     );
 
-    const filteredEvents = newEvents
-      .map((event, index) => {
-        try {
-          const selectedNWCAccount = nwcAccounts[event.pubkey];
-          if (!selectedNWCAccount) return false;
-
-          const parsedData = decryptEventMessage(selectedNWCAccount, event);
-          if (!parsedData) return false;
-
-          const { method: requestMethod, params: requestParams } = parsedData;
-          const handledKey = `${event.clientPubKey}-${requestMethod}`;
-
-          if (handledEventIds.has(handledKey)) return false;
-          handledEventIds.add(handledKey);
-          return { requestMethod, requestParams, ...event, content: parsedData };
-        } catch (e) {
-          console.error('Error decrypting/parsing event:', event.id, e);
-          return false;
-        }
-      })
+    const verifiedEvents = newEvents
+      .map(rawEvent => verifyAndNormalizeEvent(rawEvent, nwcAccounts))
       .filter(Boolean);
 
-    await filteredEvents.forEach(async (event, index) => {
-      const selectedNWCAccount = nwcAccounts[event.pubkey];
-      if (!selectedNWCAccount) return null;
+    const nowMs = Date.now();
+
+    for (const event of verifiedEvents) {
+      const selectedNWCAccount = event.selectedNWCAccount;
 
       try {
+        const claim = await nwcEventLedger.claimEvent(
+          event.id,
+          event.accountPubkey,
+          event.created_at,
+          nowMs,
+        );
+
+        if (claim !== 'claimed') {
+          console.log('Skipping already-handled event:', event.id, claim);
+          continue;
+        }
+
+        let parsedData;
+        try {
+          const parsed = decryptEventMessage(selectedNWCAccount, event);
+          parsedData = parsed.data;
+          event.encryptionScheme = parsed.encryptionScheme;
+        } catch (e) {
+          console.error('Error decrypting event:', event.id, e);
+          await nwcEventLedger.markFailed(event.id, Date.now());
+          continue;
+        }
+
+        if (!parsedData || typeof parsedData !== 'object') {
+          console.error('Error parsing event content:', event.id);
+          await nwcEventLedger.markFailed(event.id, Date.now());
+          continue;
+        }
+
+        event.requestMethod = parsedData.method;
+        event.requestParams = parsedData.params;
+        await nwcEventLedger.setMethod(event.id, parsedData.method);
+
         const returnObject = await processEvent(event, selectedNWCAccount);
-        if (!returnObject) return;
+        if (!returnObject) {
+          await nwcEventLedger.markDone(event.id, Date.now());
+          continue;
+        }
+        console.log(returnObject);
+
+        const serializedResponse = JSON.stringify(returnObject);
+        const content =
+          event.encryptionScheme === 'nip44'
+            ? nip44.encrypt(
+                serializedResponse,
+                nip44.getConversationKey(
+                  Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+                  event.clientPubKey,
+                ),
+              )
+            : encriptMessage(
+                selectedNWCAccount.privateKey,
+                event.clientPubKey,
+                serializedResponse,
+              );
 
         const eventTemplate = {
           kind: 23195,
@@ -656,11 +965,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
             ['p', event.clientPubKey],
             ['e', event.id],
           ],
-          content: encriptMessage(
-            selectedNWCAccount.privateKey,
-            event.clientPubKey,
-            JSON.stringify(returnObject),
-          ),
+          content,
         };
 
         const finalizedEvent = finalizeEvent(
@@ -669,12 +974,12 @@ export default async function handleNWCBackgroundEvent(notificationData) {
         );
 
         await publishToSingleRelay([finalizedEvent], RELAY_URL);
+        await nwcEventLedger.markDone(event.id, Date.now());
       } catch (error) {
         console.error('Error processing event:', event.id, error);
-        return null;
+        await nwcEventLedger.markFailed(event.id, Date.now());
       }
-    });
-    handledEventIds.clear();
+    }
   } catch (err) {
     console.error('Error handling background nwc event', err);
   }

@@ -47,7 +47,7 @@ export async function splitAndStoreNWCData(obj) {
   const nonSensitiveData = JSON.parse(JSON.stringify(obj));
 
   for (const [accountId, account] of Object.entries(
-    nonSensitiveData.accounts,
+    nonSensitiveData.accounts || {},
   )) {
     sensitiveData[accountId] = {};
     for (const key of SENSITIVE_KEYS) {

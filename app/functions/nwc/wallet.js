@@ -1,4 +1,4 @@
-import { SparkWallet } from '@buildonspark/spark-sdk';
+import { SparkWallet } from '@buildonspark/spark-sdk/native';
 import { retrieveData } from '../secureStore';
 import { NWC_SECURE_STORE_MNEMOINC } from '../../constants';
 export let nwcWallet = null;
