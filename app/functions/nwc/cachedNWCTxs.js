@@ -1,4 +1,4 @@
-import {openDatabaseAsync} from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 
 // Database configuration
 const DB_NAME = 'nwc_invoices.db';
@@ -178,6 +178,7 @@ class InvoiceDatabase {
     status,
     settledAt = null,
     preimage = '',
+    fee = null,
   ) {
     await this.ensureInitialized();
 
@@ -185,10 +186,10 @@ class InvoiceDatabase {
 
     try {
       const result = await this.db.runAsync(
-        `UPDATE invoices 
-         SET status = ?, updated_at = ?, settled_at = ?, preimage = ?
+        `UPDATE invoices
+         SET status = ?, updated_at = ?, settled_at = ?, preimage = ?, fee = COALESCE(?, fee)
          WHERE payment_hash = ?`,
-        [status, now, settledAt, preimage, paymentHash],
+        [status, now, settledAt, preimage, fee, paymentHash],
       );
 
       return result.changes > 0;
@@ -334,7 +335,7 @@ export const NWCInvoiceManager = {
       created_at: created_at ? new Date(created_at).getTime() : null,
       settled_at: settled_at ? new Date(settled_at).getTime() : null,
       expires_at: expires_at ? new Date(expires_at).getTime() : null,
-      metadata: {created_via: 'nwc_create_invoice'},
+      metadata: { created_via: 'nwc_create_invoice' },
       sparkID,
       type,
       fee,
@@ -344,7 +345,7 @@ export const NWCInvoiceManager = {
 
   // Handle lookup_invoice request
   async handleLookupInvoice(request) {
-    const {payment_hash, invoice} = request;
+    const { payment_hash, invoice } = request;
 
     if (!payment_hash && !invoice) {
       throw new Error('Either payment_hash or invoice must be provided');
@@ -380,12 +381,13 @@ export const NWCInvoiceManager = {
   },
 
   // Update invoice when payment is received
-  async markInvoiceAsNotPending(paymentHash, status, preimgae) {
+  async markInvoiceAsNotPending(paymentHash, status, preimgae, fee = null) {
     return await invoiceDB.updateInvoiceStatus(
       paymentHash,
       status,
       Date.now(),
       preimgae,
+      fee,
     );
   },
 

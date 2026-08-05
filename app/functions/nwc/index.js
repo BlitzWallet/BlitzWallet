@@ -1,6 +1,7 @@
 import { NWC_LOACAL_STORE_KEY, NWC_SECURE_STORE_KEY } from '../../constants';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import { retrieveData, storeData } from '../secureStore';
+import { getPublicKey } from 'nostr-tools';
 
 export async function getNWCAccountInformation() {
   try {
@@ -100,6 +101,14 @@ export async function getNWCData() {
       if (!mergedAccount.hasOwnProperty('walletBalance')) {
         mergedAccount.walletBalance = 0;
         didUpdate = true;
+      }
+      if (!mergedAccount.hasOwnProperty('clientPubkey') && mergedAccount.secret) {
+        try {
+          mergedAccount.clientPubkey = getPublicKey(mergedAccount.secret);
+          didUpdate = true;
+        } catch (err) {
+          console.error('Error deriving NWC client public key', err);
+        }
       }
 
       nonSensitiveData.accounts[accountId] = mergedAccount;

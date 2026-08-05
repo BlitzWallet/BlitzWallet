@@ -17,9 +17,14 @@ import {
   encriptMessage,
 } from '../messaging/encodingAndDecodingMessages';
 
-let nwcAccounts, fullStorageObject;
 let walletInitializationPromise = null;
 let walletModule = null;
+
+// Serializes concurrent background invocations so budget accounting and the
+// storage read-modify-write cannot interleave across simultaneous pushes.
+// ponytail: single global lock; fine for low-frequency NWC pushes. Move to a
+// per-account lock only if throughput ever matters.
+let processingLock = Promise.resolve();
 
 const RELAY_URL = NOSTR_RELAY_URL;
 const MAX_EVENT_AGE_SECONDS = 300;
@@ -436,13 +441,51 @@ const handlePayInvoice = async (
 ) => {
   const decoded = bolt11.decode(requestParams.invoice);
   const amountMsat = Number(decoded.millisatoshis);
-  console.log(decoded);
+
   if (!Number.isInteger(amountMsat) || amountMsat <= 0) {
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.INTERNAL,
       'Invalid invoice amount',
     );
+  }
+
+  // Idempotency: never pay the same invoice twice. A prior attempt — including
+  // a stale-processing reclaim of the same event — leaves a durable OUTGOING
+  // record keyed by payment_hash. If one exists, short-circuit instead of
+  // re-sending (defense in depth on top of Lightning's payment_hash uniqueness).
+  const paymentHash = (decoded.tags || []).find(
+    tag => tag.tagName === 'payment_hash',
+  )?.data;
+  if (paymentHash) {
+    let existing = null;
+    try {
+      existing = await NWCInvoiceManager.handleLookupInvoice({
+        payment_hash: paymentHash,
+      });
+    } catch (err) {
+      console.error('Idempotency lookup failed', err);
+    }
+    if (
+      existing &&
+      existing.type === 'OUTGOING' &&
+      existing.status !== 'failed'
+    ) {
+      // 'completed' → return the known preimage; 'pending' → an earlier send is
+      // still in flight, so refuse rather than risk a second send. A 'failed'
+      // record falls through and is allowed to retry.
+      if (existing.status === 'completed') {
+        return {
+          result_type: 'pay_invoice',
+          result: { preimage: existing.preimage || '' },
+        };
+      }
+      return createErrorResponse(
+        'pay_invoice',
+        ERROR_CODES.INTERNAL,
+        'Payment already in progress',
+      );
+    }
   }
 
   const renewalSettings = selectedNWCAccount.budgetRenewalSettings || {};
@@ -467,6 +510,19 @@ const handlePayInvoice = async (
     budgetSentMsat = 0;
   }
 
+  const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
+
+  const connectResponse = await ensureWalletConnection();
+  if (!connectResponse.isConnected) {
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to connect to wallet',
+    );
+  }
+
+  const wallet = getWalletModule();
+
   const budgetLimitMsat =
     renewalSettings.amount === 'Unlimited'
       ? null
@@ -482,21 +538,71 @@ const handlePayInvoice = async (
     );
   }
 
-  const connectResponse = await ensureWalletConnection();
-  if (!connectResponse.isConnected) {
-    return createErrorResponse(
-      'pay_invoice',
-      ERROR_CODES.INTERNAL,
-      'Unable to connect to wallet',
-    );
+  const persistBudget = async finalMsat => {
+    try {
+      await nwcEventLedger.setSpendState(
+        selectedNWCAccount.publicKey,
+        finalMsat,
+        windowStart,
+      );
+      await splitAndStoreNWCData({
+        ...fullStorageObject,
+        accounts: {
+          ...fullStorageObject.accounts,
+          [selectedNWCAccount.publicKey]: {
+            ...selectedNWCAccount,
+            totalSent: (finalMsat - (finalMsat % 1000)) / 1000,
+            lastRotated: windowStart,
+          },
+        },
+      });
+    } catch (err) {
+      console.error('Failed to persist spend state', err);
+    }
+  };
+
+  // Reserve the worst-case spend and drop a pending idempotency marker BEFORE
+  // sending. A crash mid-payment then cannot be replayed into a second send and
+  // cannot under-count the budget (the reservation is only reconciled down on a
+  // confirmed result). Concurrent invocations are serialized by the module lock.
+  await persistBudget(budgetSentMsat + amountMsat);
+  if (paymentHash) {
+    try {
+      await NWCInvoiceManager.storeCreatedInvoice({
+        payment_hash: paymentHash,
+        invoice: requestParams.invoice,
+        amount: amountSats,
+        fee: 0,
+        description: '',
+        created_at: now,
+        sparkID: '',
+        type: 'OUTGOING',
+        preimage: '',
+      });
+    } catch (err) {
+      console.error('Failed to store pending outgoing marker', err);
+    }
   }
 
-  const wallet = getWalletModule();
   const invoice = await wallet.sendNWCSparkLightningPayment({
     invoice: requestParams.invoice,
   });
 
+  console.log(invoice);
   if (!invoice.didWork) {
+    // Payment never left — release the reservation and mark the attempt failed.
+    await persistBudget(budgetSentMsat);
+    if (paymentHash) {
+      try {
+        await NWCInvoiceManager.markInvoiceAsNotPending(
+          paymentHash,
+          'failed',
+          '',
+        );
+      } catch (err) {
+        console.error('Failed to mark outgoing marker failed', err);
+      }
+    }
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.INTERNAL,
@@ -513,23 +619,30 @@ const handlePayInvoice = async (
   const paymentStatus = spark.getSparkPaymentStatus(
     status?.paymentResponse?.status,
   );
+  const paymentPreimage = status?.paymentResponse?.paymentPreimage || '';
 
   const feeMsat = response.fee?.originalValue || 0;
-  const fee = (feeMsat - (feeMsat % 1000)) / 1000;
-  const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
 
-  await NWCInvoiceManager.storeCreatedInvoice({
-    payment_hash: sha256Hash(status?.paymentResponse?.paymentPreimage || ''),
-    invoice: response.encodedInvoice,
-    amount: amountSats,
-    fee,
-    description: '',
-    status: paymentStatus,
-    created_at: response.createdAt,
-    sparkID: response.id,
-    type: 'OUTGOING',
-    preimage: status?.paymentResponse?.paymentPreimage || '',
-  });
+  // Reconcile the reservation: release it entirely if the send failed,
+  // otherwise settle it to the actual amount + fee.
+  await persistBudget(
+    paymentStatus === 'failed'
+      ? budgetSentMsat
+      : budgetSentMsat + amountMsat + feeMsat,
+  );
+
+  if (paymentHash) {
+    try {
+      await NWCInvoiceManager.markInvoiceAsNotPending(
+        paymentHash,
+        paymentStatus,
+        paymentPreimage,
+        (feeMsat - (feeMsat % 1000)) / 1000,
+      );
+    } catch (err) {
+      console.error('Failed to update outgoing marker', err);
+    }
+  }
 
   if (!status.didWork) {
     return createErrorResponse(
@@ -538,24 +651,6 @@ const handlePayInvoice = async (
       'Unable to retrieve payment status',
     );
   }
-
-  const newTotalMsat = budgetSentMsat + amountMsat;
-  await nwcEventLedger.setSpendState(
-    selectedNWCAccount.publicKey,
-    newTotalMsat,
-    windowStart,
-  );
-  await splitAndStoreNWCData({
-    ...fullStorageObject,
-    accounts: {
-      ...fullStorageObject.accounts,
-      [selectedNWCAccount.publicKey]: {
-        ...selectedNWCAccount,
-        totalSent: (newTotalMsat - (newTotalMsat % 1000)) / 1000,
-        lastRotated: windowStart,
-      },
-    },
-  });
 
   try {
     const paymentPreimage = status?.paymentResponse?.paymentPreimage || '';
@@ -569,9 +664,7 @@ const handlePayInvoice = async (
     const paymentHashTag = decodedTags.find(
       tag => tag.tagName === 'payment_hash',
     );
-    const timestampTag = decodedTags.find(
-      tag => tag.tagName === 'timestamp',
-    );
+    const timestampTag = decodedTags.find(tag => tag.tagName === 'timestamp');
     const expiryTag = decodedTags.find(tag => tag.tagName === 'expiry');
 
     const invoiceCreatedAt =
@@ -669,7 +762,7 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
   };
 };
 
-const processEvent = async (event, selectedNWCAccount) => {
+const processEvent = async (event, selectedNWCAccount, fullStorageObject) => {
   const { requestMethod, requestParams } = event;
 
   console.log('request method', requestMethod);
@@ -862,6 +955,18 @@ function verifyAndNormalizeEvent(rawEvent, accounts) {
     return null;
   }
 
+  if (
+    !selectedNWCAccount.clientPubkey ||
+    rawEvent.clientPubKey !== selectedNWCAccount.clientPubkey
+  ) {
+    console.error(
+      'Rejected NWC event: signer is not the authorized NWC client',
+      rawEvent.id,
+      rawEvent.clientPubKey,
+    );
+    return null;
+  }
+
   return {
     ...rawEvent,
     accountPubkey,
@@ -884,101 +989,121 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     const newEvents = nwcEvent?.events;
     if (!newEvents) return;
 
-    fullStorageObject = await getNWCData();
-    nwcAccounts = fullStorageObject.accounts || {};
+    // Serialize with any concurrent background invocation. Everything that
+    // reads-modifies-writes account state or the spend ledger runs inside this
+    // lock, so simultaneous pushes cannot interleave (no lost storage writes,
+    // no budget TOCTOU). Each invocation reads fresh storage after the prior
+    // one has finished writing.
+    const previous = processingLock;
+    let releaseLock;
+    processingLock = new Promise(resolve => (releaseLock = resolve));
+    await previous;
 
-    pushInstantNotification(
-      `Received ${newEvents.length} event${newEvents.length === 1 ? '' : 's'}`,
-      'Nostr Connect',
-    );
+    try {
+      const fullStorageObject = await getNWCData();
+      const nwcAccounts = fullStorageObject.accounts || {};
 
-    const verifiedEvents = newEvents
-      .map(rawEvent => verifyAndNormalizeEvent(rawEvent, nwcAccounts))
-      .filter(Boolean);
+      pushInstantNotification(
+        `Received ${newEvents.length} event${
+          newEvents.length === 1 ? '' : 's'
+        }`,
+        'Nostr Connect',
+      );
 
-    const nowMs = Date.now();
+      const verifiedEvents = newEvents
+        .map(rawEvent => verifyAndNormalizeEvent(rawEvent, nwcAccounts))
+        .filter(Boolean);
 
-    for (const event of verifiedEvents) {
-      const selectedNWCAccount = event.selectedNWCAccount;
+      const nowMs = Date.now();
 
-      try {
-        const claim = await nwcEventLedger.claimEvent(
-          event.id,
-          event.accountPubkey,
-          event.created_at,
-          nowMs,
-        );
+      for (const event of verifiedEvents) {
+        const selectedNWCAccount = event.selectedNWCAccount;
 
-        if (claim !== 'claimed') {
-          console.log('Skipping already-handled event:', event.id, claim);
-          continue;
-        }
-
-        let parsedData;
         try {
-          const parsed = decryptEventMessage(selectedNWCAccount, event);
-          parsedData = parsed.data;
-          event.encryptionScheme = parsed.encryptionScheme;
-        } catch (e) {
-          console.error('Error decrypting event:', event.id, e);
-          await nwcEventLedger.markFailed(event.id, Date.now());
-          continue;
-        }
+          const claim = await nwcEventLedger.claimEvent(
+            event.id,
+            event.accountPubkey,
+            event.created_at,
+            nowMs,
+          );
 
-        if (!parsedData || typeof parsedData !== 'object') {
-          console.error('Error parsing event content:', event.id);
-          await nwcEventLedger.markFailed(event.id, Date.now());
-          continue;
-        }
+          if (claim !== 'claimed') {
+            console.log('Skipping already-handled event:', event.id, claim);
+            continue;
+          }
 
-        event.requestMethod = parsedData.method;
-        event.requestParams = parsedData.params;
-        await nwcEventLedger.setMethod(event.id, parsedData.method);
+          let parsedData;
+          try {
+            const parsed = decryptEventMessage(selectedNWCAccount, event);
+            parsedData = parsed.data;
+            event.encryptionScheme = parsed.encryptionScheme;
+          } catch (e) {
+            console.error('Error decrypting event:', event.id, e);
+            await nwcEventLedger.markFailed(event.id, Date.now());
+            continue;
+          }
 
-        const returnObject = await processEvent(event, selectedNWCAccount);
-        if (!returnObject) {
-          await nwcEventLedger.markDone(event.id, Date.now());
-          continue;
-        }
-        console.log(returnObject);
+          if (!parsedData || typeof parsedData !== 'object') {
+            console.error('Error parsing event content:', event.id);
+            await nwcEventLedger.markFailed(event.id, Date.now());
+            continue;
+          }
 
-        const serializedResponse = JSON.stringify(returnObject);
-        const content =
-          event.encryptionScheme === 'nip44'
-            ? nip44.encrypt(
-                serializedResponse,
-                nip44.getConversationKey(
-                  Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+          event.requestMethod = parsedData.method;
+          event.requestParams = parsedData.params;
+          await nwcEventLedger.setMethod(event.id, parsedData.method);
+
+          const returnObject = await processEvent(
+            event,
+            selectedNWCAccount,
+            fullStorageObject,
+          );
+          if (!returnObject) {
+            await nwcEventLedger.markDone(event.id, Date.now());
+            continue;
+          }
+          console.log(returnObject);
+
+          const serializedResponse = JSON.stringify(returnObject);
+          const content =
+            event.encryptionScheme === 'nip44'
+              ? nip44.encrypt(
+                  serializedResponse,
+                  nip44.getConversationKey(
+                    Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+                    event.clientPubKey,
+                  ),
+                )
+              : encriptMessage(
+                  selectedNWCAccount.privateKey,
                   event.clientPubKey,
-                ),
-              )
-            : encriptMessage(
-                selectedNWCAccount.privateKey,
-                event.clientPubKey,
-                serializedResponse,
-              );
+                  serializedResponse,
+                );
 
-        const eventTemplate = {
-          kind: 23195,
-          created_at: Math.floor(Date.now() / 1000),
-          tags: [
-            ['p', event.clientPubKey],
-            ['e', event.id],
-          ],
-          content,
-        };
+          const eventTemplate = {
+            kind: 23195,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [
+              ['p', event.clientPubKey],
+              ['e', event.id],
+            ],
+            content,
+          };
 
-        const finalizedEvent = finalizeEvent(
-          eventTemplate,
-          Buffer.from(selectedNWCAccount.privateKey, 'hex'),
-        );
+          const finalizedEvent = finalizeEvent(
+            eventTemplate,
+            Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+          );
 
-        await publishToSingleRelay([finalizedEvent], RELAY_URL);
-        await nwcEventLedger.markDone(event.id, Date.now());
-      } catch (error) {
-        console.error('Error processing event:', event.id, error);
-        await nwcEventLedger.markFailed(event.id, Date.now());
+          await publishToSingleRelay([finalizedEvent], RELAY_URL);
+          await nwcEventLedger.markDone(event.id, Date.now());
+        } catch (error) {
+          console.error('Error processing event:', event.id, error);
+          await nwcEventLedger.markFailed(event.id, Date.now());
+        }
       }
+    } finally {
+      releaseLock();
     }
   } catch (err) {
     console.error('Error handling background nwc event', err);
