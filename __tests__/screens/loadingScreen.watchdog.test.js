@@ -21,6 +21,7 @@ const didRunHandshakeRef = { current: true };
 jest.mock('../../context-store/context', () => ({
   useGlobalContextProvider: () => ({
     toggleMasterInfoObject: jest.fn(),
+    toggleNWCInformation: jest.fn(),
     masterInfoObject: {},
     setMasterInfoObject: jest.fn(),
     preloadedUserData: { isLoading: false, data: null },
