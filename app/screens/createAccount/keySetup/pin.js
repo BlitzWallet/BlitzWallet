@@ -58,6 +58,9 @@ export default function PinPage(props) {
     if (didNavigate.current) return;
     (async () => {
       if (pin.toString() === confirmPin.toString()) {
+        // Latch navigation before the async window (keychain write) so a second
+        // PIN entry during the await can't re-enter this flow.
+        didNavigate.current = true;
         const resposne = await storeMnemonicWithPinSecurity(
           accountMnemoinc,
           confirmPin,
@@ -81,13 +84,16 @@ export default function PinPage(props) {
         );
 
         clearSettings();
-        didNavigate.current = true;
         navigate.reset({
           index: 0,
           routes: [
             {
               name: 'ConnectingToNodeLoadingScreen',
               params: {
+                // Wipe any previous wallet's local data on the loading screen
+                // (not here) so a hang is covered by its watchdog and the user
+                // waits on the loading screen, not this PIN page.
+                shouldWipeLocalData: true,
                 // Pin the loading screen's identity derivation to the exact seed
                 // just stored, so it can't derive from a stale/empty context seed
                 // during the navigation race.
