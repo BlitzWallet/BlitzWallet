@@ -68,6 +68,8 @@ export default function EditAccountPage(props) {
   // custody store, and derive their seed from childIndex.
   const isChild = selectedAccount?.childIndex !== undefined;
 
+  const isMainAccountAChild = masterInfoObject.isChildAccount;
+
   const accountInformation = useMemo(() => {
     if (isChild) {
       return (
@@ -165,7 +167,12 @@ export default function EditAccountPage(props) {
 
   const handleProfileImage = () => {
     // Child emoji/profile editing isn't wired to the child registry yet.
-    if (accountInformation.uuid === NWC_ACCOUNT_UUID || isChild) return;
+    if (
+      accountInformation.uuid === NWC_ACCOUNT_UUID ||
+      isChild ||
+      accountInformation.accountType === 'main'
+    )
+      return;
     navigate.navigate('EmojiAvatarSelector', { account: accountInformation });
   };
 
@@ -349,26 +356,32 @@ export default function EditAccountPage(props) {
         <View style={styles.avatarContainer}>
           <TouchableOpacity
             activeOpacity={
-              accountInformation.uuid === NWC_ACCOUNT_UUID || isChild ? 1 : 0.2
+              accountInformation.uuid === NWC_ACCOUNT_UUID ||
+              isChild ||
+              accountInformation.accountType === 'main'
+                ? 1
+                : 0.2
             }
             onPress={handleProfileImage}
             style={[styles.avatar, { backgroundColor: backgroundOffset }]}
           >
             <AccountProfileImage imageSize={90} account={accountInformation} />
-            {accountInformation.uuid !== NWC_ACCOUNT_UUID && !isChild && (
-              <View
-                style={[
-                  styles.editBadge,
-                  { backgroundColor: COLORS.darkModeText },
-                ]}
-              >
-                <ThemeIcon
-                  colorOverride={COLORS.lightModeText}
-                  iconName="Edit"
-                  size={15}
-                />
-              </View>
-            )}
+            {accountInformation.uuid !== NWC_ACCOUNT_UUID &&
+              !isChild &&
+              accountInformation.accountType !== 'main' && (
+                <View
+                  style={[
+                    styles.editBadge,
+                    { backgroundColor: COLORS.darkModeText },
+                  ]}
+                >
+                  <ThemeIcon
+                    colorOverride={COLORS.lightModeText}
+                    iconName="Edit"
+                    size={15}
+                  />
+                </View>
+              )}
           </TouchableOpacity>
         </View>
 
@@ -419,7 +432,7 @@ export default function EditAccountPage(props) {
           </SkeletonTextPlaceholder>
         </View>
 
-        {(isChild || custodyAccountsList?.length >= 2) && (
+        {(isChild || custodyAccountsList?.length >= 2) && !isActive && (
           <AdaptiveButtonRow
             labels={[addLabel, withdrawLabel]}
             containerStyle={{
@@ -441,7 +454,10 @@ export default function EditAccountPage(props) {
                   ]}
                 >
                   <ThemeText
-                    styles={{ includeFontPadding: false, color: addTextColor }}
+                    styles={{
+                      includeFontPadding: false,
+                      color: addTextColor,
+                    }}
                     content={addLabel}
                   />
                 </TouchableOpacity>
@@ -530,15 +546,19 @@ export default function EditAccountPage(props) {
           )}
 
           {/* Show Recovery Phrase */}
-          <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
-            <ThemeText
-              styles={[styles.rowLabel]}
-              content={t(
-                'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
-              )}
-            />
-            <ThemeIcon iconName="ChevronRight" size={18} />
-          </TouchableOpacity>
+          {!(
+            accountInformation.accountType === 'main' && isMainAccountAChild
+          ) && (
+            <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
+              <ThemeText
+                styles={[styles.rowLabel]}
+                content={t(
+                  'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
+                )}
+              />
+              <ThemeIcon iconName="ChevronRight" size={18} />
+            </TouchableOpacity>
+          )}
         </View>
 
         {isChild ? (
