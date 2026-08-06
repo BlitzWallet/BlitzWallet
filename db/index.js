@@ -33,6 +33,7 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
+import { getNextChildDerivationIndex } from '../app/functions/accounts/childAccounts';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -53,6 +54,43 @@ export async function addDataToCollection(dataObject, collectionName, uuid) {
     console.error('Error adding document: ', e);
     crashlyticsRecordErrorReport(e.message);
     return false;
+  }
+}
+
+/**
+ * Atomically reserve the next child derivation index for a parent. The
+ * counter lives on the parent's blitzWalletUsers doc, so allocation happens
+ * inside a Firestore transaction: concurrent creates (two parent devices, or a
+ * retry after a failed settings write) read the same doc and Firestore retries
+ * one side, guaranteeing no two children ever derive the same index/mnemonic.
+ * The index is burned even if the create flow later fails — that is the point:
+ * a failed flow must never hand the same index to a second attempt.
+ * @param {string} parentUid - Parent's blitzWalletUsers doc id (contacts pubkey)
+ * @returns {Promise<number|null>} Reserved child index, or null on failure
+ */
+export async function reserveNextChildIndex(parentUid) {
+  try {
+    if (!parentUid) throw Error('Not authenticated');
+    const parentRef = doc(db, 'blitzWalletUsers', parentUid);
+
+    let childIndex = null;
+    await runTransaction(db, async tx => {
+      const parentSnap = await tx.get(parentRef);
+      childIndex = getNextChildDerivationIndex(
+        parentSnap.exists() ? parentSnap.data() : {},
+      );
+      tx.set(
+        parentRef,
+        { nextChildDerivationIndex: childIndex + 1 },
+        { merge: true },
+      );
+    });
+
+    return childIndex;
+  } catch (e) {
+    console.error('Error reserving child index:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return null;
   }
 }
 

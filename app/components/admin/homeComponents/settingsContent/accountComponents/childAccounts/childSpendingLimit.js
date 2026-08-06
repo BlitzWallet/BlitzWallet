@@ -13,6 +13,7 @@ import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import fetchBackend from '../../../../../../../db/handleBackend';
+import { reserveNextChildIndex } from '../../../../../../../db';
 import {
   reserveChild,
   deriveChildMnemonic,
@@ -33,7 +34,7 @@ export default function ChildSpendingLimit(props) {
   const editChild = props?.route?.params?.editChild;
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, publicKey } = useKeysContext();
   const [limit, setLimit] = useState(
     editChild?.spendingLimit ? String(editChild.spendingLimit) : '',
   );
@@ -116,12 +117,14 @@ export default function ChildSpendingLimit(props) {
       }
       const spendingLimit = parseLimit();
       const existing = masterInfoObject?.childAccounts || [];
-      const counter = Number(masterInfoObject?.nextChildDerivationIndex || 0);
-      const maxExisting = existing.reduce(
-        (m, c) => Math.max(m, Number(c.childIndex ?? -1)),
-        -1,
-      );
-      const childIndex = Math.max(counter, maxExisting + 1);
+      // Reserve the index atomically on the parent's doc BEFORE deriving the
+      // mnemonic. The Firestore transaction bumps nextChildDerivationIndex, so
+      // two devices creating concurrently (or a failed settings write) can
+      // never derive the same child index and end up with an identical wallet.
+      const childIndex = await reserveNextChildIndex(publicKey);
+      if (typeof childIndex !== 'number' || childIndex < 0) {
+        throw new Error('Failed to reserve child index');
+      }
       const { childPublicKey, childMnemonic } = await reserveChild({
         mainSeed: accountMnemoinc,
         childIndex,
@@ -176,6 +179,7 @@ export default function ChildSpendingLimit(props) {
     name,
     navigate,
     masterInfoObject,
+    publicKey,
     accountMnemoinc,
     setChildLimit,
     toggleMasterInfoObject,

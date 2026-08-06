@@ -52,6 +52,28 @@ export async function getChildPublicKey(childMnemonic) {
 }
 
 /**
+ * Compute the next child derivation index a parent should allocate. Mirrors
+ * the sequential space used by user accounts/gifts/pools: the counter wins
+ * unless a child in the registry was created with a higher index (e.g. after a
+ * failed write that burned an index). Pure — callers (db transactions, UI)
+ * pass the parent's stored data so allocation is always based on the same
+ * rule.
+ * @param {Object} parentData - Parent doc data (childAccounts, nextChildDerivationIndex)
+ * @returns {number} Next child index to allocate
+ */
+export function getNextChildDerivationIndex({
+  childAccounts,
+  nextChildDerivationIndex,
+} = {}) {
+  const counter = Number(nextChildDerivationIndex || 0);
+  const maxExisting = (childAccounts || []).reduce(
+    (m, c) => Math.max(m, Number(c.childIndex ?? -1)),
+    -1,
+  );
+  return Math.max(counter, maxExisting + 1);
+}
+
+/**
  * Reserve a child index: derive its seed + public key for the pairing session.
  * Pure — the caller creates the nested Firestore doc and runs the handoff.
  * @param {Object} params
