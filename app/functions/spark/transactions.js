@@ -2,7 +2,10 @@ import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
 import { openDatabaseAsync } from 'expo-sqlite';
 import { USDB_TOKEN_ID } from '../../constants';
-import { createSpendAndReplaceTable } from './spendAndReplaceStorage';
+import {
+  createSpendAndReplaceTable,
+  SPEND_AND_REPLACE_TABLE,
+} from './spendAndReplaceStorage';
 import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
@@ -1546,6 +1549,20 @@ export const deleteUnpaidSparkLightningTransactionTable = async () => {
     return true;
   } catch (error) {
     console.error('Error deleting spark_transactions table:', error);
+    return false;
+  }
+};
+
+// Drops the spend-and-replace intent table (same shared Spark db file as the
+// transaction tables). Recreated empty by initializeSparkDatabase. Returns
+// true/false.
+export const deleteSpendAndReplaceTable = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    await sqlLiteDB.runAsync(`DROP TABLE IF EXISTS ${SPEND_AND_REPLACE_TABLE}`);
+    return true;
+  } catch (error) {
+    console.error('Error deleting spend and replace table:', error);
     return false;
   }
 };

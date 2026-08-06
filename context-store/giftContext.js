@@ -179,7 +179,6 @@ export function GiftProvider({ children }) {
         const expiredGifts = giftArray.filter(item => {
           return item.state === 'Unclaimed' && now >= item.expireTime;
         });
-        console.log(expiredGifts, 'expired gifts');
 
         if (expiredGifts.length === 0) {
           console.log('No expired gifts to check');
@@ -203,7 +202,6 @@ export function GiftProvider({ children }) {
         const updatePromises = results
           .filter(({ response }) => response?.didWork)
           .map(async ({ card, response }) => {
-            console.log(card, response);
             try {
               if (response.wasClaimed) {
                 await deleteGift(card.uuid);

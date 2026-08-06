@@ -197,7 +197,9 @@ export default function SMSMessagingHome() {
   );
 
   const fetchOrderStatus = useCallback(async orderId => {
-    const response = await fetch(`${ORDER_STATUS_ENDPOINT}?orderId=${orderId}`);
+    const response = await fetch(
+      `${ORDER_STATUS_ENDPOINT}?orderId=${encodeURIComponent(orderId)}`,
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

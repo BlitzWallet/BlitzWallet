@@ -61,7 +61,9 @@ export default function HistoricalSMSMessagingPage({ route }) {
     async orderId => {
       try {
         const response = await fetch(
-          `${API_ENDPOINTS.ORDER_STATUS}?orderId=${orderId}`,
+          `${API_ENDPOINTS.ORDER_STATUS}?orderId=${encodeURIComponent(
+            orderId,
+          )}`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -325,6 +327,7 @@ export default function HistoricalSMSMessagingPage({ route }) {
     const elements = messagesData.map(renderMessageItem);
     setMessageElements(elements);
   }, [messagesData, renderMessageItem]);
+  console.log(messagesData, 'test');
 
   const handleSupportContact = useCallback(() => {
     copyToClipboard('support@sms4sats.com', showToast);

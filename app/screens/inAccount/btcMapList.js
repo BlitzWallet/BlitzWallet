@@ -41,7 +41,6 @@ export default function BTCMapListContent({
   const { getPlacesInViewport } = useBTCMap();
 
   const [places, setPlaces] = useState(null);
-  console.log(places);
 
   useEffect(() => {
     setContentHeight(screenDimensions.height * 0.85);

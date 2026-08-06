@@ -15,7 +15,7 @@ function isMoreThan7DaysPast(date) {
 
   // Return true if the difference is greater than 7 days
 
-  return Math.abs(daysDifference) > 7;
+  return daysDifference > 7;
 }
 
 function getCurrentDateFormatted() {
@@ -48,7 +48,7 @@ function isMoreThanADayOld(date) {
 
   // Return true if the difference is greater than 1 days
 
-  return Math.abs(daysDifference) > 1;
+  return daysDifference > 1;
 }
 function isMoreThan21Days(date) {
   try {
@@ -72,7 +72,7 @@ function isMoreThan21Days(date) {
       return true;
     }
 
-    return Math.abs(daysDifference) > 21;
+    return daysDifference > 21;
   } catch (err) {
     return true;
   }
@@ -82,6 +82,9 @@ function isMoreThan40MinOld(date) {
     const oneHour = 60 * 40 * 1000; // 1 hour in ms
     const now = new Date().getTime(); // current time in ms
     const diff = now - new Date(date).getTime(); // diff in ms
+    if (isNaN(diff)) {
+      return true;
+    }
     return diff > oneHour;
   } catch (err) {
     return true;

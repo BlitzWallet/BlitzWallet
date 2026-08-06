@@ -1789,6 +1789,7 @@ export default function SendPaymentScreen(props) {
         <EmojiQuickBar
           description={combinedPaymentDescription}
           onEmojiSelect={handleEmoji}
+          maxLength={paymentInfo?.data?.commentAllowed || 150}
         />
       )}
     </CustomKeyboardAvoidingView>

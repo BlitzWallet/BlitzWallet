@@ -230,26 +230,28 @@ export async function decryptMnemonicWithPin(pin) {
     if (!cipherText.didWork) return null;
 
     const staleCt = cipherText.value;
-    let decrypted;
-    if (isArgon2Format(cipherText.value)) {
-      decrypted = await decryptMnemonicArgon2(cipherText.value, pin);
-      // Opportunistically re-encrypt weak/legacy-param ciphertexts to current KDF.
-      if (decrypted && argon2NeedsUpgrade(cipherText.value)) {
-        reEncryptIfUnchanged(decrypted, pin, staleCt, 'kdf upgrade');
-      }
-    } else {
-      // Legacy EvpKDF format — decrypt then re-encrypt with Argon2
-      decrypted = decryptMnemonic(cipherText.value, pin);
-      if (decrypted) {
-        reEncryptIfUnchanged(decrypted, pin, staleCt, 'migration');
-      }
-    }
+    const argon2Format = isArgon2Format(cipherText.value);
+    const decrypted = argon2Format
+      ? await decryptMnemonicArgon2(cipherText.value, pin)
+      : decryptMnemonic(cipherText.value, pin);
 
     // Decrypt-to-verify: a wrong PIN yields a wrong key, which almost always
     // fails AES/PKCS7 padding (⇒ throw ⇒ caught ⇒ null). validateMnemonic
-    // closes the ~1/256 wrong-key-yet-valid-padding gap. On success we also
-    // scrub any stale sha256 oracle left in pinHash by pre-update installs.
+    // closes the ~1/256 wrong-key-yet-valid-padding gap. It MUST gate the
+    // re-encrypt too: crypto-es never validates PKCS7 padding, so a wrong PIN
+    // on a legacy ciphertext returns truthy garbage ~1/3 of the time. Re-
+    // encrypting that garbage would overwrite the real ciphertext and lock the
+    // wallet out permanently, so we only ever re-encrypt a validated mnemonic.
     if (decrypted && validateMnemonic(decrypted, wordlist)) {
+      if (argon2Format) {
+        // Opportunistically re-encrypt weak/legacy-param ciphertexts to current KDF.
+        if (argon2NeedsUpgrade(cipherText.value)) {
+          reEncryptIfUnchanged(decrypted, pin, staleCt, 'kdf upgrade');
+        }
+      } else {
+        // Legacy EvpKDF format — re-encrypt with Argon2.
+        reEncryptIfUnchanged(decrypted, pin, staleCt, 'migration');
+      }
       // Best-effort scrub of any stale sha256 oracle; must not sink a valid login.
       storeData('pinHash', PIN_MARKER).catch(err =>
         console.log('pin marker write failed', err),

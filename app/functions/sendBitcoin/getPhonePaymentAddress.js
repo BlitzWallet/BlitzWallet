@@ -5,6 +5,7 @@
 // real mobile numbers, which these providers serve.
 import { parsePhoneNumberWithError } from 'libphonenumber-js/mobile';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
+import { decode } from '../decodeBolt11';
 
 // country -> bitcoin payment provider; formatNumber emits the provider's
 // canonical format regardless of whether input was national or international.
@@ -92,7 +93,7 @@ export function getPhonePaymentDisplay(address) {
 // range is valid for both KE and ZM, so this can return more than one.
 export function getPhonePaymentCandidates(input) {
   const stripped = (input || '').trim();
-  if (!stripped) return [];
+  if (!stripped || stripped.includes('@')) return [];
 
   // Try international form first, then national form per supported country.
   const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
@@ -162,7 +163,7 @@ export default async function getPhonePaymentAddress(input) {
 // getPhonePaymentCandidates.
 export function getPhonePostProvider(input) {
   const stripped = (input || '').trim();
-  if (!stripped) return null;
+  if (!stripped || stripped.includes('@')) return null;
 
   const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
   const attempts = [
@@ -212,6 +213,17 @@ export async function fetchPhonePaymentInvoice({
   const data = await response.json();
   if (!data.success || !data.invoice) {
     throw new Error('No invoice in phone payment response');
+  }
+
+  const decoded = decode(data.invoice);
+  const invoiceMsat = decoded.millisatoshis
+    ? Number(decoded.millisatoshis)
+    : null;
+  if (
+    invoiceMsat == null ||
+    invoiceMsat !== Number(amountSats) * 1000
+  ) {
+    throw new Error('Invoice amount does not match requested amount');
   }
 
   return { pr: data.invoice, orderId: data.orderId };

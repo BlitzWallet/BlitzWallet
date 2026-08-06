@@ -56,8 +56,12 @@ export default function ViewContibutors(props) {
           {contributers.map((item, index) => {
             if (!item) return null;
 
-            const name =
-              item?.creatorName || item?.contributorName || 'Unknown';
+            let name = item?.creatorName || item?.contributorName;
+
+            if (typeof name !== 'string' || !name) {
+              name = 'Unknown';
+            }
+
             const isOrganizer = index === 0;
             const isLast = index === contributers.length - 1;
 

@@ -9,6 +9,7 @@ import getPhonePaymentAddress, {
   PROVIDER_COUNTRY_CURRENCY,
 } from '../../../app/functions/sendBitcoin/getPhonePaymentAddress';
 import getLNURLDetails from '../../../app/functions/lnurl/getLNURLDetails';
+import { decode } from '../../../app/functions/decodeBolt11';
 
 // getPhonePaymentAddress() probes the LNURL endpoint to disambiguate numbers
 // that are valid in more than one supported country. Mock it so the suite is
@@ -85,6 +86,14 @@ describe('getPhonePaymentCandidates', () => {
     expect(getPhonePaymentCandidates('hello world')).toEqual([]);
   });
 
+  it('rejects a lightning-address input (contains @)', () => {
+    expect(getPhonePaymentCandidates('254717252303@attacker.example')).toEqual(
+      [],
+    );
+    expect(getPhonePaymentCandidates('254717252303@bitcoin.co.ke')).toEqual([]);
+    expect(getPhonePaymentCandidates('0977123456@bitzed.xyz')).toEqual([]);
+  });
+
   it('returns [] for a valid number from an unsupported country', () => {
     // Valid US number, but the US is not a phone-payment provider.
     expect(getPhonePaymentCandidates('+12025550123')).toEqual([]);
@@ -102,6 +111,11 @@ describe('isPhonePaymentNumber', () => {
     expect(isPhonePaymentNumber('')).toBe(false);
     expect(isPhonePaymentNumber('hello')).toBe(false);
     expect(isPhonePaymentNumber('+12025550123')).toBe(false);
+  });
+
+  it('is false for a lightning address (contains @)', () => {
+    expect(isPhonePaymentNumber('254717252303@attacker.example')).toBe(false);
+    expect(isPhonePaymentNumber('254717252303@bitcoin.co.ke')).toBe(false);
   });
 });
 
@@ -269,6 +283,10 @@ describe('getPhonePostProvider (Burundi POST provider)', () => {
     expect(getPhonePostProvider('+12025550123')).toBe(null);
   });
 
+  it('rejects a lightning-address input (contains @)', () => {
+    expect(getPhonePostProvider('25779561234@attacker.example')).toBe(null);
+  });
+
   it('does not produce LNURL candidates for a Burundi number', () => {
     // POST providers must stay out of the LNURL candidate system.
     expect(getPhonePaymentCandidates('+25779561234')).toEqual([]);
@@ -284,10 +302,15 @@ describe('getPhonePaymentCountry (POST provider domain)', () => {
 });
 
 describe('fetchPhonePaymentInvoice', () => {
+  // Real BOLT11 invoice for 2,000,000 msat (2,000 sats), from the BOLT11 spec
+  // example. Used as a valid test vector that decodes correctly.
+  const INVOICE_2000_SATS =
+    'lnbc20u1pvjluezhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqfppqw508d6qejxtdg4y5r3zarvary0c5xw7kxqrrsssp5m6kmam774klwlh4dhmhaatd7al02m0h0m6kmam774klwlh4dhmhs9qypqqqcqpf3cwux5979a8j28d4ydwahx00saa68wq3az7v9jdgzkghtxnkf3z5t7q5suyq2dl9tqwsap8j0wptc82cpyvey9gf6zyylzrm60qtcqsq7egtsq';
+
   const args = {
     invoiceURL: 'https://exchanger.mysatoshis.bi/api/sell-sats',
     phone: '25779561234',
-    amountSats: 500,
+    amountSats: 2000,
   };
 
   afterEach(() => {
@@ -299,20 +322,20 @@ describe('fetchPhonePaymentInvoice', () => {
       ok: true,
       json: async () => ({
         success: true,
-        invoice: 'lnbc500...',
+        invoice: INVOICE_2000_SATS,
         orderId: 'order-1',
       }),
     });
 
     const result = await fetchPhonePaymentInvoice(args);
-    expect(result).toEqual({ pr: 'lnbc500...', orderId: 'order-1' });
+    expect(result).toEqual({ pr: INVOICE_2000_SATS, orderId: 'order-1' });
 
     expect(global.fetch).toHaveBeenCalledWith(
       args.invoiceURL,
       expect.objectContaining({ method: 'POST' }),
     );
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body).toEqual({ amountSats: 500, phone: 25779561234 });
+    expect(body).toEqual({ amountSats: 2000, phone: 25779561234 });
   });
 
   it('throws on a non-ok response', async () => {
@@ -334,6 +357,22 @@ describe('fetchPhonePaymentInvoice', () => {
       json: async () => ({ success: true }),
     });
     await expect(fetchPhonePaymentInvoice(args)).rejects.toThrow();
+  });
+
+  it('throws when the invoice amount differs from the requested amount', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, invoice: INVOICE_2000_SATS }),
+    });
+
+    // Request 1,000 sats, but provider mints 2,000 sats.
+    await expect(
+      fetchPhonePaymentInvoice({ ...args, amountSats: 1000 }),
+    ).rejects.toThrow('Invoice amount does not match requested amount');
+
+    // Sanity-check that the fixture decodes to 2,000,000 msat.
+    const decoded = decode(INVOICE_2000_SATS);
+    expect(Number(decoded.millisatoshis)).toBe(2000000);
   });
 });
 

@@ -272,6 +272,7 @@
       "pin": {
         "savePinError": "Unable to save pin",
         "removeWalletError": "Error removing wallet",
+        "wipeError": "Unable to clear this device's previous wallet data. Your PIN is saved, but please retry before continuing.",
         "wrongPinError": "Try again",
         "enterPinMessage": "Create PIN",
         "confirmPin": "Confirm Pin",
@@ -821,58 +822,6 @@
       },
       "saveChat": {
         "errorMessage": "Sorry, we could not save your conversation."
-      }
-    },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Search for a Gift Card",
-        "leftPageMessage": "Where'd you go?",
-        "loadingCardsMessage": "Getting gift cards",
-        "noCardsAvailable": "No gift cards available"
-      },
-      "confimPurchase": {
-        "quantity": "Quantity {{quantity}}",
-        "cardAmount": "Card Amount: {{amount}} {{currency}}",
-        "price": "Price: ",
-        "fee": "Fee: "
-      },
-      "createAccount": {
-        "title": "Powered by",
-        "saveEmail": "You do not have an email saved. Speed up the checkout process by saving an email.",
-        "termsAndConditions1": "By continuing you agree to The Bitcoin Company's",
-        "termsAndConditions2": "Terms of Service",
-        "termsAndConditions3": "and",
-        "termsAndConditions4": "Privacy policy"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Purchasing gift card. Do not leave the page.",
-        "selectamount": "Select an amount",
-        "sendingto": "Sending to: ",
-        "minMaxPurchaseAmount": "You can buy a {{min}} amount of {{max}} {{currency}}",
-        "emailPlaceholder": "Enter email address",
-        "purchaseBTN": "Purchase gift card",
-        "differentEmailMessage": "The current email is different than the saved one. Would you like to make this email your primary?",
-        "terms": "Terms",
-        "cardDescription": "Card Description",
-        "cardTerms": "Card terms",
-        "dailyPurchaseAmountError": "You have reached your daily purchase limit",
-        "giftMessage": "Add a note to your gift",
-        "giftMessagePlaceholder": "Type your message here",
-        "selectForContactBTN": "Select Gift Card",
-        "noAmountError": "Please choose a gift card amount"
-      },
-      "giftCardOrderDetails": {
-        "title": "Order Details",
-        "invoice": "Invoice",
-        "orderId": "Order ID",
-        "uuid": "UUID",
-        "openInbox": "Open inbox"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Are you sure you want to remove this gift card?",
-        "purchased": "Purchased:",
-        "noPurchases": "You haven’t purchased any gift cards. Once you do, they’ll show up here.",
-        "customCopyMessage": "Support email copied"
       }
     },
     "sms4sats": {
@@ -1501,11 +1450,6 @@
       "claimed": "Used",
       "markAsClaimed": "Mark as Used"
     },
-    "selectGiftPage": {
-      "noCards": "No cards available",
-      "header": "Select the Gift Card you want to send",
-      "inputPlaceholder": "Search for a Gift Card"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Do you want to {{option}} {{option2}} photo"
@@ -1523,9 +1467,6 @@
         "header": "Your Gift Cards",
         "cardsLengthSingular": "{{num}} card",
         "cardsLengthPlural": "{{num}} cards"
-      },
-      "editGiftCard": {
-        "header": "What would you like to do with your gift?"
       }
     },
     "showProfileQr": {

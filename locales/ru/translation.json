@@ -264,6 +264,7 @@
       "pin": {
         "savePinError": "Не удалось сохранить PIN",
         "removeWalletError": "Ошибка удаления кошелька",
+        "wipeError": "Не удалось очистить данные предыдущего кошелька на этом устройстве. Ваш PIN сохранен, но повторите попытку перед продолжением.",
         "wrongPinError": "Попробуйте еще раз",
         "enterPinMessage": "Создайте PIN-код",
         "confirmPin": "Подтвердите PIN-код",
@@ -821,58 +822,6 @@
       },
       "saveChat": {
         "errorMessage": "Извините, не удалось сохранить диалог."
-      }
-    },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Поиск подарочной карты",
-        "leftPageMessage": "Куда вы ушли?",
-        "loadingCardsMessage": "Получение карт",
-        "noCardsAvailable": "Нет доступных карт"
-      },
-      "confimPurchase": {
-        "quantity": "Количество: {{quantity}}",
-        "cardAmount": "Номинал: {{amount}} {{currency}}",
-        "price": "Цена: ",
-        "fee": "Комиссия: "
-      },
-      "createAccount": {
-        "title": "При поддержке",
-        "saveEmail": "У вас не сохранен email. Ускорьте оформление, сохранив его.",
-        "termsAndConditions1": "Продолжая, вы соглашаетесь с",
-        "termsAndConditions2": "Условиями обслуживания",
-        "termsAndConditions3": "и",
-        "termsAndConditions4": "Политикой конфиденциальности"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Покупка карты. Не уходите со страницы.",
-        "selectamount": "Выберите сумму",
-        "sendingto": "Получатель: ",
-        "minMaxPurchaseAmount": "Вы можете купить на сумму от {{min}} до {{max}} {{currency}}",
-        "emailPlaceholder": "Введите email",
-        "purchaseBTN": "Купить карту",
-        "differentEmailMessage": "Введенный email отличается от сохраненного. Сделать его основным?",
-        "terms": "Условия",
-        "cardDescription": "Описание карты",
-        "cardTerms": "Условия карты",
-        "dailyPurchaseAmountError": "Достигнут дневной лимит покупок",
-        "giftMessage": "Добавить записку к подарку",
-        "giftMessagePlaceholder": "Напишите сообщение",
-        "selectForContactBTN": "Выбрать карту",
-        "noAmountError": "Пожалуйста, выберите номинал карты"
-      },
-      "giftCardOrderDetails": {
-        "title": "Детали заказа",
-        "invoice": "Инвойс",
-        "orderId": "ID заказа",
-        "uuid": "UUID",
-        "openInbox": "Открыть входящие"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Вы уверены, что хотите удалить эту карту?",
-        "purchased": "Куплено:",
-        "noPurchases": "Вы ещё не покупали подарочные карты. Как только купите, они появятся здесь.",
-        "customCopyMessage": "Email поддержки скопирован"
       }
     },
     "sms4sats": {
@@ -1515,11 +1464,6 @@
       "claimed": "Использовано",
       "markAsClaimed": "Отметить как использованную"
     },
-    "selectGiftPage": {
-      "noCards": "Нет доступных карт",
-      "header": "Выберите карту для отправки",
-      "inputPlaceholder": "Поиск карты"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Вы хотите {{option}} фото {{option2}}"
@@ -1537,9 +1481,6 @@
         "header": "Ваши карты",
         "cardsLengthSingular": "{{num}} карта",
         "cardsLengthPlural": "{{num}} карт"
-      },
-      "editGiftCard": {
-        "header": "Что сделать с подарком?"
       }
     },
     "showProfileQr": {

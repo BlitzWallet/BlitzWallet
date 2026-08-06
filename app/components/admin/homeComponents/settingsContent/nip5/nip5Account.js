@@ -72,7 +72,7 @@ export default function Nip5VerificationPage() {
         });
       }
 
-      const isNameFree = await isValidNip5Name(inputs.name);
+      const isNameFree = await isValidNip5Name(parsedName);
       if (!isNameFree) throw new Error(t('settings.nip5.takenNameError'));
 
       if (!formattedHexData.data || !parsedName) {

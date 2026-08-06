@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -16,7 +15,6 @@ export const GlobalAppDataProvider = ({ children }) => {
   const { contactsPrivateKey, publicKey } = useKeysContext();
 
   const [globalAppDataInformation, setGlobalAppDatasInformation] = useState({});
-  const [giftCardsList, setGiftCardsList] = useState([]);
   const [decodedChatGPT, setDecodedChatGPT] = useState(null);
   const [decodedMessages, setDecodedMessages] = useState(null);
   const [decodedVPNS, setDecodedVPNS] = useState(null);
@@ -36,10 +34,6 @@ export const GlobalAppDataProvider = ({ children }) => {
       return newAppData;
     });
   };
-
-  const toggleGiftCardsList = useCallback(giftCards => {
-    setGiftCardsList(giftCards);
-  }, []);
 
   const decryptData = (key, defaultValue) => {
     try {
@@ -130,8 +124,6 @@ export const GlobalAppDataProvider = ({ children }) => {
       decodedGiftCards,
       globalAppDataInformation,
       toggleGlobalAppDataInformation,
-      giftCardsList,
-      toggleGiftCardsList,
     }),
     [
       decodedChatGPT,
@@ -139,7 +131,6 @@ export const GlobalAppDataProvider = ({ children }) => {
       decodedVPNS,
       decodedGiftCards,
       globalAppDataInformation,
-      giftCardsList,
     ],
   );
 
