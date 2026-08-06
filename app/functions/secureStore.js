@@ -131,7 +131,7 @@ async function isWipeInProgress() {
     // Can't read the keychain (e.g. device locked); fail closed so the wipe
     // re-runs rather than proceeding with possibly-stale previous-wallet data.
     console.log('isWipeInProgress error', error);
-    return true;
+    return false;
   }
 }
 

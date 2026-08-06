@@ -66,6 +66,7 @@ export default function PinPage(props) {
           confirmPin,
         );
         if (!resposne) {
+          didNavigate.current = false;
           navigate.navigate('ErrorScreen', {
             errorMessage: t('createAccount.keySetup.pin.savePinError'),
             customNavigator: () => {
