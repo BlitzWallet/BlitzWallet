@@ -13,7 +13,11 @@ import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import fetchBackend from '../../../../../../../db/handleBackend';
-import { reserveNextChildIndex } from '../../../../../../../db';
+import {
+  reserveNextChildIndex,
+  addDataToCollection,
+} from '../../../../../../../db';
+import { arrayUnion } from '@react-native-firebase/firestore';
 import {
   reserveChild,
   deriveChildMnemonic,
@@ -145,10 +149,21 @@ export default function ChildSpendingLimit(props) {
         profileEmoji: '',
         dateCreated: Date.now(),
       };
-      await toggleMasterInfoObject({
-        childAccounts: [...existing, newEntry],
-        nextChildDerivationIndex: childIndex + 1,
-      });
+      // Persist the registry entry atomically: arrayUnion appends server-side,
+      // so a concurrent create on another device (which started from the same
+      // stale `existing` snapshot) can't clobber it. The counter is owned by
+      // the reservation transaction — never re-write it here, and keep the
+      // local state update DB-free (shouldSendToDb = false); the next
+      // foreground sync reconciles any sibling entry we can't see locally.
+      await addDataToCollection(
+        { childAccounts: arrayUnion(newEntry) },
+        'blitzWalletUsers',
+        publicKey,
+      );
+      await toggleMasterInfoObject(
+        { childAccounts: [...existing, newEntry] },
+        false,
+      );
 
       // Collapse the create flow (name -> limit) back to the accounts list, then
       // open the standard account page on top, so Back returns to the list

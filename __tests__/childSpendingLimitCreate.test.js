@@ -11,10 +11,12 @@ const mockNavigation = {
 };
 const mockToggleMasterInfoObject = jest.fn();
 const mockReserveNextChildIndex = jest.fn();
+const mockAddDataToCollection = jest.fn();
 const mockFetchBackend = jest.fn();
 const mockReserveChild = jest.fn();
 const mockDeriveChildAuthKey = jest.fn();
 const mockCrashlyticsRecordErrorReport = jest.fn();
+const mockCustomUUID = jest.fn(() => 'uuid-child-1');
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => mockNavigation,
@@ -40,11 +42,16 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('../db', () => ({
   reserveNextChildIndex: mockReserveNextChildIndex,
+  addDataToCollection: mockAddDataToCollection,
 }));
 
 jest.mock('../db/handleBackend', () => ({
   __esModule: true,
   default: mockFetchBackend,
+}));
+
+jest.mock('@react-native-firebase/firestore', () => ({
+  arrayUnion: jest.fn((...entries) => entries),
 }));
 
 jest.mock('../app/functions/accounts/childAccounts', () => ({
@@ -56,7 +63,7 @@ jest.mock('../app/functions/accounts/childAccounts', () => ({
 
 jest.mock('../app/functions/customUUID', () => ({
   __esModule: true,
-  default: jest.fn(() => 'uuid-child-1'),
+  default: mockCustomUUID,
 }));
 
 jest.mock('../app/functions/nostrCompatability', () => ({
@@ -94,10 +101,10 @@ jest.mock(
 
 jest.mock('../app/functions/CustomElements/button', () => {
   const MockReact = require('react');
-  const { Text, TouchableOpacity } = require('react-native');
+  const { Text } = require('react-native');
   return function MockCustomButton({ actionFunction, textContent }) {
     return MockReact.createElement(
-      TouchableOpacity,
+      'view',
       { testID: 'create-button', onPress: actionFunction },
       MockReact.createElement(Text, null, textContent),
     );
@@ -159,17 +166,43 @@ describe('ChildSpendingLimit create flow', () => {
       'child-priv',
       'child-pub',
     );
-    expect(mockToggleMasterInfoObject).toHaveBeenCalledWith({
-      childAccounts: [
-        expect.objectContaining({
-          uuid: 'uuid-child-1',
-          name: 'Kid',
-          childIndex: 2,
-          spendingLimit: null,
-        }),
-      ],
-      nextChildDerivationIndex: 3,
-    });
+    // Registry entry is appended atomically server-side (arrayUnion) ...
+    expect(mockAddDataToCollection).toHaveBeenCalledWith(
+      {
+        childAccounts: [
+          expect.objectContaining({
+            uuid: 'uuid-child-1',
+            name: 'Kid',
+            childIndex: 2,
+            spendingLimit: null,
+          }),
+        ],
+      },
+      'blitzWalletUsers',
+      'parent-pubkey',
+    );
+    // ... and local state updates without re-sending the stale array to the DB.
+    expect(mockToggleMasterInfoObject).toHaveBeenCalledWith(
+      {
+        childAccounts: [
+          expect.objectContaining({
+            uuid: 'uuid-child-1',
+            name: 'Kid',
+            childIndex: 2,
+            spendingLimit: null,
+          }),
+        ],
+      },
+      false,
+    );
+    // The counter is owned by the reservation transaction: neither path may
+    // re-write it from the client.
+    expect(mockToggleMasterInfoObject).not.toHaveBeenCalledWith(
+      expect.objectContaining({ nextChildDerivationIndex: expect.anything() }),
+    );
+    expect(mockAddDataToCollection).not.toHaveBeenCalledWith(
+      expect.objectContaining({ nextChildDerivationIndex: expect.anything() }),
+    );
     expect(mockNavigation.popTo).toHaveBeenCalledWith('SettingsContentHome', {
       for: 'Accounts',
       initialTab: 'linked',
@@ -197,5 +230,66 @@ describe('ChildSpendingLimit create flow', () => {
     expect(mockNavigation.navigate).toHaveBeenCalledWith('ErrorScreen', {
       errorMessage: 'settings.childAccounts.creating.errorTitle',
     });
+  });
+
+  test('concurrent creates sharing a stale snapshot both persist and never regress the counter', async () => {
+    mockReserveNextChildIndex.mockResolvedValueOnce(2).mockResolvedValueOnce(3);
+    mockCustomUUID.mockReturnValueOnce('uuid-child-1').mockReturnValueOnce('uuid-child-2');
+
+    let renderer;
+    act(() => {
+      renderer = ReactTestRenderer.create(
+        <>
+          <ChildSpendingLimit route={{ params: { name: 'Kid' } }} />
+          <ChildSpendingLimit route={{ params: { name: 'Kid2' } }} />
+        </>,
+      );
+    });
+
+    // Both components read the same stale masterInfoObject.childAccounts ([]),
+    // exactly like two devices that each cached the parent doc before either
+    // create finished.
+    const buttons = renderer.root.findAllByProps({ testID: 'create-button' });
+    await act(async () => {
+      buttons[0].props.onPress();
+      buttons[1].props.onPress();
+      for (let i = 0; i < 10; i++) {
+        await Promise.resolve();
+      }
+    });
+
+    expect(mockReserveNextChildIndex).toHaveBeenCalledTimes(2);
+    // Both appends reach the DB independently (arrayUnion per create) — no
+    // read-modify-write clobber, so both registry entries survive.
+    expect(mockAddDataToCollection).toHaveBeenCalledTimes(2);
+    expect(mockAddDataToCollection).toHaveBeenCalledWith(
+      {
+        childAccounts: [
+          expect.objectContaining({ uuid: 'uuid-child-1', childIndex: 2 }),
+        ],
+      },
+      'blitzWalletUsers',
+      'parent-pubkey',
+    );
+    expect(mockAddDataToCollection).toHaveBeenCalledWith(
+      {
+        childAccounts: [
+          expect.objectContaining({ uuid: 'uuid-child-2', childIndex: 3 }),
+        ],
+      },
+      'blitzWalletUsers',
+      'parent-pubkey',
+    );
+    // Neither the toggle nor the DB append ever writes the counter.
+    expect(
+      mockToggleMasterInfoObject.mock.calls.every(
+        call => !('nextChildDerivationIndex' in (call[0] || {})),
+      ),
+    ).toBe(true);
+    expect(
+      mockAddDataToCollection.mock.calls.every(
+        call => !('nextChildDerivationIndex' in (call[0] || {})),
+      ),
+    ).toBe(true);
   });
 });

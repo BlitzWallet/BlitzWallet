@@ -419,9 +419,10 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
     tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
     tempObject['monthlyBudget'] = monthlyBudget;
-    // Child accounts: preserve the parent's registry + the child wallet's flags.
-    // The parent already created the doc at pairing time, so a child just fills
-    // defaults into it and marks itself claimed on first login.
+    // Child accounts: keep the parent's registry + the child wallet's flags in
+    // LOCAL state (the accounts list and the spending-limit gate read them from
+    // masterInfoObject). They must never be re-sent to Firestore from this
+    // login snapshot — see the payload copy below.
     tempObject['childAccounts'] = blitzStoredData.childAccounts || [];
     tempObject['nextChildDerivationIndex'] =
       blitzStoredData.nextChildDerivationIndex || 0;
@@ -447,11 +448,21 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['didViewNWCMessage'] = didViewNWCMessage;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
+      // Child fields stay out of the deferred write: a login-time snapshot of
+      // childAccounts/nextChildDerivationIndex is stale the moment another
+      // device creates a child, and echoing it would clobber the registry and
+      // regress the counter (sendDataToDB merges, so Firestore's current values
+      // are preserved by simply omitting them). isChildAccount/spendingLimit
+      // are backend-only and must also never travel on the user doc.
+      const dbPayload = { ...tempObject };
+      ['childAccounts', 'nextChildDerivationIndex'].forEach(
+        key => delete dbPayload[key],
+      );
       // Deliberately not awaited. tempObject is already fully built in memory, so
       // this is pure persistence — and a firestore write promise only settles on
       // server ack, meaning offline it stays pending forever without rejecting.
       // Firestore queues the write durably and flushes on reconnect either way.
-      sendDataToDB(tempObject, publicKey).catch(err =>
+      sendDataToDB(dbPayload, publicKey).catch(err =>
         console.log('Deferred settings write error', err),
       );
     }
