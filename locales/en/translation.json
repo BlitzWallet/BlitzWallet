@@ -1705,7 +1705,8 @@
         "title": "Name this account",
         "subtitle": "Give the account a name so you can recognize it later.",
         "placeholder": "Account name",
-        "next": "Next"
+        "next": "Next",
+        "create": "Create account"
       },
       "spendingLimit": {
         "title": "Set a spending limit",

@@ -2156,7 +2156,8 @@
         "title": "Dai un nome a questo conto",
         "subtitle": "Dai un nome al conto così puoi riconoscerlo in seguito.",
         "placeholder": "Nome del conto",
-        "next": "Avanti"
+        "next": "Avanti",
+        "create": "Crea conto"
       },
       "spendingLimit": {
         "title": "Imposta un limite di spesa",

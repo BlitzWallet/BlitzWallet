@@ -205,10 +205,6 @@ export default function EditAccountPage(props) {
     });
   }, [isChild, accountInformation, navigate]);
 
-  const handleEditSpendingLimit = useCallback(() => {
-    navigate.navigate('ChildSpendingLimit', { editChild: accountInformation });
-  }, [navigate, accountInformation]);
-
   const handlePairDevice = useCallback(() => {
     navigate.navigate('ChildPairingStack', {
       screen: 'ChildLinkCode',
@@ -563,33 +559,6 @@ export default function EditAccountPage(props) {
 
         {isChild ? (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Spending limit */}
-            <TouchableOpacity
-              style={styles.row}
-              onPress={handleEditSpendingLimit}
-            >
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t('settings.childAccounts.page.spendingLimitLabel')}
-              />
-              <View style={styles.rowRight}>
-                {accountInformation.spendingLimit ? (
-                  <FormattedSatText
-                    balance={accountInformation.spendingLimit}
-                    styles={styles.rowValue}
-                  />
-                ) : (
-                  <ThemeText
-                    styles={styles.rowValue}
-                    content={t('settings.childAccounts.list.noLimit')}
-                  />
-                )}
-                <ThemeIcon iconName="ChevronRight" size={18} />
-              </View>
-            </TouchableOpacity>
-
-            <View style={[styles.divider, { backgroundColor }]} />
-
             {/* Pair device (always available — re-pair after wallet loss) */}
             <TouchableOpacity style={styles.row} onPress={handlePairDevice}>
               <ThemeText

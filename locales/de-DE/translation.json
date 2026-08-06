@@ -2141,7 +2141,8 @@
         "title": "Konto benennen",
         "subtitle": "Gib dem Konto einen Namen, damit du es später wiedererkennst.",
         "placeholder": "Kontoname",
-        "next": "Weiter"
+        "next": "Weiter",
+        "create": "Konto erstellen"
       },
       "spendingLimit": {
         "title": "Ausgabenlimit festlegen",

@@ -2156,7 +2156,8 @@
         "title": "Dê um nome a esta conta",
         "subtitle": "Dê um nome à conta para reconhecê-la mais tarde.",
         "placeholder": "Nome da conta",
-        "next": "Próximo"
+        "next": "Próximo",
+        "create": "Criar conta"
       },
       "spendingLimit": {
         "title": "Definir um limite de gastos",

@@ -2156,7 +2156,8 @@
         "title": "Namnge detta konto",
         "subtitle": "Ge kontot ett namn så att du kan känna igen det senare.",
         "placeholder": "Kontonamn",
-        "next": "Nästa"
+        "next": "Nästa",
+        "create": "Skapa konto"
       },
       "spendingLimit": {
         "title": "Ange en utgiftsgräns",

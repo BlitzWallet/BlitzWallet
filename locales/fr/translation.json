@@ -2155,7 +2155,8 @@
         "title": "Nommer ce compte",
         "subtitle": "Donnez un nom au compte pour pouvoir le reconnaître plus tard.",
         "placeholder": "Nom du compte",
-        "next": "Suivant"
+        "next": "Suivant",
+        "create": "Créer le compte"
       },
       "spendingLimit": {
         "title": "Définir une limite de dépenses",
