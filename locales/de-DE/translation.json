@@ -220,7 +220,7 @@
       "buttons": {
         "button1": "Konto wiederherstellen",
         "button2": "Loslegen",
-        "joinAccount": "Einem Konto einer anderen Person beitreten",
+        "joinAccount": "Gemeinsamem Wallet beitreten",
         "linkedWallet": "Verknüpftes Wallet einrichten"
       },
       "accountType": {
@@ -1673,19 +1673,19 @@
       "nwcWalletPlace": "NWC-Konto",
       "tabs": {
         "personal": "Persönlich",
-        "linked": "Verknüpft"
+        "linked": "Verwaltet"
       },
       "personalInfo": {
-        "title": "Was ist ein persönliches Konto?",
-        "body": "Persönliche Konten sind Wallets, die du vollständig kontrollierst und die alle aus deiner einzigen Wiederherstellungsphrase abgeleitet werden – dein Hauptkonto sowie alle von dir erstellten Konten. Wechsle jederzeit zwischen ihnen und verschiebe Guthaben mit Übertragen. Du verwaltest und sicherst jedes persönliche Konto selbst."
+        "title": "Was sind persönliche Konten?",
+        "body": "Persönliche Konten sind zusätzliche Wallets, die nur du nutzt. Sie werden alle durch deine Wiederherstellungsphrase gesichert, sodass du dein Geld leicht trennen und wiederherstellen kannst."
       },
       "linkedInfo": {
-        "title": "Was ist ein verknüpftes Konto?",
-        "body": "Ein verknüpftes Konto ist ein Wallet, das du für eine andere Person erstellst – etwa für ein Kind oder einen Freund – ohne jemals deine Wiederherstellungsphrase zu teilen. Sie starten mit einem Link und einem Schlüssel, den du ihnen gibst, und du kannst ihr Wallet jederzeit aus deiner eigenen Phrase neu ableiten. Du kannst Guthaben hinzufügen, abheben und ein Ausgabenlimit festlegen."
+        "title": "Was sind verwaltete Konten?",
+        "body": "Mit verwalteten Konten kann eine andere Person ein Wallet nutzen, ohne jemals die Wiederherstellungsphrase zu sehen. Du behältst die Kontrolle, kannst das Wallet jederzeit wiederherstellen, Guthaben verschieben und Ausgabenlimits festlegen."
       },
       "emptyLinked": {
-        "title": "Noch keine verknüpften Konten",
-        "subtitle": "Erstelle ein Konto für eine Person deines Vertrauens. Sie kann Blitz nutzen, ohne jemals eine Wiederherstellungsphrase zu sehen."
+        "title": "Noch keine verwalteten Konten",
+        "subtitle": "Erstelle ein Wallet für eine Person deines Vertrauens. Sie kann Blitz nutzen, ohne eine Wiederherstellungsphrase verwalten zu müssen."
       },
       "noResults": {
         "title": "Keine Konten gefunden",
@@ -1969,11 +1969,11 @@
         "createNewAccountTitle": "Persönliches Konto erstellen",
         "createNewAccountDescription": "Erstelle ein Wallet für dich selbst",
         "importRecoveryPhraseTitle": "Wiederherstellungsphrase (Seed-Phrase) importieren.",
-        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren.",
-        "recoverRecoveryPhraseTitle": "Konto wiederherstellen",
-        "recoverRecoveryPhraseDescription": "Ein bereits erstelltes Konto wiederherstellen.",
-        "createChildAccountTitle": "Verknüpftes Konto erstellen",
-        "createChildAccountDescription": "Erstelle ein Wallet für eine andere Person, das du verwaltest"
+        "importRecoveryPhraseDescription": "Persönliche Konten aus einer anderen Wallet importieren.",
+        "recoverRecoveryPhraseTitle": "Persönliches Konto wiederherstellen",
+        "recoverRecoveryPhraseDescription": "Ein persönliches Konto wiederherstellen.",
+        "createChildAccountTitle": "Verwaltetes Konto erstellen",
+        "createChildAccountDescription": "Erstelle ein Wallet für eine andere Person"
       },
       "selectProfileImage": {
         "title": "Avatar auswählen",
@@ -2130,23 +2130,8 @@
     },
     "childAccounts": {
       "tabs": {
-        "blitz": "Blitz-Konten",
-        "children": "Kinder"
+        "children": "Verwaltet"
       },
-      "blitzInfo": {
-        "title": "Was sind Blitz-Konten?",
-        "body": "Blitz-Konten sind zusätzliche Wallets, die du kontrollierst und die alle aus deiner einzigen Wiederherstellungsphrase abgeleitet werden. Wechsle jederzeit zwischen ihnen und verschiebe Guthaben mit Übertragen. Du verwaltest und sicherst jedes Blitz-Konto selbst."
-      },
-      "childInfo": {
-        "title": "Was sind Kinder-Konten?",
-        "body": "Ein Kinder-Konto ist ein Wallet, das du für eine andere Person erstellst – etwa für ein Kind oder einen Freund – ohne jemals deine Wiederherstellungsphrase zu teilen. Sie starten mit einem Link und einem Schlüssel, den du ihnen gibst, und du kannst ihr Wallet jederzeit aus deiner eigenen Phrase neu ableiten. Du kannst Guthaben hinzufügen, abheben und ein Ausgabenlimit festlegen."
-      },
-      "empty": {
-        "title": "Noch keine Kinder-Konten",
-        "subtitle": "Erstelle ein Konto für eine Person deines Vertrauens. Sie kann Blitz nutzen, ohne jemals eine Wiederherstellungsphrase zu sehen.",
-        "button": "Kinder-Konto erstellen"
-      },
-      "createButton": "Kinder-Konto erstellen",
       "dontMatch": "Stimmt nicht überein",
       "list": {
         "spendingLimitLabel": "Limit",
@@ -2175,7 +2160,7 @@
       "pairing": {
         "title": "Konto einrichten",
         "codeTitle": "Teile deinen Code",
-        "codeSubtitle": "Öffne Blitz auf ihrem Telefon, wähle „Einem Konto einer anderen Person beitreten“ und lass sie diesen Code eingeben.",
+        "codeSubtitle": "Öffne Blitz auf ihrem Telefon, wähle „Gemeinsamem Wallet beitreten“ und lass sie diesen Code eingeben.",
         "waiting": "Warten darauf, dass sie den Code eingeben…",
         "sasTitle": "Code überprüfen",
         "sasSubtitle": "Lies diesen 6-stelligen Code laut vor und frage, ob auf ihrem Telefon derselbe Code angezeigt wird.",
@@ -2186,7 +2171,10 @@
         "done": "Gesendet. Sie schließen die Einrichtung auf ihrem Telefon ab.",
         "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
         "errorTitle": "Kopplungssitzung beendet",
-        "declinedByChild": "Das Kind hat die Kopplungsanfrage abgelehnt."
+        "declinedByChild": "Diese Anfrage wurde abgelehnt.",
+        "areYouSure": "Bist du sicher?",
+        "confirmGate": "Bestätige nur, wenn beide Bestätigungscodes genau dieselben 6 Zeichen zeigen. Wenn sie nicht übereinstimmen, könnte jemand anderes Zugriff auf dein Konto erhalten.",
+        "confirmBTN": "Sie stimmen überein"
       },
       "page": {
         "title": "Kinder-Konto",
@@ -2202,13 +2190,13 @@
         "info": {
           "navTitle": "Richte dein Wallet ein",
           "title": "Richte dein verwaltetes Wallet ein",
-          "intro": "Du richtest ein Wallet ein, das von einer anderen Person verwaltet wird.",
+          "intro": "Du trittst einem Wallet bei, das von einer Person deines Vertrauens verwaltet wird.",
           "row1Label": "Dein eigenes Wallet",
           "row1Description": "Sende und empfange mit deinem eigenen Guthaben.",
           "row2Label": "Einfach zu bedienen",
           "row2Description": "Dein Wallet wird sicher für dich verwaltet.",
-          "row3Label": "Verbunden mit einer Person deines Vertrauens",
-          "row3Description": "Fahre nur fort, wenn du der Person vertraust, mit der du dich koppelst.",
+          "row3Label": "Verwaltet von einer Person deines Vertrauens",
+          "row3Description": "Der Kontoinhaber verwaltet Wiederherstellung und Sicherheit für dieses Wallet.",
           "bullet2": "Sie bleiben der Hauptkontoinhaber",
           "bullet3": "Fahre nur fort, wenn du dem Kontoinhaber vertraust.",
           "continue": "Weiter"
@@ -2224,10 +2212,11 @@
         "confirmMatch": "Sie stimmen überein",
         "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
         "notFound": "Wir konnten diesen Kopplungscode nicht finden. Bitte fordere einen neuen an.",
+        "slotTaken": "Jemand hat sich bereits mit diesem Code angemeldet. Stoppe jetzt und bitte den Kontoinhaber, abzubrechen und neu zu beginnen.",
         "loading": "Dein Wallet wird eingerichtet...",
         "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
         "errorTitle": "Kopplungssitzung beendet",
-        "canceledByParent": "Der Elternteil hat die Kopplungsanfrage abgebrochen."
+        "canceledByParent": "Der Kontoinhaber hat die Kopplungsanfrage abgebrochen."
       },
       "limitGate": {
         "title": "Ausgabenlimit erreicht",

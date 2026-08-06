@@ -220,7 +220,7 @@
       "buttons": {
         "button1": "Restore Account",
         "button2": "Get Started",
-        "joinAccount": "Join linked account",
+        "joinAccount": "Join shared wallet",
         "linkedWallet": "Set up a linked wallet"
       },
       "accountType": {
@@ -1673,19 +1673,19 @@
       "nwcWalletPlace": "NWC Account",
       "tabs": {
         "personal": "Personal",
-        "linked": "Linked"
+        "linked": "Managed"
       },
       "personalInfo": {
-        "title": "What is a personal account?",
-        "body": "Personal accounts are wallets you fully control, all derived from your single seed phrase — your main account plus any accounts you create. Switch between them anytime and move funds with Transfer. You manage and back up every personal account yourself."
+        "title": "What are personal accounts?",
+        "body": "Personal accounts are extra wallets that only you use. They're all backed up by your recovery phrase, making it easy to separate and restore your money."
       },
       "linkedInfo": {
-        "title": "What is a linked account?",
-        "body": "A linked account is a wallet you create for someone else — like a child or a friend — without ever sharing your seed phrase. They onboard with a link and a key you give them, and you can always re-derive their wallet from your own seed. You can push and pull funds and set a spending limit."
+        "title": "What are managed accounts?",
+        "body": "Managed accounts let someone else use a wallet without ever seeing the recovery phrase. You stay in control, can recover the wallet anytime, move funds, and set spending limits."
       },
       "emptyLinked": {
-        "title": "No linked accounts yet",
-        "subtitle": "Create an account for someone you trust. They can use Blitz without ever seeing a seed phrase."
+        "title": "No managed accounts yet",
+        "subtitle": "Create a wallet for someone you trust. They can use Blitz without managing a recovery phrase."
       },
       "noResults": {
         "title": "No accounts found",
@@ -1694,23 +1694,8 @@
     },
     "childAccounts": {
       "tabs": {
-        "blitz": "Blitz accounts",
-        "children": "Children"
+        "children": "Managed"
       },
-      "blitzInfo": {
-        "title": "What are Blitz accounts?",
-        "body": "Blitz accounts are extra wallets you control, all derived from your single seed phrase. Switch between them anytime and move funds with Transfer. You manage and back up every Blitz account yourself."
-      },
-      "childInfo": {
-        "title": "What are children accounts?",
-        "body": "A children account is a wallet you create for someone else — like a child or a friend — without ever sharing your seed phrase. They onboard with a link and a key you give them, and you can always re-derive their wallet from your own seed. You can push and pull funds and set a spending limit."
-      },
-      "empty": {
-        "title": "No children accounts yet",
-        "subtitle": "Create an account for someone you trust. They can use Blitz without ever seeing a seed phrase.",
-        "button": "Create children account"
-      },
-      "createButton": "Create children account",
       "dontMatch": "Don't match",
       "list": {
         "spendingLimitLabel": "Limit",
@@ -1739,7 +1724,7 @@
       "pairing": {
         "title": "Set up account",
         "codeTitle": "Share your code",
-        "codeSubtitle": "Open Blitz on their phone, choose \"Join linked account\" and have them enter this code.",
+        "codeSubtitle": "Open Blitz on their phone, choose \"Join shared wallet\" and have them enter this code.",
         "waiting": "Waiting for them to enter the code…",
         "sasTitle": "Verify the code",
         "sasSubtitle": "Read this 6-digit code out loud and ask them if they see the same code on their phone.",
@@ -1750,7 +1735,10 @@
         "done": "Sent. They'll finish setup on their phone.",
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
-        "declinedByChild": "The child declined the pairing request."
+        "declinedByChild": "This request has been declined.",
+        "areYouSure": "Are you sure?",
+        "confirmGate": "Only confirm if both confirmation codes show the exact same 6 characters. If they don't match, someone else could gain access to your account.",
+        "confirmBTN": "They match"
       },
       "page": {
         "title": "Children account",
@@ -1766,13 +1754,13 @@
         "info": {
           "navTitle": "Set up your wallet",
           "title": "Set up your wallet",
-          "intro": "You're setting up a wallet managed by someone else.",
+          "intro": "You're joining a wallet that's managed by someone you trust.",
           "row1Label": "Your own wallet",
           "row1Description": "Send and receive with your own balance.",
           "row2Label": "Easy to use",
           "row2Description": "Your wallet is securely managed for you.",
-          "row3Label": "Connected to someone you trust",
-          "row3Description": "Only continue if you trust the person you're pairing with.",
+          "row3Label": "Managed by someone you trust",
+          "row3Description": "The account owner manages recovery and security for this wallet.",
           "bullet2": "They remain the main account holder",
           "bullet3": "Only continue if you trust the account owner.",
           "continue": "Continue"
@@ -1788,10 +1776,11 @@
         "confirmMatch": "They match",
         "tamper": "We couldn't verify this handoff. Please start again.",
         "notFound": "We couldn't find that pairing code. Ask for a new one.",
+        "slotTaken": "Someone already joined with this code. Stop now and ask the account owner to cancel and start over.",
         "loading": "Setting up your wallet...",
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
-        "canceledByParent": "The parent canceled the pairing request."
+        "canceledByParent": "The account owner canceled the pairing request."
       },
       "limitGate": {
         "title": "Spending limit reached",
@@ -2080,13 +2069,13 @@
       "selectCreateAccountType": {
         "title": "Add Account",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
-        "importRecoveryPhraseDescription": "Import accounts from another wallet",
-        "recoverRecoveryPhraseTitle": "Recover Account",
-        "recoverRecoveryPhraseDescription": "Restore an already created account",
+        "importRecoveryPhraseDescription": "Import personal accounts from another wallet",
+        "recoverRecoveryPhraseTitle": "Recover Personal Account",
+        "recoverRecoveryPhraseDescription": "Restore a personal account",
         "createNewAccountTitle": "Create Personal Account",
         "createNewAccountDescription": "Create a wallet for yourself",
-        "createChildAccountTitle": "Create Linked Account",
-        "createChildAccountDescription": "Create a wallet for someone else that you manage"
+        "createChildAccountTitle": "Create Managed Account",
+        "createChildAccountDescription": "Create a wallet for someone else"
       },
       "selectProfileImage": {
         "title": "Choose Avatar",

@@ -220,7 +220,7 @@
       "buttons": {
         "button1": "Återställ konto",
         "button2": "Kom igång",
-        "joinAccount": "Gå med i någon annans konto",
+        "joinAccount": "Gå med i delad plånbok",
         "linkedWallet": "Skapa ett länkat konto"
       },
       "accountType": {
@@ -1686,19 +1686,19 @@
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Personliga",
-        "linked": "Länkade"
+        "linked": "Hanterade"
       },
       "personalInfo": {
-        "title": "Vad är ett personligt konto?",
-        "body": "Personliga konton är plånböcker som du kontrollerar fullt ut, alla härledda från din enda återställningsfras — ditt huvudkonto plus alla konton du skapar. Växla mellan dem när som helst och flytta pengar med Överför. Du hanterar och säkerhetskopierar varje personligt konto själv."
+        "title": "Vad är personliga konton?",
+        "body": "Personliga konton är extra plånböcker som bara du använder. De säkerhetskopieras alla av din återställningsfras, vilket gör det lätt att separera och återställa dina pengar."
       },
       "linkedInfo": {
-        "title": "Vad är ett länkat konto?",
-        "body": "Ett länkat konto är en plånbok som du skapar åt någon annan — som ett barn eller en vän — utan att någonsin dela din återställningsfras. De börjar med en länk och en nyckel som du ger dem, och du kan alltid härleda om deras plånbok från din egen fras. Du kan skicka in och ta ut pengar samt ange en utgiftsgräns."
+        "title": "Vad är hanterade konton?",
+        "body": "Hanterade konton låter någon annan använda en plånbok utan att någonsin se återställningsfrasen. Du behåller kontrollen, kan återställa plånboken när som helst, flytta pengar och ange utgiftsgränser."
       },
       "emptyLinked": {
-        "title": "Inga länkade konton ännu",
-        "subtitle": "Skapa ett konto åt någon du litar på. De kan använda Blitz utan att någonsin se en återställningsfras."
+        "title": "Inga hanterade konton ännu",
+        "subtitle": "Skapa en plånbok åt någon du litar på. De kan använda Blitz utan att hantera en återställningsfras."
       },
       "noResults": {
         "title": "Inga konton hittades",
@@ -1984,11 +1984,11 @@
         "createNewAccountTitle": "Skapa personligt konto",
         "createNewAccountDescription": "Skapa en plånbok åt dig själv",
         "importRecoveryPhraseTitle": "Importera återställningsfras",
-        "importRecoveryPhraseDescription": "Importera konton från en annan wallet",
-        "recoverRecoveryPhraseTitle": "Återställ konto",
-        "recoverRecoveryPhraseDescription": "Återställ ett redan skapat konto",
-        "createChildAccountTitle": "Skapa länkat konto",
-        "createChildAccountDescription": "Skapa en plånbok åt någon annan som du hanterar"
+        "importRecoveryPhraseDescription": "Importera personliga konton från en annan wallet",
+        "recoverRecoveryPhraseTitle": "Återställ personligt konto",
+        "recoverRecoveryPhraseDescription": "Återställ ett personligt konto",
+        "createChildAccountTitle": "Skapa hanterat konto",
+        "createChildAccountDescription": "Skapa en plånbok åt någon annan"
       },
       "selectProfileImage": {
         "title": "Välj avatar",
@@ -2145,23 +2145,8 @@
     },
     "childAccounts": {
       "tabs": {
-        "blitz": "Blitz-konton",
-        "children": "Barn"
+        "children": "Hanterade"
       },
-      "blitzInfo": {
-        "title": "Vad är Blitz-konton?",
-        "body": "Blitz-konton är extra plånböcker som du kontrollerar, alla härledda från din enda återställningsfras. Växla mellan dem när som helst och flytta pengar med Överför. Du hanterar och säkerhetskopierar varje Blitz-konto själv."
-      },
-      "childInfo": {
-        "title": "Vad är barnkonton?",
-        "body": "Ett barnkonto är en plånbok som du skapar åt någon annan — som ett barn eller en vän — utan att någonsin dela din återställningsfras. De börjar med en länk och en nyckel som du ger dem, och du kan alltid härleda om deras plånbok från din egen fras. Du kan skicka in och ta ut pengar samt ange en utgiftsgräns."
-      },
-      "empty": {
-        "title": "Inga barnkonton ännu",
-        "subtitle": "Skapa ett konto åt någon du litar på. De kan använda Blitz utan att någonsin se en återställningsfras.",
-        "button": "Skapa barnkonto"
-      },
-      "createButton": "Skapa barnkonto",
       "dontMatch": "Stämmer inte",
       "list": {
         "spendingLimitLabel": "Gräns",
@@ -2190,7 +2175,7 @@
       "pairing": {
         "title": "Konfigurera konto",
         "codeTitle": "Dela din kod",
-        "codeSubtitle": "Öppna Blitz på deras telefon, välj \"Gå med i någon annans konto\" och be dem ange den här koden.",
+        "codeSubtitle": "Öppna Blitz på deras telefon, välj \"Gå med i delad plånbok\" och be dem ange den här koden.",
         "waiting": "Väntar på att de ska ange koden…",
         "sasTitle": "Verifiera koden",
         "sasSubtitle": "Läs upp den här 6-siffriga koden och fråga om de ser samma kod på sin telefon.",
@@ -2201,7 +2186,10 @@
         "done": "Skickat. De slutför konfigureringen på sin telefon.",
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",
-        "declinedByChild": "Barnet avböjde kopplingsbegäran."
+        "declinedByChild": "Denna begäran har avböjts.",
+        "areYouSure": "Är du säker?",
+        "confirmGate": "Bekräfta bara om båda bekräftelsekoderna visar exakt samma 6 tecken. Om de inte stämmer kan någon annan få åtkomst till ditt konto.",
+        "confirmBTN": "De stämmer"
       },
       "page": {
         "title": "Barnkonto",
@@ -2217,13 +2205,13 @@
         "info": {
           "navTitle": "Skapa din plånbok",
           "title": "Skapa din hanterade plånbok",
-          "intro": "Du håller på att skapa en plånbok som hanteras av någon annan.",
+          "intro": "Du går med i en plånbok som hanteras av någon du litar på.",
           "row1Label": "Din egen plånbok",
           "row1Description": "Skicka och ta emot med ditt eget saldo.",
           "row2Label": "Lätt att använda",
           "row2Description": "Din plånbok hanteras säkert åt dig.",
-          "row3Label": "Kopplad till någon du litar på",
-          "row3Description": "Fortsätt bara om du litar på personen du kopplar med.",
+          "row3Label": "Hanteras av någon du litar på",
+          "row3Description": "Kontoinnehavaren hanterar återställning och säkerhet för den här plånboken.",
           "bullet2": "De förblir huvudinnehavare av kontot",
           "bullet3": "Fortsätt bara om du litar på kontots ägare.",
           "continue": "Fortsätt"
@@ -2239,10 +2227,11 @@
         "confirmMatch": "De stämmer",
         "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
         "notFound": "Vi kunde inte hitta den kopplingskoden. Be om en ny.",
+        "slotTaken": "Någon har redan gått med med den här koden. Stanna nu och be kontoinnehavaren avbryta och börja om.",
         "loading": "Skapar din plånbok...",
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",
-        "canceledByParent": "Föräldern avbröt kopplingsbegäran."
+        "canceledByParent": "Kontoinnehavaren avbröt kopplingsbegäran."
       },
       "limitGate": {
         "title": "Utgiftsgränsen nådd",

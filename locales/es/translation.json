@@ -220,7 +220,7 @@
       "buttons": {
         "button1": "Restaurar cuenta",
         "button2": "Comenzar",
-        "joinAccount": "Unirse a la cuenta de alguien",
+        "joinAccount": "Unirse a la wallet compartida",
         "linkedWallet": "Configurar una wallet vinculada"
       },
       "accountType": {
@@ -1683,19 +1683,19 @@
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Personal",
-        "linked": "Vinculadas"
+        "linked": "Gestionadas"
       },
       "personalInfo": {
-        "title": "¿Qué es una cuenta personal?",
-        "body": "Las cuentas personales son wallets que controlas por completo, todas derivadas de tu única frase de recuperación: tu cuenta principal más cualquier cuenta que crees. Cambia entre ellas cuando quieras y mueve fondos con Transferir. Tú gestionas y respaldas cada cuenta personal."
+        "title": "¿Qué son las cuentas personales?",
+        "body": "Las cuentas personales son wallets adicionales que solo usas tú. Todas están respaldadas por tu frase de recuperación, lo que facilita separar y restaurar tu dinero."
       },
       "linkedInfo": {
-        "title": "¿Qué es una cuenta vinculada?",
-        "body": "Una cuenta vinculada es una wallet que creas para otra persona — como un hijo o un amigo — sin compartir nunca tu frase de recuperación. Ellos se incorporan con un enlace y una clave que les das, y siempre puedes re-derivar su wallet desde tu propia frase. Puedes enviar y retirar fondos y establecer un límite de gasto."
+        "title": "¿Qué son las cuentas gestionadas?",
+        "body": "Las cuentas gestionadas permiten que otra persona use una wallet sin ver nunca la frase de recuperación. Tú mantienes el control, puedes recuperar la wallet en cualquier momento, mover fondos y establecer límites de gasto."
       },
       "emptyLinked": {
-        "title": "Aún no hay cuentas vinculadas",
-        "subtitle": "Crea una cuenta para alguien de confianza. Podrán usar Blitz sin ver nunca una frase de recuperación."
+        "title": "Aún no hay cuentas gestionadas",
+        "subtitle": "Crea una wallet para alguien de confianza. Podrán usar Blitz sin tener que gestionar una frase de recuperación."
       },
       "noResults": {
         "title": "No se encontraron cuentas",
@@ -1981,11 +1981,11 @@
         "createNewAccountTitle": "Crear cuenta personal",
         "createNewAccountDescription": "Crea una wallet para ti",
         "importRecoveryPhraseTitle": "Importar frase de recuperación",
-        "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet",
-        "recoverRecoveryPhraseTitle": "Recuperar cuenta",
-        "recoverRecoveryPhraseDescription": "Restaurar una cuenta ya creada",
-        "createChildAccountTitle": "Crear cuenta vinculada",
-        "createChildAccountDescription": "Crea una wallet para otra persona que tú gestiones"
+        "importRecoveryPhraseDescription": "Importar cuentas personales desde otra wallet",
+        "recoverRecoveryPhraseTitle": "Recuperar cuenta personal",
+        "recoverRecoveryPhraseDescription": "Restaurar una cuenta personal",
+        "createChildAccountTitle": "Crear cuenta gestionada",
+        "createChildAccountDescription": "Crea una wallet para otra persona"
       },
       "selectProfileImage": {
         "title": "Elegir avatar",
@@ -2145,23 +2145,8 @@
     },
     "childAccounts": {
       "tabs": {
-        "blitz": "Cuentas Blitz",
-        "children": "Hijos"
+        "children": "Gestionadas"
       },
-      "blitzInfo": {
-        "title": "¿Qué son las cuentas Blitz?",
-        "body": "Las cuentas Blitz son wallets adicionales que controlas, todas derivadas de tu única frase de recuperación. Cambia entre ellas cuando quieras y mueve fondos con Transferir. Tú gestionas y respaldas cada cuenta Blitz."
-      },
-      "childInfo": {
-        "title": "¿Qué son las cuentas de hijos?",
-        "body": "Una cuenta de hijo es una wallet que creas para otra persona — como un hijo o un amigo — sin compartir nunca tu frase de recuperación. Ellos se incorporan con un enlace y una clave que les das, y siempre puedes re-derivar su wallet desde tu propia frase. Puedes enviar y retirar fondos y establecer un límite de gasto."
-      },
-      "empty": {
-        "title": "Aún no hay cuentas de hijos",
-        "subtitle": "Crea una cuenta para alguien de confianza. Podrán usar Blitz sin ver nunca una frase de recuperación.",
-        "button": "Crear cuenta de hijo"
-      },
-      "createButton": "Crear cuenta de hijo",
       "dontMatch": "No coinciden",
       "list": {
         "spendingLimitLabel": "Límite",
@@ -2190,7 +2175,7 @@
       "pairing": {
         "title": "Configurar cuenta",
         "codeTitle": "Comparte tu código",
-        "codeSubtitle": "Abre Blitz en su teléfono, elige «Unirse a la cuenta de alguien» y haz que introduzcan este código.",
+        "codeSubtitle": "Abre Blitz en su teléfono, elige «Unirse a la wallet compartida» y haz que introduzcan este código.",
         "waiting": "Esperando a que introduzcan el código…",
         "sasTitle": "Verifica el código",
         "sasSubtitle": "Lee este código de 6 dígitos en voz alta y pregúntales si ven el mismo código en su teléfono.",
@@ -2201,7 +2186,10 @@
         "done": "Enviado. Terminarán la configuración en su teléfono.",
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",
-        "declinedByChild": "El hijo rechazó la solicitud de emparejamiento."
+        "declinedByChild": "Esta solicitud ha sido rechazada.",
+        "areYouSure": "¿Estás seguro?",
+        "confirmGate": "Solo confirma si ambos códigos de confirmación muestran exactamente los mismos 6 caracteres. Si no coinciden, otra persona podría acceder a tu cuenta.",
+        "confirmBTN": "Coinciden"
       },
       "page": {
         "title": "Cuenta de hijo",
@@ -2217,13 +2205,13 @@
         "info": {
           "navTitle": "Configura tu wallet",
           "title": "Configura tu wallet gestionada",
-          "intro": "Estás configurando una wallet gestionada por otra persona.",
+          "intro": "Te estás uniendo a una wallet gestionada por alguien de confianza.",
           "row1Label": "Tu propia wallet",
           "row1Description": "Envía y recibe con tu propio saldo.",
           "row2Label": "Fácil de usar",
           "row2Description": "Tu wallet se gestiona de forma segura por ti.",
-          "row3Label": "Conectada a alguien de confianza",
-          "row3Description": "Solo continúa si confías en la persona con la que te estás emparejando.",
+          "row3Label": "Gestionada por alguien de confianza",
+          "row3Description": "El propietario de la cuenta gestiona la recuperación y la seguridad de esta wallet.",
           "bullet2": "Ellos siguen siendo el titular de la cuenta principal",
           "bullet3": "Solo continúa si confías en el dueño de la cuenta.",
           "continue": "Continuar"
@@ -2239,10 +2227,11 @@
         "confirmMatch": "Coinciden",
         "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
         "notFound": "No pudimos encontrar ese código de emparejamiento. Pide uno nuevo.",
+        "slotTaken": "Alguien ya se unió con este código. Detente ahora y pídele al propietario de la cuenta que cancele y empiece de nuevo.",
         "loading": "Configurando tu wallet...",
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",
-        "canceledByParent": "El padre canceló la solicitud de emparejamiento."
+        "canceledByParent": "El propietario de la cuenta canceló la solicitud de emparejamiento."
       },
       "limitGate": {
         "title": "Límite de gasto alcanzado",

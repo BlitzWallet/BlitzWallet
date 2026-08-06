@@ -220,7 +220,7 @@
       "buttons": {
         "button1": "Restaurar acesso",
         "button2": "Começar",
-        "joinAccount": "Entrar na conta de alguém",
+        "joinAccount": "Entrar na carteira compartilhada",
         "linkedWallet": "Configurar uma carteira vinculada"
       },
       "accountType": {
@@ -1686,19 +1686,19 @@
       "nwcWalletPlace": "Conta NWC",
       "tabs": {
         "personal": "Pessoal",
-        "linked": "Vinculadas"
+        "linked": "Gerenciadas"
       },
       "personalInfo": {
-        "title": "O que é uma conta pessoal?",
-        "body": "Contas pessoais são carteiras que você controla totalmente, todas derivadas da sua única frase de recuperação — sua conta principal mais quaisquer contas que você criar. Alterne entre elas quando quiser e mova fundos com Transferir. Você gerencia e faz backup de cada conta pessoal."
+        "title": "O que são contas pessoais?",
+        "body": "Contas pessoais são carteiras extras que só você usa. Todas são protegidas pela sua frase de recuperação, o que facilita separar e restaurar seu dinheiro."
       },
       "linkedInfo": {
-        "title": "O que é uma conta vinculada?",
-        "body": "Uma conta vinculada é uma carteira que você cria para outra pessoa — como um filho ou um amigo — sem nunca compartilhar sua frase de recuperação. Eles começam com um link e uma chave que você fornece, e você pode sempre re-derivar a carteira deles a partir da sua própria frase. Você pode adicionar e retirar fundos e definir um limite de gastos."
+        "title": "O que são contas gerenciadas?",
+        "body": "Contas gerenciadas permitem que outra pessoa use uma carteira sem nunca ver a frase de recuperação. Você mantém o controle, pode recuperar a carteira a qualquer momento, mover fundos e definir limites de gastos."
       },
       "emptyLinked": {
-        "title": "Nenhuma conta vinculada ainda",
-        "subtitle": "Crie uma conta para alguém em quem você confia. Eles podem usar o Blitz sem nunca ver uma frase de recuperação."
+        "title": "Nenhuma conta gerenciada ainda",
+        "subtitle": "Crie uma carteira para alguém em quem você confia. Eles podem usar o Blitz sem precisar gerenciar uma frase de recuperação."
       },
       "noResults": {
         "title": "Nenhuma conta encontrada",
@@ -1984,11 +1984,11 @@
         "createNewAccountTitle": "Criar conta pessoal",
         "createNewAccountDescription": "Crie uma carteira para você",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
-        "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
-        "recoverRecoveryPhraseTitle": "Restaurar conta",
-        "recoverRecoveryPhraseDescription": "Recuperar contas arquivadas",
-        "createChildAccountTitle": "Criar conta vinculada",
-        "createChildAccountDescription": "Crie uma carteira para outra pessoa que você gerencia"
+        "importRecoveryPhraseDescription": "Importar contas pessoais de outras carteiras",
+        "recoverRecoveryPhraseTitle": "Restaurar conta pessoal",
+        "recoverRecoveryPhraseDescription": "Recuperar uma conta pessoal",
+        "createChildAccountTitle": "Criar conta gerenciada",
+        "createChildAccountDescription": "Crie uma carteira para outra pessoa"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
@@ -2145,23 +2145,8 @@
     },
     "childAccounts": {
       "tabs": {
-        "blitz": "Contas Blitz",
-        "children": "Filhos"
+        "children": "Gerenciadas"
       },
-      "blitzInfo": {
-        "title": "O que são contas Blitz?",
-        "body": "Contas Blitz são carteiras adicionais que você controla, todas derivadas da sua única frase de recuperação. Alterne entre elas quando quiser e mova fundos com Transferir. Você gerencia e faz backup de cada conta Blitz."
-      },
-      "childInfo": {
-        "title": "O que são contas de filhos?",
-        "body": "Uma conta de filho é uma carteira que você cria para outra pessoa — como um filho ou um amigo — sem nunca compartilhar sua frase de recuperação. Eles começam com um link e uma chave que você fornece, e você pode sempre re-derivar a carteira deles a partir da sua própria frase. Você pode adicionar e retirar fundos e definir um limite de gastos."
-      },
-      "empty": {
-        "title": "Nenhuma conta de filho ainda",
-        "subtitle": "Crie uma conta para alguém em quem você confia. Eles podem usar o Blitz sem nunca ver uma frase de recuperação.",
-        "button": "Criar conta de filho"
-      },
-      "createButton": "Criar conta de filho",
       "dontMatch": "Não correspondem",
       "list": {
         "spendingLimitLabel": "Limite",
@@ -2190,7 +2175,7 @@
       "pairing": {
         "title": "Configurar conta",
         "codeTitle": "Compartilhe seu código",
-        "codeSubtitle": "Abra o Blitz no telefone deles, escolha \"Entrar na conta de alguém\" e peça para inserirem este código.",
+        "codeSubtitle": "Abra o Blitz no telefone deles, escolha \"Entrar na carteira compartilhada\" e peça para inserirem este código.",
         "waiting": "Aguardando eles inserirem o código…",
         "sasTitle": "Verifique o código",
         "sasSubtitle": "Leia este código de 6 dígitos em voz alta e pergunte se eles veem o mesmo código no telefone deles.",
@@ -2201,7 +2186,10 @@
         "done": "Enviado. Eles terminarão a configuração no telefone deles.",
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
-        "declinedByChild": "O filho recusou a solicitação de pareamento."
+        "declinedByChild": "Esta solicitação foi recusada.",
+        "areYouSure": "Tem certeza?",
+        "confirmGate": "Só confirme se ambos os códigos de confirmação mostrarem exatamente os mesmos 6 caracteres. Se não corresponderem, outra pessoa pode ter acesso à sua conta.",
+        "confirmBTN": "Correspondem"
       },
       "page": {
         "title": "Conta de filho",
@@ -2217,13 +2205,13 @@
         "info": {
           "navTitle": "Configure sua carteira",
           "title": "Configure sua carteira gerenciada",
-          "intro": "Você está configurando uma carteira gerenciada por outra pessoa.",
+          "intro": "Você está entrando em uma carteira gerenciada por alguém em quem confia.",
           "row1Label": "Sua própria carteira",
           "row1Description": "Envie e receba com seu próprio saldo.",
           "row2Label": "Fácil de usar",
           "row2Description": "Sua carteira é gerenciada com segurança para você.",
-          "row3Label": "Conectada a alguém em quem você confia",
-          "row3Description": "Continue somente se confiar na pessoa com quem está pareando.",
+          "row3Label": "Gerenciada por alguém em quem você confia",
+          "row3Description": "O dono da conta gerencia a recuperação e a segurança desta carteira.",
           "bullet2": "Eles permanecem o titular da conta principal",
           "bullet3": "Continue somente se confiar no dono da conta.",
           "continue": "Continuar"
@@ -2239,10 +2227,11 @@
         "confirmMatch": "Correspondem",
         "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
         "notFound": "Não encontramos esse código de pareamento. Peça um novo.",
+        "slotTaken": "Alguém já entrou com este código. Pare agora e peça ao dono da conta para cancelar e começar de novo.",
         "loading": "Configurando sua carteira...",
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
-        "canceledByParent": "O pai cancelou a solicitação de pareamento."
+        "canceledByParent": "O dono da conta cancelou a solicitação de pareamento."
       },
       "limitGate": {
         "title": "Limite de gastos atingido",
