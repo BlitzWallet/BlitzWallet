@@ -38,6 +38,7 @@ import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
 import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
+import { isWipeInProgress } from '../../functions/secureStore';
 import i18next from 'i18next';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
@@ -106,8 +107,18 @@ export default function ConnectingToNodeLoadingScreen() {
         // wallet's live data. Runs first, before any init/cache reads, and only
         // after the seed gate below has committed the correct seed. A failure
         // throws into the catch (recoverable error UI) and a hang is caught by
-        // the 45s watchdog — neither was possible on the PIN page.
-        if (route.params?.shouldWipeLocalData) {
+        // the 45s watchdog — neither was possible on the PIN page. isWipeInProgress
+        // re-arms a wipe that failed or was killed mid-run on a previous launch:
+        // wipeLocalWalletData leaves a keychain marker until it fully succeeds,
+        // and route params are gone after a restart, so without it the partially
+        // wiped previous wallet would proceed into the new account.
+        const wipeArmed = await isWipeInProgress();
+        if (route.params?.shouldWipeLocalData || wipeArmed) {
+          if (wipeArmed) {
+            crashlyticsLogReport(
+              'Re-running wipe: marker armed from a previous failed wipe',
+            );
+          }
           phaseRef.current = 'wiping previous wallet local data';
           crashlyticsLogReport('Wiping previous wallet local data before init');
           const wiped = await wipeLocalWalletData();

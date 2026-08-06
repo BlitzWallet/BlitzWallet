@@ -37,7 +37,11 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from './crashlyticsLogs';
-import { wipeStaleWalletKeychain } from './secureStore';
+import {
+  armWipeInProgress,
+  disarmWipeInProgress,
+  wipeStaleWalletKeychain,
+} from './secureStore';
 
 // AsyncStorage keys carried across the wipe. userSelectedLanguage keeps
 // non-English users from flipping to en mid-onboarding; didViewSeedPhrase holds
@@ -108,6 +112,16 @@ async function wipeImageCacheDirectories() {
 // stale AsyncStorage, SQLite cache, and keychain identity can never render as
 // the new wallet's live data. Returns true only when the wipe fully succeeded.
 export default async function wipeLocalWalletData() {
+  // Arm the re-arm marker BEFORE any destructive step. It lives in the
+  // keychain so removeAllLocalData can't clear it; it is disarmed only after
+  // every step succeeded, so a failure or a process kill mid-wipe is retried
+  // on the next launch (loadingScreen checks isWipeInProgress). Best-effort:
+  // a failed arm falls back to today's behavior (wipe without re-arm).
+  const didArm = await armWipeInProgress();
+  if (!didArm) {
+    crashlyticsLogReport('wipeLocalWalletData failed to arm wipe marker');
+  }
+
   const preservedValues = {};
   for (const key of PRESERVED_KEYS) {
     preservedValues[key] = await getLocalStorageItem(key);
@@ -149,6 +163,20 @@ export default async function wipeLocalWalletData() {
   ) {
     crashlyticsLogReport(
       `wipeLocalWalletData failed: clearStorage=${didClearStorage} deleteTables=${didDeleteTables} reinit=${didReinitialize} scrubKeychain=${didScrubKeychain}`,
+    );
+    // Marker stays armed: the next launch re-runs the wipe instead of skipping
+    // it because route.params.shouldWipeLocalData is gone.
+    return false;
+  }
+
+  // Wipe fully succeeded; only now clear the marker (verified delete, since
+  // iOS deleteItemAsync can silently fail). If the marker survives, report
+  // failure so the next launch retries the wipe rather than re-wiping the new
+  // wallet's healthy local data.
+  const didDisarm = await disarmWipeInProgress();
+  if (!didDisarm) {
+    crashlyticsLogReport(
+      'wipeLocalWalletData succeeded but wipe marker survived; re-arming',
     );
     return false;
   }

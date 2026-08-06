@@ -21,6 +21,7 @@ import {
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 export const MIGRATION_FLAG = 'secureStoreMigrationComplete';
 export const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
+export const WIPE_IN_PROGRESS_KEY = 'wipeInProgress';
 
 const KEYCHAIN_OPTION = {
   keychainService: keychainService,
@@ -102,6 +103,51 @@ async function wipeStaleWalletKeychain() {
     return true;
   } catch (error) {
     console.log('wipeStaleWalletKeychain error', error);
+    return false;
+  }
+}
+
+// Re-arm marker for wipeLocalWalletData. Lives in the keychain (not
+// AsyncStorage) so it survives removeAllLocalData clearing every AsyncStorage
+// key mid-wipe. If the wipe fails or the process is killed before it
+// disarms, the next launch re-runs the wipe instead of skipping it because
+// route.params.shouldWipeLocalData is gone.
+async function armWipeInProgress() {
+  try {
+    await setItemAsync(WIPE_IN_PROGRESS_KEY, 'true', KEYCHAIN_OPTION);
+    return true;
+  } catch (error) {
+    // Best-effort: proceed unarmed (current behavior) rather than block the wipe.
+    console.log('armWipeInProgress error', error);
+    return false;
+  }
+}
+
+async function isWipeInProgress() {
+  try {
+    const value = await getItemAsync(WIPE_IN_PROGRESS_KEY, KEYCHAIN_OPTION);
+    return value !== null;
+  } catch (error) {
+    // Can't read the keychain (e.g. device locked); fail closed so the wipe
+    // re-runs rather than proceeding with possibly-stale previous-wallet data.
+    console.log('isWipeInProgress error', error);
+    return true;
+  }
+}
+
+async function disarmWipeInProgress() {
+  try {
+    await deleteItemAsync(WIPE_IN_PROGRESS_KEY, KEYCHAIN_OPTION);
+    // deleteItemAsync on iOS ignores the SecItemDelete status, so verify the
+    // marker is really gone; a surviving marker would re-wipe the new wallet's
+    // local data on the next launch.
+    const stillThere = await getItemAsync(
+      WIPE_IN_PROGRESS_KEY,
+      KEYCHAIN_OPTION,
+    );
+    return stillThere === null;
+  } catch (error) {
+    console.log('disarmWipeInProgress error', error);
     return false;
   }
 }
@@ -201,6 +247,9 @@ export {
   storeData,
   terminateAccount,
   wipeStaleWalletKeychain,
+  armWipeInProgress,
+  isWipeInProgress,
+  disarmWipeInProgress,
   deleteItem,
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,

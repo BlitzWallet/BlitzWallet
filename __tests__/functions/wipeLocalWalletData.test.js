@@ -89,6 +89,8 @@ jest.mock('../../app/functions/crashlyticsLogs', () => ({
 
 jest.mock('../../app/functions/secureStore', () => ({
   wipeStaleWalletKeychain: jest.fn(async () => true),
+  armWipeInProgress: jest.fn(async () => true),
+  disarmWipeInProgress: jest.fn(async () => true),
 }));
 
 const {
@@ -110,6 +112,8 @@ const {
 } = require('../../app/functions/wipeLocalWalletData');
 const {
   wipeStaleWalletKeychain,
+  armWipeInProgress,
+  disarmWipeInProgress,
 } = require('../../app/functions/secureStore');
 const { deleteAsync } = require('expo-file-system/legacy');
 
@@ -231,9 +235,9 @@ describe('wipeLocalWalletData', () => {
     // A full wipe is the cleanest reset: tables empty + AsyncStorage empty.
     await wipeLocalWalletData();
     await openAllDatabases();
-    // Clear the scrub call made by the reset wipe so tests only count their
-    // own wipeLocalWalletData() call.
-    wipeStaleWalletKeychain.mockClear();
+    // Drop the reset wipe's calls (scrub + marker arm/disarm + cache deletes)
+    // so tests only count their own invocation.
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -359,5 +363,96 @@ describe('wipeLocalWalletData', () => {
 
     expect(result).toBe(false);
     expect(originalInit).toBeDefined();
+  });
+
+  // ── Re-arm marker lifecycle (wipeInProgress) ───────────────────────────
+
+  test('arms the marker before destructive steps and disarms only on success', async () => {
+    seedAllTables();
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(true);
+    expect(armWipeInProgress).toHaveBeenCalledTimes(1);
+    expect(disarmWipeInProgress).toHaveBeenCalledTimes(1);
+    // Arm runs before any destructive step; disarm runs only after the
+    // keychain scrub (the last failure-checked step) succeeded.
+    expect(armWipeInProgress.mock.invocationCallOrder[0]).toBeLessThan(
+      wipeStaleWalletKeychain.mock.invocationCallOrder[0],
+    );
+    expect(wipeStaleWalletKeychain.mock.invocationCallOrder[0]).toBeLessThan(
+      disarmWipeInProgress.mock.invocationCallOrder[0],
+    );
+  });
+
+  test('keeps the marker armed when clearing AsyncStorage fails', async () => {
+    const AsyncStorage = require('@react-native-async-storage/async-storage')
+      .default;
+    jest
+      .spyOn(AsyncStorage, 'getAllKeys')
+      .mockRejectedValueOnce(new Error('storage unavailable'));
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(false);
+    expect(armWipeInProgress).toHaveBeenCalledTimes(1);
+    expect(disarmWipeInProgress).not.toHaveBeenCalled();
+  });
+
+  test('keeps the marker armed when the keychain scrub fails', async () => {
+    seedAllTables();
+    wipeStaleWalletKeychain.mockResolvedValueOnce(false);
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(false);
+    expect(armWipeInProgress).toHaveBeenCalledTimes(1);
+    expect(disarmWipeInProgress).not.toHaveBeenCalled();
+  });
+
+  test('keeps the marker armed when a table delete rejects', async () => {
+    seedAllTables();
+    require('expo-sqlite').__setPoisonDb('SAVED_SAVINGS.db');
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(false);
+    expect(disarmWipeInProgress).not.toHaveBeenCalled();
+  });
+
+  test('keeps the marker armed when re-init fails', async () => {
+    seedAllTables();
+    jest
+      .spyOn(
+        require('../../app/functions/initializeAllDatabases'),
+        'initializeAllDatabases',
+      )
+      .mockImplementationOnce(async () => {
+        throw new Error('dbInitError');
+      });
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(false);
+    expect(disarmWipeInProgress).not.toHaveBeenCalled();
+  });
+
+  test('returns false and keeps the marker when the disarm verification fails', async () => {
+    disarmWipeInProgress.mockResolvedValueOnce(false);
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(false);
+  });
+
+  test('still wipes when arming the marker fails (best-effort arm)', async () => {
+    seedAllTables();
+    armWipeInProgress.mockResolvedValueOnce(false);
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(true);
+    expect(wipeStaleWalletKeychain).toHaveBeenCalledTimes(1);
+    expect(disarmWipeInProgress).toHaveBeenCalledTimes(1);
   });
 });
