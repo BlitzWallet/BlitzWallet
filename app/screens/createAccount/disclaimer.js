@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 10,
     paddingVertical: 15,
     paddingHorizontal: 16,
   },
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   termsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
     paddingVertical: 15,
     paddingHorizontal: 16,
   },

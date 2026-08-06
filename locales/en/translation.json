@@ -237,7 +237,7 @@
       "createTitle": "Create new wallet",
       "createDesc": "Start fresh with a new wallet.",
       "restoreTitle": "Restore existing wallet",
-      "restoreDesc": "Already have a wallet? Bring it over."
+      "restoreDesc": "Continue with an existing wallet."
     },
     "disclaimerPage": {
       "header": "Your money. Your control.",
