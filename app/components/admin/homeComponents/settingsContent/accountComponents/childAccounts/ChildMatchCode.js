@@ -30,6 +30,12 @@ export default function ChildMatchCode() {
     }
   }, [status, navigate]);
 
+  const handleConfirm = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'childMatchCodeConfirmation',
+      confirmMatch,
+    });
+  };
   const handleNoMatch = async () => {
     setIsResetting(true);
     await declineMatch();
@@ -81,7 +87,7 @@ export default function ChildMatchCode() {
               buttonStyles={styles.button}
               useLoading={status === 'granting'}
               textContent={t('constants.confirm')}
-              actionFunction={confirmMatch}
+              actionFunction={handleConfirm}
             />
             <CustomButton
               buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}

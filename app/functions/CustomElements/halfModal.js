@@ -91,6 +91,7 @@ import ExportLeavesProgress from '../../components/admin/homeComponents/settings
 import ChooseAccountTypeHalfModal from '../../components/login/accountTypeSelection';
 import AddMoney from '../../components/admin/homeComponents/settingsContent/accountComponents/accountAddMoney';
 import WithdrawlMoney from '../../components/admin/homeComponents/settingsContent/accountComponents/accountWithdrawlMoney';
+import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -801,6 +802,14 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'childMatchCodeConfirmation':
+        return (
+          <ChildMatchCodeConfirmation
+            confirmMatch={props?.route?.params?.confirmMatch}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+
       default:
         return <ThemeText content={'TST'} />;
     }

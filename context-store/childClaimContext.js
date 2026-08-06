@@ -177,9 +177,22 @@ export function ChildClaimProvider({ children }) {
         const didHello = await setPairingDoc(rid, 'childHello', {
           v: 1,
           childEphPub: eph.pub,
+          childAuthUid: firebaseAuth.currentUser.uid,
           expiresAt: Date.now() + PAIRING_TTL_MS,
         });
-        if (!didHello) throw new Error('Failed to join pairing session');
+        if (!didHello) {
+          // Write-once lost. Read the slot back: a foreign childEphPub means
+          // someone else already claimed this code — surface a distinct abort
+          // signal instead of the generic "code not found" so the real child
+          // knows to stop.
+          const existingHello = await getPairingDoc(rid, 'childHello');
+          if (existingHello && existingHello.childEphPub !== eph.pub) {
+            setErrorMessage(t('settings.childAccounts.claim.slotTaken'));
+            setStatus('error');
+            return;
+          }
+          throw new Error('Failed to join pairing session');
+        }
 
         // Listen the whole session for the parent cancelling so we don't hang
         // waiting on the grant until the TTL expires.
