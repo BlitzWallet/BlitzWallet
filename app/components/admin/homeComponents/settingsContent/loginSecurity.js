@@ -114,35 +114,10 @@ export default function LoginSecurity({ extraData }) {
     })();
   }, [extraData]);
 
-  const toggleSecurityEnabled = useCallback(async () => {
-    try {
-      if (!securityLoginSettings.isSecurityEnabled) {
-        // Show choice when enabling security
-        setShowSecurityChoice(true);
-        return;
-      }
-
-      setIsSwitching(true);
-      const success = await handleLoginSecuritySwitch(
-        accountMnemoinc,
-        '',
-        'plain',
-      );
-      if (!success)
-        throw new Error(t('settings.loginSecurity.toggleSecurityModeError'));
-
-      await updateSecuritySettings({
-        ...securityLoginSettings,
-        isSecurityEnabled: false,
-      });
-      setShowSecurityChoice(false);
-    } catch (err) {
-      console.log('Toggle switch error:', err);
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
-    } finally {
-      setIsSwitching(false);
-    }
-  }, [securityLoginSettings]);
+  const toggleSecurityEnabled = useCallback(() => {
+    // Security can only be enabled, never disabled.
+    setShowSecurityChoice(true);
+  }, []);
 
   const toggleUseRandomPinLayout = useCallback(async () => {
     try {
@@ -268,23 +243,28 @@ export default function LoginSecurity({ extraData }) {
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <SettingsSection>
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          <SettingsItem
-            isLast
-            dividerColor={backgroundColor}
-            label={t('settings.loginSecurity.text1')}
+      {securityLoginSettings.isSecurityEnabled === false && (
+        <SettingsSection>
+          <View
+            style={[
+              styles.sectionContent,
+              { backgroundColor: backgroundOffset },
+            ]}
           >
-            <CustomToggleSwitch
-              page="LoginSecurityMode"
-              toggleSwitchFunction={toggleSecurityEnabled}
-              stateValue={securityLoginSettings.isSecurityEnabled}
-            />
-          </SettingsItem>
-        </View>
-      </SettingsSection>
+            <SettingsItem
+              isLast
+              dividerColor={backgroundColor}
+              label={t('settings.loginSecurity.text1')}
+            >
+              <CustomToggleSwitch
+                page="LoginSecurityMode"
+                toggleSwitchFunction={toggleSecurityEnabled}
+                stateValue={securityLoginSettings.isSecurityEnabled}
+              />
+            </SettingsItem>
+          </View>
+        </SettingsSection>
+      )}
 
       {showSecurityChoice && (
         <SettingsSection title={t('settings.loginSecurity.text2')}>
