@@ -62,6 +62,10 @@ async function terminateAccount() {
   try {
     crashlyticsLogReport('Starting termiate data from secure store function');
 
+    await deleteItemAsync('pin');
+    await deleteItemAsync('mnemonic');
+    await deleteItemAsync('pin', KEYCHAIN_OPTION);
+    await deleteItemAsync('mnemonic', KEYCHAIN_OPTION);
     await deleteItemAsync('pinHash', KEYCHAIN_OPTION);
     await deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
     await deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
