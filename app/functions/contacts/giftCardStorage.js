@@ -206,3 +206,19 @@ export const deleteGiftCardData = async invoice => {
     return false;
   }
 };
+
+export const deleteGiftCardsTable = async () => {
+  try {
+    await ensureGiftCardDatabaseReady();
+    await giftCardDB.runAsync(`DROP TABLE IF EXISTS ${GIFT_CARDS_TABLE_NAME};`);
+    // isInitialized flips back so the next direct initializeGiftCardDatabase()
+    // call re-runs the CREATE TABLE (openGiftCardDB is still memoized, so the
+    // same live handle is reused).
+    isInitialized = false;
+    console.log(`Table ${GIFT_CARDS_TABLE_NAME} deleted successfully`);
+    return true;
+  } catch (err) {
+    console.log('Error deleting gift card table:', err);
+    return false;
+  }
+};

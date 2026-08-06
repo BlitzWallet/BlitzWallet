@@ -3,7 +3,7 @@
 // (not imported from transactions.js) to avoid a circular import — this module
 // must never import from transactions.js; the db handle is always passed in.
 const SPARK_TRANSACTIONS_TABLE = 'spark_transactions';
-const SPEND_AND_REPLACE_TABLE = 'spend_and_replace_intents';
+export const SPEND_AND_REPLACE_TABLE = 'spend_and_replace_intents';
 
 export const createSpendAndReplaceTable = async db => {
   await db.execAsync(`
