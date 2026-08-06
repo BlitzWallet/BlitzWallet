@@ -87,6 +87,10 @@ jest.mock('../../app/functions/crashlyticsLogs', () => ({
   crashlyticsRecordErrorReport: jest.fn(),
 }));
 
+jest.mock('../../app/functions/secureStore', () => ({
+  wipeStaleWalletKeychain: jest.fn(async () => true),
+}));
+
 const {
   initLeavesDb,
 } = require('../../app/functions/spark/leavesStorage');
@@ -104,6 +108,9 @@ const {
   deleteAllLocalWalletTables,
   default: wipeLocalWalletData,
 } = require('../../app/functions/wipeLocalWalletData');
+const {
+  wipeStaleWalletKeychain,
+} = require('../../app/functions/secureStore');
 const { deleteAsync } = require('expo-file-system/legacy');
 
 // ---------------------------------------------------------------------------
@@ -224,6 +231,9 @@ describe('wipeLocalWalletData', () => {
     // A full wipe is the cleanest reset: tables empty + AsyncStorage empty.
     await wipeLocalWalletData();
     await openAllDatabases();
+    // Clear the scrub call made by the reset wipe so tests only count their
+    // own wipeLocalWalletData() call.
+    wipeStaleWalletKeychain.mockClear();
   });
 
   afterEach(() => {
@@ -299,6 +309,21 @@ describe('wipeLocalWalletData', () => {
     expect(store.get('userSelectedLanguage')).toBe('de-DE');
     expect(store.get('didViewSeedPhrase')).toBe('false');
     expect(store.has('homepageTxPreferance')).toBe(false);
+  });
+
+  test('calls wipeStaleWalletKeychain during the wipe', async () => {
+    await wipeLocalWalletData();
+
+    expect(wipeStaleWalletKeychain).toHaveBeenCalledTimes(1);
+  });
+
+  test('wipeLocalWalletData returns false when the keychain scrub fails', async () => {
+    seedAllTables();
+    wipeStaleWalletKeychain.mockResolvedValueOnce(false);
+
+    const result = await wipeLocalWalletData();
+
+    expect(result).toBe(false);
   });
 
   test('deleteAllLocalWalletTables returns false when a delete rejects', async () => {

@@ -37,6 +37,7 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from './crashlyticsLogs';
+import { wipeStaleWalletKeychain } from './secureStore';
 
 // AsyncStorage keys carried across the wipe. userSelectedLanguage keeps
 // non-English users from flipping to en mid-onboarding; didViewSeedPhrase holds
@@ -98,10 +99,14 @@ async function wipeImageCacheDirectories() {
   }
 }
 
-// Wipes everything wallet-local EXCEPT the keychain (the freshly written
-// encryptedMnemonic/pinHash must survive). Used by create/restore onboarding so
-// a previous wallet's stale AsyncStorage + SQLite cache can never render as the
-// new wallet's live data. Returns true only when the wipe fully succeeded.
+// Wipes everything wallet-local, including the previous wallet's keychain.
+// Only the freshly written encryptedMnemonic + pinHash survive — the PIN page
+// just wrote them for the NEW wallet (handleMnemonic.js
+// storeMnemonicWithPinSecurity), so the keychain scrub keeps them and deletes
+// every other secure-store item (NWC identity, custody, biometric, legacy
+// pin/mnemonic). Used by create/restore onboarding so a previous wallet's
+// stale AsyncStorage, SQLite cache, and keychain identity can never render as
+// the new wallet's live data. Returns true only when the wipe fully succeeded.
 export default async function wipeLocalWalletData() {
   const preservedValues = {};
   for (const key of PRESERVED_KEYS) {
@@ -110,6 +115,7 @@ export default async function wipeLocalWalletData() {
 
   const didClearStorage = await removeAllLocalData();
   const didDeleteTables = await deleteAllLocalWalletTables();
+  const didScrubKeychain = await wipeStaleWalletKeychain();
 
   await wipeImageCacheDirectories();
 
@@ -135,9 +141,14 @@ export default async function wipeLocalWalletData() {
     }
   }
 
-  if (!didClearStorage || !didDeleteTables || !didReinitialize) {
+  if (
+    !didClearStorage ||
+    !didDeleteTables ||
+    !didReinitialize ||
+    !didScrubKeychain
+  ) {
     crashlyticsLogReport(
-      `wipeLocalWalletData failed: clearStorage=${didClearStorage} deleteTables=${didDeleteTables} reinit=${didReinitialize}`,
+      `wipeLocalWalletData failed: clearStorage=${didClearStorage} deleteTables=${didDeleteTables} reinit=${didReinitialize} scrubKeychain=${didScrubKeychain}`,
     );
     return false;
   }

@@ -78,6 +78,34 @@ async function terminateAccount() {
   }
 }
 
+async function wipeStaleWalletKeychain() {
+  // Deletes the previous wallet's secure-store items during onboarding wipe.
+  // Keeps pinHash + encryptedMnemonic — the PIN page just wrote them for the
+  // NEW wallet (handleMnemonic.js storeMnemonicWithPinSecurity). Everything
+  // else is stale previous-wallet data at wipe-time. deleteItemAsync is a no-op
+  // for absent keys, so this is safe on a first-ever install.
+  try {
+    await Promise.all([
+      deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION),
+      deleteItemAsync(CUSTODY_ACCOUNTS_STORAGE_KEY, KEYCHAIN_OPTION),
+      deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION),
+      deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION),
+      deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION),
+      // Legacy pre-migration entries: default service (V1) + KEYCHAIN_OPTION (V2).
+      // Removing them stops a re-armed startup migration from clobbering the new
+      // encryptedMnemonic/pinHash (Finding 2).
+      deleteItemAsync('pin'),
+      deleteItemAsync('mnemonic'),
+      deleteItemAsync('pin', KEYCHAIN_OPTION),
+      deleteItemAsync('mnemonic', KEYCHAIN_OPTION),
+    ]);
+    return true;
+  } catch (error) {
+    console.log('wipeStaleWalletKeychain error', error);
+    return false;
+  }
+}
+
 async function deleteItem(key) {
   try {
     crashlyticsLogReport('Starting delte item from secure store function');
@@ -172,6 +200,7 @@ export {
   retrieveData,
   storeData,
   terminateAccount,
+  wipeStaleWalletKeychain,
   deleteItem,
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
