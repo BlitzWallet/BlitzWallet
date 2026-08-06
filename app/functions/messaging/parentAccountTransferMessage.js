@@ -28,7 +28,9 @@ export function buildParentAccountTransferMessagePayload({
     didSend: true,
     name: parentName,
     description: i18next.t(
-      'settings.accountComponents.transferModal.selfTransfer',
+      `settings.accountComponents.transferModal.${
+        isDeposit ? 'addFunds' : 'withdrawFunds'
+      }`,
       { name: parentName },
     ),
     txid,
