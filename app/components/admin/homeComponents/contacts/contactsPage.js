@@ -29,7 +29,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ContactProfileImage from './internalComponents/profileImage';
-import { useImageCache } from '../../../../../context-store/imageCache';
+import { useImageCacheEntry } from '../../../../../context-store/imageCache';
 import {
   createFormattedDate,
   formatMessage,
@@ -54,7 +54,6 @@ import NoContentSceen from '../../../../functions/CustomElements/noContentScreen
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { cache } = useImageCache();
   const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
@@ -146,7 +145,6 @@ export default function ContactsPage({ navigation }) {
           key={contact.contact.uuid}
           contact={contact.contact}
           hasUnlookedTransaction={contact.hasUnlookedTransaction}
-          cache={cache}
           darkModeType={darkModeType}
           theme={theme}
           backgroundOffset={backgroundOffset}
@@ -158,7 +156,6 @@ export default function ContactsPage({ navigation }) {
       ));
   }, [
     contactInfoList,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -178,7 +175,6 @@ export default function ContactsPage({ navigation }) {
         hasUnlookedTransaction={item.hasUnlookedTransaction}
         lastUpdated={item.lastUpdated}
         firstMessage={item.firstMessage}
-        cache={cache}
         darkModeType={darkModeType}
         theme={theme}
         backgroundOffset={backgroundOffset}
@@ -208,7 +204,6 @@ export default function ContactsPage({ navigation }) {
     return contacts;
   }, [
     filteredContacts,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -400,7 +395,6 @@ const PinnedContactElement = memo(
   ({
     contact,
     hasUnlookedTransaction,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -410,6 +404,7 @@ const PinnedContactElement = memo(
     screenDimensions,
   }) => {
     const [textWidth, setTextWidth] = useState(0);
+    const imageEntry = useImageCacheEntry(contact.uuid);
 
     // Memoize calculated dimensions
     const containerSize = useMemo(
@@ -487,8 +482,8 @@ const PinnedContactElement = memo(
         <View style={pinnedContactStyle}>
           <View style={imageContainerStyle}>
             <ContactProfileImage
-              updated={cache[contact.uuid]?.updated}
-              uri={cache[contact.uuid]?.localUri}
+              updated={imageEntry?.updated}
+              uri={imageEntry?.localUri}
               darkModeType={darkModeType}
               theme={theme}
             />
@@ -516,7 +511,6 @@ const ContactElement = memo(
     hasUnlookedTransaction,
     lastUpdated,
     firstMessage,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -528,6 +522,8 @@ const ContactElement = memo(
     t,
     isLastElement,
   }) => {
+    const imageEntry = useImageCacheEntry(contact.uuid);
+
     const imageContainerStyle = useMemo(
       () => ({
         ...memoizedStyles.contactImageContainer,
@@ -587,8 +583,8 @@ const ContactElement = memo(
       >
         <View style={imageContainerStyle}>
           <ContactProfileImage
-            updated={cache[contact.uuid]?.updated}
-            uri={cache[contact.uuid]?.localUri}
+            updated={imageEntry?.updated}
+            uri={imageEntry?.localUri}
             darkModeType={darkModeType}
             theme={theme}
           />

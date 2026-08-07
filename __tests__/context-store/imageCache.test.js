@@ -98,6 +98,7 @@ jest.mock('../../context-store/context', () => ({
 const {
   ImageCacheProvider,
   useImageCache,
+  useImageCacheEntry,
 } = require('../../context-store/imageCache');
 
 const PREFIX = 'blitzProfileImg';
@@ -696,5 +697,114 @@ describe('freshness pass is decoupled from Spark', () => {
     // The pass ran again on foreground — driven by appStatus's appState, with no
     // second AppState listener of our own.
     expect(mockGetMetadata).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('freshness pass avoids JS-thread re-render storms', () => {
+  test('still-current refresh persists lastChecked but leaves React cache untouched', async () => {
+    // Seed a healthy, current entry (file present, updated matches server).
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/present`]);
+    mockGetMultipleItems.mockResolvedValue([storedEntry('present')]);
+    mockReadDirectoryAsync.mockResolvedValue(['present.jpg']);
+    mockGetMetadata.mockResolvedValue({ updated: 'updated-present' });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    await mount();
+    const cacheBefore = ctx.cache;
+
+    await act(async () => {
+      await ctx.refreshCache('present', null);
+    });
+
+    // TTL timestamp is persisted (cross-launch TTL still works)…
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      `${PREFIX}/present`,
+      expect.stringContaining('lastChecked'),
+    );
+    // …but nothing visible changed, so no setState was issued and no consumer
+    // re-rendered (with a large contact list, one setCache per contact on every
+    // pass was the dominant JS-thread cost of the freshness pass).
+    expect(ctx.cache).toBe(cacheBefore);
+    expect(ctx.cache.present.updated).toBe('updated-present');
+  });
+
+  test('still-current refresh commits when the visible entry actually changed', async () => {
+    // A "deleted" entry (null localUri) whose file survives on disk (a crash
+    // mid-delete). The metadata still matches, but re-anchoring the pointer is
+    // a real visible change, so the refresh MUST update React state.
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/resurrect`]);
+    mockGetMultipleItems.mockResolvedValue([
+      [
+        `${PREFIX}/resurrect`,
+        JSON.stringify({ uri: null, localUri: null, updated: 'updated-r' }),
+      ],
+    ]);
+    mockReadDirectoryAsync.mockResolvedValue(['resurrect.jpg']);
+    mockGetMetadata.mockResolvedValue({ updated: 'updated-r' });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    await mount();
+    expect(ctx.cache.resurrect.localUri).toBeNull();
+    const cacheBefore = ctx.cache;
+
+    await act(async () => {
+      await ctx.refreshCache('resurrect', null);
+    });
+
+    expect(ctx.cache).not.toBe(cacheBefore);
+    expect(ctx.cache.resurrect.localUri).toBe(
+      'file:///cache/profile_images/resurrect.jpg',
+    );
+  });
+
+  test('useImageCacheEntry consumers re-render only when their own uuid changes', async () => {
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    const renderCounts = { a: 0, b: 0 };
+    function EntryReader({ uuid }) {
+      useImageCacheEntry(uuid);
+      renderCounts[uuid] += 1;
+      return null;
+    }
+
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(
+          ImageCacheProvider,
+          null,
+          React.createElement(
+            React.Fragment,
+            null,
+            React.createElement(EntryReader, { uuid: 'a' }),
+            React.createElement(EntryReader, { uuid: 'b' }),
+            React.createElement(Capture, null),
+          ),
+        ),
+      );
+    });
+    await flush();
+
+    const aBefore = renderCounts.a;
+    const bBefore = renderCounts.b;
+
+    // Only uuid 'a' changes → only its subscriber re-renders.
+    await act(async () => {
+      await ctx.refreshCache('a', 'https://example.com/a.jpg');
+    });
+    await flush();
+
+    expect(renderCounts.a).toBeGreaterThan(aBefore);
+    expect(renderCounts.b).toBe(bBefore);
+
+    // A second update to the same uuid re-renders it again.
+    const aAfterFirst = renderCounts.a;
+    await act(async () => {
+      await ctx.refreshCache('a', 'https://example.com/a2.jpg');
+    });
+    await flush();
+    expect(renderCounts.a).toBeGreaterThan(aAfterFirst);
+    expect(renderCounts.b).toBe(bBefore);
   });
 });
