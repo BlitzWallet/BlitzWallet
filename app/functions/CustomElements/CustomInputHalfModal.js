@@ -98,7 +98,9 @@ export default function CustomInputHalfModal(props) {
     handleBackPressFunction(() => {
       if (props?.passedParams) {
         navigate.popTo(returnLocation, {
-          ...props?.passedParams,
+          ...(props?.passedParams?.accountID
+            ? { accountID: props?.passedParams?.accountID }
+            : {}),
           amount: !amountValue ? 0 : localSatAmount,
           type: type,
         });

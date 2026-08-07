@@ -54,7 +54,7 @@ export default function CreateCustodyAccounts() {
       if (account.uuid === MAIN_ACCOUNT_UUID) return;
 
       navigate.navigate('EditAccountPage', {
-        account,
+        accountId: account.uuid,
         from: 'SettingsContentHome',
       });
     },

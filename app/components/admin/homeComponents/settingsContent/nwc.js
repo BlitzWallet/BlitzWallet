@@ -102,7 +102,6 @@ export default function NosterWalletConnect() {
           }?relay=${encodeURIComponent(NOSTR_RELAY_URL)}&secret=${
             value.secret
           }`;
-          console.log(connectionString, 't');
           return (
             <View
               key={key}
@@ -122,7 +121,6 @@ export default function NosterWalletConnect() {
                   onPress={() =>
                     navigate.navigate('CreateNostrConnectAccount', {
                       accountID: key,
-                      data: value,
                     })
                   }
                   style={styles.actionButton}

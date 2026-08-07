@@ -28,9 +28,9 @@ import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
-  const selectedAccount = props?.route?.params?.account;
+  const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
-  const { getAccountMnemonic, custodyAccounts, activeAccount } =
+  const { getAccountMnemonic, custodyAccountsList, activeAccount } =
     useActiveCustodyAccount();
   const { toggleMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
@@ -40,11 +40,10 @@ export default function EditAccountPage(props) {
 
   const accountInformation = useMemo(() => {
     return (
-      custodyAccounts?.find(item => item.uuid === selectedAccount.uuid) ||
-      selectedAccount ||
+      custodyAccountsList?.find(item => item.uuid === accountId) ||
       {}
     );
-  }, [custodyAccounts, selectedAccount.uuid]);
+  }, [custodyAccountsList, accountId]);
 
   const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
 
@@ -57,29 +56,23 @@ export default function EditAccountPage(props) {
 
   const handleProfileImage = () => {
     if (accountInformation.uuid === NWC_ACCOUNT_UUID) return;
-    navigate.navigate('EmojiAvatarSelector', { account: accountInformation });
+    navigate.navigate('EmojiAvatarSelector', {
+      accountId: accountInformation.uuid,
+    });
   };
 
-  console.log(
-    'Selected Account:',
-    selectedAccount,
-    accountInformation,
-    custodyAccounts,
-    'redndering',
-  );
-
   const handleNavigateView = useCallback(async () => {
-    const mnemonic = await getAccountMnemonic(selectedAccount);
+    const mnemonic = await getAccountMnemonic(accountInformation);
     navigate.navigate('SeedPhraseWarning', {
       mnemonic: mnemonic,
       extraData: { canViewQrCode: false },
       fromPage: 'accounts',
     });
-  }, [selectedAccount]);
+  }, [accountInformation]);
 
   const handleEditName = useCallback(async () => {
     navigate.navigate('EditAccountName', {
-      account: accountInformation,
+      accountId: accountInformation.uuid,
     });
   }, [accountInformation]);
 
@@ -105,13 +98,13 @@ export default function EditAccountPage(props) {
   }, [navigate, t, accountInformation.accountType]);
 
   const handlePinToggle = useCallback(() => {
-    const accountId = accountInformation.uuid || accountInformation.name;
+    const pinnedAccountId = accountInformation.uuid || accountInformation.name;
     const currentPins = masterInfoObject.pinnedAccounts || [];
-    const isPinned = currentPins.includes(accountId);
+    const isPinned = currentPins.includes(pinnedAccountId);
 
     if (isPinned) {
       toggleMasterInfoObject({
-        pinnedAccounts: currentPins.filter(id => id !== accountId),
+        pinnedAccounts: currentPins.filter(id => id !== pinnedAccountId),
       });
     } else {
       if (currentPins.length >= 2) {
@@ -122,7 +115,7 @@ export default function EditAccountPage(props) {
         return;
       }
       toggleMasterInfoObject({
-        pinnedAccounts: [...currentPins, accountId],
+        pinnedAccounts: [...currentPins, pinnedAccountId],
       });
     }
   }, [
@@ -317,7 +310,7 @@ export default function EditAccountPage(props) {
               return;
             }
             navigate.navigate('RemoveAccountPage', {
-              account: accountInformation,
+              accountId: accountInformation.uuid,
               from: fromPage,
             });
           }}
