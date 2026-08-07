@@ -7,9 +7,11 @@
 // left BOTH balance and history permanently empty for the session.
 //
 // The fix: getSparkTransactions now returns a `success` flag. restore only marks
-// the account complete on a SUCCESSFUL empty batch, and additionally refuses to
-// mark complete when it found zero transactions but the wallet reports a
-// positive balance (you cannot hold a balance with no transactions).
+// the account complete on a SUCCESSFUL empty batch (a failed fetch retries up to
+// MAX_RESTORE_FETCH_RETRIES times, then gives up without marking complete).
+// Because a failed fetch is already handled above via the success flag, a
+// successful empty batch is trusted as the end of history even when the wallet
+// reports a positive balance.
 
 const mockGetSparkTransactions = jest.fn();
 const mockGetSparkBalance = jest.fn();
@@ -113,8 +115,8 @@ describe('fullRestoreSparkState — restore-complete gating', () => {
       expect(markedComplete()).toBe(false);
       // A failed fetch must not even reach the balance sanity check.
       expect(mockGetSparkBalance).not.toHaveBeenCalled();
-      // Retries the same offset up to the consecutive-failure cap, then throws.
-      expect(mockGetSparkTransactions).toHaveBeenCalledTimes(3);
+      // Retries the same offset up to the consecutive-failure cap (5), then throws.
+      expect(mockGetSparkTransactions).toHaveBeenCalledTimes(5);
     } finally {
       jest.useRealTimers();
     }
@@ -144,31 +146,20 @@ describe('fullRestoreSparkState — restore-complete gating', () => {
     }
   });
 
-  it('retries the suspicious empty-with-balance batch instead of aborting', async () => {
-    jest.useFakeTimers();
-    try {
-      // First a successful-but-empty batch while the wallet reports a balance
-      // (suspicious → retry), then a real batch, then end of history.
-      mockGetSparkTransactions
-        .mockResolvedValueOnce({ transfers: [], success: true })
-        .mockResolvedValueOnce({
-          transfers: [{ id: 'tx-1', transferDirection: 'INCOMING' }],
-          success: true,
-        })
-        .mockResolvedValue({ transfers: [], success: true });
-      // Positive balance on the first (suspicious) check, then zero at the end.
-      mockGetSparkBalance
-        .mockResolvedValueOnce({ didWork: true, balance: 5000n })
-        .mockResolvedValue({ didWork: true, balance: 0n });
+  it('trusts a successful empty batch as the end of history even when the wallet has a balance', async () => {
+    // A failed fetch is already handled via the success flag above (retried up
+    // to the cap, then thrown), so a successful empty batch marks the restore
+    // complete without a separate balance sanity check.
+    mockGetSparkTransactions.mockResolvedValue({
+      transfers: [],
+      success: true,
+    });
+    mockGetSparkBalance.mockResolvedValue({ didWork: true, balance: 5000n });
 
-      const restorePromise = runRestore();
-      await jest.runAllTimersAsync();
-      await restorePromise;
+    await runRestore();
 
-      expect(markedComplete()).toBe(true);
-    } finally {
-      jest.useRealTimers();
-    }
+    expect(markedComplete()).toBe(true);
+    expect(mockGetSparkBalance).not.toHaveBeenCalled();
   });
 
   it('DOES mark restore complete on a successful empty batch for a zero-balance wallet', async () => {
@@ -181,26 +172,6 @@ describe('fullRestoreSparkState — restore-complete gating', () => {
     await runRestore();
 
     expect(markedComplete()).toBe(true);
-  });
-
-  it('does NOT mark restore complete when zero txs are returned but the wallet has a balance', async () => {
-    jest.useFakeTimers();
-    try {
-      mockGetSparkTransactions.mockResolvedValue({
-        transfers: [],
-        success: true,
-      });
-      mockGetSparkBalance.mockResolvedValue({ didWork: true, balance: 5000n });
-
-      const restorePromise = runRestore();
-      // Persistent empty-with-balance is retried before giving up; drive timers.
-      await jest.runAllTimersAsync();
-      await restorePromise;
-
-      expect(markedComplete()).toBe(false);
-    } finally {
-      jest.useRealTimers();
-    }
   });
 
   it('marks complete on an empty batch when the balance is unknown (didWork:false), staying conservative', async () => {

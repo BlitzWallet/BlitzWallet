@@ -353,12 +353,12 @@ describe('webViewContext — zombie request hangs (P0 Fix 1)', () => {
     expect(SUT.__getPendingRequestIdsForTest()).not.toContain(id);
   });
 
-  test('case 2: orphaned request (bookkeeping wiped on background) is swept on foreground', async () => {
+  test('case 2: background keeps bookkeeping so the request re-arms on foreground instead of being interrupted', async () => {
     await mountAndReady();
 
     // didGetToHomepage false so the foreground effect does NOT take the
-    // blockAndResetWebview branch (which would clear pending itself) — this
-    // isolates the orphan sweep as the only thing that can settle the request.
+    // blockAndResetWebview branch — this isolates the re-arm path as the only
+    // thing that can settle the request.
     mockAppStatus.didGetToHomepage = false;
     rerender();
     await flush();
@@ -368,24 +368,28 @@ describe('webViewContext — zombie request hangs (P0 Fix 1)', () => {
     const id = postedId('testPing');
     expect(SUT.__getPendingRequestIdsForTest()).toContain(id);
 
-    // Background wipes activeTimeoutsRef but leaves pendingRequests -> orphan.
+    // Background clears the live timer but KEEPS each entry (handler/duration),
+    // so the in-flight request is re-armed on foreground — never interrupted
+    // with "Request interrupted by app state change" mid-send.
     mockAppStatus.appState = 'background';
     AppState.currentState = 'background';
     rerender();
     await flush();
     expect(st.settled).toBe(false);
 
-    // Foreground -> rearmOrSweep sweeps the orphan (no bookkeeping) synchronously.
+    // Foreground -> rearmOrSweep re-arms the preserved entry; request still alive.
     mockAppStatus.appState = 'active';
     AppState.currentState = 'active';
     rerender();
     await flush();
+    expect(st.settled).toBe(false);
+    expect(SUT.__getPendingRequestIdsForTest()).toContain(id);
 
+    // The re-armed timer settles it once it fires while active.
+    await advance(10001);
     expect(st.settled).toBe(true);
-    expect(st.rejected).toBe(false);
-    expect(st.value).toEqual({
-      error: 'Request interrupted by app state change',
-    });
+    expect(st.rejected).toBe(true);
+    expect(String(st.value.message || st.value)).toMatch(/unresponsive/);
     expect(SUT.__getPendingRequestIdsForTest()).not.toContain(id);
   });
 

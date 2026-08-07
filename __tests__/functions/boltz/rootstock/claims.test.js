@@ -2,10 +2,13 @@ jest.mock('boltz-core/out/EtherSwap.sol/EtherSwap.json', () => ({
   abi: [],
 }));
 
-jest.mock('bolt11', () => ({
-  decode: jest.fn(() => ({
-    tags: [{ tagName: 'payment_hash', data: 'b'.repeat(64) }],
-  })),
+jest.mock('../../../../app/functions/decodeBolt11', () => ({
+  __esModule: true,
+  default: {
+    decode: jest.fn(() => ({
+      tags: [{ tagName: 'payment_hash', data: 'b'.repeat(64) }],
+    })),
+  },
 }));
 
 jest.mock('../../../../app/functions/boltz/rootstock/swapDb', () => ({

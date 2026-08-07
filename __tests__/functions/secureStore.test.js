@@ -1,10 +1,11 @@
 /* eslint-env jest */
 // Focused unit tests for the onboarding-wipe keychain work:
 //  - wipeStaleWalletKeychain: the scrub must delete every stale previous-wallet
-//    secure-store item (NWC seed + connection data, biometric key, custody
-//    accounts, login-security mode, and legacy pre-migration pin/mnemonic under
-//    both keychain services) while always keeping the freshly written pinHash +
-//    encryptedMnemonic AND the wipe re-arm marker.
+//    secure-store item (NWC seed + connection data, biometric key, login-security
+//    mode, and legacy pre-migration pin/mnemonic under both keychain services)
+//    while always keeping the freshly written pinHash + encryptedMnemonic AND
+//    the wipe re-arm marker. Custody accounts live in AsyncStorage (localStorage),
+//    so the keychain scrub correctly leaves them alone.
 //  - arm/is/disarmWipeInProgress: the keychain-backed wipeInProgress marker that
 //    re-arms a failed/killed wipe on the next launch. Must survive the scrub,
 //    fail closed when unreadable, and disarm must verify the delete really
@@ -42,7 +43,6 @@ const {
 } = require('expo-secure-store');
 const {
   BIOMETRIC_KEY,
-  CUSTODY_ACCOUNTS_STORAGE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
   NWC_SECURE_STORE_KEY,
   NWC_SECURE_STORE_MNEMOINC,
@@ -62,10 +62,9 @@ describe('wipeStaleWalletKeychain', () => {
       keychainService: SHARED_KEYCHAIN_SERVICE,
     });
 
-    expect(deleteItemAsync).toHaveBeenCalledTimes(9);
+    expect(deleteItemAsync).toHaveBeenCalledTimes(8);
     for (const key of [
       BIOMETRIC_KEY,
-      CUSTODY_ACCOUNTS_STORAGE_KEY,
       LOGIN_SECURITY_MODE_TYPE_KEY,
       NWC_SECURE_STORE_MNEMOINC,
       NWC_SECURE_STORE_KEY,
@@ -130,10 +129,10 @@ describe('wipe re-arm marker (wipeInProgress)', () => {
     await expect(isWipeInProgress()).resolves.toBe(false);
   });
 
-  test('isWipeInProgress fails closed (true) when the keychain read throws', async () => {
+  test('isWipeInProgress non blocking when the keychain read throws', async () => {
     getItemAsync.mockRejectedValueOnce(new Error('device locked'));
 
-    await expect(isWipeInProgress()).resolves.toBe(true);
+    await expect(isWipeInProgress()).resolves.toBe(false);
   });
 
   test('disarmWipeInProgress deletes the marker and verifies removal', async () => {

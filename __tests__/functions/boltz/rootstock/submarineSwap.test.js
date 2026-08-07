@@ -2,10 +2,13 @@ jest.mock('boltz-core/out/EtherSwap.sol/EtherSwap.json', () => ({
   abi: [],
 }));
 
-jest.mock('bolt11', () => ({
-  decode: jest.fn(() => ({
-    tags: [{ tagName: 'payment_hash', data: 'a'.repeat(64) }],
-  })),
+jest.mock('../../../../app/functions/decodeBolt11', () => ({
+  __esModule: true,
+  default: {
+    decode: jest.fn(() => ({
+      tags: [{ tagName: 'payment_hash', data: 'a'.repeat(64) }],
+    })),
+  },
 }));
 
 jest.mock('react-native-quick-crypto', () => ({
@@ -43,7 +46,7 @@ jest.mock('ethers', () => ({
 }));
 
 const { Contract } = require('ethers');
-const bolt11 = require('bolt11');
+const bolt11 = require('../../../../app/functions/decodeBolt11').default;
 const {
   loadSwaps,
   saveSwap,
