@@ -255,7 +255,7 @@
       "pin": {
         "savePinError": "PIN konnte nicht gespeichert werden.",
         "removeWalletError": "Fehler beim Entfernen der Wallet.",
-        "wipeError": "Die Daten der vorherigen Wallet auf diesem Gerät konnten nicht gelöscht werden. Dein PIN ist gespeichert, bitte versuche es erneut, bevor du fortfährst.",
+        "wipeError": "Die Daten der vorherigen Wallet auf diesem Gerät konnten nicht gelöscht werden. Ihre PIN wurde gespeichert. Bitte versuchen Sie es erneut, bevor Sie fortfahren.",
         "wrongPinError": "Falscher PIN – bitte erneut versuchen",
         "enterPinMessage": "PIN erstellen",
         "confirmPin": "PIN bestätigen",
