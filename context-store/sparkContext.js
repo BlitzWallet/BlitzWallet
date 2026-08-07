@@ -95,6 +95,7 @@ import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransfe
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
 import { getCachedTokenImages } from '../app/functions/spark/tokenImageCache';
 import { useToastActions } from './toastManager';
+import { clearSharedSecretCache } from '../app/functions/messaging/encodingAndDecodingMessages';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -1824,6 +1825,7 @@ const SparkWalletProvider = ({ children }) => {
       await removeListeners(true);
       if (shouldClearMnemonicCache) {
         clearMnemonicCache();
+        clearSharedSecretCache();
         disposeWalletViewer();
       }
       prevAccountMnemoincRef.current = null;
