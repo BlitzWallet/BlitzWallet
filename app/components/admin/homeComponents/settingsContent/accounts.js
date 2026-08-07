@@ -54,7 +54,7 @@ export default function CreateCustodyAccounts() {
   const handleOpenAccount = useCallback(
     item => {
       navigate.navigate('EditAccountPage', {
-        account: item,
+        accountId: item.uuid,
         from: 'SettingsContentHome',
       });
     },

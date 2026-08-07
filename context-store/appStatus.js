@@ -154,10 +154,7 @@ const AppStatusProvider = ({ children }) => {
 
       crashlyticsLogReport(routeNames);
 
-      console.log(
-        'Current navigation stack',
-        navigationRef.getRootState().routes,
-      );
+      console.log('Current navigation stack', routeNames);
     });
 
     return () => {

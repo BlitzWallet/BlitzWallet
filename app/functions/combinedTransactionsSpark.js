@@ -43,6 +43,17 @@ const TRANSACTION_CONSTANTS = {
   UNKOWN: 'unknown',
 };
 
+const enrichedTxCache = new Map(); // sparkID -> { sig, obj }
+
+function getStableTx(currentTransaction, paymentDetails) {
+  const sig = `${currentTransaction.paymentStatus}:${currentTransaction.status}:${currentTransaction.details}`;
+  const hit = enrichedTxCache.get(currentTransaction.sparkID);
+  if (hit && hit.sig === sig) return hit.obj;
+  const obj = { ...currentTransaction, details: paymentDetails };
+  enrichedTxCache.set(currentTransaction.sparkID, { sig, obj });
+  return obj;
+}
+
 const shouldHideSmallPayment = ({
   frompage,
   hideSmallPaymentsHomepage,
@@ -424,7 +435,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const styledTx = (
         <UserTransaction
           key={uniuqeIDFromTx}
-          tx={{ ...currentTransaction, details: paymentDetails }}
+          tx={getStableTx(currentTransaction, paymentDetails)}
           navigate={navigate}
           transactionPaymentType={transactionPaymentType}
           paymentDate={paymentDate}

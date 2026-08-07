@@ -12,7 +12,7 @@ import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import { NavBar } from './navBar';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
@@ -162,7 +162,6 @@ export default function HomeLightning({ navigation }) {
   const {
     isConnectedToTheInternet,
     didGetToHomepage,
-    toggleDidGetToHomepage,
     screenDimensions,
   } = useAppStatus();
   const scrollViewRef = useRef(null);
@@ -213,12 +212,6 @@ export default function HomeLightning({ navigation }) {
 
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
-
-  useEffect(() => {
-    setTimeout(() => {
-      toggleDidGetToHomepage(true);
-    }, 250);
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -301,14 +294,11 @@ export default function HomeLightning({ navigation }) {
     );
   }, [
     sparkInformation.transactions,
+    sparkInformation.tokens,
     sparkInformation.didConnect,
     homepageTxPreferance,
     userBalanceDenomination,
     // numberOfCachedTxs,
-    didGetToHomepage,
-    theme,
-    darkModeType,
-    t,
     showTokensInformation,
     hideSmallPaymentsHomepage,
     swapLimits.bitcoin,

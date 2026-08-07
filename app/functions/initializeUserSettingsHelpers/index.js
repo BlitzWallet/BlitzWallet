@@ -4,7 +4,7 @@ import {
   SPEND_AND_REPLACE_STORAGE_KEY,
 } from '../../constants';
 import { BLITZ_FEE_PERCET, BLITZ_FEE_SATS } from '../../constants/math';
-import { getLocalStorageItem } from '../localStorage';
+import { getMultipleItems } from '../localStorage';
 import { isNewDaySince } from '../rotateAddressDateChecker';
 import { getLastStatsUpdateUtcMs } from '../timeFormatter';
 
@@ -78,13 +78,13 @@ const defaultValues = {
 };
 
 export const fetchLocalStorageItems = async () => {
-  const results = await Promise.all(keys.map(key => getLocalStorageItem(key)));
+  const pairs = await getMultipleItems(keys);
 
-  const parsedResults = results.map((value, index) => {
+  const parsedResults = keys.map((key, index) => {
     try {
-      return JSON.parse(value);
+      return JSON.parse(pairs[index]?.[1]);
     } catch {
-      return defaultValues[keys[index]]; // Fallback to default if parsing fails
+      return defaultValues[key]; // Fallback to default if parsing fails
     }
   });
 

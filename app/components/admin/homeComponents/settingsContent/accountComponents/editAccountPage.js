@@ -47,11 +47,10 @@ import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveB
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
-  const selectedAccount = props?.route?.params?.account;
+  const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
   const {
     getAccountMnemonic,
-    custodyAccounts,
     activeAccount,
     custodyAccountsList,
   } = useActiveCustodyAccount();
@@ -64,39 +63,28 @@ export default function EditAccountPage(props) {
   const { t } = useTranslation();
   const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
 
-  // Linked (child) accounts live in masterInfoObject.childAccounts, not the
-  // custody store, and derive their seed from childIndex.
-  const isChild = selectedAccount?.childIndex !== undefined;
-
   const isMainAccountAChild = masterInfoObject.isChildAccount;
 
   const accountInformation = useMemo(() => {
-    if (isChild) {
-      return (
-        (masterInfoObject?.childAccounts || []).find(
-          item => item.uuid === selectedAccount.uuid,
-        ) ||
-        selectedAccount ||
-        {}
-      );
-    }
-    return (
-      custodyAccounts?.find(item => item.uuid === selectedAccount.uuid) ||
-      selectedAccount ||
-      {}
+    const childAccount = (masterInfoObject?.childAccounts || []).find(
+      item => item.uuid === accountId,
     );
-  }, [
-    isChild,
-    custodyAccounts,
-    masterInfoObject?.childAccounts,
-    selectedAccount,
-  ]);
+    if (childAccount) return childAccount;
+    return custodyAccountsList?.find(item => item.uuid === accountId) || {};
+  }, [custodyAccountsList, masterInfoObject?.childAccounts, accountId]);
+
+  const selectedAccount = accountInformation;
+
+  // Linked (child) accounts live in masterInfoObject.childAccounts, not the
+  // custody store, and derive their seed from childIndex.
+  const isChild = selectedAccount?.childIndex !== undefined;
 
   const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
 
   const isPinned = pinnedAccountUUIDs.includes(
     accountInformation.uuid || accountInformation.name,
   );
+
   const isActive = activeAccount.uuid === accountInformation.uuid;
   const isActivating =
     isSwitchingAccount.isLoading &&
@@ -173,7 +161,9 @@ export default function EditAccountPage(props) {
       accountInformation.accountType === 'main'
     )
       return;
-    navigate.navigate('EmojiAvatarSelector', { account: accountInformation });
+    navigate.navigate('EmojiAvatarSelector', {
+      accountId: accountInformation.uuid,
+    });
   };
 
   const handleNavigateView = useCallback(async () => {
@@ -201,7 +191,7 @@ export default function EditAccountPage(props) {
       return;
     }
     navigate.navigate('EditAccountName', {
-      account: accountInformation,
+      accountId: accountInformation.uuid,
     });
   }, [isChild, accountInformation, navigate]);
 
@@ -234,13 +224,13 @@ export default function EditAccountPage(props) {
   }, [navigate, t, accountInformation.accountType]);
 
   const handlePinToggle = useCallback(() => {
-    const accountId = accountInformation.uuid || accountInformation.name;
+    const pinnedAccountId = accountInformation.uuid || accountInformation.name;
     const currentPins = masterInfoObject.pinnedAccounts || [];
-    const isPinned = currentPins.includes(accountId);
+    const isPinned = currentPins.includes(pinnedAccountId);
 
     if (isPinned) {
       toggleMasterInfoObject({
-        pinnedAccounts: currentPins.filter(id => id !== accountId),
+        pinnedAccounts: currentPins.filter(id => id !== pinnedAccountId),
       });
     } else {
       if (currentPins.length >= 2) {
@@ -251,7 +241,7 @@ export default function EditAccountPage(props) {
         return;
       }
       toggleMasterInfoObject({
-        pinnedAccounts: [...currentPins, accountId],
+        pinnedAccounts: [...currentPins, pinnedAccountId],
       });
     }
   }, [

@@ -35,6 +35,7 @@ import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
 import sha256Hash from './app/functions/hash';
+import { isEncryptedMnemonicFormat } from './app/functions/handleMnemonic';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
@@ -534,10 +535,22 @@ function ResetStack(): JSX.Element | null {
 
       if (cancelled) return;
 
+      // No startup re-encryption happens here (unlike the copy-only V1/V2
+      // migrations above): the encryption key material is unavailable before
+      // authentication — the PIN is never stored and the biometric key is
+      // keychain-gated — so v3 migration runs inside the login decrypt paths
+      // (`decryptMnemonicWithPin` / `decryptMnemonicWithBiometrics`). The v3
+      // envelope is self-describing, so no flag is needed.
       const isNoSecurityLogin =
         mnemonic.value && !parsedSettings.isSecurityEnabled;
       if (isNoSecurityLogin) {
-        setAccountMnemonic(mnemonic.value);
+        // R4 guard: only inject a plaintext seed. A legacy crash artifact that
+        // left ciphertext under encryptedMnemonic while security is disabled
+        // must not be injected as the wallet identity (garbage identity, no
+        // recovery UI).
+        if (!isEncryptedMnemonicFormat(mnemonic.value)) {
+          setAccountMnemonic(mnemonic.value);
+        }
       }
 
       // For the no-security path the loading screen renders directly as Home, so

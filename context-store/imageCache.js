@@ -6,6 +6,7 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  useSyncExternalStore,
 } from 'react';
 import {
   getDownloadURL,
@@ -41,6 +42,41 @@ const FILE_DIR = cacheDirectory + 'profile_images/';
 const fileUriForUuid = uuid => `${FILE_DIR}${uuid}.jpg`;
 const ImageCacheContext = createContext();
 
+// Per-uuid entry store backing useImageCacheEntry. Kept separate from the
+// context value so list rows can subscribe to a single uuid's entry instead of
+// re-rendering whenever ANY image changes. The old whole-cache context caused
+// every row of the contacts list to re-render on every setCache during the
+// freshness pass — the dominant JS-thread cost of the pass.
+function createEntryStore() {
+  const entries = new Map();
+  const listeners = new Set();
+  return {
+    get(uuid) {
+      return entries.get(uuid);
+    },
+    set(uuid, entry) {
+      entries.set(uuid, entry);
+      listeners.forEach(listener => listener());
+    },
+    setAll(entryMap) {
+      entries.clear();
+      Object.entries(entryMap).forEach(([uuid, entry]) =>
+        entries.set(uuid, entry),
+      );
+      listeners.forEach(listener => listener());
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
+const ImageCacheStoreContext = createContext(null);
+const noopUnsubscribe = () => () => {};
+
 export function ImageCacheProvider({ children }) {
   const [cache, setCache] = useState({});
   const { didGetToHomepage, appState } = useAppStatus();
@@ -52,6 +88,17 @@ export function ImageCacheProvider({ children }) {
   useEffect(() => {
     cacheRef.current = cache;
   }, [cache]);
+
+  // Session-scoped success-TTL timestamps (mirrors the persisted lastChecked).
+  // Kept outside React state so a freshness re-verification never re-renders
+  // consumers; the persisted entry still carries lastChecked for relaunches.
+  const lastCheckedRef = useRef(new Map());
+  const entryStoreRef = useRef(createEntryStore());
+
+  const commitEntry = useCallback((uuid, entry) => {
+    entryStoreRef.current.set(uuid, entry);
+    setCache(prev => ({ ...prev, [uuid]: entry }));
+  }, []);
 
   const inFlightRequests = useRef(new Map());
   // Per-uuid timestamp of the last automatic (non user-driven) download attempt.
@@ -122,6 +169,10 @@ export function ImageCacheProvider({ children }) {
         }
       });
 
+      Object.entries(validatedCache).forEach(([uuid, entry]) => {
+        if (entry?.lastChecked) lastCheckedRef.current.set(uuid, entry.lastChecked);
+      });
+      entryStoreRef.current.setAll(validatedCache);
       setCache(validatedCache);
     } catch (e) {
       console.error('Error loading image cache from storage', e);
@@ -156,10 +207,9 @@ export function ImageCacheProvider({ children }) {
       // within the window. User-driven calls always run.
       if (!hasDownloadURL) {
         const cached = cacheRef.current[uuid];
-        if (
-          cached?.lastChecked &&
-          Date.now() - cached.lastChecked < SUCCESS_TTL_MS
-        ) {
+        const lastCheckedAt =
+          lastCheckedRef.current.get(uuid) ?? cached?.lastChecked;
+        if (lastCheckedAt && Date.now() - lastCheckedAt < SUCCESS_TTL_MS) {
           console.log(
             'Image still fresh (within success TTL), skipping refresh for',
             uuid,
@@ -215,9 +265,21 @@ export function ImageCacheProvider({ children }) {
                   localUri: currentUri,
                   lastChecked: Date.now(),
                 };
+                lastCheckedRef.current.set(uuid, freshEntry.lastChecked);
                 await setLocalStorageItem(key, JSON.stringify(freshEntry));
                 if (!skipCacheUpdate) {
-                  setCache(prev => ({ ...prev, [uuid]: freshEntry }));
+                  // Re-render consumers ONLY when something visible changed
+                  // (e.g. a stale path re-anchored after an OS container move).
+                  // A pure lastChecked bump must not touch React state —
+                  // doing that for every contact on every pass was the
+                  // dominant JS-thread cost of the freshness pass.
+                  const visibleChanged =
+                    freshEntry.uri !== cached.uri ||
+                    freshEntry.localUri !== cached.localUri ||
+                    freshEntry.updated !== cached.updated;
+                  if (visibleChanged) {
+                    commitEntry(uuid, freshEntry);
+                  }
                 }
                 return freshEntry;
               }
@@ -260,7 +322,10 @@ export function ImageCacheProvider({ children }) {
           await setLocalStorageItem(key, JSON.stringify(newEntry));
 
           if (!skipCacheUpdate) {
-            setCache(prev => ({ ...prev, [uuid]: newEntry }));
+            commitEntry(uuid, newEntry);
+          }
+          if (newEntry.lastChecked) {
+            lastCheckedRef.current.set(uuid, newEntry.lastChecked);
           }
 
           // Successful download — clear any prior failure cooldown.
@@ -283,7 +348,7 @@ export function ImageCacheProvider({ children }) {
 
       return requestPromise;
     },
-    [],
+    [commitEntry],
   );
 
   const removeProfileImageFromCache = useCallback(async uuid => {
@@ -298,7 +363,7 @@ export function ImageCacheProvider({ children }) {
       };
 
       await setLocalStorageItem(key, JSON.stringify(newEntry));
-      setCache(prev => ({ ...prev, [uuid]: newEntry }));
+      commitEntry(uuid, newEntry);
       return newEntry;
     } catch (err) {
       console.log('Error removing profile image', err);
@@ -326,8 +391,6 @@ export function ImageCacheProvider({ children }) {
       ...decodedAddedContacts.filter(c => !c.isLNURL),
       { uuid: masterInfoObject.uuid },
     ];
-    console.log('valid contacts', validContacts);
-
     const STAGGER_BATCH_SIZE = 5;
     const STAGGER_DELAY_MS = 5000;
     let index = 0;
@@ -359,6 +422,19 @@ export function ImageCacheProvider({ children }) {
     return () => clearTimeout(timer);
   }, [didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
 
+  // Re-run the freshness pass when the app returns to the foreground. Only
+  // fires on an actual background→active transition, so the mount-time
+  // appState='active' never triggers an early pass. The 30s pass throttle and
+  // the per-uuid success TTL keep this cheap.
+  const prevAppStateRef = useRef(appState);
+  useEffect(() => {
+    const prev = prevAppStateRef.current;
+    prevAppStateRef.current = appState;
+    if (prev === 'active' || appState !== 'active') return;
+    if (!didGetToHomepage || !masterInfoObject?.uuid) return;
+    runFreshnessPass();
+  }, [appState, didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
+
   // Cancel any pending stagger chain on unmount so it can't fire setCache on a
   // torn-down provider.
   useEffect(() => {
@@ -378,12 +454,25 @@ export function ImageCacheProvider({ children }) {
   );
 
   return (
-    <ImageCacheContext.Provider value={contextValue}>
-      {children}
-    </ImageCacheContext.Provider>
+    <ImageCacheStoreContext.Provider value={entryStoreRef.current}>
+      <ImageCacheContext.Provider value={contextValue}>
+        {children}
+      </ImageCacheContext.Provider>
+    </ImageCacheStoreContext.Provider>
   );
 }
 
 export function useImageCache() {
   return useContext(ImageCacheContext);
+}
+
+// Subscribe to a single uuid's cache entry. The returned entry only changes
+// when THAT uuid's image changes, so rows in contact lists can stay memoized
+// while other images update during the freshness pass.
+export function useImageCacheEntry(uuid) {
+  const store = useContext(ImageCacheStoreContext);
+  return useSyncExternalStore(
+    store?.subscribe ?? noopUnsubscribe,
+    () => store?.get(uuid) ?? undefined,
+  );
 }

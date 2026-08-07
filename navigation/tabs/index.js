@@ -179,11 +179,7 @@ export function MyTabs(props) {
       backBehavior="initialRoute"
       tabBar={renderTabBar}
     >
-      <Tab.Screen
-        name="ContactsPageInit"
-        component={props.ContactsPage}
-        options={{ lazy: false }}
-      />
+      <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
       {/* <Tab.Screen name="Gifts" component={props.giftsPageHome} /> */}
       <Tab.Screen name="App Store" component={props.appStore} />

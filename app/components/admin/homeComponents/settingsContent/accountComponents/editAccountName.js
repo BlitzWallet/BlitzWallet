@@ -12,7 +12,7 @@ import {
 } from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { CENTER } from '../../../../../constants';
@@ -21,9 +21,13 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 
 export default function EditAccountName(props) {
-  const selectedAccount = props?.route?.params?.account;
+  const accountId = props?.route?.params?.accountId;
   const maxLength = 50;
-  const { updateAccount } = useActiveCustodyAccount();
+  const { updateAccount, custodyAccountsList } = useActiveCustodyAccount();
+  const selectedAccount = useMemo(
+    () => custodyAccountsList?.find(item => item.uuid === accountId) || {},
+    [custodyAccountsList, accountId],
+  );
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
