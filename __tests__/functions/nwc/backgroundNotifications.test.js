@@ -90,17 +90,21 @@ describe('handleNWCBackgroundEvent authorization', () => {
   });
 
   test('processes requests signed by the authorized client', async () => {
-    const event = buildSignedEvent({
-      secret: clientSecret,
-      tags: [['p', servicePubkey]],
-      content: nip44.encrypt(
-        JSON.stringify({ method: 'get_info', params: {} }),
-        nip44.getConversationKey(
-          Buffer.from(accountPrivateKey, 'hex'),
-          clientPubkey,
+    const event = {
+      ...buildSignedEvent({
+        secret: clientSecret,
+        tags: [['p', servicePubkey]],
+        content: nip44.encrypt(
+          JSON.stringify({ method: 'get_info', params: {} }),
+          nip44.getConversationKey(
+            Buffer.from(accountPrivateKey, 'hex'),
+            clientPubkey,
+          ),
         ),
-      ),
-    });
+      }),
+      // The backend forwards the signer's pubkey as clientPubKey.
+      clientPubKey: clientPubkey,
+    };
 
     await handleNWCBackgroundEvent({ data: { body: { events: [event] } } });
 

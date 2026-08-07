@@ -72,6 +72,8 @@ const tableDeletes = [
   deleteBtcMapTable,
   deleteLeavesTable,
   deleteRootstockSwapTable,
+  () => NWCInvoiceManager.resetDatabase(),
+  () => nwcEventLedger.resetDatabase(),
 ];
 
 export async function deleteAllLocalWalletTables() {
