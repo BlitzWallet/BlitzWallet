@@ -23,8 +23,10 @@ import { useKeysContext } from '../../../../context-store/keys';
 import {
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
-  isArgon2Format,
+  isEncryptedMnemonicFormat,
 } from '../../../functions/handleMnemonic';
+import { validateMnemonic } from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -109,11 +111,15 @@ export default function PinPage() {
     try {
       if (loginSettings.needsToBeMigrated) {
         const savedMnemonic = await retrieveData('encryptedMnemonic');
-        if (isArgon2Format(savedMnemonic.value)) {
-          // Resume a crashed migration: the v2 ciphertext was already written
-          // but the marker wasn't, so this install still looks needsToBeMigrated.
-          // Verify by decrypting — re-encrypting savedMnemonic here would
-          // double-encrypt the ciphertext and corrupt the wallet identity.
+        // Keychain glitch (value:false): count a wrong attempt rather than
+        // attempting a decrypt of a non-existent envelope.
+        if (!savedMnemonic.didWork) return handleWrongPin();
+        if (isEncryptedMnemonicFormat(savedMnemonic.value)) {
+          // Resume a crashed migration: an encrypted value (v2/v3/EvpKDF) was
+          // already written but the marker wasn't, so this install still looks
+          // needsToBeMigrated. Verify by decrypting — re-encrypting
+          // savedMnemonic here would double-encrypt the ciphertext and corrupt
+          // the wallet identity.
           const mnemonicPlain = await decryptMnemonicWithPin(
             JSON.stringify(loginSettings.enteredPin),
           );
@@ -126,12 +132,17 @@ export default function PinPage() {
             return;
           }
         } else if (
-          // savedPin is the user's own raw plaintext PIN (very old plaintext-seed
-          // installs) and savedMnemonic is still the plaintext seed. Comparing it
-          // is not the offline oracle — it is fixed the moment this login
-          // re-encrypts the seed to v2 below.
+          // savedMnemonic is still the plaintext seed and savedPin is the
+          // user's own raw plaintext PIN (very old plaintext-seed installs).
+          // The sha256 comparison is the ONLY authentication factor on this
+          // branch — validateMnemonic alone is always true for a valid seed —
+          // so it MUST stay: without it, anyone at the unlocked PIN screen
+          // types any 4 digits and the seed is re-encrypted under their PIN
+          // (wallet takeover). Comparing it is not an offline oracle — it is
+          // fixed the moment this login re-encrypts the seed to v3 below.
+          validateMnemonic(savedMnemonic.value, wordlist) &&
           sha256Hash(loginSettings.savedPin) ===
-          sha256Hash(JSON.stringify(loginSettings.enteredPin))
+            sha256Hash(JSON.stringify(loginSettings.enteredPin))
         ) {
           const migrationResponse = await handleLoginSecuritySwitch(
             savedMnemonic.value,

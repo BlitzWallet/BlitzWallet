@@ -92,7 +92,7 @@ export async function initializeSparkSession({
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
       getBalanceWithTimeout(mnemonic, 10000),
-      getSparkAddress(mnemonic),
+      getSparkAddress(mnemonic, cachedIdentityPubKey),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
         : getSparkIdentityPubKey(mnemonic),

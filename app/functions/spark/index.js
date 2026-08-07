@@ -728,12 +728,16 @@ export const claimnSparkStaticDepositAddress = async ({
   }
 };
 
-export const getSparkAddress = async mnemonic => {
+export const getSparkAddress = async (mnemonic, identityPublicKeyHex) => {
   try {
-    const derivedIdentityPubKey = await deriveSparkIdentityKey(mnemonic, 1);
-    const derivedSparkAddress = deriveSparkAddress(
-      derivedIdentityPubKey.publicKey,
-    );
+    let derivedPublicKey;
+    if (identityPublicKeyHex) {
+      derivedPublicKey = Buffer.from(identityPublicKeyHex, 'hex'); // 33-byte compressed
+    } else {
+      const derivedIdentityPubKey = await deriveSparkIdentityKey(mnemonic, 1);
+      derivedPublicKey = derivedIdentityPubKey.publicKey;
+    }
+    const derivedSparkAddress = deriveSparkAddress(derivedPublicKey);
     if (derivedSparkAddress.address) {
       return { didWork: true, response: derivedSparkAddress.address };
     }

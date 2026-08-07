@@ -17,9 +17,10 @@ import {
 } from '../app/constants';
 import { useKeysContext } from './keys';
 import {
-  decryptMnemonic,
-  encryptMnemonic,
-} from '../app/functions/handleMnemonic';
+  loadCustodyAccounts,
+  writeCustodyAccounts,
+  resetCustodyCryptoState,
+} from '../app/functions/custodyAccountsCrypto';
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
@@ -71,10 +72,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       try {
         const accoutList = await getLocalStorageItem(
           CUSTODY_ACCOUNTS_STORAGE_KEY,
-        ).then(data => JSON.parse(data) || []);
-
-        const decryptedList = accoutList.map(item =>
-          JSON.parse(decryptMnemonic(item, accountMnemoinc)),
+        );
+        // loadCustodyAccounts decrypts v3 envelopes with the seed-derived key
+        // and lazily migrates legacy EvpKDF lists (fails closed, never
+        // overwrites unreadable data).
+        const decryptedList = await loadCustodyAccounts(
+          accoutList,
+          accountMnemoinc,
         );
 
         setCustodyAccounts(decryptedList);
@@ -107,9 +111,8 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
             isActive: false,
           }));
 
-          setLocalStorageItem(
-            CUSTODY_ACCOUNTS_STORAGE_KEY,
-            JSON.stringify(encriptAccountsList(clearedAccounts)),
+          writeCustodyAccounts(clearedAccounts, accountMnemoinc).catch(err =>
+            console.log('Session reset custody write failed', err),
           );
 
           setCustodyAccounts(clearedAccounts);
@@ -125,12 +128,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     clearActiveAccountsOnSessionStart();
   }, [custodyAccounts, accountMnemoinc]);
 
-  const encriptAccountsList = custodyAccounts => {
-    return custodyAccounts.map(item =>
-      encryptMnemonic(JSON.stringify(item), accountMnemoinc),
-    );
-  };
-
   const removeAccount = async account => {
     try {
       let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
@@ -145,10 +142,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         });
       }
       //   clear spark information here too. Delte txs from database, reove listeners
-      await setLocalStorageItem(
-        CUSTODY_ACCOUNTS_STORAGE_KEY,
-        JSON.stringify(encriptAccountsList(newAccounts)),
-      );
+      await writeCustodyAccounts(newAccounts, accountMnemoinc);
       setCustodyAccounts(newAccounts);
       return { didWork: true };
     } catch (err) {
@@ -162,10 +156,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
       savedAccountInformation.push(accountInformation);
 
-      await setLocalStorageItem(
-        CUSTODY_ACCOUNTS_STORAGE_KEY,
-        JSON.stringify(encriptAccountsList(savedAccountInformation)),
-      );
+      await writeCustodyAccounts(savedAccountInformation, accountMnemoinc);
       setCustodyAccounts(savedAccountInformation);
       return { didWork: true };
     } catch (err) {
@@ -183,10 +174,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         } else return accounts;
       });
 
-      await setLocalStorageItem(
-        CUSTODY_ACCOUNTS_STORAGE_KEY,
-        JSON.stringify(encriptAccountsList(newAccounts)),
-      );
+      await writeCustodyAccounts(newAccounts, accountMnemoinc);
       setCustodyAccounts(newAccounts);
       return { didWork: true };
     } catch (err) {
@@ -429,10 +417,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
       if (accountsToRestore.length) {
         const mergedAccounts = [...custodyAccounts, ...accountsToRestore];
-        await setLocalStorageItem(
-          CUSTODY_ACCOUNTS_STORAGE_KEY,
-          JSON.stringify(encriptAccountsList(mergedAccounts)),
-        );
+        await writeCustodyAccounts(mergedAccounts, accountMnemoinc);
         setCustodyAccounts(mergedAccounts);
       }
 
@@ -482,6 +467,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     setIsUsingNostr(false);
     setActiveDerivedMnemonic(null);
     setCustodyAccounts([]);
+    resetCustodyCryptoState();
     hasSessionReset.current = false;
     hasAutoRestoreCheckRun.current = false;
   }, [authResetkey]);

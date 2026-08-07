@@ -188,7 +188,7 @@ export default function SettingsHub(props) {
   const handleAccountEdit = useCallback(
     account => {
       navigate.navigate('EditAccountPage', {
-        account,
+        accountId: account.uuid,
         from: 'SettingsHome',
       });
     },

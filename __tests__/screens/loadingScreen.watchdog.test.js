@@ -59,7 +59,10 @@ jest.mock('../../context-store/appData', () => ({
   useGlobalAppData: () => ({ toggleGlobalAppDataInformation: jest.fn() }),
 }));
 jest.mock('../../context-store/appStatus', () => ({
-  useAppStatus: () => ({ screenDimensions: { width: 400 } }),
+  useAppStatus: () => ({
+    screenDimensions: { width: 400 },
+    toggleDidGetToHomepage: jest.fn(),
+  }),
 }));
 jest.mock('../../context-store/nodeContext', () => ({
   useNodeContext: () => ({ toggleFiatStats: jest.fn() }),

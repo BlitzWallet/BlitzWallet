@@ -76,6 +76,7 @@ jest.mock('../app/functions', () => ({
 jest.mock('../app/functions/handleMnemonic', () => ({
   decryptMnemonicWithBiometrics: (...args) => mockDecrypt(...args),
   handleLoginSecuritySwitch: (...args) => mockLoginSecuritySwitch(...args),
+  PIN_MARKER: 'pin-secured',
 }));
 
 jest.mock('../app/functions/hash', () => ({
@@ -376,13 +377,18 @@ describe('BiometricsLogin - retry handling', () => {
 // Legacy migration path (JSON pinHash)
 // ---------------------------------------------------------------------------
 
+const LEGACY_MNEMONIC =
+  'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+
 describe('BiometricsLogin - legacy migration', () => {
   beforeEach(() => {
     // A JSON-array pinHash marks a legacy account that needs migration.
+    // A real BIP39 seed: the isPlaintextSeed guard runs validateMnemonic, so
+    // the migration branch only fires for an actual plaintext seed.
     mockRetrieveData.mockImplementation(async key => {
       if (key === 'pinHash') return { didWork: true, value: '[1,2,3,4]' };
       if (key === 'encryptedMnemonic')
-        return { didWork: true, value: 'LEGACY_MNEMONIC' };
+        return { didWork: true, value: LEGACY_MNEMONIC };
       return { didWork: true, value: null };
     });
   });
@@ -392,12 +398,12 @@ describe('BiometricsLogin - legacy migration', () => {
     await tap(renderer);
 
     expect(mockLoginSecuritySwitch).toHaveBeenCalledWith(
-      'LEGACY_MNEMONIC',
+      LEGACY_MNEMONIC,
       '',
       'biometric',
     );
     expect(mockDecrypt).not.toHaveBeenCalled();
-    expect(mockSetAccountMnemonic).toHaveBeenCalledWith('LEGACY_MNEMONIC');
+    expect(mockSetAccountMnemonic).toHaveBeenCalledWith(LEGACY_MNEMONIC);
     expect(mockNavigate.replace).toHaveBeenCalledWith(
       'ConnectingToNodeLoadingScreen',
       { expectedMnemonicHash: 'HASHED' },

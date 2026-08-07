@@ -70,7 +70,8 @@ export default function CreateNostrConnectAccount(props) {
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
   const passedParams = props.route?.params;
   const isEditing = passedParams?.accountID;
-  const savedData = passedParams?.data;
+  const savedData =
+    masterInfoObject?.NWC?.accounts?.[passedParams?.accountID] || {};
   const { fiatStats } = useNodeContext();
   const [accountName, setAccountName] = useState(
     isEditing ? savedData.accountName : '',
@@ -229,7 +230,7 @@ export default function CreateNostrConnectAccount(props) {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'customInputText',
               returnLocation: 'CreateNostrConnectAccount',
-              passedParams,
+              passedParams: { accountID: passedParams?.accountID },
             });
             return;
           }

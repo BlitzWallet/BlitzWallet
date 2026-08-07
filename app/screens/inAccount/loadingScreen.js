@@ -65,7 +65,7 @@ export default function ConnectingToNodeLoadingScreen() {
   const { theme } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
-  const { screenDimensions } = useAppStatus();
+  const { screenDimensions, toggleDidGetToHomepage } = useAppStatus();
   const { toggleFiatStats } = useNodeContext();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
@@ -227,6 +227,7 @@ export default function ConnectingToNodeLoadingScreen() {
         );
 
         if (didAbortLogin.current) return;
+        toggleDidGetToHomepage(true);
         // Idempotent + dispatched through the container (not this instance's
         // possibly-stale navigation prop): if a duplicate instance already
         // moved us to HomeAdmin, skip — re-committing the screen is what throws
