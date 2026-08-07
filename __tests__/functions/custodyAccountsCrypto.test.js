@@ -522,8 +522,9 @@ describe('loadCustodyAccounts — KDF parameter upgrade', () => {
   it('fails closed on attacker-bloated KDF params (OOM DoS guard)', async () => {
     const raw = forgeV3(JSON.stringify([account1]), SEED);
     const parsed = v3Envelope(raw);
-    // Tampered envelope: m asks Argon2 for ~2 GiB on every login attempt.
-    const bloated = JSON.stringify({ ...parsed, m: 2 * 1024 * 1024 });
+    // Tampered envelope: m asks Argon2 for 256 MiB on every login attempt
+    // (over the 128 MiB cap, but under the pre-tightening 1 GiB cap).
+    const bloated = JSON.stringify({ ...parsed, m: 256 * 1024 });
     getLocalStorageItem.mockResolvedValue(bloated);
 
     expect(await cryptoMod.loadCustodyAccounts(bloated, SEED)).toEqual([]);

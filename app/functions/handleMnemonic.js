@@ -1,4 +1,4 @@
-import { generateMnemonic, validateMnemonic } from '@scure/bip39';
+import { validateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { AES, Utf8 } from 'crypto-es';
 import crypto, { argon2 as argon2KDF } from 'react-native-quick-crypto';
@@ -16,11 +16,25 @@ import {
 } from './secureStore';
 import * as SecureStorage from 'expo-secure-store';
 import { removeLocalStorageItem, setLocalStorageItem } from './localStorage';
+import {
+  decryptGCM,
+  encryptGCM,
+  isGcmV3,
+  parseKdfParams,
+} from './gcmEnvelope';
+import { crashlyticsLogReport } from './crashlyticsLogs';
 
 const ARGON2_SALT_BYTES = 16;
 const ARGON2_KEY_LEN = 32;
 const ARGON2_PARAMS = { memory: 19456, passes: 2, parallelism: 1 }; // OWASP baseline (was 16384)
-const LEGACY_ARGON2_PARAMS = { memory: 16384, passes: 2, parallelism: 1 }; // params shipped before the raise; used for pre-existing v2 ciphertexts that don't embed m/t/p
+// Binds the v3 mnemonic envelope to this storage context so it can't be
+// replayed into another field (mirrors custodyAccountsCrypto's AAD).
+const MNEMONIC_AAD = Buffer.from('blitz.encryptedMnemonic.v3', 'utf8');
+// Login-critical KDF bounds: a tampered m/t/p must not be able to make login
+// allocate unbounded Argon2 memory (OOM at cold start bricks login) or pick
+// degenerate parameters. Ceiling sized for low-end devices (legit params are
+// 19456 KiB, so 64 MiB leaves ample margin).
+const MNEMONIC_KDF_BOUNDS = { minMemoryKiB: 8 * 1024, maxMemoryKiB: 64 * 1024 };
 // Non-secret marker written to `pinHash`. Not JSON, so `needsToBeMigrated`
 // (JSON.parse succeeds ⇒ raw-PIN artifact) stays false for PIN-secured users.
 export const PIN_MARKER = 'pin-secured';
@@ -40,35 +54,25 @@ function argon2Async(password, salt, params) {
   );
 }
 
-async function encryptMnemonicArgon2(mnemonic, pinString) {
-  const salt = crypto.randomBytes(ARGON2_SALT_BYTES);
-  const iv = crypto.randomBytes(16);
-  const keyBuf = await argon2Async(pinString, salt, ARGON2_PARAMS);
-  const cipher = crypto.createCipheriv('aes-256-cbc', keyBuf, iv);
-  const ct = Buffer.concat([
-    cipher.update(Buffer.from(mnemonic, 'utf8')),
-    cipher.final(),
-  ]).toString('base64');
-  return JSON.stringify({
-    v: 2,
-    salt: salt.toString('hex'),
-    iv: iv.toString('hex'),
-    ct,
-    m: ARGON2_PARAMS.memory,
-    t: ARGON2_PARAMS.passes,
-    p: ARGON2_PARAMS.parallelism,
-  });
+async function encryptMnemonicV3(mnemonic, secret) {
+  const salt = crypto.randomBytes(ARGON2_SALT_BYTES).toString('hex');
+  const keyBuf = await argon2Async(secret, Buffer.from(salt, 'hex'), ARGON2_PARAMS);
+  return encryptGCM(mnemonic, { key: keyBuf, salt, params: ARGON2_PARAMS }, MNEMONIC_AAD);
+}
+
+async function decryptMnemonicV3(envelope, secret) {
+  const env = JSON.parse(envelope);
+  const params = parseKdfParams(env, MNEMONIC_KDF_BOUNDS);
+  const keyBuf = await argon2Async(secret, Buffer.from(env.salt, 'hex'), params);
+  return decryptGCM(envelope, keyBuf, MNEMONIC_AAD);
 }
 
 async function decryptMnemonicArgon2(cipherText, pinString) {
-  const { salt, iv, ct, m, t, p } = JSON.parse(cipherText);
-  // Absent m/t/p ⇒ a ciphertext written before params were embedded, which
-  // shipped only with LEGACY_ARGON2_PARAMS. This fallback is the backward-compat hinge.
-  const keyBuf = await argon2Async(pinString, Buffer.from(salt, 'hex'), {
-    memory: m ?? LEGACY_ARGON2_PARAMS.memory,
-    passes: t ?? LEGACY_ARGON2_PARAMS.passes,
-    parallelism: p ?? LEGACY_ARGON2_PARAMS.parallelism,
-  });
+  const { salt, iv, ct } = JSON.parse(cipherText);
+  // m/t/p are attacker-influenced on a v2 read too: bound them exactly like v3
+  // (absent ⇒ legacy 16384 fallback — the backward-compat hinge).
+  const params = parseKdfParams(JSON.parse(cipherText), MNEMONIC_KDF_BOUNDS);
+  const keyBuf = await argon2Async(pinString, Buffer.from(salt, 'hex'), params);
   const decipher = crypto.createDecipheriv(
     'aes-256-cbc',
     keyBuf,
@@ -78,36 +82,6 @@ async function decryptMnemonicArgon2(cipherText, pinString) {
     decipher.update(Buffer.from(ct, 'base64')),
     decipher.final(),
   ]).toString('utf8');
-}
-
-// True when a v2 ciphertext was derived with weaker-than-current params (or
-// none embedded ⇒ legacy 16384), so it should be opportunistically re-encrypted.
-function argon2NeedsUpgrade(cipherText) {
-  try {
-    const { m } = JSON.parse(cipherText);
-    return m == null || m < ARGON2_PARAMS.memory;
-  } catch {
-    return false;
-  }
-}
-
-// Fire-and-forget re-encrypt guarded by a compare-and-swap: only overwrite
-// `encryptedMnemonic` if it still equals the ciphertext we decrypted. Without
-// this, a re-encrypt in flight from login can land after (and clobber) a
-// concurrent PIN change → the new PIN can't decrypt → lockout.
-// ponytail: sub-ms TOCTOU remains between the re-read and the write; a PIN
-// change landing in that window is negligible and self-heals next login.
-function reEncryptIfUnchanged(mnemonic, pin, staleCipherText, label) {
-  encryptMnemonicArgon2(mnemonic, pin)
-    .then(async ct => {
-      const current = await retrieveData('encryptedMnemonic');
-      if (current.value === staleCipherText) {
-        await storeData('encryptedMnemonic', ct);
-      }
-    })
-    .catch(err =>
-      console.log(`${label} write failed, will retry next login`, err),
-    );
 }
 
 export function isArgon2Format(cipherText) {
@@ -124,12 +98,65 @@ export function isArgon2Format(cipherText) {
   }
 }
 
+export function isV3MnemonicFormat(value) {
+  return isGcmV3(value);
+}
+
+export function isLegacyEvpKDF(value) {
+  return typeof value === 'string' && value.startsWith('U2FsdGVkX1');
+}
+
+export function isEncryptedMnemonicFormat(value) {
+  return (
+    isV3MnemonicFormat(value) || isArgon2Format(value) || isLegacyEvpKDF(value)
+  );
+}
+
+// Detected envelope version for the §8 decrypt-failure breadcrumb, letting
+// support distinguish a genuine wrong secret from a downgrade (older build
+// reading a v3 envelope) or a mode-switch crash artifact.
+function detectEnvelopeVersion(value) {
+  if (typeof value !== 'string' || !value) return 'unknown';
+  if (isV3MnemonicFormat(value)) return 'v3';
+  if (isArgon2Format(value)) return 'v2';
+  if (isLegacyEvpKDF(value)) return 'evpkdf';
+  if (validateMnemonic(value, wordlist)) return 'plaintext';
+  return 'unknown';
+}
+
+// Awaited, CAS-guarded migration to the v3 envelope. Only overwrite
+// `encryptedMnemonic` if it still equals the ciphertext we decrypted: without
+// this, a migration in flight from login can land after (and clobber) a
+// concurrent PIN change → the new PIN can't decrypt → lockout. Never throws to
+// the caller — a failed write is logged and retried on the next login.
+async function migrateMnemonicToV3(decrypted, secret, staleValue) {
+  try {
+    crashlyticsLogReport('v3 mnemonic migration start');
+    const v3 = await encryptMnemonicV3(decrypted, secret);
+    const current = await retrieveData('encryptedMnemonic');
+    if (!current.didWork || current.value !== staleValue) {
+      crashlyticsLogReport('v3 mnemonic migration skipped-concurrent-change');
+      return;
+    }
+    await storeData('encryptedMnemonic', v3);
+    const readback = await retrieveData('encryptedMnemonic');
+    if (readback.didWork && readback.value === v3) {
+      crashlyticsLogReport('v3 mnemonic migration migrated');
+    } else {
+      crashlyticsLogReport('v3 mnemonic migration write-failed');
+    }
+  } catch (err) {
+    console.log('v3 mnemonic migration write failed, will retry next login', err);
+    crashlyticsLogReport('v3 mnemonic migration write-failed');
+  }
+}
+
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
     const existingKey = await retrieveData(BIOMETRIC_KEY);
     if (existingKey.didWork && existingKey.value) return existingKey.value;
 
-    const key = generateMnemonic(wordlist).toString();
+    const key = crypto.randomBytes(32).toString('hex');
 
     const response = await storeData(BIOMETRIC_KEY, key, {
       requireAuthentication: true,
@@ -148,7 +175,7 @@ export async function encryptAndStoreMnemonicWithBiometrics(mnemonic) {
     const key = await generateAndStoreEncryptionKeyForMnemoinc();
     if (!key) throw new Error('Unable to get encription key');
 
-    const cipherText = AES.encrypt(mnemonic, key).toString();
+    const cipherText = await encryptMnemonicV3(mnemonic, key);
 
     await storeData('encryptedMnemonic', cipherText);
     return true;
@@ -167,26 +194,31 @@ export async function decryptMnemonicWithBiometrics() {
 
     if (!cipherText.value || !key.value) return false;
 
-    const decrypted = decryptMnemonic(cipherText.value, key.value);
-    if (!decrypted) throw new Error('eror decrypting mnemionc with biometric');
-    return decrypted;
+    const value = cipherText.value;
+    let decrypted;
+    if (isV3MnemonicFormat(value)) {
+      decrypted = await decryptMnemonicV3(value, key.value);
+    } else if (isArgon2Format(value)) {
+      decrypted = await decryptMnemonicArgon2(value, key.value);
+    } else if (isLegacyEvpKDF(value)) {
+      decrypted = decryptMnemonic(value, key.value);
+    } else {
+      decrypted = null;
+    }
+
+    // Decrypt-to-verify: crypto-es never validates PKCS7 padding, so a wrong
+    // key on a legacy ciphertext can return truthy garbage; validateMnemonic
+    // gates every format so corrupt-storage devices fail closed instead of
+    // logging into a silent empty garbage-seed wallet.
+    if (decrypted && validateMnemonic(decrypted, wordlist)) {
+      if (!isV3MnemonicFormat(value)) {
+        await migrateMnemonicToV3(decrypted, key.value, value);
+      }
+      return decrypted;
+    }
+    return false;
   } catch (err) {
     console.log('decrypt mnemoinc with biometric error', err);
-    return false;
-  }
-}
-/**
- * stores mnemoinc with no encription
-/**
- * @param {Object} mnemionc - String of mnemoinc
- * @returns {Promise<boolean>} - mnemoinc if successful, false otherwise
- */
-export async function storeMnemoincWithNoSecurity(mnemonic) {
-  try {
-    await storeData('encryptedMnemonic', mnemonic);
-    return true;
-  } catch (err) {
-    console.log('Error storing mnemoicn with no encription');
     return false;
   }
 }
@@ -200,16 +232,13 @@ export async function storeMnemoincWithNoSecurity(mnemonic) {
  */
 export async function storeMnemonicWithPinSecurity(mnemonic, pin) {
   try {
-    const encrypted = await encryptMnemonicArgon2(
-      mnemonic,
-      JSON.stringify(pin),
-    );
+    const encrypted = await encryptMnemonicV3(mnemonic, JSON.stringify(pin));
     // Ciphertext first, marker last: a crash between the two writes must never
     // leave the marker set over a stale ciphertext (that would send a correct
     // PIN down the decrypt path, fail, and count as wrong → lockout). With this
     // order a lost marker just self-heals on the next login. No PIN verifier is
     // stored — the Argon2+AES ciphertext already verifies the PIN (wrong PIN ⇒
-    // padding failure). PIN_MARKER only keeps needsToBeMigrated false.
+    // GCM tag failure). PIN_MARKER only keeps needsToBeMigrated false.
     await storeData('encryptedMnemonic', encrypted);
     await storeData('pinHash', PIN_MARKER);
     return true;
@@ -225,42 +254,50 @@ export async function storeMnemonicWithPinSecurity(mnemonic, pin) {
  * @returns {Promise<boolean>} - mnemoinc if successful, false otherwise
  */
 export async function decryptMnemonicWithPin(pin) {
+  let version = 'unknown';
   try {
     const cipherText = await retrieveData('encryptedMnemonic');
     if (!cipherText.didWork) return null;
 
-    const staleCt = cipherText.value;
-    const argon2Format = isArgon2Format(cipherText.value);
-    const decrypted = argon2Format
-      ? await decryptMnemonicArgon2(cipherText.value, pin)
-      : decryptMnemonic(cipherText.value, pin);
+    const value = cipherText.value;
+    version = detectEnvelopeVersion(value);
+    let decrypted;
+    if (isV3MnemonicFormat(value)) {
+      decrypted = await decryptMnemonicV3(value, pin);
+    } else if (isArgon2Format(value)) {
+      decrypted = await decryptMnemonicArgon2(value, pin);
+    } else if (isLegacyEvpKDF(value)) {
+      decrypted = decryptMnemonic(value, pin);
+    } else {
+      decrypted = null;
+    }
 
-    // Decrypt-to-verify: a wrong PIN yields a wrong key, which almost always
-    // fails AES/PKCS7 padding (⇒ throw ⇒ caught ⇒ null). validateMnemonic
-    // closes the ~1/256 wrong-key-yet-valid-padding gap. It MUST gate the
-    // re-encrypt too: crypto-es never validates PKCS7 padding, so a wrong PIN
-    // on a legacy ciphertext returns truthy garbage ~1/3 of the time. Re-
-    // encrypting that garbage would overwrite the real ciphertext and lock the
-    // wallet out permanently, so we only ever re-encrypt a validated mnemonic.
+    // Decrypt-to-verify: a wrong PIN yields a wrong key, which fails the GCM
+    // tag (v3) or AES/PKCS7 padding (v2) ⇒ throw ⇒ caught ⇒ null.
+    // validateMnemonic closes the remaining wrong-key-yet-valid-padding gap on
+    // legacy formats and MUST gate the migration too: re-encrypting garbage
+    // would overwrite the real ciphertext and lock the wallet out permanently.
     if (decrypted && validateMnemonic(decrypted, wordlist)) {
-      if (argon2Format) {
-        // Opportunistically re-encrypt weak/legacy-param ciphertexts to current KDF.
-        if (argon2NeedsUpgrade(cipherText.value)) {
-          reEncryptIfUnchanged(decrypted, pin, staleCt, 'kdf upgrade');
-        }
-      } else {
-        // Legacy EvpKDF format — re-encrypt with Argon2.
-        reEncryptIfUnchanged(decrypted, pin, staleCt, 'migration');
+      if (!isV3MnemonicFormat(value)) {
+        // Legacy v2/EvpKDF — migrate to the authenticated v3 envelope.
+        await migrateMnemonicToV3(decrypted, pin, value);
       }
-      // Best-effort scrub of any stale sha256 oracle; must not sink a valid login.
+      // Best-effort scrub of any stale raw-PIN sha256 oracle; must not sink a
+      // valid login (B2).
       storeData('pinHash', PIN_MARKER).catch(err =>
         console.log('pin marker write failed', err),
       );
       return decrypted;
     }
+    crashlyticsLogReport(
+      `mnemonic decrypt failed (envelope version: ${version})`,
+    );
     return null;
   } catch (err) {
     console.log('decrypt mnemonic with pin error', err);
+    crashlyticsLogReport(
+      `mnemonic decrypt failed (envelope version: ${version})`,
+    );
     return null;
   }
 }
@@ -270,21 +307,22 @@ export async function decryptMnemonicWithPin(pin) {
 /**
  * @param {Object} mnemoinc - String of mnemoinc
  * @param {Object} pin - String of pin
- * @param {string} storageType - String of storage type (plain, pin, biometric)
+ * @param {string} storageType - String of storage type (pin, biometric)
  * @returns {Promise<boolean>} - True if successful, false otherwise
  */
 export async function handleLoginSecuritySwitch(mnemoinc, pin, storageType) {
   try {
-    if (storageType === 'plain') {
-      const response = await storeMnemoincWithNoSecurity(mnemoinc);
-      if (!response) throw new Error('Unable to save pin with no encription');
-    } else if (storageType === 'pin') {
+    // Explicit branches only: an unknown/typo'd storageType must return false,
+    // never silently encrypt under the biometric key.
+    if (storageType === 'pin') {
       const response = await storeMnemonicWithPinSecurity(mnemoinc, pin);
-      if (!response) throw new Error('Unable to save pin with no encription');
-    } else {
+      if (!response) throw new Error('Unable to save pin with encription');
+    } else if (storageType === 'biometric') {
       const response = await encryptAndStoreMnemonicWithBiometrics(mnemoinc);
       if (!response)
-        throw new Error('Unable to save mnemoinc with no biometrics');
+        throw new Error('Unable to save mnemoinc with biometrics');
+    } else {
+      return false;
     }
     await storeData(LOGIN_SECURITY_MODE_TYPE_KEY, storageType);
     return true;

@@ -32,9 +32,9 @@ const LEGACY_KDF_PARAMS = { memory: 16384, passes: 2, parallelism: 1 };
 // Bounds for attacker-influenced params read from the stored envelope: a
 // tampered m/t/p must not be able to make login allocate unbounded Argon2
 // memory (OOM DoS) or pick degenerate parameters. Legit envelopes only ever
-// contain current (19456) or legacy (16384) params; future raises stay far
-// below these caps.
-const MAX_KDF_MEMORY_KIB = 1024 * 1024; // 1 GiB
+// contain current (19456) or legacy (16384) params; the ceiling is sized for
+// low-end devices so a tampered high-m envelope can't OOM-kill the app.
+const MAX_KDF_MEMORY_KIB = 128 * 1024; // 128 MiB
 const MAX_KDF_PASSES = 8;
 const MAX_KDF_PARALLELISM = 8;
 const AAD = Buffer.from('blitz.custodyAccounts.v3', 'utf8');
