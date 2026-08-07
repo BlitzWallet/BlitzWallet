@@ -63,8 +63,7 @@ function encriptMessage(privkey, pubkey, text) {
 
     let encriptMessage = cipher.update(text, 'utf8', 'base64');
     encriptMessage += cipher.final('base64');
-    encriptMessage +=
-      '?iv=' + btoa(String.fromCharCode.apply(null, new Uint8Array(iv.buffer)));
+    encriptMessage += '?iv=' + iv.toString('base64');
     return encriptMessage;
   } catch (err) {
     console.log(err, 'ENCRIPT ERROR');
@@ -76,7 +75,7 @@ function decryptMessage(privkey, pubkey, encryptedText) {
 
     // Extract IV from the encrypted message
     const ivStr = encryptedText.split('?iv=')[1];
-    const iv = new Uint8Array(Buffer.from(atob(ivStr), 'binary'));
+    const iv = Buffer.from(ivStr, 'base64');
 
     // Remove IV from the encrypted message
     const encryptedData = encryptedText.split('?iv=')[0];
