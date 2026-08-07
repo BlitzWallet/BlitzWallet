@@ -4,7 +4,6 @@ import EditProfileFieldPage from './internalComponents/editProfileFieldPage';
 import ExpandedAddContactsPage from './expandedAddContactsPage';
 import ExpandedContactsPage from './expandedContactPage';
 // import MyContactProfilePage from './myProfilePage';
-import SelectGiftCardForContacts from './selectGift';
 import SendAndRequestPage from './sendAndRequestPage';
 import SelectPaymentType from './internalComponents/selectPaymentType';
 import SelectContactRequestCurrency from './internalComponents/SelectContactRequestCurrency';
@@ -19,7 +18,6 @@ export {
   SendAndRequestPage,
   ContactsPage,
   ExpandedAddContactsPage,
-  SelectGiftCardForContacts,
   SelectPaymentType,
   SelectContactRequestCurrency,
   AddFriendsToSplit,

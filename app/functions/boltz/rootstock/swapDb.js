@@ -153,3 +153,18 @@ export async function deleteSwapById(id) {
     return false;
   }
 }
+
+// Drops the whole rootstock swap cache table. The table is recreated empty by
+// initRootstockSwapDB (the wipe's re-init pass). Returns true/false.
+export async function deleteRootstockSwapTable() {
+  try {
+    await ensureRootstockDatabaseReady();
+    await sqlLiteDB.runAsync(`DROP TABLE IF EXISTS ${ROOTSTOCK_TABLE_NAME};`);
+    isInitialized = false;
+    console.log(`Table ${ROOTSTOCK_TABLE_NAME} deleted successfully`);
+    return true;
+  } catch (err) {
+    console.log('Error deleting rootstock swap table:', err);
+    return false;
+  }
+}

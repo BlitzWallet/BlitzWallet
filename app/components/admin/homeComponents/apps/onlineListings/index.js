@@ -59,9 +59,16 @@ function useDebouncedValue(value, delay = 300) {
   return debounced;
 }
 
-function getNormalizedWebsiteUrl(website) {
+const ALLOWED_SCHEMES = new Set(['https:']);
+
+export function getNormalizedWebsiteUrl(website) {
   if (!website) return '';
-  return website.startsWith('http') ? website : `https://${website}`;
+  try {
+    const url = new URL(website);
+    return ALLOWED_SCHEMES.has(url.protocol) ? website : '';
+  } catch {
+    return `https://${website}`;
+  }
 }
 
 function getWebsiteHost(website) {
@@ -325,14 +332,22 @@ export default function ViewOnlineListings({ removeUserLocal }) {
 
 const BusinessCard = React.memo(
   ({ item, theme, darkModeType, backgroundColor, backgroundOffset, t }) => {
+    const navigate = useNavigation();
+
     const websiteUrl = useMemo(
       () => getNormalizedWebsiteUrl(item.website),
       [item.website],
     );
 
     const handleWebsitePress = useCallback(() => {
-      Linking.openURL(websiteUrl);
-    }, [websiteUrl]);
+      try {
+        Linking.openURL(websiteUrl);
+      } catch (err) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.genericError'),
+        });
+      }
+    }, [websiteUrl, navigate, t]);
 
     const cardBackgroundColor = theme ? backgroundOffset : COLORS.darkModeText;
     const countryName =

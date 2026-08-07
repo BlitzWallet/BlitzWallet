@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Impossibile salvare il PIN",
         "removeWalletError": "Errore nella rimozione del portafoglio",
+        "wipeError": "Impossibile cancellare i dati del portafoglio precedente di questo dispositivo. Il tuo PIN è stato salvato, ma riprova prima di continuare.",
         "wrongPinError": "Riprova",
         "enterPinMessage": "Crea PIN",
         "confirmPin": "Conferma PIN",
@@ -804,58 +805,6 @@
       },
       "saveChat": {
         "errorMessage": "Spiacenti, non è stato possibile salvare la conversazione."
-      }
-    },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Cerca una carta regalo",
-        "leftPageMessage": "Dove sei andato?",
-        "loadingCardsMessage": "Caricamento carte regalo",
-        "noCardsAvailable": "Nessuna carta regalo disponibile"
-      },
-      "confimPurchase": {
-        "quantity": "Quantità {{quantity}}",
-        "cardAmount": "Importo Carta: {{amount}} {{currency}}",
-        "price": "Prezzo: ",
-        "fee": "Commissione: "
-      },
-      "createAccount": {
-        "title": "Offerto da",
-        "saveEmail": "Non hai un’email salvata. Salva un’email per velocizzare il checkout.",
-        "termsAndConditions1": "Continuando accetti i",
-        "termsAndConditions2": "Termini di servizio",
-        "termsAndConditions3": "e",
-        "termsAndConditions4": "Informativa sulla privacy"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Acquisto carta regalo, non lasciare la pagina.",
-        "selectamount": "Seleziona un importo",
-        "sendingto": "Inviando a: ",
-        "minMaxPurchaseAmount": "Puoi acquistare un minimo di {{min}} e massimo di {{max}} {{currency}}",
-        "emailPlaceholder": "Inserisci indirizzo email",
-        "purchaseBTN": "Acquista carta regalo",
-        "differentEmailMessage": "L’email attuale è diversa da quella salvata. Vuoi renderla primaria?",
-        "terms": "Termini",
-        "cardDescription": "Descrizione carta",
-        "cardTerms": "Condizioni carta",
-        "dailyPurchaseAmountError": "Hai raggiunto il limite giornaliero di acquisti",
-        "giftMessage": "Aggiungi una nota al tuo regalo",
-        "giftMessagePlaceholder": "Digita qui il tuo messaggio",
-        "selectForContactBTN": "Seleziona la carta regalo",
-        "noAmountError": "Scegli un importo per la carta regalo"
-      },
-      "giftCardOrderDetails": {
-        "title": "Dettagli ordine",
-        "invoice": "Fattura",
-        "orderId": "ID Ordine",
-        "uuid": "UUID",
-        "openInbox": "Apri casella email"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Sei sicuro di voler rimuovere questa carta regalo?",
-        "purchased": "Acquistata:",
-        "noPurchases": "Non hai ancora acquistato nessuna carta regalo. Una volta che lo fai, apparirà qui.",
-        "customCopyMessage": "Email di assistenza copiata"
       }
     },
     "sms4sats": {
@@ -1497,11 +1446,6 @@
       "claimed": "Usato",
       "markAsClaimed": "Contrassegna come usato"
     },
-    "selectGiftPage": {
-      "noCards": "Nessuna carta disponibile",
-      "header": "Seleziona la carta regalo che desideri inviare",
-      "inputPlaceholder": "Cerca una carta regalo"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Vuoi {{option}} {{option2}} foto"
@@ -1519,9 +1463,6 @@
         "header": "Le tue carte regalo",
         "cardsLengthSingular": "{{num}} carta",
         "cardsLengthPlural": "{{num}} carte"
-      },
-      "editGiftCard": {
-        "header": "Cosa desideri fare con il tuo regalo?"
       }
     },
     "showProfileQr": {

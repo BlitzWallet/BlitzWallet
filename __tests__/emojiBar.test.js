@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactTestRenderer, { act } from 'react-test-renderer';
+import { TouchableOpacity } from 'react-native';
 
 jest.mock('i18next', () => ({ language: 'en' }));
 const i18next = require('i18next');
@@ -58,5 +59,33 @@ describe('EmojiQuickBar', () => {
   test('renders default emojis when description is empty', () => {
     i18next.language = 'fr';
     expect(() => renderEmojiBar('')).not.toThrow();
+  });
+
+  const findEmojiButton = (renderer, emoji) => {
+    const buttons = renderer.root.findAllByType(TouchableOpacity);
+    return buttons.find(b =>
+      b.findAll(n => n.children && n.children[0] === emoji).length,
+    );
+  };
+
+  test('caps the description length at 150 characters', () => {
+    const onEmojiSelect = jest.fn();
+    let renderer;
+    act(() => {
+      renderer = ReactTestRenderer.create(
+        <EmojiQuickBar
+          description={'x'.repeat(148)}
+          onEmojiSelect={onEmojiSelect}
+        />,
+      );
+    });
+
+    const coffeeButton = findEmojiButton(renderer, '☕');
+    expect(coffeeButton).toBeTruthy();
+
+    act(() => coffeeButton.props.onPress());
+
+    const emitted = onEmojiSelect.mock.calls[0][0];
+    expect(emitted.length).toBeLessThanOrEqual(150);
   });
 });

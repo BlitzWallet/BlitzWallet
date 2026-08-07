@@ -74,7 +74,13 @@ export function getRestorableIndices(
   nextAccountDerivationIndex,
 ) {
   try {
-    const maxIndex = nextAccountDerivationIndex || 3;
+    // Clamp to the account derivation range (0..MAX_DERIVED_ACCOUNTS-1).
+    // Indices >= MAX_DERIVED_ACCOUNTS belong to the gift wallet range and can
+    // never be restored as accounts, so they must never be enumerated here.
+    const maxIndex = Math.min(
+      Math.max(3, Math.floor(Number(nextAccountDerivationIndex) || 3)),
+      MAX_DERIVED_ACCOUNTS - 1,
+    );
     const existingIndices = new Set(
       custodyAccounts
         .filter(acc => acc.accountType === 'derived')

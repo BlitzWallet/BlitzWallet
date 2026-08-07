@@ -44,9 +44,12 @@ export const validateAndNormalizeSmsPhoneNumber = ({
     throw new Error('invalid-phone-number');
   }
 
+  const parsed = parsePhoneNumberWithError(phoneNumber, isoCode);
+  const e164 = parsed.number;
+
   return {
-    sanitizedPhoneNumber: `${cc}${phoneNumber}`,
-    normalizedPhoneNumber: `${cc}${phoneNumber}`,
+    sanitizedPhoneNumber: e164,
+    normalizedPhoneNumber: e164,
     selectedCountry: sendCountryCodes.find(c => c.isoCode === isoCode) || {
       isoCode,
       cc,

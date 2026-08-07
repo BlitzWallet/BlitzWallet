@@ -395,8 +395,11 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const restoreDerivedAccountsFromCloud = async () => {
     try {
       // masterInfoObject is already loaded from Firebase by GlobalContextProvider
-      const nextIndex = Number(
-        masterInfoObject.nextAccountDerivationIndex || 3,
+      const nextIndex = Math.min(
+        Math.max(3, Math.floor(Number(
+          masterInfoObject.nextAccountDerivationIndex || 3,
+        ))),
+        MAX_DERIVED_ACCOUNTS - 1,
       );
 
       if (!nextIndex || nextIndex === 0) {

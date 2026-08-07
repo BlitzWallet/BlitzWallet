@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
         "removeWalletError": "Erro ao excluir a carteira",
+        "wipeError": "Não foi possível limpar os dados da carteira anterior neste dispositivo. Seu PIN foi salvo, mas tente novamente antes de continuar.",
         "wrongPinError": "Tente novamente",
         "enterPinMessage": "Criar PIN",
         "confirmPin": "Confirmar PIN",
@@ -804,58 +805,6 @@
       },
       "saveChat": {
         "errorMessage": "Desculpe, não conseguimos salvar sua conversa."
-      }
-    },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Procure um cartão-presente",
-        "leftPageMessage": "Aonde você foi?",
-        "loadingCardsMessage": "Buscando cartões-presente",
-        "noCardsAvailable": "Nenhum cartão-presente disponível"
-      },
-      "confimPurchase": {
-        "quantity": "Quantidade {{quantity}}",
-        "cardAmount": "Valor do cartão: {{amount}} {{currency}}",
-        "price": "Preço: ",
-        "fee": "Taxa: "
-      },
-      "createAccount": {
-        "title": "Fornecido por",
-        "saveEmail": "Você não tem um e-mail salvo. Agilize o processo de compra salvando um e-mail.",
-        "termsAndConditions1": "Ao continuar, você concorda com os termos de uso da The Bitcoin Company",
-        "termsAndConditions2": "Termos de serviço",
-        "termsAndConditions3": "e",
-        "termsAndConditions4": "Política de privacidade"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Adquirindo cartão-presente, não saia da página.",
-        "selectamount": "Selecione um valor",
-        "sendingto": "Enviando para: ",
-        "minMaxPurchaseAmount": "Você pode comprar um {{min}} quantidade de {{max}} {{currency}}",
-        "emailPlaceholder": "Digite o endereço de e-mail",
-        "purchaseBTN": "Comprar cartão-presente",
-        "differentEmailMessage": "O e-mail atual é diferente do salvo. Deseja tornar este e-mail o seu e-mail principal?",
-        "terms": "Termos",
-        "cardDescription": "Descrição do cartão",
-        "cardTerms": "Termos do cartão",
-        "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
-        "giftMessage": "Adicione uma descrição ao seu presente",
-        "giftMessagePlaceholder": "Digite sua mensagem aqui",
-        "selectForContactBTN": "Continuar",
-        "noAmountError": "Por favor, escolha o valor do cartão-presente"
-      },
-      "giftCardOrderDetails": {
-        "title": "Detalhes do pedido",
-        "invoice": "Fatura",
-        "orderId": "ID da ordem",
-        "uuid": "UUID",
-        "openInbox": "Abrir caixa de entrada"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Tem certeza de que deseja remover este cartão-presente?",
-        "purchased": "Comprado:",
-        "noPurchases": "Você ainda não comprou nenhum cartão-presente. Quando comprar, ele aparecerá aqui.",
-        "customCopyMessage": "E-mail de suporte copiado"
       }
     },
     "sms4sats": {
@@ -1497,11 +1446,6 @@
       "claimed": "Usado",
       "markAsClaimed": "Marcar como usado"
     },
-    "selectGiftPage": {
-      "noCards": "Nenhum cartão disponível",
-      "header": "Escolha um cartão-presente para enviar",
-      "inputPlaceholder": "Procure um cartão-presente"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Você deseja a {{option}} {{option2}} da foto"
@@ -1519,9 +1463,6 @@
         "header": "Seus cartões-presente",
         "cardsLengthSingular": "{{num}} cartão",
         "cardsLengthPlural": "{{num}} cartões"
-      },
-      "editGiftCard": {
-        "header": "O que você gostaria de fazer com seu cartão-presente?"
       }
     },
     "showProfileQr": {

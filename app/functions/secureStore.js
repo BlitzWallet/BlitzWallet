@@ -21,6 +21,7 @@ import {
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 export const MIGRATION_FLAG = 'secureStoreMigrationComplete';
 export const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
+export const WIPE_IN_PROGRESS_KEY = 'wipeInProgress';
 
 const KEYCHAIN_OPTION = {
   keychainService: keychainService,
@@ -68,13 +69,85 @@ async function terminateAccount() {
     await deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION);
-    await deleteItemAsync(ROOTSTOCK_SWAP_SIGNER_KEY, KEYCHAIN_OPTION);
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');
 
     return true;
   } catch (error) {
+    return false;
+  }
+}
+
+async function wipeStaleWalletKeychain() {
+  // Deletes the previous wallet's secure-store items during onboarding wipe.
+  // Keeps pinHash + encryptedMnemonic — the PIN page just wrote them for the
+  // NEW wallet (handleMnemonic.js storeMnemonicWithPinSecurity). Everything
+  // else is stale previous-wallet data at wipe-time. deleteItemAsync is a no-op
+  // for absent keys, so this is safe on a first-ever install.
+  try {
+    await Promise.all([
+      deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION),
+      deleteItemAsync(CUSTODY_ACCOUNTS_STORAGE_KEY, KEYCHAIN_OPTION),
+      deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION),
+      deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION),
+      deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION),
+      // Legacy pre-migration entries: default service (V1) + KEYCHAIN_OPTION (V2).
+      // Removing them stops a re-armed startup migration from clobbering the new
+      // encryptedMnemonic/pinHash (Finding 2).
+      deleteItemAsync('pin'),
+      deleteItemAsync('mnemonic'),
+      deleteItemAsync('pin', KEYCHAIN_OPTION),
+      deleteItemAsync('mnemonic', KEYCHAIN_OPTION),
+    ]);
+    return true;
+  } catch (error) {
+    console.log('wipeStaleWalletKeychain error', error);
+    return false;
+  }
+}
+
+// Re-arm marker for wipeLocalWalletData. Lives in the keychain (not
+// AsyncStorage) so it survives removeAllLocalData clearing every AsyncStorage
+// key mid-wipe. If the wipe fails or the process is killed before it
+// disarms, the next launch re-runs the wipe instead of skipping it because
+// route.params.shouldWipeLocalData is gone.
+async function armWipeInProgress() {
+  try {
+    await setItemAsync(WIPE_IN_PROGRESS_KEY, 'true', KEYCHAIN_OPTION);
+    return true;
+  } catch (error) {
+    // Best-effort: proceed unarmed (current behavior) rather than block the wipe.
+    console.log('armWipeInProgress error', error);
+    return false;
+  }
+}
+
+async function isWipeInProgress() {
+  try {
+    const value = await getItemAsync(WIPE_IN_PROGRESS_KEY, KEYCHAIN_OPTION);
+    return value !== null;
+  } catch (error) {
+    // Can't read the keychain (e.g. device locked); fail closed so the wipe
+    // re-runs rather than proceeding with possibly-stale previous-wallet data.
+    console.log('isWipeInProgress error', error);
+    return false;
+  }
+}
+
+async function disarmWipeInProgress() {
+  try {
+    await deleteItemAsync(WIPE_IN_PROGRESS_KEY, KEYCHAIN_OPTION);
+    // deleteItemAsync on iOS ignores the SecItemDelete status, so verify the
+    // marker is really gone; a surviving marker would re-wipe the new wallet's
+    // local data on the next launch.
+    const stillThere = await getItemAsync(
+      WIPE_IN_PROGRESS_KEY,
+      KEYCHAIN_OPTION,
+    );
+    return stillThere === null;
+  } catch (error) {
+    console.log('disarmWipeInProgress error', error);
     return false;
   }
 }
@@ -107,10 +180,18 @@ async function runPinAndMnemoicMigration() {
     ]);
 
     if (oldPin || oldMnemonic) {
-      if (oldPin) await storeData('pinHash', oldPin);
-      if (oldMnemonic) await storeData('encryptedMnemonic', oldMnemonic);
-      await deleteItemAsync('pin');
-      await deleteItemAsync('mnemonic');
+      const pinStored = oldPin ? await storeData('pinHash', oldPin) : true;
+      const mnemonicStored = oldMnemonic
+        ? await storeData('encryptedMnemonic', oldMnemonic)
+        : true;
+      // Only delete the legacy source-of-truth once the copy is confirmed
+      // written; storeData swallows errors and returns false. If we deleted on
+      // a failed write we'd destroy the only seed copy with no retry.
+      if (!pinStored || !mnemonicStored) {
+        throw new Error('SecureStore migration write failed; will retry');
+      }
+      if (oldPin) await deleteItemAsync('pin');
+      if (oldMnemonic) await deleteItemAsync('mnemonic');
     }
 
     await setLocalStorageItem(MIGRATION_FLAG, 'true');
@@ -137,8 +218,17 @@ async function runSecureStoreMigrationV2() {
     ]);
 
     if (plainPin && plainMnemonic) {
-      await storeData('pinHash', plainPin);
-      await storeData('encryptedMnemonic', plainMnemonic);
+      const pinStored = await storeData('pinHash', plainPin);
+      const mnemonicStored = await storeData(
+        'encryptedMnemonic',
+        plainMnemonic,
+      );
+
+      // Only delete once the copy is confirmed written (storeData returns false
+      // on failure); otherwise a failed write would destroy the only seed copy.
+      if (!pinStored || !mnemonicStored) {
+        throw new Error('V2 SecureStore migration write failed; will retry');
+      }
 
       // Delete old unencrypted values
       await deleteItem('pin');
@@ -156,6 +246,10 @@ export {
   retrieveData,
   storeData,
   terminateAccount,
+  wipeStaleWalletKeychain,
+  armWipeInProgress,
+  isWipeInProgress,
+  disarmWipeInProgress,
   deleteItem,
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,

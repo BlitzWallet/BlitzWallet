@@ -25,17 +25,23 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { randomBytes } from 'react-native-quick-crypto';
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const BLUE_DIM = 'rgba(3,117,246,0.14)';
 
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-const generatePayLinkId = () =>
-  Array.from(
-    { length: 9 },
-    () => CHARS[Math.floor(Math.random() * CHARS.length)],
-  ).join('');
 
+export function generatePayLinkId() {
+  const bytes = randomBytes(9);
+  let id = '';
+
+  for (const b of bytes) {
+    id += CHARS[b % CHARS.length];
+  }
+
+  return id;
+}
 export default function ShareInvoicePayLinkModal({
   rawAmount,
   currencyType,

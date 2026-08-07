@@ -1,4 +1,4 @@
-import { SparkWallet } from '@buildonspark/spark-sdk';
+import { SparkWallet } from '@buildonspark/spark-sdk/native';
 import { retrieveData } from '../secureStore';
 import { NWC_SECURE_STORE_MNEMOINC } from '../../constants';
 export let nwcWallet = null;
@@ -94,16 +94,12 @@ export const receiveNWCSparkLightningPayment = async ({
   }
 };
 
-export const sendNWCSparkLightningPayment = async ({
-  invoice,
-  maxFeeSats,
-  amountSats,
-}) => {
+export const sendNWCSparkLightningPayment = async ({ invoice, amountSats }) => {
   try {
     if (!nwcWallet) throw new Error('sparkWallet not initialized');
+
     const paymentResponse = await nwcWallet.payLightningInvoice({
       invoice,
-      maxFeeSats: Math.round(maxFeeSats * 1.2),
       amountSatsToSend: amountSats,
     });
     return { didWork: true, paymentResponse };

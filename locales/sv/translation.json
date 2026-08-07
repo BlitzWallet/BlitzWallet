@@ -255,6 +255,7 @@
       "pin": {
         "savePinError": "Det går inte att spara pinnen",
         "removeWalletError": "Fel vid borttagning av plånbok",
+        "wipeError": "Det gick inte att rensa den tidigare plånbokens data på den här enheten. Din PIN-kod är sparad, men försök igen innan du fortsätter.",
         "wrongPinError": "Försök igen",
         "enterPinMessage": "Skapa PIN-kod",
         "confirmPin": "Bekräfta stift",
@@ -804,58 +805,6 @@
       },
       "saveChat": {
         "errorMessage": "Tyvärr kunde vi inte spara din konversation."
-      }
-    },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Sök efter ett presentkort",
-        "leftPageMessage": "Vart tog du vägen?",
-        "loadingCardsMessage": "Få presentkort",
-        "noCardsAvailable": "Inga presentkort tillgängliga"
-      },
-      "confimPurchase": {
-        "quantity": "Kvantitet {{quantity}}",
-        "cardAmount": "Kortets belopp: {{amount}} {{currency}}",
-        "price": "Pris: ",
-        "fee": "Avgift: "
-      },
-      "createAccount": {
-        "title": "Drivs av",
-        "saveEmail": "Du har inte sparat något e-postmeddelande. Snabba upp utcheckningsprocessen genom att spara ett e-postmeddelande.",
-        "termsAndConditions1": "Genom att fortsätta godkänner du The Bitcoin Company's",
-        "termsAndConditions2": "Villkor för tjänsten",
-        "termsAndConditions3": "och",
-        "termsAndConditions4": "Integritetspolicy"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Köpa presentkort, lämna inte sidan.",
-        "selectamount": "Välj ett belopp",
-        "sendingto": "Skickar till: ",
-        "minMaxPurchaseAmount": "Du kan köpa en {{min}} mängd av {{max}} {{currency}}",
-        "emailPlaceholder": "Ange e-postadress",
-        "purchaseBTN": "Köp presentkort",
-        "differentEmailMessage": "Den aktuella e-postadressen är en annan än den sparade. Vill du göra det här e-postmeddelandet till ditt primära?",
-        "terms": "Villkor",
-        "cardDescription": "Beskrivning av kortet",
-        "cardTerms": "Kortvillkor",
-        "dailyPurchaseAmountError": "Du har nått din dagliga inköpsgräns",
-        "giftMessage": "Lägg till en anteckning till din gåva",
-        "giftMessagePlaceholder": "Skriv ditt meddelande här",
-        "selectForContactBTN": "Välj presentkort",
-        "noAmountError": "Vänligen välj ett presentkortsbelopp"
-      },
-      "giftCardOrderDetails": {
-        "title": "Beställ detaljer",
-        "invoice": "Faktura",
-        "orderId": "Order-ID",
-        "uuid": "UUID",
-        "openInbox": "Öppna inkorgen"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Är du säker att du vill ta bort det här presentkortet?",
-        "purchased": "Köpte:",
-        "noPurchases": "Du har inte köpt några presentkort ännu. När du gör det visas de här.",
-        "customCopyMessage": "Support e-post kopierad"
       }
     },
     "sms4sats": {
@@ -1497,11 +1446,6 @@
       "claimed": "Begagnad",
       "markAsClaimed": "Markera som använd"
     },
-    "selectGiftPage": {
-      "noCards": "Inga kort tillgängliga",
-      "header": "Välj det presentkort som du vill skicka",
-      "inputPlaceholder": "Sök efter ett presentkort"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Vill du gå till {{option}} {{option2}} foto"
@@ -1519,9 +1463,6 @@
         "header": "Dina presentkort",
         "cardsLengthSingular": "{{num}} kort",
         "cardsLengthPlural": "{{num}} kort"
-      },
-      "editGiftCard": {
-        "header": "Vad skulle du vilja göra med din gåva?"
       }
     },
     "showProfileQr": {

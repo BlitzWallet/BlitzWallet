@@ -170,6 +170,7 @@ export default function CreateNostrConnectAccount(props) {
         publicKey = savedData.publicKey;
         secret = savedData.secret;
       }
+      const clientPubkey = getPublicKey(secret);
 
       const infoEvent = {
         kind: 13194,
@@ -195,6 +196,7 @@ export default function CreateNostrConnectAccount(props) {
             privateKey,
             publicKey,
             secret,
+            clientPubkey,
           },
         },
       });

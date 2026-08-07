@@ -12,12 +12,10 @@ import {
 } from '../../components/admin';
 import {
   ConfirmSMSPayment,
-  ConfirmVPNPage,
   SwitchGenerativeAIModel,
 } from '../../components/admin/homeComponents/apps';
 import ThemeText from './textTheme';
 import ThemeIcon from './themeIcon';
-import ConfirmGiftCardPurchase from '../../components/admin/homeComponents/apps/giftCards/confimPurchase';
 import ConfirmExportPayments from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import ConfirmChatGPTPage from '../../components/admin/homeComponents/apps/chatGPT/components/confirmationPage';
 import AddContactsHalfModal from '../../components/admin/homeComponents/contacts/addContactsHalfModal';
@@ -39,7 +37,6 @@ import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
 import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/receiveCodeConfirmation';
-import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/internalComponents/editGiftHalfModal';
 import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
 import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
@@ -282,31 +279,7 @@ export default function CustomHalfModal(props) {
             getReceiveCode={props.route.params?.getReceiveCode}
           />
         );
-      case 'confirmVPN':
-        return (
-          <ConfirmVPNPage
-            theme={theme}
-            darkModeType={darkModeType}
-            price={props.route.params?.price}
-            duration={props.route.params?.duration}
-            country={props.route.params?.country}
-            createVPN={props.route.params?.createVPN}
-            slideHeight={slideHeight}
-          />
-        );
-      case 'giftCardConfirm':
-        return (
-          <ConfirmGiftCardPurchase
-            theme={theme}
-            darkModeType={darkModeType}
-            quantity={props.route.params?.quantity}
-            price={props.route.params?.price}
-            productId={props.route.params?.productId}
-            purchaseGiftCard={props.route.params?.purchaseGiftCard}
-            email={props.route.params?.email}
-            blitzUsername={props.route.params?.blitzUsername}
-          />
-        );
+
       case 'exportTransactions':
         return (
           <ConfirmExportPayments
@@ -426,18 +399,7 @@ export default function CustomHalfModal(props) {
             transferType={props?.route?.params?.transferType}
           />
         );
-      case 'giftCardSendAndReceiveOption':
-        return (
-          <EditGiftHalfModal
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            setContentHeight={setContentHeight}
-            uuid={props?.route?.params?.uuid}
-            selectedContact={props?.route?.params?.selectedContact}
-            imageData={props?.route?.params?.imageData}
-          />
-        );
+
       case 'SelectPaymentType':
         return (
           <SelectPaymentType

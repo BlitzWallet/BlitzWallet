@@ -244,7 +244,7 @@ export default function SMSMessagingReceivedPage(props) {
           }));
           try {
             const response = await fetch(
-              `https://api2.sms4sats.com/orderstatus?orderId=${invoiceInfo.orderId}`,
+              `https://api2.sms4sats.com/orderstatus?orderId=${encodeURIComponent(invoiceInfo.orderId)}`,
             );
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
@@ -267,7 +267,7 @@ export default function SMSMessagingReceivedPage(props) {
         if (!responseInfo) {
           try {
             const response = await fetch(
-              `https://api2.sms4sats.com/cancelorder?orderId=${invoiceInfo.orderId}`,
+              `https://api2.sms4sats.com/cancelorder?orderId=${encodeURIComponent(invoiceInfo.orderId)}`,
             );
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
