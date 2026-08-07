@@ -5,11 +5,9 @@ import {
 } from './localStorage';
 import { crashlyticsLogReport } from './crashlyticsLogs';
 import {
-  CUSTODY_ACCOUNTS_STORAGE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
   NWC_SECURE_STORE_KEY,
   NWC_SECURE_STORE_MNEMOINC,
-  ROOTSTOCK_SWAP_SIGNER_KEY,
 } from '../constants';
 import { BIOMETRIC_KEY } from '../constants';
 import {
@@ -69,7 +67,6 @@ async function terminateAccount() {
     await deleteItemAsync('pinHash', KEYCHAIN_OPTION);
     await deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
     await deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
-    await deleteItemAsync(CUSTODY_ACCOUNTS_STORAGE_KEY, KEYCHAIN_OPTION);
     await deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION);
     await deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION);
@@ -92,7 +89,6 @@ async function wipeStaleWalletKeychain() {
   try {
     await Promise.all([
       deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION),
-      deleteItemAsync(CUSTODY_ACCOUNTS_STORAGE_KEY, KEYCHAIN_OPTION),
       deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION),
       deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION),
       deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION),
