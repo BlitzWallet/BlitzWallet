@@ -30,7 +30,7 @@ export default async function fetchBackend(
         method,
       )(responseData);
       const dm = decodeRequest(privateKey, response.data);
-      console.log('decoded response', dm);
+
       return dm;
     })();
     const result = await Promise.race([fetchPromise, timeoutPromise]);
