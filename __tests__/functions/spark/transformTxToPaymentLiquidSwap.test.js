@@ -2,7 +2,10 @@
 // object must carry useTempId/tempId so bulkUpdateSparkTransactions remaps the
 // pre-inserted pending placeholder (keyed by the invoice id) onto the final
 // spark id instead of creating a duplicate row.
-jest.mock('bolt11', () => ({ decode: jest.fn() }));
+jest.mock('../../../app/functions/decodeBolt11', () => ({
+  __esModule: true,
+  decode: jest.fn(),
+}));
 
 jest.mock('../../../app/functions/spark/index', () => ({
   getSparkPaymentStatus: jest.fn(() => 'completed'),
