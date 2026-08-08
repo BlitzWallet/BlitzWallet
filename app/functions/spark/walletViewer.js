@@ -42,6 +42,14 @@ export async function initializeSparkWalletViewer(mnemonic) {
   }
 }
 
+// Drop the cached readonly client so an account switch / reset rebuilds it for
+// the new mnemonic. Called from sparkContext.resetSparkState. Without this the
+// module-global viewer persists across accounts (stale cross-account reads) and
+// the missing export throws mid-reset.
+export function disposeWalletViewer() {
+  walletViewer = null;
+}
+
 export async function getTokensBalance(sparkAddress) {
   try {
     const runtime = await selectSparkRuntime(

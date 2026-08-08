@@ -153,11 +153,18 @@ export function ChildPairingProvider({ children }) {
             );
             s.sharedX = sharedX;
             s.childEphPub = childHello.childEphPub;
-            await setPairingDoc(rid, 'parentReveal', {
+            const didReveal = await setPairingDoc(rid, 'parentReveal', {
               v: 1,
               parentEphPub: s.parentEph.pub,
               expiresAt: Date.now() + PAIRING_TTL_MS,
             });
+            if (!didReveal) {
+              // parentHello was torn down under us (peer delete / TTL): the rule
+              // denies our parentReveal. The session is dead — don't advance to SAS.
+              setErrorMessage(t('settings.childAccounts.pairing.expired'));
+              setStatus('error');
+              return;
+            }
             setSas(computeSAS(sharedX, childHello.childEphPub, s.parentEph.pub));
             setStatus('confirm');
           },

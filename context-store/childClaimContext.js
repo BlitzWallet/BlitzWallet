@@ -100,6 +100,10 @@ export function ChildClaimProvider({ children }) {
           tag: grant.tag,
         }); // throws on tamper / wrong key
 
+        if (payload.v !== 1) {
+          throw new Error('Unsupported grant version');
+        }
+
         const seed = String(payload.mnemonic || '').trim();
         if (!seed || !isValidMnemonic(seed.split(' '))) {
           throw new Error('Invalid seed payload');
