@@ -69,6 +69,7 @@ export const OPERATION_TYPES = {
   receiveSparkHodlLightningPayment: 'receiveSparkHodlLightningPayment',
   querySparkHodlLightningPayments: 'querySparkHodlLightningPayments',
   isOptimizationInProgress: 'isOptimizationInProgress',
+  querySparkInvoices: 'querySparkInvoices',
 
   // Flashnet
   initializeFlashnet: 'initializeFlashnet',
@@ -82,20 +83,11 @@ export const OPERATION_TYPES = {
   swapBitcoinToToken: 'swapBitcoinToToken',
   swapTokenToBitcoin: 'swapTokenToBitcoin',
   getLightningPaymentQuote: 'getLightningPaymentQuote',
-  payLightningWithToken: 'payLightningWithToken',
   getUserSwapHistory: 'getUserSwapHistory',
   requestClawback: 'requestClawback',
   checkClawbackEligibility: 'checkClawbackEligibility',
-  checkClawbackStatus: 'checkClawbackStatus',
   requestBatchClawback: 'requestBatchClawback',
   listClawbackableTransfers: 'listClawbackableTransfers',
-
-  // Wallet optimizations
-  abortOptimization: 'abortOptimization',
-  isOptimizationRunning: 'isOptimizationRunning',
-  checkIfOptimizationNeeded: 'checkIfOptimizationNeeded',
-  runLeafOptimization: 'runLeafOptimization',
-  runTokenOptimization: 'runTokenOptimization',
 };
 
 const longOperations = new Set([
@@ -111,10 +103,7 @@ const longOperations = new Set([
   OPERATION_TYPES.executeSwap,
   OPERATION_TYPES.swapBitcoinToToken,
   OPERATION_TYPES.swapTokenToBitcoin,
-  OPERATION_TYPES.payLightningWithToken,
   OPERATION_TYPES.requestClawback,
-  OPERATION_TYPES.runLeafOptimization,
-  OPERATION_TYPES.runTokenOptimization,
   OPERATION_TYPES.claimSparkHodlLightningPayment,
   OPERATION_TYPES.receiveSparkHodlLightningPayment,
   OPERATION_TYPES.fufillSparkInvoices,
@@ -139,7 +128,6 @@ const mediumOperations = new Set([
   OPERATION_TYPES.setPrivacyEnabled,
   OPERATION_TYPES.simulateSwap,
   OPERATION_TYPES.requestBatchClawback,
-  OPERATION_TYPES.checkIfOptimizationNeeded,
   OPERATION_TYPES.listClawbackableTransfers,
   OPERATION_TYPES.createSatsInvoice,
   OPERATION_TYPES.createTokensInvoice,
@@ -148,8 +136,8 @@ const mediumOperations = new Set([
   OPERATION_TYPES.getSparkPaymentFee,
   OPERATION_TYPES.getUserSwapHistory,
   OPERATION_TYPES.checkClawbackEligibility,
-  OPERATION_TYPES.checkClawbackStatus,
   OPERATION_TYPES.isOptimizationInProgress,
+  OPERATION_TYPES.querySparkInvoices,
 ]);
 
 const rejectIfNotConnectedToInternet = new Set([
@@ -185,21 +173,427 @@ const WASM_ERRORS = [
   'WebAssembly.Compile is disallowed on the main thread',
   "Cannot read properties of undefined (reading '__wbindgen_malloc')",
 ];
-let handshakeComplete = false;
-let forceReactNativeUse = null;
-let globalSendWebViewRequest = null;
-let globalPendingRequests = null;
-let webviewFailureCount = 0;
-const MAX_WEBVIEW_FAILURES = 2;
-const MAX_QUEUED_REQUESTS = 50;
-const QUEUED_REQUEST_TTL_MS = 5 * 60 * 1000;
 
-// These two return fresh data per call, so concurrent identical calls are
-// legitimate and must never be deduped/coalesced in the queue.
-const QUEUE_DEDUPE_EXEMPT = [
-  OPERATION_TYPES.getSingleTxDetails,
-  OPERATION_TYPES.getUserSwapHistory,
-];
+// ---------------------------------------------------------------------------
+// 3-state native-fallback machine (D-9). Module-level so it survives provider
+// re-renders and WebView remounts; reset only on app restart or an explicit
+// setForceReactNative(false) / session-start recovery.
+// ---------------------------------------------------------------------------
+const FALLBACK_STATE = {
+  WEBVIEW: 'webview',
+  PENDING: 'fallback-pending',
+  NATIVE: 'native',
+};
+const HARD_FAIL_PERSIST_KEY = 'FORCE_REACT_NATIVE';
+let fallbackState = FALLBACK_STATE.WEBVIEW;
+let fallbackRetries = 0;
+const MAX_WEBVIEW_FAILURES = 2;
+const MAX_HOLD_REQUESTS = 50;
+
+let handshakeComplete = false;
+let globalSendWebViewRequest = null;
+let webviewFailureCount = 0;
+
+// ---------------------------------------------------------------------------
+// Intent store (plan §3.1 — the only surviving bespoke funds-safety machinery).
+// Module-level: it must survive WebView remounts (the bundle's duplicate-id Set
+// dies with the page; the intent store does not).
+// ---------------------------------------------------------------------------
+const intentStore = new Map();
+
+// Mutating funds ops that need the intent guard: KEEP-GUARD (no idempotency
+// key, no deterministic pre-response reconcile) plus SAFE-VIA-RECONCILE ops
+// that must persist their request before dispatch. sendSparkLightningPayment is
+// deliberately excluded: it is SAFE-VIA-IDEMPOTENCY (bundle passes
+// idempotencyKey = invoice, D-10) and never auto-retries.
+const FUNDS_OPS = new Set([
+  OPERATION_TYPES.sendSparkPayment,
+  OPERATION_TYPES.sendTokenPayment,
+  OPERATION_TYPES.sendBitcoinPayment,
+  OPERATION_TYPES.claimStaticDepositAddress,
+  OPERATION_TYPES.fufillSparkInvoices,
+  OPERATION_TYPES.batchTransferTokens,
+  OPERATION_TYPES.executeSwap,
+  OPERATION_TYPES.swapBitcoinToToken,
+  OPERATION_TYPES.swapTokenToBitcoin,
+  OPERATION_TYPES.requestClawback,
+  OPERATION_TYPES.requestBatchClawback,
+]);
+
+// Keep-alive ops (every send / mutating op): NEVER fabricated-settled by an
+// app-state/background transition. Their promises stay live until a real
+// outcome — backend response (page survived), resume-by-id (same epoch), or
+// network reconcile (page reloaded) — with a bounded watchdog final deadline
+// as the sole negative last resort. FUNDS_OPS plus the lightning send, which
+// is SAFE-VIA-IDEMPOTENCY (bundle passes idempotencyKey = invoice, D-10) but
+// must not be fabricated-failed mid-send either.
+const KEEP_ALIVE_OPS = new Set([
+  ...FUNDS_OPS,
+  OPERATION_TYPES.sendLightningPayment,
+  OPERATION_TYPES.getBitcoinPaymentRequest,
+  OPERATION_TYPES.getBitcoinPaymentFee,
+  OPERATION_TYPES.receiveLightningPayment,
+  OPERATION_TYPES.getLightningFee,
+  OPERATION_TYPES.getSparkPaymentFee,
+]);
+
+const RECONCILE_WINDOW_MS = 3 * 60 * 1000;
+// Bounded final deadline for keep-alive ops (last-resort backstop): one
+// timeout window + this grace, then the watchdog settles a real
+// {didWork:false, kind:'unknown'} so the promise can never zombie. Kept short
+// so the total stays inside the reconcile window (a settled-but-executed op
+// can still be matched by amount+time from network history).
+const KEEP_ALIVE_FINAL_DEADLINE_MS = 30 * 1000;
+const FULFILLED_INVOICE_STATUSES = new Set([
+  2,
+  'FINALIZED',
+  'INVOICE_STATUS_FINALIZED',
+]);
+
+// Test seams: injected reconcile query + call count (plan Phase 0).
+let reconcileQueryOverride = null;
+let reconcileQueryCount = 0;
+let epochForTest = 0;
+
+const sha256Hex = value => Buffer.from(sha256(value)).toString('hex');
+
+const canonicalArgs = args => {
+  const sorted = {};
+  Object.keys(args)
+    .sort()
+    .forEach(key => {
+      sorted[key] = args[key];
+    });
+  return JSON.stringify(sorted);
+};
+
+const walletHashOf = mnemonic => (mnemonic ? sha256Hash(mnemonic) : '');
+
+const stableKeyFor = (op, args, walletHash) =>
+  sha256Hex(`${op}|${canonicalArgs(args)}|${walletHash}`);
+
+const intentIdFor = (op, args, walletHash, attempt) =>
+  sha256Hex(`${op}|${canonicalArgs(args)}|${walletHash}|${attempt}`);
+
+// Settle every resolver attached to an intent. Used by the dispatch completion
+// path (response/timeout) and by foreground reconcile.
+const settleIntent = (entry, result, newState) => {
+  entry.state = newState;
+  entry.result = result;
+  const resolvers = entry.resolvers;
+  entry.resolvers = [];
+  resolvers.forEach(resolve => {
+    if (typeof resolve === 'function') resolve(result);
+  });
+};
+
+const withinReconcileWindow = (ts, anchorMs) => {
+  const t =
+    ts instanceof Date
+      ? ts.getTime()
+      : typeof ts === 'number'
+        ? ts
+        : Date.parse(ts);
+  if (!Number.isFinite(t)) return false;
+  return Math.abs(t - anchorMs) <= RECONCILE_WINDOW_MS;
+};
+
+// Per-op reconcile query builders (plan §3.1.3). Return null for ops with no
+// pre-response reconcile query (sendBitcoinPayment, clawbacks — their outcome
+// stays {kind:'unknown'} for the UI; never re-dispatched).
+const buildReconcileQuery = (op, entry, mnemonic) => {
+  switch (op) {
+    case OPERATION_TYPES.sendSparkPayment:
+      return {
+        action: OPERATION_TYPES.getTransactions,
+        args: { mnemonic, transferCount: 20, offsetIndex: 0 },
+      };
+    case OPERATION_TYPES.sendTokenPayment:
+      return {
+        action: OPERATION_TYPES.getTokenTransactions,
+        args: { mnemonic, tokenIdentifiers: [entry.args.tokenIdentifier] },
+      };
+    case OPERATION_TYPES.batchTransferTokens:
+      return {
+        action: OPERATION_TYPES.getTokenTransactions,
+        args: {
+          mnemonic,
+          tokenIdentifiers: (entry.args.invoices || []).map(
+            i => i.tokenIdentifier,
+          ),
+        },
+      };
+    case OPERATION_TYPES.executeSwap:
+    case OPERATION_TYPES.swapBitcoinToToken:
+    case OPERATION_TYPES.swapTokenToBitcoin:
+      return {
+        action: OPERATION_TYPES.getUserSwapHistory,
+        args: { mnemonic, limit: 50 },
+      };
+    case OPERATION_TYPES.claimStaticDepositAddress:
+      return {
+        action: OPERATION_TYPES.getUtxosForDepositAddress,
+        args: {
+          mnemonic,
+          depositAddress: entry.args.depositAddress,
+          limit: 100,
+          offset: 0,
+          excludeClaimed: true,
+        },
+      };
+    case OPERATION_TYPES.fufillSparkInvoices:
+      return {
+        action: OPERATION_TYPES.querySparkInvoices,
+        args: {
+          mnemonic,
+          invoices: (entry.args.invoices || []).map(i => i.invoice),
+        },
+      };
+    default:
+      return null;
+  }
+};
+
+const buildReconcileMatcher = op => {
+  switch (op) {
+    case OPERATION_TYPES.sendSparkPayment:
+      return (entry, result) => {
+        const amount = Number(entry.args.amountSats);
+        return !!result?.transfers?.some(
+          tx =>
+            Number(tx.totalValue) === amount &&
+            withinReconcileWindow(tx.createdTime, entry.dispatchedAt) &&
+            Array.isArray(tx.receivers) &&
+            tx.receivers.some(r => Number(r.amountSats) === amount),
+        );
+      };
+    case OPERATION_TYPES.sendTokenPayment:
+      return (entry, result) => {
+        const { tokenIdentifier, tokenAmount } = entry.args;
+        return !!result?.tokenTransactionsWithStatus?.some(tx => {
+          const t = tx.tokenTransaction;
+          return (
+            withinReconcileWindow(
+              t?.clientCreatedTimestamp,
+              entry.dispatchedAt,
+            ) &&
+            Array.isArray(t?.tokenOutputs) &&
+            t.tokenOutputs.some(
+              o =>
+                o.tokenIdentifier === tokenIdentifier &&
+                String(o.tokenAmount) === String(tokenAmount),
+            )
+          );
+        });
+      };
+    case OPERATION_TYPES.batchTransferTokens:
+      return (entry, result) => {
+        const invoices = entry.args.invoices || [];
+        return !!result?.tokenTransactionsWithStatus?.some(tx => {
+          const t = tx.tokenTransaction;
+          if (
+            !withinReconcileWindow(
+              t?.clientCreatedTimestamp,
+              entry.dispatchedAt,
+            )
+          ) {
+            return false;
+          }
+          return (
+            Array.isArray(t?.tokenOutputs) &&
+            t.tokenOutputs.some(o =>
+              invoices.some(
+                inv =>
+                  inv.tokenIdentifier === o.tokenIdentifier &&
+                  String(inv.tokenAmount) === String(o.tokenAmount),
+              ),
+            )
+          );
+        });
+      };
+    case OPERATION_TYPES.executeSwap:
+    case OPERATION_TYPES.swapBitcoinToToken:
+    case OPERATION_TYPES.swapTokenToBitcoin:
+      return (entry, result) => {
+        const amountIn = String(
+          entry.args.amountIn ?? entry.args.amountSats ?? '',
+        );
+        const poolId = entry.args.poolId;
+        return !!result?.swaps?.some(
+          s =>
+            s.poolLpPublicKey === poolId &&
+            String(s.amountIn) === amountIn &&
+            withinReconcileWindow(s.timestamp, entry.dispatchedAt),
+        );
+      };
+    case OPERATION_TYPES.claimStaticDepositAddress:
+      return (entry, result) => {
+        const utxos = result?.utxos || [];
+        return !utxos.some(
+          u =>
+            u.txid === entry.args.transactionId &&
+            Number(u.vout) === Number(entry.args.outputIndex),
+        );
+      };
+    case OPERATION_TYPES.fufillSparkInvoices:
+      return (entry, result) => {
+        const invoices = new Set(
+          (entry.args.invoices || []).map(i => i.invoice),
+        );
+        return !!result?.invoiceStatuses?.some(
+          s =>
+            invoices.has(s.invoice) && FULFILLED_INVOICE_STATUSES.has(s.status),
+        );
+      };
+    default:
+      return null;
+  }
+};
+
+const extractReconcileTxid = (op, result, entry) => {
+  switch (op) {
+    case OPERATION_TYPES.sendSparkPayment: {
+      const amount = Number(entry.args.amountSats);
+      const tx = result?.transfers?.find(
+        t =>
+          Number(t.totalValue) === amount &&
+          withinReconcileWindow(t.createdTime, entry.dispatchedAt),
+      );
+      return tx?.id;
+    }
+    case OPERATION_TYPES.sendTokenPayment:
+    case OPERATION_TYPES.batchTransferTokens: {
+      const tx = result?.tokenTransactionsWithStatus?.[0];
+      return tx?.tokenTransactionHash
+        ? String(tx.tokenTransactionHash)
+        : undefined;
+    }
+    case OPERATION_TYPES.executeSwap:
+    case OPERATION_TYPES.swapBitcoinToToken:
+    case OPERATION_TYPES.swapTokenToBitcoin: {
+      const amountIn = String(
+        entry.args.amountIn ?? entry.args.amountSats ?? '',
+      );
+      const swap = result?.swaps?.find(
+        s =>
+          s.poolLpPublicKey === entry.args.poolId &&
+          String(s.amountIn) === amountIn &&
+          withinReconcileWindow(s.timestamp, entry.dispatchedAt),
+      );
+      return swap?.id;
+    }
+    case OPERATION_TYPES.claimStaticDepositAddress:
+      return entry.args.transactionId;
+    default:
+      return undefined;
+  }
+};
+
+const setHandshakeComplete = value => {
+  handshakeComplete = value;
+};
+
+// On startup/loading routes a handshake failure must not emit a reconnect
+// (state: true) — the login flow handles connection itself; emitting would
+// race it. Shared by the reload-verification and handshake failure paths.
+const isOnStartupRoute = () => {
+  try {
+    if (navigationRef.isReady && navigationRef.isReady() === false) return true;
+    const currentRoutes = navigationRef.getRootState().routes?.map(r => r.name);
+    return (
+      currentRoutes?.includes('Splash') ||
+      currentRoutes?.includes('SplashReload') ||
+      currentRoutes?.includes('Home') ||
+      currentRoutes?.includes('ConnectingToNodeLoadingScreen')
+    );
+  } catch (err) {
+    // navigationRef not mounted yet — treat as a startup route (no reconnect emit).
+    return true;
+  }
+};
+
+const enterNative = (reason, persist) => {
+  console.warn(`Switching to native Spark runtime: ${reason}`);
+  fallbackState = FALLBACK_STATE.NATIVE;
+  if (persist) {
+    setLocalStorageItem(HARD_FAIL_PERSIST_KEY, 'true');
+  }
+};
+
+const enterFallbackPending = reason => {
+  if (fallbackState === FALLBACK_STATE.NATIVE) return;
+  console.warn(`WebView fallback pending: ${reason}`);
+  fallbackState = FALLBACK_STATE.PENDING;
+  fallbackRetries += 1;
+  if (fallbackRetries >= 2) {
+    // One recovery attempt per session; a second consecutive failure is terminal
+    // for this session (no persist — next app start retries the bridge).
+    enterNative('repeated bridge failure', false);
+  }
+};
+
+export const setForceReactNative = (value, reason = 'unknown') => {
+  if (value === true) {
+    console.warn(`forceReactNativeUse set to true. Reason: ${reason}`);
+    fallbackState = FALLBACK_STATE.NATIVE;
+  } else {
+    // Explicit recovery path (D-9).
+    fallbackState = FALLBACK_STATE.WEBVIEW;
+  }
+};
+
+export const sendWebViewRequestGlobal = async (
+  action,
+  args = {},
+  encrypt = true,
+) => {
+  if (!globalSendWebViewRequest) {
+    throw new Error(
+      'WebView not initialized. Ensure WebViewProvider is mounted.',
+    );
+  }
+  return globalSendWebViewRequest(action, args, encrypt);
+};
+
+export const getHandshakeComplete = () => {
+  if (fallbackState !== FALLBACK_STATE.WEBVIEW) {
+    return false;
+  }
+  return handshakeComplete;
+};
+
+// The native latch — true only once the fallback machine has actually
+// committed to native (a persisted FORCE_REACT_NATIVE flag or repeated bridge
+// failure). This is the same gate the WebView send path uses (the NATIVE
+// latch): during a transient reload the handshake is incomplete but this stays
+// false, so callers keep routing to the WebView (which holds their requests)
+// instead of spawning an orphan native wallet.
+export const getIsNativeRuntime = () => fallbackState === FALLBACK_STATE.NATIVE;
+
+// Test seams (plan Phase 0) — read-only except __setReconcileQueryForTest.
+export const __getIntentStoreForTest = () => intentStore;
+export const __getFallbackStateForTest = () => fallbackState;
+export const __getEpochForTest = () => epochForTest;
+export const __getReconcileQueryCountForTest = () => reconcileQueryCount;
+export const __setReconcileQueryForTest = fn => {
+  reconcileQueryOverride = fn;
+};
+
+// Derive AES-256 key via HKDF-SHA256 from sharedX (32 bytes)
+function deriveAesKeyFromSharedX(sharedX, randomNonce) {
+  // sharedX should be Uint8Array or Buffer
+  const ikm =
+    sharedX instanceof Uint8Array ? sharedX : Uint8Array.from(sharedX);
+  // no salt, info = 'ecdh-aes-key'
+  const keyBytes = hkdf(
+    sha256,
+    ikm,
+    new Uint8Array(0),
+    new TextEncoder().encode('ecdh-aes-key:' + randomNonce),
+    32,
+  );
+  return Buffer.from(keyBytes); // Buffer of length 32
+}
 
 const WV_STATES = {
   UNLOADED: 'unloaded',
@@ -237,94 +631,26 @@ const VALID_TRANSITIONS = {
 
 const WebViewContext = createContext(null);
 
-// Derive AES-256 key via HKDF-SHA256 from sharedX (32 bytes)
-function deriveAesKeyFromSharedX(sharedX, randomNonce) {
-  // sharedX should be Uint8Array or Buffer
-  const ikm =
-    sharedX instanceof Uint8Array ? sharedX : Uint8Array.from(sharedX);
-  // no salt, info = 'ecdh-aes-key'
-  const keyBytes = hkdf(
-    sha256,
-    ikm,
-    new Uint8Array(0),
-    new TextEncoder().encode('ecdh-aes-key:' + randomNonce),
-    32,
-  );
-  return Buffer.from(keyBytes); // Buffer of length 32
-}
-
-const setHandshakeComplete = value => {
-  handshakeComplete = value;
-};
-
-// On startup/loading routes a handshake failure must not emit a reconnect
-// (state: true) — the login flow handles connection itself; emitting would
-// race it. Shared by the reload-verification and handshake failure paths.
-const isOnStartupRoute = () => {
-  const currentRoutes = navigationRef.getRootState().routes?.map(r => r.name);
-  return (
-    currentRoutes?.includes('Splash') ||
-    currentRoutes?.includes('SplashReload') ||
-    currentRoutes?.includes('Home') ||
-    currentRoutes?.includes('ConnectingToNodeLoadingScreen')
-  );
-};
-
-export const setForceReactNative = (value, reason = 'unknown') => {
-  if (value === true) {
-    console.warn(`forceReactNativeUse set to true. Reason: ${reason}`);
-  }
-  forceReactNativeUse = value;
-};
-
-const forceNativeMode = reason => {
-  console.warn(`Forcing React Native mode: ${reason}`);
-  forceReactNativeUse = true;
-};
-
-export const sendWebViewRequestGlobal = async (
-  action,
-  args = {},
-  encrypt = true,
-) => {
-  if (!globalSendWebViewRequest) {
-    throw new Error(
-      'WebView not initialized. Ensure WebViewProvider is mounted.',
-    );
-  }
-  return globalSendWebViewRequest(action, args, encrypt);
-};
-
-export const getHandshakeComplete = () => {
-  if (forceReactNativeUse !== null) {
-    return false;
-  }
-  return handshakeComplete;
-};
-
-// Test seam: exposes the in-flight request ids so the harness can assert that
-// interrupted requests are settled AND removed (no zombie hangs). Prod code never
-// reads this — it mirrors the existing globalSendWebViewRequest wiring below.
-export const __getPendingRequestIdsForTest = () =>
-  globalPendingRequests ? Object.keys(globalPendingRequests.current) : [];
-
-export const WebViewProvider = ({ children }) => {
+export const WebViewProvider = ({ children, transport = null }) => {
   const { authResetkey } = useAuthContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { appState, isConnectedToTheInternet, didGetToHomepage } =
     useAppStatus();
   const webViewRef = useRef(null);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
+  const [verifiedPath, setVerifiedPath] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
-  const isResetting = useRef(false);
-  const queuedRequests = useRef([]);
+  // sessionEpoch (D-1): monotonic int bumped on every reset; every load/message
+  // callback captures the epoch it belongs to and stale-epoch events are
+  // dropped before processing.
+  const [epoch, setEpoch] = useState(0);
+  const epochRef = useRef(0);
+  const holdBufferRef = useRef([]);
   const pendingRequests = useRef({});
   const activeTimeoutsRef = useRef({});
   const sessionKeyRef = useRef(null);
   const aesKeyRef = useRef(null);
   const expectedNonceRef = useRef(null);
-  const [verifiedPath, setVerifiedPath] = useState('');
-  const expectedSequenceRef = useRef(0);
   const nonceVerified = useRef(false);
   const previousAppState = useRef(appState);
   const prevConnectionStatus = useRef(isConnectedToTheInternet);
@@ -332,15 +658,27 @@ export const WebViewProvider = ({ children }) => {
   const walletInitialized = useRef(false);
   const isInitialRender = useRef(true);
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
-  const didRunInit = useRef(null);
-  const isWebviewReadyRef = useRef(null);
+  const isWebviewReadyRef = useRef(transport ? !!verifiedPath : false);
   const didRunHandshakeRef = useRef(false);
+  // Re-entrancy guard for startHandshake, kept SEPARATE from didRunHandshakeRef.
+  // didRunHandshakeRef means "the handshake has finished" — the loading screen
+  // gates its reconnect on it, so it must not go true until the handshake
+  // completes (or a native fallback is committed). Collapsing the two lets the
+  // loading screen reconnect mid-handshake and create a native wallet.
+  const didRunInit = useRef(false);
   const didGetToHomepageRef = useRef(didGetToHomepage);
+  const foregroundIdRef = useRef(0);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
   });
   const wvState = useRef(WV_STATES.UNLOADED);
+
+  const messageRateLimiter = useRef({
+    count: 0,
+    windowStart: Date.now(),
+    maxPerSecond: 50,
+  });
 
   const transitionWvState = useCallback((newState, reason = '') => {
     const current = wvState.current;
@@ -371,34 +709,11 @@ export const WebViewProvider = ({ children }) => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
   }, [currentWalletMnemoinc]);
 
+  // In transport (test) mode the provider is "ready" as soon as the bundle is
+  // verified; in production the WebView load events drive readiness.
   useEffect(() => {
-    isWebviewReadyRef.current = isWebViewReady;
-  }, [isWebViewReady]);
-
-  // reset webview when app is stale in background
-  useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-
-    // clear any qued requests
-    if (queuedRequests.current.length) {
-      console.log('[auth reset webview] clearing qued requests');
-      // Snapshot and clear BEFORE iterating: a reject handler can synchronously
-      // route back into a queue drain (see wrapped init resolve), so the array
-      // must already be empty to keep that re-entry from recursing infinitely.
-      const requestsToReject = queuedRequests.current;
-      queuedRequests.current = [];
-      requestsToReject.forEach(({ reject }) => {
-        reject({
-          error: 'Wallet initialization failed, using React Native',
-        });
-      });
-    }
-    blockAndResetWebview();
-    currentWalletMnemoincRef.current = null;
-  }, [authResetkey]);
+    isWebviewReadyRef.current = transport ? !!verifiedPath : isWebViewReady;
+  }, [transport, verifiedPath, isWebViewReady]);
 
   useEffect(() => {
     didGetToHomepageRef.current = didGetToHomepage;
@@ -408,138 +723,138 @@ export const WebViewProvider = ({ children }) => {
     internetConnectionRef.current = isConnectedToTheInternet;
   }, [isConnectedToTheInternet]);
 
-  const messageRateLimiter = useRef({
-    count: 0,
-    windowStart: Date.now(),
-    maxPerSecond: 50,
-  });
+  // reset webview when app is stale in background
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
 
-  const getNextSequence = useCallback(() => {
-    const current = expectedSequenceRef.current;
-    expectedSequenceRef.current = current + 1;
-    return current;
+    // Session-start recovery: an auth reset is a new session (D-9).
+    if (fallbackState === FALLBACK_STATE.PENDING) {
+      fallbackState = FALLBACK_STATE.WEBVIEW;
+    }
+
+    // No cross-session retention: settle the hold-buffer explicitly (the reset
+    // below would settle it as 'unknown'; the auth-reset message is the one the
+    // login flow has always surfaced).
+    const buffer = holdBufferRef.current;
+    holdBufferRef.current = [];
+    buffer.forEach(({ resolve }) => {
+      if (typeof resolve === 'function') {
+        resolve({
+          error: 'Wallet initialization failed, using React Native',
+        });
+      }
+    });
+
+    // Keep currentWalletMnemoincRef populated: logout restarts the app, and a
+    // same-account auth reset needs the live ref for the post-handshake
+    // wallet re-init (the old hard null left the wallet un-initialized after
+    // long-background recovery).
+    blockAndResetWebview();
+  }, [authResetkey]);
+
+  // Settle the hold-buffer with one result. Used on background (D-6), resets,
+  // handshake failure and auth reset — the buffer never outlives the
+  // ready-window it was built for.
+  const settleHoldBuffer = useCallback(result => {
+    const buffer = holdBufferRef.current;
+    holdBufferRef.current = [];
+    buffer.forEach(({ resolve }) => {
+      if (typeof resolve === 'function') resolve(result);
+    });
   }, []);
 
-  // Settle-and-remove queued entries older than the TTL. Runs on every queue
-  // push AND at drain time: a stale read just refetches, but a stale send
-  // (e.g. a payment queued before a long background) must never execute
-  // minutes later.
-  const evictExpiredQueuedRequests = useCallback(() => {
-    const queue = queuedRequests.current;
-    const now = Date.now();
-    for (let i = queue.length - 1; i >= 0; i--) {
-      if (now - queue[i].queuedAt > QUEUED_REQUEST_TTL_MS) {
-        const [expired] = queue.splice(i, 1);
-        if (typeof expired.resolve === 'function') {
-          expired.resolve({ error: 'Request expired while queued' });
+  // Single-settle: clears the watchdog + pending entry and resolves the caller.
+  // For funds ops the intent entry is settled first (done → removed; anything
+  // else → unknown so foreground reconcile can settle it).
+  const finalizeRequest = useCallback((id, result, intentState) => {
+    const entry = pendingRequests.current[id];
+    if (!entry) return;
+    delete pendingRequests.current[id];
+    const t = activeTimeoutsRef.current[id];
+    if (t?.timeoutId) clearTimeout(t.timeoutId);
+    delete activeTimeoutsRef.current[id];
+    if (entry.stableKey) {
+      const intent = intentStore.get(entry.stableKey);
+      if (intent) {
+        if (intentState === 'done') {
+          settleIntent(intent, result, 'done');
+          intentStore.delete(entry.stableKey);
+        } else {
+          settleIntent(intent, result, 'unknown');
         }
       }
     }
+    entry.resolve(result);
   }, []);
 
-  // Single entry point for deferring a request ({id, action, args, encrypt,
-  // resolve, reject}) into queuedRequests. Owns the queue policy:
-  //   - expired entries are settled and evicted first (TTL),
-  //   - an identical queued request coalesces — both callers settle with the
-  //     same outcome from one message,
-  //   - a full queue rejects the newcomer instead of growing unbounded.
-  const queueRequest = useCallback(
-    entry => {
-      const queue = queuedRequests.current;
-      const now = Date.now();
-
-      evictExpiredQueuedRequests();
-
-      const existing =
-        !QUEUE_DEDUPE_EXEMPT.includes(entry.action) &&
-        queue.find(
-          req =>
-            req.action === entry.action &&
-            JSON.stringify(req.args) === JSON.stringify(entry.args),
-        );
-      if (existing) {
-        console.log('Coalescing duplicate queued request:', entry.action);
-        const prevResolve = existing.resolve;
-        const prevReject = existing.reject;
-        existing.resolve = result => {
-          if (typeof prevResolve === 'function') prevResolve(result);
-          if (typeof entry.resolve === 'function') entry.resolve(result);
-        };
-        existing.reject = error => {
-          if (typeof prevReject === 'function') prevReject(error);
-          if (typeof entry.reject === 'function') entry.reject(error);
-        };
-        return;
-      }
-
-      if (queue.length >= MAX_QUEUED_REQUESTS) {
-        console.warn('Request queue full, rejecting:', entry.action);
-        entry.reject(new Error('Request queue full'));
-        return;
-      }
-
-      queue.push({ ...entry, queuedAt: now });
-    },
-    [evictExpiredQueuedRequests],
-  );
-
   const resetWebViewState = useCallback(
-    (
-      clearHandshake = false,
-      sparkConnectionState,
-      shouldClearPending = true,
-    ) => {
+    (sparkConnectionState, clearHandshake = true) => {
       console.log('Resetting WebView state', {
         clearHandshake,
         sparkConnectionState,
-        shouldClearPending,
       });
+      // Bump the session epoch: every callback from the previous session
+      // (stale WebView instance, late load event, late message) is dropped.
+      epochRef.current += 1;
+      setEpoch(epochRef.current);
+      epochForTest = epochRef.current;
+
       // Transition to UNLOADED — this also sets isWebViewReady(false) via
       // derived state (every state allows the reset transition).
       transitionWvState(WV_STATES.UNLOADED, 'reset');
-      isResetting.current = true;
-      // setVerifiedPath('');
 
-      Object.entries(activeTimeoutsRef.current).forEach(([id, timeoutInfo]) => {
-        clearTimeout(timeoutInfo.timeoutId);
-
-        // Re-queue the request if it's not a handshake
-        // and if we're not clearing pending requests
-        if (!shouldClearPending && timeoutInfo.action !== 'handshake:init') {
-          // Find the pending request's resolve/reject functions
-          const originalResolve = pendingRequests.current[id];
-          if (originalResolve && timeoutInfo.originalRequest) {
-            const { action, args, encrypt } = timeoutInfo.originalRequest;
-
-            console.log(`Re-queueing interrupted request: ${action}`);
-
-            // IMPORTANT: We pass the original resolve function so the promise
-            // chain is preserved; a queue duplicate coalesces onto the existing
-            // entry so this promise still settles.
-            queueRequest({
-              id, // Keep original ID for tracking
-              action,
-              args,
-              encrypt,
-              resolve: originalResolve,
-              reject: error => {
-                // Reject using the original resolve function (which handles both resolve/reject)
-                if (typeof originalResolve === 'function') {
-                  originalResolve({ error: error.message || error });
-                }
-              },
-            });
-
-            // Remove from pendingRequests since it's now queued
-            delete pendingRequests.current[id];
-          }
-        }
+      // No re-queue: the hold-buffer was ready-window-only and every in-flight
+      // request settles as unknown (funds intents reconcile on foreground).
+      settleHoldBuffer({
+        didWork: false,
+        error: 'Request interrupted by bridge reset',
+        kind: 'unknown',
       });
-      activeTimeoutsRef.current = {};
+      Object.keys(pendingRequests.current).forEach(id => {
+        const pending = pendingRequests.current[id];
+        if (pending && KEEP_ALIVE_OPS.has(pending.action)) {
+          // Keep-alive op: never fabricate a settle for a send. The caller's
+          // promise stays live — the new session's reconcile settles it from
+          // network history after the handshake, and the watchdog's final
+          // deadline is the floor. The intent is marked unknown so reconcile
+          // picks it up (its resolvers are NOT called here).
+          if (pending.stableKey) {
+            const intent = intentStore.get(pending.stableKey);
+            if (intent && intent.state === 'in-flight') {
+              intent.state = 'unknown';
+              intent.result = null;
+            }
+          }
+          return;
+        }
+        finalizeRequest(
+          id,
+          {
+            didWork: false,
+            error: 'Unable to finish action, request got cleaned up.',
+            kind: 'unknown',
+          },
+          'unknown',
+        );
+      });
 
-      // Only clear handshake if explicitly told to (actual failures)
-      // Don't clear it for normal app lifecycle resets
-      // Our app uses this to choose wheater to make calls to the webview or react native
+      // Zero key material on every teardown path.
+      if (aesKeyRef.current?.fill) aesKeyRef.current.fill(0);
+      aesKeyRef.current = null;
+      if (sessionKeyRef.current?.privateKey?.fill) {
+        sessionKeyRef.current.privateKey.fill(0);
+      }
+      sessionKeyRef.current = null;
+      expectedNonceRef.current = null;
+      nonceVerified.current = false;
+
+      // Every reset tears down the session key and reloads the page: clear the
+      // handshake so the ready-window hold engages during the reload (there is
+      // no AES key until the new handshake completes) and selectSparkRuntime
+      // routes through the native fallback until the bridge is live again.
       if (clearHandshake) {
         setHandshakeComplete(false);
       }
@@ -551,60 +866,20 @@ export const WebViewProvider = ({ children }) => {
         state: sparkConnectionState,
         count: prev.count + 1,
       }));
-
-      // Settle everything still pending. When shouldClearPending is false the
-      // re-queued ids were already removed inside the loop above, so this only
-      // sweeps entries that could not be re-queued (handshake:init, lost
-      // bookkeeping) — leaving them would strand their promises forever.
-      // Resolving a pending handshake:init with a plain {error} makes
-      // initHandshake's await return (it does NOT throw), so its
-      // forceNativeMode catch intentionally does not run here.
-      Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
-        if (typeof resolve === 'function') {
-          resolve({
-            error: 'Unable to finish action, request got cleaned up.',
-          });
-        }
-      });
-      pendingRequests.current = {};
-
-      sessionKeyRef.current = null;
-      expectedSequenceRef.current = 0;
-      aesKeyRef.current = null;
-      nonceVerified.current = false;
     },
-    [queueRequest, transitionWvState],
+    [finalizeRequest, settleHoldBuffer, transitionWvState],
   );
-
-  // App-state / connectivity transitions clear per-request timers but leave the
-  // pending promise in place. For every in-flight request, either revive it or
-  // settle it so it can never hang forever:
-  //   - bookkeeping still present  -> re-arm the timer from the preserved entry
-  //     (fields already carry handler/duration) so it settles via handleTimeout.
-  //   - bookkeeping already wiped   -> orphan; settle it now via the stored
-  //     resolver (which does not self-delete from pendingRequests) and remove it.
-  const rearmOrSweepPendingRequests = useCallback(() => {
-    Object.keys(pendingRequests.current).forEach(id => {
-      const entry = activeTimeoutsRef.current[id];
-      if (entry) {
-        clearTimeout(entry.timeoutId);
-        entry.timeoutId = setTimeout(entry.handler, entry.duration);
-      } else {
-        const resolve = pendingRequests.current[id];
-        if (typeof resolve === 'function') {
-          resolve({ error: 'Request interrupted by app state change' });
-        }
-        delete pendingRequests.current[id];
-      }
-    });
-  }, []);
 
   const reloadWebViewSecurely = useCallback(async () => {
     try {
       console.log('Re-verifying WebView before reload...');
-      if (forceReactNativeUse) return;
+      if (fallbackState === FALLBACK_STATE.NATIVE) return;
 
       transitionWvState(WV_STATES.VERIFYING, 'reload verification');
+
+      // Unmount the old instance so the error-path reset actually remounts
+      // (the old no-op same-value set was the reset wedge).
+      setVerifiedPath('');
 
       // Re-verify the file
       const { htmlPath, nonceHex } = await verifyAndPrepareWebView(
@@ -615,15 +890,16 @@ export const WebViewProvider = ({ children }) => {
 
       // File is verified, safe to reload
       console.log('File integrity verified, reloading WebView');
-      didRunInit.current = false;
+      didRunHandshakeRef.current = false;
+      didRunInit.current = false; // re-arm the handshake for the reloaded page
       expectedNonceRef.current = nonceHex;
       setVerifiedPath(htmlPath);
       setReloadKey(prev => prev + 1);
     } catch (err) {
       console.error('WebView re-verification failed:', err);
 
-      // On verification failure, force React Native mode
-      forceNativeMode('bundle verification failed');
+      // Hard-fail class — persist native fallback (D-9).
+      enterNative('bundle verification failed', true);
       setHandshakeComplete(false);
       const blockReset = isOnStartupRoute();
 
@@ -634,15 +910,10 @@ export const WebViewProvider = ({ children }) => {
     }
   }, []);
 
-  const blockAndResetWebview = useCallback(
-    shouldClearPending => {
-      didRunInit.current = true; // Block handshakes during reload
-
-      resetWebViewState(false, false, shouldClearPending);
-      reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
-    },
-    [resetWebViewState, reloadWebViewSecurely],
-  );
+  const blockAndResetWebview = useCallback(() => {
+    resetWebViewState(false);
+    reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
+  }, [resetWebViewState, reloadWebViewSecurely]);
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -671,396 +942,492 @@ export const WebViewProvider = ({ children }) => {
     return decrypted;
   }, []);
 
-  const sendWebViewRequestInternal = useCallback(
-    (action, args = {}, encrypt = true) => {
-      let resolveFn, rejectFn;
-      const promise = new Promise((resolve, reject) => {
-        resolveFn = resolve;
-        rejectFn = reject;
-      });
-
-      const execute = async () => {
-        const resolve = resolveFn;
-        const reject = rejectFn;
-        let timeoutId = null;
-        const id = customUUID();
-        try {
-          // If forceReactNativeUse is set, reject immediately
-          if (forceReactNativeUse === true) {
-            console.log(
-              'Forced React Native mode, rejecting WebView request:',
-              action,
-            );
-            return resolve({
-              error: 'Wallet initialization failed, using React Native(1)',
-            });
-          }
-
-          // Queue messages during reset/background
-          if (
-            (isResetting.current || AppState.currentState === 'background') &&
-            action !== 'handshake:init' &&
-            action !== 'initializeSparkWallet'
-          ) {
-            console.log(
-              'WebView is resetting or in the background, queueing message:',
-              action,
-            );
-            queueRequest({ id, action, args, encrypt, resolve, reject });
-            return;
-          }
-
-          // Reject importent messages if app is not connected to the internet
-          if (
-            !internetConnectionRef.current &&
-            action !== 'handshake:init' &&
-            action !== 'initializeSparkWallet'
-          ) {
-            console.log(
-              'App is not connected to the internet, queueing message:',
-              action,
-            );
-            if (rejectIfNotConnectedToInternet.has(action)) {
-              reject(new Error(`App is not connected to the internet`));
-            } else if (action !== OPERATION_TYPES.initWallet) {
-              //don't add init wallet, this will be added during webview reset
-              queueRequest({ id, action, args, encrypt, resolve, reject });
-            }
-            return;
-          }
-
-          if (!webViewRef.current || !isWebviewReadyRef.current) {
-            console.log(
-              'WebView not ready or internet is not connected, queueing message:',
-              action,
-              webViewRef.current,
-              isWebviewReadyRef.current,
-            );
-            queueRequest({ id, action, args, encrypt, resolve, reject });
-            return;
-          }
-
-          const getTimeoutDuration = action => {
-            if (action === 'handshake:init') return 4000;
-
-            if (longOperations.has(action)) {
-              return 90000; // 90 seconds for payment operations
-            }
-
-            if (mediumOperations.has(action)) {
-              return 30000; // 30 seconds
-            }
-
-            return 10000; // 10 seconds
-          };
-
-          const timeoutDuration = getTimeoutDuration(action);
-          const startedAt = Date.now();
-
-          const handleTimeout = () => {
-            if (AppState.currentState !== 'active') {
-              console.log(
-                `Skipping timeout for ${action} because app is not active (${AppState.currentState})`,
-              );
-              // Timers can still fire in iOS 'inactive'; killing the request here
-              // would leave it in pendingRequests forever. Re-arm so the entry
-              // survives until an active-state firing settles it.
-              const entry = activeTimeoutsRef.current[id];
-              if (entry) {
-                entry.timeoutId = setTimeout(handleTimeout, timeoutDuration);
-              }
-              return;
-            }
-
-            if (!pendingRequests.current[id]) {
-              console.log(`Request ${id} already resolved, skipping timeout`);
-              delete activeTimeoutsRef.current[id];
-              return;
-            }
-
-            console.error(`WebView request timeout for action: ${action}`);
-
-            delete pendingRequests.current[id];
-            delete activeTimeoutsRef.current[id];
-
-            // If handshake is complete and this is not a handshake action,
-            // the WebView bridge is functional — this is a service timeout.
-            // Don't kill the WebView for a backend service being slow.
-            if (handshakeComplete && action !== 'handshake:init') {
-              console.warn(
-                `Service timeout for ${action} — WebView bridge is healthy, not forcing native mode`,
-              );
-            } else {
-              // WebView-level failure (handshake timeout or bridge issue)
-              webviewFailureCount++;
-              console.warn(
-                `WebView failure #${webviewFailureCount} for ${action}`,
-              );
-              if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
-                forceNativeMode(
-                  `${MAX_WEBVIEW_FAILURES} consecutive WebView failures`,
-                );
-              }
-              resetWebViewState(true, true);
-            }
-
-            reject(
-              new Error(
-                `Call unresponsive (timeout after ${timeoutDuration}ms)`,
-              ),
-            );
-          };
-
-          timeoutId = setTimeout(handleTimeout, timeoutDuration);
-
-          activeTimeoutsRef.current[id] = {
-            timeoutId,
-            startedAt,
-            duration: timeoutDuration,
-            handler: handleTimeout,
-            remaining: timeoutDuration,
-            action,
-            originalRequest: { action, args, encrypt }, //Store request details
-          };
-
-          const originalResolve = resolve;
-          pendingRequests.current[id] = result => {
-            const t = activeTimeoutsRef.current[id];
-            if (t?.timeoutId) clearTimeout(t.timeoutId);
-            delete activeTimeoutsRef.current[id];
-            originalResolve(result);
-          };
-
-          // Handle initializeSparkWallet specially
-          if (action === 'initializeSparkWallet') {
-            if (!getHandshakeComplete()) {
-              console.log('Handshake not complete, cannot initialize wallet');
-              if (timeoutId) clearTimeout(timeoutId);
-              delete pendingRequests.current[id];
-              delete activeTimeoutsRef.current[id];
-              forceNativeMode('handshake incomplete for wallet init');
-              setChangeSparkConnectionState(prev => ({
-                state: true,
-                count: prev.count + 1,
-              }));
-              return resolve({ isConnected: false });
-            }
-            if (!nonceVerified.current) {
-              console.log('Nonce not verified, cannot initialize wallet');
-              if (timeoutId) clearTimeout(timeoutId);
-              delete pendingRequests.current[id];
-              delete activeTimeoutsRef.current[id];
-              forceNativeMode('nonce not verified for wallet init');
-              setChangeSparkConnectionState(prev => ({
-                state: true,
-                count: prev.count + 1,
-              }));
-              return resolve({ isConnected: false });
-            }
-
-            // Wrap the resolve to check initialization result
-            const wrappedResolve = pendingRequests.current[id];
-            pendingRequests.current[id] = result => {
-              if (result?.error || result?.isConnected === false) {
-                console.warn(
-                  'Wallet initialization failed, forcing React Native mode:',
-                  result,
-                );
-
-                // forceReactNativeUse = true;
-                // setChangeSparkConnectionState(prev => ({
-                //   state: true,
-                //   count: prev.count + 1,
-                // }));
-
-                // Snapshot and clear BEFORE iterating. This forEach is the
-                // re-entrant frame in the crash: one of these rejects belongs to
-                // a re-queued init request whose reject calls THIS wrapped resolve
-                // again, which would re-enter this forEach on the same array.
-                // Clearing first makes that re-entry a no-op and breaks the loop.
-                const requestsToReject = queuedRequests.current;
-                queuedRequests.current = [];
-                requestsToReject.forEach(({ reject }) => {
-                  reject({
-                    error: 'Wallet initialization failed, using React Native',
-                  });
-                });
-              } else {
-                walletInitialized.current = true;
-                setChangeSparkConnectionState(prev => ({
-                  state: true,
-                  count: prev.count + 1,
-                }));
-                console.log('Wallet initialized successfully');
-                processQueuedRequests();
-              }
-              wrappedResolve(result);
-            };
-          } else if (action !== 'handshake:init') {
-            // For non-init actions, check if wallet was initialized
-            if (handshakeComplete && !walletInitialized.current) {
-              console.log(
-                'Wallet initialization in progress, queueing request:',
-                action,
-              );
-
-              // Queue the request instead of blocking. Ownership of the promise
-              // moves to the queue entry, so drop the timeout AND the
-              // pendingRequests entry (leaving it would let a later sweep
-              // settle the caller prematurely).
-              if (timeoutId) clearTimeout(timeoutId);
-              delete pendingRequests.current[id];
-              delete activeTimeoutsRef.current[id];
-              queueRequest({ id, action, args, encrypt, resolve, reject });
-              return;
-            }
-          }
-
-          // Hash into a copy, and only after every queue/store branch above:
-          // originalRequest and queued entries must hold the pre-hash args so a
-          // replay through this function hashes exactly once.
-          if (args.mnemonic && action !== 'initializeSparkWallet') {
-            args = { ...args, mnemonic: sha256Hash(args.mnemonic) };
-          }
-
-          const sequence = getNextSequence();
-          const timestamp = Date.now();
-
-          let payload = {
-            id,
-            action,
-            args,
-            sequence,
-            timestamp,
-          };
-
-          try {
-            if (encrypt && aesKeyRef.current) {
-              const encrypted = encryptMessage(JSON.stringify(payload));
-              payload = { type: 'secure:msg', encrypted };
-            } else if (encrypt && action !== 'handshake:init') {
-              // Fail closed: encryption was requested but no session key exists
-              // (pre-handshake or mid-reset race). Never downgrade the payload
-              // to plaintext.
-              throw new Error('Encryption required but AES key unavailable');
-            }
-            webViewRef.current.postMessage(JSON.stringify(payload));
-          } catch (err) {
-            if (timeoutId) clearTimeout(timeoutId);
-            delete pendingRequests.current[id];
-            delete activeTimeoutsRef.current[id];
-            reject(err);
-          }
-        } catch (err) {
-          // Clean up timeout on error
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-          }
-          if (id) {
-            delete pendingRequests.current[id];
-            delete activeTimeoutsRef.current[id];
-          }
-          console.log(
-            'Error sending webview request from internal function',
-            err,
-          );
-          reject(err);
-        }
-      };
-      execute();
-      return promise;
-    },
-    [encryptMessage, resetWebViewState, getNextSequence],
-  );
-
-  const processQueuedRequests = useCallback(
-    async connectionJustRestored => {
-      // Never execute work that expired while waiting (see helper).
-      evictExpiredQueuedRequests();
-
-      // After a soft reset, the WebView's internal state is cleared
-      // We must reinitialize the wallet before processing any queued requests
-      if (
-        (handshakeComplete &&
-          !walletInitialized.current &&
-          currentWalletMnemoincRef.current) ||
-        (currentWalletMnemoincRef.current && connectionJustRestored)
-      ) {
-        console.log('Re-initializing wallet before processing queue');
-        try {
-          // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
-          const response = await sendWebViewRequestInternal(
-            OPERATION_TYPES.initWallet,
-            { mnemonic: currentWalletMnemoincRef.current },
-            true,
-          );
-          if (!response?.isConnected) throw new Error('Wallet init failed');
-        } catch (err) {
-          console.log('Error re-initializing wallet:', err);
-          // forceReactNativeUse = true;
-          // Reject all queued requests since WebView is now unusable
-          // Snapshot and clear BEFORE iterating (re-entrancy safety).
-          const requestsToReject = queuedRequests.current;
-          queuedRequests.current = [];
-          requestsToReject.forEach(({ reject }) => {
-            reject({
-              error: 'Wallet initialization failed, using React Native',
-            });
-          });
-          return;
-        }
-      }
-      isResetting.current = false;
-
-      console.log(
-        `Processing ${queuedRequests.current.length} queued requests`,
-      );
-
-      if (
-        queuedRequests.current.length === 0 ||
-        !currentWalletMnemoincRef.current
-      ) {
-        isResetting.current = false;
+  const postToWebView = useCallback(
+    data => {
+      if (transport) {
+        transport.send(data);
         return;
       }
+      if (webViewRef.current) {
+        webViewRef.current.postMessage(data);
+      }
+    },
+    [transport],
+  );
 
-      const requests = [...queuedRequests.current];
-      queuedRequests.current = [];
+  // Keep-alive resume (plan §4): re-post the SAME request id to the page that
+  // received the original dispatch. The backend's id→outcome cache returns the
+  // in-flight promise / stored result — the op is NEVER re-executed and the
+  // original caller resolves with the real outcome. Re-sends only when the page
+  // is provably the dispatch session (`dispatchEpoch` matches + handshake
+  // verified); a reloaded page has a new epoch (and a new session key + empty
+  // backend cache), so re-sending there would re-execute → double pay — that
+  // caller falls back to reconcile. Always arms the bounded final deadline:
+  // the ONLY negative settle for a keep-alive op, and only when the real
+  // outcome never arrives.
+  const resumeKeepAliveRequest = useCallback(
+    id => {
+      const entry = pendingRequests.current[id];
+      if (!entry) return false;
+      if (!KEEP_ALIVE_OPS.has(entry.action)) return false;
+      if (entry.keepAliveTimedOut) return false; // final deadline already armed
 
-      // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
-      // Parallel dispatch via Promise.allSettled could fire 51+ messages at once,
-      // permanently killing the WebView.
-      for (const { action, args, encrypt, resolve, reject } of requests) {
-        try {
-          const result = await sendWebViewRequestInternal(
-            action,
-            args,
-            encrypt,
-          );
-          if (typeof resolve === 'function') {
-            resolve(result);
-          }
-        } catch (error) {
-          if (typeof reject === 'function') {
-            reject(error);
+      let resumed = false;
+      if (entry.dispatchEpoch === epochRef.current && nonceVerified.current) {
+        if (entry.payload) {
+          try {
+            if (entry.encrypt && aesKeyRef.current) {
+              const encrypted = encryptMessage(JSON.stringify(entry.payload));
+              postToWebView(JSON.stringify({ encrypted }));
+            } else if (entry.encrypt) {
+              console.error(
+                'Keep-alive resume skipped: AES key unavailable for',
+                entry.action,
+              );
+            } else {
+              postToWebView(JSON.stringify(entry.payload));
+            }
+            resumed = true;
+          } catch (err) {
+            console.error('Keep-alive resume re-post failed:', err);
           }
         }
       }
 
-      isResetting.current = false;
+      // Last-resort backstop: one more bounded window, then settle the caller
+      // with a real {didWork:false, kind:'unknown'} — never a fabricated
+      // failure while the true outcome is still unknown.
+      entry.keepAliveTimedOut = true;
+      const prev = activeTimeoutsRef.current[id];
+      if (prev?.timeoutId) clearTimeout(prev.timeoutId);
+      const finalTimeoutId = setTimeout(() => {
+        const e = pendingRequests.current[id];
+        if (!e) return;
+        finalizeRequest(
+          id,
+          {
+            didWork: false,
+            error: `Call unresponsive (final deadline after ${KEEP_ALIVE_FINAL_DEADLINE_MS}ms)`,
+            kind: 'unknown',
+          },
+          e.stableKey ? 'unknown' : null,
+        );
+      }, KEEP_ALIVE_FINAL_DEADLINE_MS);
+      activeTimeoutsRef.current[id] = {
+        timeoutId: finalTimeoutId,
+        startedAt: Date.now(),
+        duration: KEEP_ALIVE_FINAL_DEADLINE_MS,
+        handler: null,
+        action: entry.action,
+      };
+      return resumed;
     },
-    [sendWebViewRequestInternal, evictExpiredQueuedRequests],
+    [encryptMessage, postToWebView, finalizeRequest],
   );
+
+  const getTimeoutDuration = useCallback(action => {
+    if (action === 'handshake:init') return 4000;
+
+    if (longOperations.has(action)) {
+      return 90000; // 90 seconds for payment operations
+    }
+
+    if (mediumOperations.has(action)) {
+      return 30000; // 30 seconds
+    }
+
+    return 10000; // 10 seconds
+  }, []);
+
+  const sendWebViewRequestInternal = useCallback(
+    (action, args = {}, encrypt = true) => {
+      return new Promise(resolve => {
+        // 1. Native latch.
+        if (fallbackState === FALLBACK_STATE.NATIVE) {
+          return resolve({
+            didWork: false,
+            error: 'Wallet initialization failed, using React Native(1)',
+            kind: 'bridge',
+          });
+        }
+
+        // 2. Background: settle immediately, no retention (D-5/D-6).
+        if (AppState.currentState === 'background') {
+          return resolve({
+            didWork: false,
+            error: 'Request deferred: app is in the background',
+            kind: 'unknown',
+          });
+        }
+
+        // 3. Offline: settle immediately, no queue (D-8).
+        if (!internetConnectionRef.current) {
+          return resolve({
+            didWork: false,
+            error: 'App is not connected to the internet',
+            kind: 'offline',
+          });
+        }
+
+        // 4. Ready-window hold (verify→load→handshake ≈250ms debounce + 4s
+        //    watchdog; init window). Bounded, no TTL, no coalescing, no
+        //    cross-background/offline retention (D-5).
+        const inReadyWindow =
+          !verifiedPath ||
+          !isWebviewReadyRef.current ||
+          !handshakeComplete ||
+          (!walletInitialized.current && action !== OPERATION_TYPES.initWallet);
+
+        if (action !== 'handshake:init' && inReadyWindow) {
+          if (holdBufferRef.current.length >= MAX_HOLD_REQUESTS) {
+            console.warn('Request hold-buffer full, rejecting:', action);
+            return resolve({
+              didWork: false,
+              error: 'Request queue full',
+              kind: 'not-ready',
+            });
+          }
+          console.log(
+            'WebView not ready, holding request:',
+            action,
+            'held:',
+            holdBufferRef.current.length + 1,
+          );
+          holdBufferRef.current.push({ action, args, encrypt, resolve });
+          return;
+        }
+
+        const id = customUUID();
+        const timeoutDuration = getTimeoutDuration(action);
+        const startedAt = Date.now();
+
+        // 5. Funds-op intent guard — recorded BEFORE postMessage (TDD §2).
+        let stableKey = null;
+        if (FUNDS_OPS.has(action)) {
+          const walletHash = args.mnemonic ? walletHashOf(args.mnemonic) : '';
+          stableKey = stableKeyFor(action, args, walletHash);
+          const existing = intentStore.get(stableKey);
+          if (existing) {
+            if (existing.state === 'in-flight') {
+              // Same attempt racing itself → coalesce onto the first dispatch.
+              existing.resolvers.push(resolve);
+              return;
+            }
+            if (existing.state === 'unknown') {
+              // Outcome may have executed; block a blind retry (unchanged,
+              // D-1 / test.js:576). Reconcile upgrades this to done when it
+              // confirms.
+              existing.resolvers.push(resolve);
+              resolve({
+                didWork: false,
+                error: 'Request status unknown — check before retrying',
+                kind: 'unknown',
+              });
+              return;
+            }
+            // state === 'done': the first op is confirmed executed. Consistent
+            // with the normal-success path (finalizeRequest deletes on done,
+            // test.js:543-544), a later identical call is a NEW payment — drop
+            // the spent record and dispatch.
+            intentStore.delete(stableKey);
+          }
+          const entry = {
+            intentId: intentIdFor(action, args, walletHash, 0),
+            stableKey,
+            op: action,
+            key: walletHash,
+            args,
+            argsHash: sha256Hex(canonicalArgs(args)),
+            state: 'in-flight',
+            result: null,
+            requestId: id,
+            attempt: 0,
+            resolvers: [resolve],
+            dispatchedAt: startedAt,
+            reconciledAt: 0,
+          };
+          intentStore.set(stableKey, entry);
+        }
+
+        const handleTimeout = () => {
+          const entry = pendingRequests.current[id];
+          if (!entry) return; // already settled
+
+          // Keep-alive ops (sends) never settle on a watchdog timeout alone:
+          // the real outcome is still unknown. First timeout → resume-by-id
+          // (same page: re-post the same id — the backend cache returns the
+          // real outcome, never a re-execution) or reconcile (page reloaded).
+          // The final deadline armed by resumeKeepAliveRequest is the only
+          // negative settle, and only as last resort. (The iOS JS timer is
+          // suspended while backgrounded, so nothing fires here in the
+          // background; on Android we defer to the foreground effect too.)
+          if (KEEP_ALIVE_OPS.has(entry.action)) {
+            if (entry.keepAliveTimedOut) return; // final deadline owns the settle
+            if (AppState.currentState === 'background') return;
+            const resumed = resumeKeepAliveRequest(id);
+            if (!resumed) {
+              // Page reloaded/crashed (epoch changed): re-sending there would
+              // re-execute → double pay. Reconcile from network history.
+              reconcileUnknownIntents();
+            }
+            return;
+          }
+
+          const isFundsOp = FUNDS_OPS.has(entry.action);
+          const result = {
+            didWork: false,
+            error: `Call unresponsive (timeout after ${timeoutDuration}ms)`,
+            // KEEP-GUARD ops settle as unknown — the op may have executed; the
+            // distinction is what stops a blind retry (plan §3.1.2).
+            kind: isFundsOp ? 'unknown' : 'timeout',
+          };
+          console.error(`WebView request timeout for action: ${entry.action}`);
+
+          if (entry.action === 'handshake:init') {
+            finalizeRequest(id, result, null);
+            // Handshake failure handling (fallback transition, buffer settle,
+            // connection state) lives in initHandshake — it owns the session
+            // start/stop semantics.
+            return;
+          }
+
+          finalizeRequest(id, result, isFundsOp ? 'unknown' : null);
+        };
+
+        const timeoutId = setTimeout(handleTimeout, timeoutDuration);
+
+        activeTimeoutsRef.current[id] = {
+          timeoutId,
+          startedAt,
+          duration: timeoutDuration,
+          handler: handleTimeout,
+          action,
+        };
+
+        // 5b. Stamped BEFORE dispatch so the resume path can prove the request
+        //     belongs to the current page session (plan §4 double-pay guard).
+        const dispatchEpoch = epochRef.current;
+
+        // 6. Hash into a copy — the intent entry above holds the pre-hash args
+        //    so a replay through this function hashes exactly once (tests 9-10).
+        let transportArgs = args;
+        if (args.mnemonic && action !== 'initializeSparkWallet') {
+          transportArgs = { ...args, mnemonic: sha256Hash(args.mnemonic) };
+        }
+
+        const payload = {
+          id,
+          action,
+          args: transportArgs,
+        };
+
+        pendingRequests.current[id] = {
+          resolve,
+          action,
+          stableKey,
+          dispatchEpoch,
+          payload,
+          encrypt,
+          timeoutDuration,
+          keepAliveTimedOut: false,
+        };
+
+        try {
+          if (encrypt && aesKeyRef.current) {
+            const encrypted = encryptMessage(JSON.stringify(payload));
+            postToWebView(JSON.stringify({ encrypted }));
+          } else if (encrypt && action !== 'handshake:init') {
+            // Fail closed: encryption was requested but no session key exists
+            // (pre-handshake or mid-reset race). Never downgrade the payload
+            // to plaintext.
+            throw new Error('Encryption required but AES key unavailable');
+          } else {
+            postToWebView(JSON.stringify(payload));
+          }
+        } catch (err) {
+          // Nothing was (or could be) posted — the op did not dispatch, so the
+          // intent entry is removed rather than left unknown.
+          if (stableKey) intentStore.delete(stableKey);
+          finalizeRequest(
+            id,
+            { didWork: false, error: err.message, kind: 'bridge' },
+            null,
+          );
+        }
+      });
+    },
+    [
+      finalizeRequest,
+      getTimeoutDuration,
+      encryptMessage,
+      postToWebView,
+      resumeKeepAliveRequest,
+      verifiedPath,
+      handshakeComplete,
+    ],
+  );
+
+  // Drains the ready-window hold-buffer. Runs after handshake completion and
+  // after wallet init. Re-initializes the wallet first when needed (the bundle
+  // clears its state on reload) — unless the buffer already carries an explicit
+  // initWallet — then dispatches held requests sequentially (the flood cap
+  // makes parallel dispatch unsafe).
+  const drainHoldBuffer = useCallback(async () => {
+    if (
+      handshakeComplete &&
+      !walletInitialized.current &&
+      currentWalletMnemoincRef.current &&
+      !holdBufferRef.current.some(
+        entry => entry.action === OPERATION_TYPES.initWallet,
+      )
+    ) {
+      console.log('Re-initializing wallet before processing buffer');
+      try {
+        const response = await sendWebViewRequestInternal(
+          OPERATION_TYPES.initWallet,
+          { mnemonic: currentWalletMnemoincRef.current },
+          true,
+        );
+        if (!response?.isConnected) {
+          // The init response handler already performed the fallback
+          // transition and buffer settle; just make sure held requests are not
+          // stranded.
+          settleHoldBuffer({
+            didWork: false,
+            error: 'Wallet initialization failed, using React Native',
+            kind: 'not-ready',
+          });
+        }
+      } catch (err) {
+        console.log('Error re-initializing wallet:', err);
+        // The init response handler owns the fallback transition.
+        settleHoldBuffer({
+          didWork: false,
+          error: 'Wallet initialization failed, using React Native',
+          kind: 'not-ready',
+        });
+      }
+      return;
+    }
+
+    console.log(`Processing ${holdBufferRef.current.length} held requests`);
+
+    const requests = holdBufferRef.current;
+    holdBufferRef.current = [];
+
+    // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
+    for (const { action, args, encrypt, resolve } of requests) {
+      try {
+        const result = await sendWebViewRequestInternal(action, args, encrypt);
+        if (typeof resolve === 'function') resolve(result);
+      } catch (error) {
+        if (typeof resolve === 'function') {
+          resolve({
+            didWork: false,
+            error: error?.message || String(error),
+            kind: 'bridge',
+          });
+        }
+      }
+    }
+  }, [sendWebViewRequestInternal, settleHoldBuffer]);
+
+  // Foreground settle-then-reconcile (plan §3.1.3): for intents still unknown,
+  // run the per-op history query. Hit → settle {didWork:true, status:'executed',
+  // txid}; miss → leave unknown. At most once per op per foreground; zero
+  // queries when no unknown intents exist.
+  const reconcileUnknownIntents = useCallback(async () => {
+    if (fallbackState !== FALLBACK_STATE.WEBVIEW) return;
+    const mnemonic = currentWalletMnemoincRef.current;
+    const foregroundId = foregroundIdRef.current;
+    const candidates = [...intentStore.values()].filter(
+      entry =>
+        entry.state === 'unknown' &&
+        entry.reconciledAt !== foregroundId &&
+        (!entry.key || (mnemonic && walletHashOf(mnemonic) === entry.key)),
+    );
+    if (!candidates.length) return;
+
+    for (const entry of candidates) {
+      entry.reconciledAt = foregroundId;
+      let matcher;
+      let result = null;
+
+      if (reconcileQueryOverride) {
+        const override = reconcileQueryOverride(entry);
+        if (!override) continue;
+        reconcileQueryCount += 1;
+        if ('result' in override) {
+          result = override.result;
+          matcher = override.matcher;
+        } else {
+          matcher = override.matcher;
+          try {
+            result = await sendWebViewRequestInternal(
+              override.action,
+              override.args,
+              true,
+            );
+          } catch (err) {
+            result = null;
+          }
+        }
+      } else {
+        const query = buildReconcileQuery(entry.op, entry, mnemonic);
+        if (!query) continue;
+        matcher = buildReconcileMatcher(entry.op);
+        reconcileQueryCount += 1;
+        try {
+          result = await sendWebViewRequestInternal(
+            query.action,
+            query.args,
+            true,
+          );
+        } catch (err) {
+          result = null;
+        }
+      }
+
+      if (result && typeof matcher === 'function' && matcher(entry, result)) {
+        const txid = reconcileQueryOverride
+          ? undefined
+          : extractReconcileTxid(entry.op, result, entry);
+        // Keep the entry: a retry of the same logical op must resolve this
+        // executed result, never re-dispatch (double-pay guard).
+        settleIntent(
+          entry,
+          { didWork: true, status: 'executed', txid },
+          'done',
+        );
+        // The intent's resolvers are the same functions bound to the bridge's
+        // pendingRequests entries (and their watchdogs). Reconcile resolves
+        // them directly, so those entries must be reaped too — otherwise a
+        // stale final-deadline timer could settle the already-resolved caller
+        // a second time and overwrite the done intent with 'unknown'.
+        for (const [rid, req] of Object.entries(pendingRequests.current)) {
+          if (req?.stableKey === entry.stableKey) {
+            const t = activeTimeoutsRef.current[rid];
+            if (t?.timeoutId) clearTimeout(t.timeoutId);
+            delete activeTimeoutsRef.current[rid];
+            delete pendingRequests.current[rid];
+          }
+        }
+      }
+    }
+  }, [sendWebViewRequestInternal]);
 
   const handleWebViewResponse = useCallback(
     event => {
+      if (epoch !== epochRef.current) {
+        // Stale-instance event from a previous session — drop before processing.
+        return;
+      }
       try {
         const message = JSON.parse(event.nativeEvent.data);
 
         if (message.type === 'handshake:reply' && message.pubW) {
-          const resolve = pendingRequests.current[message.id];
-          if (!resolve) {
+          const entry = pendingRequests.current[message.id];
+          if (!entry) {
             // no need to handle anything here, will be handled with timeout
             console.error('Timeout: backend is unresponsive');
             return;
@@ -1101,16 +1468,25 @@ export const WebViewProvider = ({ children }) => {
           }
           nonceVerified.current = true;
           webviewFailureCount = 0;
+          fallbackRetries = 0;
+          // A successful handshake is also a successful recovery from
+          // fallback-pending (D-9).
+          fallbackState = FALLBACK_STATE.WEBVIEW;
           console.log('Handshake complete. Got backend public key.');
           transitionWvState(WV_STATES.READY, 'handshake complete');
           setHandshakeComplete(true);
           // resolve requset to avoid timeout
-          resolve({ didComplete: true });
-          delete pendingRequests.current[message.id];
+          finalizeRequest(message.id, { didComplete: true }, null);
 
           setTimeout(() => {
-            processQueuedRequests();
+            drainHoldBuffer();
           }, 100);
+
+          // New session for reconcile: unknown intents may now be checked.
+          foregroundIdRef.current += 1;
+          setTimeout(() => {
+            reconcileUnknownIntents();
+          }, 150);
           return;
         }
 
@@ -1135,9 +1511,9 @@ export const WebViewProvider = ({ children }) => {
 
         if (content.type === 'security:csp-violation') {
           console.error('CSP VIOLATION DETECTED:', content);
-
+          // Hard-fail class — persist native fallback (D-9).
+          enterNative('CSP violation', true);
           resetWebViewState(true, true);
-          forceNativeMode('CSP violation');
           return;
         }
 
@@ -1166,12 +1542,12 @@ export const WebViewProvider = ({ children }) => {
             messageRateLimiter.current.count >
             messageRateLimiter.current.maxPerSecond
           ) {
+            // D-7: trip → warn + drop. No force-native, no reset — the cap is
+            // operational and a flush of legitimate responses must not kill the
+            // bridge (in-flight requests settle via their own watchdog).
             console.error(
-              `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
+              `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec) — dropping`,
             );
-
-            resetWebViewState(true, true);
-            forceNativeMode('rate limit exceeded');
             return;
           }
         }
@@ -1181,13 +1557,22 @@ export const WebViewProvider = ({ children }) => {
           // bridge failure — settle just that request and leave the bridge (and
           // every other in-flight request) alone. An error whose id no longer
           // matches (e.g. the timeout already settled it) is dropped like the
-          // isResponse path drops stale ids. Only an id-less top-level error
-          // keeps the reset/failure-count behavior via the outer catch.
+          // isResponse path drops stale ids. Id-less errors (D-3/D-12) are
+          // dropped — the bundle includes the id when it knows it; the
+          // watchdog settles the affected request.
           if (content.id) {
-            const resolve = pendingRequests.current[content.id];
-            if (typeof resolve === 'function') {
-              resolve({ error: content.error });
-              delete pendingRequests.current[content.id];
+            const entry = pendingRequests.current[content.id];
+            if (entry) {
+              const result = {
+                didWork: false,
+                error: content.error,
+                kind: 'bridge',
+              };
+              finalizeRequest(
+                content.id,
+                result,
+                entry.stableKey ? 'unknown' : null,
+              );
             } else {
               console.warn(
                 'Dropping error for unknown/settled request:',
@@ -1195,9 +1580,10 @@ export const WebViewProvider = ({ children }) => {
                 content.error,
               );
             }
-            return;
+          } else {
+            console.warn('Dropping id-less WebView error:', content.error);
           }
-          throw new Error(content.error);
+          return;
         }
 
         // Push events are unsolicited SDK traffic. One malformed event (or one
@@ -1246,15 +1632,21 @@ export const WebViewProvider = ({ children }) => {
             sparkStreamStatusEmitter.emit(
               STREAM_STATUS_EVENT_NAME,
               content.streamStatus,
+              content.walletId,
             );
           } catch (err) {
             console.error('Dropping failed streamStatus emit:', err);
           }
         }
         if (content.isResponse && content.id) {
-          const resolve = pendingRequests.current[content.id];
-          if (resolve) {
-            const result = JSON.parse(content.result || null);
+          const entry = pendingRequests.current[content.id];
+          if (entry) {
+            let result;
+            try {
+              result = JSON.parse(content.result || null);
+            } catch (err) {
+              result = { error: 'Malformed response payload' };
+            }
             // Check for WASM errors
             if (
               result?.error &&
@@ -1266,41 +1658,83 @@ export const WebViewProvider = ({ children }) => {
                 result.error,
               );
 
-              resetWebViewState(true, true);
-              forceNativeMode('WASM error');
-
-              setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+              // Hard-fail class — persist native fallback (D-9).
+              setLocalStorageItem(HARD_FAIL_PERSIST_KEY, 'true');
+              enterNative('WASM error', true);
+              resetWebViewState(true);
             }
             webviewFailureCount = 0; // Reset on successful response
-            resolve(result);
 
-            delete pendingRequests.current[content.id];
+            if (entry.action === OPERATION_TYPES.initWallet) {
+              if (result?.isConnected === true) {
+                walletInitialized.current = true;
+                setChangeSparkConnectionState(prev => ({
+                  state: true,
+                  count: prev.count + 1,
+                }));
+                setTimeout(() => {
+                  drainHoldBuffer();
+                }, 100);
+              } else if (result?.error || result?.isConnected === false) {
+                console.warn(
+                  'Wallet initialization failed, forcing React Native mode:',
+                  result,
+                );
+                enterFallbackPending('wallet init failed');
+                settleHoldBuffer({
+                  didWork: false,
+                  error: 'Wallet initialization failed, using React Native',
+                  kind: 'not-ready',
+                });
+              }
+            }
+
+            finalizeRequest(
+              content.id,
+              result,
+              entry.stableKey
+                ? result?.didWork === true
+                  ? 'done'
+                  : 'unknown'
+                : null,
+            );
+          } else {
+            console.warn(
+              'Dropping response for unknown/settled request:',
+              content,
+            );
           }
         }
       } catch (err) {
+        // One bad message must not tear the bridge down: per-message containment
+        // (D-4). A decrypt/parse failure leaves the request to its watchdog;
+        // repeated failures trigger the fallback-pending state.
         console.error('Error handling WebView message:', err);
-        if (
-          typeof err.message === 'string' &&
-          // The webview reports these as e.g.
-          // "SECURITY: Rejected stale message: 5000ms old" — routine after a
-          // long background, so never spend a teardown/failure strike on it.
-          err.message.includes('Rejected stale message')
-        )
-          return;
         webviewFailureCount++;
         if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
-          forceNativeMode('repeated WebView errors');
+          enterFallbackPending('repeated WebView errors');
         }
-        resetWebViewState(true, true);
       }
     },
     [
+      epoch,
       decryptMessage,
       resetWebViewState,
-      processQueuedRequests,
+      drainHoldBuffer,
+      reconcileUnknownIntents,
       transitionWvState,
+      finalizeRequest,
     ],
   );
+
+  // Injected transport (test harness) — production renders the WebView below.
+  useEffect(() => {
+    if (!transport) return;
+    transport.onMessage(handleWebViewResponse);
+    return () => {
+      if (typeof transport.destroy === 'function') transport.destroy();
+    };
+  }, [transport, handleWebViewResponse]);
 
   // Handle app state changes
   useEffect(() => {
@@ -1308,46 +1742,67 @@ export const WebViewProvider = ({ children }) => {
     const connectionChanged =
       prevConnectionStatus.current !== isConnectedToTheInternet;
 
-    if ((!appStateChanged && !connectionChanged) || forceReactNativeUse) {
+    if (
+      (!appStateChanged && !connectionChanged) ||
+      fallbackState === FALLBACK_STATE.NATIVE
+    ) {
       return; // Nothing changed
     }
 
     if (appState === 'background') {
       console.log(
-        'App going to background - pausing timers (keeping bookkeeping so foreground can re-arm)',
+        'App going to background - settling non-keep-alive in-flight requests',
       );
-      // Clear live timers so an accumulated/stale timer can't fire a spurious
-      // timeout on resume, but KEEP each entry (handler/duration/originalRequest)
-      // so rearmOrSweepPendingRequests re-arms the in-flight request on foreground
-      // instead of sweeping it as an orphan. Wiping this map was the cause of
-      // "Request interrupted by app state change" on a background→foreground send.
-      Object.values(activeTimeoutsRef.current).forEach(t => {
-        clearTimeout(t.timeoutId);
-        t.timeoutId = null;
+      // D-6: background settles immediately — no re-arm, no orphan bookkeeping.
+      // Funds intents stay 'unknown' so foreground reconcile can settle them.
+      // Keep-alive ops (sends) are NEVER fabricated-settled here: their true
+      // outcome is still unknown, so the promise stays live and the foreground
+      // resolves it from the real outcome (resume-by-id or reconcile). The iOS
+      // JS timer for the 90s watchdog is suspended while backgrounded, so it
+      // cannot fire a fake timeout in the meantime.
+      settleHoldBuffer({
+        didWork: false,
+        error: 'Request deferred: app went to background',
+        kind: 'unknown',
+      });
+      Object.keys(pendingRequests.current).forEach(id => {
+        const entry = pendingRequests.current[id];
+        if (entry && KEEP_ALIVE_OPS.has(entry.action)) {
+          console.log('keeping action alinve', entry);
+          return;
+        }
+        finalizeRequest(
+          id,
+          {
+            didWork: false,
+            error: 'Request interrupted by app state change',
+            kind: 'unknown',
+          },
+          'unknown',
+        );
       });
 
       previousAppState.current = appState;
       prevConnectionStatus.current = isConnectedToTheInternet;
     } else if (appState === 'active') {
       console.log('App returned to foreground');
-      // clear any active timeouts to prevent timeout from switching to rn
-      Object.values(activeTimeoutsRef.current).forEach(t =>
-        clearTimeout(t.timeoutId),
-      );
 
-      // The loop above cleared every timer but left the pending promises intact.
-      // Re-arm each request (or sweep orphans whose bookkeeping was wiped on
-      // background) so nothing hangs forever. This runs before the offline return
-      // and the reset paths below, covering all of them uniformly.
-      rearmOrSweepPendingRequests();
+      // Session-start recovery from fallback-pending (D-9): the bridge gets one
+      // retry per session; initHandshake's failure path escalates to native.
+      if (fallbackState === FALLBACK_STATE.PENDING) {
+        console.log('WebView recovery attempt on session start');
+        fallbackState = FALLBACK_STATE.WEBVIEW;
+        blockAndResetWebview();
+        previousAppState.current = appState;
+        prevConnectionStatus.current = isConnectedToTheInternet;
+        return;
+      }
 
       // Wait for internet connection before proceeding
       if (!isConnectedToTheInternet) {
         console.log('Waiting for internet connection before processing...');
-        // Update refs so we can detect when connection comes back
         previousAppState.current = appState;
         prevConnectionStatus.current = isConnectedToTheInternet;
-
         return;
       }
 
@@ -1360,30 +1815,67 @@ export const WebViewProvider = ({ children }) => {
         connectionChanged && isConnectedToTheInternet;
 
       if (justBecameActive || connectionJustRestored) {
-        if (!nonceVerified.current && !isResetting.current) {
-          console.log(
-            'App became active or connection restored and webview is not varified and not resetting - reloading WebView',
-          );
+        // New foreground: unknown intents may be reconciled once each.
+        foregroundIdRef.current += 1;
+
+        const keepAliveInFlight = Object.keys(pendingRequests.current).some(
+          id => KEEP_ALIVE_OPS.has(pendingRequests.current[id]?.action),
+        );
+
+        if (!nonceVerified.current) {
           if (didGetToHomepageRef.current) {
+            console.log(
+              'App became active and webview is not verified - reloading WebView',
+            );
+            blockAndResetWebview();
+          } else if (connectionJustRestored && didRunHandshakeRef.current) {
+            // Boot handshake was deferred while offline (didRunInit latched);
+            // didRunHandshakeRef latched because the handshake RAN and settled
+            // (kind:'offline'), but the page has no session. Reload to re-arm
+            // the handshake — matches pre-rewrite behavior. Scoped to a
+            // completed-then-deferred boot handshake on connection-restore so
+            // a plain bg→fg (or a still-in-flight handshake) never double-inits.
+            console.log(
+              'Connection restored during boot - reloading to re-arm handshake',
+            );
             blockAndResetWebview();
           }
-        } else {
-          // sometimes the webview becomes stale, if internet connection goes away make sure to reset webview but dont clear pending events so they are handled once webview is active again
-          if (connectionJustRestored) {
-            blockAndResetWebview(false);
-          } else {
-            // Make sure to handle any events that happen during background and are within the three minute refresh timeout
-            if (!didGetToHomepageRef.current) {
-              // we need to make sure this doesn't double run before getting to the hompage otherwise we will send multiple init requests
-              console.log(
-                'Did not get to homepage yet, blocking duplicate request created by biometric login popup',
-              );
-            } else {
-              setTimeout(() => {
-                processQueuedRequests(connectionJustRestored);
-              }, 100);
-            }
+          // Boot phase: the handshake runs when the WebView is ready; do not
+          // reload before the user reaches the homepage (double-init risk).
+        } else if (keepAliveInFlight) {
+          // Keep-alive ops are in flight on a LIVE page: NEVER reload here —
+          // a reload would wipe the backend id→outcome cache mid-send (and
+          // the session key). Resume each request by re-posting the same id;
+          // requests whose page died (epoch changed) skip the re-send
+          // (double-pay guard) and are settled by reconcile instead.
+          console.log(
+            'Foreground - resuming in-flight keep-alive requests (no reload)',
+          );
+          let needsReconcile = false;
+          Object.keys(pendingRequests.current).forEach(id => {
+            const entry = pendingRequests.current[id];
+            if (!entry || !KEEP_ALIVE_OPS.has(entry.action)) return;
+            if (!resumeKeepAliveRequest(id)) needsReconcile = true;
+          });
+          if (needsReconcile) {
+            console.log(
+              'Foreground - keep-alive requests lost their page; reconciling',
+            );
+            reconcileUnknownIntents();
           }
+        } else if (connectionJustRestored) {
+          // The webview may have gone stale while the connection was down.
+          if (didGetToHomepageRef.current) {
+            console.log(
+              'Connection restored - reloading WebView to avoid stale state',
+            );
+            blockAndResetWebview();
+          } else {
+            reconcileUnknownIntents();
+          }
+        } else {
+          console.log('Foreground - reconciling unknown intents');
+          reconcileUnknownIntents();
         }
       }
 
@@ -1397,8 +1889,10 @@ export const WebViewProvider = ({ children }) => {
     appState,
     isConnectedToTheInternet,
     blockAndResetWebview,
-    processQueuedRequests,
-    rearmOrSweepPendingRequests,
+    finalizeRequest,
+    reconcileUnknownIntents,
+    resumeKeepAliveRequest,
+    settleHoldBuffer,
   ]);
 
   const initHandshake = useCallback(async () => {
@@ -1412,52 +1906,67 @@ export const WebViewProvider = ({ children }) => {
         publicKey: pubNHex,
       };
 
-      await sendWebViewRequestInternal('handshake:init', {
+      const result = await sendWebViewRequestInternal('handshake:init', {
         pubN: pubNHex,
       });
+
+      if (!result?.didComplete) {
+        if (result?.kind === 'offline') {
+          // Offline is not a bridge failure: no fallback transition. The
+          // connection-restore path reloads and re-handshakes.
+          console.warn('Handshake deferred: offline');
+          return;
+        }
+        console.warn(
+          'Handshake failed or timed out:',
+          result?.error || 'no completion',
+        );
+        enterFallbackPending('handshake failed');
+        const blockReset = isOnStartupRoute();
+
+        setChangeSparkConnectionState(prev => ({
+          state: blockReset ? null : true,
+          count: prev.count + 1,
+        }));
+        settleHoldBuffer({
+          didWork: false,
+          error: 'Failed to process method, try again',
+          kind: 'not-ready',
+        });
+      }
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
-      forceNativeMode('handshake failed');
+      enterFallbackPending('handshake failed');
       const blockReset = isOnStartupRoute();
 
       setChangeSparkConnectionState(prev => ({
         state: blockReset ? null : true,
         count: prev.count + 1,
       }));
-      // Snapshot and clear BEFORE iterating (re-entrancy safety). This site also
-      // previously never cleared the queue, leaving zombie requests behind.
-      const requestsToReject = queuedRequests.current;
-      queuedRequests.current = [];
-      requestsToReject.forEach(({ reject }) => {
-        reject({
-          error: 'Failed to process method, try again',
-        });
+      // Snapshot and clear BEFORE iterating (re-entrancy safety).
+      settleHoldBuffer({
+        didWork: false,
+        error: 'Failed to process method, try again',
+        kind: 'not-ready',
       });
     }
-  }, [sendWebViewRequestInternal]);
+  }, [sendWebViewRequestInternal, settleHoldBuffer]);
 
   useEffect(() => {
     async function startHandshake() {
-      if (!webViewRef.current) return;
-      if (!isWebViewReady) return;
+      if (!transport && !webViewRef.current) return;
+      if (!transport && !isWebViewReady) return;
       if (!verifiedPath) return;
       // blocking background init event from firing
       if (appState === 'background') return;
       if (didRunInit.current) return;
       didRunInit.current = true;
 
-      // const androidAPI = DeviceInfo.getApiLevelSync();
-      // if (androidAPI == 33 || androidAPI == 34) {
-      //   console.warn(`Skipping handshake on Android API ${androidAPI}`);
-      //   forceReactNativeUse = true;
-      //   return;
-      // }
-
-      const savedVariable = await getLocalStorageItem('FORCE_REACT_NATIVE');
+      const savedVariable = await getLocalStorageItem(HARD_FAIL_PERSIST_KEY);
 
       if (savedVariable === 'true') {
         console.log('FORCE_REACT_NATIVE is set, skipping handshake');
-        forceNativeMode('FORCE_REACT_NATIVE localStorage flag');
+        enterNative('FORCE_REACT_NATIVE localStorage flag', false);
         didRunHandshakeRef.current = true;
         return;
       }
@@ -1467,9 +1976,7 @@ export const WebViewProvider = ({ children }) => {
     }
 
     const debouceID = setTimeout(() => {
-      // forceReactNativeUse = true;
-      // didRunHandshakeRef.current = true
-      startHandshake(); //remove this and app fully uses RN
+      startHandshake();
     }, 250);
 
     return () => {
@@ -1477,7 +1984,7 @@ export const WebViewProvider = ({ children }) => {
         clearTimeout(debouceID);
       }
     };
-  }, [isWebViewReady, verifiedPath, initHandshake, appState]);
+  }, [isWebViewReady, verifiedPath, initHandshake, appState, transport]);
 
   useEffect(() => {
     (async () => {
@@ -1491,9 +1998,12 @@ export const WebViewProvider = ({ children }) => {
 
         expectedNonceRef.current = nonceHex;
         setVerifiedPath(htmlPath);
+        // Transport (test) mode has no load events — mark the bridge loaded.
+        if (transport) transitionWvState(WV_STATES.LOADED, 'transport ready');
       } catch (err) {
         didRunHandshakeRef.current = true;
-        forceNativeMode('bundle verification failed');
+        // Hard-fail class — persist native fallback (D-9).
+        enterNative('bundle verification failed', true);
         console.log(
           'WebView bundle verification failed. Using react-native bundle',
           err,
@@ -1504,8 +2014,19 @@ export const WebViewProvider = ({ children }) => {
 
   useEffect(() => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
-    globalPendingRequests = pendingRequests;
   }, [sendWebViewRequestInternal]);
+
+  // Zero key material on unmount.
+  useEffect(() => {
+    return () => {
+      if (aesKeyRef.current?.fill) aesKeyRef.current.fill(0);
+      aesKeyRef.current = null;
+      if (sessionKeyRef.current?.privateKey?.fill) {
+        sessionKeyRef.current.privateKey.fill(0);
+      }
+      sessionKeyRef.current = null;
+    };
+  }, []);
 
   const getCustomUserAgent = useCallback(() => {
     const deviceModel = getModel();
@@ -1531,13 +2052,15 @@ export const WebViewProvider = ({ children }) => {
         // App is backgrounded — do NOT reload now (no events should fire in background).
         // Invalidate session so the foreground app-state effect sees !nonceVerified
         // and triggers blockAndResetWebview() cleanly when the user returns.
-        // Critically: do NOT set isResetting.current = true here, as that would
-        // block the foreground handler's !isResetting.current guard.
         console.warn(
           `[WebView] Crash in background (${reason}) — deferring reload to foreground`,
         );
         nonceVerified.current = false;
+        if (aesKeyRef.current?.fill) aesKeyRef.current.fill(0);
         aesKeyRef.current = null;
+        if (sessionKeyRef.current?.privateKey?.fill) {
+          sessionKeyRef.current.privateKey.fill(0);
+        }
         sessionKeyRef.current = null;
         walletInitialized.current = false;
         return;
@@ -1551,24 +2074,20 @@ export const WebViewProvider = ({ children }) => {
 
   const providerValues = useMemo(() => {
     return {
-      webViewRef,
-      sendWebViewRequest: sendWebViewRequestInternal,
       fileHash,
       changeSparkConnectionState,
       didRunHandshakeRef,
+      // Consumers destructure this from useWebView(); route it through the
+      // stable module-level dispatcher so the identity never changes (keeps the
+      // provider-value memo stable and consumers from re-rendering).
+      sendWebViewRequest: sendWebViewRequestGlobal,
     };
-  }, [
-    webViewRef,
-    sendWebViewRequestInternal,
-    fileHash,
-    changeSparkConnectionState,
-    didRunHandshakeRef,
-  ]);
+  }, [fileHash, changeSparkConnectionState, didRunHandshakeRef]);
 
   return (
     <WebViewContext.Provider value={providerValues}>
       {children}
-      {verifiedPath && (
+      {!transport && verifiedPath && (
         <WebView
           key={reloadKey}
           domStorageEnabled={true}
@@ -1592,10 +2111,13 @@ export const WebViewProvider = ({ children }) => {
           }}
           onMessage={handleWebViewResponse}
           onLoadStart={() => {
+            if (epoch !== epochRef.current) return;
             transitionWvState(WV_STATES.LOADING, 'onLoadStart');
             didRunHandshakeRef.current = false;
+            didRunInit.current = false; // re-arm the handshake for the new load
           }}
           onLoadProgress={({ nativeEvent }) => {
+            if (epoch !== epochRef.current) return;
             if (
               nativeEvent.progress === 1 &&
               wvState.current === WV_STATES.LOADING
@@ -1604,6 +2126,7 @@ export const WebViewProvider = ({ children }) => {
             }
           }}
           onLoadEnd={() => {
+            if (epoch !== epochRef.current) return;
             // Only transition if still in LOADING state
             // (onLoadProgress might have already handled it)
             if (wvState.current === WV_STATES.LOADING) {
