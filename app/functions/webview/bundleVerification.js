@@ -11,6 +11,11 @@ import {
 // Fixed ASN.1 SPKI header for a raw-32-byte Ed25519 public key (no secret).
 const ED25519_SPKI_PREFIX = '302a300506032b6570032100';
 
+// Integrity failures (bad/missing signature, nonce injection) are tamper: they
+// justify persisting the FORCE_REACT_NATIVE kill-switch. Transient IO errors
+// (disk read/write) are NOT tamper and must never persist it (S-5).
+const tamperError = message => Object.assign(new Error(message), { isTamper: true });
+
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.
  */
@@ -44,7 +49,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
     const SIG_META = /<meta name="blitz-webview-sig" content="([0-9a-f]{128})"/;
     const sigMatch = html.match(SIG_META);
 
-    if (!sigMatch) throw new Error('WebView bundle missing signature meta.');
+    if (!sigMatch) throw tamperError('WebView bundle missing signature meta.');
 
     const canonicalHtml = html.replace(
       /(<meta name="blitz-webview-sig" content=")[0-9a-f]{128}(")/,
@@ -71,7 +76,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
         Buffer.from(sigMatch[1], 'hex'),
       )
     ) {
-      throw new Error('WebView bundle signature invalid — aborting.');
+      throw tamperError('WebView bundle signature invalid — aborting.');
     }
 
     // Generate fresh nonce per load
@@ -79,7 +84,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
     const nonceHex = Buffer.from(nonceBytes).toString('hex');
 
     if (!html.includes('__INJECT_NONCE__')) {
-      throw new Error('No __INJECT_NONCE__ placeholder found in HTML.');
+      throw tamperError('No __INJECT_NONCE__ placeholder found in HTML.');
     }
 
     // Replace only CSP and attribute placeholders
@@ -93,7 +98,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
       !injectedHtml.includes(`nonce="${nonceHex}"`) ||
       !injectedHtml.includes(`'nonce-${nonceHex}'`)
     ) {
-      throw new Error(
+      throw tamperError(
         'Nonce injection failed (meta or script attribute missing).',
       );
     }

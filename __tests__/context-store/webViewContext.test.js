@@ -363,7 +363,10 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 describe('webViewContext — transport & handshake (TDD §1)', () => {
   test('bundle verification failure fails closed: no handshake, no postMessage, native persisted', async () => {
-    mockVerify.mockRejectedValue(new Error('signature invalid'));
+    // A signature-invalid failure is TAMPER → persists the kill-switch (S-5).
+    mockVerify.mockRejectedValue(
+      Object.assign(new Error('signature invalid'), { isTamper: true }),
+    );
     await mountOnly();
     await advance(400);
 
@@ -373,6 +376,21 @@ describe('webViewContext — transport & handshake (TDD §1)', () => {
     // Hard-fail class persists the latch (D-9).
     const { setLocalStorageItem } = require('../../app/functions');
     expect(setLocalStorageItem).toHaveBeenCalledWith('FORCE_REACT_NATIVE', 'true');
+  });
+
+  test('transient IO verification failure goes native for the session but does NOT persist (S-5)', async () => {
+    // A disk/read hiccup (no isTamper tag) must not permanently downgrade the
+    // install: fall native for this session, but never persist the kill-switch.
+    mockVerify.mockRejectedValue(new Error('disk read failed'));
+    await mountOnly();
+    await advance(400);
+
+    expect(SUT.__getFallbackStateForTest()).toBe('native');
+    const { setLocalStorageItem } = require('../../app/functions');
+    expect(setLocalStorageItem).not.toHaveBeenCalledWith(
+      'FORCE_REACT_NATIVE',
+      'true',
+    );
   });
 
   test('didRunHandshakeRef stays false until the handshake actually completes (auth-reset native-wallet regression)', async () => {
@@ -864,17 +882,21 @@ describe('webViewContext — foreground reconcile (TDD §3)', () => {
     expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
   });
 
-  test('reconcile only runs for the current wallet (account switch is not cross-contaminated)', async () => {
+  test('reconcile runs for every active wallet, not just the current account (multi-wallet)', async () => {
     const { sent } = await setupUnknownIntent();
 
-    // A different account takes over.
+    // A different wallet becomes the active custody account, but the original
+    // wallet is still initialized/in use (pool/savings/child wallets run
+    // concurrently). Its unknown intent must STILL reconcile — against its own
+    // seed — not be skipped just because the UI's active account changed.
     mockActive.currentWalletMnemoinc = 'other mnemonic words';
     rerender();
     await flush();
 
-    SUT.__setReconcileQueryForTest(entry => ({
-      action: 'getSparkTransactions',
-      args: { mnemonic: MNEMONIC },
+    SUT.__setReconcileQueryForTest(() => ({
+      result: {
+        transfers: [{ id: 'tx-hit', totalValue: 1000, createdTime: Date.now() }],
+      },
       matcher: () => true,
     }));
 
@@ -887,10 +909,10 @@ describe('webViewContext — foreground reconcile (TDD §3)', () => {
     rerender();
     await flush();
 
-    // Old wallet's intent is skipped: zero queries, still unknown.
-    expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
+    // The intent reconciles even though it is not the current account.
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(1);
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    expect(entry.state).toBe('unknown');
+    expect(entry.state).toBe('done');
     expect(sent.id).toBeTruthy();
   });
 });

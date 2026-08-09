@@ -223,12 +223,12 @@ export const initializeSparkWallet = async (
         );
 
         if (response?.isConnected) return response;
-        else if (
-          response.error
-            ?.toLowerCase()
-            .includes('load failed [endpoint: authenticate')
-        )
-          throw new Error('Internet error');
+        // WebView is the selected runtime: a non-connected result (bridge
+        // timeout/unknown/not-ready/offline, or a transient init error) must
+        // retry the WebView via the catch loop — never fall through to spawn a
+        // native wallet. That fallthrough created an orphan native runtime
+        // (and, on a slow WASM init, a second live wallet) after one slow init.
+        throw new Error(response?.error || 'WebView wallet init did not connect');
       }
 
       const hash = getMnemonicHash(mnemonic);

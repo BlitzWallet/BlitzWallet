@@ -533,8 +533,11 @@ describe('adversarial — hard-fail persistence across sessions (N1)', () => {
     const wv = await webviewReadyFull();
     const verifyCallsBefore = mockVerify.mock.calls.length;
 
-    // Crash while active → blockAndResetWebview → re-verification fails.
-    mockVerify.mockRejectedValueOnce(new Error('signature invalid'));
+    // Crash while active → blockAndResetWebview → re-verification fails with a
+    // TAMPER error (signature invalid) → persists the kill-switch (S-5).
+    mockVerify.mockRejectedValueOnce(
+      Object.assign(new Error('signature invalid'), { isTamper: true }),
+    );
     wvTerminate(true);
     await flush();
 
@@ -635,13 +638,14 @@ describe('adversarial — background crash & foreground recovery (N2/D3)', () =>
     await advance(500);
     expect(postedCount('handshake:init', wv1)).toBe(1); // never re-handshakes
 
-    // The bridge is dead: requests are held in the ready-window forever.
+    // The bridge stays dead (never re-handshakes), but a held request no longer
+    // hangs forever: the bounded hold TTL settles it not-ready (C-6).
     const st = track(SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true));
     await flush();
     expect(st.settled).toBe(false);
-    await advance(60000);
-    await advance(60000);
-    expect(st.settled).toBe(false);
+    await advance(120001);
+    expect(st.settled).toBe(true);
+    expect(st.value.kind).toBe('not-ready');
     expect(postedCount('getSparkBalance', wv1)).toBe(0);
   });
 
@@ -683,11 +687,12 @@ describe('adversarial — load lifecycle (D4, N3)', () => {
     expect(st.settled).toBe(false);
     expect(mockWebview.posted.length).toBe(0); // held, never posted
 
-    // Nothing in the machine ever gives up on this request.
-    await advance(60000);
-    await advance(60000);
-    await advance(60000);
-    expect(st.settled).toBe(false);
+    // The load machine still has no LOADING timeout or onError (C-11 unfixed),
+    // but the bounded hold TTL now settles the request not-ready (C-6) instead
+    // of hanging forever.
+    await advance(120001);
+    expect(st.settled).toBe(true);
+    expect(st.value.kind).toBe('not-ready');
     expect(mockWebview.posted.length).toBe(0);
     expect(lastPosted('handshake:init')).toBeNull(); // handshake never ran
   });
@@ -1225,10 +1230,17 @@ describe('adversarial — production reconcile queries & matchers', () => {
 
       const entry = [...SUT.__getIntentStoreForTest().values()][0];
       expect(entry.state).toBe('done');
+      // C-1: reconcile supplies a consumer-readable `response` (token ops use
+      // the tx-hash string; every other op uses { id: txid }).
+      const expectedResponse =
+        fx.op === 'sendSparkTokens' || fx.op === 'batchTransferTokens'
+          ? fx.txid
+          : { id: fx.txid };
       expect(entry.result).toEqual({
         didWork: true,
         status: 'executed',
         txid: fx.txid,
+        response: expectedResponse,
       });
       // N7: reconcile-confirmed entries are retained for the double-pay guard.
       expect(SUT.__getIntentStoreForTest().size).toBe(1);
@@ -1406,13 +1418,15 @@ describe('adversarial — init & drain (N5, N9, D2b)', () => {
 
     // No mnemonic → no wallet init possible. Every drained request re-enters
     // sendWebViewRequestInternal and is re-held by the ready-window gate —
-    // nothing is ever dispatched (stuck until the app runs an initWallet).
+    // nothing is ever dispatched (until the app runs an initWallet).
     expect(postedCount('initializeSparkWallet', wv)).toBe(0);
     expect(postedCount('getSparkBalance', wv)).toBe(0);
     expect(st.settled).toBe(false);
-    await advance(60000);
-    await advance(60000);
-    expect(st.settled).toBe(false);
+    // The re-held request no longer hangs forever: the bounded hold TTL settles
+    // it not-ready (C-6). Still nothing is dispatched.
+    await advance(120001);
+    expect(st.settled).toBe(true);
+    expect(st.value.kind).toBe('not-ready');
     expect(postedCount('getSparkBalance', wv)).toBe(0);
   });
 
@@ -1887,6 +1901,7 @@ describe('adversarial — reconcile matchers vs real SDK timestamps (F-2)', () =
       didWork: true,
       status: 'executed',
       txid: 'tx-1',
+      response: { id: 'tx-1' },
     });
   });
 

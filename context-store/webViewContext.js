@@ -189,6 +189,14 @@ let fallbackState = FALLBACK_STATE.WEBVIEW;
 let fallbackRetries = 0;
 const MAX_WEBVIEW_FAILURES = 2;
 const MAX_HOLD_REQUESTS = 50;
+// Bounded hold backstop. Must exceed the longest op timeout (90s init) so it
+// never races a legitimately in-progress init — it only settles requests when
+// the ready-window is truly stuck (verification hung, page never loaded).
+const HOLD_TTL_MS = 120 * 1000;
+// Bounded re-init after a failed auto-init: without it the bridge sits
+// handshake-complete but wallet-uninitialized with no drain trigger (C-5).
+const INIT_RETRY_DELAY_MS = 5 * 1000;
+const MAX_INIT_RETRIES = 3;
 
 let handshakeComplete = false;
 let globalSendWebViewRequest = null;
@@ -428,8 +436,11 @@ const buildReconcileMatcher = op => {
       };
     case OPERATION_TYPES.claimStaticDepositAddress:
       return (entry, result) => {
-        const utxos = result?.utxos || [];
-        return !utxos.some(
+        // A failed/absent query (didWork:false or no utxos array) is a MISS,
+        // not "consumed": absence-of-utxo must never be read as execution.
+        if (!result || result.didWork === false || !Array.isArray(result.utxos))
+          return false;
+        return !result.utxos.some(
           u =>
             u.txid === entry.args.transactionId &&
             Number(u.vout) === Number(entry.args.outputIndex),
@@ -486,6 +497,21 @@ const extractReconcileTxid = (op, result, entry) => {
       return entry.args.transactionId;
     default:
       return undefined;
+  }
+};
+
+// Consumer-compatible response for a reconcile-confirmed op. Every funds
+// consumer reads `.response` off the bridge result; token consumers use it AS
+// the tx-hash string, the rest read `.response.id`. Reconcile can only supply
+// the txid it matched from history (other fields self-heal on the next sync).
+const extractReconcileResponse = (op, result, entry) => {
+  const txid = extractReconcileTxid(op, result, entry);
+  switch (op) {
+    case OPERATION_TYPES.sendTokenPayment:
+    case OPERATION_TYPES.batchTransferTokens:
+      return txid;
+    default:
+      return { id: txid };
   }
 };
 
@@ -656,6 +682,8 @@ export const WebViewProvider = ({ children, transport = null }) => {
   const prevConnectionStatus = useRef(isConnectedToTheInternet);
   const internetConnectionRef = useRef(isConnectedToTheInternet);
   const walletInitialized = useRef(false);
+  const initRetryCountRef = useRef(0);
+  const drainHoldBufferRef = useRef(null);
   const isInitialRender = useRef(true);
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
   const isWebviewReadyRef = useRef(transport ? !!verifiedPath : false);
@@ -740,12 +768,15 @@ export const WebViewProvider = ({ children, transport = null }) => {
     // login flow has always surfaced).
     const buffer = holdBufferRef.current;
     holdBufferRef.current = [];
-    buffer.forEach(({ resolve }) => {
-      if (typeof resolve === 'function') {
-        resolve({
-          error: 'Wallet initialization failed, using React Native',
-        });
-      }
+    buffer.forEach(({ resolvers, ttlId }) => {
+      if (ttlId) clearTimeout(ttlId);
+      resolvers.forEach(resolve => {
+        if (typeof resolve === 'function') {
+          resolve({
+            error: 'Wallet initialization failed, using React Native',
+          });
+        }
+      });
     });
 
     // Keep currentWalletMnemoincRef populated: logout restarts the app, and a
@@ -761,8 +792,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
   const settleHoldBuffer = useCallback(result => {
     const buffer = holdBufferRef.current;
     holdBufferRef.current = [];
-    buffer.forEach(({ resolve }) => {
-      if (typeof resolve === 'function') resolve(result);
+    buffer.forEach(({ resolvers, ttlId }) => {
+      if (ttlId) clearTimeout(ttlId);
+      resolvers.forEach(resolve => {
+        if (typeof resolve === 'function') resolve(result);
+      });
     });
   }, []);
 
@@ -898,8 +932,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
     } catch (err) {
       console.error('WebView re-verification failed:', err);
 
-      // Hard-fail class — persist native fallback (D-9).
-      enterNative('bundle verification failed', true);
+      // Hard-fail class — persist native fallback only on TAMPER (bad/missing
+      // signature). A transient IO error goes native for this session but must
+      // not persist the kill-switch (S-5).
+      enterNative('bundle verification failed', err?.isTamper === true);
       setHandshakeComplete(false);
       const blockReset = isOnStartupRoute();
 
@@ -1087,17 +1123,66 @@ export const WebViewProvider = ({ children, transport = null }) => {
               kind: 'not-ready',
             });
           }
+          // Coalesce identical held funds ops (old-queue semantics): the drain
+          // is sequential, so without this the second copy dispatches as a
+          // brand-new payment after the first completes → double pay.
+          let holdKey = null;
+          if (FUNDS_OPS.has(action)) {
+            const walletHash = args.mnemonic ? walletHashOf(args.mnemonic) : '';
+            holdKey = stableKeyFor(action, args, walletHash);
+            const dup = holdBufferRef.current.find(e => e.stableKey === holdKey);
+            if (dup) {
+              dup.resolvers.push(resolve);
+              return;
+            }
+          }
           console.log(
             'WebView not ready, holding request:',
             action,
             'held:',
             holdBufferRef.current.length + 1,
           );
-          holdBufferRef.current.push({ action, args, encrypt, resolve });
+          const holdEntry = {
+            action,
+            args,
+            encrypt,
+            resolvers: [resolve],
+            stableKey: holdKey,
+          };
+          // Bounded hold TTL: if the ready-window never completes (verification
+          // hangs, page never loads), the held promise must still settle so
+          // awaiting UI can't hang forever.
+          holdEntry.ttlId = setTimeout(() => {
+            const idx = holdBufferRef.current.indexOf(holdEntry);
+            if (idx === -1) return; // already drained/settled
+            holdBufferRef.current.splice(idx, 1);
+            holdEntry.resolvers.forEach(r => {
+              if (typeof r === 'function') {
+                r({
+                  didWork: false,
+                  error: 'Request timed out while the bridge was not ready',
+                  kind: 'not-ready',
+                });
+              }
+            });
+          }, HOLD_TTL_MS);
+          holdBufferRef.current.push(holdEntry);
           return;
         }
 
-        const id = customUUID();
+        let id;
+        try {
+          id = customUUID();
+        } catch (err) {
+          // Entropy failure: never dispatch with a falsy id (it would collide
+          // every caller on one pending slot). Settle a bridge error instead of
+          // rejecting — the always-resolve contract holds.
+          return resolve({
+            didWork: false,
+            error: 'Unable to generate request id',
+            kind: 'bridge',
+          });
+        }
         const timeoutDuration = getTimeoutDuration(action);
         const startedAt = Date.now();
 
@@ -1136,6 +1221,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
             stableKey,
             op: action,
             key: walletHash,
+            // Retain the full args (incl. mnemonic): multiple wallets are
+            // initialized/used concurrently, so a proper reconcile must query
+            // each intent's OWN wallet history — currentWalletMnemoinc is only
+            // one of several active seeds and cannot confirm a secondary
+            // wallet's send.
             args,
             argsHash: sha256Hex(canonicalArgs(args)),
             state: 'in-flight',
@@ -1282,6 +1372,30 @@ export const WebViewProvider = ({ children, transport = null }) => {
       )
     ) {
       console.log('Re-initializing wallet before processing buffer');
+      // A failed/timed-out auto-init would otherwise leave the bridge
+      // handshake-complete but wallet-uninitialized forever (no other drain
+      // trigger). Schedule a bounded re-init so the wallet self-heals; escalate
+      // to fallback-pending once retries are exhausted.
+      const onInitFailed = () => {
+        settleHoldBuffer({
+          didWork: false,
+          error: 'Wallet initialization failed, using React Native',
+          kind: 'not-ready',
+        });
+        if (initRetryCountRef.current < MAX_INIT_RETRIES) {
+          initRetryCountRef.current += 1;
+          setTimeout(() => {
+            if (
+              fallbackState === FALLBACK_STATE.WEBVIEW &&
+              !walletInitialized.current
+            ) {
+              drainHoldBufferRef.current?.();
+            }
+          }, INIT_RETRY_DELAY_MS);
+        } else {
+          enterFallbackPending('wallet init retries exhausted');
+        }
+      };
       try {
         const response = await sendWebViewRequestInternal(
           OPERATION_TYPES.initWallet,
@@ -1289,23 +1403,13 @@ export const WebViewProvider = ({ children, transport = null }) => {
           true,
         );
         if (!response?.isConnected) {
-          // The init response handler already performed the fallback
-          // transition and buffer settle; just make sure held requests are not
-          // stranded.
-          settleHoldBuffer({
-            didWork: false,
-            error: 'Wallet initialization failed, using React Native',
-            kind: 'not-ready',
-          });
+          onInitFailed();
+        } else {
+          initRetryCountRef.current = 0;
         }
       } catch (err) {
         console.log('Error re-initializing wallet:', err);
-        // The init response handler owns the fallback transition.
-        settleHoldBuffer({
-          didWork: false,
-          error: 'Wallet initialization failed, using React Native',
-          kind: 'not-ready',
-        });
+        onInitFailed();
       }
       return;
     }
@@ -1316,21 +1420,27 @@ export const WebViewProvider = ({ children, transport = null }) => {
     holdBufferRef.current = [];
 
     // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
-    for (const { action, args, encrypt, resolve } of requests) {
+    for (const { action, args, encrypt, resolvers, ttlId } of requests) {
+      if (ttlId) clearTimeout(ttlId);
+      let result;
       try {
-        const result = await sendWebViewRequestInternal(action, args, encrypt);
-        if (typeof resolve === 'function') resolve(result);
+        result = await sendWebViewRequestInternal(action, args, encrypt);
       } catch (error) {
-        if (typeof resolve === 'function') {
-          resolve({
-            didWork: false,
-            error: error?.message || String(error),
-            kind: 'bridge',
-          });
-        }
+        result = {
+          didWork: false,
+          error: error?.message || String(error),
+          kind: 'bridge',
+        };
       }
+      resolvers.forEach(resolve => {
+        if (typeof resolve === 'function') resolve(result);
+      });
     }
   }, [sendWebViewRequestInternal, settleHoldBuffer]);
+
+  useEffect(() => {
+    drainHoldBufferRef.current = drainHoldBuffer;
+  }, [drainHoldBuffer]);
 
   // Foreground settle-then-reconcile (plan §3.1.3): for intents still unknown,
   // run the per-op history query. Hit → settle {didWork:true, status:'executed',
@@ -1338,18 +1448,23 @@ export const WebViewProvider = ({ children, transport = null }) => {
   // queries when no unknown intents exist.
   const reconcileUnknownIntents = useCallback(async () => {
     if (fallbackState !== FALLBACK_STATE.WEBVIEW) return;
-    const mnemonic = currentWalletMnemoincRef.current;
     const foregroundId = foregroundIdRef.current;
+    // Multiple wallets (main + pool/savings/gift/child) run concurrently, so
+    // every unknown intent is a candidate — each reconciles against its OWN
+    // wallet (below), not just the active custody account. A query against a
+    // since-disposed wallet fails → a safe miss (stays unknown).
     const candidates = [...intentStore.values()].filter(
       entry =>
-        entry.state === 'unknown' &&
-        entry.reconciledAt !== foregroundId &&
-        (!entry.key || (mnemonic && walletHashOf(mnemonic) === entry.key)),
+        entry.state === 'unknown' && entry.reconciledAt !== foregroundId,
     );
     if (!candidates.length) return;
 
     for (const entry of candidates) {
       entry.reconciledAt = foregroundId;
+      // Each intent's own seed — a secondary wallet's send can only be
+      // confirmed with that wallet's mnemonic (falls back to the active account
+      // for a keyless intent).
+      const mnemonic = entry.args.mnemonic || currentWalletMnemoincRef.current;
       let matcher;
       let result = null;
 
@@ -1392,11 +1507,14 @@ export const WebViewProvider = ({ children, transport = null }) => {
         const txid = reconcileQueryOverride
           ? undefined
           : extractReconcileTxid(entry.op, result, entry);
+        const response = reconcileQueryOverride
+          ? undefined
+          : extractReconcileResponse(entry.op, result, entry);
         // Keep the entry: a retry of the same logical op must resolve this
         // executed result, never re-dispatch (double-pay guard).
         settleIntent(
           entry,
-          { didWork: true, status: 'executed', txid },
+          { didWork: true, status: 'executed', txid, response },
           'done',
         );
         // The intent's resolvers are the same functions bound to the bridge's
@@ -1768,7 +1886,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
       Object.keys(pendingRequests.current).forEach(id => {
         const entry = pendingRequests.current[id];
         if (entry && KEEP_ALIVE_OPS.has(entry.action)) {
-          console.log('keeping action alinve', entry);
+          console.log('keeping keep-alive request live across background:', entry.action);
           return;
         }
         finalizeRequest(
@@ -2002,8 +2120,9 @@ export const WebViewProvider = ({ children, transport = null }) => {
         if (transport) transitionWvState(WV_STATES.LOADED, 'transport ready');
       } catch (err) {
         didRunHandshakeRef.current = true;
-        // Hard-fail class — persist native fallback (D-9).
-        enterNative('bundle verification failed', true);
+        // Persist the native fallback only on TAMPER; a transient IO error must
+        // not permanently downgrade the install (S-5).
+        enterNative('bundle verification failed', err?.isTamper === true);
         console.log(
           'WebView bundle verification failed. Using react-native bundle',
           err,
