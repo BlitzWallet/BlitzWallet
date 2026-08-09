@@ -25,7 +25,7 @@ import {
 } from '../lrc20/cachedTokens';
 import sha256Hash from '../hash';
 import {
-  getHandshakeComplete,
+  getIsNativeRuntime,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
   setForceReactNative,
@@ -83,8 +83,12 @@ export const getFlashnetClient = mnemonic => {
 
 /**
  * Determines which runtime to use for Spark functions.
- * Uses getHandshakeComplete() as the single source of truth — it checks
- * both handshakeComplete and forceReactNativeUse internally.
+ * Mirrors the WebView send path's native latch (getIsNativeRuntime): we only
+ * route to — and create — a native wallet once the fallback machine has
+ * actually committed to native. A transiently incomplete handshake during a
+ * reload (auth reset, reconnect) is NOT native: those requests belong on the
+ * WebView, which holds them until the bridge is live again. Keying this off the
+ * handshake instead spawned an orphan native wallet on every auth reset.
  * @param {string} mnemonic - user mnemonic
  * @param {boolean} isInitialLoad - true only on first connection attempt
  * @param {boolean?} force - optional force to native runtime
@@ -101,14 +105,12 @@ export const selectSparkRuntime = async (
     setForceReactNative(true, 'forced by caller');
   }
 
-  const handshakeDone = getHandshakeComplete();
-
-  if (handshakeDone) {
+  if (!getIsNativeRuntime()) {
     return 'webview';
   }
 
   if (createNativeWallet) {
-    // Handshake not done → fallback to native
+    // Committed to native → make sure the native wallet exists
     const walletHash = getMnemonicHash(mnemonic);
     if (!sparkWallet[walletHash]) {
       await getWallet(mnemonic);
@@ -386,7 +388,7 @@ export const setPrivacyEnabled = async (mnemonic, freshIdentityPubKey) => {
   }
 };
 
-export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {
+export const getSparkIdentityPubKey = async mnemonic => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
@@ -693,6 +695,7 @@ export const claimnSparkStaticDepositAddress = async ({
   sspSignature,
   transactionId,
   mnemonic,
+  depositAddress,
 }) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -705,6 +708,8 @@ export const claimnSparkStaticDepositAddress = async ({
           sspSignature,
           transactionId,
           outputIndex,
+          // Used by the bridge's foreground reconcile (getUtxosForDepositAddress).
+          depositAddress,
         },
       );
 

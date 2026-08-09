@@ -85,12 +85,6 @@ import {
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
 import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
-import {
-  cleanupOptimization,
-  checkIfOptimizationNeeded,
-  runLeafOptimization,
-  runTokenOptimization,
-} from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
 import { getCachedTokenImages } from '../app/functions/spark/tokenImageCache';
@@ -163,7 +157,7 @@ const SparkWalletManager = createContext(null);
 const SparkWalletProvider = ({ children }) => {
   const { authResetkey } = useAuthContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
+  const { changeSparkConnectionState } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToastActions();
@@ -582,7 +576,7 @@ const SparkWalletProvider = ({ children }) => {
         console.error('bulkUpdateSparkTransactions failed:', error);
       }
     },
-    [sendWebViewRequest],
+    [],
   );
 
   const filterAndSetTransactions = useCallback(
@@ -708,7 +702,6 @@ const SparkWalletProvider = ({ children }) => {
           const { updated } = await updateSparkTxStatus(
             currentMnemonicRef.current,
             sparkInfoRef.current.identityPubKey,
-            sendWebViewRequest,
             true,
             contactsPrivateKey,
             publicKey,
@@ -1626,7 +1619,6 @@ const SparkWalletProvider = ({ children }) => {
             console.log('RESTORE COMPLETE');
           },
           sparkInfoRef.current,
-          sendWebViewRequest,
         );
 
         restorePoller.start();
@@ -1634,7 +1626,6 @@ const SparkWalletProvider = ({ children }) => {
         updateSparkTxStatus(
           currentMnemonicRef.current,
           sparkInfoRef.current.identityPubKey,
-          sendWebViewRequest,
           false,
           contactsPrivateKey,
           publicKey,
@@ -1682,7 +1673,6 @@ const SparkWalletProvider = ({ children }) => {
             const response = await updateSparkTxStatus(
               currentMnemonicRef.current,
               sparkInfoRef.current.identityPubKey,
-              sendWebViewRequest,
               false,
               contactsPrivateKey,
               publicKey,
@@ -1960,7 +1950,6 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.identityPubKey,
     didGetToHomepage,
     // isSendingPayment,
-    sendWebViewRequest,
   ]);
 
   useEffect(() => {
@@ -2079,6 +2068,7 @@ const SparkWalletProvider = ({ children }) => {
               sspSignature: quote.signature,
               outputIndex: vout, // Use the vout from the UTXO
               mnemonic: currentMnemonicRef.current,
+              depositAddress: address,
             });
 
             // Add pending transaction if not already saved
@@ -2337,7 +2327,6 @@ const SparkWalletProvider = ({ children }) => {
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
         mnemonic: accountMnemoinc,
-        sendWebViewRequest,
         // Restore now runs solely via createRestorePoller in addListeners, so
         // always load cached txs on connect (the poller's SPARK_TX events layer
         // in any newly restored txs afterward).
@@ -2357,7 +2346,7 @@ const SparkWalletProvider = ({ children }) => {
       // cycle or manual refresh.
       retryBalanceAfterTimeout();
     },
-    [accountMnemoinc, sendWebViewRequest, retryBalanceAfterTimeout],
+    [accountMnemoinc, retryBalanceAfterTimeout],
   );
 
   // Function to update db when all reqiured information is loaded
