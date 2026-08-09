@@ -16,7 +16,6 @@ export async function initWallet({
   // toggleGlobalContactsInformation,
   // globalContactsInformation,
   mnemonic,
-  sendWebViewRequest,
   hasRestoreCompleted = true,
   identityPubKey,
 }) {
@@ -38,7 +37,6 @@ export async function initWallet({
         // globalContactsInformation,
         // toggleGlobalContactsInformation,
         mnemonic,
-        sendWebViewRequest,
         hasRestoreCompleted,
         identityPubKey,
       });
@@ -65,7 +63,6 @@ export async function initializeSparkSession({
   setSparkInformation,
   filterAndSetTransactions,
   mnemonic,
-  sendWebViewRequest,
   hasRestoreCompleted,
   identityPubKey: cachedIdentityPubKey,
 }) {
