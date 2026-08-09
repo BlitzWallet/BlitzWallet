@@ -300,8 +300,8 @@ const withinReconcileWindow = (ts, anchorMs) => {
     ts instanceof Date
       ? ts.getTime()
       : typeof ts === 'number'
-        ? ts
-        : Date.parse(ts);
+      ? ts
+      : Date.parse(ts);
   if (!Number.isFinite(t)) return false;
   return Math.abs(t - anchorMs) <= RECONCILE_WINDOW_MS;
 };
@@ -1130,7 +1130,9 @@ export const WebViewProvider = ({ children, transport = null }) => {
           if (FUNDS_OPS.has(action)) {
             const walletHash = args.mnemonic ? walletHashOf(args.mnemonic) : '';
             holdKey = stableKeyFor(action, args, walletHash);
-            const dup = holdBufferRef.current.find(e => e.stableKey === holdKey);
+            const dup = holdBufferRef.current.find(
+              e => e.stableKey === holdKey,
+            );
             if (dup) {
               dup.resolvers.push(resolve);
               return;
@@ -1454,8 +1456,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
     // wallet (below), not just the active custody account. A query against a
     // since-disposed wallet fails → a safe miss (stays unknown).
     const candidates = [...intentStore.values()].filter(
-      entry =>
-        entry.state === 'unknown' && entry.reconciledAt !== foregroundId,
+      entry => entry.state === 'unknown' && entry.reconciledAt !== foregroundId,
     );
     if (!candidates.length) return;
 
@@ -1886,7 +1887,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
       Object.keys(pendingRequests.current).forEach(id => {
         const entry = pendingRequests.current[id];
         if (entry && KEEP_ALIVE_OPS.has(entry.action)) {
-          console.log('keeping keep-alive request live across background:', entry.action);
+          console.log(
+            'keeping keep-alive request live across background:',
+            entry.action,
+          );
           return;
         }
         finalizeRequest(
