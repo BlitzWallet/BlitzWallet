@@ -713,45 +713,40 @@ describe('adversarial — load lifecycle (D4, N3)', () => {
     expect(lastPosted('handshake:init')).toBeNull(); // handshake never ran
   });
 
-  test('spontaneous reload from READY is an invalid transition, but didRunInit is re-armed (N3)', async () => {
+  test('spontaneous reload from READY tears down the session and self-heals: new plaintext handshake, held requests, keep-alive ops reconcile (N3/DR-4)', async () => {
     const wv1 = await webviewReadyFull();
     expect(SUT.getHandshakeComplete()).toBe(true);
 
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    wvLoadStart(); // spontaneous reload while READY
-    expect(
-      warnSpy.mock.calls.some(([msg]) =>
-        String(msg).includes(
-          'Invalid WebView state transition: ready → loading',
-        ),
-      ),
-    ).toBe(true);
-    warnSpy.mockRestore();
-
-    // The transition was dropped: the machine still believes READY and keeps
-    // dispatching under the current session key.
-    expect(SUT.getHandshakeComplete()).toBe(true);
-
-    // BUT didRunInit was re-armed unconditionally (line 1899): the next
-    // appState flap re-runs the handshake effect and re-dispatches
-    // handshake:init against the dead page.
-    mockAppStatus.appState = 'inactive';
-    rerender();
-    await flush();
-    mockAppStatus.appState = 'active';
-    rerender();
-    await flush();
+    // Spontaneous reload while READY: READY→LOADING is now a valid transition
+    // (N3/DR-4), the session key is zeroed and the handshake is cleared.
+    wvLoadStart();
+    wvLoadEnd();
     await advance(300);
-    expect(postedCount('handshake:init', wv1)).toBeGreaterThanOrEqual(2);
+    expect(SUT.getHandshakeComplete()).toBe(false);
 
-    // In production the page reloaded and lost the session key: nonceVerified
-    // stays true, requests keep dispatching, and die on their watchdogs.
+    // A request dispatched during the reload window (handshake cleared) is
+    // HELD, never posted into the still-dead page.
     const st = track(SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true));
     await flush();
-    expect(postedCount('getSparkBalance', wv1)).toBe(1);
-    await advance(30001);
+    expect(postedCount('getSparkBalance', wv1)).toBe(0);
+
+    // The reloaded page gets a NEW plaintext handshake (never encrypted under
+    // the stale key — the old key was zeroed) and it completes.
+    const wv2 = makeWebviewCrypto();
+    wv2.answerHandshake();
+    await flush();
+    await completeWalletInit(wv2);
+    expect(SUT.getHandshakeComplete()).toBe(true);
+
+    // The held request drains after the new handshake + wallet init, is
+    // dispatched and answered normally.
+    await flush();
+    expect(postedCount('getSparkBalance', wv2)).toBe(1);
+    const bal = wv2.lastEncryptedPayload('getSparkBalance');
+    wv2.respond(bal.id, { balanceSats: 42 });
+    await flush();
     expect(st.settled).toBe(true);
-    expect(st.value.kind).toBe('timeout');
+    expect(st.value.balanceSats).toBe(42);
   });
 
   test('crash-reset clears the handshake (E2: resetWebViewState second arg defaults to true); requests during the reload window are held, never dispatched', async () => {
@@ -1014,21 +1009,15 @@ describe('adversarial — intent-store hazards (N6, D1, N7)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Native fallback + the unknown-intent debounce (intended behavior).
-// The funds-intent guard is a DEBOUNCE against a blind automatic retry while a
-// send's outcome is genuinely unresolvable — NOT a permanent bar. Under a
-// committed native fallback reconcileUnknownIntents() early-returns
-// (fallbackState !== WEBVIEW), so the guard can only ever be lifted by the
-// Case-B wall-clock TTL at RECONCILE_WINDOW_MS. That lift is correct, not a
-// bug: an identical send is a first-class user action (see
-// funds-identical-resend-principle), and whether the first attempt actually
-// executed is surfaced by the transaction-history / restore path, not by this
-// bridge. This test pins the two guarantees: (1) native never runs a reconcile
-// query, and (2) the debounce releases on the TTL so an identical resend is
-// never permanently blocked.
+// Guard contract (2026-08): the intent guard exists ONLY to prevent automatic
+// re-dispatch of an unresolved payment. It never blocks a user-initiated
+// identical send — that is a NEW payment, and the restore/balance handlers
+// surface whether the earlier attempt actually sent. Under a committed native
+// fallback reconcileUnknownIntents() early-returns (fallbackState !== WEBVIEW),
+// so no reconcile query runs on the native runtime.
 // ---------------------------------------------------------------------------
-describe('adversarial — native fallback: reconcile is disabled and the unknown-intent debounce releases on the TTL', () => {
-  test('under native, reconcile runs zero queries and the resend debounce lifts on the TTL', async () => {
+describe('adversarial — native fallback: reconcile disabled, user sends never blocked', () => {
+  test('under native, reconcile runs zero queries and an identical user send dispatches immediately (contract)', async () => {
     const wv = await transportReadyFull();
     const sendArgs = {
       receiverSparkAddress: 'sp1abc',
@@ -1043,8 +1032,15 @@ describe('adversarial — native fallback: reconcile is disabled and the unknown
     await advance(90001); // watchdog → resume-by-id re-post + arm final deadline
     await advance(30001); // final deadline → settle unknown
 
-    // Within the reconcile window the native guard blocks an identical retry.
-    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', sendArgs)).toBe(true);
+    // Within the reconcile window, an identical user-initiated send is NEVER
+    // blocked: it dispatches as a new payment immediately (contract — DR-5).
+    const postedBefore = postedCount('sendSparkPayment', wv);
+    const retry = track(
+      SUT.sendWebViewRequestGlobal('sendSparkPayment', sendArgs),
+    );
+    await flush();
+    expect(postedCount('sendSparkPayment', wv)).toBe(postedBefore + 1);
+    expect(retry.settled).toBe(false);
 
     // Commit to native (e.g. a WASM error / verification tamper elsewhere).
     SUT.setForceReactNative(true, 'test');
@@ -1068,9 +1064,6 @@ describe('adversarial — native fallback: reconcile is disabled and the unknown
 
     // Native runs no reconcile query...
     expect(SUT.__getReconcileQueryCountForTest()).toBe(queriesBefore);
-    // ...and the debounce releases on the TTL so an identical resend is not
-    // permanently blocked (funds-identical-resend-principle).
-    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', sendArgs)).toBe(false);
   });
 });
 
@@ -1098,50 +1091,14 @@ describe('adversarial — production reconcile queries & matchers', () => {
       txid: 'tx-1',
     },
     {
-      op: 'sendSparkTokens', // OPERATION_TYPES.sendTokenPayment
-      args: { tokenIdentifier: 'tokA', tokenAmount: '500', mnemonic: MNEMONIC },
-      queryAction: 'getSparkTokenTransactions', // OPERATION_TYPES.getTokenTransactions
-      respond: ts => ({
-        tokenTransactionsWithStatus: [
-          {
-            tokenTransaction: {
-              clientCreatedTimestamp: ts,
-              tokenOutputs: [{ tokenIdentifier: 'tokA', tokenAmount: '500' }],
-            },
-            tokenTransactionHash: '0xabc123',
-          },
-        ],
-      }),
-      hit: true,
-      txid: '0xabc123',
-    },
-    {
-      op: 'batchTransferTokens',
+      op: 'executeSwap',
       args: {
-        invoices: [
-          { invoice: 'inv-1', tokenIdentifier: 'tokA', tokenAmount: '500' },
-          { invoice: 'inv-2', tokenIdentifier: 'tokB', tokenAmount: '100' },
-        ],
+        poolId: 'pool1',
+        assetInAddress: 'btc-asset',
+        assetOutAddress: 'usdb-token',
+        amountIn: '200',
         mnemonic: MNEMONIC,
       },
-      queryAction: 'getSparkTokenTransactions',
-      respond: () => ({
-        tokenTransactionsWithStatus: [
-          {
-            tokenTransaction: {
-              clientCreatedTimestamp: Date.now(),
-              tokenOutputs: [{ tokenIdentifier: 'tokB', tokenAmount: '100' }],
-            },
-            tokenTransactionHash: '0xhash1',
-          },
-        ],
-      }),
-      hit: true,
-      txid: '0xhash1',
-    },
-    {
-      op: 'executeSwap',
-      args: { poolId: 'pool1', amountIn: '200', mnemonic: MNEMONIC },
       queryAction: 'getUserSwapHistory',
       respond: ts => ({
         swaps: [
@@ -1149,6 +1106,8 @@ describe('adversarial — production reconcile queries & matchers', () => {
             id: 'swap-1',
             poolLpPublicKey: 'pool1',
             amountIn: '200',
+            assetInAddress: 'btc-asset',
+            assetOutAddress: 'usdb-token',
             timestamp: ts,
           },
         ],
@@ -1158,7 +1117,12 @@ describe('adversarial — production reconcile queries & matchers', () => {
     },
     {
       op: 'swapBitcoinToToken',
-      args: { poolId: 'pool1', amountIn: '200', mnemonic: MNEMONIC },
+      args: {
+        poolId: 'pool1',
+        tokenAddress: 'usdb-token',
+        amountSats: '200',
+        mnemonic: MNEMONIC,
+      },
       queryAction: 'getUserSwapHistory',
       respond: () => ({
         swaps: [
@@ -1166,6 +1130,9 @@ describe('adversarial — production reconcile queries & matchers', () => {
             id: 'swap-2',
             poolLpPublicKey: 'pool1',
             amountIn: '200',
+            assetInAddress:
+              '020202020202020202020202020202020202020202020202020202020202020202',
+            assetOutAddress: 'usdb-token',
             timestamp: Date.now(),
           },
         ],
@@ -1175,7 +1142,12 @@ describe('adversarial — production reconcile queries & matchers', () => {
     },
     {
       op: 'swapTokenToBitcoin',
-      args: { poolId: 'pool1', amountIn: '200', mnemonic: MNEMONIC },
+      args: {
+        poolId: 'pool1',
+        tokenAddress: 'usdb-token',
+        tokenAmount: '200',
+        mnemonic: MNEMONIC,
+      },
       queryAction: 'getUserSwapHistory',
       respond: () => ({
         swaps: [
@@ -1183,6 +1155,9 @@ describe('adversarial — production reconcile queries & matchers', () => {
             id: 'swap-3',
             poolLpPublicKey: 'pool1',
             amountIn: '200',
+            assetInAddress: 'usdb-token',
+            assetOutAddress:
+              '020202020202020202020202020202020202020202020202020202020202020202',
             timestamp: Date.now(),
           },
         ],
@@ -1287,7 +1262,6 @@ describe('adversarial — production reconcile queries & matchers', () => {
   // variants red (F-2).
   const timestampGatedOps = new Set([
     'sendSparkPayment', // Transfer.createdTime
-    'sendSparkTokens', // TokenTransaction.clientCreatedTimestamp
     'executeSwap', // Swap.timestamp
   ]);
 
@@ -1312,13 +1286,11 @@ describe('adversarial — production reconcile queries & matchers', () => {
 
       const entry = [...SUT.__getIntentStoreForTest().values()][0];
       expect(entry.state).toBe('done');
-      // C-1: reconcile supplies a consumer-readable `response` (token ops use
-      // the tx-hash string; sendSparkPayment also carries the matched
-      // transfer's timestamp as updatedTime (F-6); every other op { id }).
+      // C-1: reconcile supplies a consumer-readable `response` (sendSparkPayment
+      // also carries the matched transfer's timestamp as updatedTime (F-6);
+      // every other op { id }).
       const expectedResponse =
-        fx.op === 'sendSparkTokens' || fx.op === 'batchTransferTokens'
-          ? fx.txid
-          : fx.op === 'sendSparkPayment'
+        fx.op === 'sendSparkPayment'
           ? { id: fx.txid, updatedTime: ts }
           : { id: fx.txid };
       expect(entry.result).toEqual({

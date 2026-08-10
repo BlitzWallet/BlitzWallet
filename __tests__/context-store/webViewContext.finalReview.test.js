@@ -468,6 +468,8 @@ describe('final — F-1 reconcile must not settle swap/fulfill callers with an u
           id: 'swap-1',
           poolLpPublicKey: 'pool1',
           amountIn: '200',
+          assetInAddress: 'btc',
+          assetOutAddress: 'tokA',
           timestamp: Date.now(),
         },
       ],
@@ -559,63 +561,48 @@ describe('final — F-1 reconcile must not settle swap/fulfill callers with an u
 // double-execute. The bridge must expose the unknown state so native wrappers
 // can refuse.
 // ---------------------------------------------------------------------------
-describe('final — F-3 hasUnknownFundsIntent (native-path guard seam)', () => {
-  test('true for the exact unknown op+args, false otherwise', async () => {
+// ---------------------------------------------------------------------------
+// Guard contract (2026-08) — an 'unknown' intent never blocks a user-initiated
+// identical send: that send is a NEW payment and dispatches immediately, both
+// within and past the reconcile window. Expired intents are pruned from the
+// store (DR-12) so the seed is not retained past the window.
+// ---------------------------------------------------------------------------
+describe('final — guard contract: identical user sends dispatch immediately', () => {
+  test('within the reconcile window an identical send dispatches as a new payment (never blocked)', async () => {
     const wv = await setupFundsReady();
     await dispatchThenLoseResponse(wv, 'sendSparkPayment', SEND_ARGS);
 
-    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', SEND_ARGS)).toBe(true);
-    expect(
-      SUT.hasUnknownFundsIntent('sendSparkPayment', {
-        ...SEND_ARGS,
-        amountSats: 2000,
-      }),
-    ).toBe(false);
-    // Not a funds op.
-    expect(SUT.hasUnknownFundsIntent('getSparkBalance', {})).toBe(false);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Case-B TTL — an 'unknown' intent that reconcile can never confirm must not
-// block an identical send forever. Within the reconcile window it still blocks
-// (the outcome is genuinely unresolved); past the window the tombstone is
-// treated as never-executed, so the guard clears and the next identical send
-// dispatches fresh.
-// ---------------------------------------------------------------------------
-describe('final — Case-B unknown-intent TTL', () => {
-  test('within the reconcile window an identical send is still blocked', async () => {
-    const wv = await setupFundsReady();
-    await dispatchThenLoseResponse(wv, 'sendSparkPayment', SEND_ARGS);
-
-    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', SEND_ARGS)).toBe(true);
     const posted = postedCount(wv, 'sendSparkPayment');
     const retry = track(
       SUT.sendWebViewRequestGlobal('sendSparkPayment', SEND_ARGS),
     );
     await flush();
-    expect(retry.settled).toBe(true);
-    expect(retry.value.kind).toBe('unknown');
-    // Blocked → nothing new dispatched.
-    expect(postedCount(wv, 'sendSparkPayment')).toBe(posted);
-  });
-
-  test('past the reconcile window the block expires: guard clears and an identical send re-dispatches', async () => {
-    const wv = await setupFundsReady();
-    await dispatchThenLoseResponse(wv, 'sendSparkPayment', SEND_ARGS);
-
-    // dispatchThenLoseResponse burned ~120s; push total past the 3-min window.
-    await advance(120000);
-
-    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', SEND_ARGS)).toBe(false);
-    const posted = postedCount(wv, 'sendSparkPayment');
-    const retry = track(
-      SUT.sendWebViewRequestGlobal('sendSparkPayment', SEND_ARGS),
-    );
-    await flush();
-    // Fresh dispatch, not an immediate unknown-block.
+    // Fresh dispatch, not an instant unknown-block.
     expect(retry.settled).toBe(false);
     expect(postedCount(wv, 'sendSparkPayment')).toBe(posted + 1);
+  });
+
+  test('past the reconcile window the expired unknown intent is pruned and the identical send dispatches', async () => {
+    const wv = await setupFundsReady();
+    await dispatchThenLoseResponse(wv, 'sendSparkPayment', SEND_ARGS);
+
+    // dispatchThenLoseResponse burned ~120s; push total past the 3-min window,
+    // then trigger the lazy prune with a dispatch.
+    await advance(120000);
+    expect([...SUT.__getIntentStoreForTest().values()].length).toBe(1);
+
+    const posted = postedCount(wv, 'sendSparkPayment');
+    const retry = track(
+      SUT.sendWebViewRequestGlobal('sendSparkPayment', SEND_ARGS),
+    );
+    await flush();
+    expect(retry.settled).toBe(false);
+    expect(postedCount(wv, 'sendSparkPayment')).toBe(posted + 1);
+    // The expired unknown intent was pruned by the dispatch's lazy sweep; the
+    // retry created a fresh in-flight entry.
+    const entries = [...SUT.__getIntentStoreForTest().values()];
+    expect(entries.length).toBe(1);
+    expect(entries[0].state).toBe('in-flight');
   });
 });
 
@@ -626,7 +613,7 @@ describe('final — Case-B unknown-intent TTL', () => {
 // reconcile-confirmed done intent is never queried again — drop its seed too.
 // ---------------------------------------------------------------------------
 describe('final — F-4/S-4 intent-store mnemonic hygiene', () => {
-  test('a no-reconcile-query intent stores scrubbed args but the guard still keys on caller args', async () => {
+  test('a no-reconcile-query intent stores scrubbed args, and an identical user send dispatches immediately (contract)', async () => {
     const wv = await setupFundsReady();
     const args = {
       paymentRequest: 'lnbc1abc',
@@ -639,14 +626,15 @@ describe('final — F-4/S-4 intent-store mnemonic hygiene', () => {
     expect(entry.state).toBe('unknown');
     expect(entry.args.mnemonic).toBeUndefined();
 
-    // The double-pay guard is unaffected: an identical retry is still blocked.
+    // Guard contract: an identical user-initiated send is a NEW payment and
+    // dispatches immediately — the scrubbed store entry never blocks it.
     const retry = track(
       SUT.sendWebViewRequestGlobal('sendSparkBitcoinPayment', args),
     );
     await flush();
-    expect(retry.settled).toBe(true);
-    expect(retry.value.kind).toBe('unknown');
-    expect(postedCount(wv, 'sendSparkBitcoinPayment')).toBe(2); // original + resume only
+    expect(retry.settled).toBe(false);
+    // original + keep-alive resume re-post + the fresh retry dispatch.
+    expect(postedCount(wv, 'sendSparkBitcoinPayment')).toBe(3);
   });
 
   test('a reconcile-confirmed done intent scrubs its mnemonic', async () => {

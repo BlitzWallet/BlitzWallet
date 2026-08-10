@@ -19,6 +19,7 @@ import {
   randomBytes,
 } from 'react-native-quick-crypto';
 import { decodeSparkAddress } from '@buildonspark/spark-sdk';
+import { BTC_ASSET_ADDRESS } from '../app/functions/spark/swapAmountUtils';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 import DeviceInfo, {
@@ -214,6 +215,23 @@ const LOAD_WATCHDOG_MS = 30 * 1000;
 // ---------------------------------------------------------------------------
 const intentStore = new Map();
 
+// ── Double-pay guard contract (2026-08, product decision) ──────────────────
+// The ONLY purpose of the intent guard is to stop the SYSTEM from automatically
+// re-dispatching a payment whose outcome is unresolved (the old queue
+// re-queued and re-dispatched on reset; here, the remaining automatic path is
+// coalescing a concurrent duplicate dispatch of the same user action while the
+// first is still in flight). The guard is NOT an authorization gate:
+//   * A user-initiated identical send is a deliberate NEW payment and must
+//     always dispatch — never return a "blocked" result.
+//   * Whether the previous payment actually sent is surfaced by the restore
+//     handler and the balance handler (transaction restore + balance updates),
+//     not by the bridge refusing the new send.
+//   * The 'unknown' intent state exists so reconcile/restore can later record
+//     the true outcome; it must not gate later user sends.
+// Sites that still implement the old "block an identical retry" behavior are
+// marked CONTRACT-VIOLATION below (dispatch-site unknown branch, native gate).
+// ───────────────────────────────────────────────────────────────────────────
+
 // Mutating funds ops that need the intent guard: KEEP-GUARD (no idempotency
 // key, no deterministic pre-response reconcile) plus SAFE-VIA-RECONCILE ops
 // that must persist their request before dispatch. sendSparkLightningPayment is
@@ -252,9 +270,11 @@ const KEEP_ALIVE_OPS = new Set([
 
 // Ops whose consumers cannot consume a reconcile-built success shape (swap
 // consumers read .swap.outboundTransferId, fulfill reads
-// .satsTransactionSuccess): on a reconcile hit the intent still settles done —
-// the double-pay guard holds — but a live caller resolves with the unknown
-// shape it already handles, never a success it mis-parses as a failure (F-1).
+// .satsTransactionSuccess): on a reconcile hit the RECORDED truth settles
+// 'done' (so restore/reconcile can surface it), but a live caller resolves
+// with the unknown shape it already handles, never a success it mis-parses as
+// a failure (F-1). That caller-visible 'unknown' is informational — per the
+// guard contract it never blocks a later user-initiated identical send.
 const RECONCILE_CALLER_UNKNOWN_OPS = new Set([
   OPERATION_TYPES.executeSwap,
   OPERATION_TYPES.swapBitcoinToToken,
@@ -270,11 +290,20 @@ const RECONCILE_UNKNOWN_CALLER_RESULT = {
 // Ops with no reconcile query (buildReconcileQuery returns null) can never be
 // reconciled — retaining their raw mnemonic in module memory for the process
 // lifetime buys nothing (S-4). Their stored args are scrubbed at record time;
-// the guard keys off the CALLER's args, so identical retries stay blocked.
+// the guard keys off the CALLER's args, so the intent key matches any
+// identical call (and per the contract that call dispatches as a NEW payment).
 const NO_RECONCILE_QUERY_OPS = new Set([
   OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.requestClawback,
   OPERATION_TYPES.requestBatchClawback,
+  // Token sends have no reconcile query: the bundle's token-history rows carry
+  // byte-map tokenIdentifier / ownerPublicKey / tokenAmount (see
+  // app/functions/lrc20/index.js), never the caller's string args, so no
+  // matcher could ever confirm them. A timed-out token send stays unknown; the
+  // user resends and the balance / transfer handlers surface whether the first
+  // attempt executed.
+  OPERATION_TYPES.sendTokenPayment,
+  OPERATION_TYPES.batchTransferTokens,
 ]);
 
 // Shared by the claim reconcile query builder and matcher: a FULL first page
@@ -348,22 +377,24 @@ const withinReconcileWindow = (ts, anchorMs) => {
   return Math.abs(t - anchorMs) <= RECONCILE_WINDOW_MS;
 };
 
-// Case-B TTL (see [[funds-identical-resend-principle]]): an 'unknown' intent
-// that reconcile could never confirm must not block an identical send for the
-// whole process lifetime. Once the reconcile window has fully elapsed since
-// dispatch, every foreground/reconnect reconcile pass has had its chance — a
-// confirmed execution would already have flipped the intent to 'done'. A
-// still-'unknown' intent is treated as never-executed so the block can lift.
-// Consulted lazily at the two block sites (dispatch dedup + native guard); a
-// later reconcile that DOES confirm still wins and records 'done'.
-// ponytail: wall-clock TTL from dispatch — residual is a send that executed but
-// whose every reconcile attempt failed to read history within the window;
-// upgrade path is a verified-absence signal from getSparkTransactions (it can
-// currently swallow errors into an empty list, so absence isn't provable, which
-// is exactly why eviction is NOT done from the reconcile read itself).
-const isUnknownIntentExpired = entry =>
-  entry?.state === 'unknown' &&
-  Date.now() - entry.dispatchedAt > RECONCILE_WINDOW_MS;
+// Eviction (DR-12 / S-4): an intent whose reconcile window has fully elapsed
+// is either 'done' (confirmed — the record is spent; a later identical call
+// dispatches as a new payment anyway) or still 'unknown' (treated as
+// never-executed; the contract never blocks a user send on it). Retaining the
+// entry — and its raw mnemonic args — buys nothing, so it is pruned. 'done'
+// intents already had their mnemonic scrubbed by settleIntent; pruning removes
+// the seed from memory entirely. Lazy sweep: runs on every dispatch and every
+// reconcile pass, so memory stays bounded without a global timer. In-flight
+// intents are never pruned.
+const pruneExpiredIntents = () => {
+  const now = Date.now();
+  for (const [key, entry] of intentStore) {
+    if (entry.state === 'in-flight') continue;
+    if (now - entry.dispatchedAt > RECONCILE_WINDOW_MS) {
+      intentStore.delete(key);
+    }
+  }
+};
 
 // Receivers on a WalletTransfer carry identityPublicKey, not the spark
 // address — decode the caller's receiverSparkAddress for the comparison (F-8).
@@ -425,6 +456,54 @@ const findReconciledSendTransfer = (entry, result) => {
   );
 };
 
+// Swap reconcile direction mapping (DR-2/DR-3): the history row must match the
+// op's asset pair and amount. swapBitcoinToToken / swapTokenToBitcoin do not
+// carry assetInAddress/assetOutAddress in their webview args — the direction is
+// implied by the op and the tokenAddress, with BTC on the other side. The
+// amount lives in amountIn (executeSwap), amountSats (swapBitcoinToToken) or
+// tokenAmount (swapTokenToBitcoin) — the matcher must read the real caller's
+// field (DR-3: tokenAmount was never consulted, so the matcher was dead).
+const swapDirectionFor = entry => {
+  switch (entry.op) {
+    case OPERATION_TYPES.executeSwap:
+      return {
+        assetInAddress: entry.args.assetInAddress,
+        assetOutAddress: entry.args.assetOutAddress,
+        amountIn: entry.args.amountIn,
+      };
+    case OPERATION_TYPES.swapBitcoinToToken:
+      return {
+        assetInAddress: BTC_ASSET_ADDRESS,
+        assetOutAddress: entry.args.tokenAddress,
+        amountIn: entry.args.amountSats,
+      };
+    case OPERATION_TYPES.swapTokenToBitcoin:
+      return {
+        assetInAddress: entry.args.tokenAddress,
+        assetOutAddress: BTC_ASSET_ADDRESS,
+        amountIn: entry.args.tokenAmount,
+      };
+    default:
+      return null;
+  }
+};
+
+const findReconciledSwap = (entry, result) => {
+  const dir = swapDirectionFor(entry);
+  if (!dir) return undefined;
+  const amountIn = String(dir.amountIn ?? '');
+  if (!amountIn) return undefined; // missing amount → unprovable, stay unknown
+  return exactlyOneMatch(
+    result?.swaps,
+    s =>
+      s.poolLpPublicKey === entry.args.poolId &&
+      String(s.amountIn) === amountIn &&
+      s.assetInAddress === dir.assetInAddress &&
+      s.assetOutAddress === dir.assetOutAddress &&
+      withinReconcileWindow(s.timestamp, entry.dispatchedAt),
+  );
+};
+
 // Per-op reconcile query builders (plan §3.1.3). Return null for ops with no
 // pre-response reconcile query (sendBitcoinPayment, clawbacks — their outcome
 // stays {kind:'unknown'} for the UI; never re-dispatched).
@@ -434,21 +513,6 @@ const buildReconcileQuery = (op, entry, mnemonic) => {
       return {
         action: OPERATION_TYPES.getTransactions,
         args: { mnemonic, transferCount: 20, offsetIndex: 0 },
-      };
-    case OPERATION_TYPES.sendTokenPayment:
-      return {
-        action: OPERATION_TYPES.getTokenTransactions,
-        args: { mnemonic, tokenIdentifiers: [entry.args.tokenIdentifier] },
-      };
-    case OPERATION_TYPES.batchTransferTokens:
-      return {
-        action: OPERATION_TYPES.getTokenTransactions,
-        args: {
-          mnemonic,
-          tokenIdentifiers: (entry.args.invoices || []).map(
-            i => i.tokenIdentifier,
-          ),
-        },
       };
     case OPERATION_TYPES.executeSwap:
     case OPERATION_TYPES.swapBitcoinToToken:
@@ -485,70 +549,12 @@ const buildReconcileMatcher = op => {
   switch (op) {
     case OPERATION_TYPES.sendSparkPayment:
       return (entry, result) => !!findReconciledSendTransfer(entry, result);
-    case OPERATION_TYPES.sendTokenPayment:
-      return (entry, result) => {
-        const { tokenIdentifier, tokenAmount } = entry.args;
-        // Exactly one in-window token tx may confirm it (C2): two identical
-        // token sends collide and cannot be attributed.
-        return !!exactlyOneMatch(result?.tokenTransactionsWithStatus, tx => {
-          const t = tx.tokenTransaction;
-          return (
-            withinReconcileWindow(
-              t?.clientCreatedTimestamp,
-              entry.dispatchedAt,
-            ) &&
-            Array.isArray(t?.tokenOutputs) &&
-            t.tokenOutputs.some(
-              o =>
-                o.tokenIdentifier === tokenIdentifier &&
-                String(o.tokenAmount) === String(tokenAmount),
-            )
-          );
-        });
-      };
-    case OPERATION_TYPES.batchTransferTokens:
-      return (entry, result) => {
-        const invoices = entry.args.invoices || [];
-        return !!result?.tokenTransactionsWithStatus?.some(tx => {
-          const t = tx.tokenTransaction;
-          if (
-            !withinReconcileWindow(
-              t?.clientCreatedTimestamp,
-              entry.dispatchedAt,
-            )
-          ) {
-            return false;
-          }
-          return (
-            Array.isArray(t?.tokenOutputs) &&
-            t.tokenOutputs.some(o =>
-              invoices.some(
-                inv =>
-                  inv.tokenIdentifier === o.tokenIdentifier &&
-                  String(inv.tokenAmount) === String(o.tokenAmount),
-              ),
-            )
-          );
-        });
-      };
     case OPERATION_TYPES.executeSwap:
     case OPERATION_TYPES.swapBitcoinToToken:
     case OPERATION_TYPES.swapTokenToBitcoin:
-      return (entry, result) => {
-        const amountIn = String(
-          entry.args.amountIn ?? entry.args.amountSats ?? '',
-        );
-        const poolId = entry.args.poolId;
-        // Exactly one in-window swap may confirm it (C2): two identical swaps
-        // (same pool + amountIn) collide and cannot be attributed.
-        return !!exactlyOneMatch(
-          result?.swaps,
-          s =>
-            s.poolLpPublicKey === poolId &&
-            String(s.amountIn) === amountIn &&
-            withinReconcileWindow(s.timestamp, entry.dispatchedAt),
-        );
-      };
+      // Same pool + amount AND same asset direction (DR-2) with the real
+      // caller's amount field (DR-3).
+      return (entry, result) => !!findReconciledSwap(entry, result);
     case OPERATION_TYPES.claimStaticDepositAddress:
       return (entry, result) => {
         // A failed/absent query (didWork:false or no utxos array) is a MISS,
@@ -566,12 +572,15 @@ const buildReconcileMatcher = op => {
       };
     case OPERATION_TYPES.fufillSparkInvoices:
       return (entry, result) => {
-        const invoices = new Set(
-          (entry.args.invoices || []).map(i => i.invoice),
+        // EVERY invoice in the batch must be fulfilled (DR-11): one fulfilled
+        // row must never confirm the whole batch.
+        const invoices = entry.args.invoices || [];
+        if (!invoices.length) return false;
+        const statusByInvoice = new Map(
+          (result?.invoiceStatuses || []).map(s => [s.invoice, s.status]),
         );
-        return !!result?.invoiceStatuses?.some(
-          s =>
-            invoices.has(s.invoice) && FULFILLED_INVOICE_STATUSES.has(s.status),
+        return invoices.every(inv =>
+          FULFILLED_INVOICE_STATUSES.has(statusByInvoice.get(inv.invoice)),
         );
       };
     default:
@@ -583,27 +592,10 @@ const extractReconcileTxid = (op, result, entry) => {
   switch (op) {
     case OPERATION_TYPES.sendSparkPayment:
       return findReconciledSendTransfer(entry, result)?.id;
-    case OPERATION_TYPES.sendTokenPayment:
-    case OPERATION_TYPES.batchTransferTokens: {
-      const tx = result?.tokenTransactionsWithStatus?.[0];
-      return tx?.tokenTransactionHash
-        ? String(tx.tokenTransactionHash)
-        : undefined;
-    }
     case OPERATION_TYPES.executeSwap:
     case OPERATION_TYPES.swapBitcoinToToken:
-    case OPERATION_TYPES.swapTokenToBitcoin: {
-      const amountIn = String(
-        entry.args.amountIn ?? entry.args.amountSats ?? '',
-      );
-      const swap = result?.swaps?.find(
-        s =>
-          s.poolLpPublicKey === entry.args.poolId &&
-          String(s.amountIn) === amountIn &&
-          withinReconcileWindow(s.timestamp, entry.dispatchedAt),
-      );
-      return swap?.id;
-    }
+    case OPERATION_TYPES.swapTokenToBitcoin:
+      return findReconciledSwap(entry, result)?.id;
     case OPERATION_TYPES.claimStaticDepositAddress:
       return entry.args.transactionId;
     default:
@@ -612,17 +604,14 @@ const extractReconcileTxid = (op, result, entry) => {
 };
 
 // Consumer-compatible response for a reconcile-confirmed op. Every funds
-// consumer reads `.response` off the bridge result; token consumers use it AS
-// the tx-hash string, the rest read `.response.id`. Reconcile can only supply
-// the txid it matched from history (other fields self-heal on the next sync).
+// consumer reads `.response` off the bridge result and reads `.response.id`.
+// Reconcile can only supply the txid it matched from history (other fields
+// self-heal on the next sync).
 // sendSparkPayment also carries the matched transfer's timestamp as
 // updatedTime — the consumer stores new Date(data.updatedTime) and undefined
 // would record NaN (F-6).
 const extractReconcileResponse = (op, result, entry) => {
   switch (op) {
-    case OPERATION_TYPES.sendTokenPayment:
-    case OPERATION_TYPES.batchTransferTokens:
-      return extractReconcileTxid(op, result, entry);
     case OPERATION_TYPES.sendSparkPayment: {
       const tx = findReconciledSendTransfer(entry, result);
       return { id: tx?.id, updatedTime: tx?.updatedTime ?? tx?.createdTime };
@@ -716,18 +705,6 @@ export const getHandshakeComplete = () => {
 // instead of spawning an orphan native wallet.
 export const getIsNativeRuntime = () => fallbackState === FALLBACK_STATE.NATIVE;
 
-// Native-path double-pay guard (F-3): after a native fallback, funds-op
-// retries no longer pass through this bridge's intent guard — the native
-// wrappers ask here first so an op whose webview attempt may still be
-// unresolved is never blind-retried straight on the SDK.
-export const hasUnknownFundsIntent = (action, args = {}) => {
-  if (!FUNDS_OPS.has(action)) return false;
-  const walletHash = args.mnemonic ? walletHashOf(args.mnemonic) : '';
-  const entry = intentStore.get(stableKeyFor(action, args, walletHash));
-  // Expired unknowns no longer block the native retry (Case-B TTL).
-  return entry?.state === 'unknown' && !isUnknownIntentExpired(entry);
-};
-
 // Test seams (plan Phase 0) — read-only except __setReconcileQueryForTest.
 export const __getIntentStoreForTest = () => intentStore;
 export const __getFallbackStateForTest = () => fallbackState;
@@ -775,16 +752,22 @@ const VALID_TRANSITIONS = {
   [WV_STATES.LOADING]: [WV_STATES.LOADED, WV_STATES.ERROR, WV_STATES.UNLOADED],
   [WV_STATES.LOADED]: [
     WV_STATES.HANDSHAKING,
+    WV_STATES.LOADING, // the page can always reload itself before handshake
     WV_STATES.ERROR,
     WV_STATES.UNLOADED,
   ],
   [WV_STATES.HANDSHAKING]: [
     WV_STATES.READY,
+    WV_STATES.LOADING, // self-reload mid-handshake
     WV_STATES.ERROR,
     WV_STATES.UNLOADED,
   ],
-  [WV_STATES.READY]: [WV_STATES.ERROR, WV_STATES.UNLOADED],
-  [WV_STATES.ERROR]: [WV_STATES.UNLOADED],
+  [WV_STATES.READY]: [
+    WV_STATES.LOADING, // silent page self-reload (DR-4)
+    WV_STATES.ERROR,
+    WV_STATES.UNLOADED,
+  ],
+  [WV_STATES.ERROR]: [WV_STATES.LOADING, WV_STATES.UNLOADED],
 };
 
 const WebViewContext = createContext(null);
@@ -1169,9 +1152,19 @@ export const WebViewProvider = ({ children, transport = null }) => {
       if (!entry) return false;
       if (!KEEP_ALIVE_OPS.has(entry.action)) return false;
       if (entry.keepAliveTimedOut) return false; // final deadline already armed
-
       let resumed = false;
-      if (entry.dispatchEpoch === epochRef.current && nonceVerified.current) {
+      if (entry.pageDied) {
+        // DR-4: the page that dispatched this request died and a fresh page
+        // loaded. Its id→outcome cache is empty — re-posting the same id
+        // there would EXECUTE a second payment. Reconcile settles it from
+        // network history; the final deadline below is still the bounded
+        // floor — without it, a pageDied keep-alive op that reconcile cannot
+        // confirm would hang the caller forever (no re-post, no settle).
+        // Fall through with resumed=false: skip the re-post, arm the deadline.
+      } else if (
+        entry.dispatchEpoch === epochRef.current &&
+        nonceVerified.current
+      ) {
         if (entry.payload) {
           try {
             if (entry.encrypt && aesKeyRef.current) {
@@ -1240,6 +1233,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
   const sendWebViewRequestInternal = useCallback(
     (action, args = {}, encrypt = true) => {
       return new Promise(resolve => {
+        // Bounded memory + seed retention (DR-12/S-4): sweep expired intents on
+        // every dispatch so the store never grows without bound.
+        pruneExpiredIntents();
+
         // 1. Native latch.
         if (fallbackState === FALLBACK_STATE.NATIVE) {
           return resolve({
@@ -1362,29 +1359,14 @@ export const WebViewProvider = ({ children, transport = null }) => {
               existing.resolvers.push(resolve);
               return;
             }
-            if (
-              existing.state === 'unknown' &&
-              !isUnknownIntentExpired(existing)
-            ) {
-              // Outcome may have executed; block a blind retry (unchanged,
-              // D-1 / test.js:576). Reconcile upgrades this to done when it
-              // confirms.
-              existing.resolvers.push(resolve);
-              resolve({
-                didWork: false,
-                error: 'Request status unknown — check before retrying',
-                kind: 'unknown',
-              });
-              return;
-            }
-            // state === 'done' (confirmed executed) OR an expired 'unknown'
-            // (Case-B TTL: reconcile never confirmed it within the window, so
-            // it's treated as never-executed). Either way the spent/stale
-            // record is dropped and this call dispatches as a NEW payment —
-            // an identical send is never permanently blocked. Consistent
+            // Guard contract (DR-5): any non-in-flight record — 'done'
+            // (confirmed executed), 'unknown' (unresolved, may or may not have
+            // executed) or an expired entry — is spent/stale. A user-initiated
+            // identical call is a NEW payment and MUST dispatch; whether the
+            // earlier attempt actually sent is surfaced by the restore/balance
+            // handlers, never by this bridge refusing the new send. Consistent
             // with the normal-success path (finalizeRequest deletes on done,
-            // test.js:543-544), a later identical call is a NEW payment — drop
-            // the spent record and dispatch.
+            // test.js:543-544) — drop the spent record and dispatch.
             intentStore.delete(stableKey);
           }
           const entry = {
@@ -1621,6 +1603,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
   // queries when no unknown intents exist.
   const reconcileUnknownIntents = useCallback(async () => {
     if (fallbackState !== FALLBACK_STATE.WEBVIEW) return;
+    pruneExpiredIntents();
     const foregroundId = foregroundIdRef.current;
     // Multiple wallets (main + pool/savings/gift/child) run concurrently, so
     // every unknown intent is a candidate — each reconciles against its OWN
@@ -1682,10 +1665,13 @@ export const WebViewProvider = ({ children, transport = null }) => {
         const response = reconcileQueryOverride
           ? undefined
           : extractReconcileResponse(entry.op, result, entry);
-        // Keep the entry: a retry of the same logical op must resolve this
-        // executed result, never re-dispatch (double-pay guard). Ops whose
-        // consumers can't consume this shape settle their live callers as
-        // unknown instead (F-1) — the recorded truth stays 'executed'.
+        // Keep the entry so the RECORDED truth stays 'executed' (restore /
+        // balance handlers and later reconcile passes can surface it). Per
+        // the guard contract this does NOT gate retries: a later
+        // user-initiated identical call is a new payment and re-dispatches
+        // (the dispatch site drops the spent record). Ops whose consumers
+        // can't consume this shape settle their live callers as unknown
+        // instead (F-1) — the recorded truth stays 'executed'.
         const executedResult = {
           didWork: true,
           status: 'executed',
@@ -2369,19 +2355,51 @@ export const WebViewProvider = ({ children, transport = null }) => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
   }, [sendWebViewRequestInternal]);
 
-  // Zero key material on unmount.
+  // Latest-stable refs for the unmount cleanup (empty-deps effect must not
+  // capture a stale finalizeRequest/settleHoldBuffer, and must not re-run on
+  // their identity changes — the cleanup may only execute on actual unmount).
+  const finalizeRequestRef = useRef(null);
+  useEffect(() => {
+    finalizeRequestRef.current = finalizeRequest;
+  }, [finalizeRequest]);
+  const settleHoldBufferRef = useRef(null);
+  useEffect(() => {
+    settleHoldBufferRef.current = settleHoldBuffer;
+  }, [settleHoldBuffer]);
+
+  // Zero key material, settle every pending request and the hold buffer on
+  // unmount (H-2): callers must never be left awaiting a promise whose
+  // provider is gone, and their watchdogs must not fire into a dead component.
   useEffect(() => {
     return () => {
       if (loadWatchdogRef.current) {
         clearTimeout(loadWatchdogRef.current);
         loadWatchdogRef.current = null;
       }
+      settleHoldBufferRef.current?.({
+        didWork: false,
+        error: 'WebView provider unmounted',
+        kind: 'bridge',
+      });
+      Object.keys(pendingRequests.current).forEach(id => {
+        const entry = pendingRequests.current[id];
+        finalizeRequestRef.current?.(
+          id,
+          {
+            didWork: false,
+            error: 'WebView provider unmounted',
+            kind: 'bridge',
+          },
+          entry?.stableKey ? 'unknown' : null,
+        );
+      });
       if (aesKeyRef.current?.fill) aesKeyRef.current.fill(0);
       aesKeyRef.current = null;
       if (sessionKeyRef.current?.privateKey?.fill) {
         sessionKeyRef.current.privateKey.fill(0);
       }
       sessionKeyRef.current = null;
+      nonceVerified.current = false;
     };
   }, []);
 
@@ -2521,6 +2539,43 @@ export const WebViewProvider = ({ children, transport = null }) => {
           }}
           onLoadStart={() => {
             if (epoch !== epochRef.current) return;
+            // Silent page self-reload (DR-4): the page reloaded without a
+            // native reset / epoch bump (no crash event). Tear down the crypto
+            // session so (a) the reloaded page is never addressed with the
+            // stale AES key (it cannot decrypt it — the old behavior wedged
+            // the handshake until a second bg/fg) and (b) no in-flight request
+            // is re-posted into the fresh page, whose id→outcome cache is
+            // empty — a same-id re-post there would EXECUTE a second payment.
+            // The expected runtime nonce is NOT cleared: the verified file on
+            // disk is unchanged, so the reloaded page carries the same nonce
+            // (verifyAndPrepareWebView injects one nonce per verified file).
+            if (
+              nonceVerified.current ||
+              aesKeyRef.current ||
+              sessionKeyRef.current
+            ) {
+              if (aesKeyRef.current?.fill) aesKeyRef.current.fill(0);
+              aesKeyRef.current = null;
+              if (sessionKeyRef.current?.privateKey?.fill) {
+                sessionKeyRef.current.privateKey.fill(0);
+              }
+              sessionKeyRef.current = null;
+              nonceVerified.current = false;
+              setHandshakeComplete(false);
+              walletInitialized.current = false;
+              Object.keys(pendingRequests.current).forEach(id => {
+                const pending = pendingRequests.current[id];
+                if (pending && KEEP_ALIVE_OPS.has(pending.action)) {
+                  pending.pageDied = true;
+                  const intent =
+                    pending.stableKey && intentStore.get(pending.stableKey);
+                  if (intent && intent.state === 'in-flight') {
+                    intent.state = 'unknown';
+                    intent.result = null;
+                  }
+                }
+              });
+            }
             if (transitionWvState(WV_STATES.LOADING, 'onLoadStart')) {
               armLoadWatchdog();
             }

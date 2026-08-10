@@ -576,7 +576,7 @@ describe('webViewContext — idempotent send (TDD §2)', () => {
     expect(store.size).toBe(0);
   });
 
-  test('retry of a lost-response send resolves from the intent store — never re-executes', async () => {
+  test('retry of a lost-response send re-dispatches as a NEW payment (guard contract); the resume path never re-executes', async () => {
     const wv = await setupFundsReady();
 
     const first = track(
@@ -605,7 +605,10 @@ describe('webViewContext — idempotent send (TDD §2)', () => {
     expect(first.value.kind).toBe('unknown');
     expect(SUT.__getIntentStoreForTest().size).toBe(1);
 
-    // User retries with identical args: resolves from the store, NO re-post.
+    // User retries with identical args: per the guard contract (2026-08) this
+    // is a deliberate NEW payment — it dispatches immediately with a fresh id
+    // and the caller waits on the new attempt (restore/balance handlers
+    // surface whether the earlier attempt actually sent).
     const second = track(
       SUT.sendWebViewRequestGlobal('sendSparkPayment', {
         receiverSparkAddress: 'sp1abc',
@@ -614,13 +617,18 @@ describe('webViewContext — idempotent send (TDD §2)', () => {
       }),
     );
     await flush();
-    expect(postedCount(wv, 'sendSparkPayment')).toBe(2);
-    expect(second.settled).toBe(true);
-    expect(second.value.kind).toBe('unknown');
+    expect(postedCount(wv, 'sendSparkPayment')).toBe(3);
+    expect(second.settled).toBe(false);
+    const retrySent = wv.lastEncryptedPayload('sendSparkPayment');
+    expect(retrySent.id).not.toBe(sent.id);
 
-    // No auto-retry: time passing never re-dispatches.
+    // No auto-retry of either attempt: the new attempt's watchdog re-posts the
+    // SAME id (never a re-execution) — no third id ever appears.
     await advance(90001);
-    expect(postedCount(wv, 'sendSparkPayment')).toBe(2);
+    expect(second.settled).toBe(false);
+    const resume = wv.lastEncryptedPayload('sendSparkPayment');
+    expect(resume.id).toBe(retrySent.id);
+    expect(second.value).toBeUndefined();
   });
 
   test('in-flight duplicate coalesces onto the first dispatch — one post, both callers settle', async () => {
@@ -1795,7 +1803,7 @@ describe('webViewContext — funds-op error response settles unknown (§4.2)', (
     return wv;
   }
 
-  test('id-bearing error on a funds op → intent unknown; retry resolves unknown without re-dispatch', async () => {
+  test('id-bearing error on a funds op → intent unknown; identical retry dispatches as a NEW payment (guard contract)', async () => {
     const wv = await fundsReady();
 
     const first = track(
@@ -1819,12 +1827,13 @@ describe('webViewContext — funds-op error response settles unknown (§4.2)', (
       kind: 'bridge',
     });
 
-    // The intent is retained as unknown (funds op → double-pay guard).
+    // The intent is retained as unknown (reconcile may still confirm it).
     const store = SUT.__getIntentStoreForTest();
     expect(store.size).toBe(1);
     expect([...store.values()][0].state).toBe('unknown');
 
-    // Identical retry resolves from the store as unknown — never re-posts.
+    // Identical retry: per the guard contract this is a NEW payment — it
+    // dispatches immediately and the caller waits on the fresh attempt.
     const retry = track(
       SUT.sendWebViewRequestGlobal('sendSparkPayment', {
         receiverSparkAddress: 'sp1abc',
@@ -1833,9 +1842,10 @@ describe('webViewContext — funds-op error response settles unknown (§4.2)', (
       }),
     );
     await flush();
-    expect(retry.settled).toBe(true);
-    expect(retry.value.kind).toBe('unknown');
-    expect(postedCount(wv, 'sendSparkPayment')).toBe(1);
+    expect(retry.settled).toBe(false);
+    expect(postedCount(wv, 'sendSparkPayment')).toBe(2);
+    const retrySent = wv.lastEncryptedPayload('sendSparkPayment');
+    expect(retrySent.id).not.toBe(sent.id);
   });
 });
 

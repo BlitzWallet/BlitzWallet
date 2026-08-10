@@ -26,7 +26,6 @@ import {
 import sha256Hash from '../hash';
 import {
   getIsNativeRuntime,
-  hasUnknownFundsIntent,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
   setForceReactNative,
@@ -120,21 +119,6 @@ export const selectSparkRuntime = async (
 
   return 'native';
 };
-
-// Cross-runtime double-pay guard (F-3): a funds op whose WebView attempt
-// settled 'unknown' may have executed. After a native fallback the WebView
-// intent guard no longer wraps sends, so the native branch of every funds
-// wrapper refuses an identical retry while the bridge says the outcome is
-// unresolved. Args must match the canonical webview-call args exactly (the
-// intent key is derived from them).
-const unknownFundsIntentResult = (action, args) =>
-  hasUnknownFundsIntent(action, args)
-    ? {
-        didWork: false,
-        error: 'Request status unknown — check before retrying',
-        kind: 'unknown',
-      }
-    : null;
 
 /**
  * Attaches the WebView wallet's event listeners, retrying a failed attach.
@@ -734,18 +718,6 @@ export const claimnSparkStaticDepositAddress = async ({
         'Not able to clain bitcoin l1 deposit',
       );
     } else {
-      const blocked = unknownFundsIntentResult(
-        OPERATION_TYPES.claimStaticDepositAddress,
-        {
-          mnemonic,
-          creditAmountSats,
-          sspSignature,
-          transactionId,
-          outputIndex,
-          depositAddress,
-        },
-      );
-      if (blocked) return blocked;
       const wallet = await getWallet(mnemonic);
       const response = await wallet.claimStaticDeposit({
         creditAmountSats,
@@ -825,12 +797,6 @@ export const sendSparkPayment = async ({
         'Not able to send spark payment',
       );
     } else {
-      const blocked = unknownFundsIntentResult(OPERATION_TYPES.sendSparkPayment, {
-        mnemonic,
-        receiverSparkAddress,
-        amountSats,
-      });
-      if (blocked) return blocked;
       const wallet = await getWallet(mnemonic);
       const response = await wallet.transfer({
         receiverSparkAddress: receiverSparkAddress.toLowerCase(),
@@ -867,13 +833,6 @@ export const sendSparkTokens = async ({
         'Not able to send spark token payment',
       );
     } else {
-      const blocked = unknownFundsIntentResult(OPERATION_TYPES.sendTokenPayment, {
-        mnemonic,
-        tokenIdentifier,
-        tokenAmount,
-        receiverSparkAddress,
-      });
-      if (blocked) return blocked;
       const wallet = await getWallet(mnemonic);
       const response = await wallet.transferTokens({
         tokenIdentifier,
@@ -1053,11 +1012,6 @@ export const fufillSparkInvoices = async ({ mnemonic, invoices = [] }) => {
         'Not able to create paylink invoice',
       );
     } else {
-      const blocked = unknownFundsIntentResult(
-        OPERATION_TYPES.fufillSparkInvoices,
-        { mnemonic, invoices: serializedInvoices },
-      );
-      if (blocked) return blocked;
       const wallet = await getWallet(mnemonic);
       const fulfillResult = await wallet.fulfillSparkInvoice(invoices);
       return { didWork: true, fulfillResult };
@@ -1100,11 +1054,6 @@ export const batchSendTokens = async ({ mnemonic, invoices = [] }) => {
         'Not able to create paylink invoice',
       );
     } else {
-      const blocked = unknownFundsIntentResult(
-        OPERATION_TYPES.batchTransferTokens,
-        { mnemonic, invoices: serializedInvoices },
-      );
-      if (blocked) return blocked;
       const wallet = await getWallet(mnemonic);
       const fulfillResult = await wallet.batchTransferTokens(invoices);
       return { didWork: true, invoice: fulfillResult };
@@ -1511,18 +1460,6 @@ export const sendSparkBitcoinPayment = async ({
         'Not able to send spark bitcoin payment',
       );
     } else {
-      const blocked = unknownFundsIntentResult(
-        OPERATION_TYPES.sendBitcoinPayment,
-        {
-          mnemonic,
-          onchainAddress,
-          exitSpeed,
-          feeQuote,
-          amountSats,
-          deductFeeFromWithdrawalAmount,
-        },
-      );
-      if (blocked) return blocked;
       const wallet = await getWallet(mnemonic);
       const paymentFee =
         (feeQuote.l1BroadcastFeeFast?.originalValue || 0) +
