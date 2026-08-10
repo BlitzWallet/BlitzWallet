@@ -1,58 +1,13 @@
-import * as SQLite from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
 
 export const CACHED_POOLS = 'SAVED_POOLS';
 const CACHED_POOLS_TABLE = 'poolsTable';
 const CONTRIBUTIONS_TABLE = 'contributionsTable';
 
-let sqlLiteDB = null;
-let isInitialized = false;
-let initPromise = null;
-
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      console.log('Opening pools database connection...');
-      sqlLiteDB = await SQLite.openDatabaseAsync(`${CACHED_POOLS}.db`);
-      console.log('Pools database connection opened');
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
-
-export const isPoolDatabaseOpen = () => {
-  return isInitialized;
-};
-
-const ensurePoolDatabaseReady = async () => {
-  if (!sqlLiteDB) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-};
-
-const getDatabase = async () => {
-  try {
-    await ensurePoolDatabaseReady();
-
-    if (!isInitialized) {
-      await initPoolDb();
-    }
-
-    return sqlLiteDB;
-  } catch (error) {
-    console.error('getDatabase error (pools):', error);
-    throw new Error(`Failed to get pools database: ${error.message}`);
-  }
-};
-
-export const initPoolDb = async () => {
-  try {
-    console.log('Initializing pools database...');
-
-    await ensurePoolDatabaseReady();
-
-    await sqlLiteDB.execAsync(`
+// Idempotent schema creation, re-run on every (re)open so a self-heal reopen
+// restores tables/indexes.
+const setupPoolsSchema = async db => {
+  await db.execAsync(`
       PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS ${CACHED_POOLS_TABLE} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,39 +26,50 @@ export const initPoolDb = async () => {
       );
     `);
 
-    // Migrate: add createdAtNanos column if it doesn't exist (for existing users)
-    try {
-      const colCheck = await sqlLiteDB.getFirstAsync(`
+  // Migrate: add createdAtNanos column if it doesn't exist (for existing users)
+  try {
+    const colCheck = await db.getFirstAsync(`
         SELECT COUNT(*) AS count FROM pragma_table_info('${CONTRIBUTIONS_TABLE}')
         WHERE name='createdAtNanos';
       `);
-      if (colCheck.count === 0) {
-        await sqlLiteDB.execAsync(`
+    if (colCheck.count === 0) {
+      await db.execAsync(`
           ALTER TABLE ${CONTRIBUTIONS_TABLE}
           ADD COLUMN createdAtNanos INTEGER NOT NULL DEFAULT 0;
         `);
-      }
-    } catch (migrationError) {
-      console.warn('Contributions migration warning:', migrationError);
     }
+  } catch (migrationError) {
+    console.warn('Contributions migration warning:', migrationError);
+  }
 
-    try {
-      await sqlLiteDB.execAsync(`
+  try {
+    await db.execAsync(`
         CREATE INDEX IF NOT EXISTS idx_pool_uuid ON ${CACHED_POOLS_TABLE}(uuid);
         CREATE INDEX IF NOT EXISTS idx_pool_lastUpdated ON ${CACHED_POOLS_TABLE}(lastUpdated);
         CREATE INDEX IF NOT EXISTS idx_contrib_poolId ON ${CONTRIBUTIONS_TABLE}(poolId);
         CREATE INDEX IF NOT EXISTS idx_contrib_createdAt ON ${CONTRIBUTIONS_TABLE}(poolId, createdAtSeconds);
       `);
-    } catch (indexError) {
-      console.warn('Pool index creation warning (can be ignored):', indexError);
-    }
+  } catch (indexError) {
+    console.warn('Pool index creation warning (can be ignored):', indexError);
+  }
+};
 
-    isInitialized = true;
-    console.log('Pools database initialized successfully');
+const poolsDB = createSelfHealingDatabase({
+  name: `${CACHED_POOLS}.db`,
+  setup: setupPoolsSchema,
+});
+const sqlLiteDB = poolsDB.db;
+
+export const isPoolDatabaseOpen = () => poolsDB.isOpen();
+
+const getDatabase = () => poolsDB.ensureReady();
+
+export const initPoolDb = async () => {
+  try {
+    await poolsDB.reinitialize();
     return true;
   } catch (err) {
     console.error('initPoolDb error:', err);
-    isInitialized = false;
     return false;
   }
 };

@@ -359,9 +359,12 @@ describe('Spark transaction bulk update guards', () => {
     ]);
 
     expect(callOrder).toEqual(['label', 'begin']);
+    // The db handed to the correlator is now the self-healing proxy (which
+    // forwards onto mockDb), so assert shape not raw-handle identity. That the
+    // same connection is used is covered by findUpdateCall(mockDb) below.
     expect(mockLabelSpendAndReplaceIncoming).toHaveBeenCalledWith(
       expect.any(Array),
-      mockDb,
+      expect.anything(),
     );
 
     const updateCall = findUpdateCall(mockDb);

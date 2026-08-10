@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
-import { openDatabaseAsync } from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
 import { USDB_TOKEN_ID } from '../../constants';
 import {
   createSpendAndReplaceTable,
@@ -21,33 +21,15 @@ export const flashnetAutoSwapsEventListener = new EventEmitter();
 let bulkUpdateTransactionQueue = [];
 let isProcessingBulkUpdate = false;
 
-let sqlLiteDB;
-let isInitialized = false;
-let initPromise = null;
+// Schema is created separately by initializeSparkDatabase(); no setup here.
+const sparkTxDB = createSelfHealingDatabase({
+  name: `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
+});
+const sqlLiteDB = sparkTxDB.db;
 
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      sqlLiteDB = await openDatabaseAsync(
-        `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
-      );
-      isInitialized = true;
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
+export const isSparkTxDatabaseOpen = () => sparkTxDB.isOpen();
 
-export const isSparkTxDatabaseOpen = () => {
-  return isInitialized;
-};
-
-export const ensureSparkDatabaseReady = async () => {
-  if (!isInitialized) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-};
+export const ensureSparkDatabaseReady = () => sparkTxDB.ensureReady();
 
 const isConcretePaymentType = paymentType =>
   Boolean(paymentType) && paymentType !== 'unknown';
