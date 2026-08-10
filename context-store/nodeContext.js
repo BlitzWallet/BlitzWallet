@@ -147,6 +147,7 @@ const GLobalNodeContextProider = ({ children }) => {
       return;
     }
     didRunLiquidConnection.current = false;
+    didRunCurrencyUpdate.current = null;
   }, [authResetkey]);
 
   const contextValue = useMemo(
