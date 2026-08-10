@@ -63,6 +63,7 @@ import { isOrchestraSwapFailed } from '../../functions/spark/orchestraLightning'
 import { openComposer } from 'react-native-email-link';
 import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swapProgress';
 import { uses24HourClock } from 'react-native-localize';
+import openWebBrowser from '../../functions/openWebBrowser';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContactsInfo();
@@ -518,12 +519,7 @@ export default function ExpandedTx(props) {
       return (
         <View style={styles.successActionContainer}>
           <TouchableOpacity
-            onPress={() =>
-              navigate.navigate('CustomWebView', {
-                webViewURL: url,
-                headerText: description,
-              })
-            }
+            onPress={() => openWebBrowser({ navigate, link: url })}
             style={[
               styles.descriptionContent,
               styles.successActionUrlRow,
