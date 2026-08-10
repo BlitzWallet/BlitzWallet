@@ -126,17 +126,12 @@ async function cleanupUnusedSwapInvoice(invoiceId) {
   }
 }
 
-async function createSparkSwapInvoice({
-  amountSat,
-  mnemonic,
-  sendWebViewRequest,
-}) {
+async function createSparkSwapInvoice({ amountSat, mnemonic }) {
   const invoiceResponse = await sparkReceivePaymentWrapper({
     paymentType: 'lightning',
     amountSats: amountSat,
     memo: i18next.t('swapMessages.liquid'),
     mnemoinc: mnemonic,
-    sendWebViewRequest,
     shouldNavigate: false,
     includeSparkAddress: false,
     expirySeconds: LIQUID_SWAP_INVOICE_EXPIRY_SECONDS,
@@ -205,11 +200,7 @@ async function getReusableSwapInvoice(spendableSat) {
   return null;
 }
 
-async function createQuotedSwapInvoice({
-  spendableSat,
-  mnemonic,
-  sendWebViewRequest,
-}) {
+async function createQuotedSwapInvoice({ spendableSat, mnemonic }) {
   const triedAmounts = new Set();
   let nextAmountSat = getInvoiceAmountForFee(spendableSat);
   let upperBoundSat = LIQUID_SWAP_UNKNOWN_UPPER_BOUND_SATS;
@@ -227,7 +218,6 @@ async function createQuotedSwapInvoice({
     const invoice = await createSparkSwapInvoice({
       amountSat: nextAmountSat,
       mnemonic,
-      sendWebViewRequest,
     });
 
     let feeSat;
@@ -308,7 +298,6 @@ export default async function liquidToSparkSwap({
   mnemonic,
   sparkInformation,
   spendableSat,
-  sendWebViewRequest,
 }) {
   if (isRunningLiquidSwap) {
     return { didWork: false, error: 'Liquid swap already in progress' };
@@ -330,7 +319,6 @@ export default async function liquidToSparkSwap({
       (await createQuotedSwapInvoice({
         spendableSat: normalizedSpendableSat,
         mnemonic,
-        sendWebViewRequest,
       }));
 
     placeholderId = swapInvoice.placeholderId;
