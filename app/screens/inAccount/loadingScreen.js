@@ -176,7 +176,7 @@ export default function ConnectingToNodeLoadingScreen() {
             getCachedSparkTransactions(20, identityPubKey.publicKeyHex),
             getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
             hasSavedInfo
-              ? Promise.resolve(true)
+              ? Promise.resolve({ didWork: true })
               : initializeUserSettingsFromHistory({
                   setMasterInfoObject,
                   toggleGlobalContactsInformation,
@@ -191,7 +191,7 @@ export default function ConnectingToNodeLoadingScreen() {
 
         if (!hasSavedInfo) {
           crashlyticsLogReport('Opened all SQL lite tables');
-          if (!didLoadUserSettings)
+          if (!didLoadUserSettings.didWork)
             throw new Error(
               t('screens.inAccount.loadingScreen.userSettingsError'),
             );
@@ -215,7 +215,10 @@ export default function ConnectingToNodeLoadingScreen() {
 
         // Seed the fiat rate from cache so Home paints with a real rate
         // instead of the placeholder while nodeContext fetches a fresh one.
-        const currency = masterInfoObject?.fiatCurrency || 'USD';
+        const currency =
+          masterInfoObject?.fiatCurrency ||
+          didLoadUserSettings?.response?.fiatCurrency ||
+          'USD';
         const cachedRate = await getCachedFiatRate(currency);
         if (cachedRate?.fiatRate) toggleFiatStats(cachedRate.fiatRate);
 
