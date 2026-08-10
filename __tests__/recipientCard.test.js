@@ -154,6 +154,25 @@ describe('resolveRecipientDisplay payment asset label', () => {
     expect(resolveRecipientDisplay({})).toBeNull();
   });
 
+  it('does not name a raw lnurl blob (no user@host) — falls through', () => {
+    // A raw `lnurl1…` from an unrecognized host has no user@host to show, so it
+    // must NOT print the bech32 string as the recipient name. With no transaction
+    // to name either, it resolves to null (invoiceInfo then shows the asset label).
+    expect(
+      resolveRecipientDisplay({ lnurlAddress: 'LNURL1DP68GURN8GHJ7MRWVF5HG' }),
+    ).toBeNull();
+  });
+
+  it('still names a real user@host lightning address', () => {
+    const resolved = resolveRecipientDisplay({
+      lnurlAddress: 'satoshi@example.com',
+    });
+    expect(resolved).toMatchObject({
+      kind: 'lightning',
+      displayName: 'satoshi@example.com',
+    });
+  });
+
   it('falls through a contact with no name and no image instead of an empty pill', () => {
     const resolved = resolveRecipientDisplay({
       contactInfo: { uuid: 'abc' },
