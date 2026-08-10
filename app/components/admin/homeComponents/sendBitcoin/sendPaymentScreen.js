@@ -88,6 +88,7 @@ import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 import { lnurlCurrencyToRate } from '../../../../functions/sendBitcoin/lnurlCurrencyRate';
 import { PROVIDER_COUNTRY_CURRENCY } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
+import { useWaitForForground } from '../../../../hooks/useWaitForForground';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -1278,6 +1279,7 @@ export default function SendPaymentScreen(props) {
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);
+      await useWaitForForground();
 
       // An auth reset landed mid-payment: this result is a bridge-cleanup, not a
       // real outcome, and login navigation has already fired. Emit nothing and
