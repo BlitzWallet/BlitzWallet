@@ -85,6 +85,17 @@ jest.mock('react-native-device-info', () => ({
   default: {},
   getModel: () => 'TestModel',
   getSystemVersion: () => '17.0',
+  getVersion: () => '1.0.0-test',
+}));
+
+// F-8: the sendSparkPayment reconcile matcher decodes the receiver spark
+// address to an identity public key; the mock maps address → 'pk:<address>'.
+const mockDecodeSparkAddress = jest.fn(address => ({
+  identityPublicKey: `pk:${address}`,
+}));
+jest.mock('@buildonspark/spark-sdk', () => ({
+  __esModule: true,
+  decodeSparkAddress: (...a) => mockDecodeSparkAddress(...a),
 }));
 
 jest.mock('../../app/functions', () => ({
@@ -376,13 +387,14 @@ describe('review — R-1 reconcile executed-shape breaks consumers', () => {
 
     const query = wv2.lastEncryptedPayload('getSparkTransactions');
     expect(query).toBeTruthy();
+    const created = Date.now();
     wv2.respond(query.id, {
       transfers: [
         {
           id: 'tx-1',
           totalValue: '1000',
-          createdTime: Date.now(),
-          receivers: [{ amountSats: 1000 }],
+          createdTime: created,
+          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
         },
       ],
     });
@@ -393,8 +405,9 @@ describe('review — R-1 reconcile executed-shape breaks consumers', () => {
     expect(st.value.status).toBe('executed');
     // Consumers read sparkPayResponse.response.id; reconcile must supply a
     // response object carrying the reconciled txid so the executed payment is
-    // reported as success, not crashed-as-failure.
-    expect(st.value.response).toEqual({ id: 'tx-1' });
+    // reported as success, not crashed-as-failure. updatedTime rides along so
+    // the consumer's new Date(data.updatedTime) is real, not NaN (F-6).
+    expect(st.value.response).toEqual({ id: 'tx-1', updatedTime: created });
   });
 });
 
@@ -652,13 +665,14 @@ describe('review — multi-wallet reconcile', () => {
     expect(query.args.mnemonic).toBe(sha256Hash(WALLET_B));
     expect(query.args.mnemonic).not.toBe(sha256Hash(MNEMONIC));
 
+    const createdB = Date.now();
     wv.respond(query.id, {
       transfers: [
         {
           id: 'txB',
           totalValue: '2000',
-          createdTime: Date.now(),
-          receivers: [{ amountSats: 2000 }],
+          createdTime: createdB,
+          receivers: [{ amountSats: 2000, identityPublicKey: 'pk:sp1def' }],
         },
       ],
     });
@@ -670,7 +684,7 @@ describe('review — multi-wallet reconcile', () => {
       didWork: true,
       status: 'executed',
       txid: 'txB',
-      response: { id: 'txB' },
+      response: { id: 'txB', updatedTime: createdB },
     });
   });
 });

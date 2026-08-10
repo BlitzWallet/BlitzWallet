@@ -22,6 +22,7 @@ import {
 import { getPublicKey } from 'nostr-tools';
 import i18next from 'i18next';
 import {
+  hasUnknownFundsIntent,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
 } from '../../../context-store/webViewContext';
@@ -488,6 +489,26 @@ export const executeSwap = async (
       }
       return validateWebViewResponse(response, 'Not able to executeSwap');
     } else {
+      // Cross-runtime double-pay guard (F-3): keyed on the same canonical args
+      // the webview dispatch used.
+      if (
+        hasUnknownFundsIntent(OPERATION_TYPES.executeSwap, {
+          mnemonic,
+          poolId,
+          assetInAddress,
+          assetOutAddress,
+          amountIn,
+          minAmountOut,
+          maxSlippageBps,
+          integratorFeeRateBps,
+        })
+      ) {
+        return {
+          didWork: false,
+          error: 'Request status unknown — check before retrying',
+          kind: 'unknown',
+        };
+      }
       const client = getFlashnetClient(mnemonic);
 
       // Simulate first if minAmountOut not provided
@@ -605,6 +626,24 @@ export const swapBitcoinToToken = async (
         'Not able to swapBitcoinToToken',
       );
     } else {
+      // Cross-runtime double-pay guard (F-3): keyed on this op's own canonical
+      // webview args (the native path funnels through executeSwap with
+      // different args, which would miss the intent).
+      if (
+        hasUnknownFundsIntent(OPERATION_TYPES.swapBitcoinToToken, {
+          mnemonic,
+          tokenAddress,
+          amountSats,
+          poolId,
+          maxSlippageBps,
+        })
+      ) {
+        return {
+          didWork: false,
+          error: 'Request status unknown — check before retrying',
+          kind: 'unknown',
+        };
+      }
       // Find best pool if not provided
       let targetPoolId = poolId;
       if (!targetPoolId) {
@@ -678,6 +717,24 @@ export const swapTokenToBitcoin = async (
         'Not able to swapTokenToBitcoin',
       );
     } else {
+      // Cross-runtime double-pay guard (F-3): keyed on this op's own canonical
+      // webview args (the native path funnels through executeSwap with
+      // different args, which would miss the intent).
+      if (
+        hasUnknownFundsIntent(OPERATION_TYPES.swapTokenToBitcoin, {
+          mnemonic,
+          tokenAddress,
+          tokenAmount,
+          poolId,
+          maxSlippageBps,
+        })
+      ) {
+        return {
+          didWork: false,
+          error: 'Request status unknown — check before retrying',
+          kind: 'unknown',
+        };
+      }
       // Find best pool if not provided
       let targetPoolId = poolId;
       if (!targetPoolId) {
@@ -1632,6 +1689,20 @@ export const requestManualClawback = async (
       );
       return validateWebViewResponse(response, 'Not able to request clawback');
     } else {
+      // Cross-runtime double-pay guard (F-3).
+      if (
+        hasUnknownFundsIntent(OPERATION_TYPES.requestClawback, {
+          mnemonic,
+          sparkTransferId,
+          poolId,
+        })
+      ) {
+        return {
+          didWork: false,
+          error: 'Request status unknown — check before retrying',
+          kind: 'unknown',
+        };
+      }
       const client = getFlashnetClient(mnemonic);
 
       console.log({
@@ -1753,6 +1824,20 @@ export const requestBatchClawback = async (mnemonic, transferIds, poolId) => {
         'Not able to check clawback status',
       );
     } else {
+      // Cross-runtime double-pay guard (F-3).
+      if (
+        hasUnknownFundsIntent(OPERATION_TYPES.requestBatchClawback, {
+          mnemonic,
+          transferIds,
+          poolId,
+        })
+      ) {
+        return {
+          didWork: false,
+          error: 'Request status unknown — check before retrying',
+          kind: 'unknown',
+        };
+      }
       const client = getFlashnetClient(mnemonic);
       const result = await client.clawbackMultiple(transferIds, poolId);
 

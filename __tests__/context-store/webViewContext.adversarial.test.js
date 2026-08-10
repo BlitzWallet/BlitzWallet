@@ -109,6 +109,17 @@ jest.mock('react-native-device-info', () => ({
   default: {},
   getModel: () => 'TestModel',
   getSystemVersion: () => '17.0',
+  getVersion: () => '1.0.0-test',
+}));
+
+// F-8: the sendSparkPayment reconcile matcher decodes the receiver spark
+// address to an identity public key; the mock maps address → 'pk:<address>'.
+const mockDecodeSparkAddress = jest.fn(address => ({
+  identityPublicKey: `pk:${address}`,
+}));
+jest.mock('@buildonspark/spark-sdk', () => ({
+  __esModule: true,
+  decodeSparkAddress: (...a) => mockDecodeSparkAddress(...a),
 }));
 
 jest.mock('../../app/functions', () => ({
@@ -476,9 +487,11 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// N1 — FORCE_REACT_NATIVE is never cleared in production. Once a hard-fail
-// class (WASM/CSP/verification) latches native + persists, no production path
-// — auth reset, bg/fg cycle, or new handshake — recovers the bridge.
+// N1 — FORCE_REACT_NATIVE persists within an app version (S-5): once a
+// hard-fail class (WASM/CSP/verification) latches native, no in-session path
+// — auth reset, bg/fg cycle, or new handshake — recovers the bridge. The latch
+// is version-stamped, so an app UPDATE retries the bridge (a still-broken
+// bundle re-persists on re-verification).
 // ---------------------------------------------------------------------------
 describe('adversarial — hard-fail persistence across sessions (N1)', () => {
   test('WASM hard-fail survives auth reset AND bg/fg: bridge stays native, only setForceReactNative(false) recovers', async () => {
@@ -523,8 +536,8 @@ describe('adversarial — hard-fail persistence across sessions (N1)', () => {
     expect(after.value.kind).toBe('bridge');
     expect(SUT.getHandshakeComplete()).toBe(false);
 
-    // The only recovery is an explicit setForceReactNative(false) (no
-    // production caller exists — the test documents the cross-launch kill).
+    // In-session recovery is an explicit setForceReactNative(false); across
+    // launches the version stamp is the recovery boundary (S-5).
     SUT.setForceReactNative(false, 'test');
     expect(SUT.__getFallbackStateForTest()).toBe('webview');
   });
@@ -544,9 +557,10 @@ describe('adversarial — hard-fail persistence across sessions (N1)', () => {
     expect(mockVerify.mock.calls.length).toBe(verifyCallsBefore + 1);
     expect(SUT.__getFallbackStateForTest()).toBe('native');
     const { setLocalStorageItem } = require('../../app/functions');
+    // S-5: the kill-switch is stamped with the app version, not a bare boolean.
     expect(setLocalStorageItem).toHaveBeenCalledWith(
       'FORCE_REACT_NATIVE',
-      'true',
+      '1.0.0-test',
     );
     expect(SUT.getHandshakeComplete()).toBe(false);
 
@@ -676,23 +690,25 @@ describe('adversarial — background crash & foreground recovery (N2/D3)', () =>
 // spontaneous reload from READY is dropped but re-arms the handshake).
 // ---------------------------------------------------------------------------
 describe('adversarial — load lifecycle (D4, N3)', () => {
-  test('page never loads: LOADING has no timeout and no onError — requests held forever (D4)', async () => {
+  test('page never loads: the load watchdog recovers the bridge and held requests settle (D4, C-11)', async () => {
     await mountWebview();
     wvLoadStart(); // LOADING
-    // No onLoadEnd / onLoadProgress ever fires. No onError prop is even wired.
-    expect(mockWebview.props.onError).toBeUndefined();
+    // No onLoadEnd / onLoadProgress ever fires. onError is now wired (C-11).
+    expect(typeof mockWebview.props.onError).toBe('function');
 
     const st = track(SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true));
     await flush();
     expect(st.settled).toBe(false);
     expect(mockWebview.posted.length).toBe(0); // held, never posted
 
-    // The load machine still has no LOADING timeout or onError (C-11 unfixed),
-    // but the bounded hold TTL now settles the request not-ready (C-6) instead
-    // of hanging forever.
-    await advance(120001);
+    // The 30s load watchdog treats the hung load as a failure and recovers:
+    // re-verify + reload. The recovery reset settles the held request (it was
+    // never dispatched → the settle is safe).
+    const verifyCalls = mockVerify.mock.calls.length;
+    await advance(30001);
+    expect(mockVerify.mock.calls.length).toBeGreaterThan(verifyCalls);
     expect(st.settled).toBe(true);
-    expect(st.value.kind).toBe('not-ready');
+    expect(st.value.kind).toBe('unknown');
     expect(mockWebview.posted.length).toBe(0);
     expect(lastPosted('handshake:init')).toBeNull(); // handshake never ran
   });
@@ -776,15 +792,17 @@ describe('adversarial — load lifecycle (D4, N3)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// N4 + N8 — spurious fallback-pending from a reset/background that lands while
-// a handshake is in flight. The first handshake resumes as "failed" (kind
-// 'unknown', not 'offline') and trips enterFallbackPending + a reconnect emit.
+// N4 + N8 — a reset/background that lands while a handshake is in flight. N4
+// (auth reset) is an interruption, not a failure: the epoch moved on, so no
+// fallback state is consumed (F-7). N8 (background settle, same epoch) keeps
+// its pending transition — the foreground PENDING-recovery drives the reload
+// there.
 // ---------------------------------------------------------------------------
 describe('adversarial — in-flight handshake interrupted (N4, N8)', () => {
-  test('auth reset during in-flight handshake → stale handshake resumes as failed → spurious fallback-pending + reconnect emit (N4)', async () => {
+  test('auth reset during in-flight handshake: the interruption consumes no fallback state (N4, F-7)', async () => {
     mockLocal.get = async () => null;
     mockActive.currentWalletMnemoinc = MNEMONIC;
-    mockNav.routes = ['SendToContactPage']; // non-startup route → reconnect emit
+    mockNav.routes = ['SendToContactPage']; // non-startup route
 
     let connState;
     function Probe() {
@@ -795,19 +813,19 @@ describe('adversarial — in-flight handshake interrupted (N4, N8)', () => {
     await advance(300);
     expect(lastPosted('handshake:init')).toBeTruthy(); // handshake #1 in flight
 
-    // Auth reset mid-handshake.
+    // Auth reset mid-handshake: the reset settles the first handshake as
+    // kind 'unknown' under a NEW epoch — an interruption, not a bridge failure.
+    // No fallback-pending, no spurious reconnect emit; the reset's own reload
+    // owns recovery (F-7).
     mockAuth.authResetkey = 1;
     rerender(React.createElement(Probe, null));
     await flush();
 
-    // The FIRST handshake's await resolved with the reset's unknown result →
-    // spurious fallback-pending + connection-state emit (reset emit + failure
-    // emit).
-    expect(SUT.__getFallbackStateForTest()).toBe('fallback-pending');
-    expect(connState).toEqual({ state: true, count: 2 });
+    expect(SUT.__getFallbackStateForTest()).toBe('webview');
+    expect(connState).toEqual({ state: false, count: 1 }); // the reset emit only
 
-    // The reset's reload re-arms a second handshake; completing it heals the
-    // spurious pending state.
+    // The reset's reload re-arms a second handshake; completing it brings the
+    // bridge up.
     await advance(300);
     expect(postedCount('handshake:init', null)).toBe(2);
     const wv = makeWebviewCrypto();
@@ -930,7 +948,7 @@ describe('adversarial — intent-store hazards (N6, D1, N7)', () => {
     );
   });
 
-  test('sendBitcoinPayment/clawback intents: no reconcile query (null) → permanently unknown, never re-dispatched, never evicted (D1/N7)', async () => {
+  test('sendBitcoinPayment/clawback intents: no reconcile query (null) → unknown blocks re-dispatch, then the Case-B TTL lifts it past the reconcile window (D1/N7)', async () => {
     mockLocal.get = async () => null;
     mockActive.currentWalletMnemoinc = MNEMONIC;
     await mountTransport();
@@ -976,8 +994,11 @@ describe('adversarial — intent-store hazards (N6, D1, N7)', () => {
       expect(entry.state).toBe('unknown');
     }
 
-    // Retry with identical args resolves from the store — no re-dispatch
-    // (exactly-once preserved) but the UI sees 'unknown' forever.
+    // These ops have no reconcile query, so the block can only ever be lifted
+    // by the Case-B TTL. The two watchdog cycles above already pushed elapsed
+    // time past the 3-min reconcile window, so an identical retry is treated as
+    // never-executed and dispatches fresh (an identical send is never
+    // permanently blocked — see funds-identical-resend-principle).
     const retry = track(
       SUT.sendWebViewRequestGlobal('sendSparkBitcoinPayment', {
         paymentRequest: 'lnbc1abc',
@@ -985,10 +1006,10 @@ describe('adversarial — intent-store hazards (N6, D1, N7)', () => {
       }),
     );
     await flush();
-    expect(retry.settled).toBe(true);
-    expect(retry.value.kind).toBe('unknown');
-    // Original dispatch + keep-alive resume re-post; the retry posts nothing.
-    expect(postedCount('sendSparkBitcoinPayment', wv)).toBe(2);
+    // Re-dispatched, not immediately settled from the store.
+    expect(retry.settled).toBe(false);
+    // Original dispatch + keep-alive resume re-post + the fresh retry.
+    expect(postedCount('sendSparkBitcoinPayment', wv)).toBe(3);
   });
 });
 
@@ -1008,7 +1029,7 @@ describe('adversarial — production reconcile queries & matchers', () => {
             id: 'tx-1',
             totalValue: '1000',
             createdTime: ts,
-            receivers: [{ amountSats: 1000 }],
+            receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
           },
         ],
       }),
@@ -1231,10 +1252,13 @@ describe('adversarial — production reconcile queries & matchers', () => {
       const entry = [...SUT.__getIntentStoreForTest().values()][0];
       expect(entry.state).toBe('done');
       // C-1: reconcile supplies a consumer-readable `response` (token ops use
-      // the tx-hash string; every other op uses { id: txid }).
+      // the tx-hash string; sendSparkPayment also carries the matched
+      // transfer's timestamp as updatedTime (F-6); every other op { id }).
       const expectedResponse =
         fx.op === 'sendSparkTokens' || fx.op === 'batchTransferTokens'
           ? fx.txid
+          : fx.op === 'sendSparkPayment'
+          ? { id: fx.txid, updatedTime: ts }
           : { id: fx.txid };
       expect(entry.result).toEqual({
         didWork: true,
@@ -1309,7 +1333,7 @@ describe('adversarial — production reconcile queries & matchers', () => {
           id: 'tx-1',
           totalValue: '1000',
           createdTime: Date.now(),
-          receivers: [{ amountSats: 1000 }],
+          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
         },
       ],
     });
@@ -1882,26 +1906,28 @@ describe('adversarial — reconcile matchers vs real SDK timestamps (F-2)', () =
 
     // The payment DID execute and appears in history with the real SDK shape:
     // createdTime is an ISO string (the SDK's Date is JSON-serialized).
+    const isoTs = new Date(Date.now() - 30000).toISOString();
     wv.respond(query.id, {
       transfers: [
         {
           id: 'tx-1',
           totalValue: '1000',
-          createdTime: new Date(Date.now() - 30000).toISOString(),
-          receivers: [{ amountSats: 1000 }],
+          createdTime: isoTs,
+          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
         },
       ],
     });
     await flush();
 
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    // Correct behavior: matcher hit → state 'done' with the executed result.
-    expect(entry.state).toBe('done'); // FAILS today: stays 'unknown'
+    // Correct behavior: matcher hit → state 'done' with the executed result
+    // (updatedTime falls back to the matched transfer's createdTime, F-6).
+    expect(entry.state).toBe('done');
     expect(entry.result).toEqual({
       didWork: true,
       status: 'executed',
       txid: 'tx-1',
-      response: { id: 'tx-1' },
+      response: { id: 'tx-1', updatedTime: isoTs },
     });
   });
 

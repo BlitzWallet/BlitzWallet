@@ -88,6 +88,17 @@ jest.mock('react-native-device-info', () => ({
   default: {},
   getModel: () => 'TestModel',
   getSystemVersion: () => '17.0',
+  getVersion: () => '1.0.0-test',
+}));
+
+// F-8: the sendSparkPayment reconcile matcher decodes the receiver spark
+// address to an identity public key; the mock maps address → 'pk:<address>'.
+const mockDecodeSparkAddress = jest.fn(address => ({
+  identityPublicKey: `pk:${address}`,
+}));
+jest.mock('@buildonspark/spark-sdk', () => ({
+  __esModule: true,
+  decodeSparkAddress: (...a) => mockDecodeSparkAddress(...a),
 }));
 
 jest.mock('../../app/functions', () => ({
@@ -373,9 +384,12 @@ describe('webViewContext — transport & handshake (TDD §1)', () => {
     expect(SUT.getHandshakeComplete()).toBe(false);
     expect(mockTransport.send).not.toHaveBeenCalled();
     expect(SUT.__getFallbackStateForTest()).toBe('native');
-    // Hard-fail class persists the latch (D-9).
+    // Hard-fail class persists the latch (D-9), stamped with the app version (S-5).
     const { setLocalStorageItem } = require('../../app/functions');
-    expect(setLocalStorageItem).toHaveBeenCalledWith('FORCE_REACT_NATIVE', 'true');
+    expect(setLocalStorageItem).toHaveBeenCalledWith(
+      'FORCE_REACT_NATIVE',
+      '1.0.0-test',
+    );
   });
 
   test('transient IO verification failure goes native for the session but does NOT persist (S-5)', async () => {
@@ -389,7 +403,7 @@ describe('webViewContext — transport & handshake (TDD §1)', () => {
     const { setLocalStorageItem } = require('../../app/functions');
     expect(setLocalStorageItem).not.toHaveBeenCalledWith(
       'FORCE_REACT_NATIVE',
-      'true',
+      '1.0.0-test',
     );
   });
 
@@ -1107,6 +1121,95 @@ describe('webViewContext — no zombie promises (TDD §4)', () => {
     expect(postedCount(wv, 'sendSparkPayment')).toBe(1);
   });
 
+  test('backgrounded send whose page then dies is DROPPED, not reconciled (no false-match; instant resend)', async () => {
+    // Repro: user sends, backgrounds the app before the payment gets a response,
+    // Android OOM-kills the WebView renderer, and the recovery reset bumps the
+    // epoch (page died). The interrupted send's outcome is truly unknowable, and
+    // reconcile's amount/destination matcher could false-match a PRIOR identical
+    // tx and wrongly settle it 'executed'. So the send must be dropped, the
+    // caller settled 'unknown', and an identical resend allowed immediately —
+    // a send that really executed is surfaced by transaction restore, not here.
+    mockLocal.get = async () => null;
+    mockActive.currentWalletMnemoinc = MNEMONIC;
+    await mountOnly();
+    const wv = makeWebviewCrypto();
+    await advance(300);
+    wv.answerHandshake();
+    await flush();
+    await completeWalletInit(wv);
+
+    const st = track(
+      SUT.sendWebViewRequestGlobal('sendSparkPayment', {
+        receiverSparkAddress: 'sp1abc',
+        amountSats: 1000,
+        mnemonic: MNEMONIC,
+      }),
+    );
+    await flush();
+    expect(wv.lastEncryptedPayload('sendSparkPayment')).toBeTruthy();
+    expect(st.settled).toBe(false);
+
+    // App backgrounds with the send in-flight (no response ever arrived).
+    mockAppStatus.appState = 'background';
+    AppState.currentState = 'background';
+    rerender();
+    await flush();
+
+    // A prior identical payment sits in history: if reconcile ran, its matcher
+    // (matcher:() => true here) would false-match and wrongly settle 'executed'.
+    let reconcileRan = false;
+    SUT.__setReconcileQueryForTest(() => {
+      reconcileRan = true;
+      return {
+        action: 'getSparkTransactions',
+        args: { mnemonic: MNEMONIC },
+        matcher: () => true,
+        result: {
+          transfers: [{ id: 'tx-old', totalValue: 1000, createdTime: Date.now() }],
+        },
+      };
+    });
+
+    // Renderer OOM-killed while backgrounded → recovery reset bumps the epoch.
+    mockAuth.authResetkey = 1;
+    rerender();
+    await flush();
+
+    // Intent dropped (not left 'unknown' for reconcile).
+    expect(SUT.__getIntentStoreForTest().size).toBe(0);
+    // Caller settled 'unknown' — never a fabricated 'executed'.
+    expect(st.settled).toBe(true);
+    expect(st.value.didWork).toBe(false);
+    expect(st.value.kind).toBe('unknown');
+
+    // Foreground + new handshake: reconcile has nothing to false-match.
+    mockAppStatus.appState = 'active';
+    AppState.currentState = 'active';
+    rerender();
+    await flush();
+    await advance(300);
+    const wv2 = makeWebviewCrypto();
+    wv2.answerHandshake();
+    await flush();
+    await advance(200);
+    expect(reconcileRan).toBe(false);
+
+    // Identical resend is allowed immediately: it dispatches as a NEW payment,
+    // never blocked by a stale 'unknown' intent.
+    SUT.__setReconcileQueryForTest(null);
+    await completeWalletInit(wv2);
+    const st2 = track(
+      SUT.sendWebViewRequestGlobal('sendSparkPayment', {
+        receiverSparkAddress: 'sp1abc',
+        amountSats: 1000,
+        mnemonic: MNEMONIC,
+      }),
+    );
+    await flush();
+    expect(st2.value?.kind).not.toBe('unknown');
+    expect(wv2.lastEncryptedPayload('sendSparkPayment')).toBeTruthy();
+  });
+
   test('last-resort deadline settles a keep-alive op that never resolves', async () => {
     mockLocal.get = async () => null;
     mockActive.currentWalletMnemoinc = MNEMONIC;
@@ -1540,7 +1643,7 @@ describe('webViewContext — fallback machine (D-9)', () => {
     const { setLocalStorageItem } = require('../../app/functions');
     expect(setLocalStorageItem).not.toHaveBeenCalledWith(
       'FORCE_REACT_NATIVE',
-      'true',
+      '1.0.0-test',
     );
 
     // Native latch settles all requests with a bridge-kind error.
@@ -1570,7 +1673,10 @@ describe('webViewContext — fallback machine (D-9)', () => {
 
     expect(SUT.__getFallbackStateForTest()).toBe('native');
     const { setLocalStorageItem } = require('../../app/functions');
-    expect(setLocalStorageItem).toHaveBeenCalledWith('FORCE_REACT_NATIVE', 'true');
+    expect(setLocalStorageItem).toHaveBeenCalledWith(
+      'FORCE_REACT_NATIVE',
+      '1.0.0-test',
+    );
     expect(st.settled).toBe(true);
   });
 
@@ -1586,7 +1692,7 @@ describe('webViewContext — fallback machine (D-9)', () => {
   });
 
   test('persisted FORCE_REACT_NATIVE flag skips handshake entirely', async () => {
-    mockLocal.get = async () => 'true';
+    mockLocal.get = async () => '1.0.0-test'; // same-version stamp (S-5)
     await mountOnly();
     await advance(400);
 
@@ -1616,7 +1722,10 @@ describe('webViewContext — CSP violation (security core)', () => {
 
     expect(SUT.__getFallbackStateForTest()).toBe('native');
     const { setLocalStorageItem } = require('../../app/functions');
-    expect(setLocalStorageItem).toHaveBeenCalledWith('FORCE_REACT_NATIVE', 'true');
+    expect(setLocalStorageItem).toHaveBeenCalledWith(
+      'FORCE_REACT_NATIVE',
+      '1.0.0-test',
+    );
   });
 });
 

@@ -18,11 +18,13 @@ import {
   createDecipheriv,
   randomBytes,
 } from 'react-native-quick-crypto';
+import { decodeSparkAddress } from '@buildonspark/spark-sdk';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 import DeviceInfo, {
   getModel,
   getSystemVersion,
+  getVersion,
 } from 'react-native-device-info';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { useAppStatus } from './appStatus';
@@ -201,6 +203,9 @@ const MAX_INIT_RETRIES = 3;
 let handshakeComplete = false;
 let globalSendWebViewRequest = null;
 let webviewFailureCount = 0;
+// A page load that produces no events is a wedge (C-11): treat it as a load
+// failure after this window so the foregrounded bridge self-recovers.
+const LOAD_WATCHDOG_MS = 30 * 1000;
 
 // ---------------------------------------------------------------------------
 // Intent store (plan §3.1 — the only surviving bespoke funds-safety machinery).
@@ -245,6 +250,38 @@ const KEEP_ALIVE_OPS = new Set([
   OPERATION_TYPES.getSparkPaymentFee,
 ]);
 
+// Ops whose consumers cannot consume a reconcile-built success shape (swap
+// consumers read .swap.outboundTransferId, fulfill reads
+// .satsTransactionSuccess): on a reconcile hit the intent still settles done —
+// the double-pay guard holds — but a live caller resolves with the unknown
+// shape it already handles, never a success it mis-parses as a failure (F-1).
+const RECONCILE_CALLER_UNKNOWN_OPS = new Set([
+  OPERATION_TYPES.executeSwap,
+  OPERATION_TYPES.swapBitcoinToToken,
+  OPERATION_TYPES.swapTokenToBitcoin,
+  OPERATION_TYPES.fufillSparkInvoices,
+]);
+const RECONCILE_UNKNOWN_CALLER_RESULT = {
+  didWork: false,
+  error: 'Request status unknown — check before retrying',
+  kind: 'unknown',
+};
+
+// Ops with no reconcile query (buildReconcileQuery returns null) can never be
+// reconciled — retaining their raw mnemonic in module memory for the process
+// lifetime buys nothing (S-4). Their stored args are scrubbed at record time;
+// the guard keys off the CALLER's args, so identical retries stay blocked.
+const NO_RECONCILE_QUERY_OPS = new Set([
+  OPERATION_TYPES.sendBitcoinPayment,
+  OPERATION_TYPES.requestClawback,
+  OPERATION_TYPES.requestBatchClawback,
+]);
+
+// Shared by the claim reconcile query builder and matcher: a FULL first page
+// means the unclaimed list may be truncated — absence of the utxo is then
+// unproven and must not be read as "executed" (F-8).
+const RECONCILE_UTXO_PAGE_LIMIT = 100;
+
 const RECONCILE_WINDOW_MS = 3 * 60 * 1000;
 // Bounded final deadline for keep-alive ops (last-resort backstop): one
 // timeout window + this grace, then the watchdog settles a real
@@ -284,14 +321,19 @@ const intentIdFor = (op, args, walletHash, attempt) =>
   sha256Hex(`${op}|${canonicalArgs(args)}|${walletHash}|${attempt}`);
 
 // Settle every resolver attached to an intent. Used by the dispatch completion
-// path (response/timeout) and by foreground reconcile.
-const settleIntent = (entry, result, newState) => {
+// path (response/timeout) and by foreground reconcile. `resolverResult` lets a
+// caller-visible settle differ from the recorded truth (F-1); a done intent is
+// never reconciled again, so its mnemonic is scrubbed (S-4).
+const settleIntent = (entry, result, newState, resolverResult = result) => {
   entry.state = newState;
   entry.result = result;
+  if (newState === 'done' && entry.args?.mnemonic) {
+    entry.args = { ...entry.args, mnemonic: undefined };
+  }
   const resolvers = entry.resolvers;
   entry.resolvers = [];
   resolvers.forEach(resolve => {
-    if (typeof resolve === 'function') resolve(result);
+    if (typeof resolve === 'function') resolve(resolverResult);
   });
 };
 
@@ -304,6 +346,60 @@ const withinReconcileWindow = (ts, anchorMs) => {
       : Date.parse(ts);
   if (!Number.isFinite(t)) return false;
   return Math.abs(t - anchorMs) <= RECONCILE_WINDOW_MS;
+};
+
+// Case-B TTL (see [[funds-identical-resend-principle]]): an 'unknown' intent
+// that reconcile could never confirm must not block an identical send for the
+// whole process lifetime. Once the reconcile window has fully elapsed since
+// dispatch, every foreground/reconnect reconcile pass has had its chance — a
+// confirmed execution would already have flipped the intent to 'done'. A
+// still-'unknown' intent is treated as never-executed so the block can lift.
+// Consulted lazily at the two block sites (dispatch dedup + native guard); a
+// later reconcile that DOES confirm still wins and records 'done'.
+// ponytail: wall-clock TTL from dispatch — residual is a send that executed but
+// whose every reconcile attempt failed to read history within the window;
+// upgrade path is a verified-absence signal from getSparkTransactions (it can
+// currently swallow errors into an empty list, so absence isn't provable, which
+// is exactly why eviction is NOT done from the reconcile read itself).
+const isUnknownIntentExpired = entry =>
+  entry?.state === 'unknown' &&
+  Date.now() - entry.dispatchedAt > RECONCILE_WINDOW_MS;
+
+// Receivers on a WalletTransfer carry identityPublicKey, not the spark
+// address — decode the caller's receiverSparkAddress for the comparison (F-8).
+// Precision over recall: an undecodable address means no transfer can prove
+// the payment, so the intent stays unknown rather than risking a false
+// "executed" from a same-amount transfer to someone else.
+const identityKeyFromSparkAddress = address => {
+  if (!address) return null;
+  try {
+    const decoded = decodeSparkAddress(address, 'MAINNET');
+    return decoded?.identityPublicKey || null;
+  } catch (err) {
+    return null;
+  }
+};
+
+// The sendSparkPayment reconcile match: same amount AND same receiver identity
+// within the window. Shared by the matcher, the txid extractor and the
+// response builder so all three always agree on WHICH transfer proved it.
+const findReconciledSendTransfer = (entry, result) => {
+  const amount = Number(entry.args.amountSats);
+  const receiverKey = identityKeyFromSparkAddress(
+    entry.args.receiverSparkAddress,
+  );
+  if (!receiverKey) return undefined;
+  return result?.transfers?.find(
+    tx =>
+      Number(tx.totalValue) === amount &&
+      withinReconcileWindow(tx.createdTime, entry.dispatchedAt) &&
+      Array.isArray(tx.receivers) &&
+      tx.receivers.some(
+        r =>
+          Number(r.amountSats) === amount &&
+          r.identityPublicKey === receiverKey,
+      ),
+  );
 };
 
 // Per-op reconcile query builders (plan §3.1.3). Return null for ops with no
@@ -344,7 +440,7 @@ const buildReconcileQuery = (op, entry, mnemonic) => {
         args: {
           mnemonic,
           depositAddress: entry.args.depositAddress,
-          limit: 100,
+          limit: RECONCILE_UTXO_PAGE_LIMIT,
           offset: 0,
           excludeClaimed: true,
         },
@@ -365,16 +461,7 @@ const buildReconcileQuery = (op, entry, mnemonic) => {
 const buildReconcileMatcher = op => {
   switch (op) {
     case OPERATION_TYPES.sendSparkPayment:
-      return (entry, result) => {
-        const amount = Number(entry.args.amountSats);
-        return !!result?.transfers?.some(
-          tx =>
-            Number(tx.totalValue) === amount &&
-            withinReconcileWindow(tx.createdTime, entry.dispatchedAt) &&
-            Array.isArray(tx.receivers) &&
-            tx.receivers.some(r => Number(r.amountSats) === amount),
-        );
-      };
+      return (entry, result) => !!findReconciledSendTransfer(entry, result);
     case OPERATION_TYPES.sendTokenPayment:
       return (entry, result) => {
         const { tokenIdentifier, tokenAmount } = entry.args;
@@ -440,6 +527,9 @@ const buildReconcileMatcher = op => {
         // not "consumed": absence-of-utxo must never be read as execution.
         if (!result || result.didWork === false || !Array.isArray(result.utxos))
           return false;
+        // A FULL first page may be truncated — the deposit utxo could sit on a
+        // later page, so its absence here proves nothing (F-8).
+        if (result.utxos.length >= RECONCILE_UTXO_PAGE_LIMIT) return false;
         return !result.utxos.some(
           u =>
             u.txid === entry.args.transactionId &&
@@ -463,15 +553,8 @@ const buildReconcileMatcher = op => {
 
 const extractReconcileTxid = (op, result, entry) => {
   switch (op) {
-    case OPERATION_TYPES.sendSparkPayment: {
-      const amount = Number(entry.args.amountSats);
-      const tx = result?.transfers?.find(
-        t =>
-          Number(t.totalValue) === amount &&
-          withinReconcileWindow(t.createdTime, entry.dispatchedAt),
-      );
-      return tx?.id;
-    }
+    case OPERATION_TYPES.sendSparkPayment:
+      return findReconciledSendTransfer(entry, result)?.id;
     case OPERATION_TYPES.sendTokenPayment:
     case OPERATION_TYPES.batchTransferTokens: {
       const tx = result?.tokenTransactionsWithStatus?.[0];
@@ -504,14 +587,20 @@ const extractReconcileTxid = (op, result, entry) => {
 // consumer reads `.response` off the bridge result; token consumers use it AS
 // the tx-hash string, the rest read `.response.id`. Reconcile can only supply
 // the txid it matched from history (other fields self-heal on the next sync).
+// sendSparkPayment also carries the matched transfer's timestamp as
+// updatedTime — the consumer stores new Date(data.updatedTime) and undefined
+// would record NaN (F-6).
 const extractReconcileResponse = (op, result, entry) => {
-  const txid = extractReconcileTxid(op, result, entry);
   switch (op) {
     case OPERATION_TYPES.sendTokenPayment:
     case OPERATION_TYPES.batchTransferTokens:
-      return txid;
+      return extractReconcileTxid(op, result, entry);
+    case OPERATION_TYPES.sendSparkPayment: {
+      const tx = findReconciledSendTransfer(entry, result);
+      return { id: tx?.id, updatedTime: tx?.updatedTime ?? tx?.createdTime };
+    }
     default:
-      return { id: txid };
+      return { id: extractReconcileTxid(op, result, entry) };
   }
 };
 
@@ -542,7 +631,10 @@ const enterNative = (reason, persist) => {
   console.warn(`Switching to native Spark runtime: ${reason}`);
   fallbackState = FALLBACK_STATE.NATIVE;
   if (persist) {
-    setLocalStorageItem(HARD_FAIL_PERSIST_KEY, 'true');
+    // Version-stamped kill-switch (S-5): an app update re-tries the bridge — a
+    // still-broken/tampered bundle simply re-persists on re-verification, so
+    // the latch is never a permanent, un-inspectable downgrade.
+    setLocalStorageItem(HARD_FAIL_PERSIST_KEY, getVersion());
   }
 };
 
@@ -595,6 +687,18 @@ export const getHandshakeComplete = () => {
 // false, so callers keep routing to the WebView (which holds their requests)
 // instead of spawning an orphan native wallet.
 export const getIsNativeRuntime = () => fallbackState === FALLBACK_STATE.NATIVE;
+
+// Native-path double-pay guard (F-3): after a native fallback, funds-op
+// retries no longer pass through this bridge's intent guard — the native
+// wrappers ask here first so an op whose webview attempt may still be
+// unresolved is never blind-retried straight on the SDK.
+export const hasUnknownFundsIntent = (action, args = {}) => {
+  if (!FUNDS_OPS.has(action)) return false;
+  const walletHash = args.mnemonic ? walletHashOf(args.mnemonic) : '';
+  const entry = intentStore.get(stableKeyFor(action, args, walletHash));
+  // Expired unknowns no longer block the native retry (Case-B TTL).
+  return entry?.state === 'unknown' && !isUnknownIntentExpired(entry);
+};
 
 // Test seams (plan Phase 0) — read-only except __setReconcileQueryForTest.
 export const __getIntentStoreForTest = () => intentStore;
@@ -696,6 +800,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
   const didRunInit = useRef(false);
   const didGetToHomepageRef = useRef(didGetToHomepage);
   const foregroundIdRef = useRef(0);
+  const loadWatchdogRef = useRef(null);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
@@ -719,6 +824,12 @@ export const WebViewProvider = ({ children, transport = null }) => {
     }
     console.log(`WebView state: ${current} → ${newState} (${reason})`);
     wvState.current = newState;
+
+    // Any transition out of LOADING disarms the load watchdog (C-11).
+    if (newState !== WV_STATES.LOADING && loadWatchdogRef.current) {
+      clearTimeout(loadWatchdogRef.current);
+      loadWatchdogRef.current = null;
+    }
 
     // Derive isWebViewReady from state machine
     const ready =
@@ -850,17 +961,40 @@ export const WebViewProvider = ({ children, transport = null }) => {
       Object.keys(pendingRequests.current).forEach(id => {
         const pending = pendingRequests.current[id];
         if (pending && KEEP_ALIVE_OPS.has(pending.action)) {
-          // Keep-alive op: never fabricate a settle for a send. The caller's
+          const intent =
+            pending.stableKey && intentStore.get(pending.stableKey);
+          // Send interrupted by a background transition whose page has now died
+          // (this reset = epoch change): its outcome is unknowable and
+          // reconcile could false-match a prior identical tx (see
+          // [[funds-identical-resend-principle]]). Drop the intent entirely — no
+          // reconcile, no re-post. Settle every coalesced caller 'unknown' and
+          // allow an immediate identical resend; a send that really executed is
+          // surfaced by the transaction-restore path, not by this bridge.
+          if (intent && intent.backgroundedWhileInFlight) {
+            settleIntent(
+              intent,
+              {
+                didWork: false,
+                error: 'Unable to finish action, request got cleaned up.',
+                kind: 'unknown',
+              },
+              'unknown',
+            );
+            intentStore.delete(pending.stableKey);
+            const t = activeTimeoutsRef.current[id];
+            if (t?.timeoutId) clearTimeout(t.timeoutId);
+            delete activeTimeoutsRef.current[id];
+            delete pendingRequests.current[id];
+            return;
+          }
+          // Live-page / clean-reset send: never fabricate a settle. The caller's
           // promise stays live — the new session's reconcile settles it from
           // network history after the handshake, and the watchdog's final
           // deadline is the floor. The intent is marked unknown so reconcile
           // picks it up (its resolvers are NOT called here).
-          if (pending.stableKey) {
-            const intent = intentStore.get(pending.stableKey);
-            if (intent && intent.state === 'in-flight') {
-              intent.state = 'unknown';
-              intent.result = null;
-            }
+          if (intent && intent.state === 'in-flight') {
+            intent.state = 'unknown';
+            intent.result = null;
           }
           return;
         }
@@ -1200,7 +1334,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
               existing.resolvers.push(resolve);
               return;
             }
-            if (existing.state === 'unknown') {
+            if (
+              existing.state === 'unknown' &&
+              !isUnknownIntentExpired(existing)
+            ) {
               // Outcome may have executed; block a blind retry (unchanged,
               // D-1 / test.js:576). Reconcile upgrades this to done when it
               // confirms.
@@ -1212,7 +1349,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
               });
               return;
             }
-            // state === 'done': the first op is confirmed executed. Consistent
+            // state === 'done' (confirmed executed) OR an expired 'unknown'
+            // (Case-B TTL: reconcile never confirmed it within the window, so
+            // it's treated as never-executed). Either way the spent/stale
+            // record is dropped and this call dispatches as a NEW payment —
+            // an identical send is never permanently blocked. Consistent
             // with the normal-success path (finalizeRequest deletes on done,
             // test.js:543-544), a later identical call is a NEW payment — drop
             // the spent record and dispatch.
@@ -1227,8 +1368,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
             // initialized/used concurrently, so a proper reconcile must query
             // each intent's OWN wallet history — currentWalletMnemoinc is only
             // one of several active seeds and cannot confirm a secondary
-            // wallet's send.
-            args,
+            // wallet's send. No-reconcile-query ops are scrubbed instead (S-4).
+            args: NO_RECONCILE_QUERY_OPS.has(action)
+              ? { ...args, mnemonic: undefined }
+              : args,
             argsHash: sha256Hex(canonicalArgs(args)),
             state: 'in-flight',
             result: null,
@@ -1512,11 +1655,22 @@ export const WebViewProvider = ({ children, transport = null }) => {
           ? undefined
           : extractReconcileResponse(entry.op, result, entry);
         // Keep the entry: a retry of the same logical op must resolve this
-        // executed result, never re-dispatch (double-pay guard).
+        // executed result, never re-dispatch (double-pay guard). Ops whose
+        // consumers can't consume this shape settle their live callers as
+        // unknown instead (F-1) — the recorded truth stays 'executed'.
+        const executedResult = {
+          didWork: true,
+          status: 'executed',
+          txid,
+          response,
+        };
         settleIntent(
           entry,
-          { didWork: true, status: 'executed', txid, response },
+          executedResult,
           'done',
+          RECONCILE_CALLER_UNKNOWN_OPS.has(entry.op)
+            ? RECONCILE_UNKNOWN_CALLER_RESULT
+            : executedResult,
         );
         // The intent's resolvers are the same functions bound to the bridge's
         // pendingRequests entries (and their watchdogs). Reconcile resolves
@@ -1777,8 +1931,8 @@ export const WebViewProvider = ({ children, transport = null }) => {
                 result.error,
               );
 
-              // Hard-fail class — persist native fallback (D-9).
-              setLocalStorageItem(HARD_FAIL_PERSIST_KEY, 'true');
+              // Hard-fail class — persist native fallback (D-9), version-stamped
+              // by enterNative (S-5).
               enterNative('WASM error', true);
               resetWebViewState(true);
             }
@@ -1787,6 +1941,12 @@ export const WebViewProvider = ({ children, transport = null }) => {
             if (entry.action === OPERATION_TYPES.initWallet) {
               if (result?.isConnected === true) {
                 walletInitialized.current = true;
+                // A successful init proves the bridge is healthy: recover from
+                // a pending fallback and restore the session retry budget (F-5).
+                if (fallbackState === FALLBACK_STATE.PENDING) {
+                  fallbackState = FALLBACK_STATE.WEBVIEW;
+                  fallbackRetries = 0;
+                }
                 setChangeSparkConnectionState(prev => ({
                   state: true,
                   count: prev.count + 1,
@@ -1891,6 +2051,15 @@ export const WebViewProvider = ({ children, transport = null }) => {
             'keeping keep-alive request live across background:',
             entry.action,
           );
+          // Record that this send was interrupted by a background transition.
+          // If its page later dies (a reset bumps the epoch — e.g. Android
+          // OOM-kills the WebView renderer), the outcome is unknowable and
+          // reconcile's amount/destination matcher can false-match a prior
+          // identical tx; the reset drops the intent instead of reconciling it.
+          if (entry.stableKey) {
+            const intent = intentStore.get(entry.stableKey);
+            if (intent) intent.backgroundedWhileInFlight = true;
+          }
           return;
         }
         finalizeRequest(
@@ -2028,6 +2197,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
         publicKey: pubNHex,
       };
 
+      const handshakeEpoch = epochRef.current;
       const result = await sendWebViewRequestInternal('handshake:init', {
         pubN: pubNHex,
       });
@@ -2039,6 +2209,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
           console.warn('Handshake deferred: offline');
           return;
         }
+        // Interrupted by a reset (auth/app-state/crash reload): the epoch moved
+        // on and the new session owns its own handshake. Not a bridge failure —
+        // it must not consume fallback/recovery state (F-7).
+        if (epochRef.current !== handshakeEpoch) return;
         console.warn(
           'Handshake failed or timed out:',
           result?.error || 'no completion',
@@ -2086,7 +2260,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
 
       const savedVariable = await getLocalStorageItem(HARD_FAIL_PERSIST_KEY);
 
-      if (savedVariable === 'true') {
+      // The latch is version-stamped (S-5): it only applies to the app version
+      // that wrote it. A stale stamp — including the legacy bare 'true' — is
+      // ignored: an app update retries the bridge, and a still-broken bundle
+      // re-persists on re-verification.
+      if (savedVariable && savedVariable === getVersion()) {
         console.log('FORCE_REACT_NATIVE is set, skipping handshake');
         enterNative('FORCE_REACT_NATIVE localStorage flag', false);
         didRunHandshakeRef.current = true;
@@ -2142,6 +2320,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
   // Zero key material on unmount.
   useEffect(() => {
     return () => {
+      if (loadWatchdogRef.current) {
+        clearTimeout(loadWatchdogRef.current);
+        loadWatchdogRef.current = null;
+      }
       if (aesKeyRef.current?.fill) aesKeyRef.current.fill(0);
       aesKeyRef.current = null;
       if (sessionKeyRef.current?.privateKey?.fill) {
@@ -2166,6 +2348,52 @@ export const WebViewProvider = ({ children, transport = null }) => {
       '_',
     )} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1`;
   }, []);
+
+  // Load-failure recovery (C-11): a failed or hung load must not wedge the
+  // bridge while foregrounded. Shares the message-error failure budget: two
+  // consecutive failures escalate to fallback-pending (one recovery attempt
+  // per session, mirroring the crash path).
+  const handleWebViewLoadError = useCallback(
+    description => {
+      if (
+        wvState.current === WV_STATES.UNLOADED ||
+        wvState.current === WV_STATES.ERROR
+      ) {
+        return;
+      }
+      console.warn(`[WebView] load failure (${description}) — recovering`);
+      transitionWvState(WV_STATES.ERROR, 'load failure');
+      webviewFailureCount += 1;
+
+      if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
+        enterFallbackPending('repeated WebView load failures');
+        return;
+      }
+
+      if (AppState.currentState !== 'active') {
+        // Backgrounded: defer the reload to the foreground app-state effect
+        // (mirrors crash handling) by invalidating the session.
+        nonceVerified.current = false;
+        walletInitialized.current = false;
+        return;
+      }
+
+      blockAndResetWebview();
+    },
+    [transitionWvState, blockAndResetWebview],
+  );
+
+  // Armed on a valid LOADING transition; disarmed by any state transition.
+  // A load that never completes is recovered as a load failure (C-11).
+  const armLoadWatchdog = useCallback(() => {
+    if (loadWatchdogRef.current) clearTimeout(loadWatchdogRef.current);
+    loadWatchdogRef.current = setTimeout(() => {
+      loadWatchdogRef.current = null;
+      if (wvState.current === WV_STATES.LOADING) {
+        handleWebViewLoadError('load watchdog timeout');
+      }
+    }, LOAD_WATCHDOG_MS);
+  }, [handleWebViewLoadError]);
 
   const handleWebViewTermination = useCallback(
     reason => {
@@ -2233,9 +2461,17 @@ export const WebViewProvider = ({ children, transport = null }) => {
             return request.url === verifiedPath;
           }}
           onMessage={handleWebViewResponse}
+          onError={event => {
+            if (epoch !== epochRef.current) return;
+            handleWebViewLoadError(
+              event?.nativeEvent?.description || 'onError',
+            );
+          }}
           onLoadStart={() => {
             if (epoch !== epochRef.current) return;
-            transitionWvState(WV_STATES.LOADING, 'onLoadStart');
+            if (transitionWvState(WV_STATES.LOADING, 'onLoadStart')) {
+              armLoadWatchdog();
+            }
             didRunHandshakeRef.current = false;
             didRunInit.current = false; // re-arm the handshake for the new load
           }}
