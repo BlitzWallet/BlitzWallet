@@ -66,6 +66,8 @@ import {
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
+import { useAuthContext } from '../../../../../context-store/authContext';
+import { waitForForground } from '../../../../hooks/useWaitForForground';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -113,6 +115,16 @@ export default function StablecoinSendScreen() {
   const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
     useUserBalanceContext();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  // Provider-owned auth-reset counter. A long-background/logout reset bumps it
+  // AND navigates to SplashReload (login); it also tears down the WebView
+  // bridge, which settles any in-flight/held send with a fabricated cleanup
+  // result (didWork:false). That cleanup is NOT a real payment outcome, so the
+  // send screen must NOT navigate to the confirm/cancel screen off it —
+  // otherwise the user sees the cancel screen flash before login. We snapshot
+  // the counter at send-start and skip navigation if a reset intervened. Using
+  // the provider's ref (not a consumer mirror) keeps it valid even after this
+  // screen is unmounted by the reset's navigation.
+  const { authResetkeyRef } = useAuthContext();
 
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
   const [rawInput, setRawInput] = useState(
@@ -414,6 +426,10 @@ export default function StablecoinSendScreen() {
     }
 
     setSending(true);
+    // Snapshot the auth-reset counter: if a reset lands while the payment is in
+    // flight, its result is a bridge-cleanup (not a real outcome) and login
+    // navigation has already fired — the send screen must not navigate on it.
+    const startAuthResetKey = authResetkeyRef.current;
     isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     clearCountdown();
 
@@ -483,6 +499,15 @@ export default function StablecoinSendScreen() {
       if (progressAnimationRef.current) {
         progressAnimationRef.current.completeProgress();
         await new Promise(res => setTimeout(res, 600));
+      }
+      await waitForForground();
+
+      // An auth reset landed mid-payment: this result is a bridge-cleanup, not a
+      // real outcome, and login navigation has already fired. Emit nothing and
+      // navigate nowhere — only the reset's login navigation should stand.
+      if (authResetkeyRef.current !== startAuthResetKey) {
+        isSendingPayment.current = false;
+        return;
       }
 
       requestAnimationFrame(() => {

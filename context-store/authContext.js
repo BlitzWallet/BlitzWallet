@@ -1,4 +1,11 @@
-import { createContext, useState, useContext, useEffect, useMemo } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { navigationRef } from '../navigation/navigationService';
 import { useAppStatus } from './appStatus';
 
@@ -8,9 +15,15 @@ const AuthStatusManager = createContext(null);
 const AuthStatusProvider = ({ children }) => {
   const { appState, shouldResetStateRef } = useAppStatus();
   const [authResetkey, setAuthResetKey] = useState(0);
+  // Provider-owned mirror of the reset counter. Updated here at the instant a
+  // reset is detected, so any consumer (e.g. an in-flight send screen that is
+  // about to be unmounted by the SplashReload navigation below) can read the
+  // current value from the closed-over ref even after it stops re-rendering.
+  const authResetkeyRef = useRef(0);
 
   useEffect(() => {
     if (appState === 'active' && shouldResetStateRef.current) {
+      authResetkeyRef.current += 1;
       setAuthResetKey(prev => prev + 1);
       if (navigationRef.current)
         navigationRef.current.reset({
@@ -23,6 +36,7 @@ const AuthStatusProvider = ({ children }) => {
   const contextValue = useMemo(
     () => ({
       authResetkey,
+      authResetkeyRef,
     }),
     [authResetkey],
   );

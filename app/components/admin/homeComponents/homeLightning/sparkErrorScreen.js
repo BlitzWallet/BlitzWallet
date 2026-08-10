@@ -13,7 +13,6 @@ import { openComposer } from 'react-native-email-link';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import { useTranslation } from 'react-i18next';
-import { useWebView } from '../../../../../context-store/webViewContext';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
@@ -29,8 +28,6 @@ export default function SparkErrorScreen(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const { sendWebViewRequest } = useWebView();
-
   const handleSubmit = async () => {
     try {
       setIsRetrying(true);
@@ -41,7 +38,6 @@ export default function SparkErrorScreen(props) {
           // toggleGlobalContactsInformation,
           // globalContactsInformation,
           mnemonic: accountMnemoinc,
-          sendWebViewRequest,
           hasRestoreCompleted: false,
         });
 

@@ -25,7 +25,7 @@ import {
 } from '../lrc20/cachedTokens';
 import sha256Hash from '../hash';
 import {
-  getHandshakeComplete,
+  getIsNativeRuntime,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
   setForceReactNative,
@@ -83,8 +83,12 @@ export const getFlashnetClient = mnemonic => {
 
 /**
  * Determines which runtime to use for Spark functions.
- * Uses getHandshakeComplete() as the single source of truth — it checks
- * both handshakeComplete and forceReactNativeUse internally.
+ * Mirrors the WebView send path's native latch (getIsNativeRuntime): we only
+ * route to — and create — a native wallet once the fallback machine has
+ * actually committed to native. A transiently incomplete handshake during a
+ * reload (auth reset, reconnect) is NOT native: those requests belong on the
+ * WebView, which holds them until the bridge is live again. Keying this off the
+ * handshake instead spawned an orphan native wallet on every auth reset.
  * @param {string} mnemonic - user mnemonic
  * @param {boolean} isInitialLoad - true only on first connection attempt
  * @param {boolean?} force - optional force to native runtime
@@ -101,14 +105,12 @@ export const selectSparkRuntime = async (
     setForceReactNative(true, 'forced by caller');
   }
 
-  const handshakeDone = getHandshakeComplete();
-
-  if (handshakeDone) {
+  if (!getIsNativeRuntime()) {
     return 'webview';
   }
 
   if (createNativeWallet) {
-    // Handshake not done → fallback to native
+    // Committed to native → make sure the native wallet exists
     const walletHash = getMnemonicHash(mnemonic);
     if (!sparkWallet[walletHash]) {
       await getWallet(mnemonic);
@@ -221,12 +223,12 @@ export const initializeSparkWallet = async (
         );
 
         if (response?.isConnected) return response;
-        else if (
-          response.error
-            ?.toLowerCase()
-            .includes('load failed [endpoint: authenticate')
-        )
-          throw new Error('Internet error');
+        // WebView is the selected runtime: a non-connected result (bridge
+        // timeout/unknown/not-ready/offline, or a transient init error) must
+        // retry the WebView via the catch loop — never fall through to spawn a
+        // native wallet. That fallthrough created an orphan native runtime
+        // (and, on a slow WASM init, a second live wallet) after one slow init.
+        throw new Error(response?.error || 'WebView wallet init did not connect');
       }
 
       const hash = getMnemonicHash(mnemonic);
@@ -386,7 +388,7 @@ export const setPrivacyEnabled = async (mnemonic, freshIdentityPubKey) => {
   }
 };
 
-export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {
+export const getSparkIdentityPubKey = async mnemonic => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
@@ -693,6 +695,7 @@ export const claimnSparkStaticDepositAddress = async ({
   sspSignature,
   transactionId,
   mnemonic,
+  depositAddress,
 }) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -705,6 +708,8 @@ export const claimnSparkStaticDepositAddress = async ({
           sspSignature,
           transactionId,
           outputIndex,
+          // Used by the bridge's foreground reconcile (getUtxosForDepositAddress).
+          depositAddress,
         },
       );
 
@@ -990,12 +995,14 @@ export const fufillSparkInvoices = async ({ mnemonic, invoices = [] }) => {
       };
     }
 
+    // Serialized once so the webview dispatch AND the native-path guard key on
+    // the same canonical args (F-3).
+    const serializedInvoices = invoices.map(({ invoice, amount }) => ({
+      invoice,
+      amount: amount.toString(), // BigInt → string for JSON
+    }));
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const serializedInvoices = invoices.map(({ invoice, amount }) => ({
-        invoice,
-        amount: amount.toString(), // BigInt → string for JSON
-      }));
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.fufillSparkInvoices,
         { mnemonic, invoices: serializedInvoices },
@@ -1026,15 +1033,17 @@ export const batchSendTokens = async ({ mnemonic, invoices = [] }) => {
       };
     }
 
+    // Serialized once so the webview dispatch AND the native-path guard key on
+    // the same canonical args (F-3).
+    const serializedInvoices = invoices.map(
+      ({ tokenIdentifier, receiverSparkAddress, tokenAmount }) => ({
+        tokenIdentifier,
+        receiverSparkAddress,
+        tokenAmount: tokenAmount.toString(), // BigInt → string for JSON
+      }),
+    );
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const serializedInvoices = invoices.map(
-        ({ tokenIdentifier, receiverSparkAddress, tokenAmount }) => ({
-          tokenIdentifier,
-          receiverSparkAddress,
-          tokenAmount: tokenAmount.toString(), // BigInt → string for JSON
-        }),
-      );
       console.log(serializedInvoices, 'staralized invioces');
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.batchTransferTokens,
