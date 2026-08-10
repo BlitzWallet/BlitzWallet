@@ -1014,6 +1014,67 @@ describe('adversarial — intent-store hazards (N6, D1, N7)', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Native fallback + the unknown-intent debounce (intended behavior).
+// The funds-intent guard is a DEBOUNCE against a blind automatic retry while a
+// send's outcome is genuinely unresolvable — NOT a permanent bar. Under a
+// committed native fallback reconcileUnknownIntents() early-returns
+// (fallbackState !== WEBVIEW), so the guard can only ever be lifted by the
+// Case-B wall-clock TTL at RECONCILE_WINDOW_MS. That lift is correct, not a
+// bug: an identical send is a first-class user action (see
+// funds-identical-resend-principle), and whether the first attempt actually
+// executed is surfaced by the transaction-history / restore path, not by this
+// bridge. This test pins the two guarantees: (1) native never runs a reconcile
+// query, and (2) the debounce releases on the TTL so an identical resend is
+// never permanently blocked.
+// ---------------------------------------------------------------------------
+describe('adversarial — native fallback: reconcile is disabled and the unknown-intent debounce releases on the TTL', () => {
+  test('under native, reconcile runs zero queries and the resend debounce lifts on the TTL', async () => {
+    const wv = await transportReadyFull();
+    const sendArgs = {
+      receiverSparkAddress: 'sp1abc',
+      amountSats: 1000,
+      mnemonic: MNEMONIC,
+    };
+
+    // Dispatch a send, then let the keep-alive watchdog + final deadline settle
+    // it 'unknown' without ever receiving a backend response.
+    track(SUT.sendWebViewRequestGlobal('sendSparkPayment', sendArgs));
+    await flush();
+    await advance(90001); // watchdog → resume-by-id re-post + arm final deadline
+    await advance(30001); // final deadline → settle unknown
+
+    // Within the reconcile window the native guard blocks an identical retry.
+    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', sendArgs)).toBe(true);
+
+    // Commit to native (e.g. a WASM error / verification tamper elsewhere).
+    SUT.setForceReactNative(true, 'test');
+    expect(SUT.__getFallbackStateForTest()).toBe('native');
+
+    const queriesBefore = SUT.__getReconcileQueryCountForTest();
+
+    // Foreground cycle under native: the app-state effect early-returns, so no
+    // reconcile pass is scheduled — the intent can never be confirmed 'done'.
+    mockAppStatus.appState = 'background';
+    AppState.currentState = 'background';
+    rerender();
+    await flush();
+    mockAppStatus.appState = 'active';
+    AppState.currentState = 'active';
+    rerender();
+    await flush();
+
+    // Push total elapsed past the 3-min reconcile window (120s already burned).
+    await advance(70000);
+
+    // Native runs no reconcile query...
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(queriesBefore);
+    // ...and the debounce releases on the TTL so an identical resend is not
+    // permanently blocked (funds-identical-resend-principle).
+    expect(SUT.hasUnknownFundsIntent('sendSparkPayment', sendArgs)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Real reconcile path: production buildReconcileQuery/buildReconcileMatcher/
 // extractReconcileTxid (no override seam), including the null-query ops.
 // ---------------------------------------------------------------------------
@@ -1981,5 +2042,176 @@ describe('adversarial — reconcile matchers vs real SDK timestamps (F-2)', () =
 
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
     expect(entry.state).toBe('done'); // FAILS today: stays 'unknown'
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C2 — reconcile precision guard. A matcher may only confirm an op when EXACTLY
+// ONE in-window history row matches. A legitimately-separate identical payment
+// (same amount + recipient, no per-send idempotency token) collides; matching
+// it would report a not-executed send as a false success and silently drop the
+// real second payment. Ambiguity → stays unknown.
+// ---------------------------------------------------------------------------
+describe('adversarial — reconcile ambiguity: two identical in-window txs → stays unknown (C2)', () => {
+  test('sendSparkPayment reconcile with two matching transfers does NOT confirm', async () => {
+    const wv = await transportReadyFull();
+    const args = {
+      receiverSparkAddress: 'sp1abc',
+      amountSats: 1000,
+      mnemonic: MNEMONIC,
+    };
+
+    track(SUT.sendWebViewRequestGlobal('sendSparkPayment', args));
+    await flush();
+    await advance(90001);
+    await advance(30001);
+    expect(
+      [...SUT.__getIntentStoreForTest().values()][0].state,
+    ).toBe('unknown');
+
+    mockAppStatus.appState = 'background';
+    AppState.currentState = 'background';
+    rerender();
+    await flush();
+    mockAppStatus.appState = 'active';
+    AppState.currentState = 'active';
+    rerender();
+    await flush();
+    const query = wv.lastEncryptedPayload('getSparkTransactions');
+    expect(query).toBeTruthy();
+
+    // TWO in-window transfers of the same amount to the same recipient: a real
+    // prior payment plus (maybe) this one. Which is "ours" is unprovable.
+    const ts = new Date(Date.now() - 30000).toISOString();
+    const transfer = id => ({
+      id,
+      totalValue: '1000',
+      createdTime: ts,
+      receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
+    });
+    wv.respond(query.id, { transfers: [transfer('tx-old'), transfer('tx-new')] });
+    await flush();
+
+    // Precision over recall: the collision leaves the intent unknown, never a
+    // false 'done' pointing at some other payment's txid.
+    expect([...SUT.__getIntentStoreForTest().values()][0].state).toBe('unknown');
+  });
+
+  test('a single matching transfer still confirms (guard does not over-reject)', async () => {
+    const wv = await transportReadyFull();
+    const args = {
+      receiverSparkAddress: 'sp1abc',
+      amountSats: 1000,
+      mnemonic: MNEMONIC,
+    };
+    track(SUT.sendWebViewRequestGlobal('sendSparkPayment', args));
+    await flush();
+    await advance(90001);
+    await advance(30001);
+
+    mockAppStatus.appState = 'background';
+    AppState.currentState = 'background';
+    rerender();
+    await flush();
+    mockAppStatus.appState = 'active';
+    AppState.currentState = 'active';
+    rerender();
+    await flush();
+    const query = wv.lastEncryptedPayload('getSparkTransactions');
+    wv.respond(query.id, {
+      transfers: [
+        {
+          id: 'tx-1',
+          totalValue: '1000',
+          createdTime: new Date(Date.now() - 30000).toISOString(),
+          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
+        },
+      ],
+    });
+    await flush();
+    expect([...SUT.__getIntentStoreForTest().values()][0].state).toBe('done');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// S1 — pre-handshake (unauthenticated) messages must never drive a privileged
+// path. The verified bundle emits all content encrypted, post-handshake; only
+// handshake:reply is legitimate before the session key exists.
+// ---------------------------------------------------------------------------
+describe('adversarial — pre-handshake messages cannot drive privileged paths (S1)', () => {
+  test('a plaintext CSP violation before handshake does NOT trigger the persisted native kill-switch', async () => {
+    mockLocal.get = async () => null;
+    mockActive.currentWalletMnemoinc = MNEMONIC;
+    await mountTransport();
+    await advance(300); // handshake:init sent, never answered → nonceVerified=false
+
+    const { setLocalStorageItem } = require('../../app/functions');
+    setLocalStorageItem.mockClear();
+
+    postInbound({ type: 'security:csp-violation', directive: 'script-src' });
+    await flush();
+
+    expect(SUT.__getFallbackStateForTest()).toBe('webview');
+    expect(setLocalStorageItem).not.toHaveBeenCalledWith(
+      'FORCE_REACT_NATIVE',
+      expect.anything(),
+    );
+  });
+
+  test('a plaintext push event before handshake does NOT emit to app listeners', async () => {
+    mockLocal.get = async () => null;
+    mockActive.currentWalletMnemoinc = MNEMONIC;
+    await mountTransport();
+    await advance(300); // no handshake answer → nonceVerified=false
+
+    const heard = jest.fn();
+    SUT.sparkBalanceUpdateEmitter.on(SUT.BALANCE_UPDATE_EVENT_NAME, heard);
+    postInbound({
+      balanceUpdate: true,
+      result: JSON.stringify({ balance: 999999 }),
+      walletId: 'attacker',
+    });
+    await flush();
+    SUT.sparkBalanceUpdateEmitter.off(SUT.BALANCE_UPDATE_EVENT_NAME, heard);
+
+    expect(heard).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C4 — a hard-fail native transition (CSP / WASM) must UNMOUNT the compromised
+// page, not leave it running as an orphan.
+// ---------------------------------------------------------------------------
+describe('adversarial — hard-fail native transition unmounts the WebView (C4)', () => {
+  test('CSP violation unmounts the WebView', async () => {
+    const wv = await webviewReadyFull();
+    const WebViewComp = require('react-native-webview').default;
+    expect(renderer.root.findAllByType(WebViewComp).length).toBe(1);
+
+    postInbound({
+      encrypted: wv.encrypt(
+        JSON.stringify({ type: 'security:csp-violation', directive: 'script-src' }),
+      ),
+    });
+    await flush();
+
+    expect(SUT.__getFallbackStateForTest()).toBe('native');
+    expect(renderer.root.findAllByType(WebViewComp).length).toBe(0);
+  });
+
+  test('WASM error response unmounts the WebView', async () => {
+    const wv = await webviewReadyFull();
+    const WebViewComp = require('react-native-webview').default;
+    expect(renderer.root.findAllByType(WebViewComp).length).toBe(1);
+
+    // Dispatch a request, then answer it with a WASM error result.
+    track(SUT.sendWebViewRequestGlobal('getSparkBalance', { mnemonic: MNEMONIC }));
+    await flush();
+    const req = wv.lastEncryptedPayload('getSparkBalance');
+    wv.respond(req.id, { error: 'WebAssembly.Compile is disallowed on the main thread' });
+    await flush();
+
+    expect(SUT.__getFallbackStateForTest()).toBe('native');
+    expect(renderer.root.findAllByType(WebViewComp).length).toBe(0);
   });
 });

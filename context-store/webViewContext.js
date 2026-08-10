@@ -380,16 +380,39 @@ const identityKeyFromSparkAddress = address => {
   }
 };
 
+// Reconcile precision guard (C2): a matcher may only confirm an op when EXACTLY
+// ONE in-window history row matches. Zero → not executed. More than one → a
+// legitimately-separate identical op (same amount/recipient/pool, no per-send
+// idempotency token in history) collides and there is no way to prove WHICH row
+// is this attempt, so the intent stays unknown — precision over recall. Reading
+// a colliding prior payment as "this one executed" would report a not-executed
+// send as a false success and silently drop the intended second payment.
+const exactlyOneMatch = (rows, predicate) => {
+  if (!Array.isArray(rows)) return undefined;
+  let found;
+  let count = 0;
+  for (const row of rows) {
+    if (predicate(row)) {
+      found = row;
+      count += 1;
+      if (count > 1) return undefined;
+    }
+  }
+  return count === 1 ? found : undefined;
+};
+
 // The sendSparkPayment reconcile match: same amount AND same receiver identity
 // within the window. Shared by the matcher, the txid extractor and the
-// response builder so all three always agree on WHICH transfer proved it.
+// response builder so all three always agree on WHICH transfer proved it. Must
+// be UNAMBIGUOUS (exactly one in-window match) — see exactlyOneMatch.
 const findReconciledSendTransfer = (entry, result) => {
   const amount = Number(entry.args.amountSats);
   const receiverKey = identityKeyFromSparkAddress(
     entry.args.receiverSparkAddress,
   );
   if (!receiverKey) return undefined;
-  return result?.transfers?.find(
+  return exactlyOneMatch(
+    result?.transfers,
     tx =>
       Number(tx.totalValue) === amount &&
       withinReconcileWindow(tx.createdTime, entry.dispatchedAt) &&
@@ -465,7 +488,9 @@ const buildReconcileMatcher = op => {
     case OPERATION_TYPES.sendTokenPayment:
       return (entry, result) => {
         const { tokenIdentifier, tokenAmount } = entry.args;
-        return !!result?.tokenTransactionsWithStatus?.some(tx => {
+        // Exactly one in-window token tx may confirm it (C2): two identical
+        // token sends collide and cannot be attributed.
+        return !!exactlyOneMatch(result?.tokenTransactionsWithStatus, tx => {
           const t = tx.tokenTransaction;
           return (
             withinReconcileWindow(
@@ -514,7 +539,10 @@ const buildReconcileMatcher = op => {
           entry.args.amountIn ?? entry.args.amountSats ?? '',
         );
         const poolId = entry.args.poolId;
-        return !!result?.swaps?.some(
+        // Exactly one in-window swap may confirm it (C2): two identical swaps
+        // (same pool + amountIn) collide and cannot be attributed.
+        return !!exactlyOneMatch(
+          result?.swaps,
           s =>
             s.poolLpPublicKey === poolId &&
             String(s.amountIn) === amountIn &&
@@ -1783,10 +1811,20 @@ export const WebViewProvider = ({ children, transport = null }) => {
         }
 
         if (content.type === 'security:csp-violation') {
+          // S1: only an AUTHENTICATED report may drive the persisted native
+          // kill-switch. The verified bundle emits CSP reports encrypted, once
+          // the session key exists — so a plaintext/pre-handshake report is
+          // unauthenticated and must never trigger the downgrade. Drop it.
+          if (!nonceVerified.current) {
+            console.warn('Dropping unauthenticated CSP violation report');
+            return;
+          }
           console.error('CSP VIOLATION DETECTED:', content);
           // Hard-fail class — persist native fallback (D-9).
           enterNative('CSP violation', true);
           resetWebViewState(true, true);
+          // C4: unmount the compromised page — it must not linger running.
+          setVerifiedPath('');
           return;
         }
 
@@ -1823,6 +1861,18 @@ export const WebViewProvider = ({ children, transport = null }) => {
             );
             return;
           }
+        }
+
+        // S1: past this point every branch acts on message CONTENT — errors,
+        // push events, responses. Pre-handshake the ONLY legitimate message is
+        // handshake:reply (handled above); the verified bundle emits all other
+        // traffic encrypted, post-handshake. An unauthenticated message that
+        // reached here (already counted by the flood limiter above) must never
+        // drive a privileged path: a spoofed push event (fake balance/incoming
+        // payment) or a spoofed response. Drop it.
+        if (!nonceVerified.current) {
+          console.warn('Dropping unauthenticated pre-handshake content message');
+          return;
         }
 
         if (content.error) {
@@ -1935,6 +1985,8 @@ export const WebViewProvider = ({ children, transport = null }) => {
               // by enterNative (S-5).
               enterNative('WASM error', true);
               resetWebViewState(true);
+              // C4: unmount the broken page — it must not linger running.
+              setVerifiedPath('');
             }
             webviewFailureCount = 0; // Reset on successful response
 
