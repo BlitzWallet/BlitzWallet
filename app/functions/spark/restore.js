@@ -108,7 +108,6 @@ const restoreSparkTxState = async (
   isSendingPayment,
   mnemonic,
   accountId,
-  sendWebViewRequest,
   onProgressSave = null,
 ) => {
   const restoredTxs = [];
@@ -425,7 +424,6 @@ export async function fullRestoreSparkState({
   isSendingPayment,
   mnemonic,
   identityPubKey,
-  sendWebViewRequest,
   isInitialRestore,
 }) {
   try {
@@ -485,7 +483,6 @@ export async function fullRestoreSparkState({
       isSendingPayment,
       mnemonic,
       identityPubKey,
-      sendWebViewRequest,
       handleProgressSave,
     );
     if (!restored.txs.length) return;
@@ -691,7 +688,6 @@ let isUpdatingSparkTxStatus = false;
 export const updateSparkTxStatus = async (
   mnemoninc,
   accountId,
-  sendWebViewRequest,
   forceRefresh = false,
   contactsPrivateKey = null,
   publicKey = null,
@@ -757,13 +753,11 @@ export const updateSparkTxStatus = async (
         unpaidInvoicesByAmount,
         mnemoninc,
         accountId,
-        sendWebViewRequest,
         transferCache,
       ),
       processBitcoinTransactions(
         txsByType.bitcoin,
         mnemoninc,
-        sendWebViewRequest,
         accountId,
         forceRefresh,
         transferCache,
@@ -771,7 +765,6 @@ export const updateSparkTxStatus = async (
       processSparkTransactions(
         txsByType.spark,
         mnemoninc,
-        sendWebViewRequest,
         contactsPrivateKey,
         publicKey,
         transferCache,
@@ -804,7 +797,6 @@ async function processLightningTransactions(
   unpaidInvoicesByAmount,
   mnemonic,
   accountId,
-  sendWebViewRequest,
   transferCache,
 ) {
   const CONCURRENCY_LIMIT = 5;
@@ -819,7 +811,6 @@ async function processLightningTransactions(
         tx,
         unpaidInvoicesByAmount,
         mnemonic,
-        sendWebViewRequest,
         transferCache,
       ).catch(err => {
         console.error('Error processing lightning tx:', tx.sparkID, err);
@@ -897,7 +888,6 @@ async function processLightningTransaction(
   txStateUpdate,
   unpaidInvoicesByAmount,
   mnemonic,
-  sendWebViewRequest,
   transferCache,
 ) {
   const details = JSON.parse(txStateUpdate.details);
@@ -1038,7 +1028,6 @@ async function processLightningTransaction(
 async function processBitcoinTransactions(
   bitcoinTxs,
   mnemonic,
-  sendWebViewRequest,
   accountId,
   forceRefresh,
   transferCache,
@@ -1186,7 +1175,6 @@ async function processBitcoinTransactions(
 async function processSparkTransactions(
   sparkTxs,
   mnemonic,
-  sendWebViewRequest,
   contactsPrivateKey = null,
   publicKey = null,
   transferCache,

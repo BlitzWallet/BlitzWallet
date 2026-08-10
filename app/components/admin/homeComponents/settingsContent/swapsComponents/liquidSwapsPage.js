@@ -19,7 +19,6 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import liquidToSparkSwap from '../../../../../functions/spark/liquidToSparkSwap';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -33,7 +32,6 @@ export default function LiquidSwapsPage() {
   const { minMaxLiquidSwapAmounts } = useAppStatus();
   const { sparkInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
-  const { sendWebViewRequest } = useWebView();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -109,7 +107,6 @@ export default function LiquidSwapsPage() {
         mnemonic: accountMnemoinc,
         sparkInformation,
         spendableSat,
-        sendWebViewRequest,
       });
       if (!response.didWork) throw new Error(t(response.error));
 

@@ -152,7 +152,9 @@ jest.mock('../../app/functions/wipeLocalWalletData', () => ({
 
 const initializeUserSettingsFromHistory =
   require('../../app/functions/initializeUserSettings').default;
-const { crashlyticsRecordErrorReport } = require('../../app/functions/crashlyticsLogs');
+const {
+  crashlyticsRecordErrorReport,
+} = require('../../app/functions/crashlyticsLogs');
 const { isWipeInProgress } = require('../../app/functions/secureStore');
 const wipeLocalWalletData =
   require('../../app/functions/wipeLocalWalletData').default;
@@ -209,7 +211,7 @@ describe('loading screen watchdog', () => {
   });
 
   test('does not fire once the connect process has settled', async () => {
-    initializeUserSettingsFromHistory.mockResolvedValue(true);
+    initializeUserSettingsFromHistory.mockResolvedValue({ didWork: true });
 
     let renderer;
     await act(async () => {
@@ -238,7 +240,7 @@ describe('loading screen wipe trigger + re-arm marker', () => {
     jest.useFakeTimers();
     jest.clearAllMocks();
     delete mockRouteParams.shouldWipeLocalData;
-    initializeUserSettingsFromHistory.mockResolvedValue(true);
+    initializeUserSettingsFromHistory.mockResolvedValue({ didWork: true });
   });
   afterEach(() => {
     jest.useRealTimers();
