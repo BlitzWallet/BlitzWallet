@@ -2103,6 +2103,7 @@
         "sendReport": "Rapportera ett problem",
         "lnurlAuthSuccess": "Du är inloggad och redo att köra.",
         "walletConnected": "Plånbok ansluten",
+        "lud9SuccessAction": "Visa kvitto",
         "emailReport": "Skicka via e-post",
         "copyReport": "Kopiera till Urklipp",
         "confirmMessage_sent": "Skickat framgångsrikt",

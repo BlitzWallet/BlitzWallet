@@ -33,6 +33,7 @@ import {
   RecipientAvatar,
   resolveRecipientDisplay,
 } from '../../components/admin/homeComponents/sendBitcoin/components/recipientCard';
+import openWebBrowser from '../../functions/openWebBrowser';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -64,6 +65,10 @@ export default function ConfirmTxPage(props) {
   // ticker. USDB-funded sends carry token info on the tx but were shown as fiat.
   const displayTokenTicker = props.route.params?.displayTokenTicker;
 
+  const successAction = paymentInformation?.successAction || {};
+  const successActionDescription = successAction?.description;
+  const successActionUrl = successAction?.url;
+
   const didSucceed = !hasError || isLNURLAuth;
 
   const canonicalLnurl = lnurlAddress
@@ -93,9 +98,10 @@ export default function ConfirmTxPage(props) {
   // Only on-chain and cross-chain stablecoin sends actually leave the user
   // waiting — a lightning tx is written 'pending' but settles immediately.
   const showPendingMessage =
-    transaction?.paymentStatus === 'pending' &&
-    (paymentInformation?.isFlashnetStablecoin ||
-      transaction?.paymentType === 'bitcoin');
+    (transaction?.paymentStatus === 'pending' &&
+      (paymentInformation?.isFlashnetStablecoin ||
+        transaction?.paymentType === 'bitcoin')) ||
+    successActionDescription;
 
   // Recipient "name card": show a real avatar (branta logo, LNURL provider logo,
   // contact image, or mobile-money country flag) + name for single-recipient sends.
@@ -115,7 +121,8 @@ export default function ConfirmTxPage(props) {
     : !didSucceed
     ? t('screens.inAccount.confirmTxPage.paymentErrorMessage')
     : showPendingMessage
-    ? t('screens.inAccount.confirmTxPage.sendingInProgress')
+    ? successActionDescription ||
+      t('screens.inAccount.confirmTxPage.sendingInProgress')
     : t('screens.inAccount.confirmTxPage.confirmMessage', {
         context:
           paymentInformation.direction?.toLowerCase() === 'outgoing'
@@ -384,6 +391,24 @@ export default function ConfirmTxPage(props) {
           textStyles={{
             ...CENTER,
           }}
+        />
+      )}
+
+      {successActionUrl && (
+        <CustomButton
+          textStyles={{ color: textColor }}
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            paddingHorizontal: 15,
+            backgroundColor: 'unset',
+          }}
+          loadingColor={textColor}
+          useLoading={isAddingContact}
+          disabled={isAddingContact}
+          actionFunction={async () => {
+            openWebBrowser({ navigate, link: successActionUrl });
+          }}
+          textContent={t('screens.inAccount.confirmTxPage.lud9SuccessAction')}
         />
       )}
 

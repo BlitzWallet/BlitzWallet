@@ -2102,6 +2102,7 @@
         "sendReport": "Informar de un problema",
         "lnurlAuthSuccess": "Has iniciado sesión y todo está listo.",
         "walletConnected": "Billetera conectada",
+        "lud9SuccessAction": "Ver recibo",
         "emailReport": "Enviar por correo electrónico",
         "copyReport": "Copiar al portapapeles",
         "confirmMessage_sent": "Enviado correctamente",

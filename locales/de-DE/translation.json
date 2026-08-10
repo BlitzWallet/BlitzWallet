@@ -2089,6 +2089,7 @@
         "sendReport": "Problem melden",
         "lnurlAuthSuccess": "Sie sind angemeldet und können loslegen.",
         "walletConnected": "Wallet verbunden",
+        "lud9SuccessAction": "Beleg anzeigen",
         "emailReport": "Per E-Mail senden",
         "copyReport": "In die Zwischenablage kopieren",
         "confirmMessage_sent": "Erfolgreich gesendet",
