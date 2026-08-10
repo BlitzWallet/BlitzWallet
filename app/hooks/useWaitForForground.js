@@ -1,6 +1,6 @@
 import { AppState } from 'react-native';
 
-export async function useWaitForForground() {
+export async function waitForForground() {
   if (AppState.currentState === 'active') return Promise.resolve();
 
   return new Promise(resolve => {

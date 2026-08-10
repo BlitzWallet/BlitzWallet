@@ -67,7 +67,7 @@ import CurrencySwitchButton from '../../../../functions/CustomElements/currencyS
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
 import { useAuthContext } from '../../../../../context-store/authContext';
-import { useWaitForForground } from '../../../../hooks/useWaitForForground';
+import { waitForForground } from '../../../../hooks/useWaitForForground';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -500,7 +500,7 @@ export default function StablecoinSendScreen() {
         progressAnimationRef.current.completeProgress();
         await new Promise(res => setTimeout(res, 600));
       }
-      await useWaitForForground();
+      await waitForForground();
 
       // An auth reset landed mid-payment: this result is a bridge-cleanup, not a
       // real outcome, and login navigation has already fired. Emit nothing and

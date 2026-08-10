@@ -70,7 +70,7 @@ import {
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 import { useAuthContext } from '../../../../../context-store/authContext';
-import { useWaitForForground } from '../../../../hooks/useWaitForForground';
+import { waitForForground } from '../../../../hooks/useWaitForForground';
 
 export default function ConfirmSplitPayment(props) {
   const navigate = useNavigation();
@@ -690,7 +690,7 @@ export default function ConfirmSplitPayment(props) {
         progressAnimationRef.current.completeProgress();
         await new Promise(res => setTimeout(res, 600));
       }
-      await useWaitForForground();
+      await waitForForground();
       // An auth reset landed mid-payment: this result is a bridge-cleanup, not a
       // real outcome, and login navigation has already fired. Emit nothing and
       // navigate nowhere — only the reset's login navigation should stand.
