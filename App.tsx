@@ -451,7 +451,7 @@ function ResetStack(): JSX.Element | null {
                 // Land on ExpandedAddContactsPage with the underlying tab set
                 // to Contacts, so back returns to the contacts page not Home.
                 navigationRef.current.reset({
-                  index: 1,
+                  index: 0,
                   routes: [
                     {
                       name: 'HomeAdmin',

@@ -66,7 +66,8 @@ export default function ConfirmTxPage(props) {
   const displayTokenTicker = props.route.params?.displayTokenTicker;
 
   const successAction = paymentInformation?.successAction || {};
-  const successActionDescription = successAction?.description;
+  const successActionDescription =
+    successAction?.description || successAction?.message;
   const successActionUrl = successAction?.url;
 
   const didSucceed = !hasError || isLNURLAuth;
@@ -394,7 +395,7 @@ export default function ConfirmTxPage(props) {
         />
       )}
 
-      {successActionUrl && (
+      {didSucceed && successActionUrl && (
         <CustomButton
           textStyles={{ color: textColor }}
           buttonStyles={{
@@ -402,9 +403,6 @@ export default function ConfirmTxPage(props) {
             paddingHorizontal: 15,
             backgroundColor: 'unset',
           }}
-          loadingColor={textColor}
-          useLoading={isAddingContact}
-          disabled={isAddingContact}
           actionFunction={async () => {
             openWebBrowser({ navigate, link: successActionUrl });
           }}
