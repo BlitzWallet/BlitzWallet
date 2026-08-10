@@ -43,3 +43,25 @@ export function normalizeDisplayCurrency(currency) {
   if (normalized === 'BTC') return SATS_DISPLAY_CURRENCY;
   return normalized;
 }
+
+// Resolves the fiat stats used to convert a displayed line labeled `currency`.
+// A fiat conversion may only use stats whose coin matches the displayed
+// currency — otherwise the numeric value of one currency would render under
+// another currency's symbol (e.g. a stale USD rate labeled EUR). USD lines
+// always use the USD stats; for any other currency the pinned entry-time stats
+// (paymentDisplayFiatStats) are preferred, then the device fiat stats — only
+// when their coin matches. Returns null when nothing matches so callers can
+// omit the line rather than render a misleading conversion.
+export function resolveFiatStatsForCurrency(
+  currency,
+  { paymentDisplayFiatStats, usdFiatStats, fiatStats },
+) {
+  const normalized = normalizeDisplayCurrency(currency);
+  if (normalized === SATS_DISPLAY_CURRENCY) return null;
+  if (normalized === 'USD') return usdFiatStats || null;
+  if (paymentDisplayFiatStats?.coin?.toUpperCase() === normalized) {
+    return paymentDisplayFiatStats;
+  }
+  if (fiatStats?.coin?.toUpperCase() === normalized) return fiatStats;
+  return null;
+}
