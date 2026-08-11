@@ -1,32 +1,17 @@
-import { openDatabaseAsync } from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../../database/createSelfHealingDatabase';
 
 export const ROOTSTOCK_DB_NAME = 'ROOTSTOCK_SWAPS';
 export const ROOTSTOCK_TABLE_NAME = 'saved_rootstock_swaps';
-let sqlLiteDB;
-let isInitialized = false;
-let initPromise = null;
 
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      sqlLiteDB = await openDatabaseAsync(`${ROOTSTOCK_DB_NAME}.db`);
-      isInitialized = true;
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
+// Schema is created separately by initRootstockSwapDB(); no setup here.
+const rootstockDB = createSelfHealingDatabase({
+  name: `${ROOTSTOCK_DB_NAME}.db`,
+});
+const sqlLiteDB = rootstockDB.db;
 
-export const isRoostockDatabaseOpen = () => {
-  return isInitialized;
-};
+export const isRoostockDatabaseOpen = () => rootstockDB.isOpen();
 
-export const ensureRootstockDatabaseReady = async () => {
-  if (!isInitialized) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-};
+export const ensureRootstockDatabaseReady = () => rootstockDB.ensureReady();
 
 export async function initRootstockSwapDB() {
   try {
@@ -160,7 +145,6 @@ export async function deleteRootstockSwapTable() {
   try {
     await ensureRootstockDatabaseReady();
     await sqlLiteDB.runAsync(`DROP TABLE IF EXISTS ${ROOTSTOCK_TABLE_NAME};`);
-    isInitialized = false;
     console.log(`Table ${ROOTSTOCK_TABLE_NAME} deleted successfully`);
     return true;
   } catch (err) {

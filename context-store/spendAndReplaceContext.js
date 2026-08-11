@@ -57,12 +57,17 @@ export function SpendAndReplaceProvider({ children }) {
   ]);
 
   useEffect(() => {
+    const spendAndReplaceEnabled =
+      masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled;
+    const identityPubKey = sparkInformation?.identityPubKey;
+    const sparkAddress = sparkInformation?.sparkAddress;
+
     const handleTransactionUpdate = async () => {
-      if (!masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled) return;
+      if (!spendAndReplaceEnabled) return;
 
       const accountSnapshot = {
-        accountId: sparkInformation?.identityPubKey || '',
-        sparkAddress: sparkInformation?.sparkAddress || '',
+        accountId: identityPubKey || '',
+        sparkAddress: sparkAddress || '',
         mnemonic: accountMnemoinc || '',
       };
       if (
@@ -129,7 +134,13 @@ export function SpendAndReplaceProvider({ children }) {
         handleTransactionUpdate,
       );
     };
-  }, [masterInfoObject, sparkInformation, accountMnemoinc, t]);
+  }, [
+    masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled,
+    sparkInformation?.identityPubKey,
+    sparkInformation?.sparkAddress,
+    accountMnemoinc,
+    t,
+  ]);
 
   return (
     <SpendAndReplaceContext.Provider value={null}>
