@@ -26,7 +26,6 @@ import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import customUUID from '../app/functions/customUUID';
-import isValidMnemonic from '../app/functions/isValidMnemonic';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
 
@@ -246,43 +245,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       return { didWork: true };
     } catch (err) {
       console.log('Create derived account error', err);
-      return { didWork: false, error: err.message };
-    }
-  };
-
-  const createImportedAccount = async (accountName, importedSeed) => {
-    try {
-      if (!importedSeed || typeof importedSeed !== 'string') {
-        return { didWork: false, error: 'Invalid seed provided' };
-      }
-
-      const words = importedSeed
-        .trim()
-        .toLowerCase()
-        .split(/\s+/)
-        .filter(Boolean);
-      if (words.length !== 12 || !isValidMnemonic(words)) {
-        return {
-          didWork: false,
-          error: 'Seed must be a valid 12-word recovery phrase',
-        };
-      }
-
-      const accountInfo = {
-        uuid: customUUID(),
-        name: accountName,
-        mnemoinc: words.join(' '),
-        dateCreated: Date.now(),
-        isActive: false,
-        accountType: 'imported',
-        profileEmoji: '',
-      };
-
-      await createAccount(accountInfo);
-      // NO cloud backup for imported accounts (contains sensitive seed)
-      return { didWork: true };
-    } catch (err) {
-      console.log('Create imported account error', err);
       return { didWork: false, error: err.message };
     }
   };
@@ -552,7 +514,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       updateAccount,
       updateAccountCacheOnly,
       createDerivedAccount,
-      createImportedAccount,
       restoreDerivedAccount,
       getAccountMnemonic,
       restoreDerivedAccountsFromCloud,
@@ -572,7 +533,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     updateAccount,
     updateAccountCacheOnly,
     createDerivedAccount,
-    createImportedAccount,
     restoreDerivedAccount,
     getAccountMnemonic,
     restoreDerivedAccountsFromCloud,

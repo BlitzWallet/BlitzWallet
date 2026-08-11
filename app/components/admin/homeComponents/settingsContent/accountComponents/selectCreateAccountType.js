@@ -42,11 +42,7 @@ export default function SelectCreateAccountType() {
         {/* Derived Account Option */}
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() =>
-            navigate.navigate('CreateCustodyAccount', {
-              accountType: 'derived',
-            })
-          }
+          onPress={() => navigate.navigate('CreateCustodyAccount')}
           style={[
             styles.rowContainer,
             {

@@ -2020,17 +2020,11 @@
         "inputPlaceHolderText": "Account Transfer"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "This recovery phrase already exists for another account",
         "editTitle": "Edit Account",
-        "createTitle_derived": "Create Account",
-        "createTitle_imported": "Import Account",
         "updateTitle": "Update Account",
         "cannotDeleteActiveAccountError": "You can’t delete the active account. Please select another account before deleting.",
         "deleteAccountConfirmation": "Are you sure you want to delete this account?",
-        "inputDesc": "Account Name",
-        "nameTakenError": "This name is currently in use. Please use a differnt account name.",
-        "nameInputPlaceholder": "Name...",
-        "seedHeader": "Account recovery phrase"
+        "nameTakenError": "This name is currently in use. Please use a differnt account name."
       },
       "viewAccountPage": {
         "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
@@ -2878,7 +2872,6 @@
     "noDataInQRError": "Unable to find data in image.",
     "noInvoiceInImageError": "Unable to get invoice from image.",
     "savingImageError": "Unable to save image. Please try again.",
-    "invalidSeedError": "Did not enter a valid recovery phrase",
     "invalidSeedWordLengthErorr": "Not all words are of valid length",
     "invalidSeedLengthError": "Unable to find 12 words from copied recovery phrase.",
     "noGooglePlay": "Google Play Services are required to receive notifications.",

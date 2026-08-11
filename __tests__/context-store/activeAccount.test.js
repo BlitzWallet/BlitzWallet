@@ -99,11 +99,6 @@ jest.mock('../../app/functions/customUUID', () => ({
   default: jest.fn(() => 'uuid-generated'),
 }));
 
-jest.mock('../../app/functions/isValidMnemonic', () => ({
-  __esModule: true,
-  default: jest.fn(() => true),
-}));
-
 const {
   ActiveCustodyAccountProvider,
   useActiveCustodyAccount,
