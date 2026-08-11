@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
+import React, { useState, useMemo, useCallback, useRef, memo, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, SectionList } from 'react-native';
 import { EMOJI_CATEGORIES } from '../../../../../functions/accounts/handleEmoji';
 import {
@@ -13,6 +13,12 @@ import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { HIDDEN_OPACITY, SIZES } from '../../../../../constants/theme';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import {
+  getChildAccountEmoji,
+  setChildAccountEmoji,
+  useChildAccountEmoji,
+} from '../../../../../functions/accounts/childAccountEmojis';
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import { useNavigation } from '@react-navigation/native';
 import AccountProfileImage from '../../accounts/accountProfileImage';
@@ -81,6 +87,7 @@ const AvatarPreview = memo(
       >
         <AccountProfileImage
           imageSize={120}
+          useStoredEmoji={false}
           account={{ ...selectedAccount, profileEmoji: selectedEmoji }}
         />
         {!!selectedEmoji && (
@@ -105,36 +112,74 @@ export default function EmojiAvatarSelector(props) {
   const navigate = useNavigation();
   const accountId = props?.route?.params?.accountId;
   const { updateAccount, custodyAccountsList } = useActiveCustodyAccount();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { t } = useTranslation();
 
+  // Managed (child) accounts live in the childAccounts registry, personal
+  // custody accounts in custodyAccountsList.
   const selectedAccount = useMemo(() => {
+    const childAccount = (masterInfoObject?.childAccounts || []).find(
+      item => item.uuid === accountId,
+    );
+    if (childAccount) return childAccount;
     return custodyAccountsList?.find(item => item.uuid === accountId) || {};
-  }, [custodyAccountsList, accountId]);
+  }, [custodyAccountsList, masterInfoObject?.childAccounts, accountId]);
 
-  const [selectedEmoji, setSelectedEmoji] = useState(
-    selectedAccount.profileEmoji || '',
-  );
+  const isChild = selectedAccount?.childIndex !== undefined;
+
+  // For child accounts the emoji lives in the local-only store, not the
+  // account object. Seed from it once, and hydrate again when the store
+  // finishes its async load (the effect only fires before the user picks).
+  const storedChildEmoji = useChildAccountEmoji(isChild ? accountId : null);
+  const [selectedEmoji, setSelectedEmoji] = useState(() => {
+    if (isChild) return getChildAccountEmoji(accountId);
+    return selectedAccount.profileEmoji || '';
+  });
+  const didInteractRef = useRef(false);
+  useEffect(() => {
+    if (!isChild || didInteractRef.current) return;
+    setSelectedEmoji(storedChildEmoji);
+  }, [isChild, storedChildEmoji]);
+
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const handleEmojiSelect = useCallback(emoji => {
+    didInteractRef.current = true;
     setSelectedEmoji(emoji);
   }, []);
 
   const handleClear = useCallback(() => {
+    didInteractRef.current = true;
     setSelectedEmoji('');
   }, []);
 
-  const handleSave = useCallback(() => {
-    if (selectedEmoji !== selectedAccount.profileEmoji) {
-      updateAccount({ ...selectedAccount, profileEmoji: selectedEmoji });
+  const initialEmoji = isChild
+    ? getChildAccountEmoji(accountId)
+    : selectedAccount.profileEmoji || '';
+
+  const handleSave = useCallback(async () => {
+    if (selectedEmoji !== initialEmoji) {
+      if (isChild) {
+        await setChildAccountEmoji(accountId, selectedEmoji);
+      } else {
+        await updateAccount({ ...selectedAccount, profileEmoji: selectedEmoji });
+      }
       keyboardGoBack(navigate);
     } else {
       navigate.goBack();
     }
-  }, [selectedEmoji, updateAccount, selectedAccount, navigate]);
+  }, [
+    selectedEmoji,
+    initialEmoji,
+    isChild,
+    accountId,
+    updateAccount,
+    selectedAccount,
+    navigate,
+  ]);
 
   // Only recomputes on searchQuery change
   const filteredSections = useMemo(() => {
@@ -163,7 +208,7 @@ export default function EmojiAvatarSelector(props) {
   }, [filteredSections]);
 
   const saveLabel =
-    selectedEmoji === selectedAccount.profileEmoji
+    selectedEmoji === initialEmoji
       ? t('constants.back')
       : t('settings.accountComponents.selectProfileImage.saveButton');
 

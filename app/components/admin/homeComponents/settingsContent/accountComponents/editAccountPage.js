@@ -154,10 +154,11 @@ export default function EditAccountPage(props) {
   }, [handleAccountPress, accountInformation]);
 
   const handleProfileImage = () => {
-    // Child emoji/profile editing isn't wired to the child registry yet.
+    // Main + NWC accounts keep their fixed/contact-profile images; everything
+    // else (personal custody accounts and managed child accounts) opens the
+    // emoji selector. Child emojis are stored locally and never hit the DB.
     if (
       accountInformation.uuid === NWC_ACCOUNT_UUID ||
-      isChild ||
       accountInformation.accountType === 'main'
     )
       return;
@@ -343,7 +344,6 @@ export default function EditAccountPage(props) {
           <TouchableOpacity
             activeOpacity={
               accountInformation.uuid === NWC_ACCOUNT_UUID ||
-              isChild ||
               accountInformation.accountType === 'main'
                 ? 1
                 : 0.2
@@ -353,7 +353,6 @@ export default function EditAccountPage(props) {
           >
             <AccountProfileImage imageSize={90} account={accountInformation} />
             {accountInformation.uuid !== NWC_ACCOUNT_UUID &&
-              !isChild &&
               accountInformation.accountType !== 'main' && (
                 <View
                   style={[
