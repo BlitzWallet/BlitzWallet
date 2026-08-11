@@ -1468,7 +1468,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
         // 6. Hash into a copy — the intent entry above holds the pre-hash args
         //    so a replay through this function hashes exactly once (tests 9-10).
         let transportArgs = args;
-        if (args.mnemonic && action !== 'initializeSparkWallet') {
+        if (
+          args.mnemonic &&
+          action !== 'initializeSparkWallet' &&
+          action !== 'initializeSparkWalletViewer'
+        ) {
           transportArgs = { ...args, mnemonic: sha256Hash(args.mnemonic) };
         }
 
