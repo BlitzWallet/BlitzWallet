@@ -122,7 +122,6 @@ describe('PushNotificationProvider value stability', () => {
     });
 
     expect(capturedValue).toBe(firstValue);
-    expect(mockAddReceivedListener).toHaveBeenCalledTimes(1);
   });
 
   it('changes the value identity only when push notification data changes', async () => {
@@ -148,51 +147,11 @@ describe('PushNotificationProvider value stability', () => {
 });
 
 describe('PushNotificationProvider listener lifecycle', () => {
-  it('removes the previous notification listeners before registering new ones', async () => {
-    let renderer;
-    await act(async () => {
-      renderer = renderProvider();
-    });
-
-    expect(mockAddReceivedListener).toHaveBeenCalledTimes(1);
-    const firstReceivedSubscription =
-      mockAddReceivedListener.mock.results[0].value;
-    const firstResponseSubscription =
-      mockAddResponseListener.mock.results[0].value;
-
-    await act(async () => {
-      mockMasterInfoObject = {
-        pushNotifications: { isEnabled: true, hash: 'updated' },
-      };
-      renderer.update(
-        <PushNotificationProvider>
-          <Consumer />
-        </PushNotificationProvider>,
-      );
-    });
-
-    expect(mockAddReceivedListener).toHaveBeenCalledTimes(2);
-    expect(firstReceivedSubscription.remove).toHaveBeenCalled();
-    expect(firstResponseSubscription.remove).toHaveBeenCalled();
-  });
-
-  it('removes all notification listeners on unmount', async () => {
-    let renderer;
-    await act(async () => {
-      renderer = renderProvider();
-    });
-
-    const receivedSubscription = mockAddReceivedListener.mock.results[0].value;
-    const responseSubscription = mockAddResponseListener.mock.results[0].value;
-
-    await act(async () => {
-      renderer.unmount();
-    });
-
-    expect(receivedSubscription.remove).toHaveBeenCalled();
-    expect(responseSubscription.remove).toHaveBeenCalled();
-  });
-
+  // Foreground listener registration is currently commented out in
+  // notificationManager.js (the "stabalize notification manager" change), so the
+  // provider registers no listeners in either state. Only the disabled-state
+  // invariant is still asserted; the re-register/unmount-removal tests were
+  // removed as they covered behavior the source no longer implements.
   it('does not register listeners when push notifications are disabled', async () => {
     mockMasterInfoObject = { pushNotifications: { isEnabled: false } };
     let renderer;
