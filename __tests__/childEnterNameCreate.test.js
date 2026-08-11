@@ -37,6 +37,12 @@ jest.mock('../context-store/keys', () => ({
   }),
 }));
 
+jest.mock('../context-store/theme', () => ({
+  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+}));
+
+jest.mock('../app/hooks/themeColors', () => () => ({ textColor: '#000000' }));
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: key => key }),
 }));

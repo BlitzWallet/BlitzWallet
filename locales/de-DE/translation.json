@@ -1873,7 +1873,8 @@
         "budgetRenewalHeader": "Budgetverlängerung",
         "bugetPlaceholder": "Budgetverlängerungszeitraum auswählen",
         "createConnection": "Verbindung erstellen",
-        "connectionName": "Verbindungsname"
+        "connectionName": "Verbindungsname",
+        "editTitle": "Konto bearbeiten"
       },
       "hasNoAccounts": {
         "warningMessage": "Um Geld von Ihrem Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf Ihr NWC-Konto auf der Kontoeinstellungsseite übertragen."
@@ -2142,7 +2143,9 @@
         "subtitle": "Gib dem Konto einen Namen, damit du es später wiedererkennst.",
         "placeholder": "Kontoname",
         "next": "Weiter",
-        "create": "Konto erstellen"
+        "create": "Konto erstellen",
+        "editTitle": "Kontonamen bearbeiten",
+        "editSubtitle": "Wähle einen neuen Namen, damit du dieses Konto später wiedererkennst."
       },
       "spendingLimit": {
         "title": "Ausgabenlimit festlegen",

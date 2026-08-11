@@ -1706,7 +1706,9 @@
         "subtitle": "Give the account a name so you can recognize it later.",
         "placeholder": "Account name",
         "next": "Next",
-        "create": "Create account"
+        "create": "Create account",
+        "editTitle": "Edit account name",
+        "editSubtitle": "Choose a new name so you can recognize this account later."
       },
       "spendingLimit": {
         "title": "Set a spending limit",
@@ -1969,7 +1971,8 @@
         "budgetRenewalHeader": "Budget Renewal",
         "bugetPlaceholder": "Select budget renewal period",
         "createConnection": "",
-        "connectionName": ""
+        "connectionName": "",
+        "editTitle": "Edit Account"
       },
       "hasNoAccounts": {
         "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."

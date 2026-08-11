@@ -1885,7 +1885,8 @@
         "budgetRenewalHeader": "Renovación de presupuesto",
         "bugetPlaceholder": "Selecciona período de renovación",
         "createConnection": "",
-        "connectionName": ""
+        "connectionName": "",
+        "editTitle": "Editar cuenta"
       },
       "hasNoAccounts": {
         "warningMessage": "Para enviar dinero desde tu billetera Nostr Connect, primero necesitarás añadir fondos — ya sea recibiendo dinero o transfiriendo desde tu billetera principal.\n\n Puedes transferir fondos desde tu billetera principal a NWC en la página de configuración de la cuenta."
@@ -2157,7 +2158,9 @@
         "subtitle": "Ponle un nombre a la cuenta para poder reconocerla más adelante.",
         "placeholder": "Nombre de la cuenta",
         "next": "Siguiente",
-        "create": "Crear cuenta"
+        "create": "Crear cuenta",
+        "editTitle": "Editar nombre de la cuenta",
+        "editSubtitle": "Elige un nuevo nombre para reconocer esta cuenta más adelante."
       },
       "spendingLimit": {
         "title": "Establecer un límite de gasto",

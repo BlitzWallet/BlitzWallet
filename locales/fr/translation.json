@@ -1887,7 +1887,8 @@
         "budgetRenewalHeader": "Renouvellement du budget",
         "bugetPlaceholder": "Sélectionner la période de renouvellement du budget",
         "createConnection": "",
-        "connectionName": ""
+        "connectionName": "",
+        "editTitle": "Modifier le compte"
       },
       "hasNoAccounts": {
         "warningMessage": "Pour envoyer de l'argent depuis votre portefeuille Nostr Connect, vous devez d'abord ajouter des fonds, soit en recevant de l'argent, soit en effectuant un transfert depuis votre portefeuille principal.\n\n Vous pouvez transférer des fonds de votre portefeuille principal vers NWC dans la page des paramètres du compte."
@@ -2156,7 +2157,9 @@
         "subtitle": "Donnez un nom au compte pour pouvoir le reconnaître plus tard.",
         "placeholder": "Nom du compte",
         "next": "Suivant",
-        "create": "Créer le compte"
+        "create": "Créer le compte",
+        "editTitle": "Modifier le nom du compte",
+        "editSubtitle": "Choisissez un nouveau nom pour reconnaître ce compte plus tard."
       },
       "spendingLimit": {
         "title": "Définir une limite de dépenses",

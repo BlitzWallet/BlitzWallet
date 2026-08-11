@@ -23,19 +23,20 @@ import { useActiveCustodyAccount } from '../../../../../../context-store/activeA
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 export default function CreateCustodyAccountPage() {
   const maxLength = 50;
   const { masterInfoObject } = useGlobalContextProvider();
   const { createDerivedAccount } = useActiveCustodyAccount();
-  const { bottomPadding } = useGlobalInsets();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [name, setName] = useState('');
 
-  const { textInputColor } = GetThemeColors();
+  const { textInputColor, textColor } = GetThemeColors();
 
   const navigate = useNavigation();
 
@@ -75,19 +76,16 @@ export default function CreateCustodyAccountPage() {
     }
   };
 
-  const memorizedKeyboardStyle = useMemo(() => {
-    return {
-      alignItems: 'center',
-      position: 'relative',
-      paddingBottom: isKeyboardActive
-        ? CONTENT_KEYBOARD_OFFSET
-        : bottomPadding,
-    };
-  }, [isKeyboardActive, bottomPadding]);
+  const isOverLimit = name.length >= maxLength;
+  const characterCountColor = isOverLimit
+    ? theme && darkModeType
+      ? textColor
+      : COLORS.cancelRed
+    : textColor;
 
   return (
     <CustomKeyboardAvoidingView
-      globalThemeViewStyles={memorizedKeyboardStyle}
+      globalThemeViewStyles={styles.globalContainer}
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
       useStandardWidth={true}
@@ -100,7 +98,6 @@ export default function CreateCustodyAccountPage() {
 
       <ScrollView
         style={{ width: INSET_WINDOW_WIDTH }}
-        contentContainerStyle={{ paddingBottom: 10 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps={'handled'}
       >
@@ -123,6 +120,14 @@ export default function CreateCustodyAccountPage() {
           onFocusFunction={() => setIsKeyboardActive(true)}
           onBlurFunction={() => setIsKeyboardActive(false)}
         />
+        <ThemeText
+          styles={{
+            textAlign: 'right',
+            color: characterCountColor,
+            marginTop: 5,
+          }}
+          content={`${name.length} / ${maxLength}`}
+        />
       </ScrollView>
       <CustomButton
         useLoading={isCreatingAccount}
@@ -139,6 +144,10 @@ export default function CreateCustodyAccountPage() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {
+    alignItems: 'center',
+    position: 'relative',
+  },
   title: {
     fontSize: SIZES.large,
     fontWeight: '500',

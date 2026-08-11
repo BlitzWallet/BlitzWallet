@@ -288,7 +288,11 @@ export default function CreateNostrConnectAccount(props) {
       isKeyboardActive={isKeyboardActive}
     >
       <CustomSettingsTopBar
-        label={t('settings.nwc.createNWCAccount.title')}
+        label={t(
+          isEditing
+            ? 'settings.nwc.createNWCAccount.editTitle'
+            : 'settings.nwc.createNWCAccount.title',
+        )}
         shouldDismissKeyboard={true}
       />
       {isCreatingAccount ? (

@@ -1888,7 +1888,8 @@
         "budgetRenewalHeader": "Förnyelse av budgeten",
         "bugetPlaceholder": "Välj period för budgetförnyelse",
         "createConnection": "",
-        "connectionName": ""
+        "connectionName": "",
+        "editTitle": "Redigera konto"
       },
       "hasNoAccounts": {
         "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
@@ -2157,7 +2158,9 @@
         "subtitle": "Ge kontot ett namn så att du kan känna igen det senare.",
         "placeholder": "Kontonamn",
         "next": "Nästa",
-        "create": "Skapa konto"
+        "create": "Skapa konto",
+        "editTitle": "Redigera kontonamn",
+        "editSubtitle": "Välj ett nytt namn så att du kan känna igen kontot senare."
       },
       "spendingLimit": {
         "title": "Ange en utgiftsgräns",

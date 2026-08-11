@@ -6,6 +6,7 @@ import CustomSettingsTopBar from '../../../../../../functions/CustomElements/set
 import { ScrollView, StyleSheet } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
+  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -32,6 +33,8 @@ import customUUID from '../../../../../../functions/customUUID';
 import { privateKeyFromSeedWords } from '../../../../../../functions/nostrCompatability';
 import { encriptMessage } from '../../../../../../functions/messaging/encodingAndDecodingMessages';
 import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashlyticsLogs';
+import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
+import GetThemeColors from '../../../../../../hooks/themeColors';
 
 export default function ChildEnterName(props) {
   const navigate = useNavigation();
@@ -40,6 +43,8 @@ export default function ChildEnterName(props) {
   const editChild = props?.route?.params?.editChild;
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor } = GetThemeColors();
   const { accountMnemoinc, publicKey } = useKeysContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [accountName, setAccountName] = useState(editChild?.name || '');
@@ -112,12 +117,7 @@ export default function ChildEnterName(props) {
       // The spending limit is hidden for now (next feature): new children are
       // always created without a limit, but the backend write still runs so the
       // child doc gets its isChildAccount marker.
-      await updateChildAccount(
-        childPublicKey,
-        childMnemonic,
-        null,
-        childIndex,
-      );
+      await updateChildAccount(childPublicKey, childMnemonic, null, childIndex);
 
       const newEntry = {
         uuid: customUUID(),
@@ -183,6 +183,13 @@ export default function ChildEnterName(props) {
     }, []),
   );
 
+  const isOverLimit = accountName.length >= maxLength;
+  const characterCountColor = isOverLimit
+    ? theme && darkModeType
+      ? textColor
+      : COLORS.cancelRed
+    : textColor;
+
   return (
     <CustomKeyboardAvoidingView
       isKeyboardActive={isKeyboardActive}
@@ -201,11 +208,19 @@ export default function ChildEnterName(props) {
       >
         <ThemeText
           styles={styles.title}
-          content={t('settings.childAccounts.enterName.title')}
+          content={t(
+            editChild
+              ? 'settings.childAccounts.enterName.editTitle'
+              : 'settings.childAccounts.enterName.title',
+          )}
         />
         <ThemeText
           styles={styles.subtitle}
-          content={t('settings.childAccounts.enterName.subtitle')}
+          content={t(
+            editChild
+              ? 'settings.childAccounts.enterName.editSubtitle'
+              : 'settings.childAccounts.enterName.subtitle',
+          )}
         />
         <CustomSearchInput
           inputText={accountName}
@@ -214,6 +229,14 @@ export default function ChildEnterName(props) {
           onFocusFunction={() => setIsKeyboardActive(true)}
           onBlurFunction={() => setIsKeyboardActive(false)}
           maxLength={maxLength}
+        />
+        <ThemeText
+          styles={{
+            textAlign: 'right',
+            color: characterCountColor,
+            marginTop: 5,
+          }}
+          content={`${accountName.length} / ${maxLength}`}
         />
       </ScrollView>
       <CustomButton

@@ -1888,7 +1888,8 @@
         "budgetRenewalHeader": "Renovação do limite de gastos",
         "bugetPlaceholder": "Período de renovação",
         "createConnection": "",
-        "connectionName": ""
+        "connectionName": "",
+        "editTitle": "Editar conta"
       },
       "hasNoAccounts": {
         "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
@@ -2157,7 +2158,9 @@
         "subtitle": "Dê um nome à conta para reconhecê-la mais tarde.",
         "placeholder": "Nome da conta",
         "next": "Próximo",
-        "create": "Criar conta"
+        "create": "Criar conta",
+        "editTitle": "Editar nome da conta",
+        "editSubtitle": "Escolha um novo nome para reconhecer esta conta mais tarde."
       },
       "spendingLimit": {
         "title": "Definir um limite de gastos",
