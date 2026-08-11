@@ -49,11 +49,8 @@ export default function EditAccountPage(props) {
   const { showToast } = useToast();
   const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
-  const {
-    getAccountMnemonic,
-    activeAccount,
-    custodyAccountsList,
-  } = useActiveCustodyAccount();
+  const { getAccountMnemonic, activeAccount, custodyAccountsList } =
+    useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
   const { toggleMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
@@ -263,7 +260,7 @@ export default function EditAccountPage(props) {
       return;
     }
     navigate.navigate('RemoveAccountPage', {
-      account: accountInformation,
+      accountId: accountInformation.uuid,
       from: fromPage,
     });
   }, [isActive, accountInformation, fromPage, navigate, t]);

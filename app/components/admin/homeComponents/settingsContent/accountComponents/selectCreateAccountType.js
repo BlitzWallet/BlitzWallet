@@ -167,12 +167,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   rowContainer: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 50,
+    borderRadius: 16,
     gap: 12,
+    marginBottom: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   iconContainer: {
     width: 40,

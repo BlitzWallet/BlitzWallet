@@ -128,16 +128,18 @@ export default function RestoreDerivedAccountPage() {
         >
           <ThemeIcon size={18} iconName={'RotateCcw'} />
         </View>
-        <View style={styles.accountInfo}>
-          <ThemeText
-            styles={styles.accountTitle}
-            content={t(
-              'settings.accountComponents.restoreDerivedAccount.accountCardTitle',
-              { index },
-            )}
-          />
-        </View>
-        <ThemeIcon size={20} iconName={'ChevronRight'} color={textColor} />
+
+        <ThemeText
+          CustomNumberOfLines={1}
+          adjustsFontSizeToFit={true}
+          styles={styles.accountTitle}
+          content={t(
+            'settings.accountComponents.restoreDerivedAccount.accountCardTitle',
+            { index },
+          )}
+        />
+
+        <ThemeIcon iconName={'ChevronRight'} size={18} />
       </TouchableOpacity>
     );
   };
@@ -206,18 +208,21 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   accountCard: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginVertical: 8,
-    borderRadius: 8,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 50,
+    borderRadius: 16,
     gap: 12,
+    marginBottom: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
+    width: 45,
+    height: 45,
     borderRadius: 22.5,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -225,7 +230,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   accountTitle: {
-    fontWeight: '500',
+    flex: 1,
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },
@@ -292,12 +297,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: 250,
-    height: 40,
+    height: 45,
   },
   skeletonBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
     marginRight: 12,
   },
   skeletonText: {
