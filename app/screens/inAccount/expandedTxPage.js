@@ -735,10 +735,11 @@ export default function ExpandedTx(props) {
                 )}
             </View>
 
-            {renderSuccessAction()}
-
             {/* Description */}
             {renderDescription()}
+
+            {/* Success action */}
+            {renderSuccessAction()}
 
             <AdaptiveButtonRow
               labels={buttonLabels}
