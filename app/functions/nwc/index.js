@@ -94,14 +94,6 @@ export async function getNWCData() {
         mergedAccount.totalSent = 0;
         didUpdate = true;
       }
-      if (!mergedAccount.hasOwnProperty('shouldGetNewBalance')) {
-        mergedAccount.shouldGetNewBalance = true;
-        didUpdate = true;
-      }
-      if (!mergedAccount.hasOwnProperty('walletBalance')) {
-        mergedAccount.walletBalance = 0;
-        didUpdate = true;
-      }
       if (!mergedAccount.hasOwnProperty('clientPubkey') && mergedAccount.secret) {
         try {
           mergedAccount.clientPubkey = getPublicKey(mergedAccount.secret);

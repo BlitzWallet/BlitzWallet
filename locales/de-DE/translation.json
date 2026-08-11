@@ -2781,6 +2781,14 @@
       "request": "{{name}} hat {{amount}} von Ihnen angefordert.",
       "payment": "{{name}} hat Ihnen {{amount}} bezahlt.",
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet."
+    },
+    "nwc": {
+      "get_info": "NWC-Info-Event",
+      "get_balance": "NWC-Guthaben-Event",
+      "list_transactions": "NWC-Transaktionen abgerufen",
+      "make_invoice": "NWC-Rechnung erstellt",
+      "lookup_invoice": "NWC-Rechnungsabfrage",
+      "pay_invoice": "NWC-Zahlung gesendet"
     }
   },
   "accountCard": {

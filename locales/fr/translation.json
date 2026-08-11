@@ -2796,6 +2796,14 @@
       "request": "{{name}} vous a demandé {{amount}}",
       "payment": "{{name}} vous a payé {{amount}}",
       "giftCard": "{{name}} vous a envoyé une carte cadeau {{giftCardName}} "
+    },
+    "nwc": {
+      "get_info": "Événement d'informations NWC",
+      "get_balance": "Événement de solde NWC",
+      "list_transactions": "Transactions NWC reçues",
+      "make_invoice": "Facture NWC créée",
+      "lookup_invoice": "Consultation de facture NWC",
+      "pay_invoice": "Paiement NWC envoyé"
     }
   },
   "accountCard": {
