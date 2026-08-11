@@ -1685,7 +1685,7 @@
       },
       "emptyLinked": {
         "title": "No managed accounts yet",
-        "subtitle": "Create a wallet for someone you trust. They can use Blitz without managing a recovery phrase."
+        "subtitle": "Create a wallet for someone else. They can use Blitz without managing a recovery phrase."
       },
       "noResults": {
         "title": "No accounts found",
