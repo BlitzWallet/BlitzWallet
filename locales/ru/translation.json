@@ -2104,6 +2104,7 @@
         "sendReport": "Сообщить о проблеме",
         "lnurlAuthSuccess": "Вы вошли в систему и готовы к работе.",
         "walletConnected": "Кошелёк подключён",
+        "lud9SuccessAction": "Посмотреть чек",
         "emailReport": "Отправить через Email",
         "copyReport": "Скопировать",
         "confirmMessage_sent": "Успешно отправлено",

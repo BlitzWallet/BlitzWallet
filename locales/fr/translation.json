@@ -2103,6 +2103,7 @@
         "sendReport": "Signaler un problème",
         "lnurlAuthSuccess": "Vous êtes connecté et prêt à continuer.",
         "walletConnected": "Portefeuille connecté",
+        "lud9SuccessAction": "Voir le reçu",
         "emailReport": "Envoyer par courriel",
         "copyReport": "Copier dans le presse-papiers",
         "confirmMessage_sent": "Envoyé avec succès",

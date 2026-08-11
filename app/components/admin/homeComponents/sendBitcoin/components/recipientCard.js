@@ -76,7 +76,11 @@ export function resolveRecipientDisplay({
     };
   }
 
-  if (lnurlAddress) {
+  // Only treat it as a nameable lightning address when it's a real `user@host`.
+  // A raw `lnurl1…` blob (e.g. a non-Blitz provider that normalizeLNURLAddress
+  // couldn't resolve) has no `@`, so fall through to the asset label below
+  // instead of printing the bech32 string as the recipient name.
+  if (lnurlAddress && lnurlAddress.includes('@')) {
     const phone = getPhonePaymentDisplay(lnurlAddress);
     if (phone) {
       return {
