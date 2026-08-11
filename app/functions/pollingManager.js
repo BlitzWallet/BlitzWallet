@@ -231,7 +231,6 @@ export const createRestorePoller = (
   abortController,
   onRestoreComplete,
   sparkInfo,
-  sendWebViewRequest,
 ) => {
   return createPollingManager({
     pollFn: async delayIndex => {
@@ -241,7 +240,6 @@ export const createRestorePoller = (
         isSendingPayment: isSendingPayment,
         mnemonic,
         identityPubKey: sparkInfo.identityPubKey,
-        sendWebViewRequest,
         isInitialRestore: false,
       });
       return result;

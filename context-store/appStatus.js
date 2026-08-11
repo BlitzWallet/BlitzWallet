@@ -64,7 +64,14 @@ const AppStatusProvider = ({ children }) => {
       setScreenDimensions(newDimensions.screen);
     };
 
-    Dimensions.addEventListener('change', handleWindowSizeChange);
+    const subscription = Dimensions.addEventListener(
+      'change',
+      handleWindowSizeChange,
+    );
+
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   useEffect(() => {

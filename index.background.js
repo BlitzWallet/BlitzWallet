@@ -8,6 +8,7 @@ import { Platform } from 'react-native';
 import {
   getMessaging,
   setBackgroundMessageHandler,
+  onMessage,
 } from '@react-native-firebase/messaging';
 import * as TaskManager from 'expo-task-manager';
 import { formatBalanceAmount, getLocalStorageItem } from './app/functions';
@@ -111,33 +112,52 @@ async function formatPushNotification(data) {
   pushInstantNotification(message);
 }
 
-// ANDROID: Firebase background message handler
+// Routes an FCM remoteMessage to either the display-only formatter or the NWC
+// event handler. Shared by the Android background handler and the cross-platform
+// foreground handler (both receive the same firebase remoteMessage shape).
+async function handleRemoteMessage(remoteMessage) {
+  if (!remoteMessage) return;
+  const data = remoteMessage.data;
+  let parsedData;
+
+  try {
+    parsedData = JSON.parse(data.body);
+  } catch (err) {
+    parsedData = data.body;
+  }
+
+  if (parsedData?.format) {
+    await formatPushNotification(parsedData);
+    return;
+  }
+
+  await handleNWCBackgroundEvent(remoteMessage);
+}
+
+// ANDROID: Firebase background message handler (fires only when backgrounded/quit)
 if (Platform.OS === 'android') {
   setBackgroundMessageHandler(firebaseMessaging, async remoteMessage => {
     console.log('Background message received (Android):', remoteMessage);
     try {
-      if (remoteMessage) {
-        const data = remoteMessage.data;
-        let parsedData;
-
-        try {
-          parsedData = JSON.parse(data.body);
-        } catch (err) {
-          parsedData = data.body;
-        }
-
-        if (parsedData?.format) {
-          await formatPushNotification(parsedData);
-          return;
-        }
-
-        await handleNWCBackgroundEvent(remoteMessage);
-      }
+      await handleRemoteMessage(remoteMessage);
     } catch (error) {
       console.error('Background handler error:', error);
     }
   });
 }
+
+// FOREGROUND: fires on both platforms while the app is active. Background
+// handlers above do not run in the foreground, so without this an incoming push
+// is received by the OS but never processed. NWC events are deduped by the event
+// ledger, so this cannot double-process anything a background handler already did.
+onMessage(firebaseMessaging, async remoteMessage => {
+  console.log('Foreground message received:', remoteMessage);
+  try {
+    await handleRemoteMessage(remoteMessage);
+  } catch (error) {
+    console.error('Foreground handler error:', error);
+  }
+});
 
 // iOS: TaskManager background task
 const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';

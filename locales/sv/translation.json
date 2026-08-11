@@ -2262,6 +2262,7 @@
         "sendReport": "Rapportera ett problem",
         "lnurlAuthSuccess": "Du är inloggad och redo att köra.",
         "walletConnected": "Plånbok ansluten",
+        "lud9SuccessAction": "Visa kvitto",
         "emailReport": "Skicka via e-post",
         "copyReport": "Kopiera till Urklipp",
         "confirmMessage_sent": "Skickat framgångsrikt",
@@ -2955,6 +2956,14 @@
       "request": "{{name}} begärde dig {{amount}}",
       "payment": "{{name}} betalade dig {{amount}}",
       "giftCard": "{{name}} skickade ett presentkort till dig på {{giftCardName}} "
+    },
+    "nwc": {
+      "get_info": "NWC-informationshändelse",
+      "get_balance": "NWC-saldo-händelse",
+      "list_transactions": "NWC-transaktioner hämtade",
+      "make_invoice": "NWC-faktura skapad",
+      "lookup_invoice": "NWC-fakturasökning",
+      "pay_invoice": "NWC-betalning skickad"
     }
   },
   "accountCard": {

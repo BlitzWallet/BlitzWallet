@@ -477,9 +477,9 @@ export default async function initializeUserSettingsFromHistory({
     toggleGlobalContactsInformation(contacts);
     setMasterInfoObject(tempObject);
 
-    return true;
+    return { didWork: true, response: tempObject };
   } catch (err) {
     console.log(err, 'INITIALIZE USER SETTINGS');
-    return false;
+    return { didWork: false };
   }
 }

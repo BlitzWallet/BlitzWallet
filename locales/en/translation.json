@@ -2254,7 +2254,8 @@
         "bulkSuccess": "Requests sent successfully",
         "bulkPartialSuccess": "No requests sent",
         "stablecoinDesc": "{{asset}} on {{chain}}",
-        "walletConnected": "Wallet connected"
+        "walletConnected": "Wallet connected",
+        "lud9SuccessAction": "View Receipt"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Sent amount",
@@ -2938,6 +2939,14 @@
       "request": "{{name}} requested you {{amount}}",
       "payment": "{{name}} paid you {{amount}}",
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
+    },
+    "nwc": {
+      "get_info": "NWC info event",
+      "get_balance": "NWC balance event",
+      "list_transactions": "Got NWC transactions",
+      "make_invoice": "Created NWC invoice",
+      "lookup_invoice": "NWC invoice lookup",
+      "pay_invoice": "Sent NWC payment"
     }
   },
   "accountCard": {

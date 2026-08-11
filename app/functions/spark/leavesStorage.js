@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
 import { TreeNode } from '@buildonspark/spark-sdk/proto/spark';
 
 export const LEAVES_DATABASE = 'WALLET_LEAVES';
@@ -21,10 +21,6 @@ export const EXIT_MIN_SATS = 16348;
 // the JS thread free for frames/gestures.
 const BATCH_SIZE = 100;
 
-let sqlLiteDB = null;
-let initPromise = null;
-let isInitialized = false;
-
 // Serializes every writer that opens a manual transaction on the single shared
 // connection (replaceAllLeaves + saveExitNodesForLeaf). expo-sqlite interleaves
 // statements from concurrent async callers, so without this two overlapping
@@ -38,45 +34,16 @@ function enqueueWrite(fn) {
   return result;
 }
 
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      sqlLiteDB = await SQLite.openDatabaseAsync(`${LEAVES_DATABASE}.db`);
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
-
-async function ensureLeavesDatabaseReady() {
-  if (!sqlLiteDB) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-}
-
-async function getDatabase() {
-  await ensureLeavesDatabaseReady();
-  if (!isInitialized) {
-    await initLeavesDb();
-  }
-  return sqlLiteDB;
-}
-
 // Releases the JS thread so the UI can render between heavy slices.
 const yieldToEventLoop = () => new Promise(resolve => setTimeout(resolve, 0));
 
-/**
- * Initializes the leaves SQLite table.
- * @returns {Promise<boolean>}
- */
-export async function initLeavesDb() {
-  try {
-    await ensureLeavesDatabaseReady();
-
-    // foreign_keys is a per-connection pragma; it must be set here so the
-    // exit-node ON DELETE CASCADE actually fires when a leaf leaves a snapshot.
-    await sqlLiteDB.execAsync(`
+// Idempotent schema creation, re-run on every (re)open. Critically, this also
+// re-applies the per-connection `PRAGMA foreign_keys = ON` after a self-heal
+// reopen so the exit-node ON DELETE CASCADE keeps firing.
+const setupLeavesSchema = async db => {
+  // foreign_keys is a per-connection pragma; it must be set here so the
+  // exit-node ON DELETE CASCADE actually fires when a leaf leaves a snapshot.
+  await db.execAsync(`
       PRAGMA journal_mode = WAL;
       PRAGMA foreign_keys = ON;
 
@@ -121,14 +88,14 @@ export async function initLeavesDb() {
     // Migrate DBs created before per-account scoping existed. The three columns
     // are added when absent; legacy rows predate scoping (pre-release branch) so
     // we wipe the table once — the next per-account reconcile repopulates it.
-    const columns = await sqlLiteDB.getAllAsync(
+    const columns = await db.getAllAsync(
       `PRAGMA table_info(${LEAVES_TABLE});`,
     );
     const hasOwnerColumn = columns.some(
       col => col.name === 'ownerIdentityPubKey',
     );
     if (!hasOwnerColumn) {
-      await sqlLiteDB.execAsync(`
+      await db.execAsync(`
         ALTER TABLE ${LEAVES_TABLE} ADD COLUMN ownerIdentityPubKey TEXT;
         ALTER TABLE ${LEAVES_TABLE} ADD COLUMN snapshotVersion INTEGER NOT NULL DEFAULT 0;
         ALTER TABLE ${LEAVES_TABLE} ADD COLUMN exitNodesStatus INTEGER NOT NULL DEFAULT 0;
@@ -136,15 +103,31 @@ export async function initLeavesDb() {
       `);
     }
 
-    await sqlLiteDB.execAsync(
+    await db.execAsync(
       `CREATE INDEX IF NOT EXISTS idx_wallet_leaves_owner ON ${LEAVES_TABLE}(ownerIdentityPubKey);`,
     );
+};
 
-    isInitialized = true;
+const leavesDB = createSelfHealingDatabase({
+  name: `${LEAVES_DATABASE}.db`,
+  setup: setupLeavesSchema,
+});
+const sqlLiteDB = leavesDB.db;
+
+async function getDatabase() {
+  return leavesDB.ensureReady();
+}
+
+/**
+ * Initializes the leaves SQLite table.
+ * @returns {Promise<boolean>}
+ */
+export async function initLeavesDb() {
+  try {
+    await leavesDB.reinitialize();
     return true;
   } catch (error) {
     console.error('initLeavesDb error:', error);
-    isInitialized = false;
     return false;
   }
 }
@@ -671,7 +654,8 @@ export async function deleteLeavesTable() {
       DROP TABLE IF EXISTS ${LEAVES_META_TABLE};
       DROP TABLE IF EXISTS ${LEAVES_TABLE};
     `);
-    isInitialized = false;
+    // Force setup to re-create the tables on the next access.
+    leavesDB.invalidate();
     return true;
   } catch (err) {
     console.error('deleteLeavesTable error:', err);

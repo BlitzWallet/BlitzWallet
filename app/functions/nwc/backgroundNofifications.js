@@ -4,6 +4,7 @@ import {
   isWithinNWCBalanceTimeFrame,
   splitAndStoreNWCData,
 } from '.';
+import i18next from 'i18next';
 import { publishToSingleRelay } from './publishResponse';
 import { nwcEventLedger } from './eventLedger';
 import bolt11 from '../decodeBolt11';
@@ -16,8 +17,10 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../messaging/encodingAndDecodingMessages';
+import { getLocalStorageItem } from '../localStorage';
 
 let walletInitializationPromise = null;
+let viewerInitializationPromise = null;
 let walletModule = null;
 
 // Serializes concurrent background invocations so budget accounting and the
@@ -28,7 +31,6 @@ let processingLock = Promise.resolve();
 
 const RELAY_URL = NOSTR_RELAY_URL;
 const MAX_EVENT_AGE_SECONDS = 300;
-const BALANCE_CACHE_MS = 5 * 60 * 1000;
 const DEFAULT_INVOICE_EXPIRY_SECONDS = 60 * 60 * 12;
 
 const ERROR_CODES = {
@@ -36,6 +38,18 @@ const ERROR_CODES = {
   RESTRICTED: 'RESTRICTED',
   QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   NOT_FOUND: 'NOT_FOUND',
+};
+
+// User-facing push fired only after an event was successfully handled and its
+// response published, describing what was actually done. Values are i18next
+// keys under pushNotifications.nwc.* so the push shows in the user's language.
+const EVENT_SUCCESS_NOTIFICATIONS = {
+  get_info: 'pushNotifications.nwc.get_info',
+  get_balance: 'pushNotifications.nwc.get_balance',
+  list_transactions: 'pushNotifications.nwc.list_transactions',
+  make_invoice: 'pushNotifications.nwc.make_invoice',
+  lookup_invoice: 'pushNotifications.nwc.lookup_invoice',
+  pay_invoice: 'pushNotifications.nwc.pay_invoice',
 };
 
 const createErrorResponse = (method, code, message) => ({
@@ -103,8 +117,9 @@ const publishNWCNotification = async ({
 };
 
 // The Spark SDK is heavy; it is only required on demand by methods that need a
-// live wallet (make_invoice, pay_invoice, pending lookup, uncached balance,
-// list_transactions). get_info, cached lookups and cached balance never load it.
+// live wallet (make_invoice, pay_invoice, pending lookup). get_info and cached
+// lookups never load it, and get_balance / list_transactions only need the
+// watch-only (readonly) viewer.
 const getWalletModule = () => {
   if (!walletModule) {
     walletModule = require('./wallet');
@@ -136,6 +151,30 @@ const ensureWalletConnection = async () => {
   } catch (error) {
     // Clear the promise on error so retry is possible
     walletInitializationPromise = null;
+    throw error;
+  }
+};
+
+// Same as ensureWalletConnection, but for the watch-only (readonly) viewer used
+// by get_balance and list_transactions.
+const ensureWalletViewerConnection = async () => {
+  const wallet = getWalletModule();
+
+  if (viewerInitializationPromise) {
+    console.log('Wallet viewer initialization already in progress, waiting...');
+    return await viewerInitializationPromise;
+  }
+
+  viewerInitializationPromise = wallet.initializeNWCWalletViewer();
+
+  try {
+    const result = await viewerInitializationPromise;
+    // Clear the promise on successful completion
+    viewerInitializationPromise = null;
+    return result;
+  } catch (error) {
+    // Clear the promise on error so retry is possible
+    viewerInitializationPromise = null;
     throw error;
   }
 };
@@ -705,25 +744,8 @@ const handlePayInvoice = async (
   };
 };
 
-const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
-  const now = Date.now();
-  const lastChecked = selectedNWCAccount.lastChecked || 0;
-  const cachedBalance = Number(selectedNWCAccount.walletBalance);
-
-  if (
-    !selectedNWCAccount.shouldGetNewBalance &&
-    Number.isFinite(cachedBalance) &&
-    now - lastChecked < BALANCE_CACHE_MS
-  ) {
-    return {
-      result_type: 'get_balance',
-      result: {
-        balance: cachedBalance * 1000,
-      },
-    };
-  }
-
-  const connectResponse = await ensureWalletConnection();
+const handleGetBalance = async selectedNWCAccount => {
+  const connectResponse = await ensureWalletViewerConnection();
   if (!connectResponse.isConnected) {
     return createErrorResponse(
       'get_balance',
@@ -732,7 +754,7 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
     );
   }
 
-  const balance = await getWalletModule().getNWCSparkBalance();
+  const balance = await getWalletModule().getNWCSparkViewerBalance();
   if (!balance || balance.balance === undefined) {
     return createErrorResponse(
       'get_balance',
@@ -740,19 +762,6 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
       'Unable to retrieve balance',
     );
   }
-
-  await splitAndStoreNWCData({
-    ...fullStorageObject,
-    accounts: {
-      ...fullStorageObject.accounts,
-      [selectedNWCAccount.publicKey]: {
-        ...selectedNWCAccount,
-        shouldGetNewBalance: false,
-        walletBalance: Number(balance.balance),
-        lastChecked: now,
-      },
-    },
-  });
 
   return {
     result_type: 'get_balance',
@@ -837,10 +846,7 @@ const processEvent = async (event, selectedNWCAccount, fullStorageObject) => {
         );
         break;
       }
-      returnObject = await handleGetBalance(
-        selectedNWCAccount,
-        fullStorageObject,
-      );
+      returnObject = await handleGetBalance(selectedNWCAccount);
       break;
 
     default:
@@ -888,7 +894,10 @@ function decryptEventMessage(selectedNWCAccount, event) {
   return { data, encryptionScheme };
 }
 
-function verifyAndNormalizeEvent(rawEvent, accounts) {
+// Phase 1 of event verification: structural checks, signature verification and
+// freshness. These depend only on the raw event, so they can run while the
+// storage read is still in flight.
+function verifyEventSignatureAndFreshness(rawEvent) {
   if (
     !rawEvent ||
     typeof rawEvent !== 'object' ||
@@ -942,6 +951,13 @@ function verifyAndNormalizeEvent(rawEvent, accounts) {
     }
   }
 
+  return rawEvent;
+}
+
+// Phase 2 of event verification: resolve the target account and confirm the
+// signer is the authorized NWC client for it. Needs the account data from
+// storage, so it runs once the storage read resolves.
+function normalizeAccountForEvent(rawEvent, accounts) {
   const accountPubkey =
     rawEvent.tags.find(tag => tag[0] === 'p')?.[1] || rawEvent.pubkey;
   const selectedNWCAccount = accounts[accountPubkey];
@@ -1000,18 +1016,20 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     await previous;
 
     try {
-      const fullStorageObject = await getNWCData();
+      // Start the storage read immediately so its I/O overlaps with the
+      // signature verification below; the full object is only needed once we
+      // reach account resolution and pay_invoice budget persistence.
+      const fullStoragePromise = getNWCData();
+
+      const preVerifiedEvents = newEvents
+        .map(rawEvent => verifyEventSignatureAndFreshness(rawEvent))
+        .filter(Boolean);
+
+      const fullStorageObject = await fullStoragePromise;
       const nwcAccounts = fullStorageObject.accounts || {};
 
-      pushInstantNotification(
-        `Received ${newEvents.length} event${
-          newEvents.length === 1 ? '' : 's'
-        }`,
-        'Nostr Connect',
-      );
-
-      const verifiedEvents = newEvents
-        .map(rawEvent => verifyAndNormalizeEvent(rawEvent, nwcAccounts))
+      const verifiedEvents = preVerifiedEvents
+        .map(rawEvent => normalizeAccountForEvent(rawEvent, nwcAccounts))
         .filter(Boolean);
 
       const nowMs = Date.now();
@@ -1097,6 +1115,25 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
           await publishToSingleRelay([finalizedEvent], RELAY_URL);
           await nwcEventLedger.markDone(event.id, Date.now());
+
+          // Only notify once the event was actually handled and its response
+          // published; error responses stay silent.
+          if (returnObject.result) {
+            const successMessage =
+              EVENT_SUCCESS_NOTIFICATIONS[event.requestMethod];
+            if (successMessage) {
+              const selectedLanguage = await getLocalStorageItem(
+                'userSelectedLanguage',
+              ).then(data => JSON.parse(data) || 'en');
+              if (selectedLanguage !== i18next.language) {
+                i18next.changeLanguage(selectedLanguage);
+              }
+              pushInstantNotification(
+                i18next.t(successMessage),
+                'Nostr Connect',
+              );
+            }
+          }
         } catch (error) {
           console.error('Error processing event:', event.id, error);
           await nwcEventLedger.markFailed(event.id, Date.now());

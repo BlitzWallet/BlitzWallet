@@ -86,12 +86,6 @@ import {
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
 import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
-import {
-  cleanupOptimization,
-  checkIfOptimizationNeeded,
-  runLeafOptimization,
-  runTokenOptimization,
-} from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
 import { getCachedTokenImages } from '../app/functions/spark/tokenImageCache';
@@ -164,7 +158,7 @@ const SparkWalletManager = createContext(null);
 const SparkWalletProvider = ({ children }) => {
   const { authResetkey } = useAuthContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
+  const { changeSparkConnectionState } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToastActions();
@@ -466,125 +460,122 @@ const SparkWalletProvider = ({ children }) => {
     };
   }, [toggleIsSendingPayment]);
 
-  const debouncedHandleIncomingPayment = useCallback(
-    async balance => {
-      if (pendingTransferIds.current.size === 0) return;
+  const debouncedHandleIncomingPayment = useCallback(async balance => {
+    if (pendingTransferIds.current.size === 0) return;
 
-      const transferIdsToProcess = Array.from(pendingTransferIds.current);
-      pendingTransferIds.current.clear();
+    const transferIdsToProcess = Array.from(pendingTransferIds.current);
+    pendingTransferIds.current.clear();
 
-      console.log(
-        'Processing debounced incoming payments:',
-        transferIdsToProcess,
+    console.log(
+      'Processing debounced incoming payments:',
+      transferIdsToProcess,
+    );
+
+    // ─── Step 1: Immediately write placeholders so the restore handler
+    //     sees these transfer IDs as already-present in SQLite and skips them.
+    const placeholders = transferIdsToProcess.map(transferId => ({
+      id: transferId,
+      paymentStatus: 'pending',
+      paymentType: 'unknown',
+      accountId: sparkInfoRef.current.identityPubKey,
+      details: {
+        createdTime: Date.now(),
+        isPlaceholder: true,
+        direction: 'INCOMING',
+      },
+    }));
+
+    try {
+      await insertSparkTransactionPlaceholders(placeholders);
+    } catch (error) {
+      console.error('Error writing placeholder transactions:', error);
+    }
+
+    // ─── Step 2: Fetch tx details in a SINGLE batched call (one WebView
+    //     message) instead of one round-trip per transfer.
+    let cachedTransfers = [];
+
+    try {
+      const idSet = new Set(transferIdsToProcess);
+      const { transfers = [] } = await getSparkTransactions(
+        Math.min(50, transferIdsToProcess.length),
+        undefined,
+        currentMnemonicRef.current,
+      );
+      cachedTransfers = transfers.filter(transfer => idSet.has(transfer.id));
+
+      // Fallback only for ids NOT in the batch window (e.g. an older transfer
+      // that settled while many newer transfers arrived in the same burst).
+      // Normal load hits zero of these, so the single-message goal holds; this
+      // just stops a dropped id from being stuck as a pending placeholder.
+      const foundIds = new Set(cachedTransfers.map(transfer => transfer.id));
+      const missingIds = transferIdsToProcess.filter(id => !foundIds.has(id));
+      for (const transferId of missingIds) {
+        const transfer = await getSingleTxDetails(
+          currentMnemonicRef.current,
+          transferId,
+        );
+        if (transfer) cachedTransfers.push(transfer);
+      }
+    } catch (error) {
+      console.error('Error fetching batched incoming payments:', error);
+    }
+
+    const paymentObjects = [];
+
+    const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
+      getAllUnpaidSparkLightningInvoices(),
+      getAllSparkContactInvoices(),
+    ]);
+
+    for (const transferId of transferIdsToProcess) {
+      const tx = cachedTransfers.find(t => t.id === transferId);
+      if (!tx) continue;
+
+      // Skip UTXO_SWAP handling here — old logic kept
+      if (tx.type === 'UTXO_SWAP') continue;
+
+      const paymentObj = await transformTxToPaymentObject(
+        tx,
+        sparkInfoRef.current.sparkAddress,
+        undefined,
+        false,
+        unpaidInvoices,
+        sparkInfoRef.current.identityPubKey,
+        1,
+        undefined,
+        unpaidContactInvoices,
+        currentMnemonicRef.current,
       );
 
-      // ─── Step 1: Immediately write placeholders so the restore handler
-      //     sees these transfer IDs as already-present in SQLite and skips them.
-      const placeholders = transferIdsToProcess.map(transferId => ({
-        id: transferId,
-        paymentStatus: 'pending',
-        paymentType: 'unknown',
-        accountId: sparkInfoRef.current.identityPubKey,
-        details: {
-          createdTime: Date.now(),
-          isPlaceholder: true,
-          direction: 'INCOMING',
-        },
-      }));
-
-      try {
-        await insertSparkTransactionPlaceholders(placeholders);
-      } catch (error) {
-        console.error('Error writing placeholder transactions:', error);
+      if (paymentObj) {
+        paymentObjects.push(paymentObj);
       }
+    }
 
-      // ─── Step 2: Fetch tx details in a SINGLE batched call (one WebView
-      //     message) instead of one round-trip per transfer.
-      let cachedTransfers = [];
+    if (!paymentObjects.length) {
+      // Authoritative claim balance; apply upward-only (a claim never reduces
+      // available) and coerce — the webview path delivers it as a string.
+      const claimedBalance = Number(balance);
+      setSparkInformation(prev =>
+        Number.isFinite(claimedBalance) && claimedBalance > prev.balance
+          ? { ...prev, balance: claimedBalance }
+          : prev,
+      );
+      return;
+    }
 
-      try {
-        const idSet = new Set(transferIdsToProcess);
-        const { transfers = [] } = await getSparkTransactions(
-          Math.max(50, transferIdsToProcess.length),
-          undefined,
-          currentMnemonicRef.current,
-        );
-        cachedTransfers = transfers.filter(transfer => idSet.has(transfer.id));
-
-        // Fallback only for ids NOT in the batch window (e.g. an older transfer
-        // that settled while many newer transfers arrived in the same burst).
-        // Normal load hits zero of these, so the single-message goal holds; this
-        // just stops a dropped id from being stuck as a pending placeholder.
-        const foundIds = new Set(cachedTransfers.map(transfer => transfer.id));
-        const missingIds = transferIdsToProcess.filter(id => !foundIds.has(id));
-        for (const transferId of missingIds) {
-          const transfer = await getSingleTxDetails(
-            currentMnemonicRef.current,
-            transferId,
-          );
-          if (transfer) cachedTransfers.push(transfer);
-        }
-      } catch (error) {
-        console.error('Error fetching batched incoming payments:', error);
-      }
-
-      const paymentObjects = [];
-
-      const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
-        getAllUnpaidSparkLightningInvoices(),
-        getAllSparkContactInvoices(),
-      ]);
-
-      for (const transferId of transferIdsToProcess) {
-        const tx = cachedTransfers.find(t => t.id === transferId);
-        if (!tx) continue;
-
-        // Skip UTXO_SWAP handling here — old logic kept
-        if (tx.type === 'UTXO_SWAP') continue;
-
-        const paymentObj = await transformTxToPaymentObject(
-          tx,
-          sparkInfoRef.current.sparkAddress,
-          undefined,
-          false,
-          unpaidInvoices,
-          sparkInfoRef.current.identityPubKey,
-          1,
-          undefined,
-          unpaidContactInvoices,
-          currentMnemonicRef.current,
-        );
-
-        if (paymentObj) {
-          paymentObjects.push(paymentObj);
-        }
-      }
-
-      if (!paymentObjects.length) {
-        // Authoritative claim balance; apply upward-only (a claim never reduces
-        // available) and coerce — the webview path delivers it as a string.
-        const claimedBalance = Number(balance);
-        setSparkInformation(prev =>
-          Number.isFinite(claimedBalance) && claimedBalance > prev.balance
-            ? { ...prev, balance: claimedBalance }
-            : prev,
-        );
-        return;
-      }
-
-      try {
-        await bulkUpdateSparkTransactions(
-          paymentObjects,
-          isSendingPaymentRef.current ? 'transactions' : 'incomingPayment',
-          0,
-          balance,
-        );
-      } catch (error) {
-        console.error('bulkUpdateSparkTransactions failed:', error);
-      }
-    },
-    [sendWebViewRequest],
-  );
+    try {
+      await bulkUpdateSparkTransactions(
+        paymentObjects,
+        isSendingPaymentRef.current ? 'transactions' : 'incomingPayment',
+        0,
+        balance,
+      );
+    } catch (error) {
+      console.error('bulkUpdateSparkTransactions failed:', error);
+    }
+  }, []);
 
   const filterAndSetTransactions = useCallback(
     freshTxs => {
@@ -709,7 +700,6 @@ const SparkWalletProvider = ({ children }) => {
           const { updated } = await updateSparkTxStatus(
             currentMnemonicRef.current,
             sparkInfoRef.current.identityPubKey,
-            sendWebViewRequest,
             true,
             contactsPrivateKey,
             publicKey,
@@ -1634,7 +1624,6 @@ const SparkWalletProvider = ({ children }) => {
             console.log('RESTORE COMPLETE');
           },
           sparkInfoRef.current,
-          sendWebViewRequest,
         );
 
         restorePoller.start();
@@ -1642,7 +1631,6 @@ const SparkWalletProvider = ({ children }) => {
         updateSparkTxStatus(
           currentMnemonicRef.current,
           sparkInfoRef.current.identityPubKey,
-          sendWebViewRequest,
           false,
           contactsPrivateKey,
           publicKey,
@@ -1690,7 +1678,6 @@ const SparkWalletProvider = ({ children }) => {
             const response = await updateSparkTxStatus(
               currentMnemonicRef.current,
               sparkInfoRef.current.identityPubKey,
-              sendWebViewRequest,
               false,
               contactsPrivateKey,
               publicKey,
@@ -1968,7 +1955,6 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.identityPubKey,
     didGetToHomepage,
     // isSendingPayment,
-    sendWebViewRequest,
   ]);
 
   useEffect(() => {
@@ -2087,6 +2073,7 @@ const SparkWalletProvider = ({ children }) => {
               sspSignature: quote.signature,
               outputIndex: vout, // Use the vout from the UTXO
               mnemonic: currentMnemonicRef.current,
+              depositAddress: address,
             });
 
             // Add pending transaction if not already saved
@@ -2345,7 +2332,6 @@ const SparkWalletProvider = ({ children }) => {
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
         mnemonic: accountMnemoinc,
-        sendWebViewRequest,
         // Restore now runs solely via createRestorePoller in addListeners, so
         // always load cached txs on connect (the poller's SPARK_TX events layer
         // in any newly restored txs afterward).
@@ -2365,7 +2351,7 @@ const SparkWalletProvider = ({ children }) => {
       // cycle or manual refresh.
       retryBalanceAfterTimeout();
     },
-    [accountMnemoinc, sendWebViewRequest, retryBalanceAfterTimeout],
+    [accountMnemoinc, retryBalanceAfterTimeout],
   );
 
   // Function to update db when all reqiured information is loaded

@@ -20,6 +20,7 @@ import {
   simulateSwap,
   USD_ASSET_ADDRESS,
 } from '../spark/flashnet';
+import { waitForForground } from '../../hooks/useWaitForForground';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
@@ -361,6 +362,8 @@ export async function initializeAddressProcess(wolletInfo) {
     if (!isCurrentRequest(requestUUID) || shouldRetry) {
       return;
     }
+
+    await waitForForground();
 
     if (hasGlobalError) {
       setAddressState(prev => ({
