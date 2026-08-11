@@ -455,9 +455,12 @@ export default async function initializeUserSettingsFromHistory({
       // are preserved by simply omitting them). isChildAccount/spendingLimit
       // are backend-only and must also never travel on the user doc.
       const dbPayload = { ...tempObject };
-      ['childAccounts', 'nextChildDerivationIndex'].forEach(
-        key => delete dbPayload[key],
-      );
+      [
+        'childAccounts',
+        'nextChildDerivationIndex',
+        'isChildAccount',
+        'spendingLimit',
+      ].forEach(key => delete dbPayload[key]);
       // Deliberately not awaited. tempObject is already fully built in memory, so
       // this is pure persistence — and a firestore write promise only settles on
       // server ack, meaning offline it stays pending forever without rejecting.

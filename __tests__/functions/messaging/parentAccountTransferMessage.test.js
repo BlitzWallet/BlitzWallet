@@ -14,7 +14,19 @@ jest.mock('../../../db', () => ({
   updateMessage: jest.fn(async () => true),
 }));
 
-const { deriveChildMnemonic, getChildPublicKey } = require('../../../app/functions/accounts/childAccounts');
+// The recipient pill's labels come from `i18next.t` directly (recipientCard is
+// shared with the pre-send screen, which is not a hook context).
+jest.mock('i18next', () => ({
+  __esModule: true,
+  default: {
+    t: (key, params) => key,
+  },
+}));
+
+const {
+  deriveChildMnemonic,
+  getChildPublicKey,
+} = require('../../../app/functions/accounts/childAccounts');
 const { updateMessage } = require('../../../db');
 
 describe('buildParentAccountTransferMessagePayload', () => {
@@ -26,7 +38,9 @@ describe('buildParentAccountTransferMessagePayload', () => {
     });
     expect(payload.txid).toBe('spark-id-1');
     expect(payload[PARENT_ACCOUNT_TRANSFER_MARKER]).toBe(true);
-    expect(payload.description).toBe('Alice deposited');
+    expect(payload.description).toBe(
+      'settings.accountComponents.transferModal.addFunds',
+    );
     expect(payload.name).toBe('Alice');
     expect(payload.didSend).toBe(true);
     expect(payload.isRequest).toBe(false);
@@ -40,7 +54,9 @@ describe('buildParentAccountTransferMessagePayload', () => {
       txid: 'spark-id-2',
     });
 
-    expect(payload.description).toBe('Bob withdrew');
+    expect(payload.description).toBe(
+      'settings.accountComponents.transferModal.withdrawFunds',
+    );
     expect(payload.txid).toBe('spark-id-2');
     expect(payload[PARENT_ACCOUNT_TRANSFER_MARKER]).toBe(true);
   });
@@ -68,9 +84,9 @@ describe('isParentAccountTransferSender', () => {
       },
     };
 
-    expect(
-      isParentAccountTransferSender(savedMessages, 'contact-pubkey'),
-    ).toBe(false);
+    expect(isParentAccountTransferSender(savedMessages, 'contact-pubkey')).toBe(
+      false,
+    );
   });
 
   it('skips a conversation containing at least one parent transfer', () => {
@@ -78,7 +94,12 @@ describe('isParentAccountTransferSender', () => {
       'parent-pubkey': {
         messages: [
           { message: { txid: 'normal' } },
-          { message: { txid: 'transfer', [PARENT_ACCOUNT_TRANSFER_MARKER]: true } },
+          {
+            message: {
+              txid: 'transfer',
+              [PARENT_ACCOUNT_TRANSFER_MARKER]: true,
+            },
+          },
         ],
       },
     };
@@ -118,7 +139,9 @@ describe('publishParentAccountTransferMessage', () => {
     expect(arg.fromPubKey).toBe('parent-pubkey');
     expect(arg.privateKey).toBe('parent-priv');
     expect(arg.retrivedContact.isUsingEncriptedMessaging).toBe(true);
-    expect(arg.newMessage.description).toBe('Alice deposited');
+    expect(arg.newMessage.description).toBe(
+      'settings.accountComponents.transferModal.addFunds',
+    );
     expect(arg.newMessage.txid).toBe('spark-id-1');
     expect(arg.newMessage[PARENT_ACCOUNT_TRANSFER_MARKER]).toBe(true);
   });

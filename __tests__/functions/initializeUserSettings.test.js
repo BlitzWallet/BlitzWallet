@@ -124,7 +124,7 @@ describe('initializeUserSettings child-field echo', () => {
     // Stored doc lacks enabledLNURL (and other defaults) -> needsToUpdate.
     const result = await runInit(baseStoredData());
 
-    expect(result).toBe(true);
+    expect(result.didWork).toBe(true);
     expect(mockSendDataToDB).toHaveBeenCalledTimes(1);
 
     const payload = mockSendDataToDB.mock.calls[0][0];

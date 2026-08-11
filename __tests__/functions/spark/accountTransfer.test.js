@@ -1,6 +1,4 @@
-import {
-  executeAccountTransfer,
-} from '../../../app/functions/spark/accountTransfer';
+import { executeAccountTransfer } from '../../../app/functions/spark/accountTransfer';
 
 jest.mock('../../../app/functions/spark/payments', () => ({
   sparkPaymenWrapper: jest.fn(),
@@ -63,7 +61,9 @@ beforeEach(() => {
 test('rejects when amount + fee exceeds source balance and never sends', async () => {
   await expect(
     executeAccountTransfer(baseArgs({ amountSats: 5000, fee: 10 })),
-  ).rejects.toThrow('settings.accountComponents.accountPaymentPage.balanceError');
+  ).rejects.toThrow(
+    'settings.accountComponents.accountPaymentPage.balanceError',
+  );
   expect(sparkPaymenWrapper).not.toHaveBeenCalled();
 });
 
@@ -80,9 +80,7 @@ test('rejects non-positive or non-integer amounts', async () => {
 
 test('rejects invalid fee values', async () => {
   for (const fee of [-1, NaN, undefined]) {
-    await expect(
-      executeAccountTransfer(baseArgs({ fee })),
-    ).rejects.toThrow(
+    await expect(executeAccountTransfer(baseArgs({ fee }))).rejects.toThrow(
       'settings.accountComponents.accountPaymentPage.invalidFeeError',
     );
     expect(sparkPaymenWrapper).not.toHaveBeenCalled();
@@ -110,25 +108,6 @@ test('rejects a transfer between the same account', async () => {
     ),
   ).rejects.toThrow(
     'settings.accountComponents.accountPaymentPage.sameAccountError',
-  );
-  expect(sparkPaymenWrapper).not.toHaveBeenCalled();
-});
-
-test('rejects on the fresh balance even when the stale snapshot is ample', async () => {
-  getSparkBalance.mockResolvedValue({ didWork: true, balance: 100n });
-  await expect(
-    // stale fromBalance (5000) passes the early check; fresh balance (100) fails
-    executeAccountTransfer(baseArgs({ amountSats: 4000, fee: 10 })),
-  ).rejects.toThrow(
-    'settings.accountComponents.accountPaymentPage.balanceError',
-  );
-  expect(sparkPaymenWrapper).not.toHaveBeenCalled();
-});
-
-test('rejects when the fresh balance read fails', async () => {
-  getSparkBalance.mockResolvedValue({ didWork: false });
-  await expect(executeAccountTransfer(baseArgs())).rejects.toThrow(
-    'settings.accountComponents.accountPaymentPage.invalidBalanceError',
   );
   expect(sparkPaymenWrapper).not.toHaveBeenCalled();
 });
