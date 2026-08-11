@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../context-store/keys';
@@ -15,8 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { initializeNWCSeedInBackground } from './initializeNWCSeed';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { COLORS } from '../../../../../constants/theme';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function CombinedOnboardingWarning({ setHasSeenMnemoinc }) {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
@@ -24,8 +23,7 @@ export default function CombinedOnboardingWarning({ setHasSeenMnemoinc }) {
   const { t } = useTranslation();
   const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState(null);
-  const { backgroundOffset } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const handleContinue = async () => {
     setIsInitializing(true);
@@ -54,47 +52,62 @@ export default function CombinedOnboardingWarning({ setHasSeenMnemoinc }) {
   }
 
   return (
-    <View style={styles.globalContainer}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.sectionContainer}>
-          <ThemeText
-            styles={styles.sectionHeader}
-            content={t('settings.nwc.combinedOnboarding.accountFundingHeader')}
-          />
-          <ThemeText
-            styles={styles.sectionMessage}
-            content={t('settings.nwc.combinedOnboarding.accountFundingMessage')}
-          />
-        </View>
-
-        <View
-          style={{
-            ...styles.divider,
-            backgroundColor: theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
+    <View style={styles.content}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ThemeText
+          styles={styles.title}
+          content={t('settings.nwc.combinedOnboarding.infoTitle')}
+        />
+        <ThemeText
+          styles={styles.subtitle}
+          content={t('settings.nwc.combinedOnboarding.infoSubtitle')}
         />
 
-        <View style={styles.sectionContainer}>
-          <ThemeText
-            styles={styles.sectionHeader}
-            content={t('settings.nwc.combinedOnboarding.securityHeader')}
-          />
-          <ThemeText
-            styles={styles.sectionMessage}
-            content={t('settings.nwc.combinedOnboarding.securityMessage')}
-          />
+        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+          {[
+            {
+              icon: 'Wallet',
+              label: t('settings.nwc.combinedOnboarding.row1Label'),
+              desc: t('settings.nwc.combinedOnboarding.row1Description'),
+            },
+            {
+              icon: 'ShieldCheck',
+              label: t('settings.nwc.combinedOnboarding.row2Label'),
+              desc: t('settings.nwc.combinedOnboarding.row2Description'),
+            },
+            {
+              icon: 'KeyRound',
+              label: t('settings.nwc.combinedOnboarding.row3Label'),
+              desc: t('settings.nwc.combinedOnboarding.row3Description'),
+            },
+          ].map(({ icon, label, desc }, index) => (
+            <View
+              key={icon}
+              style={[
+                styles.infoRow,
+                index > 0 && {
+                  borderTopWidth: 1,
+                  borderTopColor: backgroundColor,
+                },
+              ]}
+            >
+              <View style={styles.infoIcon}>
+                <ThemeIcon size={20} iconName={icon} />
+              </View>
+              <View style={styles.infoText}>
+                <ThemeText styles={styles.infoLabel} content={label} />
+                <ThemeText styles={styles.infoDesc} content={desc} />
+              </View>
+            </View>
+          ))}
         </View>
 
         {error && (
           <View
-            style={{
-              ...styles.errorContainer,
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : COLORS.cancelRed,
-            }}
+            style={[
+              styles.errorContainer,
+              { backgroundColor: backgroundOffset },
+            ]}
           >
             <ThemeText
               styles={styles.errorTitle}
@@ -104,50 +117,77 @@ export default function CombinedOnboardingWarning({ setHasSeenMnemoinc }) {
           </View>
         )}
       </ScrollView>
-
       <CustomButton
-        actionFunction={handleContinue}
-        buttonStyles={styles.buttonContainer}
+        buttonStyles={styles.button}
         textContent={
           error
             ? t('settings.nwc.combinedOnboarding.errorRetry')
             : t('settings.nwc.combinedOnboarding.continueButton')
         }
+        actionFunction={handleContinue}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    width: INSET_WINDOW_WIDTH,
+  content: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  scrollContent: {
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  sectionContainer: {
-    marginBottom: 30,
-  },
-  sectionHeader: {
-    fontSize: SIZES.xLarge,
+  title: {
+    fontSize: SIZES.large,
     fontWeight: '500',
-    marginBottom: 15,
-    textAlign: 'center',
+    includeFontPadding: false,
+    marginTop: 28,
+    marginBottom: 8,
   },
-  sectionMessage: {
-    fontSize: SIZES.medium,
-    lineHeight: SIZES.medium * 1.5,
-    textAlign: 'center',
+  subtitle: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+    marginBottom: 32,
   },
-  divider: {
-    width: '60%',
-    height: 1,
-    opacity: 0.3,
-    alignSelf: 'center',
-    marginVertical: 20,
+  button: {
+    width: '100%',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
+    ...CENTER,
+  },
+  card: {
+    width: '100%',
+    borderRadius: 24,
+    overflow: 'hidden',
+    marginBottom: 'auto',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+  },
+  infoIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  infoText: {
+    flex: 1,
+    gap: 3,
+  },
+  infoLabel: {
+    fontSize: SIZES.smedium,
+    fontWeight: '500',
+    includeFontPadding: false,
+  },
+  infoDesc: {
+    fontSize: SIZES.small,
+    opacity: 0.65,
+    includeFontPadding: false,
   },
   errorContainer: {
     marginTop: 20,
@@ -163,10 +203,5 @@ const styles = StyleSheet.create({
   errorMessage: {
     fontSize: SIZES.medium,
     textAlign: 'center',
-  },
-  buttonContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

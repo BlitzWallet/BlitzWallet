@@ -1868,15 +1868,46 @@
     },
     "nwc": {
       "confirmDelete": "Är du säker att du vill ta bort det här Nostr Connect-objektet?",
-      "searchAccountPlaceholder": "Sök efter NWC-konto",
-      "noAccountsMessage": "Du har inga Nostr Connect-konton.",
       "addAccount": "Lägg till konto",
+      "empty": {
+        "title": "Inga anslutningar ännu",
+        "subtitle": "Skapa en anslutning för att använda Nostr Wallet Connect med dina favoritappar."
+      },
+      "createNWCName": {
+        "title": "Anslutningsnamn"
+      },
+      "createNWCPermissions": {
+        "title": "Behörigheter",
+        "pageTitle": "Lägg till plånboksbehörigheter",
+        "pageSubtitle": "Välj vilka åtgärder den här plånboken kan utföra.",
+        "editTitle": "Redigera plånboksbehörigheter",
+        "editSubtitle": "Redigera vilka åtgärder den här plånboken kan utföra."
+      },
+      "createNWCAmount": {
+        "title": "Budget",
+        "pageTitle": "Ange en utgiftsbudget",
+        "pageSubtitle": "Ange en utgiftsgräns och när den återställs. Lämna tomt för ingen gräns.",
+        "editTitle": "Redigera utgiftsbudget",
+        "editSubtitle": "Ändra utgiftsgränsen och när den återställs. Lämna tomt för ingen gräns.",
+        "renewalPlaceholder": "Välj förnyelseperiod",
+        "createButton": "Skapa konto"
+      },
+      "accountPage": {
+        "title": "Hantera konto",
+        "nameLabel": "Namn",
+        "permissionsLabel": "Behörigheter",
+        "permissionsCount_one": "{{count}} behörighet",
+        "permissionsCount_other": "{{count}} behörigheter",
+        "renewalLabel": "Förnyelseperiod",
+        "amountLabel": "Budgetbelopp",
+        "viewSecretLabel": "Anslutningssträng",
+        "deleteAccount": "Ta bort konto"
+      },
       "createNWCAccount": {
         "noAccountNameError": "Ange ett kontonamn.",
         "noPermissionsError": "Vänligen aktivera minst en behörighet.",
         "noBudgetError": "Vänligen välj en budgetförnyelseperiod.",
         "noBudgetAmountError": "Vänligen välj ett budgetbelopp.",
-        "title": "Skapa konto",
         "loadingMessage": "Skapa konto",
         "nameInputPlaceholder": "Ange NWC-kontonamn",
         "permissionsHeader": "Behörighet för plånbok",
@@ -1885,17 +1916,14 @@
         "getBalance": "Få balans",
         "transactions": "Transaktioner",
         "lookupInvoice": "Söka upp faktura",
-        "budgetRenewalHeader": "Förnyelse av budgeten",
-        "bugetPlaceholder": "Välj period för budgetförnyelse",
-        "createConnection": "",
-        "connectionName": "",
-        "editTitle": "Redigera konto"
+        "budgetRenewalHeader": "Förnyelse av budgeten"
       },
       "hasNoAccounts": {
         "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
       },
       "noNotifications": {
-        "warningMessage": "För att kunna använda Nostr Wallet Connect måste du ha aktiverat push-notiser för Nostr Wallet Connect.\n\nVänligen aktivera push-meddelanden i inställningarna och försök igen."
+        "title": "Aviseringar krävs",
+        "subtitle": "Nostr Wallet Connect kräver push-aviseringar. Aktivera dem i Inställningar och försök igen."
       },
       "showSeedPage": {
         "loadingMessage": "Genererar återställningsfras",
@@ -1903,14 +1931,23 @@
         "viewSeed": "Visa återställningsfras"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Fyll på din NWC-wallet",
-        "accountFundingMessage": "För att skicka pengar från din Nostr Connect-wallet måste du först lägga till medel — antingen genom att ta emot pengar eller genom att överföra från din huvudwallet.\n\nDu kan överföra medel från din huvudwallet till NWC på sidan för kontoinställningar.",
-        "securityHeader": "Säker och isolerad",
-        "securityMessage": "Nostr Wallet Connect skapar en separat wallet från din huvudwallet för ökad säkerhet. Denna seed-fras lagras säkert och kan visas senare på sidan Konton i inställningarna vid behov.",
+        "infoTitle": "Innan du börjar",
+        "infoSubtitle": "Några saker att veta om ditt Nostr Wallet Connect-konto.",
+        "row1Label": "Lägg till pengar",
+        "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
+        "row2Label": "Separat konto",
+        "row2Description": "Det här kontot är åtskilt från ditt huvudkonto för ökad säkerhet.",
+        "row3Label": "Appåtkomst",
+        "row3Description": "Anslutna appar kan använda det här kontot för att göra betalningar.",
         "continueButton": "Kom igång",
         "initializingMessage": "Konfigurerar din NWC-wallet...",
         "errorTitle": "Installationen misslyckades",
         "errorRetry": "Försök igen"
+      },
+      "accountCreated": {
+        "title": "Konto skapat",
+        "subtitle": "Ditt NWC-konto har skapats. Kopiera anslutningssträngen för att börja använda det.",
+        "copyConnection": "Kopiera anslutningssträng"
       }
     },
     "accountComponents": {

@@ -1951,15 +1951,51 @@
     },
     "nwc": {
       "confirmDelete": "Are you sure you want to delete this Nostr Connect item?",
-      "searchAccountPlaceholder": "Search for NWC account",
-      "noAccountsMessage": "You have no Nostr Connect accounts.",
       "addAccount": "Add Account",
+      "empty": {
+        "title": "No connections yet",
+        "subtitle": "Create a connection to use Nostr Wallet Connect with your favorite apps."
+      },
+      "createNWCName": {
+        "title": "Connection Name"
+      },
+      "createNWCPermissions": {
+        "title": "Permissions",
+        "pageTitle": "Add wallet permissions",
+        "pageSubtitle": "Choose what actions this wallet can perform.",
+        "editTitle": "Edit wallet permissions",
+        "editSubtitle": "Edit what actions this wallet can perform."
+      },
+      "createNWCAmount": {
+        "title": "Budget",
+        "pageTitle": "Set a spending budget",
+        "pageSubtitle": "Set a spending limit and when it resets. Leave blank for no limit.",
+        "editTitle": "Edit spending budget",
+        "editSubtitle": "Change the spending limit and when it resets. Leave blank for no limit.",
+        "renewalPlaceholder": "Select renewal period",
+        "createButton": "Create account"
+      },
+      "accountCreated": {
+        "title": "Account created",
+        "subtitle": "Your NWC account has been created, copy the connection string to start using it.",
+        "copyConnection": "Copy connection string"
+      },
+      "accountPage": {
+        "title": "Manage Account",
+        "nameLabel": "Name",
+        "permissionsLabel": "Permissions",
+        "permissionsCount_one": "{{count}} permission",
+        "permissionsCount_other": "{{count}} permissions",
+        "renewalLabel": "Renewal period",
+        "amountLabel": "Budget amount",
+        "viewSecretLabel": "Connection string",
+        "deleteAccount": "Delete account"
+      },
       "createNWCAccount": {
         "noAccountNameError": "Please enter an account name.",
         "noPermissionsError": "Please enable at least one permission.",
         "noBudgetError": "Please select a budget renewal period.",
         "noBudgetAmountError": "Please select a budget amount.",
-        "title": "Create Account",
         "loadingMessage": "Creating Account",
         "nameInputPlaceholder": "Enter NWC account name",
         "permissionsHeader": "Wallet permissions",
@@ -1968,17 +2004,14 @@
         "getBalance": "Get Balance",
         "transactions": "Transactions",
         "lookupInvoice": "Lookup Invoice",
-        "budgetRenewalHeader": "Budget Renewal",
-        "bugetPlaceholder": "Select budget renewal period",
-        "createConnection": "",
-        "connectionName": "",
-        "editTitle": "Edit Account"
+        "budgetRenewalHeader": "Budget Renewal"
       },
       "hasNoAccounts": {
         "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."
       },
       "noNotifications": {
-        "warningMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
+        "title": "Notifications required",
+        "subtitle": "Nostr Wallet Connect requires push notifications. Please enable them in Settings and try again."
       },
       "showSeedPage": {
         "loadingMessage": "Generating recovery phrase",
@@ -1986,10 +2019,14 @@
         "viewSeed": "View recovery phrase"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Funding Your NWC Account",
-        "accountFundingMessage": "To send money from your Nostr Connect account, you'll first need to add funds—either by receiving money or transferring from your main account.\n\nYou can transfer funds from your main account to NWC in the account settings page.",
-        "securityHeader": "Secure & Isolated",
-        "securityMessage": "Nostr Wallet Connect creates a seperate account from your main account for added security. This recovery phrase is securely stored and can be viewed later in the Accounts setting page if needed.",
+        "infoTitle": "Before you get started",
+        "infoSubtitle": "A few things to know about your Nostr Wallet Connect account.",
+        "row1Label": "Add funds",
+        "row1Description": "Add money by receiving it or moving it from your main account.",
+        "row2Label": "Separate account",
+        "row2Description": "This account is separate from your main account for added security.",
+        "row3Label": "App access",
+        "row3Description": "Connected apps can use this account to make payments.",
         "continueButton": "Get Started",
         "initializingMessage": "Setting up your NWC account...",
         "errorTitle": "Setup Failed",

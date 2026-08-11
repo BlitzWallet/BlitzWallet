@@ -51,7 +51,11 @@ import ChildClaimStack from './ChildClaimStack';
 import SeedPhraseWarning from '../app/components/admin/homeComponents/settingsContent/seedPhraseWarning';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
-import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
+import CreateNWCName from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCName';
+import CreateNWCPermissions from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCPermissions';
+import CreateNWCAmount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAmount';
+import NWCAccountPage from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountPage';
+import NWCAccountCreated from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountCreated';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import { CustomWebView } from '../app/functions/CustomElements';
@@ -166,8 +170,11 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'EmojiAvatarSelector', component: EmojiAvatarSelector },
   { name: 'CustodyAccountPaymentPage', component: AccountPaymentPage },
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
-  { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
-  // {name: 'NWCWallet', component: NWCWallet},
+  { name: 'NWCAccountPage', component: NWCAccountPage },
+  { name: 'CreateNWCName', component: CreateNWCName },
+  { name: 'CreateNWCPermissions', component: CreateNWCPermissions },
+  { name: 'CreateNWCAmount', component: CreateNWCAmount },
+  { name: 'NWCAccountCreated', component: NWCAccountCreated },
   { name: 'Nip5VerificationPage', component: Nip5VerificationPage },
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },

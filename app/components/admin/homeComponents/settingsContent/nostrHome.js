@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 8,
     width: '100%',
   },
   lastSection: {
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   sectionContent: {
     width: '100%',
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 16,
   },
   settingsItem: {

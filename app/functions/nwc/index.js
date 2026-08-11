@@ -1,7 +1,16 @@
-import { NWC_LOACAL_STORE_KEY, NWC_SECURE_STORE_KEY } from '../../constants';
+import {
+  NOSTR_RELAY_URL,
+  NWC_LOACAL_STORE_KEY,
+  NWC_SECURE_STORE_KEY,
+} from '../../constants';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import { retrieveData, storeData } from '../secureStore';
-import { getPublicKey } from 'nostr-tools';
+import { finalizeEvent, getPublicKey } from 'nostr-tools';
+import { randomBytes } from 'react-native-quick-crypto';
+import sha256Hash from '../hash';
+import { createAccountMnemonic } from '../seed';
+import { privateKeyFromSeedWords } from '../nostrCompatability';
+import { publishToSingleRelay } from './publishResponse';
 
 export async function getNWCAccountInformation() {
   try {
@@ -114,7 +123,58 @@ export async function getNWCData() {
   return nonSensitiveData;
 }
 
+export async function saveNWCAccount({
+  savedData = {},
+  accountName,
+  permissions,
+  budgetRenewalSettings,
+  existingAccounts = {},
+}) {
+  let privateKey, publicKey, secret;
+  if (!savedData?.publicKey) {
+    const mnemonic = await createAccountMnemonic();
+    privateKey = await privateKeyFromSeedWords(mnemonic);
+    publicKey = getPublicKey(privateKey);
+    secret = sha256Hash(randomBytes(32));
+  } else {
+    privateKey = savedData.privateKey;
+    publicKey = savedData.publicKey;
+    secret = savedData.secret;
+  }
+  const clientPubkey = getPublicKey(secret);
+
+  const infoEvent = {
+    kind: 13194,
+    created_at: Math.floor(Date.now() / 1000),
+    content: getSupportedMethods(permissions).join(' '),
+    tags: [],
+  };
+
+  const signedEvent = finalizeEvent(
+    infoEvent,
+    Buffer.from(privateKey, 'hex'),
+  );
+
+  await publishToSingleRelay([signedEvent], NOSTR_RELAY_URL);
+
+  return {
+    accounts: {
+      ...existingAccounts,
+      [publicKey]: {
+        accountName,
+        permissions,
+        budgetRenewalSettings,
+        privateKey,
+        publicKey,
+        secret,
+        clientPubkey,
+      },
+    },
+  };
+}
+
 export function isWithinNWCBalanceTimeFrame(duration, lastRotated) {
+  if (!duration) return true;
   const now = new Date();
   const last = new Date(lastRotated);
 

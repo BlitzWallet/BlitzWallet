@@ -1869,15 +1869,48 @@
     },
     "nwc": {
       "confirmDelete": "Удалить этот Nostr Connect?",
-      "searchAccountPlaceholder": "Поиск аккаунта NWC",
-      "noAccountsMessage": "Нет аккаунтов Nostr Connect.",
       "addAccount": "Добавить аккаунт",
+      "empty": {
+        "title": "Пока нет подключений",
+        "subtitle": "Создайте подключение, чтобы использовать Nostr Wallet Connect с вашими любимыми приложениями."
+      },
+      "createNWCName": {
+        "title": "Название подключения"
+      },
+      "createNWCPermissions": {
+        "title": "Разрешения",
+        "pageTitle": "Добавить разрешения кошелька",
+        "pageSubtitle": "Выберите, какие действия может выполнять этот кошелек.",
+        "editTitle": "Изменить разрешения кошелька",
+        "editSubtitle": "Измените, какие действия может выполнять этот кошелек."
+      },
+      "createNWCAmount": {
+        "title": "Бюджет",
+        "pageTitle": "Установить бюджет расходов",
+        "pageSubtitle": "Установите лимит расходов и период его сброса. Оставьте пустым, чтобы без лимита.",
+        "editTitle": "Изменить бюджет расходов",
+        "editSubtitle": "Измените лимит расходов и период его сброса. Оставьте пустым, чтобы без лимита.",
+        "renewalPlaceholder": "Выберите период обновления",
+        "createButton": "Создать аккаунт"
+      },
+      "accountPage": {
+        "title": "Управление аккаунтом",
+        "nameLabel": "Название",
+        "permissionsLabel": "Разрешения",
+        "permissionsCount_one": "{{count}} разрешение",
+        "permissionsCount_few": "{{count}} разрешения",
+        "permissionsCount_many": "{{count}} разрешений",
+        "permissionsCount_other": "{{count}} разрешений",
+        "renewalLabel": "Период обновления",
+        "amountLabel": "Сумма бюджета",
+        "viewSecretLabel": "Строка подключения",
+        "deleteAccount": "Удалить аккаунт"
+      },
       "createNWCAccount": {
         "noAccountNameError": "Введите имя аккаунта.",
         "noPermissionsError": "Выберите хотя бы одно разрешение.",
         "noBudgetError": "Выберите период обновления бюджета.",
         "noBudgetAmountError": "Выберите сумму бюджета.",
-        "title": "Создать аккаунт",
         "loadingMessage": "Создание...",
         "nameInputPlaceholder": "Имя аккаунта NWC",
         "permissionsHeader": "Разрешения",
@@ -1886,17 +1919,14 @@
         "getBalance": "Смотреть баланс",
         "transactions": "Транзакции",
         "lookupInvoice": "Проверка инвойсов",
-        "budgetRenewalHeader": "Обновление бюджета",
-        "bugetPlaceholder": "Период обновления",
-        "createConnection": "",
-        "connectionName": "",
-        "editTitle": "Изменить счет"
+        "budgetRenewalHeader": "Обновление бюджета"
       },
       "hasNoAccounts": {
         "warningMessage": "Для отправки через NWC нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
       },
       "noNotifications": {
-        "warningMessage": "Для работы NWC нужно включить пуш-уведомления в настройках."
+        "title": "Требуются уведомления",
+        "subtitle": "Для Nostr Wallet Connect нужны push-уведомления. Включите их в настройках и попробуйте снова."
       },
       "showSeedPage": {
         "loadingMessage": "Создание фразы восстановления",
@@ -1904,14 +1934,23 @@
         "viewSeed": "Просмотреть фразу восстановления"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Пополнение кошелька NWC",
-        "accountFundingMessage": "Чтобы отправлять средства из вашего кошелька Nostr Connect, сначала необходимо пополнить его — либо получив средства, либо переведя их из основного кошелька.\n\nВы можете перевести средства из основного кошелька в NWC на странице настроек аккаунта.",
-        "securityHeader": "Безопасно и изолировано",
-        "securityMessage": "Nostr Wallet Connect создаёт отдельный кошелёк от вашего основного для дополнительной безопасности. Эта seed-фраза хранится безопасно и может быть просмотрена позже на странице «Аккаунты» в настройках при необходимости.",
+        "infoTitle": "Прежде чем начать",
+        "infoSubtitle": "Несколько вещей, которые стоит знать об аккаунте Nostr Wallet Connect.",
+        "row1Label": "Пополнить счет",
+        "row1Description": "Пополните счет, получая деньги или переводя их с основного аккаунта.",
+        "row2Label": "Отдельный аккаунт",
+        "row2Description": "Этот аккаунт отделен от вашего основного аккаунта для дополнительной безопасности.",
+        "row3Label": "Доступ приложений",
+        "row3Description": "Подключенные приложения могут использовать этот аккаунт для платежей.",
         "continueButton": "Начать",
         "initializingMessage": "Настройка вашего кошелька NWC...",
         "errorTitle": "Ошибка настройки",
         "errorRetry": "Повторить попытку"
+      },
+      "accountCreated": {
+        "title": "Аккаунт создан",
+        "subtitle": "Аккаунт NWC создан. Скопируйте строку подключения, чтобы начать его использовать.",
+        "copyConnection": "Скопировать строку подключения"
       }
     },
     "accountComponents": {

@@ -1,10 +1,10 @@
 import { StyleSheet, View } from 'react-native';
-import { ThemeText } from '../../../../../functions/CustomElements';
-import CustomButton from '../../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { CENTER } from '../../../../../constants';
+import CustomButton from '../../../../../functions/CustomElements/button';
 
 export default function NostrWalletConnectNoNotifications() {
   const navigate = useNavigation();
@@ -12,17 +12,18 @@ export default function NostrWalletConnectNoNotifications() {
 
   return (
     <View style={styles.globalContainer}>
-      <ThemeText
-        styles={styles.textStyles}
-        content={t('settings.nwc.noNotifications.warningMessage')}
+      <NoContentSceen
+        iconName="BellOff"
+        titleText={t('settings.nwc.noNotifications.title')}
+        subTitleText={t('settings.nwc.noNotifications.subtitle')}
       />
       <CustomButton
+        textContent={t('constants.enable')}
         actionFunction={() => {
           navigate.navigate('SettingsContentHome', {
             for: 'Notifications',
           });
         }}
-        textContent={t('constants.enable')}
       />
     </View>
   );
@@ -33,11 +34,5 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     flex: 1,
     ...CENTER,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  textStyles: {
-    textAlign: 'center',
-    marginBottom: 30,
   },
 });
