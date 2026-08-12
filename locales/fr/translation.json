@@ -2185,6 +2185,31 @@
         "children": "Gérés"
       },
       "dontMatch": "Ne correspondent pas",
+      "sasGrid": {
+        "blank": "Vide",
+        "x": "X",
+        "plus": "plus",
+        "filled": "rempli",
+        "outline": "contour",
+        "position": "Ligne {{row}} sur 3, colonne {{column}} sur 3.",
+        "shapes": {
+          "circle": "Cercle",
+          "square": "Carré",
+          "triangle": "Triangle",
+          "diamond": "Losange",
+          "hexagon": "Hexagone",
+          "moon": "Lune",
+          "cross": "Croix",
+          "star": "Étoile",
+          "heart": "Cœur",
+          "checkmark": "Coche",
+          "shield": "Bouclier",
+          "clock": "Horloge",
+          "bell": "Cloche",
+          "house": "Maison",
+          "apple": "Pomme"
+        }
+      },
       "list": {
         "spendingLimitLabel": "Limite",
         "noLimit": "Aucune limite"

@@ -2186,6 +2186,31 @@
         "children": "Hanterade"
       },
       "dontMatch": "Stämmer inte",
+      "sasGrid": {
+        "blank": "Tom",
+        "x": "X",
+        "plus": "plus",
+        "filled": "fylld",
+        "outline": "kontur",
+        "position": "Rad {{row}} av 3, kolumn {{column}} av 3.",
+        "shapes": {
+          "circle": "Cirkel",
+          "square": "Fyrkant",
+          "triangle": "Triangel",
+          "diamond": "Romb",
+          "hexagon": "Hexagon",
+          "moon": "Måne",
+          "cross": "Kors",
+          "star": "Stjärna",
+          "heart": "Hjärta",
+          "checkmark": "Bock",
+          "shield": "Sköld",
+          "clock": "Klocka",
+          "bell": "Bjällra",
+          "house": "Hus",
+          "apple": "Äpple"
+        }
+      },
       "list": {
         "spendingLimitLabel": "Gräns",
         "noLimit": "Ingen gräns"

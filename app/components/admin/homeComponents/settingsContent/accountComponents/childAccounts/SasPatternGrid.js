@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 import { CENTER } from '../../../../../../constants';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 
@@ -8,6 +9,13 @@ import GetThemeColors from '../../../../../../hooks/themeColors';
 // table); index & 1 picks outline (0) vs filled (1). Shapes are drawn as SVG so
 // both phones render them pixel-identically, independent of system fonts. All
 // live in a 0-100 viewBox, centered, sized to read clearly at a glance.
+//
+// Screen-reader fallback: every cell also announces its shape by name (e.g.
+// "Filled circle. Row 1 of 3, column 2 of 3.") so a low-vision user can follow
+// the same verification over a phone call. The spoken names are
+// language-dependent — the shapes themselves stay the language-neutral primary
+// channel (see childPairing.js) — but both phones announce in the same
+// language, which is all the comparison needs.
 
 const STROKE = 7; // outline weight in viewBox units
 const BAR = 15; // cross/plus arm thickness
@@ -247,14 +255,59 @@ export function Shape({ base, filled, color, bg }) {
   }
 }
 
+const SAS_LABEL_NS = 'settings.childAccounts.sasGrid';
+
+// Base index (0-14) -> i18n key, mirroring the switch cases in Shape.
+const SHAPE_KEYS = [
+  'circle',
+  'square',
+  'triangle',
+  'diamond',
+  'hexagon',
+  'moon',
+  'cross',
+  'star',
+  'heart',
+  'checkmark',
+  'shield',
+  'clock',
+  'bell',
+  'house',
+  'apple',
+];
+
+// Spoken description of one cell: shape name + outline/filled state + grid
+// position, so the two people can walk the grid row by row over a call.
+function sasCellLabel(t, idx, row, column) {
+  if (idx === null) {
+    return [
+      t(`${SAS_LABEL_NS}.blank`),
+      t(`${SAS_LABEL_NS}.position`, { row, column }),
+    ].join(', ');
+  }
+  const base = idx >> 1;
+  const filled = (idx & 1) === 1;
+  // Base 6 is drawn as an X when outlined and a plus when filled, so the
+  // variant word would be redundant — the shape name carries it.
+  const shapeKey =
+    base === 6 ? (filled ? 'plus' : 'x') : `shapes.${SHAPE_KEYS[base]}`;
+  const label = [t(`${SAS_LABEL_NS}.${shapeKey}`)];
+  if (base !== 6) {
+    label.push(t(`${SAS_LABEL_NS}.${filled ? 'filled' : 'outline'}`));
+  }
+  label.push(t(`${SAS_LABEL_NS}.position`, { row, column }));
+  return label.join(', ');
+}
+
 export default function SasPatternGrid({ sas, cellSize = 74 }) {
+  const { t } = useTranslation();
   const { backgroundOffset, textColor } = GetThemeColors();
   const chars = String(sas || '').split('');
   const shapeSize = Math.round(cellSize * 0.6);
 
   return (
     <View style={styles.grid}>
-      {[0, 3, 6].map(rowStart => (
+      {[0, 3, 6].map((rowStart, row) => (
         <View key={rowStart} style={styles.row}>
           {chars.slice(rowStart, rowStart + 3).map((char, i) => {
             // Fail closed: only 0-t are valid shape indices. Anything else
@@ -264,6 +317,8 @@ export default function SasPatternGrid({ sas, cellSize = 74 }) {
             return (
               <View
                 key={rowStart + i}
+                accessible
+                accessibilityLabel={sasCellLabel(t, idx, row + 1, i + 1)}
                 style={[
                   styles.cell,
                   {

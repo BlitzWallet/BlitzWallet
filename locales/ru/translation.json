@@ -2189,6 +2189,31 @@
         "children": "Управляемые"
       },
       "dontMatch": "Не совпадают",
+      "sasGrid": {
+        "blank": "Пусто",
+        "x": "икс",
+        "plus": "плюс",
+        "filled": "заполненный",
+        "outline": "контурный",
+        "position": "Строка {{row}} из 3, столбец {{column}} из 3.",
+        "shapes": {
+          "circle": "Круг",
+          "square": "Квадрат",
+          "triangle": "Треугольник",
+          "diamond": "Ромб",
+          "hexagon": "Шестиугольник",
+          "moon": "Луна",
+          "cross": "Крест",
+          "star": "Звезда",
+          "heart": "Сердце",
+          "checkmark": "Галочка",
+          "shield": "Щит",
+          "clock": "Часы",
+          "bell": "Колокол",
+          "house": "Дом",
+          "apple": "Яблоко"
+        }
+      },
       "list": {
         "spendingLimitLabel": "Лимит",
         "noLimit": "Без лимита"

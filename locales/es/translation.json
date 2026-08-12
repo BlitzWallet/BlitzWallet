@@ -2186,6 +2186,31 @@
         "children": "Gestionadas"
       },
       "dontMatch": "No coinciden",
+      "sasGrid": {
+        "blank": "Vacío",
+        "x": "equis",
+        "plus": "más",
+        "filled": "relleno",
+        "outline": "contorno",
+        "position": "Fila {{row}} de 3, columna {{column}} de 3.",
+        "shapes": {
+          "circle": "Círculo",
+          "square": "Cuadrado",
+          "triangle": "Triángulo",
+          "diamond": "Rombo",
+          "hexagon": "Hexágono",
+          "moon": "Luna",
+          "cross": "Cruz",
+          "star": "Estrella",
+          "heart": "Corazón",
+          "checkmark": "Marca de verificación",
+          "shield": "Escudo",
+          "clock": "Reloj",
+          "bell": "Campana",
+          "house": "Casa",
+          "apple": "Manzana"
+        }
+      },
       "list": {
         "spendingLimitLabel": "Límite",
         "noLimit": "Sin límite"
