@@ -14,8 +14,14 @@ import {
 // keys (no long-term key, so nothing to precompute against). A commit-reveal
 // binds the SAS: the parent publishes H(parentEphPub) before the child reveals
 // childEphPub, and only reveals parentEphPub afterwards, so neither side can
-// grind its key to force a matching SAS. The 6-char SAS (over the 32-char code
-// alphabet) then lets the two people defeat an active MITM by voice.
+// grind its key to force a matching SAS. The 9-shape SAS pattern (30^9 ≈ 2^44)
+// then lets the two people defeat an active MITM by eye.
+// The SAS is a pattern, not digits: a 3×3 grid where each cell is one of 30
+// shapes (15 bases × outline/filled). Shapes are globally recognized, need no
+// language/read-aloud, and 30 symbols/cell buys ~4.9 bits each vs a digit's 3.3,
+// so 9 cells reaches ~44 bits (well past the old 9-digit code). See SasPatternGrid
+// for the shape rendering (SVG, so both phones draw pixel-identical shapes).
+// The rendezvous/pairing code stays digits-only (universal across keyboards/IMEs).
 // nostr pubkeys are x-only, so we reuse the `'02'+pub` even-y convention that
 // app/functions/messaging/encodingAndDecodingMessages.js already relies on.
 
@@ -23,9 +29,10 @@ const SEED_INFO = 'blitz-child-pairing:v1:seed';
 const SAS_INFO = 'blitz-child-pairing:v1:sas';
 const RENDEZVOUS_PREFIX = 'blitz-child-pairing:v1:';
 
-// Ambiguous-free alphabet (no I/O/0/1) for the human-typed pairing code.
-const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const CODE_LENGTH = 6;
+// Digits only: universal across all keyboards/languages, no case, no letter/digit
+// ambiguity. Shared by the (collision-only) pairing code and the (secure) SAS.
+const CODE_ALPHABET = '0123456789';
+const CODE_LENGTH = 6; // pairing code: 10^6 rendezvous space, collision-only
 
 /** Fresh in-memory ephemeral keypair for one pairing session. Never persisted. */
 export function makeChildEphKey() {
@@ -91,12 +98,13 @@ export function verifyKeyCommitment(commitHex, pubHex) {
   return makeKeyCommitment(pubHex) === String(commitHex);
 }
 
-const SAS_LENGTH = 6; // over CODE_ALPHABET (32 chars) => 32^6 = 2^30
+const SAS_LENGTH = 9; // 9 shapes × 30-shape alphabet = 30^9 ≈ 2^44 MITM resistance
 
 /**
- * 6-char short-authentication-string binding the two ephemeral pubkeys, encoded
- * over the 32-char code alphabet (30 bits). Excludes the ciphertext so both
- * sides can compute and compare it before the seed is sent.
+ * 9-shape short-authentication-string binding the two ephemeral pubkeys (~44
+ * bits). Returned as 9 base-36 chars (0-t); each selects one of the 30 shapes
+ * (15 bases × outline/filled) SasPatternGrid draws. Excludes the ciphertext so
+ * both sides can compute and compare it before the seed is sent.
  */
 export function computeSAS(sharedX, childEphPub, parentEphPub) {
   const transcript = Buffer.concat([
@@ -105,13 +113,16 @@ export function computeSAS(sharedX, childEphPub, parentEphPub) {
     Buffer.from(parentEphPub, 'hex'),
   ]);
   const digest = Buffer.from(sha256(transcript));
-  let n = digest.readUInt32BE(0) % 32 ** SAS_LENGTH; // 2^32 % 2^30 === 0 -> unbiased
-  let out = '';
+  // Reduce the 256-bit digest to 9 uniform 0-29 shape indices via divmod; the
+  // bias from 30 not dividing 2^256 is ~2^-251, negligible. Each index is a
+  // base-36 char (0-t) that SasPatternGrid maps back to a shape.
+  let n = BigInt('0x' + digest.toString('hex'));
+  let sas = '';
   for (let i = 0; i < SAS_LENGTH; i++) {
-    out = CODE_ALPHABET[n % 32] + out;
-    n = Math.floor(n / 32);
+    sas += Number(n % 30n).toString(36);
+    n /= 30n;
   }
-  return out;
+  return sas;
 }
 
 /** AES-256-GCM encrypt the seed payload. Returns base64 iv/ct/tag. */

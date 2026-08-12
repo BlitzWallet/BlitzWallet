@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Animated, {
   useAnimatedStyle,
@@ -26,20 +26,12 @@ if (__DEV__) {
   console.assert(sanitizeCode(' u u 8 ', 6) === 'UU8', 'sanitizeCode strip');
 }
 
-// Editable OTP-style input: one transparent TextInput overlays `length` boxes so
-// tapping anywhere focuses it. Filled boxes show the char; the active box shows a
-// blinking caret. Read-only SAS boxes elsewhere are rendered separately.
-export default function SegmentedCodeInput({
-  value,
-  onChangeText,
-  length = 6,
-  keyboardType = 'default',
-  autoFocus = true,
-}) {
-  const { backgroundOffset, textColor } = GetThemeColors();
-  const inputRef = useRef(null);
+// Display-only OTP-style boxes: no TextInput and no native keyboard — the custom
+// Blitz keyboard writes straight into `value`. The box at the next fill position
+// shows the blinking caret.
+export default function SegmentedCodeInput({ value, length = 6 }) {
+  const { backgroundOffset } = GetThemeColors();
   const isFocused = useIsFocused();
-  const [isInputFocused, setIsInputFocused] = useState(false);
   const caret = useSharedValue(1);
 
   // The caret loop runs on the UI thread; start it only once the screen has
@@ -58,9 +50,9 @@ export default function SegmentedCodeInput({
   const activeIndex = Math.min(value.length, length - 1);
 
   return (
-    <Pressable style={styles.row} onPress={() => inputRef.current?.focus()}>
+    <View style={styles.row}>
       {Array.from({ length }).map((_, index) => {
-        const isActive = isInputFocused && index === activeIndex;
+        const isActive = index === activeIndex;
         return (
           <View
             key={index}
@@ -74,27 +66,17 @@ export default function SegmentedCodeInput({
               <ThemeText styles={styles.boxText} content={chars[index]} />
             ) : isActive ? (
               <Animated.View
-                style={[styles.caret, { backgroundColor: COLORS.primary }, caretStyle]}
+                style={[
+                  styles.caret,
+                  { backgroundColor: COLORS.primary },
+                  caretStyle,
+                ]}
               />
             ) : null}
           </View>
         );
       })}
-      <TextInput
-        ref={inputRef}
-        value={value}
-        onChangeText={text => onChangeText(sanitizeCode(text, length))}
-        maxLength={length}
-        keyboardType={keyboardType}
-        autoCapitalize="characters"
-        autoCorrect={false}
-        autoFocus={autoFocus}
-        caretHidden={true}
-        onFocus={() => setIsInputFocused(true)}
-        onBlur={() => setIsInputFocused(false)}
-        style={[styles.hiddenInput, { color: textColor }]}
-      />
-    </Pressable>
+    </View>
   );
 }
 
@@ -122,9 +104,5 @@ const styles = StyleSheet.create({
     width: 2,
     height: 28,
     borderRadius: 2,
-  },
-  hiddenInput: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0,
   },
 });

@@ -14,11 +14,14 @@ import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
+import SasPatternGrid from './SasPatternGrid';
+import { useAppStatus } from '../../../../../../../context-store/appStatus';
 
 export default function ChildMatchCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { textColor } = GetThemeColors();
+  const { screenDimensions } = useAppStatus();
   const [isResetting, setIsResetting] = useState(false);
   const { status, sas, confirmMatch, isEnded, declineMatch } =
     useChildPairing();
@@ -65,16 +68,10 @@ export default function ChildMatchCode() {
           styles={styles.subtitle}
           content={t('settings.childAccounts.pairing.sasSubtitle')}
         />
-        <View style={styles.boxes}>
-          {sas.split('').map((digit, index) => (
-            <View
-              key={index}
-              style={[styles.box, { backgroundColor: backgroundOffset }]}
-            >
-              <ThemeText styles={styles.boxText} content={digit} />
-            </View>
-          ))}
-        </View>
+        <SasPatternGrid
+          cellSize={Math.round((screenDimensions?.width * 0.85) / 3) - 15}
+          sas={sas}
+        />
         <ThemeText
           styles={styles.hint}
           content={t('settings.childAccounts.pairing.sasHint')}
@@ -121,24 +118,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     lineHeight: 22,
     marginBottom: 20,
-  },
-  boxes: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  box: {
-    width: 46,
-    height: 56,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boxText: {
-    fontSize: SIZES.xLarge,
-    includeFontPadding: false,
   },
   hint: {
     textAlign: 'center',

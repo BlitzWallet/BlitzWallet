@@ -4,11 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../functions/CustomElements/button';
-import SegmentedCodeInput from '../../../functions/CustomElements/segmentedCodeInput';
+import SegmentedCodeInput, {
+  sanitizeCode,
+} from '../../../functions/CustomElements/segmentedCodeInput';
 import { CENTER, COLORS } from '../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
@@ -16,6 +19,7 @@ import {
   keyboardGoBack,
   keyboardNavigate,
 } from '../../../functions/customNavigation';
+import CustomNumberKeyboard from '../../../functions/CustomElements/customNumberKeyboard';
 
 const CODE_LENGTH = 6;
 
@@ -37,8 +41,19 @@ export default function ChildEnterCode() {
     keyboardGoBack(navigate);
   }, [resetSession]);
 
+  // CustomNumberKeyboard passes either a value (clear key) or an updater
+  // function (digit/backspace); both paths keep the code truncated to the
+  // code length now that the native TextInput is gone.
+  const handleCodeInput = useCallback(next => {
+    if (typeof next === 'function') {
+      setCode(prev => sanitizeCode(next(prev), CODE_LENGTH));
+    } else {
+      setCode(sanitizeCode(next, CODE_LENGTH));
+    }
+  }, []);
+
   return (
-    <CustomKeyboardAvoidingView
+    <GlobalThemeView
       useLocalPadding={true}
       useStandardWidth={true}
       isKeyboardActive={true}
@@ -57,24 +72,20 @@ export default function ChildEnterCode() {
           content={t('settings.childAccounts.claim.codeSubtitle')}
         />
         <View style={styles.inputWrap}>
-          <SegmentedCodeInput
-            value={code}
-            onChangeText={setCode}
-            length={CODE_LENGTH}
-          />
+          <SegmentedCodeInput value={code} length={CODE_LENGTH} />
         </View>
         {!!errorMessage && (
           <ThemeText styles={styles.error} content={errorMessage} />
         )}
-        <View style={{ flex: 1 }} />
-        <CustomButton
-          buttonStyles={styles.button}
-          useLoading={status === 'joining'}
-          textContent={t('settings.childAccounts.claim.next')}
-          actionFunction={() => submitCode(code)}
-        />
       </View>
-    </CustomKeyboardAvoidingView>
+      <CustomNumberKeyboard setInputValue={handleCodeInput} showDot={false} />
+      <CustomButton
+        buttonStyles={styles.button}
+        useLoading={status === 'joining'}
+        textContent={t('settings.childAccounts.claim.next')}
+        actionFunction={() => submitCode(code)}
+      />
+    </GlobalThemeView>
   );
 }
 
@@ -106,7 +117,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   button: {
-    width: '100%',
+    // width: '100%',
     ...CENTER,
   },
 });

@@ -14,7 +14,8 @@ import {
   verifyKeyCommitment,
 } from '../app/functions/accounts/childPairing';
 
-const SAS_RE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/;
+const SAS_RE = /^[0-9a-t]{9}$/; // 9 shape indices, one base-36 char each (0-29)
+const CODE_RE = /^[0-9]{6}$/;
 
 describe('child pairing crypto', () => {
   // Parent uses its wallet keypair; child a fresh ephemeral one. Same shape.
@@ -35,7 +36,7 @@ describe('child pairing crypto', () => {
     );
   });
 
-  it('both sides compute the same 6-char SAS', () => {
+  it('both sides compute the same 9-shape SAS pattern', () => {
     const a = computeSAS(parentSharedX, child.pub, parent.pub);
     const b = computeSAS(childSharedX, child.pub, parent.pub);
     expect(a).toBe(b);
@@ -86,11 +87,11 @@ describe('child pairing crypto', () => {
   });
 
   it('rendezvousId is deterministic and code-normalized', () => {
-    expect(rendezvousId('ABC234')).toBe(rendezvousId('  abc234 '));
-    expect(rendezvousId('ABC234')).not.toBe(rendezvousId('XYZ789'));
+    expect(rendezvousId('123456')).toBe(rendezvousId('  123456 '));
+    expect(rendezvousId('123456')).not.toBe(rendezvousId('789012'));
   });
 
-  it('makePairingCode is 6 chars from the safe alphabet', () => {
-    expect(makePairingCode()).toMatch(SAS_RE);
+  it('makePairingCode is 6 digits', () => {
+    expect(makePairingCode()).toMatch(CODE_RE);
   });
 });

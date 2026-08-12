@@ -10,13 +10,16 @@ import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
 import ClaimLinkError from './claimLinkError';
+import SasPatternGrid from '../../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/SasPatternGrid';
+import { useAppStatus } from '../../../../context-store/appStatus';
 
 export default function ChildVerifyCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { textColor } = GetThemeColors();
   const [isResetting, setIsResetting] = useState(false);
   const { status, sas, confirmMatch, isEnded, declineMatch } = useChildClaim();
+  const { screenDimensions } = useAppStatus();
 
   // Seed imported -> continue straight to PIN setup (no success screen).
   useEffect(() => {
@@ -48,16 +51,10 @@ export default function ChildVerifyCode() {
           styles={styles.subtitle}
           content={t('settings.childAccounts.claim.sasSubtitle')}
         />
-        <View style={styles.boxes}>
-          {sas.split('').map((digit, index) => (
-            <View
-              key={index}
-              style={[styles.box, { backgroundColor: backgroundOffset }]}
-            >
-              <ThemeText styles={styles.boxText} content={digit} />
-            </View>
-          ))}
-        </View>
+        <SasPatternGrid
+          cellSize={Math.round((screenDimensions?.width * 0.85) / 3) - 15}
+          sas={sas}
+        />
         <ThemeText
           styles={styles.hint}
           content={t('settings.childAccounts.claim.sasHint')}
@@ -99,24 +96,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     lineHeight: 22,
     marginBottom: 20,
-  },
-  boxes: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  box: {
-    width: 46,
-    height: 56,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boxText: {
-    fontSize: SIZES.xLarge,
-    includeFontPadding: false,
   },
   hint: {
     textAlign: 'center',
