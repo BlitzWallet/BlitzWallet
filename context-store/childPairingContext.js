@@ -21,6 +21,7 @@ import {
   rendezvousId,
 } from '../app/functions/accounts/childPairing';
 import {
+  createParentHelloViaProxy,
   deletePairingHandshake,
   setPairingDoc,
   subscribePairingDoc,
@@ -36,7 +37,7 @@ const ChildPairingContext = createContext(null);
 
 export function ChildPairingProvider({ children }) {
   const { t } = useTranslation();
-  const { accountMnemoinc, publicKey } = useKeysContext();
+  const { accountMnemoinc } = useKeysContext();
 
   // status: idle | preparing | waiting | confirm | granting | done | error | expired
   const [status, setStatus] = useState('idle');
@@ -116,13 +117,13 @@ export function ChildPairingProvider({ children }) {
           parentEph,
         };
 
-        // parentWalletPub is the parent's real wallet identity (== auth.uid), used
-        // ONLY to satisfy the Firestore anti-squat rule for the parentHello slot.
-        // The ECDH/SAS run on parentEph (below), never on this key, so it doesn't
-        // reintroduce the static-key precompute weakness.
-        const didHello = await setPairingDoc(rid, 'parentHello', {
-          v: 1,
-          parentWalletPub: publicKey,
+        // parentHello is created through the rate-limited proxy endpoint, not a
+        // direct Firestore write: the 6-digit code space is cheap to mass-squat,
+        // so the rules deny direct parentHello creates and the proxy stamps
+        // parentWalletPub from the verified token (== auth.uid). The ECDH/SAS run
+        // on parentEph (below), never on that key, so it doesn't reintroduce the
+        // static-key precompute weakness.
+        const didHello = await createParentHelloViaProxy(rid, {
           commit: makeKeyCommitment(parentEph.pub),
           name: childName,
           expiresAt,
@@ -184,7 +185,7 @@ export function ChildPairingProvider({ children }) {
         startingRef.current = false;
       }
     },
-    [resetSession, accountMnemoinc, publicKey, t],
+    [resetSession, accountMnemoinc, t],
   );
 
   const declineMatch = useCallback(async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -42,7 +42,8 @@ export default function ChildVerifyCode() {
       <CustomSettingsTopBar
         label={t('settings.childAccounts.claim.sasNavTitle')}
       />
-      <View style={styles.content}>
+
+      <ScrollView style={styles.content}>
         <ThemeText
           styles={styles.title}
           content={t('settings.childAccounts.claim.sasTitle')}
@@ -52,28 +53,27 @@ export default function ChildVerifyCode() {
           content={t('settings.childAccounts.claim.sasSubtitle')}
         />
         <SasPatternGrid
-          cellSize={Math.round((screenDimensions?.width * 0.85) / 3) - 15}
+          cellSize={Math.round((screenDimensions?.width * 0.75) / 3) - 15}
           sas={sas}
         />
         <ThemeText
           styles={styles.hint}
           content={t('settings.childAccounts.claim.sasHint')}
         />
-        <View style={{ flex: 1 }} />
-        <CustomButton
-          buttonStyles={styles.button}
-          useLoading={status === 'awaiting'}
-          textContent={t('constants.confirm')}
-          actionFunction={confirmMatch}
-        />
-        <CustomButton
-          buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}
-          useLoading={isResetting}
-          textStyles={{ color: textColor }}
-          textContent={t('settings.childAccounts.dontMatch')}
-          actionFunction={handleNoMatch}
-        />
-      </View>
+      </ScrollView>
+      <CustomButton
+        buttonStyles={styles.button}
+        useLoading={status === 'awaiting'}
+        textContent={t('constants.confirm')}
+        actionFunction={confirmMatch}
+      />
+      <CustomButton
+        buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}
+        useLoading={isResetting}
+        textStyles={{ color: textColor }}
+        textContent={t('settings.childAccounts.dontMatch')}
+        actionFunction={handleNoMatch}
+      />
     </GlobalThemeView>
   );
 }
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    width: '100%',
+    width: INSET_WINDOW_WIDTH,
     marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },

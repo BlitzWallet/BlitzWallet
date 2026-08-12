@@ -250,7 +250,7 @@ export function Shape({ base, filled, color, bg }) {
 export default function SasPatternGrid({ sas, cellSize = 74 }) {
   const { backgroundOffset, textColor } = GetThemeColors();
   const chars = String(sas || '').split('');
-  const shapeSize = Math.round(cellSize * 0.62);
+  const shapeSize = Math.round(cellSize * 0.6);
 
   return (
     <View style={styles.grid}>

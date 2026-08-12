@@ -1,4 +1,4 @@
-import { db } from './initializeFirebase';
+import { db, firebaseAuth } from './initializeFirebase';
 import {
   getCachedMessages,
   queueSetCashedMessages,
@@ -34,6 +34,7 @@ import {
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 import { getNextChildDerivationIndex } from '../app/functions/accounts/childAccounts';
+import { getIdToken } from '@react-native-firebase/auth';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -693,6 +694,39 @@ export async function setPairingDoc(rid, party, data) {
     return true;
   } catch (e) {
     console.error('Error writing pairing doc:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+// parentHello (the one squattable "opening" write) is created via the
+// rate-limited proxy endpoint, not a direct Firestore write — the Firestore
+// rules deny direct client parentHello creates. The bearer is the parent's
+// Firebase ID token (getIdToken output), NOT the raw custom token: the proxy
+// verifies it with the Admin SDK's verifyIdToken, which only accepts
+// client-SDK-issued ID tokens. Returns true only on a 200 so
+// the caller's existing `if (!didHello) throw` contract is preserved; a 409
+// (rid taken), 429 (rate-limited), or network error surfaces as "failed to open
+// pairing session" and the parent retries with a fresh random code.
+export async function createParentHelloViaProxy(
+  rid,
+  { commit, name, expiresAt },
+) {
+  try {
+    const token = await getIdToken(firebaseAuth.currentUser);
+    if (!token) return false;
+
+    const res = await fetch(`${process.env.PROXY_URL}/childPairingHello`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ rid, commit, name, expiresAt }),
+    });
+    return res.status === 200;
+  } catch (e) {
+    console.error('Error creating parentHello via proxy:', e);
     crashlyticsRecordErrorReport(e.message);
     return false;
   }
