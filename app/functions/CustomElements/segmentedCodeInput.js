@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { COLORS, FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeText from './textTheme';
@@ -31,27 +38,21 @@ export default function SegmentedCodeInput({
 }) {
   const { backgroundOffset, textColor } = GetThemeColors();
   const inputRef = useRef(null);
-  const [isFocused, setIsFocused] = useState(false);
-  const caret = useRef(new Animated.Value(1)).current;
+  const isFocused = useIsFocused();
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const caret = useSharedValue(1);
 
+  // The caret loop runs on the UI thread; start it only once the screen has
+  // finished navigating in so it doesn't fight the native-stack transition.
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(caret, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(caret, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [caret]);
+    if (!isFocused) return;
+    caret.value = withRepeat(withTiming(0, { duration: 500 }), -1, true);
+    return () => {
+      caret.value = 1;
+    };
+  }, [caret, isFocused]);
+
+  const caretStyle = useAnimatedStyle(() => ({ opacity: caret.value }));
 
   const chars = value.split('');
   const activeIndex = Math.min(value.length, length - 1);
@@ -59,7 +60,7 @@ export default function SegmentedCodeInput({
   return (
     <Pressable style={styles.row} onPress={() => inputRef.current?.focus()}>
       {Array.from({ length }).map((_, index) => {
-        const isActive = isFocused && index === activeIndex;
+        const isActive = isInputFocused && index === activeIndex;
         return (
           <View
             key={index}
@@ -73,10 +74,7 @@ export default function SegmentedCodeInput({
               <ThemeText styles={styles.boxText} content={chars[index]} />
             ) : isActive ? (
               <Animated.View
-                style={[
-                  styles.caret,
-                  { backgroundColor: COLORS.primary, opacity: caret },
-                ]}
+                style={[styles.caret, { backgroundColor: COLORS.primary }, caretStyle]}
               />
             ) : null}
           </View>
@@ -92,8 +90,8 @@ export default function SegmentedCodeInput({
         autoCorrect={false}
         autoFocus={autoFocus}
         caretHidden={true}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={() => setIsInputFocused(true)}
+        onBlur={() => setIsInputFocused(false)}
         style={[styles.hiddenInput, { color: textColor }]}
       />
     </Pressable>
