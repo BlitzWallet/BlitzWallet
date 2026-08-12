@@ -1725,11 +1725,11 @@
         "done": "Done"
       },
       "pairing": {
-        "title": "Set up account",
+        "title": "Share Code",
         "codeTitle": "Share your code",
         "codeSubtitle": "Open Blitz on their phone, choose \"Join shared wallet\" and have them enter this code.",
         "waiting": "Waiting for them to enter the code…",
-        "sasTitle": "Verify the code",
+        "sasTitle": "Verify code",
         "sasSubtitle": "Read this 6-digit code out loud and ask them if they see the same code on their phone.",
         "sasHint": "Only continue once you've confirmed both phones show the same code.",
         "confirmMatch": "They match",
@@ -1740,7 +1740,7 @@
         "errorTitle": "Pairing session ended",
         "declinedByChild": "This request has been declined.",
         "areYouSure": "Are you sure?",
-        "confirmGate": "Only confirm if both confirmation codes show the exact same 6 characters. If they don't match, someone else could gain access to your account.",
+        "confirmGate": "Only confirm if the 6-character codes match exactly. Confirming gives this person access to the child account.",
         "confirmBTN": "They match"
       },
       "page": {
@@ -1750,7 +1750,8 @@
         "noTransactions": "No activity yet",
         "spendingLimitLabel": "Spending limit",
         "loadingBalance": "Loading balance...",
-        "shareLink": "Share account"
+        "shareLink": "Pair with someone",
+        "sendInviteLink": "Invite someone"
       },
       "claim": {
         "title": "Set up your wallet",

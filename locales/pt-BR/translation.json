@@ -2214,11 +2214,11 @@
         "done": "Concluído"
       },
       "pairing": {
-        "title": "Configurar conta",
+        "title": "Compartilhar código",
         "codeTitle": "Compartilhe seu código",
         "codeSubtitle": "Abra o Blitz no telefone deles, escolha \"Entrar na carteira compartilhada\" e peça para inserirem este código.",
         "waiting": "Aguardando eles inserirem o código…",
-        "sasTitle": "Verifique o código",
+        "sasTitle": "Verificar código",
         "sasSubtitle": "Leia este código de 6 dígitos em voz alta e pergunte se eles veem o mesmo código no telefone deles.",
         "sasHint": "Continue somente depois de confirmar que os dois telefones mostram o mesmo código.",
         "confirmMatch": "Correspondem",
@@ -2229,7 +2229,7 @@
         "errorTitle": "Sessão de pareamento encerrada",
         "declinedByChild": "Esta solicitação foi recusada.",
         "areYouSure": "Tem certeza?",
-        "confirmGate": "Só confirme se ambos os códigos de confirmação mostrarem exatamente os mesmos 6 caracteres. Se não corresponderem, outra pessoa pode ter acesso à sua conta.",
+        "confirmGate": "Só confirme se os códigos de 6 caracteres corresponderem exatamente. Confirmar dá a esta pessoa acesso à conta do filho.",
         "confirmBTN": "Correspondem"
       },
       "page": {
@@ -2239,7 +2239,8 @@
         "noTransactions": "Nenhuma atividade ainda",
         "spendingLimitLabel": "Limite de gastos",
         "loadingBalance": "Carregando saldo...",
-        "shareLink": "Compartilhar conta"
+        "shareLink": "Vincular com alguém",
+        "sendInviteLink": "Convidar alguém"
       },
       "claim": {
         "title": "Configure sua carteira",

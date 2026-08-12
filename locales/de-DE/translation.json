@@ -2199,7 +2199,7 @@
         "done": "Fertig"
       },
       "pairing": {
-        "title": "Konto einrichten",
+        "title": "Code teilen",
         "codeTitle": "Teile deinen Code",
         "codeSubtitle": "Öffne Blitz auf ihrem Telefon, wähle „Gemeinsamem Wallet beitreten“ und lass sie diesen Code eingeben.",
         "waiting": "Warten darauf, dass sie den Code eingeben…",
@@ -2214,7 +2214,7 @@
         "errorTitle": "Kopplungssitzung beendet",
         "declinedByChild": "Diese Anfrage wurde abgelehnt.",
         "areYouSure": "Bist du sicher?",
-        "confirmGate": "Bestätige nur, wenn beide Bestätigungscodes genau dieselben 6 Zeichen zeigen. Wenn sie nicht übereinstimmen, könnte jemand anderes Zugriff auf dein Konto erhalten.",
+        "confirmGate": "Bestätigen Sie nur, wenn die 6-stelligen Codes exakt übereinstimmen. Mit der Bestätigung erhält diese Person Zugriff auf das Kinderkonto.",
         "confirmBTN": "Sie stimmen überein"
       },
       "page": {
@@ -2224,7 +2224,8 @@
         "noTransactions": "Noch keine Aktivität",
         "spendingLimitLabel": "Ausgabenlimit",
         "loadingBalance": "Saldo wird geladen...",
-        "shareLink": "Konto teilen"
+        "shareLink": "Mit jemandem verbinden",
+        "sendInviteLink": "Jemanden einladen"
       },
       "claim": {
         "title": "Richte dein Wallet ein",

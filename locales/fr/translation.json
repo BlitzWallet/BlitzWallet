@@ -2213,7 +2213,7 @@
         "done": "Terminé"
       },
       "pairing": {
-        "title": "Configurer le compte",
+        "title": "Partager le code",
         "codeTitle": "Partagez votre code",
         "codeSubtitle": "Ouvrez Blitz sur leur téléphone, choisissez « Rejoindre un portefeuille partagé » et demandez-leur de saisir ce code.",
         "waiting": "En attente de leur saisie du code…",
@@ -2228,7 +2228,7 @@
         "errorTitle": "Session d'association terminée",
         "declinedByChild": "Cette demande a été refusée.",
         "areYouSure": "Êtes-vous sûr ?",
-        "confirmGate": "Ne confirmez que si les deux codes de confirmation affichent exactement les mêmes 6 caractères. S'ils ne correspondent pas, quelqu'un d'autre pourrait accéder à votre compte.",
+        "confirmGate": "Ne confirmez que si les codes de 6 caractères correspondent exactement. Confirmer donne à cette personne l'accès au compte de l'enfant.",
         "confirmBTN": "Ils correspondent"
       },
       "page": {
@@ -2238,7 +2238,8 @@
         "noTransactions": "Aucune activité pour le moment",
         "spendingLimitLabel": "Limite de dépenses",
         "loadingBalance": "Chargement du solde...",
-        "shareLink": "Partager le compte"
+        "shareLink": "Associer avec quelqu'un",
+        "sendInviteLink": "Inviter quelqu'un"
       },
       "claim": {
         "title": "Configurer votre portefeuille",

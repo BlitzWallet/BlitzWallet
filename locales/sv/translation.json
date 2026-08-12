@@ -2214,7 +2214,7 @@
         "done": "Klart"
       },
       "pairing": {
-        "title": "Konfigurera konto",
+        "title": "Dela kod",
         "codeTitle": "Dela din kod",
         "codeSubtitle": "Öppna Blitz på deras telefon, välj \"Gå med i delad plånbok\" och be dem ange den här koden.",
         "waiting": "Väntar på att de ska ange koden…",
@@ -2229,7 +2229,7 @@
         "errorTitle": "Kopplingssessionen avslutades",
         "declinedByChild": "Denna begäran har avböjts.",
         "areYouSure": "Är du säker?",
-        "confirmGate": "Bekräfta bara om båda bekräftelsekoderna visar exakt samma 6 tecken. Om de inte stämmer kan någon annan få åtkomst till ditt konto.",
+        "confirmGate": "Bekräfta bara om 6-teckenskoderna matchar exakt. Genom att bekräfta ger du den här personen åtkomst till barnkontot.",
         "confirmBTN": "De stämmer"
       },
       "page": {
@@ -2239,7 +2239,8 @@
         "noTransactions": "Ingen aktivitet ännu",
         "spendingLimitLabel": "Utgiftsgräns",
         "loadingBalance": "Läser in saldo...",
-        "shareLink": "Dela konto"
+        "shareLink": "Para ihop med någon",
+        "sendInviteLink": "Bjud in någon"
       },
       "claim": {
         "title": "Skapa din plånbok",

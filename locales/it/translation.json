@@ -2214,7 +2214,7 @@
         "done": "Fatto"
       },
       "pairing": {
-        "title": "Configura conto",
+        "title": "Condividi codice",
         "codeTitle": "Condividi il tuo codice",
         "codeSubtitle": "Apri Blitz sul loro telefono, scegli \"Unisciti a un portafoglio condiviso\" e chiedi di inserire questo codice.",
         "waiting": "In attesa che inseriscano il codice…",
@@ -2229,7 +2229,7 @@
         "errorTitle": "Sessione di associazione terminata",
         "declinedByChild": "Questa richiesta è stata rifiutata.",
         "areYouSure": "Sei sicuro?",
-        "confirmGate": "Conferma solo se entrambi i codici di conferma mostrano esattamente gli stessi 6 caratteri. Se non corrispondono, qualcun altro potrebbe ottenere accesso al tuo conto.",
+        "confirmGate": "Conferma solo se i codici di 6 caratteri corrispondono esattamente. Confermando dai a questa persona l'accesso al conto del figlio.",
         "confirmBTN": "Corrispondono"
       },
       "page": {
@@ -2239,7 +2239,8 @@
         "noTransactions": "Ancora nessuna attività",
         "spendingLimitLabel": "Limite di spesa",
         "loadingBalance": "Caricamento del saldo...",
-        "shareLink": "Condividi conto"
+        "shareLink": "Abbina con qualcuno",
+        "sendInviteLink": "Invita qualcuno"
       },
       "claim": {
         "title": "Configura il tuo portafoglio",
