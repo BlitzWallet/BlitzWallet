@@ -65,8 +65,15 @@ export default function InvoiceInfo({
       paymentInfo?.data?.address ??
       ''
     : '';
+  // When the LNURL is a raw `lnurl1…` blob from an unrecognized host, the resolver
+  // has no `user@host` to name it and returns null. Fall back to the asset label
+  // ("Lightning payment" + bitcoin avatar) so it matches the post-send screen,
+  // which resolves the same send via its transaction's paymentType.
   const lnurlResolved = isLNURLPay
-    ? resolveRecipientDisplay({ lnurlAddress: normalizedLNURL })
+    ? resolveRecipientDisplay({ lnurlAddress: normalizedLNURL }) ?? {
+        ...resolveAssetAvatar({ isDollarBalance, isToken }),
+        displayName: paymentAssetLabel({ isDollarBalance, isToken }),
+      }
     : null;
 
   // On-chain / spark addresses: 4-char groups with alternating weight for

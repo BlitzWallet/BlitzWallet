@@ -381,17 +381,41 @@ function ResetStack(): JSX.Element | null {
           } else if (POOL_DEEPLINK_REGEX.test(url)) {
             const poolIdMatch = url.match(/pools\/([0-9a-f-]{36})/i);
             if (poolIdMatch) {
-              navigationRef.current.navigate('PoolsStack', {
-                screen: 'PoolDetailScreen',
-                params: { poolId: poolIdMatch[1] },
+              navigationRef.current.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: { screen: 'Home' },
+                  },
+                  {
+                    name: 'PoolsStack',
+                    params: {
+                      screen: 'PoolDetailScreen',
+                      params: { poolId: poolIdMatch[1] },
+                    },
+                  },
+                ],
               });
             }
           } else if (GIFT_DEEPLINK_REGEX.test(url)) {
-            navigationRef.current.navigate('CustomHalfModal', {
-              wantedContent: 'ClaimGiftScreen',
-              url,
-              sliderHight: 0.6,
-              claimType: 'claim',
+            navigationRef.current.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeAdmin',
+                  params: { screen: 'Home' },
+                },
+                {
+                  name: 'CustomHalfModal',
+                  params: {
+                    wantedContent: 'ClaimGiftScreen',
+                    url,
+                    sliderHight: 0.6,
+                    claimType: 'claim',
+                  },
+                },
+              ],
             });
           } else {
             if (CONTACT_UNIVERSAL_LINK_REGEX.test(url)) {
@@ -424,8 +448,20 @@ function ResetStack(): JSX.Element | null {
               if (cancelled) return;
 
               if (deepLinkContact.didWork) {
-                navigationRef.current.navigate('ExpandedAddContactsPage', {
-                  newContact: deepLinkContact.data,
+                // Land on ExpandedAddContactsPage with the underlying tab set
+                // to Contacts, so back returns to the contacts page not Home.
+                navigationRef.current.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'HomeAdmin',
+                      params: { screen: 'ContactsPageInit' },
+                    },
+                    {
+                      name: 'ExpandedAddContactsPage',
+                      params: { newContact: deepLinkContact.data },
+                    },
+                  ],
                 });
               } else {
                 navigationRef.current.navigate('ErrorScreen', {
@@ -437,8 +473,23 @@ function ResetStack(): JSX.Element | null {
               // Regex to strip 'blitz-wallet:' OR 'blitz:' prefix if it exists.
               // This ensures only the core payment URI is passed to the ConfirmPaymentScreen.
               const paymentUrl = url.replace(/^(blitz-wallet|blitz):/i, '');
-              navigationRef.current.navigate('ConfirmPaymentScreen', {
-                btcAdress: paymentUrl,
+              // reset (not navigate) so any open transparent modal
+              // (e.g. CustomHalfModal) is torn down instead of staying
+              // presented above the pushed card. Mirrors the paylink branch.
+              navigationRef.current.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: { screen: 'Home' },
+                  },
+                  {
+                    name: 'ConfirmPaymentScreen',
+                    params: {
+                      btcAdress: paymentUrl,
+                    },
+                  },
+                ],
               });
             }
           }

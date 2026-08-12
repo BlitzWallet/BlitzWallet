@@ -73,12 +73,20 @@ export default async function processLNUrlPay(input, context) {
     input.data.refundLightningAddress = `${myUniqueName}@blitzwalletapp.com`;
   }
 
+  // Fixed-amount LNURL: min === max means there is nothing to enter, so treat
+  // it like an amount was already provided and go straight to invoice fetch.
+  const isFixedAmount =
+    !!input.data.minSendable &&
+    input.data.minSendable === input.data.maxSendable;
+
   const enteredAmount = enteredPaymentInfo.amount
     ? enteredPaymentInfo.amount * 1000
+    : isFixedAmount
+    ? input.data.minSendable
     : convertedSendAmount * 1000;
 
   const amountMsat =
-    comingFromAccept || paymentInfo.sendAmount
+    comingFromAccept || paymentInfo.sendAmount || isFixedAmount
       ? enteredAmount
       : input.data.minSendable;
   const amountSat = Math.round(amountMsat / 1000);
@@ -139,7 +147,7 @@ export default async function processLNUrlPay(input, context) {
   const preEstimatedSwapQuote = enteredPaymentInfo?.swapQuote ?? null;
   const preEstimatedBtcFee = enteredPaymentInfo?.lnFeeEstimate ?? null;
 
-  if (comingFromAccept || paymentInfo.sendAmount) {
+  if (comingFromAccept || paymentInfo.sendAmount || isFixedAmount) {
     // Use invoice pre-fetched during fee estimation to avoid a duplicate network call.
     // The invoice is only valid for the exact amount sent from the contacts page.
     if (preEstimatedInvoiceData?.pr && comingFromAccept) {
@@ -260,7 +268,7 @@ export default async function processLNUrlPay(input, context) {
         sparkPaymenWrapper({
           getFee: true,
           address: invoice,
-          amountSats: Number(enteredPaymentInfo.amount),
+          amountSats: amountSat,
           paymentType: !!decoded.data.usingSparkAddress ? 'spark' : 'lightning',
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,

@@ -2102,6 +2102,7 @@
         "sendReport": "Relatar um problema",
         "lnurlAuthSuccess": "Você está conectado e tudo está pronto.",
         "walletConnected": "Carteira conectada",
+        "lud9SuccessAction": "Ver recibo",
         "emailReport": "Enviar por e-mail",
         "copyReport": "Copiar para a área de transferência",
         "confirmMessage_sent": "Enviado com sucesso",
@@ -2796,6 +2797,14 @@
       "request": "{{name}} solicitou você {{amount}}",
       "payment": "{{name}} pagou você {{amount}}",
       "giftCard": "{{name}} enviou para você um cartão-presente {{giftCardName}}"
+    },
+    "nwc": {
+      "get_info": "Evento de informações NWC",
+      "get_balance": "Evento de saldo NWC",
+      "list_transactions": "Transações NWC obtidas",
+      "make_invoice": "Fatura NWC criada",
+      "lookup_invoice": "Consulta de fatura NWC",
+      "pay_invoice": "Pagamento NWC enviado"
     }
   },
   "accountCard": {

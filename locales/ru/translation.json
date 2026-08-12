@@ -2104,6 +2104,7 @@
         "sendReport": "Сообщить о проблеме",
         "lnurlAuthSuccess": "Вы вошли в систему и готовы к работе.",
         "walletConnected": "Кошелёк подключён",
+        "lud9SuccessAction": "Посмотреть чек",
         "emailReport": "Отправить через Email",
         "copyReport": "Скопировать",
         "confirmMessage_sent": "Успешно отправлено",
@@ -2803,6 +2804,14 @@
       "request": "{{name}} запросил {{amount}}",
       "payment": "{{name}} заплатил {{amount}}",
       "giftCard": "{{name}} отправил вам карту {{giftCardName}}"
+    },
+    "nwc": {
+      "get_info": "Событие информации NWC",
+      "get_balance": "Событие баланса NWC",
+      "list_transactions": "Получены транзакции NWC",
+      "make_invoice": "Создан счет NWC",
+      "lookup_invoice": "Поиск счета NWC",
+      "pay_invoice": "Отправлен платеж NWC"
     }
   },
   "accountCard": {
