@@ -53,7 +53,7 @@ export default function ChildMatchCode() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={t('settings.childAccounts.pairing.title')}
+        label={t('settings.childAccounts.pairing.sasTitle')}
         rightContent={isEnded ? null : <PairingExpiryClock />}
       />
       <View style={styles.content}>
