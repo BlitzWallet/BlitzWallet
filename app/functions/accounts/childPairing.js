@@ -19,8 +19,9 @@ import {
 // The SAS is a pattern, not digits: a 3×3 grid where each cell is one of 30
 // shapes (15 bases × outline/filled). Shapes are globally recognized, need no
 // language/read-aloud, and 30 symbols/cell buys ~4.9 bits each vs a digit's 3.3,
-// so 9 cells reaches ~44 bits (well past the old 9-digit code). See SasPatternGrid
-// for the shape rendering (SVG, so both phones draw pixel-identical shapes).
+// so 9 cells reaches ~44 bits (up from the old 6-char alphanumeric SAS at 32^6
+// = 30 bits). See SasPatternGrid for the shape rendering (SVG, so both phones
+// draw pixel-identical shapes).
 // The rendezvous/pairing code stays digits-only (universal across keyboards/IMEs).
 // nostr pubkeys are x-only, so we reuse the `'02'+pub` even-y convention that
 // app/functions/messaging/encodingAndDecodingMessages.js already relies on.
@@ -30,7 +31,8 @@ const SAS_INFO = 'blitz-child-pairing:v1:sas';
 const RENDEZVOUS_PREFIX = 'blitz-child-pairing:v1:';
 
 // Digits only: universal across all keyboards/languages, no case, no letter/digit
-// ambiguity. Shared by the (collision-only) pairing code and the (secure) SAS.
+// ambiguity. Used only by the (collision-only) pairing code — the SAS has its
+// own 30-symbol alphabet in computeSAS.
 const CODE_ALPHABET = '0123456789';
 const CODE_LENGTH = 6; // pairing code: 10^6 rendezvous space, collision-only
 
@@ -44,10 +46,15 @@ export function makeChildEphKey() {
 
 /** Short, human-typeable rendezvous code the parent shows and the child types. */
 export function makePairingCode() {
-  const bytes = randomBytes(CODE_LENGTH);
+  // Rejection sampling: keep only bytes < 250 (25 full sets of 10 digits) so
+  // every digit is exactly uniform — 256 % 10 != 0 would bias 0-5 high.
   let out = '';
-  for (let i = 0; i < CODE_LENGTH; i++) {
-    out += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
+  while (out.length < CODE_LENGTH) {
+    const bytes = randomBytes(CODE_LENGTH);
+    for (let i = 0; i < bytes.length && out.length < CODE_LENGTH; i++) {
+      if (bytes[i] >= 250) continue;
+      out += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
+    }
   }
   return out;
 }
@@ -114,7 +121,7 @@ export function computeSAS(sharedX, childEphPub, parentEphPub) {
   ]);
   const digest = Buffer.from(sha256(transcript));
   // Reduce the 256-bit digest to 9 uniform 0-29 shape indices via divmod; the
-  // bias from 30 not dividing 2^256 is ~2^-251, negligible. Each index is a
+  // bias from 30^9 not dividing 2^256 is ~2^-212, negligible. Each index is a
   // base-36 char (0-t) that SasPatternGrid maps back to a shape.
   let n = BigInt('0x' + digest.toString('hex'));
   let sas = '';

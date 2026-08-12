@@ -257,7 +257,10 @@ export default function SasPatternGrid({ sas, cellSize = 74 }) {
       {[0, 3, 6].map(rowStart => (
         <View key={rowStart} style={styles.row}>
           {chars.slice(rowStart, rowStart + 3).map((char, i) => {
-            const idx = parseInt(char, 36) || 0;
+            // Fail closed: only 0-t are valid shape indices. Anything else
+            // renders a blank cell — visibly wrong — instead of defaulting to
+            // a plausible-looking shape that could mask a derivation bug.
+            const idx = /^[0-9a-t]$/.test(char) ? parseInt(char, 36) : null;
             return (
               <View
                 key={rowStart + i}
@@ -271,12 +274,14 @@ export default function SasPatternGrid({ sas, cellSize = 74 }) {
                 ]}
               >
                 <Svg width={shapeSize} height={shapeSize} viewBox="0 0 100 100">
-                  <Shape
-                    base={idx >> 1}
-                    filled={(idx & 1) === 1}
-                    color={textColor}
-                    bg={backgroundOffset}
-                  />
+                  {idx !== null && (
+                    <Shape
+                      base={idx >> 1}
+                      filled={(idx & 1) === 1}
+                      color={textColor}
+                      bg={backgroundOffset}
+                    />
+                  )}
                 </Svg>
               </View>
             );
