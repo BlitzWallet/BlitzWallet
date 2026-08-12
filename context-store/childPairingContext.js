@@ -45,13 +45,25 @@ export function ChildPairingProvider({ children }) {
   const [sas, setSas] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const statusRef = useRef('idle');
   const sessionRef = useRef(null);
   const startingRef = useRef(false);
   const unsubRef = useRef(null);
   const cancelUnsubRef = useRef(null);
   const pairingStartTime = useRef(null);
 
-  const resetSession = useCallback(async (status = 'idle') => {
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
+  // Tear down a live session and land on a terminal status. Unlike
+  // resetSession, this keeps the error message (when provided) so the terminal
+  // screens (ChildLinkError) can explain why the pairing ended. Every terminal
+  // path must route through here so confirmMatch's session/status guards always
+  // see a dead session afterwards — otherwise a stale Match press (e.g. from the
+  // confirmation modal left open over an ended session) could re-enter granting
+  // from error/expired.
+  const endSession = useCallback((nextStatus, message = '') => {
     if (unsubRef.current) {
       unsubRef.current();
       unsubRef.current = null;
@@ -70,9 +82,16 @@ export function ChildPairingProvider({ children }) {
     }
     setCode('');
     setSas('');
-    setErrorMessage('');
-    setStatus(status);
+    setErrorMessage(message);
+    setStatus(nextStatus);
   }, []);
+
+  const resetSession = useCallback(
+    async (nextStatus = 'idle') => {
+      endSession(nextStatus);
+    },
+    [endSession],
+  );
 
   const startPairing = useCallback(
     async reshareChild => {
@@ -135,8 +154,10 @@ export function ChildPairingProvider({ children }) {
         cancelUnsubRef.current = subscribePairingDoc(rid, 'cancel', () => {
           const s = sessionRef.current;
           if (!s || s.granted || s.declined) return;
-          setErrorMessage(t('settings.childAccounts.pairing.declinedByChild'));
-          setStatus('error');
+          endSession(
+            'error',
+            t('settings.childAccounts.pairing.declinedByChild'),
+          );
         });
 
         // Listen for the child's ephemeral pubkey. Only then reveal our own
@@ -162,11 +183,12 @@ export function ChildPairingProvider({ children }) {
             if (!didReveal) {
               // parentHello was torn down under us (peer delete / TTL): the rule
               // denies our parentReveal. The session is dead — don't advance to SAS.
-              setErrorMessage(t('settings.childAccounts.pairing.expired'));
-              setStatus('error');
+              endSession('error', t('settings.childAccounts.pairing.expired'));
               return;
             }
-            setSas(computeSAS(sharedX, childHello.childEphPub, s.parentEph.pub));
+            setSas(
+              computeSAS(sharedX, childHello.childEphPub, s.parentEph.pub),
+            );
             setStatus('confirm');
           },
         );
@@ -185,7 +207,7 @@ export function ChildPairingProvider({ children }) {
         startingRef.current = false;
       }
     },
-    [resetSession, accountMnemoinc, t],
+    [resetSession, endSession, accountMnemoinc, t],
   );
 
   const declineMatch = useCallback(async () => {
@@ -202,6 +224,7 @@ export function ChildPairingProvider({ children }) {
 
   const confirmMatch = useCallback(async () => {
     const session = sessionRef.current;
+    if (statusRef.current !== 'confirm') return;
     if (!session?.sharedX || !session?.childMnemonic) return;
     setStatus('granting');
 
@@ -247,11 +270,11 @@ export function ChildPairingProvider({ children }) {
         } catch (err) {
           console.log('child grant error', err);
           crashlyticsRecordErrorReport(err.message);
-          setStatus('error');
+          endSession('error');
         }
       },
     );
-  }, []);
+  }, [endSession]);
 
   // Expiry backstop.
   useEffect(() => {

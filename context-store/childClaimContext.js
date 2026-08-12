@@ -47,12 +47,17 @@ export function ChildClaimProvider({ children }) {
   const [sas, setSas] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const statusRef = useRef('idle');
   const sessionRef = useRef(null);
   const unsubRef = useRef(null);
   const cancelUnsubRef = useRef(null);
   const parentGoneUnsubRef = useRef(null);
   const revealUnsubRef = useRef(null);
   const expiryRef = useRef(null);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   const resetSession = useCallback(async (status = 'idle') => {
     if (unsubRef.current) {
@@ -260,7 +265,10 @@ export function ChildClaimProvider({ children }) {
 
   const confirmMatch = useCallback(async () => {
     const session = sessionRef.current;
-    if (!session?.sharedX || status === 'awaiting') return;
+    // Only the SAS-confirm screen may start the grant wait: rejecting after the
+    // session already ended (or double-confirming) must be a no-op, mirroring
+    // the parent-side guard.
+    if (!session?.sharedX || statusRef.current !== 'confirm') return;
     // The human has visually compared the SAS on both phones. Now wait for the
     // parent to deliver the encrypted grant. A MITM that substituted keys would
     // have produced a different SAS, so a matched SAS means we can trust it.
@@ -288,7 +296,7 @@ export function ChildClaimProvider({ children }) {
       }
       setStatus('expired');
     }, PAIRING_TTL_MS);
-  }, [status, importSeed]);
+  }, [importSeed]);
 
   const declineMatch = useCallback(async () => {
     const session = sessionRef.current;

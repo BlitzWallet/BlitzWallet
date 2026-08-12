@@ -33,6 +33,19 @@ export default function ChildMatchCode() {
     }
   }, [status, navigate]);
 
+  // The confirm gate is a root-level modal (CustomHalfModal) mounted outside
+  // ChildPairingProvider, so it has no idea the session ended. When the child
+  // declines (or the TTL expires) while the modal is open, the session lands on
+  // a terminal state beneath it — pop the modal so the rejection/expiry screen
+  // is revealed and the stale Match button disappears. Guarded to only pop when
+  // the modal really is the top route.
+  useEffect(() => {
+    if (!isEnded) return;
+    const root = navigate.getParent()?.getState();
+    const top = root?.routes?.[root.index];
+    if (top?.name === 'CustomHalfModal') navigate.getParent()?.goBack();
+  }, [isEnded, navigate]);
+
   const handleConfirm = () => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'childMatchCodeConfirmation',

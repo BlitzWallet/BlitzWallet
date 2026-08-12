@@ -78,7 +78,11 @@ export default function ChildEnterCode() {
           <ThemeText styles={styles.error} content={errorMessage} />
         )}
       </View>
-      <CustomNumberKeyboard setInputValue={handleCodeInput} showDot={false} />
+      <CustomNumberKeyboard
+        usingForInput={true}
+        setInputValue={handleCodeInput}
+        showDot={false}
+      />
       <CustomButton
         buttonStyles={styles.button}
         useLoading={status === 'joining'}
