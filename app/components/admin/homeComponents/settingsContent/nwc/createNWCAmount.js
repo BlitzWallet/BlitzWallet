@@ -42,6 +42,7 @@ const BUDGET_RENEWAL_OPTIONS = [
   { label: 'timeLabels.weekly', value: 'Weekly' },
   { label: 'timeLabels.monthly', value: 'Monthly' },
   { label: 'timeLabels.yearly', value: 'Yearly' },
+  { label: 'timeLabels.noLimit', value: 'No Limit' },
 ];
 
 export default function CreateNWCAmount(props) {
@@ -69,6 +70,8 @@ export default function CreateNWCAmount(props) {
   const [renewalOption, setRenewalOption] = useState(
     isEditing && savedData?.budgetRenewalSettings?.amount !== 'Unlimited'
       ? savedData?.budgetRenewalSettings?.option || null
+      : isEditing
+      ? 'No Limit'
       : null,
   );
   const [isSaving, setIsSaving] = useState(false);
@@ -158,16 +161,17 @@ export default function CreateNWCAmount(props) {
       });
       return;
     }
-    if (!hasBudget && renewalOption) {
+    if (!hasBudget && renewalOption && renewalOption !== 'No Limit') {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('settings.nwc.createNWCAccount.noBudgetAmountError'),
       });
       return;
     }
 
-    const budgetRenewalSettings = hasBudget
-      ? { option: renewalOption, amount: localSatAmount }
-      : { option: null, amount: 'Unlimited' };
+    const budgetRenewalSettings =
+      hasBudget && renewalOption !== 'No Limit'
+        ? { option: renewalOption, amount: localSatAmount }
+        : { option: null, amount: 'Unlimited' };
 
     try {
       setIsSaving(true);
@@ -180,7 +184,7 @@ export default function CreateNWCAmount(props) {
       });
       toggleNWCInformation(result);
       if (isEditing) {
-        navigate.popTo('NosterWalletConnect');
+        navigate.goBack();
       } else {
         const newAccount =
           result.accounts[
@@ -272,7 +276,10 @@ export default function CreateNWCAmount(props) {
           selectedValue={selectedRenewalLabel}
           placeholder={t('settings.nwc.createNWCAmount.renewalPlaceholder')}
           translateLabelText={true}
-          onSelect={item => setRenewalOption(item.value)}
+          onSelect={item => {
+            setRenewalOption(item.value);
+            if (item.value === 'No Limit') setAmountValue('');
+          }}
           options={BUDGET_RENEWAL_OPTIONS}
           showClearIcon={false}
           showVerticalArrowsAbsolute={true}
