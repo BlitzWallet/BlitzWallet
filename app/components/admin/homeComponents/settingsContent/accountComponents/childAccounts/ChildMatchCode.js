@@ -66,7 +66,7 @@ export default function ChildMatchCode() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={t('settings.childAccounts.pairing.sasTitle')}
+        label={t('settings.childAccounts.pairing.sasNavTitle')}
         rightContent={<PairingExpiryClock />}
       />
       <ScrollView style={styles.content}>
