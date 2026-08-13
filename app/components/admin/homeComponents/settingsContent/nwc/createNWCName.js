@@ -8,7 +8,11 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
