@@ -211,11 +211,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               content={t('createAccount.homePage.buttons.joinAccount')}
             />
           </TouchableOpacity>
-
-          {/* <ThemeText
-            styles={styles.disclaimer}
-            content={t('createAccount.homePage.subtitle')}
-          /> */}
         </Animated.View>
       </View>
     </GlobalThemeView>
@@ -267,13 +262,5 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     color: COLORS.lightModeText,
     includeFontPadding: false,
-  },
-  disclaimer: {
-    fontSize: SIZES.xSmall,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    includeFontPadding: false,
-    marginTop: 4,
-    textTransform: 'uppercase',
   },
 });
