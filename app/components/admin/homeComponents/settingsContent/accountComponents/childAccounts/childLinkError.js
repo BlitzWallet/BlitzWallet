@@ -29,10 +29,7 @@ export default function ChildLinkError() {
 
   const handleDone = () => {
     resetSession();
-    navigate.popTo('SettingsContentHome', {
-      for: 'Accounts',
-      initialTab: 'linked',
-    });
+    navigate.popTo('EditAccountPage', undefined, { merge: true });
   };
 
   const confirmAnimation = useMemo(() => {

@@ -56,10 +56,7 @@ export default function ChildMatchCode() {
     setIsResetting(true);
     await declineMatch();
     setIsResetting(false);
-    navigate.popTo('SettingsContentHome', {
-      for: 'Accounts',
-      initialTab: 'linked',
-    });
+    navigate.popTo('EditAccountPage', undefined, { merge: true });
   };
 
   if (isEnded) {
