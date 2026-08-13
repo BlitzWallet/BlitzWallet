@@ -1,9 +1,12 @@
 import { StyleSheet, View } from 'react-native';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
-import { GlobalThemeView, ThemeText } from '../../../../../functions/CustomElements';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { copyToClipboard } from '../../../../../functions';
 import { COLORS, FONT, SIZES } from '../../../../../constants';
@@ -12,6 +15,7 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useToast } from '../../../../../../context-store/toastManager';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
@@ -23,6 +27,11 @@ export default function NWCAccountCreated(props) {
   const { textColor } = GetThemeColors();
   const animationRef = useRef(null);
   const connectionString = props.route.params?.connectionString;
+
+  const handleDone = useCallback(() => {
+    navigate.popTo('NosterWalletConnect');
+    return true;
+  }, []);
 
   const confirmAnimation = useMemo(
     () =>
@@ -36,6 +45,8 @@ export default function NWCAccountCreated(props) {
   useEffect(() => {
     animationRef.current?.play();
   }, []);
+
+  useHandleBackPressNew(handleDone);
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
@@ -67,7 +78,7 @@ export default function NWCAccountCreated(props) {
           ...styles.buttonText,
           color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
         }}
-        actionFunction={() => navigate.popTo('NosterWalletConnect')}
+        actionFunction={handleDone}
         textContent={t('constants.done')}
       />
       <CustomButton
