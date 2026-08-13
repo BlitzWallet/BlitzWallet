@@ -81,7 +81,19 @@ export default function LoginSecurity({ extraData }) {
         getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(JSON.parse),
       ]);
 
-      if (saved) setSecurityLoginSettings(saved);
+      console.log(saved, currentLayoutSetting, 'ttt');
+
+      if (saved) {
+        setSecurityLoginSettings(saved);
+      } else {
+        const defaultConfig = {
+          isSecurityEnabled: true,
+          isPinEnabled: true,
+          isBiometricEnabled: false,
+        };
+        setSecurityLoginSettings(defaultConfig);
+        await updateSecuritySettings(defaultConfig);
+      }
       setUseRandomPinLayout(currentLayoutSetting);
     })();
   }, []);
@@ -236,6 +248,8 @@ export default function LoginSecurity({ extraData }) {
       />
     );
   }
+
+  console.log(securityLoginSettings);
 
   return (
     <ScrollView
