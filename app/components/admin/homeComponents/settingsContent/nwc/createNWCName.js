@@ -35,7 +35,7 @@ export default function CreateNWCName(props) {
   const [accountName, setAccountName] = useState(
     isEditing ? savedData.accountName : '',
   );
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { t } = useTranslation();
 
@@ -127,6 +127,7 @@ export default function CreateNWCName(props) {
               placeholderText={t(
                 'settings.childAccounts.enterName.placeholder',
               )}
+              autoFocus={true}
               onBlurFunction={() => setIsKeyboardActive(false)}
               onFocusFunction={() => setIsKeyboardActive(true)}
               maxLength={maxLength}
