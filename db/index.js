@@ -833,8 +833,9 @@ export async function startPairingSession(
  * Mark the pointer terminal so re-pairing is unblocked, but only if it still
  * points at *our* sessionId (never clobber a newer session another device
  * opened). Re-sets the full pointer shape because the update rule re-validates
- * request.resource.data. Post-expiry the write is rules-denied (harmless — a
- * later re-pair overwrites the stale pointer anyway).
+ * request.resource.data. Skips the write once the pointer has expired — that
+ * write would be rules-denied (past expiresAt) and an expired pointer already
+ * unblocks re-pairing anyway.
  */
 export async function endPairingSession(rid, sessionId) {
   try {
@@ -844,6 +845,13 @@ export async function endPairingSession(rid, sessionId) {
       if (!snap.exists()) return;
       const data = snap.data();
       if (data.sessionId !== sessionId) return;
+      // An expired pointer already unblocks re-pairing (startPairingSession
+      // ignores it), and the update rule denies any write carrying a past
+      // expiresAt — so the terminal write would be a guaranteed
+      // permission-denied. Skip it. Note the expiry backstop fires at
+      // start+TTL while the pointer expired at start+TTL-SKEW, so the timeout
+      // path always lands here.
+      if (data.expiresAt <= Date.now()) return;
       tx.set(pointerRef, { ...data, status: 'terminal' });
     });
     return true;
