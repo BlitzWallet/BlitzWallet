@@ -95,7 +95,7 @@ export default function CreateNWCName(props) {
       />
       {isSaving ? (
         <FullLoadingScreen
-          text={t('settings.nwc.createNWCAccount.loadingMessage')}
+          text={t('settings.nwc.createNWCAccount.updatingMessage')}
         />
       ) : (
         <>

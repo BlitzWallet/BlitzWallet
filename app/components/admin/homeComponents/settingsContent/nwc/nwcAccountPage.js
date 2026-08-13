@@ -101,7 +101,6 @@ export default function NWCAccountPage(props) {
                 <View style={styles.rowRight}>
                   <ThemeText
                     CustomNumberOfLines={1}
-                    adjustsFontSizeToFit={true}
                     styles={styles.rowValue}
                     content={item.value}
                   />
