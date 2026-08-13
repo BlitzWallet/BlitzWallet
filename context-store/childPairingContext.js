@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from './keys';
+import { useGlobalContactsInfo } from './globalContacts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import {
   computeSAS,
@@ -17,31 +18,40 @@ import {
   encryptSeedPayload,
   makeChildEphKey,
   makeKeyCommitment,
-  makePairingCode,
-  rendezvousId,
+  normalizePairingName,
 } from '../app/functions/accounts/childPairing';
 import {
-  createParentHelloViaProxy,
   deletePairingHandshake,
+  endPairingSession,
+  ownsUniqueNameReservation,
   setPairingDoc,
+  startPairingSession,
   subscribePairingDoc,
 } from '../db';
 import { crashlyticsRecordErrorReport } from '../app/functions/crashlyticsLogs';
 
 const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rule.
+// Written expiresAt = now + TTL - slack. The rule caps expiresAt at
+// request.time + 180000, so a device clock even slightly fast would exceed the
+// cap and be rules-denied. Subtracting slack keeps every write under the cap.
+const PAIRING_SKEW_SLACK_MS = 10000;
 
 // Shared session for the parent-side child-pairing handshake. Owns the live
 // Firestore listener, the child's secret seed in memory, and TTL cleanup so the
 // four pairing screens can read/drive one session instead of each re-running it.
+// The rendezvous is the parent's own username (normalizePairingName), and each
+// session gets a fresh sessionId nonce so back-to-back re-pairs use a clean
+// handshake namespace.
 const ChildPairingContext = createContext(null);
 
 export function ChildPairingProvider({ children }) {
   const { t } = useTranslation();
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, publicKey } = useKeysContext();
+  const { globalContactsInformation } = useGlobalContactsInfo();
+  const parentUniqueName = globalContactsInformation?.myProfile?.uniqueName;
 
   // status: idle | preparing | waiting | confirm | granting | done | error | expired
   const [status, setStatus] = useState('idle');
-  const [code, setCode] = useState('');
   const [sas, setSas] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -62,7 +72,9 @@ export function ChildPairingProvider({ children }) {
   // path must route through here so confirmMatch's session/status guards always
   // see a dead session afterwards — otherwise a stale Match press (e.g. from the
   // confirmation modal left open over an ended session) could re-enter granting
-  // from error/expired.
+  // from error/expired. It also marks the pointer terminal so the parent can
+  // immediately re-pair (a stable username rid, unlike the old random-per-session
+  // rid, would otherwise stay blocked by the live pointer until TTL).
   const endSession = useCallback((nextStatus, message = '') => {
     if (unsubRef.current) {
       unsubRef.current();
@@ -75,12 +87,16 @@ export function ChildPairingProvider({ children }) {
     const session = sessionRef.current;
     sessionRef.current = null;
     if (session?.childMnemonic) session.childMnemonic = null; // wipe seed from memory
-    // A declined session leaves its docs (incl. the cancel signal) for the peer to
-    // read; TTL cleans up. Otherwise tear the handshake down unless the grant landed.
-    if (session?.rid && !session?.granted && !session?.declined) {
-      deletePairingHandshake(session.rid);
+    if (session?.rid && session?.sessionId) {
+      // Always mark the pointer terminal so re-pairing is unblocked immediately.
+      endPairingSession(session.rid, session.sessionId);
+      // A declined session leaves its docs (incl. the cancel signal) for the peer
+      // to read; a granted session leaves its grant doc for the child to read.
+      // Otherwise best-effort delete our own handshake docs.
+      if (!session.granted && !session.declined) {
+        deletePairingHandshake(session.rid, session.sessionId);
+      }
     }
-    setCode('');
     setSas('');
     setErrorMessage(message);
     setStatus(nextStatus);
@@ -100,7 +116,7 @@ export function ChildPairingProvider({ children }) {
       // child loses their wallet and must re-pair.
       // Only one live handshake at a time. Re-entry — e.g. the link screen
       // re-focusing after the user backs out of the match screen — must not tear
-      // down the in-flight session and mint a new pairing code.
+      // down the in-flight session and open a new one.
       if (sessionRef.current || startingRef.current) return;
       startingRef.current = true;
       const startTime = Date.now();
@@ -110,6 +126,27 @@ export function ChildPairingProvider({ children }) {
       try {
         if (!reshareChild) throw new Error('No child provided for pairing');
 
+        // The rendezvous is the parent's own reserved username. Without a valid
+        // (and reserved) name the owner-gated pointer create is denied, so block
+        // here with a clear message instead of building an invalid path.
+        const rid = normalizePairingName(parentUniqueName);
+        if (!rid) {
+          setStatus('error');
+          setErrorMessage(t('settings.childAccounts.pairing.needsUsername'));
+          return;
+        }
+
+        // The owner-gated pointer create requires an owned usernames/{rid}
+        // reservation. If it isn't ours (someone squatted the name, or our
+        // backfill hasn't reserved it yet), the create would be rules-denied and
+        // surface as a generic failure. Check first for a clear message.
+        const ownsName = await ownsUniqueNameReservation(publicKey, rid);
+        if (!ownsName) {
+          setStatus('error');
+          setErrorMessage(t('settings.childAccounts.pairing.notOwner'));
+          return;
+        }
+
         const childIndex = reshareChild.childIndex;
         const childName = reshareChild.name;
         const childLimit = reshareChild.spendingLimit ?? null;
@@ -118,17 +155,26 @@ export function ChildPairingProvider({ children }) {
           childIndex,
         );
 
-        const pairingCode = makePairingCode();
-        const rid = rendezvousId(pairingCode);
-        const expiresAt = Date.now() + PAIRING_TTL_MS;
+        const expiresAt = Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS;
 
         // Fresh per-session ephemeral key. We publish only a commitment to its
         // pubkey now and reveal the pubkey after the child reveals theirs, so a
         // MITM can't grind either key to force a matching SAS.
         const parentEph = makeChildEphKey();
 
+        // Open the session first (transaction enforces one live session at a
+        // time). Only on success do we adopt the session — so a
+        // SESSION_IN_PROGRESS / rules-denied / clock-skew start error lands on
+        // `error` with sessionRef still null (nothing to tear down, nobody
+        // else's session touched).
+        const sessionId = await startPairingSession(rid, publicKey, {
+          commit: makeKeyCommitment(parentEph.pub),
+          expiresAt,
+        });
+
         sessionRef.current = {
           rid,
+          sessionId,
           childIndex,
           childMnemonic,
           name: childName,
@@ -136,35 +182,28 @@ export function ChildPairingProvider({ children }) {
           parentEph,
         };
 
-        // parentHello is created through the rate-limited proxy endpoint, not a
-        // direct Firestore write: the 6-digit code space is cheap to mass-squat,
-        // so the rules deny direct parentHello creates and the proxy stamps
-        // parentWalletPub from the verified token (== auth.uid). The ECDH/SAS run
-        // on parentEph (below), never on that key, so it doesn't reintroduce the
-        // static-key precompute weakness.
-        const didHello = await createParentHelloViaProxy(rid, {
-          commit: makeKeyCommitment(parentEph.pub),
-          name: childName,
-          expiresAt,
-        });
-        if (!didHello) throw new Error('Failed to open pairing session');
-
         // Listen the whole session for a decline from the child so we don't hang
         // waiting on childConfirm/grant until the TTL expires.
-        cancelUnsubRef.current = subscribePairingDoc(rid, 'cancel', () => {
-          const s = sessionRef.current;
-          if (!s || s.granted || s.declined) return;
-          endSession(
-            'error',
-            t('settings.childAccounts.pairing.declinedByChild'),
-          );
-        });
+        cancelUnsubRef.current = subscribePairingDoc(
+          rid,
+          sessionId,
+          'cancel',
+          () => {
+            const s = sessionRef.current;
+            if (!s || s.granted || s.declined) return;
+            endSession(
+              'error',
+              t('settings.childAccounts.pairing.declinedByChild'),
+            );
+          },
+        );
 
         // Listen for the child's ephemeral pubkey. Only then reveal our own
         // ephemeral pubkey (the child verifies it against the commitment), and
         // compute the SAS.
         unsubRef.current = subscribePairingDoc(
           rid,
+          sessionId,
           'childHello',
           async childHello => {
             const s = sessionRef.current;
@@ -175,13 +214,13 @@ export function ChildPairingProvider({ children }) {
             );
             s.sharedX = sharedX;
             s.childEphPub = childHello.childEphPub;
-            const didReveal = await setPairingDoc(rid, 'parentReveal', {
+            const didReveal = await setPairingDoc(rid, sessionId, 'parentReveal', {
               v: 1,
               parentEphPub: s.parentEph.pub,
-              expiresAt: Date.now() + PAIRING_TTL_MS,
+              expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
             });
             if (!didReveal) {
-              // parentHello was torn down under us (peer delete / TTL): the rule
+              // The session was torn down under us (peer delete / TTL): the rule
               // denies our parentReveal. The session is dead — don't advance to SAS.
               endSession('error', t('settings.childAccounts.pairing.expired'));
               return;
@@ -193,30 +232,29 @@ export function ChildPairingProvider({ children }) {
           },
         );
 
-        const now = Date.now();
-        const runTime = now - startTime;
-        const timeLeft = 1000 - runTime;
-        if (timeLeft > 0) await new Promise(res => setTimeout(res, timeLeft));
-        setCode(pairingCode);
         setStatus('waiting');
       } catch (err) {
         console.log('child pairing setup error', err);
         crashlyticsRecordErrorReport(err.message);
+        // SESSION_IN_PROGRESS and any other start error collapse to one state
+        // (clock skew makes distinguishing them unreliable — see Risks/L5).
+        sessionRef.current = null;
         setStatus('error');
+        setErrorMessage(t('settings.childAccounts.pairing.startFailed'));
       } finally {
         startingRef.current = false;
       }
     },
-    [resetSession, endSession, accountMnemoinc, t],
+    [resetSession, endSession, accountMnemoinc, publicKey, parentUniqueName, t],
   );
 
   const declineMatch = useCallback(async () => {
     const session = sessionRef.current;
-    if (session?.rid && !session?.granted) {
+    if (session?.rid && session?.sessionId && !session?.granted) {
       session.declined = true; // guards our own cancel listener + skips doc delete
-      await setPairingDoc(session.rid, 'cancel', {
+      await setPairingDoc(session.rid, session.sessionId, 'cancel', {
         v: 1,
-        expiresAt: Date.now() + PAIRING_TTL_MS,
+        expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
       });
     }
     await resetSession();
@@ -238,6 +276,7 @@ export function ChildPairingProvider({ children }) {
     }
     unsubRef.current = subscribePairingDoc(
       session.rid,
+      session.sessionId,
       'childConfirm',
       async () => {
         if (session.granted || !session.childMnemonic) return;
@@ -251,13 +290,18 @@ export function ChildPairingProvider({ children }) {
             childIndex: session.childIndex,
             grantedAt: Date.now(),
           });
-          const didGrant = await setPairingDoc(session.rid, 'grant', {
-            v: 1,
-            iv: enc.iv,
-            ciphertext: enc.ct,
-            tag: enc.tag,
-            expiresAt: Date.now() + PAIRING_TTL_MS,
-          });
+          const didGrant = await setPairingDoc(
+            session.rid,
+            session.sessionId,
+            'grant',
+            {
+              v: 1,
+              iv: enc.iv,
+              ciphertext: enc.ct,
+              tag: enc.tag,
+              expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
+            },
+          );
           if (!didGrant) throw new Error('Failed to deliver grant');
 
           session.granted = true;
@@ -266,6 +310,10 @@ export function ChildPairingProvider({ children }) {
             unsubRef.current();
             unsubRef.current = null;
           }
+          // Mark the pointer terminal now that the grant is delivered so the
+          // parent can immediately re-pair a second child. Leave the grant doc
+          // for the child to read (TTL cleans it up).
+          endPairingSession(session.rid, session.sessionId);
           setStatus('done');
         } catch (err) {
           console.log('child grant error', err);
@@ -289,15 +337,19 @@ export function ChildPairingProvider({ children }) {
 
   useEffect(() => {
     return () => {
-      // On unmount (flow popped off the stack): tear down the listener and delete
-      // the handshake docs unless the grant was already delivered (then TTL cleans
-      // up so the child can still read it).
+      // On unmount (flow popped off the stack): tear down the listener, mark the
+      // pointer terminal, and delete our own handshake docs unless the grant was
+      // already delivered / the session declined (then the docs are left for the
+      // peer and TTL cleans up).
       if (unsubRef.current) unsubRef.current();
       if (cancelUnsubRef.current) cancelUnsubRef.current();
       const session = sessionRef.current;
       if (session?.childMnemonic) session.childMnemonic = null;
-      if (session?.rid && !session?.granted && !session?.declined)
-        deletePairingHandshake(session.rid);
+      if (session?.rid && session?.sessionId) {
+        endPairingSession(session.rid, session.sessionId);
+        if (!session.granted && !session.declined)
+          deletePairingHandshake(session.rid, session.sessionId);
+      }
     };
   }, []);
 
@@ -306,9 +358,9 @@ export function ChildPairingProvider({ children }) {
   const contextValue = useMemo(
     () => ({
       status,
-      code,
       sas,
       errorMessage,
+      parentUniqueName,
       startPairing,
       confirmMatch,
       declineMatch,
@@ -318,9 +370,9 @@ export function ChildPairingProvider({ children }) {
     }),
     [
       status,
-      code,
       sas,
       errorMessage,
+      parentUniqueName,
       startPairing,
       confirmMatch,
       declineMatch,

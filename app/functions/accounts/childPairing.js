@@ -25,16 +25,16 @@ import {
 // The rendezvous/pairing code stays digits-only (universal across keyboards/IMEs).
 // nostr pubkeys are x-only, so we reuse the `'02'+pub` even-y convention that
 // app/functions/messaging/encodingAndDecodingMessages.js already relies on.
+// The rendezvous is the parent's own username (see normalizePairingName): a
+// unique, owner-gated identity, so there is no code space to grief or collide.
 
 const SEED_INFO = 'blitz-child-pairing:v1:seed';
 const SAS_INFO = 'blitz-child-pairing:v1:sas';
-const RENDEZVOUS_PREFIX = 'blitz-child-pairing:v1:';
 
-// Digits only: universal across all keyboards/languages, no case, no letter/digit
-// ambiguity. Used only by the (collision-only) pairing code — the SAS has its
-// own 30-symbol alphabet in computeSAS.
-const CODE_ALPHABET = '0123456789';
-const CODE_LENGTH = 6; // pairing code: 10^6 rendezvous space, collision-only
+// Mirror of VALID_USERNAME_REGEX (app/constants/index.js:19). Duplicated here so
+// this pure-crypto module stays free of the constants→icons→assets import graph
+// (childPairing.test.js pulls only @noble + quick-crypto). Keep in sync.
+const VALID_PAIRING_NAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 
 /** Fresh in-memory ephemeral keypair for one pairing session. Never persisted. */
 export function makeChildEphKey() {
@@ -44,29 +44,25 @@ export function makeChildEphKey() {
   return { priv, pub };
 }
 
-/** Short, human-typeable rendezvous code the parent shows and the child types. */
-export function makePairingCode() {
-  // Rejection sampling: keep only bytes < 250 (25 full sets of 10 digits) so
-  // every digit is exactly uniform — 256 % 10 != 0 would bias 0-5 high.
-  let out = '';
-  while (out.length < CODE_LENGTH) {
-    const bytes = randomBytes(CODE_LENGTH);
-    for (let i = 0; i < bytes.length && out.length < CODE_LENGTH; i++) {
-      if (bytes[i] >= 250) continue;
-      out += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
-    }
-  }
-  return out;
+/**
+ * Canonical rendezvous/reservation id for a username. NFC + lowercase mirrors how
+ * uniqueNameLower is stored; the same function keys the pointer doc, the
+ * usernames/{id} reservation, and every claim, so they always land at one path.
+ * Returns '' for empty or invalid names — callers must reject '' before building
+ * a Firestore path (an empty segment is an invalid path).
+ */
+export function normalizePairingName(name) {
+  const norm = String(name || '')
+    .trim()
+    .normalize('NFC')
+    .toLowerCase();
+  if (!norm || !VALID_PAIRING_NAME_REGEX.test(norm)) return '';
+  return norm;
 }
 
-/** Firestore rendezvous doc id derived from the typed code (no secret in it). */
-export function rendezvousId(code) {
-  const norm = String(code || '')
-    .trim()
-    .toUpperCase();
-  return Buffer.from(
-    sha256(new TextEncoder().encode(RENDEZVOUS_PREFIX + norm)),
-  ).toString('hex');
+/** Fresh random per-session nonce isolating each session's handshake docs. */
+export function makeSessionId() {
+  return Buffer.from(randomBytes(16)).toString('hex');
 }
 
 /** ECDH shared X coordinate (32 bytes) from our priv + the peer's x-only pub. */

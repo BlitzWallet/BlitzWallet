@@ -1,15 +1,18 @@
 /* eslint-env jest */
 // ---------------------------------------------------------------------------
-// childClaimContext — child-side claim state machine.
+// childClaimContext — child-side claim state machine (username rendezvous).
 //
-// Drives the real provider with mocked `../db` handshake helpers and injects
-// Firestore events through captured subscribePairingDoc callbacks, then asserts
-// the child half of the pairing transition matrix:
-//   - happy path: submitCode → parentReveal → confirm → confirmMatch →
-//     childConfirm → grant → done (imported seed, handshake deleted).
-//   - commit mismatch → tamper error; parent cancel → error; parentHello
-//     deletion → expired; TTL expiry from joining and from awaiting.
-//   - confirmMatch no-ops from a terminal state (symmetry guard).
+// Drives the real provider with mocked `../db` helpers and injects Firestore
+// events through captured callbacks. The child now types the parent's username,
+// reads the pointer (getPairingPointer) to learn the live sessionId + commit,
+// joins that session's childHello slot, and watches the pointer for the parent
+// leaving/replacing/ending the session.
+//   - happy path: submitName → parentReveal → confirm → confirmMatch → grant →
+//     done (imported seed, session handshake deleted under sessionId).
+//   - commit mismatch → tamper; parent cancel → error; pointer terminal /
+//     sessionId change / deletion → expired; TTL expiry from joining/awaiting.
+//   - childHello denial → pointer re-read → rotate (retry new sessionId) vs
+//     squat (slotTaken).
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -17,14 +20,17 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 
 const CHILD_MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-const PAIRING_CODE = '123456';
+const PARENT_NAME = 'ParentName';
+const RID = 'parentname';
+const TTL = 180000;
 
 const mockSetAccountMnemonic = jest.fn();
 const mockDb = {
+  getPairingPointer: jest.fn(),
   getPairingDoc: jest.fn(),
   setPairingDoc: jest.fn(async () => true),
   subscribePairingDoc: jest.fn(),
-  subscribePairingDocDeleted: jest.fn(),
+  subscribePairingPointer: jest.fn(),
   deletePairingHandshake: jest.fn(async () => {}),
 };
 
@@ -45,10 +51,11 @@ jest.mock('../../db/initializeFirebase', () => ({
 jest.mock('../../db', () => ({
   __esModule: true,
   deletePairingHandshake: (...a) => mockDb.deletePairingHandshake(...a),
+  getPairingPointer: (...a) => mockDb.getPairingPointer(...a),
   getPairingDoc: (...a) => mockDb.getPairingDoc(...a),
   setPairingDoc: (...a) => mockDb.setPairingDoc(...a),
   subscribePairingDoc: (...a) => mockDb.subscribePairingDoc(...a),
-  subscribePairingDocDeleted: (...a) => mockDb.subscribePairingDocDeleted(...a),
+  subscribePairingPointer: (...a) => mockDb.subscribePairingPointer(...a),
 }));
 
 const {
@@ -62,13 +69,12 @@ const {
   encryptSeedPayload,
   makeChildEphKey,
   makeKeyCommitment,
-  rendezvousId,
 } = require('../../app/functions/accounts/childPairing');
 
 let renderer;
 let api;
 let listeners;
-let deletedListeners;
+let pointerListener;
 let parentEph;
 
 function Harness() {
@@ -93,9 +99,9 @@ async function mount() {
   });
 }
 
-async function submitCode() {
+async function submitName() {
   await act(async () => {
-    const p = api.submitCode(PAIRING_CODE);
+    const p = api.submitName(PARENT_NAME);
     await flush();
     await p;
     await flush();
@@ -104,7 +110,7 @@ async function submitCode() {
 }
 
 async function reachConfirm() {
-  await submitCode();
+  await submitName();
   await act(async () => {
     listeners.parentReveal({ parentEphPub: parentEph.pub });
     await flush();
@@ -112,18 +118,22 @@ async function reachConfirm() {
   expect(api.status).toBe('confirm');
 }
 
-function pairingRid() {
-  return rendezvousId(PAIRING_CODE);
+// childHello written under (rid, sessionId, party, data) → data is index [3].
+// Use the LAST childHello write (a join race may retry under a new sessionId).
+function childHelloCalls() {
+  return mockDb.setPairingDoc.mock.calls.filter(
+    ([r, , p]) => r === RID && p === 'childHello',
+  );
 }
 
-// The child's session ephemeral pubkey, as written to the childHello doc. The
-// provider creates the keypair internally; the parent-side ECDH derivation
-// (parentEph.priv × childSessionPub) still yields the same sharedX.
 function sessionEphPub() {
-  const childHelloCall = mockDb.setPairingDoc.mock.calls.find(
-    ([r, p]) => r === pairingRid() && p === 'childHello',
-  );
-  return childHelloCall[2].childEphPub;
+  const calls = childHelloCalls();
+  return calls[calls.length - 1][3].childEphPub;
+}
+
+function joinedSessionId() {
+  const calls = childHelloCalls();
+  return calls[calls.length - 1][1];
 }
 
 function grantPayload() {
@@ -138,28 +148,37 @@ function grantPayload() {
   });
 }
 
+function activePointer(sessionId = 'sess-1') {
+  return {
+    v: 1,
+    sessionId,
+    commit: makeKeyCommitment(parentEph.pub),
+    parentWalletPub: 'parent-pub',
+    name: RID,
+    status: 'active',
+    expiresAt: Date.now() + TTL,
+  };
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   listeners = {};
-  deletedListeners = {};
+  pointerListener = null;
   parentEph = makeChildEphKey();
-  mockDb.getPairingDoc.mockResolvedValue({
-    commit: makeKeyCommitment(parentEph.pub),
-  });
-  mockDb.subscribePairingDoc.mockImplementation((rid, party, onData) => {
+  mockDb.getPairingPointer.mockImplementation(async () => activePointer());
+  mockDb.setPairingDoc.mockImplementation(async () => true);
+  mockDb.subscribePairingDoc.mockImplementation((rid, sessionId, party, onData) => {
     listeners[party] = onData;
     return jest.fn(() => {
       delete listeners[party];
     });
   });
-  mockDb.subscribePairingDocDeleted.mockImplementation(
-    (rid, party, onDeleted) => {
-      deletedListeners[party] = onDeleted;
-      return jest.fn(() => {
-        delete deletedListeners[party];
-      });
-    },
-  );
+  mockDb.subscribePairingPointer.mockImplementation((rid, onData) => {
+    pointerListener = onData;
+    return jest.fn(() => {
+      pointerListener = null;
+    });
+  });
 });
 
 afterEach(() => {
@@ -171,14 +190,12 @@ afterEach(() => {
 });
 
 describe('childClaimContext — happy path', () => {
-  test('submitCode → parentReveal → confirm → confirmMatch → grant → done', async () => {
+  test('submitName → parentReveal → confirm → confirmMatch → grant → done', async () => {
     await mount();
     await reachConfirm();
-    const rid = pairingRid();
     const childSessionPub = sessionEphPub();
+    const sessionId = joinedSessionId();
 
-    // SAS matches what the parent computes from its own ECDH (same sharedX via
-    // parentEph.priv × the child's session pubkey).
     expect(api.sas).toBe(
       computeSAS(
         deriveSharedX(parentEph.priv, childSessionPub),
@@ -187,12 +204,12 @@ describe('childClaimContext — happy path', () => {
       ),
     );
     expect(mockDb.setPairingDoc).toHaveBeenCalledWith(
-      rid,
+      RID,
+      sessionId,
       'childHello',
       expect.objectContaining({ v: 1, childEphPub: childSessionPub }),
     );
 
-    // Child confirms the match → childConfirm written, waiting for the grant.
     await act(async () => {
       const p = api.confirmMatch();
       await flush();
@@ -201,12 +218,12 @@ describe('childClaimContext — happy path', () => {
     });
     expect(api.status).toBe('awaiting');
     expect(mockDb.setPairingDoc).toHaveBeenCalledWith(
-      rid,
+      RID,
+      sessionId,
       'childConfirm',
       expect.objectContaining({ v: 1 }),
     );
 
-    // Parent delivers the encrypted grant → seed imported, session torn down.
     const enc = grantPayload();
     await act(async () => {
       listeners.grant({ ciphertext: enc.ct, iv: enc.iv, tag: enc.tag });
@@ -214,12 +231,12 @@ describe('childClaimContext — happy path', () => {
     });
     expect(api.status).toBe('done');
     expect(mockSetAccountMnemonic).toHaveBeenCalledWith(CHILD_MNEMONIC);
-    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(rid);
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, sessionId);
   });
 
   test('commit mismatch → tamper error (MITM reveal caught)', async () => {
     await mount();
-    await submitCode();
+    await submitName();
 
     const attacker = makeChildEphKey();
     await act(async () => {
@@ -231,10 +248,54 @@ describe('childClaimContext — happy path', () => {
   });
 });
 
+describe('childClaimContext — join races (B-2)', () => {
+  test('childHello denied + rotated sessionId → retry under the new session', async () => {
+    // First write denied; pointer re-read shows a NEW sessionId (parent re-paired
+    // between our read and write); second write succeeds under the new id.
+    let helloAttempts = 0;
+    mockDb.setPairingDoc.mockImplementation(async (rid, sessionId, party) => {
+      if (party === 'childHello') {
+        helloAttempts += 1;
+        return helloAttempts > 1; // first denied, then allowed
+      }
+      return true;
+    });
+    mockDb.getPairingPointer
+      .mockImplementationOnce(async () => activePointer('sess-1'))
+      .mockImplementationOnce(async () => activePointer('sess-2'));
+
+    await mount();
+    await submitName();
+
+    expect(helloAttempts).toBe(2);
+    expect(joinedSessionId()).toBe('sess-2');
+    expect(api.status).toBe('joining'); // now waiting for parentReveal
+  });
+
+  test('childHello denied + same sessionId + foreign hello → slotTaken', async () => {
+    mockDb.setPairingDoc.mockImplementation(async (rid, sessionId, party) => {
+      if (party === 'childHello') return false; // always denied (squatter won)
+      return true;
+    });
+    mockDb.getPairingDoc.mockResolvedValue({ childEphPub: 'someone-else-pub' });
+
+    await mount();
+    await act(async () => {
+      const p = api.submitName(PARENT_NAME);
+      await flush();
+      await p;
+      await flush();
+    });
+
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.slotTaken');
+  });
+});
+
 describe('childClaimContext — terminal states', () => {
   test('parent cancel → error', async () => {
     await mount();
-    await submitCode();
+    await submitName();
 
     await act(async () => {
       listeners.cancel();
@@ -246,24 +307,78 @@ describe('childClaimContext — terminal states', () => {
     );
   });
 
-  test('parentHello deleted → expired', async () => {
+  test('pointer sessionId change → expired (B-3)', async () => {
     await mount();
-    await submitCode();
+    await submitName();
 
     await act(async () => {
-      deletedListeners.parentHello();
+      pointerListener(activePointer('sess-999'));
       await flush();
     });
     expect(api.status).toBe('expired');
   });
 
+  test('pointer marked terminal → expired (B-3)', async () => {
+    await mount();
+    await submitName();
+
+    await act(async () => {
+      pointerListener({ ...activePointer('sess-1'), status: 'terminal' });
+      await flush();
+    });
+    expect(api.status).toBe('expired');
+  });
+
+  test('pointer deleted → expired (B-3)', async () => {
+    await mount();
+    await submitName();
+
+    await act(async () => {
+      pointerListener(null);
+      await flush();
+    });
+    expect(api.status).toBe('expired');
+  });
+
+  test('terminal pointer while awaiting the grant is NOT expiry (grant-vs-terminal race)', async () => {
+    // Once past SAS (sharedX derived, status awaiting), the parent marks the
+    // pointer terminal right AFTER writing the grant so it can re-pair. If that
+    // terminal snapshot is processed before the grant snapshot, the child must
+    // NOT flip to expired — the grant is still arriving.
+    await mount();
+    await reachConfirm();
+    await act(async () => {
+      const p = api.confirmMatch();
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('awaiting');
+
+    // Terminal pointer arrives first — must be ignored, not treated as expiry.
+    await act(async () => {
+      pointerListener({ ...activePointer('sess-1'), status: 'terminal' });
+      await flush();
+    });
+    expect(api.status).toBe('awaiting');
+
+    // Then the grant lands and the child imports the seed.
+    const enc = grantPayload();
+    await act(async () => {
+      listeners.grant({ ciphertext: enc.ct, iv: enc.iv, tag: enc.tag });
+      await flush();
+    });
+    expect(api.status).toBe('done');
+    expect(mockSetAccountMnemonic).toHaveBeenCalledWith(CHILD_MNEMONIC);
+  });
+
   test('TTL expiry while waiting for the reveal → expired', async () => {
     jest.useFakeTimers();
     await mount();
-    await submitCode();
+    await submitName();
 
     await act(async () => {
-      jest.advanceTimersByTime(180001);
+      jest.advanceTimersByTime(TTL + 1);
       await flush();
     });
     expect(api.status).toBe('expired');
@@ -283,7 +398,7 @@ describe('childClaimContext — terminal states', () => {
     expect(api.status).toBe('awaiting');
 
     await act(async () => {
-      jest.advanceTimersByTime(180001);
+      jest.advanceTimersByTime(TTL + 1);
       await flush();
     });
     expect(api.status).toBe('expired');
@@ -291,8 +406,8 @@ describe('childClaimContext — terminal states', () => {
 
   test('confirmMatch no-ops from a terminal state (symmetry guard)', async () => {
     await mount();
-    await submitCode();
-    const rid = pairingRid();
+    await submitName();
+    const sessionId = joinedSessionId();
 
     await act(async () => {
       listeners.cancel();
@@ -306,16 +421,37 @@ describe('childClaimContext — terminal states', () => {
       await p;
     });
     expect(api.status).toBe('error');
-    // No childConfirm write and no grant subscription from the dead session.
     expect(mockDb.setPairingDoc).not.toHaveBeenCalledWith(
-      rid,
+      RID,
+      sessionId,
       'childConfirm',
       expect.anything(),
     );
     expect(mockDb.subscribePairingDoc).not.toHaveBeenCalledWith(
-      rid,
+      RID,
+      sessionId,
       'grant',
       expect.any(Function),
     );
+  });
+
+  test('notFound when no live pointer exists', async () => {
+    jest.useFakeTimers();
+    mockDb.getPairingPointer.mockResolvedValue(null);
+    await mount();
+
+    await act(async () => {
+      const p = api.submitName(PARENT_NAME);
+      // The retry loop sleeps 800ms between attempts (6 tries); interleave
+      // flush + advance so each setTimeout resolves and the next is created.
+      for (let i = 0; i < 8; i++) {
+        await flush();
+        jest.advanceTimersByTime(800);
+      }
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('idle');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.notFound');
   });
 });

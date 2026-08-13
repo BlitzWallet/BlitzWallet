@@ -9,25 +9,26 @@ import {
 } from '../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../functions/CustomElements/button';
-import SegmentedCodeInput, {
-  sanitizeCode,
-} from '../../../functions/CustomElements/segmentedCodeInput';
-import { CENTER, COLORS } from '../../../constants';
+import CustomSearchInput from '../../../functions/CustomElements/searchInput';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  VALID_USERNAME_REGEX,
+} from '../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
 import {
   keyboardGoBack,
   keyboardNavigate,
 } from '../../../functions/customNavigation';
-import CustomNumberKeyboard from '../../../functions/CustomElements/customNumberKeyboard';
-
-const CODE_LENGTH = 6;
 
 export default function ChildEnterCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { status, errorMessage, submitCode, resetSession } = useChildClaim();
-  const [code, setCode] = useState('');
+  const { status, errorMessage, submitName, resetSession } = useChildClaim();
+  const [name, setName] = useState('');
+  const [isKeyboardActive, setIsKeyboardActive] = useState(true);
 
   // Parent joined and the SAS is ready -> move to the verify screen.
   useEffect(() => {
@@ -41,22 +42,14 @@ export default function ChildEnterCode() {
     keyboardGoBack(navigate);
   }, [resetSession]);
 
-  // CustomNumberKeyboard passes either a value (clear key) or an updater
-  // function (digit/backspace); both paths keep the code truncated to the
-  // code length now that the native TextInput is gone.
-  const handleCodeInput = useCallback(next => {
-    if (typeof next === 'function') {
-      setCode(prev => sanitizeCode(next(prev), CODE_LENGTH));
-    } else {
-      setCode(sanitizeCode(next, CODE_LENGTH));
-    }
-  }, []);
+  const isValid = VALID_USERNAME_REGEX.test(name.trim());
 
   return (
-    <GlobalThemeView
+    <CustomKeyboardAvoidingView
       useLocalPadding={true}
       useStandardWidth={true}
-      isKeyboardActive={true}
+      isKeyboardActive={isKeyboardActive}
+      useTouchableWithoutFeedback={true}
     >
       <CustomSettingsTopBar
         customBackFunction={handleBack}
@@ -72,24 +65,30 @@ export default function ChildEnterCode() {
           content={t('settings.childAccounts.claim.codeSubtitle')}
         />
         <View style={styles.inputWrap}>
-          <SegmentedCodeInput value={code} length={CODE_LENGTH} />
+          <CustomSearchInput
+            inputText={name}
+            setInputText={setName}
+            maxLength={30}
+            autoFocus={true}
+            placeholderText={t('settings.childAccounts.claim.codePlaceholder')}
+            onSubmitEditingFunction={() => isValid && submitName(name)}
+            onFocusFunction={() => {
+              setIsKeyboardActive(true);
+            }}
+            onBlurFunction={() => setIsKeyboardActive(false)}
+          />
         </View>
         {!!errorMessage && (
           <ThemeText styles={styles.error} content={errorMessage} />
         )}
       </View>
-      <CustomNumberKeyboard
-        usingForInput={true}
-        setInputValue={handleCodeInput}
-        showDot={false}
-      />
       <CustomButton
         buttonStyles={styles.button}
         useLoading={status === 'joining'}
         textContent={t('settings.childAccounts.claim.next')}
-        actionFunction={() => submitCode(code)}
+        actionFunction={() => submitName(name)}
       />
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -116,12 +115,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   error: {
+    fontSize: SIZES.smedium,
     color: COLORS.cancelRed,
     textAlign: 'center',
     marginTop: 16,
   },
   button: {
-    // width: '100%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

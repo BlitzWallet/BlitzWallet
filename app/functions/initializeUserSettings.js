@@ -17,6 +17,12 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 import { setLocalStorageItem } from './localStorage';
 import { getNWCData } from './nwc';
 import { getNWCSparkIdentityPubKey, initializeNWCWallet } from './nwc/wallet';
+import { claimUniqueName } from '../../db';
+import { normalizePairingName } from './accounts/childPairing';
+import {
+  backfillUsernameReservation,
+  setUsernameReservationRecord,
+} from './accounts/usernameReservationRecord';
 
 export default async function initializeUserSettingsFromHistory({
   setMasterInfoObject,
@@ -109,9 +115,32 @@ export default async function initializeUserSettingsFromHistory({
     if (blitzStoredData === null) throw Error('Failed to retrive');
     blitzStoredData = blitzStoredData || {};
 
-    const generatedUniqueName = blitzStoredData?.contacts?.uniqueName
+    let generatedUniqueName = blitzStoredData?.contacts?.uniqueName
       ? ''
       : generateRandomContact();
+
+    // New user (no contacts doc yet): reserve the generated username BEFORE it
+    // fans out into contacts.myProfile + posSettings, regenerating on collision.
+    // Best-effort and non-fatal — a transient claim failure must never fail login
+    // (the outer catch would turn a throw into {didWork:false}), so the backfill
+    // will retry on a later launch.
+    if (!blitzStoredData.contacts && generatedUniqueName) {
+      try {
+        for (let i = 0; i < 5; i++) {
+          const id = normalizePairingName(generatedUniqueName.uniqueName);
+          const res = await claimUniqueName(publicKey, null, id);
+          if (res.status === 'ok') {
+            await setUsernameReservationRecord({ lower: id, at: Date.now() });
+            break;
+          }
+          if (res.status !== 'NAME_TAKEN') break; // transient — backfill retries
+          generatedUniqueName = generateRandomContact();
+        }
+      } catch (err) {
+        console.log('onboarding username reservation error', err);
+      }
+    }
+
     let contacts = blitzStoredData.contacts || {
       myProfile: {
         uniqueName: generatedUniqueName.uniqueName,
@@ -479,6 +508,11 @@ export default async function initializeUserSettingsFromHistory({
     // toggleGLobalEcashInformation(eCashInformation);
     toggleGlobalContactsInformation(contacts);
     setMasterInfoObject(tempObject);
+
+    // Lazy backfill of the username reservation for existing users (A6). Not
+    // awaited — the reservation is off the login critical path; a no-op after the
+    // first successful claim, and never renames the user.
+    backfillUsernameReservation(publicKey, contacts?.myProfile?.uniqueName);
 
     return { didWork: true, response: tempObject };
   } catch (err) {

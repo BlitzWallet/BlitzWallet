@@ -1750,10 +1750,10 @@
         "done": "Done"
       },
       "pairing": {
-        "title": "Share Code",
-        "codeTitle": "Share your code",
-        "codeSubtitle": "Open Blitz on their phone, choose \"Join shared wallet\" and have them enter this code.",
-        "waiting": "Waiting for them to enter the code…",
+        "title": "Share Username",
+        "codeTitle": "Share your username",
+        "codeSubtitle": "Open Blitz on their phone, choose \"Join shared wallet\" and have them enter your username below.",
+        "waiting": "Waiting for them to enter your username…",
         "sasTitle": "Verify pattern",
         "sasSubtitle": "Check that this pattern of shapes matches the one on their phone, shape for shape.",
         "sasHint": "Only continue once you've confirmed both phones show the same pattern.",
@@ -1766,7 +1766,10 @@
         "declinedByChild": "This request has been declined.",
         "areYouSure": "Are you sure?",
         "confirmGate": "Only confirm if the patterns match exactly, shape for shape. Confirming gives this person access to the child account.",
-        "confirmBTN": "They match"
+        "confirmBTN": "They match",
+        "needsUsername": "Set a username on your profile before linking a wallet.",
+        "notOwner": "We couldn't confirm your username reservation. Please try again in a moment.",
+        "startFailed": "Couldn't start pairing. Please try again."
       },
       "page": {
         "title": "Children account",
@@ -1794,9 +1797,9 @@
           "bullet3": "Only continue if you trust the account owner.",
           "continue": "Continue"
         },
-        "codeNavTitle": "Enter Code",
-        "codeTitle": "Enter pairing code",
-        "codeSubtitle": "Enter the pairing code shown on the other person's phone.",
+        "codeNavTitle": "Enter Username",
+        "codeTitle": "Enter their username",
+        "codeSubtitle": "Enter the username shown on the other person's phone.",
         "next": "Next",
         "sasNavTitle": "Verify Pattern",
         "sasTitle": "Verify the pattern",
@@ -1804,12 +1807,13 @@
         "sasHint": "Both phones should display the same pattern.",
         "confirmMatch": "They match",
         "tamper": "We couldn't verify this handoff. Please start again.",
-        "notFound": "We couldn't find that pairing code. Ask for a new one.",
-        "slotTaken": "Someone already joined with this code. Stop now and ask the account owner to cancel and start over.",
+        "notFound": "We couldn't find a pairing for that username. Ask for it again.",
+        "slotTaken": "Someone already joined with this username. Stop now and ask the account owner to cancel and start over.",
         "loading": "Setting up your wallet...",
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
-        "canceledByParent": "The account owner canceled the pairing request."
+        "canceledByParent": "The account owner canceled the pairing request.",
+        "codePlaceholder": "username"
       },
       "limitGate": {
         "title": "Spending limit reached",

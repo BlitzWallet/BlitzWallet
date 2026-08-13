@@ -2240,8 +2240,8 @@
       },
       "pairing": {
         "title": "Dela kod",
-        "codeTitle": "Dela din kod",
-        "codeSubtitle": "Öppna Blitz på deras telefon, välj \"Gå med i delad plånbok\" och be dem ange den här koden.",
+        "codeTitle": "Dela ditt användarnamn",
+        "codeSubtitle": "Öppna Blitz på deras telefon, välj \"Gå med i delad plånbok\" och be dem ange ditt användarnamn nedan.",
         "waiting": "Väntar på att de ska ange koden…",
         "sasTitle": "Verifiera mönstret",
         "sasSubtitle": "Kontrollera att detta mönster av former matchar det på deras telefon, form för form.",
@@ -2255,7 +2255,10 @@
         "declinedByChild": "Denna begäran har avböjts.",
         "areYouSure": "Är du säker?",
         "confirmGate": "Bekräfta bara om mönstren matchar exakt, form för form. Genom att bekräfta ger du den här personen åtkomst till barnkontot.",
-        "confirmBTN": "De stämmer"
+        "confirmBTN": "De stämmer",
+        "needsUsername": "Ange ett användarnamn på din profil innan du länkar en plånbok.",
+        "notOwner": "Vi kunde inte bekräfta din användarnamnsreservation. Försök igen om en liten stund.",
+        "startFailed": "Det gick inte att starta ihopparningen. Försök igen."
       },
       "page": {
         "title": "Barnkonto",
@@ -2283,9 +2286,9 @@
           "bullet3": "Fortsätt bara om du litar på kontots ägare.",
           "continue": "Fortsätt"
         },
-        "codeNavTitle": "Ange kod",
-        "codeTitle": "Ange kopplingskod",
-        "codeSubtitle": "Ange kopplingskoden som visas på den andra personens telefon.",
+        "codeNavTitle": "Ange användarnamn",
+        "codeTitle": "Ange deras användarnamn",
+        "codeSubtitle": "Ange användarnamnet som visas på den andra personens telefon.",
         "next": "Nästa",
         "sasNavTitle": "Verifiera mönster",
         "sasTitle": "Verifiera mönstret",
@@ -2293,12 +2296,13 @@
         "sasHint": "Båda telefonerna ska visa samma mönster.",
         "confirmMatch": "De stämmer",
         "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
-        "notFound": "Vi kunde inte hitta den kopplingskoden. Be om en ny.",
-        "slotTaken": "Någon har redan gått med med den här koden. Stanna nu och be kontoinnehavaren avbryta och börja om.",
+        "notFound": "Vi kunde inte hitta en ihopparning för det användarnamnet. Be om det igen.",
+        "slotTaken": "Någon har redan gått med med det här användarnamnet. Stanna nu och be kontoinnehavaren avbryta och börja om.",
         "loading": "Skapar din plånbok...",
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",
-        "canceledByParent": "Kontoinnehavaren avbröt kopplingsbegäran."
+        "canceledByParent": "Kontoinnehavaren avbröt kopplingsbegäran.",
+        "codePlaceholder": "användarnamn"
       },
       "limitGate": {
         "title": "Utgiftsgränsen nådd",

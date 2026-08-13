@@ -3,8 +3,8 @@
 // to node:crypto in jest.setup.js), so no native/context mocks are needed.
 import {
   makeChildEphKey,
-  makePairingCode,
-  rendezvousId,
+  makeSessionId,
+  normalizePairingName,
   deriveSharedX,
   deriveSeedKey,
   computeSAS,
@@ -15,7 +15,6 @@ import {
 } from '../app/functions/accounts/childPairing';
 
 const SAS_RE = /^[0-9a-t]{9}$/; // 9 shape indices, one base-36 char each (0-29)
-const CODE_RE = /^[0-9]{6}$/;
 
 describe('child pairing crypto', () => {
   // Parent uses its wallet keypair; child a fresh ephemeral one. Same shape.
@@ -86,12 +85,26 @@ describe('child pairing crypto', () => {
     expect(verifyKeyCommitment(commit, '')).toBe(false);
   });
 
-  it('rendezvousId is deterministic and code-normalized', () => {
-    expect(rendezvousId('123456')).toBe(rendezvousId('  123456 '));
-    expect(rendezvousId('123456')).not.toBe(rendezvousId('789012'));
+  it('normalizePairingName trims, NFC-normalizes and lowercases', () => {
+    expect(normalizePairingName('  Alice ')).toBe('alice');
+    expect(normalizePairingName('BOB_1')).toBe('bob_1');
+    // NFC: composed and decomposed forms collapse to the same id.
+    expect(normalizePairingName('é')).toBe(normalizePairingName('é'));
   });
 
-  it('makePairingCode is 6 digits', () => {
-    expect(makePairingCode()).toMatch(CODE_RE);
+  it('normalizePairingName rejects empty and invalid names', () => {
+    expect(normalizePairingName('')).toBe('');
+    expect(normalizePairingName('   ')).toBe('');
+    expect(normalizePairingName(null)).toBe('');
+    expect(normalizePairingName('123')).toBe(''); // no letter
+    expect(normalizePairingName('has space')).toBe('');
+    expect(normalizePairingName('bad/slash')).toBe('');
+  });
+
+  it('makeSessionId is a fresh random hex nonce', () => {
+    const a = makeSessionId();
+    const b = makeSessionId();
+    expect(a).toMatch(/^[0-9a-f]{32}$/);
+    expect(a).not.toBe(b);
   });
 });

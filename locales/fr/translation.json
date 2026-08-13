@@ -2239,8 +2239,8 @@
       },
       "pairing": {
         "title": "Partager le code",
-        "codeTitle": "Partagez votre code",
-        "codeSubtitle": "Ouvrez Blitz sur leur téléphone, choisissez « Rejoindre un portefeuille partagé » et demandez-leur de saisir ce code.",
+        "codeTitle": "Partagez votre nom d'utilisateur",
+        "codeSubtitle": "Ouvrez Blitz sur leur téléphone, choisissez « Rejoindre un portefeuille partagé » et demandez-leur de saisir votre nom d'utilisateur ci-dessous.",
         "waiting": "En attente de leur saisie du code…",
         "sasTitle": "Vérifier le motif",
         "sasSubtitle": "Vérifiez que ce motif de formes correspond à celui de son téléphone, forme par forme.",
@@ -2254,7 +2254,10 @@
         "declinedByChild": "Cette demande a été refusée.",
         "areYouSure": "Êtes-vous sûr ?",
         "confirmGate": "Ne confirmez que si les motifs correspondent exactement, forme par forme. Confirmer donne à cette personne l'accès au compte de l'enfant.",
-        "confirmBTN": "Ils correspondent"
+        "confirmBTN": "Ils correspondent",
+        "needsUsername": "Définissez un nom d'utilisateur sur votre profil avant d'associer un portefeuille.",
+        "notOwner": "Nous n'avons pas pu confirmer votre réservation de nom d'utilisateur. Veuillez réessayer dans un instant.",
+        "startFailed": "Impossible de démarrer l'association. Veuillez réessayer."
       },
       "page": {
         "title": "Compte enfant",
@@ -2282,9 +2285,9 @@
           "bullet3": "Ne continuez que si vous faites confiance au propriétaire du compte.",
           "continue": "Continuer"
         },
-        "codeNavTitle": "Saisir le code",
-        "codeTitle": "Saisir le code d'association",
-        "codeSubtitle": "Saisissez le code d'association affiché sur le téléphone de l'autre personne.",
+        "codeNavTitle": "Saisir le nom d'utilisateur",
+        "codeTitle": "Saisir leur nom d'utilisateur",
+        "codeSubtitle": "Saisissez le nom d'utilisateur affiché sur le téléphone de l'autre personne.",
         "next": "Suivant",
         "sasNavTitle": "Vérifier le motif",
         "sasTitle": "Vérifiez le motif",
@@ -2292,12 +2295,13 @@
         "sasHint": "Les deux téléphones doivent afficher le même motif.",
         "confirmMatch": "Ils correspondent",
         "tamper": "Nous n'avons pas pu vérifier ce transfert. Veuillez recommencer.",
-        "notFound": "Nous n'avons pas trouvé ce code d'association. Demandez-en un nouveau.",
-        "slotTaken": "Quelqu'un a déjà rejoint avec ce code. Arrêtez-vous maintenant et demandez au propriétaire du compte d'annuler et de recommencer.",
+        "notFound": "Nous n'avons pas trouvé d'association pour ce nom d'utilisateur. Demandez-le à nouveau.",
+        "slotTaken": "Quelqu'un a déjà rejoint avec ce nom d'utilisateur. Arrêtez-vous maintenant et demandez au propriétaire du compte d'annuler et de recommencer.",
         "loading": "Configuration de votre portefeuille...",
         "expired": "Cette association a expiré. Veuillez recommencer.",
         "errorTitle": "Session d'association terminée",
-        "canceledByParent": "Le propriétaire du compte a annulé la demande d'association."
+        "canceledByParent": "Le propriétaire du compte a annulé la demande d'association.",
+        "codePlaceholder": "nom d'utilisateur"
       },
       "limitGate": {
         "title": "Limite de dépenses atteinte",

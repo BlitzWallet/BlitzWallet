@@ -2225,8 +2225,8 @@
       },
       "pairing": {
         "title": "Code teilen",
-        "codeTitle": "Teile deinen Code",
-        "codeSubtitle": "Öffne Blitz auf ihrem Telefon, wähle „Gemeinsamem Wallet beitreten“ und lass sie diesen Code eingeben.",
+        "codeTitle": "Teile deinen Benutzernamen",
+        "codeSubtitle": "Öffne Blitz auf ihrem Telefon, wähle „Gemeinsamem Wallet beitreten“ und lass sie deinen Benutzernamen unten eingeben.",
         "waiting": "Warten darauf, dass sie den Code eingeben…",
         "sasTitle": "Muster überprüfen",
         "sasSubtitle": "Prüfen Sie, ob dieses Formmuster mit dem auf ihrem Telefon übereinstimmt, Form für Form.",
@@ -2240,7 +2240,10 @@
         "declinedByChild": "Diese Anfrage wurde abgelehnt.",
         "areYouSure": "Bist du sicher?",
         "confirmGate": "Bestätigen Sie nur, wenn die Muster exakt übereinstimmen, Form für Form. Mit der Bestätigung erhält diese Person Zugriff auf das Kinderkonto.",
-        "confirmBTN": "Sie stimmen überein"
+        "confirmBTN": "Sie stimmen überein",
+        "needsUsername": "Lege in deinem Profil einen Benutzernamen fest, bevor du ein Wallet verknüpfst.",
+        "notOwner": "Wir konnten deine Benutzernamensreservierung nicht bestätigen. Versuch es gleich noch einmal.",
+        "startFailed": "Die Kopplung konnte nicht gestartet werden. Bitte versuche es erneut."
       },
       "page": {
         "title": "Kinder-Konto",
@@ -2268,9 +2271,9 @@
           "bullet3": "Fahre nur fort, wenn du dem Kontoinhaber vertraust.",
           "continue": "Weiter"
         },
-        "codeNavTitle": "Code eingeben",
-        "codeTitle": "Kopplungscode eingeben",
-        "codeSubtitle": "Gib den Kopplungscode ein, der auf dem Telefon der anderen Person angezeigt wird.",
+        "codeNavTitle": "Benutzernamen eingeben",
+        "codeTitle": "Ihren Benutzernamen eingeben",
+        "codeSubtitle": "Gib den Benutzernamen ein, der auf dem Telefon der anderen Person angezeigt wird.",
         "next": "Weiter",
         "sasNavTitle": "Muster überprüfen",
         "sasTitle": "Überprüfen Sie das Muster",
@@ -2278,12 +2281,13 @@
         "sasHint": "Beide Telefone sollten dasselbe Muster anzeigen.",
         "confirmMatch": "Sie stimmen überein",
         "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
-        "notFound": "Wir konnten diesen Kopplungscode nicht finden. Bitte fordere einen neuen an.",
-        "slotTaken": "Jemand hat sich bereits mit diesem Code angemeldet. Stoppe jetzt und bitte den Kontoinhaber, abzubrechen und neu zu beginnen.",
+        "notFound": "Wir konnten keine Kopplung für diesen Benutzernamen finden. Bitte fordere ihn erneut an.",
+        "slotTaken": "Jemand hat sich bereits mit diesem Benutzernamen angemeldet. Stoppe jetzt und bitte den Kontoinhaber, abzubrechen und neu zu beginnen.",
         "loading": "Dein Wallet wird eingerichtet...",
         "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
         "errorTitle": "Kopplungssitzung beendet",
-        "canceledByParent": "Der Kontoinhaber hat die Kopplungsanfrage abgebrochen."
+        "canceledByParent": "Der Kontoinhaber hat die Kopplungsanfrage abgebrochen.",
+        "codePlaceholder": "Benutzername"
       },
       "limitGate": {
         "title": "Ausgabenlimit erreicht",

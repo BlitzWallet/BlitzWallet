@@ -17,25 +17,44 @@ import {
   deriveSeedKey,
   deriveSharedX,
   makeChildEphKey,
-  rendezvousId,
+  normalizePairingName,
   verifyKeyCommitment,
 } from '../app/functions/accounts/childPairing';
 import {
   deletePairingHandshake,
   getPairingDoc,
+  getPairingPointer,
   setPairingDoc,
   subscribePairingDoc,
-  subscribePairingDocDeleted,
+  subscribePairingPointer,
 } from '../db';
 import { firebaseAuth } from '../db/initializeFirebase';
 
 const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rule.
+// Written expiresAt = now + TTL - slack. The rule caps expiresAt at
+// request.time + 180000, so a device clock even slightly fast would exceed the
+// cap and be rules-denied. Subtracting slack keeps every write under the cap.
+const PAIRING_SKEW_SLACK_MS = 10000;
+
+// True iff a pointer describes a joinable live session (active, unexpired, with
+// a sessionId + commit to derive against).
+function isLivePointer(p) {
+  return !!(
+    p &&
+    p.sessionId &&
+    p.commit &&
+    p.status === 'active' &&
+    typeof p.expiresAt === 'number' &&
+    p.expiresAt > Date.now()
+  );
+}
 
 // Shared session for the child-side claim handshake. Owns the live Firestore
 // listener, the ephemeral key + shared secret in memory, and TTL cleanup so the
 // three claim screens can read/drive one session instead of each re-running it.
-// This is the child mirror of childPairingContext.js: it reads parentHello,
-// writes childHello, listens for the grant, and imports the seed.
+// This is the child mirror of childPairingContext.js: it reads the parent's
+// pointer (by username) to learn the live sessionId + commit, writes childHello,
+// listens for the grant, and imports the seed.
 const ChildClaimContext = createContext(null);
 
 export function ChildClaimProvider({ children }) {
@@ -84,9 +103,10 @@ export function ChildClaimProvider({ children }) {
     sessionRef.current = null;
     if (session?.eph) session.eph = null;
     // A declined session leaves its docs (incl. the cancel signal) for the peer to
-    // read; TTL cleans up. Otherwise tear the handshake down unless the seed landed.
-    if (session?.rid && !session?.imported && !session?.declined) {
-      await deletePairingHandshake(session.rid);
+    // read; TTL cleans up. Otherwise tear our own handshake docs down unless the
+    // seed already landed.
+    if (session?.rid && session?.sessionId && !session?.imported && !session?.declined) {
+      await deletePairingHandshake(session.rid, session.sessionId);
     }
     setSas('');
     setErrorMessage('');
@@ -131,7 +151,7 @@ export function ChildClaimProvider({ children }) {
           clearTimeout(expiryRef.current);
           expiryRef.current = null;
         }
-        await deletePairingHandshake(session.rid);
+        await deletePairingHandshake(session.rid, session.sessionId);
         session.eph = null;
         setStatus('done');
       } catch (err) {
@@ -143,13 +163,13 @@ export function ChildClaimProvider({ children }) {
     [setAccountMnemonic, t],
   );
 
-  const submitCode = useCallback(
-    async rawCode => {
-      const code = String(rawCode || '')
-        .trim()
-        .toUpperCase();
-      if (!code || status === 'joining') return;
-      if (code.length <= 5) return;
+  const submitName = useCallback(
+    async rawName => {
+      const rid = normalizePairingName(rawName);
+      if (!rid || status === 'joining') {
+        if (!rid) setErrorMessage(t('settings.childAccounts.claim.notFound'));
+        return;
+      }
       setErrorMessage('');
       setStatus('joining');
 
@@ -157,18 +177,17 @@ export function ChildClaimProvider({ children }) {
         if (!firebaseAuth.currentUser) {
           await signInAnonymously(firebaseAuth);
         }
+        const uid = firebaseAuth.currentUser.uid;
 
-        const eph = makeChildEphKey();
-        const rid = rendezvousId(code);
-
-        // The parent writes parentHello before showing the code, but allow a few
-        // retries in case the child types it first.
-        let parentHello = null;
-        for (let i = 0; i < 6 && !parentHello; i++) {
-          parentHello = await getPairingDoc(rid, 'parentHello');
-          if (!parentHello) await new Promise(r => setTimeout(r, 800));
+        // Read the pointer to learn the live sessionId + commit. The parent
+        // opens the session before showing their name, but allow a few retries
+        // in case the child types it first.
+        let pointer = null;
+        for (let i = 0; i < 6 && !isLivePointer(pointer); i++) {
+          pointer = await getPairingPointer(rid);
+          if (!isLivePointer(pointer)) await new Promise(r => setTimeout(r, 800));
         }
-        if (!parentHello?.commit) {
+        if (!isLivePointer(pointer)) {
           setStatus('idle');
           setErrorMessage(t('settings.childAccounts.claim.notFound'));
           return;
@@ -177,24 +196,35 @@ export function ChildClaimProvider({ children }) {
         // Commit-reveal: we reveal childEphPub now; the parent reveals its own
         // pubkey afterwards. We only derive the shared secret + SAS once the
         // revealed pubkey matches the commitment, so a MITM can't grind keys.
-        sessionRef.current = {
-          rid,
-          eph,
-          commit: parentHello.commit,
-        };
+        const eph = makeChildEphKey();
 
-        const didHello = await setPairingDoc(rid, 'childHello', {
-          v: 1,
-          childEphPub: eph.pub,
-          childAuthUid: firebaseAuth.currentUser.uid,
-          expiresAt: Date.now() + PAIRING_TTL_MS,
-        });
-        if (!didHello) {
-          // Write-once lost. Read the slot back: a foreign childEphPub means
-          // someone else already claimed this code — surface a distinct abort
-          // signal instead of the generic "code not found" so the real child
-          // knows to stop.
-          const existingHello = await getPairingDoc(rid, 'childHello');
+        // Join the live session's write-once childHello slot. A race remains: the
+        // parent may replace the session (re-pair) between our pointer read and
+        // our write, or a live squatter may win the slot first. On denial, re-read
+        // the pointer — a changed sessionId means "rotate + retry"; an unchanged
+        // one with a foreign childEphPub means a squatter (stop).
+        let sessionId = null;
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const candidate = pointer.sessionId;
+          sessionRef.current = { rid, sessionId: candidate, eph, commit: pointer.commit };
+          const didHello = await setPairingDoc(rid, candidate, 'childHello', {
+            v: 1,
+            childEphPub: eph.pub,
+            childAuthUid: uid,
+            expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
+          });
+          if (didHello) {
+            sessionId = candidate;
+            break;
+          }
+          // Denied. Distinguish rotation (retry) from squat (stop).
+          const fresh = await getPairingPointer(rid);
+          if (isLivePointer(fresh) && fresh.sessionId !== candidate) {
+            pointer = fresh; // parent replaced the session — retry under the new id
+            continue;
+          }
+          const existingHello = await getPairingDoc(rid, candidate, 'childHello');
+          sessionRef.current = null;
           if (existingHello && existingHello.childEphPub !== eph.pub) {
             setErrorMessage(t('settings.childAccounts.claim.slotTaken'));
             setStatus('error');
@@ -202,34 +232,45 @@ export function ChildClaimProvider({ children }) {
           }
           throw new Error('Failed to join pairing session');
         }
+        if (!sessionId) throw new Error('Failed to join pairing session');
 
         // Listen the whole session for the parent cancelling so we don't hang
         // waiting on the grant until the TTL expires.
-        cancelUnsubRef.current = subscribePairingDoc(rid, 'cancel', () => {
-          const s = sessionRef.current;
-          if (!s || s.imported || s.declined) return;
-          setErrorMessage(t('settings.childAccounts.claim.canceledByParent'));
-          setStatus('error');
-        });
-
-        // The parent deletes the whole handshake when it times out or leaves;
-        // deletion is invisible to subscribePairingDoc, so watch parentHello
-        // disappearing and treat it as expiry instead of hanging on the SAS
-        // screen forever.
-        parentGoneUnsubRef.current = subscribePairingDocDeleted(
+        cancelUnsubRef.current = subscribePairingDoc(
           rid,
-          'parentHello',
+          sessionId,
+          'cancel',
           () => {
             const s = sessionRef.current;
             if (!s || s.imported || s.declined) return;
-            setStatus('expired');
+            setErrorMessage(t('settings.childAccounts.claim.canceledByParent'));
+            setStatus('error');
           },
         );
+
+        // Watch the pointer: if the parent replaces the session (new sessionId),
+        // marks it terminal (grant/decline/expiry), or deletes it, the session we
+        // joined is gone — surface expiry instead of hanging on the SAS screen.
+        parentGoneUnsubRef.current = subscribePairingPointer(rid, data => {
+          const s = sessionRef.current;
+          if (!s || s.imported || s.declined) return;
+          // Once we've derived sharedX (past SAS, awaiting the grant), the parent
+          // marks the pointer terminal immediately AFTER writing the grant so it
+          // can re-pair — that terminal is the normal success path, not an
+          // expiry, and the grant doc is still arriving. Snapshot ordering across
+          // the two listeners isn't guaranteed, so don't treat terminal as fatal
+          // here; importSeed flips s.imported when the grant lands.
+          if (s.sharedX && data?.status === 'terminal') return;
+          if (!data || data.sessionId !== sessionId || data.status === 'terminal') {
+            setStatus('expired');
+          }
+        });
 
         // Wait for the parent to reveal its ephemeral pubkey, verify it against
         // the commitment, then compute the SAS.
         revealUnsubRef.current = subscribePairingDoc(
           rid,
+          sessionId,
           'parentReveal',
           reveal => {
             const s = sessionRef.current;
@@ -255,7 +296,7 @@ export function ChildClaimProvider({ children }) {
           setStatus('expired');
         }, PAIRING_TTL_MS);
       } catch (err) {
-        console.log('child claim code error', err);
+        console.log('child claim name error', err);
         setStatus('idle');
         setErrorMessage(t('settings.childAccounts.claim.notFound'));
       }
@@ -277,14 +318,19 @@ export function ChildClaimProvider({ children }) {
 
     // Tell the parent we confirmed the match so it can deliver the grant and
     // advance — the mirror of the child waiting on the parent's grant doc.
-    await setPairingDoc(session.rid, 'childConfirm', {
+    await setPairingDoc(session.rid, session.sessionId, 'childConfirm', {
       v: 1,
-      expiresAt: Date.now() + PAIRING_TTL_MS,
+      expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
     });
 
-    unsubRef.current = subscribePairingDoc(session.rid, 'grant', grant => {
-      if (grant?.ciphertext) importSeed(grant);
-    });
+    unsubRef.current = subscribePairingDoc(
+      session.rid,
+      session.sessionId,
+      'grant',
+      grant => {
+        if (grant?.ciphertext) importSeed(grant);
+      },
+    );
     // Replace the reveal-wait timer with the grant-wait timer.
     if (expiryRef.current) clearTimeout(expiryRef.current);
     // If the parent never confirms, the handshake TTL-expires — surface it.
@@ -300,11 +346,11 @@ export function ChildClaimProvider({ children }) {
 
   const declineMatch = useCallback(async () => {
     const session = sessionRef.current;
-    if (session?.rid && !session?.imported) {
+    if (session?.rid && session?.sessionId && !session?.imported) {
       session.declined = true; // guards our own cancel listener + skips doc delete
-      await setPairingDoc(session.rid, 'cancel', {
+      await setPairingDoc(session.rid, session.sessionId, 'cancel', {
         v: 1,
-        expiresAt: Date.now() + PAIRING_TTL_MS,
+        expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
       });
     }
     await resetSession();
@@ -312,8 +358,8 @@ export function ChildClaimProvider({ children }) {
 
   useEffect(() => {
     return () => {
-      // On unmount (flow popped off the stack): tear down the listener and delete
-      // the handshake docs unless the grant was already imported.
+      // On unmount (flow popped off the stack): tear down the listeners and
+      // delete our own handshake docs unless the grant was already imported.
       if (unsubRef.current) unsubRef.current();
       if (cancelUnsubRef.current) cancelUnsubRef.current();
       if (parentGoneUnsubRef.current) parentGoneUnsubRef.current();
@@ -321,8 +367,8 @@ export function ChildClaimProvider({ children }) {
       if (expiryRef.current) clearTimeout(expiryRef.current);
       const session = sessionRef.current;
       if (session?.eph) session.eph = null;
-      if (session?.rid && !session?.imported && !session?.declined)
-        deletePairingHandshake(session.rid);
+      if (session?.rid && session?.sessionId && !session?.imported && !session?.declined)
+        deletePairingHandshake(session.rid, session.sessionId);
     };
   }, []);
 
@@ -333,7 +379,7 @@ export function ChildClaimProvider({ children }) {
       status,
       sas,
       errorMessage,
-      submitCode,
+      submitName,
       confirmMatch,
       declineMatch,
       resetSession,
@@ -343,7 +389,7 @@ export function ChildClaimProvider({ children }) {
       status,
       sas,
       errorMessage,
-      submitCode,
+      submitName,
       confirmMatch,
       declineMatch,
       resetSession,

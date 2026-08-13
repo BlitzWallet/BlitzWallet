@@ -35,7 +35,18 @@ jest.mock('../context-store/globalContacts', () => ({
 }));
 
 jest.mock('../db', () => ({
-  isValidUniqueName: jest.fn(),
+  isUniqueNameAvailable: jest.fn(),
+  claimUniqueName: jest.fn(async () => ({ status: 'ok' })),
+}));
+
+jest.mock('../context-store/keys', () => ({
+  useKeysContext: () => ({ publicKey: 'pub-1' }),
+}));
+
+jest.mock('../app/functions/accounts/usernameReservationRecord', () => ({
+  __esModule: true,
+  setUsernameReservationRecord: jest.fn(async () => {}),
+  clearUsernameReservationRecord: jest.fn(async () => {}),
 }));
 
 jest.mock('../app/hooks/themeColors', () => () => ({
@@ -113,7 +124,7 @@ jest.mock('../app/functions/CustomElements/searchInput', () => {
 const EditProfileFieldPage =
   require('../app/components/admin/homeComponents/contacts/internalComponents/editProfileFieldPage')
     .default;
-const { isValidUniqueName } = require('../db');
+const { isUniqueNameAvailable } = require('../db');
 
 function renderEditProfileFieldPage(fieldKey) {
   let renderer;
@@ -156,7 +167,7 @@ describe('EditProfileFieldPage unique-name availability check', () => {
 
   test('does not save a unique name whose availability was never checked', async () => {
     let resolveFirstCheck;
-    isValidUniqueName.mockReturnValueOnce(
+    isUniqueNameAvailable.mockReturnValueOnce(
       new Promise(resolve => {
         resolveFirstCheck = resolve;
       }),
@@ -170,18 +181,12 @@ describe('EditProfileFieldPage unique-name availability check', () => {
     act(() => {
       jest.advanceTimersByTime(600);
     });
-    expect(isValidUniqueName).toHaveBeenCalledWith(
-      'blitzWalletUsers',
-      'freename',
-    );
+    expect(isUniqueNameAvailable).toHaveBeenCalledWith('pub-1', 'freename');
 
     act(() => {
       input(renderer).props.onChangeText('victimname');
     });
-    expect(isValidUniqueName).not.toHaveBeenCalledWith(
-      'blitzWalletUsers',
-      'victimname',
-    );
+    expect(isUniqueNameAvailable).not.toHaveBeenCalledWith('pub-1', 'victimname');
 
     await act(async () => {
       resolveFirstCheck(true);

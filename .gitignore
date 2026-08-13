@@ -93,3 +93,4 @@ docs/security-audit-2026-08.md
 opencode.json
 .opencodeignore
 firestore.rules
+firestore-rules

@@ -2240,8 +2240,8 @@
       },
       "pairing": {
         "title": "Condividi codice",
-        "codeTitle": "Condividi il tuo codice",
-        "codeSubtitle": "Apri Blitz sul loro telefono, scegli \"Unisciti a un portafoglio condiviso\" e chiedi di inserire questo codice.",
+        "codeTitle": "Condividi il tuo nome utente",
+        "codeSubtitle": "Apri Blitz sul loro telefono, scegli \"Unisciti a un portafoglio condiviso\" e chiedi di inserire il tuo nome utente qui sotto.",
         "waiting": "In attesa che inseriscano il codice…",
         "sasTitle": "Verifica lo schema",
         "sasSubtitle": "Controlla che questo schema di forme corrisponda a quello del suo telefono, forma per forma.",
@@ -2255,7 +2255,10 @@
         "declinedByChild": "Questa richiesta è stata rifiutata.",
         "areYouSure": "Sei sicuro?",
         "confirmGate": "Conferma solo se gli schemi corrispondono esattamente, forma per forma. Confermando dai a questa persona l'accesso al conto del figlio.",
-        "confirmBTN": "Corrispondono"
+        "confirmBTN": "Corrispondono",
+        "needsUsername": "Imposta un nome utente nel tuo profilo prima di associare un portafoglio.",
+        "notOwner": "Non siamo riusciti a confermare la tua prenotazione del nome utente. Riprova tra un momento.",
+        "startFailed": "Impossibile avviare l'associazione. Riprova."
       },
       "page": {
         "title": "Conto figlio",
@@ -2283,9 +2286,9 @@
           "bullet3": "Continua solo se ti fidi del proprietario del conto.",
           "continue": "Continua"
         },
-        "codeNavTitle": "Inserisci codice",
-        "codeTitle": "Inserisci il codice di associazione",
-        "codeSubtitle": "Inserisci il codice di associazione mostrato sul telefono dell'altra persona.",
+        "codeNavTitle": "Inserisci nome utente",
+        "codeTitle": "Inserisci il loro nome utente",
+        "codeSubtitle": "Inserisci il nome utente mostrato sul telefono dell'altra persona.",
         "next": "Avanti",
         "sasNavTitle": "Verifica schema",
         "sasTitle": "Verifica lo schema",
@@ -2293,12 +2296,13 @@
         "sasHint": "Entrambi i telefoni dovrebbero mostrare lo stesso schema.",
         "confirmMatch": "Corrispondono",
         "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
-        "notFound": "Non abbiamo trovato quel codice di associazione. Chiedine uno nuovo.",
-        "slotTaken": "Qualcuno si è già unito con questo codice. Fermati ora e chiedi al proprietario del conto di annullare e ricominciare.",
+        "notFound": "Non abbiamo trovato un'associazione per questo nome utente. Chiedilo di nuovo.",
+        "slotTaken": "Qualcuno si è già unito con questo nome utente. Fermati ora e chiedi al proprietario del conto di annullare e ricominciare.",
         "loading": "Configurazione del tuo portafoglio...",
         "expired": "Questa associazione è scaduta. Ricomincia.",
         "errorTitle": "Sessione di associazione terminata",
-        "canceledByParent": "Il proprietario del conto ha annullato la richiesta di associazione."
+        "canceledByParent": "Il proprietario del conto ha annullato la richiesta di associazione.",
+        "codePlaceholder": "nome utente"
       },
       "limitGate": {
         "title": "Limite di spesa raggiunto",

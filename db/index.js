@@ -1,4 +1,4 @@
-import { db, firebaseAuth } from './initializeFirebase';
+import { db } from './initializeFirebase';
 import {
   getCachedMessages,
   queueSetCashedMessages,
@@ -34,7 +34,10 @@ import {
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 import { getNextChildDerivationIndex } from '../app/functions/accounts/childAccounts';
-import { getIdToken } from '@react-native-firebase/auth';
+import {
+  makeSessionId,
+  normalizePairingName,
+} from '../app/functions/accounts/childPairing';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -92,6 +95,88 @@ export async function reserveNextChildIndex(parentUid) {
     console.error('Error reserving child index:', e);
     crashlyticsRecordErrorReport(e.message);
     return null;
+  }
+}
+
+// ── Username reservation layer (usernames/{nameLower}) ─────────────────────
+// The doc id *is* the canonical name, so `create` atomically enforces global
+// uniqueness. Additive-only: nothing tightens blitzWalletUsers yet, so no
+// installed client's writes start failing. All three helpers key on the
+// canonical normalizePairingName(...) id so they land at the exact path child
+// pairing later reads/reserves. Best-effort: a failure never blocks a profile
+// write or login.
+
+/**
+ * Atomically claim usernames/{newLower} for `uid`. On a successful rename also
+ * releases the caller's old reservation (only if the caller owns it). If the
+ * name is taken by someone else, the old reservation is left untouched (never
+ * orphan the caller's current name on a failed claim).
+ * @returns {Promise<{status: 'ok' | 'NAME_TAKEN' | 'error'}>}
+ */
+export async function claimUniqueName(uid, oldLower, newLower) {
+  try {
+    if (!uid) return { status: 'error' };
+    const newId = normalizePairingName(newLower);
+    if (!newId) return { status: 'error' };
+    const oldId = oldLower ? normalizePairingName(oldLower) : '';
+    const newRef = doc(db, 'usernames', newId);
+    const oldRef = oldId && oldId !== newId ? doc(db, 'usernames', oldId) : null;
+
+    let status = 'ok';
+    await runTransaction(db, async tx => {
+      // Firestore requires all reads before any write.
+      const newSnap = await tx.get(newRef);
+      const oldSnap = oldRef ? await tx.get(oldRef) : null;
+
+      if (newSnap.exists() && newSnap.data().uid !== uid) {
+        status = 'NAME_TAKEN'; // do NOT touch oldRef — never orphan current name
+        return;
+      }
+      // Create-only: a set on an existing doc is an `update`, which the rules
+      // deny (usernames/ has `allow update: if false`). When the caller already
+      // owns the reservation (self-reclaim / rename-back), skip the write — the
+      // reservation is already ours, so returning ok is correct.
+      if (!newSnap.exists()) tx.set(newRef, { uid });
+      if (oldSnap && oldSnap.exists() && oldSnap.data().uid === uid) {
+        tx.delete(oldRef);
+      }
+    });
+    return { status };
+  } catch (e) {
+    console.error('Error claiming unique name:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return { status: 'error' };
+  }
+}
+
+/** True iff usernames/{lower} exists and is reserved by `uid`. */
+export async function ownsUniqueNameReservation(uid, lower) {
+  try {
+    const id = normalizePairingName(lower);
+    if (!uid || !id) return false;
+    const snap = await getDoc(doc(db, 'usernames', id));
+    return snap.exists() && snap.data().uid === uid;
+  } catch (e) {
+    console.error('Error checking name reservation:', e);
+    return false;
+  }
+}
+
+/**
+ * Available iff no blitzWalletUsers profile displays the name AND the reservation
+ * is free or already owned by `uid` (self-reclaim of an orphaned own name).
+ */
+export async function isUniqueNameAvailable(uid, lower) {
+  try {
+    const id = normalizePairingName(lower);
+    if (!id) return false;
+    const nameFree = await isValidUniqueName('blitzWalletUsers', id);
+    if (!nameFree) return false;
+    const snap = await getDoc(doc(db, 'usernames', id));
+    return !snap.exists() || snap.data().uid === uid;
+  } catch (e) {
+    console.error('Error checking name availability:', e);
+    return false;
   }
 }
 
@@ -682,15 +767,106 @@ export async function deleteGift(uuid) {
   }
 }
 
-// ── Family pairing handshake: short-lived write-once docs at
-// familyPairing/{rid}/handshake/{party}. TTL on expiresAt is the backstop.
-function pairingDocRef(rid, party) {
-  return doc(getFirestore(), 'familyPairing', rid, 'handshake', party);
+// ── Family pairing handshake ───────────────────────────────────────────────
+// Two-level layout keyed on the parent's canonical username (the rid):
+//   familyPairing/{rid}                           — owner-owned pointer doc
+//     carries the current { sessionId, commit, parentWalletPub, expiresAt,
+//     status } so the child can discover the live session by username.
+//   familyPairing/{rid}/sessions/{sessionId}/handshake/{party}
+//     per-session write-once handshake docs. A new session = a new sessionId =
+//     a clean namespace, so stale docs from a completed/declined session are
+//     never read again (they just TTL out). TTL on expiresAt is the backstop.
+function pairingPointerRef(rid) {
+  return doc(getFirestore(), 'familyPairing', rid);
 }
 
-export async function setPairingDoc(rid, party, data) {
+function pairingDocRef(rid, sessionId, party) {
+  return doc(
+    getFirestore(),
+    'familyPairing',
+    rid,
+    'sessions',
+    sessionId,
+    'handshake',
+    party,
+  );
+}
+
+/**
+ * Open a pairing session under the parent's username, enforcing one live
+ * session at a time via a transaction. Throws 'SESSION_IN_PROGRESS' if a
+ * non-terminal, unexpired pointer already exists. Returns the fresh sessionId.
+ * Deliberately not wrapped in a catch — the caller distinguishes
+ * SESSION_IN_PROGRESS from other start errors.
+ */
+export async function startPairingSession(
+  rid,
+  parentWalletPub,
+  { commit, expiresAt },
+) {
+  const pointerRef = pairingPointerRef(rid);
+  let sessionId = null;
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(pointerRef);
+    if (
+      snap.exists() &&
+      snap.data().expiresAt > Date.now() &&
+      snap.data().status !== 'terminal'
+    ) {
+      throw new Error('SESSION_IN_PROGRESS');
+    }
+    sessionId = makeSessionId();
+    tx.set(pointerRef, {
+      v: 1,
+      sessionId,
+      commit,
+      parentWalletPub,
+      name: rid,
+      expiresAt,
+      status: 'active',
+    });
+  });
+  return sessionId;
+}
+
+/**
+ * Mark the pointer terminal so re-pairing is unblocked, but only if it still
+ * points at *our* sessionId (never clobber a newer session another device
+ * opened). Re-sets the full pointer shape because the update rule re-validates
+ * request.resource.data. Post-expiry the write is rules-denied (harmless — a
+ * later re-pair overwrites the stale pointer anyway).
+ */
+export async function endPairingSession(rid, sessionId) {
   try {
-    await setDoc(pairingDocRef(rid, party), data);
+    const pointerRef = pairingPointerRef(rid);
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(pointerRef);
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (data.sessionId !== sessionId) return;
+      tx.set(pointerRef, { ...data, status: 'terminal' });
+    });
+    return true;
+  } catch (e) {
+    console.error('Error ending pairing session:', e);
+    return false;
+  }
+}
+
+/** Child reads the pointer to learn the live sessionId + commit for a username. */
+export async function getPairingPointer(rid) {
+  try {
+    const snap = await getDoc(pairingPointerRef(rid));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    console.error('Error reading pairing pointer:', e);
+    return null;
+  }
+}
+
+export async function setPairingDoc(rid, sessionId, party, data) {
+  try {
+    await setDoc(pairingDocRef(rid, sessionId, party), data);
     return true;
   } catch (e) {
     console.error('Error writing pairing doc:', e);
@@ -699,42 +875,9 @@ export async function setPairingDoc(rid, party, data) {
   }
 }
 
-// parentHello (the one squattable "opening" write) is created via the
-// rate-limited proxy endpoint, not a direct Firestore write — the Firestore
-// rules deny direct client parentHello creates. The bearer is the parent's
-// Firebase ID token (getIdToken output), NOT the raw custom token: the proxy
-// verifies it with the Admin SDK's verifyIdToken, which only accepts
-// client-SDK-issued ID tokens. Returns true only on a 200 so
-// the caller's existing `if (!didHello) throw` contract is preserved; a 409
-// (rid taken), 429 (rate-limited), or network error surfaces as "failed to open
-// pairing session" and the parent retries with a fresh random code.
-export async function createParentHelloViaProxy(
-  rid,
-  { commit, name, expiresAt },
-) {
+export async function getPairingDoc(rid, sessionId, party) {
   try {
-    const token = await getIdToken(firebaseAuth.currentUser);
-    if (!token) return false;
-
-    const res = await fetch(`${process.env.PROXY_URL}/childPairingHello`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ rid, commit, name, expiresAt }),
-    });
-    return res.status === 200;
-  } catch (e) {
-    console.error('Error creating parentHello via proxy:', e);
-    crashlyticsRecordErrorReport(e.message);
-    return false;
-  }
-}
-
-export async function getPairingDoc(rid, party) {
-  try {
-    const snap = await getDoc(pairingDocRef(rid, party));
+    const snap = await getDoc(pairingDocRef(rid, sessionId, party));
     return snap.exists() ? snap.data() : null;
   } catch (e) {
     console.error('Error reading pairing doc:', e);
@@ -742,34 +885,41 @@ export async function getPairingDoc(rid, party) {
   }
 }
 
-export function subscribePairingDoc(rid, party, onData) {
-  return onSnapshot(pairingDocRef(rid, party), snap => {
+export function subscribePairingDoc(rid, sessionId, party, onData) {
+  return onSnapshot(pairingDocRef(rid, sessionId, party), snap => {
     if (snap.exists()) onData(snap.data());
   });
 }
 
-// subscribePairingDoc is deliberately silent on deletion; this sibling fires
-// onDeleted for a true existing -> deleted transition (the sawDoc latch skips
-// the initial snapshot when the doc simply isn't there yet).
-export function subscribePairingDocDeleted(rid, party, onDeleted) {
+// The child watches the pointer for the parent leaving/replacing/ending the
+// session (sessionId change, terminal, or deletion) — see childClaimContext.
+export function subscribePairingPointer(rid, onData) {
   let sawDoc = false;
-  return onSnapshot(pairingDocRef(rid, party), snap => {
-    if (snap.exists()) sawDoc = true;
-    else if (sawDoc) onDeleted();
+  return onSnapshot(pairingPointerRef(rid), snap => {
+    if (snap.exists()) {
+      sawDoc = true;
+      onData(snap.data());
+    } else if (sawDoc) {
+      onData(null);
+    }
   });
 }
 
-export async function deletePairingHandshake(rid) {
+// Best-effort teardown: each party deletes its own handshake docs under the
+// session. The rules deny deletes the caller doesn't own; those reject and are
+// swallowed. Lingering peer docs TTL out.
+//
+// childHello is deleted LAST, sequentially: the child's own delete-rule for
+// childConfirm/cancel resolves childUid() by reading childHello. If childHello
+// went first (parallel), the child's other deletes would be rules-denied and
+// linger. Delete everything else first, then childHello.
+export async function deletePairingHandshake(rid, sessionId) {
   await Promise.all(
-    [
-      'parentHello',
-      'childHello',
-      'parentReveal',
-      'childConfirm',
-      'grant',
-      'cancel',
-    ].map(party => deleteDoc(pairingDocRef(rid, party)).catch(() => {})),
+    ['parentReveal', 'childConfirm', 'grant', 'cancel'].map(party =>
+      deleteDoc(pairingDocRef(rid, sessionId, party)).catch(() => {}),
+    ),
   );
+  await deleteDoc(pairingDocRef(rid, sessionId, 'childHello')).catch(() => {});
 }
 
 export async function handleGiftCheck(cardUUID) {

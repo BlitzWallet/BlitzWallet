@@ -1,21 +1,18 @@
 /* eslint-env jest */
 // ---------------------------------------------------------------------------
-// childPairingContext — parent-side pairing state machine.
+// childPairingContext — parent-side pairing state machine (username rendezvous).
 //
-// Drives the real provider with mocked `../db` handshake helpers and injects
-// Firestore events through captured subscribePairingDoc callbacks, then asserts
-// the documented transition matrix (see the pairing correctness review):
-//   - happy path: startPairing → childHello → confirm → Match → childConfirm
-//     → done, and the grant ciphertext actually decrypts under the child's
-//     ECDH key (rows 1-3).
-//   - regression: child "Don't Match" while the parent confirmation modal is
-//     open must land on `error` AND make a stale `confirmMatch()` a no-op —
-//     never `error → granting` (row 6).
-//   - regression: TTL expiry while the modal is open lands on `expired` and
-//     `confirmMatch()` no-ops (row 7).
-//   - parent Don't Match from confirm/granting (rows 4, 8), late cancel after
-//     grant (row 14), duplicate childConfirm (row 13), double Match tap
-//     (row 12).
+// Drives the real provider with mocked `../db` helpers and injects Firestore
+// events through captured subscribePairingDoc callbacks. The rendezvous is now
+// the parent's own username; a session is opened via a transaction
+// (startPairingSession → sessionId) and EVERY teardown marks the pointer
+// terminal (endPairingSession) so re-pairing is immediately unblocked.
+//   - happy path: startPairing → childHello → confirm → Match → childConfirm →
+//     done; the grant ciphertext decrypts under the child's ECDH key.
+//   - re-pair back-to-back: after a grant the pointer is terminal, so a second
+//     startPairing opens a fresh session.
+//   - terminal states: child decline, TTL expiry, parent decline (rows 4/6/7/8).
+//   - SESSION_IN_PROGRESS on start → error with NO destructive delete.
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -25,12 +22,17 @@ const CHILD_MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 const CHILD = { childIndex: 0, name: 'Kid', spendingLimit: 1000 };
 const T0 = 1_700_000_000_000;
+const PARENT_NAME = 'ParentName';
+const RID = 'parentname'; // normalizePairingName(PARENT_NAME)
 
+let nextSessionId = 1;
 const mockDb = {
-  createParentHelloViaProxy: jest.fn(async () => true),
+  startPairingSession: jest.fn(async () => `sess-${nextSessionId++}`),
+  endPairingSession: jest.fn(async () => true),
   deletePairingHandshake: jest.fn(async () => {}),
   setPairingDoc: jest.fn(async () => true),
   subscribePairingDoc: jest.fn(),
+  ownsUniqueNameReservation: jest.fn(async () => true),
 };
 const mockDeriveChildMnemonic = jest.fn(async () => CHILD_MNEMONIC);
 
@@ -40,7 +42,17 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('../../context-store/keys', () => ({
   __esModule: true,
-  useKeysContext: () => ({ accountMnemoinc: 'parent seed words' }),
+  useKeysContext: () => ({
+    accountMnemoinc: 'parent seed words',
+    publicKey: 'parent-pub',
+  }),
+}));
+
+jest.mock('../../context-store/globalContacts', () => ({
+  __esModule: true,
+  useGlobalContactsInfo: () => ({
+    globalContactsInformation: { myProfile: { uniqueName: 'ParentName' } },
+  }),
 }));
 
 jest.mock('../../app/functions/accounts/childAccounts', () => ({
@@ -55,10 +67,12 @@ jest.mock('../../app/functions/crashlyticsLogs', () => ({
 
 jest.mock('../../db', () => ({
   __esModule: true,
-  createParentHelloViaProxy: (...a) => mockDb.createParentHelloViaProxy(...a),
+  startPairingSession: (...a) => mockDb.startPairingSession(...a),
+  endPairingSession: (...a) => mockDb.endPairingSession(...a),
   deletePairingHandshake: (...a) => mockDb.deletePairingHandshake(...a),
   setPairingDoc: (...a) => mockDb.setPairingDoc(...a),
   subscribePairingDoc: (...a) => mockDb.subscribePairingDoc(...a),
+  ownsUniqueNameReservation: (...a) => mockDb.ownsUniqueNameReservation(...a),
 }));
 
 const {
@@ -100,13 +114,10 @@ async function mount() {
   });
 }
 
-// startPairing paces itself with a ~1s delay so the code is readable on
-// screen; under fake timers we fire that delay explicitly.
 async function runStartPairing() {
   await act(async () => {
     const p = api.startPairing(CHILD);
     await flush();
-    jest.advanceTimersByTime(1001);
     await p;
     await flush();
   });
@@ -122,23 +133,26 @@ async function reachConfirm() {
   expect(api.status).toBe('confirm');
 }
 
-function pairingRid() {
-  return mockDb.createParentHelloViaProxy.mock.calls[0][0];
+// The sessionId the provider threaded into its live wire calls (the async
+// startPairingSession return, resolved). Read it off the latest subscription.
+function lastSessionId() {
+  const calls = mockDb.subscribePairingDoc.mock.calls.filter(c => c[0] === RID);
+  return calls[calls.length - 1][1];
 }
 
-function findDocCall(rid, party) {
-  return mockDb.setPairingDoc.mock.calls.find(
-    ([r, p]) => r === rid && p === party,
-  );
+// setPairingDoc(rid, sessionId, party, data) → data is index [3].
+function findDocCall(party) {
+  return mockDb.setPairingDoc.mock.calls.find(([, , p]) => p === party);
 }
 
 beforeEach(() => {
   jest.useFakeTimers();
   jest.setSystemTime(T0);
   jest.clearAllMocks();
+  nextSessionId = 1;
   listeners = {};
   childEph = makeChildEphKey();
-  mockDb.subscribePairingDoc.mockImplementation((rid, party, onData) => {
+  mockDb.subscribePairingDoc.mockImplementation((rid, sessionId, party, onData) => {
     listeners[party] = onData;
     return jest.fn(() => {
       delete listeners[party];
@@ -155,38 +169,39 @@ afterEach(() => {
 });
 
 describe('childPairingContext — happy path', () => {
-  test('startPairing → childHello → confirm → Match → childConfirm → done (rows 1-3)', async () => {
+  test('startPairing → childHello → confirm → Match → childConfirm → done', async () => {
     await mount();
     await reachConfirm();
 
-    const rid = pairingRid();
-    const parentEphPub = findDocCall(rid, 'parentReveal')[2].parentEphPub;
-    // SAS matches what the child would compute from its own ECDH.
+    // Session opened under the parent's own username, with a fresh sessionId.
+    expect(mockDb.startPairingSession).toHaveBeenCalledWith(
+      RID,
+      'parent-pub',
+      expect.objectContaining({ commit: expect.any(String) }),
+    );
+
+    const parentEphPub = findDocCall('parentReveal')[3].parentEphPub;
     const childSharedX = deriveSharedX(childEph.priv, parentEphPub);
     expect(api.sas).toBe(computeSAS(childSharedX, childEph.pub, parentEphPub));
 
-    // Parent presses Match (row 3: parent first). Status becomes granting.
     await act(async () => {
       api.confirmMatch();
       await flush();
     });
     expect(api.status).toBe('granting');
 
-    // Child's childConfirm lands (rows 2/3: fires immediately if it already
-    // confirmed, or on the snapshot). Grant is delivered and encrypted under
-    // the ECDH key the child can derive.
     await act(async () => {
       listeners.childConfirm();
       await flush();
     });
     expect(api.status).toBe('done');
 
-    const grant = findDocCall(rid, 'grant');
+    const grant = findDocCall('grant');
     expect(grant).toBeTruthy();
     const payload = decryptSeedPayload(deriveSeedKey(childSharedX), {
-      iv: grant[2].iv,
-      ct: grant[2].ciphertext,
-      tag: grant[2].tag,
+      iv: grant[3].iv,
+      ct: grant[3].ciphertext,
+      tag: grant[3].tag,
     });
     expect(payload).toMatchObject({
       v: 1,
@@ -195,14 +210,16 @@ describe('childPairingContext — happy path', () => {
       spendingLimit: 1000,
       childIndex: 0,
     });
-    // The delivered grant means the seed was wiped from the parent session.
+    // Grant delivered → pointer marked terminal, handshake NOT deleted (child
+    // still needs to read the grant doc).
+    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, lastSessionId());
     expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
   });
 
-  test('late cancel after grant delivered is a no-op (row 14)', async () => {
+  test('re-pair back-to-back opens a fresh session after a grant', async () => {
     await mount();
     await reachConfirm();
-    const rid = pairingRid();
+    const firstSession = lastSessionId();
 
     await act(async () => {
       api.confirmMatch();
@@ -214,78 +231,29 @@ describe('childPairingContext — happy path', () => {
     });
     expect(api.status).toBe('done');
 
-    // A stale cancel snapshot (child pressed Don't Match after the grant
-    // landed) must not flip the parent to error.
+    // Immediately re-pair a second child (same parent username). The done screen
+    // resets the session; because the pointer is already terminal, the second
+    // startPairingSession is not blocked and opens a fresh session.
     await act(async () => {
-      listeners.cancel();
+      await api.resetSession();
       await flush();
     });
-    expect(api.status).toBe('done');
-    expect(api.errorMessage).toBe('');
-    expect(findDocCall(rid, 'grant')).toBeTruthy();
-  });
-
-  test('duplicate childConfirm delivers exactly one grant (row 13)', async () => {
-    await mount();
+    childEph = makeChildEphKey();
     await reachConfirm();
-    const rid = pairingRid();
+    const secondSession = lastSessionId();
 
-    await act(async () => {
-      api.confirmMatch();
-      await flush();
-    });
-    const fireChildConfirm = listeners.childConfirm;
-    await act(async () => {
-      fireChildConfirm();
-      await flush();
-    });
-    expect(api.status).toBe('done');
-
-    // Second snapshot: the session already granted — no second grant write, no
-    // post-done error.
-    await act(async () => {
-      fireChildConfirm();
-      await flush();
-    });
-    expect(api.status).toBe('done');
-    const grantCalls = mockDb.setPairingDoc.mock.calls.filter(
-      ([r, p]) => r === rid && p === 'grant',
-    );
-    expect(grantCalls.length).toBe(1);
-  });
-
-  test('double Match tap only subscribes once (row 12)', async () => {
-    await mount();
-    await reachConfirm();
-    const rid = pairingRid();
-
-    await act(async () => {
-      api.confirmMatch();
-      await flush();
-    });
-    expect(api.status).toBe('granting');
-
-    // Second tap after the state flipped to granting must no-op.
-    await act(async () => {
-      api.confirmMatch();
-      await flush();
-    });
-    expect(api.status).toBe('granting');
-    const confirmSubs = mockDb.subscribePairingDoc.mock.calls.filter(
-      ([r, p]) => r === rid && p === 'childConfirm',
-    );
-    expect(confirmSubs.length).toBe(1);
+    expect(mockDb.startPairingSession).toHaveBeenCalledTimes(2);
+    expect(secondSession).not.toBe(firstSession);
+    expect(api.status).toBe('confirm');
   });
 });
 
 describe('childPairingContext — terminal states', () => {
-  test('child rejects while modal open → error, stale Match no-ops (row 6)', async () => {
+  test('child rejects while modal open → error, stale Match no-ops', async () => {
     await mount();
     await reachConfirm();
-    const rid = pairingRid();
+    const sessionId = lastSessionId();
 
-    // The confirmation modal is open: status stays `confirm`, no state change.
-    // The child presses Don't Match → the cancel doc arrives.
     await act(async () => {
       listeners.cancel();
       await flush();
@@ -294,63 +262,43 @@ describe('childPairingContext — terminal states', () => {
     expect(api.errorMessage).toBe(
       'settings.childAccounts.pairing.declinedByChild',
     );
-    // The session is dead: listeners torn down, docs cleaned up, seed wiped.
+    // Session dead: listeners torn down, pointer marked terminal, own docs deleted.
     expect(listeners.cancel).toBeUndefined();
     expect(listeners.childHello).toBeUndefined();
-    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(rid);
+    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, sessionId);
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, sessionId);
 
-    // The stale Match press from the still-mounted modal must be a no-op — the
-    // invalid `error → granting` transition is gone.
     await act(async () => {
       api.confirmMatch();
       await flush();
     });
     expect(api.status).toBe('error');
-    expect(api.errorMessage).toBe(
-      'settings.childAccounts.pairing.declinedByChild',
-    );
-    expect(mockDb.subscribePairingDoc).not.toHaveBeenCalledWith(
-      rid,
-      'childConfirm',
-      expect.any(Function),
-    );
     expect(mockDb.setPairingDoc).not.toHaveBeenCalledWith(
-      rid,
+      RID,
+      sessionId,
       'grant',
       expect.anything(),
     );
   });
 
-  test('TTL expiry while modal open → expired, stale Match no-ops (row 7)', async () => {
+  test('TTL expiry while modal open → expired', async () => {
     await mount();
     await reachConfirm();
-    const rid = pairingRid();
+    const sessionId = lastSessionId();
 
-    // 3-minute handshake TTL elapses while the confirmation modal is open.
     await act(async () => {
       jest.advanceTimersByTime(180001);
       await flush();
     });
     expect(api.status).toBe('expired');
-    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(rid);
-
-    // Stale Match press no-ops (session is nulled; status guard also blocks).
-    await act(async () => {
-      api.confirmMatch();
-      await flush();
-    });
-    expect(api.status).toBe('expired');
-    expect(mockDb.subscribePairingDoc).not.toHaveBeenCalledWith(
-      rid,
-      'childConfirm',
-      expect.any(Function),
-    );
+    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, sessionId);
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, sessionId);
   });
 
-  test("parent Don't Match from confirm → idle + cancel doc, no handshake delete (row 4)", async () => {
+  test("parent Don't Match from confirm → idle + cancel doc, terminal mark, no delete", async () => {
     await mount();
     await reachConfirm();
-    const rid = pairingRid();
+    const sessionId = lastSessionId();
 
     await act(async () => {
       await api.declineMatch();
@@ -358,34 +306,50 @@ describe('childPairingContext — terminal states', () => {
     });
     expect(api.status).toBe('idle');
     expect(mockDb.setPairingDoc).toHaveBeenCalledWith(
-      rid,
+      RID,
+      sessionId,
       'cancel',
       expect.objectContaining({ v: 1 }),
     );
-    // Declined sessions leave their docs for the peer to read; TTL cleans up.
+    // Declined: pointer marked terminal, but own docs left for the peer to read.
+    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, sessionId);
     expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
   });
+});
 
-  test("parent Don't Match while granting → idle + cancel doc (row 8)", async () => {
-    await mount();
-    await reachConfirm();
-    const rid = pairingRid();
-
-    await act(async () => {
-      api.confirmMatch();
-      await flush();
-    });
-    expect(api.status).toBe('granting');
-
-    await act(async () => {
-      await api.declineMatch();
-      await flush();
-    });
-    expect(api.status).toBe('idle');
-    expect(mockDb.setPairingDoc).toHaveBeenCalledWith(
-      rid,
-      'cancel',
-      expect.objectContaining({ v: 1 }),
+describe('childPairingContext — start guards', () => {
+  test('SESSION_IN_PROGRESS on start → error, no destructive delete', async () => {
+    mockDb.startPairingSession.mockRejectedValueOnce(
+      new Error('SESSION_IN_PROGRESS'),
     );
+    await mount();
+
+    await act(async () => {
+      const p = api.startPairing(CHILD);
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.pairing.startFailed');
+    // sessionRef was never set → nothing torn down.
+    expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
+    expect(mockDb.endPairingSession).not.toHaveBeenCalled();
+  });
+
+  test('unowned/unreserved name → clear notOwner error, no session opened', async () => {
+    mockDb.ownsUniqueNameReservation.mockResolvedValueOnce(false);
+    await mount();
+
+    await act(async () => {
+      const p = api.startPairing(CHILD);
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.pairing.notOwner');
+    // Blocked before touching the pointer transaction.
+    expect(mockDb.startPairingSession).not.toHaveBeenCalled();
   });
 });

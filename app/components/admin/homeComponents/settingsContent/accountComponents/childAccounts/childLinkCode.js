@@ -19,7 +19,7 @@ export default function ChildLinkCode(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
-  const { status, code, isEnded, startPairing } = useChildPairing();
+  const { status, parentUniqueName, isEnded, startPairing } = useChildPairing();
   const reshareChild = props?.route?.params?.reshareChild ?? null;
 
   useFocusEffect(
@@ -61,7 +61,10 @@ export default function ChildLinkCode(props) {
               <View
                 style={[styles.card, { backgroundColor: backgroundOffset }]}
               >
-                <ThemeText styles={styles.codeValue} content={code} />
+                <ThemeText
+                  styles={styles.codeValue}
+                  content={parentUniqueName}
+                />
               </View>
               <ThemeText
                 styles={styles.hint}
@@ -105,8 +108,8 @@ const styles = StyleSheet.create({
   },
   codeValue: {
     fontSize: SIZES.xxLarge,
-    letterSpacing: 10,
     includeFontPadding: false,
+    textAlign: 'center',
   },
   hint: {
     textAlign: 'center',

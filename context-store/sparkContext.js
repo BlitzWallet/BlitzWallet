@@ -905,7 +905,6 @@ const SparkWalletProvider = ({ children }) => {
         isSendingPayment: isSendingPaymentRef.current,
         mnemonic: currentMnemonicRef.current,
         identityPubKey: sparkInfoRef.current.identityPubKey,
-        sendWebViewRequest,
       });
 
       setSparkInformation(prev => {

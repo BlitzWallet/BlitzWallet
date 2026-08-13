@@ -2240,8 +2240,8 @@
       },
       "pairing": {
         "title": "Compartir código",
-        "codeTitle": "Comparte tu código",
-        "codeSubtitle": "Abre Blitz en su teléfono, elige «Unirse a la wallet compartida» y haz que introduzcan este código.",
+        "codeTitle": "Comparte tu nombre de usuario",
+        "codeSubtitle": "Abre Blitz en su teléfono, elige «Unirse a la wallet compartida» y haz que introduzcan tu nombre de usuario a continuación.",
         "waiting": "Esperando a que introduzcan el código…",
         "sasTitle": "Verificar patrón",
         "sasSubtitle": "Comprueba que este patrón de formas coincide con el de su teléfono, forma por forma.",
@@ -2255,7 +2255,10 @@
         "declinedByChild": "Esta solicitud ha sido rechazada.",
         "areYouSure": "¿Estás seguro?",
         "confirmGate": "Solo confirma si los patrones coinciden exactamente, forma por forma. Al confirmar, esta persona obtiene acceso a la cuenta del hijo.",
-        "confirmBTN": "Coinciden"
+        "confirmBTN": "Coinciden",
+        "needsUsername": "Configura un nombre de usuario en tu perfil antes de vincular una wallet.",
+        "notOwner": "No pudimos confirmar tu reserva de nombre de usuario. Inténtalo de nuevo en un momento.",
+        "startFailed": "No se pudo iniciar el emparejamiento. Inténtalo de nuevo."
       },
       "page": {
         "title": "Cuenta de hijo",
@@ -2283,9 +2286,9 @@
           "bullet3": "Solo continúa si confías en el dueño de la cuenta.",
           "continue": "Continuar"
         },
-        "codeNavTitle": "Introducir código",
-        "codeTitle": "Introduce el código de emparejamiento",
-        "codeSubtitle": "Introduce el código de emparejamiento que se muestra en el teléfono de la otra persona.",
+        "codeNavTitle": "Introducir nombre de usuario",
+        "codeTitle": "Introduce su nombre de usuario",
+        "codeSubtitle": "Introduce el nombre de usuario que se muestra en el teléfono de la otra persona.",
         "next": "Siguiente",
         "sasNavTitle": "Verificar patrón",
         "sasTitle": "Verifica el patrón",
@@ -2293,12 +2296,13 @@
         "sasHint": "Ambos teléfonos deben mostrar el mismo patrón.",
         "confirmMatch": "Coinciden",
         "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
-        "notFound": "No pudimos encontrar ese código de emparejamiento. Pide uno nuevo.",
-        "slotTaken": "Alguien ya se unió con este código. Detente ahora y pídele al propietario de la cuenta que cancele y empiece de nuevo.",
+        "notFound": "No pudimos encontrar un emparejamiento para ese nombre de usuario. Pídelo de nuevo.",
+        "slotTaken": "Alguien ya se unió con este nombre de usuario. Detente ahora y pídele al propietario de la cuenta que cancele y empiece de nuevo.",
         "loading": "Configurando tu wallet...",
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",
-        "canceledByParent": "El propietario de la cuenta canceló la solicitud de emparejamiento."
+        "canceledByParent": "El propietario de la cuenta canceló la solicitud de emparejamiento.",
+        "codePlaceholder": "nombre de usuario"
       },
       "limitGate": {
         "title": "Límite de gasto alcanzado",
