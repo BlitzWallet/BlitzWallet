@@ -174,7 +174,7 @@ export default function ChildSpendingLimit(props) {
         initialTab: 'linked',
       });
       navigate.navigate('EditAccountPage', {
-        account: newEntry,
+        accountId: newEntry.uuid,
         from: 'SettingsContentHome',
       });
     } catch (err) {

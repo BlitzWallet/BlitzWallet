@@ -69,6 +69,10 @@ export default function CreateCustodyAccountPage() {
         for: 'Accounts',
         initialTab: 'personal',
       });
+      navigate.navigate('EditAccountPage', {
+        accountId: response.uuid,
+        from: 'SettingsContentHome',
+      });
     } catch (err) {
       console.log('Create custody account error', err);
       setIsCreatingAccount(false);

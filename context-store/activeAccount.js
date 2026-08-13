@@ -242,7 +242,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         nextAccountDerivationIndex: nextIndex,
       });
 
-      return { didWork: true };
+      return { didWork: true, uuid: accountInfo.uuid };
     } catch (err) {
       console.log('Create derived account error', err);
       return { didWork: false, error: err.message };
@@ -351,9 +351,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     try {
       // masterInfoObject is already loaded from Firebase by GlobalContextProvider
       const nextIndex = Math.min(
-        Math.max(3, Math.floor(Number(
-          masterInfoObject.nextAccountDerivationIndex || 3,
-        ))),
+        Math.max(
+          3,
+          Math.floor(Number(masterInfoObject.nextAccountDerivationIndex || 3)),
+        ),
         MAX_DERIVED_ACCOUNTS - 1,
       );
 
