@@ -7,7 +7,11 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -59,6 +63,7 @@ export default function CreateNWCPermissions(props) {
       : passedParams?.permissions?.lookupInvoice || false,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const hasAnyPermission = Object.values(accountPermissions).some(Boolean);
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
@@ -94,13 +99,7 @@ export default function CreateNWCPermissions(props) {
   };
 
   const handleContinue = () => {
-    if (
-      !accountPermissions.receivePayments &&
-      !accountPermissions.sendPayments &&
-      !accountPermissions.getBalance &&
-      !accountPermissions.transactionHistory &&
-      !accountPermissions.lookupInvoice
-    ) {
+    if (!hasAnyPermission) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('settings.nwc.createNWCAccount.noPermissionsError'),
       });
@@ -206,6 +205,7 @@ export default function CreateNWCPermissions(props) {
               ...CENTER,
               width: INSET_WINDOW_WIDTH,
               marginTop: CONTENT_KEYBOARD_OFFSET,
+              opacity: hasAnyPermission ? 1 : HIDDEN_OPACITY,
             }}
             textContent={t(isEditing ? 'constants.save' : 'constants.continue')}
           />

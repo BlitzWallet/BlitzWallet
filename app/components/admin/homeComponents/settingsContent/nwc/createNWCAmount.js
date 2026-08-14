@@ -113,6 +113,15 @@ export default function CreateNWCAmount(props) {
 
   const localSatAmount = convertDisplayToSats(amountValue);
   const hasBudget = localSatAmount > 0;
+  const canSubmit =
+    !!accountName &&
+    (accountPermissions?.receivePayments ||
+      accountPermissions?.sendPayments ||
+      accountPermissions?.getBalance ||
+      accountPermissions?.transactionHistory ||
+      accountPermissions?.lookupInvoice) &&
+    !(hasBudget && !renewalOption) &&
+    !(!hasBudget && renewalOption && renewalOption !== 'No Limit');
 
   // Prefill the amount when editing an existing capped budget.
   useEffect(() => {
@@ -294,7 +303,10 @@ export default function CreateNWCAmount(props) {
       />
 
       <CustomButton
-        buttonStyles={styles.buttonContainer}
+        buttonStyles={[
+          styles.buttonContainer,
+          { opacity: canSubmit ? 1 : HIDDEN_OPACITY },
+        ]}
         textContent={t(
           isEditing
             ? 'constants.save'

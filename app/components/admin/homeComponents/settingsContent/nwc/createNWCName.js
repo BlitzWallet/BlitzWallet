@@ -10,6 +10,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import {
   COLORS,
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
@@ -148,6 +149,7 @@ export default function CreateNWCName(props) {
               ...CENTER,
               width: INSET_WINDOW_WIDTH,
               marginTop: CONTENT_KEYBOARD_OFFSET,
+              opacity: accountName ? 1 : HIDDEN_OPACITY,
             }}
             textContent={t(isEditing ? 'constants.save' : 'constants.continue')}
           />
