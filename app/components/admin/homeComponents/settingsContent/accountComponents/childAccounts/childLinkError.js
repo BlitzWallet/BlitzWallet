@@ -13,11 +13,12 @@ import {
   SIZES,
 } from '../../../../../../constants/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { applyErrorAnimationTheme } from '../../../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
+import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 
 const confirmTxAnimation = require('../../../../../../assets/errorTxAnimation.json');
 
@@ -27,10 +28,11 @@ export default function ChildLinkError() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { resetSession, status, errorMessage } = useChildPairing();
 
-  const handleDone = () => {
+  const handleDone = useCallback(() => {
     resetSession();
     navigate.popTo('EditAccountPage', undefined, { merge: true });
-  };
+    return true;
+  }, []);
 
   const confirmAnimation = useMemo(() => {
     return applyErrorAnimationTheme(
@@ -38,6 +40,8 @@ export default function ChildLinkError() {
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
   }, [theme, darkModeType]);
+
+  useHandleBackPressNew(handleDone);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
