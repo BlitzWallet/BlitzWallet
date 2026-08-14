@@ -99,6 +99,42 @@ export async function reserveNextChildIndex(parentUid) {
   }
 }
 
+/**
+ * Atomically update the parent's childAccounts registry inside a Firestore
+ * transaction. Edits must never be computed from a stale local snapshot: a
+ * setDoc merge replaces the whole array, so a second device holding an old
+ * childAccounts would wipe every registry entry created since its snapshot
+ * (the create path avoids this with arrayUnion; edits get the same guarantee
+ * here by reading the live array inside the transaction). Mirrors
+ * reserveNextChildIndex. The update rule allows it: childAccounts is not a
+ * locked field and identityUuidBound is untouched.
+ * @param {string} parentUid - Parent's blitzWalletUsers doc id (contacts pubkey)
+ * @param {(entries: Array<object>) => Array<object>} updateFn - Maps the live
+ *   registry array to its new value (e.g. rename / spending-limit edit).
+ * @returns {Promise<boolean>} True on success, false on failure
+ */
+export async function updateChildAccountRegistryEntry(parentUid, updateFn) {
+  try {
+    if (!parentUid) throw Error('Not authenticated');
+    const parentRef = doc(db, 'blitzWalletUsers', parentUid);
+
+    await runTransaction(db, async tx => {
+      const parentSnap = await tx.get(parentRef);
+      const live =
+        parentSnap.exists() && Array.isArray(parentSnap.data().childAccounts)
+          ? parentSnap.data().childAccounts
+          : [];
+      tx.set(parentRef, { childAccounts: updateFn(live) }, { merge: true });
+    });
+
+    return true;
+  } catch (e) {
+    console.error('Error updating child account registry entry:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
 // ── Username reservation layer (usernames/{nameLower}) ─────────────────────
 // The doc id *is* the canonical name, so `create` atomically enforces global
 // uniqueness. Additive-only: nothing tightens blitzWalletUsers yet, so no
@@ -211,6 +247,29 @@ export async function getDataFromCollection(collectionName, uuid) {
 
       if (docSnap.exists()) {
         const userData = docSnap.data();
+        if (collectionName === 'blitzWalletUsers') {
+          // Identity fallback: a sender can strip the uuid fields from their
+          // own doc (firestore.rules only binds them while present), and
+          // consumers trust the stored uuid over the doc id — a stripped
+          // field would land recipients with an unpayable uuid:undefined
+          // contact entry. The doc id IS the identity, so fall back to it
+          // whenever the stored field is missing.
+          const fallbackUuid = userData?.uuid ?? docSnap.id;
+          const myProfile = userData?.contacts?.myProfile;
+          return {
+            ...userData,
+            uuid: fallbackUuid,
+            contacts: userData?.contacts
+              ? {
+                  ...userData.contacts,
+                  myProfile:
+                    myProfile && typeof myProfile === 'object'
+                      ? { ...myProfile, uuid: myProfile.uuid ?? fallbackUuid }
+                      : myProfile,
+                }
+              : userData?.contacts,
+          };
+        }
         return userData;
       }
     } catch (err) {

@@ -12,6 +12,8 @@ const mockNavigation = {
 const mockToggleMasterInfoObject = jest.fn();
 const mockReserveNextChildIndex = jest.fn();
 const mockAddDataToCollection = jest.fn();
+const mockUpdateChildAccountRegistryEntry = jest.fn();
+let mockMasterInfoObject = { childAccounts: [], nextChildDerivationIndex: 2 };
 const mockFetchBackend = jest.fn();
 const mockReserveChild = jest.fn();
 const mockDeriveChildAuthKey = jest.fn();
@@ -24,7 +26,7 @@ jest.mock('@react-navigation/native', () => ({
 
 jest.mock('../context-store/context', () => ({
   useGlobalContextProvider: () => ({
-    masterInfoObject: { childAccounts: [], nextChildDerivationIndex: 2 },
+    masterInfoObject: mockMasterInfoObject,
     toggleMasterInfoObject: mockToggleMasterInfoObject,
   }),
 }));
@@ -43,6 +45,7 @@ jest.mock('react-i18next', () => ({
 jest.mock('../db', () => ({
   reserveNextChildIndex: mockReserveNextChildIndex,
   addDataToCollection: mockAddDataToCollection,
+  updateChildAccountRegistryEntry: mockUpdateChildAccountRegistryEntry,
 }));
 
 jest.mock('../db/handleBackend', () => ({
@@ -112,8 +115,7 @@ jest.mock('../app/functions/CustomElements/button', () => {
 });
 
 const ChildSpendingLimit =
-  require('../app/components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childSpendingLimit')
-    .default;
+  require('../app/components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childSpendingLimit').default;
 
 function renderPage() {
   let renderer;
@@ -210,7 +212,7 @@ describe('ChildSpendingLimit create flow', () => {
     expect(mockNavigation.navigate).toHaveBeenCalledWith(
       'EditAccountPage',
       expect.objectContaining({
-        account: expect.objectContaining({ childIndex: 2 }),
+        accountId: 'uuid-child-1',
         from: 'SettingsContentHome',
       }),
     );
@@ -234,7 +236,9 @@ describe('ChildSpendingLimit create flow', () => {
 
   test('concurrent creates sharing a stale snapshot both persist and never regress the counter', async () => {
     mockReserveNextChildIndex.mockResolvedValueOnce(2).mockResolvedValueOnce(3);
-    mockCustomUUID.mockReturnValueOnce('uuid-child-1').mockReturnValueOnce('uuid-child-2');
+    mockCustomUUID
+      .mockReturnValueOnce('uuid-child-1')
+      .mockReturnValueOnce('uuid-child-2');
 
     let renderer;
     act(() => {
@@ -291,5 +295,85 @@ describe('ChildSpendingLimit create flow', () => {
         call => !('nextChildDerivationIndex' in (call[0] || {})),
       ),
     ).toBe(true);
+  });
+
+  test('limit edit updates the registry atomically instead of rewriting the whole array from a stale snapshot', async () => {
+    mockMasterInfoObject = {
+      childAccounts: [
+        {
+          uuid: 'uuid-child-1',
+          name: 'Kid',
+          childIndex: 2,
+          spendingLimit: 1000,
+        },
+      ],
+      nextChildDerivationIndex: 2,
+    };
+    let renderer;
+    act(() => {
+      renderer = ReactTestRenderer.create(
+        <ChildSpendingLimit
+          route={{
+            params: {
+              name: 'Kid',
+              editChild: {
+                uuid: 'uuid-child-1',
+                name: 'Kid',
+                childIndex: 2,
+                spendingLimit: 1000,
+              },
+            },
+          }}
+        />,
+      );
+    });
+
+    await pressCreate(renderer);
+
+    // The edit goes through the transaction helper keyed on the entry uuid —
+    // computed from the LIVE server array, so a stale snapshot can never
+    // clobber sibling entries created on another device.
+    expect(mockUpdateChildAccountRegistryEntry).toHaveBeenCalledTimes(1);
+    const [parentUid, updater] =
+      mockUpdateChildAccountRegistryEntry.mock.calls[0];
+    expect(parentUid).toBe('parent-pubkey');
+    expect(
+      updater([
+        {
+          uuid: 'uuid-child-1',
+          name: 'Kid',
+          childIndex: 2,
+          spendingLimit: 1000,
+        },
+        {
+          uuid: 'uuid-child-2',
+          name: 'Kid2',
+          childIndex: 3,
+          spendingLimit: null,
+        },
+      ]),
+    ).toEqual([
+      { uuid: 'uuid-child-1', name: 'Kid', childIndex: 2, spendingLimit: 1000 },
+      {
+        uuid: 'uuid-child-2',
+        name: 'Kid2',
+        childIndex: 3,
+        spendingLimit: null,
+      },
+    ]);
+    // Local state updates DB-free; no wholesale array write reaches the DB.
+    expect(mockToggleMasterInfoObject).toHaveBeenCalledWith(
+      {
+        childAccounts: [
+          expect.objectContaining({
+            uuid: 'uuid-child-1',
+            spendingLimit: 1000,
+          }),
+        ],
+      },
+      false,
+    );
+    expect(mockAddDataToCollection).not.toHaveBeenCalled();
+    expect(mockNavigation.goBack).toHaveBeenCalled();
   });
 });

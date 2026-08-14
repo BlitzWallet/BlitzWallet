@@ -16,6 +16,7 @@ import fetchBackend from '../../../../../../../db/handleBackend';
 import {
   reserveNextChildIndex,
   addDataToCollection,
+  updateChildAccountRegistryEntry,
 } from '../../../../../../../db';
 import { arrayUnion } from '@react-native-firebase/firestore';
 import {
@@ -98,7 +99,18 @@ export default function ChildSpendingLimit(props) {
     const updated = existing.map(item =>
       item.uuid === editChild.uuid ? { ...item, spendingLimit } : item,
     );
-    await toggleMasterInfoObject({ childAccounts: updated });
+    // Registry edits are atomic like creation: run against the live server
+    // array in a transaction (never a stale snapshot's wholesale array
+    // write, which would erase sibling entries created on other devices)
+    // and keep the local state update DB-free (shouldSendToDb = false);
+    // the next foreground sync reconciles any sibling entry we can't see
+    // locally.
+    await updateChildAccountRegistryEntry(publicKey, entries =>
+      entries.map(item =>
+        item.uuid === editChild.uuid ? { ...item, spendingLimit } : item,
+      ),
+    );
+    await toggleMasterInfoObject({ childAccounts: updated }, false);
     navigate.goBack();
   }, [
     parseLimit,

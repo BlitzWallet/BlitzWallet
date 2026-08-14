@@ -12,6 +12,9 @@ const mockNavigation = {
 const mockToggleMasterInfoObject = jest.fn();
 const mockReserveNextChildIndex = jest.fn();
 const mockAddDataToCollection = jest.fn();
+const mockUpdateChildAccountRegistryEntry = jest.fn();
+const mockKeyboardGoBack = jest.fn(async () => {});
+let mockMasterInfoObject = { childAccounts: [], nextChildDerivationIndex: 2 };
 const mockFetchBackend = jest.fn();
 const mockReserveChild = jest.fn();
 const mockDeriveChildAuthKey = jest.fn();
@@ -25,7 +28,7 @@ jest.mock('@react-navigation/native', () => ({
 
 jest.mock('../context-store/context', () => ({
   useGlobalContextProvider: () => ({
-    masterInfoObject: { childAccounts: [], nextChildDerivationIndex: 2 },
+    masterInfoObject: mockMasterInfoObject,
     toggleMasterInfoObject: mockToggleMasterInfoObject,
   }),
 }));
@@ -48,12 +51,13 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('../app/functions/customNavigation', () => ({
-  keyboardGoBack: jest.fn(async () => {}),
+  keyboardGoBack: mockKeyboardGoBack,
 }));
 
 jest.mock('../db', () => ({
   reserveNextChildIndex: mockReserveNextChildIndex,
   addDataToCollection: mockAddDataToCollection,
+  updateChildAccountRegistryEntry: mockUpdateChildAccountRegistryEntry,
 }));
 
 jest.mock('../db/handleBackend', () => ({
@@ -124,20 +128,23 @@ jest.mock('../app/functions/CustomElements/button', () => {
 });
 
 const ChildEnterName =
-  require('../app/components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childEnterName')
-    .default;
+  require('../app/components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childEnterName').default;
 
 function renderPage() {
   let renderer;
   act(() => {
-    renderer = ReactTestRenderer.create(<ChildEnterName route={{ params: {} }} />);
+    renderer = ReactTestRenderer.create(
+      <ChildEnterName route={{ params: {} }} />,
+    );
   });
   return renderer;
 }
 
 function enterName(renderer, name) {
   act(() => {
-    renderer.root.findByProps({ testID: 'name-input' }).props.onChangeText(name);
+    renderer.root
+      .findByProps({ testID: 'name-input' })
+      .props.onChangeText(name);
   });
 }
 
@@ -227,7 +234,7 @@ describe('ChildEnterName create flow', () => {
     expect(mockNavigation.navigate).toHaveBeenCalledWith(
       'EditAccountPage',
       expect.objectContaining({
-        account: expect.objectContaining({ childIndex: 2 }),
+        accountId: 'uuid-child-1',
         from: 'SettingsContentHome',
       }),
     );
@@ -320,5 +327,67 @@ describe('ChildEnterName create flow', () => {
     expect(mockAddDataToCollection).not.toHaveBeenCalledWith(
       expect.objectContaining({ nextChildDerivationIndex: expect.anything() }),
     );
+  });
+
+  test('rename edits the registry atomically instead of rewriting the whole array from a stale snapshot', async () => {
+    mockMasterInfoObject = {
+      childAccounts: [
+        {
+          uuid: 'uuid-child-1',
+          name: 'Old',
+          childIndex: 2,
+          spendingLimit: null,
+        },
+      ],
+      nextChildDerivationIndex: 2,
+    };
+    let renderer;
+    act(() => {
+      renderer = ReactTestRenderer.create(
+        <ChildEnterName
+          route={{
+            params: {
+              editChild: {
+                uuid: 'uuid-child-1',
+                name: 'Old',
+                childIndex: 2,
+                spendingLimit: null,
+              },
+            },
+          }}
+        />,
+      );
+    });
+
+    enterName(renderer, 'Kid2');
+    await pressCreate(renderer);
+
+    // The edit goes through the transaction helper keyed on the entry uuid —
+    // computed from the LIVE server array, so a stale snapshot can never
+    // clobber sibling entries created on another device.
+    expect(mockUpdateChildAccountRegistryEntry).toHaveBeenCalledTimes(1);
+    const [parentUid, updater] =
+      mockUpdateChildAccountRegistryEntry.mock.calls[0];
+    expect(parentUid).toBe('parent-pubkey');
+    expect(
+      updater([
+        { uuid: 'uuid-child-1', name: 'Old', childIndex: 2 },
+        { uuid: 'uuid-child-2', name: 'Kid2', childIndex: 3 },
+      ]),
+    ).toEqual([
+      { uuid: 'uuid-child-1', name: 'Kid2', childIndex: 2 },
+      { uuid: 'uuid-child-2', name: 'Kid2', childIndex: 3 },
+    ]);
+    // Local state updates DB-free; no wholesale array write reaches the DB.
+    expect(mockToggleMasterInfoObject).toHaveBeenCalledWith(
+      {
+        childAccounts: [
+          expect.objectContaining({ uuid: 'uuid-child-1', name: 'Kid2' }),
+        ],
+      },
+      false,
+    );
+    expect(mockAddDataToCollection).not.toHaveBeenCalled();
+    expect(mockKeyboardGoBack).toHaveBeenCalled();
   });
 });
