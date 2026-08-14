@@ -487,7 +487,6 @@ export default function EditAccountPage(props) {
               <View style={styles.rowRight}>
                 <ThemeText
                   CustomNumberOfLines={1}
-                  adjustsFontSizeToFit={true}
                   styles={styles.rowValue}
                   content={accountInformation.name}
                 />

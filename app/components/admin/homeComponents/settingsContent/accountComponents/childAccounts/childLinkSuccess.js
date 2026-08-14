@@ -13,11 +13,12 @@ import {
   SIZES,
 } from '../../../../../../constants/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { updateConfirmAnimation } from '../../../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
+import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 
 const confirmTxAnimation = require('../../../../../../assets/confirmTxAnimation.json');
 
@@ -27,13 +28,14 @@ export default function ChildLinkSuccess() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { resetSession } = useChildPairing();
 
-  const handleDone = () => {
+  const handleDone = useCallback(() => {
     resetSession();
     navigate.popTo('SettingsContentHome', {
       for: 'Accounts',
       initialTab: 'linked',
     });
-  };
+    return true;
+  }, []);
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -41,6 +43,8 @@ export default function ChildLinkSuccess() {
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
   }, [theme, darkModeType]);
+
+  useHandleBackPressNew(handleDone);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
