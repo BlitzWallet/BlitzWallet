@@ -10,7 +10,11 @@ export default function ChildClaimStack() {
   return (
     <ChildClaimProvider>
       <Stack.Navigator
-        screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+          gestureEnabled: false,
+        }}
       >
         <Stack.Screen name="ChildClaimInfo" component={ChildClaimInfo} />
         <Stack.Screen name="ChildEnterCode" component={ChildEnterCode} />
