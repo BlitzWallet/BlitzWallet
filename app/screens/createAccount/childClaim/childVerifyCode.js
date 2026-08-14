@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +12,12 @@ import { useChildClaim } from '../../../../context-store/childClaimContext';
 import ClaimLinkError from './claimLinkError';
 import SasPatternGrid from '../../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/SasPatternGrid';
 import { useAppStatus } from '../../../../context-store/appStatus';
+import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 
 export default function ChildVerifyCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { textColor } = GetThemeColors();
-  const [isResetting, setIsResetting] = useState(false);
   const { status, sas, confirmMatch, isEnded, declineMatch } = useChildClaim();
   const { screenDimensions } = useAppStatus();
 
@@ -28,12 +28,13 @@ export default function ChildVerifyCode() {
     }
   }, [status, navigate]);
 
-  const handleNoMatch = async () => {
-    setIsResetting(true);
-    await declineMatch();
-    setIsResetting(false);
-    navigate.popTo('ChildClaimInfo');
-  };
+  const handleNoMatch = useCallback(() => {
+    declineMatch();
+    navigate.popTo('ChildEnterCode');
+    return true;
+  }, [declineMatch, navigate]);
+
+  useHandleBackPressNew(isEnded ? null : handleNoMatch);
 
   if (isEnded) return <ClaimLinkError />;
 
@@ -41,6 +42,7 @@ export default function ChildVerifyCode() {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('settings.childAccounts.claim.sasNavTitle')}
+        customBackFunction={handleNoMatch}
       />
 
       <ScrollView style={styles.content}>
@@ -69,7 +71,6 @@ export default function ChildVerifyCode() {
       />
       <CustomButton
         buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}
-        useLoading={isResetting}
         textStyles={{ color: textColor }}
         textContent={t('settings.childAccounts.dontMatch')}
         actionFunction={handleNoMatch}

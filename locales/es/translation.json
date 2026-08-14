@@ -2298,6 +2298,7 @@
         "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
         "notFound": "No pudimos encontrar un emparejamiento para ese nombre de usuario. Pídelo de nuevo.",
         "slotTaken": "Alguien ya se unió con este nombre de usuario. Detente ahora y pídele al propietario de la cuenta que cancele y empiece de nuevo.",
+        "askToRestart": "No pudimos unirnos a esta vinculación. Pídele al propietario de la cuenta que inicie una nueva.",
         "loading": "Configurando tu wallet...",
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",

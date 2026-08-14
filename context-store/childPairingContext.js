@@ -21,27 +21,30 @@ import {
   normalizePairingName,
 } from '../app/functions/accounts/childPairing';
 import {
+  advanceSessionStatus,
+  cancelPairingSession,
+  createPairingSession,
   deletePairingHandshake,
-  endPairingSession,
   ownsUniqueNameReservation,
+  removeRendezvous,
   setPairingDoc,
-  startPairingSession,
   subscribePairingDoc,
+  subscribePairingSession,
 } from '../db';
 import { crashlyticsRecordErrorReport } from '../app/functions/crashlyticsLogs';
+import { useAccountsExpiryTimeTick } from '../app/functions/accounts/expiryTimeTick';
 
-const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rule.
-// Written expiresAt = now + TTL - slack. The rule caps expiresAt at
-// request.time + 180000, so a device clock even slightly fast would exceed the
-// cap and be rules-denied. Subtracting slack keeps every write under the cap.
-const PAIRING_SKEW_SLACK_MS = 10000;
+// Per-state server deadline (rules: request.time < stateTs + 3m). Only the
+// server clock judges liveness; this constant drives the cosmetic countdown
+// (pairingExpiryClock) and the passive expiry fallback below.
+const PAIRING_STATE_TTL_MS = 180000;
 
 // Shared session for the parent-side child-pairing handshake. Owns the live
-// Firestore listener, the child's secret seed in memory, and TTL cleanup so the
-// four pairing screens can read/drive one session instead of each re-running it.
-// The rendezvous is the parent's own username (normalizePairingName), and each
-// session gets a fresh sessionId nonce so back-to-back re-pairs use a clean
-// handshake namespace.
+// Firestore listeners (session doc + handshake docs), the child's secret seed
+// in memory, and teardown so the four pairing screens can read/drive one
+// session instead of each re-running it. The rendezvous is the parent's own
+// username (normalizePairingName), and each session gets a fresh sessionId
+// nonce so back-to-back re-pairs use a clean session namespace.
 const ChildPairingContext = createContext(null);
 
 export function ChildPairingProvider({ children }) {
@@ -49,18 +52,30 @@ export function ChildPairingProvider({ children }) {
   const { accountMnemoinc, publicKey } = useKeysContext();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const parentUniqueName = globalContactsInformation?.myProfile?.uniqueName;
+  // The shared 1s app tick. This is the SAME tick that renders the
+  // pairingExpiryClock countdown, so the visible clock and the expiry fallback
+  // below are atomic — they can never disagree about the time.
+  const tick = useAccountsExpiryTimeTick();
 
   // status: idle | preparing | waiting | confirm | granting | done | error | expired
   const [status, setStatus] = useState('idle');
   const [sas, setSas] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  // Server timestamp (anchor) + device arrival time (startedAt) of the current
+  // session state (createdAt / joinedAt / verifyingAt, from the session
+  // snapshot). Countdowns are elapsed against startedAt so device clock skew
+  // cancels out; never gates a transition.
+  const [pairingExpiryClock, setPairingExpiryClock] = useState(null);
 
   const statusRef = useRef('idle');
   const sessionRef = useRef(null);
   const startingRef = useRef(false);
-  const unsubRef = useRef(null);
-  const cancelUnsubRef = useRef(null);
-  const pairingStartTime = useRef(null);
+  const sessionUnsubRef = useRef(null);
+  const handshakeUnsubRef = useRef(null);
+  // Holds the backgrounded cancelPairingSession promise from the last decline.
+  // The parent provider unmounts on decline (back-nav pops ChildPairingStack),
+  // so the drain in startPairing is defensive / mirror-symmetry with the child.
+  const pendingDeclineRef = useRef(null);
 
   useEffect(() => {
     statusRef.current = status;
@@ -72,33 +87,38 @@ export function ChildPairingProvider({ children }) {
   // path must route through here so confirmMatch's session/status guards always
   // see a dead session afterwards — otherwise a stale Match press (e.g. from the
   // confirmation modal left open over an ended session) could re-enter granting
-  // from error/expired. It also marks the pointer terminal so the parent can
-  // immediately re-pair (a stable username rid, unlike the old random-per-session
-  // rid, would otherwise stay blocked by the live pointer until TTL).
+  // from error/expired. Cancelling the session is best-effort (it may already
+  // be terminal).
   const endSession = useCallback((nextStatus, message = '') => {
-    if (unsubRef.current) {
-      unsubRef.current();
-      unsubRef.current = null;
+    if (sessionUnsubRef.current) {
+      sessionUnsubRef.current();
+      sessionUnsubRef.current = null;
     }
-    if (cancelUnsubRef.current) {
-      cancelUnsubRef.current();
-      cancelUnsubRef.current = null;
+    if (handshakeUnsubRef.current) {
+      handshakeUnsubRef.current();
+      handshakeUnsubRef.current = null;
     }
     const session = sessionRef.current;
     sessionRef.current = null;
     if (session?.childMnemonic) session.childMnemonic = null; // wipe seed from memory
-    if (session?.rid && session?.sessionId) {
-      // Always mark the pointer terminal so re-pairing is unblocked immediately.
-      endPairingSession(session.rid, session.sessionId);
-      // A declined session leaves its docs (incl. the cancel signal) for the peer
-      // to read; a granted session leaves its grant doc for the child to read.
-      // Otherwise best-effort delete our own handshake docs.
-      if (!session.granted && !session.declined) {
-        deletePairingHandshake(session.rid, session.sessionId);
-      }
+    // Only cancel a session that is still live and that WE are ending (expiry /
+    // grant error). If it's already terminal — we granted it, we declined it, or
+    // we're reacting to the peer's CANCELLED (s.declined set in the listener) —
+    // re-cancelling is a terminal→CANCELLED write the rules deny
+    // (permission-denied). A granted session leaves its grant doc for the child;
+    // a declined session leaves its docs for the peer. So one guard covers both.
+    if (
+      session?.rid &&
+      session?.sessionId &&
+      !session.granted &&
+      !session.declined
+    ) {
+      cancelPairingSession(session.rid, session.sessionId);
+      deletePairingHandshake(session.rid, session.sessionId);
     }
     setSas('');
     setErrorMessage(message);
+    setPairingExpiryClock(null);
     setStatus(nextStatus);
   }, []);
 
@@ -119,8 +139,10 @@ export function ChildPairingProvider({ children }) {
       // down the in-flight session and open a new one.
       if (sessionRef.current || startingRef.current) return;
       startingRef.current = true;
-      const startTime = Date.now();
-      pairingStartTime.current = startTime;
+      if (pendingDeclineRef.current) {
+        await pendingDeclineRef.current;
+        pendingDeclineRef.current = null;
+      }
       await resetSession();
       setStatus('preparing');
       try {
@@ -155,21 +177,18 @@ export function ChildPairingProvider({ children }) {
           childIndex,
         );
 
-        const expiresAt = Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS;
-
         // Fresh per-session ephemeral key. We publish only a commitment to its
         // pubkey now and reveal the pubkey after the child reveals theirs, so a
         // MITM can't grind either key to force a matching SAS.
         const parentEph = makeChildEphKey();
 
-        // Open the session first (transaction enforces one live session at a
-        // time). Only on success do we adopt the session — so a
-        // SESSION_IN_PROGRESS / rules-denied / clock-skew start error lands on
-        // `error` with sessionRef still null (nothing to tear down, nobody
-        // else's session touched).
-        const sessionId = await startPairingSession(rid, publicKey, {
+        // Open a JIT session (fresh sessionId = isolated namespace; no
+        // SESSION_IN_PROGRESS conflict — sessions never collide). Only on
+        // success do we adopt the session, so a start error lands on `error`
+        // with sessionRef still null (nothing to tear down, nobody else's
+        // session touched).
+        const sessionId = await createPairingSession(rid, publicKey, {
           commit: makeKeyCommitment(parentEph.pub),
-          expiresAt,
         });
 
         sessionRef.current = {
@@ -182,26 +201,56 @@ export function ChildPairingProvider({ children }) {
           parentEph,
         };
 
-        // Listen the whole session for a decline from the child so we don't hang
-        // waiting on childConfirm/grant until the TTL expires.
-        cancelUnsubRef.current = subscribePairingDoc(
+        // The session doc is the primary driver. Join drops the rendezvous
+        // (transactional, D3), every status transition re-anchors the cosmetic
+        // countdown to the server timestamp, CANCELLED means the child
+        // declined, and a TTL-deleted doc is a derived expiry.
+        sessionUnsubRef.current = subscribePairingSession(
           rid,
           sessionId,
-          'cancel',
-          () => {
+          data => {
             const s = sessionRef.current;
             if (!s || s.granted || s.declined) return;
-            endSession(
-              'error',
-              t('settings.childAccounts.pairing.declinedByChild'),
-            );
+            if (!data) {
+              // Session GC'd — purely passive: flip the screen, no teardown.
+              setStatus('expired');
+              return;
+            }
+            if (data.status === 'WAITING' && data.createdAt) {
+              setPairingExpiryClock({
+                anchor: data.createdAt.toMillis(),
+                startedAt: Date.now(),
+              });
+            } else if (data.status === 'JOINED' && data.joinedAt) {
+              // setPairingExpiryClock({
+              //   anchor: data.joinedAt.toMillis(),
+              //   startedAt: Date.now(),
+              // });
+              if (!s.rendezvousRemoved) {
+                s.rendezvousRemoved = true;
+                removeRendezvous(rid, sessionId);
+              }
+            } else if (data.status === 'VERIFYING' && data.verifyingAt) {
+              // setPairingExpiryClock({
+              //   anchor: data.verifyingAt.toMillis(),
+              //   startedAt: Date.now(),
+              // });
+            } else if (data.status === 'CANCELLED') {
+              s.declined = true;
+              endSession(
+                'error',
+                t('settings.childAccounts.pairing.declinedByChild'),
+              );
+            }
+            // COMPLETED is deliberately ignored: the parent's terminal is the
+            // grant being delivered, not this best-effort marker (D5).
           },
         );
 
         // Listen for the child's ephemeral pubkey. Only then reveal our own
-        // ephemeral pubkey (the child verifies it against the commitment), and
-        // compute the SAS.
-        unsubRef.current = subscribePairingDoc(
+        // ephemeral pubkey (the child verifies it against the commitment),
+        // advance the session to VERIFYING, and compute the SAS.
+        handshakeUnsubRef.current = subscribePairingDoc(
           rid,
           sessionId,
           'childHello',
@@ -214,15 +263,44 @@ export function ChildPairingProvider({ children }) {
             );
             s.sharedX = sharedX;
             s.childEphPub = childHello.childEphPub;
-            const didReveal = await setPairingDoc(rid, sessionId, 'parentReveal', {
-              v: 1,
-              parentEphPub: s.parentEph.pub,
-              expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
-            });
+
+            // The child claiming the session means the pointer has done its job
+            // (idempotent with the JOINED-snapshot removal).
+            if (!s.rendezvousRemoved) {
+              s.rendezvousRemoved = true;
+              removeRendezvous(rid, sessionId);
+            }
+
+            // Advance JOINED→VERIFYING BEFORE writing parentReveal: the
+            // handshake rules gate parentReveal on the session being VERIFYING.
+            const didAdvance = await advanceSessionStatus(
+              rid,
+              sessionId,
+              'VERIFYING',
+            );
+            if (!didAdvance) {
+              // Rules-denied — the session deadline passed under us. Surface
+              // the derived expiry; never rely on a client timer for this.
+              endSession(
+                'expired',
+                t('settings.childAccounts.pairing.expired'),
+              );
+              return;
+            }
+            const didReveal = await setPairingDoc(
+              rid,
+              sessionId,
+              'parentReveal',
+              {
+                v: 1,
+                parentEphPub: s.parentEph.pub,
+              },
+            );
             if (!didReveal) {
-              // The session was torn down under us (peer delete / TTL): the rule
-              // denies our parentReveal. The session is dead — don't advance to SAS.
-              endSession('error', t('settings.childAccounts.pairing.expired'));
+              endSession(
+                'expired',
+                t('settings.childAccounts.pairing.expired'),
+              );
               return;
             }
             setSas(
@@ -236,8 +314,6 @@ export function ChildPairingProvider({ children }) {
       } catch (err) {
         console.log('child pairing setup error', err);
         crashlyticsRecordErrorReport(err.message);
-        // SESSION_IN_PROGRESS and any other start error collapse to one state
-        // (clock skew makes distinguishing them unreliable — see Risks/L5).
         sessionRef.current = null;
         setStatus('error');
         setErrorMessage(t('settings.childAccounts.pairing.startFailed'));
@@ -248,16 +324,16 @@ export function ChildPairingProvider({ children }) {
     [resetSession, endSession, accountMnemoinc, publicKey, parentUniqueName, t],
   );
 
-  const declineMatch = useCallback(async () => {
+  const declineMatch = useCallback(() => {
     const session = sessionRef.current;
+    let cleanup = Promise.resolve();
     if (session?.rid && session?.sessionId && !session?.granted) {
-      session.declined = true; // guards our own cancel listener + skips doc delete
-      await setPairingDoc(session.rid, session.sessionId, 'cancel', {
-        v: 1,
-        expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
-      });
+      session.declined = true; // guards our own session listener + skips doc delete
+      cleanup = cancelPairingSession(session.rid, session.sessionId);
     }
-    await resetSession();
+    resetSession(); // synchronous local teardown (endSession)
+    pendingDeclineRef.current = cleanup;
+    return cleanup;
   }, [resetSession]);
 
   const confirmMatch = useCallback(async () => {
@@ -270,11 +346,11 @@ export function ChildPairingProvider({ children }) {
     // parent doesn't jump to success while the child is still verifying. Fires
     // immediately if the child already confirmed. Mirror of the child waiting on
     // the parent's grant doc.
-    if (unsubRef.current) {
-      unsubRef.current();
-      unsubRef.current = null;
+    if (handshakeUnsubRef.current) {
+      handshakeUnsubRef.current();
+      handshakeUnsubRef.current = null;
     }
-    unsubRef.current = subscribePairingDoc(
+    handshakeUnsubRef.current = subscribePairingDoc(
       session.rid,
       session.sessionId,
       'childConfirm',
@@ -299,21 +375,24 @@ export function ChildPairingProvider({ children }) {
               iv: enc.iv,
               ciphertext: enc.ct,
               tag: enc.tag,
-              expiresAt: Date.now() + PAIRING_TTL_MS - PAIRING_SKEW_SLACK_MS,
             },
           );
           if (!didGrant) throw new Error('Failed to deliver grant');
 
           session.granted = true;
           session.childMnemonic = null; // wipe seed from memory
-          if (unsubRef.current) {
-            unsubRef.current();
-            unsubRef.current = null;
+          if (handshakeUnsubRef.current) {
+            handshakeUnsubRef.current();
+            handshakeUnsubRef.current = null;
           }
-          // Mark the pointer terminal now that the grant is delivered so the
-          // parent can immediately re-pair a second child. Leave the grant doc
-          // for the child to read (TTL cleans it up).
-          endPairingSession(session.rid, session.sessionId);
+          if (sessionUnsubRef.current) {
+            sessionUnsubRef.current();
+            sessionUnsubRef.current = null;
+          }
+          // Best-effort cosmetic marker (D5): the grant is the parent's
+          // terminal, so this may be rules-denied at the deadline boundary —
+          // swallow its failure and never depend on it.
+          advanceSessionStatus(session.rid, session.sessionId, 'COMPLETED');
           setStatus('done');
         } catch (err) {
           console.log('child grant error', err);
@@ -324,31 +403,43 @@ export function ChildPairingProvider({ children }) {
     );
   }, [endSession]);
 
-  // Expiry backstop.
+  // Passive expiry fallback (D1/D2): actively end the session — cancel it and
+  // delete our handshake docs — the moment the countdown reads zero. The
+  // deadline is elapsed from the snapshot's arrival (startedAt) and checked
+  // against the same shared 1s tick that renders pairingExpiryClock, so the
+  // visible countdown and this teardown are atomic: when the clock hits 0 the
+  // session dies in the same render (no separate timer, no slack). A
+  // rules-denied transition write remains the primary expiry signal; this is
+  // the cleanup net so a dead session dies immediately instead of lingering
+  // for native TTL.
   useEffect(() => {
     if (status !== 'waiting' && status !== 'confirm' && status !== 'granting')
       return;
-    const expiresAt = pairingStartTime.current + PAIRING_TTL_MS;
-    const timer = setTimeout(() => {
-      resetSession('expired');
-    }, Math.max(0, expiresAt - Date.now()));
-    return () => clearTimeout(timer);
-  }, [status, resetSession]);
+    if (!pairingExpiryClock?.startedAt) return;
+    if (tick >= pairingExpiryClock.startedAt + PAIRING_STATE_TTL_MS) {
+      endSession('expired', t('settings.childAccounts.pairing.expired'));
+    }
+  }, [status, pairingExpiryClock, tick, endSession, t]);
 
   useEffect(() => {
     return () => {
-      // On unmount (flow popped off the stack): tear down the listener, mark the
-      // pointer terminal, and delete our own handshake docs unless the grant was
-      // already delivered / the session declined (then the docs are left for the
-      // peer and TTL cleans up).
-      if (unsubRef.current) unsubRef.current();
-      if (cancelUnsubRef.current) cancelUnsubRef.current();
+      // On unmount (flow popped off the stack): tear down the listeners and, if
+      // the session is still live, cancel it + delete our own handshake docs.
+      // A granted (done) session is COMPLETED and a declined session is
+      // CANCELLED — both terminal — so re-cancelling them is a write the rules
+      // deny (permission-denied); leave their docs for the peer / TTL.
+      if (sessionUnsubRef.current) sessionUnsubRef.current();
+      if (handshakeUnsubRef.current) handshakeUnsubRef.current();
       const session = sessionRef.current;
       if (session?.childMnemonic) session.childMnemonic = null;
-      if (session?.rid && session?.sessionId) {
-        endPairingSession(session.rid, session.sessionId);
-        if (!session.granted && !session.declined)
-          deletePairingHandshake(session.rid, session.sessionId);
+      if (
+        session?.rid &&
+        session?.sessionId &&
+        !session.granted &&
+        !session.declined
+      ) {
+        cancelPairingSession(session.rid, session.sessionId);
+        deletePairingHandshake(session.rid, session.sessionId);
       }
     };
   }, []);
@@ -366,7 +457,7 @@ export function ChildPairingProvider({ children }) {
       declineMatch,
       resetSession,
       isEnded,
-      pairingStartTime,
+      pairingExpiryClock,
     }),
     [
       status,
@@ -378,7 +469,7 @@ export function ChildPairingProvider({ children }) {
       declineMatch,
       resetSession,
       isEnded,
-      pairingStartTime,
+      pairingExpiryClock,
     ],
   );
 

@@ -1,18 +1,21 @@
 /* eslint-env jest */
 // ---------------------------------------------------------------------------
-// childPairingContext — parent-side pairing state machine (username rendezvous).
+// childPairingContext — parent-side pairing state machine (JIT sessions).
 //
 // Drives the real provider with mocked `../db` helpers and injects Firestore
-// events through captured subscribePairingDoc callbacks. The rendezvous is now
-// the parent's own username; a session is opened via a transaction
-// (startPairingSession → sessionId) and EVERY teardown marks the pointer
-// terminal (endPairingSession) so re-pairing is immediately unblocked.
-//   - happy path: startPairing → childHello → confirm → Match → childConfirm →
-//     done; the grant ciphertext decrypts under the child's ECDH key.
-//   - re-pair back-to-back: after a grant the pointer is terminal, so a second
-//     startPairing opens a fresh session.
-//   - terminal states: child decline, TTL expiry, parent decline (rows 4/6/7/8).
-//   - SESSION_IN_PROGRESS on start → error with NO destructive delete.
+// events through captured callbacks. The rendezvous is the parent's own
+// username; startPairing opens a fresh session doc (createPairingSession) and
+// the SESSION doc — not the pointer — drives the lifecycle:
+//   - happy path: startPairing → session JOINED (rendezvous dropped) →
+//     childHello → VERIFYING advance → confirm → Match → childConfirm → grant →
+//     best-effort COMPLETED advance → done.
+//   - re-pair back-to-back: sessions never collide, so a second startPairing
+//     opens a fresh session immediately (no SESSION_IN_PROGRESS machinery).
+//   - terminal states: child cancel (session CANCELLED), derived expiry
+//     (rules-denied transition, D2), parent decline, and the passive fallback —
+//     driven by the SAME shared tick as the countdown clock, so it fires
+//     exactly when the clock hits 0 (no slack).
+//   - D5: a denied COMPLETED advance after the grant still lands on done.
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -24,14 +27,40 @@ const CHILD = { childIndex: 0, name: 'Kid', spendingLimit: 1000 };
 const T0 = 1_700_000_000_000;
 const PARENT_NAME = 'ParentName';
 const RID = 'parentname'; // normalizePairingName(PARENT_NAME)
+const STATE_TTL = 180000; // per-state server deadline
+
+// Controllable stand-in for the shared app tick (useAccountsExpiryTimeTick).
+// The context's expiry fallback and the pairingExpiryClock countdown consume
+// the same hook; here we drive it directly to assert the exact-zero firing.
+let mockTick = 0;
+const mockTickListeners = new Set();
+jest.mock('../../app/functions/accounts/expiryTimeTick', () => ({
+  useAccountsExpiryTimeTick: () => {
+    const { useSyncExternalStore } = require('react');
+    return useSyncExternalStore(
+      cb => {
+        mockTickListeners.add(cb);
+        return () => mockTickListeners.delete(cb);
+      },
+      () => mockTick,
+    );
+  },
+}));
+
+// The serverTimestamp objects the session snapshot carries (the provider only
+// reads .toMillis()).
+const ts = ms => ({ toMillis: () => ms });
 
 let nextSessionId = 1;
 const mockDb = {
-  startPairingSession: jest.fn(async () => `sess-${nextSessionId++}`),
-  endPairingSession: jest.fn(async () => true),
+  createPairingSession: jest.fn(async () => `sess-${nextSessionId++}`),
+  advanceSessionStatus: jest.fn(async () => true),
+  cancelPairingSession: jest.fn(async () => true),
+  removeRendezvous: jest.fn(async () => true),
   deletePairingHandshake: jest.fn(async () => {}),
   setPairingDoc: jest.fn(async () => true),
   subscribePairingDoc: jest.fn(),
+  subscribePairingSession: jest.fn(),
   ownsUniqueNameReservation: jest.fn(async () => true),
 };
 const mockDeriveChildMnemonic = jest.fn(async () => CHILD_MNEMONIC);
@@ -67,11 +96,14 @@ jest.mock('../../app/functions/crashlyticsLogs', () => ({
 
 jest.mock('../../db', () => ({
   __esModule: true,
-  startPairingSession: (...a) => mockDb.startPairingSession(...a),
-  endPairingSession: (...a) => mockDb.endPairingSession(...a),
+  createPairingSession: (...a) => mockDb.createPairingSession(...a),
+  advanceSessionStatus: (...a) => mockDb.advanceSessionStatus(...a),
+  cancelPairingSession: (...a) => mockDb.cancelPairingSession(...a),
+  removeRendezvous: (...a) => mockDb.removeRendezvous(...a),
   deletePairingHandshake: (...a) => mockDb.deletePairingHandshake(...a),
   setPairingDoc: (...a) => mockDb.setPairingDoc(...a),
   subscribePairingDoc: (...a) => mockDb.subscribePairingDoc(...a),
+  subscribePairingSession: (...a) => mockDb.subscribePairingSession(...a),
   ownsUniqueNameReservation: (...a) => mockDb.ownsUniqueNameReservation(...a),
 }));
 
@@ -101,6 +133,15 @@ async function flush(times = 12) {
   for (let i = 0; i < times; i++) await Promise.resolve();
 }
 
+// Advance the shared tick to ms and re-render, like the real 1s interval does.
+async function setTick(ms) {
+  mockTick = ms;
+  await act(async () => {
+    mockTickListeners.forEach(l => l());
+    await flush();
+  });
+}
+
 async function mount() {
   await act(async () => {
     renderer = ReactTestRenderer.create(
@@ -124,8 +165,14 @@ async function runStartPairing() {
   expect(api.status).toBe('waiting');
 }
 
+// The child claims the session (JOINED snapshot → rendezvous dropped), then
+// writes childHello; the parent advances to VERIFYING and reveals.
 async function reachConfirm() {
   await runStartPairing();
+  await act(async () => {
+    listeners.session({ status: 'JOINED', joinedAt: ts(T0) });
+    await flush();
+  });
   await act(async () => {
     listeners.childHello({ childEphPub: childEph.pub });
     await flush();
@@ -134,9 +181,10 @@ async function reachConfirm() {
 }
 
 // The sessionId the provider threaded into its live wire calls (the async
-// startPairingSession return, resolved). Read it off the latest subscription.
+// createPairingSession return, resolved). Read it off the latest session
+// subscription.
 function lastSessionId() {
-  const calls = mockDb.subscribePairingDoc.mock.calls.filter(c => c[0] === RID);
+  const calls = mockDb.subscribePairingSession.mock.calls.filter(c => c[0] === RID);
   return calls[calls.length - 1][1];
 }
 
@@ -148,6 +196,7 @@ function findDocCall(party) {
 beforeEach(() => {
   jest.useFakeTimers();
   jest.setSystemTime(T0);
+  mockTick = T0;
   jest.clearAllMocks();
   nextSessionId = 1;
   listeners = {};
@@ -156,6 +205,12 @@ beforeEach(() => {
     listeners[party] = onData;
     return jest.fn(() => {
       delete listeners[party];
+    });
+  });
+  mockDb.subscribePairingSession.mockImplementation((rid, sessionId, onData) => {
+    listeners.session = onData;
+    return jest.fn(() => {
+      delete listeners.session;
     });
   });
 });
@@ -169,15 +224,26 @@ afterEach(() => {
 });
 
 describe('childPairingContext — happy path', () => {
-  test('startPairing → childHello → confirm → Match → childConfirm → done', async () => {
+  test('startPairing → JOINED → childHello → confirm → Match → childConfirm → done', async () => {
     await mount();
     await reachConfirm();
 
-    // Session opened under the parent's own username, with a fresh sessionId.
-    expect(mockDb.startPairingSession).toHaveBeenCalledWith(
+    // A fresh JIT session opened under the parent's own username, with a fresh
+    // sessionId (no SESSION_IN_PROGRESS machinery).
+    expect(mockDb.createPairingSession).toHaveBeenCalledWith(
       RID,
       'parent-pub',
       expect.objectContaining({ commit: expect.any(String) }),
+    );
+
+    // Child's JOIN drops the rendezvous pointer (transactional) and the parent
+    // advances the session to VERIFYING before revealing its eph pubkey.
+    const sessionId = lastSessionId();
+    expect(mockDb.removeRendezvous).toHaveBeenCalledWith(RID, sessionId);
+    expect(mockDb.advanceSessionStatus).toHaveBeenCalledWith(
+      RID,
+      sessionId,
+      'VERIFYING',
     );
 
     const parentEphPub = findDocCall('parentReveal')[3].parentEphPub;
@@ -210,10 +276,63 @@ describe('childPairingContext — happy path', () => {
       spendingLimit: 1000,
       childIndex: 0,
     });
-    // Grant delivered → pointer marked terminal, handshake NOT deleted (child
-    // still needs to read the grant doc).
-    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, lastSessionId());
+    // Grant delivered → best-effort COMPLETED marker, handshake NOT deleted
+    // (child still needs to read the grant doc).
+    expect(mockDb.advanceSessionStatus).toHaveBeenCalledWith(
+      RID,
+      sessionId,
+      'COMPLETED',
+    );
     expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
+  });
+
+  test('unmount after done never re-cancels the COMPLETED session', async () => {
+    await mount();
+    await reachConfirm();
+    await act(async () => {
+      api.confirmMatch();
+      await flush();
+    });
+    await act(async () => {
+      listeners.childConfirm();
+      await flush();
+    });
+    expect(api.status).toBe('done');
+
+    // Leaving the flow: the session is granted (COMPLETED, terminal), so the
+    // unmount cleanup must NOT cancel it — a terminal→CANCELLED write the rules
+    // deny (permission-denied on every successful pairing).
+    await act(async () => {
+      renderer.unmount();
+    });
+    renderer = null;
+    expect(mockDb.cancelPairingSession).not.toHaveBeenCalled();
+    expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
+  });
+
+  test('D5: a denied COMPLETED advance still lands on done (grant is the terminal)', async () => {
+    mockDb.advanceSessionStatus.mockImplementation(async (r, s, next) =>
+      next === 'COMPLETED' ? false : true,
+    );
+    await mount();
+    await reachConfirm();
+
+    await act(async () => {
+      api.confirmMatch();
+      await flush();
+    });
+    await act(async () => {
+      listeners.childConfirm();
+      await flush();
+    });
+    expect(api.status).toBe('done');
+    // The grant was delivered; the failed COMPLETED marker is swallowed.
+    expect(findDocCall('grant')).toBeTruthy();
+    expect(mockDb.advanceSessionStatus).toHaveBeenCalledWith(
+      RID,
+      lastSessionId(),
+      'COMPLETED',
+    );
   });
 
   test('re-pair back-to-back opens a fresh session after a grant', async () => {
@@ -231,9 +350,9 @@ describe('childPairingContext — happy path', () => {
     });
     expect(api.status).toBe('done');
 
-    // Immediately re-pair a second child (same parent username). The done screen
-    // resets the session; because the pointer is already terminal, the second
-    // startPairingSession is not blocked and opens a fresh session.
+    // Immediately re-pair a second child (same parent username). The done
+    // screen resets the session; because sessions never collide, the second
+    // createPairingSession is not blocked and opens a fresh session.
     await act(async () => {
       await api.resetSession();
       await flush();
@@ -242,31 +361,34 @@ describe('childPairingContext — happy path', () => {
     await reachConfirm();
     const secondSession = lastSessionId();
 
-    expect(mockDb.startPairingSession).toHaveBeenCalledTimes(2);
+    expect(mockDb.createPairingSession).toHaveBeenCalledTimes(2);
     expect(secondSession).not.toBe(firstSession);
     expect(api.status).toBe('confirm');
   });
 });
 
 describe('childPairingContext — terminal states', () => {
-  test('child rejects while modal open → error, stale Match no-ops', async () => {
+  test('child cancels while modal open → error, stale Match no-ops', async () => {
     await mount();
     await reachConfirm();
     const sessionId = lastSessionId();
 
     await act(async () => {
-      listeners.cancel();
+      listeners.session({ status: 'CANCELLED' });
       await flush();
     });
     expect(api.status).toBe('error');
     expect(api.errorMessage).toBe(
       'settings.childAccounts.pairing.declinedByChild',
     );
-    // Session dead: listeners torn down, pointer marked terminal, own docs deleted.
-    expect(listeners.cancel).toBeUndefined();
+    // Session dead: listeners torn down. The child already moved the session to
+    // CANCELLED (terminal), so the parent must NOT re-cancel it — that would be a
+    // terminal→CANCELLED write the rules deny (permission-denied). It also leaves
+    // its own handshake docs for TTL rather than issuing pointless deletes.
+    expect(listeners.session).toBeUndefined();
     expect(listeners.childHello).toBeUndefined();
-    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, sessionId);
-    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, sessionId);
+    expect(mockDb.cancelPairingSession).not.toHaveBeenCalled();
+    expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
 
     await act(async () => {
       api.confirmMatch();
@@ -281,21 +403,63 @@ describe('childPairingContext — terminal states', () => {
     );
   });
 
-  test('TTL expiry while modal open → expired', async () => {
+  test('rules-denied advance surfaces derived expired (D2), not a client timer', async () => {
+    mockDb.advanceSessionStatus.mockResolvedValueOnce(false);
     await mount();
-    await reachConfirm();
-    const sessionId = lastSessionId();
+    await runStartPairing();
 
     await act(async () => {
-      jest.advanceTimersByTime(180001);
+      listeners.session({ status: 'JOINED', joinedAt: ts(T0) });
+      await flush();
+    });
+    await act(async () => {
+      listeners.childHello({ childEphPub: childEph.pub });
       await flush();
     });
     expect(api.status).toBe('expired');
-    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, sessionId);
-    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, sessionId);
+    expect(api.errorMessage).toBe('settings.childAccounts.pairing.expired');
+    // Dead session torn down.
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(
+      RID,
+      lastSessionId(),
+    );
   });
 
-  test("parent Don't Match from confirm → idle + cancel doc, terminal mark, no delete", async () => {
+  test('passive expiry fallback fires exactly when the countdown hits 0', async () => {
+    await mount();
+    await runStartPairing();
+
+    // Anchor the countdown to the server-written createdAt (startedAt = T0).
+    await act(async () => {
+      listeners.session({ status: 'WAITING', createdAt: ts(T0) });
+      await flush();
+    });
+    expect(api.status).toBe('waiting');
+
+    // The shared tick just before the 3m server deadline: still alive, the
+    // countdown still reads 0:01.
+    await setTick(T0 + STATE_TTL - 1);
+    expect(api.status).toBe('waiting');
+
+    // The next tick crosses the deadline — the countdown reads 0:00 and the
+    // session dies in the same render. No slack: the active kill (cancel +
+    // delete our handshake docs) fires exactly at zero, not seconds later.
+    await setTick(T0 + STATE_TTL);
+    expect(api.status).toBe('expired');
+    expect(api.errorMessage).toBe('settings.childAccounts.pairing.expired');
+    // Active kill: the session is cancelled and our own handshake docs deleted,
+    // so the dead state dies immediately instead of lingering for native TTL.
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(
+      RID,
+      lastSessionId(),
+    );
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(
+      RID,
+      lastSessionId(),
+    );
+  });
+
+  test("parent Don't Match from confirm → idle + cancelPairingSession, no delete", async () => {
     await mount();
     await reachConfirm();
     const sessionId = lastSessionId();
@@ -305,23 +469,53 @@ describe('childPairingContext — terminal states', () => {
       await flush();
     });
     expect(api.status).toBe('idle');
-    expect(mockDb.setPairingDoc).toHaveBeenCalledWith(
-      RID,
-      sessionId,
-      'cancel',
-      expect.objectContaining({ v: 1 }),
-    );
-    // Declined: pointer marked terminal, but own docs left for the peer to read.
-    expect(mockDb.endPairingSession).toHaveBeenCalledWith(RID, sessionId);
+    // Cancelled exactly once (by declineMatch). resetSession → endSession must
+    // NOT re-issue a second terminal→CANCELLED write (permission-denied).
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionId);
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledTimes(1);
+    // Declined: own docs left for the peer to read.
     expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
+  });
+
+  test("Don't Match tears down instantly; next startPairing drains the pending cancel", async () => {
+    await mount();
+    await reachConfirm();
+    const sessionId = lastSessionId();
+
+    let resolveCancel;
+    mockDb.cancelPairingSession.mockReturnValueOnce(
+      new Promise(res => {
+        resolveCancel = res;
+      }),
+    );
+
+    // Sync teardown lands before the Firebase write resolves — the screen pops
+    // back immediately; the cancel continues in the background.
+    await act(async () => {
+      api.declineMatch();
+      await flush();
+    });
+    expect(api.status).toBe('idle');
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionId);
+
+    // Re-pair while the decline write is still in flight: startPairing drains it
+    // before opening the next session.
+    await act(async () => {
+      const p = api.startPairing(CHILD);
+      await flush();
+      expect(mockDb.createPairingSession).toHaveBeenCalledTimes(1);
+      resolveCancel(true);
+      await p;
+      await flush();
+    });
+    expect(mockDb.createPairingSession).toHaveBeenCalledTimes(2);
+    expect(api.status).toBe('waiting');
   });
 });
 
 describe('childPairingContext — start guards', () => {
-  test('SESSION_IN_PROGRESS on start → error, no destructive delete', async () => {
-    mockDb.startPairingSession.mockRejectedValueOnce(
-      new Error('SESSION_IN_PROGRESS'),
-    );
+  test('createPairingSession failure → error, no destructive delete', async () => {
+    mockDb.createPairingSession.mockRejectedValueOnce(new Error('denied'));
     await mount();
 
     await act(async () => {
@@ -334,7 +528,7 @@ describe('childPairingContext — start guards', () => {
     expect(api.errorMessage).toBe('settings.childAccounts.pairing.startFailed');
     // sessionRef was never set → nothing torn down.
     expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
-    expect(mockDb.endPairingSession).not.toHaveBeenCalled();
+    expect(mockDb.cancelPairingSession).not.toHaveBeenCalled();
   });
 
   test('unowned/unreserved name → clear notOwner error, no session opened', async () => {
@@ -350,6 +544,6 @@ describe('childPairingContext — start guards', () => {
     expect(api.status).toBe('error');
     expect(api.errorMessage).toBe('settings.childAccounts.pairing.notOwner');
     // Blocked before touching the pointer transaction.
-    expect(mockDb.startPairingSession).not.toHaveBeenCalled();
+    expect(mockDb.createPairingSession).not.toHaveBeenCalled();
   });
 });

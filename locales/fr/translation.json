@@ -2297,6 +2297,7 @@
         "tamper": "Nous n'avons pas pu vérifier ce transfert. Veuillez recommencer.",
         "notFound": "Nous n'avons pas trouvé d'association pour ce nom d'utilisateur. Demandez-le à nouveau.",
         "slotTaken": "Quelqu'un a déjà rejoint avec ce nom d'utilisateur. Arrêtez-vous maintenant et demandez au propriétaire du compte d'annuler et de recommencer.",
+        "askToRestart": "Impossible de rejoindre ce couplage. Demandez au propriétaire du compte d'en démarrer un nouveau.",
         "loading": "Configuration de votre portefeuille...",
         "expired": "Cette association a expiré. Veuillez recommencer.",
         "errorTitle": "Session d'association terminée",

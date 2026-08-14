@@ -6,16 +6,25 @@ import { useAccountsExpiryTimeTick } from '../../../../../../functions/accounts/
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import { SIZES } from '../../../../../../constants';
 
-const PAIRING_TTL_MS = 180000; // 3 min, matches the handshake doc expiresAt rule.
+const PAIRING_STATE_TTL_MS = 180000; // 3 min per state, the rules' server deadline.
 
 export default function PairingExpiryClock() {
-  const { pairingStartTime } = useChildPairing();
+  const { pairingExpiryClock } = useChildPairing();
   const { backgroundOffset } = GetThemeColors();
-  useAccountsExpiryTimeTick(); // 1s re-render heartbeat only
+  const tick = useAccountsExpiryTimeTick(); // 1s re-render heartbeat only
 
-  if (!pairingStartTime.current) return null;
+  // Countdown = the 3 min server window (firestore start + TTL) counted down
+  // by elapsed ticks from the snapshot's arrival (startedAt). Absolute device
+  // clock skew cancels out, so both phones settle together. The context's
+  // expiry fallback consumes the SAME shared tick, so when this reads 0:00 the
+  // session is torn down in the same render — display and teardown are atomic.
+  const startedAt = pairingExpiryClock?.startedAt;
+  if (!startedAt) return null;
 
-  const timeLeft = pairingStartTime.current + PAIRING_TTL_MS - Date.now();
+  const timeLeft = Math.min(
+    PAIRING_STATE_TTL_MS - (tick - startedAt),
+    PAIRING_STATE_TTL_MS,
+  );
 
   return (
     <ThemeText

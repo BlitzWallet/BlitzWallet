@@ -2298,6 +2298,7 @@
         "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
         "notFound": "Non abbiamo trovato un'associazione per questo nome utente. Chiedilo di nuovo.",
         "slotTaken": "Qualcuno si è già unito con questo nome utente. Fermati ora e chiedi al proprietario del conto di annullare e ricominciare.",
+        "askToRestart": "Non siamo riusciti a unirci a questo abbinamento. Chiedi al proprietario del conto di avviarne uno nuovo.",
         "loading": "Configurazione del tuo portafoglio...",
         "expired": "Questa associazione è scaduta. Ricomincia.",
         "errorTitle": "Sessione di associazione terminata",

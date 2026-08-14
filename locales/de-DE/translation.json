@@ -2283,6 +2283,7 @@
         "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
         "notFound": "Wir konnten keine Kopplung für diesen Benutzernamen finden. Bitte fordere ihn erneut an.",
         "slotTaken": "Jemand hat sich bereits mit diesem Benutzernamen angemeldet. Stoppe jetzt und bitte den Kontoinhaber, abzubrechen und neu zu beginnen.",
+        "askToRestart": "Wir konnten dieser Kopplung nicht beitreten. Bitte den Kontoinhaber, eine neue zu starten.",
         "loading": "Dein Wallet wird eingerichtet...",
         "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
         "errorTitle": "Kopplungssitzung beendet",

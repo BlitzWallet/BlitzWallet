@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -16,13 +16,13 @@ import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
 import SasPatternGrid from './SasPatternGrid';
 import { useAppStatus } from '../../../../../../../context-store/appStatus';
+import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 
 export default function ChildMatchCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { textColor } = GetThemeColors();
   const { screenDimensions } = useAppStatus();
-  const [isResetting, setIsResetting] = useState(false);
   const { status, sas, confirmMatch, isEnded, declineMatch } =
     useChildPairing();
 
@@ -52,12 +52,13 @@ export default function ChildMatchCode() {
       confirmMatch,
     });
   };
-  const handleNoMatch = async () => {
-    setIsResetting(true);
-    await declineMatch();
-    setIsResetting(false);
+  const handleNoMatch = useCallback(() => {
+    declineMatch();
     navigate.popTo('EditAccountPage', undefined, { merge: true });
-  };
+    return true;
+  }, [declineMatch, navigate]);
+
+  useHandleBackPressNew(isEnded ? null : handleNoMatch);
 
   if (isEnded) {
     return <ChildLinkError />;
@@ -68,6 +69,7 @@ export default function ChildMatchCode() {
       <CustomSettingsTopBar
         label={t('settings.childAccounts.pairing.sasNavTitle')}
         rightContent={<PairingExpiryClock />}
+        customBackFunction={handleNoMatch}
       />
       <ScrollView style={styles.content}>
         <ThemeText
@@ -95,7 +97,6 @@ export default function ChildMatchCode() {
       />
       <CustomButton
         buttonStyles={[styles.button, { backgroundColor: 'transparent' }]}
-        useLoading={isResetting}
         textStyles={{ color: textColor }}
         textContent={t('settings.childAccounts.dontMatch')}
         actionFunction={handleNoMatch}

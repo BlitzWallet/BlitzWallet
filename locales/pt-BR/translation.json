@@ -2298,6 +2298,7 @@
         "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
         "notFound": "Não encontramos um pareamento para esse nome de usuário. Peça novamente.",
         "slotTaken": "Alguém já entrou com este nome de usuário. Pare agora e peça ao dono da conta para cancelar e começar de novo.",
+        "askToRestart": "Não conseguimos entrar neste pareamento. Peça ao dono da conta para iniciar um novo.",
         "loading": "Configurando sua carteira...",
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",

@@ -2298,6 +2298,7 @@
         "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
         "notFound": "Vi kunde inte hitta en ihopparning för det användarnamnet. Be om det igen.",
         "slotTaken": "Någon har redan gått med med det här användarnamnet. Stanna nu och be kontoinnehavaren avbryta och börja om.",
+        "askToRestart": "Vi kunde inte ansluta till den här kopplingen. Be kontoinnehavaren starta en ny.",
         "loading": "Skapar din plånbok...",
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",

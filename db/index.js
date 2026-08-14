@@ -19,6 +19,7 @@ import {
   orderBy,
   deleteDoc,
   increment,
+  updateDoc,
   runTransaction,
   serverTimestamp,
   Timestamp,
@@ -768,16 +769,28 @@ export async function deleteGift(uuid) {
 }
 
 // ── Family pairing handshake ───────────────────────────────────────────────
-// Two-level layout keyed on the parent's canonical username (the rid):
-//   familyPairing/{rid}                           — owner-owned pointer doc
-//     carries the current { sessionId, commit, parentWalletPub, expiresAt,
-//     status } so the child can discover the live session by username.
+// Three-level layout keyed on the parent's canonical username (the rid):
+//   familyPairing/{rid}                           — owner-owned rendezvous pointer
+//     ephemeral discovery doc answering "which session should a child entering
+//     this username right now try to join?" Points at a WAITING session; deleted
+//     the moment that session leaves WAITING (removeRendezvous).
+//   familyPairing/{rid}/sessions/{sessionId}      — the session state machine
+//     authoritative status (WAITING → JOINED → VERIFYING → COMPLETED, or
+//     CANCELLED) + serverTimestamp() lifecycle fields. A fresh sessionId = a
+//     fresh namespace, so sessions never overlap; time is judged only by the
+//     rules against request.time.
 //   familyPairing/{rid}/sessions/{sessionId}/handshake/{party}
-//     per-session write-once handshake docs. A new session = a new sessionId =
-//     a clean namespace, so stale docs from a completed/declined session are
-//     never read again (they just TTL out). TTL on expiresAt is the backstop.
+//     per-session write-once handshake docs, gated on the session doc's status.
+// expireAt (a plain client Timestamp) is GC-only: it feeds native Firestore TTL
+// policies for dead docs (pointer, session, and every handshake doc — TTL does
+// not cascade to subcollections). It is never read for correctness; rules bound
+// it to a generous 1h window.
 function pairingPointerRef(rid) {
   return doc(getFirestore(), 'familyPairing', rid);
+}
+
+function pairingSessionRef(rid, sessionId) {
+  return doc(getFirestore(), 'familyPairing', rid, 'sessions', sessionId);
 }
 
 function pairingDocRef(rid, sessionId, party) {
@@ -792,71 +805,129 @@ function pairingDocRef(rid, sessionId, party) {
   );
 }
 
+// GC deadline for every pairing doc: comfortably inside the rules' 1h bound so
+// realistic device skew never denies a write (only TTL reads this value).
+const PAIRING_TTL_EXPIRE_AT_MS = 30 * 60 * 1000;
+
 /**
- * Open a pairing session under the parent's username, enforcing one live
- * session at a time via a transaction. Throws 'SESSION_IN_PROGRESS' if a
- * non-terminal, unexpired pointer already exists. Returns the fresh sessionId.
- * Deliberately not wrapped in a catch — the caller distinguishes
- * SESSION_IN_PROGRESS from other start errors.
+ * Open a JIT pairing session under the parent's username: create the session
+ * doc (status WAITING, serverTimestamp createdAt, childUid null) under a fresh
+ * makeSessionId(), and point the rendezvous at it. One batch = atomic, and
+ * sessions never collide (each pairing gets its own sessionId), so there is no
+ * "one live session" conflict to check. Returns the fresh sessionId.
+ * Deliberately not wrapped in a catch — the caller distinguishes start errors.
  */
-export async function startPairingSession(
-  rid,
-  parentWalletPub,
-  { commit, expiresAt },
-) {
+export async function createPairingSession(rid, parentWalletPub, { commit }) {
+  const sessionId = makeSessionId();
+  const sessionRef = pairingSessionRef(rid, sessionId);
   const pointerRef = pairingPointerRef(rid);
-  let sessionId = null;
-  await runTransaction(db, async tx => {
-    const snap = await tx.get(pointerRef);
-    if (
-      snap.exists() &&
-      snap.data().expiresAt > Date.now() &&
-      snap.data().status !== 'terminal'
-    ) {
-      throw new Error('SESSION_IN_PROGRESS');
-    }
-    sessionId = makeSessionId();
-    tx.set(pointerRef, {
-      v: 1,
-      sessionId,
-      commit,
-      parentWalletPub,
-      name: rid,
-      expiresAt,
-      status: 'active',
-    });
+  const expireAt = Timestamp.fromMillis(Date.now() + PAIRING_TTL_EXPIRE_AT_MS);
+
+  const batch = writeBatch(db);
+  batch.set(sessionRef, {
+    v: 1,
+    status: 'WAITING',
+    parentWalletPub,
+    childUid: null,
+    commit,
+    createdAt: serverTimestamp(),
+    expireAt,
   });
+  batch.set(pointerRef, {
+    v: 1,
+    sessionId,
+    commit,
+    parentWalletPub,
+    name: rid,
+    createdAt: serverTimestamp(),
+    expireAt,
+  });
+  await batch.commit();
   return sessionId;
 }
 
 /**
- * Mark the pointer terminal so re-pairing is unblocked, but only if it still
- * points at *our* sessionId (never clobber a newer session another device
- * opened). Re-sets the full pointer shape because the update rule re-validates
- * request.resource.data. Skips the write once the pointer has expired — that
- * write would be rules-denied (past expiresAt) and an expired pointer already
- * unblocks re-pairing anyway.
+ * Child atomically claims a WAITING session (WAITING→JOINED). The rules
+ * serialize writes to the session doc and enforce the deadline, so exactly one
+ * child wins. Returns true on success, false when rules-denied (already
+ * claimed / expired / wrong state).
  */
-export async function endPairingSession(rid, sessionId) {
+export async function joinPairingSession(rid, sessionId, childUid) {
+  try {
+    await updateDoc(pairingSessionRef(rid, sessionId), {
+      status: 'JOINED',
+      childUid,
+      joinedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (e) {
+    console.error('Error joining pairing session:', e);
+    return false;
+  }
+}
+
+/**
+ * Parent advances the session: JOINED→VERIFYING or VERIFYING→COMPLETED,
+ * stamping the matching serverTimestamp. The COMPLETED call is strictly
+ * best-effort (D5) — it may be rules-denied at the deadline boundary after the
+ * grant already landed; neither party depends on it. Always returns a boolean;
+ * callers must treat a false as non-fatal.
+ */
+export async function advanceSessionStatus(rid, sessionId, next) {
+  try {
+    if (next === 'VERIFYING') {
+      await updateDoc(pairingSessionRef(rid, sessionId), {
+        status: 'VERIFYING',
+        verifyingAt: serverTimestamp(),
+      });
+    } else if (next === 'COMPLETED') {
+      await updateDoc(pairingSessionRef(rid, sessionId), {
+        status: 'COMPLETED',
+        completedAt: serverTimestamp(),
+      });
+    } else {
+      throw new Error(`Unknown session status advance: ${next}`);
+    }
+    return true;
+  } catch (e) {
+    console.error('Error advancing pairing session:', e);
+    return false;
+  }
+}
+
+/**
+ * Mark a non-terminal session CANCELLED. Best-effort: denied once the session
+ * is already terminal. Never throws.
+ */
+export async function cancelPairingSession(rid, sessionId) {
+  try {
+    await updateDoc(pairingSessionRef(rid, sessionId), { status: 'CANCELLED' });
+    return true;
+  } catch (e) {
+    console.error('Error cancelling pairing session:', e);
+    return false;
+  }
+}
+
+/**
+ * Delete the rendezvous pointer iff it still points at *our* sessionId — a
+ * plain read-then-delete would race a second parent device's
+ * createPairingSession (read points at A → B commits → delete nukes B). The
+ * transaction re-reads inside the tx, so the delete is conditional and a
+ * concurrent pointer replacement aborts it. Best-effort, never throws.
+ */
+export async function removeRendezvous(rid, sessionId) {
   try {
     const pointerRef = pairingPointerRef(rid);
     await runTransaction(db, async tx => {
       const snap = await tx.get(pointerRef);
       if (!snap.exists()) return;
-      const data = snap.data();
-      if (data.sessionId !== sessionId) return;
-      // An expired pointer already unblocks re-pairing (startPairingSession
-      // ignores it), and the update rule denies any write carrying a past
-      // expiresAt — so the terminal write would be a guaranteed
-      // permission-denied. Skip it. Note the expiry backstop fires at
-      // start+TTL while the pointer expired at start+TTL-SKEW, so the timeout
-      // path always lands here.
-      if (data.expiresAt <= Date.now()) return;
-      tx.set(pointerRef, { ...data, status: 'terminal' });
+      if (snap.data().sessionId !== sessionId) return;
+      tx.delete(pointerRef);
     });
     return true;
   } catch (e) {
-    console.error('Error ending pairing session:', e);
+    console.error('Error removing pairing rendezvous:', e);
     return false;
   }
 }
@@ -874,7 +945,10 @@ export async function getPairingPointer(rid) {
 
 export async function setPairingDoc(rid, sessionId, party, data) {
   try {
-    await setDoc(pairingDocRef(rid, sessionId, party), data);
+    await setDoc(pairingDocRef(rid, sessionId, party), {
+      ...data,
+      expireAt: Timestamp.fromMillis(Date.now() + PAIRING_TTL_EXPIRE_AT_MS),
+    });
     return true;
   } catch (e) {
     console.error('Error writing pairing doc:', e);
@@ -913,21 +987,30 @@ export function subscribePairingPointer(rid, onData) {
   });
 }
 
+// The session doc is the primary driver for both contexts: status transitions,
+// serverTimestamp anchors for the countdown, and (null) when TTL GC'd the doc.
+export function subscribePairingSession(rid, sessionId, onData) {
+  let sawDoc = false;
+  return onSnapshot(pairingSessionRef(rid, sessionId), snap => {
+    if (snap.exists()) {
+      sawDoc = true;
+      onData(snap.data());
+    } else if (sawDoc) {
+      onData(null);
+    }
+  });
+}
+
 // Best-effort teardown: each party deletes its own handshake docs under the
 // session. The rules deny deletes the caller doesn't own; those reject and are
-// swallowed. Lingering peer docs TTL out.
-//
-// childHello is deleted LAST, sequentially: the child's own delete-rule for
-// childConfirm/cancel resolves childUid() by reading childHello. If childHello
-// went first (parallel), the child's other deletes would be rules-denied and
-// linger. Delete everything else first, then childHello.
+// swallowed. Lingering peer docs TTL out. childUid now resolves from the
+// session doc (not the childHello doc), so all deletes can fire in parallel.
 export async function deletePairingHandshake(rid, sessionId) {
   await Promise.all(
-    ['parentReveal', 'childConfirm', 'grant', 'cancel'].map(party =>
+    ['childHello', 'parentReveal', 'childConfirm', 'grant', 'cancel'].map(party =>
       deleteDoc(pairingDocRef(rid, sessionId, party)).catch(() => {}),
     ),
   );
-  await deleteDoc(pairingDocRef(rid, sessionId, 'childHello')).catch(() => {});
 }
 
 export async function handleGiftCheck(cardUUID) {
