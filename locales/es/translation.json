@@ -181,7 +181,8 @@
     "daily": "Diario",
     "weekly": "Semanal",
     "monthly": "Mensual",
-    "yearly": "Anual"
+    "yearly": "Anual",
+    "noLimit": "Sin límite"
   },
   "transactionLabelText": {
     "notSent": "Pago no enviado",
@@ -220,15 +221,7 @@
       "buttons": {
         "button1": "Restaurar cuenta",
         "button2": "Comenzar",
-        "joinAccount": "Unirse a la wallet compartida",
-        "linkedWallet": "Configurar una wallet vinculada"
-      },
-      "accountType": {
-        "title": "¿Qué cuenta te gustaría crear?",
-        "personalTitle": "Cuenta personal",
-        "personalDesc": "Tu propia wallet autocustodiada protegida por una frase de recuperación.",
-        "managedTitle": "Cuenta gestionada",
-        "managedDesc": "Reclama una wallet configurada y gestionada por alguien de confianza."
+        "joinAccount": "Unirse a la wallet compartida"
       }
     },
     "disclaimerPage": {
@@ -1906,6 +1899,7 @@
         "noBudgetError": "Por favor selecciona un período de renovación de presupuesto.",
         "noBudgetAmountError": "Por favor selecciona un monto de presupuesto.",
         "loadingMessage": "Creando cuenta",
+        "updatingMessage": "Actualizando cuenta...",
         "nameInputPlaceholder": "Introduce nombre de cuenta NWC",
         "permissionsHeader": "Permisos de la billetera",
         "receivePayments": "Recibir pagos",
@@ -2242,13 +2236,14 @@
         "title": "Compartir código",
         "codeTitle": "Comparte tu nombre de usuario",
         "codeSubtitle": "Abre Blitz en su teléfono, elige «Unirse a la wallet compartida» y haz que introduzcan tu nombre de usuario a continuación.",
-        "waiting": "Esperando a que introduzcan el código…",
-        "sasTitle": "Verificar patrón",
+        "waiting": "Esperando a que introduzcan tu nombre de usuario…",
+        "sasNavTitle": "Verificar patrón",
+        "sasTitle": "Verifica el patrón",
         "sasSubtitle": "Comprueba que este patrón de formas coincide con el de su teléfono, forma por forma.",
-        "sasHint": "Solo continúa una vez que hayas confirmado que ambos teléfonos muestran el mismo patrón.",
+        "sasHint": "Solo confirma una vez que hayas confirmado que ambos teléfonos muestran el mismo patrón.",
         "confirmMatch": "Coinciden",
         "linkedTitle": "Wallet vinculada",
-        "linkedSubtitle": "Su wallet vinculada está lista para usarse.",
+        "linkedSubtitle": "Su wallet gestionada está lista para usarse.",
         "done": "Enviado. Terminarán la configuración en su teléfono.",
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",
@@ -2275,15 +2270,13 @@
         "info": {
           "navTitle": "Configura tu wallet",
           "title": "Configura tu wallet gestionada",
-          "intro": "Te estás uniendo a una wallet gestionada por alguien de confianza.",
+          "intro": "Te estás uniendo a una wallet gestionada para ti.",
           "row1Label": "Tu propia wallet",
           "row1Description": "Envía y recibe con tu propio saldo.",
           "row2Label": "Fácil de usar",
-          "row2Description": "Tu wallet se gestiona de forma segura por ti.",
-          "row3Label": "Gestionada por alguien de confianza",
-          "row3Description": "El propietario de la cuenta gestiona la recuperación y la seguridad de esta wallet.",
-          "bullet2": "Ellos siguen siendo el titular de la cuenta principal",
-          "bullet3": "Solo continúa si confías en el dueño de la cuenta.",
+          "row2Description": "La recuperación de tu wallet se gestiona por ti.",
+          "row3Label": "Gestionada por otra persona",
+          "row3Description": "Únete solo a una wallet de alguien que conozcas.",
           "continue": "Continuar"
         },
         "codeNavTitle": "Introducir nombre de usuario",
@@ -2293,7 +2286,7 @@
         "sasNavTitle": "Verificar patrón",
         "sasTitle": "Verifica el patrón",
         "sasSubtitle": "Comprueba que este patrón de formas coincide con el del otro teléfono, forma por forma.",
-        "sasHint": "Ambos teléfonos deben mostrar el mismo patrón.",
+        "sasHint": "Solo confirma una vez que hayas confirmado que ambos teléfonos muestran el mismo patrón.",
         "confirmMatch": "Coinciden",
         "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
         "notFound": "No pudimos encontrar un emparejamiento para ese nombre de usuario. Pídelo de nuevo.",

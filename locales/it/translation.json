@@ -181,7 +181,8 @@
     "daily": "Giornaliero",
     "weekly": "Settimanale",
     "monthly": "Mensile",
-    "yearly": "Annuale"
+    "yearly": "Annuale",
+    "noLimit": "Senza limite"
   },
   "transactionLabelText": {
     "notSent": "Pagamento non inviato",
@@ -220,15 +221,7 @@
       "buttons": {
         "button1": "Ripristina account",
         "button2": "Inizia",
-        "joinAccount": "Unisciti a un portafoglio condiviso",
-        "linkedWallet": "Configura un portafoglio collegato"
-      },
-      "accountType": {
-        "title": "Quale conto vuoi creare?",
-        "personalTitle": "Conto personale",
-        "personalDesc": "Il tuo portafoglio in autocustodia protetto da una frase di recupero.",
-        "managedTitle": "Conto gestito",
-        "managedDesc": "Rivendica un portafoglio configurato e gestito da una persona di cui ti fidi."
+        "joinAccount": "Unisciti a un portafoglio condiviso"
       }
     },
     "disclaimerPage": {
@@ -1909,6 +1902,7 @@
         "noBudgetError": "Seleziona un periodo di rinnovo budget.",
         "noBudgetAmountError": "Seleziona un importo budget.",
         "loadingMessage": "Creazione Account",
+        "updatingMessage": "Aggiornamento del conto...",
         "nameInputPlaceholder": "Inserisci nome account NWC",
         "permissionsHeader": "Permessi wallet",
         "receivePayments": "Ricevi pagamenti",
@@ -2242,13 +2236,14 @@
         "title": "Condividi codice",
         "codeTitle": "Condividi il tuo nome utente",
         "codeSubtitle": "Apri Blitz sul loro telefono, scegli \"Unisciti a un portafoglio condiviso\" e chiedi di inserire il tuo nome utente qui sotto.",
-        "waiting": "In attesa che inseriscano il codice…",
+        "waiting": "In attesa che inseriscano il tuo nome utente…",
+        "sasNavTitle": "Verifica lo schema",
         "sasTitle": "Verifica lo schema",
         "sasSubtitle": "Controlla che questo schema di forme corrisponda a quello del suo telefono, forma per forma.",
-        "sasHint": "Continua solo dopo aver confermato che entrambi i telefoni mostrano lo stesso schema.",
+        "sasHint": "Conferma solo dopo aver confermato che entrambi i telefoni mostrano lo stesso schema.",
         "confirmMatch": "Corrispondono",
         "linkedTitle": "Portafoglio collegato",
-        "linkedSubtitle": "Il loro portafoglio collegato è pronto per l'uso.",
+        "linkedSubtitle": "Il loro portafoglio gestito è pronto per l'uso.",
         "done": "Inviato. Completeranno la configurazione sul loro telefono.",
         "expired": "Questa associazione è scaduta. Ricomincia.",
         "errorTitle": "Sessione di associazione terminata",
@@ -2275,15 +2270,13 @@
         "info": {
           "navTitle": "Configura il tuo portafoglio",
           "title": "Configura il tuo portafoglio gestito",
-          "intro": "Ti stai unendo a un portafoglio gestito da una persona di cui ti fidi.",
+          "intro": "Ti stai unendo a un portafoglio gestito per te.",
           "row1Label": "Il tuo portafoglio",
           "row1Description": "Invia e ricevi con il tuo saldo.",
           "row2Label": "Facile da usare",
-          "row2Description": "Il tuo portafoglio è gestito in modo sicuro per te.",
-          "row3Label": "Gestito da una persona di cui ti fidi",
-          "row3Description": "Il proprietario del conto gestisce recupero e sicurezza di questo portafoglio.",
-          "bullet2": "Restano i titolari del conto principale",
-          "bullet3": "Continua solo se ti fidi del proprietario del conto.",
+          "row2Description": "Il recupero del tuo portafoglio è gestito per te.",
+          "row3Label": "Gestito da un'altra persona",
+          "row3Description": "Unisciti solo a un portafoglio di una persona che conosci.",
           "continue": "Continua"
         },
         "codeNavTitle": "Inserisci nome utente",
@@ -2293,7 +2286,7 @@
         "sasNavTitle": "Verifica schema",
         "sasTitle": "Verifica lo schema",
         "sasSubtitle": "Controlla che questo schema di forme corrisponda a quello dell'altro telefono, forma per forma.",
-        "sasHint": "Entrambi i telefoni dovrebbero mostrare lo stesso schema.",
+        "sasHint": "Conferma solo dopo aver confermato che entrambi i telefoni mostrano lo stesso schema.",
         "confirmMatch": "Corrispondono",
         "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
         "notFound": "Non abbiamo trovato un'associazione per questo nome utente. Chiedilo di nuovo.",

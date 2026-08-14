@@ -181,7 +181,8 @@
     "daily": "Diário",
     "weekly": "Semanal",
     "monthly": "Mensal",
-    "yearly": "Anual"
+    "yearly": "Anual",
+    "noLimit": "Sem limite"
   },
   "transactionLabelText": {
     "notSent": "Pagamento não enviado",
@@ -220,15 +221,7 @@
       "buttons": {
         "button1": "Restaurar acesso",
         "button2": "Começar",
-        "joinAccount": "Entrar na carteira compartilhada",
-        "linkedWallet": "Configurar uma carteira vinculada"
-      },
-      "accountType": {
-        "title": "Qual conta você gostaria de criar?",
-        "personalTitle": "Conta pessoal",
-        "personalDesc": "Sua própria carteira com autocustódia protegida por uma frase de recuperação.",
-        "managedTitle": "Conta gerenciada",
-        "managedDesc": "Reivindique uma carteira configurada e gerenciada por alguém em quem você confia."
+        "joinAccount": "Entrar na carteira compartilhada"
       }
     },
     "disclaimerPage": {
@@ -1909,6 +1902,7 @@
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
         "loadingMessage": "Criando conexão",
+        "updatingMessage": "Atualizando conta...",
         "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
@@ -2242,13 +2236,14 @@
         "title": "Compartilhar código",
         "codeTitle": "Compartilhe seu nome de usuário",
         "codeSubtitle": "Abra o Blitz no telefone deles, escolha \"Entrar na carteira compartilhada\" e peça para inserirem seu nome de usuário abaixo.",
-        "waiting": "Aguardando eles inserirem o código…",
-        "sasTitle": "Verificar padrão",
+        "waiting": "Aguardando eles inserirem seu nome de usuário…",
+        "sasNavTitle": "Verificar padrão",
+        "sasTitle": "Verifique o padrão",
         "sasSubtitle": "Confira se este padrão de formas corresponde ao do telefone da outra pessoa, forma por forma.",
-        "sasHint": "Só continue depois de confirmar que os dois telefones exibem o mesmo padrão.",
+        "sasHint": "Só confirme depois de confirmar que os dois telefones exibem o mesmo padrão.",
         "confirmMatch": "Correspondem",
         "linkedTitle": "Carteira vinculada",
-        "linkedSubtitle": "A carteira vinculada deles está pronta para uso.",
+        "linkedSubtitle": "A carteira gerenciada deles está pronta para uso.",
         "done": "Enviado. Eles terminarão a configuração no telefone deles.",
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
@@ -2275,15 +2270,13 @@
         "info": {
           "navTitle": "Configure sua carteira",
           "title": "Configure sua carteira gerenciada",
-          "intro": "Você está entrando em uma carteira gerenciada por alguém em quem confia.",
+          "intro": "Você está entrando em uma carteira gerenciada para você.",
           "row1Label": "Sua própria carteira",
           "row1Description": "Envie e receba com seu próprio saldo.",
           "row2Label": "Fácil de usar",
-          "row2Description": "Sua carteira é gerenciada com segurança para você.",
-          "row3Label": "Gerenciada por alguém em quem você confia",
-          "row3Description": "O dono da conta gerencia a recuperação e a segurança desta carteira.",
-          "bullet2": "Eles permanecem o titular da conta principal",
-          "bullet3": "Continue somente se confiar no dono da conta.",
+          "row2Description": "A recuperação da sua carteira é gerenciada para você.",
+          "row3Label": "Gerenciada por outra pessoa",
+          "row3Description": "Entre somente em uma carteira de alguém que você conheça.",
           "continue": "Continuar"
         },
         "codeNavTitle": "Inserir nome de usuário",
@@ -2293,7 +2286,7 @@
         "sasNavTitle": "Verificar padrão",
         "sasTitle": "Verifique o padrão",
         "sasSubtitle": "Confira se este padrão de formas corresponde ao do outro telefone, forma por forma.",
-        "sasHint": "Os dois telefones devem exibir o mesmo padrão.",
+        "sasHint": "Só confirme depois de confirmar que os dois telefones exibem o mesmo padrão.",
         "confirmMatch": "Correspondem",
         "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
         "notFound": "Não encontramos um pareamento para esse nome de usuário. Peça novamente.",

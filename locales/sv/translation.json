@@ -181,7 +181,8 @@
     "daily": "Dagligen",
     "weekly": "Veckovis",
     "monthly": "Månadsvis",
-    "yearly": "Årligen"
+    "yearly": "Årligen",
+    "noLimit": "Ingen gräns"
   },
   "transactionLabelText": {
     "notSent": "Betalning inte skickad",
@@ -220,15 +221,7 @@
       "buttons": {
         "button1": "Återställ konto",
         "button2": "Kom igång",
-        "joinAccount": "Gå med i delad plånbok",
-        "linkedWallet": "Skapa ett länkat konto"
-      },
-      "accountType": {
-        "title": "Vilket konto vill du skapa?",
-        "personalTitle": "Personligt konto",
-        "personalDesc": "Din egen självförvarade plånbok som skyddas av en återställningsfras.",
-        "managedTitle": "Hanterat konto",
-        "managedDesc": "Hämta en plånbok som skapats och hanteras av någon du litar på."
+        "joinAccount": "Gå med i delad plånbok"
       }
     },
     "disclaimerPage": {
@@ -1909,6 +1902,7 @@
         "noBudgetError": "Vänligen välj en budgetförnyelseperiod.",
         "noBudgetAmountError": "Vänligen välj ett budgetbelopp.",
         "loadingMessage": "Skapa konto",
+        "updatingMessage": "Uppdaterar konto...",
         "nameInputPlaceholder": "Ange NWC-kontonamn",
         "permissionsHeader": "Behörighet för plånbok",
         "receivePayments": "Ta emot betalningar",
@@ -2242,13 +2236,14 @@
         "title": "Dela kod",
         "codeTitle": "Dela ditt användarnamn",
         "codeSubtitle": "Öppna Blitz på deras telefon, välj \"Gå med i delad plånbok\" och be dem ange ditt användarnamn nedan.",
-        "waiting": "Väntar på att de ska ange koden…",
+        "waiting": "Väntar på att de ska ange ditt användarnamn…",
+        "sasNavTitle": "Verifiera mönstret",
         "sasTitle": "Verifiera mönstret",
         "sasSubtitle": "Kontrollera att detta mönster av former matchar det på deras telefon, form för form.",
-        "sasHint": "Fortsätt bara när du har bekräftat att båda telefonerna visar samma mönster.",
+        "sasHint": "Bekräfta bara när du har bekräftat att båda telefonerna visar samma mönster.",
         "confirmMatch": "De stämmer",
         "linkedTitle": "Plånbok länkad",
-        "linkedSubtitle": "Deras länkade plånbok är redo att användas.",
+        "linkedSubtitle": "Deras hanterade plånbok är redo att användas.",
         "done": "Skickat. De slutför konfigureringen på sin telefon.",
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",
@@ -2275,15 +2270,13 @@
         "info": {
           "navTitle": "Skapa din plånbok",
           "title": "Skapa din hanterade plånbok",
-          "intro": "Du går med i en plånbok som hanteras av någon du litar på.",
+          "intro": "Du går med i en plånbok som hanteras åt dig.",
           "row1Label": "Din egen plånbok",
           "row1Description": "Skicka och ta emot med ditt eget saldo.",
           "row2Label": "Lätt att använda",
-          "row2Description": "Din plånbok hanteras säkert åt dig.",
-          "row3Label": "Hanteras av någon du litar på",
-          "row3Description": "Kontoinnehavaren hanterar återställning och säkerhet för den här plånboken.",
-          "bullet2": "De förblir huvudinnehavare av kontot",
-          "bullet3": "Fortsätt bara om du litar på kontots ägare.",
+          "row2Description": "Återställningen av din plånbok hanteras åt dig.",
+          "row3Label": "Hanteras av någon annan",
+          "row3Description": "Gå bara med i en plånbok från någon du känner.",
           "continue": "Fortsätt"
         },
         "codeNavTitle": "Ange användarnamn",
@@ -2293,7 +2286,7 @@
         "sasNavTitle": "Verifiera mönster",
         "sasTitle": "Verifiera mönstret",
         "sasSubtitle": "Kontrollera att detta mönster av former matchar det på den andra telefonen, form för form.",
-        "sasHint": "Båda telefonerna ska visa samma mönster.",
+        "sasHint": "Bekräfta bara när du har bekräftat att båda telefonerna visar samma mönster.",
         "confirmMatch": "De stämmer",
         "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
         "notFound": "Vi kunde inte hitta en ihopparning för det användarnamnet. Be om det igen.",

@@ -181,7 +181,8 @@
     "daily": "Daily",
     "weekly": "Weekly",
     "monthly": "Monthly",
-    "yearly": "Yearly"
+    "yearly": "Yearly",
+    "noLimit": "No Limit"
   },
   "transactionLabelText": {
     "notSent": "Payment not sent",
@@ -220,15 +221,7 @@
       "buttons": {
         "button1": "Restore Account",
         "button2": "Get Started",
-        "joinAccount": "Join shared wallet",
-        "linkedWallet": "Set up a linked wallet"
-      },
-      "accountType": {
-        "title": "Which account would you like to create?",
-        "personalTitle": "Personal account",
-        "personalDesc": "Your own self-custodial wallet secured by a recovery phrase.",
-        "managedTitle": "Managed account",
-        "managedDesc": "Claim a wallet set up and managed by someone you trust."
+        "joinAccount": "Join shared wallet"
       }
     },
     "walletSetup": {
@@ -1754,12 +1747,13 @@
         "codeTitle": "Share your username",
         "codeSubtitle": "Open Blitz on their phone, choose \"Join shared wallet\" and have them enter your username below.",
         "waiting": "Waiting for them to enter your username…",
-        "sasTitle": "Verify pattern",
+        "sasNavTitle": "Verify pattern",
+        "sasTitle": "Verify the pattern",
         "sasSubtitle": "Check that this pattern of shapes matches the one on their phone, shape for shape.",
-        "sasHint": "Only continue once you've confirmed both phones show the same pattern.",
+        "sasHint": "Only confirm once you've confirmed both phones show the same pattern.",
         "confirmMatch": "They match",
         "linkedTitle": "Wallet linked",
-        "linkedSubtitle": "Their linked wallet is ready to use.",
+        "linkedSubtitle": "Their managed wallet is ready to use.",
         "done": "Sent. They'll finish setup on their phone.",
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
@@ -1786,15 +1780,13 @@
         "info": {
           "navTitle": "Set up your wallet",
           "title": "Set up your wallet",
-          "intro": "You're joining a wallet that's managed by someone you trust.",
+          "intro": "You're joining a wallet that's managed for you.",
           "row1Label": "Your own wallet",
           "row1Description": "Send and receive with your own balance.",
           "row2Label": "Easy to use",
-          "row2Description": "Your wallet is securely managed for you.",
-          "row3Label": "Managed by someone you trust",
-          "row3Description": "The account owner manages recovery and security for this wallet.",
-          "bullet2": "They remain the main account holder",
-          "bullet3": "Only continue if you trust the account owner.",
+          "row2Description": "Your wallet's recovery is managed for you.",
+          "row3Label": "Managed by someone else",
+          "row3Description": "Only join a wallet from someone you know.",
           "continue": "Continue"
         },
         "codeNavTitle": "Enter Username",
@@ -1804,11 +1796,12 @@
         "sasNavTitle": "Verify Pattern",
         "sasTitle": "Verify the pattern",
         "sasSubtitle": "Check that this pattern of shapes matches the one on the other phone, shape for shape.",
-        "sasHint": "Both phones should display the same pattern.",
+        "sasHint": "Only confirm once you've confirmed both phones show the same pattern.",
         "confirmMatch": "They match",
         "tamper": "We couldn't verify this handoff. Please start again.",
         "notFound": "We couldn't find a pairing for that username. Ask for it again.",
         "slotTaken": "Someone already joined with this username. Stop now and ask the account owner to cancel and start over.",
+        "askToRestart": "We couldn't join this pairing. Ask the account owner to start a new one.",
         "loading": "Setting up your wallet...",
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
@@ -2027,6 +2020,7 @@
         "noBudgetError": "Please select a budget renewal period.",
         "noBudgetAmountError": "Please select a budget amount.",
         "loadingMessage": "Creating Account",
+        "updatingMessage": "Updating Account...",
         "nameInputPlaceholder": "Enter NWC account name",
         "permissionsHeader": "Wallet permissions",
         "receivePayments": "Receive payments",

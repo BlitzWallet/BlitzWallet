@@ -181,7 +181,8 @@
     "daily": "Quotidiennement",
     "weekly": "Hebdomadaire",
     "monthly": "Mensuel",
-    "yearly": "Annuel"
+    "yearly": "Annuel",
+    "noLimit": "Sans limite"
   },
   "transactionLabelText": {
     "notSent": "Paiement non envoyé",
@@ -220,15 +221,7 @@
       "buttons": {
         "button1": "Restaurer le compte",
         "button2": "Commencer",
-        "joinAccount": "Rejoindre un portefeuille partagé",
-        "linkedWallet": "Configurer un portefeuille lié"
-      },
-      "accountType": {
-        "title": "Quel compte souhaitez-vous créer ?",
-        "personalTitle": "Compte personnel",
-        "personalDesc": "Votre propre portefeuille en auto-conservation, sécurisé par une phrase de récupération.",
-        "managedTitle": "Compte géré",
-        "managedDesc": "Récupérez un portefeuille configuré et géré par une personne de confiance."
+        "joinAccount": "Rejoindre un portefeuille partagé"
       }
     },
     "disclaimerPage": {
@@ -1908,6 +1901,7 @@
         "noBudgetError": "Veuillez sélectionner une période de renouvellement du budget.",
         "noBudgetAmountError": "Veuillez sélectionner un budget.",
         "loadingMessage": "Création d'un compte",
+        "updatingMessage": "Mise à jour du compte...",
         "nameInputPlaceholder": "Saisir le nom du compte de la CNO",
         "permissionsHeader": "Autorisations du portefeuille",
         "receivePayments": "Recevoir des paiements",
@@ -2241,13 +2235,14 @@
         "title": "Partager le code",
         "codeTitle": "Partagez votre nom d'utilisateur",
         "codeSubtitle": "Ouvrez Blitz sur leur téléphone, choisissez « Rejoindre un portefeuille partagé » et demandez-leur de saisir votre nom d'utilisateur ci-dessous.",
-        "waiting": "En attente de leur saisie du code…",
+        "waiting": "En attente de la saisie de votre nom d'utilisateur…",
+        "sasNavTitle": "Vérifier le motif",
         "sasTitle": "Vérifier le motif",
         "sasSubtitle": "Vérifiez que ce motif de formes correspond à celui de son téléphone, forme par forme.",
-        "sasHint": "Ne continuez qu'une fois que vous avez confirmé que les deux téléphones affichent le même motif.",
+        "sasHint": "Ne confirmez qu'une fois que vous avez confirmé que les deux téléphones affichent le même motif.",
         "confirmMatch": "Ils correspondent",
         "linkedTitle": "Portefeuille lié",
-        "linkedSubtitle": "Leur portefeuille lié est prêt à être utilisé.",
+        "linkedSubtitle": "Leur portefeuille géré est prêt à être utilisé.",
         "done": "Envoyé. Ils termineront la configuration sur leur téléphone.",
         "expired": "Cette association a expiré. Veuillez recommencer.",
         "errorTitle": "Session d'association terminée",
@@ -2274,15 +2269,13 @@
         "info": {
           "navTitle": "Configurer votre portefeuille",
           "title": "Configurer votre portefeuille géré",
-          "intro": "Vous rejoignez un portefeuille géré par une personne de confiance.",
+          "intro": "Vous rejoignez un portefeuille géré pour vous.",
           "row1Label": "Votre propre portefeuille",
           "row1Description": "Envoyez et recevez avec votre propre solde.",
           "row2Label": "Facile à utiliser",
-          "row2Description": "Votre portefeuille est géré en toute sécurité pour vous.",
-          "row3Label": "Géré par une personne de confiance",
-          "row3Description": "Le propriétaire du compte gère la récupération et la sécurité de ce portefeuille.",
-          "bullet2": "Ils restent le titulaire du compte principal",
-          "bullet3": "Ne continuez que si vous faites confiance au propriétaire du compte.",
+          "row2Description": "La récupération de votre portefeuille est gérée pour vous.",
+          "row3Label": "Géré par une autre personne",
+          "row3Description": "Ne rejoignez qu'un portefeuille de quelqu'un que vous connaissez.",
           "continue": "Continuer"
         },
         "codeNavTitle": "Saisir le nom d'utilisateur",
@@ -2292,7 +2285,7 @@
         "sasNavTitle": "Vérifier le motif",
         "sasTitle": "Vérifiez le motif",
         "sasSubtitle": "Vérifiez que ce motif de formes correspond à celui de l'autre téléphone, forme par forme.",
-        "sasHint": "Les deux téléphones doivent afficher le même motif.",
+        "sasHint": "Ne confirmez qu'une fois que vous avez confirmé que les deux téléphones affichent le même motif.",
         "confirmMatch": "Ils correspondent",
         "tamper": "Nous n'avons pas pu vérifier ce transfert. Veuillez recommencer.",
         "notFound": "Nous n'avons pas trouvé d'association pour ce nom d'utilisateur. Demandez-le à nouveau.",
