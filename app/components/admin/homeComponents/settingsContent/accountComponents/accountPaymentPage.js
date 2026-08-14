@@ -228,22 +228,46 @@ export default function AccountPaymentPage(props) {
 
   if (transferInfo?.showConfirmScreen) {
     return (
-      <GlobalThemeView useStandardWidth={true}>
-        <View style={styles.animationContainer}>
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
+        <View style={styles.contentContainer}>
           <LottieView
             source={confirmAnimation}
             loop={false}
-            style={styles.animation}
+            style={{ width: 125, height: 125 }}
             autoPlay={true}
+          />
+          <View style={{ marginBottom: 10 }}>
+            <FormattedBalanceInput
+              maxWidth={0.7}
+              amountValue={heroDisplayAmount}
+              inputDenomination={masterInfoObject.userBalanceDenomination}
+            />
+          </View>
+          <ThemeText
+            styles={{
+              fontFamily: FONT.Title_Medium,
+              fontSize: SIZES.large,
+              width: '95%',
+              textAlign: 'center',
+              marginTop: 20,
+              marginBottom: 40,
+            }}
+            content={t('screens.inAccount.confirmTxPage.confirmMessage_sent')}
           />
         </View>
         <CustomButton
-          textContent={t('constants.back')}
           buttonStyles={{
-            ...CENTER,
             width: INSET_WINDOW_WIDTH,
+            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+            marginTop: 'auto',
+            paddingHorizontal: 15,
+          }}
+          textStyles={{
+            ...styles.buttonText,
+            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
           }}
           actionFunction={navigate.goBack}
+          textContent={t('constants.done')}
         />
       </GlobalThemeView>
     );
@@ -533,13 +557,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 
-  animationContainer: {
+  globalConatianer: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
   },
-  animation: {
-    width: 250,
-    height: 250,
+  contentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  buttonText: {
+    fontFamily: FONT.Descriptoin_Regular,
   },
 });
