@@ -145,6 +145,37 @@ test('case-only rename with an existing self-owned reservation returns ok', asyn
   expect(await ownsUniqueNameReservation('uidA', 'alice')).toBe(true);
 });
 
+test('concurrent claims of the same name: exactly one wins, loser keeps its old reservation', async () => {
+  // Two new clients race for the same free name. Firestore serializes the
+  // transactions; the loser reads the winner's committed doc and returns
+  // NAME_TAKEN. The in-memory tx uses live snapshots (exists() re-reads the
+  // store), so this models the serialized outcome deterministically.
+  await claimUniqueName('uidA', null, 'aold');
+  await claimUniqueName('uidB', null, 'bold');
+
+  const [resA, resB] = await Promise.all([
+    claimUniqueName('uidA', 'aold', 'shared'),
+    claimUniqueName('uidB', 'bold', 'shared'),
+  ]);
+
+  // Exactly one 'ok', one 'NAME_TAKEN' — never two winners, never two errors.
+  expect([resA.status, resB.status].sort()).toEqual(['NAME_TAKEN', 'ok']);
+
+  // Exactly one uid owns the contested name.
+  const aOwns = await ownsUniqueNameReservation('uidA', 'shared');
+  const bOwns = await ownsUniqueNameReservation('uidB', 'shared');
+  expect(aOwns).not.toBe(bOwns);
+
+  // Winner released its old reservation; loser never orphaned its own.
+  if (resA.status === 'ok') {
+    expect(await ownsUniqueNameReservation('uidA', 'aold')).toBe(false);
+    expect(await ownsUniqueNameReservation('uidB', 'bold')).toBe(true);
+  } else {
+    expect(await ownsUniqueNameReservation('uidB', 'bold')).toBe(false);
+    expect(await ownsUniqueNameReservation('uidA', 'aold')).toBe(true);
+  }
+});
+
 test('isUniqueNameAvailable: free, self-owned, and taken', async () => {
   // Free (no reservation, blitzWalletUsers query empty).
   expect(await isUniqueNameAvailable('uidA', 'alice')).toBe(true);

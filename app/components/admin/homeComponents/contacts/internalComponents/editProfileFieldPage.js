@@ -222,7 +222,10 @@ export default function EditProfileFieldPage(props) {
           return; // finally resets isSaving; stay on the page
         }
         profileUpdate.uniqueName = trimmed;
-        profileUpdate.uniqueNameLower = trimmed.toLowerCase();
+        // Key the stored lookup value with the SAME normalizer the reservation
+        // uses (normalizePairingName: NFC + lowercase), so the profile key and
+        // the usernames/{id} reservation key can never diverge for a name.
+        profileUpdate.uniqueNameLower = normalizePairingName(trimmed);
         await setUsernameReservationRecord({
           lower: normalizePairingName(trimmed),
           at: Date.now(),

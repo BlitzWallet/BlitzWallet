@@ -115,7 +115,7 @@ export default async function initializeUserSettingsFromHistory({
     if (blitzStoredData === null) throw Error('Failed to retrive');
     blitzStoredData = blitzStoredData || {};
 
-    let generatedUniqueName = blitzStoredData?.contacts?.uniqueName
+    let generatedUniqueName = blitzStoredData?.contacts?.myProfile?.uniqueName
       ? ''
       : generateRandomContact();
 

@@ -124,7 +124,13 @@ jest.mock('../app/functions/CustomElements/searchInput', () => {
 const EditProfileFieldPage =
   require('../app/components/admin/homeComponents/contacts/internalComponents/editProfileFieldPage')
     .default;
-const { isUniqueNameAvailable } = require('../db');
+const { isUniqueNameAvailable, claimUniqueName } = require('../db');
+const {
+  setUsernameReservationRecord,
+} = require('../app/functions/accounts/usernameReservationRecord');
+const {
+  normalizePairingName,
+} = require('../app/functions/accounts/childPairing');
 
 function renderEditProfileFieldPage(fieldKey) {
   let renderer;
@@ -198,5 +204,46 @@ describe('EditProfileFieldPage unique-name availability check', () => {
     pressSubmit(renderer);
 
     expect(mockToggleGlobalContactsInformation).not.toHaveBeenCalled();
+  });
+
+  test('saving an available unique name stores NFC-aligned keys and records the reservation', async () => {
+    isUniqueNameAvailable.mockResolvedValueOnce(true);
+
+    const renderer = renderEditProfileFieldPage('uniquename');
+
+    act(() => {
+      input(renderer).props.onChangeText('freename');
+    });
+    act(() => {
+      jest.advanceTimersByTime(600);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // Availability resolved AVAILABLE → the button offers Save.
+    expect(textByTestId(renderer, 'submit-button-text')).toBe('Save');
+
+    await act(async () => {
+      renderer.root.findByProps({ testID: 'submit-button' }).props.onPress();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // Claim runs before the profile write (oldLower is '' — mock has no
+    // uniqueNameLower).
+    expect(claimUniqueName).toHaveBeenCalledWith('pub-1', '', 'freename');
+
+    const savedProfile =
+      mockToggleGlobalContactsInformation.mock.calls[0][0].myProfile;
+    expect(savedProfile.uniqueName).toBe('freename');
+    // Fix 3: the stored lookup key is the reservation key exactly.
+    expect(savedProfile.uniqueNameLower).toBe(normalizePairingName('freename'));
+
+    expect(setUsernameReservationRecord).toHaveBeenCalledWith({
+      lower: normalizePairingName('freename'),
+      at: expect.any(Number),
+    });
   });
 });
