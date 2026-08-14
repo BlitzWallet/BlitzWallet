@@ -294,7 +294,6 @@ export function ChildClaimProvider({ children }) {
               setStatus('expired');
               return;
             }
-            console.log(data, 'testing data');
             if (data.status === 'JOINED' && data.joinedAt) {
               setPairingAnchor({
                 anchor: data.joinedAt.toMillis(),
