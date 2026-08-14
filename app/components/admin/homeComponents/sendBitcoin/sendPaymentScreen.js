@@ -1229,13 +1229,13 @@ export default function SendPaymentScreen(props) {
       return;
     }
 
-    if (isOverChildLimit) {
-      navigate.navigate('InformationPopup', {
-        textContent: t('settings.childAccounts.limitGate.message'),
-        buttonText: t('constants.understandText'),
-      });
-      return;
-    }
+    // if (isOverChildLimit) {
+    //   navigate.navigate('InformationPopup', {
+    //     textContent: t('settings.childAccounts.limitGate.message'),
+    //     buttonText: t('constants.understandText'),
+    //   });
+    //   return;
+    // }
 
     if (isSendingPayment.current) return;
 
