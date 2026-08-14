@@ -1,37 +1,18 @@
-import {
-  FlatList,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
+import { FlatList, StyleSheet } from 'react-native';
+import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import { CENTER, SIZES } from '../../../../../constants';
-import { COLORS, WINDOWWIDTH } from '../../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { getRestorableIndices } from '../../../../../functions/accounts/derivedAccounts';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import SkeletonPlaceholder from '../../../../../functions/CustomElements/skeletonView';
-// import {
-//   CustomHalfModal,
-//   HalfModalFullWidth,
-// } from '../../../../../functions/CustomElements/customHalfModal';
+import AccountCard from '../../accounts/accountCard';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 
 export default function RestoreDerivedAccountPage() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { custodyAccounts, restoreDerivedAccount } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
 
@@ -41,6 +22,14 @@ export default function RestoreDerivedAccountPage() {
     custodyAccounts,
     masterInfoObject.nextAccountDerivationIndex,
   );
+
+  const restorableElements = useMemo(() => {
+    return restorableIndices.map(index => ({
+      uuid: `restorable-${index}`,
+      name: t('accountCard.fallbackAccountName', { index }),
+      derivationIndex: index,
+    }));
+  }, [restorableIndices, t]);
 
   const handleRestore = async index => {
     if (!index) {
@@ -87,98 +76,18 @@ export default function RestoreDerivedAccountPage() {
     }
   };
 
-  const renderAccountCard = ({ item: index }) => {
-    if (index === isRestoring) {
-      return (
-        <View
-          style={[styles.accountCard, { backgroundColor: backgroundOffset }]}
-        >
-          <SkeletonPlaceholder
-            enabled={true}
-            backgroundColor={theme ? backgroundColor : COLORS.opaicityGray}
-            highlightColor={backgroundOffset}
-          >
-            <View style={styles.skeletonContainer}>
-              <View style={styles.skeletonBadge} />
-              <View style={styles.skeletonText} />
-            </View>
-          </SkeletonPlaceholder>
-        </View>
-      );
-    }
-
+  const renderAccountCard = ({ item: account }) => {
+    const index = account.derivationIndex;
     return (
-      <TouchableOpacity
-        activeOpacity={0.7}
+      <AccountCard
+        account={account}
+        isActive={false}
         onPress={() => handleRestore(index)}
-        style={[
-          styles.accountCard,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor: backgroundColor,
-            },
-          ]}
-        >
-          <ThemeIcon size={18} iconName={'RotateCcw'} />
-        </View>
-
-        <ThemeText
-          CustomNumberOfLines={1}
-          adjustsFontSizeToFit={true}
-          styles={styles.accountTitle}
-          content={t(
-            'settings.accountComponents.restoreDerivedAccount.accountCardTitle',
-            { index },
-          )}
-        />
-
-        <ThemeIcon iconName={'ChevronRight'} size={18} />
-      </TouchableOpacity>
+        isLoading={isRestoring === index}
+        isAccountSwitching={isRestoring === index}
+      />
     );
   };
-
-  const renderEmptyState = () => (
-    <View style={styles.emptyStateContainer}>
-      <View
-        style={{
-          width: 80,
-          height: 80,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 40,
-          backgroundColor:
-            theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-        }}
-      >
-        <ThemeIcon
-          size={40}
-          colorOverride={
-            theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
-          }
-          iconName={'Check'}
-        />
-      </View>
-      <ThemeText
-        styles={styles.emptyStateTitle}
-        content={t(
-          'settings.accountComponents.restoreDerivedAccount.emptyStateTitle',
-        )}
-      />
-      <ThemeText
-        styles={styles.emptyStateMessage}
-        content={t(
-          'settings.accountComponents.restoreDerivedAccount.emptyStateMessage',
-        )}
-      />
-    </View>
-  );
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -187,12 +96,20 @@ export default function RestoreDerivedAccountPage() {
       />
 
       {restorableIndices.length === 0 ? (
-        renderEmptyState()
+        <NoContentSceen
+          iconName="Users"
+          titleText={t(
+            'settings.accountComponents.restoreDerivedAccount.emptyStateTitle',
+          )}
+          subTitleText={t(
+            'settings.accountComponents.restoreDerivedAccount.emptyStateMessage',
+          )}
+        />
       ) : (
         <FlatList
-          data={restorableIndices}
+          data={restorableElements}
           renderItem={renderAccountCard}
-          keyExtractor={item => `restorable-${item}`}
+          keyExtractor={item => `restorable-${item.derivationIndex}`}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
@@ -206,108 +123,5 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 16,
     paddingBottom: 40,
-  },
-  accountCard: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 50,
-    borderRadius: 16,
-    gap: 12,
-    marginBottom: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  iconContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  accountInfo: {
-    flex: 1,
-  },
-  accountTitle: {
-    flex: 1,
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  accountSubtitle: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-    marginTop: 2,
-  },
-  emptyStateContainer: {
-    flex: 1,
-    ...CENTER,
-    paddingTop: 100,
-    paddingHorizontal: 32,
-    alignItems: 'center',
-  },
-  emptyStateTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    marginTop: 20,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  emptyStateMessage: {
-    fontSize: SIZES.medium,
-    opacity: 0.7,
-    marginTop: 8,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  modalContent: {
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '600',
-    includeFontPadding: false,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  inputContainer: {
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-  },
-  input: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  errorText: {
-    fontSize: SIZES.small,
-    color: COLORS.cancelRed,
-    includeFontPadding: false,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  // Skeleton styles
-  skeletonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: 250,
-    height: 45,
-  },
-  skeletonBadge: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    marginRight: 12,
-  },
-  skeletonText: {
-    width: 150,
-    height: 20,
-    borderRadius: 4,
   },
 });
