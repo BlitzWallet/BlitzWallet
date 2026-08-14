@@ -425,6 +425,29 @@ describe('childPairingContext — terminal states', () => {
     );
   });
 
+  test('malformed childHello pubkey → tamper error, dead session cancelled (no crash)', async () => {
+    await mount();
+    await runStartPairing();
+
+    // A peer-controlled Firestore value that is not a valid 32-byte hex pubkey
+    // must not reach the curve math or crash the snapshot listener.
+    await act(async () => {
+      listeners.childHello({ childEphPub: 'zz-not-hex' });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.pairing.tamper');
+    // The dead session is actively cancelled and our handshake docs deleted.
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(
+      RID,
+      lastSessionId(),
+    );
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(
+      RID,
+      lastSessionId(),
+    );
+  });
+
   test('passive expiry fallback fires exactly when the countdown hits 0', async () => {
     await mount();
     await runStartPairing();

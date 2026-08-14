@@ -2248,6 +2248,7 @@
         "expired": "Questa associazione è scaduta. Ricomincia.",
         "errorTitle": "Sessione di associazione terminata",
         "declinedByChild": "Questa richiesta è stata rifiutata.",
+        "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
         "areYouSure": "Sei sicuro?",
         "confirmGate": "Conferma solo se gli schemi corrispondono esattamente, forma per forma. Confermando dai a questa persona l'accesso al conto del figlio.",
         "confirmBTN": "Corrispondono",

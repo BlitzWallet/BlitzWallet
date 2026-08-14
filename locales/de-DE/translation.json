@@ -2233,6 +2233,7 @@
         "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
         "errorTitle": "Kopplungssitzung beendet",
         "declinedByChild": "Diese Anfrage wurde abgelehnt.",
+        "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
         "areYouSure": "Bist du sicher?",
         "confirmGate": "Bestätigen Sie nur, wenn die Muster exakt übereinstimmen, Form für Form. Mit der Bestätigung erhält diese Person Zugriff auf das Kinderkonto.",
         "confirmBTN": "Sie stimmen überein",

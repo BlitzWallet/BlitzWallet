@@ -2248,6 +2248,7 @@
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",
         "declinedByChild": "Denna begäran har avböjts.",
+        "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
         "areYouSure": "Är du säker?",
         "confirmGate": "Bekräfta bara om mönstren matchar exakt, form för form. Genom att bekräfta ger du den här personen åtkomst till barnkontot.",
         "confirmBTN": "De stämmer",

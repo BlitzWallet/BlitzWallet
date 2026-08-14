@@ -257,56 +257,61 @@ export function ChildPairingProvider({ children }) {
           async childHello => {
             const s = sessionRef.current;
             if (!childHello?.childEphPub || !s || s.sharedX) return;
-            const sharedX = deriveSharedX(
-              s.parentEph.priv,
-              childHello.childEphPub,
-            );
-            s.sharedX = sharedX;
-            s.childEphPub = childHello.childEphPub;
-
-            // The child claiming the session means the pointer has done its job
-            // (idempotent with the JOINED-snapshot removal).
-            if (!s.rendezvousRemoved) {
-              s.rendezvousRemoved = true;
-              removeRendezvous(rid, sessionId);
-            }
-
-            // Advance JOINED→VERIFYING BEFORE writing parentReveal: the
-            // handshake rules gate parentReveal on the session being VERIFYING.
-            const didAdvance = await advanceSessionStatus(
-              rid,
-              sessionId,
-              'VERIFYING',
-            );
-            if (!didAdvance) {
-              // Rules-denied — the session deadline passed under us. Surface
-              // the derived expiry; never rely on a client timer for this.
-              endSession(
-                'expired',
-                t('settings.childAccounts.pairing.expired'),
+            try {
+              const sharedX = deriveSharedX(
+                s.parentEph.priv,
+                childHello.childEphPub,
               );
-              return;
-            }
-            const didReveal = await setPairingDoc(
-              rid,
-              sessionId,
-              'parentReveal',
-              {
-                v: 1,
-                parentEphPub: s.parentEph.pub,
-              },
-            );
-            if (!didReveal) {
-              endSession(
-                'expired',
-                t('settings.childAccounts.pairing.expired'),
+              s.sharedX = sharedX;
+              s.childEphPub = childHello.childEphPub;
+
+              // The child claiming the session means the pointer has done its job
+              // (idempotent with the JOINED-snapshot removal).
+              if (!s.rendezvousRemoved) {
+                s.rendezvousRemoved = true;
+                removeRendezvous(rid, sessionId);
+              }
+
+              // Advance JOINED→VERIFYING BEFORE writing parentReveal: the
+              // handshake rules gate parentReveal on the session being VERIFYING.
+              const didAdvance = await advanceSessionStatus(
+                rid,
+                sessionId,
+                'VERIFYING',
               );
-              return;
+              if (!didAdvance) {
+                // Rules-denied — the session deadline passed under us. Surface
+                // the derived expiry; never rely on a client timer for this.
+                endSession(
+                  'expired',
+                  t('settings.childAccounts.pairing.expired'),
+                );
+                return;
+              }
+              const didReveal = await setPairingDoc(
+                rid,
+                sessionId,
+                'parentReveal',
+                {
+                  v: 1,
+                  parentEphPub: s.parentEph.pub,
+                },
+              );
+              if (!didReveal) {
+                endSession(
+                  'expired',
+                  t('settings.childAccounts.pairing.expired'),
+                );
+                return;
+              }
+              setSas(
+                computeSAS(sharedX, childHello.childEphPub, s.parentEph.pub),
+              );
+              setStatus('confirm');
+            } catch (err) {
+              console.log('child pairing handshake error', err);
+              endSession('error', t('settings.childAccounts.pairing.tamper'));
             }
-            setSas(
-              computeSAS(sharedX, childHello.childEphPub, s.parentEph.pub),
-            );
-            setStatus('confirm');
           },
         );
 

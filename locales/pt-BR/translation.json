@@ -2248,6 +2248,7 @@
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
         "declinedByChild": "Esta solicitação foi recusada.",
+        "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
         "areYouSure": "Tem certeza?",
         "confirmGate": "Só confirme se os padrões corresponderem exatamente, forma por forma. Confirmar dá a esta pessoa acesso à conta do filho.",
         "confirmBTN": "Correspondem",

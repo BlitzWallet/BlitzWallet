@@ -1758,6 +1758,7 @@
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
         "declinedByChild": "This request has been declined.",
+        "tamper": "We couldn't verify this handoff. Please start again.",
         "areYouSure": "Are you sure?",
         "confirmGate": "Only confirm if the patterns match exactly, shape for shape. Confirming gives this person access to the child account.",
         "confirmBTN": "They match",

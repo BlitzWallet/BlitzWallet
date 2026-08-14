@@ -36,6 +36,11 @@ const SAS_INFO = 'blitz-child-pairing:v1:sas';
 // (childPairing.test.js pulls only @noble + quick-crypto). Keep in sync.
 const VALID_PAIRING_NAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 
+// A peer ephemeral pubkey is a 32-byte x-only curve point, received over
+// Firestore from an unauthenticated peer. Anything else is malformed input
+// that must never reach getSharedSecret (throws on invalid curve points).
+const VALID_EPH_PUB_REGEX = /^[0-9a-f]{64}$/;
+
 /** Fresh in-memory ephemeral keypair for one pairing session. Never persisted. */
 export function makeChildEphKey() {
   const privBytes = randomBytes(32);
@@ -67,6 +72,9 @@ export function makeSessionId() {
 
 /** ECDH shared X coordinate (32 bytes) from our priv + the peer's x-only pub. */
 export function deriveSharedX(privHex, peerPubHex) {
+  if (typeof peerPubHex !== 'string' || !VALID_EPH_PUB_REGEX.test(peerPubHex)) {
+    throw new Error('Invalid peer ephemeral public key');
+  }
   const point = getSharedSecret(
     Buffer.from(privHex, 'hex'),
     Buffer.from('02' + peerPubHex, 'hex'),

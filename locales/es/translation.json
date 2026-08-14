@@ -2248,6 +2248,7 @@
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",
         "declinedByChild": "Esta solicitud ha sido rechazada.",
+        "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
         "areYouSure": "¿Estás seguro?",
         "confirmGate": "Solo confirma si los patrones coinciden exactamente, forma por forma. Al confirmar, esta persona obtiene acceso a la cuenta del hijo.",
         "confirmBTN": "Coinciden",

@@ -322,17 +322,22 @@ export function ChildClaimProvider({ children }) {
           reveal => {
             const s = sessionRef.current;
             if (!s || s.sharedX || !reveal?.parentEphPub) return;
-            if (!verifyKeyCommitment(s.commit, reveal.parentEphPub)) {
-              // Revealed key doesn't match the commitment -> possible MITM.
-              setErrorMessage(t('settings.childAccounts.claim.tamper'));
-              setStatus('error');
-              return;
+            try {
+              if (!verifyKeyCommitment(s.commit, reveal.parentEphPub)) {
+                // Revealed key doesn't match the commitment -> possible MITM.
+                setErrorMessage(t('settings.childAccounts.claim.tamper'));
+                setStatus('error');
+                return;
+              }
+              const sharedX = deriveSharedX(s.eph.priv, reveal.parentEphPub);
+              s.sharedX = sharedX;
+              s.parentEphPub = reveal.parentEphPub;
+              setSas(computeSAS(sharedX, s.eph.pub, reveal.parentEphPub));
+              setStatus('confirm');
+            } catch (err) {
+              console.log('child claim reveal error', err);
+              endSession('error', t('settings.childAccounts.claim.tamper'));
             }
-            const sharedX = deriveSharedX(s.eph.priv, reveal.parentEphPub);
-            s.sharedX = sharedX;
-            s.parentEphPub = reveal.parentEphPub;
-            setSas(computeSAS(sharedX, s.eph.pub, reveal.parentEphPub));
-            setStatus('confirm');
           },
         );
       } catch (err) {

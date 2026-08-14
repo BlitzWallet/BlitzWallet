@@ -2247,6 +2247,7 @@
         "expired": "Cette association a expiré. Veuillez recommencer.",
         "errorTitle": "Session d'association terminée",
         "declinedByChild": "Cette demande a été refusée.",
+        "tamper": "Nous n'avons pas pu vérifier ce transfert. Veuillez recommencer.",
         "areYouSure": "Êtes-vous sûr ?",
         "confirmGate": "Ne confirmez que si les motifs correspondent exactement, forme par forme. Confirmer donne à cette personne l'accès au compte de l'enfant.",
         "confirmBTN": "Ils correspondent",

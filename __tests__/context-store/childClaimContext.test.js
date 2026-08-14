@@ -24,6 +24,7 @@ const CHILD_MNEMONIC =
 const PARENT_NAME = 'ParentName';
 const RID = 'parentname';
 const STATE_TTL = 180000; // per-state server deadline
+const PAIRING_EXPIRY_SLACK_MS = 10 * 1000; // passive-fallback slack (source: childClaimContext.js)
 const T0 = 1_700_000_000_000;
 
 const mockSetAccountMnemonic = jest.fn();
@@ -263,6 +264,34 @@ describe('childClaimContext — happy path', () => {
     expect(api.status).toBe('error');
     expect(api.errorMessage).toBe('settings.childAccounts.claim.tamper');
   });
+
+  test('curve-invalid parentReveal pubkey → tamper error, dead session cancelled (no crash)', async () => {
+    // A 64-char hex string that is not a valid curve point passes the
+    // commitment check (it hashes to the expected value) but must be rejected
+    // by the shared-secret derivation instead of crashing the listener.
+    mockDb.getPairingPointer.mockImplementation(async () => ({
+      ...activePointer(),
+      commit: makeKeyCommitment('00'.repeat(32)),
+    }));
+    await mount();
+    await submitName();
+
+    await act(async () => {
+      listeners.parentReveal({ parentEphPub: '00'.repeat(32) });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.tamper');
+    // The dead session is actively cancelled and our handshake docs deleted.
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(
+      RID,
+      joinedSessionId(),
+    );
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(
+      RID,
+      joinedSessionId(),
+    );
+  });
 });
 
 describe('childClaimContext — join outcomes (D4)', () => {
@@ -386,7 +415,7 @@ describe('childClaimContext — terminal states', () => {
       await flush();
     });
     await act(async () => {
-      jest.advanceTimersByTime(STATE_TTL + 1);
+      jest.advanceTimersByTime(STATE_TTL + PAIRING_EXPIRY_SLACK_MS + 1);
       await flush();
     });
     expect(api.status).toBe('expired');
@@ -413,13 +442,18 @@ describe('childClaimContext — terminal states', () => {
     });
     expect(api.status).toBe('awaiting');
 
-    // The session re-anchors the countdown at VERIFYING.
+    // The countdown is anchored at the JOINED snapshot's arrival; the later
+    // VERIFYING snapshot does not re-anchor it.
+    await act(async () => {
+      listeners.session({ status: 'JOINED', joinedAt: ts(T0) });
+      await flush();
+    });
     await act(async () => {
       listeners.session({ status: 'VERIFYING', verifyingAt: ts(T0) });
       await flush();
     });
     await act(async () => {
-      jest.advanceTimersByTime(STATE_TTL + 1);
+      jest.advanceTimersByTime(STATE_TTL + PAIRING_EXPIRY_SLACK_MS + 1);
       await flush();
     });
     expect(api.status).toBe('expired');
