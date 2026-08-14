@@ -28,7 +28,6 @@ import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic'
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
@@ -63,7 +62,6 @@ export default function LoginSecurity({ extraData }) {
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const updateSecuritySettings = async newSettings => {
@@ -80,8 +78,6 @@ export default function LoginSecurity({ extraData }) {
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(JSON.parse),
         getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(JSON.parse),
       ]);
-
-      console.log(saved, currentLayoutSetting, 'ttt');
 
       if (saved) {
         setSecurityLoginSettings(saved);
@@ -248,8 +244,6 @@ export default function LoginSecurity({ extraData }) {
       />
     );
   }
-
-  console.log(securityLoginSettings);
 
   return (
     <ScrollView
