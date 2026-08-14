@@ -10,7 +10,6 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { usePushNotification } from '../../../../../context-store/notificationManager';
 import NostrWalletConnectNoNotifications from './nwc/noNotifications';
 import {
-  CustomKeyboardAvoidingView,
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
@@ -80,7 +79,7 @@ export default function NosterWalletConnect() {
     : [];
 
   return (
-    <CustomKeyboardAvoidingView useLocalPadding={true} useStandardWidth={true}>
+    <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={'NWC'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -126,7 +125,7 @@ export default function NosterWalletConnect() {
         }}
         textContent={t('settings.nwc.addAccount')}
       />
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
 
