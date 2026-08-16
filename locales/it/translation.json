@@ -1683,11 +1683,11 @@
       },
       "personalInfo": {
         "title": "Cosa sono i conti personali?",
-        "body": "I conti personali sono portafogli extra che usi solo tu. Sono tutti protetti dalla tua frase di recupero, il che rende facile separare e ripristinare il tuo denaro."
+        "body": "I conti personali sono portafogli che crei per te stesso. Usali per separare facilmente il tuo denaro per scopi diversi, come spese, risparmi o viaggi."
       },
       "linkedInfo": {
         "title": "Cosa sono i conti gestiti?",
-        "body": "I conti gestiti consentono a qualcun altro di usare un portafoglio senza mai vedere la frase di recupero. Tu mantieni il controllo, puoi recuperare il portafoglio in qualsiasi momento, spostare fondi e impostare limiti di spesa."
+        "body": "I conti gestiti sono portafogli che crei per qualcun altro. L'altra persona ottiene il proprio portafoglio e può usarlo come qualsiasi altro portafoglio Blitz, mentre tu gestisci il recupero per loro."
       },
       "emptyLinked": {
         "title": "Ancora nessun conto gestito",

@@ -1670,11 +1670,11 @@
       },
       "personalInfo": {
         "title": "Was sind persönliche Konten?",
-        "body": "Persönliche Konten sind zusätzliche Wallets, die nur du nutzt. Sie werden alle durch deine Wiederherstellungsphrase gesichert, sodass du dein Geld leicht trennen und wiederherstellen kannst."
+        "body": "Persönliche Konten sind Wallets, die du für dich selbst erstellst. Nutze sie, um dein Geld für verschiedene Zwecke einfach zu trennen – zum Beispiel für Ausgaben, Sparen oder Reisen."
       },
       "linkedInfo": {
         "title": "Was sind verwaltete Konten?",
-        "body": "Mit verwalteten Konten kann eine andere Person ein Wallet nutzen, ohne jemals die Wiederherstellungsphrase zu sehen. Du behältst die Kontrolle, kannst das Wallet jederzeit wiederherstellen, Guthaben verschieben und Ausgabenlimits festlegen."
+        "body": "Verwaltete Konten sind Wallets, die du für eine andere Person erstellst. Sie bekommen ein eigenes Wallet und können es wie jedes andere Blitz-Wallet nutzen, während du die Wiederherstellung für sie verwaltest."
       },
       "emptyLinked": {
         "title": "Noch keine verwalteten Konten",

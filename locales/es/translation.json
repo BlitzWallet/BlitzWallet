@@ -1680,11 +1680,11 @@
       },
       "personalInfo": {
         "title": "¿Qué son las cuentas personales?",
-        "body": "Las cuentas personales son wallets adicionales que solo usas tú. Todas están respaldadas por tu frase de recuperación, lo que facilita separar y restaurar tu dinero."
+        "body": "Las cuentas personales son wallets que creas para ti mismo. Úsalas para separar fácilmente tu dinero para diferentes propósitos, como gastos, ahorros o viajes."
       },
       "linkedInfo": {
         "title": "¿Qué son las cuentas gestionadas?",
-        "body": "Las cuentas gestionadas permiten que otra persona use una wallet sin ver nunca la frase de recuperación. Tú mantienes el control, puedes recuperar la wallet en cualquier momento, mover fondos y establecer límites de gasto."
+        "body": "Las cuentas gestionadas son wallets que creas para otra persona. Ellos obtienen su propia wallet y pueden usarla como cualquier otra wallet de Blitz, mientras tú gestionas la recuperación por ellos."
       },
       "emptyLinked": {
         "title": "Aún no hay cuentas gestionadas",

@@ -1670,11 +1670,11 @@
       },
       "personalInfo": {
         "title": "What are personal accounts?",
-        "body": "Personal accounts are extra wallets that only you use. They're all backed up by your recovery phrase, making it easy to separate and restore your money."
+        "body": "Personal accounts are wallets you create for yourself. Use them to easily separate your money for different purposes, like spending, saving, or travel."
       },
       "linkedInfo": {
         "title": "What are managed accounts?",
-        "body": "Managed accounts let someone else use a wallet without ever seeing the recovery phrase. You stay in control, can recover the wallet anytime, move funds, and set spending limits."
+        "body": "Managed accounts are wallets you create for someone else. They get their own wallet and can use it like any other Blitz wallet, while you manage the recovery for them."
       },
       "emptyLinked": {
         "title": "No managed accounts yet",

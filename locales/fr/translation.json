@@ -1683,11 +1683,11 @@
       },
       "personalInfo": {
         "title": "Que sont les comptes personnels ?",
-        "body": "Les comptes personnels sont des portefeuilles supplémentaires que vous utilisez seul. Ils sont tous sauvegardés par votre phrase de récupération, ce qui facilite la séparation et la restauration de votre argent."
+        "body": "Les comptes personnels sont des portefeuilles que vous créez pour vous-même. Utilisez-les pour séparer facilement votre argent selon différents besoins, comme les dépenses, l'épargne ou les voyages."
       },
       "linkedInfo": {
         "title": "Que sont les comptes gérés ?",
-        "body": "Les comptes gérés permettent à quelqu'un d'autre d'utiliser un portefeuille sans jamais voir la phrase de récupération. Vous gardez le contrôle, pouvez récupérer le portefeuille à tout moment, déplacer des fonds et définir des limites de dépenses."
+        "body": "Les comptes gérés sont des portefeuilles que vous créez pour quelqu'un d'autre. Ils obtiennent leur propre portefeuille et peuvent l'utiliser comme n'importe quel autre portefeuille Blitz, tandis que vous gérez la récupération pour eux."
       },
       "emptyLinked": {
         "title": "Aucun compte géré pour le moment",

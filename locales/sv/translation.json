@@ -1683,11 +1683,11 @@
       },
       "personalInfo": {
         "title": "Vad är personliga konton?",
-        "body": "Personliga konton är extra plånböcker som bara du använder. De säkerhetskopieras alla av din återställningsfras, vilket gör det lätt att separera och återställa dina pengar."
+        "body": "Personliga konton är plånböcker som du skapar åt dig själv. Använd dem för att enkelt separera dina pengar för olika ändamål, som utgifter, sparande eller resor."
       },
       "linkedInfo": {
         "title": "Vad är hanterade konton?",
-        "body": "Hanterade konton låter någon annan använda en plånbok utan att någonsin se återställningsfrasen. Du behåller kontrollen, kan återställa plånboken när som helst, flytta pengar och ange utgiftsgränser."
+        "body": "Hanterade konton är plånböcker som du skapar åt någon annan. De får en egen plånbok och kan använda den som vilken annan Blitz-plånbok som helst, medan du hanterar återställningen åt dem."
       },
       "emptyLinked": {
         "title": "Inga hanterade konton ännu",
