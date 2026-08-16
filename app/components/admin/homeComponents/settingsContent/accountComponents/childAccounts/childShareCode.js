@@ -28,6 +28,9 @@ export default function ChildShareCode() {
     }
   }, [status, navigate]);
 
+  const firstHalf = pairingCode?.slice(0, 3);
+  const secondHalf = pairingCode?.slice(3);
+
   if (isEnded) {
     return <ChildLinkError />;
   }
@@ -50,7 +53,12 @@ export default function ChildShareCode() {
             content={t('settings.childAccounts.pairing.codeSubtitle')}
           />
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <ThemeText styles={styles.codeValue} content={pairingCode} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
+              styles={styles.codeValue}
+              content={firstHalf + ' ' + secondHalf}
+            />
           </View>
           <ThemeText
             styles={styles.hint}
@@ -90,7 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   codeValue: {
-    fontSize: SIZES.xxLarge,
+    fontSize: SIZES.huge,
     includeFontPadding: false,
     textAlign: 'center',
   },
