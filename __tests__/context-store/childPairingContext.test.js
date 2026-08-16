@@ -4,11 +4,11 @@
 //
 // Drives the real provider with mocked `../db` helpers and injects Firestore
 // events through captured callbacks. The rendezvous is the parent's own
-// username; startPairing opens a fresh session doc (createPairingSession) and
-// the SESSION doc — not the pointer — drives the lifecycle:
-//   - happy path: startPairing → session JOINED (rendezvous dropped) →
-//     childHello → VERIFYING advance → confirm → Match → childConfirm → grant →
-//     best-effort COMPLETED advance → done.
+// username; startPairing opens a fresh session doc (createPairingSession) under
+// a 6-digit code and the SESSION doc — not a pointer — drives the lifecycle:
+//   - happy path: startPairing → session JOINED → childHello → VERIFYING
+//     advance → confirm → Match → childConfirm → grant → best-effort COMPLETED
+//     advance → done.
 //   - re-pair back-to-back: sessions never collide, so a second startPairing
 //     opens a fresh session immediately (no SESSION_IN_PROGRESS machinery).
 //   - terminal states: child cancel (session CANCELLED), derived expiry
@@ -53,10 +53,11 @@ const ts = ms => ({ toMillis: () => ms });
 
 let nextSessionId = 1;
 const mockDb = {
-  createPairingSession: jest.fn(async () => `sess-${nextSessionId++}`),
+  createPairingSession: jest.fn(
+    async () => String(nextSessionId++).padStart(6, '0'),
+  ),
   advanceSessionStatus: jest.fn(async () => true),
   cancelPairingSession: jest.fn(async () => true),
-  removeRendezvous: jest.fn(async () => true),
   deletePairingHandshake: jest.fn(async () => {}),
   setPairingDoc: jest.fn(async () => true),
   subscribePairingDoc: jest.fn(),
@@ -99,7 +100,6 @@ jest.mock('../../db', () => ({
   createPairingSession: (...a) => mockDb.createPairingSession(...a),
   advanceSessionStatus: (...a) => mockDb.advanceSessionStatus(...a),
   cancelPairingSession: (...a) => mockDb.cancelPairingSession(...a),
-  removeRendezvous: (...a) => mockDb.removeRendezvous(...a),
   deletePairingHandshake: (...a) => mockDb.deletePairingHandshake(...a),
   setPairingDoc: (...a) => mockDb.setPairingDoc(...a),
   subscribePairingDoc: (...a) => mockDb.subscribePairingDoc(...a),
@@ -229,17 +229,18 @@ describe('childPairingContext — happy path', () => {
     await reachConfirm();
 
     // A fresh JIT session opened under the parent's own username, with a fresh
-    // sessionId (no SESSION_IN_PROGRESS machinery).
+    // 6-digit pairing code (no SESSION_IN_PROGRESS machinery). The code is
+    // exposed for the link screen to display.
     expect(mockDb.createPairingSession).toHaveBeenCalledWith(
       RID,
       'parent-pub',
       expect.objectContaining({ commit: expect.any(String) }),
     );
+    expect(api.pairingCode).toMatch(/^[0-9]{6}$/);
 
-    // Child's JOIN drops the rendezvous pointer (transactional) and the parent
-    // advances the session to VERIFYING before revealing its eph pubkey.
+    // The parent advances the session to VERIFYING before revealing its eph
+    // pubkey (the JOINED snapshot no longer drops a rendezvous pointer).
     const sessionId = lastSessionId();
-    expect(mockDb.removeRendezvous).toHaveBeenCalledWith(RID, sessionId);
     expect(mockDb.advanceSessionStatus).toHaveBeenCalledWith(
       RID,
       sessionId,
@@ -364,6 +365,42 @@ describe('childPairingContext — happy path', () => {
     expect(mockDb.createPairingSession).toHaveBeenCalledTimes(2);
     expect(secondSession).not.toBe(firstSession);
     expect(api.status).toBe('confirm');
+  });
+});
+
+describe('childPairingContext — grant-gating invariants', () => {
+  test('no childConfirm listener and no grant write before the parent presses Match', async () => {
+    // The seed-before-SAS invariant, parent side: the childConfirm subscription
+    // (the only path that writes the grant) is created inside confirmMatch, so
+    // a childConfirm doc that lands while the SAS screen is up is never seen —
+    // the encrypted seed can never leave the parent before the human compares
+    // the pattern.
+    await mount();
+    await reachConfirm();
+    expect(api.status).toBe('confirm');
+    expect(listeners.childConfirm).toBeUndefined();
+    expect(mockDb.subscribePairingDoc).not.toHaveBeenCalledWith(
+      RID,
+      expect.anything(),
+      'childConfirm',
+      expect.any(Function),
+    );
+    expect(findDocCall('grant')).toBeUndefined();
+  });
+
+  test('the child seed stays out of reach after a SAS decline (wiped, no grant, session cancelled)', async () => {
+    await mount();
+    await reachConfirm();
+    const sessionId = lastSessionId();
+    await act(async () => {
+      await api.declineMatch();
+      await flush();
+    });
+    // Decline cancels the session and tears the provider down; no grant was
+    // ever written and no childConfirm listener exists for a replayed confirm.
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionId);
+    expect(findDocCall('grant')).toBeUndefined();
+    expect(listeners.childConfirm).toBeUndefined();
   });
 });
 

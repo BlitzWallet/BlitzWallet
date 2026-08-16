@@ -26,7 +26,6 @@ import {
   createPairingSession,
   deletePairingHandshake,
   ownsUniqueNameReservation,
-  removeRendezvous,
   setPairingDoc,
   subscribePairingDoc,
   subscribePairingSession,
@@ -43,8 +42,9 @@ const PAIRING_STATE_TTL_MS = 180000;
 // Firestore listeners (session doc + handshake docs), the child's secret seed
 // in memory, and teardown so the four pairing screens can read/drive one
 // session instead of each re-running it. The rendezvous is the parent's own
-// username (normalizePairingName), and each session gets a fresh sessionId
-// nonce so back-to-back re-pairs use a clean session namespace.
+// username (normalizePairingName), and each session gets a fresh 6-digit
+// pairing code (the session doc id) so back-to-back re-pairs use a clean
+// session namespace.
 const ChildPairingContext = createContext(null);
 
 export function ChildPairingProvider({ children }) {
@@ -61,6 +61,9 @@ export function ChildPairingProvider({ children }) {
   const [status, setStatus] = useState('idle');
   const [sas, setSas] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  // The 6-digit secret code the parent displays and the child types to reach
+  // the session (the session doc id IS this code — no public pointer exists).
+  const [pairingCode, setPairingCode] = useState('');
   // Server timestamp (anchor) + device arrival time (startedAt) of the current
   // session state (createdAt / joinedAt / verifyingAt, from the session
   // snapshot). Countdowns are elapsed against startedAt so device clock skew
@@ -117,6 +120,7 @@ export function ChildPairingProvider({ children }) {
       deletePairingHandshake(session.rid, session.sessionId);
     }
     setSas('');
+    setPairingCode('');
     setErrorMessage(message);
     setPairingExpiryClock(null);
     setStatus(nextStatus);
@@ -182,18 +186,19 @@ export function ChildPairingProvider({ children }) {
         // MITM can't grind either key to force a matching SAS.
         const parentEph = makeChildEphKey();
 
-        // Open a JIT session (fresh sessionId = isolated namespace; no
+        // Open a JIT session (fresh code = isolated namespace; no
         // SESSION_IN_PROGRESS conflict — sessions never collide). Only on
         // success do we adopt the session, so a start error lands on `error`
         // with sessionRef still null (nothing to tear down, nobody else's
         // session touched).
-        const sessionId = await createPairingSession(rid, publicKey, {
+        const code = await createPairingSession(rid, publicKey, {
           commit: makeKeyCommitment(parentEph.pub),
         });
+        setPairingCode(code);
 
         sessionRef.current = {
           rid,
-          sessionId,
+          sessionId: code,
           childIndex,
           childMnemonic,
           name: childName,
@@ -201,13 +206,12 @@ export function ChildPairingProvider({ children }) {
           parentEph,
         };
 
-        // The session doc is the primary driver. Join drops the rendezvous
-        // (transactional, D3), every status transition re-anchors the cosmetic
-        // countdown to the server timestamp, CANCELLED means the child
-        // declined, and a TTL-deleted doc is a derived expiry.
+        // The session doc is the primary driver: every status transition re-anchors
+        // the cosmetic countdown to the server timestamp, CANCELLED means the
+        // child declined, and a TTL-deleted doc is a derived expiry.
         sessionUnsubRef.current = subscribePairingSession(
           rid,
-          sessionId,
+          code,
           data => {
             const s = sessionRef.current;
             if (!s || s.granted || s.declined) return;
@@ -226,10 +230,6 @@ export function ChildPairingProvider({ children }) {
               //   anchor: data.joinedAt.toMillis(),
               //   startedAt: Date.now(),
               // });
-              if (!s.rendezvousRemoved) {
-                s.rendezvousRemoved = true;
-                removeRendezvous(rid, sessionId);
-              }
             } else if (data.status === 'VERIFYING' && data.verifyingAt) {
               // setPairingExpiryClock({
               //   anchor: data.verifyingAt.toMillis(),
@@ -252,7 +252,7 @@ export function ChildPairingProvider({ children }) {
         // advance the session to VERIFYING, and compute the SAS.
         handshakeUnsubRef.current = subscribePairingDoc(
           rid,
-          sessionId,
+          code,
           'childHello',
           async childHello => {
             const s = sessionRef.current;
@@ -265,18 +265,11 @@ export function ChildPairingProvider({ children }) {
               s.sharedX = sharedX;
               s.childEphPub = childHello.childEphPub;
 
-              // The child claiming the session means the pointer has done its job
-              // (idempotent with the JOINED-snapshot removal).
-              if (!s.rendezvousRemoved) {
-                s.rendezvousRemoved = true;
-                removeRendezvous(rid, sessionId);
-              }
-
               // Advance JOINED→VERIFYING BEFORE writing parentReveal: the
               // handshake rules gate parentReveal on the session being VERIFYING.
               const didAdvance = await advanceSessionStatus(
                 rid,
-                sessionId,
+                code,
                 'VERIFYING',
               );
               if (!didAdvance) {
@@ -290,7 +283,7 @@ export function ChildPairingProvider({ children }) {
               }
               const didReveal = await setPairingDoc(
                 rid,
-                sessionId,
+                code,
                 'parentReveal',
                 {
                   v: 1,
@@ -457,6 +450,7 @@ export function ChildPairingProvider({ children }) {
       sas,
       errorMessage,
       parentUniqueName,
+      pairingCode,
       startPairing,
       confirmMatch,
       declineMatch,
@@ -469,6 +463,7 @@ export function ChildPairingProvider({ children }) {
       sas,
       errorMessage,
       parentUniqueName,
+      pairingCode,
       startPairing,
       confirmMatch,
       declineMatch,

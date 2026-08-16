@@ -22,9 +22,8 @@ import {
 } from '../app/functions/accounts/childPairing';
 import {
   cancelPairingSession,
+  claimPairingSession,
   deletePairingHandshake,
-  getPairingPointer,
-  joinPairingSession,
   setPairingDoc,
   subscribePairingDoc,
   subscribePairingSession,
@@ -41,22 +40,35 @@ const PAIRING_STATE_TTL_MS = 180000;
 // only covers snapshot delivery latency and timer jitter.
 const PAIRING_EXPIRY_SLACK_MS = 10 * 1000;
 
-// True iff a pointer names a session worth trying (exists + points at a
-// session). Liveness is NOT judged here — the WAITING→JOINED rule is the real
-// gate, and the child's clock never decides correctness.
-function isLivePointer(p) {
-  return !!(p && p.sessionId && p.commit);
-}
-
 // Shared session for the child-side claim handshake. Owns the live Firestore
 // listeners (session doc + handshake docs), the ephemeral key + shared secret
 // in memory, and teardown so the three claim screens can read/drive one session
 // instead of each re-running it. This is the child mirror of
-// childPairingContext.js: it reads the parent's pointer (by username) to learn
-// the live sessionId + commit, atomically claims the session (WAITING→JOINED),
-// writes childHello, listens for the grant, and imports the seed. The child's
-// terminal is a successful decrypt of the grant (a valid AES-GCM tag), never
-// the session's COMPLETED marker (D5).
+// childPairingContext.js: it reads the session doc DIRECTLY by the parent's
+// secret 6-digit code (there is no public pointer), atomically claims the
+// session (WAITING→JOINED), writes childHello, listens for the grant, and
+// imports the seed. The child's terminal is a successful decrypt of the grant
+// (a valid AES-GCM tag), never the session's COMPLETED marker (D5).
+// Map the /childPairingClaim endpoint's error code to a user-facing copy key.
+// A wrong code and an expired/gone session are indistinguishable to a guesser by
+// design (both → wrongCode, the read oracle is closed); a live but already-
+// claimed session → slotTaken; the rate limiter → its own "slow down" copy;
+// everything else (transport failure / unexpected) → the generic restart copy.
+function claimErrorCopy(error) {
+  switch (error) {
+    case 'not_found':
+    case 'expired':
+    case 'invalid_request':
+      return 'settings.childAccounts.claim.wrongCode';
+    case 'taken':
+      return 'settings.childAccounts.claim.slotTaken';
+    case 'rate_limited':
+      return 'settings.childAccounts.claim.rateLimited';
+    default:
+      return 'settings.childAccounts.claim.askToRestart';
+  }
+}
+
 const ChildClaimContext = createContext(null);
 
 export function ChildClaimProvider({ children }) {
@@ -204,15 +216,18 @@ export function ChildClaimProvider({ children }) {
     [setAccountMnemonic, t],
   );
 
-  const submitName = useCallback(
-    async rawName => {
-      const rid = normalizePairingName(rawName);
-      if (!rid || status === 'joining') {
-        if (!rid)
-          setErrorMessage(t('settings.childAccounts.claim.askToRestart'));
+  const submitPairing = useCallback(
+    async ({ name, code }) => {
+      const rid = normalizePairingName(name);
+      const pairCode = String(code || '').trim();
+      const badInput = !rid || !/^[0-9]{6}$/.test(pairCode);
+      if (badInput || statusRef.current === 'joining') {
+        if (badInput)
+          setErrorMessage(t('settings.childAccounts.claim.wrongCode'));
         return;
       }
       setErrorMessage('');
+      statusRef.current = 'joining';
       setStatus('joining');
       if (pendingDeclineRef.current) {
         await pendingDeclineRef.current;
@@ -223,56 +238,36 @@ export function ChildClaimProvider({ children }) {
         if (!firebaseAuth.currentUser) {
           await signInAnonymously(firebaseAuth);
         }
-        const uid = firebaseAuth.currentUser.uid;
 
-        // Read the pointer to learn the live sessionId + commit. The parent
-        // opens the session before showing their name, but allow a few retries
-        // in case the child types it first.
-        let pointer = null;
-        for (let i = 0; i < 6 && !isLivePointer(pointer); i++) {
-          pointer = await getPairingPointer(rid);
-          if (!isLivePointer(pointer))
-            await new Promise(r => setTimeout(r, 800));
-        }
-        if (!isLivePointer(pointer)) {
+        // Discover + atomically claim through the rate-limited proxy endpoint.
+        // The client can no longer read the session by code (get oracle closed)
+        // or blind-claim it (client WAITING→JOINED deleted), so this single
+        // admin-mediated call is the only claim path — and its per-IP + per-uid
+        // limiters make a code scan infeasible. It returns the parent's commit
+        // for the verifyKeyCommitment check on the reveal below.
+        const claim = await claimPairingSession(rid, pairCode);
+        if (!claim.ok) {
           setStatus('idle');
-          setErrorMessage(t('settings.childAccounts.claim.askToRestart'));
+          setErrorMessage(t(claimErrorCopy(claim.error)));
           return;
         }
 
         // Commit-reveal: we reveal childEphPub now; the parent reveals its own
-        // pubkey afterwards. We only derive the shared secret + SAS once the
-        // revealed pubkey matches the commitment, so a MITM can't grind keys.
+        // pubkey afterwards. Shared secret + SAS are only derived once the
+        // revealed key matches the commitment, so a MITM can't grind keys.
         const eph = makeChildEphKey();
-
-        // Atomically claim the session (rules: WAITING→JOINED, exactly one
-        // winner, server deadline). A denial is NOT diagnosed (D4): a genuinely
-        // claimed session, a dead parent's past-deadline session, and a
-        // squatter are indistinguishable without trusting the child's clock —
-        // all collapse to the one "start a new pairing" copy.
-        const didJoin = await joinPairingSession(rid, pointer.sessionId, uid);
-        if (!didJoin) {
-          setStatus('idle');
-          setErrorMessage(t('settings.childAccounts.claim.askToRestart'));
-          return;
-        }
 
         sessionRef.current = {
           rid,
-          sessionId: pointer.sessionId,
+          sessionId: pairCode,
           eph,
-          commit: pointer.commit,
+          commit: claim.commit,
         };
 
-        const didHello = await setPairingDoc(
-          rid,
-          pointer.sessionId,
-          'childHello',
-          {
-            v: 1,
-            childEphPub: eph.pub,
-          },
-        );
+        const didHello = await setPairingDoc(rid, pairCode, 'childHello', {
+          v: 1,
+          childEphPub: eph.pub,
+        });
         if (!didHello) {
           sessionRef.current = null;
           setStatus('idle');
@@ -280,51 +275,33 @@ export function ChildClaimProvider({ children }) {
           return;
         }
 
-        // Watch the session doc: CANCELLED → the parent canceled; deleted
-        // (native TTL) → derived expiry; COMPLETED is deliberately ignored —
-        // the child's terminal is decrypting the grant, never this marker (D5).
-        sessionUnsubRef.current = subscribePairingSession(
-          rid,
-          pointer.sessionId,
-          data => {
-            const s = sessionRef.current;
-            if (!s || s.imported || s.declined) return;
-            if (!data) {
-              // Session GC'd — purely passive: flip the screen, no teardown.
-              setStatus('expired');
-              return;
-            }
-            if (data.status === 'JOINED' && data.joinedAt) {
-              setPairingAnchor({
-                anchor: data.joinedAt.toMillis(),
-                startedAt: Date.now(),
-              });
-            } else if (data.status === 'VERIFYING' && data.verifyingAt) {
-              // setPairingAnchor({
-              //   anchor: data.verifyingAt.toMillis(),
-              //   startedAt: Date.now(),
-              // });
-            } else if (data.status === 'CANCELLED') {
-              setErrorMessage(
-                t('settings.childAccounts.claim.canceledByParent'),
-              );
-              setStatus('error');
-            }
-          },
-        );
+        sessionUnsubRef.current = subscribePairingSession(rid, pairCode, data => {
+          const s = sessionRef.current;
+          if (!s || s.imported || s.declined) return;
+          if (!data) {
+            setStatus('expired');
+            return;
+          }
+          if (data.status === 'JOINED' && data.joinedAt) {
+            setPairingAnchor({
+              anchor: data.joinedAt.toMillis(),
+              startedAt: Date.now(),
+            });
+          } else if (data.status === 'CANCELLED') {
+            setErrorMessage(t('settings.childAccounts.claim.canceledByParent'));
+            setStatus('error');
+          }
+        });
 
-        // Wait for the parent to reveal its ephemeral pubkey, verify it against
-        // the commitment, then compute the SAS.
         revealUnsubRef.current = subscribePairingDoc(
           rid,
-          pointer.sessionId,
+          pairCode,
           'parentReveal',
           reveal => {
             const s = sessionRef.current;
             if (!s || s.sharedX || !reveal?.parentEphPub) return;
             try {
               if (!verifyKeyCommitment(s.commit, reveal.parentEphPub)) {
-                // Revealed key doesn't match the commitment -> possible MITM.
                 setErrorMessage(t('settings.childAccounts.claim.tamper'));
                 setStatus('error');
                 return;
@@ -341,12 +318,12 @@ export function ChildClaimProvider({ children }) {
           },
         );
       } catch (err) {
-        console.log('child claim name error', err);
+        console.log('child claim submit error', err);
         setStatus('idle');
         setErrorMessage(t('settings.childAccounts.claim.askToRestart'));
       }
     },
-    [status, t],
+    [t, endSession],
   );
 
   const confirmMatch = useCallback(async () => {
@@ -443,7 +420,7 @@ export function ChildClaimProvider({ children }) {
       status,
       sas,
       errorMessage,
-      submitName,
+      submitPairing,
       confirmMatch,
       declineMatch,
       resetSession,
@@ -453,7 +430,7 @@ export function ChildClaimProvider({ children }) {
       status,
       sas,
       errorMessage,
-      submitName,
+      submitPairing,
       confirmMatch,
       declineMatch,
       resetSession,

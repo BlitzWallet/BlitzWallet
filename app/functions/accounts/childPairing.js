@@ -65,9 +65,23 @@ export function normalizePairingName(name) {
   return norm;
 }
 
-/** Fresh random per-session nonce isolating each session's handshake docs. */
-export function makeSessionId() {
-  return Buffer.from(randomBytes(16)).toString('hex');
+/**
+ * Fresh 6-digit pairing code the parent displays and the child types. This is
+ * the secret rendezvous: the session lives at familyPairing/{name}/sessions/
+ * {code}, so only someone who knows the code can find it. Unbiased: sample one
+ * byte per digit and reject values ≥ 250 (the largest multiple of 10 ≤ 256),
+ * so every accepted byte maps to 0-9 with equal probability.
+ */
+export function makePairingCode() {
+  let code = '';
+  while (code.length < 6) {
+    for (const b of randomBytes(6)) {
+      if (b >= 250) continue; // reject the biased tail
+      code += String(b % 10);
+      if (code.length === 6) break;
+    }
+  }
+  return code;
 }
 
 /** ECDH shared X coordinate (32 bytes) from our priv + the peer's x-only pub. */

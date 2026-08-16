@@ -1,79 +1,52 @@
-import { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
-import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
+import CustomButton from '../../../../../../functions/CustomElements/button';
 import { CENTER } from '../../../../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../../constants/theme';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
-import ChildLinkError from './childLinkError';
-import PairingExpiryClock from './pairingExpiryClock';
 
 export default function ChildLinkCode(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
-  const { status, parentUniqueName, isEnded, startPairing } = useChildPairing();
+  const { parentUniqueName, startPairing } = useChildPairing();
   const reshareChild = props?.route?.params?.reshareChild ?? null;
 
-  useFocusEffect(
-    useCallback(() => {
-      startPairing(reshareChild);
-    }, [reshareChild]),
-  );
+  const generateCode = () => {
+    // startPairing guards double-start, so re-pressing after returning from the
+    // code screen is a no-op while a session is live.
+    startPairing(reshareChild);
+    navigate.navigate('ChildShareCode');
+  };
 
-  // Child joined and the SAS is ready -> move to the verify screen.
-  useEffect(() => {
-    if (status === 'confirm') {
-      navigate.navigate('ChildMatchCode');
-    }
-  }, [status, navigate]);
-
-  if (isEnded) {
-    return <ChildLinkError />;
-  }
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('settings.childAccounts.pairing.title')}
-        rightContent={status === 'preparing' ? null : <PairingExpiryClock />}
-      />
-      {status === 'preparing' ? (
-        <FullLoadingScreen showText={false} />
-      ) : (
-        <View style={styles.content}>
-          {(status === 'waiting' || status === 'confirm') && (
-            <>
-              <ThemeText
-                styles={styles.title}
-                content={t('settings.childAccounts.pairing.codeTitle')}
-              />
-              <ThemeText
-                styles={styles.subtitle}
-                content={t('settings.childAccounts.pairing.codeSubtitle')}
-              />
-              <View
-                style={[styles.card, { backgroundColor: backgroundOffset }]}
-              >
-                <ThemeText
-                  styles={styles.codeValue}
-                  content={parentUniqueName}
-                />
-              </View>
-              <ThemeText
-                styles={styles.hint}
-                content={t('settings.childAccounts.pairing.waiting')}
-              />
-            </>
-          )}
+      <CustomSettingsTopBar label={t('settings.childAccounts.pairing.title')} />
+      <View style={styles.content}>
+        <ThemeText
+          styles={styles.title}
+          content={t('settings.childAccounts.pairing.usernameTitle')}
+        />
+        <ThemeText
+          styles={styles.subtitle}
+          content={t('settings.childAccounts.pairing.usernameSubtitle')}
+        />
+        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+          <ThemeText styles={styles.usernameValue} content={parentUniqueName} />
         </View>
-      )}
+      </View>
+      <CustomButton
+        buttonStyles={styles.button}
+        textContent={t('settings.childAccounts.pairing.generateCode')}
+        actionFunction={generateCode}
+      />
     </GlobalThemeView>
   );
 }
@@ -97,7 +70,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 20,
   },
-
   card: {
     borderRadius: 16,
     paddingVertical: 40,
@@ -106,19 +78,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: 'center',
   },
-  codeValue: {
+  usernameValue: {
     fontSize: SIZES.xxLarge,
     includeFontPadding: false,
     textAlign: 'center',
   },
-  hint: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-  },
-  message: {
-    textAlign: 'center',
-    opacity: 0.7,
-    marginTop: 20,
-  },
+  button: { width: INSET_WINDOW_WIDTH, ...CENTER, marginTop: 'auto' },
 });

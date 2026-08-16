@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -26,23 +26,23 @@ import {
 export default function ChildEnterCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { status, errorMessage, submitName, resetSession } = useChildClaim();
+  const { errorMessage, resetSession } = useChildClaim();
   const [name, setName] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(true);
-
-  // Parent joined and the SAS is ready -> move to the verify screen.
-  useEffect(() => {
-    if (status === 'confirm') {
-      keyboardNavigate(() => navigate.navigate('ChildVerifyCode'));
-    }
-  }, [status, navigate]);
 
   const handleBack = useCallback(() => {
     resetSession();
     keyboardGoBack(navigate);
-  }, [resetSession]);
+  }, [resetSession, navigate]);
 
   const isValid = VALID_USERNAME_REGEX.test(name.trim());
+
+  const goNext = useCallback(() => {
+    if (!isValid) return;
+    keyboardNavigate(() =>
+      navigate.navigate('ChildEnterPairCode', { name: name.trim() }),
+    );
+  }, [isValid, name, navigate]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -71,7 +71,7 @@ export default function ChildEnterCode() {
             maxLength={30}
             autoFocus={true}
             placeholderText={t('settings.childAccounts.claim.codePlaceholder')}
-            onSubmitEditingFunction={() => isValid && submitName(name)}
+            onSubmitEditingFunction={goNext}
             onFocusFunction={() => {
               setIsKeyboardActive(true);
             }}
@@ -84,9 +84,8 @@ export default function ChildEnterCode() {
       </View>
       <CustomButton
         buttonStyles={styles.button}
-        useLoading={status === 'joining'}
         textContent={t('settings.childAccounts.claim.next')}
-        actionFunction={() => submitName(name)}
+        actionFunction={goNext}
       />
     </CustomKeyboardAvoidingView>
   );

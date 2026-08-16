@@ -3,7 +3,7 @@
 // to node:crypto in jest.setup.js), so no native/context mocks are needed.
 import {
   makeChildEphKey,
-  makeSessionId,
+  makePairingCode,
   normalizePairingName,
   deriveSharedX,
   deriveSeedKey,
@@ -100,11 +100,25 @@ describe('child pairing crypto', () => {
     expect(normalizePairingName('has space')).toBe('');
     expect(normalizePairingName('bad/slash')).toBe('');
   });
+});
 
-  it('makeSessionId is a fresh random hex nonce', () => {
-    const a = makeSessionId();
-    const b = makeSessionId();
-    expect(a).toMatch(/^[0-9a-f]{32}$/);
-    expect(a).not.toBe(b);
+describe('makePairingCode', () => {
+  it('always returns 6 ASCII digits', () => {
+    for (let i = 0; i < 500; i++) {
+      expect(makePairingCode()).toMatch(/^[0-9]{6}$/);
+    }
+  });
+
+  it('is roughly uniform across the digit alphabet (no modulo bias)', () => {
+    const counts = new Array(10).fill(0);
+    for (let i = 0; i < 20000; i++) {
+      for (const ch of makePairingCode()) counts[Number(ch)]++;
+    }
+    const total = counts.reduce((a, b) => a + b, 0);
+    // Each digit ~10% of positions; allow generous slack for sampling noise.
+    for (const c of counts) {
+      expect(c / total).toBeGreaterThan(0.08);
+      expect(c / total).toBeLessThan(0.12);
+    }
   });
 });

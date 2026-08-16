@@ -1,4 +1,4 @@
-import { db } from './initializeFirebase';
+import { db, firebaseAuth } from './initializeFirebase';
 import {
   getCachedMessages,
   queueSetCashedMessages,
@@ -36,9 +36,10 @@ import {
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 import { getNextChildDerivationIndex } from '../app/functions/accounts/childAccounts';
 import {
-  makeSessionId,
+  makePairingCode,
   normalizePairingName,
 } from '../app/functions/accounts/childPairing';
+import { getIdToken } from '@react-native-firebase/auth';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -157,7 +158,8 @@ export async function claimUniqueName(uid, oldLower, newLower) {
     if (!newId) return { status: 'error' };
     const oldId = oldLower ? normalizePairingName(oldLower) : '';
     const newRef = doc(db, 'usernames', newId);
-    const oldRef = oldId && oldId !== newId ? doc(db, 'usernames', oldId) : null;
+    const oldRef =
+      oldId && oldId !== newId ? doc(db, 'usernames', oldId) : null;
 
     let status = 'ok';
     await runTransaction(db, async tx => {
@@ -828,26 +830,22 @@ export async function deleteGift(uuid) {
 }
 
 // ── Family pairing handshake ───────────────────────────────────────────────
-// Three-level layout keyed on the parent's canonical username (the rid):
-//   familyPairing/{rid}                           — owner-owned rendezvous pointer
-//     ephemeral discovery doc answering "which session should a child entering
-//     this username right now try to join?" Points at a WAITING session; deleted
-//     the moment that session leaves WAITING (removeRendezvous).
-//   familyPairing/{rid}/sessions/{sessionId}      — the session state machine
+// Two-level layout keyed on the parent's canonical username (the rid):
+//   familyPairing/{rid}/sessions/{code}        — the session state machine
+//     The session doc id IS the parent's 6-digit pairing code (makePairingCode),
+//     generated fresh per session. There is NO familyPairing/{rid} pointer doc:
+//     the secret code is the rendezvous, so an attacker who knows the username
+//     but not the live code cannot find the session to snipe it.
 //     authoritative status (WAITING → JOINED → VERIFYING → COMPLETED, or
-//     CANCELLED) + serverTimestamp() lifecycle fields. A fresh sessionId = a
-//     fresh namespace, so sessions never overlap; time is judged only by the
-//     rules against request.time.
-//   familyPairing/{rid}/sessions/{sessionId}/handshake/{party}
+//     CANCELLED) + serverTimestamp() lifecycle fields. A fresh code = a fresh
+//     namespace, so sessions never overlap; time is judged only by the rules
+//     against request.time.
+//   familyPairing/{rid}/sessions/{code}/handshake/{party}
 //     per-session write-once handshake docs, gated on the session doc's status.
 // expireAt (a plain client Timestamp) is GC-only: it feeds native Firestore TTL
-// policies for dead docs (pointer, session, and every handshake doc — TTL does
-// not cascade to subcollections). It is never read for correctness; rules bound
-// it to a generous 1h window.
-function pairingPointerRef(rid) {
-  return doc(getFirestore(), 'familyPairing', rid);
-}
-
+// policies for dead docs (session and every handshake doc — TTL does not
+// cascade to subcollections). It is never read for correctness; rules bound it
+// to a generous 1h window.
 function pairingSessionRef(rid, sessionId) {
   return doc(getFirestore(), 'familyPairing', rid, 'sessions', sessionId);
 }
@@ -871,19 +869,19 @@ const PAIRING_TTL_EXPIRE_AT_MS = 30 * 60 * 1000;
 /**
  * Open a JIT pairing session under the parent's username: create the session
  * doc (status WAITING, serverTimestamp createdAt, childUid null) under a fresh
- * makeSessionId(), and point the rendezvous at it. One batch = atomic, and
- * sessions never collide (each pairing gets its own sessionId), so there is no
- * "one live session" conflict to check. Returns the fresh sessionId.
+ * makePairingCode() — the session doc id IS the secret 6-digit code, so there
+ * is no pointer doc to leak the rendezvous. One doc write = atomic, and
+ * sessions never collide (each pairing gets its own code), so there is no
+ * "one live session" conflict to check. Returns the fresh code for the parent
+ * to display.
  * Deliberately not wrapped in a catch — the caller distinguishes start errors.
  */
 export async function createPairingSession(rid, parentWalletPub, { commit }) {
-  const sessionId = makeSessionId();
-  const sessionRef = pairingSessionRef(rid, sessionId);
-  const pointerRef = pairingPointerRef(rid);
+  const code = makePairingCode();
+  const sessionRef = pairingSessionRef(rid, code);
   const expireAt = Timestamp.fromMillis(Date.now() + PAIRING_TTL_EXPIRE_AT_MS);
 
-  const batch = writeBatch(db);
-  batch.set(sessionRef, {
+  await setDoc(sessionRef, {
     v: 1,
     status: 'WAITING',
     parentWalletPub,
@@ -892,36 +890,46 @@ export async function createPairingSession(rid, parentWalletPub, { commit }) {
     createdAt: serverTimestamp(),
     expireAt,
   });
-  batch.set(pointerRef, {
-    v: 1,
-    sessionId,
-    commit,
-    parentWalletPub,
-    name: rid,
-    createdAt: serverTimestamp(),
-    expireAt,
-  });
-  await batch.commit();
-  return sessionId;
+  return code;
 }
 
+// The mobile→proxy base URL. Not secret: the proxy is a public HTTPS endpoint
+// whose per-IP + per-uid rate limiters are the security control. A plain module
+// constant (not app/constants) so the lightweight pairing-session tests can load
+// this module without pulling the constants→icons→assets graph.
+const BLITZ_PROXY_URL = 'https://proxy.blitz-wallet.com';
+
 /**
- * Child atomically claims a WAITING session (WAITING→JOINED). The rules
- * serialize writes to the session doc and enforce the deadline, so exactly one
- * child wins. Returns true on success, false when rules-denied (already
- * claimed / expired / wrong state).
+ * Child discovers + atomically claims the parent's WAITING session through the
+ * rate-limited /childPairingClaim proxy endpoint (admin-mediated). The client can
+ * no longer read the session (get oracle closed in firestore.rules) or blind-
+ * claim it (client WAITING→JOINED deleted), so this Bearer-token call is the only
+ * claim path — and the proxy's per-IP + per-uid limiters bound a code scan to
+ * ~10/min. Sends the child's Firebase ID token; the server stamps childUid from
+ * the VERIFIED token and returns the parent's commit for verifyKeyCommitment.
+ * Returns { ok, commit, error }; a non-200 maps its server error code to `error`.
+ * NOT the fetchBackend/httpsCallable ECDH path — that hits GCF directly and would
+ * bypass the proxy and its limiter.
  */
-export async function joinPairingSession(rid, sessionId, childUid) {
+export async function claimPairingSession(rid, code) {
   try {
-    await updateDoc(pairingSessionRef(rid, sessionId), {
-      status: 'JOINED',
-      childUid,
-      joinedAt: serverTimestamp(),
+    const token = await getIdToken(firebaseAuth.currentUser);
+    const res = await fetch(`${BLITZ_PROXY_URL}/childPairingClaim`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: rid, code }),
     });
-    return true;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.status !== 'SUCCESS') {
+      return { ok: false, error: data.error || 'request_failed' };
+    }
+    return { ok: true, commit: data.commit };
   } catch (e) {
-    console.error('Error joining pairing session:', e);
-    return false;
+    console.error('Error claiming pairing session:', e);
+    return { ok: false, error: 'request_failed' };
   }
 }
 
@@ -968,40 +976,6 @@ export async function cancelPairingSession(rid, sessionId) {
   }
 }
 
-/**
- * Delete the rendezvous pointer iff it still points at *our* sessionId — a
- * plain read-then-delete would race a second parent device's
- * createPairingSession (read points at A → B commits → delete nukes B). The
- * transaction re-reads inside the tx, so the delete is conditional and a
- * concurrent pointer replacement aborts it. Best-effort, never throws.
- */
-export async function removeRendezvous(rid, sessionId) {
-  try {
-    const pointerRef = pairingPointerRef(rid);
-    await runTransaction(db, async tx => {
-      const snap = await tx.get(pointerRef);
-      if (!snap.exists()) return;
-      if (snap.data().sessionId !== sessionId) return;
-      tx.delete(pointerRef);
-    });
-    return true;
-  } catch (e) {
-    console.error('Error removing pairing rendezvous:', e);
-    return false;
-  }
-}
-
-/** Child reads the pointer to learn the live sessionId + commit for a username. */
-export async function getPairingPointer(rid) {
-  try {
-    const snap = await getDoc(pairingPointerRef(rid));
-    return snap.exists() ? snap.data() : null;
-  } catch (e) {
-    console.error('Error reading pairing pointer:', e);
-    return null;
-  }
-}
-
 export async function setPairingDoc(rid, sessionId, party, data) {
   try {
     await setDoc(pairingDocRef(rid, sessionId, party), {
@@ -1032,20 +1006,6 @@ export function subscribePairingDoc(rid, sessionId, party, onData) {
   });
 }
 
-// The child watches the pointer for the parent leaving/replacing/ending the
-// session (sessionId change, terminal, or deletion) — see childClaimContext.
-export function subscribePairingPointer(rid, onData) {
-  let sawDoc = false;
-  return onSnapshot(pairingPointerRef(rid), snap => {
-    if (snap.exists()) {
-      sawDoc = true;
-      onData(snap.data());
-    } else if (sawDoc) {
-      onData(null);
-    }
-  });
-}
-
 // The session doc is the primary driver for both contexts: status transitions,
 // serverTimestamp anchors for the countdown, and (null) when TTL GC'd the doc.
 export function subscribePairingSession(rid, sessionId, onData) {
@@ -1066,8 +1026,8 @@ export function subscribePairingSession(rid, sessionId, onData) {
 // session doc (not the childHello doc), so all deletes can fire in parallel.
 export async function deletePairingHandshake(rid, sessionId) {
   await Promise.all(
-    ['childHello', 'parentReveal', 'childConfirm', 'grant', 'cancel'].map(party =>
-      deleteDoc(pairingDocRef(rid, sessionId, party)).catch(() => {}),
+    ['childHello', 'parentReveal', 'childConfirm', 'grant', 'cancel'].map(
+      party => deleteDoc(pairingDocRef(rid, sessionId, party)).catch(() => {}),
     ),
   );
 }

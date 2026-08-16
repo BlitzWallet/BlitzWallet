@@ -1,10 +1,11 @@
 /* eslint-env jest */
 // Exercises the REAL pairing session db layer (createPairingSession /
-// joinPairingSession / advanceSessionStatus / cancelPairingSession /
-// removeRendezvous / getPairingPointer) against a tiny in-memory Firestore
-// mock. The mock's runTransaction models optimistic concurrency (a delete is
-// aborted if the doc changed since the tx's read), which is exactly what the
-// D3 removeRendezvous TOCTOU fix depends on.
+// advanceSessionStatus / cancelPairingSession) against a tiny in-memory Firestore
+// mock, plus claimPairingSession (the child's discover+claim, which goes through
+// the rate-limited proxy endpoint over fetch, NOT Firestore). There is no pointer
+// doc: the session doc id IS the parent's 6-digit pairing code, so the code is
+// the secret rendezvous. The client can no longer read or claim the session doc
+// directly (get oracle + WAITING→JOINED write oracle are closed in the rules).
 
 jest.mock('../../app/functions/crashlyticsLogs', () => ({
   __esModule: true,
@@ -33,6 +34,14 @@ jest.mock('../../app/functions/messaging/encodingAndDecodingMessages', () => ({
 jest.mock('../../app/functions/accounts/childAccounts', () => ({
   __esModule: true,
   getNextChildDerivationIndex: jest.fn(),
+}));
+
+// db/index.js calls the modular getIdToken(currentUser); the global
+// jest.setup.js auth mock does not export it, so provide it locally.
+jest.mock('@react-native-firebase/auth', () => ({
+  __esModule: true,
+  getAuth: jest.fn(() => ({ currentUser: null })),
+  getIdToken: jest.fn(async () => 'child-tok'),
 }));
 
 jest.mock('@react-native-firebase/firestore', () => {
@@ -84,9 +93,7 @@ jest.mock('@react-native-firebase/firestore', () => {
       };
     },
     // Mirrors Firestore's optimistic concurrency: a write is aborted if the doc
-    // changed since the tx read it. This is the property removeRendezvous (D3)
-    // relies on — a plain read-then-delete would pass here and nuke a newer
-    // pointer in production.
+    // changed since the tx read it.
     runTransaction: async (_db, fn) => {
       const readVersions = new Map();
       const tx = {
@@ -135,22 +142,18 @@ jest.mock('@react-native-firebase/firestore', () => {
 
 const {
   createPairingSession,
-  joinPairingSession,
+  claimPairingSession,
   advanceSessionStatus,
   cancelPairingSession,
-  removeRendezvous,
-  getPairingPointer,
 } = require('../../db');
+const { firebaseAuth } = require('../../db/initializeFirebase');
 const { __store, __overwriteAfterRead } = require('@react-native-firebase/firestore');
 
 const RID = 'alice';
 const PARENT = 'parent-pub';
 const CHILD = 'child-pub';
 
-const pointerKey = 'familyPairing/alice';
 const sessionKey = sid => `familyPairing/alice/sessions/${sid}`;
-
-const pointerOf = async () => __store.get(pointerKey);
 
 beforeEach(() => {
   __store.clear();
@@ -158,13 +161,13 @@ beforeEach(() => {
 });
 
 describe('createPairingSession', () => {
-  test('creates a WAITING session + pointer atomically and returns the sessionId', async () => {
-    const sid = await createPairingSession(RID, PARENT, {
+  test('creates a WAITING session under the 6-digit code and returns the code', async () => {
+    const code = await createPairingSession(RID, PARENT, {
       commit: 'commit-hex',
     });
-    expect(typeof sid).toBe('string');
+    expect(code).toMatch(/^[0-9]{6}$/);
 
-    const session = __store.get(sessionKey(sid));
+    const session = __store.get(sessionKey(code));
     expect(session).toMatchObject({
       v: 1,
       status: 'WAITING',
@@ -175,45 +178,82 @@ describe('createPairingSession', () => {
     expect(session.createdAt.__serverTimestamp).toBe(true);
     expect(session.expireAt.toMillis()).toBeGreaterThan(Date.now());
 
-    const pointer = await pointerOf();
-    expect(pointer).toMatchObject({
-      v: 1,
-      sessionId: sid,
-      commit: 'commit-hex',
-      parentWalletPub: PARENT,
-    });
+    // No pointer doc anywhere: familyPairing/{rid} must not exist.
+    expect(__store.has('familyPairing/alice')).toBe(false);
   });
 
   test('each call opens an independent session (no one-live-session conflict)', async () => {
     const a = await createPairingSession(RID, PARENT, { commit: 'c1' });
     const b = await createPairingSession(RID, PARENT, { commit: 'c2' });
     expect(a).not.toBe(b);
-    // Both session docs exist independently; the pointer just names the newest.
+    // Both session docs exist independently under their own codes.
     expect(__store.get(sessionKey(a))).toMatchObject({ status: 'WAITING' });
     expect(__store.get(sessionKey(b))).toMatchObject({ status: 'WAITING' });
-    expect((await pointerOf()).sessionId).toBe(b);
   });
 });
 
-describe('joinPairingSession / advanceSessionStatus / cancelPairingSession', () => {
-  test('join stamps JOINED + childUid + serverTimestamp joinedAt', async () => {
-    const sid = await createPairingSession(RID, PARENT, { commit: 'c' });
-    expect(await joinPairingSession(RID, sid, CHILD)).toBe(true);
-    const session = __store.get(sessionKey(sid));
-    expect(session).toMatchObject({
-      status: 'JOINED',
-      childUid: CHILD,
+// Seed a session straight to JOINED (the claim now happens admin-side via the
+// proxy, so there is no client joinPairingSession to drive it in-process).
+function seedJoined(sid) {
+  __store.set(sessionKey(sid), {
+    ...__store.get(sessionKey(sid)),
+    status: 'JOINED',
+    childUid: CHILD,
+    joinedAt: { __serverTimestamp: true },
+  });
+}
+
+describe('claimPairingSession (proxy discover+claim)', () => {
+  const realFetch = global.fetch;
+  afterEach(() => {
+    global.fetch = realFetch;
+    firebaseAuth.currentUser = null;
+  });
+
+  test('POSTs name+code with the child ID token and returns the commit on success', async () => {
+    firebaseAuth.currentUser = { getIdToken: jest.fn(async () => 'child-tok') };
+    global.fetch = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ status: 'SUCCESS', commit: 'commit-hex' }),
+    }));
+
+    const result = await claimPairingSession(RID, '482916');
+    expect(result).toEqual({ ok: true, commit: 'commit-hex' });
+
+    const [url, opts] = global.fetch.mock.calls[0];
+    expect(url).toBe('https://proxy.blitz-wallet.com/childPairingClaim');
+    expect(opts.method).toBe('POST');
+    expect(opts.headers.Authorization).toBe('Bearer child-tok');
+    expect(JSON.parse(opts.body)).toEqual({ name: RID, code: '482916' });
+  });
+
+  test('a non-200 maps the server error code to { ok:false, error }', async () => {
+    firebaseAuth.currentUser = { getIdToken: jest.fn(async () => 't') };
+    global.fetch = jest.fn(async () => ({
+      ok: false,
+      json: async () => ({ status: 'DENIED', error: 'rate_limited' }),
+    }));
+    expect(await claimPairingSession(RID, '482916')).toEqual({
+      ok: false,
+      error: 'rate_limited',
     });
-    expect(session.joinedAt.__serverTimestamp).toBe(true);
   });
 
-  test('join on a missing session is denied (returns false, never throws)', async () => {
-    expect(await joinPairingSession(RID, 'no-such-session', CHILD)).toBe(false);
+  test('a transport failure returns { ok:false, error } (never throws)', async () => {
+    firebaseAuth.currentUser = { getIdToken: jest.fn(async () => 't') };
+    global.fetch = jest.fn(async () => {
+      throw new Error('network down');
+    });
+    const result = await claimPairingSession(RID, '482916');
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe('request_failed');
   });
+});
 
+describe('advanceSessionStatus / cancelPairingSession', () => {
   test('advance VERIFYING then COMPLETED stamps the matching timestamps', async () => {
     const sid = await createPairingSession(RID, PARENT, { commit: 'c' });
-    await joinPairingSession(RID, sid, CHILD);
+    seedJoined(sid);
     expect(await advanceSessionStatus(RID, sid, 'VERIFYING')).toBe(true);
     let session = __store.get(sessionKey(sid));
     expect(session.status).toBe('VERIFYING');
@@ -230,43 +270,5 @@ describe('joinPairingSession / advanceSessionStatus / cancelPairingSession', () 
     const sid = await createPairingSession(RID, PARENT, { commit: 'c' });
     expect(await cancelPairingSession(RID, sid)).toBe(true);
     expect(__store.get(sessionKey(sid)).status).toBe('CANCELLED');
-  });
-});
-
-describe('removeRendezvous (D3 — TOCTOU-free pointer delete)', () => {
-  test('deletes the pointer when it still points at our sessionId', async () => {
-    const sid = await createPairingSession(RID, PARENT, { commit: 'c' });
-    expect(await removeRendezvous(RID, sid)).toBe(true);
-    expect(await getPairingPointer(RID)).toBeNull();
-  });
-
-  test('leaves the pointer intact when it points at a different sessionId', async () => {
-    const sid = await createPairingSession(RID, PARENT, { commit: 'c' });
-    await createPairingSession(RID, PARENT, { commit: 'c2' }); // pointer now → new sid
-    expect(await removeRendezvous(RID, sid)).toBe(true);
-    const pointer = await pointerOf();
-    expect(pointer).toBeTruthy();
-    expect(pointer.sessionId).not.toBe(sid);
-  });
-
-  test('D3: a concurrent pointer replacement between read and delete is never nuked', async () => {
-    const sidA = await createPairingSession(RID, PARENT, { commit: 'cA' });
-    // A second parent device commits a new pointer between this tx's read and
-    // its delete. The optimistic-concurrency model aborts the tx instead of
-    // deleting the newer pointer.
-    __overwriteAfterRead.set({
-      key: pointerKey,
-      data: { ...(await pointerOf()), sessionId: 'sess-B-concurrent' },
-    });
-    expect(await removeRendezvous(RID, sidA)).toBe(false);
-    const pointer = await pointerOf();
-    expect(pointer).toBeTruthy();
-    expect(pointer.sessionId).toBe('sess-B-concurrent');
-  });
-
-  test('removeRendezvous on an already-missing pointer is a clean no-op', async () => {
-    const sid = await createPairingSession(RID, PARENT, { commit: 'c' });
-    await removeRendezvous(RID, sid);
-    expect(await removeRendezvous(RID, sid)).toBe(true);
   });
 });
