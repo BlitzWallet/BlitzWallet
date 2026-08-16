@@ -1,4 +1,11 @@
-import React, { useState, useMemo, useCallback, useRef, memo, useEffect } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  memo,
+  useEffect,
+} from 'react';
 import { View, TouchableOpacity, StyleSheet, SectionList } from 'react-native';
 import { EMOJI_CATEGORIES } from '../../../../../functions/accounts/handleEmoji';
 import {
@@ -9,8 +16,16 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
-import { HIDDEN_OPACITY, SIZES } from '../../../../../constants/theme';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+} from '../../../../../constants';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -165,7 +180,10 @@ export default function EmojiAvatarSelector(props) {
       if (isChild) {
         await setChildAccountEmoji(accountId, selectedEmoji);
       } else {
-        await updateAccount({ ...selectedAccount, profileEmoji: selectedEmoji });
+        await updateAccount({
+          ...selectedAccount,
+          profileEmoji: selectedEmoji,
+        });
       }
       keyboardGoBack(navigate);
     } else {
@@ -221,42 +239,44 @@ export default function EmojiAvatarSelector(props) {
       <CustomSettingsTopBar
         label={t('settings.accountComponents.selectProfileImage.title')}
       />
+      <View style={styles.contentContainer}>
+        <AvatarPreview
+          selectedAccount={selectedAccount}
+          selectedEmoji={selectedEmoji}
+          backgroundOffset={backgroundOffset}
+          onClear={handleClear}
+        />
 
-      <AvatarPreview
-        selectedAccount={selectedAccount}
-        selectedEmoji={selectedEmoji}
-        backgroundOffset={backgroundOffset}
-        onClear={handleClear}
-      />
+        <CustomSearchInput
+          containerStyles={styles.searchContainer}
+          placeholderText={t(
+            'settings.accountComponents.selectProfileImage.searchPlaceholder',
+          )}
+          inputText={searchQuery}
+          setInputText={setSearchQuery}
+          autoCapitalize="none"
+          onFocusFunction={() => setIsKeyboardActive(true)}
+          onBlurFunction={() => setIsKeyboardActive(false)}
+        />
 
-      <CustomSearchInput
-        containerStyles={styles.searchContainer}
-        placeholderText={t(
-          'settings.accountComponents.selectProfileImage.searchPlaceholder',
-        )}
-        inputText={searchQuery}
-        setInputText={setSearchQuery}
-        autoCapitalize="none"
-        onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-      />
+        <EmojiGrid
+          sections={sectionsWithRows}
+          onEmojiSelect={handleEmojiSelect}
+          backgroundColor={backgroundColor}
+        />
 
-      <EmojiGrid
-        sections={sectionsWithRows}
-        onEmojiSelect={handleEmojiSelect}
-        backgroundColor={backgroundColor}
-      />
-
-      <CustomButton
-        buttonStyles={styles.saveButton}
-        actionFunction={handleSave}
-        textContent={saveLabel}
-      />
+        <CustomButton
+          buttonStyles={styles.saveButton}
+          actionFunction={handleSave}
+          textContent={saveLabel}
+        />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  contentContainer: { width: INSET_WINDOW_WIDTH, ...CENTER, flex: 1 },
   previewContainer: {
     alignItems: 'center',
     marginTop: 10,
