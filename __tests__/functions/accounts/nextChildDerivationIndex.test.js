@@ -1,4 +1,11 @@
 import { getNextChildDerivationIndex } from '../../../app/functions/accounts/childAccounts';
+import {
+  MAX_INDEX_FOR_CHILDREN_DERIVE,
+  STARTING_INDEX_FOR_CHILDREN_DERIVE,
+} from '../../../app/constants';
+
+const MAX_CHILD_INDEX =
+  MAX_INDEX_FOR_CHILDREN_DERIVE - STARTING_INDEX_FOR_CHILDREN_DERIVE - 1;
 
 describe('getNextChildDerivationIndex', () => {
   it('defaults to 0 when the parent has no counter or children', () => {
@@ -31,5 +38,23 @@ describe('getNextChildDerivationIndex', () => {
         childAccounts: [{ childIndex: undefined }, {}, { childIndex: '7' }],
       }),
     ).toBe(8);
+  });
+
+  it('throws when the counter is past the child-space cap', () => {
+    expect(() =>
+      getNextChildDerivationIndex({
+        nextChildDerivationIndex: MAX_CHILD_INDEX + 1,
+        childAccounts: [],
+      }),
+    ).toThrow('Child derivation space exhausted');
+  });
+
+  it('throws when a registry entry is past the child-space cap', () => {
+    expect(() =>
+      getNextChildDerivationIndex({
+        nextChildDerivationIndex: 0,
+        childAccounts: [{ childIndex: MAX_CHILD_INDEX + 1 }],
+      }),
+    ).toThrow('Child derivation space exhausted');
   });
 });

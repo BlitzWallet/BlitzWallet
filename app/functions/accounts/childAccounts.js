@@ -1,7 +1,10 @@
 import { getPublicKey } from 'nostr-tools';
 import { HDKey } from '@scure/bip32';
 import { bytesToHex } from '@noble/hashes/utils';
-import { STARTING_INDEX_FOR_CHILDREN_DERIVE } from '../../constants';
+import {
+  MAX_INDEX_FOR_CHILDREN_DERIVE,
+  STARTING_INDEX_FOR_CHILDREN_DERIVE,
+} from '../../constants';
 import { deriveSparkGiftMnemonic } from '../gift/deriveGiftWallet';
 import {
   mnemonicToSeedAsync,
@@ -24,6 +27,20 @@ export async function deriveChildMnemonic(mainSeed, childIndex) {
     !Number.isInteger(childIndex)
   ) {
     throw new Error(`Child index ${childIndex} is invalid`);
+  }
+  // Hard cap: children must stay below the BIP32 hardened-index limit
+  // (2^31-1). getNextChildDerivationIndex fails closed at the same boundary,
+  // so no child can ever derive an index that overlaps another derivation
+  // space or exceeds the hardened range.
+  if (
+    STARTING_INDEX_FOR_CHILDREN_DERIVE + childIndex >=
+    MAX_INDEX_FOR_CHILDREN_DERIVE
+  ) {
+    throw new Error(
+      `Child index ${childIndex} exceeds the maximum of ${
+        MAX_INDEX_FOR_CHILDREN_DERIVE - STARTING_INDEX_FOR_CHILDREN_DERIVE - 1
+      } children`,
+    );
   }
   if (!mainSeed || typeof mainSeed !== 'string') {
     throw new Error('Main seed must be a non-empty string');
@@ -70,7 +87,20 @@ export function getNextChildDerivationIndex({
     (m, c) => Math.max(m, Number(c.childIndex ?? -1)),
     -1,
   );
-  return Math.max(counter, maxExisting + 1);
+  const next = Math.max(counter, maxExisting + 1);
+  // Fail closed at the child-space boundary: if a corrupted counter (or a
+  // registry entry written beyond the cap) ever asks for an index past
+  // MAX_INDEX_FOR_CHILDREN_DERIVE, throw rather than saturate — a saturated
+  // counter would hand the same index to every future create, which is a
+  // collision. deriveChildMnemonic enforces the same bound as a backstop.
+  const maxChildIndex =
+    MAX_INDEX_FOR_CHILDREN_DERIVE - STARTING_INDEX_FOR_CHILDREN_DERIVE - 1;
+  if (next > maxChildIndex) {
+    throw new Error(
+      `Child derivation space exhausted (max index ${maxChildIndex})`,
+    );
+  }
+  return next;
 }
 
 /**
@@ -107,6 +137,18 @@ export async function deriveChildAuthKey(mainSeed, childIndex) {
     !Number.isInteger(childIndex)
   ) {
     throw new Error(`Child index ${childIndex} is invalid`);
+  }
+  // Same hard cap as deriveChildMnemonic — a parent can never derive an auth
+  // key at an index the child itself could not have been allocated.
+  if (
+    STARTING_INDEX_FOR_CHILDREN_DERIVE + childIndex >=
+    MAX_INDEX_FOR_CHILDREN_DERIVE
+  ) {
+    throw new Error(
+      `Child index ${childIndex} exceeds the maximum of ${
+        MAX_INDEX_FOR_CHILDREN_DERIVE - STARTING_INDEX_FOR_CHILDREN_DERIVE - 1
+      } children`,
+    );
   }
   if (!mainSeed || typeof mainSeed !== 'string') {
     throw new Error('Main seed must be a non-empty string');

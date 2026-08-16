@@ -101,12 +101,19 @@ const CUSTOM_TOKEN_CURRENCY_OPTIONS = [{ token: 'USDB', currency: 'USD' }];
 const CHATGPT_INPUT_COST = 10 / 1000000;
 const CHATGPT_OUTPUT_COST = 30 / 1000000;
 
+// Derivation spaces are strictly partitioned and hard-capped so no two features
+// can ever derive the same index (each space is bounded below by the next
+// space's start). Users accounts occupy 0-999, gifts 1000-99999, pools
+// 100000-199999, savings 200000-299999, children 300000-2147483646 (the BIP32
+// hardened-index limit is 2147483647, so the last index is never allocated).
 const MAX_DERIVED_ACCOUNTS = 1000; // Indices 0-999 for user accounts
 const STARTING_INDEX_FOR_GIFTS_DERIVE = 1000; // Indices 1000-99999 for gifts
-const MAX_GIFTS = 99000; // Maximum 99000 gifts
-const STARTING_INDEX_FOR_POOLS_DERIVE = 100000; // Indices 100000+ for pools
-const STARTING_INDEX_FOR_SAVINGS_DERIVE = 200000; // Indices 200000+ for savings (unlimited)
-const STARTING_INDEX_FOR_CHILDREN_DERIVE = 300000; // Indices 300000+ for child accounts (unlimited)
+const MAX_GIFTS = 99000; // Maximum 99000 gifts (indices 1000-99999)
+const STARTING_INDEX_FOR_POOLS_DERIVE = 100000; // Indices 100000-199998 for pools
+const MAX_INDEX_FOR_POOLS_DERIVE = 199999; // Exclusive hard cap: pools must never reach the savings space (200000)
+const STARTING_INDEX_FOR_SAVINGS_DERIVE = 200000; // Indices 200000-299998 for savings
+const STARTING_INDEX_FOR_CHILDREN_DERIVE = 300000; // Indices 300000-2147483646 for child accounts
+const MAX_INDEX_FOR_CHILDREN_DERIVE = 2147483647; // Exclusive hard cap: BIP32 hardened index limit (2^31-1)
 
 const POOL_DEEPLINK_REGEX =
   /^(?:blitz-wallet:\/\/pools\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/pools\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\/?$/;
@@ -244,8 +251,10 @@ export {
   FLASHNET_REFUND_REGEX,
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
   STARTING_INDEX_FOR_POOLS_DERIVE,
+  MAX_INDEX_FOR_POOLS_DERIVE,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   STARTING_INDEX_FOR_CHILDREN_DERIVE,
+  MAX_INDEX_FOR_CHILDREN_DERIVE,
   POOL_DEEPLINK_REGEX,
   PAYLINK_DEEPLINK_REGEX,
   BASIC_ACCOUNT_NAME_REGEX,

@@ -159,7 +159,7 @@ const SparkWalletProvider = ({ children }) => {
   const { authResetkey } = useAuthContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { changeSparkConnectionState } = useWebView();
-  const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToastActions();
   const {
@@ -2330,7 +2330,7 @@ const SparkWalletProvider = ({ children }) => {
         filterAndSetTransactions,
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
-        mnemonic: accountMnemoinc,
+        mnemonic: currentMnemonicRef.current,
         // Restore now runs solely via createRestorePoller in addListeners, so
         // always load cached txs on connect (the poller's SPARK_TX events layer
         // in any newly restored txs afterward).
@@ -2350,7 +2350,7 @@ const SparkWalletProvider = ({ children }) => {
       // cycle or manual refresh.
       retryBalanceAfterTimeout();
     },
-    [accountMnemoinc, retryBalanceAfterTimeout],
+    [retryBalanceAfterTimeout],
   );
 
   // Function to update db when all reqiured information is loaded

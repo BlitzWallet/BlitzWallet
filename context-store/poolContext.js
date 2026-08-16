@@ -29,7 +29,10 @@ import {
 } from '../db';
 import { useGlobalContextProvider } from './context';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
-import { STARTING_INDEX_FOR_POOLS_DERIVE } from '../app/constants';
+import {
+  MAX_INDEX_FOR_POOLS_DERIVE,
+  STARTING_INDEX_FOR_POOLS_DERIVE,
+} from '../app/constants';
 
 const initialState = {
   pools: {},
@@ -240,10 +243,15 @@ export function PoolProvider({ children }) {
       // Save all server pools to local SQLite
       await Promise.all(serverPools.map(pool => savePoolLocal(pool)));
 
-      // Update currentDerivedPoolIndex to max found to prevent collisions
-      const maxDerivationIndex = Math.max(
-        ...serverPools.map(p => p.derivationIndex || 0),
-        0,
+      // Update currentDerivedPoolIndex to max found to prevent collisions.
+      // Clamp to the pool space so a bad server index (e.g. one written into
+      // the savings/children ranges) can never push future allocations there.
+      const maxDerivationIndex = Math.min(
+        Math.max(
+          ...serverPools.map(p => p.derivationIndex || 0),
+          0,
+        ),
+        MAX_INDEX_FOR_POOLS_DERIVE - 1,
       );
       const restoredPoolCount =
         maxDerivationIndex - STARTING_INDEX_FOR_POOLS_DERIVE + 1;

@@ -1,10 +1,18 @@
 import {
   deriveChildAuthKey,
+  deriveChildMnemonic,
   reserveChild,
 } from '../../../app/functions/accounts/childAccounts';
+import {
+  MAX_INDEX_FOR_CHILDREN_DERIVE,
+  STARTING_INDEX_FOR_CHILDREN_DERIVE,
+} from '../../../app/constants';
 
 const SEED =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+
+const MAX_CHILD_INDEX =
+  MAX_INDEX_FOR_CHILDREN_DERIVE - STARTING_INDEX_FOR_CHILDREN_DERIVE - 1;
 
 describe('deriveChildAuthKey', () => {
   it('is deterministic for the same (seed, index)', async () => {
@@ -34,5 +42,20 @@ describe('deriveChildAuthKey', () => {
   it('rejects invalid input', async () => {
     await expect(deriveChildAuthKey(SEED, -1)).rejects.toThrow();
     await expect(deriveChildAuthKey('', 0)).rejects.toThrow();
+  });
+
+  it('rejects child indices past the child-space cap', async () => {
+    await expect(deriveChildAuthKey(SEED, MAX_CHILD_INDEX + 1)).rejects.toThrow(
+      'exceeds the maximum',
+    );
+    await expect(
+      deriveChildMnemonic(SEED, MAX_CHILD_INDEX + 1),
+    ).rejects.toThrow('exceeds the maximum');
+  });
+
+  it('allows the last valid child index', async () => {
+    await expect(
+      deriveChildAuthKey(SEED, MAX_CHILD_INDEX),
+    ).resolves.toBeDefined();
   });
 });

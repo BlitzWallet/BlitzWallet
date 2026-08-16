@@ -7,8 +7,8 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
+  MAX_INDEX_FOR_POOLS_DERIVE,
   STARTING_INDEX_FOR_POOLS_DERIVE,
-  STARTING_INDEX_FOR_SAVINGS_DERIVE,
 } from '../../../../../constants';
 import {
   HIDDEN_OPACITY,
@@ -65,7 +65,9 @@ export default function PoolDescriptionInput({
       const derivationIndex =
         STARTING_INDEX_FOR_POOLS_DERIVE + currentDerivedPoolIndex;
 
-      if (STARTING_INDEX_FOR_SAVINGS_DERIVE - 1 === derivationIndex) {
+      // Hard cap: pool indices must stay below the savings space (200000).
+      // Using >= (not ===) so a corrupted counter can never slip past.
+      if (derivationIndex >= MAX_INDEX_FOR_POOLS_DERIVE) {
         throw new Error('You have reached the maximum amount of pools');
       }
 
