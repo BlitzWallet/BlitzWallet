@@ -2008,7 +2008,8 @@
         "activeLabel": "Compte actif",
         "activateButton": "Activer le compte",
         "addMoneyButton": "Ajouter de l'argent",
-        "withdrawMoneyButton": "Retirer de l'argent"
+        "withdrawMoneyButton": "Retirer de l'argent",
+        "viewActivityLabel": "Voir l'historique du compte"
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",
@@ -2254,11 +2255,15 @@
         "declinedByChild": "Cette demande a été refusée.",
         "tamper": "Nous n'avons pas pu vérifier ce transfert. Veuillez recommencer.",
         "areYouSure": "Êtes-vous sûr ?",
-        "confirmGate": "Ne confirmez que si les motifs correspondent exactement, forme par forme. Confirmer donne à cette personne l'accès au compte de l'enfant.",
+        "confirmGate": "Ne confirmez que si les motifs correspondent exactement, forme par forme. Confirmer donne à cette personne l'accès au compte.",
         "confirmBTN": "Ils correspondent",
         "needsUsername": "Définissez un nom d'utilisateur sur votre profil avant d'associer un portefeuille.",
         "notOwner": "Nous n'avons pas pu confirmer votre réservation de nom d'utilisateur. Veuillez réessayer dans un instant.",
         "startFailed": "Impossible de démarrer l'association. Veuillez réessayer."
+      },
+      "transactions": {
+        "title": "Activité",
+        "noTxHistorySub": "Les transactions du compte apparaîtront ici dès qu'ils enverront ou recevront une transaction."
       },
       "page": {
         "title": "Compte enfant",

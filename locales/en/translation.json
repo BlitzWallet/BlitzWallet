@@ -1765,11 +1765,15 @@
         "declinedByChild": "This request has been declined.",
         "tamper": "We couldn't verify this handoff. Please start again.",
         "areYouSure": "Are you sure?",
-        "confirmGate": "Only confirm if the patterns match exactly, shape for shape. Confirming gives this person access to the child account.",
+        "confirmGate": "Only confirm if the patterns match exactly, shape for shape. Confirming gives this person access to the account.",
         "confirmBTN": "They match",
         "needsUsername": "Set a username on your profile before linking a wallet.",
         "notOwner": "We couldn't confirm your username reservation. Please try again in a moment.",
         "startFailed": "Couldn't start pairing. Please try again."
+      },
+      "transactions": {
+        "title": "Activity",
+        "noTxHistorySub": "The accounts transactions will appear here once they send or receive one."
       },
       "page": {
         "title": "Children account",
@@ -2127,7 +2131,8 @@
         "activeLabel": "Active account",
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
-        "withdrawMoneyButton": "Withdraw money"
+        "withdrawMoneyButton": "Withdraw money",
+        "viewActivityLabel": "Account history"
       },
       "removeAccountPage": {
         "title": "Remove",

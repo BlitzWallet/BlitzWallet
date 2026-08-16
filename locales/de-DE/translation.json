@@ -1994,7 +1994,8 @@
         "activeLabel": "Aktives Konto",
         "activateButton": "Konto aktivieren",
         "addMoneyButton": "Geld hinzufügen",
-        "withdrawMoneyButton": "Geld abheben"
+        "withdrawMoneyButton": "Geld abheben",
+        "viewActivityLabel": "Kontoverlauf anzeigen"
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
@@ -2240,11 +2241,15 @@
         "declinedByChild": "Diese Anfrage wurde abgelehnt.",
         "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
         "areYouSure": "Bist du sicher?",
-        "confirmGate": "Bestätigen Sie nur, wenn die Muster exakt übereinstimmen, Form für Form. Mit der Bestätigung erhält diese Person Zugriff auf das Kinderkonto.",
+        "confirmGate": "Bestätigen Sie nur, wenn die Muster exakt übereinstimmen, Form für Form. Mit der Bestätigung erhält diese Person Zugriff auf das Konto.",
         "confirmBTN": "Sie stimmen überein",
         "needsUsername": "Lege in deinem Profil einen Benutzernamen fest, bevor du ein Wallet verknüpfst.",
         "notOwner": "Wir konnten deine Benutzernamensreservierung nicht bestätigen. Versuch es gleich noch einmal.",
         "startFailed": "Die Kopplung konnte nicht gestartet werden. Bitte versuche es erneut."
+      },
+      "transactions": {
+        "title": "Aktivität",
+        "noTxHistorySub": "Die Transaktionen des Kontos erscheinen hier, sobald sie eine senden oder empfangen."
       },
       "page": {
         "title": "Kinder-Konto",

@@ -2009,7 +2009,8 @@
         "activeLabel": "Aktivt konto",
         "activateButton": "Aktivera konto",
         "addMoneyButton": "Lägg till pengar",
-        "withdrawMoneyButton": "Ta ut pengar"
+        "withdrawMoneyButton": "Ta ut pengar",
+        "viewActivityLabel": "Visa kontohistorik"
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",
@@ -2255,11 +2256,15 @@
         "declinedByChild": "Denna begäran har avböjts.",
         "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
         "areYouSure": "Är du säker?",
-        "confirmGate": "Bekräfta bara om mönstren matchar exakt, form för form. Genom att bekräfta ger du den här personen åtkomst till barnkontot.",
+        "confirmGate": "Bekräfta bara om mönstren matchar exakt, form för form. Genom att bekräfta ger du den här personen åtkomst till kontot.",
         "confirmBTN": "De stämmer",
         "needsUsername": "Ange ett användarnamn på din profil innan du länkar en plånbok.",
         "notOwner": "Vi kunde inte bekräfta din användarnamnsreservation. Försök igen om en liten stund.",
         "startFailed": "Det gick inte att starta ihopparningen. Försök igen."
+      },
+      "transactions": {
+        "title": "Aktivitet",
+        "noTxHistorySub": "Kontots transaktioner visas här när de skickar eller tar emot en."
       },
       "page": {
         "title": "Barnkonto",

@@ -2006,7 +2006,8 @@
         "activeLabel": "Cuenta activa",
         "activateButton": "Activar cuenta",
         "addMoneyButton": "Añadir dinero",
-        "withdrawMoneyButton": "Retirar dinero"
+        "withdrawMoneyButton": "Retirar dinero",
+        "viewActivityLabel": "Ver el historial de la cuenta"
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",
@@ -2255,11 +2256,15 @@
         "declinedByChild": "Esta solicitud ha sido rechazada.",
         "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
         "areYouSure": "¿Estás seguro?",
-        "confirmGate": "Solo confirma si los patrones coinciden exactamente, forma por forma. Al confirmar, esta persona obtiene acceso a la cuenta del hijo.",
+        "confirmGate": "Solo confirma si los patrones coinciden exactamente, forma por forma. Al confirmar, esta persona obtiene acceso a la cuenta.",
         "confirmBTN": "Coinciden",
         "needsUsername": "Configura un nombre de usuario en tu perfil antes de vincular una wallet.",
         "notOwner": "No pudimos confirmar tu reserva de nombre de usuario. Inténtalo de nuevo en un momento.",
         "startFailed": "No se pudo iniciar el emparejamiento. Inténtalo de nuevo."
+      },
+      "transactions": {
+        "title": "Actividad",
+        "noTxHistorySub": "Las transacciones de la cuenta aparecerán aquí una vez que envíen o reciban una."
       },
       "page": {
         "title": "Cuenta de hijo",

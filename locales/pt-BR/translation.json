@@ -2009,7 +2009,8 @@
         "activeLabel": "Conta ativa",
         "activateButton": "Ativar conta",
         "addMoneyButton": "Adicionar dinheiro",
-        "withdrawMoneyButton": "Retirar dinheiro"
+        "withdrawMoneyButton": "Retirar dinheiro",
+        "viewActivityLabel": "Ver o histórico da conta"
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",
@@ -2255,11 +2256,15 @@
         "declinedByChild": "Esta solicitação foi recusada.",
         "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
         "areYouSure": "Tem certeza?",
-        "confirmGate": "Só confirme se os padrões corresponderem exatamente, forma por forma. Confirmar dá a esta pessoa acesso à conta do filho.",
+        "confirmGate": "Só confirme se os padrões corresponderem exatamente, forma por forma. Confirmar dá a esta pessoa acesso à conta.",
         "confirmBTN": "Correspondem",
         "needsUsername": "Defina um nome de usuário no seu perfil antes de vincular uma carteira.",
         "notOwner": "Não conseguimos confirmar sua reserva de nome de usuário. Tente novamente em instantes.",
         "startFailed": "Não foi possível iniciar o pareamento. Tente novamente."
+      },
+      "transactions": {
+        "title": "Atividade",
+        "noTxHistorySub": "As transações da conta aparecerão aqui assim que enviarem ou receberem uma."
       },
       "page": {
         "title": "Conta de filho",

@@ -116,7 +116,10 @@ export async function getBitcoinBalance(sparkAddress) {
   }
 }
 
-export async function getTokenTransactions(sparkAddress) {
+export async function getTokenTransactions(
+  sparkAddress,
+  { pageSize, cursor, direction } = {},
+) {
   try {
     const runtime = await selectSparkRuntime(
       undefined,
@@ -130,6 +133,9 @@ export async function getTokenTransactions(sparkAddress) {
         {
           sparkAddress,
           USDB_TOKEN_ID,
+          pageSize,
+          cursor,
+          direction,
         },
       );
       return response;
@@ -140,6 +146,9 @@ export async function getTokenTransactions(sparkAddress) {
       const response = await walletViewer.getTokenTransactions({
         sparkAddresses: [sparkAddress],
         tokenIdentifiers: [USDB_TOKEN_ID],
+        pageSize,
+        cursor,
+        direction,
       });
       console.log(response, 'token transactions');
       return response;
@@ -150,7 +159,10 @@ export async function getTokenTransactions(sparkAddress) {
   }
 }
 
-export async function getBitcoinWithdrawls(sparkAddress) {
+export async function getBitcoinWithdrawls(
+  sparkAddress,
+  { limit, offset } = {},
+) {
   try {
     const runtime = await selectSparkRuntime(
       undefined,
@@ -163,6 +175,8 @@ export async function getBitcoinWithdrawls(sparkAddress) {
         OPERATION_TYPES.getWalletViewerBitcoinTransactions,
         {
           sparkAddress,
+          limit,
+          offset,
         },
       );
       return response;
@@ -172,6 +186,8 @@ export async function getBitcoinWithdrawls(sparkAddress) {
       if (!viewerReady) return false;
       const response = await walletViewer.getTransfers({
         sparkAddress: sparkAddress,
+        limit,
+        offset,
       });
       console.log(response, 'bitcoin transfers');
       return response;

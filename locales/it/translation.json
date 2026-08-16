@@ -2009,7 +2009,8 @@
         "activeLabel": "Conto attivo",
         "activateButton": "Attiva conto",
         "addMoneyButton": "Aggiungi denaro",
-        "withdrawMoneyButton": "Preleva denaro"
+        "withdrawMoneyButton": "Preleva denaro",
+        "viewActivityLabel": "Visualizza la cronologia dell'account"
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",
@@ -2255,11 +2256,15 @@
         "declinedByChild": "Questa richiesta è stata rifiutata.",
         "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
         "areYouSure": "Sei sicuro?",
-        "confirmGate": "Conferma solo se gli schemi corrispondono esattamente, forma per forma. Confermando dai a questa persona l'accesso al conto del figlio.",
+        "confirmGate": "Conferma solo se gli schemi corrispondono esattamente, forma per forma. Confermando dai a questa persona l'accesso al conto.",
         "confirmBTN": "Corrispondono",
         "needsUsername": "Imposta un nome utente nel tuo profilo prima di associare un portafoglio.",
         "notOwner": "Non siamo riusciti a confermare la tua prenotazione del nome utente. Riprova tra un momento.",
         "startFailed": "Impossibile avviare l'associazione. Riprova."
+      },
+      "transactions": {
+        "title": "Attività",
+        "noTxHistorySub": "Le transazioni del conto appariranno qui una volta che invieranno o riceveranno una."
       },
       "page": {
         "title": "Conto figlio",

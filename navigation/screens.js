@@ -86,6 +86,7 @@ import {
   SettingsIndex,
   TechnicalTransactionDetails,
   ViewAllTxPage,
+  ManagedAccountActivityPage,
   SettingsHub,
   SparkReceivePage,
 } from '../app/screens/inAccount';
@@ -166,6 +167,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'RestoreDerivedAccount', component: RestoreDerivedAccountPage },
   { name: 'ChildEnterName', component: ChildEnterName },
   { name: 'ChildSpendingLimit', component: ChildSpendingLimit },
+  { name: 'ManagedAccountActivity', component: ManagedAccountActivityPage },
   {
     name: 'ChildPairingStack',
     component: ChildPairingStack,

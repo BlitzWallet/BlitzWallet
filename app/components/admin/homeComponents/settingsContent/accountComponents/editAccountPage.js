@@ -201,6 +201,14 @@ export default function EditAccountPage(props) {
     });
   }, [navigate, accountInformation]);
 
+  const handleViewActivity = useCallback(() => {
+    navigate.navigate('ManagedAccountActivity', {
+      accountId: accountInformation.uuid,
+      childIndex: accountInformation.childIndex,
+      accountName: accountInformation.name,
+    });
+  }, [navigate, accountInformation]);
+
   const handleSendInviteLink = useCallback(async () => {
     try {
       share({
@@ -597,6 +605,21 @@ export default function EditAccountPage(props) {
                 page={'pinAccount'}
               />
             </View>
+          </View>
+        )}
+
+        {/* View the managed account's transaction history */}
+        {isChild && (
+          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+            <TouchableOpacity style={styles.row} onPress={handleViewActivity}>
+              <ThemeText
+                styles={styles.rowLabel}
+                content={t(
+                  'settings.accountComponents.editAccountPage.viewActivityLabel',
+                )}
+              />
+              <ThemeIcon iconName="ChevronRight" size={18} />
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
