@@ -5,13 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  FlatList,
-  Linking,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -42,6 +36,7 @@ import {
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import openWebBrowser from '../../../../../functions/openWebBrowser';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -320,7 +315,10 @@ export default function ViewOnlineListings({ removeUserLocal }) {
       {!isKeyboardActive && (
         <CustomButton
           actionFunction={() =>
-            Linking.openURL('https://bitcoinlistings.org/submit')
+            openWebBrowser({
+              navigate,
+              link: 'https://bitcoinlistings.org/submit',
+            })
           }
           buttonStyles={styles.submitListingBTN}
           textContent={t('apps.onlineListings.addListing')}
@@ -341,7 +339,7 @@ const BusinessCard = React.memo(
 
     const handleWebsitePress = useCallback(() => {
       try {
-        Linking.openURL(websiteUrl);
+        openWebBrowser({ navigate, link: websiteUrl });
       } catch (err) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('errormessages.genericError'),
