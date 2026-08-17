@@ -1692,7 +1692,7 @@
         "body": "Contas gerenciadas são carteiras que você cria para outra pessoa. Ela terá a própria carteira e poderá usá-la como qualquer outra carteira Blitz, enquanto você gerencia a recuperação por ela."
       },
       "emptyLinked": {
-        "title": "Nenhuma conta gerenciada ainda",
+        "title": "Nenhuma conta parental ainda",
         "subtitle": "Crie uma carteira para alguém em quem você confia. Eles podem usar o Blitz sem precisar gerenciar uma frase de recuperação."
       },
       "noResults": {
