@@ -1148,6 +1148,7 @@
       "noCameraAccess": "Kein Zugriff auf die Kamera",
       "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf Ihre Kamera zu erlauben.",
       "noCameraDevice": "Ihr Gerät hat keine Kamera.",
+      "noCameraDeviceSub": "Auf diesem Gerät ist keine Kamera verfügbar.",
       "error1": "Ihr Gerät hat keine Taschenlampe.",
       "error2": "Sie haben diese Rechnung bereits bezahlt."
     },
