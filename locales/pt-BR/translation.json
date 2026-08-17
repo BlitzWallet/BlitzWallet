@@ -2250,7 +2250,7 @@
         "sasSubtitle": "Confira se este padrão de formas corresponde ao do telefone da outra pessoa, forma por forma.",
         "sasHint": "Só confirme depois de confirmar que os dois telefones exibem o mesmo padrão.",
         "confirmMatch": "Correspondem",
-        "linkedTitle": "Carteira vinculada",
+        "linkedTitle": "Conta parental vinculada",
         "linkedSubtitle": "A carteira gerenciada deles está pronta para uso.",
         "done": "Enviado. Eles terminarão a configuração no telefone deles.",
         "expired": "Este pareamento expirou. Comece novamente.",
