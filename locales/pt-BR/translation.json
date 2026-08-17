@@ -2251,7 +2251,7 @@
         "sasHint": "Só confirme depois de confirmar que os dois telefones exibem o mesmo padrão.",
         "confirmMatch": "Correspondem",
         "linkedTitle": "Conta parental vinculada",
-        "linkedSubtitle": "A carteira gerenciada deles está pronta para uso.",
+        "linkedSubtitle": "A conta parental está pronta para uso.",
         "done": "Enviado. Eles terminarão a configuração no telefone deles.",
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
