@@ -2022,7 +2022,7 @@
         "importRecoveryPhraseDescription": "Importar contas pessoais de outras carteiras",
         "recoverRecoveryPhraseTitle": "Restaurar conta pessoal",
         "recoverRecoveryPhraseDescription": "Recuperar uma conta pessoal",
-        "createChildAccountTitle": "Criar conta gerenciada",
+        "createChildAccountTitle": "Criar conta parental",
         "createChildAccountDescription": "Crie uma carteira para outra pessoa"
       },
       "selectProfileImage": {
