@@ -1866,7 +1866,7 @@
       "addAccount": "Nova conexão",
       "empty": {
         "title": "Nenhuma conexão ainda",
-        "subtitle": "Crie uma conexão para usar o Nostr Wallet Connect com seus aplicativos favoritos."
+        "subtitle": "Crie uma conexão para usar a conta NWC com seus aplicativos favoritos."
       },
       "createNWCName": {
         "title": "Nome da conexão"
