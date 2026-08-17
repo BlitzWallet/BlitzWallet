@@ -2180,7 +2180,7 @@
     },
     "childAccounts": {
       "tabs": {
-        "children": "Gerenciadas"
+        "children": "Parentais"
       },
       "dontMatch": "Não correspondem",
       "sasGrid": {
