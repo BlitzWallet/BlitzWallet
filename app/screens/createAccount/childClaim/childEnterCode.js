@@ -195,7 +195,6 @@ export default function ChildEnterCode() {
                 inputText={name}
                 setInputText={setName}
                 maxLength={30}
-                autoFocus={true}
                 placeholderText={t(
                   'settings.childAccounts.claim.codePlaceholder',
                 )}
