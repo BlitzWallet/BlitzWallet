@@ -1919,7 +1919,7 @@
       },
       "noNotifications": {
         "title": "Notificações necessárias",
-        "subtitle": "O Nostr Wallet Connect requer notificações push. Ative-as nas Configurações e tente novamente."
+        "subtitle": "Contas NWC requer notificações push. Ative-as nas Configurações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
