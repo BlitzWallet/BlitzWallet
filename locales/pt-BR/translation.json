@@ -2319,7 +2319,7 @@
         "slotTaken": "Alguém já entrou com este nome de usuário. Pare agora e peça ao dono da conta para cancelar e começar de novo.",
         "askToRestart": "Não conseguimos entrar neste pareamento. Peça ao dono da conta para iniciar um novo.",
         "rateLimited": "Muitas tentativas. Aguarde um momento e tente novamente.",
-        "loading": "Configurando sua carteira...",
+        "loading": "Configurando sua conta...",
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
         "canceledByParent": "O dono da conta cancelou a solicitação de pareamento.",
