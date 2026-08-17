@@ -1689,7 +1689,7 @@
       },
       "linkedInfo": {
         "title": "O que são contas parentais?",
-        "body": "Contas gerenciadas são carteiras que você cria para outra pessoa. Ela terá a própria carteira e poderá usá-la como qualquer outra carteira Blitz, enquanto você gerencia a recuperação por ela."
+        "body": "Contas parentais são contas que você cria para outra pessoa mas que são controladas por você. A pessoa poderá usar a conta da forma que ela desejar, enquanto você gerencia os fundos, verifica as transações e protege a conta."
       },
       "emptyLinked": {
         "title": "Nenhuma conta parental ainda",
