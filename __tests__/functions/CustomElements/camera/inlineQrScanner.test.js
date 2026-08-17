@@ -125,9 +125,7 @@ describe('inlineQrScanner — scan dispatch', () => {
     expect(mockOnScan).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      renderer.update(
-        <InlineQrScanner onScan={mockOnScan} resetToken={1} />,
-      );
+      renderer.update(<InlineQrScanner onScan={mockOnScan} resetToken={1} />);
     });
 
     fireBarcode({ format: 'qr-code', rawValue: 'second' });
@@ -192,8 +190,6 @@ describe('inlineQrScanner — permission fallbacks', () => {
 
     const screens = renderer.root.findAllByType('MockNoContentScreen');
     expect(screens).toHaveLength(1);
-    expect(screens[0].props.titleText).toBe(
-      'wallet.cameraModal.noCameraDevice',
-    );
+    expect(screens[0].props.titleText).toBe('wallet.cameraPage.noCameraDevice');
   });
 });
