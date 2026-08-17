@@ -1928,7 +1928,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Antes de começar",
-        "infoSubtitle": "Algumas coisas que você deve saber sobre sua conta Nostr Wallet Connect.",
+        "infoSubtitle": "Algumas coisas que você deve saber sobre sua conta NWC.",
         "row1Label": "Adicionar fundos",
         "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
         "row2Label": "Conta separada",
