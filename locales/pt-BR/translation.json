@@ -2017,7 +2017,7 @@
       "selectCreateAccountType": {
         "title": "Adicionar conta",
         "createNewAccountTitle": "Criar conta pessoal",
-        "createNewAccountDescription": "Crie uma carteira para você",
+        "createNewAccountDescription": "Crie uma conta para você",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas pessoais de outras carteiras",
         "recoverRecoveryPhraseTitle": "Restaurar conta pessoal",
