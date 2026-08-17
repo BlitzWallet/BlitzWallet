@@ -1873,7 +1873,7 @@
       },
       "createNWCPermissions": {
         "title": "Permissões",
-        "pageTitle": "Adicionar permissões da carteira",
+        "pageTitle": "Adicionar permissões da conta",
         "pageSubtitle": "Escolha quais ações esta conta pode realizar.",
         "editTitle": "Editar permissões da carteira",
         "editSubtitle": "Edite quais ações esta carteira pode realizar."
