@@ -2260,7 +2260,7 @@
         "areYouSure": "Tem certeza?",
         "confirmGate": "Só confirme se os padrões corresponderem exatamente, forma por forma. Confirmar dá a esta pessoa acesso à conta.",
         "confirmBTN": "Correspondem",
-        "needsUsername": "Defina um nome de usuário no seu perfil antes de vincular uma carteira.",
+        "needsUsername": "Defina um nome de usuário no seu perfil antes de vincular uma conta.",
         "notOwner": "Não conseguimos confirmar sua reserva de nome de usuário. Tente novamente em instantes.",
         "startFailed": "Não foi possível iniciar o pareamento. Tente novamente.",
         "codeOption": "Código",
