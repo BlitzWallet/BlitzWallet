@@ -88,7 +88,9 @@ import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/rece
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
-
+import AddMoney from '../../components/admin/homeComponents/settingsContent/accountComponents/accountAddMoney';
+import WithdrawlMoney from '../../components/admin/homeComponents/settingsContent/accountComponents/accountWithdrawlMoney';
+import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -397,6 +399,8 @@ export default function CustomHalfModal(props) {
             selectedFrom={props?.route?.params?.selectedFrom}
             selectedTo={props?.route?.params?.selectedTo}
             transferType={props?.route?.params?.transferType}
+            onSelectAccount={props?.route?.params?.onSelectAccount}
+            excludeUuid={props?.route?.params?.excludeUuid}
           />
         );
 
@@ -769,6 +773,36 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+      case 'accountAddMoney':
+        return (
+          <AddMoney
+            to={props?.route?.params?.to}
+            onTransferComplete={props?.route?.params?.onTransferComplete}
+            balance={props?.route?.params?.balance}
+            handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'accountWithdrawlMoney':
+        return (
+          <WithdrawlMoney
+            from={props?.route?.params?.from}
+            balance={props?.route?.params?.balance}
+            onTransferComplete={props?.route?.params?.onTransferComplete}
+            handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'childMatchCodeConfirmation':
+        return (
+          <ChildMatchCodeConfirmation
+            confirmMatch={props?.route?.params?.confirmMatch}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+
       default:
         return <ThemeText content={'TST'} />;
     }

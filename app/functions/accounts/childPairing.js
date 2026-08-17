@@ -1,0 +1,234 @@
+import { Buffer } from 'buffer';
+import { getSharedSecret, schnorr } from '@noble/secp256k1';
+import { hkdf } from '@noble/hashes/hkdf';
+import { sha256 } from '@noble/hashes/sha2';
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+} from 'react-native-quick-crypto';
+
+// ECDH pairing crypto for the child-account seed handoff. Nothing secret ever
+// crosses the wire: the parent encrypts the child seed under a key derived from
+// ECDH(parentEphPriv, childEphPub). Both sides use fresh per-session ephemeral
+// keys (no long-term key, so nothing to precompute against). A commit-reveal
+// binds the SAS: the parent publishes H(parentEphPub) before the child reveals
+// childEphPub, and only reveals parentEphPub afterwards, so neither side can
+// grind its key to force a matching SAS. The 9-shape SAS pattern (30^9 ≈ 2^44)
+// then lets the two people defeat an active MITM by eye.
+// The SAS is a pattern, not digits: a 3×3 grid where each cell is one of 30
+// shapes (15 bases × outline/filled). Shapes are globally recognized, need no
+// language/read-aloud, and 30 symbols/cell buys ~4.9 bits each vs a digit's 3.3,
+// so 9 cells reaches ~44 bits (up from the old 6-char alphanumeric SAS at 32^6
+// = 30 bits). See SasPatternGrid for the shape rendering (SVG, so both phones
+// draw pixel-identical shapes).
+// The rendezvous/pairing code stays digits-only (universal across keyboards/IMEs).
+// nostr pubkeys are x-only, so we reuse the `'02'+pub` even-y convention that
+// app/functions/messaging/encodingAndDecodingMessages.js already relies on.
+// The rendezvous is the parent's own username (see normalizePairingName): a
+// unique, owner-gated identity, so there is no code space to grief or collide.
+
+const SEED_INFO = 'blitz-child-pairing:v1:seed';
+const SAS_INFO = 'blitz-child-pairing:v1:sas';
+
+// Mirror of VALID_USERNAME_REGEX (app/constants/index.js:19). Duplicated here so
+// this pure-crypto module stays free of the constants→icons→assets import graph
+// (childPairing.test.js pulls only @noble + quick-crypto). Keep in sync.
+const VALID_PAIRING_NAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
+
+// A peer ephemeral pubkey is a 32-byte x-only curve point, received over
+// Firestore from an unauthenticated peer. Anything else is malformed input
+// that must never reach getSharedSecret (throws on invalid curve points).
+const VALID_EPH_PUB_REGEX = /^[0-9a-f]{64}$/;
+
+const VALID_PAIRING_CODE_REGEX = /^[0-9]{6}$/;
+
+const PAIRING_QR_TYPE = 'childPair';
+const PAIRING_QR_VERSION = 1;
+
+/** Fresh in-memory ephemeral keypair for one pairing session. Never persisted. */
+export function makeChildEphKey() {
+  const privBytes = randomBytes(32);
+  const priv = Buffer.from(privBytes).toString('hex');
+  const pub = Buffer.from(schnorr.getPublicKey(privBytes)).toString('hex');
+  return { priv, pub };
+}
+
+/**
+ * Canonical rendezvous/reservation id for a username. NFC + lowercase mirrors how
+ * uniqueNameLower is stored; the same function keys the pointer doc, the
+ * usernames/{id} reservation, and every claim, so they always land at one path.
+ * Returns '' for empty or invalid names — callers must reject '' before building
+ * a Firestore path (an empty segment is an invalid path).
+ */
+export function normalizePairingName(name) {
+  const norm = String(name || '')
+    .trim()
+    .normalize('NFC')
+    .toLowerCase();
+  if (!norm || !VALID_PAIRING_NAME_REGEX.test(norm)) return '';
+  return norm;
+}
+
+/**
+ * Fresh 6-digit pairing code the parent displays and the child types. This is
+ * the secret rendezvous: the session lives at familyPairing/{name}/sessions/
+ * {code}, so only someone who knows the code can find it. Unbiased: sample one
+ * byte per digit and reject values ≥ 250 (the largest multiple of 10 ≤ 256),
+ * so every accepted byte maps to 0-9 with equal probability.
+ */
+export function makePairingCode() {
+  let code = '';
+  while (code.length < 6) {
+    for (const b of randomBytes(6)) {
+      if (b >= 250) continue; // reject the biased tail
+      code += String(b % 10);
+      if (code.length === 6) break;
+    }
+  }
+  return code;
+}
+
+/** ECDH shared X coordinate (32 bytes) from our priv + the peer's x-only pub. */
+export function deriveSharedX(privHex, peerPubHex) {
+  if (typeof peerPubHex !== 'string' || !VALID_EPH_PUB_REGEX.test(peerPubHex)) {
+    throw new Error('Invalid peer ephemeral public key');
+  }
+  const point = getSharedSecret(
+    Buffer.from(privHex, 'hex'),
+    Buffer.from('02' + peerPubHex, 'hex'),
+    true,
+  );
+  return Buffer.from(point.slice(1, 33));
+}
+
+function hkdfKey(sharedX, info) {
+  const ikm = sharedX instanceof Uint8Array ? sharedX : Uint8Array.from(sharedX);
+  return Buffer.from(
+    hkdf(sha256, ikm, new Uint8Array(0), new TextEncoder().encode(info), 32),
+  );
+}
+
+export function deriveSeedKey(sharedX) {
+  return hkdfKey(sharedX, SEED_INFO);
+}
+
+export function deriveSasKey(sharedX) {
+  return hkdfKey(sharedX, SAS_INFO);
+}
+
+/** Commitment to an ephemeral pubkey, published before the peer reveals theirs. */
+export function makeKeyCommitment(pubHex) {
+  return Buffer.from(sha256(Buffer.from(pubHex, 'hex'))).toString('hex');
+}
+
+/** Verify a revealed pubkey matches the earlier commitment. */
+export function verifyKeyCommitment(commitHex, pubHex) {
+  if (!commitHex || !pubHex) return false;
+  return makeKeyCommitment(pubHex) === String(commitHex);
+}
+
+const SAS_LENGTH = 9; // 9 shapes × 30-shape alphabet = 30^9 ≈ 2^44 MITM resistance
+
+/**
+ * 9-shape short-authentication-string binding the two ephemeral pubkeys (~44
+ * bits). Returned as 9 base-36 chars (0-t); each selects one of the 30 shapes
+ * (15 bases × outline/filled) SasPatternGrid draws. Excludes the ciphertext so
+ * both sides can compute and compare it before the seed is sent.
+ */
+export function computeSAS(sharedX, childEphPub, parentEphPub) {
+  const transcript = Buffer.concat([
+    deriveSasKey(sharedX),
+    Buffer.from(childEphPub, 'hex'),
+    Buffer.from(parentEphPub, 'hex'),
+  ]);
+  const digest = Buffer.from(sha256(transcript));
+  // Reduce the 256-bit digest to 9 uniform 0-29 shape indices via divmod; the
+  // bias from 30^9 not dividing 2^256 is ~2^-212, negligible. Each index is a
+  // base-36 char (0-t) that SasPatternGrid maps back to a shape.
+  let n = BigInt('0x' + digest.toString('hex'));
+  let sas = '';
+  for (let i = 0; i < SAS_LENGTH; i++) {
+    sas += Number(n % 30n).toString(36);
+    n /= 30n;
+  }
+  return sas;
+}
+
+/** AES-256-GCM encrypt the seed payload. Returns base64 iv/ct/tag. */
+export function encryptSeedPayload(seedKey, payload) {
+  const iv = Buffer.from(randomBytes(12));
+  const cipher = createCipheriv('aes-256-gcm', seedKey, iv);
+  let ct = cipher.update(JSON.stringify(payload), 'utf8', 'base64');
+  ct += cipher.final('base64');
+  const tag = cipher.getAuthTag().toString('base64');
+  return { iv: iv.toString('base64'), ct, tag };
+}
+
+/** AES-256-GCM decrypt. Throws on tag mismatch (tamper / wrong key). */
+export function decryptSeedPayload(seedKey, { iv, ct, tag }) {
+  const decipher = createDecipheriv(
+    'aes-256-gcm',
+    seedKey,
+    Buffer.from(iv, 'base64'),
+  );
+  decipher.setAuthTag(Buffer.from(tag, 'base64'));
+  let pt = decipher.update(ct, 'base64', 'utf8');
+  pt += decipher.final('utf8');
+  return JSON.parse(pt);
+}
+
+/**
+ * The QR-path payload: versioned, namespaced JSON carrying everything the child
+ * needs for a full ECDH handoff — the rendezvous name, the session code, and
+ * the parent's ephemeral pubkey (collapsing commit-reveal + SAS into one
+ * trusted physical channel). Returns '' when any field is invalid so callers
+ * never render a scannable but unparseable QR.
+ */
+export function buildPairingQr({ name, code, parentEphPub }) {
+  const rid = normalizePairingName(name);
+  const pairCode = String(code || '');
+  const pub = String(parentEphPub || '');
+  if (
+    !rid ||
+    !VALID_PAIRING_CODE_REGEX.test(pairCode) ||
+    !VALID_EPH_PUB_REGEX.test(pub)
+  ) {
+    return '';
+  }
+  return JSON.stringify({
+    t: PAIRING_QR_TYPE,
+    v: PAIRING_QR_VERSION,
+    n: rid,
+    c: pairCode,
+    pk: pub,
+  });
+}
+
+/**
+ * Parse + validate a raw scanned string into a pairing payload. Non-pairing
+ * QRs (or garbage) return null — the scanner ignores them and keeps scanning.
+ */
+export function parsePairingQr(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  try {
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return null;
+    if (data.t !== PAIRING_QR_TYPE || data.v !== PAIRING_QR_VERSION) {
+      return null;
+    }
+    const name = normalizePairingName(data.n);
+    const code = String(data.c ?? '');
+    const parentEphPub = String(data.pk ?? '');
+    if (
+      !name ||
+      !VALID_PAIRING_CODE_REGEX.test(code) ||
+      !VALID_EPH_PUB_REGEX.test(parentEphPub)
+    ) {
+      return null;
+    }
+    return { name, code, parentEphPub };
+  } catch (err) {
+    return null;
+  }
+}

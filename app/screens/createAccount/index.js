@@ -4,6 +4,7 @@ import GenerateKey from './keySetup/generateKey';
 import PinSetupPage from './keySetup/pin';
 import RestoreWallet from './restoreWallet/home';
 import SkipCreateAccountPathMessage from './skipMessage';
+import WalletSetupFork from './walletSetupFork';
 export {
   CreateAccountHome,
   DislaimerPage,
@@ -11,4 +12,5 @@ export {
   PinSetupPage,
   RestoreWallet,
   SkipCreateAccountPathMessage,
+  WalletSetupFork,
 };

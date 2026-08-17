@@ -181,7 +181,8 @@
     "daily": "Diário",
     "weekly": "Semanal",
     "monthly": "Mensal",
-    "yearly": "Anual"
+    "yearly": "Anual",
+    "noLimit": "Sem limite"
   },
   "transactionLabelText": {
     "notSent": "Pagamento não enviado",
@@ -219,7 +220,8 @@
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
         "button1": "Restaurar acesso",
-        "button2": "Começar"
+        "button2": "Começar",
+        "joinAccount": "Acessar conta parental"
       }
     },
     "disclaimerPage": {
@@ -282,6 +284,14 @@
       "header": "Recomendamos que você anote sua frase de recuperação",
       "subHeader": "Se você não anotar e guardar sua frase de recuperação, você corre o risco de perder seus fundos",
       "btn": "Entendi"
+    },
+    "walletSetup": {
+      "title": "Configure sua carteira",
+      "subtitle": "Crie uma nova carteira ou restaure uma que já existe.",
+      "createTitle": "Criar nova carteira",
+      "createDesc": "Comece do zero com uma nova carteira.",
+      "restoreTitle": "Restaurar carteira existente",
+      "restoreDesc": "Traga sua carteira para a Blitz."
     }
   },
   "adminLogin": {
@@ -1117,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
-      "noCameraDevice": "Você não tem um dispositivo com câmera.",
+      "noCameraDevice": "Nenhum dispositivo com câmera",
+      "noCameraDeviceSub": "Nenhuma câmera está disponível neste dispositivo.",
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Somente códigos QR são aceitos.",
       "qrDecodeError": "Erro ao decodificar o código QR",
@@ -1139,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
-      "noCameraDevice": "Você não tem um dispositivo com câmera.",
+      "noCameraDevice": "Nenhum dispositivo com câmera",
+      "noCameraDeviceSub": "Nenhuma câmera está disponível neste dispositivo.",
       "error1": "O dispositivo não possui lanterna",
       "error2": "Você já pagou esta fatura"
     },
@@ -1666,7 +1678,27 @@
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
       "mainWalletPlace": "Conta principal",
-      "nwcWalletPlace": "Conta NWC"
+      "nwcWalletPlace": "Conta NWC",
+      "tabs": {
+        "personal": "Pessoal",
+        "linked": "Parental"
+      },
+      "personalInfo": {
+        "title": "O que são contas pessoais?",
+        "body": "Contas pessoais são contas que você cria para si mesmo. Use-as para separar facilmente seu dinheiro para diferentes finalidades, como gastos, economia ou viagens."
+      },
+      "linkedInfo": {
+        "title": "O que são contas parentais?",
+        "body": "Contas parentais são contas que você cria para outra pessoa mas que são controladas por você. A pessoa poderá usar a conta da forma que ela desejar, enquanto você gerencia os fundos, verifica as transações e protege a conta."
+      },
+      "emptyLinked": {
+        "title": "Nenhuma conta parental ainda",
+        "subtitle": "Crie uma carteira para alguém em quem você confia. Eles podem usar o Blitz sem precisar gerenciar uma frase de recuperação."
+      },
+      "noResults": {
+        "title": "Nenhuma conta encontrada",
+        "subtitle": "Você ainda não tem nenhuma conta."
+      }
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1804,7 +1836,9 @@
       "accumulationFee": "0,5% de taxa da Blitz Wallet + 0,5% de taxa da Flashnet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede",
-      "networkFeeLinkDesc": "Toque para ver a divisão das taxas da rede Spark"
+      "networkFeeLinkDesc": "Toque para ver a divisão das taxas da rede Spark",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "Taxa da Boltz de 0,1% + taxas da rede"
     },
     "nip5": {
       "noNameError": "O nome não pode estar vazio.",
@@ -1829,16 +1863,48 @@
     },
     "nwc": {
       "confirmDelete": "Tem certeza de que deseja excluir esta conexão?",
-      "searchAccountPlaceholder": "Pesquisar",
-      "noAccountsMessage": "Você ainda não criou uma conexão Nostr.",
       "addAccount": "Nova conexão",
+      "empty": {
+        "title": "Nenhuma conexão ainda",
+        "subtitle": "Crie uma conexão para usar a conta NWC com seus aplicativos favoritos."
+      },
+      "createNWCName": {
+        "title": "Nome da conexão"
+      },
+      "createNWCPermissions": {
+        "title": "Permissões",
+        "pageTitle": "Adicionar permissões da conta",
+        "pageSubtitle": "Escolha quais ações esta conta pode realizar.",
+        "editTitle": "Editar permissões da conta",
+        "editSubtitle": "Edite quais ações esta conta pode realizar."
+      },
+      "createNWCAmount": {
+        "title": "Orçamento",
+        "pageTitle": "Definir um orçamento de gastos",
+        "pageSubtitle": "Defina um limite de gastos e quando ele é redefinido. Deixe em branco para não ter limite.",
+        "editTitle": "Editar orçamento de gastos",
+        "editSubtitle": "Altere o limite de gastos e quando ele é redefinido. Deixe em branco para não ter limite.",
+        "renewalPlaceholder": "Selecione o período de renovação",
+        "createButton": "Criar conta"
+      },
+      "accountPage": {
+        "title": "Gerenciar conta",
+        "nameLabel": "Nome",
+        "permissionsLabel": "Permissões",
+        "permissionsCount_one": "{{count}} permissão",
+        "permissionsCount_other": "{{count}} permissões",
+        "renewalLabel": "Período de renovação",
+        "amountLabel": "Valor do orçamento",
+        "viewSecretLabel": "String de conexão",
+        "deleteAccount": "Excluir conta"
+      },
       "createNWCAccount": {
         "noAccountNameError": "Por favor, insira um nome para essa conexão.",
         "noPermissionsError": "Por favor, habilite pelo menos uma permissão.",
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
-        "title": "Criar conexão",
         "loadingMessage": "Criando conexão",
+        "updatingMessage": "Atualizando conta...",
         "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
@@ -1846,16 +1912,14 @@
         "getBalance": "Verificar saldo",
         "transactions": "Transações",
         "lookupInvoice": "Consultar fatura",
-        "budgetRenewalHeader": "Renovação do limite de gastos",
-        "bugetPlaceholder": "Período de renovação",
-        "createConnection": "",
-        "connectionName": ""
+        "budgetRenewalHeader": "Renovação do limite de gastos"
       },
       "hasNoAccounts": {
         "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
       },
       "noNotifications": {
-        "warningMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
+        "title": "Notificações necessárias",
+        "subtitle": "Contas NWC requer notificações push. Ative-as nas Configurações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
@@ -1863,14 +1927,23 @@
         "viewSeed": "Ver frase de recuperação"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Adicionar fundos à sua conta NWC",
-        "accountFundingMessage": "Para enviar dinheiro da sua conta NWC, primeiro você precisa adicionar fundos — recebendo dinheiro ou transferindo da sua conta principal.\n\nVocê pode transferir fundos da sua conta principal para a conta NWC na página de configurações da conta.",
-        "securityHeader": "Seguro e isolado",
-        "securityMessage": "A conta com conexão Nostr é uma conta separada da sua conta principal para proporcionar uma maior segurança. Essa frase de recuperação é armazenada com segurança e pode ser visualizada posteriormente na página Contas nas configurações, se necessário.",
+        "infoTitle": "Antes de começar",
+        "infoSubtitle": "Algumas coisas que você deve saber sobre sua conta NWC.",
+        "row1Label": "Adicionar fundos",
+        "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
+        "row2Label": "Conta separada",
+        "row2Description": "Esta conta é separada da sua conta principal para maior segurança.",
+        "row3Label": "Acesso ao aplicativo",
+        "row3Description": "Aplicativos conectados podem usar esta conta para fazer pagamentos.",
         "continueButton": "Começar",
         "initializingMessage": "Configurando sua conta NWC...",
         "errorTitle": "Falha na configuração",
         "errorRetry": "Tentar novamente"
+      },
+      "accountCreated": {
+        "title": "Conta criada",
+        "subtitle": "Sua conta NWC foi criada. Copie a string de conexão para começar a usá-la.",
+        "copyConnection": "Copiar string de conexão"
       }
     },
     "accountComponents": {
@@ -1891,6 +1964,10 @@
         "balanceError": "O valor excede seu saldo incluindo as taxas",
         "noSendAddressError": "Não foi possível obter o endereço de transferência",
         "noAccountInformation": "Não foi possível obter as informações da conta",
+        "invalidAmountError": "Digite um valor válido para transferir",
+        "invalidFeeError": "Não foi possível calcular uma taxa de transferência válida",
+        "invalidBalanceError": "Não foi possível verificar o saldo da conta",
+        "sameAccountError": "Selecione duas contas diferentes",
         "title": "Transferir entre contas",
         "selectAccount": "Selecionar conta",
         "inputPlaceHolderText": "Transferência entre contas"
@@ -1916,7 +1993,7 @@
         "namePlaceholder": "Nome"
       },
       "editAccountPage": {
-        "title": "Editar conta",
+        "title": "Conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
         "removeAccountLabel": "Arquivar conta",
@@ -1928,16 +2005,25 @@
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
         "accountTypeDerivedInfo": "Esta conta está vinculada à sua frase de recuperação da conta principal da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
-        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança."
+        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
+        "accountType_main": "Principal",
+        "balanceLabel": "Saldo",
+        "activeLabel": "Conta ativa",
+        "activateButton": "Ativar conta",
+        "addMoneyButton": "Adicionar dinheiro",
+        "withdrawMoneyButton": "Retirar dinheiro",
+        "viewActivityLabel": "Ver o histórico da conta"
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",
-        "createNewAccountTitle": "Criar nova conta",
-        "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
+        "createNewAccountTitle": "Criar conta pessoal",
+        "createNewAccountDescription": "Crie uma conta para você",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
-        "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
-        "recoverRecoveryPhraseTitle": "Restaurar conta",
-        "recoverRecoveryPhraseDescription": "Recuperar contas arquivadas"
+        "importRecoveryPhraseDescription": "Importar contas pessoais de outras carteiras",
+        "recoverRecoveryPhraseTitle": "Restaurar conta pessoal",
+        "recoverRecoveryPhraseDescription": "Recuperar uma conta pessoal",
+        "createChildAccountTitle": "Criar conta parental",
+        "createChildAccountDescription": "Crie uma conta para outra pessoa"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
@@ -1968,6 +2054,17 @@
         "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
         "removeButton": "Arquivar conta"
+      },
+      "transferModal": {
+        "selectAccount": "Selecione uma conta",
+        "availableToAdd": "Disponível para adicionar",
+        "availableToWithdraw": "Disponível para retirar",
+        "using": "Usando",
+        "amount": "Valor",
+        "transferComplete": "Enviado para {{name}}",
+        "selfTransfer": "Você não pode transferir para si mesmo",
+        "addFunds": "{{name}} adicionou dinheiro",
+        "withdrawFunds": "{{name}} retirou dinheiro"
       }
     },
     "accountsPoolsScreen": {
@@ -1982,6 +2079,7 @@
     "hub": {
       "viewAll": "Ver tudo",
       "accounts": "Contas",
+      "accountsEmptyDesc": "Visualize, crie, gerencie e mova fundos entre todas as suas contas.",
       "pinAccount": "Fixar",
       "unpinAccount": "Desafixar",
       "maxPinsReached": "Máximo de 2 contas fixadas. Desafixe uma primeiro.",
@@ -2078,6 +2176,166 @@
       "confirmActionPage": {
         "defaultMessage": "Tem certeza de que deseja esvaziar sua carteira?",
         "ctaBTN": "Marcar como {{option}}"
+      }
+    },
+    "childAccounts": {
+      "tabs": {
+        "children": "Parentais"
+      },
+      "dontMatch": "Não correspondem",
+      "sasGrid": {
+        "blank": "Vazio",
+        "x": "xis",
+        "plus": "mais",
+        "filled": "preenchido",
+        "outline": "contorno",
+        "position": "Linha {{row}} de 3, coluna {{column}} de 3.",
+        "shapes": {
+          "circle": "Círculo",
+          "square": "Quadrado",
+          "triangle": "Triângulo",
+          "diamond": "Losango",
+          "hexagon": "Hexágono",
+          "moon": "Lua",
+          "cross": "Cruz",
+          "star": "Estrela",
+          "heart": "Coração",
+          "checkmark": "Marca de verificação",
+          "shield": "Escudo",
+          "clock": "Relógio",
+          "bell": "Sino",
+          "house": "Casa",
+          "apple": "Maçã"
+        }
+      },
+      "list": {
+        "spendingLimitLabel": "Limite",
+        "noLimit": "Sem limite"
+      },
+      "enterName": {
+        "title": "Dê um nome a esta conta",
+        "subtitle": "Dê um nome à conta para reconhecê-la mais tarde.",
+        "placeholder": "Nome da conta",
+        "next": "Próximo",
+        "create": "Criar conta",
+        "editTitle": "Editar nome da conta",
+        "editSubtitle": "Escolha um novo nome para reconhecer esta conta mais tarde."
+      },
+      "spendingLimit": {
+        "title": "Definir um limite de gastos",
+        "subtitle": "Defina um limite mensal de gastos para esta conta. É um orçamento flexível monitorado no dispositivo deles.",
+        "placeholder": "Limite mensal",
+        "noLimit": "Sem limite",
+        "create": "Criar conta"
+      },
+      "creating": {
+        "loadingText": "Criando conta...",
+        "errorTitle": "Não foi possível criar a conta. Tente novamente."
+      },
+      "confirmation": {
+        "done": "Concluído"
+      },
+      "pairing": {
+        "title": "Compartilhar",
+        "usernameTitle": "Compartilhe seu nome de usuário",
+        "usernameSubtitle": "Peça para a pessoa que receberá a conta parental para abrir a Blitz no telefone dela, escolher a opção \"Acessar conta parental\" e depois inserir este nome de usuário.",
+        "generateCode": "Gerar código",
+        "usernameLabel": "Seu nome de usuário: {{name}}",
+        "codeNavTitle": "Compartilhar código",
+        "codeTitle": "Compartilhe este código de pareamento",
+        "codeSubtitle": "Compartilhe este código para que possam acessar sua conta parental.",
+        "waiting": "Aguardando eles inserirem o código…",
+        "sasNavTitle": "Verificar padrão",
+        "sasTitle": "Verifique o padrão",
+        "sasSubtitle": "Confira se este padrão de formas corresponde ao do telefone da outra pessoa, forma por forma.",
+        "sasHint": "Só confirme depois de confirmar que os dois telefones exibem o mesmo padrão.",
+        "confirmMatch": "Correspondem",
+        "linkedTitle": "Conta parental vinculada",
+        "linkedSubtitle": "A conta parental está pronta para uso.",
+        "done": "Enviado. Eles terminarão a configuração no telefone deles.",
+        "expired": "Este pareamento expirou. Comece novamente.",
+        "errorTitle": "Sessão de pareamento encerrada",
+        "declinedByChild": "Esta solicitação foi recusada.",
+        "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
+        "areYouSure": "Tem certeza?",
+        "confirmGate": "Só confirme se os padrões corresponderem exatamente, forma por forma. Confirmar dá a esta pessoa acesso à conta.",
+        "confirmBTN": "Correspondem",
+        "needsUsername": "Defina um nome de usuário no seu perfil antes de vincular uma conta.",
+        "notOwner": "Não conseguimos confirmar sua reserva de nome de usuário. Tente novamente em instantes.",
+        "startFailed": "Não foi possível iniciar o pareamento. Tente novamente.",
+        "codeOption": "Código",
+        "qrOption": "QR",
+        "qrTitle": "Escanee este código QR",
+        "qrSubtitle": "Peça para abrirem o Blitz no telefone deles, escolherem \"Entrar na carteira compartilhada\" e depois escanearem este código QR.",
+        "qrWaiting": "Aguardando eles escanearem…",
+        "acceptTitle": "Aceitar o pareamento?",
+        "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
+        "acceptBTN": "Aceitar",
+        "declineBTN": "Recusar"
+      },
+      "transactions": {
+        "title": "Atividade",
+        "noTxHistorySub": "As transações da conta aparecerão aqui assim que enviarem ou receberem uma."
+      },
+      "page": {
+        "title": "Conta de filho",
+        "balanceLabel": "Saldo",
+        "transactionsLabel": "Atividade recente",
+        "noTransactions": "Nenhuma atividade ainda",
+        "spendingLimitLabel": "Limite de gastos",
+        "loadingBalance": "Carregando saldo...",
+        "shareLink": "Vincular com alguém",
+        "sendInviteLink": "Convidar alguém"
+      },
+      "claim": {
+        "title": "Configure sua conta",
+        "info": {
+          "navTitle": "Configure sua conta",
+          "title": "Configure sua carteira parental",
+          "intro": "Você está acessando uma conta parental criada para você.",
+          "row1Label": "Sua própria conta",
+          "row1Description": "Envie e receba com seu próprio saldo.",
+          "row2Label": "Fácil de usar",
+          "row2Description": "A recuperação da sua conta é gerenciada pela pessoa que criou a conta parental para você.",
+          "row3Label": "Gerenciada por outra pessoa",
+          "row3Description": "Acesse somente contas de alguém que você conheça.",
+          "continue": "Continuar"
+        },
+        "codeNavTitle": "Inserir nome de usuário",
+        "codeTitle": "Inserir o nome de usuário da outra pessoa",
+        "codeSubtitle": "Insira o nome de usuário mostrado no telefone da outra pessoa.",
+        "pairCodeNavTitle": "Inserir código",
+        "pairCodeTitle": "Insira o código de pareamento",
+        "pairCodeSubtitle": "Insira o código de 6 dígitos mostrado no telefone da outra pessoa.",
+        "wrongCode": "Esse código não funcionou. Verifique o código e o nome de usuário e tente novamente.",
+        "next": "Próximo",
+        "sasNavTitle": "Verificar padrão",
+        "sasTitle": "Verifique o padrão",
+        "sasSubtitle": "Confira se este padrão de formas corresponde ao do outro telefone, forma por forma.",
+        "sasHint": "Só confirme depois de confirmar que os dois telefones exibem o mesmo padrão.",
+        "confirmMatch": "Correspondem",
+        "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
+        "notFound": "Não encontramos um pareamento para esse nome de usuário. Peça novamente.",
+        "slotTaken": "Alguém já acessou com este nome de usuário. Pare agora e peça ao dono da conta para cancelar e começar de novo.",
+        "askToRestart": "Não foi possível parear. Peça ao dono da conta para iniciar um novo.",
+        "rateLimited": "Muitas tentativas. Aguarde um momento e tente novamente.",
+        "loading": "Configurando sua conta...",
+        "expired": "Este pareamento expirou. Comece novamente.",
+        "errorTitle": "Sessão de pareamento encerrada",
+        "canceledByParent": "O dono da conta cancelou a solicitação de pareamento.",
+        "codePlaceholder": "nome de usuário",
+        "codeOption": "Código",
+        "scanOption": "Escanear",
+        "scanNavTitle": "Escanear código",
+        "scanTitle": "Escanee o código QR deles",
+        "scanHint": "Posicione o código QR à vista para ativar",
+        "scanWaiting": "Aguardando a solicitação ser aceita",
+        "scanSubtitle": "Aponte sua câmera para o código QR no telefone deles.",
+        "connectingMessage": "Conectando seus dispositivos"
+      },
+      "limitGate": {
+        "title": "Limite de gastos atingido",
+        "message": "Este pagamento ultrapassaria o limite de gastos definido para esta conta."
       }
     }
   },

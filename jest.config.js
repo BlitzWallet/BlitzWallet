@@ -16,7 +16,11 @@ module.exports = {
   // Ignore git worktrees so their duplicate test files / modules are not
   // collected (prevents haste naming collisions and phantom failures).
   modulePathIgnorePatterns: ['<rootDir>/.worktrees/'],
-  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/.worktrees/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/.worktrees/',
+    '<rootDir>/__tests__/firestore-rules/',
+  ],
   transformIgnorePatterns: [`node_modules/(?!(${esModules})/)`],
   // Global mocks shared by every test (e.g. Firebase native modules).
   setupFiles: ['<rootDir>/jest.setup.js'],

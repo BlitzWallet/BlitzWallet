@@ -19,6 +19,17 @@ export async function deriveSparkGiftMnemonic(
   accountNumber = 1,
 ) {
   try {
+    // Hard cap at the BIP32 hardened-index limit (2^31-1): every derivation
+    // space (accounts/gifts/pools/savings/children) flows through here, so
+    // this is the single backstop that no space can ever overflow. @scure/bip32
+    // would throw for these too, but with a cryptic "invalid child index" —
+    // fail fast with a clear message instead. Purposfully does not use
+    // 2147483648 limit as that would have @scure/bip32 throw.
+    if (giftIndex >= 2147483647) {
+      throw new Error(
+        `Derivation index ${giftIndex} exceeds the BIP32 hardened-index limit (2147483646)`,
+      );
+    }
     // Derive the identity key for this gift using Spark's scheme
     // Path: m/8797555'/giftIndex'/0' (where 0' is the identity key type)
     const derivationPath = `m/8797555'/${giftIndex}'/0'`;

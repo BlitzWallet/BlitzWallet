@@ -16,6 +16,7 @@ import SettingsContentIndex from './settingsContent';
 import SettingsIndex from './settingsIndex';
 import TechnicalTransactionDetails from './technicalTransactionDetails';
 import ViewAllTxPage from './viewAllTxPage';
+import ManagedAccountActivityPage from './managedAccountActivityPage';
 import SettingsHub from './settingsHub';
 import SparkReceivePage from './sparkReceivePage';
 export {
@@ -29,6 +30,7 @@ export {
   SettingsIndex,
   FaceIdPage,
   ViewAllTxPage,
+  ManagedAccountActivityPage,
   ConnectingToNodeLoadingScreen,
   TechnicalTransactionDetails,
   // toggleSecureStoreData,

@@ -77,6 +77,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import useDebounce from '../../../../hooks/useDebounce';
 import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
+import { useChildSpendingLimitGate } from '../../../../hooks/useChildSpendingLimitGate';
 import { getLNAddressForLiquidPayment } from './functions/payments';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import {
@@ -547,6 +548,8 @@ export default function SendPaymentScreen(props) {
   ]);
 
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
+  const { isOverLimit: isOverChildLimit } =
+    useChildSpendingLimitGate(convertedSendAmount);
 
   useEffect(() => {
     primaryDisplayRef.current = primaryDisplay;
@@ -1226,6 +1229,14 @@ export default function SendPaymentScreen(props) {
       return;
     }
 
+    // if (isOverChildLimit) {
+    //   navigate.navigate('InformationPopup', {
+    //     textContent: t('settings.childAccounts.limitGate.message'),
+    //     buttonText: t('constants.understandText'),
+    //   });
+    //   return;
+    // }
+
     if (isSendingPayment.current) return;
 
     isSendingPayment.current = true;
@@ -1423,6 +1434,8 @@ export default function SendPaymentScreen(props) {
     displayAmount,
     displayTokenTicker,
     selectedContactInfo,
+    isOverChildLimit,
+    t,
   ]);
 
   const handleSelectPaymentMethod = useCallback(

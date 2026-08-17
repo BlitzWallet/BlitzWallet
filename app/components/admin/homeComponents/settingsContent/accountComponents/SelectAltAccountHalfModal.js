@@ -1,6 +1,10 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, SIZES } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  SIZES,
+} from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -12,11 +16,13 @@ import {
 } from '../../../../../functions/spark';
 import { useTranslation } from 'react-i18next';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import AccountCard from '../../accounts/accountCard';
 
 export default function SelectAltAccountHalfModal(props) {
   const navigate = useNavigation();
   const { getAccountMnemonic, custodyAccountsList } = useActiveCustodyAccount();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const [isLoading, setIsLoading] = useState({
@@ -26,7 +32,13 @@ export default function SelectAltAccountHalfModal(props) {
   const hasSelectedAccount = useRef(null);
   const { t } = useTranslation();
 
-  const { selectedFrom, selectedTo, transferType } = props;
+  const {
+    selectedFrom,
+    selectedTo,
+    transferType,
+    onSelectAccount,
+    excludeUuid,
+  } = props;
 
   const handleAccountSelection = useCallback(
     async account => {
@@ -71,6 +83,46 @@ export default function SelectAltAccountHalfModal(props) {
     [navigate, selectedFrom, selectedTo, transferType, getAccountMnemonic],
   );
 
+  // Callback mode (inline Edit Account transfer sheet): pick an account and hand
+  // it back, no wallet init or popTo. The prefilled-side flow below is unchanged.
+  if (onSelectAccount) {
+    const candidates = [
+      ...custodyAccountsList,
+      ...(masterInfoObject?.childAccounts || []),
+    ].filter(item => item.uuid !== excludeUuid);
+
+    return (
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        showsVerticalScrollIndicator={false}
+        style={styles.container}
+      >
+        <ThemeText
+          styles={{
+            ...styles.sectionHeader,
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          }}
+          content={t('settings.accountComponents.transferModal.selectAccount')}
+        />
+        {candidates.map((account, index) => (
+          <AccountCard
+            useAltBackground={theme && darkModeType}
+            key={account.uuid || `Account ${index}`}
+            account={account}
+            isActive={false}
+            onPress={() => {
+              if (hasSelectedAccount.current) return;
+              hasSelectedAccount.current = true;
+              onSelectAccount(account);
+              navigate.goBack();
+            }}
+          />
+        ))}
+      </ScrollView>
+    );
+  }
+
   const accountElements = custodyAccountsList
     .filter(item => {
       return (
@@ -88,7 +140,6 @@ export default function SelectAltAccountHalfModal(props) {
           isLoading={
             isLoading.accountBeingLoaded === account.uuid && isLoading.isLoading
           }
-          useSelection={true}
           isAccountSwitching={isLoading.accountBeingLoaded}
         />
       );
@@ -120,7 +171,7 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: SIZES.large,
     fontWeight: 500,
-    marginBottom: 10,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
   accountRow: {

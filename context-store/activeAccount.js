@@ -24,8 +24,8 @@ import {
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
+import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import customUUID from '../app/functions/customUUID';
-import isValidMnemonic from '../app/functions/isValidMnemonic';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
 
@@ -242,46 +242,9 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         nextAccountDerivationIndex: nextIndex,
       });
 
-      return { didWork: true };
+      return { didWork: true, uuid: accountInfo.uuid };
     } catch (err) {
       console.log('Create derived account error', err);
-      return { didWork: false, error: err.message };
-    }
-  };
-
-  const createImportedAccount = async (accountName, importedSeed) => {
-    try {
-      if (!importedSeed || typeof importedSeed !== 'string') {
-        return { didWork: false, error: 'Invalid seed provided' };
-      }
-
-      const words = importedSeed
-        .trim()
-        .toLowerCase()
-        .split(/\s+/)
-        .filter(Boolean);
-      if (words.length !== 12 || !isValidMnemonic(words)) {
-        return {
-          didWork: false,
-          error: 'Seed must be a valid 12-word recovery phrase',
-        };
-      }
-
-      const accountInfo = {
-        uuid: customUUID(),
-        name: accountName,
-        mnemoinc: words.join(' '),
-        dateCreated: Date.now(),
-        isActive: false,
-        accountType: 'imported',
-        profileEmoji: '',
-      };
-
-      await createAccount(accountInfo);
-      // NO cloud backup for imported accounts (contains sensitive seed)
-      return { didWork: true };
-    } catch (err) {
-      console.log('Create imported account error', err);
       return { didWork: false, error: err.message };
     }
   };
@@ -364,6 +327,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const getAccountMnemonic = async account => {
     try {
       if (!account) throw new Error('No account provided');
+      // Linked (child) accounts derive from the parent seed via childIndex.
+      if (account.childIndex !== undefined) {
+        return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+      }
       // For derived accounts, re-derive on demand from main seed
       if (account.derivationIndex !== undefined) {
         const derivedMnemonic = await deriveAccountMnemonic(
@@ -384,9 +351,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     try {
       // masterInfoObject is already loaded from Firebase by GlobalContextProvider
       const nextIndex = Math.min(
-        Math.max(3, Math.floor(Number(
-          masterInfoObject.nextAccountDerivationIndex || 3,
-        ))),
+        Math.max(
+          3,
+          Math.floor(Number(masterInfoObject.nextAccountDerivationIndex || 3)),
+        ),
         MAX_DERIVED_ACCOUNTS - 1,
       );
 
@@ -547,7 +515,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       updateAccount,
       updateAccountCacheOnly,
       createDerivedAccount,
-      createImportedAccount,
       restoreDerivedAccount,
       getAccountMnemonic,
       restoreDerivedAccountsFromCloud,
@@ -567,7 +534,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     updateAccount,
     updateAccountCacheOnly,
     createDerivedAccount,
-    createImportedAccount,
     restoreDerivedAccount,
     getAccountMnemonic,
     restoreDerivedAccountsFromCloud,

@@ -44,10 +44,18 @@ import EditAccountName from '../app/components/admin/homeComponents/settingsCont
 import EmojiAvatarSelector from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectProfileImage';
 import RemoveAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/removeAccountPage';
 import RestoreDerivedAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/restoreDerivedAccountPage';
+import ChildEnterName from '../app/components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childEnterName';
+import ChildSpendingLimit from '../app/components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childSpendingLimit';
+import ChildPairingStack from './ChildPairingStack';
+import ChildClaimStack from './ChildClaimStack';
 import SeedPhraseWarning from '../app/components/admin/homeComponents/settingsContent/seedPhraseWarning';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
-import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
+import CreateNWCName from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCName';
+import CreateNWCPermissions from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCPermissions';
+import CreateNWCAmount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAmount';
+import NWCAccountPage from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountPage';
+import NWCAccountCreated from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountCreated';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import { CustomWebView } from '../app/functions/CustomElements';
@@ -65,6 +73,7 @@ import {
   PinSetupPage,
   RestoreWallet,
   SkipCreateAccountPathMessage,
+  WalletSetupFork,
 } from '../app/screens/createAccount';
 import {
   AdminHomeIndex,
@@ -77,6 +86,7 @@ import {
   SettingsIndex,
   TechnicalTransactionDetails,
   ViewAllTxPage,
+  ManagedAccountActivityPage,
   SettingsHub,
   SparkReceivePage,
 } from '../app/screens/inAccount';
@@ -140,15 +150,29 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   { name: 'POSStack', component: POSStack },
   // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
+  { name: 'WalletSetupFork', component: WalletSetupFork },
   { name: 'DisclaimerPage', component: DislaimerPage },
   { name: 'GenerateKey', component: GenerateKey },
   { name: 'PinSetup', component: PinSetupPage },
+  {
+    name: 'ChildClaimStack',
+    component: ChildClaimStack,
+    options: { gestureEnabled: false },
+  },
   { name: 'RestoreWallet', component: RestoreWallet },
   // {name: 'EcashSettings', component: EcashSettings},
   { name: 'AddPOSItemsPage', component: AddPOSItemsPage },
   { name: 'CreateCustodyAccount', component: CreateCustodyAccountPage },
   { name: 'SelectCreateAccountType', component: SelectCreateAccountType },
   { name: 'RestoreDerivedAccount', component: RestoreDerivedAccountPage },
+  { name: 'ChildEnterName', component: ChildEnterName },
+  { name: 'ChildSpendingLimit', component: ChildSpendingLimit },
+  { name: 'ManagedAccountActivity', component: ManagedAccountActivityPage },
+  {
+    name: 'ChildPairingStack',
+    component: ChildPairingStack,
+    options: { gestureEnabled: false },
+  },
   { name: 'EditAccountName', component: EditAccountName },
   { name: 'EditAccountPage', component: EditAccountPage },
   { name: 'RemoveAccountPage', component: RemoveAccountPage },
@@ -156,8 +180,11 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'EmojiAvatarSelector', component: EmojiAvatarSelector },
   { name: 'CustodyAccountPaymentPage', component: AccountPaymentPage },
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
-  { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
-  // {name: 'NWCWallet', component: NWCWallet},
+  { name: 'NWCAccountPage', component: NWCAccountPage },
+  { name: 'CreateNWCName', component: CreateNWCName },
+  { name: 'CreateNWCPermissions', component: CreateNWCPermissions },
+  { name: 'CreateNWCAmount', component: CreateNWCAmount },
+  { name: 'NWCAccountCreated', component: NWCAccountCreated },
   { name: 'Nip5VerificationPage', component: Nip5VerificationPage },
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },

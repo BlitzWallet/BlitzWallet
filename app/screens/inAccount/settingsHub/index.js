@@ -185,16 +185,6 @@ export default function SettingsHub(props) {
     copyToClipboard(myContact?.uniqueName, showToast);
   }, [myContact?.uniqueName, showToast]);
 
-  const handleAccountEdit = useCallback(
-    account => {
-      navigate.navigate('EditAccountPage', {
-        accountId: account.uuid,
-        from: 'SettingsHome',
-      });
-    },
-    [navigate],
-  );
-
   const handleSavingsPress = useCallback(() => {
     navigate.navigate('SavingsStack');
   }, [navigate]);
@@ -203,7 +193,10 @@ export default function SettingsHub(props) {
   }, [navigate]);
 
   const handleViewAllAccounts = useCallback(() => {
-    navigate.navigate('SettingsContentHome', { for: 'Accounts' });
+    navigate.navigate('SettingsContentHome', {
+      for: 'Accounts',
+      initialTab: 'personal',
+    });
   }, [navigate]);
 
   const handleViewAllPools = useCallback(() => {
@@ -239,9 +232,6 @@ export default function SettingsHub(props) {
               pinnedAccountUUIDs={pinnedAccountUUIDs}
               isUsingNostr={isUsingNostr}
               selectedAltAccount={selectedAltAccount}
-              isSwitchingAccount={isSwitchingAccount}
-              onAccountPress={handleAccountPress}
-              onAccountEdit={handleAccountEdit}
               onViewAll={handleViewAllAccounts}
             />
           );
@@ -271,15 +261,12 @@ export default function SettingsHub(props) {
     },
     [
       activePoolsArray,
-      handleAccountEdit,
-      handleAccountPress,
       handleAnalyticsPress,
       handleOpenGifts,
       handlePOS,
       handleViewAllAccounts,
       handleViewAllPools,
       handleSavingsPress,
-      isSwitchingAccount,
       isUsingNostr,
       pinnedAccountUUIDs,
       poolsArray,

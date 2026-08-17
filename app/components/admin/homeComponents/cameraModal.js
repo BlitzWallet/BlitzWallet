@@ -9,7 +9,7 @@ import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scan
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BARCODE_FORMATS, COLORS, SIZES } from '../../../constants';
 import { ThemeText, GlobalThemeView } from '../../../functions/CustomElements';
-import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
+import NoContentScreen from '../../../functions/CustomElements/noContentScreen';
 import { getImageFromLibrary } from '../../../functions/imagePickerWrapper';
 import getClipboardText from '../../../functions/getClipboardText';
 import { CameraPageNavBar } from '../../../functions/CustomElements/camera/cameraPageNavbar';
@@ -155,16 +155,11 @@ export default function CameraModal(props) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CameraPageNavBar />
-        <View style={styles.centeredContainer}>
-          <ThemeText
-            styles={styles.errorText}
-            content={t('wallet.cameraModal.noCamera')}
-          />
-          <ThemeText
-            styles={styles.errorText}
-            content={t('wallet.cameraModal.settingsText')}
-          />
-        </View>
+        <NoContentScreen
+          iconName="Camera"
+          titleText={t('wallet.cameraModal.noCamera')}
+          subTitleText={t('wallet.cameraModal.settingsText')}
+        />
       </GlobalThemeView>
     );
   }
@@ -173,9 +168,10 @@ export default function CameraModal(props) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CameraPageNavBar />
-        <FullLoadingScreen
-          showLoadingIcon={false}
-          text={t('wallet.cameraModal.noCameraDevice')}
+        <NoContentScreen
+          iconName="Camera"
+          titleText={t('wallet.cameraPage.noCameraDevice')}
+          subTitleText={t('wallet.cameraPage.noCameraDeviceSub')}
         />
       </GlobalThemeView>
     );
@@ -256,12 +252,6 @@ export default function CameraModal(props) {
 }
 
 const styles = StyleSheet.create({
-  centeredContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: { width: '80%', textAlign: 'center' },
   bottomOverlay: {
     alignItems: 'center',
     justifyContent: 'flex-end',

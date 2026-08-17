@@ -211,7 +211,10 @@ export default function SettingsIndex() {
         )}
 
         {renderSection(
-          SECURITY_ROWS,
+          // Child wallets never manage their own seed phrase, so hide backup.
+          masterInfoObject?.isChildAccount
+            ? SECURITY_ROWS.filter(row => row.name !== 'Backup wallet')
+            : SECURITY_ROWS,
           t('screens.inAccount.settingsContent.security'),
         )}
 

@@ -24,14 +24,12 @@ import useDebounce from '../../../../../hooks/useDebounce';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import {
-  getSparkAddress,
-  getSparkIdentityPubKey,
-} from '../../../../../functions/spark';
-import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/transactions';
+  executeAccountTransfer,
+  getAccountTransferFee,
+} from '../../../../../functions/spark/accountTransfer';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import {
@@ -61,21 +59,33 @@ export default function AccountPaymentPage(props) {
   const to = props?.route?.params?.to;
   const fromBalance = props?.route?.params?.fromBalance;
   const prevBalance = useRef(null);
+  // Synchronous re-entrancy guard for the confirm button. The
+  // transferInfo.isDoingTransfer check and the button's useLoading only take
+  // effect after a React re-render, so two rapid taps in the same frame would
+  // both reach executeAccountTransfer and send the full amount twice. Set before
+  // any await; reset on error so the user can retry.
+  const isSubmittingRef = useRef(false);
   const [memo, setMemo] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const [transferInfo, setTransferInfo] = useState({
     isDoingTransfer: false,
     isCalculatingFee: false,
     paymentFee: 0,
+    feeError: false,
     showConfirmScreen: false,
   });
   const { backgroundColor, textColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const fromAccount =
-    custodyAccountsList.find(item => item.uuid === from)?.name || '';
-  const toAccount =
-    custodyAccountsList.find(item => item.uuid === to)?.name || '';
+  // Linked (child) accounts aren't in custodyAccountsList; merge them in so the
+  // standardized page can resolve a child on the prefilled side.
+  const accountLookup = useMemo(
+    () => [...custodyAccountsList, ...(masterInfoObject?.childAccounts || [])],
+    [custodyAccountsList, masterInfoObject?.childAccounts],
+  );
+
+  const fromAccount = accountLookup.find(item => item.uuid === from)?.name || '';
+  const toAccount = accountLookup.find(item => item.uuid === to)?.name || '';
 
   // The customInputText modal now returns the amount already in sats.
   const convertedSendAmount = Math.round(Number(sendingAmount));
@@ -98,21 +108,26 @@ export default function AccountPaymentPage(props) {
 
   const debouncedSearch = useDebounce(async () => {
     // Calculate spark payment fee here
-    const feeResponse = await sparkPaymenWrapper({
-      getFee: true,
-      address: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS, //using as a temporary placement to calculate fee
-      paymentType: 'spark',
-      memo: 'Accounts Swap',
+    const feeResponse = await getAccountTransferFee({
       amountSats: sendingAmount,
       mnemonic: accountMnemoinc,
       sendWebViewRequest,
     });
 
-    if (!feeResponse?.didWork) return;
+    if (!feeResponse?.didWork) {
+      setTransferInfo(prev => ({
+        ...prev,
+        isCalculatingFee: false,
+        feeError: true,
+        paymentFee: 0,
+      }));
+      return;
+    }
     setTransferInfo(prev => ({
       ...prev,
       isCalculatingFee: false,
-      paymentFee: feeResponse.supportFee + feeResponse.fee,
+      feeError: false,
+      paymentFee: feeResponse.fee,
     }));
   }, 800);
 
@@ -120,7 +135,11 @@ export default function AccountPaymentPage(props) {
     if (!sendingAmount) return;
     if (prevBalance.current === sendingAmount) return;
     prevBalance.current = sendingAmount;
-    setTransferInfo(prev => ({ ...prev, isCalculatingFee: true }));
+    setTransferInfo(prev => ({
+      ...prev,
+      isCalculatingFee: true,
+      feeError: false,
+    }));
     debouncedSearch();
   }, [sendingAmount, toAccount, fromAccount]);
 
@@ -129,9 +148,12 @@ export default function AccountPaymentPage(props) {
     fromAccount &&
     toAccount &&
     !transferInfo.isCalculatingFee &&
+    !transferInfo.feeError &&
     convertedSendAmount + transferInfo.paymentFee <= fromBalance;
 
   const handlePayment = useCallback(async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     try {
       if (!sendingAmount) {
         throw new Error(
@@ -161,81 +183,23 @@ export default function AccountPaymentPage(props) {
         );
       }
 
-      if (convertedSendAmount + transferInfo.paymentFee > fromBalance) {
-        throw new Error(
-          t('settings.accountComponents.accountPaymentPage.balanceError'),
-        );
-      }
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: true }));
 
-      const sendingFromAccount = custodyAccountsList.find(
-        item => item.uuid === from,
-      );
-      const sendingToAccount = custodyAccountsList.find(
-        item => item.uuid === to,
-      );
+      const sendingFromAccount = accountLookup.find(item => item.uuid === from);
+      const sendingToAccount = accountLookup.find(item => item.uuid === to);
 
-      const [fromMnemonic, toMnemonic] = await Promise.all([
-        getAccountMnemonic(sendingFromAccount),
-        getAccountMnemonic(sendingToAccount),
-      ]);
-
-      const toSparkAddress = await getSparkAddress(toMnemonic);
-
-      if (!toSparkAddress.didWork) {
-        throw new Error(
-          t('settings.accountComponents.accountPaymentPage.noSendAddressError'),
-        );
-      }
-
-      const [accountIdentifyPubKey, toAccountIdentityPubKey] =
-        await Promise.all([
-          getSparkIdentityPubKey(fromMnemonic),
-          getSparkIdentityPubKey(toMnemonic),
-        ]);
-
-      if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {
-        throw new Error(
-          t(
-            'settings.accountComponents.accountPaymentPage.noAccountInformation',
-          ),
-        );
-      }
-
-      const sendingResponse = await sparkPaymenWrapper({
-        address: toSparkAddress.response,
-        paymentType: 'spark',
+      await executeAccountTransfer({
+        fromAccount: sendingFromAccount,
+        toAccount: sendingToAccount,
         amountSats: convertedSendAmount,
-        masterInfoObject,
         fee: transferInfo.paymentFee,
-        memo:
-          memo ||
-          t(
-            'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
-          ),
-        userBalance: fromBalance,
-        sparkInformation: {
-          identityPubKey: accountIdentifyPubKey,
-        },
-        mnemonic: fromMnemonic,
+        memo,
+        fromBalance,
+        masterInfoObject,
+        getAccountMnemonic,
         sendWebViewRequest,
+        t,
       });
-
-      if (!sendingResponse.didWork) {
-        throw new Error(t('errormessages.paymentError'));
-      }
-
-      await bulkUpdateSparkTransactions([
-        {
-          ...sendingResponse.response,
-          accountId: toAccountIdentityPubKey,
-          details: {
-            ...sendingResponse.response.details,
-            direction: 'INCOMING',
-            fee: 0,
-          },
-        },
-      ]);
 
       setTransferInfo(prev => ({
         ...prev,
@@ -243,6 +207,7 @@ export default function AccountPaymentPage(props) {
         showConfirmScreen: true,
       }));
     } catch (err) {
+      isSubmittingRef.current = false;
       console.log('Swap error', err);
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: false }));
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
@@ -263,22 +228,46 @@ export default function AccountPaymentPage(props) {
 
   if (transferInfo?.showConfirmScreen) {
     return (
-      <GlobalThemeView useStandardWidth={true}>
-        <View style={styles.animationContainer}>
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
+        <View style={styles.contentContainer}>
           <LottieView
             source={confirmAnimation}
             loop={false}
-            style={styles.animation}
+            style={{ width: 125, height: 125 }}
             autoPlay={true}
+          />
+          <View style={{ marginBottom: 10 }}>
+            <FormattedBalanceInput
+              maxWidth={0.7}
+              amountValue={heroDisplayAmount}
+              inputDenomination={masterInfoObject.userBalanceDenomination}
+            />
+          </View>
+          <ThemeText
+            styles={{
+              fontFamily: FONT.Title_Medium,
+              fontSize: SIZES.large,
+              width: '95%',
+              textAlign: 'center',
+              marginTop: 20,
+              marginBottom: 40,
+            }}
+            content={t('screens.inAccount.confirmTxPage.confirmMessage_sent')}
           />
         </View>
         <CustomButton
-          textContent={t('constants.back')}
           buttonStyles={{
-            ...CENTER,
             width: INSET_WINDOW_WIDTH,
+            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+            marginTop: 'auto',
+            paddingHorizontal: 15,
+          }}
+          textStyles={{
+            ...styles.buttonText,
+            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
           }}
           actionFunction={navigate.goBack}
+          textContent={t('constants.done')}
         />
       </GlobalThemeView>
     );
@@ -439,6 +428,14 @@ export default function AccountPaymentPage(props) {
                 showText={false}
                 loadingColor={theme ? textColor : COLORS.primary}
               />
+            ) : transferInfo.feeError ? (
+              <ThemeText
+                CustomNumberOfLines={2}
+                styles={{ ...styles.rowInlineValue, flexShrink: 1, marginRight: 0 }}
+                content={t(
+                  'settings.accountComponents.accountPaymentPage.invalidFeeError',
+                )}
+              />
             ) : (
               <FormattedSatText
                 neverHideBalance={true}
@@ -560,13 +557,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 
-  animationContainer: {
+  globalConatianer: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
   },
-  animation: {
-    width: 250,
-    height: 250,
+  contentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  buttonText: {
+    fontFamily: FONT.Descriptoin_Regular,
   },
 });

@@ -181,7 +181,8 @@
     "daily": "Dagligen",
     "weekly": "Veckovis",
     "monthly": "Månadsvis",
-    "yearly": "Årligen"
+    "yearly": "Årligen",
+    "noLimit": "Ingen gräns"
   },
   "transactionLabelText": {
     "notSent": "Betalning inte skickad",
@@ -219,7 +220,8 @@
       "subtitle": "Din plånbok. Dina pengar. Öppen källkod.",
       "buttons": {
         "button1": "Återställ konto",
-        "button2": "Kom igång"
+        "button2": "Kom igång",
+        "joinAccount": "Gå med i delad plånbok"
       }
     },
     "disclaimerPage": {
@@ -230,7 +232,7 @@
       "row2Label": "Din återställningsfras är nyckeln",
       "row2Description": "12 ord skyddar din wallet.",
       "row3Label": "Förlora frasen, förlora åtkomsten",
-      "row3Description": "Ingen kan återställa din wallet åt dig.",
+      "row3Description": "Ingen kan återställa det åt dig.",
       "readTerms": "Läs fullständiga villkor och integritetspolicy",
       "acceptPrefix": "Jag förstår att jag ensam ansvarar för min återställningsfras och godkänner",
       "terms&Conditions": "Villkor",
@@ -282,6 +284,14 @@
       "header": "Vi rekommenderar att du skriver ner din fröfras",
       "subHeader": "Om du inte har din seed-fras nedskriven riskerar du att förlora dina pengar.",
       "btn": "Jag förstår"
+    },
+    "walletSetup": {
+      "title": "Skapa din plånbok",
+      "subtitle": "Skapa en ny plånbok eller återställ en befintlig.",
+      "createTitle": "Skapa ny plånbok",
+      "createDesc": "Börja om med en ny plånbok.",
+      "restoreTitle": "Återställ befintlig plånbok",
+      "restoreDesc": "Har du redan en plånbok? Ta med dig den."
     }
   },
   "adminLogin": {
@@ -1117,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Ingen tillgång till kamera",
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
-      "noCameraDevice": "Du har ingen kameraenhet.",
+      "noCameraDevice": "Ingen kameraenhet",
+      "noCameraDeviceSub": "Ingen kamera finns tillgänglig på den här enheten.",
       "noFlash": " Enheten har inte en fackla",
       "scanningResponse": "Endast QR-koder accepteras.",
       "qrDecodeError": "Fel vid avkodning av QR-kod",
@@ -1139,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Ingen tillgång till kamera",
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
-      "noCameraDevice": "Du har ingen kameraenhet.",
+      "noCameraDevice": "Ingen kameraenhet",
+      "noCameraDeviceSub": "Ingen kamera finns tillgänglig på den här enheten.",
       "error1": "Enheten har inte en fackla",
       "error2": "Du har redan betalat den här fakturan"
     },
@@ -1666,7 +1678,27 @@
     "accounts": {
       "inputPlaceholder": "Sök befintligt konto",
       "mainWalletPlace": "Huvudplånbok",
-      "nwcWalletPlace": "NWC"
+      "nwcWalletPlace": "NWC",
+      "tabs": {
+        "personal": "Personliga",
+        "linked": "Hanterade"
+      },
+      "personalInfo": {
+        "title": "Vad är personliga konton?",
+        "body": "Personliga konton är plånböcker som du skapar åt dig själv. Använd dem för att enkelt separera dina pengar för olika ändamål, som utgifter, sparande eller resor."
+      },
+      "linkedInfo": {
+        "title": "Vad är hanterade konton?",
+        "body": "Hanterade konton är plånböcker som du skapar åt någon annan. De får en egen plånbok och kan använda den som vilken annan Blitz-plånbok som helst, medan du hanterar återställningen åt dem."
+      },
+      "emptyLinked": {
+        "title": "Inga hanterade konton ännu",
+        "subtitle": "Skapa en plånbok åt någon du litar på. De kan använda Blitz utan att hantera en återställningsfras."
+      },
+      "noResults": {
+        "title": "Inga konton hittades",
+        "subtitle": "Du har inga konton ännu."
+      }
     },
     "resetWallet": {
       "header": "Är du säker?",
@@ -1804,7 +1836,9 @@
       "accumulationFee": "0,5 % Blitz-avgift + 0,5 % plattformsavgift",
       "othersType": "Övrigt",
       "othersFee": "Nätverksavgifter",
-      "networkFeeLinkDesc": "Tryck för att se en uppdelning av Spark-nätverksavgifter"
+      "networkFeeLinkDesc": "Tryck för att se en uppdelning av Spark-nätverksavgifter",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "0,1 % Boltz-avgift + nätverksavgifter"
     },
     "nip5": {
       "noNameError": "Namnet får inte vara tomt.",
@@ -1829,16 +1863,48 @@
     },
     "nwc": {
       "confirmDelete": "Är du säker att du vill ta bort det här Nostr Connect-objektet?",
-      "searchAccountPlaceholder": "Sök efter NWC-konto",
-      "noAccountsMessage": "Du har inga Nostr Connect-konton.",
       "addAccount": "Lägg till konto",
+      "empty": {
+        "title": "Inga anslutningar ännu",
+        "subtitle": "Skapa en anslutning för att använda Nostr Wallet Connect med dina favoritappar."
+      },
+      "createNWCName": {
+        "title": "Anslutningsnamn"
+      },
+      "createNWCPermissions": {
+        "title": "Behörigheter",
+        "pageTitle": "Lägg till plånboksbehörigheter",
+        "pageSubtitle": "Välj vilka åtgärder den här plånboken kan utföra.",
+        "editTitle": "Redigera plånboksbehörigheter",
+        "editSubtitle": "Redigera vilka åtgärder den här plånboken kan utföra."
+      },
+      "createNWCAmount": {
+        "title": "Budget",
+        "pageTitle": "Ange en utgiftsbudget",
+        "pageSubtitle": "Ange en utgiftsgräns och när den återställs. Lämna tomt för ingen gräns.",
+        "editTitle": "Redigera utgiftsbudget",
+        "editSubtitle": "Ändra utgiftsgränsen och när den återställs. Lämna tomt för ingen gräns.",
+        "renewalPlaceholder": "Välj förnyelseperiod",
+        "createButton": "Skapa konto"
+      },
+      "accountPage": {
+        "title": "Hantera konto",
+        "nameLabel": "Namn",
+        "permissionsLabel": "Behörigheter",
+        "permissionsCount_one": "{{count}} behörighet",
+        "permissionsCount_other": "{{count}} behörigheter",
+        "renewalLabel": "Förnyelseperiod",
+        "amountLabel": "Budgetbelopp",
+        "viewSecretLabel": "Anslutningssträng",
+        "deleteAccount": "Ta bort konto"
+      },
       "createNWCAccount": {
         "noAccountNameError": "Ange ett kontonamn.",
         "noPermissionsError": "Vänligen aktivera minst en behörighet.",
         "noBudgetError": "Vänligen välj en budgetförnyelseperiod.",
         "noBudgetAmountError": "Vänligen välj ett budgetbelopp.",
-        "title": "Skapa konto",
         "loadingMessage": "Skapa konto",
+        "updatingMessage": "Uppdaterar konto...",
         "nameInputPlaceholder": "Ange NWC-kontonamn",
         "permissionsHeader": "Behörighet för plånbok",
         "receivePayments": "Ta emot betalningar",
@@ -1846,16 +1912,14 @@
         "getBalance": "Få balans",
         "transactions": "Transaktioner",
         "lookupInvoice": "Söka upp faktura",
-        "budgetRenewalHeader": "Förnyelse av budgeten",
-        "bugetPlaceholder": "Välj period för budgetförnyelse",
-        "createConnection": "",
-        "connectionName": ""
+        "budgetRenewalHeader": "Förnyelse av budgeten"
       },
       "hasNoAccounts": {
         "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
       },
       "noNotifications": {
-        "warningMessage": "För att kunna använda Nostr Wallet Connect måste du ha aktiverat push-notiser för Nostr Wallet Connect.\n\nVänligen aktivera push-meddelanden i inställningarna och försök igen."
+        "title": "Aviseringar krävs",
+        "subtitle": "Nostr Wallet Connect kräver push-aviseringar. Aktivera dem i Inställningar och försök igen."
       },
       "showSeedPage": {
         "loadingMessage": "Genererar återställningsfras",
@@ -1863,14 +1927,23 @@
         "viewSeed": "Visa återställningsfras"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Fyll på din NWC-wallet",
-        "accountFundingMessage": "För att skicka pengar från din Nostr Connect-wallet måste du först lägga till medel — antingen genom att ta emot pengar eller genom att överföra från din huvudwallet.\n\nDu kan överföra medel från din huvudwallet till NWC på sidan för kontoinställningar.",
-        "securityHeader": "Säker och isolerad",
-        "securityMessage": "Nostr Wallet Connect skapar en separat wallet från din huvudwallet för ökad säkerhet. Denna seed-fras lagras säkert och kan visas senare på sidan Konton i inställningarna vid behov.",
+        "infoTitle": "Innan du börjar",
+        "infoSubtitle": "Några saker att veta om ditt Nostr Wallet Connect-konto.",
+        "row1Label": "Lägg till pengar",
+        "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
+        "row2Label": "Separat konto",
+        "row2Description": "Det här kontot är åtskilt från ditt huvudkonto för ökad säkerhet.",
+        "row3Label": "Appåtkomst",
+        "row3Description": "Anslutna appar kan använda det här kontot för att göra betalningar.",
         "continueButton": "Kom igång",
         "initializingMessage": "Konfigurerar din NWC-wallet...",
         "errorTitle": "Installationen misslyckades",
         "errorRetry": "Försök igen"
+      },
+      "accountCreated": {
+        "title": "Konto skapat",
+        "subtitle": "Ditt NWC-konto har skapats. Kopiera anslutningssträngen för att börja använda det.",
+        "copyConnection": "Kopiera anslutningssträng"
       }
     },
     "accountComponents": {
@@ -1891,6 +1964,10 @@
         "balanceError": "Sändningsbeloppet är större än ditt saldo och avgifter",
         "noSendAddressError": "Kan inte få överföringsadress",
         "noAccountInformation": "Det går inte att få kontoinformation",
+        "invalidAmountError": "Vänligen ange ett giltigt belopp att överföra",
+        "invalidFeeError": "Det går inte att beräkna en giltig överföringsavgift",
+        "invalidBalanceError": "Det går inte att verifiera kontosaldot",
+        "sameAccountError": "Vänligen välj två olika konton",
         "title": "Överföring",
         "selectAccount": "Välj konto",
         "inputPlaceHolderText": "Överföring av konto"
@@ -1916,7 +1993,7 @@
         "namePlaceholder": "Namn"
       },
       "editAccountPage": {
-        "title": "Redigera konto",
+        "title": "Konto",
         "accountNameLabel": "Kontonamn",
         "showRecoveryPhraseLabel": "Visa återställningsfras",
         "removeAccountLabel": "Ta bort konto",
@@ -1928,16 +2005,25 @@
         "accountType_derived": "Härledd",
         "accountType_imported": "Importerad",
         "accountTypeDerivedInfo": "Detta konto är kopplat till din Blitz seed phrase och återställs när du återställer din Blitz-plånbok.",
-        "accountTypeImportedInfo": "Detta konto har en egen seed phrase och återställs inte när du återställer din Blitz-plånbok. Se till att säkerhetskopiera återställningsfrasen."
+        "accountTypeImportedInfo": "Detta konto har en egen seed phrase och återställs inte när du återställer din Blitz-plånbok. Se till att säkerhetskopiera återställningsfrasen.",
+        "accountType_main": "Huvud",
+        "balanceLabel": "Saldo",
+        "activeLabel": "Aktivt konto",
+        "activateButton": "Aktivera konto",
+        "addMoneyButton": "Lägg till pengar",
+        "withdrawMoneyButton": "Ta ut pengar",
+        "viewActivityLabel": "Visa kontohistorik"
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",
-        "createNewAccountTitle": "Skapa nytt konto",
-        "createNewAccountDescription": "Kan återställas från huvudets seed-fras",
+        "createNewAccountTitle": "Skapa personligt konto",
+        "createNewAccountDescription": "Skapa en plånbok åt dig själv",
         "importRecoveryPhraseTitle": "Importera återställningsfras",
-        "importRecoveryPhraseDescription": "Importera konton från en annan wallet",
-        "recoverRecoveryPhraseTitle": "Återställ konto",
-        "recoverRecoveryPhraseDescription": "Återställ ett redan skapat konto"
+        "importRecoveryPhraseDescription": "Importera personliga konton från en annan wallet",
+        "recoverRecoveryPhraseTitle": "Återställ personligt konto",
+        "recoverRecoveryPhraseDescription": "Återställ ett personligt konto",
+        "createChildAccountTitle": "Skapa hanterat konto",
+        "createChildAccountDescription": "Skapa en plånbok åt någon annan"
       },
       "selectProfileImage": {
         "title": "Välj avatar",
@@ -1968,6 +2054,17 @@
         "explanation_imported": "Detta konto importerades. Om du tar bort det måste du importera din privata nyckel igen för att komma åt det.",
         "cancelButton": "Avbryt",
         "removeButton": "Ta bort konto"
+      },
+      "transferModal": {
+        "selectAccount": "Välj ett konto",
+        "availableToAdd": "Tillgängligt att lägga till",
+        "availableToWithdraw": "Tillgängligt att ta ut",
+        "using": "Använder",
+        "amount": "Belopp",
+        "transferComplete": "Skickat till {{name}}",
+        "selfTransfer": "Du kan inte överföra till dig själv",
+        "addFunds": "{{name}} lade till pengar",
+        "withdrawFunds": "{{name}} tog ut pengar"
       }
     },
     "accountsPoolsScreen": {
@@ -1981,6 +2078,7 @@
     },
     "hub": {
       "viewAll": "Visa alla",
+      "accountsEmptyDesc": "Visa, skapa, hantera och flytta pengar mellan alla dina konton.",
       "accounts": "Konton",
       "pinAccount": "Fäst",
       "unpinAccount": "Lossa",
@@ -2078,6 +2176,166 @@
       "confirmActionPage": {
         "defaultMessage": "Är du säker på att du vill tömma din plånbok?",
         "ctaBTN": "Markera som {{option}}"
+      }
+    },
+    "childAccounts": {
+      "tabs": {
+        "children": "Hanterade"
+      },
+      "dontMatch": "Stämmer inte",
+      "sasGrid": {
+        "blank": "Tom",
+        "x": "X",
+        "plus": "plus",
+        "filled": "fylld",
+        "outline": "kontur",
+        "position": "Rad {{row}} av 3, kolumn {{column}} av 3.",
+        "shapes": {
+          "circle": "Cirkel",
+          "square": "Fyrkant",
+          "triangle": "Triangel",
+          "diamond": "Romb",
+          "hexagon": "Hexagon",
+          "moon": "Måne",
+          "cross": "Kors",
+          "star": "Stjärna",
+          "heart": "Hjärta",
+          "checkmark": "Bock",
+          "shield": "Sköld",
+          "clock": "Klocka",
+          "bell": "Bjällra",
+          "house": "Hus",
+          "apple": "Äpple"
+        }
+      },
+      "list": {
+        "spendingLimitLabel": "Gräns",
+        "noLimit": "Ingen gräns"
+      },
+      "enterName": {
+        "title": "Namnge detta konto",
+        "subtitle": "Ge kontot ett namn så att du kan känna igen det senare.",
+        "placeholder": "Kontonamn",
+        "next": "Nästa",
+        "create": "Skapa konto",
+        "editTitle": "Redigera kontonamn",
+        "editSubtitle": "Välj ett nytt namn så att du kan känna igen kontot senare."
+      },
+      "spendingLimit": {
+        "title": "Ange en utgiftsgräns",
+        "subtitle": "Ange en månatlig utgiftsgräns för detta konto. Det är en mjuk budget som spåras på deras enhet.",
+        "placeholder": "Månadsgräns",
+        "noLimit": "Ingen gräns",
+        "create": "Skapa konto"
+      },
+      "creating": {
+        "loadingText": "Skapar konto...",
+        "errorTitle": "Det gick inte att skapa kontot. Försök igen."
+      },
+      "confirmation": {
+        "done": "Klart"
+      },
+      "pairing": {
+        "title": "Dela",
+        "usernameTitle": "Dela ditt användarnamn",
+        "usernameSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan ange detta användarnamn.",
+        "generateCode": "Generera kod",
+        "usernameLabel": "Ditt användarnamn: {{name}}",
+        "codeNavTitle": "Dela kod",
+        "codeTitle": "Dela denna ihopparningskod",
+        "codeSubtitle": "Dela denna kod så att de kan gå med i din delade plånbok.",
+        "waiting": "Väntar på att de ska ange koden…",
+        "sasNavTitle": "Verifiera mönstret",
+        "sasTitle": "Verifiera mönstret",
+        "sasSubtitle": "Kontrollera att detta mönster av former matchar det på deras telefon, form för form.",
+        "sasHint": "Bekräfta bara när du har bekräftat att båda telefonerna visar samma mönster.",
+        "confirmMatch": "De stämmer",
+        "linkedTitle": "Plånbok länkad",
+        "linkedSubtitle": "Deras hanterade plånbok är redo att användas.",
+        "done": "Skickat. De slutför konfigureringen på sin telefon.",
+        "expired": "Den här kopplingen har gått ut. Börja om.",
+        "errorTitle": "Kopplingssessionen avslutades",
+        "declinedByChild": "Denna begäran har avböjts.",
+        "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
+        "areYouSure": "Är du säker?",
+        "confirmGate": "Bekräfta bara om mönstren matchar exakt, form för form. Genom att bekräfta ger du den här personen åtkomst till kontot.",
+        "confirmBTN": "De stämmer",
+        "needsUsername": "Ange ett användarnamn på din profil innan du länkar en plånbok.",
+        "notOwner": "Vi kunde inte bekräfta din användarnamnsreservation. Försök igen om en liten stund.",
+        "startFailed": "Det gick inte att starta ihopparningen. Försök igen.",
+        "codeOption": "Kod",
+        "qrOption": "QR",
+        "qrTitle": "Skanna denna QR-kod",
+        "qrSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan skanna denna QR-kod.",
+        "qrWaiting": "Väntar på att de ska skanna…",
+        "acceptTitle": "Acceptera ihopparningen?",
+        "acceptSubtitle": "Genom att para ihop ger du den här personen åtkomst till {{name}}. Se till att du parar ihop med rätt person.",
+        "acceptBTN": "Acceptera",
+        "declineBTN": "Avböja"
+      },
+      "transactions": {
+        "title": "Aktivitet",
+        "noTxHistorySub": "Kontots transaktioner visas här när de skickar eller tar emot en."
+      },
+      "page": {
+        "title": "Barnkonto",
+        "balanceLabel": "Saldo",
+        "transactionsLabel": "Senaste aktivitet",
+        "noTransactions": "Ingen aktivitet ännu",
+        "spendingLimitLabel": "Utgiftsgräns",
+        "loadingBalance": "Läser in saldo...",
+        "shareLink": "Para ihop med någon",
+        "sendInviteLink": "Bjud in någon"
+      },
+      "claim": {
+        "title": "Skapa din plånbok",
+        "info": {
+          "navTitle": "Skapa din plånbok",
+          "title": "Skapa din hanterade plånbok",
+          "intro": "Du går med i en plånbok som hanteras åt dig.",
+          "row1Label": "Din egen plånbok",
+          "row1Description": "Skicka och ta emot med ditt eget saldo.",
+          "row2Label": "Lätt att använda",
+          "row2Description": "Återställningen av din plånbok hanteras åt dig.",
+          "row3Label": "Hanteras av någon annan",
+          "row3Description": "Gå bara med i en plånbok från någon du känner.",
+          "continue": "Fortsätt"
+        },
+        "codeNavTitle": "Ange användarnamn",
+        "codeTitle": "Ange deras användarnamn",
+        "codeSubtitle": "Ange användarnamnet som visas på den andra personens telefon.",
+        "pairCodeNavTitle": "Ange kod",
+        "pairCodeTitle": "Ange ihopparningskoden",
+        "pairCodeSubtitle": "Ange den 6-siffriga koden som visas på den andra personens telefon.",
+        "wrongCode": "Koden fungerade inte. Kontrollera koden och användarnamnet och försök igen.",
+        "next": "Nästa",
+        "sasNavTitle": "Verifiera mönster",
+        "sasTitle": "Verifiera mönstret",
+        "sasSubtitle": "Kontrollera att detta mönster av former matchar det på den andra telefonen, form för form.",
+        "sasHint": "Bekräfta bara när du har bekräftat att båda telefonerna visar samma mönster.",
+        "confirmMatch": "De stämmer",
+        "tamper": "Vi kunde inte verifiera den här överlämningen. Börja om.",
+        "notFound": "Vi kunde inte hitta en ihopparning för det användarnamnet. Be om det igen.",
+        "slotTaken": "Någon har redan gått med med det här användarnamnet. Stanna nu och be kontoinnehavaren avbryta och börja om.",
+        "askToRestart": "Vi kunde inte ansluta till den här kopplingen. Be kontoinnehavaren starta en ny.",
+        "rateLimited": "För många försök. Vänta en stund och försök igen.",
+        "loading": "Skapar din plånbok...",
+        "expired": "Den här kopplingen har gått ut. Börja om.",
+        "errorTitle": "Kopplingssessionen avslutades",
+        "canceledByParent": "Kontoinnehavaren avbröt kopplingsbegäran.",
+        "codePlaceholder": "användarnamn",
+        "codeOption": "Kod",
+        "scanOption": "Skanna",
+        "scanNavTitle": "Skanna kod",
+        "scanTitle": "Skanna deras QR-kod",
+        "scanHint": "Placera QR-koden i sikte för att aktivera",
+        "scanWaiting": "Väntar på att begäran ska accepteras",
+        "scanSubtitle": "Rikta kameran mot QR-koden på deras telefon.",
+        "connectingMessage": "Ansluter dina enheter"
+      },
+      "limitGate": {
+        "title": "Utgiftsgränsen nådd",
+        "message": "Den här betalningen skulle överstiga den utgiftsgräns som angetts för detta konto."
       }
     }
   },
