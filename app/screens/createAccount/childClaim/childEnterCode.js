@@ -46,7 +46,7 @@ export default function ChildEnterCode() {
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
   const [resetToken, setResetToken] = useState(0);
   const [name, setName] = useState('');
-  const [isKeyboardActive, setIsKeyboardActive] = useState(true);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const handledSession = useRef(null);
 
   const isScanTab = selectedDisplayOption === 'scan';
