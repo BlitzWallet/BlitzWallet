@@ -2316,7 +2316,7 @@
         "confirmMatch": "Correspondem",
         "tamper": "Não foi possível verificar esta transferência. Comece novamente.",
         "notFound": "Não encontramos um pareamento para esse nome de usuário. Peça novamente.",
-        "slotTaken": "Alguém já entrou com este nome de usuário. Pare agora e peça ao dono da conta para cancelar e começar de novo.",
+        "slotTaken": "Alguém já acessou com este nome de usuário. Pare agora e peça ao dono da conta para cancelar e começar de novo.",
         "askToRestart": "Não foi possível parear. Peça ao dono da conta para iniciar um novo.",
         "rateLimited": "Muitas tentativas. Aguarde um momento e tente novamente.",
         "loading": "Configurando sua conta...",
