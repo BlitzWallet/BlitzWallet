@@ -1146,7 +1146,8 @@
     "cameraPage": {
       "noCameraAccess": "No access to camera",
       "settingsText": "Go to settings to let Blitz Wallet access your camera",
-      "noCameraDevice": "You do not have a camera device.",
+      "noCameraDevice": "No camera device",
+      "noCameraDeviceSub": "No camera is available on this device.",
       "error1": "Device does not have a torch",
       "error2": "You have already paid this invoice"
     },
@@ -1743,7 +1744,7 @@
         "done": "Done"
       },
       "pairing": {
-        "title": "Share Username",
+        "title": "Share",
         "usernameTitle": "Share your username",
         "usernameSubtitle": "Have them open Blitz on their phone, choose \"Join shared wallet\", then enter this username.",
         "generateCode": "Generate Code",
@@ -1769,7 +1770,16 @@
         "confirmBTN": "They match",
         "needsUsername": "Set a username on your profile before linking a wallet.",
         "notOwner": "We couldn't confirm your username reservation. Please try again in a moment.",
-        "startFailed": "Couldn't start pairing. Please try again."
+        "startFailed": "Couldn't start pairing. Please try again.",
+        "codeOption": "Code",
+        "qrOption": "QR",
+        "qrTitle": "Scan this QR code",
+        "qrSubtitle": "Have them open Blitz on their phone, choose \"Join shared wallet\", then scan this QR code.",
+        "qrWaiting": "Waiting for them to scan…",
+        "acceptTitle": "Accept the pairing?",
+        "acceptSubtitle": "By pairing, you are giving this person access to {{name}}. Make sure you're pairing with the right person.",
+        "acceptBTN": "Accept",
+        "declineBTN": "Decline"
       },
       "transactions": {
         "title": "Activity",
@@ -1821,7 +1831,15 @@
         "expired": "This pairing expired. Please start again.",
         "errorTitle": "Pairing session ended",
         "canceledByParent": "The account owner canceled the pairing request.",
-        "codePlaceholder": "username"
+        "codePlaceholder": "username",
+        "codeOption": "Code",
+        "scanOption": "Scan",
+        "scanNavTitle": "Scan Code",
+        "scanTitle": "Scan their QR code",
+        "scanHint": "Position the QR code in view to activate",
+        "scanWaiting": "Waiting for the request to be accepted",
+        "scanSubtitle": "Point your camera at the QR code on their phone.",
+        "connectingMessage": "Connecting your devices"
       },
       "limitGate": {
         "title": "Spending limit reached",

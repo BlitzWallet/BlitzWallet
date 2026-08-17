@@ -117,6 +117,7 @@ const {
   deriveSeedKey,
   decryptSeedPayload,
   makeChildEphKey,
+  parsePairingQr,
 } = require('../../app/functions/accounts/childPairing');
 
 let renderer;
@@ -188,6 +189,13 @@ function lastSessionId() {
   return calls[calls.length - 1][1];
 }
 
+// Keyed listener lookup: a subscription stored under `party:sessionId` (or
+// `session:sessionId`) stays addressable even after a newer session took over
+// the refs — the regression tests fire STALE listeners through these keys.
+function listenerFor(party, sessionId = lastSessionId()) {
+  return listeners[`${party}:${sessionId}`];
+}
+
 // setPairingDoc(rid, sessionId, party, data) → data is index [3].
 function findDocCall(party) {
   return mockDb.setPairingDoc.mock.calls.find(([, , p]) => p === party);
@@ -202,15 +210,25 @@ beforeEach(() => {
   listeners = {};
   childEph = makeChildEphKey();
   mockDb.subscribePairingDoc.mockImplementation((rid, sessionId, party, onData) => {
+    // Key every subscription by party:sessionId so stale/leaked listeners from
+    // dead sessions stay addressable in the regression tests (harness tweak,
+    // review §9). The unkeyed alias tracks the LATEST subscription so the
+    // original tests keep firing the current session's listener.
+    const key = `${party}:${sessionId}`;
+    listeners[key] = onData;
     listeners[party] = onData;
     return jest.fn(() => {
-      delete listeners[party];
+      delete listeners[key];
+      if (listeners[party] === onData) delete listeners[party];
     });
   });
   mockDb.subscribePairingSession.mockImplementation((rid, sessionId, onData) => {
+    const key = `session:${sessionId}`;
+    listeners[key] = onData;
     listeners.session = onData;
     return jest.fn(() => {
-      delete listeners.session;
+      delete listeners[key];
+      if (listeners.session === onData) delete listeners.session;
     });
   });
 });
@@ -401,6 +419,133 @@ describe('childPairingContext — grant-gating invariants', () => {
     expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionId);
     expect(findDocCall('grant')).toBeUndefined();
     expect(listeners.childConfirm).toBeUndefined();
+  });
+});
+
+describe('childPairingContext — QR mode', () => {
+  async function startQrPairing() {
+    await act(async () => {
+      const p = api.startPairing(CHILD, 'qr');
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('waiting');
+  }
+
+  test("qrValue carries name + code + parent pubkey once the session is live", async () => {
+    await mount();
+    await startQrPairing();
+
+    expect(api.qrValue).toBeTruthy();
+    const payload = parsePairingQr(api.qrValue);
+    expect(payload).toEqual({
+      name: RID,
+      code: lastSessionId(),
+      parentEphPub: expect.stringMatching(/^[0-9a-f]{64}$/),
+    });
+    // The pubkey in the QR is the same one revealed on the wire — this is
+    // what lets the child's automatic key-equality check replace the SAS.
+    await act(async () => {
+      listeners.childHello({ childEphPub: childEph.pub });
+      await flush();
+    });
+    expect(findDocCall('parentReveal')[3].parentEphPub).toBe(
+      payload.parentEphPub,
+    );
+  });
+
+  test("mode='qr': childHello reveals but waits for the parent's Accept tap before granting", async () => {
+    await mount();
+    await startQrPairing();
+
+    await act(async () => {
+      listeners.childHello({ childEphPub: childEph.pub });
+      await flush();
+    });
+    // No SAS screen on the QR path (the child scans our pubkey out-of-band),
+    // but NO grant either: the parent reveals and keeps waiting. The seed can
+    // never leave before the parent consciously accepts.
+    expect(api.status).toBe('waiting');
+    expect(api.sas).toBe('');
+    expect(findDocCall('grant')).toBeUndefined();
+
+    // The child auto-confirms (its reveal matched the scanned QR) → the parent
+    // surfaces the Accept screen. Still no grant.
+    await act(async () => {
+      listeners.childConfirm();
+      await flush();
+    });
+    expect(api.status).toBe('accept');
+    expect(findDocCall('grant')).toBeUndefined();
+
+    // The parent taps Accept → grant delivered → done.
+    await act(async () => {
+      api.acceptPairing();
+      await flush();
+    });
+    expect(api.status).toBe('done');
+
+    const grant = findDocCall('grant');
+    expect(grant).toBeTruthy();
+    const parentEphPub = findDocCall('parentReveal')[3].parentEphPub;
+    const childSharedX = deriveSharedX(childEph.priv, parentEphPub);
+    const payload = decryptSeedPayload(deriveSeedKey(childSharedX), {
+      iv: grant[3].iv,
+      ct: grant[3].ciphertext,
+      tag: grant[3].tag,
+    });
+    expect(payload).toMatchObject({
+      v: 1,
+      mnemonic: CHILD_MNEMONIC,
+      name: 'Kid',
+      spendingLimit: 1000,
+      childIndex: 0,
+    });
+    // Same terminal semantics as the code path: grant delivered, handshake
+    // docs left for the child.
+    expect(mockDb.deletePairingHandshake).not.toHaveBeenCalled();
+  });
+
+  test('backstop (CRITICAL): a QR childConfirm never grants without the Accept tap', async () => {
+    // A scripted claimer that photographed the QR and raced to childConfirm in
+    // <1s must still get NOTHING: the grant doc is written only by the parent's
+    // Accept tap, which makes seed theft timed and visible instead of silent.
+    await mount();
+    await startQrPairing();
+    await act(async () => {
+      listeners.childHello({ childEphPub: childEph.pub });
+      await flush();
+    });
+    const sessionId = lastSessionId();
+    await act(async () => {
+      listeners.childConfirm();
+      await flush();
+    });
+    expect(api.status).toBe('accept');
+    expect(findDocCall('grant')).toBeUndefined();
+
+    // The parent declines the suspicious prompt → session cancelled, no grant.
+    await act(async () => {
+      await api.declineMatch();
+      await flush();
+    });
+    expect(findDocCall('grant')).toBeUndefined();
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionId);
+  });
+
+  test("mode='code' is unchanged: childHello still lands on confirm with a SAS", async () => {
+    await mount();
+    await runStartPairing();
+
+    await act(async () => {
+      listeners.childHello({ childEphPub: childEph.pub });
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+    expect(api.sas).toBeTruthy();
+    expect(api.qrValue).toBe('');
+    expect(findDocCall('grant')).toBeUndefined();
   });
 });
 
@@ -605,5 +750,271 @@ describe('childPairingContext — start guards', () => {
     expect(api.errorMessage).toBe('settings.childAccounts.pairing.notOwner');
     // Blocked before touching the pointer transaction.
     expect(mockDb.createPairingSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('childPairingContext — session-identity guards (F-1/F-2/F-6/F-7)', () => {
+  // F-1: async callbacks must re-check session identity after every await. A
+  // childHello handler for a session that died mid-flight (and was replaced by
+  // a new session) must not act on the new session's globals.
+
+  test('T-F1a (kill path): a stale childHello resolving after decline + re-pair cannot corrupt the new session', async () => {
+    await mount();
+    await runStartPairing(); // session A
+    const sessionA = lastSessionId();
+
+    // A's childHello fires; its VERIFYING advance stays in flight.
+    let resolveAdvance;
+    mockDb.advanceSessionStatus.mockReturnValueOnce(
+      new Promise(res => {
+        resolveAdvance = res;
+      }),
+    );
+    await act(async () => {
+      listenerFor('childHello', sessionA)({ childEphPub: childEph.pub });
+      await flush();
+    });
+
+    // The parent declines A mid-flight → session A is dead (sessionRef null).
+    await act(async () => {
+      await api.declineMatch();
+      await flush();
+    });
+    expect(api.status).toBe('idle');
+
+    // Re-pair B and drive it fully to confirm.
+    childEph = makeChildEphKey();
+    await runStartPairing(); // session B
+    const sessionB = lastSessionId();
+    expect(sessionB).not.toBe(sessionA);
+    await act(async () => {
+      listeners[`session:${sessionB}`]({ status: 'JOINED', joinedAt: ts(T0) });
+      await flush();
+    });
+    await act(async () => {
+      listenerFor('childHello', sessionB)({ childEphPub: childEph.pub });
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+    const sasB = api.sas;
+
+    // A's stale advance resolves. The identity guard bails: no parentReveal on
+    // B, B's SAS untouched, B's session untouched.
+    await act(async () => {
+      resolveAdvance(true);
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+    expect(api.sas).toBe(sasB);
+    expect(mockDb.setPairingDoc).not.toHaveBeenCalledWith(
+      RID,
+      sessionB,
+      'parentReveal',
+      expect.anything(),
+    );
+    // The only cancel issued is A's decline — the stale path must not re-cancel
+    // or re-delete anything on B.
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledTimes(1);
+    expect(listeners[`session:${sessionB}`]).toBeDefined();
+  });
+
+  test('T-F1b (QR): a stale childHello after re-pair cannot arm a forged Accept for the dead session', async () => {
+    await mount();
+    await act(async () => {
+      const p = api.startPairing(CHILD, 'qr');
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('waiting');
+    const sessionA = lastSessionId();
+
+    let resolveAdvance;
+    mockDb.advanceSessionStatus.mockReturnValueOnce(
+      new Promise(res => {
+        resolveAdvance = res;
+      }),
+    );
+    await act(async () => {
+      listenerFor('childHello', sessionA)({ childEphPub: childEph.pub });
+      await flush();
+    });
+
+    // A dies (decline) and B (QR) starts; B's hello completes and B waits.
+    await act(async () => {
+      await api.declineMatch();
+      await flush();
+    });
+    childEph = makeChildEphKey();
+    await act(async () => {
+      const p = api.startPairing(CHILD, 'qr');
+      await flush();
+      await p;
+      await flush();
+    });
+    const sessionB = lastSessionId();
+    await act(async () => {
+      listenerFor('childHello', sessionB)({ childEphPub: childEph.pub });
+      await flush();
+    });
+    expect(api.status).toBe('waiting');
+
+    // A's stale advance resolves: the stale path (which pre-fix would
+    // handshakeUnsubRef-overwrite B's childHello with a childConfirm listener
+    // for dead A — the forged-Accept vector) must never subscribe.
+    await act(async () => {
+      resolveAdvance(true);
+      await flush();
+    });
+    expect(api.status).toBe('waiting');
+    expect(listenerFor('childConfirm', sessionA)).toBeUndefined();
+    expect(listenerFor('childConfirm', sessionB)).toBeDefined();
+
+    // B still works: the real childConfirm surfaces the Accept screen.
+    await act(async () => {
+      listenerFor('childConfirm', sessionB)({});
+      await flush();
+    });
+    expect(api.status).toBe('accept');
+  });
+
+  // F-2: deliverGrant's failure handling must be scoped to the session it was
+  // ending — a late failure for a dead session must not kill its replacement.
+
+  test('T-F2: a failed grant delivery for a torn-down session cannot kill the new session', async () => {
+    await mount();
+    await reachConfirm(); // session A
+    const sessionA = lastSessionId();
+
+    // The grant write for A is deferred (will reject).
+    let rejectGrant;
+    const grantWrite = new Promise((res, rej) => {
+      rejectGrant = rej;
+    });
+    mockDb.setPairingDoc.mockImplementation((r, s, party) =>
+      party === 'grant' ? grantWrite : Promise.resolve(true),
+    );
+
+    // Match → granting → childConfirm → the grant write is in flight.
+    await act(async () => {
+      api.confirmMatch();
+      await flush();
+    });
+    expect(api.status).toBe('granting');
+    await act(async () => {
+      listeners.childConfirm();
+      await flush();
+    });
+
+    // The passive expiry (countdown anchored at JOINED → T0) kills A while the
+    // grant write is still in flight.
+    await setTick(T0 + STATE_TTL);
+    expect(api.status).toBe('expired');
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionA);
+
+    // Re-pair B and drive it to confirm.
+    childEph = makeChildEphKey();
+    await runStartPairing(); // session B
+    const sessionB = lastSessionId();
+    await act(async () => {
+      listeners[`session:${sessionB}`]({ status: 'JOINED', joinedAt: ts(T0) });
+      await flush();
+    });
+    await act(async () => {
+      listenerFor('childHello', sessionB)({ childEphPub: childEph.pub });
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+
+    // A's grant write now fails. The catch must NOT endSession on B.
+    await act(async () => {
+      rejectGrant(new Error('denied'));
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+    expect(mockDb.cancelPairingSession).not.toHaveBeenCalledWith(RID, sessionB);
+    expect(listeners[`session:${sessionB}`]).toBeDefined();
+  });
+
+  // F-6: statusRef is set synchronously so a same-frame double entry (double
+  // tap on Match / Accept) is a no-op instead of a re-entry.
+
+  test('T-F6: double-tapping Match in the same frame subscribes childConfirm once', async () => {
+    await mount();
+    await reachConfirm();
+
+    await act(async () => {
+      api.confirmMatch();
+      api.confirmMatch();
+      await flush();
+    });
+    expect(api.status).toBe('granting');
+    expect(
+      mockDb.subscribePairingDoc.mock.calls.filter(
+        ([, , p]) => p === 'childConfirm',
+      ),
+    ).toHaveLength(1);
+  });
+
+  test('T-F6: double-tapping Accept in the same frame delivers exactly one grant', async () => {
+    await mount();
+    await act(async () => {
+      const p = api.startPairing(CHILD, 'qr');
+      await flush();
+      await p;
+      await flush();
+    });
+    await act(async () => {
+      listenerFor('childHello')({ childEphPub: childEph.pub });
+      await flush();
+    });
+    await act(async () => {
+      listeners.childConfirm();
+      await flush();
+    });
+    expect(api.status).toBe('accept');
+
+    await act(async () => {
+      api.acceptPairing();
+      api.acceptPairing();
+      await flush();
+    });
+    expect(api.status).toBe('done');
+    expect(findDocCall('grant')).toBeTruthy();
+    expect(
+      mockDb.setPairingDoc.mock.calls.filter(([, , p]) => p === 'grant'),
+    ).toHaveLength(1);
+  });
+
+  // F-7: the cosmetic countdown / passive kill re-anchors on each server state,
+  // tracking the current state's deadline instead of createdAt+3m.
+
+  test('T-F7: the countdown re-anchors on JOINED and VERIFYING so expiry tracks the current state deadline', async () => {
+    await mount();
+    await runStartPairing();
+
+    // WAITING anchors the countdown at T0.
+    await act(async () => {
+      listeners.session({ status: 'WAITING', createdAt: ts(T0) });
+      await flush();
+    });
+
+    // 60s later the child joins → the countdown re-anchors.
+    await act(async () => {
+      jest.advanceTimersByTime(60000);
+    });
+    await act(async () => {
+      listeners.session({
+        status: 'JOINED',
+        joinedAt: ts(T0 + 60000),
+      });
+      await flush();
+    });
+    // The old WAITING deadline (T0 + 3m) has passed; the re-anchored one
+    // (T0+60s + 3m) has not.
+    await setTick(T0 + STATE_TTL);
+    expect(api.status).toBe('waiting');
+    await setTick(T0 + STATE_TTL + 60000);
+    expect(api.status).toBe('expired');
   });
 });

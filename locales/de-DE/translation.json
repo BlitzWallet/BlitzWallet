@@ -1124,7 +1124,8 @@
     "cameraModal": {
       "noCamera": "Kein Zugriff auf die Kamera.",
       "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf die Kamera zu erlauben.",
-      "noCameraDevice": "Kein Kameragerät verfügbar.",
+      "noCameraDevice": "Kein Kameragerät",
+      "noCameraDeviceSub": "Auf diesem Gerät ist keine Kamera verfügbar.",
       "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
       "scanningResponse": "Es werden nur QR-Codes akzeptiert.",
       "qrDecodeError": "Fehler beim Lesen des QR-Codes.",
@@ -2219,7 +2220,7 @@
         "done": "Fertig"
       },
       "pairing": {
-        "title": "Code teilen",
+        "title": "Teilen",
         "usernameTitle": "Gebe deinen Benutzernamen weiter",
         "usernameSubtitle": "Lass sie Blitz auf ihrem Telefon öffnen, „Gemeinsamem Wallet beitreten“ wählen und dann diesen Benutzernamen eingeben.",
         "generateCode": "Code generieren",
@@ -2245,7 +2246,16 @@
         "confirmBTN": "Sie stimmen überein",
         "needsUsername": "Lege in deinem Profil einen Benutzernamen fest, bevor du ein Wallet verknüpfst.",
         "notOwner": "Wir konnten deine Benutzernamensreservierung nicht bestätigen. Versuch es gleich noch einmal.",
-        "startFailed": "Die Kopplung konnte nicht gestartet werden. Bitte versuche es erneut."
+        "startFailed": "Die Kopplung konnte nicht gestartet werden. Bitte versuche es erneut.",
+        "codeOption": "Code",
+        "qrOption": "QR",
+        "qrTitle": "Diesen QR-Code scannen",
+        "qrSubtitle": "Lass sie Blitz auf ihrem Telefon öffnen, „Gemeinsamem Wallet beitreten“ wählen und dann diesen QR-Code scannen.",
+        "qrWaiting": "Warten darauf, dass sie scannen…",
+        "acceptTitle": "Kopplung akzeptieren?",
+        "acceptSubtitle": "Mit der Kopplung gibst du dieser Person Zugriff auf {{name}}. Stelle sicher, dass du dich mit der richtigen Person koppelst.",
+        "acceptBTN": "Akzeptieren",
+        "declineBTN": "Ablehnen"
       },
       "transactions": {
         "title": "Aktivität",
@@ -2297,7 +2307,15 @@
         "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
         "errorTitle": "Kopplungssitzung beendet",
         "canceledByParent": "Der Kontoinhaber hat die Kopplungsanfrage abgebrochen.",
-        "codePlaceholder": "Benutzername"
+        "codePlaceholder": "Benutzername",
+        "codeOption": "Code",
+        "scanOption": "Scannen",
+        "scanNavTitle": "Code scannen",
+        "scanTitle": "Scanne ihren QR-Code",
+        "scanHint": "Richte den QR-Code in Sichtweite aus, um zu aktivieren",
+        "scanWaiting": "Warten darauf, dass die Anfrage akzeptiert wird",
+        "scanSubtitle": "Richte deine Kamera auf den QR-Code auf ihrem Telefon.",
+        "connectingMessage": "Geräte werden verbunden"
       },
       "limitGate": {
         "title": "Ausgabenlimit erreicht",

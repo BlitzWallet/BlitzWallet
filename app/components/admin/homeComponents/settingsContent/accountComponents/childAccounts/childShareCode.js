@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -14,12 +14,13 @@ import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
+import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 
 export default function ChildShareCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
-  const { status, pairingCode, isEnded } = useChildPairing();
+  const { status, pairingCode, isEnded, resetSession } = useChildPairing();
 
   // Child joined and the SAS is ready -> move to the verify screen.
   useEffect(() => {
@@ -31,6 +32,14 @@ export default function ChildShareCode() {
   const firstHalf = pairingCode?.slice(0, 3);
   const secondHalf = pairingCode?.slice(3);
 
+  const handleGoBack = useCallback(() => {
+    resetSession();
+    navigate.goBack();
+    return true;
+  }, [resetSession, navigate]);
+
+  useHandleBackPressNew(isEnded ? null : handleGoBack);
+
   if (isEnded) {
     return <ChildLinkError />;
   }
@@ -39,6 +48,7 @@ export default function ChildShareCode() {
       <CustomSettingsTopBar
         label={t('settings.childAccounts.pairing.codeNavTitle')}
         rightContent={status === 'preparing' ? null : <PairingExpiryClock />}
+        customBackFunction={handleGoBack}
       />
       {status === 'preparing' ? (
         <FullLoadingScreen showText={false} />

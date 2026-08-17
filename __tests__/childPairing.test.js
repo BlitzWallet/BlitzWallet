@@ -12,6 +12,8 @@ import {
   decryptSeedPayload,
   makeKeyCommitment,
   verifyKeyCommitment,
+  buildPairingQr,
+  parsePairingQr,
 } from '../app/functions/accounts/childPairing';
 
 const SAS_RE = /^[0-9a-t]{9}$/; // 9 shape indices, one base-36 char each (0-29)
@@ -120,5 +122,77 @@ describe('makePairingCode', () => {
       expect(c / total).toBeGreaterThan(0.08);
       expect(c / total).toBeLessThan(0.12);
     }
+  });
+});
+
+describe('pairing QR payload', () => {
+  const name = 'ParentName';
+  const code = '482916';
+  const pub = makeChildEphKey().pub;
+
+  it('round-trips through buildPairingQr / parsePairingQr', () => {
+    const qr = buildPairingQr({ name, code, parentEphPub: pub });
+    expect(qr).toBeTruthy();
+    // The name is carried normalized (it is the rendezvous id).
+    expect(parsePairingQr(qr)).toEqual({
+      name: 'parentname',
+      code,
+      parentEphPub: pub,
+    });
+  });
+
+  it('rejects malformed / foreign / wrong-version payloads', () => {
+    expect(parsePairingQr('')).toBeNull();
+    expect(parsePairingQr(null)).toBeNull();
+    expect(parsePairingQr(undefined)).toBeNull();
+    expect(parsePairingQr('not json')).toBeNull();
+    expect(parsePairingQr('{}')).toBeNull();
+    expect(parsePairingQr('[1,2,3]')).toBeNull();
+    expect(
+      parsePairingQr(
+        JSON.stringify({ t: 'other', v: 1, n: name, c: code, pk: pub }),
+      ),
+    ).toBeNull();
+    expect(
+      parsePairingQr(
+        JSON.stringify({ t: 'childPair', v: 2, n: name, c: code, pk: pub }),
+      ),
+    ).toBeNull();
+  });
+
+  it('rejects payloads with invalid fields', () => {
+    const base = { t: 'childPair', v: 1, n: name, c: code, pk: pub };
+    // 5-digit code
+    expect(
+      parsePairingQr(JSON.stringify({ ...base, c: '12345' })),
+    ).toBeNull();
+    // empty name
+    expect(parsePairingQr(JSON.stringify({ ...base, n: '' }))).toBeNull();
+    // invalid-name chars
+    expect(
+      parsePairingQr(JSON.stringify({ ...base, n: 'has space' })),
+    ).toBeNull();
+    // bad pubkey (wrong length / non-hex)
+    expect(parsePairingQr(JSON.stringify({ ...base, pk: 'xyz' }))).toBeNull();
+    expect(
+      parsePairingQr(JSON.stringify({ ...base, pk: '00' })),
+    ).toBeNull();
+    // A 64-char hex pubkey passes the QR format check even if it is not a
+    // valid curve point — the deriveSharedX layer rejects those later.
+    expect(
+      parsePairingQr(JSON.stringify({ ...base, pk: '00'.repeat(32) })),
+    ).toEqual({ name: 'parentname', code, parentEphPub: '00'.repeat(32) });
+    // missing fields
+    expect(
+      parsePairingQr(JSON.stringify({ t: 'childPair', v: 1, n: name, c: code })),
+    ).toBeNull();
+  });
+
+  it('buildPairingQr returns an empty string for invalid fields', () => {
+    expect(buildPairingQr({ name: '', code, parentEphPub: pub })).toBe('');
+    expect(buildPairingQr({ name, code: '123', parentEphPub: pub })).toBe('');
+    expect(buildPairingQr({ name, code, parentEphPub: 'xyz' })).toBe('');
+    expect(buildPairingQr({ name, code, parentEphPub: '' })).toBe('');
+    expect(buildPairingQr({})).toBe('');
   });
 });

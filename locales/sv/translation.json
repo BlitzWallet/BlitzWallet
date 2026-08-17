@@ -1127,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Ingen tillgång till kamera",
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
-      "noCameraDevice": "Du har ingen kameraenhet.",
+      "noCameraDevice": "Ingen kameraenhet",
+      "noCameraDeviceSub": "Ingen kamera finns tillgänglig på den här enheten.",
       "noFlash": " Enheten har inte en fackla",
       "scanningResponse": "Endast QR-koder accepteras.",
       "qrDecodeError": "Fel vid avkodning av QR-kod",
@@ -1149,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Ingen tillgång till kamera",
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
-      "noCameraDevice": "Du har ingen kameraenhet.",
+      "noCameraDevice": "Ingen kameraenhet",
+      "noCameraDeviceSub": "Ingen kamera finns tillgänglig på den här enheten.",
       "error1": "Enheten har inte en fackla",
       "error2": "Du har redan betalat den här fakturan"
     },
@@ -2234,7 +2236,7 @@
         "done": "Klart"
       },
       "pairing": {
-        "title": "Dela kod",
+        "title": "Dela",
         "usernameTitle": "Dela ditt användarnamn",
         "usernameSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan ange detta användarnamn.",
         "generateCode": "Generera kod",
@@ -2260,7 +2262,16 @@
         "confirmBTN": "De stämmer",
         "needsUsername": "Ange ett användarnamn på din profil innan du länkar en plånbok.",
         "notOwner": "Vi kunde inte bekräfta din användarnamnsreservation. Försök igen om en liten stund.",
-        "startFailed": "Det gick inte att starta ihopparningen. Försök igen."
+        "startFailed": "Det gick inte att starta ihopparningen. Försök igen.",
+        "codeOption": "Kod",
+        "qrOption": "QR",
+        "qrTitle": "Skanna denna QR-kod",
+        "qrSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan skanna denna QR-kod.",
+        "qrWaiting": "Väntar på att de ska skanna…",
+        "acceptTitle": "Acceptera ihopparningen?",
+        "acceptSubtitle": "Genom att para ihop ger du den här personen åtkomst till {{name}}. Se till att du parar ihop med rätt person.",
+        "acceptBTN": "Acceptera",
+        "declineBTN": "Avböja"
       },
       "transactions": {
         "title": "Aktivitet",
@@ -2312,7 +2323,15 @@
         "expired": "Den här kopplingen har gått ut. Börja om.",
         "errorTitle": "Kopplingssessionen avslutades",
         "canceledByParent": "Kontoinnehavaren avbröt kopplingsbegäran.",
-        "codePlaceholder": "användarnamn"
+        "codePlaceholder": "användarnamn",
+        "codeOption": "Kod",
+        "scanOption": "Skanna",
+        "scanNavTitle": "Skanna kod",
+        "scanTitle": "Skanna deras QR-kod",
+        "scanHint": "Placera QR-koden i sikte för att aktivera",
+        "scanWaiting": "Väntar på att begäran ska accepteras",
+        "scanSubtitle": "Rikta kameran mot QR-koden på deras telefon.",
+        "connectingMessage": "Ansluter dina enheter"
       },
       "limitGate": {
         "title": "Utgiftsgränsen nådd",

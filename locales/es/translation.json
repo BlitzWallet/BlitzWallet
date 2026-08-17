@@ -1127,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Sin acceso a la cámara",
       "settingsText": "Ve a configuración para permitir que Blitz Wallet acceda a tu cámara",
-      "noCameraDevice": "No tienes un dispositivo con cámara.",
+      "noCameraDevice": "Sin dispositivo de cámara",
+      "noCameraDeviceSub": "No hay ninguna cámara disponible en este dispositivo.",
       "noFlash": "El dispositivo no tiene linterna",
       "scanningResponse": "Solo se aceptan códigos QR.",
       "qrDecodeError": "Error al decodificar el código QR",
@@ -1149,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Sin acceso a la cámara",
       "settingsText": "Ve a configuración para permitir que Blitz Wallet acceda a tu cámara",
-      "noCameraDevice": "No tienes un dispositivo con cámara.",
+      "noCameraDevice": "Sin dispositivo de cámara",
+      "noCameraDeviceSub": "No hay ninguna cámara disponible en este dispositivo.",
       "error1": "El dispositivo no tiene linterna",
       "error2": "Ya has pagado esta factura"
     },
@@ -2234,7 +2236,7 @@
         "done": "Listo"
       },
       "pairing": {
-        "title": "Compartir código",
+        "title": "Compartir",
         "usernameTitle": "Comparte tu nombre de usuario",
         "usernameSubtitle": "Pídeles que abran Blitz en su teléfono, elijan «Unirse a la wallet compartida» y luego introduzcan este nombre de usuario.",
         "generateCode": "Generar código",
@@ -2260,7 +2262,16 @@
         "confirmBTN": "Coinciden",
         "needsUsername": "Configura un nombre de usuario en tu perfil antes de vincular una wallet.",
         "notOwner": "No pudimos confirmar tu reserva de nombre de usuario. Inténtalo de nuevo en un momento.",
-        "startFailed": "No se pudo iniciar el emparejamiento. Inténtalo de nuevo."
+        "startFailed": "No se pudo iniciar el emparejamiento. Inténtalo de nuevo.",
+        "codeOption": "Código",
+        "qrOption": "QR",
+        "qrTitle": "Escanea este código QR",
+        "qrSubtitle": "Pídeles que abran Blitz en su teléfono, elijan «Unirse a la wallet compartida» y luego escaneen este código QR.",
+        "qrWaiting": "Esperando a que escaneen…",
+        "acceptTitle": "¿Aceptar el emparejamiento?",
+        "acceptSubtitle": "Al emparejar, estás dando a esta persona acceso a {{name}}. Asegúrate de emparejarte con la persona correcta.",
+        "acceptBTN": "Aceptar",
+        "declineBTN": "Rechazar"
       },
       "transactions": {
         "title": "Actividad",
@@ -2312,7 +2323,15 @@
         "expired": "Este emparejamiento expiró. Vuelve a empezar.",
         "errorTitle": "La sesión de emparejamiento terminó",
         "canceledByParent": "El propietario de la cuenta canceló la solicitud de emparejamiento.",
-        "codePlaceholder": "nombre de usuario"
+        "codePlaceholder": "nombre de usuario",
+        "codeOption": "Código",
+        "scanOption": "Escanear",
+        "scanNavTitle": "Escanear código",
+        "scanTitle": "Escanea su código QR",
+        "scanHint": "Coloca el código QR a la vista para activarlo",
+        "scanWaiting": "Esperando a que se acepte la solicitud",
+        "scanSubtitle": "Apunta tu cámara al código QR de su teléfono.",
+        "connectingMessage": "Conectando tus dispositivos"
       },
       "limitGate": {
         "title": "Límite de gasto alcanzado",

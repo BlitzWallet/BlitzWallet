@@ -24,6 +24,7 @@ const CHILD_MNEMONIC =
 const PARENT_NAME = 'ParentName';
 const RID = 'parentname';
 const CODE = '482916';
+const CODE_B = '731204'; // a second session code for re-pair regression tests
 const STATE_TTL = 180000; // per-state server deadline
 const PAIRING_EXPIRY_SLACK_MS = 10 * 1000; // passive-fallback slack (source: childClaimContext.js)
 const T0 = 1_700_000_000_000;
@@ -142,6 +143,13 @@ function joinedSessionId() {
   return calls[calls.length - 1][1];
 }
 
+// Keyed listener lookup: a subscription stored under `party:sessionId` (or
+// `session:sessionId`) stays addressable even after a newer session took over
+// the refs — the regression tests fire STALE listeners through these keys.
+function listenerFor(party, sessionId = CODE) {
+  return listeners[`${party}:${sessionId}`];
+}
+
 function grantPayload() {
   const sharedX = deriveSharedX(parentEph.priv, sessionEphPub());
   return encryptSeedPayload(deriveSeedKey(sharedX), {
@@ -167,17 +175,27 @@ beforeEach(() => {
   mockDb.setPairingDoc.mockImplementation(async () => true);
   mockDb.subscribePairingDoc.mockImplementation(
     (rid, sessionId, party, onData) => {
+      // Key every subscription by party:sessionId so stale/leaked listeners
+      // from dead sessions stay addressable in the regression tests (harness
+      // tweak, review §9). The unkeyed alias tracks the LATEST subscription so
+      // the original tests keep firing the current session's listener.
+      const key = `${party}:${sessionId}`;
+      listeners[key] = onData;
       listeners[party] = onData;
       return jest.fn(() => {
-        delete listeners[party];
+        delete listeners[key];
+        if (listeners[party] === onData) delete listeners[party];
       });
     },
   );
   mockDb.subscribePairingSession.mockImplementation(
     (rid, sessionId, onData) => {
+      const key = `session:${sessionId}`;
+      listeners[key] = onData;
       listeners.session = onData;
       return jest.fn(() => {
-        delete listeners.session;
+        delete listeners[key];
+        if (listeners.session === onData) delete listeners.session;
       });
     },
   );
@@ -368,6 +386,96 @@ describe('childClaimContext — claim outcomes (D4)', () => {
     expect(api.status).toBe('idle');
     expect(api.errorMessage).toBe('settings.childAccounts.claim.wrongCode');
     expect(mockDb.claimPairingSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('childClaimContext — QR path (scannedParentPub)', () => {
+  async function submitScannedPairing(scannedParentPub = parentEph.pub) {
+    await act(async () => {
+      const p = api.submitPairing({
+        name: PARENT_NAME,
+        code: CODE,
+        scannedParentPub,
+      });
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('joining');
+  }
+
+  test('matching reveal auto-confirms → grant → done, never entering confirm', async () => {
+    await mount();
+    await submitScannedPairing();
+
+    await act(async () => {
+      listeners.parentReveal({ parentEphPub: parentEph.pub });
+      await flush();
+    });
+    // The key-equality check replaces the SAS screen: no confirm status, no
+    // SAS pattern, straight to the grant wait with childConfirm written.
+    expect(api.status).toBe('awaiting');
+    expect(api.sas).toBe('');
+    expect(mockDb.setPairingDoc).toHaveBeenCalledWith(
+      RID,
+      CODE,
+      'childConfirm',
+      expect.objectContaining({ v: 1 }),
+    );
+
+    const enc = grantPayload();
+    await act(async () => {
+      listeners.grant({ ciphertext: enc.ct, iv: enc.iv, tag: enc.tag });
+      await flush();
+    });
+    expect(api.status).toBe('done');
+    expect(mockSetAccountMnemonic).toHaveBeenCalledWith(CHILD_MNEMONIC);
+  });
+
+  test('reveal mismatching the scanned pubkey → tamper (key-equality check)', async () => {
+    // The commitment is made over the attacker's key (simulating a QR/commit
+    // pair that disagree — e.g. a stale QR from another pairing attempt), so
+    // the commit check passes and the reveal reaches the equality assertion.
+    const attacker = makeChildEphKey();
+    mockDb.claimPairingSession.mockResolvedValue({
+      ok: true,
+      commit: makeKeyCommitment(attacker.pub),
+    });
+    await mount();
+    await submitScannedPairing();
+
+    await act(async () => {
+      listeners.parentReveal({ parentEphPub: attacker.pub });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.tamper');
+    // No auto-confirm, no grant wait.
+    expect(mockDb.setPairingDoc).not.toHaveBeenCalledWith(
+      RID,
+      CODE,
+      'childConfirm',
+      expect.anything(),
+    );
+    expect(mockSetAccountMnemonic).not.toHaveBeenCalled();
+  });
+
+  test('code path (no scannedParentPub) still lands on confirm with a SAS', async () => {
+    await mount();
+    await submitPairing();
+
+    await act(async () => {
+      listeners.parentReveal({ parentEphPub: parentEph.pub });
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+    expect(api.sas).toBeTruthy();
+    expect(mockDb.setPairingDoc).not.toHaveBeenCalledWith(
+      RID,
+      CODE,
+      'childConfirm',
+      expect.anything(),
+    );
   });
 });
 
@@ -635,5 +743,270 @@ describe('childClaimContext — terminal states', () => {
     });
     expect(mockDb.claimPairingSession).toHaveBeenCalledTimes(2);
     expect(api.status).toBe('joining');
+  });
+});
+
+describe('childClaimContext — teardown + generation counter (F-3/F-4/F-8/F-9)', () => {
+  // F-3: a re-submit from any state must tear down the previous session's
+  // listeners (and key material) instead of overwriting the refs and leaking
+  // the old subscriptions onto the new session.
+
+  test('T-F3a: re-submitting while a session is live tears down the old session listeners', async () => {
+    await mount();
+    await submitPairing(); // session A (CODE)
+    await act(async () => {
+      listeners[`parentReveal:${CODE}`]({ parentEphPub: parentEph.pub });
+      await flush();
+    });
+    expect(api.status).toBe('confirm');
+    expect(listeners[`parentReveal:${CODE}`]).toBeDefined();
+
+    // Re-submit for a new code directly (no reset in between — the context's
+    // entry teardown must detach A's listeners itself).
+    await act(async () => {
+      const p = api.submitPairing({ name: PARENT_NAME, code: CODE_B });
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('joining');
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(listeners[`parentReveal:${CODE_B}`]).toBeDefined();
+    expect(listeners[`session:${CODE_B}`]).toBeDefined();
+  });
+
+  // F-4: a submitPairing that survives a reset must detect it (generation
+  // counter) and release the claimed server session instead of acting on the
+  // new session's globals.
+
+  test('T-F3b: a zombie submitPairing resolving after a reset bails without touching the new session', async () => {
+    await mount();
+
+    // A's claim stays in flight.
+    let resolveClaimA;
+    mockDb.claimPairingSession.mockReturnValueOnce(
+      new Promise(res => {
+        resolveClaimA = res;
+      }),
+    );
+    await act(async () => {
+      api.submitPairing({ name: PARENT_NAME, code: CODE });
+      await flush();
+    });
+
+    // The user resets (back button) and starts B with a different code.
+    await act(async () => {
+      await api.resetSession();
+      await flush();
+    });
+    expect(api.status).toBe('idle');
+    await act(async () => {
+      const p = api.submitPairing({ name: PARENT_NAME, code: CODE_B });
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('joining');
+    expect(listeners[`session:${CODE_B}`]).toBeDefined();
+
+    // A's claim resolves late: the gen guard releases A's claimed session and
+    // bails — none of A's continuation lands on B.
+    await act(async () => {
+      resolveClaimA({ ok: true, commit: makeKeyCommitment(parentEph.pub) });
+      await flush();
+    });
+    expect(api.status).toBe('joining');
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, CODE);
+    expect(childHelloCalls()).toHaveLength(1);
+    expect(childHelloCalls()[0][1]).toBe(CODE_B);
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE_B}`]).toBeDefined();
+  });
+
+  test('T-F4: a zombie submitPairing resolving after its hello write releases the claimed session', async () => {
+    await mount();
+
+    // A claims immediately; its hello write stays in flight.
+    let resolveHelloA;
+    mockDb.setPairingDoc.mockImplementationOnce((r, s, party) =>
+      party === 'childHello'
+        ? new Promise(res => {
+            resolveHelloA = res;
+          })
+        : Promise.resolve(true),
+    );
+    await act(async () => {
+      api.submitPairing({ name: PARENT_NAME, code: CODE });
+      await flush();
+    });
+    expect(mockDb.claimPairingSession).toHaveBeenCalledWith(RID, CODE);
+
+    // Reset mid-hello, then B starts.
+    await act(async () => {
+      await api.resetSession();
+      await flush();
+    });
+    await act(async () => {
+      const p = api.submitPairing({ name: PARENT_NAME, code: CODE_B });
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('joining');
+    expect(listeners[`session:${CODE_B}`]).toBeDefined();
+
+    // A's hello resolves late → release A's claimed session and bail.
+    await act(async () => {
+      resolveHelloA(true);
+      await flush();
+    });
+    expect(api.status).toBe('joining');
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, CODE);
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE_B}`]).toBeDefined();
+    expect(listeners[`parentReveal:${CODE_B}`]).toBeDefined();
+  });
+
+  // F-8: every terminal path routes through endSession so listeners are torn
+  // down (and the session cancelled) on every terminal state — a stale listener
+  // can never fire on the next session's globals.
+
+  test('T-F8: a TTL-deleted session doc ends through endSession (listeners torn down)', async () => {
+    await mount();
+    await submitPairing();
+    await act(async () => {
+      listeners[`session:${CODE}`](null);
+      await flush();
+    });
+    expect(api.status).toBe('expired');
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, CODE);
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, CODE);
+  });
+
+  test('T-F8: parent CANCELLED ends through endSession (listeners torn down)', async () => {
+    await mount();
+    await submitPairing();
+    await act(async () => {
+      listeners[`session:${CODE}`]({ status: 'CANCELLED' });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe(
+      'settings.childAccounts.claim.canceledByParent',
+    );
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+  });
+
+  test('T-F8: a commit-mismatched reveal ends through endSession (listeners torn down)', async () => {
+    await mount();
+    await submitPairing();
+    await act(async () => {
+      listeners[`parentReveal:${CODE}`]({
+        parentEphPub: makeChildEphKey().pub,
+      });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.tamper');
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, CODE);
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, CODE);
+  });
+
+  test('T-F8: a reveal mismatching the scanned QR pubkey ends through endSession', async () => {
+    const attacker = makeChildEphKey();
+    mockDb.claimPairingSession.mockResolvedValue({
+      ok: true,
+      commit: makeKeyCommitment(attacker.pub),
+    });
+    await mount();
+    await act(async () => {
+      const p = api.submitPairing({
+        name: PARENT_NAME,
+        code: CODE,
+        scannedParentPub: parentEph.pub,
+      });
+      await flush();
+      await p;
+      await flush();
+    });
+    await act(async () => {
+      listeners[`parentReveal:${CODE}`]({ parentEphPub: attacker.pub });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.tamper');
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+  });
+
+  test('T-F8: a rules-denied childConfirm ends through endSession (session torn down)', async () => {
+    mockDb.setPairingDoc.mockImplementation(async (r, s, party) =>
+      party === 'childConfirm' ? false : true,
+    );
+    await mount();
+    await reachConfirm();
+    await act(async () => {
+      const p = api.confirmMatch();
+      await flush();
+      await p;
+      await flush();
+    });
+    expect(api.status).toBe('expired');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.expired');
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, CODE);
+  });
+
+  test('T-F8: a tampered grant ends through endSession (session torn down)', async () => {
+    await mount();
+    await reachConfirm();
+    await act(async () => {
+      const p = api.confirmMatch();
+      await flush();
+      await p;
+      await flush();
+    });
+    await act(async () => {
+      listeners[`grant:${CODE}`]({ ciphertext: 'zz', iv: 'zz', tag: 'zz' });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe('settings.childAccounts.claim.tamper');
+    expect(listeners[`grant:${CODE}`]).toBeUndefined();
+    expect(listeners[`parentReveal:${CODE}`]).toBeUndefined();
+    expect(listeners[`session:${CODE}`]).toBeUndefined();
+    expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, CODE);
+  });
+
+  // F-9: statusRef is set synchronously so a same-frame double entry (double
+  // tap on Match) is a no-op instead of a re-entry.
+
+  test('T-F9: double-tapping Match in the same frame writes childConfirm once and subscribes one grant listener', async () => {
+    await mount();
+    await reachConfirm();
+    await act(async () => {
+      const a = api.confirmMatch();
+      const b = api.confirmMatch();
+      await flush();
+      await Promise.all([a, b]);
+      await flush();
+    });
+    expect(api.status).toBe('awaiting');
+    expect(
+      mockDb.setPairingDoc.mock.calls.filter(
+        ([, , p]) => p === 'childConfirm',
+      ),
+    ).toHaveLength(1);
+    expect(
+      mockDb.subscribePairingDoc.mock.calls.filter(([, , p]) => p === 'grant'),
+    ).toHaveLength(1);
   });
 });

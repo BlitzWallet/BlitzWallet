@@ -32,6 +32,7 @@ import {
 } from '../db';
 import { crashlyticsRecordErrorReport } from '../app/functions/crashlyticsLogs';
 import { useAccountsExpiryTimeTick } from '../app/functions/accounts/expiryTimeTick';
+import { buildPairingQr } from '../app/functions/accounts/childPairing';
 
 // Per-state server deadline (rules: request.time < stateTs + 3m). Only the
 // server clock judges liveness; this constant drives the cosmetic countdown
@@ -57,13 +58,22 @@ export function ChildPairingProvider({ children }) {
   // below are atomic — they can never disagree about the time.
   const tick = useAccountsExpiryTimeTick();
 
-  // status: idle | preparing | waiting | confirm | granting | done | error | expired
+  // status: idle | preparing | waiting | confirm | accept | granting | done | error | expired
+  // 'accept' (QR path only): the child has connected (childConfirm) and the
+  // parent must tap Accept before the seed is granted — the human gate that
+  // replaces SAS on the QR path.
   const [status, setStatus] = useState('idle');
   const [sas, setSas] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   // The 6-digit secret code the parent displays and the child types to reach
   // the session (the session doc id IS this code — no public pointer exists).
   const [pairingCode, setPairingCode] = useState('');
+  // The parent's ephemeral pubkey for the live session. Together with
+  // pairingCode this drives the QR-path payload (qrValue).
+  const [parentEphPub, setParentEphPub] = useState('');
+  // Which pairing mode opened the live session ('code' | 'qr'). Gates qrValue
+  // so a code-mode session never exposes a scannable QR payload.
+  const [pairingMode, setPairingMode] = useState('code');
   // Server timestamp (anchor) + device arrival time (startedAt) of the current
   // session state (createdAt / joinedAt / verifyingAt, from the session
   // snapshot). Countdowns are elapsed against startedAt so device clock skew
@@ -121,6 +131,8 @@ export function ChildPairingProvider({ children }) {
     }
     setSas('');
     setPairingCode('');
+    setParentEphPub('');
+    setPairingMode('code');
     setErrorMessage(message);
     setPairingExpiryClock(null);
     setStatus(nextStatus);
@@ -134,7 +146,7 @@ export function ChildPairingProvider({ children }) {
   );
 
   const startPairing = useCallback(
-    async reshareChild => {
+    async (reshareChild, mode = 'code') => {
       // The child account already exists (created on the spending-limit screen).
       // This only runs the pairing handshake — re-runnable any time, e.g. if the
       // child loses their wallet and must re-pair.
@@ -195,6 +207,8 @@ export function ChildPairingProvider({ children }) {
           commit: makeKeyCommitment(parentEph.pub),
         });
         setPairingCode(code);
+        setParentEphPub(parentEph.pub);
+        setPairingMode(mode);
 
         sessionRef.current = {
           rid,
@@ -204,48 +218,45 @@ export function ChildPairingProvider({ children }) {
           name: childName,
           spendingLimit: childLimit,
           parentEph,
+          mode,
         };
 
         // The session doc is the primary driver: every status transition re-anchors
         // the cosmetic countdown to the server timestamp, CANCELLED means the
         // child declined, and a TTL-deleted doc is a derived expiry.
-        sessionUnsubRef.current = subscribePairingSession(
-          rid,
-          code,
-          data => {
-            const s = sessionRef.current;
-            if (!s || s.granted || s.declined) return;
-            if (!data) {
-              // Session GC'd — purely passive: flip the screen, no teardown.
-              setStatus('expired');
-              return;
-            }
-            if (data.status === 'WAITING' && data.createdAt) {
-              setPairingExpiryClock({
-                anchor: data.createdAt.toMillis(),
-                startedAt: Date.now(),
-              });
-            } else if (data.status === 'JOINED' && data.joinedAt) {
-              // setPairingExpiryClock({
-              //   anchor: data.joinedAt.toMillis(),
-              //   startedAt: Date.now(),
-              // });
-            } else if (data.status === 'VERIFYING' && data.verifyingAt) {
-              // setPairingExpiryClock({
-              //   anchor: data.verifyingAt.toMillis(),
-              //   startedAt: Date.now(),
-              // });
-            } else if (data.status === 'CANCELLED') {
-              s.declined = true;
-              endSession(
-                'error',
-                t('settings.childAccounts.pairing.declinedByChild'),
-              );
-            }
-            // COMPLETED is deliberately ignored: the parent's terminal is the
-            // grant being delivered, not this best-effort marker (D5).
-          },
-        );
+        sessionUnsubRef.current = subscribePairingSession(rid, code, data => {
+          const s = sessionRef.current;
+          if (!s || s.granted || s.declined) return;
+          if (!data) {
+            // Session GC'd — purely passive: flip the screen, no teardown.
+            setStatus('expired');
+            return;
+          }
+          if (data.status === 'WAITING' && data.createdAt) {
+            setPairingExpiryClock({
+              anchor: data.createdAt.toMillis(),
+              startedAt: Date.now(),
+            });
+          } else if (data.status === 'JOINED' && data.joinedAt) {
+            // setPairingExpiryClock({
+            //   anchor: data.joinedAt.toMillis(),
+            //   startedAt: Date.now(),
+            // });
+          } else if (data.status === 'VERIFYING' && data.verifyingAt) {
+            // setPairingExpiryClock({
+            //   anchor: data.verifyingAt.toMillis(),
+            //   startedAt: Date.now(),
+            // });
+          } else if (data.status === 'CANCELLED') {
+            s.declined = true;
+            endSession(
+              'error',
+              t('settings.childAccounts.pairing.declinedByChild'),
+            );
+          }
+          // COMPLETED is deliberately ignored: the parent's terminal is the
+          // grant being delivered, not this best-effort marker (D5).
+        });
 
         // Listen for the child's ephemeral pubkey. Only then reveal our own
         // ephemeral pubkey (the child verifies it against the commitment),
@@ -272,6 +283,7 @@ export function ChildPairingProvider({ children }) {
                 code,
                 'VERIFYING',
               );
+              if (sessionRef.current !== s) return;
               if (!didAdvance) {
                 // Rules-denied — the session deadline passed under us. Surface
                 // the derived expiry; never rely on a client timer for this.
@@ -281,19 +293,39 @@ export function ChildPairingProvider({ children }) {
                 );
                 return;
               }
-              const didReveal = await setPairingDoc(
-                rid,
-                code,
-                'parentReveal',
-                {
-                  v: 1,
-                  parentEphPub: s.parentEph.pub,
-                },
-              );
+              const didReveal = await setPairingDoc(rid, code, 'parentReveal', {
+                v: 1,
+                parentEphPub: s.parentEph.pub,
+              });
+              if (sessionRef.current !== s) return;
               if (!didReveal) {
                 endSession(
                   'expired',
                   t('settings.childAccounts.pairing.expired'),
+                );
+                return;
+              }
+              if (s.mode === 'qr') {
+                // QR path: the child scanned our pubkey out-of-band, so the
+                // child's automatic key-equality assertion replaces the human
+                // SAS comparison (parent→child authentication). But the grant
+                // is NOT delivered automatically: the child's childConfirm only
+                // surfaces the Accept screen, and the parent must tap Accept
+                // before the seed leaves (child→parent authentication). Without
+                // this gate a photographed QR would let a scripted claimer win
+                // the single-claim race and silently receive the child seed.
+                if (handshakeUnsubRef.current) {
+                  handshakeUnsubRef.current();
+                  handshakeUnsubRef.current = null;
+                }
+                handshakeUnsubRef.current = subscribePairingDoc(
+                  rid,
+                  code,
+                  'childConfirm',
+                  () => {
+                    if (statusRef.current !== 'waiting') return;
+                    setStatus('accept');
+                  },
                 );
                 return;
               }
@@ -334,10 +366,93 @@ export function ChildPairingProvider({ children }) {
     return cleanup;
   }, [resetSession]);
 
+  // Encrypt and deliver the child seed. The parent's terminal is this grant
+  // being delivered, never the session's COMPLETED marker (D5). Reached only
+  // after the parent's authorization: the human SAS compare + Match on the code
+  // path, or the Accept tap on the QR path.
+  const deliverGrant = useCallback(
+    async session => {
+      if (session.granted || !session.childMnemonic) return;
+      try {
+        const seedKey = deriveSeedKey(session.sharedX);
+        const enc = encryptSeedPayload(seedKey, {
+          v: 1,
+          mnemonic: session.childMnemonic,
+          name: session.name,
+          spendingLimit: session.spendingLimit,
+          childIndex: session.childIndex,
+          grantedAt: Date.now(),
+        });
+        const didGrant = await setPairingDoc(
+          session.rid,
+          session.sessionId,
+          'grant',
+          {
+            v: 1,
+            iv: enc.iv,
+            ciphertext: enc.ct,
+            tag: enc.tag,
+          },
+        );
+        if (!didGrant) throw new Error('Failed to deliver grant');
+
+        session.granted = true;
+        session.childMnemonic = null; // wipe seed from memory
+        if (handshakeUnsubRef.current) {
+          handshakeUnsubRef.current();
+          handshakeUnsubRef.current = null;
+        }
+        if (sessionUnsubRef.current) {
+          sessionUnsubRef.current();
+          sessionUnsubRef.current = null;
+        }
+        // Best-effort cosmetic marker (D5): the grant is the parent's
+        // terminal, so this may be rules-denied at the deadline boundary —
+        // swallow its failure and never depend on it.
+        advanceSessionStatus(session.rid, session.sessionId, 'COMPLETED');
+        setStatus('done');
+      } catch (err) {
+        console.log('child grant error', err);
+        crashlyticsRecordErrorReport(err.message);
+        if (sessionRef.current === session) endSession('error');
+      }
+    },
+    [endSession],
+  );
+
+  // Code path: subscribe childConfirm and deliver the grant once the child
+  // confirms the SAS. The child writes childConfirm after the human SAS compare;
+  // the parent already authorized by pressing Match (confirmMatch guards this).
+  const deliverGrantOnChildConfirm = useCallback(
+    session => {
+      handshakeUnsubRef.current = subscribePairingDoc(
+        session.rid,
+        session.sessionId,
+        'childConfirm',
+        () => deliverGrant(session),
+      );
+    },
+    [deliverGrant],
+  );
+
+  // QR path Accept tap: the child has connected (status 'accept') and the parent
+  // consciously grants access. This is the parent-side human authentication that
+  // replaces SAS on the QR path — the grant is written only here, never
+  // automatically on childConfirm.
+  const acceptPairing = useCallback(() => {
+    const session = sessionRef.current;
+    if (statusRef.current !== 'accept') return;
+    if (!session?.sharedX || !session?.childMnemonic) return;
+    statusRef.current = 'granting';
+    setStatus('granting');
+    deliverGrant(session);
+  }, [deliverGrant]);
+
   const confirmMatch = useCallback(async () => {
     const session = sessionRef.current;
     if (statusRef.current !== 'confirm') return;
     if (!session?.sharedX || !session?.childMnemonic) return;
+    statusRef.current = 'granting';
     setStatus('granting');
 
     // Wait for the child to confirm the match before delivering the grant, so the
@@ -348,58 +463,8 @@ export function ChildPairingProvider({ children }) {
       handshakeUnsubRef.current();
       handshakeUnsubRef.current = null;
     }
-    handshakeUnsubRef.current = subscribePairingDoc(
-      session.rid,
-      session.sessionId,
-      'childConfirm',
-      async () => {
-        if (session.granted || !session.childMnemonic) return;
-        try {
-          const seedKey = deriveSeedKey(session.sharedX);
-          const enc = encryptSeedPayload(seedKey, {
-            v: 1,
-            mnemonic: session.childMnemonic,
-            name: session.name,
-            spendingLimit: session.spendingLimit,
-            childIndex: session.childIndex,
-            grantedAt: Date.now(),
-          });
-          const didGrant = await setPairingDoc(
-            session.rid,
-            session.sessionId,
-            'grant',
-            {
-              v: 1,
-              iv: enc.iv,
-              ciphertext: enc.ct,
-              tag: enc.tag,
-            },
-          );
-          if (!didGrant) throw new Error('Failed to deliver grant');
-
-          session.granted = true;
-          session.childMnemonic = null; // wipe seed from memory
-          if (handshakeUnsubRef.current) {
-            handshakeUnsubRef.current();
-            handshakeUnsubRef.current = null;
-          }
-          if (sessionUnsubRef.current) {
-            sessionUnsubRef.current();
-            sessionUnsubRef.current = null;
-          }
-          // Best-effort cosmetic marker (D5): the grant is the parent's
-          // terminal, so this may be rules-denied at the deadline boundary —
-          // swallow its failure and never depend on it.
-          advanceSessionStatus(session.rid, session.sessionId, 'COMPLETED');
-          setStatus('done');
-        } catch (err) {
-          console.log('child grant error', err);
-          crashlyticsRecordErrorReport(err.message);
-          endSession('error');
-        }
-      },
-    );
-  }, [endSession]);
+    deliverGrantOnChildConfirm(session);
+  }, [deliverGrantOnChildConfirm]);
 
   // Passive expiry fallback (D1/D2): actively end the session — cancel it and
   // delete our handshake docs — the moment the countdown reads zero. The
@@ -411,7 +476,12 @@ export function ChildPairingProvider({ children }) {
   // the cleanup net so a dead session dies immediately instead of lingering
   // for native TTL.
   useEffect(() => {
-    if (status !== 'waiting' && status !== 'confirm' && status !== 'granting')
+    if (
+      status !== 'waiting' &&
+      status !== 'confirm' &&
+      status !== 'accept' &&
+      status !== 'granting'
+    )
       return;
     if (!pairingExpiryClock?.startedAt) return;
     if (tick >= pairingExpiryClock.startedAt + PAIRING_STATE_TTL_MS) {
@@ -444,6 +514,21 @@ export function ChildPairingProvider({ children }) {
 
   const isEnded = status === 'error' || status === 'expired';
 
+  // The QR-path payload for the live session (empty outside a live QR-mode
+  // session). Both inputs are state set at session creation, so the link
+  // screen re-renders with a scannable QR as soon as the session exists.
+  const qrValue = useMemo(
+    () =>
+      pairingMode === 'qr' && pairingCode && parentEphPub
+        ? buildPairingQr({
+            name: parentUniqueName,
+            code: pairingCode,
+            parentEphPub,
+          })
+        : '',
+    [pairingMode, pairingCode, parentEphPub, parentUniqueName],
+  );
+
   const contextValue = useMemo(
     () => ({
       status,
@@ -451,8 +536,10 @@ export function ChildPairingProvider({ children }) {
       errorMessage,
       parentUniqueName,
       pairingCode,
+      qrValue,
       startPairing,
       confirmMatch,
+      acceptPairing,
       declineMatch,
       resetSession,
       isEnded,
@@ -464,8 +551,10 @@ export function ChildPairingProvider({ children }) {
       errorMessage,
       parentUniqueName,
       pairingCode,
+      qrValue,
       startPairing,
       confirmMatch,
+      acceptPairing,
       declineMatch,
       resetSession,
       isEnded,

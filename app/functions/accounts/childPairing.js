@@ -41,6 +41,11 @@ const VALID_PAIRING_NAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 // that must never reach getSharedSecret (throws on invalid curve points).
 const VALID_EPH_PUB_REGEX = /^[0-9a-f]{64}$/;
 
+const VALID_PAIRING_CODE_REGEX = /^[0-9]{6}$/;
+
+const PAIRING_QR_TYPE = 'childPair';
+const PAIRING_QR_VERSION = 1;
+
 /** Fresh in-memory ephemeral keypair for one pairing session. Never persisted. */
 export function makeChildEphKey() {
   const privBytes = randomBytes(32);
@@ -171,4 +176,59 @@ export function decryptSeedPayload(seedKey, { iv, ct, tag }) {
   let pt = decipher.update(ct, 'base64', 'utf8');
   pt += decipher.final('utf8');
   return JSON.parse(pt);
+}
+
+/**
+ * The QR-path payload: versioned, namespaced JSON carrying everything the child
+ * needs for a full ECDH handoff — the rendezvous name, the session code, and
+ * the parent's ephemeral pubkey (collapsing commit-reveal + SAS into one
+ * trusted physical channel). Returns '' when any field is invalid so callers
+ * never render a scannable but unparseable QR.
+ */
+export function buildPairingQr({ name, code, parentEphPub }) {
+  const rid = normalizePairingName(name);
+  const pairCode = String(code || '');
+  const pub = String(parentEphPub || '');
+  if (
+    !rid ||
+    !VALID_PAIRING_CODE_REGEX.test(pairCode) ||
+    !VALID_EPH_PUB_REGEX.test(pub)
+  ) {
+    return '';
+  }
+  return JSON.stringify({
+    t: PAIRING_QR_TYPE,
+    v: PAIRING_QR_VERSION,
+    n: rid,
+    c: pairCode,
+    pk: pub,
+  });
+}
+
+/**
+ * Parse + validate a raw scanned string into a pairing payload. Non-pairing
+ * QRs (or garbage) return null — the scanner ignores them and keeps scanning.
+ */
+export function parsePairingQr(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  try {
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return null;
+    if (data.t !== PAIRING_QR_TYPE || data.v !== PAIRING_QR_VERSION) {
+      return null;
+    }
+    const name = normalizePairingName(data.n);
+    const code = String(data.c ?? '');
+    const parentEphPub = String(data.pk ?? '');
+    if (
+      !name ||
+      !VALID_PAIRING_CODE_REGEX.test(code) ||
+      !VALID_EPH_PUB_REGEX.test(parentEphPub)
+    ) {
+      return null;
+    }
+    return { name, code, parentEphPub };
+  } catch (err) {
+    return null;
+  }
 }

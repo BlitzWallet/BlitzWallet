@@ -7,13 +7,14 @@ import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopB
 import CustomButton from '../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../functions/CustomElements/customNumberKeyboard';
 import SegmentedCodeInput from '../../../functions/CustomElements/segmentedCodeInput';
-import { CENTER, COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../constants';
+import { CENTER, COLORS } from '../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
 import {
   keyboardGoBack,
   keyboardNavigate,
 } from '../../../functions/customNavigation';
+import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 
 export default function ChildEnterPairCode() {
   const navigate = useNavigation();
@@ -33,7 +34,10 @@ export default function ChildEnterPairCode() {
   const handleBack = useCallback(() => {
     resetSession();
     keyboardGoBack(navigate);
+    return true;
   }, [resetSession, navigate]);
+
+  useHandleBackPressNew(handleBack);
 
   const isValid = /^[0-9]{6}$/.test(code);
   const submit = () => isValid && submitPairing({ name, code });

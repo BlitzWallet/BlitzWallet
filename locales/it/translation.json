@@ -1127,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Nessun accesso alla fotocamera",
       "settingsText": "Vai nelle impostazioni per permettere a Blitz Wallet di accedere alla tua fotocamera",
-      "noCameraDevice": "Non hai un dispositivo con fotocamera.",
+      "noCameraDevice": "Nessun dispositivo con fotocamera",
+      "noCameraDeviceSub": "Nessuna fotocamera disponibile su questo dispositivo.",
       "noFlash": "Il dispositivo non ha una torcia",
       "scanningResponse": "Sono accettati solo codici QR.",
       "qrDecodeError": "Errore nel decodificare il QR Code",
@@ -1149,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Nessun accesso alla fotocamera",
       "settingsText": "Vai nelle impostazioni per permettere a Blitz Wallet di accedere alla tua fotocamera",
-      "noCameraDevice": "Non hai un dispositivo con fotocamera.",
+      "noCameraDevice": "Nessun dispositivo con fotocamera",
+      "noCameraDeviceSub": "Nessuna fotocamera disponibile su questo dispositivo.",
       "error1": "Il dispositivo non ha una torcia",
       "error2": "Hai già pagato questa fattura"
     },
@@ -2234,7 +2236,7 @@
         "done": "Fatto"
       },
       "pairing": {
-        "title": "Condividi codice",
+        "title": "Condividi",
         "usernameTitle": "Condividi il tuo nome utente",
         "usernameSubtitle": "Chiedi loro di aprire Blitz sul telefono, scegliere \"Unisciti a un portafoglio condiviso\" e poi inserire questo nome utente.",
         "generateCode": "Genera codice",
@@ -2260,7 +2262,16 @@
         "confirmBTN": "Corrispondono",
         "needsUsername": "Imposta un nome utente nel tuo profilo prima di associare un portafoglio.",
         "notOwner": "Non siamo riusciti a confermare la tua prenotazione del nome utente. Riprova tra un momento.",
-        "startFailed": "Impossibile avviare l'associazione. Riprova."
+        "startFailed": "Impossibile avviare l'associazione. Riprova.",
+        "codeOption": "Codice",
+        "qrOption": "QR",
+        "qrTitle": "Scansiona questo codice QR",
+        "qrSubtitle": "Chiedi loro di aprire Blitz sul telefono, scegliere \"Unisciti a un portafoglio condiviso\" e poi scansionare questo codice QR.",
+        "qrWaiting": "In attesa che scansionino…",
+        "acceptTitle": "Accettare l'associazione?",
+        "acceptSubtitle": "Associando, dai a questa persona l'accesso a {{name}}. Assicurati di associare la persona giusta.",
+        "acceptBTN": "Accetta",
+        "declineBTN": "Rifiuta"
       },
       "transactions": {
         "title": "Attività",
@@ -2312,7 +2323,15 @@
         "expired": "Questa associazione è scaduta. Ricomincia.",
         "errorTitle": "Sessione di associazione terminata",
         "canceledByParent": "Il proprietario del conto ha annullato la richiesta di associazione.",
-        "codePlaceholder": "nome utente"
+        "codePlaceholder": "nome utente",
+        "codeOption": "Codice",
+        "scanOption": "Scansiona",
+        "scanNavTitle": "Scansiona codice",
+        "scanTitle": "Scansiona il loro codice QR",
+        "scanHint": "Posiziona il codice QR in vista per attivare",
+        "scanWaiting": "In attesa che la richiesta venga accettata",
+        "scanSubtitle": "Punta la fotocamera sul codice QR del loro telefono.",
+        "connectingMessage": "Connessione dei tuoi dispositivi"
       },
       "limitGate": {
         "title": "Limite di spesa raggiunto",

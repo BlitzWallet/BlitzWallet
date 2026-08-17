@@ -1127,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
-      "noCameraDevice": "Você não tem um dispositivo com câmera.",
+      "noCameraDevice": "Nenhum dispositivo com câmera",
+      "noCameraDeviceSub": "Nenhuma câmera está disponível neste dispositivo.",
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Somente códigos QR são aceitos.",
       "qrDecodeError": "Erro ao decodificar o código QR",
@@ -1149,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
-      "noCameraDevice": "Você não tem um dispositivo com câmera.",
+      "noCameraDevice": "Nenhum dispositivo com câmera",
+      "noCameraDeviceSub": "Nenhuma câmera está disponível neste dispositivo.",
       "error1": "O dispositivo não possui lanterna",
       "error2": "Você já pagou esta fatura"
     },
@@ -2234,7 +2236,7 @@
         "done": "Concluído"
       },
       "pairing": {
-        "title": "Compartilhar código",
+        "title": "Compartilhar",
         "usernameTitle": "Compartilhe seu nome de usuário",
         "usernameSubtitle": "Peça para abrirem o Blitz no telefone deles, escolherem \"Entrar na carteira compartilhada\" e depois inserirem este nome de usuário.",
         "generateCode": "Gerar código",
@@ -2260,7 +2262,16 @@
         "confirmBTN": "Correspondem",
         "needsUsername": "Defina um nome de usuário no seu perfil antes de vincular uma carteira.",
         "notOwner": "Não conseguimos confirmar sua reserva de nome de usuário. Tente novamente em instantes.",
-        "startFailed": "Não foi possível iniciar o pareamento. Tente novamente."
+        "startFailed": "Não foi possível iniciar o pareamento. Tente novamente.",
+        "codeOption": "Código",
+        "qrOption": "QR",
+        "qrTitle": "Escanee este código QR",
+        "qrSubtitle": "Peça para abrirem o Blitz no telefone deles, escolherem \"Entrar na carteira compartilhada\" e depois escanearem este código QR.",
+        "qrWaiting": "Aguardando eles escanearem…",
+        "acceptTitle": "Aceitar o pareamento?",
+        "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
+        "acceptBTN": "Aceitar",
+        "declineBTN": "Recusar"
       },
       "transactions": {
         "title": "Atividade",
@@ -2312,7 +2323,15 @@
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
         "canceledByParent": "O dono da conta cancelou a solicitação de pareamento.",
-        "codePlaceholder": "nome de usuário"
+        "codePlaceholder": "nome de usuário",
+        "codeOption": "Código",
+        "scanOption": "Escanear",
+        "scanNavTitle": "Escanear código",
+        "scanTitle": "Escanee o código QR deles",
+        "scanHint": "Posicione o código QR à vista para ativar",
+        "scanWaiting": "Aguardando a solicitação ser aceita",
+        "scanSubtitle": "Aponte sua câmera para o código QR no telefone deles.",
+        "connectingMessage": "Conectando seus dispositivos"
       },
       "limitGate": {
         "title": "Limite de gastos atingido",

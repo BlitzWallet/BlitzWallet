@@ -90,6 +90,12 @@ export function ChildClaimProvider({ children }) {
   const sessionUnsubRef = useRef(null);
   const revealUnsubRef = useRef(null);
   const grantUnsubRef = useRef(null);
+  // Generation counter for the async submitPairing race: bumped on every start /
+  // reset / teardown so a submitPairing that survived a reset can detect it
+  // (myGen !== genRef) and release the claimed server session instead of acting
+  // on the new one. The parent side needs no counter — its session object always
+  // exists before its awaits (identity check).
+  const genRef = useRef(0);
   // Holds the backgrounded cancelPairingSession promise from the last decline so
   // a back-to-back re-pair can drain it before opening a new session (never
   // overlap the previous session's cleanup).
@@ -99,56 +105,58 @@ export function ChildClaimProvider({ children }) {
     statusRef.current = status;
   }, [status]);
 
+  // Unsubscribe every live listener and drop the session (wiping key material)
+  // without touching server state. Shared teardown for endSession/resetSession
+  // and for the entry of submitPairing: a re-submit from any terminal state must
+  // not leak the previous session's listeners (or its key material) onto the new
+  // one.
+  const teardownListeners = () => {
+    if (sessionUnsubRef.current) {
+      sessionUnsubRef.current();
+      sessionUnsubRef.current = null;
+    }
+    if (revealUnsubRef.current) {
+      revealUnsubRef.current();
+      revealUnsubRef.current = null;
+    }
+    if (grantUnsubRef.current) {
+      grantUnsubRef.current();
+      grantUnsubRef.current = null;
+    }
+    const session = sessionRef.current;
+    sessionRef.current = null;
+    if (session?.eph) session.eph = null;
+  };
+
   // Tear down a live session and land on a terminal status, keeping the error
   // message (when provided) so the terminal screens can explain why the pairing
   // ended. Cancelling the session is best-effort (it may already be terminal);
   // our own handshake docs are deleted unless the seed already landed or the
   // session was declined (then the docs are left for the peer to read). Mirror
   // of the parent-side endSession in childPairingContext.js.
-  const endSession = useCallback((nextStatus, message = '') => {
-    if (sessionUnsubRef.current) {
-      sessionUnsubRef.current();
-      sessionUnsubRef.current = null;
-    }
-    if (revealUnsubRef.current) {
-      revealUnsubRef.current();
-      revealUnsubRef.current = null;
-    }
-    if (grantUnsubRef.current) {
-      grantUnsubRef.current();
-      grantUnsubRef.current = null;
-    }
-    const session = sessionRef.current;
-    sessionRef.current = null;
-    if (session?.eph) session.eph = null;
-    if (session?.rid && session?.sessionId) {
-      cancelPairingSession(session.rid, session.sessionId);
-      if (!session.imported && !session.declined) {
-        deletePairingHandshake(session.rid, session.sessionId);
+  const endSession = useCallback(
+    (nextStatus, message = '', skipCancel = false) => {
+      genRef.current += 1;
+      const session = sessionRef.current;
+      teardownListeners();
+      if (session?.rid && session?.sessionId) {
+        !skipCancel && cancelPairingSession(session.rid, session.sessionId);
+        if (!session.imported && !session.declined) {
+          deletePairingHandshake(session.rid, session.sessionId);
+        }
       }
-    }
-    setPairingAnchor(null);
-    setSas('');
-    setErrorMessage(message);
-    setStatus(nextStatus);
-  }, []);
+      setPairingAnchor(null);
+      setSas('');
+      setErrorMessage(message);
+      setStatus(nextStatus);
+    },
+    [],
+  );
 
   const resetSession = useCallback(async (nextStatus = 'idle') => {
-    if (sessionUnsubRef.current) {
-      sessionUnsubRef.current();
-      sessionUnsubRef.current = null;
-    }
-    if (revealUnsubRef.current) {
-      revealUnsubRef.current();
-      revealUnsubRef.current = null;
-    }
-    if (grantUnsubRef.current) {
-      grantUnsubRef.current();
-      grantUnsubRef.current = null;
-    }
+    genRef.current += 1;
     const session = sessionRef.current;
-    sessionRef.current = null;
-    if (session?.eph) session.eph = null;
+    teardownListeners();
     // A declined session leaves its docs (incl. the cancel signal) for the peer to
     // read; TTL cleans up. Otherwise tear our own handshake docs down unless the
     // seed already landed.
@@ -209,15 +217,56 @@ export function ChildClaimProvider({ children }) {
         setStatus('done');
       } catch (err) {
         console.log('child grant decrypt error', err);
-        setErrorMessage(t('settings.childAccounts.claim.tamper'));
-        setStatus('error');
+        endSession('error', t('settings.childAccounts.claim.tamper'));
       }
     },
     [setAccountMnemonic, t],
   );
 
+  const confirmMatch = useCallback(async () => {
+    const session = sessionRef.current;
+    if (!session?.sharedX) return;
+    // Only the SAS-confirm screen may start the grant wait on the code path:
+    // rejecting after the session already ended (or double-confirming) must be
+    // a no-op, mirroring the parent-side guard. The QR path self-confirms from
+    // the parentReveal listener (status is still 'joining' there) once the
+    // reveal matches the scanned pubkey — the key-equality check IS the
+    // confirmation.
+    if (statusRef.current !== 'confirm' && !session.scannedParentPub) return;
+    // Code path: the human has visually compared the SAS on both phones. QR
+    // path: the reveal matched the pubkey from the trusted physical channel.
+    // Either way, now wait for the parent to deliver the encrypted grant.
+    setErrorMessage('');
+    statusRef.current = 'awaiting';
+    setStatus('awaiting');
+
+    // Tell the parent we confirmed the match so it can deliver the grant and
+    // advance — the mirror of the child waiting on the parent's grant doc. A
+    // rules-denied write (deadline passed / session ended) is the real expiry
+    // signal; no client timer decides it.
+    const didConfirm = await setPairingDoc(
+      session.rid,
+      session.sessionId,
+      'childConfirm',
+      { v: 1 },
+    );
+    if (!didConfirm) {
+      endSession('expired', t('settings.childAccounts.claim.expired'));
+      return;
+    }
+
+    grantUnsubRef.current = subscribePairingDoc(
+      session.rid,
+      session.sessionId,
+      'grant',
+      grant => {
+        if (grant?.ciphertext) importSeed(grant);
+      },
+    );
+  }, [importSeed, t]);
+
   const submitPairing = useCallback(
-    async ({ name, code }) => {
+    async ({ name, code, scannedParentPub }) => {
       const rid = normalizePairingName(name);
       const pairCode = String(code || '').trim();
       const badInput = !rid || !/^[0-9]{6}$/.test(pairCode);
@@ -226,17 +275,23 @@ export function ChildClaimProvider({ children }) {
           setErrorMessage(t('settings.childAccounts.claim.wrongCode'));
         return;
       }
+      // A re-submit from any terminal state must not leak the previous session's
+      // listeners (or its key material) onto the new one.
+      teardownListeners();
       setErrorMessage('');
       statusRef.current = 'joining';
       setStatus('joining');
+      const myGen = (genRef.current += 1);
       if (pendingDeclineRef.current) {
         await pendingDeclineRef.current;
         pendingDeclineRef.current = null;
       }
+      if (myGen !== genRef.current) return;
 
       try {
         if (!firebaseAuth.currentUser) {
           await signInAnonymously(firebaseAuth);
+          if (myGen !== genRef.current) return;
         }
 
         // Discover + atomically claim through the rate-limited proxy endpoint.
@@ -246,6 +301,10 @@ export function ChildClaimProvider({ children }) {
         // limiters make a code scan infeasible. It returns the parent's commit
         // for the verifyKeyCommitment check on the reveal below.
         const claim = await claimPairingSession(rid, pairCode);
+        if (myGen !== genRef.current) {
+          cancelPairingSession(rid, pairCode);
+          return;
+        }
         if (!claim.ok) {
           setStatus('idle');
           setErrorMessage(t(claimErrorCopy(claim.error)));
@@ -262,12 +321,20 @@ export function ChildClaimProvider({ children }) {
           sessionId: pairCode,
           eph,
           commit: claim.commit,
+          // QR path only: the parent pubkey embedded in the scanned QR. The
+          // reveal must match it (automatic key-equality check replaces the
+          // human SAS comparison); undefined on the code path.
+          scannedParentPub,
         };
 
         const didHello = await setPairingDoc(rid, pairCode, 'childHello', {
           v: 1,
           childEphPub: eph.pub,
         });
+        if (myGen !== genRef.current) {
+          cancelPairingSession(rid, pairCode);
+          return;
+        }
         if (!didHello) {
           sessionRef.current = null;
           setStatus('idle');
@@ -275,23 +342,30 @@ export function ChildClaimProvider({ children }) {
           return;
         }
 
-        sessionUnsubRef.current = subscribePairingSession(rid, pairCode, data => {
-          const s = sessionRef.current;
-          if (!s || s.imported || s.declined) return;
-          if (!data) {
-            setStatus('expired');
-            return;
-          }
-          if (data.status === 'JOINED' && data.joinedAt) {
-            setPairingAnchor({
-              anchor: data.joinedAt.toMillis(),
-              startedAt: Date.now(),
-            });
-          } else if (data.status === 'CANCELLED') {
-            setErrorMessage(t('settings.childAccounts.claim.canceledByParent'));
-            setStatus('error');
-          }
-        });
+        sessionUnsubRef.current = subscribePairingSession(
+          rid,
+          pairCode,
+          data => {
+            const s = sessionRef.current;
+            if (!s || s.imported || s.declined) return;
+            if (!data) {
+              endSession('expired');
+              return;
+            }
+            if (data.status === 'JOINED' && data.joinedAt) {
+              setPairingAnchor({
+                anchor: data.joinedAt.toMillis(),
+                startedAt: Date.now(),
+              });
+            } else if (data.status === 'CANCELLED') {
+              endSession(
+                'error',
+                t('settings.childAccounts.claim.canceledByParent'),
+                true,
+              );
+            }
+          },
+        );
 
         revealUnsubRef.current = subscribePairingDoc(
           rid,
@@ -302,8 +376,23 @@ export function ChildClaimProvider({ children }) {
             if (!s || s.sharedX || !reveal?.parentEphPub) return;
             try {
               if (!verifyKeyCommitment(s.commit, reveal.parentEphPub)) {
-                setErrorMessage(t('settings.childAccounts.claim.tamper'));
-                setStatus('error');
+                endSession('error', t('settings.childAccounts.claim.tamper'));
+                return;
+              }
+              // QR path: the wire peer must be the QR's parent — a MITM that
+              // substituted keys would reveal a different pubkey than the one
+              // the child scanned over the trusted physical channel. Equal ⇒
+              // skip the SAS screen and auto-confirm (the human never
+              // compares patterns on this path).
+              if (s.scannedParentPub) {
+                if (reveal.parentEphPub !== s.scannedParentPub) {
+                  endSession('error', t('settings.childAccounts.claim.tamper'));
+                  return;
+                }
+                const sharedX = deriveSharedX(s.eph.priv, reveal.parentEphPub);
+                s.sharedX = sharedX;
+                s.parentEphPub = reveal.parentEphPub;
+                confirmMatch();
                 return;
               }
               const sharedX = deriveSharedX(s.eph.priv, reveal.parentEphPub);
@@ -323,48 +412,11 @@ export function ChildClaimProvider({ children }) {
         setErrorMessage(t('settings.childAccounts.claim.askToRestart'));
       }
     },
-    [t, endSession],
+    [t, endSession, confirmMatch],
   );
 
-  const confirmMatch = useCallback(async () => {
-    const session = sessionRef.current;
-    // Only the SAS-confirm screen may start the grant wait: rejecting after the
-    // session already ended (or double-confirming) must be a no-op, mirroring
-    // the parent-side guard.
-    if (!session?.sharedX || statusRef.current !== 'confirm') return;
-    // The human has visually compared the SAS on both phones. Now wait for the
-    // parent to deliver the encrypted grant. A MITM that substituted keys would
-    // have produced a different SAS, so a matched SAS means we can trust it.
-    setErrorMessage('');
-    setStatus('awaiting');
-
-    // Tell the parent we confirmed the match so it can deliver the grant and
-    // advance — the mirror of the child waiting on the parent's grant doc. A
-    // rules-denied write (deadline passed / session ended) is the real expiry
-    // signal; no client timer decides it.
-    const didConfirm = await setPairingDoc(
-      session.rid,
-      session.sessionId,
-      'childConfirm',
-      { v: 1 },
-    );
-    if (!didConfirm) {
-      setStatus('expired');
-      setErrorMessage(t('settings.childAccounts.claim.expired'));
-      return;
-    }
-
-    grantUnsubRef.current = subscribePairingDoc(
-      session.rid,
-      session.sessionId,
-      'grant',
-      grant => {
-        if (grant?.ciphertext) importSeed(grant);
-      },
-    );
-  }, [importSeed, t]);
-
   const declineMatch = useCallback(() => {
+    genRef.current += 1;
     const session = sessionRef.current;
     let cleanup = Promise.resolve();
     if (session?.rid && session?.sessionId && !session?.imported) {
@@ -425,6 +477,7 @@ export function ChildClaimProvider({ children }) {
       declineMatch,
       resetSession,
       isEnded,
+      sessionRef,
     }),
     [
       status,
@@ -435,6 +488,7 @@ export function ChildClaimProvider({ children }) {
       declineMatch,
       resetSession,
       isEnded,
+      sessionRef,
     ],
   );
 
