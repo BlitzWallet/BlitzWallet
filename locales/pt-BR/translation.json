@@ -2238,7 +2238,7 @@
       "pairing": {
         "title": "Compartilhar",
         "usernameTitle": "Compartilhe seu nome de usuário",
-        "usernameSubtitle": "Peça para abrirem o Blitz no telefone deles, escolherem \"Entrar na carteira compartilhada\" e depois inserirem este nome de usuário.",
+        "usernameSubtitle": "Peça para a pessoa que receberá a conta parental para abrir a Blitz no telefone dela, escolher a opção \"Acessar conta parental\" e depois inserir este nome de usuário.",
         "generateCode": "Gerar código",
         "usernameLabel": "Seu nome de usuário: {{name}}",
         "codeNavTitle": "Compartilhar código",
