@@ -53,8 +53,8 @@ const ts = ms => ({ toMillis: () => ms });
 
 let nextSessionId = 1;
 const mockDb = {
-  createPairingSession: jest.fn(
-    async () => String(nextSessionId++).padStart(6, '0'),
+  createPairingSession: jest.fn(async () =>
+    String(nextSessionId++).padStart(6, '0'),
   ),
   advanceSessionStatus: jest.fn(async () => true),
   cancelPairingSession: jest.fn(async () => true),
@@ -167,13 +167,23 @@ async function runStartPairing() {
 }
 
 // The child claims the session (JOINED snapshot → rendezvous dropped), then
-// writes childHello; the parent advances to VERIFYING and reveals.
+// writes childHello; the parent advances to VERIFYING and reveals. The initial
+// WAITING snapshot anchors the pairing countdown at session creation — state
+// transitions (JOINED / VERIFYING) deliberately do NOT re-anchor it, so the
+// maximum pairing time is 3m total from creation, never 3m per state.
 async function reachConfirm() {
   await runStartPairing();
   await act(async () => {
-    listeners.session({ status: 'JOINED', joinedAt: ts(T0) });
+    listeners.session({ status: 'WAITING', createdAt: ts(T0) });
     await flush();
   });
+  expect(api.pairingExpiryClock).toEqual({ anchor: T0, startedAt: T0 });
+  await act(async () => {
+    listeners.session({ status: 'JOINED', joinedAt: ts(T0 + 60000) });
+    await flush();
+  });
+  // A later state with a later server timestamp must not reset the clock.
+  expect(api.pairingExpiryClock).toEqual({ anchor: T0, startedAt: T0 });
   await act(async () => {
     listeners.childHello({ childEphPub: childEph.pub });
     await flush();
@@ -185,7 +195,9 @@ async function reachConfirm() {
 // createPairingSession return, resolved). Read it off the latest session
 // subscription.
 function lastSessionId() {
-  const calls = mockDb.subscribePairingSession.mock.calls.filter(c => c[0] === RID);
+  const calls = mockDb.subscribePairingSession.mock.calls.filter(
+    c => c[0] === RID,
+  );
   return calls[calls.length - 1][1];
 }
 
@@ -209,28 +221,32 @@ beforeEach(() => {
   nextSessionId = 1;
   listeners = {};
   childEph = makeChildEphKey();
-  mockDb.subscribePairingDoc.mockImplementation((rid, sessionId, party, onData) => {
-    // Key every subscription by party:sessionId so stale/leaked listeners from
-    // dead sessions stay addressable in the regression tests (harness tweak,
-    // review §9). The unkeyed alias tracks the LATEST subscription so the
-    // original tests keep firing the current session's listener.
-    const key = `${party}:${sessionId}`;
-    listeners[key] = onData;
-    listeners[party] = onData;
-    return jest.fn(() => {
-      delete listeners[key];
-      if (listeners[party] === onData) delete listeners[party];
-    });
-  });
-  mockDb.subscribePairingSession.mockImplementation((rid, sessionId, onData) => {
-    const key = `session:${sessionId}`;
-    listeners[key] = onData;
-    listeners.session = onData;
-    return jest.fn(() => {
-      delete listeners[key];
-      if (listeners.session === onData) delete listeners.session;
-    });
-  });
+  mockDb.subscribePairingDoc.mockImplementation(
+    (rid, sessionId, party, onData) => {
+      // Key every subscription by party:sessionId so stale/leaked listeners from
+      // dead sessions stay addressable in the regression tests (harness tweak,
+      // review §9). The unkeyed alias tracks the LATEST subscription so the
+      // original tests keep firing the current session's listener.
+      const key = `${party}:${sessionId}`;
+      listeners[key] = onData;
+      listeners[party] = onData;
+      return jest.fn(() => {
+        delete listeners[key];
+        if (listeners[party] === onData) delete listeners[party];
+      });
+    },
+  );
+  mockDb.subscribePairingSession.mockImplementation(
+    (rid, sessionId, onData) => {
+      const key = `session:${sessionId}`;
+      listeners[key] = onData;
+      listeners.session = onData;
+      return jest.fn(() => {
+        delete listeners[key];
+        if (listeners.session === onData) delete listeners.session;
+      });
+    },
+  );
 });
 
 afterEach(() => {
@@ -433,7 +449,7 @@ describe('childPairingContext — QR mode', () => {
     expect(api.status).toBe('waiting');
   }
 
-  test("qrValue carries name + code + parent pubkey once the session is live", async () => {
+  test('qrValue carries name + code + parent pubkey once the session is live', async () => {
     await mount();
     await startQrPairing();
 
@@ -798,20 +814,19 @@ describe('childPairingContext — session-identity guards (F-1/F-2/F-6/F-7)', ()
     expect(api.status).toBe('confirm');
     const sasB = api.sas;
 
-    // A's stale advance resolves. The identity guard bails: no parentReveal on
-    // B, B's SAS untouched, B's session untouched.
+    // A's stale advance resolves. The identity guard bails: it must not write a
+    // second parentReveal on B — the only reveal on the wire is B's own
+    // (written when B's childHello completed). B's SAS untouched, B's session
+    // untouched.
     await act(async () => {
       resolveAdvance(true);
       await flush();
     });
     expect(api.status).toBe('confirm');
     expect(api.sas).toBe(sasB);
-    expect(mockDb.setPairingDoc).not.toHaveBeenCalledWith(
-      RID,
-      sessionB,
-      'parentReveal',
-      expect.anything(),
-    );
+    expect(
+      mockDb.setPairingDoc.mock.calls.filter(([, , p]) => p === 'parentReveal'),
+    ).toHaveLength(1);
     // The only cancel issued is A's decline — the stale path must not re-cancel
     // or re-delete anything on B.
     expect(mockDb.cancelPairingSession).toHaveBeenCalledTimes(1);
@@ -886,12 +901,14 @@ describe('childPairingContext — session-identity guards (F-1/F-2/F-6/F-7)', ()
     await reachConfirm(); // session A
     const sessionA = lastSessionId();
 
-    // The grant write for A is deferred (will reject).
+    // The grant write for A is deferred (will reject). Scoped to a single
+    // call (mockImplementationOnce) so the pending promise never leaks into
+    // later tests — clearAllMocks doesn't drop implementations.
     let rejectGrant;
     const grantWrite = new Promise((res, rej) => {
       rejectGrant = rej;
     });
-    mockDb.setPairingDoc.mockImplementation((r, s, party) =>
+    mockDb.setPairingDoc.mockImplementationOnce((r, s, party) =>
       party === 'grant' ? grantWrite : Promise.resolve(true),
     );
 
@@ -906,8 +923,9 @@ describe('childPairingContext — session-identity guards (F-1/F-2/F-6/F-7)', ()
       await flush();
     });
 
-    // The passive expiry (countdown anchored at JOINED → T0) kills A while the
-    // grant write is still in flight.
+    // The passive expiry (countdown anchored at session creation — WAITING →
+    // T0 — and never reset by JOINED) kills A while the grant write is still
+    // in flight.
     await setTick(T0 + STATE_TTL);
     expect(api.status).toBe('expired');
     expect(mockDb.cancelPairingSession).toHaveBeenCalledWith(RID, sessionA);
@@ -984,37 +1002,5 @@ describe('childPairingContext — session-identity guards (F-1/F-2/F-6/F-7)', ()
     expect(
       mockDb.setPairingDoc.mock.calls.filter(([, , p]) => p === 'grant'),
     ).toHaveLength(1);
-  });
-
-  // F-7: the cosmetic countdown / passive kill re-anchors on each server state,
-  // tracking the current state's deadline instead of createdAt+3m.
-
-  test('T-F7: the countdown re-anchors on JOINED and VERIFYING so expiry tracks the current state deadline', async () => {
-    await mount();
-    await runStartPairing();
-
-    // WAITING anchors the countdown at T0.
-    await act(async () => {
-      listeners.session({ status: 'WAITING', createdAt: ts(T0) });
-      await flush();
-    });
-
-    // 60s later the child joins → the countdown re-anchors.
-    await act(async () => {
-      jest.advanceTimersByTime(60000);
-    });
-    await act(async () => {
-      listeners.session({
-        status: 'JOINED',
-        joinedAt: ts(T0 + 60000),
-      });
-      await flush();
-    });
-    // The old WAITING deadline (T0 + 3m) has passed; the re-anchored one
-    // (T0+60s + 3m) has not.
-    await setTick(T0 + STATE_TTL);
-    expect(api.status).toBe('waiting');
-    await setTick(T0 + STATE_TTL + 60000);
-    expect(api.status).toBe('expired');
   });
 });
