@@ -291,7 +291,7 @@
         "createTitle": "Criar nova carteira",
         "createDesc": "Comece do zero com uma nova carteira.",
         "joinTitle": "Acessar conta parental",
-        "joinDesc": "Acesse uma conta parental criada para você.",
+        "joinDesc": "Acesse uma conta parental que alguém criou para você.",
       "restoreTitle": "Restaurar carteira existente",
       "restoreDesc": "Traga sua carteira para a Blitz."
     }
