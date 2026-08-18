@@ -2266,7 +2266,7 @@
         "codeOption": "Código",
         "qrOption": "QR",
         "qrTitle": "Leia este código QR",
-        "qrSubtitle": "Peça para a pessoa que receberá a conta parental para abrir a Blitz no telefone dela, escolher \"Acessar conta parental\" e em seguida ler este código QR.",
+        "qrSubtitle": "Peça para a pessoa para abrir a Blitz no telefone dela, escolher \"Acessar conta parental\" e em seguida ler este código QR.",
         "qrWaiting": "Aguardando a leitura do código…",
         "acceptTitle": "Aceitar o pareamento?",
         "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
