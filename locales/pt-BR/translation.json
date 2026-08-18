@@ -2011,8 +2011,8 @@
         "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
         "accountType_main": "Principal",
         "balanceLabel": "Saldo",
-        "activeLabel": "Conta ativa",
-        "activateButton": "Ativar conta",
+        "activeLabel": "Conta selecionada",
+        "activateButton": "Selecionar conta",
         "addMoneyButton": "Adicionar dinheiro",
         "withdrawMoneyButton": "Retirar dinheiro",
         "viewActivityLabel": "Ver o histórico da conta"
