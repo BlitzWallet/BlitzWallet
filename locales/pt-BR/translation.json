@@ -1693,7 +1693,7 @@
       },
       "emptyLinked": {
         "title": "Nenhuma conta parental ainda",
-        "subtitle": "Crie uma carteira para alguém em quem você confia. Eles podem usar o Blitz sem precisar gerenciar uma frase de recuperação."
+        "subtitle": "Crie contas para outras pessoas. Elas podem usar a Blitz sem precisar gerenciar frases de recuperação."
       },
       "noResults": {
         "title": "Nenhuma conta encontrada",
@@ -1919,7 +1919,7 @@
       },
       "noNotifications": {
         "title": "Notificações necessárias",
-        "subtitle": "Contas NWC requer notificações push. Ative-as nas Configurações e tente novamente."
+        "subtitle": "Contas NWC requerem notificações push. Ative-as nas Configurações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
@@ -2265,9 +2265,9 @@
         "startFailed": "Não foi possível iniciar o pareamento. Tente novamente.",
         "codeOption": "Código",
         "qrOption": "QR",
-        "qrTitle": "Escanee este código QR",
+        "qrTitle": "Leia este código QR",
         "qrSubtitle": "Peça para abrirem o Blitz no telefone deles, escolherem \"Entrar na carteira compartilhada\" e depois escanearem este código QR.",
-        "qrWaiting": "Aguardando eles escanearem…",
+        "qrWaiting": "Aguardando eles lerem o código…",
         "acceptTitle": "Aceitar o pareamento?",
         "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
         "acceptBTN": "Aceitar",
@@ -2275,7 +2275,7 @@
       },
       "transactions": {
         "title": "Atividade",
-        "noTxHistorySub": "As transações da conta aparecerão aqui assim que enviarem ou receberem uma."
+        "noTxHistorySub": "As transações da conta aparecerão aqui."
       },
       "page": {
         "title": "Conta de filho",
@@ -2325,9 +2325,9 @@
         "canceledByParent": "O dono da conta cancelou a solicitação de pareamento.",
         "codePlaceholder": "nome de usuário",
         "codeOption": "Código",
-        "scanOption": "Escanear",
-        "scanNavTitle": "Escanear código",
-        "scanTitle": "Escanee o código QR deles",
+        "scanOption": "Ler",
+        "scanNavTitle": "Ler código",
+        "scanTitle": "Leia o código QR deles",
         "scanHint": "Posicione o código QR à vista para ativar",
         "scanWaiting": "Aguardando a solicitação ser aceita",
         "scanSubtitle": "Aponte sua câmera para o código QR no telefone deles.",
