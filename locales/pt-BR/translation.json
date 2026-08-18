@@ -287,11 +287,11 @@
     },
     "walletSetup": {
       "title": "Configure sua carteira",
-        "subtitle": "Crie uma nova carteira, entre em uma carteira ou restaure uma que já existe.",
+        "subtitle": "Crie uma nova carteira, acesse uma carteira ou restaure uma que já existe.",
         "createTitle": "Criar nova carteira",
         "createDesc": "Comece do zero com uma nova carteira.",
-        "joinTitle": "Entrar em uma carteira gerenciada",
-        "joinDesc": "Entre em uma carteira gerenciada para você.",
+        "joinTitle": "Acessar conta parental",
+        "joinDesc": "Acesse uma conta parental criada para você.",
       "restoreTitle": "Restaurar carteira existente",
       "restoreDesc": "Traga sua carteira para a Blitz."
     }
@@ -2183,7 +2183,7 @@
     },
     "childAccounts": {
       "tabs": {
-        "children": "Parentais"
+        "children": "Parental"
       },
       "dontMatch": "Não correspondem",
       "sasGrid": {
@@ -2241,7 +2241,7 @@
       "pairing": {
         "title": "Compartilhar",
         "usernameTitle": "Compartilhe seu nome de usuário",
-        "usernameSubtitle": "Peça para a pessoa abrir a Blitz no telefone dela e escolher \"Entrar em uma carteira gerenciada\".",
+        "usernameSubtitle": "A pessoa que receberá a conta parental precisa abrir a Blitz no telefone dela e escolher \"Acessar conta parental\".",
         "generateCode": "Gerar código",
         "usernameLabel": "Seu nome de usuário: {{name}}",
         "codeNavTitle": "Compartilhar código",
@@ -2269,9 +2269,9 @@
         "codeOption": "Código",
         "qrOption": "QR",
         "qrTitle": "Leia este código QR",
-        "qrSubtitle": "Peça para a pessoa abrir a Blitz no telefone dela e escolher \"Entrar em uma carteira gerenciada\".",
+        "qrSubtitle": "A pessoa que receberá a conta parental precisa abrir a Blitz no telefone dela e escolher \"Acessa conta parental\".",
         "qrWaiting": "Aguardando a leitura do código…",
-        "noBlitz": "Eles não têm Blitz?",
+        "noBlitz": "Eles não usam Blitz?",
         "downloadLink": "Compartilhar link de download",
         "acceptTitle": "Aceitar o pareamento?",
         "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
@@ -2295,12 +2295,12 @@
         "title": "Configure sua conta",
         "info": {
           "navTitle": "Configure sua conta",
-          "title": "Configure sua carteira parental",
-          "intro": "Você está acessando uma conta parental criada para você.",
+          "title": "Configure sua conta parental",
+          "intro": "Você irá acessar uma conta administrada por terceiros.",
           "row1Label": "Sua própria conta",
-          "row1Description": "Envie e receba com seu próprio saldo.",
+          "row1Description": "Envie e receba pagamentos.",
           "row2Label": "Fácil de usar",
-          "row2Description": "A recuperação da sua conta é gerenciada pela pessoa que criou a conta parental para você.",
+          "row2Description": "A administração da sua conta é realizada pela pessoa que criou a conta parental para você.",
           "row3Label": "Gerenciada por outra pessoa",
           "row3Description": "Acesse somente contas de alguém que você conheça.",
           "continue": "Continuar"
