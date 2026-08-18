@@ -19,7 +19,13 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
-import { isValidUniqueName } from '../../../../../../db';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { claimUniqueName, isUniqueNameAvailable } from '../../../../../../db';
+import { normalizePairingName } from '../../../../../functions/accounts/childPairing';
+import {
+  clearUsernameReservationRecord,
+  setUsernameReservationRecord,
+} from '../../../../../functions/accounts/usernameReservationRecord';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
@@ -65,6 +71,7 @@ export default function EditProfileFieldPage(props) {
   const { textInputColor, textColor } = GetThemeColors();
   const { globalContactsInformation, toggleGlobalContactsInformation } =
     useGlobalContactsInfo();
+  const { publicKey } = useKeysContext();
   const { t } = useTranslation();
 
   const myContact = globalContactsInformation.myProfile;
@@ -149,7 +156,7 @@ export default function EditProfileFieldPage(props) {
     const queryId = usernameQueryIdRef.current;
     debounceRef.current = setTimeout(async () => {
       try {
-        const isFree = await isValidUniqueName('blitzWalletUsers', trimmed);
+        const isFree = await isUniqueNameAvailable(publicKey, trimmed);
         if (isMountedRef.current && usernameQueryIdRef.current === queryId) {
           setUsernameState(
             isFree ? USERNAME_STATE.AVAILABLE : USERNAME_STATE.TAKEN,
@@ -204,8 +211,25 @@ export default function EditProfileFieldPage(props) {
         profileUpdate.name = trimmed;
         profileUpdate.nameLower = trimmed.toLowerCase();
       } else if (fieldKey === 'uniquename') {
+        // Claim the reservation before writing the profile. On failure, block the
+        // rename entirely so the old name + reservation stay intact and pairing
+        // keeps working; clear the local record so the backfill re-runs.
+        const oldLower = myContact?.uniqueNameLower || '';
+        const res = await claimUniqueName(publicKey, oldLower, trimmed);
+        if (res.status !== 'ok') {
+          await clearUsernameReservationRecord();
+          setUsernameState(USERNAME_STATE.TAKEN);
+          return; // finally resets isSaving; stay on the page
+        }
         profileUpdate.uniqueName = trimmed;
-        profileUpdate.uniqueNameLower = trimmed.toLowerCase();
+        // Key the stored lookup value with the SAME normalizer the reservation
+        // uses (normalizePairingName: NFC + lowercase), so the profile key and
+        // the usernames/{id} reservation key can never diverge for a name.
+        profileUpdate.uniqueNameLower = normalizePairingName(trimmed);
+        await setUsernameReservationRecord({
+          lower: normalizePairingName(trimmed),
+          at: Date.now(),
+        });
       } else {
         profileUpdate.bio = trimmed;
       }

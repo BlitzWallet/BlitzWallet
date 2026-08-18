@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
+  SIZES,
   WINDOWWIDTH,
 } from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
@@ -63,6 +64,7 @@ export default function EditAccountName(props) {
 
   return (
     <CustomKeyboardAvoidingView
+      globalThemeViewStyles={styles.globalContainer}
       isKeyboardActive={isKeyboardActive}
       useLocalPadding={true}
       useStandardWidth={true}
@@ -72,10 +74,18 @@ export default function EditAccountName(props) {
       />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        style={{ width: INSET_WINDOW_WIDTH }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps={'handled'}
       >
+        <ThemeText
+          styles={styles.title}
+          content={t('settings.childAccounts.enterName.editTitle')}
+        />
+        <ThemeText
+          styles={styles.subtitle}
+          content={t('settings.childAccounts.enterName.editSubtitle')}
+        />
         <CustomSearchInput
           inputText={accountName}
           setInputText={setAccountName}
@@ -104,9 +114,22 @@ export default function EditAccountName(props) {
   );
 }
 const styles = StyleSheet.create({
-  scrollContainer: {
-    paddingTop: 10,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+  globalContainer: {
+    alignItems: 'center',
+    position: 'relative',
+  },
+
+  title: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    includeFontPadding: false,
+    marginTop: 28,
+    marginBottom: 8,
+  },
+  subtitle: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+    marginBottom: 20,
   },
 });

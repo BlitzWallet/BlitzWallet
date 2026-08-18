@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -26,21 +28,13 @@ export default function ProfileCard({
   const editProfileLabel = t('settings.index.editProfile');
   const showQrLabel = t('settings.index.showQR');
   const [isIdenticonShown, setIsIdenticonShown] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useSharedValue(1);
 
   const handleToggle = useCallback(
     isShown => {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => {
-        setIsIdenticonShown(isShown);
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }).start();
+      fadeAnim.value = withTiming(0, { duration: 150 }, () => {
+        scheduleOnRN(setIsIdenticonShown, isShown);
+        fadeAnim.value = withTiming(1, { duration: 150 });
       });
     },
     [fadeAnim],

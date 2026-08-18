@@ -91,6 +91,13 @@ export const OPERATION_TYPES = {
   checkClawbackEligibility: 'checkClawbackEligibility',
   requestBatchClawback: 'requestBatchClawback',
   listClawbackableTransfers: 'listClawbackableTransfers',
+
+  // Wallet Viewer
+  initializeSparkWalletViewer: 'initializeSparkWalletViewer',
+  getWalletViewerTokens: 'getWalletViewerTokens',
+  getWalletViewerBitcoin: 'getWalletViewerBitcoin',
+  getWalletViewerTokenTransactions: 'getWalletViewerTokenTransactions',
+  getWalletViewerBitcoinTransactions: 'getWalletViewerBitcoinTransactions',
 };
 
 const longOperations = new Set([
@@ -113,6 +120,7 @@ const longOperations = new Set([
   OPERATION_TYPES.batchTransferTokens,
   OPERATION_TYPES.getSparkLeaves,
   OPERATION_TYPES.getSparkLeafExitNodes,
+  OPERATION_TYPES.initializeSparkWalletViewer,
 ]);
 
 const mediumOperations = new Set([
@@ -140,6 +148,10 @@ const mediumOperations = new Set([
   OPERATION_TYPES.getUserSwapHistory,
   OPERATION_TYPES.checkClawbackEligibility,
   OPERATION_TYPES.isOptimizationInProgress,
+  OPERATION_TYPES.getWalletViewerTokens,
+  OPERATION_TYPES.getWalletViewerBitcoin,
+  OPERATION_TYPES.getWalletViewerTokenTransactions,
+  OPERATION_TYPES.getWalletViewerBitcoinTransactions,
   OPERATION_TYPES.querySparkInvoices,
 ]);
 
@@ -1456,7 +1468,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
         // 6. Hash into a copy — the intent entry above holds the pre-hash args
         //    so a replay through this function hashes exactly once (tests 9-10).
         let transportArgs = args;
-        if (args.mnemonic && action !== 'initializeSparkWallet') {
+        if (
+          args.mnemonic &&
+          action !== 'initializeSparkWallet' &&
+          action !== 'initializeSparkWalletViewer'
+        ) {
           transportArgs = { ...args, mnemonic: sha256Hash(args.mnemonic) };
         }
 
@@ -1857,7 +1873,9 @@ export const WebViewProvider = ({ children, transport = null }) => {
         // drive a privileged path: a spoofed push event (fake balance/incoming
         // payment) or a spoofed response. Drop it.
         if (!nonceVerified.current) {
-          console.warn('Dropping unauthenticated pre-handshake content message');
+          console.warn(
+            'Dropping unauthenticated pre-handshake content message',
+          );
           return;
         }
 

@@ -38,6 +38,7 @@ export default function RemoveAccountPage(props) {
     if (fromPage === 'SettingsContentHome') {
       navigate.popTo('SettingsContentHome', {
         for: 'Accounts',
+        initialTab: 'personal',
       });
     } else {
       navigate.popTo('SettingsHome');

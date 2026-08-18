@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,6 +13,7 @@ import { CENTER, COLORS, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import {
   FONT,
@@ -160,7 +161,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               { fontSize, marginVertical: headlineMargin },
             ]}
             content={t('createAccount.homePage.money')}
-            isLight={true}
             {...getLabelProps(0)}
           />
           <ThemeText
@@ -169,7 +169,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               { fontSize, marginVertical: headlineMargin },
             ]}
             content={t('createAccount.homePage.made')}
-            isLight={true}
             {...getLabelProps(1)}
           />
           <ThemeText
@@ -182,7 +181,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               },
             ]}
             content={t('createAccount.homePage.simple')}
-            isLight={true}
             {...getLabelProps(2)}
           />
         </Animated.View>
@@ -195,21 +193,24 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
             buttonStyles={styles.primaryBtn}
             textStyles={styles.primaryBtnText}
             textContent={t('createAccount.homePage.buttons.button2')}
-            actionFunction={() => go('DisclaimerPage', 'PinSetup')}
+            actionFunction={() => go('WalletSetupFork')}
           />
 
-          <CustomButton
-            buttonStyles={styles.secondaryBtn}
-            textStyles={styles.secondaryBtnText}
-            textContent={t('createAccount.homePage.buttons.button1')}
-            actionFunction={() => go('DisclaimerPage', 'RestoreWallet')}
-          />
-
-          <ThemeText
-            styles={styles.disclaimer}
-            content={t('createAccount.homePage.subtitle')}
-            isLight={true}
-          />
+          <TouchableOpacity
+            style={styles.joinBtn}
+            activeOpacity={0.7}
+            onPress={() => go('ChildClaimStack')}
+          >
+            <ThemeIcon
+              iconName={'Users'}
+              size={20}
+              colorOverride={COLORS.primary}
+            />
+            <ThemeText
+              styles={styles.joinBtnText}
+              content={t('createAccount.homePage.buttons.joinAccount')}
+            />
+          </TouchableOpacity>
         </Animated.View>
       </View>
     </GlobalThemeView>
@@ -244,23 +245,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   primaryBtnText: {
-    color: '#FFFFFF',
-    // fontWeight: '600',
+    color: COLORS.white,
     letterSpacing: 0.1,
   },
-  secondaryBtn: {
+  joinBtn: {
     width: '100%',
+    minHeight: 50,
+    borderRadius: 12,
+    backgroundColor: COLORS.lightModeBackground,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
-  secondaryBtnText: {
-    // fontWeight: '600',
-    fontSize: 16,
-  },
-  disclaimer: {
-    fontSize: SIZES.xSmall,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
+  joinBtnText: {
+    fontSize: SIZES.medium,
+    color: COLORS.lightModeText,
     includeFontPadding: false,
-    marginTop: 4,
-    textTransform: 'uppercase',
   },
 });

@@ -327,7 +327,6 @@ export default function HistoricalSMSMessagingPage({ route }) {
     const elements = messagesData.map(renderMessageItem);
     setMessageElements(elements);
   }, [messagesData, renderMessageItem]);
-  console.log(messagesData, 'test');
 
   const handleSupportContact = useCallback(() => {
     copyToClipboard('support@sms4sats.com', showToast);

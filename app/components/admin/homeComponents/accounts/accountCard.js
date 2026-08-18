@@ -1,11 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import {
-  SIZES,
-  COLORS,
-  BASIC_ACCOUNT_NAME_REGEX,
-  ICONS,
-} from '../../../../constants';
+import { SIZES, COLORS, BASIC_ACCOUNT_NAME_REGEX } from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
@@ -18,23 +13,21 @@ import {
 } from '../../../../../context-store/activeAccount';
 
 /**
- * Account card component for account management
- * Shows account name, type (derived/imported), and balance
- * Active accounts show a blue dot indicator
+ * Account card component for account management.
+ * Rounded row: avatar badge, account name, and a chevron (hidden in the
+ * compact `fromSettings` preview). Active accounts show a check-mark dot.
  */
 export default function AccountCard({
   account,
-  isActive,
   onPress,
-  onEdit,
-  isLoading,
-  useSelection = false,
+  isActive = false,
+  isLoading = false,
   fromSettings = false,
   useAltBackground = false,
   isAccountSwitching = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const accountIndex =
@@ -44,21 +37,16 @@ export default function AccountCard({
       ? 2
       : account?.derivationIndex;
 
+  const cardLayout = {
+    backgroundColor: useAltBackground ? backgroundColor : backgroundOffset,
+    marginBottom: fromSettings ? 5 : 10,
+    paddingHorizontal: fromSettings ? 0 : 16,
+    paddingVertical: fromSettings ? 0 : 12,
+  };
+
   if (isLoading) {
     return (
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor: useAltBackground
-              ? backgroundColor
-              : backgroundOffset,
-            marginVertical: fromSettings ? 0 : 8,
-            paddingHorizontal: fromSettings ? 0 : 15,
-            paddingVertical: fromSettings ? 0 : 10,
-          },
-        ]}
-      >
+      <View style={[styles.card, cardLayout]}>
         <SkeletonPlaceholder
           enabled={true}
           backgroundColor={
@@ -83,47 +71,30 @@ export default function AccountCard({
     <TouchableOpacity
       activeOpacity={isAccountSwitching ? 1 : 0.7}
       onPress={onPress}
-      style={[
-        styles.card,
-        {
-          backgroundColor: useAltBackground
-            ? backgroundColor
-            : backgroundOffset,
-          marginVertical: fromSettings ? 0 : 8,
-          paddingHorizontal: fromSettings ? 0 : 15,
-          paddingVertical: fromSettings ? 0 : 10,
-        },
-      ]}
+      style={[styles.card, cardLayout]}
     >
       {/* Left: Account Badge */}
       <View style={styles.leftSection}>
         <View
           style={[
-            styles.badge,
+            styles.avatar,
             {
               backgroundColor: useAltBackground
                 ? backgroundOffset
                 : backgroundColor,
+              width: fromSettings ? 42 : 45,
+              height: fromSettings ? 42 : 45,
             },
           ]}
         >
-          <AccountProfileImage imageSize={40} account={account} />
+          <AccountProfileImage imageSize={45} account={account} />
         </View>
         {isActive && (
           <View
-            style={[
-              styles.activeDot,
-              {
-                backgroundColor: COLORS.darkModeText,
-              },
-            ]}
+            style={[styles.activeDot, { backgroundColor: COLORS.darkModeText }]}
           >
             <ThemeIcon
-              colorOverride={
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.lightModeText
-              }
+              colorOverride={COLORS.lightModeText}
               size={12}
               iconName={'Check'}
               strokeWidth={2}
@@ -132,87 +103,44 @@ export default function AccountCard({
         )}
       </View>
 
-      {/* Middle: Account Name + Meta */}
-      <View style={styles.middleSection}>
-        <ThemeText
-          CustomNumberOfLines={1}
-          adjustsFontSizeToFit={true}
-          styles={[styles.accountName]}
-          content={
-            !BASIC_ACCOUNT_NAME_REGEX.test(account.name)
-              ? account.name
-              : t('accountCard.fallbackAccountName', { index: accountIndex })
-          }
-        />
-      </View>
+      {/* Middle: Account Name */}
+      <ThemeText
+        CustomNumberOfLines={1}
+        adjustsFontSizeToFit={true}
+        styles={styles.name}
+        content={
+          !BASIC_ACCOUNT_NAME_REGEX.test(account.name)
+            ? account.name
+            : t('accountCard.fallbackAccountName', { index: accountIndex })
+        }
+      />
 
-      {/* Right: Edit Button or Select Text */}
-      {!fromSettings && (
-        <>
-          {useSelection && (
-            <View
-              style={[
-                styles.rightSection,
-                {
-                  backgroundColor: theme
-                    ? useAltBackground
-                      ? backgroundOffset
-                      : backgroundColor
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <View style={styles.editButton}>
-                <ThemeIcon iconName={'ChevronRight'} size={18} />
-              </View>
-            </View>
-          )}
-          {account.uuid !== MAIN_ACCOUNT_UUID && !useSelection && (
-            <View
-              style={[
-                styles.rightSection,
-                {
-                  backgroundColor: theme
-                    ? useAltBackground
-                      ? backgroundOffset
-                      : backgroundColor
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-                <ThemeIcon iconName={'Edit'} size={20} />
-              </TouchableOpacity>
-            </View>
-          )}
-        </>
-      )}
+      {/* Right: Chevron */}
+      {!fromSettings && <ThemeIcon iconName={'ChevronRight'} size={18} />}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: 50,
-    borderRadius: 8,
-    paddingVertical: 10,
+    borderRadius: 16,
     gap: 12,
   },
   leftSection: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badge: {
-    width: 40,
-    height: 40,
+  avatar: {
+    width: 45,
+    height: 45,
     borderRadius: 22.5,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  middleSection: {
-    flex: 1,
   },
   activeDot: {
     width: 18,
@@ -224,34 +152,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  accountName: {
-    flexShrink: 1,
+  name: {
+    flex: 1,
     fontSize: SIZES.medium,
     includeFontPadding: false,
-  },
-  rightSection: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    borderRadius: 8,
-  },
-  editButton: {
-    height: 40,
-    width: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   // Skeleton styles
   skeletonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: 250,
-    height: 40,
+    height: 45,
   },
   skeletonBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
     marginRight: 12,
   },
   skeletonText: {

@@ -5,17 +5,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  FlatList,
-  Linking,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
+import { getNormalizedWebsiteUrl } from '../../../../../functions/getNormalizedWebsiteUrl';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
@@ -42,6 +37,7 @@ import {
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import openWebBrowser from '../../../../../functions/openWebBrowser';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -57,18 +53,6 @@ function useDebouncedValue(value, delay = 300) {
   }, [value, delay]);
 
   return debounced;
-}
-
-const ALLOWED_SCHEMES = new Set(['https:']);
-
-export function getNormalizedWebsiteUrl(website) {
-  if (!website) return '';
-  try {
-    const url = new URL(website);
-    return ALLOWED_SCHEMES.has(url.protocol) ? website : '';
-  } catch {
-    return `https://${website}`;
-  }
 }
 
 function getWebsiteHost(website) {
@@ -320,7 +304,10 @@ export default function ViewOnlineListings({ removeUserLocal }) {
       {!isKeyboardActive && (
         <CustomButton
           actionFunction={() =>
-            Linking.openURL('https://bitcoinlistings.org/submit')
+            openWebBrowser({
+              navigate,
+              link: 'https://bitcoinlistings.org/submit',
+            })
           }
           buttonStyles={styles.submitListingBTN}
           textContent={t('apps.onlineListings.addListing')}
@@ -341,7 +328,7 @@ const BusinessCard = React.memo(
 
     const handleWebsitePress = useCallback(() => {
       try {
-        Linking.openURL(websiteUrl);
+        openWebBrowser({ navigate, link: websiteUrl });
       } catch (err) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('errormessages.genericError'),

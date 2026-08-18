@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { StyleSheet, View, Text } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useImageCache } from '../../../../../context-store/imageCache';
+import { useChildAccountEmoji } from '../../../../functions/accounts/childAccountEmojis';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { COLORS, ICONS } from '../../../../constants';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
@@ -12,12 +13,27 @@ import {
 } from '../../../../../context-store/activeAccount';
 import { useState, useCallback } from 'react';
 
-export default function AccountProfileImage({ account, imageSize }) {
+export default function AccountProfileImage({
+  account,
+  imageSize,
+  useStoredEmoji = true,
+}) {
   const { cache } = useImageCache();
   const { masterInfoObject } = useGlobalContextProvider();
   const { textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [emojiFontSize, setEmojiFontSize] = useState(null);
+
+  // Managed (child) accounts keep their emoji in a local-only store; the
+  // account object itself stays DB-clean. An explicit profileEmoji on the
+  // account wins, and useStoredEmoji=false (selector preview) skips the store.
+  const isChildAccount = account.childIndex !== undefined;
+  const storedChildEmoji = useChildAccountEmoji(
+    isChildAccount ? account.uuid : null,
+  );
+  const profileEmoji = useStoredEmoji
+    ? account.profileEmoji || storedChildEmoji
+    : account.profileEmoji;
 
   const uri =
     account.uuid === MAIN_ACCOUNT_UUID
@@ -45,7 +61,7 @@ export default function AccountProfileImage({ account, imageSize }) {
           }}
           source={ICONS.nwcLogo}
         />
-      ) : account.profileEmoji ? (
+      ) : profileEmoji ? (
         emojiFontSize !== null && (
           <Text
             style={[
@@ -56,7 +72,7 @@ export default function AccountProfileImage({ account, imageSize }) {
             adjustsFontSizeToFit={false}
             allowFontScaling={false}
           >
-            {account.profileEmoji}
+            {profileEmoji}
           </Text>
         )
       ) : (

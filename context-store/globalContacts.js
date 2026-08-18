@@ -36,6 +36,7 @@ import {
 } from '@react-native-firebase/firestore';
 import { getCachedProfileImage } from '../app/functions/cachedImage';
 import { useAuthContext } from './authContext';
+import { isParentAccountTransferSender } from '../app/functions/messaging/parentAccountTransferMessage';
 
 // ─── Split contexts ────────────────────────────────────────────────────────────
 // Consumers that only need profile/contacts info won't re-render when messages
@@ -126,68 +127,77 @@ export const GlobalContactsList = ({ children }) => {
     const currentInfo = globalContactsInformationRef.current;
     if (!Object.keys(currentInfo).length || !contactsPrivateKey) return;
 
-    const savedMessages = await getCachedMessages();
-    setContactsMessagses(savedMessages);
+    try {
+      const savedMessages = await getCachedMessages();
+      setContactsMessagses(savedMessages);
 
-    const currentDecoded = decodedAddedContactsRef.current;
+      const currentDecoded = decodedAddedContactsRef.current;
 
-    const unknownContacts = await Promise.all(
-      Object.keys(savedMessages)
-        .filter(key => key !== 'lastMessageTimestamp')
+      const unknownContacts = await Promise.all(
+        Object.keys(savedMessages)
+          .filter(key => key !== 'lastMessageTimestamp')
+          .filter(
+            contact =>
+              !currentDecoded.find(
+                contactElement => contactElement.uuid === contact,
+              ) && contact !== currentInfo.myProfile.uuid,
+          )
+          // Parent↔child account transfers are description-only: the sender is
+          // not a real contact and must never be auto-added.
+          .filter(
+            contact => !isParentAccountTransferSender(savedMessages, contact),
+          )
+          .map(contact => getDataFromCollection('blitzWalletUsers', contact)),
+      );
+
+      const newContats = unknownContacts
         .filter(
-          contact =>
-            !currentDecoded.find(
-              contactElement => contactElement.uuid === contact,
-            ) && contact !== currentInfo.myProfile.uuid,
+          retrivedContact =>
+            retrivedContact &&
+            retrivedContact.uuid !== currentInfo.myProfile.uuid,
         )
-        .map(contact => getDataFromCollection('blitzWalletUsers', contact)),
-    );
+        .map(retrivedContact => ({
+          bio: retrivedContact.contacts.myProfile.bio || '',
+          isFavorite: false,
+          name: retrivedContact.contacts.myProfile.name,
+          receiveAddress: retrivedContact.contacts.myProfile.receiveAddress,
+          uniqueName: retrivedContact.contacts.myProfile.uniqueName,
+          uuid: retrivedContact.contacts.myProfile.uuid,
+          isAdded: false,
+          unlookedTransactions: 0,
+        }));
 
-    const newContats = unknownContacts
-      .filter(
-        retrivedContact =>
-          retrivedContact &&
-          retrivedContact.uuid !== currentInfo.myProfile.uuid,
-      )
-      .map(retrivedContact => ({
-        bio: retrivedContact.contacts.myProfile.bio || '',
-        isFavorite: false,
-        name: retrivedContact.contacts.myProfile.name,
-        receiveAddress: retrivedContact.contacts.myProfile.receiveAddress,
-        uniqueName: retrivedContact.contacts.myProfile.uniqueName,
-        uuid: retrivedContact.contacts.myProfile.uuid,
-        isAdded: false,
-        unlookedTransactions: 0,
-      }));
-
-    if (newContats.length > 0) {
-      await Promise.allSettled(
-        newContats.map(contact => getCachedProfileImage(contact.uuid)),
-      );
-
-      // Read the latest decoded contacts at the moment we write
-      const latestDecoded = decodedAddedContactsRef.current ?? [];
-      const latestInfo = globalContactsInformationRef.current;
-
-      if (!latestInfo?.myProfile) return;
-
-      const trulyNewContacts = newContats.filter(
-        c => !latestDecoded.find(existing => existing.uuid === c.uuid),
-      );
-
-      if (trulyNewContacts.length > 0) {
-        toggleGlobalContactsInformation(
-          {
-            myProfile: { ...latestInfo.myProfile },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              latestInfo.myProfile.uuid,
-              JSON.stringify(latestDecoded.concat(trulyNewContacts)),
-            ),
-          },
-          true,
+      if (newContats.length > 0) {
+        await Promise.allSettled(
+          newContats.map(contact => getCachedProfileImage(contact.uuid)),
         );
+
+        // Read the latest decoded contacts at the moment we write
+        const latestDecoded = decodedAddedContactsRef.current ?? [];
+        const latestInfo = globalContactsInformationRef.current;
+
+        if (!latestInfo?.myProfile) return;
+
+        const trulyNewContacts = newContats.filter(
+          c => !latestDecoded.find(existing => existing.uuid === c.uuid),
+        );
+
+        if (trulyNewContacts.length > 0) {
+          toggleGlobalContactsInformation(
+            {
+              myProfile: { ...latestInfo.myProfile },
+              addedContacts: encriptMessage(
+                contactsPrivateKey,
+                latestInfo.myProfile.uuid,
+                JSON.stringify(latestDecoded.concat(trulyNewContacts)),
+              ),
+            },
+            true,
+          );
+        }
       }
+    } catch (err) {
+      console.log('error updating dached messages', err);
     }
   }, [contactsPrivateKey, toggleGlobalContactsInformation]);
 
@@ -627,7 +637,13 @@ export const GlobalContactsList = ({ children }) => {
           return false;
         }
         const messages = contactsMessags[contactUUID]?.messages;
-        return messages?.some(message => !message.message.wasSeen) ?? false;
+        return (
+          messages?.some(
+            message =>
+              !message.message.wasSeen &&
+              !message.message.isParentAccountTransfer,
+          ) ?? false
+        );
       });
     } catch (err) {
       return false;

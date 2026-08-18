@@ -1,4 +1,4 @@
-import { db } from './initializeFirebase';
+import { db, firebaseAuth } from './initializeFirebase';
 import {
   getCachedMessages,
   queueSetCashedMessages,
@@ -19,9 +19,11 @@ import {
   orderBy,
   deleteDoc,
   increment,
+  updateDoc,
   runTransaction,
   serverTimestamp,
   Timestamp,
+  onSnapshot,
 } from '@react-native-firebase/firestore';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
@@ -32,6 +34,12 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
+import { getNextChildDerivationIndex } from '../app/functions/accounts/childAccounts';
+import {
+  makePairingCode,
+  normalizePairingName,
+} from '../app/functions/accounts/childPairing';
+import { getIdToken } from '@react-native-firebase/auth';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -51,6 +59,162 @@ export async function addDataToCollection(dataObject, collectionName, uuid) {
   } catch (e) {
     console.error('Error adding document: ', e);
     crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+/**
+ * Atomically reserve the next child derivation index for a parent. The
+ * counter lives on the parent's blitzWalletUsers doc, so allocation happens
+ * inside a Firestore transaction: concurrent creates (two parent devices, or a
+ * retry after a failed settings write) read the same doc and Firestore retries
+ * one side, guaranteeing no two children ever derive the same index/mnemonic.
+ * The index is burned even if the create flow later fails — that is the point:
+ * a failed flow must never hand the same index to a second attempt.
+ * @param {string} parentUid - Parent's blitzWalletUsers doc id (contacts pubkey)
+ * @returns {Promise<number|null>} Reserved child index, or null on failure
+ */
+export async function reserveNextChildIndex(parentUid) {
+  try {
+    if (!parentUid) throw Error('Not authenticated');
+    const parentRef = doc(db, 'blitzWalletUsers', parentUid);
+
+    let childIndex = null;
+    await runTransaction(db, async tx => {
+      const parentSnap = await tx.get(parentRef);
+      childIndex = getNextChildDerivationIndex(
+        parentSnap.exists() ? parentSnap.data() : {},
+      );
+      tx.set(
+        parentRef,
+        { nextChildDerivationIndex: childIndex + 1 },
+        { merge: true },
+      );
+    });
+
+    return childIndex;
+  } catch (e) {
+    console.error('Error reserving child index:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return null;
+  }
+}
+
+/**
+ * Atomically update the parent's childAccounts registry inside a Firestore
+ * transaction. Edits must never be computed from a stale local snapshot: a
+ * setDoc merge replaces the whole array, so a second device holding an old
+ * childAccounts would wipe every registry entry created since its snapshot
+ * (the create path avoids this with arrayUnion; edits get the same guarantee
+ * here by reading the live array inside the transaction). Mirrors
+ * reserveNextChildIndex. The update rule allows it: childAccounts is not a
+ * locked field and identityUuidBound is untouched.
+ * @param {string} parentUid - Parent's blitzWalletUsers doc id (contacts pubkey)
+ * @param {(entries: Array<object>) => Array<object>} updateFn - Maps the live
+ *   registry array to its new value (e.g. rename / spending-limit edit).
+ * @returns {Promise<boolean>} True on success, false on failure
+ */
+export async function updateChildAccountRegistryEntry(parentUid, updateFn) {
+  try {
+    if (!parentUid) throw Error('Not authenticated');
+    const parentRef = doc(db, 'blitzWalletUsers', parentUid);
+
+    await runTransaction(db, async tx => {
+      const parentSnap = await tx.get(parentRef);
+      const live =
+        parentSnap.exists() && Array.isArray(parentSnap.data().childAccounts)
+          ? parentSnap.data().childAccounts
+          : [];
+      tx.set(parentRef, { childAccounts: updateFn(live) }, { merge: true });
+    });
+
+    return true;
+  } catch (e) {
+    console.error('Error updating child account registry entry:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+// ── Username reservation layer (usernames/{nameLower}) ─────────────────────
+// The doc id *is* the canonical name, so `create` atomically enforces global
+// uniqueness. Additive-only: nothing tightens blitzWalletUsers yet, so no
+// installed client's writes start failing. All three helpers key on the
+// canonical normalizePairingName(...) id so they land at the exact path child
+// pairing later reads/reserves. Best-effort: a failure never blocks a profile
+// write or login.
+
+/**
+ * Atomically claim usernames/{newLower} for `uid`. On a successful rename also
+ * releases the caller's old reservation (only if the caller owns it). If the
+ * name is taken by someone else, the old reservation is left untouched (never
+ * orphan the caller's current name on a failed claim).
+ * @returns {Promise<{status: 'ok' | 'NAME_TAKEN' | 'error'}>}
+ */
+export async function claimUniqueName(uid, oldLower, newLower) {
+  try {
+    if (!uid) return { status: 'error' };
+    const newId = normalizePairingName(newLower);
+    if (!newId) return { status: 'error' };
+    const oldId = oldLower ? normalizePairingName(oldLower) : '';
+    const newRef = doc(db, 'usernames', newId);
+    const oldRef =
+      oldId && oldId !== newId ? doc(db, 'usernames', oldId) : null;
+
+    let status = 'ok';
+    await runTransaction(db, async tx => {
+      // Firestore requires all reads before any write.
+      const newSnap = await tx.get(newRef);
+      const oldSnap = oldRef ? await tx.get(oldRef) : null;
+
+      if (newSnap.exists() && newSnap.data().uid !== uid) {
+        status = 'NAME_TAKEN'; // do NOT touch oldRef — never orphan current name
+        return;
+      }
+      // Create-only: a set on an existing doc is an `update`, which the rules
+      // deny (usernames/ has `allow update: if false`). When the caller already
+      // owns the reservation (self-reclaim / rename-back), skip the write — the
+      // reservation is already ours, so returning ok is correct.
+      if (!newSnap.exists()) tx.set(newRef, { uid });
+      if (oldSnap && oldSnap.exists() && oldSnap.data().uid === uid) {
+        tx.delete(oldRef);
+      }
+    });
+    return { status };
+  } catch (e) {
+    console.error('Error claiming unique name:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return { status: 'error' };
+  }
+}
+
+/** True iff usernames/{lower} exists and is reserved by `uid`. */
+export async function ownsUniqueNameReservation(uid, lower) {
+  try {
+    const id = normalizePairingName(lower);
+    if (!uid || !id) return false;
+    const snap = await getDoc(doc(db, 'usernames', id));
+    return snap.exists() && snap.data().uid === uid;
+  } catch (e) {
+    console.error('Error checking name reservation:', e);
+    return false;
+  }
+}
+
+/**
+ * Available iff no blitzWalletUsers profile displays the name AND the reservation
+ * is free or already owned by `uid` (self-reclaim of an orphaned own name).
+ */
+export async function isUniqueNameAvailable(uid, lower) {
+  try {
+    const id = normalizePairingName(lower);
+    if (!id) return false;
+    const nameFree = await isValidUniqueName('blitzWalletUsers', id);
+    if (!nameFree) return false;
+    const snap = await getDoc(doc(db, 'usernames', id));
+    return !snap.exists() || snap.data().uid === uid;
+  } catch (e) {
+    console.error('Error checking name availability:', e);
     return false;
   }
 }
@@ -85,6 +249,29 @@ export async function getDataFromCollection(collectionName, uuid) {
 
       if (docSnap.exists()) {
         const userData = docSnap.data();
+        if (collectionName === 'blitzWalletUsers') {
+          // Identity fallback: a sender can strip the uuid fields from their
+          // own doc (firestore.rules only binds them while present), and
+          // consumers trust the stored uuid over the doc id — a stripped
+          // field would land recipients with an unpayable uuid:undefined
+          // contact entry. The doc id IS the identity, so fall back to it
+          // whenever the stored field is missing.
+          const fallbackUuid = userData?.uuid ?? docSnap.id;
+          const myProfile = userData?.contacts?.myProfile;
+          return {
+            ...userData,
+            uuid: fallbackUuid,
+            contacts: userData?.contacts
+              ? {
+                  ...userData.contacts,
+                  myProfile:
+                    myProfile && typeof myProfile === 'object'
+                      ? { ...myProfile, uuid: myProfile.uuid ?? fallbackUuid }
+                      : myProfile,
+                }
+              : userData?.contacts,
+          };
+        }
         return userData;
       }
     } catch (err) {
@@ -640,6 +827,209 @@ export async function deleteGift(uuid) {
     crashlyticsRecordErrorReport(e.message);
     return false;
   }
+}
+
+// ── Family pairing handshake ───────────────────────────────────────────────
+// Two-level layout keyed on the parent's canonical username (the rid):
+//   familyPairing/{rid}/sessions/{code}        — the session state machine
+//     The session doc id IS the parent's 6-digit pairing code (makePairingCode),
+//     generated fresh per session. There is NO familyPairing/{rid} pointer doc:
+//     the secret code is the rendezvous, so an attacker who knows the username
+//     but not the live code cannot find the session to snipe it.
+//     authoritative status (WAITING → JOINED → VERIFYING → COMPLETED, or
+//     CANCELLED) + serverTimestamp() lifecycle fields. A fresh code = a fresh
+//     namespace, so sessions never overlap; time is judged only by the rules
+//     against request.time.
+//   familyPairing/{rid}/sessions/{code}/handshake/{party}
+//     per-session write-once handshake docs, gated on the session doc's status.
+// expireAt (a plain client Timestamp) is GC-only: it feeds native Firestore TTL
+// policies for dead docs (session and every handshake doc — TTL does not
+// cascade to subcollections). It is never read for correctness; rules bound it
+// to a generous 1h window.
+function pairingSessionRef(rid, sessionId) {
+  return doc(getFirestore(), 'familyPairing', rid, 'sessions', sessionId);
+}
+
+function pairingDocRef(rid, sessionId, party) {
+  return doc(
+    getFirestore(),
+    'familyPairing',
+    rid,
+    'sessions',
+    sessionId,
+    'handshake',
+    party,
+  );
+}
+
+// GC deadline for every pairing doc: comfortably inside the rules' 1h bound so
+// realistic device skew never denies a write (only TTL reads this value).
+const PAIRING_TTL_EXPIRE_AT_MS = 30 * 60 * 1000;
+
+/**
+ * Open a JIT pairing session under the parent's username: create the session
+ * doc (status WAITING, serverTimestamp createdAt, childUid null) under a fresh
+ * makePairingCode() — the session doc id IS the secret 6-digit code, so there
+ * is no pointer doc to leak the rendezvous. One doc write = atomic, and
+ * sessions never collide (each pairing gets its own code), so there is no
+ * "one live session" conflict to check. Returns the fresh code for the parent
+ * to display.
+ * Deliberately not wrapped in a catch — the caller distinguishes start errors.
+ */
+export async function createPairingSession(rid, parentWalletPub, { commit }) {
+  const code = makePairingCode();
+  const sessionRef = pairingSessionRef(rid, code);
+  const expireAt = Timestamp.fromMillis(Date.now() + PAIRING_TTL_EXPIRE_AT_MS);
+
+  await setDoc(sessionRef, {
+    v: 1,
+    status: 'WAITING',
+    parentWalletPub,
+    childUid: null,
+    commit,
+    createdAt: serverTimestamp(),
+    expireAt,
+  });
+  return code;
+}
+
+// The mobile→proxy base URL. Not secret: the proxy is a public HTTPS endpoint
+// whose per-IP + per-uid rate limiters are the security control. A plain module
+// constant (not app/constants) so the lightweight pairing-session tests can load
+// this module without pulling the constants→icons→assets graph.
+const BLITZ_PROXY_URL = 'https://proxy.blitz-wallet.com';
+
+/**
+ * Child discovers + atomically claims the parent's WAITING session through the
+ * rate-limited /childPairingClaim proxy endpoint (admin-mediated). The client can
+ * no longer read the session (get oracle closed in firestore.rules) or blind-
+ * claim it (client WAITING→JOINED deleted), so this Bearer-token call is the only
+ * claim path — and the proxy's per-IP + per-uid limiters bound a code scan to
+ * ~10/min. Sends the child's Firebase ID token; the server stamps childUid from
+ * the VERIFIED token and returns the parent's commit for verifyKeyCommitment.
+ * Returns { ok, commit, error }; a non-200 maps its server error code to `error`.
+ * NOT the fetchBackend/httpsCallable ECDH path — that hits GCF directly and would
+ * bypass the proxy and its limiter.
+ */
+export async function claimPairingSession(rid, code) {
+  try {
+    const token = await getIdToken(firebaseAuth.currentUser);
+    const res = await fetch(`${BLITZ_PROXY_URL}/childPairingClaim`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: rid, code }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.status !== 'SUCCESS') {
+      return { ok: false, error: data.error || 'request_failed' };
+    }
+    return { ok: true, commit: data.commit };
+  } catch (e) {
+    console.error('Error claiming pairing session:', e);
+    return { ok: false, error: 'request_failed' };
+  }
+}
+
+/**
+ * Parent advances the session: JOINED→VERIFYING or VERIFYING→COMPLETED,
+ * stamping the matching serverTimestamp. The COMPLETED call is strictly
+ * best-effort (D5) — it may be rules-denied at the deadline boundary after the
+ * grant already landed; neither party depends on it. Always returns a boolean;
+ * callers must treat a false as non-fatal.
+ */
+export async function advanceSessionStatus(rid, sessionId, next) {
+  try {
+    if (next === 'VERIFYING') {
+      await updateDoc(pairingSessionRef(rid, sessionId), {
+        status: 'VERIFYING',
+        verifyingAt: serverTimestamp(),
+      });
+    } else if (next === 'COMPLETED') {
+      await updateDoc(pairingSessionRef(rid, sessionId), {
+        status: 'COMPLETED',
+        completedAt: serverTimestamp(),
+      });
+    } else {
+      throw new Error(`Unknown session status advance: ${next}`);
+    }
+    return true;
+  } catch (e) {
+    console.error('Error advancing pairing session:', e);
+    return false;
+  }
+}
+
+/**
+ * Mark a non-terminal session CANCELLED. Best-effort: denied once the session
+ * is already terminal. Never throws.
+ */
+export async function cancelPairingSession(rid, sessionId) {
+  try {
+    await updateDoc(pairingSessionRef(rid, sessionId), { status: 'CANCELLED' });
+    return true;
+  } catch (e) {
+    console.error('Error cancelling pairing session:', e);
+    return false;
+  }
+}
+
+export async function setPairingDoc(rid, sessionId, party, data) {
+  try {
+    await setDoc(pairingDocRef(rid, sessionId, party), {
+      ...data,
+      expireAt: Timestamp.fromMillis(Date.now() + PAIRING_TTL_EXPIRE_AT_MS),
+    });
+    return true;
+  } catch (e) {
+    console.error('Error writing pairing doc:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function getPairingDoc(rid, sessionId, party) {
+  try {
+    const snap = await getDoc(pairingDocRef(rid, sessionId, party));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    console.error('Error reading pairing doc:', e);
+    return null;
+  }
+}
+
+export function subscribePairingDoc(rid, sessionId, party, onData) {
+  return onSnapshot(pairingDocRef(rid, sessionId, party), snap => {
+    if (snap.exists()) onData(snap.data());
+  });
+}
+
+// The session doc is the primary driver for both contexts: status transitions,
+// serverTimestamp anchors for the countdown, and (null) when TTL GC'd the doc.
+export function subscribePairingSession(rid, sessionId, onData) {
+  let sawDoc = false;
+  return onSnapshot(pairingSessionRef(rid, sessionId), snap => {
+    if (snap.exists()) {
+      sawDoc = true;
+      onData(snap.data());
+    } else if (sawDoc) {
+      onData(null);
+    }
+  });
+}
+
+// Best-effort teardown: each party deletes its own handshake docs under the
+// session. The rules deny deletes the caller doesn't own; those reject and are
+// swallowed. Lingering peer docs TTL out. childUid now resolves from the
+// session doc (not the childHello doc), so all deletes can fire in parallel.
+export async function deletePairingHandshake(rid, sessionId) {
+  await Promise.all(
+    ['childHello', 'parentReveal', 'childConfirm', 'grant', 'cancel'].map(
+      party => deleteDoc(pairingDocRef(rid, sessionId, party)).catch(() => {}),
+    ),
+  );
 }
 
 export async function handleGiftCheck(cardUUID) {

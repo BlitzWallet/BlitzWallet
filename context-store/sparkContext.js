@@ -35,6 +35,7 @@ import {
 import { useAppStatus } from './appStatus';
 import {
   checkHodlInvoicePaymentStatuses,
+  fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
 import { useGlobalContactsInfo } from './globalContacts';
@@ -158,7 +159,7 @@ const SparkWalletProvider = ({ children }) => {
   const { authResetkey } = useAuthContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { changeSparkConnectionState } = useWebView();
-  const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToastActions();
   const {
@@ -899,6 +900,12 @@ const SparkWalletProvider = ({ children }) => {
       );
 
       reconcileLeaves();
+      fullRestoreSparkState({
+        sparkAddress: sparkInfoRef.current.sparkAddress,
+        isSendingPayment: isSendingPaymentRef.current,
+        mnemonic: currentMnemonicRef.current,
+        identityPubKey: sparkInfoRef.current.identityPubKey,
+      });
 
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;
@@ -2323,7 +2330,7 @@ const SparkWalletProvider = ({ children }) => {
         filterAndSetTransactions,
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
-        mnemonic: accountMnemoinc,
+        mnemonic: currentMnemonicRef.current,
         // Restore now runs solely via createRestorePoller in addListeners, so
         // always load cached txs on connect (the poller's SPARK_TX events layer
         // in any newly restored txs afterward).
@@ -2343,7 +2350,7 @@ const SparkWalletProvider = ({ children }) => {
       // cycle or manual refresh.
       retryBalanceAfterTimeout();
     },
-    [accountMnemoinc, retryBalanceAfterTimeout],
+    [retryBalanceAfterTimeout],
   );
 
   // Function to update db when all reqiured information is loaded

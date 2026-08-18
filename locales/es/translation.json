@@ -181,7 +181,8 @@
     "daily": "Diario",
     "weekly": "Semanal",
     "monthly": "Mensual",
-    "yearly": "Anual"
+    "yearly": "Anual",
+    "noLimit": "Sin límite"
   },
   "transactionLabelText": {
     "notSent": "Pago no enviado",
@@ -219,7 +220,8 @@
       "subtitle": "Tu billetera. Tu dinero. Código abierto.",
       "buttons": {
         "button1": "Restaurar cuenta",
-        "button2": "Comenzar"
+        "button2": "Comenzar",
+        "joinAccount": "Unirse a la wallet compartida"
       }
     },
     "disclaimerPage": {
@@ -230,7 +232,7 @@
       "row2Label": "Tu frase de recuperación es la clave",
       "row2Description": "12 palabras protegen tu wallet.",
       "row3Label": "Si pierdes la frase, pierdes el acceso",
-      "row3Description": "Nadie puede recuperar tu wallet por ti.",
+      "row3Description": "Nadie puede recuperarla por ti.",
       "readTerms": "Leer Términos y Privacidad completos",
       "acceptPrefix": "Entiendo que soy el único responsable de mi frase de recuperación y acepto los",
       "terms&Conditions": "Términos",
@@ -282,6 +284,14 @@
       "header": "Recomendamos que escribas tu frase semilla",
       "subHeader": "Si no tienes tu frase semilla escrita, corres el riesgo de perder tu dinero.",
       "btn": "Entiendo"
+    },
+    "walletSetup": {
+      "title": "Configura tu wallet",
+      "subtitle": "Crea una nueva wallet o restaura una existente.",
+      "createTitle": "Crear nueva wallet",
+      "createDesc": "Empieza de cero con una nueva wallet.",
+      "restoreTitle": "Restaurar wallet existente",
+      "restoreDesc": "¿Ya tienes una wallet? Tráela contigo."
     }
   },
   "adminLogin": {
@@ -1117,7 +1127,8 @@
     "cameraModal": {
       "noCamera": "Sin acceso a la cámara",
       "settingsText": "Ve a configuración para permitir que Blitz Wallet acceda a tu cámara",
-      "noCameraDevice": "No tienes un dispositivo con cámara.",
+      "noCameraDevice": "Sin dispositivo de cámara",
+      "noCameraDeviceSub": "No hay ninguna cámara disponible en este dispositivo.",
       "noFlash": "El dispositivo no tiene linterna",
       "scanningResponse": "Solo se aceptan códigos QR.",
       "qrDecodeError": "Error al decodificar el código QR",
@@ -1139,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "Sin acceso a la cámara",
       "settingsText": "Ve a configuración para permitir que Blitz Wallet acceda a tu cámara",
-      "noCameraDevice": "No tienes un dispositivo con cámara.",
+      "noCameraDevice": "Sin dispositivo de cámara",
+      "noCameraDeviceSub": "No hay ninguna cámara disponible en este dispositivo.",
       "error1": "El dispositivo no tiene linterna",
       "error2": "Ya has pagado esta factura"
     },
@@ -1663,7 +1675,27 @@
     "accounts": {
       "inputPlaceholder": "Buscar cuenta existente",
       "mainWalletPlace": "Billetera principal",
-      "nwcWalletPlace": "NWC"
+      "nwcWalletPlace": "NWC",
+      "tabs": {
+        "personal": "Personal",
+        "linked": "Gestionadas"
+      },
+      "personalInfo": {
+        "title": "¿Qué son las cuentas personales?",
+        "body": "Las cuentas personales son wallets que creas para ti mismo. Úsalas para separar fácilmente tu dinero para diferentes propósitos, como gastos, ahorros o viajes."
+      },
+      "linkedInfo": {
+        "title": "¿Qué son las cuentas gestionadas?",
+        "body": "Las cuentas gestionadas son wallets que creas para otra persona. Ellos obtienen su propia wallet y pueden usarla como cualquier otra wallet de Blitz, mientras tú gestionas la recuperación por ellos."
+      },
+      "emptyLinked": {
+        "title": "Aún no hay cuentas gestionadas",
+        "subtitle": "Crea una wallet para alguien de confianza. Podrán usar Blitz sin tener que gestionar una frase de recuperación."
+      },
+      "noResults": {
+        "title": "No se encontraron cuentas",
+        "subtitle": "Aún no tienes cuentas."
+      }
     },
     "resetWallet": {
       "header": "¿Estás seguro?",
@@ -1801,7 +1833,9 @@
       "accumulationFee": "0,5 % de comisión de Blitz + 0,5 % de comisión de plataforma",
       "othersType": "Otros",
       "othersFee": "Comisiones de red",
-      "networkFeeLinkDesc": "Toca para ver un desglose de las comisiones de la red Spark"
+      "networkFeeLinkDesc": "Toca para ver un desglose de las comisiones de la red Spark",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "Comisión de Boltz del 0,1 % + comisiones de la red"
     },
     "nip5": {
       "noNameError": "El nombre no puede estar vacío.",
@@ -1826,16 +1860,48 @@
     },
     "nwc": {
       "confirmDelete": "¿Estás seguro de que quieres eliminar este elemento de Nostr Connect?",
-      "searchAccountPlaceholder": "Buscar cuenta NWC",
-      "noAccountsMessage": "No tienes cuentas Nostr Connect.",
       "addAccount": "Añadir cuenta",
+      "empty": {
+        "title": "Aún no hay conexiones",
+        "subtitle": "Crea una conexión para usar Nostr Wallet Connect con tus aplicaciones favoritas."
+      },
+      "createNWCName": {
+        "title": "Nombre de la conexión"
+      },
+      "createNWCPermissions": {
+        "title": "Permisos",
+        "pageTitle": "Añadir permisos de la billetera",
+        "pageSubtitle": "Elige qué acciones puede realizar esta billetera.",
+        "editTitle": "Editar permisos de la billetera",
+        "editSubtitle": "Edita qué acciones puede realizar esta billetera."
+      },
+      "createNWCAmount": {
+        "title": "Presupuesto",
+        "pageTitle": "Establecer un presupuesto de gastos",
+        "pageSubtitle": "Establece un límite de gastos y cuándo se restablece. Déjalo en blanco para no tener límite.",
+        "editTitle": "Editar presupuesto de gastos",
+        "editSubtitle": "Cambia el límite de gastos y cuándo se restablece. Déjalo en blanco para no tener límite.",
+        "renewalPlaceholder": "Selecciona el período de renovación",
+        "createButton": "Crear cuenta"
+      },
+      "accountPage": {
+        "title": "Gestionar cuenta",
+        "nameLabel": "Nombre",
+        "permissionsLabel": "Permisos",
+        "permissionsCount_one": "{{count}} permiso",
+        "permissionsCount_other": "{{count}} permisos",
+        "renewalLabel": "Período de renovación",
+        "amountLabel": "Monto del presupuesto",
+        "viewSecretLabel": "Cadena de conexión",
+        "deleteAccount": "Eliminar cuenta"
+      },
       "createNWCAccount": {
         "noAccountNameError": "Por favor introduce un nombre de cuenta.",
         "noPermissionsError": "Por favor habilita al menos un permiso.",
         "noBudgetError": "Por favor selecciona un período de renovación de presupuesto.",
         "noBudgetAmountError": "Por favor selecciona un monto de presupuesto.",
-        "title": "Crear cuenta",
         "loadingMessage": "Creando cuenta",
+        "updatingMessage": "Actualizando cuenta...",
         "nameInputPlaceholder": "Introduce nombre de cuenta NWC",
         "permissionsHeader": "Permisos de la billetera",
         "receivePayments": "Recibir pagos",
@@ -1843,16 +1909,14 @@
         "getBalance": "Obtener saldo",
         "transactions": "Transacciones",
         "lookupInvoice": "Buscar factura",
-        "budgetRenewalHeader": "Renovación de presupuesto",
-        "bugetPlaceholder": "Selecciona período de renovación",
-        "createConnection": "",
-        "connectionName": ""
+        "budgetRenewalHeader": "Renovación de presupuesto"
       },
       "hasNoAccounts": {
         "warningMessage": "Para enviar dinero desde tu billetera Nostr Connect, primero necesitarás añadir fondos — ya sea recibiendo dinero o transfiriendo desde tu billetera principal.\n\n Puedes transferir fondos desde tu billetera principal a NWC en la página de configuración de la cuenta."
       },
       "noNotifications": {
-        "warningMessage": "Para usar Nostr Wallet Connect necesitas tener habilitadas las notificaciones push para Nostr Wallet Connect.\n\nPor favor habilita las notificaciones en configuración e intenta de nuevo."
+        "title": "Notificaciones requeridas",
+        "subtitle": "Nostr Wallet Connect requiere notificaciones push. Actívalas en Configuración e inténtalo de nuevo."
       },
       "showSeedPage": {
         "loadingMessage": "Generando frase de recuperación",
@@ -1860,14 +1924,23 @@
         "viewSeed": "Ver frase de recuperación"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Financiar tu wallet NWC",
-        "accountFundingMessage": "Para enviar dinero desde tu wallet Nostr Connect, primero debes agregar fondos, ya sea recibiendo dinero o transfiriéndolo desde tu wallet principal.\n\nPuedes transferir fondos desde tu wallet principal a NWC en la página de configuración de la cuenta.",
-        "securityHeader": "Seguro y aislado",
-        "securityMessage": "Nostr Wallet Connect crea una wallet separada de tu wallet principal para mayor seguridad. Esta frase seed se almacena de forma segura y puede verse más tarde en la página de Cuentas dentro de Configuración si es necesario.",
+        "infoTitle": "Antes de comenzar",
+        "infoSubtitle": "Algunas cosas que debes saber sobre tu cuenta de Nostr Wallet Connect.",
+        "row1Label": "Añadir fondos",
+        "row1Description": "Añade dinero recibiéndolo o transfiriéndolo desde tu cuenta principal.",
+        "row2Label": "Cuenta separada",
+        "row2Description": "Esta cuenta está separada de tu cuenta principal para mayor seguridad.",
+        "row3Label": "Acceso de la aplicación",
+        "row3Description": "Las aplicaciones conectadas pueden usar esta cuenta para realizar pagos.",
         "continueButton": "Comenzar",
         "initializingMessage": "Configurando tu wallet NWC...",
         "errorTitle": "Error en la configuración",
         "errorRetry": "Reintentar configuración"
+      },
+      "accountCreated": {
+        "title": "Cuenta creada",
+        "subtitle": "Tu cuenta NWC ha sido creada. Copia la cadena de conexión para empezar a usarla.",
+        "copyConnection": "Copiar cadena de conexión"
       }
     },
     "accountComponents": {
@@ -1888,6 +1961,10 @@
         "balanceError": "La cantidad supera tu saldo incluyendo comisiones",
         "noSendAddressError": "No se pudo obtener la dirección de transferencia",
         "noAccountInformation": "No se pudo obtener la información de la cuenta",
+        "invalidAmountError": "Por favor ingresa una cantidad válida para transferir",
+        "invalidFeeError": "No se pudo calcular una comisión de transferencia válida",
+        "invalidBalanceError": "No se pudo verificar el saldo de la cuenta",
+        "sameAccountError": "Por favor selecciona dos cuentas diferentes",
         "title": "Transferencia",
         "selectAccount": "Seleccionar cuenta",
         "inputPlaceHolderText": "Transferencia entre cuentas"
@@ -1913,7 +1990,7 @@
         "namePlaceholder": "Nombre"
       },
       "editAccountPage": {
-        "title": "Editar cuenta",
+        "title": "Cuenta",
         "accountNameLabel": "Nombre de la cuenta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperación",
         "removeAccountLabel": "Eliminar cuenta",
@@ -1925,16 +2002,25 @@
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
         "accountTypeDerivedInfo": "Esta cuenta está vinculada a tu frase semilla de Blitz y se restaurará cuando restaures tu billetera Blitz.",
-        "accountTypeImportedInfo": "Esta cuenta tiene su propia frase semilla y no se restaurará cuando restaures tu billetera Blitz. Guarda su frase de recuperación en un lugar seguro."
+        "accountTypeImportedInfo": "Esta cuenta tiene su propia frase semilla y no se restaurará cuando restaures tu billetera Blitz. Guarda su frase de recuperación en un lugar seguro.",
+        "accountType_main": "Principal",
+        "balanceLabel": "Saldo",
+        "activeLabel": "Cuenta activa",
+        "activateButton": "Activar cuenta",
+        "addMoneyButton": "Añadir dinero",
+        "withdrawMoneyButton": "Retirar dinero",
+        "viewActivityLabel": "Ver el historial de la cuenta"
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",
-        "createNewAccountTitle": "Crear nueva cuenta",
-        "createNewAccountDescription": "Recuperable desde la frase semilla principal",
+        "createNewAccountTitle": "Crear cuenta personal",
+        "createNewAccountDescription": "Crea una wallet para ti",
         "importRecoveryPhraseTitle": "Importar frase de recuperación",
-        "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet",
-        "recoverRecoveryPhraseTitle": "Recuperar cuenta",
-        "recoverRecoveryPhraseDescription": "Restaurar una cuenta ya creada"
+        "importRecoveryPhraseDescription": "Importar cuentas personales desde otra wallet",
+        "recoverRecoveryPhraseTitle": "Recuperar cuenta personal",
+        "recoverRecoveryPhraseDescription": "Restaurar una cuenta personal",
+        "createChildAccountTitle": "Crear cuenta gestionada",
+        "createChildAccountDescription": "Crea una wallet para otra persona"
       },
       "selectProfileImage": {
         "title": "Elegir avatar",
@@ -1965,6 +2051,17 @@
         "explanation_imported": "Esta cuenta fue importada. Si la eliminas, necesitarás volver a importar tu clave privada para acceder a ella.",
         "cancelButton": "Cancelar",
         "removeButton": "Eliminar cuenta"
+      },
+      "transferModal": {
+        "selectAccount": "Selecciona una cuenta",
+        "availableToAdd": "Disponible para añadir",
+        "availableToWithdraw": "Disponible para retirar",
+        "using": "Usando",
+        "amount": "Importe",
+        "transferComplete": "Enviado a {{name}}",
+        "selfTransfer": "No puedes transferirte a ti mismo",
+        "addFunds": "{{name}} agregó dinero",
+        "withdrawFunds": "{{name}} retiró dinero"
       }
     },
     "accountsPoolsScreen": {
@@ -1979,6 +2076,7 @@
     "hub": {
       "viewAll": "Ver todo",
       "accounts": "Cuentas",
+      "accountsEmptyDesc": "Consulta, crea, administra y mueve fondos entre todas tus cuentas.",
       "pinAccount": "Fijar",
       "unpinAccount": "Desfijar",
       "maxPinsReached": "Máximo 2 cuentas fijadas. Desfija una primero.",
@@ -2079,6 +2177,166 @@
     },
     "language": {
       "inputPlaceHolder": "Buscar idioma"
+    },
+    "childAccounts": {
+      "tabs": {
+        "children": "Gestionadas"
+      },
+      "dontMatch": "No coinciden",
+      "sasGrid": {
+        "blank": "Vacío",
+        "x": "equis",
+        "plus": "más",
+        "filled": "relleno",
+        "outline": "contorno",
+        "position": "Fila {{row}} de 3, columna {{column}} de 3.",
+        "shapes": {
+          "circle": "Círculo",
+          "square": "Cuadrado",
+          "triangle": "Triángulo",
+          "diamond": "Rombo",
+          "hexagon": "Hexágono",
+          "moon": "Luna",
+          "cross": "Cruz",
+          "star": "Estrella",
+          "heart": "Corazón",
+          "checkmark": "Marca de verificación",
+          "shield": "Escudo",
+          "clock": "Reloj",
+          "bell": "Campana",
+          "house": "Casa",
+          "apple": "Manzana"
+        }
+      },
+      "list": {
+        "spendingLimitLabel": "Límite",
+        "noLimit": "Sin límite"
+      },
+      "enterName": {
+        "title": "Nombra esta cuenta",
+        "subtitle": "Ponle un nombre a la cuenta para poder reconocerla más adelante.",
+        "placeholder": "Nombre de la cuenta",
+        "next": "Siguiente",
+        "create": "Crear cuenta",
+        "editTitle": "Editar nombre de la cuenta",
+        "editSubtitle": "Elige un nuevo nombre para reconocer esta cuenta más adelante."
+      },
+      "spendingLimit": {
+        "title": "Establecer un límite de gasto",
+        "subtitle": "Establece un límite de gasto mensual para esta cuenta. Es un presupuesto flexible controlado en su dispositivo.",
+        "placeholder": "Límite mensual",
+        "noLimit": "Sin límite",
+        "create": "Crear cuenta"
+      },
+      "creating": {
+        "loadingText": "Creando cuenta...",
+        "errorTitle": "No se pudo crear la cuenta. Inténtalo de nuevo."
+      },
+      "confirmation": {
+        "done": "Listo"
+      },
+      "pairing": {
+        "title": "Compartir",
+        "usernameTitle": "Comparte tu nombre de usuario",
+        "usernameSubtitle": "Pídeles que abran Blitz en su teléfono, elijan «Unirse a la wallet compartida» y luego introduzcan este nombre de usuario.",
+        "generateCode": "Generar código",
+        "usernameLabel": "Tu nombre de usuario: {{name}}",
+        "codeNavTitle": "Compartir código",
+        "codeTitle": "Comparte este código de emparejamiento",
+        "codeSubtitle": "Comparte este código para que puedan unirse a tu wallet compartida.",
+        "waiting": "Esperando a que introduzcan el código…",
+        "sasNavTitle": "Verificar patrón",
+        "sasTitle": "Verifica el patrón",
+        "sasSubtitle": "Comprueba que este patrón de formas coincide con el de su teléfono, forma por forma.",
+        "sasHint": "Solo confirma una vez que hayas confirmado que ambos teléfonos muestran el mismo patrón.",
+        "confirmMatch": "Coinciden",
+        "linkedTitle": "Wallet vinculada",
+        "linkedSubtitle": "Su wallet gestionada está lista para usarse.",
+        "done": "Enviado. Terminarán la configuración en su teléfono.",
+        "expired": "Este emparejamiento expiró. Vuelve a empezar.",
+        "errorTitle": "La sesión de emparejamiento terminó",
+        "declinedByChild": "Esta solicitud ha sido rechazada.",
+        "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
+        "areYouSure": "¿Estás seguro?",
+        "confirmGate": "Solo confirma si los patrones coinciden exactamente, forma por forma. Al confirmar, esta persona obtiene acceso a la cuenta.",
+        "confirmBTN": "Coinciden",
+        "needsUsername": "Configura un nombre de usuario en tu perfil antes de vincular una wallet.",
+        "notOwner": "No pudimos confirmar tu reserva de nombre de usuario. Inténtalo de nuevo en un momento.",
+        "startFailed": "No se pudo iniciar el emparejamiento. Inténtalo de nuevo.",
+        "codeOption": "Código",
+        "qrOption": "QR",
+        "qrTitle": "Escanea este código QR",
+        "qrSubtitle": "Pídeles que abran Blitz en su teléfono, elijan «Unirse a la wallet compartida» y luego escaneen este código QR.",
+        "qrWaiting": "Esperando a que escaneen…",
+        "acceptTitle": "¿Aceptar el emparejamiento?",
+        "acceptSubtitle": "Al emparejar, estás dando a esta persona acceso a {{name}}. Asegúrate de emparejarte con la persona correcta.",
+        "acceptBTN": "Aceptar",
+        "declineBTN": "Rechazar"
+      },
+      "transactions": {
+        "title": "Actividad",
+        "noTxHistorySub": "Las transacciones de la cuenta aparecerán aquí una vez que envíen o reciban una."
+      },
+      "page": {
+        "title": "Cuenta de hijo",
+        "balanceLabel": "Saldo",
+        "transactionsLabel": "Actividad reciente",
+        "noTransactions": "Aún no hay actividad",
+        "spendingLimitLabel": "Límite de gasto",
+        "loadingBalance": "Cargando saldo...",
+        "shareLink": "Vincular con alguien",
+        "sendInviteLink": "Invitar a alguien"
+      },
+      "claim": {
+        "title": "Configura tu wallet",
+        "info": {
+          "navTitle": "Configura tu wallet",
+          "title": "Configura tu wallet gestionada",
+          "intro": "Te estás uniendo a una wallet gestionada para ti.",
+          "row1Label": "Tu propia wallet",
+          "row1Description": "Envía y recibe con tu propio saldo.",
+          "row2Label": "Fácil de usar",
+          "row2Description": "La recuperación de tu wallet se gestiona por ti.",
+          "row3Label": "Gestionada por otra persona",
+          "row3Description": "Únete solo a una wallet de alguien que conozcas.",
+          "continue": "Continuar"
+        },
+        "codeNavTitle": "Introducir nombre de usuario",
+        "codeTitle": "Introduce su nombre de usuario",
+        "codeSubtitle": "Introduce el nombre de usuario que se muestra en el teléfono de la otra persona.",
+        "pairCodeNavTitle": "Introducir código",
+        "pairCodeTitle": "Introduce el código de emparejamiento",
+        "pairCodeSubtitle": "Introduce el código de 6 dígitos que se muestra en el teléfono de la otra persona.",
+        "wrongCode": "Ese código no funcionó. Revisa el código y el nombre de usuario e inténtalo de nuevo.",
+        "next": "Siguiente",
+        "sasNavTitle": "Verificar patrón",
+        "sasTitle": "Verifica el patrón",
+        "sasSubtitle": "Comprueba que este patrón de formas coincide con el del otro teléfono, forma por forma.",
+        "sasHint": "Solo confirma una vez que hayas confirmado que ambos teléfonos muestran el mismo patrón.",
+        "confirmMatch": "Coinciden",
+        "tamper": "No pudimos verificar esta transferencia. Vuelve a empezar.",
+        "notFound": "No pudimos encontrar un emparejamiento para ese nombre de usuario. Pídelo de nuevo.",
+        "slotTaken": "Alguien ya se unió con este nombre de usuario. Detente ahora y pídele al propietario de la cuenta que cancele y empiece de nuevo.",
+        "askToRestart": "No pudimos unirnos a esta vinculación. Pídele al propietario de la cuenta que inicie una nueva.",
+        "rateLimited": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+        "loading": "Configurando tu wallet...",
+        "expired": "Este emparejamiento expiró. Vuelve a empezar.",
+        "errorTitle": "La sesión de emparejamiento terminó",
+        "canceledByParent": "El propietario de la cuenta canceló la solicitud de emparejamiento.",
+        "codePlaceholder": "nombre de usuario",
+        "codeOption": "Código",
+        "scanOption": "Escanear",
+        "scanNavTitle": "Escanear código",
+        "scanTitle": "Escanea su código QR",
+        "scanHint": "Coloca el código QR a la vista para activarlo",
+        "scanWaiting": "Esperando a que se acepte la solicitud",
+        "scanSubtitle": "Apunta tu cámara al código QR de su teléfono.",
+        "connectingMessage": "Conectando tus dispositivos"
+      },
+      "limitGate": {
+        "title": "Límite de gasto alcanzado",
+        "message": "Este pago superaría el límite de gasto establecido para esta cuenta."
+      }
     }
   },
   "screens": {

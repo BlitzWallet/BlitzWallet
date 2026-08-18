@@ -66,6 +66,7 @@ import {
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
+import { formatCountdown } from '../../../../functions/timeFormatter';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
 
@@ -74,20 +75,6 @@ const QUOTE_TTL_MS = 115_000;
 function truncateAddress(addr) {
   if (!addr || addr.length <= 16) return addr || '';
   return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
-}
-
-function formatCountdown(ms) {
-  const secs = Math.max(0, Math.floor(ms / 1000));
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
-function capitalizeChain(chain) {
-  if (typeof chain !== 'string') return '';
-  const lowered = chain.toLowerCase();
-  const firstLetter = lowered[0].toUpperCase();
-  return firstLetter + lowered.slice(1);
 }
 
 export default function StablecoinSendScreen() {

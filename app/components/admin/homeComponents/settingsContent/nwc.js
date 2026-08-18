@@ -3,41 +3,34 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  NOSTR_RELAY_URL,
   NWC_SECURE_STORE_MNEMOINC,
-  SIZES,
 } from '../../../../constants';
 import { useCallback, useState } from 'react';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { usePushNotification } from '../../../../../context-store/notificationManager';
 import NostrWalletConnectNoNotifications from './nwc/noNotifications';
 import {
-  CustomKeyboardAvoidingView,
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { retrieveData } from '../../../../functions';
 import CombinedOnboardingWarning from './nwc/combinedOnboardingWarning';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { useTranslation } from 'react-i18next';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { useTranslation } from 'react-i18next';
 
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
-  const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
 
-  const { theme } = useGlobalThemeContext();
   const { getCurrentPushNotifiicationPermissions } = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
   const [hasSeenMnemoinc, setHasSeenMnemoinc] = useState('');
-  const [accountName, setAccountName] = useState('');
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const savedNWCAccounts = masterInfoObject.NWC;
   const notificationData = masterInfoObject.pushNotifications;
   const didViewWarningMessage = masterInfoObject.didViewNWCMessage;
@@ -64,14 +57,6 @@ export default function NosterWalletConnect() {
     }, []),
   );
 
-  const removePOSItem = itemUUID => {
-    const updatedAccounts = { ...savedNWCAccounts.accounts };
-    delete updatedAccounts[itemUUID];
-    toggleNWCInformation({
-      accounts: updatedAccounts,
-    });
-  };
-
   // Step 1, enable push notifications
   if (!hasEnabledPushNotifications) {
     return (
@@ -89,111 +74,49 @@ export default function NosterWalletConnect() {
     );
   }
 
-  const nwcElements = savedNWCAccounts?.accounts
+  const savedNWCAccountsList = savedNWCAccounts?.accounts
     ? Object.entries(savedNWCAccounts?.accounts)
-        .filter(([key, value]) => {
-          return value.accountName
-            ?.toLowerCase()
-            ?.startsWith(accountName?.toLowerCase());
-        })
-        .map(([key, value]) => {
-          const connectionString = `nostr+walletconnect://${
-            value.publicKey
-          }?relay=${encodeURIComponent(NOSTR_RELAY_URL)}&secret=${
-            value.secret
-          }`;
-          return (
-            <View
-              key={key}
-              style={[
-                styles.sectionContent,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
-              <View style={styles.settingsItem}>
-                <View style={styles.settingsItemText}>
-                  <ThemeText
-                    styles={styles.settingsItemLabel}
-                    content={value.accountName}
-                  />
-                </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigate.navigate('CreateNostrConnectAccount', {
-                      accountID: key,
-                    })
-                  }
-                  style={styles.actionButton}
-                >
-                  <ThemeIcon iconName="SquarePen" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    navigate.navigate('ConfirmActionPage', {
-                      confirmFunction: () => removePOSItem(key),
-                      confirmMessage: t('settings.nwc.confirmDelete'),
-                    });
-                  }}
-                  style={styles.actionButton}
-                >
-                  <ThemeIcon iconName="Trash2" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={[styles.divider, { backgroundColor }]} />
-
-              <TouchableOpacity
-                onPress={() => {
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'customQrCode',
-                    data: connectionString,
-                  });
-                }}
-              >
-                <ThemeText
-                  styles={styles.connectionString}
-                  CustomNumberOfLines={2}
-                  content={connectionString}
-                />
-              </TouchableOpacity>
-            </View>
-          );
-        })
     : [];
 
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      useStandardWidth={true}
-      useLocalPadding={true}
-      isKeyboardActive={isKeyboardActive}
-    >
+    <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={'NWC'} />
-      <CustomSearchInput
-        inputText={accountName}
-        setInputText={setAccountName}
-        placeholderText={t('settings.nwc.searchAccountPlaceholder')}
-        containerStyles={styles.searchInput}
-        onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.innerContainer}
         contentContainerStyle={styles.scrollContent}
       >
-        {nwcElements.length > 0 ? (
-          <View style={styles.accountsList}>{nwcElements}</View>
+        {savedNWCAccountsList.length > 0 ? (
+          <View style={styles.accountsList}>
+            {savedNWCAccountsList.map(([key, value]) => (
+              <TouchableOpacity
+                key={key}
+                onPress={() =>
+                  navigate.navigate('NWCAccountPage', { accountID: key })
+                }
+                style={[styles.card, { backgroundColor: backgroundOffset }]}
+              >
+                <ThemeText
+                  styles={styles.accountName}
+                  CustomNumberOfLines={1}
+                  content={value.accountName}
+                />
+                <ThemeIcon iconName="ChevronRight" size={18} />
+              </TouchableOpacity>
+            ))}
+          </View>
         ) : (
-          <ThemeText
-            styles={styles.emptyMessage}
-            content={t('settings.nwc.noAccountsMessage')}
+          <NoContentSceen
+            iconName="Zap"
+            titleText={t('settings.nwc.empty.title')}
+            subTitleText={t('settings.nwc.empty.subtitle')}
+            containerStyles={styles.emptyContainer}
           />
         )}
       </ScrollView>
       <CustomButton
         actionFunction={() => {
-          navigate.navigate('CreateNostrConnectAccount');
+          navigate.navigate('CreateNWCName');
         }}
         buttonStyles={{
           ...CENTER,
@@ -202,7 +125,7 @@ export default function NosterWalletConnect() {
         }}
         textContent={t('settings.nwc.addAccount')}
       />
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
 
@@ -221,52 +144,31 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   scrollContent: {
-    paddingTop: 8,
+    paddingTop: 24,
     paddingBottom: 20,
     flexGrow: 1,
-  },
-  searchInput: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: 16,
-    marginBottom: 8,
   },
   accountsList: {
     width: '100%',
     gap: 8,
   },
-  sectionContent: {
+  card: {
     width: '100%',
-    borderRadius: 8,
-    padding: 16,
-  },
-  settingsItem: {
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 15,
   },
-  settingsItemText: {
+  accountName: {
     flex: 1,
     flexShrink: 1,
-    marginRight: 8,
-  },
-  settingsItemLabel: {
     includeFontPadding: false,
   },
-  divider: {
-    height: 1,
-    marginVertical: 8,
-  },
-  actionButton: {
-    marginLeft: 12,
-  },
-  connectionString: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-  emptyMessage: {
-    textAlign: 'center',
-    marginTop: 20,
-    includeFontPadding: false,
+  emptyContainer: {
+    flex: 1,
+    minHeight: 250,
   },
 });

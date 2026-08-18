@@ -5,5 +5,12 @@
     "crashlytics_auto_collection_enabled": true,
     "crashlytics_is_error_generation_on_js_crash_enabled": true,
     "crashlytics_javascript_exception_handler_chaining_enabled": false
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "emulators": {
+    "firestore": { "port": 8080 },
+    "ui": { "enabled": false }
   }
 }

@@ -96,24 +96,28 @@ jest.mock('react-i18next', () => ({
 
 const {
   getNormalizedWebsiteUrl,
-} = require('../app/components/admin/homeComponents/apps/onlineListings/index.js');
+} = require('../app/functions/getNormalizedWebsiteUrl');
 
 describe('online listings website URL handling', () => {
   it('rejects non-http(s) schemes in attacker-controlled listing data', () => {
     // These all currently pass straight through to Linking.openURL.
     // eslint-disable-next-line no-script-url -- test fixture, not executed
     expect(getNormalizedWebsiteUrl('javascript:alert(1)')).toBe('');
-    expect(getNormalizedWebsiteUrl('data:text/html,<script>alert(1)</script>')).toBe(
-      '',
-    );
+    expect(
+      getNormalizedWebsiteUrl('data:text/html,<script>alert(1)</script>'),
+    ).toBe('');
     expect(getNormalizedWebsiteUrl('lightning:lnbc1u1p0example')).toBe('');
     expect(getNormalizedWebsiteUrl('bitcoin:bc1qexample')).toBe('');
-    expect(getNormalizedWebsiteUrl('blitz-wallet://paylink/AAAAABBBB')).toBe('');
+    expect(getNormalizedWebsiteUrl('blitz-wallet://paylink/AAAAABBBB')).toBe(
+      '',
+    );
     expect(getNormalizedWebsiteUrl('keyauth://callback?k1=abc')).toBe('');
   });
 
   it('still resolves plain hostnames and keeps http(s) URLs', () => {
-    expect(getNormalizedWebsiteUrl('example.shop')).toBe('https://example.shop');
+    expect(getNormalizedWebsiteUrl('example.shop')).toBe(
+      'https://example.shop',
+    );
     expect(getNormalizedWebsiteUrl('https://example.shop')).toBe(
       'https://example.shop',
     );

@@ -17,6 +17,12 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 import { setLocalStorageItem } from './localStorage';
 import { getNWCData } from './nwc';
 import { getNWCSparkIdentityPubKey, initializeNWCWallet } from './nwc/wallet';
+import { claimUniqueName } from '../../db';
+import { normalizePairingName } from './accounts/childPairing';
+import {
+  backfillUsernameReservation,
+  setUsernameReservationRecord,
+} from './accounts/usernameReservationRecord';
 
 export default async function initializeUserSettingsFromHistory({
   setMasterInfoObject,
@@ -109,9 +115,32 @@ export default async function initializeUserSettingsFromHistory({
     if (blitzStoredData === null) throw Error('Failed to retrive');
     blitzStoredData = blitzStoredData || {};
 
-    const generatedUniqueName = blitzStoredData?.contacts?.uniqueName
+    let generatedUniqueName = blitzStoredData?.contacts?.myProfile?.uniqueName
       ? ''
       : generateRandomContact();
+
+    // New user (no contacts doc yet): reserve the generated username BEFORE it
+    // fans out into contacts.myProfile + posSettings, regenerating on collision.
+    // Best-effort and non-fatal — a transient claim failure must never fail login
+    // (the outer catch would turn a throw into {didWork:false}), so the backfill
+    // will retry on a later launch.
+    if (!blitzStoredData.contacts && generatedUniqueName) {
+      try {
+        for (let i = 0; i < 5; i++) {
+          const id = normalizePairingName(generatedUniqueName.uniqueName);
+          const res = await claimUniqueName(publicKey, null, id);
+          if (res.status === 'ok') {
+            await setUsernameReservationRecord({ lower: id, at: Date.now() });
+            break;
+          }
+          if (res.status !== 'NAME_TAKEN') break; // transient — backfill retries
+          generatedUniqueName = generateRandomContact();
+        }
+      } catch (err) {
+        console.log('onboarding username reservation error', err);
+      }
+    }
+
     let contacts = blitzStoredData.contacts || {
       myProfile: {
         uniqueName: generatedUniqueName.uniqueName,
@@ -419,6 +448,15 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
     tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
     tempObject['monthlyBudget'] = monthlyBudget;
+    // Child accounts: keep the parent's registry + the child wallet's flags in
+    // LOCAL state (the accounts list and the spending-limit gate read them from
+    // masterInfoObject). They must never be re-sent to Firestore from this
+    // login snapshot — see the payload copy below.
+    tempObject['childAccounts'] = blitzStoredData.childAccounts || [];
+    tempObject['nextChildDerivationIndex'] =
+      blitzStoredData.nextChildDerivationIndex || 0;
+    tempObject['isChildAccount'] = blitzStoredData.isChildAccount || false;
+    tempObject['spendingLimit'] = blitzStoredData.spendingLimit ?? null;
     tempObject['lnurlReceiveCurrency'] = lnurlReceiveCurrency;
     tempObject['bitrefillEmail'] = bitrefillEmail;
     tempObject[SPEND_AND_REPLACE_STORAGE_KEY] = spendAndReplace;
@@ -439,11 +477,24 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['didViewNWCMessage'] = didViewNWCMessage;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
+      // Child fields stay out of the deferred write: a login-time snapshot of
+      // childAccounts/nextChildDerivationIndex is stale the moment another
+      // device creates a child, and echoing it would clobber the registry and
+      // regress the counter (sendDataToDB merges, so Firestore's current values
+      // are preserved by simply omitting them). isChildAccount/spendingLimit
+      // are backend-only and must also never travel on the user doc.
+      const dbPayload = { ...tempObject };
+      [
+        'childAccounts',
+        'nextChildDerivationIndex',
+        'isChildAccount',
+        'spendingLimit',
+      ].forEach(key => delete dbPayload[key]);
       // Deliberately not awaited. tempObject is already fully built in memory, so
       // this is pure persistence — and a firestore write promise only settles on
       // server ack, meaning offline it stays pending forever without rejecting.
       // Firestore queues the write durably and flushes on reconnect either way.
-      sendDataToDB(tempObject, publicKey).catch(err =>
+      sendDataToDB(dbPayload, publicKey).catch(err =>
         console.log('Deferred settings write error', err),
       );
     }
@@ -457,6 +508,11 @@ export default async function initializeUserSettingsFromHistory({
     // toggleGLobalEcashInformation(eCashInformation);
     toggleGlobalContactsInformation(contacts);
     setMasterInfoObject(tempObject);
+
+    // Lazy backfill of the username reservation for existing users (A6). Not
+    // awaited — the reservation is off the login critical path; a no-op after the
+    // first successful claim, and never renames the user.
+    backfillUsernameReservation(publicKey, contacts?.myProfile?.uniqueName);
 
     return { didWork: true, response: tempObject };
   } catch (err) {
