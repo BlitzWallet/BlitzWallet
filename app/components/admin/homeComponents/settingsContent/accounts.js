@@ -36,9 +36,15 @@ export default function CreateCustodyAccounts() {
     [masterInfoObject?.childAccounts],
   );
 
+  const isLinked = activeTab === 'linked';
+
   const handleNavigateAddAccount = useCallback(() => {
+    if (isLinked) {
+      navigate.navigate('ChildEnterName');
+      return;
+    }
     navigate.navigate('SelectCreateAccountType', {});
-  }, [navigate]);
+  }, [navigate, isLinked]);
 
   const handleNavigateSwap = useCallback(() => {
     if (custodyAccountsList.length < 2) {
@@ -60,8 +66,6 @@ export default function CreateCustodyAccounts() {
     },
     [navigate],
   );
-
-  const isLinked = activeTab === 'linked';
 
   const activeAccounts = useMemo(() => {
     return isLinked
