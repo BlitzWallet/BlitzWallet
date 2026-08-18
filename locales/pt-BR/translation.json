@@ -2327,10 +2327,10 @@
         "codeOption": "Código",
         "scanOption": "Ler",
         "scanNavTitle": "Ler código",
-        "scanTitle": "Leia o código QR deles",
+        "scanTitle": "Leia o código QR",
         "scanHint": "Posicione o código QR no campo de visão para ativar",
         "scanWaiting": "Aguardando a solicitação ser aceita",
-        "scanSubtitle": "Aponte sua câmera para o código QR no telefone deles.",
+        "scanSubtitle": "Aponte sua câmera para o código QR.",
         "connectingMessage": "Conectando seus dispositivos"
       },
       "limitGate": {
