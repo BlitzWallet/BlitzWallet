@@ -83,7 +83,6 @@ export default function EditProfileTextInput({
             fontSize: SIZES.xSmall,
             includeFontPadding: false,
             color: characterCountColor,
-            opacity: isOverLimit ? 1 : 0.45,
           }}
           content={`${value.length} / ${maxLength}`}
         />
@@ -143,7 +142,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: SIZES.small,
     includeFontPadding: false,
-    opacity: 0.55,
   },
   infoIconWrap: {
     marginLeft: 2,
