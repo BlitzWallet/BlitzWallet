@@ -107,7 +107,13 @@ function isPlausibleAccount(parsed) {
   const hasValidMnemonic =
     typeof parsed.mnemoinc === 'string' &&
     validateMnemonic(parsed.mnemoinc, wordlist);
-  if (parsed.accountType === 'imported') return hasValidMnemonic;
+  // Legacy accounts written before `accountType` existed (added 2026-02) have no
+  // accountType and always carry their own 12-word seed. Treat them as imported
+  // so an upgrade never drops them — and, in a mixed list, never re-encrypts a
+  // v3 envelope that silently omits (destroys) them.
+  if (parsed.accountType === 'imported' || parsed.accountType == null) {
+    return hasValidMnemonic;
+  }
   if (parsed.accountType === 'derived') {
     return Number.isInteger(parsed.derivationIndex) || hasValidMnemonic;
   }
@@ -286,7 +292,18 @@ async function contextFromStorageOrFresh(seed) {
   const raw = await getLocalStorageItem(CUSTODY_ACCOUNTS_STORAGE_KEY);
   if (raw && isCustodyAccountsV3(raw)) {
     const env = JSON.parse(raw);
-    return deriveContext(seed, env.salt, paramsFromEnv(env));
+    const ctx = await deriveContext(seed, env.salt, paramsFromEnv(env));
+    // Verify the derived key actually decrypts the stored envelope before
+    // allowing a write to overwrite it. With the correct seed this is a cheap
+    // rebuild (e.g. after resetCustodyCryptoState). With a WRONG seed (identity
+    // seed race, partial write) GCM auth fails here — throw instead of
+    // clobbering a still-recoverable envelope, symmetric with the legacy guard.
+    try {
+      decryptCustodyAccounts(raw, ctx.key);
+    } catch {
+      throw new Error('Custody accounts must be loaded before writing');
+    }
+    return ctx;
   }
   if (raw && raw !== '[]') {
     // Legacy/corrupt data on disk must go through loadCustodyAccounts first;

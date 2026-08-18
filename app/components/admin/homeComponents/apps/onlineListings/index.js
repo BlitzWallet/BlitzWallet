@@ -10,6 +10,7 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
+import { getNormalizedWebsiteUrl } from '../../../../../functions/getNormalizedWebsiteUrl';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
@@ -52,18 +53,6 @@ function useDebouncedValue(value, delay = 300) {
   }, [value, delay]);
 
   return debounced;
-}
-
-const ALLOWED_SCHEMES = new Set(['https:']);
-
-export function getNormalizedWebsiteUrl(website) {
-  if (!website) return '';
-  try {
-    const url = new URL(website);
-    return ALLOWED_SCHEMES.has(url.protocol) ? website : '';
-  } catch {
-    return `https://${website}`;
-  }
 }
 
 function getWebsiteHost(website) {

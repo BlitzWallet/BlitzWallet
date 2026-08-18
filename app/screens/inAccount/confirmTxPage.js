@@ -34,6 +34,7 @@ import {
   resolveRecipientDisplay,
 } from '../../components/admin/homeComponents/sendBitcoin/components/recipientCard';
 import openWebBrowser from '../../functions/openWebBrowser';
+import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -68,7 +69,10 @@ export default function ConfirmTxPage(props) {
   const successAction = paymentInformation?.successAction || {};
   const successActionDescription =
     successAction?.description || successAction?.message;
-  const successActionUrl = successAction?.url;
+  // Payee-controlled (LUD-09). Allow-list to https before it can be opened so a
+  // javascript:/data:/app-deeplink scheme can never reach the browser; '' hides
+  // the button entirely.
+  const successActionUrl = getNormalizedWebsiteUrl(successAction?.url);
 
   const didSucceed = !hasError || isLNURLAuth;
 

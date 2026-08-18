@@ -378,6 +378,42 @@ describe('loadCustodyAccounts — legacy EvpKDF migration', () => {
     ]);
   });
 
+  it('preserves pre-accountType legacy accounts in a mixed list (F1 regression)', async () => {
+    // The original shared-wallet shape (2025-08, before `accountType` was
+    // added in 2026-02) has no accountType and carries its own seed. A mixed
+    // list — a legacy imported entry next to a modern derived entry — must
+    // migrate BOTH; the legacy one must not be silently dropped (which the v3
+    // rewrite would then make permanent).
+    const legacyImported = {
+      uuid: 'legacy-1',
+      name: 'Pre-accountType',
+      mnemoinc: account1.mnemoinc,
+      dateCreated: 1,
+      isActive: false,
+    };
+    const derived = {
+      uuid: 'd-1',
+      name: 'Derived',
+      accountType: 'derived',
+      derivationIndex: 3,
+      isActive: false,
+    };
+    const raw = legacyCiphertexts([legacyImported, derived], SEED);
+    getLocalStorageItem.mockResolvedValue(raw);
+
+    const accounts = await cryptoMod.loadCustodyAccounts(raw, SEED);
+    expect(accounts).toEqual([legacyImported, derived]);
+    expect(setLocalStorageItem).toHaveBeenCalledTimes(1);
+
+    // The migrated v3 envelope round-trips both on a subsequent load.
+    const written = setLocalStorageItem.mock.calls[0][1];
+    getLocalStorageItem.mockResolvedValue(written);
+    expect(await cryptoMod.loadCustodyAccounts(written, SEED)).toEqual([
+      legacyImported,
+      derived,
+    ]);
+  });
+
   it('skips corrupt entries and migrates the survivors', async () => {
     const raw = JSON.stringify([
       encryptMnemonic(JSON.stringify(account1), SEED),
@@ -621,22 +657,18 @@ describe('writeCustodyAccounts', () => {
     expect(setLocalStorageItem).not.toHaveBeenCalled();
   });
 
-  it('re-derives with the passed seed when it differs from the cached one', async () => {
+  it('refuses to overwrite a stored envelope with a seed that cannot decrypt it', async () => {
+    // A write whose seed does not match the on-disk envelope (identity seed
+    // race / stale cache) must not clobber the recoverable data. The key
+    // derived from the wrong seed fails to decrypt the stored envelope, so
+    // contextFromStorageOrFresh throws instead of writing.
     const raw = forgeV3(JSON.stringify([account1]), SEED);
     getLocalStorageItem.mockResolvedValue(raw);
-    await cryptoMod.loadCustodyAccounts(raw, SEED);
-    setLocalStorageItem.mockClear();
 
-    await cryptoMod.writeCustodyAccounts([account2], OTHER_SEED);
-    const written = setLocalStorageItem.mock.calls[0][1];
-    expect(v3Envelope(written).v).toBe(3);
-
-    // Decryptable with OTHER_SEED, NOT with the cached SEED.
-    getLocalStorageItem.mockResolvedValue(written);
-    expect(await cryptoMod.loadCustodyAccounts(written, OTHER_SEED)).toEqual([
-      account2,
-    ]);
-    expect(await cryptoMod.loadCustodyAccounts(written, SEED)).toEqual([]);
+    await expect(
+      cryptoMod.writeCustodyAccounts([account2], OTHER_SEED),
+    ).rejects.toThrow();
+    expect(setLocalStorageItem).not.toHaveBeenCalled();
   });
 
   it('recovers after resetCustodyCryptoState clears the session cache', async () => {
