@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,8 @@ import { useChildPairing } from '../../../../../../../context-store/childPairing
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
+import { copyToClipboard } from '../../../../../../functions';
+import { useToast } from '../../../../../../../context-store/toastManager';
 
 export default function ChildLinkCode(props) {
   const navigate = useNavigation();
@@ -34,6 +36,7 @@ export default function ChildLinkCode(props) {
     qrValue,
     isEnded,
   } = useChildPairing();
+  const { showToast } = useToast();
   const reshareChild = props?.route?.params?.reshareChild ?? null;
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
 
@@ -163,14 +166,17 @@ export default function ChildLinkCode(props) {
         styles={styles.subtitle}
         content={t('settings.childAccounts.pairing.usernameSubtitle')}
       />
-      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+      <TouchableOpacity
+        onPress={() => copyToClipboard(parentUniqueName, showToast)}
+        style={[styles.card, { backgroundColor: backgroundOffset }]}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           adjustsFontSizeToFit={true}
           styles={styles.usernameValue}
           content={parentUniqueName}
         />
-      </View>
+      </TouchableOpacity>
     </View>
   );
 
