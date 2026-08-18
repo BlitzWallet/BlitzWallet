@@ -2248,6 +2248,8 @@
         "qrTitle": "Diesen QR-Code scannen",
         "qrSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Verwaltetem Wallet beitreten“ auszuwählen.",
         "qrWaiting": "Warten auf das Scannen durch die andere Person…",
+        "noBlitz": "Haben sie kein Blitz?",
+        "downloadLink": "Download-Link teilen",
         "acceptTitle": "Kopplung akzeptieren?",
         "acceptSubtitle": "Mit der Kopplung gewähren Sie dieser Person Zugriff auf {{name}}. Stellen Sie sicher, dass Sie sich mit der richtigen Person koppeln.",
         "acceptBTN": "Akzeptieren",
@@ -2264,8 +2266,7 @@
         "noTransactions": "Noch keine Aktivität",
         "spendingLimitLabel": "Ausgabenlimit",
         "loadingBalance": "Saldo wird geladen...",
-        "shareLink": "Mit einer Person koppeln",
-        "sendInviteLink": "Jemanden einladen"
+        "shareLink": "Mit einer Person koppeln"
       },
       "claim": {
         "title": "Kinderkonto einrichten",

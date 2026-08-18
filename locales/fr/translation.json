@@ -2269,6 +2269,8 @@
         "qrTitle": "Scannez ce code QR",
         "qrSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone et de choisir « Rejoindre un portefeuille géré ».",
         "qrWaiting": "En attente de leur scan…",
+        "noBlitz": "Ils n'ont pas Blitz ?",
+        "downloadLink": "Partager le lien de téléchargement",
         "acceptTitle": "Accepter l'association ?",
         "acceptSubtitle": "En associant, vous donnez à cette personne l'accès à {{name}}. Assurez-vous d'associer la bonne personne.",
         "acceptBTN": "Accepter",
@@ -2285,8 +2287,7 @@
         "noTransactions": "Aucune activité pour le moment",
         "spendingLimitLabel": "Limite de dépenses",
         "loadingBalance": "Chargement du solde...",
-        "shareLink": "Associer avec quelqu'un",
-        "sendInviteLink": "Inviter quelqu'un"
+        "shareLink": "Associer avec quelqu'un"
       },
       "claim": {
         "title": "Configurer votre portefeuille",

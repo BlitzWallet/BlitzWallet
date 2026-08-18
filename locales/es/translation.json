@@ -2270,6 +2270,8 @@
         "qrTitle": "Escanea este código QR",
         "qrSubtitle": "Pídeles que abran Blitz en su teléfono y elijan «Unirse a una wallet gestionada».",
         "qrWaiting": "Esperando a que escaneen…",
+        "noBlitz": "¿No tienen Blitz?",
+        "downloadLink": "Compartir enlace de descarga",
         "acceptTitle": "¿Aceptar el emparejamiento?",
         "acceptSubtitle": "Al emparejar, estás dando a esta persona acceso a {{name}}. Asegúrate de emparejarte con la persona correcta.",
         "acceptBTN": "Aceptar",
@@ -2286,8 +2288,7 @@
         "noTransactions": "Aún no hay actividad",
         "spendingLimitLabel": "Límite de gasto",
         "loadingBalance": "Cargando saldo...",
-        "shareLink": "Vincular con alguien",
-        "sendInviteLink": "Invitar a alguien"
+        "shareLink": "Vincular con alguien"
       },
       "claim": {
         "title": "Configura tu wallet",

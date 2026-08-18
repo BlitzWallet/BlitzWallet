@@ -2270,6 +2270,8 @@
         "qrTitle": "Scansiona questo codice QR",
         "qrSubtitle": "Chiedi loro di aprire Blitz sul telefono e di scegliere \"Unisciti a un portafoglio gestito\".",
         "qrWaiting": "In attesa che scansionino…",
+        "noBlitz": "Non hanno Blitz?",
+        "downloadLink": "Condividi link di download",
         "acceptTitle": "Accettare l'associazione?",
         "acceptSubtitle": "Associando, dai a questa persona l'accesso a {{name}}. Assicurati di associare la persona giusta.",
         "acceptBTN": "Accetta",
@@ -2286,8 +2288,7 @@
         "noTransactions": "Ancora nessuna attività",
         "spendingLimitLabel": "Limite di spesa",
         "loadingBalance": "Caricamento del saldo...",
-        "shareLink": "Abbina con qualcuno",
-        "sendInviteLink": "Invita qualcuno"
+        "shareLink": "Abbina con qualcuno"
       },
       "claim": {
         "title": "Configura il tuo portafoglio",

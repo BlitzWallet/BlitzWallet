@@ -2270,6 +2270,8 @@
         "qrTitle": "Skanna denna QR-kod",
         "qrSubtitle": "Be dem öppna Blitz på sin telefon och välja \"Gå med i en hanterad plånbok\".",
         "qrWaiting": "Väntar på att de ska skanna…",
+        "noBlitz": "Har de inte Blitz?",
+        "downloadLink": "Dela nedladdningslänk",
         "acceptTitle": "Acceptera ihopparningen?",
         "acceptSubtitle": "Genom att para ihop ger du den här personen åtkomst till {{name}}. Se till att du parar ihop med rätt person.",
         "acceptBTN": "Acceptera",
@@ -2286,8 +2288,7 @@
         "noTransactions": "Ingen aktivitet ännu",
         "spendingLimitLabel": "Utgiftsgräns",
         "loadingBalance": "Läser in saldo...",
-        "shareLink": "Para ihop med någon",
-        "sendInviteLink": "Bjud in någon"
+        "shareLink": "Para ihop med någon"
       },
       "claim": {
         "title": "Skapa din plånbok",

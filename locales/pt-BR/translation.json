@@ -2270,6 +2270,8 @@
         "qrTitle": "Leia este código QR",
         "qrSubtitle": "Peça para a pessoa abrir a Blitz no telefone dela e escolher \"Entrar em uma carteira gerenciada\".",
         "qrWaiting": "Aguardando a leitura do código…",
+        "noBlitz": "Eles não têm Blitz?",
+        "downloadLink": "Compartilhar link de download",
         "acceptTitle": "Aceitar o pareamento?",
         "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
         "acceptBTN": "Aceitar",
@@ -2286,8 +2288,7 @@
         "noTransactions": "Nenhuma atividade ainda",
         "spendingLimitLabel": "Limite de gastos",
         "loadingBalance": "Carregando saldo...",
-        "shareLink": "Vincular com alguém",
-        "sendInviteLink": "Convidar alguém"
+        "shareLink": "Vincular com alguém"
       },
       "claim": {
         "title": "Configure sua conta",

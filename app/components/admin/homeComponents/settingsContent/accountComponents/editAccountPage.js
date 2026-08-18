@@ -44,7 +44,6 @@ import {
 } from '../../../../../functions/spark/walletViewer';
 import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
-import { share } from '../../../../../functions/handleShare';
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
@@ -208,16 +207,6 @@ export default function EditAccountPage(props) {
       accountName: accountInformation.name,
     });
   }, [navigate, accountInformation]);
-
-  const handleSendInviteLink = useCallback(async () => {
-    try {
-      share({
-        message: 'https://blitzwalletapp.com/child',
-      });
-    } catch (err) {
-      console.log('Error sharing child invite link:', err);
-    }
-  }, []);
 
   const handlePinInfo = useCallback(() => {
     navigate.navigate('InformationPopup', {
@@ -572,14 +561,6 @@ export default function EditAccountPage(props) {
               <ThemeIcon iconName="ChevronRight" size={18} />
             </TouchableOpacity>
             <View style={[styles.divider, { backgroundColor }]} />
-            {/* Send the recipient a download/invite link */}
-            <TouchableOpacity style={styles.row} onPress={handleSendInviteLink}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t('settings.childAccounts.page.sendInviteLink')}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
           </View>
         ) : (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>

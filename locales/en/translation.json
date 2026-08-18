@@ -1778,6 +1778,8 @@
         "qrTitle": "Scan this QR code",
         "qrSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
         "qrWaiting": "Waiting for them to scan…",
+        "noBlitz": "They don't have Blitz?",
+        "downloadLink": "Share download link",
         "acceptTitle": "Accept the pairing?",
         "acceptSubtitle": "By pairing, you are giving this person access to {{name}}. Make sure you're pairing with the right person.",
         "acceptBTN": "Accept",
@@ -1794,8 +1796,7 @@
         "noTransactions": "No activity yet",
         "spendingLimitLabel": "Spending limit",
         "loadingBalance": "Loading balance...",
-        "shareLink": "Pair with someone",
-        "sendInviteLink": "Invite someone"
+        "shareLink": "Pair with someone"
       },
       "claim": {
         "title": "Set up your wallet",
