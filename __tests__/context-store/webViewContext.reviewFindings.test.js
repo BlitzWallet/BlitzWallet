@@ -535,9 +535,12 @@ describe('review — R-3 held duplicate funds ops double-dispatch on drain', () 
 // one spins until the user kills the app.
 // ---------------------------------------------------------------------------
 describe('review — R-5 hold buffer has no expiry', () => {
-  test('a request held through a stuck ready-window never settles (old queue TTL: 5 min)', async () => {
+  test('a request held through a stuck ready-window settles AND the bridge auto-recovers (verify watchdog + bounded fallback)', async () => {
     // Verification never resolves → verifiedPath never set → ready-window
-    // never ends.
+    // never ends. The hold TTL bounds the caller, but the verify watchdog now
+    // also drives bridge recovery: 30s watchdog → reload attempt → second
+    // failure → fallback-pending → in-session auto-retry → final escalation
+    // to the native fallback. Every step is bounded; no state waits forever.
     mockVerify.mockImplementation(() => new Promise(() => {}));
     await mountOnly();
     await advance(1000);
@@ -546,10 +549,15 @@ describe('review — R-5 hold buffer has no expiry', () => {
     await flush();
     expect(st.settled).toBe(false);
 
-    // A bounded hold TTL settles the request so awaiting UI cannot hang forever.
-    await advance(120001);
+    // The first verify-watchdog recovery settles the held request (reset).
+    await advance(30001);
     expect(st.settled).toBe(true);
-    expect(st.value.kind).toBe('not-ready');
+    expect(['not-ready', 'unknown']).toContain(st.value.kind);
+
+    // The watchdog drove recovery attempts (re-verification) instead of a
+    // silent wait; repeated hangs escalate to the usable native fallback.
+    await advance(120001);
+    expect(SUT.getIsNativeRuntime()).toBe(true);
   });
 });
 
