@@ -2175,6 +2175,12 @@ export const WebViewProvider = ({ children, transport = null }) => {
               'App became active and webview is not verified - reloading WebView',
             );
             blockAndResetWebview();
+          } else if (wvState.current === WV_STATES.ERROR) {
+            // A load failure during boot (before homepage) left the WebView in
+            // ERROR; it will never self-recover. Reload to re-arm verification
+            // + handshake.
+            console.log('Foreground - WebView in ERROR during boot, reloading');
+            blockAndResetWebview();
           } else if (connectionJustRestored && didRunHandshakeRef.current) {
             // Boot handshake was deferred while offline (didRunInit latched);
             // didRunHandshakeRef latched because the handshake RAN and settled
@@ -2474,13 +2480,20 @@ export const WebViewProvider = ({ children, transport = null }) => {
   // Armed on a valid LOADING transition; disarmed by any state transition.
   // A load that never completes is recovered as a load failure (C-11).
   const armLoadWatchdog = useCallback(() => {
-    if (loadWatchdogRef.current) clearTimeout(loadWatchdogRef.current);
-    loadWatchdogRef.current = setTimeout(() => {
-      loadWatchdogRef.current = null;
-      if (wvState.current === WV_STATES.LOADING) {
+    const schedule = () => {
+      if (loadWatchdogRef.current) clearTimeout(loadWatchdogRef.current);
+      loadWatchdogRef.current = setTimeout(() => {
+        loadWatchdogRef.current = null;
+        if (wvState.current !== WV_STATES.LOADING) return;
+        if (AppState.currentState !== 'active') {
+          // Background-suspended load is not a failure; re-arm for foreground.
+          schedule();
+          return;
+        }
         handleWebViewLoadError('load watchdog timeout');
-      }
-    }, LOAD_WATCHDOG_MS);
+      }, LOAD_WATCHDOG_MS);
+    };
+    schedule();
   }, [handleWebViewLoadError]);
 
   const handleWebViewTermination = useCallback(
