@@ -226,9 +226,11 @@
     },
     "walletSetup": {
       "title": "Set up your wallet",
-      "subtitle": "Create a new wallet or restore an existing one.",
+      "subtitle": "Create a new wallet, join a wallet, or restore an existing wallet.",
       "createTitle": "Create new wallet",
       "createDesc": "Start fresh with a new wallet.",
+      "joinTitle": "Join managed wallet",
+      "joinDesc": "Join a wallet that's managed for you.",
       "restoreTitle": "Restore existing wallet",
       "restoreDesc": "Continue with an existing wallet."
     },
@@ -1746,7 +1748,7 @@
       "pairing": {
         "title": "Share",
         "usernameTitle": "Share your username",
-        "usernameSubtitle": "Have them open Blitz on their phone, choose \"Join shared wallet\", then enter this username.",
+        "usernameSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
         "generateCode": "Generate Code",
         "usernameLabel": "Your username: {{name}}",
         "codeNavTitle": "Share Code",
@@ -1774,7 +1776,7 @@
         "codeOption": "Code",
         "qrOption": "QR",
         "qrTitle": "Scan this QR code",
-        "qrSubtitle": "Have them open Blitz on their phone, choose \"Join shared wallet\", then scan this QR code.",
+        "qrSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
         "qrWaiting": "Waiting for them to scan…",
         "acceptTitle": "Accept the pairing?",
         "acceptSubtitle": "By pairing, you are giving this person access to {{name}}. Make sure you're pairing with the right person.",

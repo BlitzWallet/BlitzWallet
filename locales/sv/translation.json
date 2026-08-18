@@ -287,9 +287,11 @@
     },
     "walletSetup": {
       "title": "Skapa din plånbok",
-      "subtitle": "Skapa en ny plånbok eller återställ en befintlig.",
-      "createTitle": "Skapa ny plånbok",
-      "createDesc": "Börja om med en ny plånbok.",
+        "subtitle": "Skapa en ny plånbok, gå med i en plånbok eller återställ en befintlig.",
+        "createTitle": "Skapa ny plånbok",
+        "createDesc": "Börja om med en ny plånbok.",
+        "joinTitle": "Gå med i en hanterad plånbok",
+        "joinDesc": "Gå med i en plånbok som hanteras åt dig.",
       "restoreTitle": "Återställ befintlig plånbok",
       "restoreDesc": "Har du redan en plånbok? Ta med dig den."
     }
@@ -2238,7 +2240,7 @@
       "pairing": {
         "title": "Dela",
         "usernameTitle": "Dela ditt användarnamn",
-        "usernameSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan ange detta användarnamn.",
+        "usernameSubtitle": "Be dem öppna Blitz på sin telefon och välja \"Gå med i en hanterad plånbok\".",
         "generateCode": "Generera kod",
         "usernameLabel": "Ditt användarnamn: {{name}}",
         "codeNavTitle": "Dela kod",
@@ -2266,7 +2268,7 @@
         "codeOption": "Kod",
         "qrOption": "QR",
         "qrTitle": "Skanna denna QR-kod",
-        "qrSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan skanna denna QR-kod.",
+        "qrSubtitle": "Be dem öppna Blitz på sin telefon och välja \"Gå med i en hanterad plånbok\".",
         "qrWaiting": "Väntar på att de ska skanna…",
         "acceptTitle": "Acceptera ihopparningen?",
         "acceptSubtitle": "Genom att para ihop ger du den här personen åtkomst till {{name}}. Se till att du parar ihop med rätt person.",

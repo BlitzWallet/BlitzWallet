@@ -287,9 +287,11 @@
     },
     "walletSetup": {
       "title": "Configura il tuo portafoglio",
-      "subtitle": "Crea un nuovo portafoglio o ripristina uno esistente.",
-      "createTitle": "Crea nuovo portafoglio",
-      "createDesc": "Inizia con un nuovo portafoglio.",
+        "subtitle": "Crea un nuovo portafoglio, unisciti a un portafoglio o ripristina uno esistente.",
+        "createTitle": "Crea nuovo portafoglio",
+        "createDesc": "Inizia con un nuovo portafoglio.",
+        "joinTitle": "Unisciti a un portafoglio gestito",
+        "joinDesc": "Unisciti a un portafoglio gestito per te.",
       "restoreTitle": "Ripristina portafoglio esistente",
       "restoreDesc": "Hai già un portafoglio? Importalo."
     }
@@ -2238,7 +2240,7 @@
       "pairing": {
         "title": "Condividi",
         "usernameTitle": "Condividi il tuo nome utente",
-        "usernameSubtitle": "Chiedi loro di aprire Blitz sul telefono, scegliere \"Unisciti a un portafoglio condiviso\" e poi inserire questo nome utente.",
+        "usernameSubtitle": "Chiedi loro di aprire Blitz sul telefono e di scegliere \"Unisciti a un portafoglio gestito\".",
         "generateCode": "Genera codice",
         "usernameLabel": "Il tuo nome utente: {{name}}",
         "codeNavTitle": "Condividi codice",
@@ -2266,7 +2268,7 @@
         "codeOption": "Codice",
         "qrOption": "QR",
         "qrTitle": "Scansiona questo codice QR",
-        "qrSubtitle": "Chiedi loro di aprire Blitz sul telefono, scegliere \"Unisciti a un portafoglio condiviso\" e poi scansionare questo codice QR.",
+        "qrSubtitle": "Chiedi loro di aprire Blitz sul telefono e di scegliere \"Unisciti a un portafoglio gestito\".",
         "qrWaiting": "In attesa che scansionino…",
         "acceptTitle": "Accettare l'associazione?",
         "acceptSubtitle": "Associando, dai a questa persona l'accesso a {{name}}. Assicurati di associare la persona giusta.",

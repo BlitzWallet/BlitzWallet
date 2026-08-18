@@ -287,9 +287,11 @@
     },
     "walletSetup": {
       "title": "Configure sua carteira",
-      "subtitle": "Crie uma nova carteira ou restaure uma que já existe.",
-      "createTitle": "Criar nova carteira",
-      "createDesc": "Comece do zero com uma nova carteira.",
+        "subtitle": "Crie uma nova carteira, entre em uma carteira ou restaure uma que já existe.",
+        "createTitle": "Criar nova carteira",
+        "createDesc": "Comece do zero com uma nova carteira.",
+        "joinTitle": "Entrar em uma carteira gerenciada",
+        "joinDesc": "Entre em uma carteira gerenciada para você.",
       "restoreTitle": "Restaurar carteira existente",
       "restoreDesc": "Traga sua carteira para a Blitz."
     }
@@ -2238,7 +2240,7 @@
       "pairing": {
         "title": "Compartilhar",
         "usernameTitle": "Compartilhe seu nome de usuário",
-        "usernameSubtitle": "Peça para a pessoa que receberá a conta parental para abrir a Blitz no telefone dela, escolher a opção \"Acessar conta parental\" e depois inserir este nome de usuário.",
+        "usernameSubtitle": "Peça para a pessoa abrir a Blitz no telefone dela e escolher \"Entrar em uma carteira gerenciada\".",
         "generateCode": "Gerar código",
         "usernameLabel": "Seu nome de usuário: {{name}}",
         "codeNavTitle": "Compartilhar código",
@@ -2266,7 +2268,7 @@
         "codeOption": "Código",
         "qrOption": "QR",
         "qrTitle": "Leia este código QR",
-        "qrSubtitle": "Peça para a pessoa para abrir a Blitz no telefone dela, escolher \"Acessar conta parental\" e em seguida ler este código QR.",
+        "qrSubtitle": "Peça para a pessoa abrir a Blitz no telefone dela e escolher \"Entrar em uma carteira gerenciada\".",
         "qrWaiting": "Aguardando a leitura do código…",
         "acceptTitle": "Aceitar o pareamento?",
         "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",

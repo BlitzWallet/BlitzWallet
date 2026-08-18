@@ -287,9 +287,11 @@
     },
     "walletSetup": {
       "title": "Configurer votre portefeuille",
-      "subtitle": "Créez un nouveau portefeuille ou restaurez-en un existant.",
-      "createTitle": "Créer un nouveau portefeuille",
-      "createDesc": "Commencez avec un nouveau portefeuille.",
+        "subtitle": "Créez un nouveau portefeuille, rejoignez un portefeuille ou restaurez-en un existant.",
+        "createTitle": "Créer un nouveau portefeuille",
+        "createDesc": "Commencez avec un nouveau portefeuille.",
+        "joinTitle": "Rejoindre un portefeuille géré",
+        "joinDesc": "Rejoignez un portefeuille qui est géré pour vous.",
       "restoreTitle": "Restaurer un portefeuille existant",
       "restoreDesc": "Vous avez déjà un portefeuille ? Importez-le."
     }
@@ -2237,7 +2239,7 @@
       "pairing": {
         "title": "Partager",
         "usernameTitle": "Partagez votre nom d'utilisateur",
-        "usernameSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone, de choisir « Rejoindre un portefeuille partagé », puis de saisir ce nom d'utilisateur.",
+        "usernameSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone et de choisir « Rejoindre un portefeuille géré ».",
         "generateCode": "Générer le code",
         "usernameLabel": "Votre nom d'utilisateur : {{name}}",
         "codeNavTitle": "Partager le code",
@@ -2265,7 +2267,7 @@
         "codeOption": "Code",
         "qrOption": "QR",
         "qrTitle": "Scannez ce code QR",
-        "qrSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone, de choisir « Rejoindre un portefeuille partagé », puis de scanner ce code QR.",
+        "qrSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone et de choisir « Rejoindre un portefeuille géré ».",
         "qrWaiting": "En attente de leur scan…",
         "acceptTitle": "Accepter l'association ?",
         "acceptSubtitle": "En associant, vous donnez à cette personne l'accès à {{name}}. Assurez-vous d'associer la bonne personne.",

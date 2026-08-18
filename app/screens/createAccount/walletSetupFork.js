@@ -24,6 +24,17 @@ export default function WalletSetupFork() {
       },
     },
     {
+      icon: 'Users',
+      title: t('createAccount.walletSetup.joinTitle'),
+      desc: t('createAccount.walletSetup.joinDesc'),
+      onPress: () => {
+        crashlyticsLogReport(
+          'Navigating to join managed wallet from wallet setup fork',
+        );
+        navigate.navigate('ChildClaimStack');
+      },
+    },
+    {
       icon: 'RefreshCw',
       title: t('createAccount.walletSetup.restoreTitle'),
       desc: t('createAccount.walletSetup.restoreDesc'),

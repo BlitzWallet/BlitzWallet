@@ -287,9 +287,11 @@
     },
     "walletSetup": {
       "title": "Configura tu wallet",
-      "subtitle": "Crea una nueva wallet o restaura una existente.",
-      "createTitle": "Crear nueva wallet",
-      "createDesc": "Empieza de cero con una nueva wallet.",
+        "subtitle": "Crea una nueva wallet, únete a una wallet o restaura una existente.",
+        "createTitle": "Crear nueva wallet",
+        "createDesc": "Empieza de cero con una nueva wallet.",
+        "joinTitle": "Unirse a una wallet gestionada",
+        "joinDesc": "Únete a una wallet que se gestiona por ti.",
       "restoreTitle": "Restaurar wallet existente",
       "restoreDesc": "¿Ya tienes una wallet? Tráela contigo."
     }
@@ -2238,7 +2240,7 @@
       "pairing": {
         "title": "Compartir",
         "usernameTitle": "Comparte tu nombre de usuario",
-        "usernameSubtitle": "Pídeles que abran Blitz en su teléfono, elijan «Unirse a la wallet compartida» y luego introduzcan este nombre de usuario.",
+        "usernameSubtitle": "Pídeles que abran Blitz en su teléfono y elijan «Unirse a una wallet gestionada».",
         "generateCode": "Generar código",
         "usernameLabel": "Tu nombre de usuario: {{name}}",
         "codeNavTitle": "Compartir código",
@@ -2266,7 +2268,7 @@
         "codeOption": "Código",
         "qrOption": "QR",
         "qrTitle": "Escanea este código QR",
-        "qrSubtitle": "Pídeles que abran Blitz en su teléfono, elijan «Unirse a la wallet compartida» y luego escaneen este código QR.",
+        "qrSubtitle": "Pídeles que abran Blitz en su teléfono y elijan «Unirse a una wallet gestionada».",
         "qrWaiting": "Esperando a que escaneen…",
         "acceptTitle": "¿Aceptar el emparejamiento?",
         "acceptSubtitle": "Al emparejar, estás dando a esta persona acceso a {{name}}. Asegúrate de emparejarte con la persona correcta.",

@@ -287,9 +287,11 @@
     },
     "walletSetup": {
       "title": "Richten Sie Ihre Wallet ein",
-      "subtitle": "Erstellen Sie eine neue Wallet oder stellen Sie eine vorhandene wieder her.",
-      "createTitle": "Neues Wallet erstellen",
-      "createDesc": "Starten Sie mit einer neuen Wallet.",
+        "subtitle": "Erstellen Sie eine neue Wallet, treten Sie einer Wallet bei oder stellen Sie eine vorhandene wieder her.",
+        "createTitle": "Neues Wallet erstellen",
+        "createDesc": "Starten Sie mit einer neuen Wallet.",
+        "joinTitle": "Verwaltetem Wallet beitreten",
+        "joinDesc": "Treten Sie einem Wallet bei, das für Sie verwaltet wird.",
       "restoreTitle": "Vorhandenes Wallet wiederherstellen",
       "restoreDesc": "Sie haben bereits eine Wallet? Übernehmen Sie sie."
     }
@@ -2216,7 +2218,7 @@
       "pairing": {
         "title": "Kinderkonto teilen",
         "usernameTitle": "Benutzernamen weitergeben",
-        "usernameSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen, „Kinderkonto beitreten“ auszuwählen und anschließend diesen Benutzernamen einzugeben.",
+        "usernameSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Verwaltetem Wallet beitreten“ auszuwählen.",
         "generateCode": "Code generieren",
         "usernameLabel": "Ihr Benutzername: {{name}}",
         "codeNavTitle": "Code teilen",
@@ -2244,7 +2246,7 @@
         "codeOption": "Code",
         "qrOption": "QR",
         "qrTitle": "Diesen QR-Code scannen",
-        "qrSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen, „Kinderkonto beitreten“ auszuwählen und anschließend diesen QR-Code zu scannen.",
+        "qrSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Verwaltetem Wallet beitreten“ auszuwählen.",
         "qrWaiting": "Warten auf das Scannen durch die andere Person…",
         "acceptTitle": "Kopplung akzeptieren?",
         "acceptSubtitle": "Mit der Kopplung gewähren Sie dieser Person Zugriff auf {{name}}. Stellen Sie sicher, dass Sie sich mit der richtigen Person koppeln.",
