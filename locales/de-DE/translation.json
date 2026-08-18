@@ -30,8 +30,8 @@
     "hour": "Stunde",
     "month": "Monat",
     "year": "Jahr",
-    "maximum": "Maximum",
-    "minimum": "Minimum",
+    "maximum": "Höchstwert",
+    "minimum": "Mindestwert",
     "request": "Anfordern",
     "fee": "Gebühr",
     "type": "Typ",
@@ -137,7 +137,7 @@
     "tokens": "Token"
   },
   "languages": {
-    "english": "English",
+    "english": "Englisch",
     "spanish": "Español",
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
@@ -213,26 +213,26 @@
       "title": "Sprache auswählen"
     },
     "homePage": {
-      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Geld Ganz Einfach.)",
+      "COMMENT": "Die folgenden Wörter bilden zusammen den Satz: „Geld Ganz Einfach.“",
       "money": "Geld",
       "made": "Ganz",
       "simple": "Einfach.",
-      "subtitle": "Ihre Wallet - Ihre Coins - 100 % Open Source.",
+      "subtitle": "Ihre Wallet – Ihre Coins – 100 % Open Source.",
       "buttons": {
         "button1": "Konto wiederherstellen",
         "button2": "Loslegen",
-        "joinAccount": "Gemeinsamem Wallet beitreten"
+        "joinAccount": "Kinderkonto beitreten"
       }
     },
     "disclaimerPage": {
-      "header": "Dein Geld. Deine Kontrolle.",
+      "header": "Ihr Geld. Ihre Kontrolle.",
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
       "row1Label": "Nur Sie kontrollieren Ihre Gelder.",
       "row1Description": "Blitz kann es nicht verwahren, einfrieren oder darauf zugreifen.",
       "row2Label": "Ihre Wiederherstellungsphrase ist der Schlüssel",
       "row2Description": "12 Wörter sichern Ihre Wallet.",
       "row3Label": "Phrase verloren, Zugriff verloren",
-      "row3Description": "Niemand kann es für dich wiederherstellen.",
+      "row3Description": "Niemand kann sie für Sie wiederherstellen.",
       "readTerms": "Vollständige Bedingungen und Datenschutz lesen",
       "acceptPrefix": "Ich verstehe, dass ich allein für meine Wiederherstellungsphrase verantwortlich bin, und akzeptiere die",
       "terms&Conditions": "Bedingungen",
@@ -286,12 +286,12 @@
       "btn": "Ich verstehe"
     },
     "walletSetup": {
-      "title": "Richte dein Wallet ein",
-      "subtitle": "Erstelle ein neues Wallet oder stelle ein vorhandenes wieder her.",
+      "title": "Richten Sie Ihre Wallet ein",
+      "subtitle": "Erstellen Sie eine neue Wallet oder stellen Sie eine vorhandene wieder her.",
       "createTitle": "Neues Wallet erstellen",
-      "createDesc": "Starte mit einem neuen Wallet.",
+      "createDesc": "Starten Sie mit einer neuen Wallet.",
       "restoreTitle": "Vorhandenes Wallet wiederherstellen",
-      "restoreDesc": "Du hast bereits ein Wallet? Übernimm es."
+      "restoreDesc": "Sie haben bereits eine Wallet? Übernehmen Sie sie."
     }
   },
   "adminLogin": {
@@ -1125,7 +1125,6 @@
       "noCamera": "Kein Zugriff auf die Kamera.",
       "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf die Kamera zu erlauben.",
       "noCameraDevice": "Kein Kameragerät",
-      "noCameraDeviceSub": "Auf diesem Gerät ist keine Kamera verfügbar.",
       "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
       "scanningResponse": "Es werden nur QR-Codes akzeptiert.",
       "qrDecodeError": "Fehler beim Lesen des QR-Codes.",
@@ -1668,23 +1667,23 @@
       "nwcWalletPlace": "NWC-Konto",
       "tabs": {
         "personal": "Persönlich",
-        "linked": "Verwaltet"
+        "linked": "Kinderkonten"
       },
       "personalInfo": {
         "title": "Was sind persönliche Konten?",
-        "body": "Persönliche Konten sind Wallets, die du für dich selbst erstellst. Nutze sie, um dein Geld für verschiedene Zwecke einfach zu trennen – zum Beispiel für Ausgaben, Sparen oder Reisen."
+        "body": "Persönliche Konten sind Wallets, die Sie für sich selbst erstellen. Nutzen Sie sie, um Ihr Geld einfach nach verschiedenen Zwecken zu trennen – zum Beispiel für Ausgaben, Sparen oder Reisen."
       },
       "linkedInfo": {
-        "title": "Was sind verwaltete Konten?",
-        "body": "Verwaltete Konten sind Wallets, die du für eine andere Person erstellst. Sie bekommen ein eigenes Wallet und können es wie jedes andere Blitz-Wallet nutzen, während du die Wiederherstellung für sie verwaltest."
+        "title": "Was sind Kinderkonten?",
+        "body": "Kinderkonten sind Wallets, die Sie für Ihr Kind oder eine andere Person Ihres Vertrauens erstellen. Die andere Person erhält eine eigene Wallet und kann sie wie jede andere Blitz-Wallet verwenden. Sie verwalten weiterhin die Wiederherstellung und können ein monatliches Ausgabenlimit festlegen."
       },
       "emptyLinked": {
-        "title": "Noch keine verwalteten Konten",
-        "subtitle": "Erstelle ein Wallet für eine Person deines Vertrauens. Sie kann Blitz nutzen, ohne eine Wiederherstellungsphrase verwalten zu müssen."
+        "title": "Noch keine Kinderkonten",
+        "subtitle": "Erstellen Sie eine Wallet für Ihr Kind oder eine andere Person Ihres Vertrauens. Die Person kann Blitz verwenden, ohne selbst eine Wiederherstellungsphrase verwalten zu müssen."
       },
       "noResults": {
         "title": "Keine Konten gefunden",
-        "subtitle": "Du hast noch keine Konten."
+        "subtitle": "Sie haben noch keine Konten."
       }
     },
     "resetWallet": {
@@ -1958,17 +1957,11 @@
         "inputPlaceHolderText": "Kontoübertragung"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Diese Wiederherstellungsphrase existiert bereits für ein anderes Konto.",
         "editTitle": "Konto bearbeiten",
-        "createTitle_derived": "Konto erstellen",
-        "createTitle_imported": "Konto importieren",
         "updateTitle": "Konto aktualisieren",
         "cannotDeleteActiveAccountError": "Sie können das aktive Konto nicht löschen. Bitte wählen Sie ein anderes Konto aus, bevor Sie es löschen.",
         "deleteAccountConfirmation": "Sind Sie sicher, dass Sie dieses Konto löschen möchten?",
-        "inputDesc": "Kontoname",
-        "nameTakenError": "Dieser Name ist derzeit in Verwendung. Bitte verwenden Sie einen anderen Kontonamen.",
-        "nameInputPlaceholder": "Name...",
-        "seedHeader": "Konto-Wiederherstellungsphrase"
+        "nameTakenError": "Dieser Name ist derzeit in Verwendung. Bitte verwenden Sie einen anderen Kontonamen."
       },
       "viewAccountPage": {
         "informationMessage": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Wiederherstellungsphrase ist praktisch. Stellen Sie jedoch sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden. So schützen Sie Ihre Wallet."
@@ -2002,13 +1995,13 @@
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
         "createNewAccountTitle": "Persönliches Konto erstellen",
-        "createNewAccountDescription": "Erstelle ein Wallet für dich selbst",
+        "createNewAccountDescription": "Erstellen Sie eine Wallet für sich selbst.",
         "importRecoveryPhraseTitle": "Wiederherstellungsphrase (Seed-Phrase) importieren.",
         "importRecoveryPhraseDescription": "Persönliche Konten aus einer anderen Wallet importieren.",
         "recoverRecoveryPhraseTitle": "Persönliches Konto wiederherstellen",
         "recoverRecoveryPhraseDescription": "Ein persönliches Konto wiederherstellen.",
-        "createChildAccountTitle": "Verwaltetes Konto erstellen",
-        "createChildAccountDescription": "Erstelle ein Wallet für eine andere Person"
+        "createChildAccountTitle": "Kinderkonto erstellen",
+        "createChildAccountDescription": "Erstellen Sie eine Wallet für Ihr Kind oder eine andere Person Ihres Vertrauens."
       },
       "selectProfileImage": {
         "title": "Avatar auswählen",
@@ -2047,7 +2040,7 @@
         "using": "Verwenden",
         "amount": "Betrag",
         "transferComplete": "An {{name}} gesendet",
-        "selfTransfer": "Du kannst keine Übertragung an dich selbst durchführen",
+        "selfTransfer": "Sie können keine Übertragung an sich selbst durchführen",
         "addFunds": "{{name}} hat Geld hinzugefügt",
         "withdrawFunds": "{{name}} hat Geld abgehoben"
       }
@@ -2165,7 +2158,7 @@
     },
     "childAccounts": {
       "tabs": {
-        "children": "Verwaltet"
+        "children": "Kinderkonten"
       },
       "dontMatch": "Stimmt nicht überein",
       "sasGrid": {
@@ -2199,123 +2192,123 @@
       },
       "enterName": {
         "title": "Konto benennen",
-        "subtitle": "Gib dem Konto einen Namen, damit du es später wiedererkennst.",
+        "subtitle": "Geben Sie dem Konto einen Namen, damit Sie es später wiedererkennen.",
         "placeholder": "Kontoname",
         "next": "Weiter",
         "create": "Konto erstellen",
         "editTitle": "Kontonamen bearbeiten",
-        "editSubtitle": "Wähle einen neuen Namen, damit du dieses Konto später wiedererkennst."
+        "editSubtitle": "Wählen Sie einen neuen Namen, damit Sie dieses Konto später wiedererkennen."
       },
       "spendingLimit": {
         "title": "Ausgabenlimit festlegen",
-        "subtitle": "Lege ein monatliches Ausgabenlimit für dieses Konto fest. Es ist ein weiches Budget, das auf ihrem Gerät verfolgt wird.",
+        "subtitle": "Legen Sie ein monatliches Ausgabenlimit für dieses Kinderkonto fest. Das Limit wird auf dem Gerät der anderen Person erfasst.",
         "placeholder": "Monatliches Limit",
         "noLimit": "Kein Limit",
         "create": "Konto erstellen"
       },
       "creating": {
         "loadingText": "Konto wird erstellt...",
-        "errorTitle": "Das Konto konnte nicht erstellt werden. Bitte versuche es erneut."
+        "errorTitle": "Das Konto konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
       },
       "confirmation": {
         "done": "Fertig"
       },
       "pairing": {
-        "title": "Teilen",
-        "usernameTitle": "Gebe deinen Benutzernamen weiter",
-        "usernameSubtitle": "Lass sie Blitz auf ihrem Telefon öffnen, „Gemeinsamem Wallet beitreten“ wählen und dann diesen Benutzernamen eingeben.",
+        "title": "Kinderkonto teilen",
+        "usernameTitle": "Benutzernamen weitergeben",
+        "usernameSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen, „Kinderkonto beitreten“ auszuwählen und anschließend diesen Benutzernamen einzugeben.",
         "generateCode": "Code generieren",
-        "usernameLabel": "Dein Benutzername: {{name}}",
+        "usernameLabel": "Ihr Benutzername: {{name}}",
         "codeNavTitle": "Code teilen",
-        "codeTitle": "Teile diesen Pairing-Code",
-        "codeSubtitle": "Teile diesen Code, damit sie deinem gemeinsamen Wallet beitreten können.",
-        "waiting": "Warten darauf, dass sie den Code eingeben…",
+        "codeTitle": "Diesen Kopplungscode teilen",
+        "codeSubtitle": "Teilen Sie diesen Code, damit die andere Person Ihrem Kinderkonto beitreten kann.",
+        "waiting": "Warten auf die Eingabe des Codes…",
         "sasNavTitle": "Muster überprüfen",
         "sasTitle": "Muster überprüfen",
-        "sasSubtitle": "Prüfen Sie, ob dieses Formmuster mit dem auf ihrem Telefon übereinstimmt, Form für Form.",
-        "sasHint": "Bestätigen Sie erst, wenn Sie bestätigt haben, dass beide Telefone dasselbe Muster zeigen.",
-        "confirmMatch": "Sie stimmen überein",
-        "linkedTitle": "Wallet verknüpft",
-        "linkedSubtitle": "Ihr verwaltetes Wallet ist einsatzbereit.",
-        "done": "Gesendet. Sie schließen die Einrichtung auf ihrem Telefon ab.",
-        "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
+        "sasSubtitle": "Prüfen Sie Form für Form, ob dieses Muster mit dem Muster auf dem anderen Telefon übereinstimmt.",
+        "sasHint": "Bestätigen Sie erst, nachdem Sie geprüft haben, dass beide Telefone dasselbe Muster anzeigen.",
+        "confirmMatch": "Muster stimmen überein",
+        "linkedTitle": "Kinderkonto verknüpft",
+        "linkedSubtitle": "Das Kinderkonto ist einsatzbereit.",
+        "done": "Gesendet. Die andere Person schließt die Einrichtung auf ihrem Telefon ab.",
+        "expired": "Diese Kopplung ist abgelaufen. Bitte beginnen Sie erneut.",
         "errorTitle": "Kopplungssitzung beendet",
         "declinedByChild": "Diese Anfrage wurde abgelehnt.",
-        "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
-        "areYouSure": "Bist du sicher?",
+        "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginnen Sie erneut.",
+        "areYouSure": "Sind Sie sicher?",
         "confirmGate": "Bestätigen Sie nur, wenn die Muster exakt übereinstimmen, Form für Form. Mit der Bestätigung erhält diese Person Zugriff auf das Konto.",
-        "confirmBTN": "Sie stimmen überein",
-        "needsUsername": "Lege in deinem Profil einen Benutzernamen fest, bevor du ein Wallet verknüpfst.",
-        "notOwner": "Wir konnten deine Benutzernamensreservierung nicht bestätigen. Versuch es gleich noch einmal.",
-        "startFailed": "Die Kopplung konnte nicht gestartet werden. Bitte versuche es erneut.",
+        "confirmBTN": "Muster stimmen überein",
+        "needsUsername": "Legen Sie in Ihrem Profil einen Benutzernamen fest, bevor Sie ein Kinderkonto verknüpfen.",
+        "notOwner": "Wir konnten Ihre Benutzernamensreservierung nicht bestätigen. Versuchen Sie es gleich noch einmal.",
+        "startFailed": "Die Kopplung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
         "codeOption": "Code",
         "qrOption": "QR",
         "qrTitle": "Diesen QR-Code scannen",
-        "qrSubtitle": "Lass sie Blitz auf ihrem Telefon öffnen, „Gemeinsamem Wallet beitreten“ wählen und dann diesen QR-Code scannen.",
-        "qrWaiting": "Warten darauf, dass sie scannen…",
+        "qrSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen, „Kinderkonto beitreten“ auszuwählen und anschließend diesen QR-Code zu scannen.",
+        "qrWaiting": "Warten auf das Scannen durch die andere Person…",
         "acceptTitle": "Kopplung akzeptieren?",
-        "acceptSubtitle": "Mit der Kopplung gibst du dieser Person Zugriff auf {{name}}. Stelle sicher, dass du dich mit der richtigen Person koppelst.",
+        "acceptSubtitle": "Mit der Kopplung gewähren Sie dieser Person Zugriff auf {{name}}. Stellen Sie sicher, dass Sie sich mit der richtigen Person koppeln.",
         "acceptBTN": "Akzeptieren",
         "declineBTN": "Ablehnen"
       },
       "transactions": {
         "title": "Aktivität",
-        "noTxHistorySub": "Die Transaktionen des Kontos erscheinen hier, sobald sie eine senden oder empfangen."
+        "noTxHistorySub": "Die Transaktionen des Kinderkontos erscheinen hier, sobald eine Transaktion gesendet oder empfangen wurde."
       },
       "page": {
-        "title": "Kinder-Konto",
+        "title": "Kinderkonto",
         "balanceLabel": "Saldo",
         "transactionsLabel": "Letzte Aktivität",
         "noTransactions": "Noch keine Aktivität",
         "spendingLimitLabel": "Ausgabenlimit",
         "loadingBalance": "Saldo wird geladen...",
-        "shareLink": "Mit jemandem verbinden",
+        "shareLink": "Mit einer Person koppeln",
         "sendInviteLink": "Jemanden einladen"
       },
       "claim": {
-        "title": "Richte dein Wallet ein",
+        "title": "Kinderkonto einrichten",
         "info": {
-          "navTitle": "Richte dein Wallet ein",
-          "title": "Richte dein verwaltetes Wallet ein",
-          "intro": "Du trittst einem Wallet bei, das für dich verwaltet wird.",
-          "row1Label": "Dein eigenes Wallet",
-          "row1Description": "Sende und empfange mit deinem eigenen Guthaben.",
+          "navTitle": "Kinderkonto einrichten",
+          "title": "Ihr Kinderkonto einrichten",
+          "intro": "Sie treten einem Kinderkonto bei, dessen Wiederherstellung von einer Person Ihres Vertrauens verwaltet wird.",
+          "row1Label": "Ihre eigene Wallet",
+          "row1Description": "Senden und empfangen Sie mit Ihrem eigenen Guthaben.",
           "row2Label": "Einfach zu bedienen",
-          "row2Description": "Die Wiederherstellung deines Wallets wird für dich verwaltet.",
+          "row2Description": "Die Wiederherstellung Ihrer Wallet wird für Sie verwaltet.",
           "row3Label": "Von einer anderen Person verwaltet",
-          "row3Description": "Tritt nur einem Wallet von jemandem bei, den du kennst.",
+          "row3Description": "Treten Sie nur einem Kinderkonto bei, das von einer Person Ihres Vertrauens verwaltet wird.",
           "continue": "Weiter"
         },
         "codeNavTitle": "Benutzernamen eingeben",
-        "codeTitle": "Ihren Benutzernamen eingeben",
-        "codeSubtitle": "Gib den Benutzernamen ein, der auf dem Telefon der anderen Person angezeigt wird.",
+        "codeTitle": "Benutzernamen der anderen Person eingeben",
+        "codeSubtitle": "Geben Sie den Benutzernamen ein, der auf dem Telefon der anderen Person angezeigt wird.",
         "pairCodeNavTitle": "Code eingeben",
-        "pairCodeTitle": "Gib den Pairing-Code ein",
-        "pairCodeSubtitle": "Gib den 6-stelligen Code ein, der auf dem Telefon der anderen Person angezeigt wird.",
-        "wrongCode": "Dieser Code hat nicht funktioniert. Überprüfe den Code und den Benutzernamen und versuche es erneut.",
+        "pairCodeTitle": "Kopplungscode eingeben",
+        "pairCodeSubtitle": "Geben Sie den 6-stelligen Code ein, der auf dem Telefon der anderen Person angezeigt wird.",
+        "wrongCode": "Dieser Code hat nicht funktioniert. Überprüfen Sie den Code und den Benutzernamen und versuchen Sie es erneut.",
         "next": "Weiter",
         "sasNavTitle": "Muster überprüfen",
-        "sasTitle": "Überprüfen Sie das Muster",
+        "sasTitle": "Muster überprüfen",
         "sasSubtitle": "Prüfen Sie, ob dieses Formmuster Form für Form mit dem auf dem anderen Telefon übereinstimmt.",
-        "sasHint": "Bestätigen Sie erst, wenn Sie bestätigt haben, dass beide Telefone dasselbe Muster zeigen.",
-        "confirmMatch": "Sie stimmen überein",
-        "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginne erneut.",
-        "notFound": "Wir konnten keine Kopplung für diesen Benutzernamen finden. Bitte fordere ihn erneut an.",
-        "slotTaken": "Jemand hat sich bereits mit diesem Benutzernamen angemeldet. Stoppe jetzt und bitte den Kontoinhaber, abzubrechen und neu zu beginnen.",
-        "askToRestart": "Wir konnten dieser Kopplung nicht beitreten. Bitte den Kontoinhaber, eine neue zu starten.",
-        "rateLimited": "Zu viele Versuche. Bitte warte einen Moment und versuche es erneut.",
-        "loading": "Dein Wallet wird eingerichtet...",
-        "expired": "Diese Kopplung ist abgelaufen. Bitte beginne erneut.",
+        "sasHint": "Bestätigen Sie erst, nachdem Sie geprüft haben, dass beide Telefone dasselbe Muster anzeigen.",
+        "confirmMatch": "Muster stimmen überein",
+        "tamper": "Wir konnten diese Übergabe nicht verifizieren. Bitte beginnen Sie erneut.",
+        "notFound": "Wir konnten keine Kopplung für diesen Benutzernamen finden. Bitten Sie die andere Person, eine neue Kopplung zu starten.",
+        "slotTaken": "Jemand ist diesem Kinderkonto bereits mit diesem Benutzernamen beigetreten. Brechen Sie den Vorgang jetzt ab und bitten Sie den Kontoinhaber, die Kopplung neu zu starten.",
+        "askToRestart": "Wir konnten dieser Kopplung nicht beitreten. Bitten Sie den Kontoinhaber, eine neue Kopplung zu starten.",
+        "rateLimited": "Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+        "loading": "Ihre Wallet wird eingerichtet…",
+        "expired": "Diese Kopplung ist abgelaufen. Bitte beginnen Sie erneut.",
         "errorTitle": "Kopplungssitzung beendet",
         "canceledByParent": "Der Kontoinhaber hat die Kopplungsanfrage abgebrochen.",
         "codePlaceholder": "Benutzername",
         "codeOption": "Code",
         "scanOption": "Scannen",
         "scanNavTitle": "Code scannen",
-        "scanTitle": "Scanne ihren QR-Code",
-        "scanHint": "Richte den QR-Code in Sichtweite aus, um zu aktivieren",
-        "scanWaiting": "Warten darauf, dass die Anfrage akzeptiert wird",
-        "scanSubtitle": "Richte deine Kamera auf den QR-Code auf ihrem Telefon.",
+        "scanTitle": "QR-Code der anderen Person scannen",
+        "scanHint": "Positionieren Sie den QR-Code im Sichtfeld, um ihn zu scannen",
+        "scanWaiting": "Warten auf Annahme der Anfrage",
+        "scanSubtitle": "Richten Sie Ihre Kamera auf den QR-Code auf dem anderen Telefon.",
         "connectingMessage": "Geräte werden verbunden"
       },
       "limitGate": {
@@ -2379,7 +2372,7 @@
         "goalUserCount": "von {{goalUserCount}} Nutzern",
         "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
         "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute",
-        "COMMENT": "Full sentence below = Number of totalUser users"
+        "COMMENT": "Der vollständige Satz unten zeigt die Anzahl aller Nutzer an."
       },
       "loadingScreen": {
         "loadingMessage1": "Bitte schließen Sie die App nicht.",
@@ -2797,7 +2790,7 @@
         "belowSwapLimitBitcoin": "Ihr Bitcoin-Guthaben liegt unter dem Mindestbetrag für einen Swap. Fügen Sie mindestens {{btcMin}} hinzu, um einen Swap zu starten.",
         "belowSwapLimitDollar": "Ihr Dollar-Guthaben liegt unter dem Mindestbetrag für einen Swap. Fügen Sie mindestens {{usdMin}} hinzu, um einen Swap zu starten.",
         "belowSwapLimitBoth": "Ihre Guthaben liegen unter dem Mindestbetrag für einen Swap. Sie benötigen mindestens {{btcMin}} in Bitcoin oder {{usdMin}} in Dollar, um einen Swap zu starten.",
-        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
+        "COMMENT": "Darauf achten, dass die Tauschmeldung in Schreibweise und Reihenfolge exakt mit dem Hinweis zu hohen Preisauswirkungen übereinstimmt."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
@@ -2978,7 +2971,6 @@
     "noDataInQRError": "Daten konnten aus dem Bild nicht abgerufen werden.",
     "noInvoiceInImageError": "Rechnung konnte aus dem Bild nicht abgerufen werden.",
     "savingImageError": "Bild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
-    "invalidSeedError": "Es wurde keine gültige Wiederherstellungsphrase eingegeben.",
     "invalidSeedWordLengthErorr": "Nicht jedes Wort hat die korrekte Länge.",
     "invalidSeedLengthError": "Aus der kopierten Wiederherstellungsphrase konnten keine 12 Wörter gefunden werden.",
     "noGooglePlay": "Google Play-Dienste sind erforderlich, um Benachrichtigungen zu erhalten.",
