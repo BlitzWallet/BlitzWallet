@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: 12,
   },
   avatarWrapper: {
     width: '25%',
@@ -244,7 +243,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarName: {
-    width: '100%',
+    width: '85%',
     fontSize: SIZES.small,
     textAlign: 'center',
     flexShrink: 1,
