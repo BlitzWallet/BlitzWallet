@@ -1666,6 +1666,7 @@
     "accounts": {
       "inputPlaceholder": "Kontoname",
       "mainWalletPlace": "Haupt-Konto",
+      "managedWalletPlace": "Verwaltetes Konto",
       "nwcWalletPlace": "NWC-Konto",
       "tabs": {
         "personal": "Persönlich",

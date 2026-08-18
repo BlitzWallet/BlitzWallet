@@ -11,7 +11,11 @@ import {
 } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import {
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+  useActiveCustodyAccount,
+} from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
@@ -68,10 +72,23 @@ export default function CreateCustodyAccounts() {
   );
 
   const activeAccounts = useMemo(() => {
-    return isLinked
-      ? childAccounts.map(child => ({ ...child, __type: 'child' }))
-      : custodyAccountsList;
-  }, [isLinked, childAccounts, custodyAccountsList]);
+    if (isLinked) {
+      return childAccounts.map(child => ({ ...child, __type: 'child' }));
+    }
+    if (masterInfoObject.isChildAccount) {
+      return custodyAccountsList.filter(
+        account =>
+          account.uuid === MAIN_ACCOUNT_UUID ||
+          account.uuid === NWC_ACCOUNT_UUID,
+      );
+    }
+    return custodyAccountsList;
+  }, [
+    isLinked,
+    childAccounts,
+    custodyAccountsList,
+    masterInfoObject.isChildAccount,
+  ]);
 
   const handleAboutClick = useCallback(() => {
     navigate.navigate('InformationPopup', {
@@ -137,25 +154,32 @@ export default function CreateCustodyAccounts() {
         )}
       </ScrollView>
 
+      {!masterInfoObject.isChildAccount && (
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+            ...CENTER,
+          }}
+          actionFunction={handleNavigateAddAccount}
+          textStyles={styles.actionButtonText}
+          textContent={t(
+            'settings.accountComponents.selectCreateAccountType.title',
+          )}
+        />
+      )}
       <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-          ...CENTER,
-        }}
-        actionFunction={handleNavigateAddAccount}
-        textStyles={styles.actionButtonText}
-        textContent={t(
-          'settings.accountComponents.selectCreateAccountType.title',
-        )}
-      />
-      <CustomButton
-        buttonStyles={{
-          backgroundColor: undefined,
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-        }}
-        textStyles={{ color: textColor }}
+        buttonStyles={[
+          {
+            width: INSET_WINDOW_WIDTH,
+            marginTop: masterInfoObject.isChildAccount
+              ? CONTENT_KEYBOARD_OFFSET
+              : undefined,
+            ...CENTER,
+          },
+          !masterInfoObject.isChildAccount && { backgroundColor: undefined },
+        ]}
+        textStyles={[!masterInfoObject.isChildAccount && { color: textColor }]}
         actionFunction={handleNavigateSwap}
         textContent={t('settings.accountComponents.homepage.swap')}
       />

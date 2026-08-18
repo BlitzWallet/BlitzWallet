@@ -466,10 +466,14 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const isUsingAltAccount = didSelectAltAccount || isUsingNostr;
 
   const custodyAccountsList = useMemo(() => {
+    const mainWalletName = masterInfoObject.isChildAccount
+      ? t('settings.accounts.managedWalletPlace')
+      : t('settings.accounts.mainWalletPlace');
+
     return enabledNWC
       ? [
           {
-            name: t('settings.accounts.mainWalletPlace'),
+            name: mainWalletName,
             mnemoinc: accountMnemoinc,
             accountType: 'main',
             uuid: MAIN_ACCOUNT_UUID,
@@ -484,14 +488,21 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         ]
       : [
           {
-            name: t('settings.accounts.mainWalletPlace'),
+            name: mainWalletName,
             mnemoinc: accountMnemoinc,
             accountType: 'main',
             uuid: MAIN_ACCOUNT_UUID,
           },
           ...custodyAccounts,
         ];
-  }, [accountMnemoinc, custodyAccounts, enabledNWC, nostrSeed, t]);
+  }, [
+    accountMnemoinc,
+    custodyAccounts,
+    enabledNWC,
+    masterInfoObject.isChildAccount,
+    nostrSeed,
+    t,
+  ]);
 
   const activeAccount = useMemo(() => {
     const activeAltAccount = selectedAltAccount[0];

@@ -1680,6 +1680,7 @@
     "accounts": {
       "inputPlaceholder": "Rechercher un compte existant",
       "mainWalletPlace": "Portefeuille principal",
+      "managedWalletPlace": "Compte géré",
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Personnel",

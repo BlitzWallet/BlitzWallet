@@ -1681,6 +1681,7 @@
     "accounts": {
       "inputPlaceholder": "Поиск счета",
       "mainWalletPlace": "Основной кошелек",
+      "managedWalletPlace": "Управляемый аккаунт",
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Личные",

@@ -1680,6 +1680,7 @@
     "accounts": {
       "inputPlaceholder": "Sök befintligt konto",
       "mainWalletPlace": "Huvudplånbok",
+      "managedWalletPlace": "Hanterat konto",
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Personliga",
