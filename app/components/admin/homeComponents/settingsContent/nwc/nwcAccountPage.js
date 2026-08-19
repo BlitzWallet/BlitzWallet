@@ -66,6 +66,7 @@ export default function NWCAccountPage(props) {
         count: enabledPermissionsCount,
       }),
       screen: 'CreateNWCPermissions',
+      name: savedData.accountName,
     },
     {
       key: 'budget',
@@ -94,6 +95,7 @@ export default function NWCAccountPage(props) {
                   navigate.navigate(item.screen, {
                     accountID,
                     mode: 'edit',
+                    accountName: item.name,
                   })
                 }
               >

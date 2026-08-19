@@ -1864,21 +1864,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "¿Estás seguro de que quieres eliminar este elemento de Nostr Connect?",
-      "addAccount": "Añadir cuenta",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar esta conexión?",
+      "addAccount": "Añadir conexión",
       "empty": {
         "title": "Aún no hay conexiones",
         "subtitle": "Crea una conexión para usar Nostr Wallet Connect con tus aplicaciones favoritas."
       },
       "createNWCName": {
-        "title": "Nombre de la conexión"
+        "navTitle": "Nombre de la conexión",
+        "title": "Ponle un nombre a esta conexión",
+        "editTitle": "Editar el nombre de la conexión",
+        "subtitle": "Dale un nombre a la conexión para que puedas reconocerla más tarde.",
+        "editSubtitle": "Elige un nuevo nombre para que puedas reconocer esta conexión más tarde.",
+        "placeholder": "Nombre de la conexión"
       },
       "createNWCPermissions": {
         "title": "Permisos",
-        "pageTitle": "Añadir permisos de la billetera",
-        "pageSubtitle": "Elige qué acciones puede realizar esta billetera.",
-        "editTitle": "Editar permisos de la billetera",
-        "editSubtitle": "Edita qué acciones puede realizar esta billetera."
+        "pageTitle": "Añadir permisos de la conexión",
+        "pageSubtitle": "Elige qué acciones puede realizar {{name}}.",
+        "editTitle": "Editar permisos de la conexión",
+        "editSubtitle": "Edita qué acciones puede realizar {{name}}."
       },
       "createNWCAmount": {
         "title": "Presupuesto",
@@ -1887,10 +1892,10 @@
         "editTitle": "Editar presupuesto de gastos",
         "editSubtitle": "Cambia el límite de gastos y cuándo se restablece. Déjalo en blanco para no tener límite.",
         "renewalPlaceholder": "Selecciona el período de renovación",
-        "createButton": "Crear cuenta"
+        "createButton": "Crear conexión"
       },
       "accountPage": {
-        "title": "Gestionar cuenta",
+        "title": "Gestionar conexión",
         "nameLabel": "Nombre",
         "permissionsLabel": "Permisos",
         "permissionsCount_one": "{{count}} permiso",
@@ -1898,16 +1903,16 @@
         "renewalLabel": "Período de renovación",
         "amountLabel": "Monto del presupuesto",
         "viewSecretLabel": "Cadena de conexión",
-        "deleteAccount": "Eliminar cuenta"
+        "deleteAccount": "Eliminar conexión"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Por favor introduce un nombre de cuenta.",
+        "noAccountNameError": "Por favor introduce un nombre de conexión.",
         "noPermissionsError": "Por favor habilita al menos un permiso.",
         "noBudgetError": "Por favor selecciona un período de renovación de presupuesto.",
         "noBudgetAmountError": "Por favor selecciona un monto de presupuesto.",
-        "loadingMessage": "Creando cuenta",
-        "updatingMessage": "Actualizando cuenta...",
-        "nameInputPlaceholder": "Introduce nombre de cuenta NWC",
+        "loadingMessage": "Creando conexión...",
+        "updatingMessage": "Actualizando conexión...",
+        "nameInputPlaceholder": "Introduce el nombre de la conexión NWC",
         "permissionsHeader": "Permisos de la billetera",
         "receivePayments": "Recibir pagos",
         "sendPayments": "Enviar pagos",
@@ -1917,7 +1922,7 @@
         "budgetRenewalHeader": "Renovación de presupuesto"
       },
       "hasNoAccounts": {
-        "warningMessage": "Para enviar dinero desde tu billetera Nostr Connect, primero necesitarás añadir fondos — ya sea recibiendo dinero o transfiriendo desde tu billetera principal.\n\n Puedes transferir fondos desde tu billetera principal a NWC en la página de configuración de la cuenta."
+        "warningMessage": "Para enviar dinero desde tu cuenta Nostr Connect, primero necesitarás añadir fondos — ya sea recibiendo dinero o transfiriendo desde tu cuenta principal.\n\n Puedes transferir fondos desde tu cuenta principal a NWC en la página de la cuenta."
       },
       "noNotifications": {
         "title": "Notificaciones requeridas",
@@ -1930,7 +1935,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Antes de comenzar",
-        "infoSubtitle": "Algunas cosas que debes saber sobre tu cuenta de Nostr Wallet Connect.",
+        "infoSubtitle": "Algunas cosas que debes saber sobre Nostr Wallet Connect.",
         "row1Label": "Añadir fondos",
         "row1Description": "Añade dinero recibiéndolo o transfiriéndolo desde tu cuenta principal.",
         "row2Label": "Cuenta separada",
@@ -1943,8 +1948,8 @@
         "errorRetry": "Reintentar configuración"
       },
       "accountCreated": {
-        "title": "Cuenta creada",
-        "subtitle": "Tu cuenta NWC ha sido creada. Copia la cadena de conexión para empezar a usarla.",
+        "title": "Conexión creada",
+        "subtitle": "Tu conexión ha sido creada. Copia la cadena de conexión para empezar a usarla.",
         "copyConnection": "Copiar cadena de conexión"
       }
     },
@@ -2075,9 +2080,7 @@
       "settingsButton": "Configuración",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Aún no has creado ningún pool. Toca para crear tu primer pool.",
-      "noActivePools": "No tienes pools activos en este momento. Toca para ver tus pools.",
-      "yourAccountsTitle": "Tus cuentas",
-      "addAccountButton": "Agregar cuenta"
+      "noActivePools": "No tienes pools activos en este momento. Toca para ver tus pools."
     },
     "hub": {
       "viewAll": "Ver todo",

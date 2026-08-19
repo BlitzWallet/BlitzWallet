@@ -1851,21 +1851,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Sind Sie sicher, dass Sie dieses Nostr Connect-Element löschen möchten?",
-      "addAccount": "Konto hinzufügen",
+      "confirmDelete": "Sind Sie sicher, dass Sie diese Verbindung löschen möchten?",
+      "addAccount": "Verbindung hinzufügen",
       "empty": {
         "title": "Noch keine Verbindungen",
         "subtitle": "Erstellen Sie eine Verbindung, um Nostr Wallet Connect mit Ihren bevorzugten Apps zu nutzen."
       },
       "createNWCName": {
-        "title": "Verbindungsname"
+        "navTitle": "Verbindungsname",
+        "title": "Verbindung benennen",
+        "editTitle": "Verbindungsnamen bearbeiten",
+        "subtitle": "Geben Sie der Verbindung einen Namen, damit Sie sie später wiedererkennen.",
+        "editSubtitle": "Wählen Sie einen neuen Namen, damit Sie diese Verbindung später wiedererkennen.",
+        "placeholder": "Verbindungsname"
       },
       "createNWCPermissions": {
         "title": "Berechtigungen",
-        "pageTitle": "Wallet-Berechtigungen hinzufügen",
-        "pageSubtitle": "Wählen Sie aus, welche Aktionen diese Wallet ausführen darf.",
-        "editTitle": "Wallet-Berechtigungen bearbeiten",
-        "editSubtitle": "Bearbeiten Sie, welche Aktionen diese Wallet ausführen darf."
+        "pageTitle": "Verbindungsberechtigungen hinzufügen",
+        "pageSubtitle": "Wählen Sie aus, welche Aktionen {{name}} ausführen darf.",
+        "editTitle": "Verbindungsberechtigungen bearbeiten",
+        "editSubtitle": "Bearbeiten Sie, welche Aktionen {{name}} ausführen darf."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -1874,10 +1879,10 @@
         "editTitle": "Ausgabenbudget bearbeiten",
         "editSubtitle": "Ändern Sie das Ausgabenlimit und dessen Zurücksetzung. Für kein Limit leer lassen.",
         "renewalPlaceholder": "Verlängerungszeitraum auswählen",
-        "createButton": "Konto erstellen"
+        "createButton": "Verbindung erstellen"
       },
       "accountPage": {
-        "title": "Konto verwalten",
+        "title": "Verbindung verwalten",
         "nameLabel": "Name",
         "permissionsLabel": "Berechtigungen",
         "permissionsCount_one": "{{count}} Berechtigung",
@@ -1885,16 +1890,16 @@
         "renewalLabel": "Verlängerungszeitraum",
         "amountLabel": "Budgetbetrag",
         "viewSecretLabel": "Verbindungszeichenfolge",
-        "deleteAccount": "Konto löschen"
+        "deleteAccount": "Verbindung löschen"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Bitte geben Sie einen Kontonamen ein.",
+        "noAccountNameError": "Bitte geben Sie einen Verbindungsnamen ein.",
         "noPermissionsError": "Bitte aktivieren Sie mindestens eine Berechtigung.",
         "noBudgetError": "Bitte wählen Sie einen Budgetverlängerungszeitraum.",
         "noBudgetAmountError": "Bitte wählen Sie einen Budgetbetrag.",
-        "loadingMessage": "Konto wird erstellt...",
-        "updatingMessage": "Konto wird aktualisiert...",
-        "nameInputPlaceholder": "NWC-Kontonamen eingeben",
+        "loadingMessage": "Verbindung wird erstellt...",
+        "updatingMessage": "Verbindung wird aktualisiert...",
+        "nameInputPlaceholder": "NWC-Verbindungsnamen eingeben",
         "permissionsHeader": "Wallet-Berechtigungen",
         "receivePayments": "Zahlungen empfangen",
         "sendPayments": "Zahlungen senden",
@@ -1904,7 +1909,7 @@
         "budgetRenewalHeader": "Budgetverlängerung"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrem Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf Ihr NWC-Konto auf der Kontoeinstellungsseite übertragen."
+        "warningMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf NWC auf der Kontoseite übertragen."
       },
       "noNotifications": {
         "title": "Benachrichtigungen erforderlich",
@@ -1917,7 +1922,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Bevor Sie loslegen",
-        "infoSubtitle": "Ein paar Dinge, die Sie über Ihr Nostr Wallet Connect-Konto wissen sollten.",
+        "infoSubtitle": "Ein paar Dinge, die Sie über Nostr Wallet Connect wissen sollten.",
         "row1Label": "Guthaben hinzufügen",
         "row1Description": "Fügen Sie Geld hinzu, indem Sie es empfangen oder von Ihrem Hauptkonto überweisen.",
         "row2Label": "Separates Konto",
@@ -1930,8 +1935,8 @@
         "errorRetry": "Einrichtung erneut versuchen"
       },
       "accountCreated": {
-        "title": "Konto erstellt",
-        "subtitle": "Ihr NWC-Konto wurde erstellt. Kopieren Sie die Verbindungszeichenfolge, um es zu verwenden.",
+        "title": "Verbindung erstellt",
+        "subtitle": "Ihre Verbindung wurde erstellt. Kopieren Sie die Verbindungszeichenfolge, um sie zu verwenden.",
         "copyConnection": "Verbindungszeichenfolge kopieren"
       }
     },
@@ -2056,8 +2061,6 @@
       "settingsButton": "Einstellungen",
       "poolsTitle": "Sparpool",
       "noPoolsMessage": "Sie haben noch keinen Sparpool erstellt. Tippen Sie, um Ihren ersten Sparpool zu erstellen.",
-      "yourAccountsTitle": "Ihre Konten",
-      "addAccountButton": "Konto hinzufügen",
       "noActivePools": "Sie haben derzeit keine aktiven Sparpools. Tippen Sie hier, um Ihre Sparpools zu verwalten."
     },
     "hub": {

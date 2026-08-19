@@ -1874,14 +1874,19 @@
         "subtitle": "Crie uma conexão para usar a conta NWC com seus aplicativos favoritos."
       },
       "createNWCName": {
-        "title": "Nome da conexão"
+        "navTitle": "Nome da conexão",
+        "title": "Dê um nome a esta conexão",
+        "editTitle": "Editar nome da conexão",
+        "subtitle": "Dê um nome à conexão para poder reconhecê-la mais tarde.",
+        "editSubtitle": "Escolha um novo nome para reconhecer esta conexão mais tarde.",
+        "placeholder": "Nome da conexão"
       },
       "createNWCPermissions": {
         "title": "Permissões",
-        "pageTitle": "Adicionar permissões da conta",
-        "pageSubtitle": "Escolha quais ações esta conta pode realizar.",
-        "editTitle": "Editar permissões da conta",
-        "editSubtitle": "Edite quais ações esta conta pode realizar."
+        "pageTitle": "Adicionar permissões da conexão",
+        "pageSubtitle": "Escolha quais ações {{name}} pode realizar.",
+        "editTitle": "Editar permissões da conexão",
+        "editSubtitle": "Edite quais ações {{name}} pode realizar."
       },
       "createNWCAmount": {
         "title": "Orçamento",
@@ -1890,10 +1895,10 @@
         "editTitle": "Editar orçamento de gastos",
         "editSubtitle": "Altere o limite de gastos e quando ele é redefinido. Deixe em branco para não ter limite.",
         "renewalPlaceholder": "Selecione o período de renovação",
-        "createButton": "Criar conta"
+        "createButton": "Criar conexão"
       },
       "accountPage": {
-        "title": "Gerenciar conta",
+        "title": "Gerenciar conexão",
         "nameLabel": "Nome",
         "permissionsLabel": "Permissões",
         "permissionsCount_one": "{{count}} permissão",
@@ -1901,7 +1906,7 @@
         "renewalLabel": "Período de renovação",
         "amountLabel": "Valor do orçamento",
         "viewSecretLabel": "String de conexão",
-        "deleteAccount": "Excluir conta"
+        "deleteAccount": "Excluir conexão"
       },
       "createNWCAccount": {
         "noAccountNameError": "Por favor, insira um nome para essa conexão.",
@@ -1909,7 +1914,7 @@
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
         "loadingMessage": "Criando conexão",
-        "updatingMessage": "Atualizando conta...",
+        "updatingMessage": "Atualizando conexão...",
         "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
@@ -1920,7 +1925,7 @@
         "budgetRenewalHeader": "Renovação do limite de gastos"
       },
       "hasNoAccounts": {
-        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
+        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para NWC na página da conta."
       },
       "noNotifications": {
         "title": "Notificações necessárias",
@@ -1933,7 +1938,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Antes de começar",
-        "infoSubtitle": "Algumas coisas que você deve saber sobre sua conta NWC.",
+        "infoSubtitle": "Algumas coisas que você deve saber sobre o Nostr Wallet Connect.",
         "row1Label": "Adicionar fundos",
         "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
         "row2Label": "Conta separada",
@@ -1946,8 +1951,8 @@
         "errorRetry": "Tentar novamente"
       },
       "accountCreated": {
-        "title": "Conta criada",
-        "subtitle": "Sua conta NWC foi criada. Copie a string de conexão para começar a usá-la.",
+        "title": "Conexão criada",
+        "subtitle": "Sua conexão foi criada. Copie a string de conexão para começar a usá-la.",
         "copyConnection": "Copiar string de conexão"
       }
     },
@@ -2078,9 +2083,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Colete pagamentos para um objetivo",
-      "yourAccountsTitle": "Suas contas",
-      "addAccountButton": "Adicionar conta"
+      "noActivePools": "Colete pagamentos para um objetivo"
     },
     "hub": {
       "viewAll": "Ver tudo",

@@ -1867,21 +1867,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Är du säker att du vill ta bort det här Nostr Connect-objektet?",
-      "addAccount": "Lägg till konto",
+      "confirmDelete": "Är du säker på att du vill ta bort den här anslutningen?",
+      "addAccount": "Lägg till anslutning",
       "empty": {
         "title": "Inga anslutningar ännu",
         "subtitle": "Skapa en anslutning för att använda Nostr Wallet Connect med dina favoritappar."
       },
       "createNWCName": {
-        "title": "Anslutningsnamn"
+        "navTitle": "Anslutningsnamn",
+        "title": "Namnge den här anslutningen",
+        "editTitle": "Redigera anslutningsnamn",
+        "subtitle": "Ge anslutningen ett namn så att du kan känna igen den senare.",
+        "editSubtitle": "Välj ett nytt namn så att du kan känna igen den här anslutningen senare.",
+        "placeholder": "Anslutningsnamn"
       },
       "createNWCPermissions": {
         "title": "Behörigheter",
-        "pageTitle": "Lägg till plånboksbehörigheter",
-        "pageSubtitle": "Välj vilka åtgärder den här plånboken kan utföra.",
-        "editTitle": "Redigera plånboksbehörigheter",
-        "editSubtitle": "Redigera vilka åtgärder den här plånboken kan utföra."
+        "pageTitle": "Lägg till anslutningsbehörigheter",
+        "pageSubtitle": "Välj vilka åtgärder {{name}} kan utföra.",
+        "editTitle": "Redigera anslutningsbehörigheter",
+        "editSubtitle": "Redigera vilka åtgärder {{name}} kan utföra."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -1890,10 +1895,10 @@
         "editTitle": "Redigera utgiftsbudget",
         "editSubtitle": "Ändra utgiftsgränsen och när den återställs. Lämna tomt för ingen gräns.",
         "renewalPlaceholder": "Välj förnyelseperiod",
-        "createButton": "Skapa konto"
+        "createButton": "Skapa anslutning"
       },
       "accountPage": {
-        "title": "Hantera konto",
+        "title": "Hantera anslutning",
         "nameLabel": "Namn",
         "permissionsLabel": "Behörigheter",
         "permissionsCount_one": "{{count}} behörighet",
@@ -1901,16 +1906,16 @@
         "renewalLabel": "Förnyelseperiod",
         "amountLabel": "Budgetbelopp",
         "viewSecretLabel": "Anslutningssträng",
-        "deleteAccount": "Ta bort konto"
+        "deleteAccount": "Ta bort anslutning"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Ange ett kontonamn.",
+        "noAccountNameError": "Ange ett anslutningsnamn.",
         "noPermissionsError": "Vänligen aktivera minst en behörighet.",
         "noBudgetError": "Vänligen välj en budgetförnyelseperiod.",
         "noBudgetAmountError": "Vänligen välj ett budgetbelopp.",
-        "loadingMessage": "Skapa konto",
-        "updatingMessage": "Uppdaterar konto...",
-        "nameInputPlaceholder": "Ange NWC-kontonamn",
+        "loadingMessage": "Skapar anslutning...",
+        "updatingMessage": "Uppdaterar anslutning...",
+        "nameInputPlaceholder": "Ange NWC-anslutningsnamn",
         "permissionsHeader": "Behörighet för plånbok",
         "receivePayments": "Ta emot betalningar",
         "sendPayments": "Skicka betalningar",
@@ -1920,7 +1925,7 @@
         "budgetRenewalHeader": "Förnyelse av budgeten"
       },
       "hasNoAccounts": {
-        "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
+        "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på kontosidan."
       },
       "noNotifications": {
         "title": "Aviseringar krävs",
@@ -1933,7 +1938,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Innan du börjar",
-        "infoSubtitle": "Några saker att veta om ditt Nostr Wallet Connect-konto.",
+        "infoSubtitle": "Några saker att veta om Nostr Wallet Connect.",
         "row1Label": "Lägg till pengar",
         "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
         "row2Label": "Separat konto",
@@ -1946,8 +1951,8 @@
         "errorRetry": "Försök igen"
       },
       "accountCreated": {
-        "title": "Konto skapat",
-        "subtitle": "Ditt NWC-konto har skapats. Kopiera anslutningssträngen för att börja använda det.",
+        "title": "Anslutning skapad",
+        "subtitle": "Din anslutning har skapats. Kopiera anslutningssträngen för att börja använda den.",
         "copyConnection": "Kopiera anslutningssträng"
       }
     },
@@ -2078,9 +2083,7 @@
       "settingsButton": "Inställningar",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Du har inte skapat några pools ännu. Tryck för att skapa din första pool.",
-      "noActivePools": "Du har inga aktiva pooler just nu. Tryck för att visa dina pooler.",
-      "yourAccountsTitle": "Dina konton",
-      "addAccountButton": "Lägg till konto"
+      "noActivePools": "Du har inga aktiva pooler just nu. Tryck för att visa dina pooler."
     },
     "hub": {
       "viewAll": "Visa alla",
