@@ -2211,6 +2211,9 @@
       },
       "transferModal": {
         "selectAccount": "Select an account",
+        "addFromTitle": "Choose which account to add money from.",
+        "withdrawToTitle": "Choose which account to withdraw money to.",
+        "noAccounts": "No other accounts available.",
         "availableToAdd": "Available to add",
         "availableToWithdraw": "Available to withdraw",
         "using": "Using",

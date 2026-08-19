@@ -3,6 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -11,6 +16,7 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 
 import {
   getDefaultDisplayCurrency,
@@ -19,13 +25,16 @@ import {
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
 import useDebounce from '../../../../../hooks/useDebounce';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import useAccountBalancePreviews from '../../../../../hooks/useAccountBalancePreviews';
 
 import { ThemeText } from '../../../../../functions/CustomElements';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import AccountProfileImage from '../../accounts/accountProfileImage';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import AccountCard from '../../accounts/accountCard';
 import ChoosePaymentMethod from '../../sendBitcoin/components/choosePaymentMethodContainer';
 
 import {
@@ -36,15 +45,18 @@ import {
   getSparkBalance,
   initializeSparkWallet,
 } from '../../../../../functions/spark';
-import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
+import { getUsdTokenDollars } from '../../../../../functions/spark/balanceSnapshots';
 import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
 import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
 } from '../../../../../functions/lottieViewColorTransformer';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import {
-  FONT,
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  SATSPERBITCOIN,
+} from '../../../../../constants';
+import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -56,19 +68,29 @@ import { useGlobalContactsInfo } from '../../../../../../context-store/globalCon
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../../../../assets/errorTxAnimation.json');
 
+const PAGE_ORDER = ['account', 'amount', 'loading', 'result'];
+// Fractions of the screen, not absolute pixels: the picker/amount pages must
+// match the `sliderHight` editAccountPage opens the sheet at, or the host
+// animates the height down from the slide-in size the moment we mount.
+const HEIGHT_FRACTION_FOR_PAGE = {
+  account: 0.8,
+  amount: 0.8,
+  loading: 0.55,
+  result: 0.55,
+};
+
 // Shared inline transfer sheet for Edit Account. `mode` flips the direction:
-//   add      → funds move  (selected profile) → current account
-//   withdraw → funds move  current account    → (selected profile)
+//   add      → funds move  (picked profile) → current account
+//   withdraw → funds move  current account  → (picked profile)
 // The source is always the `from` side; balance, the payment-method card, and
-// amount validation all key off it.
+// amount validation all key off it. BTC and USD (USDB) transfers are supported;
+// the asset is chosen on the amount step.
 export default function AccountTransferHalfModal({
   mode,
-  currentAccountUuid,
-  currentBalance = 0,
+  accountId,
   handleBackPressFunction,
   setBackNav,
   setContentHeight,
-  onTransferComplete,
 }) {
   const isAdd = mode === 'add';
   const { t } = useTranslation();
@@ -81,48 +103,205 @@ export default function AccountTransferHalfModal({
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { getAccountMnemonic, custodyAccountsList, activeAccount } =
     useActiveCustodyAccount();
-  const { bitcoinBalance: activeAccountBalance } = useUserBalanceContext();
+  const {
+    bitcoinBalance: activeBitcoinBalance,
+    dollarBalanceToken: activeDollarBalance,
+  } = useUserBalanceContext();
   const { sendWebViewRequest } = useWebView();
-  const pageStateRef = useRef(null);
+  const { screenDimensions } = useAppStatus();
 
-  // Custody + linked (child) accounts; children derive via getAccountMnemonic.
-  const accountLookup = useMemo(
-    () => [...custodyAccountsList, ...(masterInfoObject?.childAccounts || [])],
-    [custodyAccountsList, masterInfoObject?.childAccounts],
-  );
-
-  const currentAccount = useMemo(
-    () => accountLookup.find(item => item.uuid === currentAccountUuid) || {},
-    [accountLookup, currentAccountUuid],
-  );
-
-  // The other side is always the active account (the wallet in use).
-  const otherAccount = useMemo(() => {
-    if (activeAccount?.uuid && activeAccount.uuid !== currentAccountUuid)
-      return activeAccount;
-    return accountLookup.find(item => item.uuid === currentAccountUuid) || {};
-  }, [activeAccount, accountLookup, currentAccountUuid]);
-
-  const sourceAccount = isAdd ? otherAccount : currentAccount;
-  const destinationAccount = isAdd ? currentAccount : otherAccount;
-  const isSelfTransfer = sourceAccount?.uuid === destinationAccount?.uuid;
-
+  const [page, setPage] = useState('account'); // account | amount | loading | result
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [asset, setAsset] = useState('BTC');
   const [amountValue, setAmountValue] = useState('');
-  const [pageState, setPageState] = useState('amount'); // amount | loading | confirmed | error
   const [errorMessage, setErrorMessage] = useState('');
   const [transferInfo, setTransferInfo] = useState({
     isCalculatingFee: false,
     paymentFee: 0,
     feeError: false,
   });
+  const [sourceBalance, setSourceBalance] = useState({
+    status: 'loading', // 'loading' | 'ready' | 'error'
+    btcSats: 0,
+    usdDollars: 0,
+  });
 
-  const sourceMnemonicRef = useRef('');
-  // Synchronous re-entrancy guard for the confirm button. setPageState('loading')
+  // Synchronous re-entrancy guard for the confirm button. goToPage('loading')
   // and canDoTransfer only take effect after a React re-render, so two rapid taps
   // in the same frame would otherwise both reach executeAccountTransfer and send
   // the full amount twice. Set before any await; reset on the error path so the
   // user can retry.
   const isSubmittingRef = useRef(false);
+
+  // Custody accounts; No child accounts here
+  const accountLookup = custodyAccountsList;
+
+  const currentAccount = useMemo(
+    () => accountLookup.find(item => item.uuid === accountId),
+    [accountLookup, accountId],
+  );
+
+  // The picker never offers `accountId`, so source and destination can't be the
+  // same account. executeAccountTransfer still guards it (plus the two-accounts-
+  // one-mnemonic case, which no uuid check can see) and surfaces on the result page.
+  const sourceAccount = isAdd ? selectedAccount : currentAccount;
+  const destinationAccount = isAdd ? currentAccount : selectedAccount;
+
+  const isSourceActive =
+    !!sourceAccount?.uuid && sourceAccount.uuid === activeAccount?.uuid;
+
+  // The source's spendable balance. The active account's balance is already
+  // loaded in userBalanceContext (instant, no init); any other source wallet is
+  // initialized and read here — getSparkBalance returns BTC sats and the USDB
+  // token together in one call.
+  useEffect(() => {
+    if (!sourceAccount?.uuid || isSourceActive) return;
+    let cancelled = false;
+    setSourceBalance({ status: 'loading', btcSats: 0, usdDollars: 0 });
+    (async () => {
+      try {
+        const mnemonic = await getAccountMnemonic(sourceAccount);
+        if (cancelled) return;
+        await initializeSparkWallet(mnemonic, false, { maxRetries: 4 });
+        if (cancelled) return;
+        const balanceResponse = await getSparkBalance(mnemonic);
+        if (cancelled) return;
+        setSourceBalance(
+          balanceResponse?.didWork
+            ? {
+                status: 'ready',
+                btcSats: Number(balanceResponse.balance || 0),
+                usdDollars: getUsdTokenDollars(balanceResponse.tokensObj),
+              }
+            : { status: 'error', btcSats: 0, usdDollars: 0 },
+        );
+      } catch (err) {
+        console.log('load source account balance error', err);
+        if (!cancelled) {
+          setSourceBalance({ status: 'error', btcSats: 0, usdDollars: 0 });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [sourceAccount?.uuid, isSourceActive, getAccountMnemonic]);
+
+  const sourceBtcSats = isSourceActive
+    ? activeBitcoinBalance
+    : sourceBalance.btcSats;
+  const sourceUsdDollars = isSourceActive
+    ? activeDollarBalance
+    : sourceBalance.usdDollars;
+  const sourceStatus = isSourceActive ? 'ready' : sourceBalance.status;
+  const sourceUsdMicros = Math.round(sourceUsdDollars * 1e6);
+
+  const computeTotalSats = useAccountBalancePreviews();
+
+  // Cross-fade step transition (fade + directional slide), matching
+  // halfModalDepositFunds / CreateAccumulationAddressModal: every visited page
+  // stays mounted and all animate simultaneously on the UI thread — no
+  // mid-transition remount/thread hop, which is what made the old hook stutter.
+  // Pages mount lazily on first visit (keeps the result Lottie + amount keyboard
+  // from spinning up before reached) and stay mounted so their exit can play.
+  const [mountedPages, setMountedPages] = useState(() => new Set(['account']));
+  // Remounts the result Lottie on each entry so the confirm/error animation
+  // replays on a retry (the page itself never unmounts).
+  const [resultRunId, setResultRunId] = useState(0);
+
+  const accountOpacity = useSharedValue(1);
+  const accountTranslateX = useSharedValue(0);
+  const amountOpacity = useSharedValue(0);
+  const amountTranslateX = useSharedValue(30);
+  const loadingOpacity = useSharedValue(0);
+  const loadingTranslateX = useSharedValue(30);
+  const resultOpacity = useSharedValue(0);
+  // const resultTranslateX = useSharedValue(30);
+
+  useEffect(() => {
+    const activeIndex = PAGE_ORDER.indexOf(page);
+    // Earlier pages exit left (-30), later pages wait right (+30), active sits at 0.
+    const translateForPage = key => {
+      const index = PAGE_ORDER.indexOf(key);
+      if (index === activeIndex) return 0;
+      if (index === 2 && activeIndex === 3) return 0;
+      return index < activeIndex ? -30 : 30;
+    };
+    accountOpacity.value = withTiming(page === 'account' ? 1 : 0, {
+      duration: 250,
+    });
+    accountTranslateX.value = withTiming(translateForPage('account'), {
+      duration: 250,
+    });
+    amountOpacity.value = withTiming(page === 'amount' ? 1 : 0, {
+      duration: 250,
+    });
+    amountTranslateX.value = withTiming(translateForPage('amount'), {
+      duration: 250,
+    });
+    loadingOpacity.value = withTiming(page === 'loading' ? 1 : 0, {
+      duration: 250,
+    });
+    loadingTranslateX.value = withTiming(translateForPage('loading'), {
+      duration: 250,
+    });
+    resultOpacity.value = withTiming(page === 'result' ? 1 : 0, {
+      duration: 250,
+    });
+    // resultTranslateX.value = withTiming(translateForPage('result'), {
+    //   duration: 250,
+    // });
+  }, [page]);
+
+  const accountAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: accountOpacity.value,
+    transform: [{ translateX: accountTranslateX.value }],
+  }));
+  const amountAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: amountOpacity.value,
+    transform: [{ translateX: amountTranslateX.value }],
+  }));
+  const loadingAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: loadingOpacity.value,
+    transform: [{ translateX: loadingTranslateX.value }],
+  }));
+  const resultAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: resultOpacity.value,
+    // transform: [{ translateX: resultTranslateX.value }],
+  }));
+
+  // Mounts a page on its first visit and keeps it mounted thereafter.
+  const goToPage = useCallback(next => {
+    setMountedPages(prev => {
+      if (prev.has(next)) return prev;
+      const updated = new Set(prev);
+      updated.add(next);
+      return updated;
+    });
+    setPage(next);
+  }, []);
+
+  // Height follows the live page; account/amount share 0.8 so their (most
+  // common) transition never resizes.
+  useEffect(() => {
+    setContentHeight(
+      Math.round(
+        screenDimensions.height * (HEIGHT_FRACTION_FOR_PAGE[page] || 0.55),
+      ),
+    );
+  }, [page, screenDimensions.height, setContentHeight]);
+
+  // Back: amount → account; account/result let the host close; loading blocks.
+  const handleBackPress = useCallback(() => {
+    if (page === 'loading') return true;
+    if (page === 'amount') {
+      goToPage('account');
+      return true;
+    }
+    return false;
+  }, [page, goToPage]);
+
+  useHandleBackPressNew(handleBackPress);
 
   const usdFiatStats = useMemo(
     () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
@@ -156,19 +335,22 @@ export default function AccountTransferHalfModal({
       masterInfoObject,
     });
 
-  const localSatAmount = convertDisplayToSats(amountValue);
+  // USD moves dollars, so the entry is locked to USD fiat; the currency
+  // switcher is hidden. BTC keeps the user's display currency (and switcher).
+  const isUsdAsset = asset === 'USD';
+  const effectivePrimaryDisplay = isUsdAsset
+    ? {
+        denomination: 'fiat',
+        forceCurrency: 'USD',
+        forceFiatStats: usdFiatStats,
+      }
+    : primaryDisplay;
+  const effectiveFiatStats = isUsdAsset ? usdFiatStats : conversionFiatStats;
 
-  // The source's spendable balance. In add mode the source is always the active
-  // account, whose balance is already loaded in userBalanceContext; in withdraw
-  // mode it's the edited profile's balance, passed in by the parent.
-  const sourceBalance = isAdd ? activeAccountBalance : currentBalance;
-  const isSourceBalanceLoading = false;
-
-  const currencyCode =
-    primaryDisplay.denomination === 'sats'
-      ? 'BTC'
-      : primaryDisplay.forceCurrency ||
-        (masterInfoObject?.fiatCurrency || 'USD').toUpperCase();
+  const btcAmountSats = convertDisplayToSats(amountValue);
+  const amountOut = isUsdAsset
+    ? Math.round(Number(amountValue) * 1e6)
+    : btcAmountSats;
 
   const confirmAnimation = useMemo(
     () =>
@@ -187,40 +369,6 @@ export default function AccountTransferHalfModal({
     [theme, darkModeType],
   );
 
-  useEffect(() => {
-    pageStateRef.current = pageState;
-  }, [pageState]);
-
-  // Resolve the source account's mnemonic, used for fee pricing + the transfer.
-  // No balance load here: add-mode source is the active account (balance lives in
-  // userBalanceContext) and withdraw-mode balance is passed in by the parent.
-  useEffect(() => {
-    if (!sourceAccount?.uuid) return;
-    let isMounted = true;
-    (async () => {
-      try {
-        const mnemonic = await getAccountMnemonic(sourceAccount);
-        if (!isMounted) return;
-        sourceMnemonicRef.current = mnemonic;
-      } catch (err) {
-        console.log('load source account error', err);
-      }
-    })();
-    return () => {
-      isMounted = false;
-    };
-  }, [sourceAccount?.uuid, getAccountMnemonic]);
-
-  useEffect(() => {
-    if (isSelfTransfer) {
-      setContentHeight(500);
-      return;
-    }
-    if (pageState !== 'confirmed') return;
-    setContentHeight(500);
-    setBackNav?.(null);
-  }, [pageState]);
-
   const openCurrencyPicker = useCallback(
     () =>
       navigate.push('CustomHalfModal', {
@@ -236,54 +384,71 @@ export default function AccountTransferHalfModal({
     [displayCurrency, navigate, selectCurrency],
   );
 
+  // Register the chrome's back arrow on the amount step (amount → account),
+  // with the currency switcher only while moving BTC.
   useEffect(() => {
-    if (
-      pageStateRef.current === 'confirmed' ||
-      pageStateRef.current === 'error' ||
-      isSelfTransfer
-    )
-      return;
-    setBackNav?.({
-      title: '',
-      // The currency switcher is meaningless on the confirmation step.
-      rightElement: (
-        <CurrencySwitchButton
-          displayCurrency={displayCurrency}
-          onPress={openCurrencyPicker}
-        />
-      ),
-    });
-    return () => {
+    if (page === 'amount') {
+      setBackNav?.({
+        title: '',
+        onPress: handleBackPress,
+        ...(asset === 'BTC'
+          ? {
+              rightElement: (
+                <CurrencySwitchButton
+                  displayCurrency={displayCurrency}
+                  onPress={openCurrencyPicker}
+                />
+              ),
+            }
+          : {}),
+      });
+    } else {
       setBackNav?.(null);
-    };
-  }, [setBackNav, openCurrencyPicker, isAdd, displayCurrency, isSelfTransfer]);
-
-  const debouncedFee = useDebounce(async amountSats => {
-    if (!amountSats) return;
-    // we use the main account because we know it will be initialized
-    const feeResponse = await getAccountTransferFee({
-      amountSats,
-      mnemonic: accountMnemoinc,
-      sendWebViewRequest,
-    });
-    if (!feeResponse?.didWork) {
-      setTransferInfo(prev => ({
-        ...prev,
-        isCalculatingFee: false,
-        feeError: true,
-        paymentFee: 0,
-      }));
-      return;
     }
-    setTransferInfo({
-      isCalculatingFee: false,
-      paymentFee: feeResponse.fee,
-      feeError: false,
-    });
-  }, 500);
+    return () => setBackNav?.(null);
+  }, [
+    page,
+    asset,
+    displayCurrency,
+    handleBackPress,
+    openCurrencyPicker,
+    setBackNav,
+  ]);
 
+  const debouncedFee = useDebounce(
+    useCallback(
+      async amountSats => {
+        if (!amountSats) return;
+        // we use the main account because we know it will be initialized
+        const feeResponse = await getAccountTransferFee({
+          amountSats,
+          mnemonic: accountMnemoinc,
+          sendWebViewRequest,
+        });
+        if (!feeResponse?.didWork) {
+          setTransferInfo(prev => ({
+            ...prev,
+            isCalculatingFee: false,
+            feeError: true,
+            paymentFee: 0,
+          }));
+          return;
+        }
+        setTransferInfo({
+          isCalculatingFee: false,
+          paymentFee: feeResponse.fee,
+          feeError: false,
+        });
+      },
+      [getAccountTransferFee, accountMnemoinc, sendWebViewRequest],
+    ),
+    500,
+  );
+
+  // BTC transfers are priced with the (always initialized) main account;
+  // LRC20 transfers carry no fee, so USD never calls the fee endpoint.
   useEffect(() => {
-    if (!localSatAmount) {
+    if (isUsdAsset || !btcAmountSats) {
       setTransferInfo({
         isCalculatingFee: false,
         paymentFee: 0,
@@ -296,66 +461,40 @@ export default function AccountTransferHalfModal({
       isCalculatingFee: true,
       feeError: false,
     }));
-    debouncedFee(localSatAmount);
-  }, [localSatAmount, sourceAccount?.uuid]);
+    debouncedFee(btcAmountSats);
+  }, [btcAmountSats, isUsdAsset, debouncedFee]);
 
   const canDoTransfer =
-    localSatAmount > 0 &&
-    !transferInfo.isCalculatingFee &&
-    !transferInfo.feeError &&
-    !isSourceBalanceLoading &&
+    amountOut > 0 &&
+    sourceStatus === 'ready' &&
     !!sourceAccount?.uuid &&
     !!destinationAccount?.uuid &&
-    localSatAmount + transferInfo.paymentFee <= sourceBalance;
+    (isUsdAsset
+      ? amountOut <= sourceUsdMicros
+      : !transferInfo.isCalculatingFee &&
+        !transferInfo.feeError &&
+        amountOut + transferInfo.paymentFee <= sourceBtcSats);
 
   const handleConfirm = useCallback(async () => {
     if (isSubmittingRef.current || !canDoTransfer) return;
     isSubmittingRef.current = true;
-    setPageState('loading');
-
-    // Add-mode: before sending, connect the receiver wallet, read its baseline
-    // balance, and ATTACH the balance listener — the listener must be wired
-    // before the send so no balance:update push event is missed. The send is
-    // not gated on any of this; a failure just falls back to the optimistic
-    // value.
-    let destMnemonic = null;
-    let baseline = currentBalance;
-    let subscription = null;
-    let balanceReached = null; // resolves with the result once the target is met
-    if (isAdd) {
-      try {
-        destMnemonic = await getAccountMnemonic(destinationAccount);
-        await initializeSparkWallet(destMnemonic, false, { maxRetries: 4 });
-        const base = await getSparkBalance(destMnemonic);
-        if (base?.didWork) baseline = Number(base.balance);
-
-        const target = baseline + localSatAmount;
-        balanceReached = new Promise(res => {
-          subscription = subscribeToSparkBalance({
-            mnemonic: destMnemonic,
-            onUpdate: r => {
-              if (r?.didWork && Number(r.balance) >= target) res(r);
-            },
-          });
-        });
-        await subscription.ready;
-      } catch {}
-    }
-
-    const target = baseline + localSatAmount;
+    setErrorMessage('');
+    setResultRunId(id => id + 1);
+    goToPage('loading');
 
     try {
       const transferResult = await executeAccountTransfer({
         fromAccount: sourceAccount,
         toAccount: destinationAccount,
-        amountSats: localSatAmount,
-        fee: transferInfo.paymentFee,
+        amountSats: amountOut,
+        fee: isUsdAsset ? 0 : transferInfo.paymentFee,
         memo: '',
-        fromBalance: sourceBalance,
+        fromBalance: isUsdAsset ? sourceUsdMicros : sourceBtcSats,
         masterInfoObject,
         getAccountMnemonic,
         sendWebViewRequest,
         t,
+        asset,
       });
 
       // Parent ↔ linked-child transfer: tag the child's tx with a contact
@@ -376,50 +515,39 @@ export default function AccountTransferHalfModal({
           childIndex: childAccount.childIndex,
           parentContactsPrivateKey: contactsPrivateKey,
           parentContactsPubKey: globalContactsInformation?.myProfile?.uuid,
-          amountMsat: localSatAmount * 1000,
+          amountMsat: isUsdAsset
+            ? Math.round(
+                (amountOut / 1e6) *
+                  (swapUSDPriceDollars > 0
+                    ? SATSPERBITCOIN / swapUSDPriceDollars
+                    : 0) *
+                  1000,
+              )
+            : amountOut * 1000,
         }).catch(err => console.log('parent transfer message error', err));
       }
 
-      if (isAdd) {
-        // Payment is sent — now wait up to 30s for the receiver balance to
-        // reflect it, so editAccountPage shows the new number the moment the
-        // sheet closes. On timeout, push the optimistic value.
-        let confirmed = null;
-        if (subscription) {
-          try {
-            confirmed = await Promise.race([
-              balanceReached,
-              new Promise(res => setTimeout(() => res(null), 30000)),
-            ]);
-          } catch {}
-          subscription.unsubscribe();
-        }
-        const met = confirmed?.didWork && Number(confirmed.balance) >= target;
-        onTransferComplete?.(met ? Number(confirmed.balance) : target);
-      } else {
-        // Withdraw: the source balance drops immediately, so push the
-        // optimistic value without waiting on any receiver claim.
-        onTransferComplete?.(
-          Math.max(0, sourceBalance - localSatAmount - transferInfo.paymentFee),
-        );
-      }
-      setPageState('confirmed');
+      goToPage('result');
     } catch (err) {
-      subscription?.unsubscribe();
       isSubmittingRef.current = false;
       console.log('account transfer error', err);
       setErrorMessage(err?.message || t('errormessages.paymentError'));
-      setPageState('error');
+      goToPage('result');
     }
   }, [
     canDoTransfer,
+    goToPage,
     isAdd,
+    isUsdAsset,
+    asset,
     currentAccount,
     sourceAccount,
     destinationAccount,
-    localSatAmount,
+    amountOut,
     transferInfo.paymentFee,
-    sourceBalance,
+    sourceBtcSats,
+    sourceUsdMicros,
+    swapUSDPriceDollars,
     masterInfoObject,
     globalContactsInformation,
     accountMnemoinc,
@@ -427,203 +555,227 @@ export default function AccountTransferHalfModal({
     getAccountMnemonic,
     sendWebViewRequest,
     t,
-    handleBackPressFunction,
-    onTransferComplete,
-    currentBalance,
   ]);
 
-  if (isSelfTransfer) {
-    return (
-      <View style={styles.globalStatusContainer}>
-        <View style={styles.statusContainer}>
-          <LottieView
-            source={errorAnimation}
-            autoPlay={true}
-            loop={false}
-            style={styles.statusAnimation}
-          />
-          <ThemeText
-            styles={styles.statusText}
-            content={t('settings.accountComponents.transferModal.selfTransfer')}
-          />
-        </View>
-        <CustomButton
-          buttonStyles={{ ...CENTER }}
-          actionFunction={handleBackPressFunction}
-          textContent={t('constants.back')}
-        />
-      </View>
-    );
-  }
-
-  if (pageState === 'loading') {
-    return <FullLoadingScreen />;
-  }
-
-  if (pageState === 'confirmed' || pageState === 'error') {
-    const isConfirmed = pageState === 'confirmed';
-    return (
-      <View style={styles.globalStatusContainer}>
-        <View style={styles.statusContainer}>
-          <LottieView
-            source={isConfirmed ? confirmAnimation : errorAnimation}
-            autoPlay={true}
-            loop={false}
-            style={styles.statusAnimation}
-          />
-          <ThemeText
-            styles={styles.statusText}
-            content={
-              isConfirmed
-                ? t(`screens.inAccount.confirmTxPage.confirmMessage`, {
-                    context: isAdd ? 'sent' : 'received',
-                  })
-                : t('screens.inAccount.confirmTxPage.failedToSend')
-            }
-          />
-
-          {!isConfirmed && (
-            <ThemeText styles={styles.statusSubtitle} content={errorMessage} />
-          )}
-        </View>
-        <CustomButton
-          buttonStyles={{ ...CENTER }}
-          actionFunction={() =>
-            isConfirmed ? handleBackPressFunction() : setPageState('amount')
-          }
-          textContent={isConfirmed ? t('constants.done') : t('constants.back')}
-        />
-      </View>
-    );
-  }
+  const candidates = accountLookup.filter(item => item.uuid !== accountId);
+  const isConfirmed = !errorMessage;
 
   return (
-    <ScrollView
-      contentContainerStyle={{ alignItems: 'center', flexGrow: 1 }}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={amountValue}
-          inputDenomination={primaryDisplay.denomination}
-          forceCurrency={primaryDisplay.forceCurrency}
-          forceFiatStats={primaryDisplay.forceFiatStats}
-          customTextInputContainerStyles={{
-            marginTop: CONTENT_KEYBOARD_OFFSET,
-            marginBottom: CONTENT_KEYBOARD_OFFSET,
-          }}
-        />
-      </View>
-
-      <View style={{ width: INSET_WINDOW_WIDTH, marginTop: 'auto' }}>
+    <View style={styles.container}>
+      {/* Account picker */}
+      <Animated.View
+        style={[styles.page, accountAnimatedStyle]}
+        pointerEvents={page === 'account' ? 'auto' : 'none'}
+      >
         <ThemeText
-          styles={styles.availableLabel}
+          styles={styles.pageHeader}
           content={t(
             isAdd
-              ? 'settings.accountComponents.transferModal.availableToAdd'
-              : 'settings.accountComponents.transferModal.availableToWithdraw',
+              ? 'settings.accountComponents.transferModal.addFromTitle'
+              : 'settings.accountComponents.transferModal.withdrawToTitle',
           )}
         />
-        <ChoosePaymentMethod
-          theme={theme}
-          darkModeType={darkModeType}
-          determinePaymentMethod={'BTC'}
-          bitcoinBalance={sourceBalance}
-          masterInfoObject={masterInfoObject}
-          fiatStats={fiatStats}
-          uiState={'SELECT_INLINE'}
-          t={t}
-          showBitcoinCardOnly={true}
-          containerStyles={{ width: '100%', marginBottom: 8 }}
-        />
-      </View>
+        {candidates.length > 0 ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.accountList}
+            contentContainerStyle={styles.accountListContent}
+          >
+            {candidates.map((account, index) => (
+              <AccountCard
+                useAltBackground={theme && darkModeType}
+                key={account.uuid || `Account ${index}`}
+                account={account}
+                onPress={() => {
+                  setSelectedAccount(account);
+                  goToPage('amount');
+                }}
+                balanceSats={computeTotalSats(account)}
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          <NoContentSceen
+            iconName="Users"
+            titleText={t('settings.accountComponents.transferModal.noAccounts')}
+            containerStyles={styles.emptyContainer}
+          />
+        )}
+      </Animated.View>
 
-      <CustomNumberKeyboard
-        showDot={primaryDisplay.denomination === 'fiat'}
-        frompage="accountsPayments"
-        setInputValue={setAmountValue}
-        usingForBalance={true}
-        fiatStats={conversionFiatStats}
-      />
+      {/* Amount entry */}
+      {mountedPages.has('amount') && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.page, amountAnimatedStyle]}
+          pointerEvents={page === 'amount' ? 'auto' : 'none'}
+        >
+          <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+            <FormattedBalanceInput
+              maxWidth={0.9}
+              amountValue={amountValue}
+              inputDenomination={effectivePrimaryDisplay.denomination}
+              forceCurrency={effectivePrimaryDisplay.forceCurrency}
+              forceFiatStats={effectivePrimaryDisplay.forceFiatStats}
+              customTextInputContainerStyles={{
+                marginTop: CONTENT_KEYBOARD_OFFSET,
+                marginBottom: CONTENT_KEYBOARD_OFFSET,
+              }}
+            />
+          </View>
 
-      <CustomButton
-        buttonStyles={{
-          ...CENTER,
-          opacity:
-            canDoTransfer | transferInfo.isCalculatingFee ? 1 : HIDDEN_OPACITY,
-        }}
-        useLoading={transferInfo.isCalculatingFee}
-        actionFunction={handleConfirm}
-        textContent={t('constants.confirm')}
-      />
-    </ScrollView>
+          <View
+            style={{ width: INSET_WINDOW_WIDTH, marginTop: 'auto', ...CENTER }}
+          >
+            <ThemeText
+              styles={styles.availableLabel}
+              content={t(
+                isAdd
+                  ? 'settings.accountComponents.transferModal.availableToAdd'
+                  : 'settings.accountComponents.transferModal.availableToWithdraw',
+              )}
+            />
+            <ChoosePaymentMethod
+              theme={theme}
+              darkModeType={darkModeType}
+              determinePaymentMethod={asset}
+              handleSelectPaymentMethod={() =>
+                navigate.push('CustomHalfModal', {
+                  wantedContent: 'SelectPaymentMethod',
+                  sliderHight: 0.4,
+                  selectedPaymentMethod: asset,
+                  onSelectMethod: code => {
+                    setAsset(code);
+                    setAmountValue('');
+                  },
+                  bitcoinBalance: sourceBtcSats,
+                  dollarBalanceToken: sourceUsdDollars,
+                })
+              }
+              bitcoinBalance={sourceBtcSats}
+              dollarBalanceToken={sourceUsdDollars}
+              masterInfoObject={masterInfoObject}
+              fiatStats={fiatStats}
+              uiState={'SELECT_INLINE'}
+              t={t}
+              showBitcoinCardOnly={false}
+              containerStyles={{ width: '100%', marginBottom: 8 }}
+            />
+          </View>
+
+          <CustomNumberKeyboard
+            showDot={effectivePrimaryDisplay.denomination === 'fiat'}
+            frompage="accountsPayments"
+            setInputValue={setAmountValue}
+            usingForBalance={true}
+            fiatStats={effectiveFiatStats}
+          />
+
+          <CustomButton
+            buttonStyles={{
+              ...CENTER,
+              opacity:
+                canDoTransfer || transferInfo.isCalculatingFee
+                  ? 1
+                  : HIDDEN_OPACITY,
+            }}
+            useLoading={transferInfo.isCalculatingFee}
+            actionFunction={handleConfirm}
+            textContent={t('constants.confirm')}
+          />
+        </Animated.View>
+      )}
+
+      {/* Loading */}
+      {mountedPages.has('loading') && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.page, loadingAnimatedStyle]}
+          pointerEvents={page === 'loading' ? 'auto' : 'none'}
+        >
+          <FullLoadingScreen />
+        </Animated.View>
+      )}
+
+      {/* Result */}
+      {mountedPages.has('result') && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.page, resultAnimatedStyle]}
+          pointerEvents={page === 'result' ? 'auto' : 'none'}
+        >
+          <View style={styles.globalStatusContainer}>
+            <View style={styles.statusContainer}>
+              <LottieView
+                key={resultRunId}
+                source={isConfirmed ? confirmAnimation : errorAnimation}
+                autoPlay={true}
+                loop={false}
+                style={styles.statusAnimation}
+              />
+              <ThemeText
+                styles={styles.statusText}
+                content={
+                  isConfirmed
+                    ? t(`screens.inAccount.confirmTxPage.confirmMessage`, {
+                        context: isAdd ? 'sent' : 'received',
+                      })
+                    : t('screens.inAccount.confirmTxPage.failedToSend')
+                }
+              />
+
+              {!isConfirmed && (
+                <ThemeText
+                  styles={styles.statusSubtitle}
+                  content={errorMessage}
+                />
+              )}
+            </View>
+            <CustomButton
+              buttonStyles={{ ...CENTER }}
+              actionFunction={() =>
+                isConfirmed ? handleBackPressFunction() : goToPage('amount')
+              }
+              textContent={
+                isConfirmed ? t('constants.done') : t('constants.back')
+              }
+            />
+          </View>
+        </Animated.View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  topRow: {
+  container: {
+    flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
   },
-  profileSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 30,
-    flexShrink: 1,
-    maxWidth: '65%',
+  page: {
+    flex: 1,
+    width: '100%',
   },
-  profileName: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
+  pageHeader: {
+    width: '100%',
+    fontSize: SIZES.large,
+    fontWeight: 500,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
     includeFontPadding: false,
-    flexShrink: 1,
   },
-  currencySelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 30,
+  accountList: {
+    width: '100%',
+    flex: 1,
   },
-  currencyText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
+  accountListContent: {
+    paddingBottom: 8,
+  },
+  emptyContainer: {
+    flex: 1,
+    minHeight: 250,
   },
   availableLabel: {
     opacity: HIDDEN_OPACITY,
     marginBottom: 5,
     includeFontPadding: false,
-  },
-  summary: {
-    marginTop: 14,
-    marginBottom: 8,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-  },
-  summaryLabel: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-  },
-  summaryValue: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    flexShrink: 1,
-    marginLeft: 12,
-    textAlign: 'right',
   },
   globalStatusContainer: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
   statusContainer: {

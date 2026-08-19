@@ -2075,6 +2075,9 @@
       },
       "transferModal": {
         "selectAccount": "Выберите аккаунт",
+        "addFromTitle": "Выберите аккаунт, с которого добавить деньги.",
+        "withdrawToTitle": "Выберите аккаунт, на который вывести деньги.",
+        "noAccounts": "Нет других аккаунтов.",
         "availableToAdd": "Доступно для добавления",
         "availableToWithdraw": "Доступно для вывода",
         "using": "Используется",

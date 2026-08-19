@@ -2072,6 +2072,9 @@
       },
       "transferModal": {
         "selectAccount": "Seleziona un conto",
+        "addFromTitle": "Scegli il conto da cui aggiungere denaro.",
+        "withdrawToTitle": "Scegli il conto su cui prelevare denaro.",
+        "noAccounts": "Nessun altro conto disponibile.",
         "availableToAdd": "Disponibile da aggiungere",
         "availableToWithdraw": "Disponibile da prelevare",
         "using": "In uso",

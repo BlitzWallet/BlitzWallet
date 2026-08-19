@@ -247,6 +247,9 @@ export default function EditAccountPage(props) {
         ) || 0
       : 0;
 
+  // Withdrawals move BTC *or* USDB, so either balance unlocks the button.
+  const hasWithdrawableBalance = !!btcBalance || !!dollarBalance;
+
   const { screenDimensions } = useAppStatus();
   const screenWidth = screenDimensions?.width ?? 0;
 
@@ -324,21 +327,6 @@ export default function EditAccountPage(props) {
     });
   }, [navigate, accountInformation]);
 
-  const handleAccountTypeInfo = useCallback(() => {
-    const typeInfoKeys = {
-      nwc: 'settings.accountComponents.editAccountPage.accountTypeNwcInfo',
-      derived:
-        'settings.accountComponents.editAccountPage.accountTypeDerivedInfo',
-    };
-    navigate.navigate('InformationPopup', {
-      textContent: t(
-        typeInfoKeys[accountInformation.accountType] ||
-          'settings.accountComponents.editAccountPage.accountTypeImportedInfo',
-      ),
-      buttonText: t('constants.back'),
-    });
-  }, [navigate, t, accountInformation.accountType]);
-
   const handleDeleteAccount = useCallback(() => {
     if (isActive) {
       navigate.navigate('ErrorScreen', {
@@ -354,23 +342,13 @@ export default function EditAccountPage(props) {
     });
   }, [isActive, accountInformation, fromPage, navigate, t]);
 
-  const handleAddMoney = useCallback(() => {
+  const openTransfer = mode => () =>
     navigate.navigate('CustomHalfModal', {
-      wantedContent: 'accountAddMoney',
-      to: accountInformation.uuid,
-      balance: btcBalance,
+      wantedContent: 'accountTransfer',
+      mode,
+      accountId: accountInformation.uuid,
       sliderHight: 0.8,
     });
-  }, [navigate, accountInformation.uuid, btcBalance]);
-
-  const handleWithdrawMoney = useCallback(() => {
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'accountWithdrawlMoney',
-      from: accountInformation.uuid,
-      balance: btcBalance,
-      sliderHight: 0.8,
-    });
-  }, [navigate, accountInformation.uuid, btcBalance]);
 
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
@@ -382,12 +360,86 @@ export default function EditAccountPage(props) {
   const addTextColor =
     theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
 
+  const isNWC = accountInformation.uuid === NWC_ACCOUNT_UUID;
+
+  // Declarative row model: each card is an array of rows, and dividers are
+  // inserted only *between* rows. Groups the same for every account type —
+  // "Details" (identity) then "Manage" (actions) — with rows filtered per type.
+  const detailRows = [
+    !isNWC && {
+      key: 'name',
+      label: t('settings.accountComponents.editAccountPage.accountNameLabel'),
+      value: accountInformation.name,
+      onPress: handleEditName,
+    },
+    lnurlAddress &&
+      !isChild && {
+        key: 'lnurl',
+        label: t(
+          'settings.accountComponents.editAccountPage.lightningAddressLabel',
+        ),
+        value: username,
+        onPress: () =>
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'customQrCode',
+            data: lnurlAddress,
+          }),
+      },
+  ].filter(Boolean);
+
+  const manageRows = [
+    isChild && {
+      key: 'pair',
+      label: t('settings.childAccounts.page.shareLink'),
+      onPress: handlePairDevice,
+    },
+    accountInformation.uuid !== MAIN_ACCOUNT_UUID && {
+      key: 'history',
+      label: t('settings.accountComponents.editAccountPage.viewActivityLabel'),
+      onPress: handleViewActivity,
+    },
+    !(accountInformation.accountType === 'main' && isMainAccountAChild) &&
+      !isChild && {
+        key: 'recovery',
+        label: t(
+          'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
+        ),
+        onPress: handleNavigateView,
+      },
+  ].filter(Boolean);
+
+  const renderCard = rows => {
+    if (!rows.length) return null;
+    return (
+      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+        {rows.map((row, index) => (
+          <View key={row.key}>
+            {index > 0 && (
+              <View style={[styles.divider, { backgroundColor }]} />
+            )}
+            <TouchableOpacity style={styles.row} onPress={row.onPress}>
+              <ThemeText styles={styles.rowLabel} content={row.label} />
+              <View style={styles.rowRight}>
+                {row.value != null && (
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.rowValue}
+                    content={row.value}
+                  />
+                )}
+                <ThemeIcon iconName="ChevronRight" size={18} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   if (isConnecting) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          label={t('settings.accountComponents.editAccountPage.title')}
-        />
+        <CustomSettingsTopBar label={accountInformation.name} />
         <FullLoadingScreen showText={false} />
       </GlobalThemeView>
     );
@@ -396,9 +448,7 @@ export default function EditAccountPage(props) {
   if (accountBalance.status === 'error' && !isActive) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          label={t('settings.accountComponents.editAccountPage.title')}
-        />
+        <CustomSettingsTopBar label={accountInformation.name} />
         <View style={styles.errorContainer}>
           <NoContentSceen
             iconName="Info"
@@ -422,7 +472,7 @@ export default function EditAccountPage(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={t('settings.accountComponents.editAccountPage.title')}
+        label={accountInformation.name}
         showLeftImage={
           accountInformation.uuid !== NWC_ACCOUNT_UUID &&
           accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
@@ -535,7 +585,7 @@ export default function EditAccountPage(props) {
             {({ buttonStyle }) => (
               <>
                 <TouchableOpacity
-                  onPress={handleAddMoney}
+                  onPress={openTransfer('add')}
                   disabled={isConnecting}
                   style={[
                     styles.actionButton,
@@ -553,13 +603,13 @@ export default function EditAccountPage(props) {
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  disabled={isConnecting || !btcBalance}
-                  onPress={handleWithdrawMoney}
+                  disabled={isConnecting || !hasWithdrawableBalance}
+                  onPress={openTransfer('withdraw')}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: buttonBg },
-                    (isConnecting || !btcBalance) && {
+                    (isConnecting || !hasWithdrawableBalance) && {
                       opacity: HIDDEN_OPACITY,
                     },
                   ]}
@@ -574,143 +624,10 @@ export default function EditAccountPage(props) {
           </AdaptiveButtonRow>
         )}
 
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          {/* Account Name */}
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID &&
-            accountInformation.uuid !== MAIN_ACCOUNT_UUID && (
-              <>
-                <TouchableOpacity style={styles.row} onPress={handleEditName}>
-                  <ThemeText
-                    styles={styles.rowLabel}
-                    content={t(
-                      'settings.accountComponents.editAccountPage.accountNameLabel',
-                    )}
-                  />
-                  <View style={styles.rowRight}>
-                    <ThemeText
-                      CustomNumberOfLines={1}
-                      styles={styles.rowValue}
-                      content={accountInformation.name}
-                    />
-                    <ThemeIcon iconName="ChevronRight" size={18} />
-                  </View>
-                </TouchableOpacity>
-                <View style={[styles.divider, { backgroundColor }]} />
-              </>
-            )}
-
-          {!isChild && (
-            <View style={styles.row}>
-              <View style={styles.infoContainer}>
-                <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.accountTypeLabel',
-                  )}
-                />
-                {accountInformation.uuid !== MAIN_ACCOUNT_UUID && (
-                  <TouchableOpacity onPress={handleAccountTypeInfo}>
-                    <ThemeIcon size={20} iconName={'Info'} />
-                  </TouchableOpacity>
-                )}
-              </View>
-              <View style={[styles.rowRight, { gap: 5 }]}>
-                <View
-                  style={[
-                    styles.accountTypePill,
-                    {
-                      backgroundColor,
-                    },
-                  ]}
-                >
-                  <ThemeText
-                    styles={[styles.accountTypePillText]}
-                    content={t(
-                      `settings.accountComponents.editAccountPage.accountType`,
-                      { context: accountInformation.accountType },
-                    )}
-                  />
-                </View>
-              </View>
-            </View>
-          )}
-          {/* Per-account Lightning address (copyable) */}
-          {lnurlAddress && !isChild && (
-            <>
-              <View style={[styles.divider, { backgroundColor }]} />
-
-              <TouchableOpacity
-                style={styles.row}
-                onPress={() =>
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'customQrCode',
-                    data: lnurlAddress,
-                  })
-                }
-              >
-                <ThemeText
-                  styles={[styles.rowLabel, { width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.lightningAddressLabel',
-                  )}
-                />
-                <View style={styles.rowRight}>
-                  <ThemeText
-                    CustomNumberOfLines={1}
-                    styles={styles.rowValue}
-                    content={username}
-                  />
-                  <ThemeIcon iconName="ChevronRight" size={18} />
-                </View>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-
-        {isChild && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Pair device (always available — re-pair after wallet loss) */}
-            <TouchableOpacity style={styles.row} onPress={handlePairDevice}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t('settings.childAccounts.page.shareLink')}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-            <View style={[styles.divider, { backgroundColor }]} />
-          </View>
-        )}
-
-        {/* View the managed account's transaction history */}
-        {accountInformation.uuid !== MAIN_ACCOUNT_UUID && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <TouchableOpacity style={styles.row} onPress={handleViewActivity}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t(
-                  'settings.accountComponents.editAccountPage.viewActivityLabel',
-                )}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Show Recovery Phrase */}
-        {!(accountInformation.accountType === 'main' && isMainAccountAChild) &&
-          !isChild && (
-            <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-              <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
-                <ThemeText
-                  styles={[styles.rowLabel]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
-                  )}
-                />
-                <ThemeIcon iconName="ChevronRight" size={18} />
-              </TouchableOpacity>
-            </View>
-          )}
+        {/* Details (identity) then Manage (actions) — same grouping for every
+            account type, rows filtered per type via detailRows / manageRows. */}
+        {renderCard(detailRows)}
+        {renderCard(manageRows)}
       </ScrollView>
     </GlobalThemeView>
   );
@@ -833,18 +750,18 @@ const styles = StyleSheet.create({
   },
 
   pagerView: {
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
     height: 175,
   },
 
   pageContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 25,
   },
 
   staticOverlay: {
     position: 'absolute',
-    bottom: 25,
+    bottom: 30,
     left: 0,
     right: 0,
   },
@@ -855,15 +772,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-
-  accountTypePill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  accountTypePillText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
   },
 });

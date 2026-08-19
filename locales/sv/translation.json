@@ -2072,6 +2072,9 @@
       },
       "transferModal": {
         "selectAccount": "Välj ett konto",
+        "addFromTitle": "Välj vilket konto pengarna ska läggas till från.",
+        "withdrawToTitle": "Välj vilket konto pengarna ska tas ut till.",
+        "noAccounts": "Inga andra konton tillgängliga.",
         "availableToAdd": "Tillgängligt att lägga till",
         "availableToWithdraw": "Tillgängligt att ta ut",
         "using": "Använder",

@@ -2050,6 +2050,9 @@
       },
       "transferModal": {
         "selectAccount": "Konto auswählen",
+        "addFromTitle": "Wähle das Konto, von dem Geld hinzugefügt werden soll.",
+        "withdrawToTitle": "Wähle das Konto, zu dem Geld abgehoben werden soll.",
+        "noAccounts": "Keine anderen Konten verfügbar.",
         "availableToAdd": "Verfügbar zum Hinzufügen",
         "availableToWithdraw": "Verfügbar zum Abheben",
         "using": "Verwenden",
