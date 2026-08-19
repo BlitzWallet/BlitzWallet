@@ -25,6 +25,8 @@ import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
+import { assignLnurlId } from '../app/functions/accounts/assignLnurlId';
+import { getSparkIdentityPubKey } from '../app/functions/spark';
 import customUUID from '../app/functions/customUUID';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +50,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const [activeDerivedMnemonic, setActiveDerivedMnemonic] = useState(null);
   const hasSessionReset = useRef(false);
   const hasAutoRestoreCheckRun = useRef(false);
+  const lnurlSyncInFlight = useRef(false);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
@@ -502,6 +505,57 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     masterInfoObject.isChildAccount,
     nostrSeed,
     t,
+  ]);
+
+  // Publish a per-account LNURL address registry into the user doc so the proxy
+  // can mint invoices against each sub-account's own Spark identity key. Additive
+  // only: existing entries are never rewritten (published addresses stay stable),
+  // main is excluded (its plain address stays canonical), child/linked accounts
+  // aren't in custodyAccountsList so they're untouched.
+  // ponytail: additive-only sync, prune orphans later if it matters
+  useEffect(() => {
+    if (!accountMnemoinc || !didGetToHomepage) return;
+    if (lnurlSyncInFlight.current) return;
+
+    const registry = masterInfoObject.accountsLnurl || {};
+    const knownUuids = new Set(Object.values(registry).map(v => v.uuid));
+    const missing = custodyAccountsList.filter(
+      a => a.uuid !== MAIN_ACCOUNT_UUID && !knownUuids.has(a.uuid),
+    );
+    if (!missing.length) return;
+
+    lnurlSyncInFlight.current = true;
+    (async () => {
+      try {
+        const next = { ...registry };
+        let added = false;
+        for (const acct of missing) {
+          const mnemonic = await getAccountMnemonic(acct);
+          if (!mnemonic) continue; // e.g. NWC before nostrSeed loads
+          const pubkey = (
+            await getSparkIdentityPubKey(mnemonic)
+          )?.toLowerCase();
+          if (!pubkey) continue;
+          const id = assignLnurlId(pubkey, next);
+          next[id] = {
+            uuid: acct.uuid,
+            identityPubKey: pubkey,
+            receiveCurrency: 'btc',
+          };
+          added = true;
+        }
+        if (added) await toggleMasterInfoObject({ accountsLnurl: next });
+      } catch (err) {
+        console.log('LNURL account sync error', err);
+      } finally {
+        lnurlSyncInFlight.current = false;
+      }
+    })();
+  }, [
+    accountMnemoinc,
+    didGetToHomepage,
+    custodyAccountsList,
+    masterInfoObject.accountsLnurl,
   ]);
 
   const activeAccount = useMemo(() => {

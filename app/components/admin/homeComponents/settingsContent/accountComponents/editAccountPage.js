@@ -20,6 +20,7 @@ import {
 } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import { deriveChildMnemonic } from '../../../../../functions/accounts/childAccounts';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -45,6 +46,7 @@ export default function EditAccountPage(props) {
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { accountMnemoinc } = useKeysContext();
+  const { globalContactsInformation } = useGlobalContacts();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
@@ -66,6 +68,23 @@ export default function EditAccountPage(props) {
   const isChild = selectedAccount?.childIndex !== undefined;
 
   const isActive = activeAccount.uuid === accountInformation.uuid;
+
+  // Per-account Lightning address, once the registry sync has published this
+  // account's entry (main/child accounts have no entry → no row).
+  const lnurlAddress = useMemo(() => {
+    const uniqueName = globalContactsInformation?.myProfile?.uniqueName;
+    const entry = Object.entries(masterInfoObject.accountsLnurl || {}).find(
+      ([, v]) => v.uuid === accountInformation.uuid,
+    );
+    if (!uniqueName || !entry) return `${uniqueName}@blitzwalletapp.com`;
+    return `${uniqueName}-${entry[0]}@blitzwalletapp.com`;
+  }, [
+    globalContactsInformation,
+    masterInfoObject.accountsLnurl,
+    accountInformation.uuid,
+  ]);
+
+  const username = lnurlAddress?.split('@')?.[0];
 
   const navigate = useNavigation();
 
@@ -473,23 +492,6 @@ export default function EditAccountPage(props) {
               </View>
             </View>
           )}
-
-          {!isChild && <View style={[styles.divider, { backgroundColor }]} />}
-
-          {/* Show Recovery Phrase */}
-          {!(
-            accountInformation.accountType === 'main' && isMainAccountAChild
-          ) && (
-            <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
-              <ThemeText
-                styles={[styles.rowLabel]}
-                content={t(
-                  'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
-                )}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          )}
         </View>
 
         {isChild && (
@@ -520,6 +522,52 @@ export default function EditAccountPage(props) {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* Per-account Lightning address (copyable) */}
+        {lnurlAddress && (
+          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() =>
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'customQrCode',
+                  data: lnurlAddress,
+                })
+              }
+            >
+              <ThemeText
+                styles={[styles.rowLabel, { width: 'unset' }]}
+                content={t(
+                  'settings.accountComponents.editAccountPage.lightningAddressLabel',
+                )}
+              />
+              <View style={styles.rowRight}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.rowValue}
+                  content={username}
+                />
+                <ThemeIcon iconName="ChevronRight" size={18} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Show Recovery Phrase */}
+        {!(accountInformation.accountType === 'main' && isMainAccountAChild) &&
+          !isChild && (
+            <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+              <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
+                <ThemeText
+                  styles={[styles.rowLabel]}
+                  content={t(
+                    'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
+                  )}
+                />
+                <ThemeIcon iconName="ChevronRight" size={18} />
+              </TouchableOpacity>
+            </View>
+          )}
       </ScrollView>
     </GlobalThemeView>
   );
@@ -571,8 +619,6 @@ const styles = StyleSheet.create({
   },
 
   rowLabel: {
-    width: '100%',
-    flexShrink: 1,
     includeFontPadding: false,
   },
 
