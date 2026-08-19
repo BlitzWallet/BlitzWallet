@@ -392,13 +392,15 @@ export default function EditAccountPage(props) {
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  disabled={isBalanceLoading}
+                  disabled={isBalanceLoading || !balance}
                   onPress={handleWithdrawMoney}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: buttonBg },
-                    isBalanceLoading && { opacity: HIDDEN_OPACITY },
+                    (isBalanceLoading || !balance) && {
+                      opacity: HIDDEN_OPACITY,
+                    },
                   ]}
                 >
                   <ThemeText
