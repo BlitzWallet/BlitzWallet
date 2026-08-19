@@ -2216,13 +2216,13 @@
         "noLimit": "Sem limite"
       },
       "enterName": {
-        "title": "Dê um nome a esta conta",
-        "subtitle": "Dê um nome à conta para reconhecê-la mais tarde.",
+        "title": "Nome da conta",
+        "subtitle": "Escolha um nome para esta conta.",
         "placeholder": "Nome da conta",
         "next": "Próximo",
         "create": "Criar conta",
         "editTitle": "Editar nome da conta",
-        "editSubtitle": "Escolha um novo nome para reconhecer esta conta mais tarde."
+        "editSubtitle": "Escolha um novo nome para esta conta."
       },
       "spendingLimit": {
         "title": "Definir um limite de gastos",
