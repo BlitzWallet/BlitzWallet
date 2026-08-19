@@ -2015,7 +2015,7 @@
         "activateButton": "Selecionar conta",
         "addMoneyButton": "Adicionar dinheiro",
         "withdrawMoneyButton": "Retirar dinheiro",
-        "viewActivityLabel": "Ver o histórico da conta"
+        "viewActivityLabel": "Histórico de transações"
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",
@@ -2283,13 +2283,13 @@
         "noTxHistorySub": "As transações da conta aparecerão aqui."
       },
       "page": {
-        "title": "Conta de filho",
+        "title": "Conta parental",
         "balanceLabel": "Saldo",
         "transactionsLabel": "Atividade recente",
         "noTransactions": "Nenhuma atividade ainda",
         "spendingLimitLabel": "Limite de gastos",
         "loadingBalance": "Carregando saldo...",
-        "shareLink": "Vincular com alguém"
+        "shareLink": "Ativar supervisão"
       },
       "claim": {
         "title": "Configure sua conta",
