@@ -42,6 +42,7 @@ import {
   getAccountTransferFee,
 } from '../../../../../functions/spark/accountTransfer';
 import {
+  disposeSparkWallet,
   getSparkBalance,
   initializeSparkWallet,
 } from '../../../../../functions/spark';
@@ -87,7 +88,7 @@ const HEIGHT_FRACTION_FOR_PAGE = {
 // the asset is chosen on the amount step.
 export default function AccountTransferHalfModal({
   mode,
-  accountId,
+  account,
   handleBackPressFunction,
   setBackNav,
   setContentHeight,
@@ -132,18 +133,19 @@ export default function AccountTransferHalfModal({
   // the full amount twice. Set before any await; reset on the error path so the
   // user can retry.
   const isSubmittingRef = useRef(false);
+  const sourceMnemonicRef = useRef(null);
 
-  // Custody accounts; No child accounts here
-  const accountLookup = custodyAccountsList;
+  // The edited account is passed in by the caller (it may be a personal custody
+  // account or a linked child). The modal never resolves it from a global list,
+  // so children don't need to be merged in here.
+  const currentAccount = account;
 
-  const currentAccount = useMemo(
-    () => accountLookup.find(item => item.uuid === accountId),
-    [accountLookup, accountId],
-  );
-
-  // The picker never offers `accountId`, so source and destination can't be the
+  // The picker never offers the edited account, so source and destination can't be the
   // same account. executeAccountTransfer still guards it (plus the two-accounts-
   // one-mnemonic case, which no uuid check can see) and surfaces on the result page.
+  // Only custody accounts are offered: deposits pull from a personal account and
+  // withdrawals land in one. Children are only ever the current-account side of
+  // the transfer (send to / withdraw from), never the picked counterparty.
   const sourceAccount = isAdd ? selectedAccount : currentAccount;
   const destinationAccount = isAdd ? currentAccount : selectedAccount;
 
@@ -162,6 +164,7 @@ export default function AccountTransferHalfModal({
       try {
         const mnemonic = await getAccountMnemonic(sourceAccount);
         if (cancelled) return;
+        sourceMnemonicRef.current = mnemonic;
         await initializeSparkWallet(mnemonic, false, { maxRetries: 4 });
         if (cancelled) return;
         const balanceResponse = await getSparkBalance(mnemonic);
@@ -184,8 +187,13 @@ export default function AccountTransferHalfModal({
     })();
     return () => {
       cancelled = true;
+      // The init above acquired a wallet; drop it so no orphan lingers after
+      // the sheet closes. Never for the main seed — that wallet is session-long.
+      const m = sourceMnemonicRef.current;
+      if (m && m !== accountMnemoinc) disposeSparkWallet(m);
+      sourceMnemonicRef.current = null;
     };
-  }, [sourceAccount?.uuid, isSourceActive, getAccountMnemonic]);
+  }, [sourceAccount?.uuid, isSourceActive, getAccountMnemonic, accountMnemoinc]);
 
   const sourceBtcSats = isSourceActive
     ? activeBitcoinBalance
@@ -280,6 +288,16 @@ export default function AccountTransferHalfModal({
     });
     setPage(next);
   }, []);
+
+  // Edited account missing (stale navigation param): surface a visible error
+  // instead of a silently dead Confirm button.
+  useEffect(() => {
+    if (currentAccount) return;
+    setErrorMessage(
+      t('settings.accountComponents.accountPaymentPage.noAccountInformation'),
+    );
+    goToPage('result');
+  }, [currentAccount, goToPage, t]);
 
   // Height follows the live page; account/amount share 0.8 so their (most
   // common) transition never resizes.
@@ -501,10 +519,8 @@ export default function AccountTransferHalfModal({
       // message so it renders "{parentName} deposited/withdrew" instead of the
       // generic Sent/Received. Description-only — the child never auto-adds the
       // parent as a contact (marker suppressed in updatedCachedMessagesStateFunction).
-      const childAccount = masterInfoObject?.childAccounts?.find(
-        account => account.uuid === currentAccount.uuid,
-      );
-      if (childAccount?.childIndex !== undefined) {
+      // The edited account carries childIndex only when it's a linked child.
+      if (currentAccount.childIndex !== undefined) {
         publishParentAccountTransferMessage({
           isDeposit: isAdd,
           parentName:
@@ -512,7 +528,7 @@ export default function AccountTransferHalfModal({
             globalContactsInformation?.myProfile?.uniqueName,
           txid: transferResult?.response?.id,
           parentMnemonic: accountMnemoinc,
-          childIndex: childAccount.childIndex,
+          childIndex: currentAccount.childIndex,
           parentContactsPrivateKey: contactsPrivateKey,
           parentContactsPubKey: globalContactsInformation?.myProfile?.uuid,
           amountMsat: isUsdAsset
@@ -557,7 +573,9 @@ export default function AccountTransferHalfModal({
     t,
   ]);
 
-  const candidates = accountLookup.filter(item => item.uuid !== accountId);
+  const candidates = custodyAccountsList.filter(
+    item => item.uuid !== currentAccount?.uuid,
+  );
   const isConfirmed = !errorMessage;
 
   return (

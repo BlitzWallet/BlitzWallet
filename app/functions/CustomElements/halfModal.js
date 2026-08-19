@@ -766,7 +766,7 @@ export default function CustomHalfModal(props) {
         return (
           <AccountTransferHalfModal
             mode={props?.route?.params?.mode}
-            accountId={props?.route?.params?.accountId}
+            account={props?.route?.params?.account}
             handleBackPressFunction={handleBackPressFunction}
             setBackNav={setBackNav}
             setContentHeight={setContentHeight}

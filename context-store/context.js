@@ -78,7 +78,7 @@ const GlobalContextProvider = ({ children }) => {
 
       setMasterInfoObject(prev => ({ ...prev, ...newData }));
       if (!shouldSendToDb) return;
-      await sendDataToDB(newData, publicKey);
+      return await sendDataToDB(newData, publicKey);
     },
     [i18n, publicKey],
   );

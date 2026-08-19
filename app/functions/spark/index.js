@@ -207,6 +207,7 @@ export const initializeSparkWallet = async (
     maxRetries = 8,
     retryDelay = 15000, // 15 seconds between retries
     enableRetry = true,
+    shouldCancel,
   } = options;
 
   const attemptInitialization = async (attemptNumber = 0) => {
@@ -274,6 +275,10 @@ export const initializeSparkWallet = async (
       if (!enableRetry || attemptNumber >= maxRetries) {
         return { isConnected: false, error: err.message };
       }
+
+      // Caller unmounted / no longer wants this wallet: stop the retry loop so
+      // no orphan wallet spawns after the requesting screen went away.
+      if (shouldCancel?.()) return { isConnected: false, cancelled: true };
 
       // Log retry attempt
       console.log(
@@ -390,13 +395,15 @@ export const setPrivacyEnabled = async (mnemonic, freshIdentityPubKey) => {
 
 export const getSparkIdentityPubKey = async mnemonic => {
   try {
+    // Derive the identity key off-wallet on the happy path (pure JS, the same
+    // derivation the webview branch trusts) so short-lived callers never spawn
+    // a full wallet that would need disposing. Only fall back to a live wallet
+    // when derivation fails.
+    const derived = await deriveSparkIdentityKey(mnemonic, 1);
+    if (derived?.publicKeyHex) return derived.publicKeyHex;
+
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const derivedIdentityPubKey = await deriveSparkIdentityKey(mnemonic, 1);
-
-      if (derivedIdentityPubKey.publicKeyHex) {
-        return derivedIdentityPubKey.publicKeyHex;
-      }
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.getIdentityKey,
         {
@@ -408,12 +415,11 @@ export const getSparkIdentityPubKey = async mnemonic => {
         response,
         'unable to generate spark identity pubkey',
       );
-    } else {
-      const wallet = await getWallet(mnemonic);
-      return await wallet.getIdentityPublicKey();
     }
+    const wallet = await getWallet(mnemonic);
+    return await wallet.getIdentityPublicKey();
   } catch (err) {
-    console.log('Get spark balance error', err);
+    console.log('Get spark identity pubkey error', err);
   }
 };
 

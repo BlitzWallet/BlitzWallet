@@ -5,6 +5,7 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 // start with `mock` because the jest.mock factories below reference them lazily.
 let mockActiveAccount = { uuid: 'active-uuid', name: 'Active' };
 let mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
+let mockCurrentAccount = { uuid: 'child-uuid', name: 'Child', childIndex: 0 };
 let mockCustodyAccounts = [];
 let mockActiveAccountBalance = 50000;
 let mockActiveDollarBalance = 2;
@@ -283,6 +284,7 @@ jest.mock('../app/functions/spark/accountTransfer', () => ({
 }));
 
 jest.mock('../app/functions/spark', () => ({
+  disposeSparkWallet: jest.fn(async () => ({ didWork: true })),
   getSparkBalance: (...args) => mockGetSparkBalance(...args),
   initializeSparkWallet: (...args) => mockInitializeSparkWallet(...args),
 }));
@@ -338,7 +340,7 @@ async function renderModal(props) {
     renderer = ReactTestRenderer.create(
       <AccountTransferHalfModal
         mode="add"
-        accountId="child-uuid"
+        account={mockCurrentAccount}
         handleBackPressFunction={jest.fn()}
         setBackNav={jest.fn()}
         setContentHeight={mockSetContentHeight}
@@ -410,6 +412,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockActiveAccount = { uuid: 'active-uuid', name: 'Active' };
   mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child', childIndex: 0 }];
+  mockCurrentAccount = { uuid: 'child-uuid', name: 'Child', childIndex: 0 };
   mockCustodyAccounts = [];
   mockActiveAccountBalance = 50000;
   mockActiveDollarBalance = 2;
@@ -438,6 +441,21 @@ afterEach(() => {
 });
 
 describe('AccountTransferHalfModal step flow', () => {
+  test('picker only offers custody accounts, never child accounts', async () => {
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    mockChildAccounts = [
+      { uuid: 'child-uuid', name: 'Child', childIndex: 0 },
+      { uuid: 'other-child-uuid', name: 'OtherChild', childIndex: 1 },
+    ];
+    const renderer = await renderModal();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-other-uuid' }),
+    ).not.toThrow();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-other-child-uuid' }),
+    ).toThrow();
+  });
+
   test('BTC confirm sends sats with the computed fee and asset BTC', async () => {
     mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
     const renderer = await renderModal();
@@ -581,9 +599,10 @@ describe('AccountTransferHalfModal parent/child tagging', () => {
 
   test('does not publish a tag when the account is not a linked child', async () => {
     mockChildAccounts = [];
+    mockCurrentAccount = { uuid: 'custody-uuid', name: 'Custody' };
     mockCustodyAccounts = [
       { uuid: 'active-uuid', name: 'Active' },
-      { uuid: 'child-uuid', name: 'Custody' },
+      { uuid: 'custody-uuid', name: 'Custody' },
     ];
     const renderer = await renderModal();
     await runBtcTransfer(renderer, 'active-uuid');

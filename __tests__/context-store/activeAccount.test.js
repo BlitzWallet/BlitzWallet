@@ -25,7 +25,11 @@ const ACCOUNT = {
   profileEmoji: '',
 };
 
-const mockKeys = { accountMnemoinc: SEED, setAccountMnemonic: jest.fn() };
+const mockKeys = {
+  accountMnemoinc: SEED,
+  publicKey: 'test-pubkey',
+  setAccountMnemonic: jest.fn(),
+};
 jest.mock('../../context-store/keys', () => ({
   __esModule: true,
   useKeysContext: () => mockKeys,
@@ -42,6 +46,12 @@ const mockGlobal = {
 jest.mock('../../context-store/context', () => ({
   __esModule: true,
   useGlobalContextProvider: () => mockGlobal,
+}));
+
+const mockDeleteLnurlRegistryEntry = jest.fn(async () => true);
+jest.mock('../../db', () => ({
+  __esModule: true,
+  deleteLnurlRegistryEntry: (...a) => mockDeleteLnurlRegistryEntry(...a),
 }));
 
 const mockAuth = { authResetkey: 0 };
@@ -212,6 +222,47 @@ describe('account writes route through writeCustodyAccounts', () => {
       await ctx.removeAccount(ACCOUNT);
     });
 
+    expect(mockWriteCustodyAccounts).toHaveBeenCalledWith([], SEED);
+  });
+
+  it('removeAccount prunes the LNURL registry entry of an imported account', async () => {
+    mockGlobal.masterInfoObject = {
+      didViewNWCMessage: true,
+      pinnedAccounts: [],
+      nextAccountDerivationIndex: 3,
+      accountsLnurl: {
+        abcde: { uuid: 'u-1', identityPubKey: '0x123' },
+        fghij: { uuid: 'u-2', identityPubKey: '0x456' },
+      },
+    };
+    await mount();
+    await act(async () => {
+      await ctx.removeAccount(ACCOUNT);
+    });
+
+    expect(mockDeleteLnurlRegistryEntry).toHaveBeenCalledWith(
+      'test-pubkey',
+      'abcde',
+    );
+    expect(mockWriteCustodyAccounts).toHaveBeenCalledWith([], SEED);
+  });
+
+  it('removeAccount leaves the registry alone for accounts without a stored seed', async () => {
+    mockGlobal.masterInfoObject = {
+      didViewNWCMessage: true,
+      pinnedAccounts: [],
+      nextAccountDerivationIndex: 3,
+      accountsLnurl: {
+        abcde: { uuid: 'u-1', identityPubKey: '0x123' },
+      },
+    };
+    await mount();
+    const derived = { ...ACCOUNT, mnemoinc: undefined };
+    await act(async () => {
+      await ctx.removeAccount(derived);
+    });
+
+    expect(mockDeleteLnurlRegistryEntry).not.toHaveBeenCalled();
     expect(mockWriteCustodyAccounts).toHaveBeenCalledWith([], SEED);
   });
 

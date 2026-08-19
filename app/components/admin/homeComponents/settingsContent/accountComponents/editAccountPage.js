@@ -141,6 +141,7 @@ export default function EditAccountPage(props) {
   const subscriptionRef = useRef(null);
   const mnemonicRef = useRef(null);
   const pubkeyRef = useRef(null);
+  const initPromiseRef = useRef(null);
   const paintedFromSnapshotRef = useRef(false);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -180,9 +181,14 @@ export default function EditAccountPage(props) {
           }
         }
 
-        const initRes = await initializeSparkWallet(mnemonic, false, {
-          maxRetries: 4,
-        });
+        const initRes = await (initPromiseRef.current = initializeSparkWallet(
+          mnemonic,
+          false,
+          {
+            maxRetries: 4,
+            shouldCancel: () => cancelled,
+          },
+        ));
         if (cancelled) return;
         if (!initRes?.isConnected && !paintedFromSnapshotRef.current) {
           setAccountBalance(p => ({ ...p, status: 'error' }));
@@ -219,8 +225,16 @@ export default function EditAccountPage(props) {
       cancelled = true;
       subscriptionRef.current?.unsubscribe();
       subscriptionRef.current = null;
-      // never for main wallet — non-active only
-      if (mnemonicRef.current) disposeSparkWallet(mnemonicRef.current);
+      // Await the in-flight init before disposing so we dispose the wallet init
+      // actually created (a pre-init dispose is a no-op). Never dispose when the
+      // account's mnemonic is the main seed — that wallet is session-long.
+      const m = mnemonicRef.current;
+      if (m && m !== accountMnemoinc) {
+        Promise.resolve(initPromiseRef.current).finally(() =>
+          disposeSparkWallet(m),
+        );
+      }
+      initPromiseRef.current = null;
       mnemonicRef.current = null;
       pubkeyRef.current = null;
     };
@@ -346,7 +360,7 @@ export default function EditAccountPage(props) {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'accountTransfer',
       mode,
-      accountId: accountInformation.uuid,
+      account: accountInformation,
       sliderHight: 0.8,
     });
 
@@ -756,7 +770,7 @@ const styles = StyleSheet.create({
 
   pageContainer: {
     alignItems: 'center',
-    marginTop: 25,
+    marginTop: 30,
   },
 
   staticOverlay: {

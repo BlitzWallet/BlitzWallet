@@ -26,7 +26,8 @@ import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import { assignLnurlId } from '../app/functions/accounts/assignLnurlId';
-import { getSparkIdentityPubKey } from '../app/functions/spark';
+import { deriveSparkIdentityKey } from '../app/functions/gift/deriveGiftWallet';
+import { deleteLnurlRegistryEntry } from '../db';
 import customUUID from '../app/functions/customUUID';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
@@ -45,7 +46,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const { t } = useTranslation();
   const [custodyAccounts, setCustodyAccounts] = useState([]);
   const [isUsingNostr, setIsUsingNostr] = useState(false);
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, publicKey } = useKeysContext();
   const [nostrSeed, setNostrSeed] = useState('');
   const [activeDerivedMnemonic, setActiveDerivedMnemonic] = useState(null);
   const hasSessionReset = useRef(false);
@@ -143,6 +144,19 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         toggleMasterInfoObject({
           pinnedAccounts: currentPins.filter(id => id !== account.uuid),
         });
+      }
+      // Prune the imported account's registry entry: it pins the account's
+      // spark identity pubkey server-side, and merge-writes can't remove a map
+      // key. Derived/child entries are re-derivable, so only imported accounts
+      // carry an unrecoverable seed worth pruning.
+      if (account.mnemoinc) {
+        const registry = masterInfoObject.accountsLnurl || {};
+        const hit = Object.entries(registry).find(
+          ([, v]) => v.uuid === account.uuid,
+        );
+        if (hit) {
+          await deleteLnurlRegistryEntry(publicKey, hit[0]);
+        }
       }
       //   clear spark information here too. Delte txs from database, reove listeners
       await writeCustodyAccounts(newAccounts, accountMnemoinc);
@@ -533,8 +547,8 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           const mnemonic = await getAccountMnemonic(acct);
           if (!mnemonic) continue; // e.g. NWC before nostrSeed loads
           const pubkey = (
-            await getSparkIdentityPubKey(mnemonic)
-          )?.toLowerCase();
+            await deriveSparkIdentityKey(mnemonic, 1)
+          )?.publicKeyHex?.toLowerCase();
           if (!pubkey) continue;
           const id = assignLnurlId(pubkey, next);
           next[id] = {
@@ -544,7 +558,16 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           };
           added = true;
         }
-        if (added) await toggleMasterInfoObject({ accountsLnurl: next });
+        if (added) {
+          const didWrite = await toggleMasterInfoObject({
+            accountsLnurl: next,
+          });
+          // Failed write: roll the optimistic add back so the entry isn't
+          // masked until the next launch — the next tick then retries.
+          if (!didWrite) {
+            toggleMasterInfoObject({ accountsLnurl: registry }, false);
+          }
+        }
       } catch (err) {
         console.log('LNURL account sync error', err);
       } finally {
