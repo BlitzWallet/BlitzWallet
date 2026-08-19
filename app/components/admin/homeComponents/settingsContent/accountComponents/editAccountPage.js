@@ -118,10 +118,11 @@ export default function EditAccountPage(props) {
   // account's entry (main/child accounts have no entry → no row).
   const lnurlAddress = useMemo(() => {
     const uniqueName = globalContactsInformation?.myProfile?.uniqueName;
+    if (!uniqueName) return null; // no profile name yet → hide the row
     const entry = Object.entries(masterInfoObject.accountsLnurl || {}).find(
       ([, v]) => v.uuid === accountInformation.uuid,
     );
-    if (!uniqueName || !entry) return `${uniqueName}@blitzwalletapp.com`;
+    if (!entry) return `${uniqueName}@blitzwalletapp.com`;
     return `${uniqueName}-${entry[0]}@blitzwalletapp.com`;
   }, [
     globalContactsInformation,

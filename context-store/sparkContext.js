@@ -596,23 +596,22 @@ const SparkWalletProvider = ({ children }) => {
   const updateHomepageScrollPosition = useCallback(
     async pos => {
       scrollPositionRef.current = pos;
-      let filtered = [];
-      if (sparkInfoRef.current.identityPubKey) {
-        const allTxs = await getAllSparkTransactions({
-          limit: null,
-          accountId: sparkInfoRef.current.identityPubKey,
-        });
-        filtered = filterDisplayableTransactions({
-          transactions: allTxs,
-          scrollPosition: pos,
-          enabledLRC20: showTokensInformation,
-          tokens: sparkInfoRef.current.tokens,
-          limit: homepageTxPreferance,
-          hideSmallPaymentsHomepage,
-        });
-      }
+      // Skip while the key is unset (init) so we don't clobber a list another
+      // path populated.
+      if (!sparkInfoRef.current.identityPubKey) return;
+      const allTxs = await getAllSparkTransactions({
+        limit: null,
+        accountId: sparkInfoRef.current.identityPubKey,
+      });
+      const filtered = filterDisplayableTransactions({
+        transactions: allTxs,
+        scrollPosition: pos,
+        enabledLRC20: showTokensInformation,
+        tokens: sparkInfoRef.current.tokens,
+        limit: homepageTxPreferance,
+        hideSmallPaymentsHomepage,
+      });
       if (scrollPositionRef.current !== pos) return;
-      if (!filtered.length) return;
       setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
     [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],

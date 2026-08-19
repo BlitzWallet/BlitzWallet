@@ -155,7 +155,16 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           ([, v]) => v.uuid === account.uuid,
         );
         if (hit) {
-          await deleteLnurlRegistryEntry(publicKey, hit[0]);
+          // Gate local removal on a confirmed prune: the imported seed only
+          // lives in the custody store, so destroying it while the address is
+          // still live server-side would strand inbound payments.
+          const pruned = await deleteLnurlRegistryEntry(publicKey, hit[0]);
+          if (!pruned) {
+            return {
+              didWork: false,
+              err: 'Could not remove the account address. Please try again.',
+            };
+          }
         }
       }
       //   clear spark information here too. Delte txs from database, reove listeners
@@ -550,6 +559,11 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
             await deriveSparkIdentityKey(mnemonic, 1)
           )?.publicKeyHex?.toLowerCase();
           if (!pubkey) continue;
+          // Same pubkey already registered (duplicate-mnemonic import): reuse
+          // that entry instead of assigning a colliding id that would overwrite
+          // the sibling and flip its uuid mapping.
+          if (Object.values(next).some(v => v.identityPubKey === pubkey))
+            continue;
           const id = assignLnurlId(pubkey, next);
           next[id] = {
             uuid: acct.uuid,

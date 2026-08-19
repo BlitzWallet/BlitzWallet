@@ -329,6 +329,9 @@ export async function getDocsByIds(collectionName, docIds) {
 export async function deleteLnurlRegistryEntry(publicKey, id) {
   try {
     if (!publicKey || !id) throw Error('Missing user or registry entry id');
+    // ids are hex prefixes; reject anything else so it can't inject into the
+    // dotted Firestore field path.
+    if (!/^[0-9a-f]+$/.test(id)) throw Error('Invalid registry entry id');
     const docRef = doc(db, 'blitzWalletUsers', publicKey);
     await updateDoc(docRef, { [`accountsLnurl.${id}`]: deleteField() });
     console.log('Deleted LNURL registry entry:', id);

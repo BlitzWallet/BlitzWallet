@@ -475,6 +475,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['crashReportingSettings'] = crashReportingSettings;
     tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
     tempObject['didViewNWCMessage'] = didViewNWCMessage;
+    tempObject['accountsLnurl'] = blitzStoredData.accountsLnurl || {};
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       // Child fields stay out of the deferred write: a login-time snapshot of
