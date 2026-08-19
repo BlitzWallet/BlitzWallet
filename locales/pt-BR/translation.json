@@ -2006,6 +2006,7 @@
         "title": "Conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
+        "lightningAddressLabel": "Endereço Blitz",
         "removeAccountLabel": "Arquivar conta",
         "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
         "account_pin": "Fixar conta",

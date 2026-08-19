@@ -2145,6 +2145,7 @@
         "title": "Account",
         "accountNameLabel": "Account Name",
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
+        "lightningAddressLabel": "Lightning address",
         "removeAccountLabel": "Remove Account",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",

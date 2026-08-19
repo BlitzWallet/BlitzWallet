@@ -2006,6 +2006,7 @@
         "title": "Konto",
         "accountNameLabel": "Kontonamn",
         "showRecoveryPhraseLabel": "Visa återställningsfras",
+        "lightningAddressLabel": "Lightning-adress",
         "removeAccountLabel": "Ta bort konto",
         "activeAccountError": "Du kan inte ta bort det för närvarande aktiva kontot. Vänligen byt till ett annat konto innan du tar bort detta.",
         "account_pin": "Fäst konto",

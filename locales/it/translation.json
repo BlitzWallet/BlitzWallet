@@ -2006,6 +2006,7 @@
         "title": "Conto",
         "accountNameLabel": "Nome account",
         "showRecoveryPhraseLabel": "Mostra frase di recupero",
+        "lightningAddressLabel": "Indirizzo Lightning",
         "removeAccountLabel": "Rimuovi account",
         "activeAccountError": "Non puoi eliminare l'account attualmente attivo. Passa a un altro account prima di eliminare questo.",
         "account_pin": "Fissa account",
