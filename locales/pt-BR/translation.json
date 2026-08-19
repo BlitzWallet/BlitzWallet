@@ -1680,7 +1680,7 @@
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
       "mainWalletPlace": "Conta principal",
-      "managedWalletPlace": "Conta gerenciada",
+      "managedWalletPlace": "Conta parental",
       "nwcWalletPlace": "Conta NWC",
       "tabs": {
         "personal": "Pessoal",
