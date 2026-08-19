@@ -2025,7 +2025,9 @@
         "activateButton": "Aktivera konto",
         "addMoneyButton": "Lägg till pengar",
         "withdrawMoneyButton": "Ta ut pengar",
-        "viewActivityLabel": "Visa kontohistorik"
+        "viewActivityLabel": "Visa kontohistorik",
+        "loadError": "Det gick inte att ladda kontot",
+        "loadErrorDesc": "Försök igen. Om problemet kvarstår, kontakta supporten."
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",

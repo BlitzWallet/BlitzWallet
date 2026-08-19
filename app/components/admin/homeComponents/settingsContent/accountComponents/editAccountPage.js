@@ -5,7 +5,7 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
   FONT,
@@ -29,14 +29,59 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { CENTER, SKELETON_ANIMATION_SPEED } from '../../../../../constants';
-import { getSparkAddress } from '../../../../../functions/spark';
 import {
-  getBitcoinBalance,
-  initializeSparkWalletViewer,
-} from '../../../../../functions/spark/walletViewer';
-import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  USDB_TOKEN_ID,
+} from '../../../../../constants';
+import { formatBalanceAmount } from '../../../../../functions';
+import {
+  disposeSparkWallet,
+  getSparkIdentityPubKey,
+  initializeSparkWallet,
+} from '../../../../../functions/spark';
+import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
+import {
+  getAccountBalanceSnapshot,
+  saveAccountBalanceSnapshot,
+} from '../../../../../functions/spark/balanceSnapshots';
+import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
+import PagerView from 'react-native-pager-view';
+import Animated, {
+  useEvent,
+  useHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
+import { updateMascatWalkingAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import { BalanceDots } from '../../homeLightning/balanceDots';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+
+const mascotAnimation = require('../../../../../assets/MOSCATWALKING.json');
+
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
+
+// Custom hook for PagerView scroll handler
+function usePagerScrollHandler(handlers, dependencies) {
+  const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
+  const subscribeForEvents = ['onPageScroll'];
+
+  return useEvent(
+    event => {
+      'worklet';
+      const { onPageScroll } = handlers;
+      if (onPageScroll && event.eventName.endsWith('onPageScroll')) {
+        onPageScroll(event, context);
+      }
+    },
+    subscribeForEvents,
+    doDependenciesDiffer,
+  );
+}
 
 export default function EditAccountPage(props) {
   const accountId = props?.route?.params?.accountId;
@@ -88,61 +133,138 @@ export default function EditAccountPage(props) {
 
   const navigate = useNavigation();
 
-  const [otherAccountBalance, setOtherAccountBalance] = useState({
-    isLoading: true,
+  const [accountBalance, setAccountBalance] = useState({
+    status: 'connecting', // 'connecting' | 'connected' | 'error'
     balance: 0,
+    tokensObj: null,
+  });
+  const subscriptionRef = useRef(null);
+  const mnemonicRef = useRef(null);
+  const pubkeyRef = useRef(null);
+  const paintedFromSnapshotRef = useRef(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    if (isActive) return; // active account uses live context (below)
+    let cancelled = false;
+    paintedFromSnapshotRef.current = false;
+
+    (async () => {
+      try {
+        setAccountBalance(prev => ({ ...prev, status: 'connecting' }));
+        const mnemonic = isChild
+          ? await deriveChildMnemonic(
+              accountMnemoinc,
+              accountInformation.childIndex,
+            )
+          : await getAccountMnemonic(accountInformation);
+        if (cancelled) return;
+        mnemonicRef.current = mnemonic;
+
+        // Instant paint: if a cached snapshot exists for this account's pubkey,
+        // seed the balance immediately so the pager renders (and the mascot
+        // loader is skipped) while the live wallet initializes in the background.
+        const pubkey = await getSparkIdentityPubKey(mnemonic);
+        if (cancelled) return;
+        if (pubkey) {
+          pubkeyRef.current = pubkey;
+          const snapshot = await getAccountBalanceSnapshot(pubkey);
+          if (cancelled) return;
+          if (snapshot) {
+            paintedFromSnapshotRef.current = true;
+            setAccountBalance({
+              status: 'connected',
+              balance: snapshot.balance,
+              tokensObj: snapshot.tokens,
+            });
+          }
+        }
+
+        const initRes = await initializeSparkWallet(mnemonic, false, {
+          maxRetries: 4,
+        });
+        if (cancelled) return;
+        if (!initRes?.isConnected && !paintedFromSnapshotRef.current) {
+          setAccountBalance(p => ({ ...p, status: 'error' }));
+          return;
+        }
+
+        subscriptionRef.current = subscribeToSparkBalance({
+          mnemonic,
+          onUpdate: result => {
+            if (cancelled || !result?.didWork) return;
+            setAccountBalance({
+              status: 'connected',
+              balance: Number(result.balance || 0),
+              tokensObj: result.tokensObj || null,
+            });
+            if (pubkeyRef.current) {
+              saveAccountBalanceSnapshot(
+                pubkeyRef.current,
+                Number(result.balance || 0),
+                result.tokensObj || null,
+              );
+            }
+          },
+        });
+      } catch (err) {
+        console.log('load account balance error', err);
+        if (!cancelled && !paintedFromSnapshotRef.current) {
+          setAccountBalance(p => ({ ...p, status: 'error' }));
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      subscriptionRef.current?.unsubscribe();
+      subscriptionRef.current = null;
+      // never for main wallet — non-active only
+      if (mnemonicRef.current) disposeSparkWallet(mnemonicRef.current);
+      mnemonicRef.current = null;
+      pubkeyRef.current = null;
+    };
+  }, [isActive, accountInformation.uuid, isChild, accountMnemoinc, reloadKey]);
+
+  const isConnecting = isActive
+    ? false
+    : accountBalance.status === 'connecting';
+  const btcBalance = isActive
+    ? Number(sparkInformation?.balance || 0)
+    : accountBalance.balance;
+  const tokensObj = isActive
+    ? sparkInformation?.tokens
+    : accountBalance.tokensObj;
+
+  const usdbToken = tokensObj?.[USDB_TOKEN_ID];
+  const dollarBalance =
+    usdbToken?.balance != null && usdbToken?.tokenMetadata?.decimals != null
+      ? parseFloat(
+          formatTokensNumber(
+            usdbToken.balance,
+            usdbToken.tokenMetadata.decimals,
+          ),
+        ) || 0
+      : 0;
+
+  const { screenDimensions } = useAppStatus();
+  const screenWidth = screenDimensions?.width ?? 0;
+
+  const balanceScrollX = useSharedValue(0);
+
+  const onBalancePageScroll = usePagerScrollHandler({
+    onPageScroll: e => {
+      'worklet';
+      const scrollOffset = (e.position + e.offset) * screenWidth;
+      balanceScrollX.value = scrollOffset;
+    },
   });
 
-  const [layout, setlayout] = useState({ height: 45, width: 87 });
-  const maxLayoutRef = useRef({ height: 45, width: 87 });
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isActive) return;
-      let isMounted = true;
-      (async () => {
-        try {
-          if (!otherAccountBalance.balance)
-            setOtherAccountBalance({ isLoading: true, balance: 0 });
-          const mnemonic = isChild
-            ? await deriveChildMnemonic(
-                accountMnemoinc,
-                accountInformation.childIndex,
-              )
-            : await getAccountMnemonic(accountInformation);
-          const addressResponse = await getSparkAddress(mnemonic);
-          if (!addressResponse.didWork) {
-            throw new Error('Unable to derive account spark address');
-          }
-          await initializeSparkWalletViewer(mnemonic);
-          const balance = await getBitcoinBalance(addressResponse.response);
-          if (!isMounted) return;
-          setOtherAccountBalance({
-            isLoading: false,
-            balance: Number(balance || 0),
-          });
-        } catch (err) {
-          console.log('load account balance error', err);
-          if (!isMounted) return;
-          setOtherAccountBalance(prev => ({ ...prev, isLoading: false }));
-        }
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }, [
-      isActive,
-      accountInformation.uuid,
-      isChild,
-      accountMnemoinc,
-      otherAccountBalance.balance,
-    ]),
+  const transformedAnimation = useMemo(
+    () =>
+      updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue'),
+    [theme],
   );
-
-  const balance = isActive
-    ? Number(sparkInformation?.balance || 0)
-    : otherAccountBalance.balance;
-  const isBalanceLoading = isActive ? false : otherAccountBalance.isLoading;
 
   const handleProfileImage = () => {
     // Main + NWC accounts keep their fixed/contact-profile images; everything
@@ -232,46 +354,23 @@ export default function EditAccountPage(props) {
     });
   }, [isActive, accountInformation, fromPage, navigate, t]);
 
-  const handleLayoutMeasurement = useCallback(event => {
-    const { height, width } = event.nativeEvent.layout;
-
-    const newMaxHeight = Math.max(maxLayoutRef.current.height, height);
-    const newMaxWidth = Math.max(maxLayoutRef.current.width, width);
-
-    if (
-      newMaxHeight !== maxLayoutRef.current.height ||
-      newMaxWidth !== maxLayoutRef.current.width
-    ) {
-      maxLayoutRef.current = { height: newMaxHeight, width: newMaxWidth };
-      setlayout({ height: newMaxHeight, width: newMaxWidth });
-    }
-  }, []);
-
   const handleAddMoney = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'accountAddMoney',
       to: accountInformation.uuid,
-      balance: balance,
+      balance: btcBalance,
       sliderHight: 0.8,
-      onTransferComplete: newBalance => {
-        if (typeof newBalance === 'number')
-          setOtherAccountBalance({ isLoading: false, balance: newBalance });
-      },
     });
-  }, [navigate, accountInformation.uuid, setOtherAccountBalance, balance]);
+  }, [navigate, accountInformation.uuid, btcBalance]);
 
   const handleWithdrawMoney = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'accountWithdrawlMoney',
       from: accountInformation.uuid,
-      balance: balance,
+      balance: btcBalance,
       sliderHight: 0.8,
-      onTransferComplete: newBalance => {
-        if (typeof newBalance === 'number')
-          setOtherAccountBalance({ isLoading: false, balance: newBalance });
-      },
     });
-  }, [navigate, accountInformation.uuid, balance, setOtherAccountBalance]);
+  }, [navigate, accountInformation.uuid, btcBalance]);
 
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
@@ -282,6 +381,43 @@ export default function EditAccountPage(props) {
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
   const addTextColor =
     theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+
+  if (isConnecting) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          label={t('settings.accountComponents.editAccountPage.title')}
+        />
+        <FullLoadingScreen showText={false} />
+      </GlobalThemeView>
+    );
+  }
+
+  if (accountBalance.status === 'error' && !isActive) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          label={t('settings.accountComponents.editAccountPage.title')}
+        />
+        <View style={styles.errorContainer}>
+          <NoContentSceen
+            iconName="Info"
+            titleText={t(
+              'settings.accountComponents.editAccountPage.loadError',
+            )}
+            subTitleText={t(
+              'settings.accountComponents.editAccountPage.loadErrorDesc',
+            )}
+          />
+          <CustomButton
+            actionFunction={() => setReloadKey(k => k + 1)}
+            textContent={t('constants.retry')}
+            buttonStyles={styles.retryButton}
+          />
+        </View>
+      </GlobalThemeView>
+    );
+  }
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -334,51 +470,57 @@ export default function EditAccountPage(props) {
           </TouchableOpacity>
         </View>
 
-        <ThemeText
-          styles={styles.balanceLabel}
-          content={t('constants.sat_balance')}
-        />
-
-        {/* Hidden component for layout measurement */}
-        <View
-          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-          onLayout={handleLayoutMeasurement}
-        >
-          <FormattedSatText
-            autoAdjustFontSize={true}
-            styles={styles.valueText}
-            balance={balance}
-            useSizing={true}
-            globalBalanceDenomination={'sats'}
-            forceCurrency={null}
-            useBalance={null}
-          />
-        </View>
-        <View
-          style={{
-            height: layout.height,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: 30,
-          }}
-        >
-          <SkeletonTextPlaceholder
-            highlightColor={backgroundColor}
-            backgroundColor={COLORS.opaicityGray}
-            speed={SKELETON_ANIMATION_SPEED}
-            enabled={isBalanceLoading}
-            layout={layout}
+        <View style={styles.pagerWrapper}>
+          <AnimatedPagerView
+            style={styles.pagerView}
+            initialPage={0}
+            onPageScroll={onBalancePageScroll}
           >
-            <FormattedSatText
-              autoAdjustFontSize={true}
-              styles={styles.valueText}
-              balance={balance}
-              useSizing={true}
-              globalBalanceDenomination={'sats'}
-              forceCurrency={null}
-              useBalance={null}
+            <View style={styles.pageContainer}>
+              <ThemeText
+                content={t('constants.sat_balance')}
+                styles={styles.balanceLabel}
+              />
+              <FormattedSatText
+                autoAdjustFontSize={true}
+                styles={styles.valueText}
+                balance={btcBalance}
+                useSizing={true}
+                globalBalanceDenomination={'sats'}
+                forceCurrency={null}
+                useBalance={null}
+              />
+            </View>
+            <View style={styles.pageContainer}>
+              <ThemeText
+                content={t('constants.usd_balance')}
+                styles={styles.balanceLabel}
+              />
+              <FormattedSatText
+                autoAdjustFontSize={true}
+                styles={styles.valueText}
+                balance={formatBalanceAmount(
+                  dollarBalance,
+                  false,
+                  masterInfoObject,
+                )}
+                useSizing={true}
+                globalBalanceDenomination={'fiat'}
+                forceCurrency={'USD'}
+                useBalance={true}
+              />
+            </View>
+          </AnimatedPagerView>
+          <View style={styles.staticOverlay} pointerEvents="box-none">
+            <BalanceDots
+              scrollX={balanceScrollX}
+              pageCount={2}
+              screenWidth={screenWidth}
+              theme={theme}
+              darkModeType={darkModeType}
+              fromAccounts={true}
             />
-          </SkeletonTextPlaceholder>
+          </View>
         </View>
 
         {(isChild || custodyAccountsList?.length >= 2) && !isActive && (
@@ -394,12 +536,12 @@ export default function EditAccountPage(props) {
               <>
                 <TouchableOpacity
                   onPress={handleAddMoney}
-                  disabled={isBalanceLoading}
+                  disabled={isConnecting}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: depositBg },
-                    isBalanceLoading && { opacity: HIDDEN_OPACITY },
+                    isConnecting && { opacity: HIDDEN_OPACITY },
                   ]}
                 >
                   <ThemeText
@@ -411,13 +553,13 @@ export default function EditAccountPage(props) {
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  disabled={isBalanceLoading || !balance}
+                  disabled={isConnecting || !btcBalance}
                   onPress={handleWithdrawMoney}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: buttonBg },
-                    (isBalanceLoading || !balance) && {
+                    (isConnecting || !btcBalance) && {
                       opacity: HIDDEN_OPACITY,
                     },
                   ]}
@@ -492,6 +634,37 @@ export default function EditAccountPage(props) {
               </View>
             </View>
           )}
+          {/* Per-account Lightning address (copyable) */}
+          {lnurlAddress && !isChild && (
+            <>
+              <View style={[styles.divider, { backgroundColor }]} />
+
+              <TouchableOpacity
+                style={styles.row}
+                onPress={() =>
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'customQrCode',
+                    data: lnurlAddress,
+                  })
+                }
+              >
+                <ThemeText
+                  styles={[styles.rowLabel, { width: 'unset' }]}
+                  content={t(
+                    'settings.accountComponents.editAccountPage.lightningAddressLabel',
+                  )}
+                />
+                <View style={styles.rowRight}>
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.rowValue}
+                    content={username}
+                  />
+                  <ThemeIcon iconName="ChevronRight" size={18} />
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         {isChild && (
@@ -509,7 +682,7 @@ export default function EditAccountPage(props) {
         )}
 
         {/* View the managed account's transaction history */}
-        {isChild && (
+        {accountInformation.uuid !== MAIN_ACCOUNT_UUID && (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             <TouchableOpacity style={styles.row} onPress={handleViewActivity}>
               <ThemeText
@@ -519,36 +692,6 @@ export default function EditAccountPage(props) {
                 )}
               />
               <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Per-account Lightning address (copyable) */}
-        {lnurlAddress && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <TouchableOpacity
-              style={styles.row}
-              onPress={() =>
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'customQrCode',
-                  data: lnurlAddress,
-                })
-              }
-            >
-              <ThemeText
-                styles={[styles.rowLabel, { width: 'unset' }]}
-                content={t(
-                  'settings.accountComponents.editAccountPage.lightningAddressLabel',
-                )}
-              />
-              <View style={styles.rowRight}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.rowValue}
-                  content={username}
-                />
-                <ThemeIcon iconName="ChevronRight" size={18} />
-              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -574,7 +717,7 @@ export default function EditAccountPage(props) {
 }
 const styles = StyleSheet.create({
   avatarContainer: {
-    marginBottom: 25,
+    // marginBottom: 25,
     alignSelf: 'center',
   },
 
@@ -663,6 +806,47 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
+  },
+
+  connectingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+
+  retryButton: {
+    width: INSET_WINDOW_WIDTH,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
+  },
+
+  pagerWrapper: {
+    position: 'relative',
+    width: '100%',
+    alignItems: 'center',
+  },
+
+  pagerView: {
+    width: INSET_WINDOW_WIDTH,
+    height: 175,
+  },
+
+  pageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  staticOverlay: {
+    position: 'absolute',
+    bottom: 25,
+    left: 0,
+    right: 0,
   },
 
   actionButton: {

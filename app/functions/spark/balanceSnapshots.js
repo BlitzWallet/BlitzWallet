@@ -1,6 +1,26 @@
 import { ensureSparkDatabaseReady } from './transactions';
+import formatTokensNumber from '../lrc20/formatTokensBalance';
+import { USDB_TOKEN_ID } from '../../constants';
 
 const TABLE = 'account_balance_snapshots';
+
+// Dollars held in the USDB token of a tokens object (0 when absent). Shared by
+// the edit page's USD pager and the accounts-list balance preview so the two
+// never drift.
+export function getUsdTokenDollars(tokensObj) {
+  const usdbToken = tokensObj?.[USDB_TOKEN_ID];
+  if (usdbToken?.balance != null && usdbToken?.tokenMetadata?.decimals != null) {
+    return (
+      parseFloat(
+        formatTokensNumber(
+          usdbToken.balance,
+          usdbToken.tokenMetadata.decimals,
+        ),
+      ) || 0
+    );
+  }
+  return 0;
+}
 
 // Token maps coming from the native runtime can carry BigInt fields in their
 // metadata (the merge only down-converts balance/maxSupply). JSON.stringify

@@ -2003,7 +2003,9 @@
         "activateButton": "Konto aktivieren",
         "addMoneyButton": "Geld hinzufügen",
         "withdrawMoneyButton": "Geld abheben",
-        "viewActivityLabel": "Kontoverlauf anzeigen"
+        "viewActivityLabel": "Kontoverlauf anzeigen",
+        "loadError": "Konto konnte nicht geladen werden",
+        "loadErrorDesc": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support."
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",

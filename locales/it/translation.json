@@ -2025,7 +2025,9 @@
         "activateButton": "Attiva conto",
         "addMoneyButton": "Aggiungi denaro",
         "withdrawMoneyButton": "Preleva denaro",
-        "viewActivityLabel": "Visualizza la cronologia dell'account"
+        "viewActivityLabel": "Visualizza la cronologia dell'account",
+        "loadError": "Impossibile caricare l'account",
+        "loadErrorDesc": "Riprova. Se il problema continua, contatta l'assistenza."
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",

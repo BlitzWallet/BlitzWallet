@@ -2164,7 +2164,9 @@
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw money",
-        "viewActivityLabel": "Account history"
+        "viewActivityLabel": "Account history",
+        "loadError": "Unable to load account",
+        "loadErrorDesc": "Please try again. If the problem continues, contact support."
       },
       "removeAccountPage": {
         "title": "Remove",

@@ -2028,7 +2028,9 @@
         "activateButton": "Активировать аккаунт",
         "addMoneyButton": "Добавить деньги",
         "withdrawMoneyButton": "Вывести деньги",
-        "viewActivityLabel": "Просмотр истории аккаунта"
+        "viewActivityLabel": "Просмотр истории аккаунта",
+        "loadError": "Не удалось загрузить аккаунт",
+        "loadErrorDesc": "Попробуйте еще раз. Если проблема не исчезнет, обратитесь в службу поддержки."
       },
       "selectCreateAccountType": {
         "title": "Добавить аккаунт",

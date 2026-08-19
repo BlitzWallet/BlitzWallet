@@ -2024,7 +2024,9 @@
         "activateButton": "Activer le compte",
         "addMoneyButton": "Ajouter de l'argent",
         "withdrawMoneyButton": "Retirer de l'argent",
-        "viewActivityLabel": "Voir l'historique du compte"
+        "viewActivityLabel": "Voir l'historique du compte",
+        "loadError": "Impossible de charger le compte",
+        "loadErrorDesc": "Veuillez réessayer. Si le problème persiste, contactez le support."
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",

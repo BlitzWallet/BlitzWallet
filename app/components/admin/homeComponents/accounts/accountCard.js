@@ -7,10 +7,14 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import AccountProfileImage from './accountProfileImage';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import {
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
 } from '../../../../../context-store/activeAccount';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 
 /**
  * Account card component for account management.
@@ -24,10 +28,13 @@ export default function AccountCard({
   fromSettings = false,
   useAltBackground = false,
   isAccountSwitching = false,
+  balanceSats,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
 
   const accountIndex =
     account?.uuid === MAIN_ACCOUNT_UUID
@@ -102,8 +109,20 @@ export default function AccountCard({
         }
       />
 
-      {/* Right: Chevron */}
-      {!fromSettings && <ThemeIcon iconName={'ChevronRight'} size={18} />}
+      <View style={styles.rightSection}>
+        {/* Right: Balance preview + Chevron */}
+        {balanceSats != null && (
+          <ThemeText
+            styles={styles.previewBalance}
+            content={displayCorrectDenomination({
+              amount: balanceSats,
+              masterInfoObject,
+              fiatStats,
+            })}
+          />
+        )}
+        {!fromSettings && <ThemeIcon iconName={'ChevronRight'} size={18} />}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -121,6 +140,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   avatar: {
     width: 45,
     height: 45,
@@ -132,6 +155,11 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+  previewBalance: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
     includeFontPadding: false,
   },
   // Skeleton styles
