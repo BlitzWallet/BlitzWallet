@@ -28,15 +28,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useToast } from '../../../../../../context-store/toastManager';
-import CustomButton from '../../../../../functions/CustomElements/button';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  SKELETON_ANIMATION_SPEED,
-} from '../../../../../constants';
-import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
-import useAccountSwitcher from '../../../../../hooks/useAccountSwitcher';
+import { CENTER, SKELETON_ANIMATION_SPEED } from '../../../../../constants';
 import { getSparkAddress } from '../../../../../functions/spark';
 import {
   getBitcoinBalance,
@@ -46,19 +38,16 @@ import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/ske
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
 
 export default function EditAccountPage(props) {
-  const { showToast } = useToast();
   const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
   const { getAccountMnemonic, activeAccount, custodyAccountsList } =
     useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
-  const { toggleMasterInfoObject, masterInfoObject } =
-    useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { accountMnemoinc } = useKeysContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
 
   const isMainAccountAChild = masterInfoObject.isChildAccount;
 
@@ -76,17 +65,7 @@ export default function EditAccountPage(props) {
   // custody store, and derive their seed from childIndex.
   const isChild = selectedAccount?.childIndex !== undefined;
 
-  const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
-
-  const isPinned = pinnedAccountUUIDs.includes(
-    accountInformation.uuid || accountInformation.name,
-  );
-
   const isActive = activeAccount.uuid === accountInformation.uuid;
-  const isActivating =
-    isSwitchingAccount.isLoading &&
-    isSwitchingAccount.accountBeingLoaded ===
-      (accountInformation.uuid || accountInformation.name);
 
   const navigate = useNavigation();
 
@@ -146,10 +125,6 @@ export default function EditAccountPage(props) {
     : otherAccountBalance.balance;
   const isBalanceLoading = isActive ? false : otherAccountBalance.isLoading;
 
-  const handleActivate = useCallback(() => {
-    handleAccountPress(accountInformation);
-  }, [handleAccountPress, accountInformation]);
-
   const handleProfileImage = () => {
     // Main + NWC accounts keep their fixed/contact-profile images; everything
     // else (personal custody accounts and managed child accounts) opens the
@@ -208,55 +183,20 @@ export default function EditAccountPage(props) {
     });
   }, [navigate, accountInformation]);
 
-  const handlePinInfo = useCallback(() => {
-    navigate.navigate('InformationPopup', {
-      textContent: t(
-        'settings.accountComponents.editAccountPage.pin_account_info',
-      ),
-      buttonText: t('constants.back'),
-    });
-  }, [navigate, t]);
-
   const handleAccountTypeInfo = useCallback(() => {
-    const isDerived = accountInformation.accountType === 'derived';
+    const typeInfoKeys = {
+      nwc: 'settings.accountComponents.editAccountPage.accountTypeNwcInfo',
+      derived:
+        'settings.accountComponents.editAccountPage.accountTypeDerivedInfo',
+    };
     navigate.navigate('InformationPopup', {
       textContent: t(
-        isDerived
-          ? 'settings.accountComponents.editAccountPage.accountTypeDerivedInfo'
-          : 'settings.accountComponents.editAccountPage.accountTypeImportedInfo',
+        typeInfoKeys[accountInformation.accountType] ||
+          'settings.accountComponents.editAccountPage.accountTypeImportedInfo',
       ),
       buttonText: t('constants.back'),
     });
   }, [navigate, t, accountInformation.accountType]);
-
-  const handlePinToggle = useCallback(() => {
-    const pinnedAccountId = accountInformation.uuid || accountInformation.name;
-    const currentPins = masterInfoObject.pinnedAccounts || [];
-    const isPinned = currentPins.includes(pinnedAccountId);
-
-    if (isPinned) {
-      toggleMasterInfoObject({
-        pinnedAccounts: currentPins.filter(id => id !== pinnedAccountId),
-      });
-    } else {
-      if (currentPins.length >= 2) {
-        showToast({
-          type: 'error',
-          title: t('settings.hub.maxPinsReached'),
-        });
-        return;
-      }
-      toggleMasterInfoObject({
-        pinnedAccounts: [...currentPins, pinnedAccountId],
-      });
-    }
-  }, [
-    masterInfoObject.pinnedAccounts,
-    toggleMasterInfoObject,
-    showToast,
-    t,
-    accountInformation,
-  ]);
 
   const handleDeleteAccount = useCallback(() => {
     if (isActive) {
@@ -473,30 +413,30 @@ export default function EditAccountPage(props) {
 
         <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
           {/* Account Name */}
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-            <TouchableOpacity style={styles.row} onPress={handleEditName}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t(
-                  'settings.accountComponents.editAccountPage.accountNameLabel',
-                )}
-              />
-              <View style={styles.rowRight}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.rowValue}
-                  content={accountInformation.name}
-                />
-                <ThemeIcon iconName="ChevronRight" size={18} />
-              </View>
-            </TouchableOpacity>
-          )}
+          {accountInformation.uuid !== NWC_ACCOUNT_UUID &&
+            accountInformation.uuid !== MAIN_ACCOUNT_UUID && (
+              <>
+                <TouchableOpacity style={styles.row} onPress={handleEditName}>
+                  <ThemeText
+                    styles={styles.rowLabel}
+                    content={t(
+                      'settings.accountComponents.editAccountPage.accountNameLabel',
+                    )}
+                  />
+                  <View style={styles.rowRight}>
+                    <ThemeText
+                      CustomNumberOfLines={1}
+                      styles={styles.rowValue}
+                      content={accountInformation.name}
+                    />
+                    <ThemeIcon iconName="ChevronRight" size={18} />
+                  </View>
+                </TouchableOpacity>
+                <View style={[styles.divider, { backgroundColor }]} />
+              </>
+            )}
 
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-            <View style={[styles.divider, { backgroundColor }]} />
-          )}
-
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && !isChild && (
+          {!isChild && (
             <View style={styles.row}>
               <View style={styles.infoContainer}>
                 <ThemeText
@@ -505,9 +445,11 @@ export default function EditAccountPage(props) {
                     'settings.accountComponents.editAccountPage.accountTypeLabel',
                   )}
                 />
-                <TouchableOpacity onPress={handleAccountTypeInfo}>
-                  <ThemeIcon size={20} iconName={'Info'} />
-                </TouchableOpacity>
+                {accountInformation.uuid !== MAIN_ACCOUNT_UUID && (
+                  <TouchableOpacity onPress={handleAccountTypeInfo}>
+                    <ThemeIcon size={20} iconName={'Info'} />
+                  </TouchableOpacity>
+                )}
               </View>
               <View style={[styles.rowRight, { gap: 5 }]}>
                 <View
@@ -530,9 +472,7 @@ export default function EditAccountPage(props) {
             </View>
           )}
 
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && !isChild && (
-            <View style={[styles.divider, { backgroundColor }]} />
-          )}
+          {!isChild && <View style={[styles.divider, { backgroundColor }]} />}
 
           {/* Show Recovery Phrase */}
           {!(
@@ -550,7 +490,7 @@ export default function EditAccountPage(props) {
           )}
         </View>
 
-        {isChild ? (
+        {isChild && (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             {/* Pair device (always available — re-pair after wallet loss) */}
             <TouchableOpacity style={styles.row} onPress={handlePairDevice}>
@@ -561,31 +501,6 @@ export default function EditAccountPage(props) {
               <ThemeIcon iconName="ChevronRight" size={18} />
             </TouchableOpacity>
             <View style={[styles.divider, { backgroundColor }]} />
-          </View>
-        ) : (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Pin Contact */}
-            <View style={styles.row}>
-              <View style={styles.infoContainer}>
-                <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.account',
-                    {
-                      context: isPinned ? 'unpin' : 'pin',
-                    },
-                  )}
-                />
-                <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon size={20} iconName={'Info'} />
-                </TouchableOpacity>
-              </View>
-              <CustomToggleSwitch
-                stateValue={isPinned}
-                toggleSwitchFunction={handlePinToggle}
-                page={'pinAccount'}
-              />
-            </View>
           </View>
         )}
 
@@ -604,17 +519,6 @@ export default function EditAccountPage(props) {
           </View>
         )}
       </ScrollView>
-      {/* Activate */}
-      {!isActive && !isChild && (
-        <CustomButton
-          textContent={t(
-            'settings.accountComponents.editAccountPage.activateButton',
-          )}
-          useLoading={isActivating}
-          actionFunction={handleActivate}
-          buttonStyles={styles.buttonContainer}
-        />
-      )}
     </GlobalThemeView>
   );
 }
@@ -693,22 +597,10 @@ const styles = StyleSheet.create({
   dangerRow: {
     justifyContent: 'center',
   },
-  buttonContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-  },
   dangerText: {
     color: COLORS.cancelRed,
     includeFontPadding: false,
     textAlign: 'center',
-  },
-  pinButton: {
-    height: 35,
-    width: 35,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   balanceLabel: {

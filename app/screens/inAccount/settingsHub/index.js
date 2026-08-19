@@ -14,7 +14,6 @@ import { useAppStatus } from '../../../../context-store/appStatus';
 import { useToast } from '../../../../context-store/toastManager';
 import { getAllLocalPools } from '../../../functions/pools/poolsStorage';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import useAccountSwitcher from '../../../hooks/useAccountSwitcher';
 import { copyToClipboard } from '../../../functions';
 
 import ProfileCard from './components/ProfileCard';
@@ -81,13 +80,6 @@ export default function SettingsHub(props) {
   const [poolsArray, setPoolsArray] = useState([]);
   const [activePoolsArray, setActivePoolsArray] = useState([]);
 
-  const {
-    isSwitchingAccount,
-    handleAccountPress,
-    isUsingNostr,
-    selectedAltAccount,
-  } = useAccountSwitcher();
-
   useFocusEffect(
     useCallback(() => {
       (async () => {
@@ -107,7 +99,6 @@ export default function SettingsHub(props) {
   const isDoomsday = props?.route?.params?.isDoomsday;
   const myProfileImage = cache[masterInfoObject?.uuid];
   const myContact = globalContactsInformation?.myProfile;
-  const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
 
   const scrollY = useSharedValue(0);
 
@@ -227,14 +218,7 @@ export default function SettingsHub(props) {
       // Ordering is driven by INITIAL_WIDGET_ORDER and rendered as-is in FlashList.
       switch (item.type) {
         case 'accounts':
-          return (
-            <AccountsPreview
-              pinnedAccountUUIDs={pinnedAccountUUIDs}
-              isUsingNostr={isUsingNostr}
-              selectedAltAccount={selectedAltAccount}
-              onViewAll={handleViewAllAccounts}
-            />
-          );
+          return <AccountsPreview onViewAll={handleViewAllAccounts} />;
         case 'pools':
           return (
             <PoolsPreview
@@ -267,10 +251,7 @@ export default function SettingsHub(props) {
       handleViewAllAccounts,
       handleViewAllPools,
       handleSavingsPress,
-      isUsingNostr,
-      pinnedAccountUUIDs,
       poolsArray,
-      selectedAltAccount,
     ],
   );
 

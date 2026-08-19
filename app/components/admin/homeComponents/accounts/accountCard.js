@@ -15,12 +15,11 @@ import {
 /**
  * Account card component for account management.
  * Rounded row: avatar badge, account name, and a chevron (hidden in the
- * compact `fromSettings` preview). Active accounts show a check-mark dot.
+ * compact `fromSettings` preview).
  */
 export default function AccountCard({
   account,
   onPress,
-  isActive = false,
   isLoading = false,
   fromSettings = false,
   useAltBackground = false,
@@ -89,18 +88,6 @@ export default function AccountCard({
         >
           <AccountProfileImage imageSize={45} account={account} />
         </View>
-        {isActive && (
-          <View
-            style={[styles.activeDot, { backgroundColor: COLORS.darkModeText }]}
-          >
-            <ThemeIcon
-              colorOverride={COLORS.lightModeText}
-              size={12}
-              iconName={'Check'}
-              strokeWidth={2}
-            />
-          </View>
-        )}
       </View>
 
       {/* Middle: Account Name */}
@@ -139,16 +126,6 @@ const styles = StyleSheet.create({
     height: 45,
     borderRadius: 22.5,
     overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 10,
-    position: 'absolute',
-    bottom: -5,
-    right: -2,
     alignItems: 'center',
     justifyContent: 'center',
   },

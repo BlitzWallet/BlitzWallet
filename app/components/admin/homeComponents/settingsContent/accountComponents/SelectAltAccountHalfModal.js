@@ -110,7 +110,6 @@ export default function SelectAltAccountHalfModal(props) {
             useAltBackground={theme && darkModeType}
             key={account.uuid || `Account ${index}`}
             account={account}
-            isActive={false}
             onPress={() => {
               if (hasSelectedAccount.current) return;
               hasSelectedAccount.current = true;
@@ -135,7 +134,6 @@ export default function SelectAltAccountHalfModal(props) {
           useAltBackground={theme && darkModeType}
           key={account.uuid || `Account ${index}`}
           account={account}
-          isActive={false}
           onPress={() => handleAccountSelection(account)}
           isLoading={
             isLoading.accountBeingLoaded === account.uuid && isLoading.isLoading
