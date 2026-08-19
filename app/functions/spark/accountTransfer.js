@@ -122,15 +122,27 @@ export async function executeAccountTransfer({
     );
   }
 
+  // Default transfer descriptions name the counterparty: the sender's ledger
+  // shows "Sent to {to}" and the receiving account's mirror shows
+  // "Received from {from}". A caller-supplied memo wins on both sides.
+  const fromDescription =
+    memo ||
+    t('settings.accountComponents.transferModal.transferComplete', {
+      name: toAccount?.name || '',
+    });
+  const toDescription =
+    memo ||
+    t('settings.accountComponents.transferModal.receivedFrom', {
+      name: fromAccount?.name || '',
+    });
+
   const sendingResponse = await sparkPaymenWrapper({
     address: toSparkAddress.response,
     paymentType: 'spark',
     amountSats,
     masterInfoObject,
     fee,
-    memo:
-      memo ||
-      t('settings.accountComponents.accountPaymentPage.inputPlaceHolderText'),
+    memo: fromDescription,
     userBalance: fromBalance,
     sparkInformation: {
       identityPubKey: accountIdentifyPubKey,
@@ -151,6 +163,7 @@ export async function executeAccountTransfer({
         ...sendingResponse.response.details,
         direction: 'INCOMING',
         fee: 0,
+        description: toDescription,
       },
     },
   ]).catch(err => console.log('error saving account transfer', err));

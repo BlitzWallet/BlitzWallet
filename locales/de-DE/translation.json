@@ -200,6 +200,8 @@
     "paidRequest": "bezahlte Anfrage",
     "sent": "Gesendet",
     "received": "Empfangen",
+    "accountTopup": "Aufladen",
+    "accountWithdrawal": "Abhebung",
     "paidLower": "bezahlt",
     "declinedLower": "abgelehnt",
     "receivedRequest": "erhaltene Anfrage",
@@ -2043,6 +2045,7 @@
         "using": "Verwenden",
         "amount": "Betrag",
         "transferComplete": "An {{name}} gesendet",
+        "receivedFrom": "Empfangen von {{name}}",
         "selfTransfer": "Sie können keine Übertragung an sich selbst durchführen",
         "addFunds": "{{name}} hat Geld hinzugefügt",
         "withdrawFunds": "{{name}} hat Geld abgehoben"

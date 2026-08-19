@@ -200,6 +200,8 @@
     "paidRequest": "Paid request",
     "sent": "Sent",
     "received": "Received",
+    "accountTopup": "Topup",
+    "accountWithdrawal": "Withdrawal",
     "paidLower": "paid",
     "declinedLower": "declined",
     "receivedRequest": "Received request",
@@ -2204,6 +2206,7 @@
         "using": "Using",
         "amount": "Amount",
         "transferComplete": "Sent to {{name}}",
+        "receivedFrom": "Received from {{name}}",
         "selfTransfer": "You cannot transfer to yourself",
         "addFunds": "{{name}} added money",
         "withdrawFunds": "{{name}} withdrew money"

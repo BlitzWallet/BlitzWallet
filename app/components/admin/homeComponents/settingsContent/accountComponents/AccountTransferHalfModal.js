@@ -376,6 +376,7 @@ export default function AccountTransferHalfModal({
           childIndex: childAccount.childIndex,
           parentContactsPrivateKey: contactsPrivateKey,
           parentContactsPubKey: globalContactsInformation?.myProfile?.uuid,
+          amountMsat: localSatAmount * 1000,
         }).catch(err => console.log('parent transfer message error', err));
       }
 

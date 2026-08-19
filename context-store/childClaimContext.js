@@ -29,6 +29,8 @@ import {
   subscribePairingSession,
 } from '../db';
 import { firebaseAuth } from '../db/initializeFirebase';
+import { setLocalStorageItem } from '../app/functions/localStorage';
+import { PENDING_PARENT_CONTACT_KEY } from '../app/constants';
 
 // Per-state server deadline (rules: request.time < stateTs + 3m). Only used to
 // anchor the passive expiry fallback below; never gates a transition.
@@ -198,6 +200,12 @@ export function ChildClaimProvider({ children }) {
         // No local child marker needed: the child's top-level user doc (created
         // by the parent at pairing) carries isChildAccount, so first-login init
         // learns it's a child straight from the doc.
+        // Persist the parent's normalized username so globalContacts can
+        // auto-add the parent as a non-deletable contact after home. Must land
+        // BEFORE setAccountMnemonic: that drives the app into onboarding's
+        // loadingScreen, whose wipe snapshots PRESERVED_KEYS (which includes
+        // this key) around removeAllLocalData.
+        await setLocalStorageItem(PENDING_PARENT_CONTACT_KEY, session.rid);
         setAccountMnemonic(seed);
         if (sessionUnsubRef.current) {
           sessionUnsubRef.current();

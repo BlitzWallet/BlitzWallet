@@ -45,7 +45,9 @@ jest.mock('../context-store/flashnetContext', () => ({
 }));
 
 jest.mock('../context-store/context', () => ({
-  useGlobalContextProvider: () => ({ masterInfoObject: { childAccounts: mockChildAccounts } }),
+  useGlobalContextProvider: () => ({
+    masterInfoObject: { childAccounts: mockChildAccounts },
+  }),
 }));
 
 jest.mock('../context-store/nodeContext', () => ({
@@ -113,7 +115,10 @@ jest.mock('../app/hooks/useCurrencyDisplay', () => ({
 // test can advance timers deterministically and assert the fee resolves.
 jest.mock('../app/hooks/useDebounce', () => ({
   __esModule: true,
-  default: fn => (...args) => setTimeout(() => fn(...args), 1),
+  default:
+    fn =>
+    (...args) =>
+      setTimeout(() => fn(...args), 1),
 }));
 
 jest.mock('../app/functions/CustomElements', () => {
@@ -171,13 +176,10 @@ jest.mock('../app/functions/lottieViewColorTransformer', () => ({
   updateConfirmAnimation: animation => animation,
 }));
 
-jest.mock(
-  '../app/functions/messaging/parentAccountTransferMessage',
-  () => ({
-    publishParentAccountTransferMessage: (...args) =>
-      mockPublishParentAccountTransferMessage(...args),
-  }),
-);
+jest.mock('../app/functions/messaging/parentAccountTransferMessage', () => ({
+  publishParentAccountTransferMessage: (...args) =>
+    mockPublishParentAccountTransferMessage(...args),
+}));
 
 jest.mock('../context-store/globalContacts', () => ({
   useGlobalContactsInfo: () => ({
@@ -211,8 +213,8 @@ jest.mock('../app/functions/spark/awaitBalanceChange', () => ({
   subscribeToSparkBalance: (...args) => mockSubscribeToSparkBalance(...args),
 }));
 
-const AccountTransferHalfModal = require('../app/components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal')
-  .default;
+const AccountTransferHalfModal =
+  require('../app/components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal').default;
 
 async function flushMicrotasks(times = 20) {
   for (let i = 0; i < times; i++) await Promise.resolve();
@@ -313,9 +315,9 @@ describe('AccountTransferHalfModal confirm -> balance push', () => {
     // Baseline read used the destination (child) mnemonic before the send.
     expect(mockGetSparkBalance).toHaveBeenCalledWith('child-uuid-mnemonic');
     // The listener must be wired BEFORE the send fires.
-    expect(mockSubscribeToSparkBalance.mock.invocationCallOrder[0]).toBeLessThan(
-      mockExecuteAccountTransfer.mock.invocationCallOrder[0],
-    );
+    expect(
+      mockSubscribeToSparkBalance.mock.invocationCallOrder[0],
+    ).toBeLessThan(mockExecuteAccountTransfer.mock.invocationCallOrder[0]);
     expect(onTransferComplete).toHaveBeenCalledWith(999999);
     expect(mockUnsubscribe).toHaveBeenCalled();
   });
@@ -371,6 +373,7 @@ describe('AccountTransferHalfModal confirm -> balance push', () => {
     await confirmTransfer(renderer);
 
     expect(mockPublishParentAccountTransferMessage).toHaveBeenCalledWith({
+      amountMsat: 1000000,
       isDeposit: true,
       parentName: 'Parent',
       txid: 'spark-transfer-id',

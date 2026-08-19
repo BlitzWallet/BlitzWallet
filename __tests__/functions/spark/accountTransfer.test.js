@@ -28,8 +28,8 @@ const t = key => key;
 
 function baseArgs(overrides = {}) {
   return {
-    fromAccount: { uuid: 'from-uuid' },
-    toAccount: { uuid: 'to-uuid' },
+    fromAccount: { uuid: 'from-uuid', name: 'from-name' },
+    toAccount: { uuid: 'to-uuid', name: 'to-name' },
     amountSats: 1000,
     fee: 10,
     memo: '',
@@ -158,4 +158,38 @@ test('writes an INCOMING mirror tx on the receiving account', async () => {
   expect(mirror.accountId).toBe('pk-to-uuid-mnemonic');
   expect(mirror.details.direction).toBe('INCOMING');
   expect(mirror.details.fee).toBe(0);
+});
+
+test('defaults the from-side description to "Sent to" and the mirror to "Received from"', async () => {
+  await executeAccountTransfer(baseArgs());
+  const sendCall = sparkPaymenWrapper.mock.calls[0][0];
+  expect(sendCall.memo).toBe(
+    'settings.accountComponents.transferModal.transferComplete',
+  );
+  const [mirror] = bulkUpdateSparkTransactions.mock.calls[0][0];
+  expect(mirror.details.description).toBe(
+    'settings.accountComponents.transferModal.receivedFrom',
+  );
+});
+
+test('names the counterparty account in both descriptions', async () => {
+  const interpolatingT = (key, params) =>
+    `${key}|${params?.name || ''}`;
+  await executeAccountTransfer(baseArgs({ t: interpolatingT }));
+  const sendCall = sparkPaymenWrapper.mock.calls[0][0];
+  expect(sendCall.memo).toBe(
+    'settings.accountComponents.transferModal.transferComplete|to-name',
+  );
+  const [mirror] = bulkUpdateSparkTransactions.mock.calls[0][0];
+  expect(mirror.details.description).toBe(
+    'settings.accountComponents.transferModal.receivedFrom|from-name',
+  );
+});
+
+test('a custom memo overrides the styled defaults on both sides', async () => {
+  await executeAccountTransfer(baseArgs({ memo: 'my memo' }));
+  const sendCall = sparkPaymenWrapper.mock.calls[0][0];
+  expect(sendCall.memo).toBe('my memo');
+  const [mirror] = bulkUpdateSparkTransactions.mock.calls[0][0];
+  expect(mirror.details.description).toBe('my memo');
 });

@@ -200,6 +200,8 @@
     "paidRequest": "Оплаченный запрос",
     "sent": "Отправлено",
     "received": "Получено",
+    "accountTopup": "Пополнение",
+    "accountWithdrawal": "Вывод",
     "paidLower": "оплачено",
     "declinedLower": "отклонено",
     "receivedRequest": "Получен запрос",
@@ -2068,6 +2070,7 @@
         "using": "Используется",
         "amount": "Сумма",
         "transferComplete": "Отправлено {{name}}",
+        "receivedFrom": "Получено от {{name}}",
         "selfTransfer": "Нельзя перевести самому себе",
         "addFunds": "{{name}} пополнил(а) счет",
         "withdrawFunds": "{{name}} снял(а) деньги"

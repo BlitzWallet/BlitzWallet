@@ -51,6 +51,7 @@ import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import { PARENT_ACCOUNT_TRANSFER_MARKER } from '../../../../functions/messaging/parentAccountTransferMessage';
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -569,6 +570,21 @@ const ContactElement = memo(
         )
       : '';
 
+    const firstMessageContent = useMemo(() => {
+      const txParsed = firstMessage?.message;
+      if (
+        txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER] &&
+        typeof txParsed.isDeposit === 'boolean'
+      ) {
+        return t(
+          txParsed.isDeposit
+            ? 'transactionLabelText.accountTopup'
+            : 'transactionLabelText.accountWithdrawal',
+        );
+      }
+      return formatMessage(firstMessage);
+    }, [firstMessage, t]);
+
     return (
       <TouchableOpacity
         style={[
@@ -627,7 +643,7 @@ const ContactElement = memo(
             <ThemeIcon size={20} iconName={'ChevronRight'} />
           </View>
 
-          {!!formatMessage(firstMessage) && contact.isAdded && (
+          {!!firstMessageContent && contact.isAdded && (
             <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomNumberOfLines={2}
@@ -636,7 +652,7 @@ const ContactElement = memo(
                   flexShrink: 1,
                   opacity: HIDDEN_OPACITY,
                 }}
-                content={formatMessage(firstMessage)}
+                content={firstMessageContent}
               />
             </View>
           )}

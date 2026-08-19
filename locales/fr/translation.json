@@ -200,6 +200,8 @@
     "paidRequest": "Demande payée",
     "sent": "Envoyé",
     "received": "Reçu",
+    "accountTopup": "Rechargement",
+    "accountWithdrawal": "Retrait",
     "paidLower": "payé",
     "declinedLower": "décliné",
     "receivedRequest": "Demande reçue",
@@ -2064,6 +2066,7 @@
         "using": "Utilisation",
         "amount": "Montant",
         "transferComplete": "Envoyé à {{name}}",
+        "receivedFrom": "Reçu de {{name}}",
         "selfTransfer": "Vous ne pouvez pas transférer vers vous-même",
         "addFunds": "{{name}} a ajouté de l'argent",
         "withdrawFunds": "{{name}} a retiré de l'argent"

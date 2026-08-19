@@ -200,6 +200,8 @@
     "paidRequest": "Richiesta pagata",
     "sent": "Inviato",
     "received": "Ricevuto",
+    "accountTopup": "Ricarica",
+    "accountWithdrawal": "Prelievo",
     "paidLower": "pagato",
     "declinedLower": "rifiutato",
     "receivedRequest": "Richiesta ricevuta",
@@ -2065,6 +2067,7 @@
         "using": "In uso",
         "amount": "Importo",
         "transferComplete": "Inviato a {{name}}",
+        "receivedFrom": "Ricevuto da {{name}}",
         "selfTransfer": "Non puoi trasferire a te stesso",
         "addFunds": "{{name}} ha aggiunto denaro",
         "withdrawFunds": "{{name}} ha prelevato denaro"

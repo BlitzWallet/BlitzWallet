@@ -200,6 +200,8 @@
     "paidRequest": "Betald förfrågan",
     "sent": "Skickad",
     "received": "Mottagna",
+    "accountTopup": "Påfyllning",
+    "accountWithdrawal": "Uttag",
     "paidLower": "betalda",
     "declinedLower": "avböjt",
     "receivedRequest": "Mottagen förfrågan",
@@ -2065,6 +2067,7 @@
         "using": "Använder",
         "amount": "Belopp",
         "transferComplete": "Skickat till {{name}}",
+        "receivedFrom": "Mottaget från {{name}}",
         "selfTransfer": "Du kan inte överföra till dig själv",
         "addFunds": "{{name}} lade till pengar",
         "withdrawFunds": "{{name}} tog ut pengar"

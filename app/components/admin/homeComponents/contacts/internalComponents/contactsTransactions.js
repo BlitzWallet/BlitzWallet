@@ -18,6 +18,7 @@ import { getTimeDisplay } from '../../../../../functions/contacts';
 import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { getTransactionContent } from '../contactsPageComponents/transactionText';
+import { PARENT_ACCOUNT_TRANSFER_MARKER } from '../../../../../functions/messaging/parentAccountTransferMessage';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
@@ -45,12 +46,25 @@ const ConfirmedOrSentTransaction = React.memo(
 
     const didDeclinePayment =
       txParsed.isRedeemed != null && !txParsed.isRedeemed;
-    const isOutgoingPayment = useMemo(
-      () =>
+    const isOutgoingPayment = useMemo(() => {
+      if (txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER]) {
+        if (typeof txParsed.isDeposit === 'boolean') {
+          // didSend is stamped per viewer when the message is cached (true on the
+          // parent's device, false on the child's), so the direction is opposite
+          // of the deposit flag for the recipient.
+          return txParsed.didSend ? !!txParsed.isDeposit : !txParsed.isDeposit;
+        }
+      }
+      return (
         (txParsed.didSend && !txParsed.isRequest) ||
-        (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend),
-      [txParsed.didSend, txParsed.isRequest, txParsed.isRedeemed],
-    );
+        (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend)
+      );
+    }, [
+      txParsed.didSend,
+      txParsed.isRequest,
+      txParsed.isRedeemed,
+      txParsed.isDeposit,
+    ]);
 
     const timeDisplay = useMemo(
       () =>
@@ -463,6 +477,7 @@ export default function ContactsTransactionItem(props) {
   );
 
   const handlePress = useCallback(() => {
+    if (txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER]) return;
     if (paymentDescription) {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'expandedContactMessage',
@@ -470,7 +485,7 @@ export default function ContactsTransactionItem(props) {
         message: paymentDescription,
       });
     }
-  }, [paymentDescription, navigate]);
+  }, [paymentDescription, navigate, txParsed]);
 
   const buttonStyle = useMemo(
     () => ({
