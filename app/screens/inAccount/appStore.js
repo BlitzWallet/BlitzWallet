@@ -44,13 +44,11 @@ export default function AppStore({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       if (!navigation) return;
-      const listenerID = navigation?.addListener('tabPress', () => {
+      return navigation?.addListener('tabPress', () => {
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollTo({ y: 0, animated: true });
         }
       });
-
-      return navigation?.removeListener?.('click', listenerID);
     }, [navigation]),
   );
 

@@ -75,17 +75,14 @@ export default function ContactsPage({ navigation }) {
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = myProfile?.didEditProfile;
-  console.log(contactsMessags, 'cm');
   useFocusEffect(
     useCallback(() => {
       if (!navigation) return;
-      const listenerID = navigation?.addListener('tabPress', () => {
+      return navigation?.addListener('tabPress', () => {
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollTo({ y: 0, animated: true });
         }
       });
-
-      return navigation?.removeListener?.('click', listenerID);
     }, [navigation]),
   );
 
