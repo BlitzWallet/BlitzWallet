@@ -75,6 +75,6 @@ describe('updateSparkTxStatus pendingIds contract', () => {
     const res = await updateSparkTxStatus('mnemonic', 'accountId');
 
     expect(res.shouldCheck).toBe(true);
-    expect(res.pendingIds).toEqual([]);
+    expect(res.pendingIds).toEqual(undefined);
   });
 });

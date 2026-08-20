@@ -439,8 +439,12 @@ const EXCLUDE_SAVINGS_TRANSFER_SQL = `
  * @returns {{ query: string, params: Array }}
  */
 export function buildFilterQuery(filters, accountId, now = Date.now()) {
-  const { directions = [], dateRange = null, types = [], searchTerm = '' } =
-    filters;
+  const {
+    directions = [],
+    dateRange = null,
+    types = [],
+    searchTerm = '',
+  } = filters;
   const conditions = [`accountId = ?`];
   const params = [String(accountId)];
 
@@ -502,8 +506,12 @@ export function buildFilterQuery(filters, accountId, now = Date.now()) {
  */
 export const getFilteredTransactions = async (filters, options = {}) => {
   const { accountId } = options;
-  const { directions = [], dateRange = null, types = [], searchTerm = '' } =
-    filters;
+  const {
+    directions = [],
+    dateRange = null,
+    types = [],
+    searchTerm = '',
+  } = filters;
   const hasActiveFilters =
     directions.length > 0 ||
     dateRange !== null ||
@@ -682,10 +690,10 @@ export const getAllPendingSparkPayments = async accountId => {
     }
 
     const result = await sqlLiteDB.getAllAsync(query.trim(), params);
-    return result || [];
+    return { didWork: true, response: result || [] };
   } catch (error) {
     console.error('Error fetching pending spark payments:', error);
-    return [];
+    return { didWork: false, response: [] };
   }
 };
 

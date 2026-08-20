@@ -49,7 +49,7 @@ jest.mock('../../../app/functions/spark/transactions', () => ({
   bulkUpdateSparkTransactions: jest.fn(),
   deleteSparkTransaction: jest.fn(),
   deleteUnpaidSparkLightningTransaction: jest.fn(),
-  getAllPendingSparkPayments: jest.fn().mockResolvedValue([]),
+  getAllPendingSparkPayments: jest.fn().mockResolvedValue({ response: [] }),
   getAllSparkTransactions: jest.fn().mockResolvedValue([]),
   getAllSparkContactInvoices: jest.fn().mockResolvedValue([]),
   getAllUnpaidSparkLightningInvoices: jest.fn().mockResolvedValue([]),
@@ -65,7 +65,9 @@ jest.mock('../../../app/functions/hash', () => jest.fn(() => 'hash'));
 jest.mock('../../../db/handleBackend', () => jest.fn());
 jest.mock('i18next', () => ({ t: k => k }));
 
-const { fullRestoreSparkState } = require('../../../app/functions/spark/restore');
+const {
+  fullRestoreSparkState,
+} = require('../../../app/functions/spark/restore');
 
 const ACCOUNT_ID = 'acc-1';
 const RESTORE_KEY = `spark_tx_restore_state_${ACCOUNT_ID}`;
