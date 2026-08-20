@@ -101,7 +101,6 @@ export const OPERATION_TYPES = {
 };
 
 const longOperations = new Set([
-  OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.sendSparkPayment,
   OPERATION_TYPES.sendTokenPayment,
   OPERATION_TYPES.getBitcoinPaymentRequest,
@@ -124,6 +123,7 @@ const longOperations = new Set([
 ]);
 
 const mediumOperations = new Set([
+  OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.getBalance,
   OPERATION_TYPES.queryStaticL1Address,
   OPERATION_TYPES.getUtxosForDepositAddress,
