@@ -153,6 +153,7 @@ export const attachWalletListeners = async (
 export const clearMnemonicCache = () => {
   mnemonicHashCache.clear();
   Object.keys(sparkWallet).forEach(key => delete sparkWallet[key]);
+  Object.keys(flashnetClients).forEach(key => delete flashnetClients[key]);
 };
 
 /**

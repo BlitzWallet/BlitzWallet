@@ -474,6 +474,8 @@ export const GlobalContactsList = ({ children }) => {
       unsubscribeMessagesRef.current();
       unsubscribeMessagesRef.current = null;
     }
+    setContactsMessagses({});
+    setGlobalContactsInformation({});
   }, [authResetkey]);
 
   const addContact = useCallback(

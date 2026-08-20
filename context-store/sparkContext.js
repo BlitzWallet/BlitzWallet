@@ -18,6 +18,7 @@ import {
   sparkWallet,
   isOptimizationInProgress,
 } from '../app/functions/spark';
+import { clearEnrichedTxCache } from '../app/functions/combinedTransactionsSpark';
 import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
 import {
   addPendingTransaction,
@@ -1828,6 +1829,7 @@ const SparkWalletProvider = ({ children }) => {
         clearMnemonicCache();
         clearSharedSecretCache();
         disposeWalletViewer();
+        clearEnrichedTxCache();
       }
       prevAccountMnemoincRef.current = null;
       isRunningAddListeners.current = false;
@@ -1845,6 +1847,7 @@ const SparkWalletProvider = ({ children }) => {
         didConnect: false,
       };
       handledTransfers.current = new Set();
+      handledNavigatedTxs.current.clear();
       streamWasDisconnectedRef.current = false;
       prevListenerType.current = null;
       prevAppState.current = 'active';
@@ -1885,6 +1888,7 @@ const SparkWalletProvider = ({ children }) => {
         setNormalConnectionTimeout(false);
         currentMnemonicRef.current = null;
         mainWalletHashRef.current = null;
+        setTokensImageCache({});
       }
     },
     [],

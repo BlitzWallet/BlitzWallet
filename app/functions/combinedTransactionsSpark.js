@@ -44,14 +44,28 @@ const TRANSACTION_CONSTANTS = {
   UNKOWN: 'unknown',
 };
 
+const ENRICHED_TX_CACHE_LIMIT = 500;
 const enrichedTxCache = new Map(); // sparkID -> { sig, obj }
 
+export function clearEnrichedTxCache() {
+  enrichedTxCache.clear();
+}
+
 function getStableTx(currentTransaction, paymentDetails) {
+  const sparkID = currentTransaction.sparkID;
   const sig = `${currentTransaction.paymentStatus}:${currentTransaction.status}:${currentTransaction.details}`;
-  const hit = enrichedTxCache.get(currentTransaction.sparkID);
-  if (hit && hit.sig === sig) return hit.obj;
+  const hit = enrichedTxCache.get(sparkID);
+  if (hit && hit.sig === sig) {
+    enrichedTxCache.delete(sparkID);
+    enrichedTxCache.set(sparkID, hit);
+    return hit.obj;
+  }
   const obj = { ...currentTransaction, details: paymentDetails };
-  enrichedTxCache.set(currentTransaction.sparkID, { sig, obj });
+  enrichedTxCache.set(sparkID, { sig, obj });
+  while (enrichedTxCache.size > ENRICHED_TX_CACHE_LIMIT) {
+    const oldestKey = enrichedTxCache.keys().next().value;
+    enrichedTxCache.delete(oldestKey);
+  }
   return obj;
 }
 
