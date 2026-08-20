@@ -2019,7 +2019,7 @@
         "subtitle": "Create a connection to use Nostr Wallet Connect with your favorite apps."
       },
       "createNWCName": {
-        "navTitle": "Connection Name",
+        "navTitle": "Name",
         "title": "Name this connection",
         "editTitle": "Edit connection name",
         "subtitle": "Give the connection a name so you can recognize it later.",

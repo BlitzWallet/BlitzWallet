@@ -1874,7 +1874,7 @@
         "subtitle": "Skapa en anslutning för att använda Nostr Wallet Connect med dina favoritappar."
       },
       "createNWCName": {
-        "navTitle": "Anslutningsnamn",
+        "navTitle": "Namn",
         "title": "Namnge den här anslutningen",
         "editTitle": "Redigera anslutningsnamn",
         "subtitle": "Ge anslutningen ett namn så att du kan känna igen den senare.",

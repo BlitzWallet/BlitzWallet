@@ -1873,7 +1873,7 @@
         "subtitle": "Créez une connexion pour utiliser Nostr Wallet Connect avec vos applications préférées."
       },
       "createNWCName": {
-        "navTitle": "Nom de la connexion",
+        "navTitle": "Nom",
         "title": "Nommer cette connexion",
         "editTitle": "Modifier le nom de la connexion",
         "subtitle": "Donnez un nom à la connexion pour pouvoir la reconnaître plus tard.",

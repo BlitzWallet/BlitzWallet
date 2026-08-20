@@ -1858,7 +1858,7 @@
         "subtitle": "Erstellen Sie eine Verbindung, um Nostr Wallet Connect mit Ihren bevorzugten Apps zu nutzen."
       },
       "createNWCName": {
-        "navTitle": "Verbindungsname",
+        "navTitle": "Name",
         "title": "Verbindung benennen",
         "editTitle": "Verbindungsnamen bearbeiten",
         "subtitle": "Geben Sie der Verbindung einen Namen, damit Sie sie später wiedererkennen.",
