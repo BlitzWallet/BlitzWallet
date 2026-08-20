@@ -101,7 +101,6 @@ export const OPERATION_TYPES = {
 };
 
 const longOperations = new Set([
-  OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.sendSparkPayment,
   OPERATION_TYPES.sendTokenPayment,
   OPERATION_TYPES.getBitcoinPaymentRequest,
@@ -124,6 +123,7 @@ const longOperations = new Set([
 ]);
 
 const mediumOperations = new Set([
+  OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.getBalance,
   OPERATION_TYPES.queryStaticL1Address,
   OPERATION_TYPES.getUtxosForDepositAddress,
@@ -1542,6 +1542,26 @@ export const WebViewProvider = ({ children, transport = null }) => {
               deferToForeground();
               return;
             }
+            // initWallet is kept alive across background (so a mid-init
+            // background transition isn't fabricated-failed) but must NOT
+            // resume-by-id on a foreground watchdog timeout: re-posting a hung
+            // init only delays the failure 30s and defeats the bounded re-init.
+            // Settle at its own timeout so the drain's awaited caller sees a
+            // non-connected result → onInitFailed → buffer settle + re-init
+            // (R-5/R-6/N9).
+            if (entry.action === OPERATION_TYPES.initWallet) {
+              finalizeRequest(
+                id,
+                {
+                  didWork: false,
+                  error: `Call unresponsive (timeout after ${timeoutDuration}ms)`,
+                  kind: 'timeout',
+                },
+                null,
+              );
+              scheduleInitRecovery();
+              return;
+            }
             const resumed = resumeKeepAliveRequest(id);
             if (!resumed) {
               // Page reloaded/crashed (epoch changed): re-sending there would
@@ -1574,12 +1594,6 @@ export const WebViewProvider = ({ children, transport = null }) => {
           }
 
           finalizeRequest(id, result, isFundsOp ? 'unknown' : null);
-          // A timed-out explicit initWallet leaves the bridge
-          // handshake-complete but wallet-uninitialized with no drain trigger;
-          // schedule the bounded auto-init recovery (R-5).
-          if (entry.action === OPERATION_TYPES.initWallet) {
-            scheduleInitRecovery();
-          }
         };
 
         const timeoutId = setTimeout(handleTimeout, timeoutDuration);

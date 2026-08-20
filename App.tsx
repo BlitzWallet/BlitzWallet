@@ -93,7 +93,6 @@ import { ToastProvider } from './context-store/toastManager';
 import { ToastContainer } from './context-store/toastContainer';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
 import { SparkConnectionManager } from './context-store/sparkConnection';
-import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
@@ -147,24 +146,22 @@ function App(): JSX.Element {
                                         <PushNotificationProvider>
                                           <LiquidEventProvider>
                                             <RootstockSwapProvider>
-                                              <GlobalNostrWalletConnectProvider>
-                                                <ImageCacheProvider>
-                                                  <GlobalServerTimeProvider>
-                                                    <FlashnetProvider>
-                                                      <UserBalanceProvider>
-                                                        <AnalyticsNumbersProvider>
-                                                          <SpendAndReplaceProvider>
-                                                            {/* <Suspense
+                                              <ImageCacheProvider>
+                                                <GlobalServerTimeProvider>
+                                                  <FlashnetProvider>
+                                                    <UserBalanceProvider>
+                                                      <AnalyticsNumbersProvider>
+                                                        <SpendAndReplaceProvider>
+                                                          {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                            <ResetStack />
-                                                          </SpendAndReplaceProvider>
-                                                        </AnalyticsNumbersProvider>
-                                                      </UserBalanceProvider>
-                                                    </FlashnetProvider>
-                                                    {/* </Suspense> */}
-                                                  </GlobalServerTimeProvider>
-                                                </ImageCacheProvider>
-                                              </GlobalNostrWalletConnectProvider>
+                                                          <ResetStack />
+                                                        </SpendAndReplaceProvider>
+                                                      </AnalyticsNumbersProvider>
+                                                    </UserBalanceProvider>
+                                                  </FlashnetProvider>
+                                                  {/* </Suspense> */}
+                                                </GlobalServerTimeProvider>
+                                              </ImageCacheProvider>
                                             </RootstockSwapProvider>
                                           </LiquidEventProvider>
                                         </PushNotificationProvider>

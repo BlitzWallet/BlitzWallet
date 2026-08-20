@@ -14,28 +14,17 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import WidgetCard from './WidgetCard';
 
-export default function AccountsPreview({
-  pinnedAccountUUIDs,
-  isUsingNostr,
-  selectedAltAccount,
-  onViewAll,
-}) {
+export default function AccountsPreview({ onViewAll }) {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
-  const { custodyAccountsList, activeAccount } = useActiveCustodyAccount();
+  const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const accountList = [
     ...(custodyAccountsList || []),
     ...(masterInfoObject?.childAccounts || []),
   ];
-  const displayAccounts = getDisplayAccounts(
-    accountList,
-    pinnedAccountUUIDs,
-    isUsingNostr,
-    selectedAltAccount?.[0],
-    activeAccount,
-  );
+  const displayAccounts = accountList.slice(0, 4);
 
   const hasMoreAccounts = accountList.length > displayAccounts.length;
 
@@ -97,7 +86,6 @@ export default function AccountsPreview({
 
       <View style={styles.gridContainer}>
         {displayAccounts.map((account, index) => {
-          const isActive = activeAccount.uuid === account.uuid;
           const accountIndex =
             account.uuid === MAIN_ACCOUNT_UUID
               ? 1
@@ -117,21 +105,6 @@ export default function AccountsPreview({
                 <View style={[styles.avatar, { backgroundColor }]}>
                   <AccountProfileImage imageSize={52} account={account} />
                 </View>
-                {isActive && (
-                  <View
-                    style={[
-                      styles.activeDot,
-                      { backgroundColor: COLORS.darkModeText },
-                    ]}
-                  >
-                    <ThemeIcon
-                      colorOverride={COLORS.lightModeText}
-                      size={12}
-                      iconName={'Check'}
-                      strokeWidth={2}
-                    />
-                  </View>
-                )}
               </View>
               <ThemeText
                 CustomNumberOfLines={1}
@@ -145,63 +118,6 @@ export default function AccountsPreview({
       </View>
     </WidgetCard>
   );
-}
-
-function getDisplayAccounts(
-  accounts,
-  pinnedAccountUUIDs,
-  isUsingNostr,
-  activeAltAccount,
-) {
-  if (!accounts?.length) return [];
-
-  const mainAccount = accounts.find(a => a.uuid === MAIN_ACCOUNT_UUID);
-  const nwcAccount = accounts.find(a => a.uuid === NWC_ACCOUNT_UUID);
-
-  const activeAccount =
-    accounts.find(account => {
-      const isMain = account.uuid === MAIN_ACCOUNT_UUID;
-      const isNWC = account.uuid === NWC_ACCOUNT_UUID;
-
-      if (isNWC) return isUsingNostr;
-      if (isMain) return !activeAltAccount && !isUsingNostr;
-
-      return activeAltAccount?.uuid === account.uuid;
-    }) ||
-    mainAccount ||
-    accounts[0];
-
-  const result = [];
-  const used = new Set();
-
-  const add = account => {
-    if (!account) return;
-    if (used.has(account.uuid)) return;
-    used.add(account.uuid);
-    result.push(account);
-  };
-
-  add(mainAccount);
-
-  if (activeAccount.uuid !== MAIN_ACCOUNT_UUID) {
-    add(activeAccount);
-  }
-
-  if (pinnedAccountUUIDs?.length) {
-    const pinnedAccounts = pinnedAccountUUIDs
-      .map(uuid => accounts.find(a => (a.uuid || a.name) === uuid))
-      .filter(Boolean);
-
-    for (const acc of pinnedAccounts) {
-      add(acc);
-    }
-  }
-
-  for (const acc of accounts) {
-    add(acc);
-  }
-
-  return result.slice(0, 4);
 }
 
 const styles = StyleSheet.create({
@@ -249,16 +165,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     marginTop: 6,
     includeFontPadding: false,
-  },
-  activeDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 10,
-    position: 'absolute',
-    bottom: -5,
-    right: -2,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',

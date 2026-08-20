@@ -200,6 +200,8 @@
     "paidRequest": "Richiesta pagata",
     "sent": "Inviato",
     "received": "Ricevuto",
+    "accountTopup": "Ricarica",
+    "accountWithdrawal": "Prelievo",
     "paidLower": "pagato",
     "declinedLower": "rifiutato",
     "receivedRequest": "Richiesta ricevuta",
@@ -1865,21 +1867,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Sei sicuro di voler eliminare questo elemento Nostr Connect?",
-      "addAccount": "Aggiungi Account",
+      "confirmDelete": "Sei sicuro di voler eliminare questa connessione?",
+      "addAccount": "Aggiungi connessione",
       "empty": {
         "title": "Nessuna connessione ancora",
         "subtitle": "Crea una connessione per usare Nostr Wallet Connect con le tue app preferite."
       },
       "createNWCName": {
-        "title": "Nome connessione"
+        "navTitle": "Nome",
+        "title": "Dai un nome a questa connessione",
+        "editTitle": "Modifica nome connessione",
+        "subtitle": "Dai un nome alla connessione per poterla riconoscere in seguito.",
+        "editSubtitle": "Scegli un nuovo nome per riconoscere questa connessione in seguito.",
+        "placeholder": "Nome connessione"
       },
       "createNWCPermissions": {
         "title": "Permessi",
-        "pageTitle": "Aggiungi permessi del wallet",
-        "pageSubtitle": "Scegli quali azioni può eseguire questo wallet.",
-        "editTitle": "Modifica permessi del wallet",
-        "editSubtitle": "Modifica quali azioni può eseguire questo wallet."
+        "pageTitle": "Aggiungi permessi della connessione",
+        "pageSubtitle": "Scegli quali azioni può eseguire {{name}}.",
+        "editTitle": "Modifica permessi della connessione",
+        "editSubtitle": "Modifica quali azioni può eseguire {{name}}."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -1888,10 +1895,10 @@
         "editTitle": "Modifica budget di spesa",
         "editSubtitle": "Cambia il limite di spesa e quando si azzera. Lascia vuoto per nessun limite.",
         "renewalPlaceholder": "Seleziona periodo di rinnovo",
-        "createButton": "Crea account"
+        "createButton": "Crea connessione"
       },
       "accountPage": {
-        "title": "Gestisci account",
+        "title": "Gestisci connessione",
         "nameLabel": "Nome",
         "permissionsLabel": "Permessi",
         "permissionsCount_one": "{{count}} permesso",
@@ -1899,16 +1906,16 @@
         "renewalLabel": "Periodo di rinnovo",
         "amountLabel": "Importo budget",
         "viewSecretLabel": "Stringa di connessione",
-        "deleteAccount": "Elimina account"
+        "deleteAccount": "Elimina connessione"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Inserisci un nome account.",
+        "noAccountNameError": "Inserisci un nome di connessione.",
         "noPermissionsError": "Abilita almeno un permesso.",
         "noBudgetError": "Seleziona un periodo di rinnovo budget.",
         "noBudgetAmountError": "Seleziona un importo budget.",
-        "loadingMessage": "Creazione Account",
-        "updatingMessage": "Aggiornamento del conto...",
-        "nameInputPlaceholder": "Inserisci nome account NWC",
+        "loadingMessage": "Creazione connessione...",
+        "updatingMessage": "Aggiornamento della connessione...",
+        "nameInputPlaceholder": "Inserisci nome connessione NWC",
         "permissionsHeader": "Permessi wallet",
         "receivePayments": "Ricevi pagamenti",
         "sendPayments": "Invia pagamenti",
@@ -1918,7 +1925,7 @@
         "budgetRenewalHeader": "Rinnovo Budget"
       },
       "hasNoAccounts": {
-        "warningMessage": "Per inviare soldi dal tuo wallet Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina impostazioni account."
+        "warningMessage": "Per inviare soldi dal tuo account Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo account principale.\n\nPuoi trasferire fondi dal tuo account principale a NWC nella pagina dell'account."
       },
       "noNotifications": {
         "title": "Notifiche richieste",
@@ -1931,7 +1938,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Prima di iniziare",
-        "infoSubtitle": "Alcune cose da sapere sul tuo account Nostr Wallet Connect.",
+        "infoSubtitle": "Alcune cose da sapere su Nostr Wallet Connect.",
         "row1Label": "Aggiungi fondi",
         "row1Description": "Aggiungi denaro ricevendolo o trasferendolo dal tuo account principale.",
         "row2Label": "Account separato",
@@ -1944,8 +1951,8 @@
         "errorRetry": "Riprova configurazione"
       },
       "accountCreated": {
-        "title": "Account creato",
-        "subtitle": "Il tuo account NWC è stato creato. Copia la stringa di connessione per iniziare a usarlo.",
+        "title": "Connessione creata",
+        "subtitle": "La tua connessione è stata creata. Copia la stringa di connessione per iniziare a usarla.",
         "copyConnection": "Copia stringa di connessione"
       }
     },
@@ -1999,6 +2006,7 @@
         "title": "Conto",
         "accountNameLabel": "Nome account",
         "showRecoveryPhraseLabel": "Mostra frase di recupero",
+        "lightningAddressLabel": "Indirizzo Lightning",
         "removeAccountLabel": "Rimuovi account",
         "activeAccountError": "Non puoi eliminare l'account attualmente attivo. Passa a un altro account prima di eliminare questo.",
         "account_pin": "Fissa account",
@@ -2007,15 +2015,19 @@
         "accountTypeLabel": "Tipo di account",
         "accountType_derived": "Derivato",
         "accountType_imported": "Importato",
-        "accountTypeDerivedInfo": "Questo account è collegato alla tua seed phrase Blitz e verrà ripristinato quando ripristini il tuo wallet Blitz.",
-        "accountTypeImportedInfo": "Questo account ha una propria seed phrase e non verrà ripristinato quando ripristini il tuo wallet Blitz. Assicurati di salvare la frase di recupero.",
         "accountType_main": "Principale",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Questo account viene creato dalla tua frase di recupero Blitz e verrà ripristinato quando ripristini il tuo wallet Blitz.",
+        "accountTypeImportedInfo": "Questo account ha una propria seed phrase e non verrà ripristinato quando ripristini il tuo wallet Blitz. Assicurati di salvare la frase di recupero.",
+        "accountTypeNwcInfo": "Questo è il tuo account Nostr Wallet Connect (NWC). Viene usato dalle app connesse a Blitz e può sempre essere ripristinato dalla tua frase di recupero principale di Blitz.",
         "balanceLabel": "Saldo",
         "activeLabel": "Conto attivo",
         "activateButton": "Attiva conto",
         "addMoneyButton": "Aggiungi denaro",
         "withdrawMoneyButton": "Preleva denaro",
-        "viewActivityLabel": "Visualizza la cronologia dell'account"
+        "viewActivityLabel": "Visualizza la cronologia dell'account",
+        "loadError": "Impossibile caricare l'account",
+        "loadErrorDesc": "Riprova. Se il problema continua, contatta l'assistenza."
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",
@@ -2060,11 +2072,15 @@
       },
       "transferModal": {
         "selectAccount": "Seleziona un conto",
+        "addFromTitle": "Scegli il conto da cui aggiungere denaro.",
+        "withdrawToTitle": "Scegli il conto su cui prelevare denaro.",
+        "noAccounts": "Nessun altro conto disponibile.",
         "availableToAdd": "Disponibile da aggiungere",
         "availableToWithdraw": "Disponibile da prelevare",
         "using": "In uso",
         "amount": "Importo",
         "transferComplete": "Inviato a {{name}}",
+        "receivedFrom": "Ricevuto da {{name}}",
         "selfTransfer": "Non puoi trasferire a te stesso",
         "addFunds": "{{name}} ha aggiunto denaro",
         "withdrawFunds": "{{name}} ha prelevato denaro"
@@ -2075,9 +2091,7 @@
       "settingsButton": "Impostazioni",
       "poolsTitle": "Pool",
       "noPoolsMessage": "Non hai ancora creato alcun pool. Tocca per creare il tuo primo pool.",
-      "noActivePools": "Non hai pool attivi al momento. Tocca per vedere i tuoi pool.",
-      "yourAccountsTitle": "I tuoi account",
-      "addAccountButton": "Aggiungi account"
+      "noActivePools": "Non hai pool attivi al momento. Tocca per vedere i tuoi pool."
     },
     "hub": {
       "viewAll": "Vedi tutto",

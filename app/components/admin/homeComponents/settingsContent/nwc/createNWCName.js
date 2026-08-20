@@ -91,7 +91,7 @@ export default function CreateNWCName(props) {
       isKeyboardActive={isKeyboardActive}
     >
       <CustomSettingsTopBar
-        label={t('settings.nwc.createNWCName.title')}
+        label={t('settings.nwc.createNWCName.navTitle')}
         shouldDismissKeyboard={true}
       />
       {isSaving ? (
@@ -109,25 +109,23 @@ export default function CreateNWCName(props) {
               styles={styles.title}
               content={t(
                 isEditing
-                  ? 'settings.childAccounts.enterName.editTitle'
-                  : 'settings.childAccounts.enterName.title',
+                  ? 'settings.nwc.createNWCName.editTitle'
+                  : 'settings.nwc.createNWCName.title',
               )}
             />
             <ThemeText
               styles={styles.subtitle}
               content={t(
                 isEditing
-                  ? 'settings.childAccounts.enterName.editSubtitle'
-                  : 'settings.childAccounts.enterName.subtitle',
+                  ? 'settings.nwc.createNWCName.editSubtitle'
+                  : 'settings.nwc.createNWCName.subtitle',
               )}
             />
 
             <CustomSearchInput
               inputText={accountName}
               setInputText={setAccountName}
-              placeholderText={t(
-                'settings.childAccounts.enterName.placeholder',
-              )}
+              placeholderText={t('settings.nwc.createNWCName.placeholder')}
               autoFocus={true}
               onBlurFunction={() => setIsKeyboardActive(false)}
               onFocusFunction={() => setIsKeyboardActive(true)}

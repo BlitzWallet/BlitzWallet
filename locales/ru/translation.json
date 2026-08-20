@@ -200,6 +200,8 @@
     "paidRequest": "Оплаченный запрос",
     "sent": "Отправлено",
     "received": "Получено",
+    "accountTopup": "Пополнение",
+    "accountWithdrawal": "Вывод",
     "paidLower": "оплачено",
     "declinedLower": "отклонено",
     "receivedRequest": "Получен запрос",
@@ -1866,21 +1868,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Удалить этот Nostr Connect?",
-      "addAccount": "Добавить аккаунт",
+      "confirmDelete": "Вы уверены, что хотите удалить это подключение?",
+      "addAccount": "Добавить подключение",
       "empty": {
         "title": "Пока нет подключений",
         "subtitle": "Создайте подключение, чтобы использовать Nostr Wallet Connect с вашими любимыми приложениями."
       },
       "createNWCName": {
-        "title": "Название подключения"
+        "navTitle": "Название",
+        "title": "Назовите это подключение",
+        "editTitle": "Изменить название подключения",
+        "subtitle": "Дайте подключению название, чтобы позже его было легко узнать.",
+        "editSubtitle": "Выберите новое название, чтобы позже было легко узнать это подключение.",
+        "placeholder": "Название подключения"
       },
       "createNWCPermissions": {
         "title": "Разрешения",
-        "pageTitle": "Добавить разрешения кошелька",
-        "pageSubtitle": "Выберите, какие действия может выполнять этот кошелек.",
-        "editTitle": "Изменить разрешения кошелька",
-        "editSubtitle": "Измените, какие действия может выполнять этот кошелек."
+        "pageTitle": "Добавить разрешения подключения",
+        "pageSubtitle": "Выберите, какие действия может выполнять {{name}}.",
+        "editTitle": "Изменить разрешения подключения",
+        "editSubtitle": "Измените, какие действия может выполнять {{name}}."
       },
       "createNWCAmount": {
         "title": "Бюджет",
@@ -1889,10 +1896,10 @@
         "editTitle": "Изменить бюджет расходов",
         "editSubtitle": "Измените лимит расходов и период его сброса. Оставьте пустым, чтобы без лимита.",
         "renewalPlaceholder": "Выберите период обновления",
-        "createButton": "Создать аккаунт"
+        "createButton": "Создать подключение"
       },
       "accountPage": {
-        "title": "Управление аккаунтом",
+        "title": "Управление подключением",
         "nameLabel": "Название",
         "permissionsLabel": "Разрешения",
         "permissionsCount_one": "{{count}} разрешение",
@@ -1902,16 +1909,16 @@
         "renewalLabel": "Период обновления",
         "amountLabel": "Сумма бюджета",
         "viewSecretLabel": "Строка подключения",
-        "deleteAccount": "Удалить аккаунт"
+        "deleteAccount": "Удалить подключение"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Введите имя аккаунта.",
+        "noAccountNameError": "Введите название подключения.",
         "noPermissionsError": "Выберите хотя бы одно разрешение.",
         "noBudgetError": "Выберите период обновления бюджета.",
         "noBudgetAmountError": "Выберите сумму бюджета.",
-        "loadingMessage": "Создание...",
-        "updatingMessage": "Обновление аккаунта...",
-        "nameInputPlaceholder": "Имя аккаунта NWC",
+        "loadingMessage": "Создание подключения...",
+        "updatingMessage": "Обновление подключения...",
+        "nameInputPlaceholder": "Название подключения NWC",
         "permissionsHeader": "Разрешения",
         "receivePayments": "Принимать платежи",
         "sendPayments": "Отправлять платежи",
@@ -1934,7 +1941,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Прежде чем начать",
-        "infoSubtitle": "Несколько вещей, которые стоит знать об аккаунте Nostr Wallet Connect.",
+        "infoSubtitle": "Несколько вещей, которые стоит знать о Nostr Wallet Connect.",
         "row1Label": "Пополнить счет",
         "row1Description": "Пополните счет, получая деньги или переводя их с основного аккаунта.",
         "row2Label": "Отдельный аккаунт",
@@ -1947,8 +1954,8 @@
         "errorRetry": "Повторить попытку"
       },
       "accountCreated": {
-        "title": "Аккаунт создан",
-        "subtitle": "Аккаунт NWC создан. Скопируйте строку подключения, чтобы начать его использовать.",
+        "title": "Подключение создано",
+        "subtitle": "Подключение создано. Скопируйте строку подключения, чтобы начать его использовать.",
         "copyConnection": "Скопировать строку подключения"
       }
     },
@@ -2002,6 +2009,7 @@
         "title": "Аккаунт",
         "accountNameLabel": "Название аккаунта",
         "showRecoveryPhraseLabel": "Показать фразу восстановления",
+        "lightningAddressLabel": "Lightning-адрес",
         "removeAccountLabel": "Удалить аккаунт",
         "activeAccountError": "Вы не можете удалить текущий активный аккаунт. Пожалуйста, переключитесь на другой аккаунт перед удалением этого.",
         "account_pin": "Закрепить аккаунт",
@@ -2010,15 +2018,19 @@
         "accountTypeLabel": "Тип аккаунта",
         "accountType_derived": "Производный",
         "accountType_imported": "Импортированный",
-        "accountTypeDerivedInfo": "Этот аккаунт связан с вашей сид-фразой Blitz и будет восстановлен при восстановлении вашего кошелька Blitz.",
-        "accountTypeImportedInfo": "Этот аккаунт имеет собственную сид-фразу и не будет восстановлен при восстановлении вашего кошелька Blitz. Обязательно сохраните её в безопасном месте.",
         "accountType_main": "Основной",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Этот аккаунт создается на основе вашей фразы восстановления Blitz и будет восстановлен при восстановлении вашего кошелька Blitz.",
+        "accountTypeImportedInfo": "Этот аккаунт имеет собственную сид-фразу и не будет восстановлен при восстановлении вашего кошелька Blitz. Обязательно сохраните её в безопасном месте.",
+        "accountTypeNwcInfo": "Это ваш аккаунт Nostr Wallet Connect (NWC). Он используется приложениями, подключенными к Blitz, и его всегда можно восстановить с помощью основной фразы восстановления Blitz.",
         "balanceLabel": "Баланс",
         "activeLabel": "Активный аккаунт",
         "activateButton": "Активировать аккаунт",
         "addMoneyButton": "Добавить деньги",
         "withdrawMoneyButton": "Вывести деньги",
-        "viewActivityLabel": "Просмотр истории аккаунта"
+        "viewActivityLabel": "Просмотр истории аккаунта",
+        "loadError": "Не удалось загрузить аккаунт",
+        "loadErrorDesc": "Попробуйте еще раз. Если проблема не исчезнет, обратитесь в службу поддержки."
       },
       "selectCreateAccountType": {
         "title": "Добавить аккаунт",
@@ -2063,11 +2075,15 @@
       },
       "transferModal": {
         "selectAccount": "Выберите аккаунт",
+        "addFromTitle": "Выберите аккаунт, с которого добавить деньги.",
+        "withdrawToTitle": "Выберите аккаунт, на который вывести деньги.",
+        "noAccounts": "Нет других аккаунтов.",
         "availableToAdd": "Доступно для добавления",
         "availableToWithdraw": "Доступно для вывода",
         "using": "Используется",
         "amount": "Сумма",
         "transferComplete": "Отправлено {{name}}",
+        "receivedFrom": "Получено от {{name}}",
         "selfTransfer": "Нельзя перевести самому себе",
         "addFunds": "{{name}} пополнил(а) счет",
         "withdrawFunds": "{{name}} снял(а) деньги"
@@ -2078,9 +2094,7 @@
       "settingsButton": "Настройки",
       "poolsTitle": "Пулы",
       "noPoolsMessage": "Вы ещё не создали ни одного пула. Нажмите, чтобы создать первый пул.",
-      "noActivePools": "У вас сейчас нет активных пулов. Нажмите, чтобы посмотреть свои пулы.",
-      "yourAccountsTitle": "Ваши аккаунты",
-      "addAccountButton": "Добавить аккаунт"
+      "noActivePools": "У вас сейчас нет активных пулов. Нажмите, чтобы посмотреть свои пулы."
     },
     "hub": {
       "viewAll": "Показать все",

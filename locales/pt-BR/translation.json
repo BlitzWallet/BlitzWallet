@@ -200,6 +200,8 @@
     "paidRequest": "Solicitação paga",
     "sent": "Você enviou",
     "received": "Você recebeu",
+    "accountTopup": "Recarga",
+    "accountWithdrawal": "Saque",
     "paidLower": "pagou",
     "declinedLower": "recusou",
     "receivedRequest": "Solicitação recebida",
@@ -1872,14 +1874,19 @@
         "subtitle": "Crie uma conexão para usar a conta NWC com seus aplicativos favoritos."
       },
       "createNWCName": {
-        "title": "Nome da conexão"
+        "navTitle": "Nome",
+        "title": "Dê um nome a esta conexão",
+        "editTitle": "Editar nome da conexão",
+        "subtitle": "Dê um nome à conexão para poder reconhecê-la mais tarde.",
+        "editSubtitle": "Escolha um novo nome para reconhecer esta conexão mais tarde.",
+        "placeholder": "Nome da conexão"
       },
       "createNWCPermissions": {
         "title": "Permissões",
-        "pageTitle": "Adicionar permissões da conta",
-        "pageSubtitle": "Escolha quais ações esta conta pode realizar.",
-        "editTitle": "Editar permissões da conta",
-        "editSubtitle": "Edite quais ações esta conta pode realizar."
+        "pageTitle": "Adicionar permissões da conexão",
+        "pageSubtitle": "Escolha quais ações {{name}} pode realizar.",
+        "editTitle": "Editar permissões da conexão",
+        "editSubtitle": "Edite quais ações {{name}} pode realizar."
       },
       "createNWCAmount": {
         "title": "Orçamento",
@@ -1888,10 +1895,10 @@
         "editTitle": "Editar orçamento de gastos",
         "editSubtitle": "Altere o limite de gastos e quando ele é redefinido. Deixe em branco para não ter limite.",
         "renewalPlaceholder": "Selecione o período de renovação",
-        "createButton": "Criar conta"
+        "createButton": "Criar conexão"
       },
       "accountPage": {
-        "title": "Gerenciar conta",
+        "title": "Gerenciar conexão",
         "nameLabel": "Nome",
         "permissionsLabel": "Permissões",
         "permissionsCount_one": "{{count}} permissão",
@@ -1899,7 +1906,7 @@
         "renewalLabel": "Período de renovação",
         "amountLabel": "Valor do orçamento",
         "viewSecretLabel": "String de conexão",
-        "deleteAccount": "Excluir conta"
+        "deleteAccount": "Excluir conexão"
       },
       "createNWCAccount": {
         "noAccountNameError": "Por favor, insira um nome para essa conexão.",
@@ -1907,7 +1914,7 @@
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
         "loadingMessage": "Criando conexão",
-        "updatingMessage": "Atualizando conta...",
+        "updatingMessage": "Atualizando conexão...",
         "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
@@ -1918,7 +1925,7 @@
         "budgetRenewalHeader": "Renovação do limite de gastos"
       },
       "hasNoAccounts": {
-        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
+        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para NWC na página da conta."
       },
       "noNotifications": {
         "title": "Notificações necessárias",
@@ -1931,7 +1938,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Antes de começar",
-        "infoSubtitle": "Algumas coisas que você deve saber sobre sua conta NWC.",
+        "infoSubtitle": "Algumas coisas que você deve saber sobre o Nostr Wallet Connect.",
         "row1Label": "Adicionar fundos",
         "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
         "row2Label": "Conta separada",
@@ -1944,8 +1951,8 @@
         "errorRetry": "Tentar novamente"
       },
       "accountCreated": {
-        "title": "Conta criada",
-        "subtitle": "Sua conta NWC foi criada. Copie a string de conexão para começar a usá-la.",
+        "title": "Conexão criada",
+        "subtitle": "Sua conexão foi criada. Copie a string de conexão para começar a usá-la.",
         "copyConnection": "Copiar string de conexão"
       }
     },
@@ -1999,6 +2006,7 @@
         "title": "Conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
+        "lightningAddressLabel": "Endereço Blitz",
         "removeAccountLabel": "Arquivar conta",
         "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
         "account_pin": "Fixar conta",
@@ -2007,15 +2015,19 @@
         "accountTypeLabel": "Tipo de conta",
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
-        "accountTypeDerivedInfo": "Esta conta está vinculada à sua frase de recuperação da conta principal da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
-        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
         "accountType_main": "Principal",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Esta conta é criada a partir da sua frase de recuperação da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
+        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
+        "accountTypeNwcInfo": "Esta é a sua conta Nostr Wallet Connect (NWC). Ela é usada pelos aplicativos conectados à Blitz e sempre pode ser restaurada a partir da sua frase de recuperação principal da Blitz.",
         "balanceLabel": "Saldo",
         "activeLabel": "Conta selecionada",
         "activateButton": "Selecionar conta",
         "addMoneyButton": "Adicionar dinheiro",
         "withdrawMoneyButton": "Retirar dinheiro",
         "viewActivityLabel": "Histórico de transações"
+        "loadError": "Não foi possível carregar a conta",
+        "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte."
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",
@@ -2060,11 +2072,15 @@
       },
       "transferModal": {
         "selectAccount": "Selecione uma conta",
+        "addFromTitle": "Escolha a conta de onde adicionar dinheiro.",
+        "withdrawToTitle": "Escolha a conta para onde retirar dinheiro.",
+        "noAccounts": "Nenhuma outra conta disponível.",
         "availableToAdd": "Disponível para adicionar",
         "availableToWithdraw": "Disponível para retirar",
         "using": "Usando",
         "amount": "Valor",
         "transferComplete": "Enviado para {{name}}",
+        "receivedFrom": "Recebido de {{name}}",
         "selfTransfer": "Você não pode transferir para si mesmo",
         "addFunds": "{{name}} adicionou dinheiro",
         "withdrawFunds": "{{name}} retirou dinheiro"
@@ -2075,9 +2091,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Colete pagamentos para um objetivo",
-      "yourAccountsTitle": "Suas contas",
-      "addAccountButton": "Adicionar conta"
+      "noActivePools": "Colete pagamentos para um objetivo"
     },
     "hub": {
       "viewAll": "Ver tudo",

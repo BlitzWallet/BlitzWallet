@@ -9,7 +9,6 @@ import {
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   MAIN_ACCOUNT_UUID,
@@ -20,13 +19,13 @@ import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import AccountCard from '../accounts/accountCard';
+import useAccountBalancePreviews from '../../../../hooks/useAccountBalancePreviews';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
   const route = useRoute();
   const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { textColor } = GetThemeColors();
   const { t } = useTranslation();
   const params = route.params || {};
   const [activeTab, setActiveTab] = useState(params?.initialTab || 'personal');
@@ -42,6 +41,8 @@ export default function CreateCustodyAccounts() {
 
   const isLinked = activeTab === 'linked';
 
+  const computeTotalSats = useAccountBalancePreviews();
+
   const handleNavigateAddAccount = useCallback(() => {
     if (isLinked) {
       navigate.navigate('ChildEnterName');
@@ -49,17 +50,6 @@ export default function CreateCustodyAccounts() {
     }
     navigate.navigate('SelectCreateAccountType', {});
   }, [navigate, isLinked]);
-
-  const handleNavigateSwap = useCallback(() => {
-    if (custodyAccountsList.length < 2) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('settings.accountComponents.homepage.swapAccountError'),
-      });
-      return;
-    }
-
-    navigate.navigate('CustodyAccountPaymentPage');
-  }, [navigate, custodyAccountsList, t]);
 
   const handleOpenAccount = useCallback(
     item => {
@@ -133,6 +123,7 @@ export default function CreateCustodyAccounts() {
                 key={item.uuid || `Account ${index}`}
                 account={item}
                 onPress={() => handleOpenAccount(item)}
+                balanceSats={isLinked ? undefined : computeTotalSats(item)}
               />
             ))}
           </View>
@@ -168,21 +159,6 @@ export default function CreateCustodyAccounts() {
           )}
         />
       )}
-      <CustomButton
-        buttonStyles={[
-          {
-            width: INSET_WINDOW_WIDTH,
-            marginTop: masterInfoObject.isChildAccount
-              ? CONTENT_KEYBOARD_OFFSET
-              : undefined,
-            ...CENTER,
-          },
-          !masterInfoObject.isChildAccount && { backgroundColor: undefined },
-        ]}
-        textStyles={[!masterInfoObject.isChildAccount && { color: textColor }]}
-        actionFunction={handleNavigateSwap}
-        textContent={t('settings.accountComponents.homepage.swap')}
-      />
     </CustomKeyboardAvoidingView>
   );
 }

@@ -81,7 +81,6 @@ export default function RestoreDerivedAccountPage() {
     return (
       <AccountCard
         account={account}
-        isActive={false}
         onPress={() => handleRestore(index)}
         isLoading={isRestoring === index}
         isAccountSwitching={isRestoring === index}

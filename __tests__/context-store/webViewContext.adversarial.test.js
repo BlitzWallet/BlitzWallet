@@ -1269,7 +1269,8 @@ describe('adversarial — production reconcile queries & matchers', () => {
     await flush();
     expect(postedCount(op, wv)).toBe(1);
     // Keep-alive watchdog: first window resume-by-id, final deadline settles.
-    await advance(90001);
+    // Claim is a medium op (30s first window); other keep-alive ops are 90s.
+    await advance(op === 'claimnSparkStaticDepositAddress' ? 30001 : 90001);
     expect(st.settled).toBe(false);
     await advance(30001);
     expect(st.value.kind).toBe('unknown');

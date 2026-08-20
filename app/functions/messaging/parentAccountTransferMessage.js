@@ -19,13 +19,14 @@ export function buildParentAccountTransferMessagePayload({
   isDeposit,
   parentName,
   txid,
+  amountMsat,
 }) {
   return {
     uuid: customUUID(),
     fromContacts: true,
-    amountMsat: 0,
+    amountMsat,
     isRequest: false,
-    didSend: true,
+    didSend: isDeposit,
     name: parentName,
     description: i18next.t(
       `settings.accountComponents.transferModal.${
@@ -33,6 +34,7 @@ export function buildParentAccountTransferMessagePayload({
       }`,
       { name: parentName },
     ),
+    isDeposit,
     txid,
     [PARENT_ACCOUNT_TRANSFER_MARKER]: true,
   };
@@ -62,6 +64,7 @@ export async function publishParentAccountTransferMessage({
   parentContactsPrivateKey,
   parentContactsPubKey,
   currentTime,
+  amountMsat,
 }) {
   if (!txid || !parentName || !parentContactsPubKey) return;
   if (!parentMnemonic || !Number.isInteger(childIndex)) return;
@@ -74,6 +77,7 @@ export async function publishParentAccountTransferMessage({
     isDeposit,
     parentName,
     txid,
+    amountMsat,
   });
 
   await updateMessage({

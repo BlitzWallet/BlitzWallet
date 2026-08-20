@@ -7,7 +7,7 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useUpdateHomepageTransactions } from '../../hooks/updateHomepageTransactions';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import { useFlashnet } from '../../../context-store/flashnetContext';
@@ -27,21 +27,34 @@ import {
 } from '../../functions/spark/walletViewerTransactions';
 import { USDB_TOKEN_ID } from '../../constants';
 import { useSparkWallet } from '../../../context-store/sparkContext';
+import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 
 const PAGE = 20;
 
 export default function ManagedAccountActivityPage() {
   const route = useRoute();
-  const { childIndex } = route.params || {};
+  const { accountId, childIndex } = route.params || {};
   const { sparkInformation } = useSparkWallet();
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { accountMnemoinc } = useKeysContext();
+  const { getAccountMnemonic, custodyAccountsList } = useActiveCustodyAccount();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const currentTime = useUpdateHomepageTransactions();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
+
+  const isChild = childIndex !== undefined;
+
+  const accountInformation = useMemo(() => {
+    if (isChild) {
+      return (masterInfoObject?.childAccounts || []).find(
+        item => item.uuid === accountId,
+      );
+    }
+    return custodyAccountsList?.find(item => item.uuid === accountId) || {};
+  }, [isChild, accountId, custodyAccountsList, masterInfoObject?.childAccounts]);
 
   const [rawRows, setRawRows] = useState([]);
   const [txs, setTxs] = useState([]);
@@ -127,7 +140,9 @@ export default function ManagedAccountActivityPage() {
     let isMounted = true;
     (async () => {
       try {
-        const mnemonic = await deriveChildMnemonic(accountMnemoinc, childIndex);
+        const mnemonic = isChild
+          ? await deriveChildMnemonic(accountMnemoinc, childIndex)
+          : await getAccountMnemonic(accountInformation);
         const addressResponse = await getSparkAddress(mnemonic);
         if (!addressResponse?.didWork) {
           throw new Error('Unable to derive managed account spark address');
@@ -146,7 +161,13 @@ export default function ManagedAccountActivityPage() {
     return () => {
       isMounted = false;
     };
-  }, [accountMnemoinc, childIndex, loadNextPage]);
+  }, [
+    accountMnemoinc,
+    childIndex,
+    isChild,
+    accountInformation?.uuid,
+    loadNextPage,
+  ]);
 
   useEffect(() => {
     if (!rawRows.length) return;

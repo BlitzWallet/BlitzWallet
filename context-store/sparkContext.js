@@ -9,12 +9,9 @@ import {
 } from 'react';
 import {
   attachWalletListeners,
-  claimnSparkStaticDepositAddress,
   clearMnemonicCache,
   getSingleTxDetails,
   getSparkTransactions,
-  getSparkStaticBitcoinL1AddressQuote,
-  getUtxosForDepositAddress,
   initializeFlashnet,
   queryAllStaticDepositAddresses,
   selectSparkRuntime,
@@ -22,6 +19,11 @@ import {
   isOptimizationInProgress,
 } from '../app/functions/spark';
 import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
+import {
+  addPendingTransaction,
+  claimDepositUtxo,
+  fetchAllDepositUtxos,
+} from '../app/functions/spark/depositClaim';
 import {
   bulkUpdateSparkTransactions,
   insertSparkTransactionPlaceholders,
@@ -54,7 +56,6 @@ import EventEmitter from 'events';
 import { getLRC20Transactions } from '../app/functions/lrc20';
 import { useActiveCustodyAccount } from './activeAccount';
 import sha256Hash from '../app/functions/hash';
-import i18n from 'i18next';
 import {
   INCOMING_SPARK_TX_NAME,
   incomingSparkTransaction,
@@ -596,6 +597,9 @@ const SparkWalletProvider = ({ children }) => {
   const updateHomepageScrollPosition = useCallback(
     async pos => {
       scrollPositionRef.current = pos;
+      // Skip while the key is unset (init) so we don't clobber a list another
+      // path populated.
+      if (!sparkInfoRef.current.identityPubKey) return;
       const allTxs = await getAllSparkTransactions({
         limit: null,
         accountId: sparkInfoRef.current.identityPubKey,
@@ -1989,16 +1993,8 @@ const SparkWalletProvider = ({ children }) => {
 
           const [exploraData, unclaimedUtxos, allUtxos] = await Promise.all([
             getDepositAddressTxIds(address, contactsPrivateKey, publicKey),
-            getUtxosForDepositAddress({
-              depositAddress: address,
-              mnemonic: currentMnemonicRef.current,
-              excludeClaimed: true,
-            }),
-            getUtxosForDepositAddress({
-              depositAddress: address,
-              mnemonic: currentMnemonicRef.current,
-              excludeClaimed: false,
-            }),
+            fetchAllDepositUtxos(address, currentMnemonicRef.current, true),
+            fetchAllDepositUtxos(address, currentMnemonicRef.current, false),
           ]);
 
           const claimableByTxid = new Set(
@@ -2029,7 +2025,7 @@ const SparkWalletProvider = ({ children }) => {
                 creditAmountSats: tx.amount,
               },
               address,
-              sparkInfoRef.current,
+              sparkInfoRef.current.identityPubKey,
             );
             savedTxCache.set(tx.txid, {
               sparkID: tx.txid,
@@ -2043,135 +2039,74 @@ const SparkWalletProvider = ({ children }) => {
           for (const utxo of unclaimedUtxos.utxos) {
             const { txid, vout } = utxo;
             const exploraTx = exploraData?.find(t => t.txid === txid);
-            let savedTx = await getSavedTxByTxid(txid);
+            const savedTx = await getSavedTxByTxid(txid);
             const hasAlreadySaved = !!savedTx;
+            const savedTxDetails = (() => {
+              try {
+                return JSON.parse(savedTx?.details ?? 'null');
+              } catch {
+                return null;
+              }
+            })();
 
-            // Get quote for this specific UTXO
-            const {
-              didWork: quoteDidWorkResponse,
-              quote,
-              error,
-            } = await getSparkStaticBitcoinL1AddressQuote(
+            // Claim the UTXO (quote → SSP claim → settle check → persist).
+            const outcome = await claimDepositUtxo({
               txid,
-              currentMnemonicRef.current,
-            );
-
-            if (!quoteDidWorkResponse || !quote) {
-              console.log(error, 'Error getting deposit address quote');
-              continue;
-            }
-
-            // Attempt to claim the UTXO
-            const {
-              didWork,
-              error: claimError,
-              response: claimTx,
-            } = await claimnSparkStaticDepositAddress({
-              transactionId: quote.transactionId,
-              creditAmountSats: quote.creditAmountSats,
-              sspSignature: quote.signature,
-              outputIndex: vout, // Use the vout from the UTXO
+              vout,
+              address,
               mnemonic: currentMnemonicRef.current,
-              depositAddress: address,
+              identityPubKey: sparkInfoRef.current.identityPubKey,
+              exploraTx,
+              savedTxDetails,
+              hasAlreadySaved,
             });
 
-            // Add pending transaction if not already saved
-            if (!hasAlreadySaved) {
-              const pendingTx = await addPendingTransaction(
-                quote,
-                address,
-                sparkInfoRef.current,
-              );
-              savedTx = {
-                sparkID: pendingTx.id,
-                accountId: pendingTx.accountId,
-                details: JSON.stringify(pendingTx.details),
-              };
-              savedTxCache.set(txid, savedTx);
+            // Keep the per-run cache in sync so a second vout of the same
+            // on-chain tx is not inserted twice.
+            if (outcome.pendingTx) {
+              savedTxCache.set(txid, {
+                sparkID: outcome.pendingTx.id,
+                accountId: outcome.pendingTx.accountId,
+                details: JSON.stringify(outcome.pendingTx.details),
+              });
             }
 
-            if (!claimTx || !didWork) {
-              console.log('Claim static deposit address error', claimError);
+            if (!outcome.didClaim) {
+              console.log('Claim static deposit address error', outcome.error);
               continue;
             }
 
-            // Mark the transfer as handled so transferHandler skips it.
-            // The SDK fires a transfer event for this claim, and without this guard,
-            // debouncedHandleIncomingPayment would write a placeholder record that
-            // races with our own bulkUpdateSparkTransactions call below.
-            handledTransfers.current.add(claimTx.transferId);
-
-            console.log('Claimed deposit address transaction:', claimTx);
-
-            // Wait for the transfer to settle
-            await new Promise(res => setTimeout(res, 2000));
-
-            const bitcoinTransfer = await getSingleTxDetails(
-              currentMnemonicRef.current,
-              claimTx.transferId,
-            );
-
-            let updatedTx = {};
-            if (!bitcoinTransfer) {
-              // Claim succeeded but the transfer has not settled yet (or the
-              // SDK lookup failed). Keep it pending keyed by the new
-              // transferId; a later run finalizes it. bitcoinTransfer is
-              // undefined here, so it must NOT be dereferenced below.
-              updatedTx = {
-                useTempId: true,
-                id: claimTx.transferId,
-                tempId: quote.transactionId,
-                paymentStatus: 'pending',
-                paymentType: 'bitcoin',
-                accountId: sparkInfoRef.current.identityPubKey,
-              };
+            // Mark the transfer as handled so transferHandler skips it ONLY
+            // once the row is persisted. The SDK fires a transfer:claimed
+            // event for this claim, and without the guard,
+            // debouncedHandleIncomingPayment would write a placeholder record
+            // that races our own bulkUpdateSparkTransactions call. If the row
+            // could not be persisted, keep the event path enabled — it is the
+            // remaining writer for that transfer.
+            if (outcome.persisted) {
+              handledTransfers.current.add(outcome.transferId);
             } else {
-              let fee = 0;
-
-              if (exploraTx) {
-                fee = Math.abs(exploraTx?.amount - bitcoinTransfer.totalValue);
-              } else {
-                const savedTxDetails = (() => {
-                  try {
-                    return JSON.parse(savedTx?.details ?? 'null');
-                  } catch {
-                    return null;
-                  }
-                })();
-                fee = Math.abs(
-                  savedTxDetails?.amount - bitcoinTransfer.totalValue,
-                );
-              }
-              updatedTx = {
-                useTempId: true,
-                tempId: quote.transactionId,
-                id: bitcoinTransfer.id,
-                paymentStatus: 'completed',
-                paymentType: 'bitcoin',
-                accountId: sparkInfoRef.current.identityPubKey,
-                details: {
-                  amount: bitcoinTransfer.totalValue,
-                  fee: fee,
-                  totalFee: fee,
-                  supportFee: 0,
-                  dateAddedToDb: Date.now(),
-                },
-              };
+              console.error(
+                'Claimed deposit but failed to persist transaction; transfer event path stays enabled',
+                outcome.transferId,
+              );
             }
 
-            console.log('Updated bitcoin transaction:', updatedTx);
-            await bulkUpdateSparkTransactions(
-              [updatedTx],
-              'fullUpdate-waitBalance',
+            console.log(
+              'Claimed deposit address transaction:',
+              outcome.transferId,
             );
+            console.log('Updated bitcoin transaction:', outcome.updatedTx);
 
             // Navigate to confirm screen if we have details
-            if (updatedTx.details) {
-              if (handledNavigatedTxs.current.has(updatedTx.id)) continue;
-              handledNavigatedTxs.current.add(updatedTx.id);
+            if (outcome.updatedTx.details) {
+              if (handledNavigatedTxs.current.has(outcome.updatedTx.id)) {
+                continue;
+              }
+              handledNavigatedTxs.current.add(outcome.updatedTx.id);
               if (!isOnSendScreen()) {
                 showToast({
-                  amount: updatedTx.details.amount,
+                  amount: outcome.updatedTx.details.amount,
                   duration: 7000,
                   type: 'confirmTx',
                 });
@@ -2182,27 +2117,6 @@ const SparkWalletProvider = ({ children }) => {
       } catch (err) {
         console.log('Handle deposit address check error', err);
       }
-    };
-
-    const addPendingTransaction = async (quote, address, sparkState) => {
-      const pendingTx = {
-        id: quote.transactionId,
-        paymentStatus: 'pending',
-        paymentType: 'bitcoin',
-        accountId: sparkState.identityPubKey,
-        details: {
-          fee: 0,
-          amount: quote.creditAmountSats,
-          address: address,
-          time: new Date().getTime(),
-          direction: 'INCOMING',
-          description: i18n.t('contexts.spark.depositLabel'),
-          onChainTxid: quote.transactionId,
-          isRestore: true, // This is a restore payment
-        },
-      };
-      await bulkUpdateSparkTransactions([pendingTx], 'transactions');
-      return pendingTx;
     };
 
     clearAllDepositIntervals();

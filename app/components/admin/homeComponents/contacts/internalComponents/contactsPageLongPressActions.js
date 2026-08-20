@@ -67,29 +67,35 @@ export default function ContactsPageLongPressActions({
               />
             </TouchableOpacity>
 
-            <View
-              style={[
-                styles.divider,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
-            />
+            {!contact?.isParentContact && (
+              <>
+                <View
+                  style={[
+                    styles.divider,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundColor
+                          : backgroundOffset,
+                    },
+                  ]}
+                />
 
-            <TouchableOpacity
-              activeOpacity={0.6}
-              style={styles.btn}
-              onPress={() => {
-                deleteContact(contact);
-                navigate.goBack();
-              }}
-            >
-              <ThemeText
-                styles={styles.btnText}
-                content={t('constants.delete')}
-              />
-            </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  style={styles.btn}
+                  onPress={() => {
+                    deleteContact(contact);
+                    navigate.goBack();
+                  }}
+                >
+                  <ThemeText
+                    styles={styles.btnText}
+                    content={t('constants.delete')}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </TouchableWithoutFeedback>
       </View>

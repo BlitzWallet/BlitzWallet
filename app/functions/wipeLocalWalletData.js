@@ -4,6 +4,7 @@ import {
   removeAllLocalData,
   setLocalStorageItem,
 } from './localStorage';
+import { PENDING_PARENT_CONTACT_KEY } from '../constants';
 import { deleteTable } from './messaging/cachedMessages';
 import { deletePOSTransactionsTable } from './pos';
 import {
@@ -46,8 +47,14 @@ import {
 // AsyncStorage keys carried across the wipe. userSelectedLanguage keeps
 // non-English users from flipping to en mid-onboarding; didViewSeedPhrase holds
 // the value pin.js just wrote for the new wallet (a null default would flip a
-// brand-new wallet to "already viewed" and suppress the backup nudge).
-const PRESERVED_KEYS = ['userSelectedLanguage', 'didViewSeedPhrase'];
+// brand-new wallet to "already viewed" and suppress the backup nudge);
+// pendingParentContactRid carries the child-claim pairing username through the
+// onboarding wipe so globalContacts can auto-add the parent on home.
+const PRESERVED_KEYS = [
+  'userSelectedLanguage',
+  'didViewSeedPhrase',
+  PENDING_PARENT_CONTACT_KEY,
+];
 
 // Every wallet-local SQLite table. Do NOT gate on per-delete return values:
 // several legacy deletes resolve undefined on success and some swallow their own

@@ -200,6 +200,8 @@
     "paidRequest": "Paid request",
     "sent": "Sent",
     "received": "Received",
+    "accountTopup": "Topup",
+    "accountWithdrawal": "Withdrawal",
     "paidLower": "paid",
     "declinedLower": "declined",
     "receivedRequest": "Received request",
@@ -2010,21 +2012,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Are you sure you want to delete this Nostr Connect item?",
-      "addAccount": "Add Account",
+      "confirmDelete": "Are you sure you want to delete this connection?",
+      "addAccount": "Add connection",
       "empty": {
         "title": "No connections yet",
         "subtitle": "Create a connection to use Nostr Wallet Connect with your favorite apps."
       },
       "createNWCName": {
-        "title": "Connection Name"
+        "navTitle": "Name",
+        "title": "Name this connection",
+        "editTitle": "Edit connection name",
+        "subtitle": "Give the connection a name so you can recognize it later.",
+        "editSubtitle": "Choose a new name so you can recognize this connection later.",
+        "placeholder": "Connection name"
       },
       "createNWCPermissions": {
         "title": "Permissions",
-        "pageTitle": "Add wallet permissions",
-        "pageSubtitle": "Choose what actions this wallet can perform.",
-        "editTitle": "Edit wallet permissions",
-        "editSubtitle": "Edit what actions this wallet can perform."
+        "pageTitle": "Add connection permissions",
+        "pageSubtitle": "Choose what actions {{name}} can perform.",
+        "editTitle": "Edit connection permissions",
+        "editSubtitle": "Edit what actions {{name}} can perform."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -2033,15 +2040,15 @@
         "editTitle": "Edit spending budget",
         "editSubtitle": "Change the spending limit and when it resets. Leave blank for no limit.",
         "renewalPlaceholder": "Select renewal period",
-        "createButton": "Create account"
+        "createButton": "Create connection"
       },
       "accountCreated": {
-        "title": "Account created",
-        "subtitle": "Your NWC account has been created, copy the connection string to start using it.",
+        "title": "Connection created",
+        "subtitle": "Your connection has been created, copy the connection string to start using it.",
         "copyConnection": "Copy connection string"
       },
       "accountPage": {
-        "title": "Manage Account",
+        "title": "Manage Connection",
         "nameLabel": "Name",
         "permissionsLabel": "Permissions",
         "permissionsCount_one": "{{count}} permission",
@@ -2049,16 +2056,16 @@
         "renewalLabel": "Renewal period",
         "amountLabel": "Budget amount",
         "viewSecretLabel": "Connection string",
-        "deleteAccount": "Delete account"
+        "deleteAccount": "Delete connection"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Please enter an account name.",
+        "noAccountNameError": "Please enter a connection name.",
         "noPermissionsError": "Please enable at least one permission.",
         "noBudgetError": "Please select a budget renewal period.",
         "noBudgetAmountError": "Please select a budget amount.",
-        "loadingMessage": "Creating Account",
-        "updatingMessage": "Updating Account...",
-        "nameInputPlaceholder": "Enter NWC account name",
+        "loadingMessage": "Creating connection...",
+        "updatingMessage": "Updating connection...",
+        "nameInputPlaceholder": "Enter NWC connection name",
         "permissionsHeader": "Wallet permissions",
         "receivePayments": "Receive payments",
         "sendPayments": "Send payments",
@@ -2068,7 +2075,7 @@
         "budgetRenewalHeader": "Budget Renewal"
       },
       "hasNoAccounts": {
-        "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."
+        "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC on the account page."
       },
       "noNotifications": {
         "title": "Notifications required",
@@ -2081,7 +2088,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Before you get started",
-        "infoSubtitle": "A few things to know about your Nostr Wallet Connect account.",
+        "infoSubtitle": "A few things to know about Nostr Wallet Connect.",
         "row1Label": "Add funds",
         "row1Description": "Add money by receiving it or moving it from your main account.",
         "row2Label": "Separate account",
@@ -2138,6 +2145,7 @@
         "title": "Account",
         "accountNameLabel": "Account Name",
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
+        "lightningAddressLabel": "Lightning address",
         "removeAccountLabel": "Remove Account",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
@@ -2147,14 +2155,18 @@
         "accountType_derived": "Derived",
         "accountType_imported": "Imported",
         "accountType_main": "Main",
-        "accountTypeDerivedInfo": "This account is tied to your Blitz seed phrase and will be restored when you restore your Blitz wallet.",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "This account is created from your Blitz recovery phrase and will be restored when you restore your Blitz wallet.",
         "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up.",
+        "accountTypeNwcInfo": "This is your Nostr Wallet Connect (NWC) account. It is used by apps connected to Blitz and can always be restored from your main Blitz recovery phrase.",
         "balanceLabel": "Balance",
         "activeLabel": "Active account",
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw money",
-        "viewActivityLabel": "Account history"
+        "viewActivityLabel": "Account history",
+        "loadError": "Unable to load account",
+        "loadErrorDesc": "Please try again. If the problem continues, contact support."
       },
       "removeAccountPage": {
         "title": "Remove",
@@ -2199,11 +2211,15 @@
       },
       "transferModal": {
         "selectAccount": "Select an account",
+        "addFromTitle": "Choose which account to add money from.",
+        "withdrawToTitle": "Choose which account to withdraw money to.",
+        "noAccounts": "No other accounts available.",
         "availableToAdd": "Available to add",
         "availableToWithdraw": "Available to withdraw",
         "using": "Using",
         "amount": "Amount",
         "transferComplete": "Sent to {{name}}",
+        "receivedFrom": "Received from {{name}}",
         "selfTransfer": "You cannot transfer to yourself",
         "addFunds": "{{name}} added money",
         "withdrawFunds": "{{name}} withdrew money"
@@ -2214,9 +2230,7 @@
       "settingsButton": "Settings",
       "poolsTitle": "Pools",
       "noPoolsMessage": "You haven't created any pools yet. Tap to create your first pool.",
-      "noActivePools": "You don’t have any active pools right now. Tap to view your pools.",
-      "yourAccountsTitle": "Your Accounts",
-      "addAccountButton": "Add Account"
+      "noActivePools": "You don’t have any active pools right now. Tap to view your pools."
     },
     "hub": {
       "viewAll": "View All",
