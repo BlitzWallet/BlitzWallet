@@ -445,8 +445,9 @@ describe('review — R-2 claim reconcile false-positive on query failure', () =>
     await flush();
     expect(wv.lastEncryptedPayload('claimnSparkStaticDepositAddress')).toBeTruthy();
 
-    // Keep-alive watchdog: resume-by-id, then final deadline → unknown.
-    await advance(90001);
+    // Keep-alive watchdog: claim is a medium op (30s first window), then the
+    // 30s final deadline → unknown.
+    await advance(30001);
     expect(st.settled).toBe(false);
     await advance(30001);
     expect(st.value.kind).toBe('unknown');
