@@ -29,11 +29,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  USDB_TOKEN_ID,
-} from '../../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { formatBalanceAmount } from '../../../../../functions';
 import {
   disposeSparkWallet,
@@ -43,9 +39,9 @@ import {
 import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
 import {
   getAccountBalanceSnapshot,
+  getUsdTokenDollars,
   saveAccountBalanceSnapshot,
 } from '../../../../../functions/spark/balanceSnapshots';
-import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
 import PagerView from 'react-native-pager-view';
 import Animated, {
@@ -251,16 +247,7 @@ export default function EditAccountPage(props) {
     ? sparkInformation?.tokens
     : accountBalance.tokensObj;
 
-  const usdbToken = tokensObj?.[USDB_TOKEN_ID];
-  const dollarBalance =
-    usdbToken?.balance != null && usdbToken?.tokenMetadata?.decimals != null
-      ? parseFloat(
-          formatTokensNumber(
-            usdbToken.balance,
-            usdbToken.tokenMetadata.decimals,
-          ),
-        ) || 0
-      : 0;
+  const dollarBalance = getUsdTokenDollars(tokensObj);
 
   // Withdrawals move BTC *or* USDB, so either balance unlocks the button.
   const hasWithdrawableBalance = !!btcBalance || !!dollarBalance;
@@ -270,13 +257,16 @@ export default function EditAccountPage(props) {
 
   const balanceScrollX = useSharedValue(0);
 
-  const onBalancePageScroll = usePagerScrollHandler({
-    onPageScroll: e => {
-      'worklet';
-      const scrollOffset = (e.position + e.offset) * screenWidth;
-      balanceScrollX.value = scrollOffset;
+  const onBalancePageScroll = usePagerScrollHandler(
+    {
+      onPageScroll: e => {
+        'worklet';
+        const scrollOffset = (e.position + e.offset) * screenWidth;
+        balanceScrollX.value = scrollOffset;
+      },
     },
-  });
+    [screenWidth],
+  );
 
   const transformedAnimation = useMemo(
     () =>
@@ -649,7 +639,6 @@ export default function EditAccountPage(props) {
 }
 const styles = StyleSheet.create({
   avatarContainer: {
-    // marginBottom: 25,
     alignSelf: 'center',
   },
 
@@ -688,10 +677,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 15,
   },
-  infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
 
   rowLabel: {
     includeFontPadding: false,
@@ -717,15 +702,6 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
 
-  dangerRow: {
-    justifyContent: 'center',
-  },
-  dangerText: {
-    color: COLORS.cancelRed,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-
   balanceLabel: {
     textTransform: 'uppercase',
     includeFontPadding: false,
@@ -738,12 +714,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-  },
-
-  connectingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
   },
 
   errorContainer: {

@@ -16,6 +16,7 @@ let mockGetAccountTransferFee = jest.fn();
 let mockGetAccountMnemonic = jest.fn();
 let mockConvertDisplayToSats = jest.fn();
 let mockPublishParentAccountTransferMessage = jest.fn();
+let mockKeypadValue = '1.50';
 let mockGlobalContactsInformation = {
   myProfile: { name: 'Parent', uuid: 'parent-pubkey' },
 };
@@ -178,7 +179,8 @@ jest.mock('../app/functions/CustomElements/formattedBalanceInput', () => ({
 }));
 
 // The keypad mock types a fixed dollar amount — BTC tests convert it to sats via
-// the mocked useCurrencyDisplay, USD tests take it as raw dollars.
+// the mocked useCurrencyDisplay, USD tests take it as raw dollars. `mockKeypadValue`
+// lets a test type a second, different amount.
 jest.mock('../app/functions/CustomElements/customNumberKeyboard', () => {
   const MockReact = require('react');
   const RN = require('react-native');
@@ -187,7 +189,10 @@ jest.mock('../app/functions/CustomElements/customNumberKeyboard', () => {
     default: ({ setInputValue }) =>
       MockReact.createElement(
         RN.TouchableOpacity,
-        { testID: 'keyboard-input', onPress: () => setInputValue('1.50') },
+        {
+          testID: 'keyboard-input',
+          onPress: () => setInputValue(mockKeypadValue),
+        },
         'keyboard',
       ),
   };
@@ -419,6 +424,7 @@ beforeEach(() => {
   // Empty input parses to 0 sats; any entered amount maps to 1000 for the
   // assertions below.
   mockConvertDisplayToSats.mockImplementation(value => (value ? 1000 : 0));
+  mockKeypadValue = '1.50';
   mockGetAccountMnemonic.mockImplementation(
     async acct => `${acct?.uuid}-mnemonic`,
   );
@@ -517,6 +523,71 @@ describe('AccountTransferHalfModal step flow', () => {
 
     expect(mockGetAccountTransferFee).not.toHaveBeenCalled();
     expect(mockExecuteAccountTransfer).not.toHaveBeenCalled();
+  });
+
+  test('a stale fee response cannot re-enable Confirm with the old fee', async () => {
+    mockCustodyAccounts = [{ uuid: 'active-uuid', name: 'Active' }];
+    // Distinguish the two typed amounts so the fee effect re-fires: 1.50 →
+    // 1000 sats, 2.50 → 2000 sats.
+    mockConvertDisplayToSats.mockImplementation(value =>
+      value === '2.50' ? 2000 : 1000,
+    );
+    let resolveFeeA;
+    let resolveFeeB;
+    mockGetAccountTransferFee
+      .mockReturnValueOnce(new Promise(res => (resolveFeeA = res)))
+      .mockReturnValueOnce(new Promise(res => (resolveFeeB = res)));
+    const renderer = await renderModal();
+    await selectAccount(renderer, 'active-uuid');
+
+    // Amount A: fee request A fires and stays in flight.
+    await act(async () => {
+      pressKeyboardInput(renderer);
+      await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(100);
+      await flushMicrotasks();
+    });
+    expect(mockGetAccountTransferFee).toHaveBeenCalledTimes(1);
+
+    // Amount B supersedes A: a second fee request fires.
+    mockKeypadValue = '2.50';
+    await act(async () => {
+      pressKeyboardInput(renderer);
+      await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(100);
+      await flushMicrotasks();
+    });
+    expect(mockGetAccountTransferFee).toHaveBeenCalledTimes(2);
+
+    // A resolves late with a stale fee — it must be dropped, and Confirm stays
+    // gated (isCalculatingFee is still true until B resolves).
+    await act(async () => {
+      resolveFeeA({ didWork: true, fee: 999 });
+      await flushMicrotasks();
+    });
+    await act(async () => {
+      pressConfirm(renderer);
+      await flushMicrotasks();
+    });
+    expect(mockExecuteAccountTransfer).not.toHaveBeenCalled();
+
+    // B resolves: the fresh fee lands and Confirm enables with amount B.
+    await act(async () => {
+      resolveFeeB({ didWork: true, fee: 10 });
+      await flushMicrotasks();
+    });
+    await act(async () => {
+      pressConfirm(renderer);
+      await flushMicrotasks();
+    });
+    expect(mockExecuteAccountTransfer).toHaveBeenCalledTimes(1);
+    expect(mockExecuteAccountTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({ amountSats: 2000, fee: 10 }),
+    );
   });
 
   test('double-tapping Confirm in one frame sends exactly once', async () => {

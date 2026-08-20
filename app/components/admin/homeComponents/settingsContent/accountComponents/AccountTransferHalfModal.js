@@ -134,6 +134,7 @@ export default function AccountTransferHalfModal({
   // user can retry.
   const isSubmittingRef = useRef(false);
   const sourceMnemonicRef = useRef(null);
+  const initPromiseRef = useRef(null);
 
   // The edited account is passed in by the caller (it may be a personal custody
   // account or a linked child). The modal never resolves it from a global list,
@@ -165,7 +166,10 @@ export default function AccountTransferHalfModal({
         const mnemonic = await getAccountMnemonic(sourceAccount);
         if (cancelled) return;
         sourceMnemonicRef.current = mnemonic;
-        await initializeSparkWallet(mnemonic, false, { maxRetries: 4 });
+        await (initPromiseRef.current = initializeSparkWallet(mnemonic, false, {
+          maxRetries: 4,
+          shouldCancel: () => cancelled,
+        }));
         if (cancelled) return;
         const balanceResponse = await getSparkBalance(mnemonic);
         if (cancelled) return;
@@ -189,9 +193,16 @@ export default function AccountTransferHalfModal({
       cancelled = true;
       // The init above acquired a wallet; drop it so no orphan lingers after
       // the sheet closes. Never for the main seed — that wallet is session-long.
+      // Await the in-flight init before disposing so we dispose the wallet init
+      // actually created (a pre-init dispose is a no-op).
       const m = sourceMnemonicRef.current;
-      if (m && m !== accountMnemoinc) disposeSparkWallet(m);
+      if (m && m !== accountMnemoinc) {
+        Promise.resolve(initPromiseRef.current).finally(() =>
+          disposeSparkWallet(m),
+        );
+      }
       sourceMnemonicRef.current = null;
+      initPromiseRef.current = null;
     };
   }, [sourceAccount?.uuid, isSourceActive, getAccountMnemonic, accountMnemoinc]);
 
@@ -224,7 +235,6 @@ export default function AccountTransferHalfModal({
   const loadingOpacity = useSharedValue(0);
   const loadingTranslateX = useSharedValue(30);
   const resultOpacity = useSharedValue(0);
-  // const resultTranslateX = useSharedValue(30);
 
   useEffect(() => {
     const activeIndex = PAGE_ORDER.indexOf(page);
@@ -256,9 +266,6 @@ export default function AccountTransferHalfModal({
     resultOpacity.value = withTiming(page === 'result' ? 1 : 0, {
       duration: 250,
     });
-    // resultTranslateX.value = withTiming(translateForPage('result'), {
-    //   duration: 250,
-    // });
   }, [page]);
 
   const accountAnimatedStyle = useAnimatedStyle(() => ({
@@ -275,7 +282,6 @@ export default function AccountTransferHalfModal({
   }));
   const resultAnimatedStyle = useAnimatedStyle(() => ({
     opacity: resultOpacity.value,
-    // transform: [{ translateX: resultTranslateX.value }],
   }));
 
   // Mounts a page on its first visit and keeps it mounted thereafter.
@@ -420,8 +426,6 @@ export default function AccountTransferHalfModal({
             }
           : {}),
       });
-    } else {
-      setBackNav?.(null);
     }
     return () => setBackNav?.(null);
   }, [
@@ -433,16 +437,22 @@ export default function AccountTransferHalfModal({
     setBackNav,
   ]);
 
+  const feeReqRef = useRef(0);
+
   const debouncedFee = useDebounce(
     useCallback(
       async amountSats => {
         if (!amountSats) return;
+        // Monotonic request token: a newer amount supersedes this one, so a
+        // stale fee resolve must not re-enable Confirm with the old fee.
+        const reqId = ++feeReqRef.current;
         // we use the main account because we know it will be initialized
         const feeResponse = await getAccountTransferFee({
           amountSats,
           mnemonic: accountMnemoinc,
           sendWebViewRequest,
         });
+        if (feeReqRef.current !== reqId) return;
         if (!feeResponse?.didWork) {
           setTransferInfo(prev => ({
             ...prev,
@@ -599,16 +609,16 @@ export default function AccountTransferHalfModal({
             style={styles.accountList}
             contentContainerStyle={styles.accountListContent}
           >
-            {candidates.map((account, index) => (
+            {candidates.map((candidate, index) => (
               <AccountCard
                 useAltBackground={theme && darkModeType}
-                key={account.uuid || `Account ${index}`}
-                account={account}
+                key={candidate.uuid || `Account ${index}`}
+                account={candidate}
                 onPress={() => {
-                  setSelectedAccount(account);
+                  setSelectedAccount(candidate);
                   goToPage('amount');
                 }}
-                balanceSats={computeTotalSats(account)}
+                balanceSats={computeTotalSats(candidate)}
               />
             ))}
           </ScrollView>

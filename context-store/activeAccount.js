@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -52,6 +53,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const hasSessionReset = useRef(false);
   const hasAutoRestoreCheckRun = useRef(false);
   const lnurlSyncInFlight = useRef(false);
+  // After a fast-failing registry write the rollback re-triggers this effect
+  // (accountsLnurl dep), which would spin on derived-pubkey derivation + retry.
+  // Cooldown breaks the tight loop; a later account/doc change retries.
+  const lnurlSyncCooldownRef = useRef(0);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
@@ -350,28 +355,31 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     }
   };
 
-  const getAccountMnemonic = async account => {
-    try {
-      if (!account) throw new Error('No account provided');
-      // Linked (child) accounts derive from the parent seed via childIndex.
-      if (account.childIndex !== undefined) {
-        return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+  const getAccountMnemonic = useCallback(
+    async account => {
+      try {
+        if (!account) throw new Error('No account provided');
+        // Linked (child) accounts derive from the parent seed via childIndex.
+        if (account.childIndex !== undefined) {
+          return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+        }
+        // For derived accounts, re-derive on demand from main seed
+        if (account.derivationIndex !== undefined) {
+          const derivedMnemonic = await deriveAccountMnemonic(
+            accountMnemoinc,
+            account.derivationIndex,
+          );
+          return derivedMnemonic;
+        }
+        // For imported accounts, return stored mnemonic
+        return account.mnemoinc;
+      } catch (err) {
+        console.log('Get account mnemonic error', err);
+        throw err;
       }
-      // For derived accounts, re-derive on demand from main seed
-      if (account.derivationIndex !== undefined) {
-        const derivedMnemonic = await deriveAccountMnemonic(
-          accountMnemoinc,
-          account.derivationIndex,
-        );
-        return derivedMnemonic;
-      }
-      // For imported accounts, return stored mnemonic
-      return account.mnemoinc;
-    } catch (err) {
-      console.log('Get account mnemonic error', err);
-      throw err;
-    }
-  };
+    },
+    [accountMnemoinc],
+  );
 
   const restoreDerivedAccountsFromCloud = async () => {
     try {
@@ -539,6 +547,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   useEffect(() => {
     if (!accountMnemoinc || !didGetToHomepage) return;
     if (lnurlSyncInFlight.current) return;
+    if (Date.now() < lnurlSyncCooldownRef.current) return;
 
     const registry = masterInfoObject.accountsLnurl || {};
     const knownUuids = new Set(Object.values(registry).map(v => v.uuid));
@@ -580,6 +589,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           // masked until the next launch — the next tick then retries.
           if (!didWrite) {
             toggleMasterInfoObject({ accountsLnurl: registry }, false);
+            lnurlSyncCooldownRef.current = Date.now() + 60_000;
           }
         }
       } catch (err) {
