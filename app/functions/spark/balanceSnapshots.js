@@ -47,6 +47,44 @@ export async function saveAccountBalanceSnapshot(identityPubKey, balance, tokens
   }
 }
 
+// Optimistically applies a transfer's effect to a cached balance snapshot.
+// Used for the counterparty of an account↔account transfer whose edit page is
+// not mounted — with no live listener, its snapshot would stay stale until the
+// page is next opened. Pass a fresh `btcSats`/`tokensObj` base when one was
+// read (the sender side); otherwise the cached snapshot is the base and only
+// the deltas are applied (the receiver side). `deltaUsdMicros` moves the USDB
+// token in base units (1e6 = $1), matching the transfer modal's amountOut.
+// No-op when no cached snapshot exists — the page's live read paints the true
+// balance on next load.
+export async function optimisticallyUpdateBalanceSnapshot(
+  identityPubKey,
+  { btcSats, tokensObj, deltaBtcSats = 0, deltaUsdMicros = 0 },
+) {
+  const cached = await getAccountBalanceSnapshot(identityPubKey);
+  const baseBtcSats =
+    btcSats != null ? Number(btcSats) : cached ? Number(cached.balance) : null;
+  const baseTokens = tokensObj ?? cached?.tokens;
+  if (baseBtcSats == null || !baseTokens) return;
+
+  const newBtcSats = Math.max(0, baseBtcSats + deltaBtcSats);
+  let newTokens = baseTokens;
+  if (deltaUsdMicros) {
+    const usdbToken = baseTokens[USDB_TOKEN_ID];
+    if (usdbToken?.balance != null) {
+      newTokens = {
+        ...baseTokens,
+        [USDB_TOKEN_ID]: {
+          ...usdbToken,
+          balance: BigInt(
+            Math.max(0, Number(usdbToken.balance) + deltaUsdMicros),
+          ),
+        },
+      };
+    }
+  }
+  await saveAccountBalanceSnapshot(identityPubKey, newBtcSats, newTokens);
+}
+
 export async function getAccountBalanceSnapshot(identityPubKey) {
   try {
     const db = await ensureSparkDatabaseReady();

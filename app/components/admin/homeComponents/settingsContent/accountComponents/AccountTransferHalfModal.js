@@ -44,9 +44,13 @@ import {
 import {
   disposeSparkWallet,
   getSparkBalance,
+  getSparkIdentityPubKey,
   initializeSparkWallet,
 } from '../../../../../functions/spark';
-import { getUsdTokenDollars } from '../../../../../functions/spark/balanceSnapshots';
+import {
+  getUsdTokenDollars,
+  optimisticallyUpdateBalanceSnapshot,
+} from '../../../../../functions/spark/balanceSnapshots';
 import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
 import {
   applyErrorAnimationTheme,
@@ -125,6 +129,7 @@ export default function AccountTransferHalfModal({
     status: 'loading', // 'loading' | 'ready' | 'error'
     btcSats: 0,
     usdDollars: 0,
+    tokensObj: null,
   });
 
   // Synchronous re-entrancy guard for the confirm button. goToPage('loading')
@@ -160,7 +165,7 @@ export default function AccountTransferHalfModal({
   useEffect(() => {
     if (!sourceAccount?.uuid || isSourceActive) return;
     let cancelled = false;
-    setSourceBalance({ status: 'loading', btcSats: 0, usdDollars: 0 });
+    setSourceBalance({ status: 'loading', btcSats: 0, usdDollars: 0, tokensObj: null });
     (async () => {
       try {
         const mnemonic = await getAccountMnemonic(sourceAccount);
@@ -179,8 +184,9 @@ export default function AccountTransferHalfModal({
                 status: 'ready',
                 btcSats: Number(balanceResponse.balance || 0),
                 usdDollars: getUsdTokenDollars(balanceResponse.tokensObj),
+                tokensObj: balanceResponse.tokensObj || null,
               }
-            : { status: 'error', btcSats: 0, usdDollars: 0 },
+            : { status: 'error', btcSats: 0, usdDollars: 0, tokensObj: null },
         );
       } catch (err) {
         console.log('load source account balance error', err);
@@ -525,6 +531,40 @@ export default function AccountTransferHalfModal({
         asset,
       });
 
+      // The counterparty account's edit page is not mounted, so its cached
+      // balance snapshot has no live listener to persist this transfer and
+      // would stay stale until that page is next opened. Persist the change
+      // optimistically: the sender side adjusts from the freshly-read balance,
+      // the receiver side from its cached snapshot (best available without
+      // initializing the wallet). The active account is skipped — its live
+      // balance context owns and snapshots it. Best-effort: a failure here
+      // only logs; the transfer itself already succeeded.
+      const pickedAccount = isAdd ? sourceAccount : destinationAccount;
+      if (pickedAccount?.uuid && pickedAccount.uuid !== activeAccount?.uuid) {
+        try {
+          const mnemonic = isAdd
+            ? sourceMnemonicRef.current
+            : await getAccountMnemonic(pickedAccount);
+          if (mnemonic) {
+            const pubkey = await getSparkIdentityPubKey(mnemonic);
+            if (pubkey) {
+              await optimisticallyUpdateBalanceSnapshot(pubkey, {
+                btcSats: isAdd ? sourceBtcSats : null,
+                tokensObj: isAdd ? sourceBalance.tokensObj : null,
+                deltaBtcSats: isUsdAsset
+                  ? 0
+                  : isAdd
+                    ? -(amountOut + transferInfo.paymentFee)
+                    : amountOut,
+                deltaUsdMicros: isUsdAsset ? amountOut : 0,
+              });
+            }
+          }
+        } catch (err) {
+          console.log('optimistic account transfer snapshot update error', err);
+        }
+      }
+
       // Parent ↔ linked-child transfer: tag the child's tx with a contact
       // message so it renders "{parentName} deposited/withdrew" instead of the
       // generic Sent/Received. Description-only — the child never auto-adds the
@@ -572,7 +612,9 @@ export default function AccountTransferHalfModal({
     amountOut,
     transferInfo.paymentFee,
     sourceBtcSats,
+    sourceBalance.tokensObj,
     sourceUsdMicros,
+    activeAccount?.uuid,
     swapUSDPriceDollars,
     masterInfoObject,
     globalContactsInformation,

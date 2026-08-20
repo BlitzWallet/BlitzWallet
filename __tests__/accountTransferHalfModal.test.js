@@ -11,6 +11,8 @@ let mockActiveAccountBalance = 50000;
 let mockActiveDollarBalance = 2;
 let mockGetSparkBalance = jest.fn();
 let mockInitializeSparkWallet = jest.fn();
+let mockGetSparkIdentityPubKey = jest.fn();
+let mockOptimisticallyUpdateBalanceSnapshot = jest.fn();
 let mockExecuteAccountTransfer = jest.fn();
 let mockGetAccountTransferFee = jest.fn();
 let mockGetAccountMnemonic = jest.fn();
@@ -291,6 +293,7 @@ jest.mock('../app/functions/spark/accountTransfer', () => ({
 jest.mock('../app/functions/spark', () => ({
   disposeSparkWallet: jest.fn(async () => ({ didWork: true })),
   getSparkBalance: (...args) => mockGetSparkBalance(...args),
+  getSparkIdentityPubKey: (...args) => mockGetSparkIdentityPubKey(...args),
   initializeSparkWallet: (...args) => mockInitializeSparkWallet(...args),
 }));
 
@@ -312,6 +315,8 @@ jest.mock('../app/functions/spark/balanceSnapshots', () => ({
     }
     return 0;
   },
+  optimisticallyUpdateBalanceSnapshot: (...args) =>
+    mockOptimisticallyUpdateBalanceSnapshot(...args),
 }));
 
 const AccountTransferHalfModal =
@@ -435,6 +440,8 @@ beforeEach(() => {
     tokensObj: {},
   });
   mockInitializeSparkWallet.mockResolvedValue({ isConnected: true });
+  mockGetSparkIdentityPubKey.mockImplementation(async mn => `pk-${mn}`);
+  mockOptimisticallyUpdateBalanceSnapshot = jest.fn(async () => {});
   mockPublishParentAccountTransferMessage = jest.fn(async () => {});
   mockExecuteAccountTransfer.mockResolvedValue({
     didWork: true,
@@ -680,5 +687,84 @@ describe('AccountTransferHalfModal parent/child tagging', () => {
 
     expect(mockExecuteAccountTransfer).toHaveBeenCalledTimes(1);
     expect(mockPublishParentAccountTransferMessage).not.toHaveBeenCalled();
+  });
+});
+
+describe('AccountTransferHalfModal optimistic balance snapshot', () => {
+  test('add mode decrements the non-active sending account from its fresh balance', async () => {
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    const renderer = await renderModal();
+    await runBtcTransfer(renderer, 'other-uuid');
+
+    expect(mockOptimisticallyUpdateBalanceSnapshot).toHaveBeenCalledTimes(1);
+    expect(mockOptimisticallyUpdateBalanceSnapshot).toHaveBeenCalledWith(
+      'pk-other-uuid-mnemonic',
+      {
+        btcSats: 2000, // fresh read from getSparkBalance
+        tokensObj: {},
+        deltaBtcSats: -1010, // -(1000 sats + 10 fee)
+        deltaUsdMicros: 0,
+      },
+    );
+  });
+
+  test('withdraw mode increments the non-active receiving account from its cached snapshot', async () => {
+    mockCurrentAccount = { uuid: 'custody-uuid', name: 'Custody' };
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    const renderer = await renderModal({ mode: 'withdraw' });
+    await runBtcTransfer(renderer, 'other-uuid');
+
+    expect(mockOptimisticallyUpdateBalanceSnapshot).toHaveBeenCalledTimes(1);
+    expect(mockOptimisticallyUpdateBalanceSnapshot).toHaveBeenCalledWith(
+      'pk-other-uuid-mnemonic',
+      {
+        btcSats: null, // no fresh read → cached snapshot base
+        tokensObj: null,
+        deltaBtcSats: 1000,
+        deltaUsdMicros: 0,
+      },
+    );
+  });
+
+  test('USD transfers move the USDB micro-unit delta instead of sats', async () => {
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    mockGetSparkBalance.mockResolvedValue({
+      didWork: true,
+      balance: 100000n,
+      tokensObj: {
+        'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87': {
+          balance: 3000000n,
+          tokenMetadata: { decimals: 6 },
+        },
+      },
+    });
+    const renderer = await renderModal();
+    await selectAccount(renderer, 'other-uuid');
+    await switchToUsd(renderer);
+    await enterAmount(renderer);
+    await confirmTransfer(renderer);
+
+    expect(mockOptimisticallyUpdateBalanceSnapshot).toHaveBeenCalledTimes(1);
+    expect(mockOptimisticallyUpdateBalanceSnapshot).toHaveBeenCalledWith(
+      'pk-other-uuid-mnemonic',
+      {
+        btcSats: 100000,
+        tokensObj: expect.objectContaining({
+          'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87':
+            expect.any(Object),
+        }),
+        deltaBtcSats: 0,
+        deltaUsdMicros: 1500000, // 1.50 * 1e6 micro-units
+      },
+    );
+  });
+
+  test('skips the active account — its live context owns the balance', async () => {
+    mockCustodyAccounts = [{ uuid: 'active-uuid', name: 'Active' }];
+    const renderer = await renderModal();
+    await runBtcTransfer(renderer, 'active-uuid');
+
+    expect(mockExecuteAccountTransfer).toHaveBeenCalledTimes(1);
+    expect(mockOptimisticallyUpdateBalanceSnapshot).not.toHaveBeenCalled();
   });
 });
