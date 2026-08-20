@@ -597,6 +597,9 @@ const SparkWalletProvider = ({ children }) => {
   const updateHomepageScrollPosition = useCallback(
     async pos => {
       scrollPositionRef.current = pos;
+      // Skip while the key is unset (init) so we don't clobber a list another
+      // path populated.
+      if (!sparkInfoRef.current.identityPubKey) return;
       const allTxs = await getAllSparkTransactions({
         limit: null,
         accountId: sparkInfoRef.current.identityPubKey,

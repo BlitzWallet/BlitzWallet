@@ -36,7 +36,6 @@ import {
   NosterWalletConnect,
 } from '../app/components/admin/homeComponents/settingsContent';
 import POSStack from './POSStack';
-import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import SelectCreateAccountType from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectCreateAccountType';
 import EditAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/editAccountPage';
@@ -178,7 +177,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'RemoveAccountPage', component: RemoveAccountPage },
   { name: 'SeedPhraseWarning', component: SeedPhraseWarning },
   { name: 'EmojiAvatarSelector', component: EmojiAvatarSelector },
-  { name: 'CustodyAccountPaymentPage', component: AccountPaymentPage },
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
   { name: 'NWCAccountPage', component: NWCAccountPage },
   { name: 'CreateNWCName', component: CreateNWCName },

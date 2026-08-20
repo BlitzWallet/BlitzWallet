@@ -1,4 +1,5 @@
 import { sparkPaymenWrapper } from './payments';
+import { USDB_TOKEN_ID } from '../../constants';
 import {
   getSparkAddress,
   getSparkIdentityPubKey,
@@ -33,6 +34,8 @@ export async function getAccountTransferFee({
 // Moves `amountSats` from one custody/child account to another over spark, then
 // mirrors the transfer as an INCOMING tx on the receiving account. `t` supplies
 // localized error/memo strings. Throws on any failure so callers can surface it.
+// For asset==='USD', `amountSats`/`fromBalance` are USDB micro-units (1e6 = $1)
+// and `fee` is 0 — every existing validator holds unchanged.
 export async function executeAccountTransfer({
   fromAccount,
   toAccount,
@@ -44,6 +47,7 @@ export async function executeAccountTransfer({
   getAccountMnemonic,
   sendWebViewRequest,
   t,
+  asset = 'BTC',
 }) {
   // This function signs the send and fabricates the ledger entry. These early
   // checks only validate the caller-supplied inputs (NaN/undefined would make a
@@ -149,6 +153,7 @@ export async function executeAccountTransfer({
     },
     mnemonic: fromMnemonic,
     sendWebViewRequest,
+    ...(asset === 'USD' ? { seletctedToken: USDB_TOKEN_ID } : {}),
   });
 
   if (!sendingResponse.didWork) {

@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -25,6 +26,9 @@ import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
+import { assignLnurlId } from '../app/functions/accounts/assignLnurlId';
+import { deriveSparkIdentityKey } from '../app/functions/gift/deriveGiftWallet';
+import { deleteLnurlRegistryEntry } from '../db';
 import customUUID from '../app/functions/customUUID';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
@@ -43,11 +47,16 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const { t } = useTranslation();
   const [custodyAccounts, setCustodyAccounts] = useState([]);
   const [isUsingNostr, setIsUsingNostr] = useState(false);
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, publicKey } = useKeysContext();
   const [nostrSeed, setNostrSeed] = useState('');
   const [activeDerivedMnemonic, setActiveDerivedMnemonic] = useState(null);
   const hasSessionReset = useRef(false);
   const hasAutoRestoreCheckRun = useRef(false);
+  const lnurlSyncInFlight = useRef(false);
+  // After a fast-failing registry write the rollback re-triggers this effect
+  // (accountsLnurl dep), which would spin on derived-pubkey derivation + retry.
+  // Cooldown breaks the tight loop; a later account/doc change retries.
+  const lnurlSyncCooldownRef = useRef(0);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
@@ -140,6 +149,28 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         toggleMasterInfoObject({
           pinnedAccounts: currentPins.filter(id => id !== account.uuid),
         });
+      }
+      // Prune the imported account's registry entry: it pins the account's
+      // spark identity pubkey server-side, and merge-writes can't remove a map
+      // key. Derived/child entries are re-derivable, so only imported accounts
+      // carry an unrecoverable seed worth pruning.
+      if (account.mnemoinc) {
+        const registry = masterInfoObject.accountsLnurl || {};
+        const hit = Object.entries(registry).find(
+          ([, v]) => v.uuid === account.uuid,
+        );
+        if (hit) {
+          // Gate local removal on a confirmed prune: the imported seed only
+          // lives in the custody store, so destroying it while the address is
+          // still live server-side would strand inbound payments.
+          const pruned = await deleteLnurlRegistryEntry(publicKey, hit[0]);
+          if (!pruned) {
+            return {
+              didWork: false,
+              err: 'Could not remove the account address. Please try again.',
+            };
+          }
+        }
       }
       //   clear spark information here too. Delte txs from database, reove listeners
       await writeCustodyAccounts(newAccounts, accountMnemoinc);
@@ -324,28 +355,31 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     }
   };
 
-  const getAccountMnemonic = async account => {
-    try {
-      if (!account) throw new Error('No account provided');
-      // Linked (child) accounts derive from the parent seed via childIndex.
-      if (account.childIndex !== undefined) {
-        return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+  const getAccountMnemonic = useCallback(
+    async account => {
+      try {
+        if (!account) throw new Error('No account provided');
+        // Linked (child) accounts derive from the parent seed via childIndex.
+        if (account.childIndex !== undefined) {
+          return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+        }
+        // For derived accounts, re-derive on demand from main seed
+        if (account.derivationIndex !== undefined) {
+          const derivedMnemonic = await deriveAccountMnemonic(
+            accountMnemoinc,
+            account.derivationIndex,
+          );
+          return derivedMnemonic;
+        }
+        // For imported accounts, return stored mnemonic
+        return account.mnemoinc;
+      } catch (err) {
+        console.log('Get account mnemonic error', err);
+        throw err;
       }
-      // For derived accounts, re-derive on demand from main seed
-      if (account.derivationIndex !== undefined) {
-        const derivedMnemonic = await deriveAccountMnemonic(
-          accountMnemoinc,
-          account.derivationIndex,
-        );
-        return derivedMnemonic;
-      }
-      // For imported accounts, return stored mnemonic
-      return account.mnemoinc;
-    } catch (err) {
-      console.log('Get account mnemonic error', err);
-      throw err;
-    }
-  };
+    },
+    [accountMnemoinc],
+  );
 
   const restoreDerivedAccountsFromCloud = async () => {
     try {
@@ -502,6 +536,73 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     masterInfoObject.isChildAccount,
     nostrSeed,
     t,
+  ]);
+
+  // Publish a per-account LNURL address registry into the user doc so the proxy
+  // can mint invoices against each sub-account's own Spark identity key. Additive
+  // only: existing entries are never rewritten (published addresses stay stable),
+  // main is excluded (its plain address stays canonical), child/linked accounts
+  // aren't in custodyAccountsList so they're untouched.
+  // ponytail: additive-only sync, prune orphans later if it matters
+  useEffect(() => {
+    if (!accountMnemoinc || !didGetToHomepage) return;
+    if (lnurlSyncInFlight.current) return;
+    if (Date.now() < lnurlSyncCooldownRef.current) return;
+
+    const registry = masterInfoObject.accountsLnurl || {};
+    const knownUuids = new Set(Object.values(registry).map(v => v.uuid));
+    const missing = custodyAccountsList.filter(
+      a => a.uuid !== MAIN_ACCOUNT_UUID && !knownUuids.has(a.uuid),
+    );
+    if (!missing.length) return;
+
+    lnurlSyncInFlight.current = true;
+    (async () => {
+      try {
+        const next = { ...registry };
+        let added = false;
+        for (const acct of missing) {
+          const mnemonic = await getAccountMnemonic(acct);
+          if (!mnemonic) continue; // e.g. NWC before nostrSeed loads
+          const pubkey = (
+            await deriveSparkIdentityKey(mnemonic, 1)
+          )?.publicKeyHex?.toLowerCase();
+          if (!pubkey) continue;
+          // Same pubkey already registered (duplicate-mnemonic import): reuse
+          // that entry instead of assigning a colliding id that would overwrite
+          // the sibling and flip its uuid mapping.
+          if (Object.values(next).some(v => v.identityPubKey === pubkey))
+            continue;
+          const id = assignLnurlId(pubkey, next);
+          next[id] = {
+            uuid: acct.uuid,
+            identityPubKey: pubkey,
+            receiveCurrency: 'btc',
+          };
+          added = true;
+        }
+        if (added) {
+          const didWrite = await toggleMasterInfoObject({
+            accountsLnurl: next,
+          });
+          // Failed write: roll the optimistic add back so the entry isn't
+          // masked until the next launch — the next tick then retries.
+          if (!didWrite) {
+            toggleMasterInfoObject({ accountsLnurl: registry }, false);
+            lnurlSyncCooldownRef.current = Date.now() + 60_000;
+          }
+        }
+      } catch (err) {
+        console.log('LNURL account sync error', err);
+      } finally {
+        lnurlSyncInFlight.current = false;
+      }
+    })();
+  }, [
+    accountMnemoinc,
+    didGetToHomepage,
+    custodyAccountsList,
+    masterInfoObject.accountsLnurl,
   ]);
 
   const activeAccount = useMemo(() => {

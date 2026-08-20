@@ -53,9 +53,15 @@ export const BalanceDots = ({
   screenWidth,
   theme,
   darkModeType,
+  fromAccounts = false,
 }) => {
   return (
-    <View style={styles.dotsContainer}>
+    <View
+      style={[
+        styles.dotsContainer,
+        fromAccounts && { marginTop: 0, paddingBottom: 0 },
+      ]}
+    >
       {Array.from({ length: pageCount }).map((_, i) => (
         <Dot
           key={i}

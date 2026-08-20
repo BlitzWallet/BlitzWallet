@@ -1,6 +1,26 @@
 import { ensureSparkDatabaseReady } from './transactions';
+import formatTokensNumber from '../lrc20/formatTokensBalance';
+import { USDB_TOKEN_ID } from '../../constants';
 
 const TABLE = 'account_balance_snapshots';
+
+// Dollars held in the USDB token of a tokens object (0 when absent). Shared by
+// the edit page's USD pager and the accounts-list balance preview so the two
+// never drift.
+export function getUsdTokenDollars(tokensObj) {
+  const usdbToken = tokensObj?.[USDB_TOKEN_ID];
+  if (usdbToken?.balance != null && usdbToken?.tokenMetadata?.decimals != null) {
+    return (
+      parseFloat(
+        formatTokensNumber(
+          usdbToken.balance,
+          usdbToken.tokenMetadata.decimals,
+        ),
+      ) || 0
+    );
+  }
+  return 0;
+}
 
 // Token maps coming from the native runtime can carry BigInt fields in their
 // metadata (the merge only down-converts balance/maxSupply). JSON.stringify
@@ -25,6 +45,44 @@ export async function saveAccountBalanceSnapshot(identityPubKey, balance, tokens
   } catch (err) {
     console.log('Error saving account balance snapshot', err);
   }
+}
+
+// Optimistically applies a transfer's effect to a cached balance snapshot.
+// Used for the counterparty of an account↔account transfer whose edit page is
+// not mounted — with no live listener, its snapshot would stay stale until the
+// page is next opened. Pass a fresh `btcSats`/`tokensObj` base when one was
+// read (the sender side); otherwise the cached snapshot is the base and only
+// the deltas are applied (the receiver side). `deltaUsdMicros` moves the USDB
+// token in base units (1e6 = $1), matching the transfer modal's amountOut.
+// No-op when no cached snapshot exists — the page's live read paints the true
+// balance on next load.
+export async function optimisticallyUpdateBalanceSnapshot(
+  identityPubKey,
+  { btcSats, tokensObj, deltaBtcSats = 0, deltaUsdMicros = 0 },
+) {
+  const cached = await getAccountBalanceSnapshot(identityPubKey);
+  const baseBtcSats =
+    btcSats != null ? Number(btcSats) : cached ? Number(cached.balance) : null;
+  const baseTokens = tokensObj ?? cached?.tokens;
+  if (baseBtcSats == null || !baseTokens) return;
+
+  const newBtcSats = Math.max(0, baseBtcSats + deltaBtcSats);
+  let newTokens = baseTokens;
+  if (deltaUsdMicros) {
+    const usdbToken = baseTokens[USDB_TOKEN_ID];
+    if (usdbToken?.balance != null) {
+      newTokens = {
+        ...baseTokens,
+        [USDB_TOKEN_ID]: {
+          ...usdbToken,
+          balance: BigInt(
+            Math.max(0, Number(usdbToken.balance) + deltaUsdMicros),
+          ),
+        },
+      };
+    }
+  }
+  await saveAccountBalanceSnapshot(identityPubKey, newBtcSats, newTokens);
 }
 
 export async function getAccountBalanceSnapshot(identityPubKey) {

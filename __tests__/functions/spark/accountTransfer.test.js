@@ -160,6 +160,38 @@ test('writes an INCOMING mirror tx on the receiving account', async () => {
   expect(mirror.details.fee).toBe(0);
 });
 
+test('asset: USD routes the send through the USDB token and mirrors the token fields', async () => {
+  sparkPaymenWrapper.mockResolvedValue({
+    didWork: true,
+    response: {
+      id: 'tx-usd',
+      details: {
+        direction: 'OUTGOING',
+        isLRC20Payment: true,
+        LRC20Token:
+          'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87',
+      },
+    },
+  });
+  await executeAccountTransfer(
+    baseArgs({
+      asset: 'USD',
+      amountSats: 1500000,
+      fee: 0,
+      fromBalance: 2000000,
+    }),
+  );
+  const call = sparkPaymenWrapper.mock.calls[0][0];
+  expect(call.seletctedToken).toBe(
+    'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87',
+  );
+  const [mirror] = bulkUpdateSparkTransactions.mock.calls[0][0];
+  expect(mirror.details.isLRC20Payment).toBe(true);
+  expect(mirror.details.LRC20Token).toBe(
+    'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87',
+  );
+});
+
 test('defaults the from-side description to "Sent to" and the mirror to "Received from"', async () => {
   await executeAccountTransfer(baseArgs());
   const sendCall = sparkPaymenWrapper.mock.calls[0][0];
