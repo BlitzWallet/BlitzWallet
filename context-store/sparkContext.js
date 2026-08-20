@@ -40,6 +40,7 @@ import {
   fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
+import { hasPendingTxDrift } from '../app/functions/spark/pendingTxDrift';
 import { useGlobalContactsInfo } from './globalContacts';
 import { initWallet } from '../app/functions/initiateWalletConnection';
 // import { useNodeContext } from './nodeContext';
@@ -1686,20 +1687,22 @@ const SparkWalletProvider = ({ children }) => {
               publicKey,
             );
 
-            if (response.shouldCheck) {
-              // No pending txs listed
-              const txs = sparkInfoRef.current.transactions;
-              // if we find a pending tx that means the db and spark state are unaligned
-              const isStateUnalighed = txs?.find(
-                tx => tx.paymentStatus === 'pending',
+            // Reconcile every tick, not only when shouldCheck: if a memory row
+            // still reads "pending" but the DB no longer lists it as pending, a
+            // SPARK_TX_UPDATE event was lost — re-project from the DB. Only when
+            // the DB read succeeded (pendingIds present); a lock-skip/error path
+            // omits it and we leave the projection untouched.
+            if (
+              Array.isArray(response.pendingIds) &&
+              hasPendingTxDrift(
+                sparkInfoRef.current.transactions,
+                response.pendingIds,
+              )
+            ) {
+              sparkTransactionsEventEmitter.emit(
+                SPARK_TX_UPDATE_ENVENT_NAME,
+                'transactions',
               );
-              if (isStateUnalighed) {
-                // send message to update the state with the correct txs
-                sparkTransactionsEventEmitter.emit(
-                  SPARK_TX_UPDATE_ENVENT_NAME,
-                  'transactions',
-                );
-              }
             }
 
             // await checkHodlInvoicePaymentStatuses(
@@ -1946,6 +1949,36 @@ const SparkWalletProvider = ({ children }) => {
         const attached = newType ? await addListeners(newType) : true;
         prevListenerType.current = attached ? newType : null;
         prevAccountId.current = sparkInfoRef.current.identityPubKey;
+      }
+
+      // Reconcile pending txs on every foreground transition, independent of the
+      // addListeners re-arm above — if that bailed (AppState race / listener
+      // lock) the 10s interval never gets recreated, and this is the only thing
+      // that then completes a stuck send without a full app restart. The
+      // single-flight latch dedupes the double-call on a successful re-arm.
+      if (appState === 'active' && prevAppState.current !== 'active') {
+        const response = await updateSparkTxStatus(
+          currentMnemonicRef.current,
+          sparkInfoRef.current.identityPubKey,
+          false,
+          contactsPrivateKeyRef.current,
+          contactsPublicKeyRef.current,
+        );
+        // Same drift backstop as the 10s interval: foregrounding recovers a
+        // stuck send without a full app restart even if the interval never
+        // re-armed (AppState race / listener lock).
+        if (
+          Array.isArray(response?.pendingIds) &&
+          hasPendingTxDrift(
+            sparkInfoRef.current.transactions,
+            response.pendingIds,
+          )
+        ) {
+          sparkTransactionsEventEmitter.emit(
+            SPARK_TX_UPDATE_ENVENT_NAME,
+            'transactions',
+          );
+        }
       }
 
       prevAppState.current = appState;
