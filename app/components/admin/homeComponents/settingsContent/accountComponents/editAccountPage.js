@@ -371,12 +371,13 @@ export default function EditAccountPage(props) {
   // inserted only *between* rows. Groups the same for every account type —
   // "Details" (identity) then "Manage" (actions) — with rows filtered per type.
   const detailRows = [
-    !isNWC && {
-      key: 'name',
-      label: t('settings.accountComponents.editAccountPage.accountNameLabel'),
-      value: accountInformation.name,
-      onPress: handleEditName,
-    },
+    !isNWC &&
+      accountInformation.uuid !== MAIN_ACCOUNT_UUID && {
+        key: 'name',
+        label: t('settings.accountComponents.editAccountPage.accountNameLabel'),
+        value: accountInformation.name,
+        onPress: handleEditName,
+      },
     lnurlAddress &&
       !isChild && {
         key: 'lnurl',
@@ -578,7 +579,7 @@ export default function EditAccountPage(props) {
           </View>
         </View>
 
-        {(isChild || custodyAccountsList?.length >= 2) && !isActive && (
+        {(isChild || custodyAccountsList?.length >= 2) && (
           <AdaptiveButtonRow
             labels={[addLabel, withdrawLabel]}
             containerStyle={{
