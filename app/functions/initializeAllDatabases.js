@@ -7,6 +7,7 @@ import { initGiftDb } from './gift/giftsStorage';
 import { initPoolDb } from './pools/poolsStorage';
 import { initSavingsDb } from './savings/savingsStorage';
 import { initLeavesDb } from './spark/leavesStorage';
+import { initBTCMapDB } from './btcMap/btcMapStorage';
 
 let initPromise = null;
 
@@ -25,19 +26,20 @@ export function resetDatabaseInitialization() {
 export function initializeAllDatabases() {
   if (!initPromise) {
     initPromise = (async () => {
-      const results = await Promise.all([
-        initializeDatabase(),
-        initializeGiftCardDatabase(),
-        initializePOSTransactionsDatabase(),
-        initializeSparkDatabase(),
-        initRootstockSwapDB(),
-        initGiftDb(),
-        initPoolDb(),
-        initSavingsDb(),
-        initLeavesDb(),
-      ]);
+      const results = [];
+
+      results.push(await initializeDatabase());
+      results.push(await initializeGiftCardDatabase());
+      results.push(await initializePOSTransactionsDatabase());
+      results.push(await initializeSparkDatabase());
+      results.push(await initRootstockSwapDB());
+      results.push(await initGiftDb());
+      results.push(await initPoolDb());
+      results.push(await initSavingsDb());
+      results.push(await initLeavesDb());
+      results.push(await initBTCMapDB());
       if (results.some(result => !result)) {
-        initPromise = null; // allow a later retry to re-attempt
+        initPromise = null;
         throw new Error('dbInitError');
       }
       return true;

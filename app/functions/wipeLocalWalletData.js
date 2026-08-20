@@ -84,14 +84,17 @@ const tableDeletes = [
 ];
 
 export async function deleteAllLocalWalletTables() {
-  const results = await Promise.allSettled(tableDeletes.map(run => run()));
-  const rejected = results.filter(result => result.status === 'rejected');
-  if (rejected.length > 0) {
-    crashlyticsRecordErrorReport(
-      `wipeLocalWalletData: ${rejected.length} table deletes rejected`,
-    );
-    return false;
+  for (const run of tableDeletes) {
+    try {
+      await run();
+    } catch (error) {
+      crashlyticsRecordErrorReport(
+        `wipeLocalWalletData: table delete failed: ${error}`,
+      );
+      return false;
+    }
   }
+
   return true;
 }
 
