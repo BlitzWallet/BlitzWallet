@@ -98,16 +98,17 @@ export default function AccountCard({
       </View>
 
       {/* Middle: Account Name */}
-      <ThemeText
-        CustomNumberOfLines={1}
-        adjustsFontSizeToFit={true}
-        styles={styles.name}
-        content={
-          !BASIC_ACCOUNT_NAME_REGEX.test(account.name)
-            ? account.name
-            : t('accountCard.fallbackAccountName', { index: accountIndex })
-        }
-      />
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.name}
+          content={
+            !BASIC_ACCOUNT_NAME_REGEX.test(account.name)
+              ? account.name
+              : t('accountCard.fallbackAccountName', { index: accountIndex })
+          }
+        />
+      </View>
 
       <View style={styles.rightSection}>
         {/* Right: Balance preview + Chevron */}
@@ -143,6 +144,7 @@ const styles = StyleSheet.create({
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 1,
   },
   avatar: {
     width: 45,
@@ -153,7 +155,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   name: {
-    flex: 1,
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },
