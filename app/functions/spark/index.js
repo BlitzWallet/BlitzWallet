@@ -228,7 +228,9 @@ export const initializeSparkWallet = async (
         // retry the WebView via the catch loop — never fall through to spawn a
         // native wallet. That fallthrough created an orphan native runtime
         // (and, on a slow WASM init, a second live wallet) after one slow init.
-        throw new Error(response?.error || 'WebView wallet init did not connect');
+        throw new Error(
+          response?.error || 'WebView wallet init did not connect',
+        );
       }
 
       const hash = getMnemonicHash(mnemonic);
@@ -639,13 +641,17 @@ export const queryAllStaticDepositAddresses = async mnemonic => {
   }
 };
 
-export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
+export const getSparkStaticBitcoinL1AddressQuote = async (
+  txid,
+  outputIndex,
+  mnemonic,
+) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.getL1AddressQuote,
-        { mnemonic, txid },
+        { mnemonic, txid, outputIndex },
       );
       return validateWebViewResponse(
         response,
@@ -653,7 +659,7 @@ export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
       );
     } else {
       const wallet = await getWallet(mnemonic);
-      const quote = await wallet.getClaimStaticDepositQuote(txid);
+      const quote = await wallet.getClaimStaticDepositQuote(txid, outputIndex);
       return { didWork: true, quote };
     }
   } catch (err) {
@@ -1697,7 +1703,12 @@ export const getSparkPaymentStatus = status => {
     ? 'completed'
     : status === 'TRANSFER_STATUS_RETURNED' ||
       status === 'TRANSFER_STATUS_EXPIRED' ||
-      status === 'TRANSFER_STATUS_SENDER_INITIATED' ||
+      // TRANSFER_STATUS_SENDER_INITIATED is the initial in-flight state of
+      // every transfer (claims, incoming Spark payments, LN sends) — it is
+      // NOT a terminal failure. Only RETURNED/EXPIRED are. Classifying it as
+      // 'failed' here wedged fresh claim transfers: the 10s poller flipped the
+      // pending row to failed while the UTXO swap was still settling, and
+      // updateSparkTxStatus only revisits pending rows.
       status === LightningSendRequestStatus.USER_SWAP_RETURNED ||
       status === LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED ||
       status === LightningSendRequestStatus.TRANSFER_FAILED ||
