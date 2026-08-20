@@ -289,11 +289,11 @@
     },
     "walletSetup": {
       "title": "Configurer votre portefeuille",
-        "subtitle": "Créez un nouveau portefeuille, rejoignez un portefeuille ou restaurez-en un existant.",
-        "createTitle": "Créer un nouveau portefeuille",
-        "createDesc": "Commencez avec un nouveau portefeuille.",
-        "joinTitle": "Rejoindre un portefeuille géré",
-        "joinDesc": "Rejoignez un portefeuille qui est géré pour vous.",
+      "subtitle": "Créez un nouveau portefeuille, rejoignez un portefeuille ou restaurez-en un existant.",
+      "createTitle": "Créer un nouveau portefeuille",
+      "createDesc": "Commencez avec un nouveau portefeuille.",
+      "joinTitle": "Rejoindre un portefeuille géré",
+      "joinDesc": "Rejoignez un portefeuille qui est géré pour vous.",
       "restoreTitle": "Restaurer un portefeuille existant",
       "restoreDesc": "Vous avez déjà un portefeuille ? Importez-le."
     }
@@ -2026,7 +2026,8 @@
         "withdrawMoneyButton": "Retirer de l'argent",
         "viewActivityLabel": "Voir l'historique du compte",
         "loadError": "Impossible de charger le compte",
-        "loadErrorDesc": "Veuillez réessayer. Si le problème persiste, contactez le support."
+        "loadErrorDesc": "Veuillez réessayer. Si le problème persiste, contactez le support.",
+        "stillConnectingInfo": "Votre solde peut ne pas être à jour pendant que nous terminons de connecter votre compte."
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",

@@ -141,6 +141,7 @@ export default function EditAccountPage(props) {
   const initPromiseRef = useRef(null);
   const paintedFromSnapshotRef = useRef(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [showSlowConnectUI, setShowSlowConnectUI] = useState(false);
 
   useEffect(() => {
     if (isActive) return; // active account uses live context (below)
@@ -171,7 +172,7 @@ export default function EditAccountPage(props) {
           if (snapshot) {
             paintedFromSnapshotRef.current = true;
             setAccountBalance({
-              status: 'connected',
+              status: 'connecting',
               balance: snapshot.balance,
               tokensObj: snapshot.tokens,
             });
@@ -240,6 +241,18 @@ export default function EditAccountPage(props) {
   const isConnecting = isActive
     ? false
     : accountBalance.status === 'connecting';
+
+  // Fast connects keep the blocking loader; past 5s we surface the account
+  // screen instead (with an hourglass indicator) so pairing/LNURL/etc. stay
+  // usable while the wallet finishes initializing in the background.
+  useEffect(() => {
+    if (!isConnecting) {
+      setShowSlowConnectUI(false);
+      return;
+    }
+    const timeout = setTimeout(() => setShowSlowConnectUI(true), 5000);
+    return () => clearTimeout(timeout);
+  }, [isConnecting]);
   const btcBalance = isActive
     ? Number(sparkInformation?.balance || 0)
     : accountBalance.balance;
@@ -355,6 +368,15 @@ export default function EditAccountPage(props) {
       sliderHight: 0.8,
     });
 
+  const handleSlowConnectInfo = useCallback(() => {
+    navigate.navigate('InformationPopup', {
+      textContent: t(
+        'settings.accountComponents.editAccountPage.stillConnectingInfo',
+      ),
+      buttonText: t('constants.understandText'),
+    });
+  }, [navigate, t]);
+
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
   );
@@ -442,7 +464,7 @@ export default function EditAccountPage(props) {
     );
   };
 
-  if (isConnecting) {
+  if (isConnecting && !showSlowConnectUI) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar label={accountInformation.name} />
@@ -480,13 +502,16 @@ export default function EditAccountPage(props) {
       <CustomSettingsTopBar
         label={accountInformation.name}
         showLeftImage={
-          accountInformation.uuid !== NWC_ACCOUNT_UUID &&
-          accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
-          !isChild
+          isConnecting ||
+          (accountInformation.uuid !== NWC_ACCOUNT_UUID &&
+            accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
+            !isChild)
         }
-        iconNew="Trash2"
+        iconNew={isConnecting ? 'ZapOff' : 'Trash2'}
         leftImageStyles={{ height: 25 }}
-        leftImageFunction={handleDeleteAccount}
+        leftImageFunction={
+          isConnecting ? handleSlowConnectInfo : handleDeleteAccount
+        }
       />
       <ScrollView
         contentContainerStyle={{

@@ -2027,7 +2027,8 @@
         "withdrawMoneyButton": "Retirar dinheiro",
         "viewActivityLabel": "Histórico de transações",
         "loadError": "Não foi possível carregar a conta",
-        "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte."
+        "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte.",
+        "stillConnectingInfo": "Seu saldo pode estar desatualizado enquanto terminamos de conectar sua conta."
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",

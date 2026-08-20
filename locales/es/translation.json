@@ -289,11 +289,11 @@
     },
     "walletSetup": {
       "title": "Configura tu wallet",
-        "subtitle": "Crea una nueva wallet, únete a una wallet o restaura una existente.",
-        "createTitle": "Crear nueva wallet",
-        "createDesc": "Empieza de cero con una nueva wallet.",
-        "joinTitle": "Unirse a una wallet gestionada",
-        "joinDesc": "Únete a una wallet que se gestiona por ti.",
+      "subtitle": "Crea una nueva wallet, únete a una wallet o restaura una existente.",
+      "createTitle": "Crear nueva wallet",
+      "createDesc": "Empieza de cero con una nueva wallet.",
+      "joinTitle": "Unirse a una wallet gestionada",
+      "joinDesc": "Únete a una wallet que se gestiona por ti.",
       "restoreTitle": "Restaurar wallet existente",
       "restoreDesc": "¿Ya tienes una wallet? Tráela contigo."
     }
@@ -2024,7 +2024,8 @@
         "withdrawMoneyButton": "Retirar dinero",
         "viewActivityLabel": "Ver el historial de la cuenta",
         "loadError": "No se pudo cargar la cuenta",
-        "loadErrorDesc": "Inténtalo de nuevo. Si el problema continúa, contacta con el soporte."
+        "loadErrorDesc": "Inténtalo de nuevo. Si el problema continúa, contacta con el soporte.",
+        "stillConnectingInfo": "Es posible que tu saldo no esté actualizado mientras terminamos de conectar tu cuenta."
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",

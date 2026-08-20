@@ -289,11 +289,11 @@
     },
     "walletSetup": {
       "title": "Configura il tuo portafoglio",
-        "subtitle": "Crea un nuovo portafoglio, unisciti a un portafoglio o ripristina uno esistente.",
-        "createTitle": "Crea nuovo portafoglio",
-        "createDesc": "Inizia con un nuovo portafoglio.",
-        "joinTitle": "Unisciti a un portafoglio gestito",
-        "joinDesc": "Unisciti a un portafoglio gestito per te.",
+      "subtitle": "Crea un nuovo portafoglio, unisciti a un portafoglio o ripristina uno esistente.",
+      "createTitle": "Crea nuovo portafoglio",
+      "createDesc": "Inizia con un nuovo portafoglio.",
+      "joinTitle": "Unisciti a un portafoglio gestito",
+      "joinDesc": "Unisciti a un portafoglio gestito per te.",
       "restoreTitle": "Ripristina portafoglio esistente",
       "restoreDesc": "Hai già un portafoglio? Importalo."
     }
@@ -2027,7 +2027,8 @@
         "withdrawMoneyButton": "Preleva denaro",
         "viewActivityLabel": "Visualizza la cronologia dell'account",
         "loadError": "Impossibile caricare l'account",
-        "loadErrorDesc": "Riprova. Se il problema continua, contatta l'assistenza."
+        "loadErrorDesc": "Riprova. Se il problema continua, contatta l'assistenza.",
+        "stillConnectingInfo": "Il tuo saldo potrebbe non essere aggiornato mentre completiamo la connessione al tuo conto."
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",

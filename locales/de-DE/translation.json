@@ -289,11 +289,11 @@
     },
     "walletSetup": {
       "title": "Richten Sie Ihre Wallet ein",
-        "subtitle": "Erstellen Sie eine neue Wallet, treten Sie einer Wallet bei oder stellen Sie eine vorhandene wieder her.",
-        "createTitle": "Neues Wallet erstellen",
-        "createDesc": "Starten Sie mit einer neuen Wallet.",
-        "joinTitle": "Verwaltetem Wallet beitreten",
-        "joinDesc": "Treten Sie einem Wallet bei, das für Sie verwaltet wird.",
+      "subtitle": "Erstellen Sie eine neue Wallet, treten Sie einer Wallet bei oder stellen Sie eine vorhandene wieder her.",
+      "createTitle": "Neues Wallet erstellen",
+      "createDesc": "Starten Sie mit einer neuen Wallet.",
+      "joinTitle": "Verwaltetem Wallet beitreten",
+      "joinDesc": "Treten Sie einem Wallet bei, das für Sie verwaltet wird.",
       "restoreTitle": "Vorhandenes Wallet wiederherstellen",
       "restoreDesc": "Sie haben bereits eine Wallet? Übernehmen Sie sie."
     }
@@ -2005,7 +2005,8 @@
         "withdrawMoneyButton": "Geld abheben",
         "viewActivityLabel": "Kontoverlauf anzeigen",
         "loadError": "Konto konnte nicht geladen werden",
-        "loadErrorDesc": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support."
+        "loadErrorDesc": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.",
+        "stillConnectingInfo": "Dein Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu deinem Konto herstellen."
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",

@@ -2166,7 +2166,8 @@
         "withdrawMoneyButton": "Withdraw money",
         "viewActivityLabel": "Account history",
         "loadError": "Unable to load account",
-        "loadErrorDesc": "Please try again. If the problem continues, contact support."
+        "loadErrorDesc": "Please try again. If the problem continues, contact support.",
+        "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."
       },
       "removeAccountPage": {
         "title": "Remove",
