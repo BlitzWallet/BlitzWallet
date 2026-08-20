@@ -224,7 +224,7 @@ export default function ConnectingToNodeLoadingScreen() {
 
         // ── Phase 4: Minimum perceived loading time then navigate ─────────
         const elapsed = Date.now() - startTime;
-        const minDuration = hasSavedInfo ? 500 : 1500;
+        const minDuration = 1500;
         await new Promise(resolve =>
           setTimeout(resolve, Math.round(minDuration - elapsed)),
         );
