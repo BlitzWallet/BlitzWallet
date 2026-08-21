@@ -17,8 +17,9 @@ import CustomButton from '../../../../functions/CustomElements/button';
 export default function LnurlReceiveCurrencySelect({
   handleBackPressFunction,
   setContentHeight,
+  accountsLnurlId,
 }) {
-  const { masterInfoObject, toggleMasterInfoObject } =
+  const { masterInfoObject, toggleMasterInfoObject, updateAccountsLnurlEntry } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -26,8 +27,17 @@ export default function LnurlReceiveCurrencySelect({
   const navigate = useNavigation();
   const { t } = useTranslation();
 
+  // When opened from a sub-account's LNURL page, currency lives on that
+  // account's accountsLnurl registry entry instead of the global setting.
+  const subAccountEntry = accountsLnurlId
+    ? masterInfoObject.accountsLnurl?.[accountsLnurlId]
+    : null;
+
   const currentCurrency =
-    masterInfoObject.lnurlReceiveCurrency === 'usd' ? 'usd' : 'btc';
+    (subAccountEntry?.receiveCurrency ?? masterInfoObject.lnurlReceiveCurrency) ===
+    'usd'
+      ? 'usd'
+      : 'btc';
   const [selectedCurrency, setSelectedCurrency] = useState(currentCurrency);
 
   const hasChanged = selectedCurrency !== currentCurrency;
@@ -52,7 +62,15 @@ export default function LnurlReceiveCurrencySelect({
       return;
     }
     handleBackPressFunction(() => {
-      toggleMasterInfoObject({ lnurlReceiveCurrency: selectedCurrency });
+      if (subAccountEntry) {
+        // Narrow single-entry write: never ships a stale whole-registry
+        // snapshot that could clobber concurrent updates from other devices.
+        updateAccountsLnurlEntry(accountsLnurlId, {
+          receiveCurrency: selectedCurrency,
+        });
+      } else {
+        toggleMasterInfoObject({ lnurlReceiveCurrency: selectedCurrency });
+      }
       navigate.goBack();
     });
   };

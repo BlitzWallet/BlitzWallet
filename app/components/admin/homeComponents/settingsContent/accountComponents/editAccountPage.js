@@ -399,8 +399,10 @@ export default function EditAccountPage(props) {
         value: username,
         onPress: () =>
           navigate.navigate('CustomHalfModal', {
-            wantedContent: 'customQrCode',
-            data: lnurlAddress,
+            wantedContent: 'LNURLAccountMangement',
+            lnurlAddress: lnurlAddress,
+            account: selectedAccount,
+            sliderHight: 0.7,
           }),
       },
   ].filter(Boolean);

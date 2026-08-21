@@ -89,6 +89,7 @@ import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/se
 import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
 import AccountTransferHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal';
 import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
+import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -635,6 +636,7 @@ export default function CustomHalfModal(props) {
           <LnurlReceiveCurrencySelect
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            accountsLnurlId={props?.route?.params?.accountsLnurlId}
           />
         );
       case 'stablecoinAssetPicker':
@@ -777,6 +779,14 @@ export default function CustomHalfModal(props) {
           <ChildMatchCodeConfirmation
             confirmMatch={props?.route?.params?.confirmMatch}
             handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+
+      case 'LNURLAccountMangement':
+        return (
+          <LNURLAccountMangement
+            account={props?.route?.params?.account}
+            lnurlAddress={props?.route?.params?.lnurlAddress}
           />
         );
 

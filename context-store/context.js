@@ -83,6 +83,30 @@ const GlobalContextProvider = ({ children }) => {
     [i18n, publicKey],
   );
 
+  // Single-entry accountsLnurl update. Unlike toggleMasterInfoObject (whose
+  // callers build the registry from a render-time snapshot), this merges into
+  // local state functionally and sends ONLY the one map entry to Firestore —
+  // setDoc merge touches just that entry's leaves, so entries added, edited or
+  // pruned by another device (or by the additive LNURL sync) in the meantime
+  // are never resurrected or reverted by a stale whole-registry write.
+  const updateAccountsLnurlEntry = useCallback(
+    async (id, updates) => {
+      setMasterInfoObject(prev => ({
+        ...prev,
+        accountsLnurl: {
+          ...prev.accountsLnurl,
+          [id]: { ...prev.accountsLnurl?.[id], ...updates },
+        },
+      }));
+      // Spread the known entry so a pruned/never-synced entry is recreated
+      // whole instead of as a partial { receiveCurrency } shell. uuid and
+      // identityPubKey are immutable per entry, so snapshot staleness is safe.
+      const entry = { ...masterInfoObject.accountsLnurl?.[id], ...updates };
+      return await sendDataToDB({ accountsLnurl: { [id]: entry } }, publicKey);
+    },
+    [masterInfoObject.accountsLnurl, publicKey],
+  );
+
   useEffect(() => {
     async function preloadUserData() {
       try {
@@ -105,6 +129,7 @@ const GlobalContextProvider = ({ children }) => {
   const contextValue = useMemo(
     () => ({
       toggleMasterInfoObject,
+      updateAccountsLnurlEntry,
       setMasterInfoObject,
       masterInfoObject,
       toggleNWCInformation,
@@ -113,6 +138,7 @@ const GlobalContextProvider = ({ children }) => {
     }),
     [
       toggleMasterInfoObject,
+      updateAccountsLnurlEntry,
       masterInfoObject,
       setMasterInfoObject,
       toggleNWCInformation,

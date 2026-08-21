@@ -24,17 +24,79 @@ import {
 } from '../app/functions/custodyAccountsCrypto';
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
-import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
+import {
+  deriveAccountMnemonic,
+  generateAccountUuid,
+} from '../app/functions/accounts/derivedAccounts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
 import { assignLnurlId } from '../app/functions/accounts/assignLnurlId';
 import { deriveSparkIdentityKey } from '../app/functions/gift/deriveGiftWallet';
 import { deleteLnurlRegistryEntry } from '../db';
-import customUUID from '../app/functions/customUUID';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
 
 export const MAIN_ACCOUNT_UUID = 'MW09xd09d8f0a9sf2n332';
 export const NWC_ACCOUNT_UUID = 'NWC038rsd0f8234ajsf';
+
+// One-time migration: accounts created before deterministic ids carried a
+// random customUUID() id, which no longer matches after restoring a seed on a
+// new device and breaks accountsLnurl registry matching. Rewrite each
+// account's uuid to the first 16 hex chars of its Spark identity pubkey (the
+// same scheme new accounts use). Gated by a localStorage flag so launch never
+// pays the key-derivation cost more than once. accountsLnurl itself is left
+// alone (unreleased feature).
+async function migrateToDeterministicUuids(accounts, masterSeed) {
+  try {
+    const hasMigrated = await getLocalStorageItem(
+      'hasRunDeterministicUuidMigration',
+    );
+    if (JSON.parse(hasMigrated)) return accounts;
+    let didChange = false;
+    let hadFailure = false;
+    const migrated = [];
+    for (const account of accounts) {
+      try {
+        const mnemonic =
+          account.mnemoinc ||
+          (account.derivationIndex !== undefined
+            ? await deriveAccountMnemonic(masterSeed, account.derivationIndex)
+            : null);
+        if (!mnemonic) {
+          migrated.push(account);
+          continue;
+        }
+        const uuid = await generateAccountUuid(mnemonic);
+        if (uuid === account.uuid) {
+          migrated.push(account);
+          continue;
+        }
+        didChange = true;
+        migrated.push({ ...account, uuid });
+      } catch (err) {
+        // One bad account must not wedge the batch: keep it unchanged and
+        // skip the completion flag so it retries on the next launch.
+        console.log(
+          `Deterministic UUID migration failed for account ${account.uuid}`,
+          err,
+        );
+        hadFailure = true;
+        migrated.push(account);
+      }
+    }
+
+    if (didChange) await writeCustodyAccounts(migrated, masterSeed);
+    if (!hadFailure) {
+      await setLocalStorageItem(
+        'hasRunDeterministicUuidMigration',
+        JSON.stringify(true),
+      );
+    }
+    return didChange ? migrated : accounts;
+  } catch (err) {
+    console.log('Deterministic account UUID migration error', err);
+    return accounts;
+  }
+}
 
 // Create a context for the WebView ref
 const ActiveCustodyAccount = createContext(null);
@@ -87,8 +149,12 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         // loadCustodyAccounts decrypts v3 envelopes with the seed-derived key
         // and lazily migrates legacy EvpKDF lists (fails closed, never
         // overwrites unreadable data).
-        const decryptedList = await loadCustodyAccounts(
+        let decryptedList = await loadCustodyAccounts(
           accoutList,
+          accountMnemoinc,
+        );
+        decryptedList = await migrateToDeterministicUuids(
+          decryptedList,
           accountMnemoinc,
         );
 
@@ -279,9 +345,15 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           };
         }
 
-        // Don't store the mnemonic, just metadata
+        // Don't store the mnemonic, just metadata. The uuid is derived from
+        // the account's Spark identity pubkey so it survives seed restores
+        // and keeps matching the accountsLnurl registry.
+        const derivedMnemonic = await deriveAccountMnemonic(
+          accountMnemoinc,
+          nextIndex,
+        );
         const accountInfo = {
-          uuid: customUUID(),
+          uuid: await generateAccountUuid(derivedMnemonic),
           name: accountName,
           derivationIndex: nextIndex,
           dateCreated: Date.now(),
@@ -307,6 +379,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       masterInfoObject.nextAccountDerivationIndex,
       createAccount,
       toggleMasterInfoObject,
+      accountMnemoinc,
     ],
   );
 
@@ -363,9 +436,15 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           };
         }
 
-        // Create account with EXACT same structure as auto-restore
+        // Create account with EXACT same structure as auto-restore. The uuid
+        // is derived from the account's Spark identity pubkey so it matches
+        // the id a fresh restore on another device would generate.
+        const derivedMnemonic = await deriveAccountMnemonic(
+          accountMnemoinc,
+          derivationIndex,
+        );
         const accountInfo = {
-          uuid: customUUID(),
+          uuid: await generateAccountUuid(derivedMnemonic),
           name: accountName,
           derivationIndex: derivationIndex,
           dateCreated: Date.now(),
@@ -389,6 +468,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       masterInfoObject.nextAccountDerivationIndex,
       custodyAccounts,
       createAccount,
+      accountMnemoinc,
     ],
   );
 
@@ -443,8 +523,9 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       const accountsToRestore = [];
       for (let i = 4; i <= nextIndex; i++) {
         if (existingDerivedIndexes.has(i)) continue;
+        const derivedMnemonic = await deriveAccountMnemonic(accountMnemoinc, i);
         accountsToRestore.push({
-          uuid: customUUID(),
+          uuid: await generateAccountUuid(derivedMnemonic),
           name: t('accountCard.fallbackAccountName', { index: i }),
           derivationIndex: i,
           dateCreated: Date.now(),

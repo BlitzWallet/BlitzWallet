@@ -1984,7 +1984,7 @@
         "title": "Konto",
         "accountNameLabel": "Kontoname",
         "showRecoveryPhraseLabel": "Wiederherstellungsphrase anzeigen",
-        "lightningAddressLabel": "Lightning-Adresse",
+        "lightningAddressLabel": "Kontoadresse",
         "removeAccountLabel": "Konto entfernen",
         "activeAccountError": "Sie können das derzeit aktive Konto nicht löschen. Bitte wechseln Sie zu einem anderen Konto, bevor Sie es löschen.",
         "account_pin": "Konto anheften",

@@ -2009,7 +2009,7 @@
         "title": "Аккаунт",
         "accountNameLabel": "Название аккаунта",
         "showRecoveryPhraseLabel": "Показать фразу восстановления",
-        "lightningAddressLabel": "Lightning-адрес",
+        "lightningAddressLabel": "Адрес аккаунта",
         "removeAccountLabel": "Удалить аккаунт",
         "activeAccountError": "Вы не можете удалить текущий активный аккаунт. Пожалуйста, переключитесь на другой аккаунт перед удалением этого.",
         "account_pin": "Закрепить аккаунт",

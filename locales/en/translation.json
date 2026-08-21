@@ -2145,7 +2145,7 @@
         "title": "Account",
         "accountNameLabel": "Account Name",
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
-        "lightningAddressLabel": "Lightning address",
+        "lightningAddressLabel": "Account Address",
         "removeAccountLabel": "Remove Account",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
@@ -2164,7 +2164,7 @@
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw money",
-        "viewActivityLabel": "Account history",
+        "viewActivityLabel": "Account History",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",
         "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."

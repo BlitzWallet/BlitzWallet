@@ -5,7 +5,8 @@
 // custodyAccountsCrypto.test.js; here the crypto module is mocked and we
 // assert the provider calls it correctly at every boundary:
 //   - init decrypts through loadCustodyAccounts(seed) and migrates legacy data
-//   - all five write sites go through writeCustodyAccounts(accounts, seed)
+//     (including the one-time deterministic-uuid rewrite)
+//   - all write sites go through writeCustodyAccounts(accounts, seed)
 //   - logout/wipe (authResetkey) clears the session crypto cache
 // ---------------------------------------------------------------------------
 
@@ -101,13 +102,14 @@ jest.mock('../../app/functions/custodyAccountsCrypto', () => ({
 
 jest.mock('../../app/functions/accounts/derivedAccounts', () => ({
   __esModule: true,
-  deriveAccountMnemonic: jest.fn(async () => 'derived-mnemonic'),
+  deriveAccountMnemonic: (...a) => mockDeriveAccountMnemonic(...a),
+  generateAccountUuid: (...a) => mockGenerateAccountUuid(...a),
 }));
 
-jest.mock('../../app/functions/customUUID', () => ({
-  __esModule: true,
-  default: jest.fn(() => 'uuid-generated'),
-}));
+const mockDeriveAccountMnemonic = jest.fn(async () => 'derived-mnemonic');
+// Defaults to the fixture's own uuid so legacy-id tests see a no-op
+// migration; deterministic-uuid tests override this.
+const mockGenerateAccountUuid = jest.fn(async () => 'u-1');
 
 const {
   ActiveCustodyAccountProvider,
@@ -162,6 +164,12 @@ beforeEach(() => {
   mockGetLocalStorageItem.mockResolvedValue(null);
   mockRetrieveData.mockResolvedValue({ value: null });
   mockLoadCustodyAccounts.mockResolvedValue([]);
+  mockDeriveAccountMnemonic.mockReset();
+  mockDeriveAccountMnemonic.mockResolvedValue('derived-mnemonic');
+  mockGenerateAccountUuid.mockReset();
+  // Default: the deterministic id equals the fixture's uuid so legacy-id
+  // tests observe a no-op migration; uuid-migration tests override this.
+  mockGenerateAccountUuid.mockResolvedValue('u-1');
   ctx = undefined;
 });
 
@@ -293,5 +301,117 @@ describe('authResetkey teardown', () => {
 
     expect(mockResetCustodyCryptoState).toHaveBeenCalled();
     expect(ctx.custodyAccounts).toEqual([]);
+  });
+});
+
+describe('deterministic account UUIDs', () => {
+  it('createDerivedAccount derives the uuid from the account identity key', async () => {
+    await mount();
+    mockGenerateAccountUuid.mockResolvedValue('deterministicuuid01');
+
+    let res;
+    await act(async () => {
+      res = await ctx.createDerivedAccount('New acct');
+    });
+
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledWith(SEED, 4);
+    expect(res.didWork).toBe(true);
+    expect(res.uuid).toBe('deterministicuuid01');
+    const written = mockWriteCustodyAccounts.mock.calls[0][0];
+    expect(written[0].uuid).toBe('deterministicuuid01');
+    expect(written[0].derivationIndex).toBe(4);
+  });
+
+  it('restoreDerivedAccount derives the uuid from the restored index', async () => {
+    await mount();
+    mockGenerateAccountUuid.mockResolvedValue('restoredetuuid0001');
+
+    let res;
+    await act(async () => {
+      // Index 3 is the only valid restore target at the default
+      // nextAccountDerivationIndex (validation #4).
+      res = await ctx.restoreDerivedAccount('Restored', 3);
+    });
+
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledWith(SEED, 3);
+    expect(res.didWork).toBe(true);
+    const written = mockWriteCustodyAccounts.mock.calls[0][0];
+    expect(written[0].uuid).toBe('restoredetuuid0001');
+  });
+
+  it('migration rewrites legacy random uuids to identity-key ids once', async () => {
+    mockLoadCustodyAccounts.mockResolvedValue([ACCOUNT]);
+    mockGenerateAccountUuid.mockResolvedValue('migrateddetuuid01');
+
+    await mount();
+
+    expect(mockDeriveAccountMnemonic).not.toHaveBeenCalled(); // imported seed used directly
+    expect(mockWriteCustodyAccounts).toHaveBeenCalledWith(
+      [{ ...ACCOUNT, uuid: 'migrateddetuuid01' }],
+      SEED,
+    );
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      'hasRunDeterministicUuidMigration',
+      JSON.stringify(true),
+    );
+    expect(ctx.custodyAccounts[0].uuid).toBe('migrateddetuuid01');
+  });
+
+  it('migration derives derived-account mnemonics from the master seed', async () => {
+    const derived = {
+      uuid: 'u-2',
+      name: 'Derived A',
+      derivationIndex: 4,
+      dateCreated: 1,
+      isActive: false,
+      accountType: 'derived',
+      profileEmoji: '',
+    };
+    mockLoadCustodyAccounts.mockResolvedValue([derived]);
+    mockGenerateAccountUuid.mockResolvedValue('deriveddetuuid001');
+
+    await mount();
+
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledWith(SEED, 4);
+    expect(mockWriteCustodyAccounts).toHaveBeenCalledWith(
+      [{ ...derived, uuid: 'deriveddetuuid001' }],
+      SEED,
+    );
+  });
+
+  it('migration is skipped once its flag is stored', async () => {
+    mockGetLocalStorageItem.mockImplementation(key =>
+      Promise.resolve(
+        key === 'hasRunDeterministicUuidMigration' ? 'true' : null,
+      ),
+    );
+    mockLoadCustodyAccounts.mockResolvedValue([ACCOUNT]);
+
+    await mount();
+
+    expect(mockGenerateAccountUuid).not.toHaveBeenCalled();
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
+      'hasRunDeterministicUuidMigration',
+      JSON.stringify(true),
+    );
+    expect(ctx.custodyAccounts).toEqual([ACCOUNT]);
+  });
+
+  it('migration leaves accounts untouched when ids already match', async () => {
+    mockLoadCustodyAccounts.mockResolvedValue([ACCOUNT]);
+
+    await mount();
+
+    expect(mockGenerateAccountUuid).toHaveBeenCalledWith(ACCOUNT.mnemoinc);
+    expect(mockWriteCustodyAccounts).not.toHaveBeenCalledWith(
+      [ACCOUNT],
+      SEED,
+    );
+    // Flag is still set so future launches skip derivation entirely.
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      'hasRunDeterministicUuidMigration',
+      JSON.stringify(true),
+    );
+    expect(ctx.custodyAccounts).toEqual([ACCOUNT]);
   });
 });

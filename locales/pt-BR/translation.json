@@ -2006,7 +2006,7 @@
         "title": "Conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "lightningAddressLabel": "Endereço Blitz",
+        "lightningAddressLabel": "Endereço da conta",
         "removeAccountLabel": "Arquivar conta",
         "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
         "account_pin": "Fixar conta",
@@ -2025,7 +2025,7 @@
         "activateButton": "Selecionar conta",
         "addMoneyButton": "Adicionar dinheiro",
         "withdrawMoneyButton": "Retirar dinheiro",
-        "viewActivityLabel": "Histórico de transações",
+        "viewActivityLabel": "Histórico da conta",
         "loadError": "Não foi possível carregar a conta",
         "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte.",
         "stillConnectingInfo": "Seu saldo pode estar desatualizado enquanto terminamos de conectar sua conta."

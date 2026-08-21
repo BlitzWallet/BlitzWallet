@@ -2005,7 +2005,7 @@
         "title": "Compte",
         "accountNameLabel": "Nom du compte",
         "showRecoveryPhraseLabel": "Afficher la phrase de récupération",
-        "lightningAddressLabel": "Adresse Lightning",
+        "lightningAddressLabel": "Adresse du compte",
         "removeAccountLabel": "Supprimer le compte",
         "activeAccountError": "Vous ne pouvez pas supprimer le compte actuellement actif. Veuillez passer à un autre compte avant de supprimer celui-ci.",
         "account_pin": "Épingler le compte",
