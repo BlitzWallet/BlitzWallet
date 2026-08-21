@@ -350,6 +350,42 @@ export const hasPaidSparkLightningInvoice = async invoiceAddress => {
   }
 };
 
+export const getBitcoinPaymentsByTxid = async accountId => {
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedAccountId) return new Map();
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const payments = await sqlLiteDB.getAllAsync(
+      `SELECT *
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+       AND paymentType = 'bitcoin'
+       AND json_valid(details)
+       AND TRIM(json_extract(details, '$.onChainTxid')) != ''`,
+      [normalizedAccountId],
+    );
+
+    const byTxid = new Map();
+    for (const payment of payments) {
+      try {
+        const paymentDetails = JSON.parse(payment.details);
+        if (paymentDetails.onChainTxid)
+          byTxid.set(paymentDetails.onChainTxid, payment);
+      } catch (error) {
+        // skip rows with unparseable details
+      }
+    }
+    return byTxid;
+  } catch (error) {
+    console.error('Error fetching bitcoin payments by txid:', error);
+    return new Map();
+  }
+};
+
 export const getSparkTransactionBySparkId = async (sparkID, accountId) => {
   const normalizedSparkID = typeof sparkID === 'string' ? sparkID.trim() : '';
   const normalizedAccountId =

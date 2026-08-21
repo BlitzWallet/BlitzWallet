@@ -18,7 +18,7 @@ import {
   sparkWallet,
   isOptimizationInProgress,
 } from '../app/functions/spark';
-import { clearEnrichedTxCache } from '../app/functions/combinedTransactionsSpark';
+import { clearEnrichedTxCache } from '../app/functions/spark/enrichedTxCache';
 import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
 import {
   addPendingTransaction,
@@ -145,6 +145,11 @@ const BLOCKED_TOAST_ROUTE_NAMES = new Set([
   'ConfirmSplitPayment', // confirmSplitPayment.js
   'StablecoinSendScreen', // stablecoinSendScreen.js
 ]);
+
+// Bounded read windows for homepage tx projection. Escalated only when a full
+// window still can't fill the display limit; the final fallback is the legacy
+// unbounded read.
+const TX_WINDOW_TIERS = [200, 800];
 
 function isOnSendScreen() {
   try {
@@ -596,48 +601,123 @@ const SparkWalletProvider = ({ children }) => {
     [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
   );
 
+  // Tiered homepage projection. Tier 0 filters the newest ~50 rows — from
+  // the in-memory window for pure UI changes (pager swipes: zero I/O, last
+  // call wins by ordering), or re-read from SQLite when callers know rows
+  // were written since the window was captured (`refreshFromDb` — tx
+  // events), since the window alone cannot see new payments. Bounded reads
+  // escalate only while a FULL window suggests deeper rows may still match,
+  // so sparse histories (e.g. few USD txs deep in the table) stay correct
+  // without defaulting to full scans. Nothing is committed until a tier
+  // fills the display limit or the table is provably exhausted — the UI
+  // keeps showing the previous list rather than flashing an incomplete one,
+  // matching the original single-commit behavior. When `scrollPosition` is
+  // provided, async work aborts if the user swiped again mid-flight.
+  // Returns the raw rows behind the commit (null if superseded).
+  const projectHomepageTxs = useCallback(
+    async ({
+      limitNeeded,
+      scrollPosition = null,
+      smallPaymentOverrides = null,
+      refreshFromDb = false,
+    }) => {
+      const { identityPubKey } = sparkInfoRef.current;
+      if (!identityPubKey) return null;
+
+      const hasScrollGuard = scrollPosition !== null;
+      const isStale = () =>
+        hasScrollGuard && scrollPositionRef.current !== scrollPosition;
+
+      const runFilter = txs =>
+        filterDisplayableTransactions({
+          transactions: txs,
+          scrollPosition: scrollPosition ?? scrollPositionRef.current,
+          enabledLRC20: showTokensInformation,
+          tokens: sparkInfoRef.current.tokens,
+          limit: limitNeeded,
+          hideSmallPaymentsHomepage:
+            smallPaymentOverrides ?? hideSmallPaymentsHomepage,
+        });
+
+      const commit = filtered =>
+        setSparkInformation(prev => ({ ...prev, transactions: filtered }));
+
+      let searchPool = sparkInfoRef.current.transactions;
+
+      if (refreshFromDb) {
+        if (isStale()) return null;
+        searchPool = await getAllSparkTransactions({
+          limit: 50,
+          accountId: identityPubKey,
+        });
+        if (isStale()) return null;
+        sparkInfoRef.current.transactions = searchPool.slice(0, 50);
+        if (!searchPool.length) {
+          commit([]);
+          return searchPool;
+        }
+      }
+
+      if (searchPool.length) {
+        const filtered = runFilter(searchPool);
+        const tableExhausted = refreshFromDb && searchPool.length < 50;
+        if (filtered.length >= limitNeeded || tableExhausted) {
+          commit(filtered);
+          return searchPool;
+        }
+      }
+
+      for (const windowSize of TX_WINDOW_TIERS) {
+        if (isStale()) return null;
+        const rows = await getAllSparkTransactions({
+          limit: windowSize,
+          accountId: identityPubKey,
+        });
+        if (isStale()) return null;
+        sparkInfoRef.current.transactions = rows.slice(0, 50);
+        const filtered = runFilter(rows);
+        if (filtered.length >= limitNeeded || rows.length < windowSize) {
+          commit(filtered);
+          return rows;
+        }
+      }
+
+      if (isStale()) return null;
+      const allTxs = await getAllSparkTransactions({
+        limit: null,
+        accountId: identityPubKey,
+      });
+      if (isStale()) return null;
+      sparkInfoRef.current.transactions = allTxs.slice(0, 50);
+      const filtered = runFilter(allTxs);
+      commit(filtered);
+      return allTxs;
+    },
+    [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
+  );
+
   const updateHomepageScrollPosition = useCallback(
     async pos => {
       scrollPositionRef.current = pos;
       // Skip while the key is unset (init) so we don't clobber a list another
       // path populated.
       if (!sparkInfoRef.current.identityPubKey) return;
-      const allTxs = await getAllSparkTransactions({
-        limit: null,
-        accountId: sparkInfoRef.current.identityPubKey,
-      });
-      const filtered = filterDisplayableTransactions({
-        transactions: allTxs,
+      await projectHomepageTxs({
+        limitNeeded: homepageTxPreferance,
         scrollPosition: pos,
-        enabledLRC20: showTokensInformation,
-        tokens: sparkInfoRef.current.tokens,
-        limit: homepageTxPreferance,
-        hideSmallPaymentsHomepage,
       });
-      if (scrollPositionRef.current !== pos) return;
-      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
-    [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
+    [projectHomepageTxs, homepageTxPreferance],
   );
 
   const updateHomepageTxPreferance = useCallback(
     async (num, smallPaymentOverrides) => {
-      const allTxs = await getAllSparkTransactions({
-        limit: null,
-        accountId: sparkInfoRef.current.identityPubKey,
+      await projectHomepageTxs({
+        limitNeeded: num,
+        smallPaymentOverrides,
       });
-      const filtered = filterDisplayableTransactions({
-        transactions: allTxs,
-        scrollPosition: scrollPositionRef.current,
-        enabledLRC20: showTokensInformation,
-        tokens: sparkInfoRef.current.tokens,
-        limit: num,
-        hideSmallPaymentsHomepage:
-          smallPaymentOverrides ?? hideSmallPaymentsHomepage,
-      });
-      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
-    [showTokensInformation, hideSmallPaymentsHomepage],
+    [projectHomepageTxs],
   );
 
   const enqueueTxLane = useCallback((updateType, task) => {
@@ -856,12 +936,10 @@ const SparkWalletProvider = ({ children }) => {
         return;
       }
 
-      const txs = await getAllSparkTransactions({
-        limit: null,
-        accountId: identityPubKey,
+      const txs = await projectHomepageTxs({
+        limitNeeded: homepageTxPreferance,
+        refreshFromDb: true,
       });
-
-      filterAndSetTransactions(txs);
 
       enqueueUiLane(event.updateType, () =>
         maybeHandleConfirmNavigation(
@@ -871,7 +949,12 @@ const SparkWalletProvider = ({ children }) => {
         ),
       );
     },
-    [enqueueUiLane, maybeHandleConfirmNavigation, filterAndSetTransactions],
+    [
+      enqueueUiLane,
+      maybeHandleConfirmNavigation,
+      projectHomepageTxs,
+      homepageTxPreferance,
+    ],
   );
 
   // Applies the most recent balance:update value immediately, cancelling the
@@ -2281,7 +2364,7 @@ const SparkWalletProvider = ({ children }) => {
         filterAndSetTransactions,
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
-        mnemonic: currentMnemonicRef.current,
+        mnemonic: currentMnemonicRef.current || currentWalletMnemoinc,
         // Restore now runs solely via createRestorePoller in addListeners, so
         // always load cached txs on connect (the poller's SPARK_TX events layer
         // in any newly restored txs afterward).
@@ -2301,7 +2384,7 @@ const SparkWalletProvider = ({ children }) => {
       // cycle or manual refresh.
       retryBalanceAfterTimeout();
     },
-    [retryBalanceAfterTimeout],
+    [retryBalanceAfterTimeout, currentWalletMnemoinc],
   );
 
   // Function to update db when all reqiured information is loaded

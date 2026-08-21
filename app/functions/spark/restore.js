@@ -28,6 +28,7 @@ import {
   getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
   getAllUnpaidHoldInvoicesFromTxs,
+  getBitcoinPaymentsByTxid,
   getBulkPaymentGroupTransferIds,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
@@ -1104,18 +1105,9 @@ async function processBitcoinTransactions(
       !IS_BITCOIN_REQUEST_ID.test(txStateUpdate.sparkID)
     ) {
       if (!IS_SPARK_ID.test(txStateUpdate.sparkID)) {
-        const allPayments = await getAllSparkTransactions({ accountId });
-        const foundPayment = allPayments.find(payment => {
-          if (payment.paymentType === 'bitcoin') {
-            const details = JSON.parse(payment.details);
-            if (
-              details.onChainTxid === txStateUpdate.sparkID &&
-              payment.sparkID !== txStateUpdate.sparkID
-            )
-              return true;
-          }
-        });
-        if (foundPayment) {
+        const paymentsByTxid = await getBitcoinPaymentsByTxid(accountId);
+        const foundPayment = paymentsByTxid.get(txStateUpdate.sparkID);
+        if (foundPayment && foundPayment.sparkID !== txStateUpdate.sparkID) {
           const newDetails = JSON.parse(foundPayment.details);
           const oldDetails = JSON.parse(txStateUpdate.details);
 
