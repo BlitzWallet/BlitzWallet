@@ -45,7 +45,7 @@ const INCREMENTAL_SAVE_THRESHOLD = 200;
 const MAX_RESTORE_FETCH_RETRIES = 5;
 // Base backoff between retries, scaled by the current consecutive-failure count.
 const RESTORE_RETRY_DELAY_MS = 1500;
-// A transfer left in its initial in-flight state (TRANSFER_STATUS_SENDER_INITIATED)
+// An outgoing transfer left in its initial in-flight state (TRANSFER_STATUS_SENDER_INITIATED)
 // past this window is wedged — the server dropped the swap or the app died right
 // after dispatch. Mark it failed instead of re-querying it every 10s forever
 // (and so a stuck Lightning send can be retried). RETURNED/EXPIRED are already
@@ -55,8 +55,13 @@ const STUCK_SENDER_INITIATED_MS = 72 * 60 * 60 * 1000;
 // Age gate for the SENDER_INITIATED stuck-detector. Returns 'failed' only when
 // the CURRENT spark status is still the initial in-flight state AND the row has
 // been pending past the generous window; anything else returns null so normal
-// in-flight classification is unchanged.
-function stuckInFlightStatus(rawStatus, details) {
+// in-flight classification is unchanged. OUTGOING only: SENDER_INITIATED is
+// also the initial state of incoming transfers waiting to be claimed, so an old
+// incoming row must stay pending (the claim can still arrive) rather than being
+// written 'failed' — the poller only revisits pending rows, so a lost claim
+// event would leave received money marked failed forever.
+function stuckInFlightStatus(rawStatus, details, direction) {
+  if (direction?.toLowerCase() !== 'outgoing') return null;
   if (rawStatus !== 'TRANSFER_STATUS_SENDER_INITIATED') return null;
   const created = Number(
     details?.time ??
@@ -1001,7 +1006,7 @@ async function processLightningTransaction(
       tempId: txStateUpdate.sparkID,
       id: tx.id ? tx.id : txStateUpdate.sparkID,
       paymentStatus:
-        stuckInFlightStatus(tx.status, details) ||
+        stuckInFlightStatus(tx.status, details, details.direction) ||
         getSparkPaymentStatus(tx.status),
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
@@ -1029,7 +1034,11 @@ async function processLightningTransaction(
   // Stuck-detector: still SENDER_INITIATED long after the row was created is a
   // wedged send (server dropped the swap / app killed after dispatch) — mark it
   // failed so the poller stops re-querying it every 10s and the user can resend.
-  const stuckFailed = stuckInFlightStatus(sparkResponse.status, details);
+  const stuckFailed = stuckInFlightStatus(
+    sparkResponse.status,
+    details,
+    details.direction,
+  );
 
   if (
     details.direction === 'OUTGOING' &&
@@ -1143,7 +1152,7 @@ async function processBitcoinTransactions(
       if (!transfer) continue;
 
       const newPaymentStatus =
-        stuckInFlightStatus(transfer.status, details) ||
+        stuckInFlightStatus(transfer.status, details, details.direction) ||
         getSparkPaymentStatus(transfer.status);
       if (txStateUpdate.paymentStatus === newPaymentStatus) continue;
 
@@ -1256,8 +1265,11 @@ async function processSparkTransactions(
       updatedTxs.push({
         id: txStateUpdate.sparkID,
         paymentStatus:
-          stuckInFlightStatus(findTxResponse.status, details) ||
-          getSparkPaymentStatus(findTxResponse.status),
+          stuckInFlightStatus(
+            findTxResponse.status,
+            details,
+            details.direction,
+          ) || getSparkPaymentStatus(findTxResponse.status),
         paymentType: 'spark',
         accountId: txStateUpdate.accountId,
       });
