@@ -1126,7 +1126,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
                 'userSelectedLanguage',
               ).then(data => JSON.parse(data) || 'en');
               if (selectedLanguage !== i18next.language) {
-                i18next.changeLanguage(selectedLanguage);
+                await i18next.changeLanguage(selectedLanguage);
               }
               pushInstantNotification(
                 i18next.t(successMessage),

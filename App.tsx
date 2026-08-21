@@ -39,8 +39,6 @@ import { isEncryptedMnemonicFormat } from './app/functions/handleMnemonic';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
-import { getLocales } from 'react-native-localize';
-import { supportedLanguagesList } from './locales/localeslist';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -76,6 +74,7 @@ import {
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
+import { resolveUserLanguage } from './i18n';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
@@ -540,20 +539,16 @@ function ResetStack(): JSX.Element | null {
         pin,
         mnemonic,
         securitySettings,
-        userSelectedLanguage,
+        resolvedLanguage,
       ] = await Promise.all([
         skipURL ? Promise.resolve() : getInitialURL(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        getLocalStorageItem('userSelectedLanguage').then(data => {
-          try {
-            return JSON.parse(data);
-          } catch {
-            return null;
-          }
-        }),
+        // Language resolution runs alongside the other reads so it adds no
+        // serial cold-start time.
+        resolveUserLanguage(),
       ]);
 
       crashlyticsLogReport('initWallet: read secure store + local settings');
@@ -612,6 +607,13 @@ function ResetStack(): JSX.Element | null {
             }
           : parsedSettings,
       );
+
+      // Close the cold-start translation flash: hold the render gate below
+      // until the lazily loaded translation for the resolved language is
+      // ready, so first paint never shows English before swapping. Rejections
+      // still open the gate via onInitFailure.
+      await i18n.changeLanguage(resolvedLanguage);
+
       setInitSettings(prev => {
         return {
           ...prev,
@@ -623,21 +625,6 @@ function ResetStack(): JSX.Element | null {
           isLoaded: true,
         };
       });
-
-      let resolvedLanguage = userSelectedLanguage;
-      if (!resolvedLanguage) {
-        const [{ languageTag = 'en' }] = getLocales();
-        const deviceShortId = languageTag.split('-')[0];
-        const matched = supportedLanguagesList.find(
-          l => l.shortId === deviceShortId,
-        );
-        resolvedLanguage = matched ? matched.id : 'en';
-        setLocalStorageItem(
-          'userSelectedLanguage',
-          JSON.stringify(resolvedLanguage),
-        );
-      }
-      i18n.changeLanguage(resolvedLanguage);
     }
 
     if (appState === 'background') return;

@@ -36,7 +36,8 @@ async function formatPushNotification(data) {
   ]);
 
   if (selectedLanguage !== i18next.language) {
-    i18next.changeLanguage(selectedLanguage);
+    // Translations load lazily — wait so t() below doesn't fall back to English
+    await i18next.changeLanguage(selectedLanguage);
   }
 
   let message = '';
