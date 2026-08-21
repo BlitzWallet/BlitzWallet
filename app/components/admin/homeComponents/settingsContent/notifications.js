@@ -12,6 +12,14 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 
+const NOTIFICATION_SERVICES = [
+  'contactPayments',
+  'lnurlPayments',
+  'nostrPayments',
+  'NWC',
+  'pointOfSale',
+];
+
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
     {title ? <ThemeText styles={styles.sectionTitle} content={title} /> : null}
@@ -100,6 +108,13 @@ export default function NotificationPreferances() {
               await loadCurrentNotificationPermission(); // refresh system state
             }
 
+            newObject.enabledServices = { ...newObject.enabledServices };
+            NOTIFICATION_SERVICES.forEach(
+              service =>
+                (newObject.enabledServices[service] =
+                  newObject.enabledServices[service] ?? true),
+            );
+
             newObject.isEnabled = true; // always set preference
           } else {
             // User wants to disable
@@ -144,6 +159,9 @@ export default function NotificationPreferances() {
       masterInfoObject?.NWC,
       navigate,
       effectivePushStatus,
+      checkAndSavePushNotificationToDatabase,
+      loadCurrentNotificationPermission,
+      toggleNWCInformation,
     ],
   );
 

@@ -184,10 +184,11 @@ export default async function initializeUserSettingsFromHistory({
         key: {},
       },
       enabledServices: {
-        contactPayments: false,
-        lnurlPayments: false,
-        nostrPayments: false,
-        pointOfSale: false,
+        contactPayments: true,
+        lnurlPayments: true,
+        nostrPayments: true,
+        NWC: true,
+        pointOfSale: true,
       },
     };
 
@@ -328,6 +329,7 @@ export default async function initializeUserSettingsFromHistory({
           contactPayments: hasNotificationsStored,
           lnurlPayments: hasNotificationsStored,
           nostrPayments: hasNotificationsStored,
+          NWC: hasNotificationsStored,
           pointOfSale: hasNotificationsStored,
         },
       };
