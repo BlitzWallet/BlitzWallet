@@ -204,7 +204,12 @@ export default function AccountTransferHalfModal({
       // Await the in-flight init before disposing so we dispose the wallet init
       // actually created (a pre-init dispose is a no-op).
       const m = sourceMnemonicRef.current;
-      if (m && m !== accountMnemoinc) {
+      // Withdraw's source IS the edited account. Its still-mounted editAccountPage
+      // owns that wallet's lifecycle and is live-subscribed to it (shared
+      // per-mnemonic singleton) — disposing here would kill that subscription.
+      // Only dispose the picked counterparty wallet we alone acquired (add mode).
+      const ownedByEditPage = sourceAccount?.uuid === currentAccount?.uuid;
+      if (m && m !== accountMnemoinc && !ownedByEditPage) {
         Promise.resolve(initPromiseRef.current).finally(() =>
           disposeSparkWallet(m),
         );
