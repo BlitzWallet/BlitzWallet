@@ -11,10 +11,14 @@ import {
 // Fixed ASN.1 SPKI header for a raw-32-byte Ed25519 public key (no secret).
 const ED25519_SPKI_PREFIX = '302a300506032b6570032100';
 
+// Signature meta layout: <meta name="blitz-webview-sig" content="<128 hex chars>">
+const SIG_META_PREFIX = '<meta name="blitz-webview-sig" content="';
+
 // Integrity failures (bad/missing signature, nonce injection) are tamper: they
 // justify persisting the FORCE_REACT_NATIVE kill-switch. Transient IO errors
 // (disk read/write) are NOT tamper and must never persist it (S-5).
-const tamperError = message => Object.assign(new Error(message), { isTamper: true });
+const tamperError = message =>
+  Object.assign(new Error(message), { isTamper: true });
 
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.
@@ -41,23 +45,30 @@ export async function verifyAndPrepareWebView(bundleSource) {
 
     // Verify the bundle's Ed25519 signature against the pinned public key. The
     // signature is computed offline over sha256(canonical HTML) with the
-    // signature slot holding the __SIGNATURE__ placeholder, so reconstruct those
-    // exact bytes before hashing. The 5.3MB digest runs via JSI (quick-crypto)
-    // so it never crosses the bridge as a string; Ed25519 then verifies just the
-    // 32-byte digest. Runs before nonce injection, so the shipped bytes (with
-    // __INJECT_NONCE__ intact) match what was signed.
-    const SIG_META = /<meta name="blitz-webview-sig" content="([0-9a-f]{128})"/;
-    const sigMatch = html.match(SIG_META);
+    // signature slot holding the __SIGNATURE__ placeholder, so hash those
+    // exact bytes. Rather than materializing a canonical copy of the multi-MB
+    // document, it is UTF-8 encoded once and hashed incrementally over
+    // [head][__SIGNATURE__][tail] via zero-copy buffer views; Ed25519 then
+    // verifies just the 32-byte digest. Runs before nonce injection, so the
+    // shipped bytes (with __INJECT_NONCE__ intact) match what was signed.
+    const sigMetaStart = html.indexOf(SIG_META_PREFIX);
+    const sigStart = sigMetaStart + SIG_META_PREFIX.length;
+    const sigEnd = sigMetaStart === -1 ? -1 : html.indexOf('"', sigStart);
+    const signatureHex =
+      sigMetaStart === -1 || sigEnd === -1 || sigEnd - sigStart !== 128
+        ? null
+        : html.slice(sigStart, sigEnd);
 
-    if (!sigMatch) throw tamperError('WebView bundle missing signature meta.');
+    if (!signatureHex || !/^[0-9a-f]{128}$/.test(signatureHex)) {
+      throw tamperError('WebView bundle missing signature meta.');
+    }
 
-    const canonicalHtml = html.replace(
-      /(<meta name="blitz-webview-sig" content=")[0-9a-f]{128}(")/,
-      '$1__SIGNATURE__$2',
-    );
-
+    const htmlBytes = Buffer.from(html, 'utf8');
+    const sigStartByte = Buffer.byteLength(html.slice(0, sigStart));
     const digestHex = createHash('sha256')
-      .update(canonicalHtml, 'utf8')
+      .update(htmlBytes.subarray(0, sigStartByte))
+      .update(Buffer.from('__SIGNATURE__', 'utf8'))
+      .update(htmlBytes.subarray(sigStartByte + 128))
       .digest('hex');
 
     const pubKey = createPublicKey({
@@ -73,7 +84,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
         null,
         Buffer.from(digestHex, 'hex'),
         pubKey,
-        Buffer.from(sigMatch[1], 'hex'),
+        Buffer.from(signatureHex, 'hex'),
       )
     ) {
       throw tamperError('WebView bundle signature invalid — aborting.');
@@ -87,11 +98,17 @@ export async function verifyAndPrepareWebView(bundleSource) {
       throw tamperError('No __INJECT_NONCE__ placeholder found in HTML.');
     }
 
-    // Replace only CSP and attribute placeholders
+    // Replace only CSP and attribute placeholders. Literal splices (no regex):
+    // the bootstrap JS also contains bare "__INJECT_NONCE__" sentinel
+    // comparisons that must stay untouched, so never broaden this to a global
+    // placeholder replace.
     let injectedHtml = html
-      .replace(/'nonce-__INJECT_NONCE__'/g, `'nonce-${nonceHex}'`)
-      .replace(/"nonce-__INJECT_NONCE__"/g, `"nonce-${nonceHex}"`)
-      .replace(/nonce="__INJECT_NONCE__"/g, `nonce="${nonceHex}"`);
+      .split(`'nonce-__INJECT_NONCE__'`)
+      .join(`'nonce-${nonceHex}'`)
+      .split('"nonce-__INJECT_NONCE__"')
+      .join(`"nonce-${nonceHex}"`)
+      .split('nonce="__INJECT_NONCE__"')
+      .join(`nonce="${nonceHex}"`);
 
     // Ensure placeholders were replaced
     if (
