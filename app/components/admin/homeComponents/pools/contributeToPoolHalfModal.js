@@ -30,7 +30,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { Timestamp } from '@react-native-firebase/firestore';
@@ -50,8 +50,6 @@ import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyCo
 import { simulateSwap } from '../../../../functions/spark/flashnet';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const STEP_ORDER = ['select', 'custom', 'confirm', 'loading', 'success'];
 
@@ -299,12 +297,7 @@ export default function ContributeToPoolHalfModal({
     setContentHeight(550);
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   const handleCustomPress = useCallback(() => {
     setStep([...step, 'custom']);

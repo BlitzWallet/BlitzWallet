@@ -53,9 +53,9 @@ import {
 } from '../../../../../functions/spark/balanceSnapshots';
 import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
 import {
-  applyErrorAnimationTheme,
-  updateConfirmAnimation,
-} from '../../../../../functions/lottieViewColorTransformer';
+  getConfirmTxAnimation,
+  getErrorTxAnimation,
+} from '../../../../../functions/lottieAnimations';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -69,9 +69,6 @@ import {
 import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
-
-const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
-const errorTxAnimation = require('../../../../../assets/errorTxAnimation.json');
 
 const PAGE_ORDER = ['account', 'amount', 'loading', 'result'];
 // Fractions of the screen, not absolute pixels: the picker/amount pages must
@@ -165,7 +162,12 @@ export default function AccountTransferHalfModal({
   useEffect(() => {
     if (!sourceAccount?.uuid || isSourceActive) return;
     let cancelled = false;
-    setSourceBalance({ status: 'loading', btcSats: 0, usdDollars: 0, tokensObj: null });
+    setSourceBalance({
+      status: 'loading',
+      btcSats: 0,
+      usdDollars: 0,
+      tokensObj: null,
+    });
     (async () => {
       try {
         const mnemonic = await getAccountMnemonic(sourceAccount);
@@ -210,7 +212,12 @@ export default function AccountTransferHalfModal({
       sourceMnemonicRef.current = null;
       initPromiseRef.current = null;
     };
-  }, [sourceAccount?.uuid, isSourceActive, getAccountMnemonic, accountMnemoinc]);
+  }, [
+    sourceAccount?.uuid,
+    isSourceActive,
+    getAccountMnemonic,
+    accountMnemoinc,
+  ]);
 
   const sourceBtcSats = isSourceActive
     ? activeBitcoinBalance
@@ -382,22 +389,8 @@ export default function AccountTransferHalfModal({
     ? Math.round(Number(amountValue) * 1e6)
     : btcAmountSats;
 
-  const confirmAnimation = useMemo(
-    () =>
-      updateConfirmAnimation(
-        confirmTxAnimation,
-        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-      ),
-    [theme, darkModeType],
-  );
-  const errorAnimation = useMemo(
-    () =>
-      applyErrorAnimationTheme(
-        errorTxAnimation,
-        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-      ),
-    [theme, darkModeType],
-  );
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   const openCurrencyPicker = useCallback(
     () =>
@@ -554,8 +547,8 @@ export default function AccountTransferHalfModal({
                 deltaBtcSats: isUsdAsset
                   ? 0
                   : isAdd
-                    ? -(amountOut + transferInfo.paymentFee)
-                    : amountOut,
+                  ? -(amountOut + transferInfo.paymentFee)
+                  : amountOut,
                 deltaUsdMicros: isUsdAsset ? amountOut : 0,
               });
             }

@@ -97,8 +97,8 @@ jest.mock('../../app/functions/CustomElements/noContentScreen', () => {
     default: () => MockReact.createElement(Text, null, 'NO_CONTENT_SCREEN'),
   };
 });
-jest.mock('../../app/functions/lottieViewColorTransformer', () => ({
-  updateMascatWalkingAnimation: () => ({}),
+jest.mock('../../app/functions/lottieAnimations', () => ({
+  getMascatWalkingAnimation: () => ({}),
 }));
 jest.mock('../../app/functions/openWebBrowser', () => ({
   __esModule: true,

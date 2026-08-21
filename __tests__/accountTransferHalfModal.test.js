@@ -257,9 +257,9 @@ jest.mock(
   },
 );
 
-jest.mock('../app/functions/lottieViewColorTransformer', () => ({
-  applyErrorAnimationTheme: animation => animation,
-  updateConfirmAnimation: animation => animation,
+jest.mock('../app/functions/lottieAnimations', () => ({
+  getErrorTxAnimation: animation => animation,
+  getConfirmTxAnimation: animation => animation,
 }));
 
 jest.mock('../app/functions/messaging/parentAccountTransferMessage', () => ({
@@ -732,7 +732,7 @@ describe('AccountTransferHalfModal optimistic balance snapshot', () => {
       didWork: true,
       balance: 100000n,
       tokensObj: {
-        'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87': {
+        btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87: {
           balance: 3000000n,
           tokenMetadata: { decimals: 6 },
         },
@@ -750,7 +750,7 @@ describe('AccountTransferHalfModal optimistic balance snapshot', () => {
       {
         btcSats: 100000,
         tokensObj: expect.objectContaining({
-          'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87':
+          btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87:
             expect.any(Object),
         }),
         deltaBtcSats: 0,

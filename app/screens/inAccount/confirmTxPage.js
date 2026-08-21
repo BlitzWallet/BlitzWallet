@@ -11,9 +11,9 @@ import GetThemeColors from '../../hooks/themeColors';
 import { openComposer } from 'react-native-email-link';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import {
-  applyErrorAnimationTheme,
-  updateConfirmAnimation,
-} from '../../functions/lottieViewColorTransformer';
+  getConfirmTxAnimation,
+  getErrorTxAnimation,
+} from '../../functions/lottieAnimations';
 import { useToast } from '../../../context-store/toastManager';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
@@ -36,8 +36,6 @@ import {
 import openWebBrowser from '../../functions/openWebBrowser';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 
-const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
-const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
   const { sparkInformation } = useSparkWallet();
   const { screenDimensions } = useAppStatus();
@@ -150,19 +148,9 @@ export default function ConfirmTxPage(props) {
     token?.tokenMetadata?.decimals,
   );
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
-  const errorAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      errorTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     animationRef.current?.play();

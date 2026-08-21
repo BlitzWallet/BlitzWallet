@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-import { applyErrorAnimationTheme } from '../../../../../functions/lottieViewColorTransformer';
+import { getErrorTxAnimation } from '../../../../../functions/lottieAnimations';
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import {
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../../../../constants/theme';
+import { WINDOWWIDTH } from '../../../../../constants/theme';
 import { CENTER } from '../../../../../constants';
 
-const errorTxAnimation = require('../../../../../assets/errorTxAnimation.json');
 export default function StoreErrorPage({ error }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
@@ -19,12 +15,7 @@ export default function StoreErrorPage({ error }) {
     animationRef.current?.play();
   }, []);
 
-  const errorAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      errorTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   return (
     <View style={styles.container}>

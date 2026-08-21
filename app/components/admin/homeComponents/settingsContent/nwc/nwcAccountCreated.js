@@ -14,10 +14,8 @@ import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useToast } from '../../../../../../context-store/toastManager';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../../functions/lottieAnimations';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-
-const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function NWCAccountCreated(props) {
   const navigate = useNavigation();
@@ -33,14 +31,7 @@ export default function NWCAccountCreated(props) {
     return true;
   }, []);
 
-  const confirmAnimation = useMemo(
-    () =>
-      updateConfirmAnimation(
-        confirmTxAnimation,
-        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-      ),
-    [theme, darkModeType],
-  );
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     animationRef.current?.play();

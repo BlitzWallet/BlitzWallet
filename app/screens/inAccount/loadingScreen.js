@@ -16,7 +16,7 @@ import {
 import { navigationRef } from '../../../navigation/navigationService';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useKeysContext } from '../../../context-store/keys';
-import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
+import { getMascatWalkingAnimation } from '../../functions/lottieAnimations';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
@@ -40,8 +40,6 @@ import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
 import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
 import { isWipeInProgress } from '../../functions/secureStore';
 import i18next from 'i18next';
-
-const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
@@ -83,11 +81,7 @@ export default function ConnectingToNodeLoadingScreen() {
   // balance, fiat rate), which is what makes the doomsday settings screen useful.
   const didAbortLogin = useRef(false);
 
-  const transformedAnimation = useMemo(
-    () =>
-      updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue'),
-    [theme],
-  );
+  const transformedAnimation = getMascatWalkingAnimation(theme);
 
   useEffect(() => {
     async function startConnectProcess() {
