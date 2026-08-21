@@ -1,6 +1,7 @@
-// Web shim for react-native-vision-camera-barcode-scanner (paired with the
-// vision-camera stub; QR scanning is v1.1).
-export function useBarcodeScanner() {
-  return { props: {} };
+// Web shim for react-native-vision-camera-barcode-scanner. Returns a marker
+// handle that the vision-camera web stub finds in <Camera outputs> and drives
+// from its jsqr decode loop.
+export function useBarcodeScannerOutput({ onBarcodeScanned, onError }) {
+  return { __isBarcodeOutput: true, onBarcodeScanned, onError };
 }
-export default { useBarcodeScanner };
+export default { useBarcodeScannerOutput };

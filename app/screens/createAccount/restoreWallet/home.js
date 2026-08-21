@@ -56,6 +56,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
+  const blurTimeoutRef = useRef(null);
   const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
 
   // Helper functions
@@ -89,7 +90,19 @@ export default function RestoreWallet({ navigation: { reset } }) {
   }, []);
 
   const handleFocus = useCallback(keyNumber => {
-    setCurrentFocused(keyNumber); // Update the current focused key
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    setCurrentFocused(keyNumber);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+    blurTimeoutRef.current = setTimeout(() => {
+      blurTimeoutRef.current = null;
+      setCurrentFocused(null);
+    }, 150);
   }, []);
 
   const handleSubmit = useCallback(
@@ -217,6 +230,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}
               onFocus={() => handleFocus(item1)}
+              onBlur={handleBlur}
               onSubmitEditing={() => handleSubmit(item1)}
               onChangeText={e => handleInputElement(e, item1)}
               blurOnSubmit={false}
@@ -246,6 +260,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
               ref={ref => (keyRefs.current[item2] = ref)}
               value={inputedKey[`key${item2}`]}
               onFocus={() => handleFocus(item2)}
+              onBlur={handleBlur}
               onSubmitEditing={() => handleSubmit(item2)}
               onChangeText={e => handleInputElement(e, item2)}
               blurOnSubmit={false}
@@ -266,6 +281,12 @@ export default function RestoreWallet({ navigation: { reset } }) {
     inputedKey,
     seedItemBackgroundColor,
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const keyboardDidHideListener = KeyboardEvents.addListener(

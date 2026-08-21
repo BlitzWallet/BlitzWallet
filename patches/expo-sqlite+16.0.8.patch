@@ -1,0 +1,11 @@
+--- a/node_modules/expo-sqlite/web/wa-sqlite/AccessHandlePoolVFS.js
++++ b/node_modules/expo-sqlite/web/wa-sqlite/AccessHandlePoolVFS.js
+@@ -22,7 +22,7 @@
+   VFS.SQLITE_OPEN_SUPER_JOURNAL |
+   VFS.SQLITE_OPEN_WAL;
+ 
+-const DEFAULT_CAPACITY = 6;
++const DEFAULT_CAPACITY = 32;
+ 
+ /**
+  * This VFS uses the updated Access Handle API with all synchronous methods

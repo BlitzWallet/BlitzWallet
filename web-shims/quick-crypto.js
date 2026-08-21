@@ -52,12 +52,15 @@ function makeCipher(algorithm, key, iv, decrypt) {
   const ivB = toBytes(iv);
   const chunks = [];
   let authTag = null; // GCM decrypt: caller-provided tag
+  let aad = null; // GCM additional authenticated data (@noble/ciphers 0.x takes it positionally)
   const isGcm = alg.endsWith('-gcm');
 
   function build() {
-    if (alg === 'aes-256-cbc' || alg === 'aes-128-cbc')
+    if (alg === 'aes-256-cbc' || alg === 'aes-128-cbc') {
+      if (aad) throw new Error('quick-crypto shim: AAD not supported for CBC');
       return cbc(keyB, ivB);
-    if (isGcm) return gcm(keyB, ivB);
+    }
+    if (isGcm) return gcm(keyB, ivB, aad || undefined);
     throw new Error(`quick-crypto shim: unsupported cipher ${algorithm}`);
   }
 
@@ -93,8 +96,9 @@ function makeCipher(algorithm, key, iv, decrypt) {
       authTag = Buffer.from(toBytes(tag));
       return this;
     },
-    setAAD() {
-      throw new Error('quick-crypto shim: AAD not supported');
+    setAAD(data) {
+      aad = Buffer.from(toBytes(data));
+      return this;
     },
   };
 }

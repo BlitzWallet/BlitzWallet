@@ -808,3 +808,95 @@ describe('freshness pass avoids JS-thread re-render storms', () => {
     expect(renderCounts.b).toBe(bBefore);
   });
 });
+
+describe('web support', () => {
+  // expo-file-system throws UnavailabilityError on web — the cache must serve
+  // the remote Firebase download URL instead of touching the filesystem.
+  const { Platform } = require('react-native');
+  let originalOS;
+
+  beforeEach(() => {
+    originalOS = Platform.OS;
+  });
+
+  afterEach(() => {
+    Platform.OS = originalOS;
+  });
+
+  test('reconcile keeps remote-url entries without any filesystem access', async () => {
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/webc`]);
+    mockGetMultipleItems.mockResolvedValue([
+      [
+        `${PREFIX}/webc`,
+        JSON.stringify({
+          uri: 'https://example.com/webc.jpg',
+          localUri: 'https://example.com/webc.jpg',
+          updated: 'updated-webc',
+        }),
+      ],
+    ]);
+
+    Platform.OS = 'web';
+    await mount();
+
+    expect(ctx.cache.webc).toBeDefined();
+    expect(ctx.cache.webc.localUri).toBe('https://example.com/webc.jpg');
+    expect(mockReadDirectoryAsync).not.toHaveBeenCalled();
+    expect(mockGetInfoAsync).not.toHaveBeenCalled();
+  });
+
+  test('refreshCache serves the remote URL directly — no directory, download, or file checks', async () => {
+    Platform.OS = 'web';
+    await mount();
+
+    mockGetMetadata.mockResolvedValue({ updated: 'w1' });
+    mockGetDownloadURL.mockResolvedValue('https://cdn.example.com/webd.jpg');
+
+    let result;
+    await act(async () => {
+      result = await ctx.refreshCache('webd', null);
+    });
+    await flush();
+
+    expect(mockMakeDirectoryAsync).not.toHaveBeenCalled();
+    expect(mockDownloadAsync).not.toHaveBeenCalled();
+    expect(mockCopyAsync).not.toHaveBeenCalled();
+    expect(mockGetInfoAsync).not.toHaveBeenCalled();
+    expect(result.uri).toBe('https://cdn.example.com/webd.jpg');
+    expect(result.localUri).toBe('https://cdn.example.com/webd.jpg');
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      `${PREFIX}/webd`,
+      expect.stringContaining('https://cdn.example.com/webd.jpg'),
+    );
+    expect(ctx.cache.webd).toBeDefined();
+  });
+
+  test('still-current refresh on web skips the file stat but persists lastChecked', async () => {
+    Platform.OS = 'web';
+    await mount();
+
+    mockGetMetadata.mockResolvedValue({ updated: 'wm1' });
+    mockGetDownloadURL.mockResolvedValue('https://cdn.example.com/webm.jpg');
+
+    await act(async () => {
+      await ctx.refreshCache('webm', null);
+    });
+    expect(ctx.cache.webm.updated).toBe('wm1');
+
+    // Advance past the success TTL so the second attempt isn't short-circuited.
+    let now = Date.now();
+    jest.spyOn(Date, 'now').mockImplementation(() => now);
+    now += 25 * 60 * 60 * 1000;
+
+    await act(async () => {
+      await ctx.refreshCache('webm', null);
+    });
+
+    expect(mockGetInfoAsync).not.toHaveBeenCalled();
+    expect(ctx.cache.webm.localUri).toBe('https://cdn.example.com/webm.jpg');
+    expect(mockSetLocalStorageItem).toHaveBeenLastCalledWith(
+      `${PREFIX}/webm`,
+      expect.stringContaining('lastChecked'),
+    );
+  });
+});

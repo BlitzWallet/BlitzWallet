@@ -75,6 +75,7 @@
     "expo-web-browser": "~15.0.8",
     "i18next": "^25.2.0",
     "intl-pluralrules": "^2.0.1",
+    "jsqr": "^1.4.0",
     "libphonenumber-js": "1.13.2",
     "light-bolt11-decoder": "^3.2.0",
     "lottie-react": "^2.4.1",

@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useSyncExternalStore,
 } from 'react';
+import { Platform } from 'react-native';
 import {
   getDownloadURL,
   getMetadata,
@@ -35,6 +36,9 @@ import {
   getMultipleItems,
 } from '../app/functions/localStorage';
 const FILE_DIR = cacheDirectory + 'profile_images/';
+// expo-file-system is unavailable on web — there the cache serves the remote
+// Firebase download URL directly instead of caching bytes on disk.
+const isWeb = () => Platform.OS === 'web';
 // The on-disk path is fully derived from the uuid + the CURRENT cache
 // directory. iOS changes the app's container path on every version update, so
 // any absolute path we persisted earlier is stale even though the file itself
@@ -145,19 +149,22 @@ export function ImageCacheProvider({ children }) {
       // listing reflects the current cache dir, so a moved storage location
       // (post app-update) rehydrates correctly.
       const existingFiles = new Set();
-      try {
-        (await readDirectoryAsync(FILE_DIR)).forEach(file =>
-          existingFiles.add(file),
-        );
-      } catch (err) {
-        // Directory doesn't exist yet (no images downloaded) — an empty set
-        // drops pointers to files that can't exist, matching the old per-file
-        // `exists: false` path.
+      if (!isWeb()) {
+        try {
+          (await readDirectoryAsync(FILE_DIR)).forEach(file =>
+            existingFiles.add(file),
+          );
+        } catch (err) {
+          // Directory doesn't exist yet (no images downloaded) — an empty set
+          // drops pointers to files that can't exist, matching the old per-file
+          // `exists: false` path.
+        }
       }
       const entries = Object.entries(initialCache);
       const validatedCache = {};
       entries.forEach(([uuid, entry]) => {
-        if (!entry?.localUri) {
+        if (!entry?.localUri || isWeb()) {
+          // Web entries reference remote URLs — nothing on disk to verify.
           validatedCache[uuid] = entry;
           return;
         }
@@ -255,8 +262,10 @@ export function ImageCacheProvider({ children }) {
 
             const cached = cacheRef.current[uuid];
             if (cached && cached.updated === updated) {
-              const currentUri = fileUriForUuid(uuid);
-              const fileInfo = await getInfoAsync(currentUri);
+              const currentUri = isWeb() ? cached.uri : fileUriForUuid(uuid);
+              const fileInfo = isWeb()
+                ? { exists: Boolean(currentUri) }
+                : await getInfoAsync(currentUri);
               if (fileInfo.exists) {
                 autoHealCooldownRef.current.delete(uuid);
                 const freshEntry = {
@@ -291,33 +300,42 @@ export function ImageCacheProvider({ children }) {
             updated = new Date().toISOString();
           }
 
-          const localUri = fileUriForUuid(uuid);
+          // Web uses the remote URL directly as the image source; native
+          // caches the bytes under the profile_images dir.
+          const finalUri = isWeb() ? url : fileUriForUuid(uuid);
 
-          await makeDirectoryAsync(FILE_DIR, { intermediates: true });
+          if (!isWeb()) {
+            await makeDirectoryAsync(FILE_DIR, { intermediates: true });
 
-          if (VALID_URL_REGEX.test(url)) {
-            console.log('Downloading image from', url, 'to', localUri);
-            const downloadResult = await downloadAsync(url, localUri);
-            if (!downloadResult || downloadResult.status !== 200) {
-              throw new Error(
-                `Image download failed with status ${downloadResult?.status}`,
-              );
+            if (VALID_URL_REGEX.test(url)) {
+              console.log('Downloading image from', url, 'to', finalUri);
+              const downloadResult = await downloadAsync(url, finalUri);
+              if (!downloadResult || downloadResult.status !== 200) {
+                throw new Error(
+                  `Image download failed with status ${downloadResult?.status}`,
+                );
+              }
+            } else {
+              console.log('Copying image from', url, 'to', finalUri);
+              await copyAsync({ from: url, to: finalUri });
             }
-          } else {
-            console.log('Copying image from', url, 'to', localUri);
-            await copyAsync({ from: url, to: localUri });
-          }
 
-          // Never persist a pointer to a partial/empty file — a bad write here
-          // would look like a valid cache entry but fail to render.
-          const writtenInfo = await getInfoAsync(localUri);
-          if (!writtenInfo.exists || !writtenInfo.size) {
-            throw new Error('Saved image is missing or empty');
+            // Never persist a pointer to a partial/empty file — a bad write here
+            // would look like a valid cache entry but fail to render.
+            const writtenInfo = await getInfoAsync(finalUri);
+            if (!writtenInfo.exists || !writtenInfo.size) {
+              throw new Error('Saved image is missing or empty');
+            }
           }
 
           const newEntry = hasDownloadURL
-            ? { uri: localUri, localUri, updated }
-            : { uri: localUri, localUri, updated, lastChecked: Date.now() };
+            ? { uri: finalUri, localUri: finalUri, updated }
+            : {
+                uri: finalUri,
+                localUri: finalUri,
+                updated,
+                lastChecked: Date.now(),
+              };
 
           await setLocalStorageItem(key, JSON.stringify(newEntry));
 

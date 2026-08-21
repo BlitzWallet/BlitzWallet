@@ -65,6 +65,57 @@ const ok = (name, cond) => {
   ok('GCM shim->Node round trip', back.equals(plain));
 }
 
+// --- AES-256-GCM + AAD: shim encrypt+tag -> Node decrypt (web writes v3 envelope) ---
+{
+  const key = nodeCrypto.randomBytes(32);
+  const iv = nodeCrypto.randomBytes(12);
+  const plain = Buffer.from('gcm aad payload', 'utf8');
+  const aad = Buffer.from('blitz.encryptedMnemonic.v3', 'utf8');
+
+  const c = shim.createCipheriv('aes-256-gcm', key, iv);
+  c.setAAD(aad);
+  const ct = Buffer.concat([c.update(plain), c.final()]);
+  const tag = c.getAuthTag();
+
+  const d = nodeCrypto.createDecipheriv('aes-256-gcm', key, iv);
+  d.setAuthTag(tag);
+  d.setAAD(aad);
+  const back = Buffer.concat([d.update(ct), d.final()]);
+  ok('GCM+AAD shim->Node round trip', back.equals(plain));
+}
+
+// --- AES-256-GCM + AAD: Node encrypt -> shim decrypt (mobile writes v3 envelope) ---
+{
+  const key = nodeCrypto.randomBytes(32);
+  const iv = nodeCrypto.randomBytes(12);
+  const plain = Buffer.from('node side aad payload', 'utf8');
+  const aad = Buffer.from('blitz.custodyAccount.v1', 'utf8');
+
+  const c = nodeCrypto.createCipheriv('aes-256-gcm', key, iv);
+  c.setAAD(aad);
+  const ct = Buffer.concat([c.update(plain), c.final()]);
+  const tag = c.getAuthTag();
+
+  const d = shim.createDecipheriv('aes-256-gcm', key, iv);
+  d.setAuthTag(tag);
+  d.setAAD(aad);
+  const back = Buffer.concat([d.update(ct), d.final()]);
+  ok('GCM+AAD Node->shim round trip', back.equals(plain));
+
+  // Wrong AAD must fail the tag check (fail closed), like Node.
+  const dBad = shim.createDecipheriv('aes-256-gcm', key, iv);
+  dBad.setAuthTag(tag);
+  dBad.setAAD(Buffer.from('wrong.aad', 'utf8'));
+  let threw = false;
+  try {
+    dBad.update(ct);
+    dBad.final();
+  } catch {
+    threw = true;
+  }
+  ok('GCM wrong AAD fails closed on shim decrypt', threw);
+}
+
 // --- Full handleMnemonic v2 flow: argon2id(pw,salt) -> AES-256-CBC ---
 // Reproduces app/functions/handleMnemonic.js encrypt, then decrypts via shim.
 {
@@ -114,4 +165,4 @@ const ok = (name, cond) => {
   ok('pbkdf2 matches Node', derived.equals(nodeDerived));
 }
 
-console.log(`\n✅ quick-crypto shim parity: ${passed}/7 checks passed`);
+console.log(`\n✅ quick-crypto shim parity: ${passed}/10 checks passed`);

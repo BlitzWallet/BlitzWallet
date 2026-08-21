@@ -259,6 +259,9 @@ export const sendWebViewRequestGlobal = async (action, args = {}) => {
 // none on web, so the handshake is always "complete" and force-native is inert.
 export const getHandshakeComplete = () => true;
 export const setForceReactNative = () => {};
+// No bridge/fallback machinery on web: selectSparkRuntime must always commit
+// to 'native' so Spark calls run the normal SDK functions in-process.
+export const getIsNativeRuntime = () => true;
 export const __getPendingRequestIdsForTest = () => [];
 
 const WebViewContext = createContext(null);
