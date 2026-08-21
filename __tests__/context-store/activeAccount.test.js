@@ -415,3 +415,77 @@ describe('deterministic account UUIDs', () => {
     expect(ctx.custodyAccounts).toEqual([ACCOUNT]);
   });
 });
+
+describe('serialized custody writes', () => {
+  it('concurrent createAccount and cloud restore merge instead of clobbering', async () => {
+    mockGlobal.masterInfoObject = {
+      didViewNWCMessage: true,
+      pinnedAccounts: [],
+      nextAccountDerivationIndex: 4,
+    };
+    mockGenerateAccountUuid.mockResolvedValue('restoreduuid0001');
+    await mount();
+    mockWriteCustodyAccounts.mockClear();
+
+    const created = { ...ACCOUNT, uuid: 'u-new', name: 'New' };
+    let createResult, restoreResult;
+    await act(async () => {
+      // Deliberately interleave: the restore derives keys async before
+      // writing, which used to be the lost-update window.
+      [createResult, restoreResult] = await Promise.all([
+        ctx.createAccount(created),
+        ctx.restoreDerivedAccountsFromCloud(),
+      ]);
+    });
+
+    expect(createResult.didWork).toBe(true);
+    expect(restoreResult.didWork).toBe(true);
+    const writes = mockWriteCustodyAccounts.mock.calls.map(call => call[0]);
+    const finalWrite = writes[writes.length - 1];
+    expect(finalWrite.map(a => a.uuid).sort()).toEqual([
+      'restoreduuid0001',
+      'u-new',
+    ]);
+    expect(ctx.custodyAccounts.map(a => a.uuid).sort()).toEqual([
+      'restoreduuid0001',
+      'u-new',
+    ]);
+  });
+});
+
+describe('auto-restore completion flag', () => {
+  beforeEach(() => {
+    mockAppStatus.didGetToHomepage = true;
+    mockGlobal.masterInfoObject = {
+      didViewNWCMessage: true,
+      pinnedAccounts: [],
+      nextAccountDerivationIndex: 4,
+    };
+    mockLoadCustodyAccounts.mockResolvedValue([]);
+  });
+
+  it('sets hasRunAutoRestore only after the restore write lands', async () => {
+    await mount();
+
+    expect(mockWriteCustodyAccounts).toHaveBeenCalled();
+    const flagCallIndex = mockSetLocalStorageItem.mock.calls.findIndex(
+      call => call[0] === 'hasRunAutoRestore',
+    );
+    expect(flagCallIndex).toBeGreaterThanOrEqual(0);
+    const writeOrder = mockWriteCustodyAccounts.mock.invocationCallOrder[0];
+    const flagOrder =
+      mockSetLocalStorageItem.mock.invocationCallOrder[flagCallIndex];
+    expect(writeOrder).toBeLessThan(flagOrder);
+  });
+
+  it('does not set hasRunAutoRestore when the restore write fails', async () => {
+    mockWriteCustodyAccounts.mockRejectedValueOnce(new Error('disk full'));
+
+    await mount();
+
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
+      'hasRunAutoRestore',
+      JSON.stringify(true),
+    );
+  });
+});

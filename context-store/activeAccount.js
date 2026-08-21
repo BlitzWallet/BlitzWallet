@@ -114,6 +114,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const [activeDerivedMnemonic, setActiveDerivedMnemonic] = useState(null);
   const hasSessionReset = useRef(false);
   const hasAutoRestoreCheckRun = useRef(false);
+  // Latest known account list. State is only ever set through setAccounts, so
+  // persisted mutations base on this ref instead of a stale render closure.
+  const custodyAccountsRef = useRef([]);
+  // Serializes persisted list mutations (create / remove / update / session
+  // reset / auto-restore): each waits for the previous write, so concurrent
+  // mutations can't read-modify-write the same base list and drop an account.
+  const custodyWriteQueue = useRef(Promise.resolve());
   const lnurlSyncInFlight = useRef(false);
   // After a fast-failing registry write the rollback re-triggers this effect
   // (accountsLnurl dep), which would spin on derived-pubkey derivation + retry.
@@ -140,6 +147,29 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const toggleIsUsingNostr = useCallback(value => {
     setIsUsingNostr(value);
   }, []);
+
+  const setAccounts = useCallback(next => {
+    custodyAccountsRef.current = next;
+    setCustodyAccounts(next);
+  }, []);
+
+  // Run one persisted mutation at a time. The mutator receives the freshest
+  // list and may return null to skip the write (nothing to change).
+  const queueCustodyWrite = useCallback(
+    mutator => {
+      const task = async () => {
+        const next = await mutator(custodyAccountsRef.current);
+        if (!next) return custodyAccountsRef.current;
+        await writeCustodyAccounts(next, accountMnemoinc);
+        setAccounts(next);
+        return next;
+      };
+      const result = custodyWriteQueue.current.then(task, task);
+      custodyWriteQueue.current = result.catch(() => {});
+      return result;
+    },
+    [accountMnemoinc, setAccounts],
+  );
   useEffect(() => {
     async function initializeAccouts() {
       try {
@@ -158,7 +188,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           accountMnemoinc,
         );
 
-        setCustodyAccounts(decryptedList);
+        setAccounts(decryptedList);
       } catch (err) {
         console.log('Custody account intialization error', err);
       }
@@ -167,7 +197,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     console.log('Initializing accounts....');
     if (!accountMnemoinc) return;
     initializeAccouts();
-  }, [accountMnemoinc]);
+  }, [accountMnemoinc, setAccounts]);
 
   // Clear active account once per session to sync with default accountMnemonic
   useEffect(() => {
@@ -183,16 +213,12 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         if (hasActiveAccounts) {
           console.log('Clearing active accounts for session sync...');
 
-          const clearedAccounts = custodyAccounts.map(account => ({
-            ...account,
-            isActive: false,
-          }));
-
-          writeCustodyAccounts(clearedAccounts, accountMnemoinc).catch(err =>
+          queueCustodyWrite(current => {
+            if (!current.some(account => account.isActive)) return null;
+            return current.map(account => ({ ...account, isActive: false }));
+          }).catch(err =>
             console.log('Session reset custody write failed', err),
           );
-
-          setCustodyAccounts(clearedAccounts);
         }
 
         hasSessionReset.current = true;
@@ -203,16 +229,12 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     }
 
     clearActiveAccountsOnSessionStart();
-  }, [custodyAccounts, accountMnemoinc]);
+  }, [custodyAccounts, accountMnemoinc, queueCustodyWrite]);
 
   const removeAccount = useCallback(
     async account => {
       try {
         const currentPins = masterInfoObject.pinnedAccounts || [];
-        let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-        let newAccounts = accountInformation.filter(accounts => {
-          return accounts.uuid !== account.uuid;
-        });
         const isPinned = currentPins.includes(account.uuid);
         if (isPinned) {
           // clear from pinned list
@@ -243,67 +265,53 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           }
         }
         //   clear spark information here too. Delte txs from database, reove listeners
-        await writeCustodyAccounts(newAccounts, accountMnemoinc);
-        setCustodyAccounts(newAccounts);
+        await queueCustodyWrite(current =>
+          current.filter(item => item.uuid !== account.uuid),
+        );
         return { didWork: true };
       } catch (err) {
         console.log('Remove account error', err);
         return { didWork: false, err: err.message };
       }
     },
-    [
-      custodyAccounts,
-      masterInfoObject,
-      publicKey,
-      accountMnemoinc,
-      toggleMasterInfoObject,
-    ],
+    [masterInfoObject, publicKey, toggleMasterInfoObject, queueCustodyWrite],
   );
   const createAccount = useCallback(
     async accountInformation => {
       try {
-        let savedAccountInformation = JSON.parse(
-          JSON.stringify(custodyAccounts),
-        );
-
-        savedAccountInformation.push(accountInformation);
-
-        await writeCustodyAccounts(savedAccountInformation, accountMnemoinc);
-        setCustodyAccounts(savedAccountInformation);
+        await queueCustodyWrite(current => [...current, accountInformation]);
         return { didWork: true };
       } catch (err) {
         console.log('Create custody account error', err);
         return { didWork: false, err: err.message };
       }
     },
-    [custodyAccounts, accountMnemoinc],
+    [queueCustodyWrite],
   );
 
   const updateAccount = useCallback(
     async account => {
       try {
-        let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-        let newAccounts = accountInformation.map(accounts => {
-          if (account.uuid === accounts.uuid) {
-            return { ...accounts, ...account };
-          } else return accounts;
-        });
-
-        await writeCustodyAccounts(newAccounts, accountMnemoinc);
-        setCustodyAccounts(newAccounts);
+        await queueCustodyWrite(current =>
+          current.map(item =>
+            item.uuid === account.uuid ? { ...item, ...account } : item,
+          ),
+        );
         return { didWork: true };
       } catch (err) {
         console.log('Remove account error', err);
         return { didWork: false, err: err.message };
       }
     },
-    [custodyAccounts, accountMnemoinc],
+    [queueCustodyWrite],
   );
   const updateAccountCacheOnly = useCallback(
     async account => {
       try {
         if (!account) throw new Error('No account selected');
-        let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
+        let accountInformation = JSON.parse(
+          JSON.stringify(custodyAccountsRef.current),
+        );
         let newAccounts = accountInformation.map(accounts => {
           if (account.uuid === accounts.uuid) {
             return { ...accounts, ...account };
@@ -320,14 +328,14 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           setActiveDerivedMnemonic(null);
         }
 
-        setCustodyAccounts(newAccounts);
+        setAccounts(newAccounts);
         return { didWork: true };
       } catch (err) {
         console.log('Remove account error', err);
         return { didWork: false, err: err.message };
       }
     },
-    [custodyAccounts, accountMnemoinc],
+    [accountMnemoinc, setAccounts],
   );
 
   const createDerivedAccount = useCallback(
@@ -515,7 +523,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       }
 
       const existingDerivedIndexes = new Set(
-        custodyAccounts
+        custodyAccountsRef.current
           .map(account => account.derivationIndex)
           .filter(index => typeof index === 'number'),
       );
@@ -535,23 +543,36 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         });
       }
 
+      let accountsRestored = 0;
       if (accountsToRestore.length) {
-        const mergedAccounts = [...custodyAccounts, ...accountsToRestore];
-        await writeCustodyAccounts(mergedAccounts, accountMnemoinc);
-        setCustodyAccounts(mergedAccounts);
+        await queueCustodyWrite(current => {
+          // Re-filter against the freshest list: a concurrent create/restore
+          // may have added one of these indexes while deriving above.
+          const existing = new Set(
+            current
+              .map(account => account.derivationIndex)
+              .filter(index => typeof index === 'number'),
+          );
+          const toAdd = accountsToRestore.filter(
+            account => !existing.has(account.derivationIndex),
+          );
+          if (!toAdd.length) return null;
+          accountsRestored = toAdd.length;
+          return [...current, ...toAdd];
+        });
       }
 
-      console.log(`Restored ${accountsToRestore.length} derived account(s)`);
-      return { didWork: true, accountsRestored: accountsToRestore.length };
+      console.log(`Restored ${accountsRestored} derived account(s)`);
+      return { didWork: true, accountsRestored };
     } catch (err) {
       console.log('Restore derived accounts error', err);
       return { didWork: false, error: err.message };
     }
   }, [
     masterInfoObject.nextAccountDerivationIndex,
-    custodyAccounts,
     accountMnemoinc,
     t,
+    queueCustodyWrite,
   ]);
 
   useEffect(() => {
@@ -576,8 +597,15 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
       console.log('Running auto-restore of derived accounts from cloud...');
       hasAutoRestoreCheckRun.current = true;
-      await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
-      await restoreDerivedAccountsFromCloud();
+      const result = await restoreDerivedAccountsFromCloud();
+      // Latch the one-time flag only after a successful restore: an
+      // interrupted run (killed app, failed write) must retry on the next
+      // launch instead of permanently disabling auto-restore.
+      if (result?.didWork) {
+        await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
+      } else {
+        hasAutoRestoreCheckRun.current = false;
+      }
     }
 
     restoreIfNeeded();
@@ -591,11 +619,14 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     setNostrSeed('');
     setIsUsingNostr(false);
     setActiveDerivedMnemonic(null);
-    setCustodyAccounts([]);
+    setAccounts([]);
     resetCustodyCryptoState();
+    // Drop any queued/pending persisted writes: they captured the previous
+    // seed and must not chain onto post-reset writes.
+    custodyWriteQueue.current = Promise.resolve();
     hasSessionReset.current = false;
     hasAutoRestoreCheckRun.current = false;
-  }, [authResetkey]);
+  }, [authResetkey, setAccounts]);
 
   const currentWalletMnemoinc = useMemo(() => {
     if (didSelectAltAccount) {
