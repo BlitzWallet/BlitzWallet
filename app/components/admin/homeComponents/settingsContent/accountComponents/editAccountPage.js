@@ -49,15 +49,11 @@ import Animated, {
   useHandler,
   useSharedValue,
 } from 'react-native-reanimated';
-import LottieView from 'lottie-react-native';
-import { updateMascatWalkingAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import { BalanceDots } from '../../homeLightning/balanceDots';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-
-const mascotAnimation = require('../../../../../assets/MOSCATWALKING.json');
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -279,12 +275,6 @@ export default function EditAccountPage(props) {
       },
     },
     [screenWidth],
-  );
-
-  const transformedAnimation = useMemo(
-    () =>
-      updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue'),
-    [theme],
   );
 
   const handleProfileImage = () => {
