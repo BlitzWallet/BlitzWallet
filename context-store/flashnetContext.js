@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useReducer,
   useEffect,
@@ -107,9 +108,12 @@ export function FlashnetProvider({ children }) {
     swapLimitsRef.current = swapLimits;
   }, [swapLimits]);
 
-  const togglePoolInfo = poolInfo => {
+  // Stable identity: this sits in the contextValue memo deps, so a fresh
+  // function per render would re-render every useFlashnet() consumer on any
+  // provider render (spark writes, appState flips, ...).
+  const togglePoolInfo = useCallback(poolInfo => {
     setPoolInfo(poolInfo);
-  };
+  }, []);
 
   const refreshPool = async () => {
     if (!sparkInformation.didConnectToFlashnet) return;

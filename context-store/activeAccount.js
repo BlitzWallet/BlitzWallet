@@ -57,11 +57,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   // (accountsLnurl dep), which would spin on derived-pubkey derivation + retry.
   // Cooldown breaks the tight loop; a later account/doc change retries.
   const lnurlSyncCooldownRef = useRef(0);
-  const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
+  const selectedAltAccount = useMemo(
+    () => custodyAccounts.filter(item => item.isActive),
+    [custodyAccounts],
+  );
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
   const enabledNWC = masterInfoObject.didViewNWCMessage;
-  const currentPins = masterInfoObject.pinnedAccounts || [];
 
   useEffect(() => {
     if (nostrSeed.length || !enabledNWC) return;
@@ -73,9 +75,9 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     getNostrSeed();
   }, [nostrSeed, enabledNWC]);
 
-  const toggleIsUsingNostr = value => {
+  const toggleIsUsingNostr = useCallback(value => {
     setIsUsingNostr(value);
-  };
+  }, []);
   useEffect(() => {
     async function initializeAccouts() {
       try {
@@ -137,223 +139,258 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     clearActiveAccountsOnSessionStart();
   }, [custodyAccounts, accountMnemoinc]);
 
-  const removeAccount = async account => {
-    try {
-      let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-      let newAccounts = accountInformation.filter(accounts => {
-        return accounts.uuid !== account.uuid;
-      });
-      const isPinned = currentPins.includes(account.uuid);
-      if (isPinned) {
-        // clear from pinned list
-        toggleMasterInfoObject({
-          pinnedAccounts: currentPins.filter(id => id !== account.uuid),
+  const removeAccount = useCallback(
+    async account => {
+      try {
+        const currentPins = masterInfoObject.pinnedAccounts || [];
+        let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
+        let newAccounts = accountInformation.filter(accounts => {
+          return accounts.uuid !== account.uuid;
         });
-      }
-      // Prune the imported account's registry entry: it pins the account's
-      // spark identity pubkey server-side, and merge-writes can't remove a map
-      // key. Derived/child entries are re-derivable, so only imported accounts
-      // carry an unrecoverable seed worth pruning.
-      if (account.mnemoinc) {
-        const registry = masterInfoObject.accountsLnurl || {};
-        const hit = Object.entries(registry).find(
-          ([, v]) => v.uuid === account.uuid,
-        );
-        if (hit) {
-          // Gate local removal on a confirmed prune: the imported seed only
-          // lives in the custody store, so destroying it while the address is
-          // still live server-side would strand inbound payments.
-          const pruned = await deleteLnurlRegistryEntry(publicKey, hit[0]);
-          if (!pruned) {
-            return {
-              didWork: false,
-              err: 'Could not remove the account address. Please try again.',
-            };
+        const isPinned = currentPins.includes(account.uuid);
+        if (isPinned) {
+          // clear from pinned list
+          toggleMasterInfoObject({
+            pinnedAccounts: currentPins.filter(id => id !== account.uuid),
+          });
+        }
+        // Prune the imported account's registry entry: it pins the account's
+        // spark identity pubkey server-side, and merge-writes can't remove a map
+        // key. Derived/child entries are re-derivable, so only imported accounts
+        // carry an unrecoverable seed worth pruning.
+        if (account.mnemoinc) {
+          const registry = masterInfoObject.accountsLnurl || {};
+          const hit = Object.entries(registry).find(
+            ([, v]) => v.uuid === account.uuid,
+          );
+          if (hit) {
+            // Gate local removal on a confirmed prune: the imported seed only
+            // lives in the custody store, so destroying it while the address is
+            // still live server-side would strand inbound payments.
+            const pruned = await deleteLnurlRegistryEntry(publicKey, hit[0]);
+            if (!pruned) {
+              return {
+                didWork: false,
+                err: 'Could not remove the account address. Please try again.',
+              };
+            }
           }
         }
+        //   clear spark information here too. Delte txs from database, reove listeners
+        await writeCustodyAccounts(newAccounts, accountMnemoinc);
+        setCustodyAccounts(newAccounts);
+        return { didWork: true };
+      } catch (err) {
+        console.log('Remove account error', err);
+        return { didWork: false, err: err.message };
       }
-      //   clear spark information here too. Delte txs from database, reove listeners
-      await writeCustodyAccounts(newAccounts, accountMnemoinc);
-      setCustodyAccounts(newAccounts);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Remove account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
-  const createAccount = async accountInformation => {
-    try {
-      let savedAccountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-
-      savedAccountInformation.push(accountInformation);
-
-      await writeCustodyAccounts(savedAccountInformation, accountMnemoinc);
-      setCustodyAccounts(savedAccountInformation);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Create custody account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
-
-  const updateAccount = async account => {
-    try {
-      let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-      let newAccounts = accountInformation.map(accounts => {
-        if (account.uuid === accounts.uuid) {
-          return { ...accounts, ...account };
-        } else return accounts;
-      });
-
-      await writeCustodyAccounts(newAccounts, accountMnemoinc);
-      setCustodyAccounts(newAccounts);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Remove account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
-  const updateAccountCacheOnly = async account => {
-    try {
-      if (!account) throw new Error('No account selected');
-      let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-      let newAccounts = accountInformation.map(accounts => {
-        if (account.uuid === accounts.uuid) {
-          return { ...accounts, ...account };
-        } else return { ...accounts, isActive: false };
-      });
-
-      if (account.isActive && typeof account.derivationIndex === 'number') {
-        const derivedMnemonic = await deriveAccountMnemonic(
-          accountMnemoinc,
-          account.derivationIndex,
+    },
+    [
+      custodyAccounts,
+      masterInfoObject,
+      publicKey,
+      accountMnemoinc,
+      toggleMasterInfoObject,
+    ],
+  );
+  const createAccount = useCallback(
+    async accountInformation => {
+      try {
+        let savedAccountInformation = JSON.parse(
+          JSON.stringify(custodyAccounts),
         );
-        setActiveDerivedMnemonic(derivedMnemonic);
-      } else {
-        setActiveDerivedMnemonic(null);
+
+        savedAccountInformation.push(accountInformation);
+
+        await writeCustodyAccounts(savedAccountInformation, accountMnemoinc);
+        setCustodyAccounts(savedAccountInformation);
+        return { didWork: true };
+      } catch (err) {
+        console.log('Create custody account error', err);
+        return { didWork: false, err: err.message };
       }
+    },
+    [custodyAccounts, accountMnemoinc],
+  );
 
-      setCustodyAccounts(newAccounts);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Remove account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
+  const updateAccount = useCallback(
+    async account => {
+      try {
+        let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
+        let newAccounts = accountInformation.map(accounts => {
+          if (account.uuid === accounts.uuid) {
+            return { ...accounts, ...account };
+          } else return accounts;
+        });
 
-  const createDerivedAccount = async accountName => {
-    try {
-      const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
+        await writeCustodyAccounts(newAccounts, accountMnemoinc);
+        setCustodyAccounts(newAccounts);
+        return { didWork: true };
+      } catch (err) {
+        console.log('Remove account error', err);
+        return { didWork: false, err: err.message };
+      }
+    },
+    [custodyAccounts, accountMnemoinc],
+  );
+  const updateAccountCacheOnly = useCallback(
+    async account => {
+      try {
+        if (!account) throw new Error('No account selected');
+        let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
+        let newAccounts = accountInformation.map(accounts => {
+          if (account.uuid === accounts.uuid) {
+            return { ...accounts, ...account };
+          } else return { ...accounts, isActive: false };
+        });
 
-      const nextIndex = nextCloudIndex + 1;
+        if (account.isActive && typeof account.derivationIndex === 'number') {
+          const derivedMnemonic = await deriveAccountMnemonic(
+            accountMnemoinc,
+            account.derivationIndex,
+          );
+          setActiveDerivedMnemonic(derivedMnemonic);
+        } else {
+          setActiveDerivedMnemonic(null);
+        }
 
-      // Enforce hard cap to prevent overlap with gifts range (starts at index 1000)
-      if (nextIndex >= MAX_DERIVED_ACCOUNTS) {
-        return {
-          didWork: false,
-          error: `Maximum of ${MAX_DERIVED_ACCOUNTS} accounts reached. Please delete unused accounts.`,
+        setCustodyAccounts(newAccounts);
+        return { didWork: true };
+      } catch (err) {
+        console.log('Remove account error', err);
+        return { didWork: false, err: err.message };
+      }
+    },
+    [custodyAccounts, accountMnemoinc],
+  );
+
+  const createDerivedAccount = useCallback(
+    async accountName => {
+      try {
+        const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
+
+        const nextIndex = nextCloudIndex + 1;
+
+        // Enforce hard cap to prevent overlap with gifts range (starts at index 1000)
+        if (nextIndex >= MAX_DERIVED_ACCOUNTS) {
+          return {
+            didWork: false,
+            error: `Maximum of ${MAX_DERIVED_ACCOUNTS} accounts reached. Please delete unused accounts.`,
+          };
+        }
+
+        // Don't store the mnemonic, just metadata
+        const accountInfo = {
+          uuid: customUUID(),
+          name: accountName,
+          derivationIndex: nextIndex,
+          dateCreated: Date.now(),
+          isActive: false,
+          accountType: 'derived',
+          profileEmoji: '',
         };
+
+        await createAccount(accountInfo);
+
+        // Update masterInfoObject with new index (automatically syncs to Firebase)
+        await toggleMasterInfoObject({
+          nextAccountDerivationIndex: nextIndex,
+        });
+
+        return { didWork: true, uuid: accountInfo.uuid };
+      } catch (err) {
+        console.log('Create derived account error', err);
+        return { didWork: false, error: err.message };
       }
+    },
+    [
+      masterInfoObject.nextAccountDerivationIndex,
+      createAccount,
+      toggleMasterInfoObject,
+    ],
+  );
 
-      // Don't store the mnemonic, just metadata
-      const accountInfo = {
-        uuid: customUUID(),
-        name: accountName,
-        derivationIndex: nextIndex,
-        dateCreated: Date.now(),
-        isActive: false,
-        accountType: 'derived',
-        profileEmoji: '',
-      };
+  const restoreDerivedAccount = useCallback(
+    async (accountName, derivationIndex) => {
+      try {
+        // Validation #1: Type check
+        if (
+          typeof derivationIndex !== 'number' ||
+          !Number.isInteger(derivationIndex)
+        ) {
+          return {
+            didWork: false,
+            error: 'Derivation index must be a whole number',
+          };
+        }
 
-      await createAccount(accountInfo);
+        // Validation #2: Range check (minimum)
+        if (derivationIndex < 3) {
+          return {
+            didWork: false,
+            error:
+              'Derivation index must be 3 or higher (indices 0-2 are reserved)',
+          };
+        }
 
-      // Update masterInfoObject with new index (automatically syncs to Firebase)
-      await toggleMasterInfoObject({
-        nextAccountDerivationIndex: nextIndex,
-      });
+        // Validation #3: Range check (maximum - gifts boundary)
+        if (derivationIndex >= MAX_DERIVED_ACCOUNTS) {
+          return {
+            didWork: false,
+            error: `Derivation index must be less than ${MAX_DERIVED_ACCOUNTS} (gift wallet range)`,
+          };
+        }
 
-      return { didWork: true, uuid: accountInfo.uuid };
-    } catch (err) {
-      console.log('Create derived account error', err);
-      return { didWork: false, error: err.message };
-    }
-  };
+        // Validation #4: Check against nextAccountDerivationIndex
+        const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
+        if (derivationIndex > nextCloudIndex) {
+          return {
+            didWork: false,
+            error: `Cannot restore index ${derivationIndex}. Highest created account is ${
+              nextCloudIndex - 1
+            }`,
+          };
+        }
 
-  const restoreDerivedAccount = async (accountName, derivationIndex) => {
-    try {
-      // Validation #1: Type check
-      if (
-        typeof derivationIndex !== 'number' ||
-        !Number.isInteger(derivationIndex)
-      ) {
-        return {
-          didWork: false,
-          error: 'Derivation index must be a whole number',
+        // Validation #5: Check if account already exists (idempotency)
+        const existingAccount = custodyAccounts.find(
+          acc => acc.derivationIndex === derivationIndex,
+        );
+        if (existingAccount) {
+          return {
+            didWork: false,
+            error: `Account at index ${derivationIndex} already exists: "${existingAccount.name}"`,
+          };
+        }
+
+        // Create account with EXACT same structure as auto-restore
+        const accountInfo = {
+          uuid: customUUID(),
+          name: accountName,
+          derivationIndex: derivationIndex,
+          dateCreated: Date.now(),
+          isActive: false,
+          accountType: 'derived',
+          profileEmoji: '',
         };
+
+        await createAccount(accountInfo);
+
+        // CRITICAL: Do NOT update nextAccountDerivationIndex
+        // This is a restoration of an existing index, not a new sequential account
+
+        return { didWork: true };
+      } catch (err) {
+        console.log('Restore derived account error', err);
+        return { didWork: false, error: err.message };
       }
-
-      // Validation #2: Range check (minimum)
-      if (derivationIndex < 3) {
-        return {
-          didWork: false,
-          error:
-            'Derivation index must be 3 or higher (indices 0-2 are reserved)',
-        };
-      }
-
-      // Validation #3: Range check (maximum - gifts boundary)
-      if (derivationIndex >= MAX_DERIVED_ACCOUNTS) {
-        return {
-          didWork: false,
-          error: `Derivation index must be less than ${MAX_DERIVED_ACCOUNTS} (gift wallet range)`,
-        };
-      }
-
-      // Validation #4: Check against nextAccountDerivationIndex
-      const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
-      if (derivationIndex > nextCloudIndex) {
-        return {
-          didWork: false,
-          error: `Cannot restore index ${derivationIndex}. Highest created account is ${
-            nextCloudIndex - 1
-          }`,
-        };
-      }
-
-      // Validation #5: Check if account already exists (idempotency)
-      const existingAccount = custodyAccounts.find(
-        acc => acc.derivationIndex === derivationIndex,
-      );
-      if (existingAccount) {
-        return {
-          didWork: false,
-          error: `Account at index ${derivationIndex} already exists: "${existingAccount.name}"`,
-        };
-      }
-
-      // Create account with EXACT same structure as auto-restore
-      const accountInfo = {
-        uuid: customUUID(),
-        name: accountName,
-        derivationIndex: derivationIndex,
-        dateCreated: Date.now(),
-        isActive: false,
-        accountType: 'derived',
-        profileEmoji: '',
-      };
-
-      await createAccount(accountInfo);
-
-      // CRITICAL: Do NOT update nextAccountDerivationIndex
-      // This is a restoration of an existing index, not a new sequential account
-
-      return { didWork: true };
-    } catch (err) {
-      console.log('Restore derived account error', err);
-      return { didWork: false, error: err.message };
-    }
-  };
+    },
+    [
+      masterInfoObject.nextAccountDerivationIndex,
+      custodyAccounts,
+      createAccount,
+    ],
+  );
 
   const getAccountMnemonic = useCallback(
     async account => {
@@ -381,7 +418,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     [accountMnemoinc],
   );
 
-  const restoreDerivedAccountsFromCloud = async () => {
+  const restoreDerivedAccountsFromCloud = useCallback(async () => {
     try {
       // masterInfoObject is already loaded from Firebase by GlobalContextProvider
       const nextIndex = Math.min(
@@ -429,7 +466,12 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       console.log('Restore derived accounts error', err);
       return { didWork: false, error: err.message };
     }
-  };
+  }, [
+    masterInfoObject.nextAccountDerivationIndex,
+    custodyAccounts,
+    accountMnemoinc,
+    t,
+  ]);
 
   useEffect(() => {
     async function restoreIfNeeded() {
