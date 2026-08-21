@@ -53,6 +53,27 @@ jest.mock('@react-native-firebase/storage', () => ({
   getStorage: jest.fn(() => ({})),
 }));
 
+// @react-native-async-storage/async-storage's native module is null under Jest
+// and throws at import time. Any module importing app/functions/localStorage.js
+// transitively pulls it in. Use the library's official in-memory jest mock.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);
+
+// expo-web-browser ships untranspiled ESM (Cannot use import statement outside a
+// module) and touches native code. Stub the one method app/functions/openWebBrowser
+// uses so screens that open external links (e.g. confirmTxPage) can be unit-tested.
+jest.mock('expo-web-browser', () => ({
+  openBrowserAsync: jest.fn(async () => ({ type: 'opened' })),
+}));
+
+// waitForForground() resolves only when AppState.currentState === 'active', which
+// is undefined under Jest, so it would hang forever. Tests run "in foreground";
+// resolve immediately for every caller (receive/send screens).
+jest.mock('./app/hooks/useWaitForForground', () => ({
+  waitForForground: jest.fn(async () => {}),
+}));
+
 // react-native-localize is a native module (RNLocalize) that throws at import
 // time under Jest. Provide a sensible English default; tests can override locally.
 jest.mock('react-native-localize', () => ({

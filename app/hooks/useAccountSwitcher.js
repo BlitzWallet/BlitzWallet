@@ -42,6 +42,7 @@ export default function useAccountSwitcher() {
             return;
           navigate.navigate('SettingsContentHome', {
             for: 'Accounts',
+            initialTab: 'personal',
           });
           return;
         }

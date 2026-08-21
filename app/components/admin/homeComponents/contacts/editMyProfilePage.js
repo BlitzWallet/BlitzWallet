@@ -127,7 +127,7 @@ export default function EditMyProfilePage(props) {
             cancelFunction: () => deleteUser(false),
           })
         }
-        showLeftImage={!isEditingMyProfile}
+        showLeftImage={!isEditingMyProfile && !selectedAddedContact?.isParentContact}
       />
       <View
         style={{

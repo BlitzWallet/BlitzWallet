@@ -13,6 +13,7 @@ import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import calculateSeedQR from './seedQR';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function SeedPhrasePage({ extraData, route }) {
   const { accountMnemoinc: contextMnemonic } = useKeysContext();
@@ -21,7 +22,7 @@ export default function SeedPhrasePage({ extraData, route }) {
     extraData?.mnemonic || route?.params?.extraData?.mnemonic;
   const mnemonicString = paramMnemonic || contextMnemonic;
 
-  const mnemonic = mnemonicString.split(' ');
+  const mnemonic = mnemonicString?.split(' ') || [];
   const navigate = useNavigation();
   const { backgroundOffset } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -29,12 +30,21 @@ export default function SeedPhrasePage({ extraData, route }) {
   const [seedContainerHeight, setSeedContainerHeight] = useState();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
   const canViewQrCode = extraData?.canViewQrCode || false;
-  const qrValue = calculateSeedQR(mnemonicString);
+  const qrValue = mnemonicString ? calculateSeedQR(mnemonicString) : '';
 
   const warningBorderColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
   const warningAccentColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
+
+  if (!mnemonicString) {
+    return (
+      <FullLoadingScreen
+        textStyles={{ textAlign: 'center' }}
+        text={t('settings.seedPhrase.header')}
+      />
+    );
+  }
 
   return (
     <View style={styles.globalContainer}>

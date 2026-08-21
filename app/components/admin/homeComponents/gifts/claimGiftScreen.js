@@ -12,7 +12,6 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   CENTER,
-  GIFT_DERIVE_PATH_CUTOFF,
   SIZES,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
@@ -38,15 +37,15 @@ import {
 } from '../../../../functions/gift/giftsStorage';
 import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
-import { deriveKeyFromMnemonic } from '../../../../functions/seed';
+import {
+  deriveGiftRestoreKey,
+  deriveSparkGiftMnemonic,
+} from '../../../../functions/gift/deriveGiftWallet';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function ClaimGiftScreen({
   url,
@@ -109,22 +108,15 @@ export default function ClaimGiftScreen({
       throw new Error(t('screens.inAccount.giftPages.claimPage.notExpired'));
     }
 
-    let giftWalletMnemonic;
-    if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
-      giftWalletMnemonic = await deriveSparkGiftMnemonic(
-        accountMnemoinc,
-        savedGift.giftNum,
-      );
-    } else {
-      giftWalletMnemonic = await deriveKeyFromMnemonic(
-        accountMnemoinc,
-        savedGift.giftNum,
-      );
-    }
+    const giftSeed = await deriveGiftRestoreKey(
+      accountMnemoinc,
+      savedGift.giftNum,
+      savedGift.createdTime,
+    );
 
     return {
       ...savedGift,
-      giftSeed: giftWalletMnemonic.derivedMnemonic,
+      giftSeed,
     };
   }, [expertMode, url, customGiftIndex, accountMnemoinc, t]);
 
@@ -524,12 +516,7 @@ export default function ClaimGiftScreen({
     };
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   const containerBackgroundColor = useMemo(() => {
     return theme && darkModeType ? backgroundColor : backgroundOffset;

@@ -5,17 +5,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  FlatList,
-  Linking,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
+import { getNormalizedWebsiteUrl } from '../../../../../functions/getNormalizedWebsiteUrl';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
@@ -42,6 +37,7 @@ import {
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import openWebBrowser from '../../../../../functions/openWebBrowser';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -57,11 +53,6 @@ function useDebouncedValue(value, delay = 300) {
   }, [value, delay]);
 
   return debounced;
-}
-
-function getNormalizedWebsiteUrl(website) {
-  if (!website) return '';
-  return website.startsWith('http') ? website : `https://${website}`;
 }
 
 function getWebsiteHost(website) {
@@ -313,7 +304,10 @@ export default function ViewOnlineListings({ removeUserLocal }) {
       {!isKeyboardActive && (
         <CustomButton
           actionFunction={() =>
-            Linking.openURL('https://bitcoinlistings.org/submit')
+            openWebBrowser({
+              navigate,
+              link: 'https://bitcoinlistings.org/submit',
+            })
           }
           buttonStyles={styles.submitListingBTN}
           textContent={t('apps.onlineListings.addListing')}
@@ -325,14 +319,22 @@ export default function ViewOnlineListings({ removeUserLocal }) {
 
 const BusinessCard = React.memo(
   ({ item, theme, darkModeType, backgroundColor, backgroundOffset, t }) => {
+    const navigate = useNavigation();
+
     const websiteUrl = useMemo(
       () => getNormalizedWebsiteUrl(item.website),
       [item.website],
     );
 
     const handleWebsitePress = useCallback(() => {
-      Linking.openURL(websiteUrl);
-    }, [websiteUrl]);
+      try {
+        openWebBrowser({ navigate, link: websiteUrl });
+      } catch (err) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.genericError'),
+        });
+      }
+    }, [websiteUrl, navigate, t]);
 
     const cardBackgroundColor = theme ? backgroundOffset : COLORS.darkModeText;
     const countryName =

@@ -15,6 +15,7 @@ export default function CustomNumberKeyboard({
   customFunction,
   disabled = false,
   disabledMessage = '',
+  usingForInput = false,
 }) {
   const navigate = useNavigation();
   const addPin = useCallback(
@@ -51,6 +52,8 @@ export default function CustomNumberKeyboard({
             newNumber = String(previousNumber) + id;
           }
 
+          if (usingForInput) return newNumber;
+
           // Add leading 0 if the number starts with a decimal point
           if (newNumber.startsWith('.')) {
             newNumber = '0' + newNumber;
@@ -83,6 +86,7 @@ export default function CustomNumberKeyboard({
       customFunction,
       disabled,
       disabledMessage,
+      usingForInput,
     ],
   );
 
@@ -91,7 +95,9 @@ export default function CustomNumberKeyboard({
       styles.keyboardContainer,
       {
         marginTop:
-          frompage === 'sendContactsPage' || frompage === 'sendSMSPage'
+          frompage === 'sendContactsPage' ||
+          frompage === 'sendSMSPage' ||
+          frompage === 'accountsPayments'
             ? 0
             : 'auto',
       },

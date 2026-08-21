@@ -35,11 +35,10 @@ import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
 import sha256Hash from './app/functions/hash';
+import { isEncryptedMnemonicFormat } from './app/functions/handleMnemonic';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
-import { getLocales } from 'react-native-localize';
-import { supportedLanguagesList } from './locales/localeslist';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -75,6 +74,7 @@ import {
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
+import { resolveUserLanguage } from './i18n';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
@@ -92,7 +92,6 @@ import { ToastProvider } from './context-store/toastManager';
 import { ToastContainer } from './context-store/toastContainer';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
 import { SparkConnectionManager } from './context-store/sparkConnection';
-import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
@@ -102,6 +101,10 @@ import { useTranslation } from 'react-i18next';
 import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from './app/functions/crashlyticsLogs';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 // Last URL handled via getInitialURL in this JS context. Belt-and-braces only:
 // getInitialURL runs once per JS context, and this resets on a JS reload, so
@@ -142,24 +145,22 @@ function App(): JSX.Element {
                                         <PushNotificationProvider>
                                           <LiquidEventProvider>
                                             <RootstockSwapProvider>
-                                              <GlobalNostrWalletConnectProvider>
-                                                <ImageCacheProvider>
-                                                  <GlobalServerTimeProvider>
-                                                    <FlashnetProvider>
-                                                      <UserBalanceProvider>
-                                                        <AnalyticsNumbersProvider>
-                                                          <SpendAndReplaceProvider>
-                                                            {/* <Suspense
+                                              <ImageCacheProvider>
+                                                <GlobalServerTimeProvider>
+                                                  <FlashnetProvider>
+                                                    <UserBalanceProvider>
+                                                      <AnalyticsNumbersProvider>
+                                                        <SpendAndReplaceProvider>
+                                                          {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                            <ResetStack />
-                                                          </SpendAndReplaceProvider>
-                                                        </AnalyticsNumbersProvider>
-                                                      </UserBalanceProvider>
-                                                    </FlashnetProvider>
-                                                    {/* </Suspense> */}
-                                                  </GlobalServerTimeProvider>
-                                                </ImageCacheProvider>
-                                              </GlobalNostrWalletConnectProvider>
+                                                          <ResetStack />
+                                                        </SpendAndReplaceProvider>
+                                                      </AnalyticsNumbersProvider>
+                                                    </UserBalanceProvider>
+                                                  </FlashnetProvider>
+                                                  {/* </Suspense> */}
+                                                </GlobalServerTimeProvider>
+                                              </ImageCacheProvider>
                                             </RootstockSwapProvider>
                                           </LiquidEventProvider>
                                         </PushNotificationProvider>
@@ -376,17 +377,41 @@ function ResetStack(): JSX.Element | null {
           } else if (POOL_DEEPLINK_REGEX.test(url)) {
             const poolIdMatch = url.match(/pools\/([0-9a-f-]{36})/i);
             if (poolIdMatch) {
-              navigationRef.current.navigate('PoolsStack', {
-                screen: 'PoolDetailScreen',
-                params: { poolId: poolIdMatch[1] },
+              navigationRef.current.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: { screen: 'Home' },
+                  },
+                  {
+                    name: 'PoolsStack',
+                    params: {
+                      screen: 'PoolDetailScreen',
+                      params: { poolId: poolIdMatch[1] },
+                    },
+                  },
+                ],
               });
             }
           } else if (GIFT_DEEPLINK_REGEX.test(url)) {
-            navigationRef.current.navigate('CustomHalfModal', {
-              wantedContent: 'ClaimGiftScreen',
-              url,
-              sliderHight: 0.6,
-              claimType: 'claim',
+            navigationRef.current.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeAdmin',
+                  params: { screen: 'Home' },
+                },
+                {
+                  name: 'CustomHalfModal',
+                  params: {
+                    wantedContent: 'ClaimGiftScreen',
+                    url,
+                    sliderHight: 0.6,
+                    claimType: 'claim',
+                  },
+                },
+              ],
             });
           } else {
             if (CONTACT_UNIVERSAL_LINK_REGEX.test(url)) {
@@ -419,8 +444,20 @@ function ResetStack(): JSX.Element | null {
               if (cancelled) return;
 
               if (deepLinkContact.didWork) {
-                navigationRef.current.navigate('ExpandedAddContactsPage', {
-                  newContact: deepLinkContact.data,
+                // Land on ExpandedAddContactsPage with the underlying tab set
+                // to Contacts, so back returns to the contacts page not Home.
+                navigationRef.current.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'HomeAdmin',
+                      params: { screen: 'ContactsPageInit' },
+                    },
+                    {
+                      name: 'ExpandedAddContactsPage',
+                      params: { newContact: deepLinkContact.data },
+                    },
+                  ],
                 });
               } else {
                 navigationRef.current.navigate('ErrorScreen', {
@@ -432,8 +469,23 @@ function ResetStack(): JSX.Element | null {
               // Regex to strip 'blitz-wallet:' OR 'blitz:' prefix if it exists.
               // This ensures only the core payment URI is passed to the ConfirmPaymentScreen.
               const paymentUrl = url.replace(/^(blitz-wallet|blitz):/i, '');
-              navigationRef.current.navigate('ConfirmPaymentScreen', {
-                btcAdress: paymentUrl,
+              // reset (not navigate) so any open transparent modal
+              // (e.g. CustomHalfModal) is torn down instead of staying
+              // presented above the pushed card. Mirrors the paylink branch.
+              navigationRef.current.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: { screen: 'Home' },
+                  },
+                  {
+                    name: 'ConfirmPaymentScreen',
+                    params: {
+                      btcAdress: paymentUrl,
+                    },
+                  },
+                ],
               });
             }
           }
@@ -477,31 +529,38 @@ function ResetStack(): JSX.Element | null {
   useEffect(() => {
     let cancelled = false;
     async function initWallet(skipURL = false) {
+      crashlyticsLogReport('initWallet: start');
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
+      crashlyticsLogReport('initWallet: secure store migrations done');
       const [
         initialURL,
         loginModeType,
         pin,
         mnemonic,
         securitySettings,
-        userSelectedLanguage,
+        resolvedLanguage,
       ] = await Promise.all([
         skipURL ? Promise.resolve() : getInitialURL(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        getLocalStorageItem('userSelectedLanguage').then(data => {
-          try {
-            return JSON.parse(data);
-          } catch {
-            return null;
-          }
-        }),
+        // Language resolution runs alongside the other reads so it adds no
+        // serial cold-start time.
+        resolveUserLanguage(),
       ]);
 
-      const storedSettings = JSON.parse(securitySettings);
+      crashlyticsLogReport('initWallet: read secure store + local settings');
+
+      // A corrupt value here would otherwise throw and strand the app on the
+      // native splash forever — fall back to the defaults below instead.
+      let storedSettings = null;
+      try {
+        storedSettings = JSON.parse(securitySettings);
+      } catch {
+        console.log('Corrupt stored security settings, using defaults');
+      }
 
       const isPinFromMode = loginModeType?.value === 'pin';
       const isBiometricFromMode = loginModeType?.value === 'biometric';
@@ -519,10 +578,22 @@ function ResetStack(): JSX.Element | null {
 
       if (cancelled) return;
 
+      // No startup re-encryption happens here (unlike the copy-only V1/V2
+      // migrations above): the encryption key material is unavailable before
+      // authentication — the PIN is never stored and the biometric key is
+      // keychain-gated — so v3 migration runs inside the login decrypt paths
+      // (`decryptMnemonicWithPin` / `decryptMnemonicWithBiometrics`). The v3
+      // envelope is self-describing, so no flag is needed.
       const isNoSecurityLogin =
         mnemonic.value && !parsedSettings.isSecurityEnabled;
       if (isNoSecurityLogin) {
-        setAccountMnemonic(mnemonic.value);
+        // R4 guard: only inject a plaintext seed. A legacy crash artifact that
+        // left ciphertext under encryptedMnemonic while security is disabled
+        // must not be injected as the wallet identity (garbage identity, no
+        // recovery UI).
+        if (!isEncryptedMnemonicFormat(mnemonic.value)) {
+          setAccountMnemonic(mnemonic.value);
+        }
       }
 
       // For the no-security path the loading screen renders directly as Home, so
@@ -536,6 +607,13 @@ function ResetStack(): JSX.Element | null {
             }
           : parsedSettings,
       );
+
+      // Close the cold-start translation flash: hold the render gate below
+      // until the lazily loaded translation for the resolved language is
+      // ready, so first paint never shows English before swapping. Rejections
+      // still open the gate via onInitFailure.
+      await i18n.changeLanguage(resolvedLanguage);
+
       setInitSettings(prev => {
         return {
           ...prev,
@@ -547,42 +625,34 @@ function ResetStack(): JSX.Element | null {
           isLoaded: true,
         };
       });
-
-      let resolvedLanguage = userSelectedLanguage;
-      if (!resolvedLanguage) {
-        const [{ languageTag = 'en' }] = getLocales();
-        const deviceShortId = languageTag.split('-')[0];
-        const matched = supportedLanguagesList.find(
-          l => l.shortId === deviceShortId,
-        );
-        resolvedLanguage = matched ? matched.id : 'en';
-        setLocalStorageItem(
-          'userSelectedLanguage',
-          JSON.stringify(resolvedLanguage),
-        );
-      }
-      i18n.changeLanguage(resolvedLanguage);
     }
 
     if (appState === 'background') return;
 
+    // initWallet is the ONLY thing that sets isLoaded, and the render gate below
+    // returns null until it does. Because preventAutoHideAsync() runs at module
+    // scope and only SplashScreen ever calls hideAsync(), a rejection here leaves
+    // the native splash on screen forever with no error and no way out. Always
+    // open the gate — landing on a screen is recoverable, an endless splash isn't.
+    const onInitFailure = (err: unknown) => {
+      console.log('initWallet error', err);
+      crashlyticsRecordErrorReport(
+        `initWallet failed: ${(err as Error)?.message}`,
+      );
+      setInitSettings(prev => ({ ...prev, isLoaded: true }));
+    };
+
     if (!didInitializeSettings.current) {
       didInitializeSettings.current = true;
-      initWallet(false);
+      initWallet(false).catch(onInitFailure);
     } else {
       didInitializeSettings.current = true;
-      initWallet(true);
+      initWallet(true).catch(onInitFailure);
     }
     return () => {
       cancelled = true;
     };
   }, [appState]);
-
-  const handleAnimationFinish = () => {
-    setInitSettings(prev => {
-      return { ...prev, isLoaded: true };
-    });
-  };
   const navigationTheme = useMemo(
     () => ({
       ...DefaultTheme,
@@ -638,7 +708,6 @@ function ResetStack(): JSX.Element | null {
           name="Splash"
           component={SplashScreen}
           options={{ animation: 'fade', gestureEnabled: false }}
-          // initialParams={{ onAnimationFinish: handleAnimationFinish }}
         />
         <Stack.Screen
           name="SplashReload"

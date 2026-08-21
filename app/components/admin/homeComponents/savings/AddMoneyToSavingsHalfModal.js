@@ -38,7 +38,7 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
 import {
   BTC_ASSET_ADDRESS,
@@ -52,7 +52,6 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import truncateToTwoDecimals from '../../../../functions/truncateNumber';
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const MIN_STEP_MS = 800;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -191,12 +190,7 @@ export default function AddMoneyToSavingsHalfModal({
     return true;
   }, [currentPage]);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useHandleBackPressNew(handleBackPress);
 

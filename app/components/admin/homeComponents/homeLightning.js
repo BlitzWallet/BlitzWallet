@@ -12,7 +12,7 @@ import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import { NavBar } from './navBar';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
@@ -84,6 +84,7 @@ const MemoizedStickyNavbarContainer = memo(
           sparkBalance={sparkBalance}
           sparkTokens={sparkTokens}
           didViewSeedPhrase={didViewSeedPhrase}
+          isChildAccount={masterInfoObject?.isChildAccount}
         />
 
         <Animated.View
@@ -158,12 +159,8 @@ export default function HomeLightning({ navigation }) {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const {
-    isConnectedToTheInternet,
-    didGetToHomepage,
-    toggleDidGetToHomepage,
-    screenDimensions,
-  } = useAppStatus();
+  const { isConnectedToTheInternet, didGetToHomepage, screenDimensions } =
+    useAppStatus();
   const scrollViewRef = useRef(null);
   const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
@@ -213,22 +210,14 @@ export default function HomeLightning({ navigation }) {
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
 
-  useEffect(() => {
-    setTimeout(() => {
-      toggleDidGetToHomepage(true);
-    }, 250);
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       if (!navigation) return;
-      const listenerID = navigation?.addListener('tabPress', () => {
+      return navigation?.addListener('tabPress', () => {
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollTo({ y: 0, animated: true });
         }
       });
-
-      return navigation?.removeListener?.('click', listenerID);
     }, [navigation]),
   );
 
@@ -300,17 +289,16 @@ export default function HomeLightning({ navigation }) {
     );
   }, [
     sparkInformation.transactions,
+    sparkInformation.tokens,
     sparkInformation.didConnect,
     homepageTxPreferance,
     userBalanceDenomination,
     // numberOfCachedTxs,
-    didGetToHomepage,
-    theme,
-    darkModeType,
-    t,
     showTokensInformation,
     hideSmallPaymentsHomepage,
     swapLimits.bitcoin,
+    theme,
+    darkModeType,
   ]);
 
   const handleRefresh = useCallback(async () => {

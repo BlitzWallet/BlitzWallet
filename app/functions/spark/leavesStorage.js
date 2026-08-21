@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
 import { TreeNode } from '@buildonspark/spark-sdk/proto/spark';
 
 export const LEAVES_DATABASE = 'WALLET_LEAVES';
@@ -21,10 +21,6 @@ export const EXIT_MIN_SATS = 16348;
 // the JS thread free for frames/gestures.
 const BATCH_SIZE = 100;
 
-let sqlLiteDB = null;
-let initPromise = null;
-let isInitialized = false;
-
 // Serializes every writer that opens a manual transaction on the single shared
 // connection (replaceAllLeaves + saveExitNodesForLeaf). expo-sqlite interleaves
 // statements from concurrent async callers, so without this two overlapping
@@ -38,45 +34,16 @@ function enqueueWrite(fn) {
   return result;
 }
 
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      sqlLiteDB = await SQLite.openDatabaseAsync(`${LEAVES_DATABASE}.db`);
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
-
-async function ensureLeavesDatabaseReady() {
-  if (!sqlLiteDB) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-}
-
-async function getDatabase() {
-  await ensureLeavesDatabaseReady();
-  if (!isInitialized) {
-    await initLeavesDb();
-  }
-  return sqlLiteDB;
-}
-
 // Releases the JS thread so the UI can render between heavy slices.
 const yieldToEventLoop = () => new Promise(resolve => setTimeout(resolve, 0));
 
-/**
- * Initializes the leaves SQLite table.
- * @returns {Promise<boolean>}
- */
-export async function initLeavesDb() {
-  try {
-    await ensureLeavesDatabaseReady();
-
-    // foreign_keys is a per-connection pragma; it must be set here so the
-    // exit-node ON DELETE CASCADE actually fires when a leaf leaves a snapshot.
-    await sqlLiteDB.execAsync(`
+// Idempotent schema creation, re-run on every (re)open. Critically, this also
+// re-applies the per-connection `PRAGMA foreign_keys = ON` after a self-heal
+// reopen so the exit-node ON DELETE CASCADE keeps firing.
+const setupLeavesSchema = async db => {
+  // foreign_keys is a per-connection pragma; it must be set here so the
+  // exit-node ON DELETE CASCADE actually fires when a leaf leaves a snapshot.
+  await db.execAsync(`
       PRAGMA journal_mode = WAL;
       PRAGMA foreign_keys = ON;
 
@@ -121,14 +88,14 @@ export async function initLeavesDb() {
     // Migrate DBs created before per-account scoping existed. The three columns
     // are added when absent; legacy rows predate scoping (pre-release branch) so
     // we wipe the table once — the next per-account reconcile repopulates it.
-    const columns = await sqlLiteDB.getAllAsync(
+    const columns = await db.getAllAsync(
       `PRAGMA table_info(${LEAVES_TABLE});`,
     );
     const hasOwnerColumn = columns.some(
       col => col.name === 'ownerIdentityPubKey',
     );
     if (!hasOwnerColumn) {
-      await sqlLiteDB.execAsync(`
+      await db.execAsync(`
         ALTER TABLE ${LEAVES_TABLE} ADD COLUMN ownerIdentityPubKey TEXT;
         ALTER TABLE ${LEAVES_TABLE} ADD COLUMN snapshotVersion INTEGER NOT NULL DEFAULT 0;
         ALTER TABLE ${LEAVES_TABLE} ADD COLUMN exitNodesStatus INTEGER NOT NULL DEFAULT 0;
@@ -136,15 +103,31 @@ export async function initLeavesDb() {
       `);
     }
 
-    await sqlLiteDB.execAsync(
+    await db.execAsync(
       `CREATE INDEX IF NOT EXISTS idx_wallet_leaves_owner ON ${LEAVES_TABLE}(ownerIdentityPubKey);`,
     );
+};
 
-    isInitialized = true;
+const leavesDB = createSelfHealingDatabase({
+  name: `${LEAVES_DATABASE}.db`,
+  setup: setupLeavesSchema,
+});
+const sqlLiteDB = leavesDB.db;
+
+async function getDatabase() {
+  return leavesDB.ensureReady();
+}
+
+/**
+ * Initializes the leaves SQLite table.
+ * @returns {Promise<boolean>}
+ */
+export async function initLeavesDb() {
+  try {
+    await leavesDB.reinitialize();
     return true;
   } catch (error) {
     console.error('initLeavesDb error:', error);
-    isInitialized = false;
     return false;
   }
 }
@@ -158,20 +141,7 @@ export async function initLeavesDb() {
 // ---------------------------------------------------------------------------
 
 // Accepts a Uint8Array, a plain number[], or the {"0":n,"1":n,...} object form
-// that a JSON round-trip produces, and returns a lowercase hex string.
-function bytesToHex(value) {
-  if (value == null) return null;
-  if (typeof value === 'string') return value; // already hex (webview path)
-  if (value instanceof Uint8Array || Array.isArray(value)) {
-    return Buffer.from(value).toString('hex');
-  }
-  if (typeof value === 'object') {
-    return Buffer.from(Object.values(value)).toString('hex');
-  }
-  return null;
-}
-
-// Accepts the same shapes as bytesToHex and returns a Uint8Array. The TreeNode
+// (or a hex string) and returns a Uint8Array. The TreeNode
 // protobuf encoder reads `.length` on every bytes field, so callers must never
 // hand it undefined — empty bytes default to a zero-length array.
 function bytesToUint8(value) {
@@ -245,38 +215,14 @@ export function treeNodeHexFromRaw(raw) {
   }
 }
 
-const TX_FIELDS = [
-  'nodeTx',
-  'refundTx',
-  'directTx',
-  'directRefundTx',
-  'directFromCpfpRefundTx',
-];
-const PUBKEY_FIELDS = [
-  'verifyingPublicKey',
-  'ownerIdentityPublicKey',
-  'ownerSigningPublicKey',
-];
-
-function normalizeSigningKeyshare(keyshare) {
-  if (!keyshare || typeof keyshare !== 'object') return keyshare ?? null;
-  const publicShares = {};
-  if (keyshare.publicShares && typeof keyshare.publicShares === 'object') {
-    for (const [id, share] of Object.entries(keyshare.publicShares)) {
-      publicShares[id] = bytesToHex(share);
-    }
-  }
-  return {
-    ownerIdentifiers: keyshare.ownerIdentifiers ?? [],
-    threshold: keyshare.threshold ?? null,
-    publicKey: bytesToHex(keyshare.publicKey),
-    publicShares,
-  };
-}
-
-// Returns the fully hex-encoded leaf (safe to JSON.stringify) for one raw node.
+// Returns the JSON-serializable stored/exported leaf for one raw node. The raw
+// per-field bytes (tx blobs, pubkeys, signing keyshare) are intentionally NOT
+// kept: they only ever fed treeNodeHex, and nothing reads them back. treeNodeHex
+// is the single canonical TreeNode the spark-unilateral-exit tooling decodes.
+// The webview path supplies a prebuilt treeNodeHex (its bytes were dropped over
+// the bridge); the native path builds it here from the raw leaf's bytes.
 export function normalizeLeaf(raw) {
-  const normalized = {
+  return {
     id: raw.id,
     treeId: raw.treeId,
     value: Number(raw.value || 0),
@@ -284,22 +230,18 @@ export function normalizeLeaf(raw) {
     valueSats: Number(raw.value || 0),
     status: raw.status ?? 'UNKNOWN',
     parentNodeId: raw.parentNodeId ?? null,
-    vout: raw.vout ?? 0,
     network: raw.network ?? null,
-    createdTime: raw.createdTime ?? null,
+    // Kept for the upsert staleness CASE (json_extract $.updatedTime /
+    // $.treenodeStatus in replaceAllLeavesInternal).
     updatedTime: raw.updatedTime ?? null,
     treenodeStatus: raw.treenodeStatus ?? null,
-    signingKeyshare: normalizeSigningKeyshare(raw.signingKeyshare),
-    // Single protobuf-encoded TreeNode the recovery tooling decodes.
-    treeNodeHex: treeNodeHexFromRaw(raw),
+    // Webview always sets the key: a hex string, or null for sub-EXIT_MIN_SATS
+    // dust it deliberately didn't encode — null must stay null (rebuilding from
+    // a slim leaf with no bytes would forge a treeNodeHex missing nodeTx). Only
+    // the native path (key absent → undefined) builds it here from raw bytes.
+    treeNodeHex:
+      raw.treeNodeHex !== undefined ? raw.treeNodeHex : treeNodeHexFromRaw(raw),
   };
-  for (const field of TX_FIELDS) {
-    if (raw[field] != null) normalized[field] = bytesToHex(raw[field]);
-  }
-  for (const field of PUBKEY_FIELDS) {
-    if (raw[field] != null) normalized[field] = bytesToHex(raw[field]);
-  }
-  return normalized;
 }
 
 /**
@@ -327,6 +269,7 @@ async function replaceAllLeavesInternal(identityPubKey, rawTreeNodes) {
   const leaves = Array.isArray(rawTreeNodes) ? rawTreeNodes : [];
   const now = Date.now();
 
+  console.log(rawTreeNodes, 'leafs from response');
   // Bump this account's snapshot version. Every leaf in the new snapshot is
   // stamped with it; anything left on an older version is stale and swept below.
   const metaRow = await db.getFirstAsync(
@@ -711,7 +654,8 @@ export async function deleteLeavesTable() {
       DROP TABLE IF EXISTS ${LEAVES_META_TABLE};
       DROP TABLE IF EXISTS ${LEAVES_TABLE};
     `);
-    isInitialized = false;
+    // Force setup to re-create the tables on the next access.
+    leavesDB.invalidate();
     return true;
   } catch (err) {
     console.error('deleteLeavesTable error:', err);

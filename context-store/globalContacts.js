@@ -9,6 +9,7 @@ import React, {
 import {
   addDataToCollection,
   getDataFromCollection,
+  getSingleContact,
   syncDatabasePayment,
 } from '../db';
 import {
@@ -17,9 +18,9 @@ import {
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 import {
   getLocalStorageItem,
-  setLocalStorageItem,
+  removeLocalStorageItem,
 } from '../app/functions/localStorage';
-
+import { PENDING_PARENT_CONTACT_KEY } from '../app/constants';
 import {
   clearContactRaceRetryTimers,
   CONTACTS_TRANSACTION_UPDATE_NAME,
@@ -41,15 +42,17 @@ import {
 } from '@react-native-firebase/firestore';
 import { getCachedProfileImage } from '../app/functions/cachedImage';
 import { useAuthContext } from './authContext';
+import { useAppStatus } from './appStatus';
+import {
+  isParentAccountTransferSender,
+  PARENT_ACCOUNT_TRANSFER_MARKER,
+} from '../app/functions/messaging/parentAccountTransferMessage';
 
 // ─── Split contexts ────────────────────────────────────────────────────────────
 // Consumers that only need profile/contacts info won't re-render when messages
 // change, and vice-versa.
 const GlobalContactsInfoContext = createContext(null);
 const GlobalContactsMessagesContext = createContext(null);
-
-const CONTACT_RECEIVE_OPTIONS_CACHE_KEY = 'blitzContactReceiveOptionsCache';
-const CONTACT_RECEIVE_OPTION_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
 const normalizeContactReceiveOption = receiveOption =>
   receiveOption?.toString()?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
@@ -60,58 +63,18 @@ export const GlobalContactsList = ({ children }) => {
   const [globalContactsInformation, setGlobalContactsInformation] = useState(
     {},
   );
+  const { didGetToHomepage } = useAppStatus();
   const [contactsMessags, setContactsMessagses] = useState({});
-  const [contactReceiveOptions, setContactReceiveOptions] = useState({});
-  const [
-    isContactReceiveOptionCacheLoaded,
-    setIsContactReceiveOptionCacheLoaded,
-  ] = useState(false);
   const unsubscribeMessagesRef = useRef(null);
   const isInitialLoad = useRef(true);
+  const addedParentContactRef = useRef(false);
 
   const globalContactsInformationRef = useRef(globalContactsInformation);
   useEffect(() => {
     globalContactsInformationRef.current = globalContactsInformation;
   });
 
-  const contactReceiveOptionsRef = useRef(contactReceiveOptions);
-  useEffect(() => {
-    contactReceiveOptionsRef.current = contactReceiveOptions;
-  });
-
   const addedContacts = globalContactsInformation.addedContacts;
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadContactReceiveOptions() {
-      const savedOptions = await getLocalStorageItem(
-        CONTACT_RECEIVE_OPTIONS_CACHE_KEY,
-      );
-
-      if (!isMounted) return;
-
-      try {
-        const parsedOptions = savedOptions ? JSON.parse(savedOptions) : {};
-        setContactReceiveOptions(
-          parsedOptions && typeof parsedOptions === 'object'
-            ? parsedOptions
-            : {},
-        );
-      } catch (error) {
-        console.warn('Failed to parse contact receive options cache.', error);
-        setContactReceiveOptions({});
-      } finally {
-        setIsContactReceiveOptionCacheLoaded(true);
-      }
-    }
-
-    loadContactReceiveOptions();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const toggleGlobalContactsInformation = useCallback(
     (newData, writeToDB) => {
@@ -130,101 +93,23 @@ export const GlobalContactsList = ({ children }) => {
     [publicKey],
   );
 
-  const updateCachedContactReceiveOption = useCallback(
-    (contactUUID, receiveOption) => {
-      if (!contactUUID) return null;
+  const getContactReceiveOption = useCallback(async contactUUID => {
+    if (!contactUUID) return { receiveOption: null, contactDoc: null };
 
-      const normalizedReceiveOption =
-        normalizeContactReceiveOption(receiveOption);
-      const nextCacheEntry = {
-        receiveOption: normalizedReceiveOption,
-        dateChanged: Date.now(),
-      };
+    const contactDoc = await getDataFromCollection(
+      'blitzWalletUsers',
+      contactUUID,
+    );
 
-      setContactReceiveOptions(prev => {
-        const nextOptions = {
-          ...prev,
-          [contactUUID]: nextCacheEntry,
-        };
-
-        setLocalStorageItem(
-          CONTACT_RECEIVE_OPTIONS_CACHE_KEY,
-          JSON.stringify(nextOptions),
-        );
-
-        return nextOptions;
-      });
-
-      return nextCacheEntry;
-    },
-    [],
-  );
-
-  const getCachedContactReceiveOption = useCallback(contactUUID => {
-    if (!contactUUID) return null;
-
-    const cachedOption = contactReceiveOptionsRef.current[contactUUID];
-    const cachedDateChanged = Number(cachedOption?.dateChanged);
-
-    if (!cachedOption?.receiveOption || !cachedDateChanged) return null;
-    if (Date.now() - cachedDateChanged > CONTACT_RECEIVE_OPTION_CACHE_TTL_MS) {
-      return null;
-    }
+    if (!contactDoc) return { receiveOption: null, contactDoc: null };
 
     return {
-      receiveOption: normalizeContactReceiveOption(cachedOption.receiveOption),
-      dateChanged: cachedDateChanged,
+      receiveOption: normalizeContactReceiveOption(
+        contactDoc.lnurlReceiveCurrency,
+      ),
+      contactDoc,
     };
   }, []);
-
-  const getContactReceiveOption = useCallback(
-    async contactUUID => {
-      if (!contactUUID) {
-        return {
-          receiveOption: null,
-          dateChanged: null,
-          contactDoc: null,
-          fromCache: false,
-        };
-      }
-
-      const cachedOption = getCachedContactReceiveOption(contactUUID);
-
-      if (cachedOption) {
-        return {
-          ...cachedOption,
-          contactDoc: null,
-          fromCache: true,
-        };
-      }
-
-      const contactDoc = await getDataFromCollection(
-        'blitzWalletUsers',
-        contactUUID,
-      );
-
-      if (!contactDoc) {
-        return {
-          receiveOption: null,
-          dateChanged: null,
-          contactDoc: null,
-          fromCache: false,
-        };
-      }
-
-      const updatedOption = updateCachedContactReceiveOption(
-        contactUUID,
-        contactDoc.lnurlReceiveCurrency,
-      );
-
-      return {
-        ...updatedOption,
-        contactDoc,
-        fromCache: false,
-      };
-    },
-    [getCachedContactReceiveOption, updateCachedContactReceiveOption],
-  );
 
   const decodedAddedContacts = useMemo(() => {
     if (!publicKey || !addedContacts) return [];
@@ -254,68 +139,77 @@ export const GlobalContactsList = ({ children }) => {
     const currentInfo = globalContactsInformationRef.current;
     if (!Object.keys(currentInfo).length || !contactsPrivateKey) return;
 
-    const savedMessages = await getCachedMessages();
-    setContactsMessagses(savedMessages);
+    try {
+      const savedMessages = await getCachedMessages();
+      setContactsMessagses(savedMessages);
 
-    const currentDecoded = decodedAddedContactsRef.current;
+      const currentDecoded = decodedAddedContactsRef.current;
 
-    const unknownContacts = await Promise.all(
-      Object.keys(savedMessages)
-        .filter(key => key !== 'lastMessageTimestamp')
+      const unknownContacts = await Promise.all(
+        Object.keys(savedMessages)
+          .filter(key => key !== 'lastMessageTimestamp')
+          .filter(
+            contact =>
+              !currentDecoded.find(
+                contactElement => contactElement.uuid === contact,
+              ) && contact !== currentInfo.myProfile.uuid,
+          )
+          // Parent↔child account transfers are description-only: the sender is
+          // not a real contact and must never be auto-added.
+          .filter(
+            contact => !isParentAccountTransferSender(savedMessages, contact),
+          )
+          .map(contact => getDataFromCollection('blitzWalletUsers', contact)),
+      );
+
+      const newContats = unknownContacts
         .filter(
-          contact =>
-            !currentDecoded.find(
-              contactElement => contactElement.uuid === contact,
-            ) && contact !== currentInfo.myProfile.uuid,
+          retrivedContact =>
+            retrivedContact &&
+            retrivedContact.uuid !== currentInfo.myProfile.uuid,
         )
-        .map(contact => getDataFromCollection('blitzWalletUsers', contact)),
-    );
+        .map(retrivedContact => ({
+          bio: retrivedContact.contacts.myProfile.bio || '',
+          isFavorite: false,
+          name: retrivedContact.contacts.myProfile.name,
+          receiveAddress: retrivedContact.contacts.myProfile.receiveAddress,
+          uniqueName: retrivedContact.contacts.myProfile.uniqueName,
+          uuid: retrivedContact.contacts.myProfile.uuid,
+          isAdded: false,
+          unlookedTransactions: 0,
+        }));
 
-    const newContats = unknownContacts
-      .filter(
-        retrivedContact =>
-          retrivedContact &&
-          retrivedContact.uuid !== currentInfo.myProfile.uuid,
-      )
-      .map(retrivedContact => ({
-        bio: retrivedContact.contacts.myProfile.bio || '',
-        isFavorite: false,
-        name: retrivedContact.contacts.myProfile.name,
-        receiveAddress: retrivedContact.contacts.myProfile.receiveAddress,
-        uniqueName: retrivedContact.contacts.myProfile.uniqueName,
-        uuid: retrivedContact.contacts.myProfile.uuid,
-        isAdded: false,
-        unlookedTransactions: 0,
-      }));
-
-    if (newContats.length > 0) {
-      await Promise.allSettled(
-        newContats.map(contact => getCachedProfileImage(contact.uuid)),
-      );
-
-      // Read the latest decoded contacts at the moment we write
-      const latestDecoded = decodedAddedContactsRef.current ?? [];
-      const latestInfo = globalContactsInformationRef.current;
-
-      if (!latestInfo?.myProfile) return;
-
-      const trulyNewContacts = newContats.filter(
-        c => !latestDecoded.find(existing => existing.uuid === c.uuid),
-      );
-
-      if (trulyNewContacts.length > 0) {
-        toggleGlobalContactsInformation(
-          {
-            myProfile: { ...latestInfo.myProfile },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              latestInfo.myProfile.uuid,
-              JSON.stringify(latestDecoded.concat(trulyNewContacts)),
-            ),
-          },
-          true,
+      if (newContats.length > 0) {
+        await Promise.allSettled(
+          newContats.map(contact => getCachedProfileImage(contact.uuid)),
         );
+
+        // Read the latest decoded contacts at the moment we write
+        const latestDecoded = decodedAddedContactsRef.current ?? [];
+        const latestInfo = globalContactsInformationRef.current;
+
+        if (!latestInfo?.myProfile) return;
+
+        const trulyNewContacts = newContats.filter(
+          c => !latestDecoded.find(existing => existing.uuid === c.uuid),
+        );
+
+        if (trulyNewContacts.length > 0) {
+          toggleGlobalContactsInformation(
+            {
+              myProfile: { ...latestInfo.myProfile },
+              addedContacts: encriptMessage(
+                contactsPrivateKey,
+                latestInfo.myProfile.uuid,
+                JSON.stringify(latestDecoded.concat(trulyNewContacts)),
+              ),
+            },
+            true,
+          );
+        }
       }
+    } catch (err) {
+      console.log('error updating dached messages', err);
     }
   }, [contactsPrivateKey, toggleGlobalContactsInformation]);
 
@@ -580,6 +474,8 @@ export const GlobalContactsList = ({ children }) => {
       unsubscribeMessagesRef.current();
       unsubscribeMessagesRef.current = null;
     }
+    setContactsMessagses({});
+    setGlobalContactsInformation({});
   }, [authResetkey]);
 
   const addContact = useCallback(
@@ -598,6 +494,7 @@ export const GlobalContactsList = ({ children }) => {
           profileImage: contact.profileImage,
           receiveAddress: contact.receiveAddress,
           transactions: [],
+          isParentContact: contact.isParentContact || false,
         };
 
         setGlobalContactsInformation(prev => {
@@ -629,6 +526,8 @@ export const GlobalContactsList = ({ children }) => {
                     bio: newContact.bio,
                     unlookedTransactions: 0,
                     isAdded: true,
+                    isParentContact:
+                      newContact.isParentContact || c.isParentContact,
                   }
                 : c,
             );
@@ -666,6 +565,7 @@ export const GlobalContactsList = ({ children }) => {
   const deleteContact = useCallback(
     async contact => {
       try {
+        if (contact?.isParentContact) return;
         await deleteCachedMessages(contact.uuid);
 
         setGlobalContactsInformation(prev => {
@@ -715,6 +615,48 @@ export const GlobalContactsList = ({ children }) => {
     [contactsPrivateKey, publicKey],
   );
 
+  // Child-claim handoff: the pairing flow persisted the parent's username in
+  // PENDING_PARENT_CONTACT_KEY; on first arrival home, resolve the parent's
+  // profile and add them as a non-deletable contact. Idempotent by design —
+  // addContact stamps an already-present parent as non-deletable instead of
+  // duplicating. The key + ref resolve together: cleared only on a definitive
+  // outcome (added / not-a-child / self), so a failed lookup retries on the
+  // next didGetToHomepage flip (long-background return).
+  useEffect(() => {
+    if (!didGetToHomepage || addedParentContactRef.current) return;
+    if (!publicKey || !globalContactsInformationRef.current?.myProfile) return;
+
+    (async () => {
+      const rid = await getLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
+      if (!rid) {
+        addedParentContactRef.current = true;
+        return;
+      }
+
+      const docs = await getSingleContact(rid);
+      const parent = docs?.[0]?.contacts?.myProfile;
+      if (!parent?.uuid) return;
+      if (parent.uuid === publicKey) {
+        await removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
+        addedParentContactRef.current = true;
+        return;
+      }
+
+      await addContact({
+        name: parent.name || '',
+        nameLower: parent.nameLower || '',
+        bio: parent.bio,
+        isLNURL: false,
+        uniqueName: parent.uniqueName || '',
+        uuid: parent.uuid,
+        receiveAddress: parent.receiveAddress,
+        isParentContact: true,
+      });
+      await removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
+      addedParentContactRef.current = true;
+    })();
+  }, [didGetToHomepage, publicKey, addContact]);
+
   // ─── Derived values (messages context) ─────────────────────────────────────
   const giftCardsList = useMemo(() => {
     if (!contactsMessags) return [];
@@ -755,7 +697,13 @@ export const GlobalContactsList = ({ children }) => {
           return false;
         }
         const messages = contactsMessags[contactUUID]?.messages;
-        return messages?.some(message => !message.message.wasSeen) ?? false;
+        return (
+          messages?.some(
+            message =>
+              !message.message.wasSeen &&
+              !message.message?.[PARENT_ACCOUNT_TRANSFER_MARKER],
+          ) ?? false
+        );
       });
     } catch (err) {
       return false;
@@ -768,24 +716,16 @@ export const GlobalContactsList = ({ children }) => {
     () => ({
       decodedAddedContacts,
       globalContactsInformation,
-      contactReceiveOptions,
       toggleGlobalContactsInformation,
       getContactReceiveOption,
-      getCachedContactReceiveOption,
-      updateCachedContactReceiveOption,
-      isContactReceiveOptionCacheLoaded,
       deleteContact,
       addContact,
     }),
     [
       decodedAddedContacts,
       globalContactsInformation,
-      contactReceiveOptions,
       toggleGlobalContactsInformation,
       getContactReceiveOption,
-      getCachedContactReceiveOption,
-      updateCachedContactReceiveOption,
-      isContactReceiveOptionCacheLoaded,
       deleteContact,
       addContact,
     ],

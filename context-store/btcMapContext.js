@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { InteractionManager } from 'react-native';
 import {
-  initBTCMapDB,
   getAllPlacesInBbox,
   getProviderPlace,
   replaceProviderPlaces,
@@ -68,15 +67,6 @@ export function BTCMapProvider({ children }) {
   const [dataVersion, setDataVersion] = useState(0);
   const { contactsPrivateKey: privateKey, publicKey } = useKeysContext();
   const [userLocation, setUserLocation] = useState(null);
-
-  // Initialize SQLite DB on mount (no data preload — viewport queries on demand)
-  const initializeFromCache = useCallback(async () => {
-    try {
-      await initBTCMapDB();
-    } catch (err) {
-      console.log('[BTCMap] cache init error:', err);
-    }
-  }, []);
 
   // Sync from Firebase — full on first launch, incremental afterward
   const syncPlaces = useCallback(async (privateKey, publicKey) => {
@@ -191,11 +181,6 @@ export function BTCMapProvider({ children }) {
     },
     [],
   );
-
-  // Initialize from SQLite cache on mount
-  useEffect(() => {
-    initializeFromCache();
-  }, [initializeFromCache]);
 
   // Sync from network after mount (deferred so navigation transition isn't blocked)
   useEffect(() => {

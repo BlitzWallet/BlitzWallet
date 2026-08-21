@@ -160,7 +160,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               { fontSize, marginVertical: headlineMargin },
             ]}
             content={t('createAccount.homePage.money')}
-            isLight={true}
             {...getLabelProps(0)}
           />
           <ThemeText
@@ -169,7 +168,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               { fontSize, marginVertical: headlineMargin },
             ]}
             content={t('createAccount.homePage.made')}
-            isLight={true}
             {...getLabelProps(1)}
           />
           <ThemeText
@@ -182,7 +180,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
               },
             ]}
             content={t('createAccount.homePage.simple')}
-            isLight={true}
             {...getLabelProps(2)}
           />
         </Animated.View>
@@ -195,14 +192,7 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
             buttonStyles={styles.primaryBtn}
             textStyles={styles.primaryBtnText}
             textContent={t('createAccount.homePage.buttons.button2')}
-            actionFunction={() => go('DisclaimerPage', 'PinSetup')}
-          />
-
-          <CustomButton
-            buttonStyles={styles.secondaryBtn}
-            textStyles={styles.secondaryBtnText}
-            textContent={t('createAccount.homePage.buttons.button1')}
-            actionFunction={() => go('DisclaimerPage', 'RestoreWallet')}
+            actionFunction={() => go('WalletSetupFork')}
           />
 
           <ThemeText
@@ -244,23 +234,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   primaryBtnText: {
-    color: '#FFFFFF',
-    // fontWeight: '600',
+    color: COLORS.white,
     letterSpacing: 0.1,
-  },
-  secondaryBtn: {
-    width: '100%',
-  },
-  secondaryBtnText: {
-    // fontWeight: '600',
-    fontSize: 16,
   },
   disclaimer: {
     fontSize: SIZES.xSmall,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
     includeFontPadding: false,
-    marginTop: 4,
+    marginTop: 8,
     textTransform: 'uppercase',
   },
 });

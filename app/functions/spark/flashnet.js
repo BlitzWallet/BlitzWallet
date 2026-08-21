@@ -1734,50 +1734,6 @@ export const checkClawbackEligibility = async (mnemonic, sparkTransferId) => {
 };
 
 /**
- * Check status of a manual clawback request
- * @param {string} mnemonic - Wallet mnemonic
- * @param {string} internalRequestId - Request ID from clawback request
- * @returns {Promise<object>} Clawback status
- */
-export const checkClawbackStatus = async (mnemonic, internalRequestId) => {
-  try {
-    const runtime = await selectSparkRuntime(mnemonic);
-
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.checkClawbackStatus,
-        { mnemonic, internalRequestId },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to check clawback status',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
-      const status = await client.checkClawbackStatus({ internalRequestId });
-
-      return {
-        didWork: true,
-        status: status.status,
-        transferId: status.transferId,
-        isComplete: status.status === 'completed',
-        isFailed: status.status === 'failed',
-      };
-    }
-  } catch (error) {
-    console.warn(
-      'Check clawback status error:',
-      formatError(error, 'checkClawbackStatus'),
-    );
-    return {
-      didWork: false,
-      error: error.message,
-      details: formatError(error, 'checkClawbackStatus'),
-    };
-  }
-};
-
-/**
  * Batch request clawback for multiple transfers
  * @param {string} mnemonic - Wallet mnemonic
  * @param {Array<{transferId: string, poolId: string}>} transfers - Transfers to recover
@@ -1892,6 +1848,5 @@ export default {
 
   // Manual recovery functions
   requestManualClawback,
-  checkClawbackStatus,
   requestBatchClawback,
 };

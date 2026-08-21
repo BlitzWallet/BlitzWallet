@@ -2,74 +2,26 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useMemo, useState } from 'react';
 import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useTranslation } from 'react-i18next';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { formatBalanceAmount } from '../../../../functions';
 import openWebBrowser from '../../../../functions/openWebBrowser';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function BlitzFeeInformation() {
-  const { showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-  const [paymentType, setPaymentType] = useState('lightning');
+
   const { t } = useTranslation();
-
-  const feeOptions = showTokensInformation
-    ? ['lightning', 'spark', 'bitcoin', 'tokens']
-    : ['lightning', 'spark', 'bitcoin'];
-
-  const timeFrameElements = useMemo(() => {
-    return feeOptions.map(item => {
-      return (
-        <TouchableOpacity
-          key={item}
-          onPress={() => setPaymentType(item)}
-          style={{
-            backgroundColor:
-              item === paymentType
-                ? theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary
-                : 'transparent',
-            borderColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-            ...styles.timeFrameElement,
-          }}
-        >
-          <ThemeText
-            styles={{
-              color:
-                item === paymentType
-                  ? theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText
-                  : textColor,
-              ...styles.timeFrameElementText,
-            }}
-            content={item}
-          />
-        </TouchableOpacity>
-      );
-    });
-  }, [paymentType, textColor, theme, darkModeType, feeOptions]);
 
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{
-        paddingTop: 20,
-        alignItems: 'center',
-        width: INSET_WINDOW_WIDTH,
-        ...CENTER,
-      }}
+      contentContainerStyle={styles.feeContainer}
     >
       <ThemeText
         styles={{ textAlign: 'center', marginBottom: 30 }}
@@ -134,22 +86,10 @@ export default function BlitzFeeInformation() {
 }
 
 function FeeTable({ masterInfoObject }) {
-  const { poolInfoRef } = useFlashnet();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const feeData = [
-    // {
-    //   transactionType: t('settings.feeInformation.swapsType'),
-    //   fee: t('settings.feeInformation.swapsFee', {
-    //     poolFee: formatBalanceAmount(
-    //       poolInfoRef.lpFeeBps / 100,
-    //       false,
-    //       masterInfoObject,
-    //     ),
-    //     blitzFee: 1,
-    //   }),
-    // },
     {
       transactionType: t('settings.feeInformation.sparkSwapType'),
       fee: t('settings.feeInformation.swapsFee', {
@@ -164,6 +104,10 @@ function FeeTable({ masterInfoObject }) {
     {
       transactionType: t('settings.feeInformation.liquid'),
       fee: t('settings.feeInformation.liquidFee'),
+    },
+    {
+      transactionType: t('settings.feeInformation.rootstock'),
+      fee: t('settings.feeInformation.rootstockFee'),
     },
     {
       transactionType: t('settings.feeInformation.accumulationType'),
@@ -221,6 +165,12 @@ function FeeTable({ masterInfoObject }) {
 }
 
 const styles = StyleSheet.create({
+  feeContainer: {
+    paddingTop: 20,
+    alignItems: 'center',
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   contentContainer: {
     width: '100%',
     paddingVertical: 5,

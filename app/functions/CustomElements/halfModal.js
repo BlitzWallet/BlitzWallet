@@ -12,12 +12,10 @@ import {
 } from '../../components/admin';
 import {
   ConfirmSMSPayment,
-  ConfirmVPNPage,
   SwitchGenerativeAIModel,
 } from '../../components/admin/homeComponents/apps';
 import ThemeText from './textTheme';
 import ThemeIcon from './themeIcon';
-import ConfirmGiftCardPurchase from '../../components/admin/homeComponents/apps/giftCards/confimPurchase';
 import ConfirmExportPayments from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import ConfirmChatGPTPage from '../../components/admin/homeComponents/apps/chatGPT/components/confirmationPage';
 import AddContactsHalfModal from '../../components/admin/homeComponents/contacts/addContactsHalfModal';
@@ -37,9 +35,10 @@ import CustomQrCode from '../../components/admin/homeComponents/settingsContent/
 import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
 import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
-import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
 import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/receiveCodeConfirmation';
-import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/internalComponents/editGiftHalfModal';
+import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
+import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
+import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
 import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
@@ -56,9 +55,6 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
-import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
-import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
-import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 import CreatePoolFlow from '../../components/admin/homeComponents/pools/createPoolFlow';
@@ -91,7 +87,9 @@ import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/rece
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
-
+import AccountTransferHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal';
+import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
+import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -282,31 +280,7 @@ export default function CustomHalfModal(props) {
             getReceiveCode={props.route.params?.getReceiveCode}
           />
         );
-      case 'confirmVPN':
-        return (
-          <ConfirmVPNPage
-            theme={theme}
-            darkModeType={darkModeType}
-            price={props.route.params?.price}
-            duration={props.route.params?.duration}
-            country={props.route.params?.country}
-            createVPN={props.route.params?.createVPN}
-            slideHeight={slideHeight}
-          />
-        );
-      case 'giftCardConfirm':
-        return (
-          <ConfirmGiftCardPurchase
-            theme={theme}
-            darkModeType={darkModeType}
-            quantity={props.route.params?.quantity}
-            price={props.route.params?.price}
-            productId={props.route.params?.productId}
-            purchaseGiftCard={props.route.params?.purchaseGiftCard}
-            email={props.route.params?.email}
-            blitzUsername={props.route.params?.blitzUsername}
-          />
-        );
+
       case 'exportTransactions':
         return (
           <ConfirmExportPayments
@@ -417,27 +391,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
-      case 'SelectAltAccount':
-        return (
-          <SelectAltAccountHalfModal
-            slideHeight={slideHeight}
-            selectedFrom={props?.route?.params?.selectedFrom}
-            selectedTo={props?.route?.params?.selectedTo}
-            transferType={props?.route?.params?.transferType}
-          />
-        );
-      case 'giftCardSendAndReceiveOption':
-        return (
-          <EditGiftHalfModal
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            setContentHeight={setContentHeight}
-            uuid={props?.route?.params?.uuid}
-            selectedContact={props?.route?.params?.selectedContact}
-            imageData={props?.route?.params?.imageData}
-          />
-        );
+
       case 'SelectPaymentType':
         return (
           <SelectPaymentType
@@ -502,6 +456,8 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             fromPage={props?.route?.params?.fromPage}
             onSelectMethod={props?.route?.params?.onSelectMethod}
+            bitcoinBalance={props?.route?.params?.bitcoinBalance}
+            dollarBalanceToken={props?.route?.params?.dollarBalanceToken}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
@@ -680,6 +636,7 @@ export default function CustomHalfModal(props) {
           <LnurlReceiveCurrencySelect
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            accountsLnurlId={props?.route?.params?.accountsLnurlId}
           />
         );
       case 'stablecoinAssetPicker':
@@ -807,6 +764,32 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+      case 'accountTransfer':
+        return (
+          <AccountTransferHalfModal
+            mode={props?.route?.params?.mode}
+            account={props?.route?.params?.account}
+            handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'childMatchCodeConfirmation':
+        return (
+          <ChildMatchCodeConfirmation
+            confirmMatch={props?.route?.params?.confirmMatch}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+
+      case 'LNURLAccountMangement':
+        return (
+          <LNURLAccountMangement
+            account={props?.route?.params?.account}
+            lnurlAddress={props?.route?.params?.lnurlAddress}
+          />
+        );
+
       default:
         return <ThemeText content={'TST'} />;
     }

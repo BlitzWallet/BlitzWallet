@@ -5,6 +5,7 @@
 // real mobile numbers, which these providers serve.
 import { parsePhoneNumberWithError } from 'libphonenumber-js/mobile';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
+import { decode } from '../decodeBolt11';
 
 // country -> bitcoin payment provider; formatNumber emits the provider's
 // canonical format regardless of whether input was national or international.
@@ -62,13 +63,37 @@ export function getPhonePaymentCountry(address) {
   return match ? match[0] : null;
 }
 
+// Human-readable display for a phone-payment provider address (either LNURL or
+// POST provider). Returns the provider country iso code (for a flag) and the
+// phone number in international format, or null for non-phone addresses. The
+// local part is national for some providers (ZM -> 0977…), so we parse trying
+// the international form first, then the resolved country.
+export function getPhonePaymentDisplay(address) {
+  const isoCode = getPhonePaymentCountry(address);
+  if (!isoCode) return null;
+  const local = address.slice(0, address.indexOf('@'));
+  const attempts = [
+    [local.startsWith('+') ? local : `+${local}`, undefined],
+    [local, isoCode],
+  ];
+  for (const [value, defaultCountry] of attempts) {
+    try {
+      const parsed = parsePhoneNumberWithError(value, defaultCountry);
+      if (parsed.isValid()) {
+        return { isoCode, formatted: parsed.formatInternational() };
+      }
+    } catch {}
+  }
+  return { isoCode, formatted: local };
+}
+
 // Returns the provider lightning addresses the input is valid for, in
 // PHONE_PAYMENT_PROVIDERS order (KE before ZM). Accepts national or
 // international input. A bare national number in the overlapping 075/076/077
 // range is valid for both KE and ZM, so this can return more than one.
 export function getPhonePaymentCandidates(input) {
   const stripped = (input || '').trim();
-  if (!stripped) return [];
+  if (!stripped || stripped.includes('@')) return [];
 
   // Try international form first, then national form per supported country.
   const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
@@ -138,7 +163,7 @@ export default async function getPhonePaymentAddress(input) {
 // getPhonePaymentCandidates.
 export function getPhonePostProvider(input) {
   const stripped = (input || '').trim();
-  if (!stripped) return null;
+  if (!stripped || stripped.includes('@')) return null;
 
   const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
   const attempts = [
@@ -188,6 +213,17 @@ export async function fetchPhonePaymentInvoice({
   const data = await response.json();
   if (!data.success || !data.invoice) {
     throw new Error('No invoice in phone payment response');
+  }
+
+  const decoded = decode(data.invoice);
+  const invoiceMsat = decoded.millisatoshis
+    ? Number(decoded.millisatoshis)
+    : null;
+  if (
+    invoiceMsat == null ||
+    invoiceMsat !== Number(amountSats) * 1000
+  ) {
+    throw new Error('Invoice amount does not match requested amount');
   }
 
   return { pr: data.invoice, orderId: data.orderId };

@@ -1,11 +1,19 @@
 import { getSingleContact } from '../../../../../../db';
 import { getCachedProfileImage } from '../../../../../functions/cachedImage';
+import { IS_BLITZ_URL_REGEX } from '../../../../../constants';
 
 export default async function getDeepLinkUser({
   deepLinkContent,
   userProfile,
 }) {
   try {
+    if (
+      /^https?:\/\//.test(deepLinkContent) &&
+      !IS_BLITZ_URL_REGEX.test(deepLinkContent)
+    ) {
+      return { didWork: false, reason: 'errormessages.noUserFoundDeeplinkError' };
+    }
+
     const deepLinkUser = deepLinkContent.split('/u/')[1];
 
     const rawUser = await getSingleContact(deepLinkUser);

@@ -9,16 +9,20 @@ import { COLORS, SIZES } from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { CENTER } from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import IconActionCircle from '../../../../../functions/CustomElements/actionCircleContainer';
 
 export default function RemoveAccountPage(props) {
-  const selectedAccount = props?.route?.params?.account;
+  const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
-  const { removeAccount } = useActiveCustodyAccount();
+  const { removeAccount, custodyAccountsList } = useActiveCustodyAccount();
+  const selectedAccount = useMemo(
+    () => custodyAccountsList?.find(item => item.uuid === accountId) || {},
+    [custodyAccountsList, accountId],
+  );
   const { backgroundOffset, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
@@ -34,6 +38,7 @@ export default function RemoveAccountPage(props) {
     if (fromPage === 'SettingsContentHome') {
       navigate.popTo('SettingsContentHome', {
         for: 'Accounts',
+        initialTab: 'personal',
       });
     } else {
       navigate.popTo('SettingsHome');

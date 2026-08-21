@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -12,7 +12,6 @@ import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../../functions';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function ConfirmSMSReceivePage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -37,12 +36,7 @@ export default function ConfirmSMSReceivePage(props) {
     }
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     animationRef.current?.play();

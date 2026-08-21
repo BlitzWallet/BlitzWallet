@@ -24,18 +24,23 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
+import { randomBytes } from 'react-native-quick-crypto';
 
 const BLUE_DIM = 'rgba(3,117,246,0.14)';
 
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-const generatePayLinkId = () =>
-  Array.from(
-    { length: 9 },
-    () => CHARS[Math.floor(Math.random() * CHARS.length)],
-  ).join('');
 
+export function generatePayLinkId() {
+  const bytes = randomBytes(9);
+  let id = '';
+
+  for (const b of bytes) {
+    id += CHARS[b % CHARS.length];
+  }
+
+  return id;
+}
 export default function ShareInvoicePayLinkModal({
   rawAmount,
   currencyType,
@@ -56,12 +61,7 @@ export default function ShareInvoicePayLinkModal({
   const [payLinkId, setPayLinkId] = useState(null);
   const copyTimeout = useRef(null);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     if (hasCreated.current) return;

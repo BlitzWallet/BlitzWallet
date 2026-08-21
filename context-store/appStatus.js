@@ -64,7 +64,14 @@ const AppStatusProvider = ({ children }) => {
       setScreenDimensions(newDimensions.screen);
     };
 
-    Dimensions.addEventListener('change', handleWindowSizeChange);
+    const subscription = Dimensions.addEventListener(
+      'change',
+      handleWindowSizeChange,
+    );
+
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -169,10 +176,7 @@ const AppStatusProvider = ({ children }) => {
 
       crashlyticsLogReport(routeNames);
 
-      console.log(
-        'Current navigation stack',
-        navigationRef.getRootState().routes,
-      );
+      console.log('Current navigation stack', routeNames);
     });
 
     return () => {

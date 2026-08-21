@@ -58,7 +58,7 @@ import { useActiveCustodyAccount } from '../../../../../context-store/activeAcco
 import useDebounce from '../../../../hooks/useDebounce';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
@@ -75,8 +75,6 @@ import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { getTimeDisplay } from '../../../../functions/contacts';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const SLIPPAGE_DROPDOWN_OPTIONS = [
   { label: '0.1%', value: '0.1' },
@@ -1192,14 +1190,7 @@ export default function SwapFlowHalfModal({
     }
   };
 
-  const confirmAnimation = useMemo(
-    () =>
-      updateConfirmAnimation(
-        confirmTxAnimation,
-        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-      ),
-    [theme, darkModeType],
-  );
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   // ── Review step computed values (safe to call unconditionally) ───────────────
 

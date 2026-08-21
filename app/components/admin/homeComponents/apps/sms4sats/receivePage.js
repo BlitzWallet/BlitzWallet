@@ -43,14 +43,13 @@ import { useWebView } from '../../../../../../context-store/webViewContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
-import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../../functions/lottieAnimations';
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { KeyboardController } from 'react-native-keyboard-controller';
-const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 const imgEndpoint = endpoint => {
   if (VALID_URL_REGEX.test(endpoint)) {
@@ -157,14 +156,7 @@ export default function SMSMessagingReceivedPage(props) {
     setIsKeyboardActive(false);
   }, []);
 
-  const confirmAnimation = useMemo(
-    () =>
-      updateConfirmAnimation(
-        confirmTxAnimation,
-        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-      ),
-    [theme, darkModeType],
-  );
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     if (isConfirmed) animationRef.current?.play();
@@ -244,7 +236,9 @@ export default function SMSMessagingReceivedPage(props) {
           }));
           try {
             const response = await fetch(
-              `https://api2.sms4sats.com/orderstatus?orderId=${invoiceInfo.orderId}`,
+              `https://api2.sms4sats.com/orderstatus?orderId=${encodeURIComponent(
+                invoiceInfo.orderId,
+              )}`,
             );
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
@@ -267,7 +261,9 @@ export default function SMSMessagingReceivedPage(props) {
         if (!responseInfo) {
           try {
             const response = await fetch(
-              `https://api2.sms4sats.com/cancelorder?orderId=${invoiceInfo.orderId}`,
+              `https://api2.sms4sats.com/cancelorder?orderId=${encodeURIComponent(
+                invoiceInfo.orderId,
+              )}`,
             );
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);

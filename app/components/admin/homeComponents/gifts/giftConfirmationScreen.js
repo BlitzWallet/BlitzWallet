@@ -1,7 +1,7 @@
 import LottieView from 'lottie-react-native';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
   GlobalThemeView,
@@ -23,8 +23,6 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGifts } from '../../../../../context-store/giftContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function GiftConfirmation(props) {
   const {
@@ -51,15 +49,12 @@ export default function GiftConfirmation(props) {
       })
     : giftsArray.find(gift => gift?.uuid === giftId);
 
-  console.log('Gifts to display:', gifts);
-
   const handleCopy = data => {
     copyToClipboard(data, showToast);
   };
 
   const handleCopyAllLinks = () => {
     const allLinks = gifts.map(g => g.claimURL).join('\n');
-    console.log(allLinks);
     copyToClipboard(allLinks, showToast);
   };
 
@@ -96,12 +91,7 @@ export default function GiftConfirmation(props) {
     animationRef.current?.play();
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   const headerTitle = isBulk
     ? t('screens.inAccount.giftPages.giftConfirmation.bulkHeader', {

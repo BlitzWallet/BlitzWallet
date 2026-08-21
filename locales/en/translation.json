@@ -133,7 +133,8 @@
     "scan": "Scan",
     "stablecoinRefundReceived": "Stablecoin refund",
     "payWith": "Pay with",
-    "receiveAs": "Receive as"
+    "receiveAs": "Receive as",
+    "tokens": "Tokens"
   },
   "languages": {
     "english": "English",
@@ -180,7 +181,8 @@
     "daily": "Daily",
     "weekly": "Weekly",
     "monthly": "Monthly",
-    "yearly": "Yearly"
+    "yearly": "Yearly",
+    "noLimit": "No Limit"
   },
   "transactionLabelText": {
     "notSent": "Payment not sent",
@@ -198,6 +200,8 @@
     "paidRequest": "Paid request",
     "sent": "Sent",
     "received": "Received",
+    "accountTopup": "Topup",
+    "accountWithdrawal": "Withdrawal",
     "paidLower": "paid",
     "declinedLower": "declined",
     "receivedRequest": "Received request",
@@ -218,18 +222,29 @@
       "subtitle": "Your wallet. Your money. Open-source.",
       "buttons": {
         "button1": "Restore Account",
-        "button2": "Get Started"
+        "button2": "Get Started",
+        "joinAccount": "Join shared wallet"
       }
     },
+    "walletSetup": {
+      "title": "Set up your wallet",
+      "subtitle": "Create a new wallet, join a wallet, or restore an existing wallet.",
+      "createTitle": "Create new wallet",
+      "createDesc": "Start fresh with a new wallet.",
+      "joinTitle": "Join managed wallet",
+      "joinDesc": "Join a wallet that's managed for you.",
+      "restoreTitle": "Restore existing wallet",
+      "restoreDesc": "Continue with an existing wallet."
+    },
     "disclaimerPage": {
-      "header": "Your money. Your Control.",
+      "header": "Your money. Your control.",
       "subHeader": "A few things to know before you start.",
       "row1Label": "Only you control your funds",
       "row1Description": "Blitz can't hold, freeze, or touch it.",
       "row2Label": "Your recovery phrase is the key",
       "row2Description": "12 words secure your wallet.",
       "row3Label": "Lose the phrase, lose access",
-      "row3Description": "No one can recover your wallet for you.",
+      "row3Description": "No one can recover it for you.",
       "readTerms": "Read full Terms & Privacy",
       "acceptPrefix": "I understand I'm solely responsible for my recovery phrase, and I agree to the",
       "terms&Conditions": "Terms",
@@ -254,6 +269,7 @@
       "pin": {
         "savePinError": "Unable to save pin",
         "removeWalletError": "Error removing wallet",
+        "wipeError": "Unable to clear this device's previous wallet data. Your PIN is saved, but please retry before continuing.",
         "wrongPinError": "Try again",
         "enterPinMessage": "Create PIN",
         "confirmPin": "Confirm Pin",
@@ -805,58 +821,6 @@
         "errorMessage": "Sorry, we could not save your conversation."
       }
     },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Search for a Gift Card",
-        "leftPageMessage": "Where'd you go?",
-        "loadingCardsMessage": "Getting gift cards",
-        "noCardsAvailable": "No gift cards available"
-      },
-      "confimPurchase": {
-        "quantity": "Quantity {{quantity}}",
-        "cardAmount": "Card Amount: {{amount}} {{currency}}",
-        "price": "Price: ",
-        "fee": "Fee: "
-      },
-      "createAccount": {
-        "title": "Powered by",
-        "saveEmail": "You do not have an email saved. Speed up the checkout process by saving an email.",
-        "termsAndConditions1": "By continuing you agree to The Bitcoin Company's",
-        "termsAndConditions2": "Terms of Service",
-        "termsAndConditions3": "and",
-        "termsAndConditions4": "Privacy policy"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Purchasing gift card. Do not leave the page.",
-        "selectamount": "Select an amount",
-        "sendingto": "Sending to: ",
-        "minMaxPurchaseAmount": "You can buy a {{min}} amount of {{max}} {{currency}}",
-        "emailPlaceholder": "Enter email address",
-        "purchaseBTN": "Purchase gift card",
-        "differentEmailMessage": "The current email is different than the saved one. Would you like to make this email your primary?",
-        "terms": "Terms",
-        "cardDescription": "Card Description",
-        "cardTerms": "Card terms",
-        "dailyPurchaseAmountError": "You have reached your daily purchase limit",
-        "giftMessage": "Add a note to your gift",
-        "giftMessagePlaceholder": "Type your message here",
-        "selectForContactBTN": "Select Gift Card",
-        "noAmountError": "Please choose a gift card amount"
-      },
-      "giftCardOrderDetails": {
-        "title": "Order Details",
-        "invoice": "Invoice",
-        "orderId": "Order ID",
-        "uuid": "UUID",
-        "openInbox": "Open inbox"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Are you sure you want to remove this gift card?",
-        "purchased": "Purchased:",
-        "noPurchases": "You haven’t purchased any gift cards. Once you do, they’ll show up here.",
-        "customCopyMessage": "Support email copied"
-      }
-    },
     "sms4sats": {
       "home": {
         "pageDescription": "Send and receive SMS messages without giving away your personal phone number.",
@@ -1015,7 +979,7 @@
       "phonePaymentDesc": "Sending to mobile number",
       "phonePaymentDescGcash": "Sending to GCash number",
       "mobileMoneyTitle": "Mobile Money",
-      "mobileMoneySubtitle": "Pay to a mobile money account",
+      "mobileMoneySubtitle": "Pay to a mobile money account.",
       "mobileMoneyCountryTitle": "Select a country",
       "mobileMoneyCountrySubtitle": "Choose the country of the mobile money account you're paying.",
       "mobileMoneyPhoneTitle": "Enter mobile number",
@@ -1024,17 +988,17 @@
       "depositFunds": "Deposit Funds",
       "depositFundsSubtitle": "Add funds to your wallet",
       "onChainBitcoin": "Deposit Bitcoin",
-      "onChainBitcoinSubtitle": "Receive Bitcoin into your wallet",
+      "onChainBitcoinSubtitle": "Receive Bitcoin into your wallet.",
       "depositTokens": "Deposit tokens",
       "stablecoins": "Deposit Dollars",
-      "stablecoinsSubtitle": "Receive Dollars into your wallet",
+      "stablecoinsSubtitle": "Receive Dollars into your wallet.",
       "cashAppSubtitle": "Send from Cash App instantly",
       "sparkAddressSubtitle": "Receive to your Spark address",
       "otherBitcoin": "Other Deposit Options",
       "otherBitcoinSubtitle": "Liquid, Rootstock, and Spark",
       "lightningInvoice": "Lightning Invoice",
       "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
-      "lightningUSDAmountRequired": "An amount is required to create a USD lightning invoice",
+      "lightningUSDAmountRequired": "An amount is required to create a USD invoice",
       "paylinkAmountRequired": "Add an amount before sharing the invoice.",
       "otherReceivingMethods": "Other receiving methods",
       "cashAppEnterAmount": "Enter amount in sats",
@@ -1043,7 +1007,7 @@
       "viewDetails": "View details",
       "othersOptionTitle": "Select Method",
       "stablecoinSelectedTitle": "{{curr}} on {{chain}}",
-      "bitcoinDesc": "Receive on-chain BTC to your wallet",
+      "bitcoinDesc": "Receive on-chain BTC to your wallet.",
       "liquidDesc": "Receive Liquid BTC to your wallet.",
       "roostockDesc": "Receive Rootstock BTC to your wallet.",
       "sparkDesc": "Receive BTC to your wallet.",
@@ -1062,8 +1026,7 @@
       "depositQRInstruction_spark_dollars": "Send USDB to this address.",
       "depositQRInstruction_spark_tokens": "Send tokens to this address.",
       "depositMinimumStablecoin": "Payments must be at least {{amount}}",
-      "depositFeeText_network": "Network fees",
-      "depositFeeText_conversion": "Conversion fee",
+      "depositFeeText": "Fee Details",
       "depositFeePopup_bitcoin": "Bitcoin sent to this address will cost a small network fee to recieve. The fee is taken out of the amount you receive, so your balance may show slightly less than what was sent.",
       "depositFeePopup_liquid": "Liquid Bitcoin sent to this address is converted into Bitcoin your wallet can use. The conversion costs a small fee, which is taken out of the amount you receive.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin sent to this address is converted into Bitcoin your wallet can use. The conversion costs a small fee, which is taken out of the amount you receive.",
@@ -1187,7 +1150,8 @@
     "cameraPage": {
       "noCameraAccess": "No access to camera",
       "settingsText": "Go to settings to let Blitz Wallet access your camera",
-      "noCameraDevice": "You do not have a camera device.",
+      "noCameraDevice": "No camera device",
+      "noCameraDeviceSub": "No camera is available on this device.",
       "error1": "Device does not have a torch",
       "error2": "You have already paid this invoice"
     },
@@ -1232,7 +1196,9 @@
         "swapRatesChangedButton": "Re-enter Amount",
         "feeEstimateError": "Unable to estimate fee, please try again",
         "brantaVerification": "This payment has been verified by Branta",
-        "lightningPayment": "Bitcoin payment"
+        "lightningPayment": "Bitcoin payment",
+        "dollarPayment": "Dollar payment",
+        "tokenPayment": "Token payment"
       },
       "selectPaymentMethod": {
         "header": "How do you want to fund your payment?"
@@ -1263,7 +1229,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Error message"
+        "title": "Something went wrong"
       },
       "feeInfo": {
         "title": "Fee and Speed",
@@ -1482,11 +1448,6 @@
       "claimed": "Used",
       "markAsClaimed": "Mark as Used"
     },
-    "selectGiftPage": {
-      "noCards": "No cards available",
-      "header": "Select the Gift Card you want to send",
-      "inputPlaceholder": "Search for a Gift Card"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Do you want to {{option}} {{option2}} photo"
@@ -1504,9 +1465,6 @@
         "header": "Your Gift Cards",
         "cardsLengthSingular": "{{num}} card",
         "cardsLengthPlural": "{{num}} cards"
-      },
-      "editGiftCard": {
-        "header": "What would you like to do with your gift?"
       }
     },
     "showProfileQr": {
@@ -1590,8 +1548,8 @@
       "bundleUnverified": "Bundle Unverified",
       "showTechnicals": "Show Technical Details",
       "hideTechnicals": "Hide Technical Details",
-      "backendHash": "Backend Hash",
-      "expectedHash": "Expected Hash",
+      "backendHash": "Backend Signature",
+      "expectedHash": "Expected Signature",
       "exchangeRatesHeader": "Exchange Rates",
       "exchangeRatesDescription": "Bitcoin/fiat exchange rates are retrieved from third-party APIs. Rates may not be perfectly accurate, always verify the Bitcoin amount before sending a payment.",
       "exchangeRatesSourcesLabel": "Data sources",
@@ -1710,7 +1668,189 @@
     "accounts": {
       "inputPlaceholder": "Search existing account",
       "mainWalletPlace": "Main Account",
-      "nwcWalletPlace": "NWC Account"
+      "managedWalletPlace": "Managed Account",
+      "nwcWalletPlace": "NWC Account",
+      "tabs": {
+        "personal": "Personal",
+        "linked": "Managed"
+      },
+      "personalInfo": {
+        "title": "What are personal accounts?",
+        "body": "Personal accounts are wallets you create for yourself. Use them to easily separate your money for different purposes, like spending, saving, or travel."
+      },
+      "linkedInfo": {
+        "title": "What are managed accounts?",
+        "body": "Managed accounts are wallets you create for someone else. They get their own wallet and can use it like any other Blitz wallet, while you manage the recovery for them."
+      },
+      "emptyLinked": {
+        "title": "No managed accounts yet",
+        "subtitle": "Create a wallet for someone else. They can use Blitz without managing a recovery phrase."
+      },
+      "noResults": {
+        "title": "No accounts found",
+        "subtitle": "You don't have any accounts yet."
+      }
+    },
+    "childAccounts": {
+      "tabs": {
+        "children": "Managed"
+      },
+      "dontMatch": "Don't match",
+      "sasGrid": {
+        "blank": "Blank",
+        "x": "X",
+        "plus": "Plus",
+        "filled": "Filled",
+        "outline": "Outline",
+        "position": "Row {{row}} of 3, column {{column}} of 3.",
+        "shapes": {
+          "circle": "Circle",
+          "square": "Square",
+          "triangle": "Triangle",
+          "diamond": "Diamond",
+          "hexagon": "Hexagon",
+          "moon": "Moon",
+          "cross": "Cross",
+          "star": "Star",
+          "heart": "Heart",
+          "checkmark": "Checkmark",
+          "shield": "Shield",
+          "clock": "Clock",
+          "bell": "Bell",
+          "house": "House",
+          "apple": "Apple"
+        }
+      },
+      "list": {
+        "spendingLimitLabel": "Limit",
+        "noLimit": "No limit"
+      },
+      "enterName": {
+        "title": "Name this account",
+        "subtitle": "Give the account a name so you can recognize it later.",
+        "placeholder": "Account name",
+        "next": "Next",
+        "create": "Create account",
+        "editTitle": "Edit account name",
+        "editSubtitle": "Choose a new name so you can recognize this account later."
+      },
+      "spendingLimit": {
+        "title": "Set a spending limit",
+        "subtitle": "Set a monthly spending limit for this account. This is a soft budget tracked on their device.",
+        "placeholder": "Monthly limit",
+        "noLimit": "No limit",
+        "create": "Create account"
+      },
+      "creating": {
+        "loadingText": "Creating account...",
+        "errorTitle": "Could not create the account. Please try again."
+      },
+      "confirmation": {
+        "done": "Done"
+      },
+      "pairing": {
+        "title": "Share",
+        "usernameTitle": "Share your username",
+        "usernameSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
+        "generateCode": "Generate Code",
+        "usernameLabel": "Your username: {{name}}",
+        "codeNavTitle": "Share Code",
+        "codeTitle": "Share this pairing code",
+        "codeSubtitle": "Share this code so they can join your shared wallet.",
+        "waiting": "Waiting for them to enter the code…",
+        "sasNavTitle": "Verify pattern",
+        "sasTitle": "Verify the pattern",
+        "sasSubtitle": "Check that this pattern of shapes matches the one on their phone, shape for shape.",
+        "sasHint": "Only confirm once you've confirmed both phones show the same pattern.",
+        "confirmMatch": "They match",
+        "linkedTitle": "Wallet linked",
+        "linkedSubtitle": "Their managed wallet is ready to use.",
+        "done": "Sent. They'll finish setup on their phone.",
+        "expired": "This pairing expired. Please start again.",
+        "errorTitle": "Pairing session ended",
+        "declinedByChild": "This request has been declined.",
+        "tamper": "We couldn't verify this handoff. Please start again.",
+        "areYouSure": "Are you sure?",
+        "confirmGate": "Only confirm if the patterns match exactly, shape for shape. Confirming gives this person access to the account.",
+        "confirmBTN": "They match",
+        "needsUsername": "Set a username on your profile before linking a wallet.",
+        "notOwner": "We couldn't confirm your username reservation. Please try again in a moment.",
+        "startFailed": "Couldn't start pairing. Please try again.",
+        "codeOption": "Code",
+        "qrOption": "QR",
+        "qrTitle": "Scan this QR code",
+        "qrSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
+        "qrWaiting": "Waiting for them to scan…",
+        "noBlitz": "They don't have Blitz?",
+        "downloadLink": "Share download link",
+        "acceptTitle": "Accept the pairing?",
+        "acceptSubtitle": "By pairing, you are giving this person access to {{name}}. Make sure you're pairing with the right person.",
+        "acceptBTN": "Accept",
+        "declineBTN": "Decline"
+      },
+      "transactions": {
+        "title": "Activity",
+        "noTxHistorySub": "The accounts transactions will appear here once they send or receive one."
+      },
+      "page": {
+        "title": "Children account",
+        "balanceLabel": "Balance",
+        "transactionsLabel": "Recent activity",
+        "noTransactions": "No activity yet",
+        "spendingLimitLabel": "Spending limit",
+        "loadingBalance": "Loading balance...",
+        "shareLink": "Pair with someone"
+      },
+      "claim": {
+        "title": "Set up your wallet",
+        "info": {
+          "navTitle": "Set up your wallet",
+          "title": "Set up your wallet",
+          "intro": "You're joining a wallet that's managed for you.",
+          "row1Label": "Your own wallet",
+          "row1Description": "Send and receive with your own balance.",
+          "row2Label": "Easy to use",
+          "row2Description": "Your wallet's recovery is managed for you.",
+          "row3Label": "Managed by someone else",
+          "row3Description": "Only join a wallet from someone you know.",
+          "continue": "Continue"
+        },
+        "codeNavTitle": "Enter Username",
+        "codeTitle": "Enter their username",
+        "codeSubtitle": "Enter the username shown on the other person's phone.",
+        "pairCodeNavTitle": "Enter Code",
+        "pairCodeTitle": "Enter the pairing code",
+        "pairCodeSubtitle": "Enter the 6-digit code shown on the other person's phone.",
+        "wrongCode": "That code didn't work. Check the code and the username, then try again.",
+        "next": "Next",
+        "sasNavTitle": "Verify Pattern",
+        "sasTitle": "Verify the pattern",
+        "sasSubtitle": "Check that this pattern of shapes matches the one on the other phone, shape for shape.",
+        "sasHint": "Only confirm once you've confirmed both phones show the same pattern.",
+        "confirmMatch": "They match",
+        "tamper": "We couldn't verify this handoff. Please start again.",
+        "notFound": "We couldn't find a pairing for that username. Ask for it again.",
+        "slotTaken": "Someone already joined with this username. Stop now and ask the account owner to cancel and start over.",
+        "askToRestart": "We couldn't join this pairing. Ask the account owner to start a new one.",
+        "rateLimited": "Too many attempts. Please wait a moment and try again.",
+        "loading": "Setting up your wallet...",
+        "expired": "This pairing expired. Please start again.",
+        "errorTitle": "Pairing session ended",
+        "canceledByParent": "The account owner canceled the pairing request.",
+        "codePlaceholder": "username",
+        "codeOption": "Code",
+        "scanOption": "Scan",
+        "scanNavTitle": "Scan Code",
+        "scanTitle": "Scan their QR code",
+        "scanHint": "Position the QR code in view to activate",
+        "scanWaiting": "Waiting for the request to be accepted",
+        "scanSubtitle": "Point your camera at the QR code on their phone.",
+        "connectingMessage": "Connecting your devices"
+      },
+      "limitGate": {
+        "title": "Spending limit reached",
+        "message": "This payment would go over the spending limit set for this account."
+      }
     },
     "resetWallet": {
       "header": "Are you sure?",
@@ -1842,6 +1982,8 @@
       "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "0.1% Boltz fee + network fees",
       "accumulationType": "Accumulation addresses",
       "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
       "othersType": "All other",
@@ -1870,34 +2012,74 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Are you sure you want to delete this Nostr Connect item?",
-      "searchAccountPlaceholder": "Search for NWC account",
-      "noAccountsMessage": "You have no Nostr Connect accounts.",
-      "addAccount": "Add Account",
+      "confirmDelete": "Are you sure you want to delete this connection?",
+      "addAccount": "Add connection",
+      "empty": {
+        "title": "No connections yet",
+        "subtitle": "Create a connection to use Nostr Wallet Connect with your favorite apps."
+      },
+      "createNWCName": {
+        "navTitle": "Name",
+        "title": "Name this connection",
+        "editTitle": "Edit connection name",
+        "subtitle": "Give the connection a name so you can recognize it later.",
+        "editSubtitle": "Choose a new name so you can recognize this connection later.",
+        "placeholder": "Connection name"
+      },
+      "createNWCPermissions": {
+        "title": "Permissions",
+        "pageTitle": "Add connection permissions",
+        "pageSubtitle": "Choose what actions {{name}} can perform.",
+        "editTitle": "Edit connection permissions",
+        "editSubtitle": "Edit what actions {{name}} can perform."
+      },
+      "createNWCAmount": {
+        "title": "Budget",
+        "pageTitle": "Set a spending budget",
+        "pageSubtitle": "Set a spending limit and when it resets. Leave blank for no limit.",
+        "editTitle": "Edit spending budget",
+        "editSubtitle": "Change the spending limit and when it resets. Leave blank for no limit.",
+        "renewalPlaceholder": "Select renewal period",
+        "createButton": "Create connection"
+      },
+      "accountCreated": {
+        "title": "Connection created",
+        "subtitle": "Your connection has been created, copy the connection string to start using it.",
+        "copyConnection": "Copy connection string"
+      },
+      "accountPage": {
+        "title": "Manage Connection",
+        "nameLabel": "Name",
+        "permissionsLabel": "Permissions",
+        "permissionsCount_one": "{{count}} permission",
+        "permissionsCount_other": "{{count}} permissions",
+        "renewalLabel": "Renewal period",
+        "amountLabel": "Budget amount",
+        "viewSecretLabel": "Connection string",
+        "deleteAccount": "Delete connection"
+      },
       "createNWCAccount": {
-        "noAccountNameError": "Please enter an account name.",
+        "noAccountNameError": "Please enter a connection name.",
         "noPermissionsError": "Please enable at least one permission.",
         "noBudgetError": "Please select a budget renewal period.",
         "noBudgetAmountError": "Please select a budget amount.",
-        "title": "Create Account",
-        "loadingMessage": "Creating Account",
-        "nameInputPlaceholder": "Enter NWC account name",
+        "loadingMessage": "Creating connection...",
+        "updatingMessage": "Updating connection...",
+        "nameInputPlaceholder": "Enter NWC connection name",
         "permissionsHeader": "Wallet permissions",
         "receivePayments": "Receive payments",
         "sendPayments": "Send payments",
         "getBalance": "Get Balance",
         "transactions": "Transactions",
         "lookupInvoice": "Lookup Invoice",
-        "budgetRenewalHeader": "Budget Renewal",
-        "bugetPlaceholder": "Select budget renewal period",
-        "createConnection": "",
-        "connectionName": ""
+        "budgetRenewalHeader": "Budget Renewal"
       },
       "hasNoAccounts": {
-        "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."
+        "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC on the account page."
       },
       "noNotifications": {
-        "warningMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
+        "title": "Notifications required",
+        "subtitle": "Nostr Wallet Connect requires push notifications. Please enable them in Settings and try again."
       },
       "showSeedPage": {
         "loadingMessage": "Generating recovery phrase",
@@ -1905,10 +2087,14 @@
         "viewSeed": "View recovery phrase"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Funding Your NWC Account",
-        "accountFundingMessage": "To send money from your Nostr Connect account, you'll first need to add funds—either by receiving money or transferring from your main account.\n\nYou can transfer funds from your main account to NWC in the account settings page.",
-        "securityHeader": "Secure & Isolated",
-        "securityMessage": "Nostr Wallet Connect creates a seperate account from your main account for added security. This recovery phrase is securely stored and can be viewed later in the Accounts setting page if needed.",
+        "infoTitle": "Before you get started",
+        "infoSubtitle": "A few things to know about Nostr Wallet Connect.",
+        "row1Label": "Add funds",
+        "row1Description": "Add money by receiving it or moving it from your main account.",
+        "row2Label": "Separate account",
+        "row2Description": "This account is separate from your main account for added security.",
+        "row3Label": "App access",
+        "row3Description": "Connected apps can use this account to make payments.",
         "continueButton": "Get Started",
         "initializingMessage": "Setting up your NWC account...",
         "errorTitle": "Setup Failed",
@@ -1933,22 +2119,20 @@
         "balanceError": "Sending amount is greater than your balance and fees",
         "noSendAddressError": "Unable to get transfer address",
         "noAccountInformation": "Unable to get account information",
+        "invalidAmountError": "Please enter a valid amount to transfer",
+        "invalidFeeError": "Unable to calculate a valid transfer fee",
+        "invalidBalanceError": "Unable to verify the account balance",
+        "sameAccountError": "Please select two different accounts",
         "title": "Transfer",
         "selectAccount": "Select Account",
         "inputPlaceHolderText": "Account Transfer"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "This recovery phrase already exists for another account",
         "editTitle": "Edit Account",
-        "createTitle_derived": "Create Account",
-        "createTitle_imported": "Import Account",
         "updateTitle": "Update Account",
         "cannotDeleteActiveAccountError": "You can’t delete the active account. Please select another account before deleting.",
         "deleteAccountConfirmation": "Are you sure you want to delete this account?",
-        "inputDesc": "Account Name",
-        "nameTakenError": "This name is currently in use. Please use a differnt account name.",
-        "nameInputPlaceholder": "Name...",
-        "seedHeader": "Account recovery phrase"
+        "nameTakenError": "This name is currently in use. Please use a differnt account name."
       },
       "viewAccountPage": {
         "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
@@ -1958,9 +2142,10 @@
         "namePlaceholder": "Name"
       },
       "editAccountPage": {
-        "title": "Edit Account",
+        "title": "Account",
         "accountNameLabel": "Account Name",
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
+        "lightningAddressLabel": "Account Address",
         "removeAccountLabel": "Remove Account",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
@@ -1969,8 +2154,20 @@
         "accountTypeLabel": "Account type",
         "accountType_derived": "Derived",
         "accountType_imported": "Imported",
-        "accountTypeDerivedInfo": "This account is tied to your Blitz seed phrase and will be restored when you restore your Blitz wallet.",
-        "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up."
+        "accountType_main": "Main",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "This account is created from your Blitz recovery phrase and will be restored when you restore your Blitz wallet.",
+        "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up.",
+        "accountTypeNwcInfo": "This is your Nostr Wallet Connect (NWC) account. It is used by apps connected to Blitz and can always be restored from your main Blitz recovery phrase.",
+        "balanceLabel": "Balance",
+        "activeLabel": "Active account",
+        "activateButton": "Activate account",
+        "addMoneyButton": "Add money",
+        "withdrawMoneyButton": "Withdraw money",
+        "viewActivityLabel": "Account History",
+        "loadError": "Unable to load account",
+        "loadErrorDesc": "Please try again. If the problem continues, contact support.",
+        "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."
       },
       "removeAccountPage": {
         "title": "Remove",
@@ -1981,12 +2178,14 @@
       },
       "selectCreateAccountType": {
         "title": "Add Account",
-        "createNewAccountTitle": "Create New Account",
-        "createNewAccountDescription": "Recoverable from main recovery phrase",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
-        "importRecoveryPhraseDescription": "Import accounts from another wallet",
-        "recoverRecoveryPhraseTitle": "Recover Account",
-        "recoverRecoveryPhraseDescription": "Restore an already created account"
+        "importRecoveryPhraseDescription": "Import personal accounts from another wallet",
+        "recoverRecoveryPhraseTitle": "Recover Personal Account",
+        "recoverRecoveryPhraseDescription": "Restore a personal account",
+        "createNewAccountTitle": "Create Personal Account",
+        "createNewAccountDescription": "Create a wallet for yourself",
+        "createChildAccountTitle": "Create Managed Account",
+        "createChildAccountDescription": "Create a wallet for someone else"
       },
       "selectProfileImage": {
         "title": "Choose Avatar",
@@ -2010,6 +2209,21 @@
       "selectAltAccount": {
         "from": "Select the account you want to send from.",
         "to": "Select the account you want to receive to."
+      },
+      "transferModal": {
+        "selectAccount": "Select an account",
+        "addFromTitle": "Choose which account to add money from.",
+        "withdrawToTitle": "Choose which account to withdraw money to.",
+        "noAccounts": "No other accounts available.",
+        "availableToAdd": "Available to add",
+        "availableToWithdraw": "Available to withdraw",
+        "using": "Using",
+        "amount": "Amount",
+        "transferComplete": "Sent to {{name}}",
+        "receivedFrom": "Received from {{name}}",
+        "selfTransfer": "You cannot transfer to yourself",
+        "addFunds": "{{name}} added money",
+        "withdrawFunds": "{{name}} withdrew money"
       }
     },
     "accountsPoolsScreen": {
@@ -2017,13 +2231,12 @@
       "settingsButton": "Settings",
       "poolsTitle": "Pools",
       "noPoolsMessage": "You haven't created any pools yet. Tap to create your first pool.",
-      "noActivePools": "You don’t have any active pools right now. Tap to view your pools.",
-      "yourAccountsTitle": "Your Accounts",
-      "addAccountButton": "Add Account"
+      "noActivePools": "You don’t have any active pools right now. Tap to view your pools."
     },
     "hub": {
       "viewAll": "View All",
       "accounts": "Accounts",
+      "accountsEmptyDesc": "View, create, manage, and move funds between all of your accounts.",
       "pinAccount": "Pin",
       "unpinAccount": "Unpin",
       "maxPinsReached": "Maximum 2 pinned accounts. Unpin one first.",
@@ -2142,14 +2355,18 @@
         "failedToSend": "Failed to send",
         "confirmMessage": "{{direction}} successfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
-        "sendReport": "Send report to developer",
-        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in.",
+        "sendReport": "Report a problem",
+        "lnurlAuthSuccess": "You're signed in and ready to go.",
         "emailReport": "Send via Email",
         "copyReport": "Copy to Clipboard",
         "confirmMessage_sent": "Sent successfully",
         "confirmMessage_received": "Received successfully",
+        "sendingInProgress": "Your payment has been sent. Please wait while it's confirmed.",
         "bulkSuccess": "Requests sent successfully",
-        "bulkPartialSuccess": "No requests sent"
+        "bulkPartialSuccess": "No requests sent",
+        "stablecoinDesc": "{{asset}} on {{chain}}",
+        "walletConnected": "Wallet connected",
+        "lud9SuccessAction": "View Receipt"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Sent amount",
@@ -2772,7 +2989,6 @@
     "noDataInQRError": "Unable to find data in image.",
     "noInvoiceInImageError": "Unable to get invoice from image.",
     "savingImageError": "Unable to save image. Please try again.",
-    "invalidSeedError": "Did not enter a valid recovery phrase",
     "invalidSeedWordLengthErorr": "Not all words are of valid length",
     "invalidSeedLengthError": "Unable to find 12 words from copied recovery phrase.",
     "noGooglePlay": "Google Play Services are required to receive notifications.",
@@ -2833,6 +3049,14 @@
       "request": "{{name}} requested you {{amount}}",
       "payment": "{{name}} paid you {{amount}}",
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
+    },
+    "nwc": {
+      "get_info": "NWC info event",
+      "get_balance": "NWC balance event",
+      "list_transactions": "Got NWC transactions",
+      "make_invoice": "Created NWC invoice",
+      "lookup_invoice": "NWC invoice lookup",
+      "pay_invoice": "Sent NWC payment"
     }
   },
   "accountCard": {

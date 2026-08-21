@@ -61,6 +61,15 @@ async function sendDataToDB(newObject, uuid) {
       }
     });
 
+    // These four are backend-only (admin SDK). firestore.rules denies any owner
+    // update that touches them, so a client write including them is rejected
+    // wholesale — silently taking every other field in the same merge down with
+    // it. Keep them in masterInfoObject (set by the caller before this runs);
+    // never ship them to the user doc.
+    ['isChildAccount', 'spendingLimit', 'parentPublicKey', 'parentAuthPub'].forEach(
+      k => delete dbStorageData[k],
+    );
+
     if (Object.keys(localStorageData).length > 0) {
       const localStoragePromises = Object.entries(localStorageData).map(
         ([key, value]) => setLocalStorageItem(key, JSON.stringify(value)),

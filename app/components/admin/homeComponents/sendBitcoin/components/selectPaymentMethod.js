@@ -25,8 +25,14 @@ export default function SelectPaymentMethod({
   handleBackPressFunction,
   fromPage,
   onSelectMethod,
+  bitcoinBalance: btcOverride,
+  dollarBalanceToken: usdOverride,
 }) {
-  const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
+  // Balances default to the active wallet, but a caller moving funds out of
+  // another account passes that account's balances in.
+  const ctx = useUserBalanceContext();
+  const bitcoinBalance = btcOverride ?? ctx.bitcoinBalance;
+  const dollarBalanceToken = usdOverride ?? ctx.dollarBalanceToken;
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();

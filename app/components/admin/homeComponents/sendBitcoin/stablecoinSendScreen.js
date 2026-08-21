@@ -66,26 +66,15 @@ import {
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
+import { formatCountdown } from '../../../../functions/timeFormatter';
+import { useAuthContext } from '../../../../../context-store/authContext';
+import { waitForForground } from '../../../../hooks/useWaitForForground';
 
 const QUOTE_TTL_MS = 115_000;
 
 function truncateAddress(addr) {
   if (!addr || addr.length <= 16) return addr || '';
   return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
-}
-
-function formatCountdown(ms) {
-  const secs = Math.max(0, Math.floor(ms / 1000));
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
-function capitalizeChain(chain) {
-  if (typeof chain !== 'string') return '';
-  const lowered = chain.toLowerCase();
-  const firstLetter = lowered[0].toUpperCase();
-  return firstLetter + lowered.slice(1);
 }
 
 export default function StablecoinSendScreen() {
@@ -113,6 +102,16 @@ export default function StablecoinSendScreen() {
   const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
     useUserBalanceContext();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  // Provider-owned auth-reset counter. A long-background/logout reset bumps it
+  // AND navigates to SplashReload (login); it also tears down the WebView
+  // bridge, which settles any in-flight/held send with a fabricated cleanup
+  // result (didWork:false). That cleanup is NOT a real payment outcome, so the
+  // send screen must NOT navigate to the confirm/cancel screen off it —
+  // otherwise the user sees the cancel screen flash before login. We snapshot
+  // the counter at send-start and skip navigation if a reset intervened. Using
+  // the provider's ref (not a consumer mirror) keeps it valid even after this
+  // screen is unmounted by the reset's navigation.
+  const { authResetkeyRef } = useAuthContext();
 
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
   const [rawInput, setRawInput] = useState(
@@ -414,6 +413,10 @@ export default function StablecoinSendScreen() {
     }
 
     setSending(true);
+    // Snapshot the auth-reset counter: if a reset lands while the payment is in
+    // flight, its result is a bridge-cleanup (not a real outcome) and login
+    // navigation has already fired — the send screen must not navigate on it.
+    const startAuthResetKey = authResetkeyRef.current;
     isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     clearCountdown();
 
@@ -484,6 +487,15 @@ export default function StablecoinSendScreen() {
         progressAnimationRef.current.completeProgress();
         await new Promise(res => setTimeout(res, 600));
       }
+      await waitForForground();
+
+      // An auth reset landed mid-payment: this result is a bridge-cleanup, not a
+      // real outcome, and login navigation has already fired. Emit nothing and
+      // navigate nowhere — only the reset's login navigation should stand.
+      if (authResetkeyRef.current !== startAuthResetKey) {
+        isSendingPayment.current = false;
+        return;
+      }
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -502,6 +514,7 @@ export default function StablecoinSendScreen() {
                   transaction: pendingTx,
                   paymentDisplay: primaryDisplayRef.current,
                   displayAmount: rawInput,
+                  stablecoinInfo: { asset, label: chainLabel },
                 },
               },
             ],
@@ -528,6 +541,7 @@ export default function StablecoinSendScreen() {
                   error: err.message,
                   lnurlAddress: undefined,
                   blitzContactInfo: undefined,
+                  stablecoinInfo: { asset, label: chainLabel },
                 },
               },
             ],
@@ -553,6 +567,8 @@ export default function StablecoinSendScreen() {
     clearCountdown,
     t,
     rawInput,
+    chainLabel,
+    asset,
   ]);
 
   const handleEmoji = newDescription => {
@@ -780,11 +796,11 @@ export default function StablecoinSendScreen() {
                   content={`${truncateAddress(address)}`}
                 />
               </View>
-              <ThemeIcon
+              {/* <ThemeIcon
                 iconName="ChevronRight"
                 size={20}
                 styles={styles.destinationChevron}
-              />
+              /> */}
             </TouchableOpacity>
           )}
         </ScrollView>
@@ -926,20 +942,22 @@ const styles = StyleSheet.create({
     width: '80%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     padding: 12,
     borderRadius: 16,
     ...CENTER,
     marginTop: 30,
   },
   destinationContent: {
-    flexShrink: 1,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   destinationChevron: {
     opacity: 0.8,
-    marginLeft: 8,
+    position: 'absolute',
+    right: 12,
   },
   receiveAmount: {
     opacity: HIDDEN_OPACITY,
@@ -953,6 +971,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   quoteValue: {
+    flexShrink: 1,
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },

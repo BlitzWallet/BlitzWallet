@@ -2,7 +2,7 @@ import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import { getTwoWeeksAgoDate } from '../rotateAddressDateChecker';
 import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
-import { openDatabaseAsync } from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
 import i18next from 'i18next';
 import {
   addBulkUnpaidSparkContactTransactions,
@@ -18,33 +18,18 @@ export const LOCALSTORAGE_LAST_RECEIVED_TIME_KEY =
 export const CONTACTS_TRANSACTION_UPDATE_NAME = 'RECEIVED_CONTACTS EVENT';
 export const contactsSQLEventEmitter = new EventEmitter();
 
-let sqlLiteDB;
 let messageQueue = [];
 let isProcessing = false;
-let isInitialized = false;
-let initPromise = null;
 
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      sqlLiteDB = await openDatabaseAsync(`${CACHED_MESSAGES_KEY}.db`);
-      isInitialized = true;
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
+// Schema is created separately by initializeDatabase(); no setup here.
+const messagesDB = createSelfHealingDatabase({
+  name: `${CACHED_MESSAGES_KEY}.db`,
+});
+const sqlLiteDB = messagesDB.db;
 
-export const isMessagesDatabaseOpen = () => {
-  return isInitialized;
-};
+export const isMessagesDatabaseOpen = () => messagesDB.isOpen();
 
-export const ensureDatabaseReady = async () => {
-  if (!isInitialized) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-};
+export const ensureDatabaseReady = () => messagesDB.ensureReady();
 
 export const initializeDatabase = async () => {
   try {

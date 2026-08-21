@@ -173,18 +173,42 @@ export default async function decodeSendAddress(props) {
             t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
           );
         }
+        // Unique names can't contain hyphens (VALID_USERNAME_REGEX), so a `-`
+        // in the username means it's a sub-account LNURL of the form
+        // `{parentUsername}-{lnurlId}` (lnurlId is a hex prefix of the
+        // sub-account's identity pubkey, see assignLnurlId) — query the parent
+        // contact directly. The sub-account entry's identity key then derives
+        // its Spark address; all profile info comes from the parent account.
         const formatted = username.replace('-e40605', '');
-        const [results] = await getSingleContact(formatted);
+        const lastDash = formatted.lastIndexOf('-');
+        const isSubAccountLnurl = lastDash > 0;
+        const parentUsername = isSubAccountLnurl
+          ? formatted.slice(0, lastDash)
+          : formatted;
+        const lnurlId = isSubAccountLnurl ? formatted.slice(lastDash + 1) : '';
 
-        if (!results)
+        const [results] = await getSingleContact(parentUsername);
+
+        const subAccountEntry =
+          isSubAccountLnurl && results?.accountsLnurl?.[lnurlId]?.identityPubKey
+            ? results.accountsLnurl[lnurlId]
+            : null;
+
+        if (!results || (isSubAccountLnurl && !subAccountEntry))
           return goBackFunction(
             t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
           );
 
         const profile = results?.contacts?.myProfile;
-        const sparkAddress = profile?.sparkAddress;
+        const sparkAddress = subAccountEntry
+          ? deriveSparkAddress(
+              Buffer.from(subAccountEntry.identityPubKey, 'hex'),
+            ).address
+          : profile?.sparkAddress;
         const endReceiveType =
-          results?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
+          (
+            subAccountEntry?.receiveCurrency || results?.lnurlReceiveCurrency
+          )?.toLowerCase() === 'usd'
             ? 'USD'
             : 'BTC';
 

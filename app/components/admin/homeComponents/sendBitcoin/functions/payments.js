@@ -1,6 +1,7 @@
 import { InputTypes } from 'bitcoin-address-parser';
 import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 import { fetchPhonePaymentInvoice } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import { decode as decodeBolt11 } from '../../../../../functions/decodeBolt11';
 
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
@@ -56,6 +57,18 @@ export async function getLNAddressForLiquidPayment(
 
       if (!data.pr) {
         throw new Error('No invoice (pr) in response');
+      }
+
+      const decodedInvoice = decodeBolt11(data.pr);
+      const requestedMsats = sendingValue * 1000;
+
+      if (
+        !decodedInvoice.millisatoshis ||
+        decodedInvoice.millisatoshis != requestedMsats
+      ) {
+        throw new Error(
+          `Invoice amount (${decodedInvoice.millisatoshis} msat) does not match requested amount (${requestedMsats} msat)`,
+        );
       }
 
       invoiceAddress = data;

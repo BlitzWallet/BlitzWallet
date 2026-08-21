@@ -231,7 +231,6 @@ export async function executeSubmarineSwap(
   swapLimits,
   provider,
   signer,
-  sendWebViewRequest,
   accountId,
 ) {
   try {
@@ -254,7 +253,6 @@ export async function executeSubmarineSwap(
       paymentType: 'lightning',
       shouldNavigate: false,
       mnemoinc: signerMnemonic,
-      sendWebViewRequest,
       extraDetails: {
         isRootstockSwap: true,
         rootstockSwapStatus: 'swap.created',

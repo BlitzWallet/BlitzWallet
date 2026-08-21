@@ -164,152 +164,158 @@ export function GiftProvider({ children }) {
     [updateGiftList],
   );
 
-  const checkForRefunds = useCallback(async giftList => {
-    try {
-      if (isCheckingRefunds.current) return;
-      isCheckingRefunds.current = true;
-      const localGifts = await (giftList
-        ? Promise.resolve(giftList)
-        : getAllLocalGifts());
+  const checkForRefunds = useCallback(
+    async giftList => {
+      try {
+        if (isCheckingRefunds.current) return;
+        isCheckingRefunds.current = true;
+        const localGifts = await (giftList
+          ? Promise.resolve(giftList)
+          : getAllLocalGifts());
 
-      const giftArray = Object.values(localGifts);
-      const now = Date.now();
+        const giftArray = Object.values(localGifts);
+        const now = Date.now();
 
-      const expiredGifts = giftArray.filter(item => {
-        return item.state === 'Unclaimed' && now >= item.expireTime;
-      });
-      console.log(expiredGifts, 'expired gifts');
+        const expiredGifts = giftArray.filter(item => {
+          return item.state === 'Unclaimed' && now >= item.expireTime;
+        });
 
-      if (expiredGifts.length === 0) {
-        console.log('No expired gifts to check');
+        if (expiredGifts.length === 0) {
+          console.log('No expired gifts to check');
+          return;
+        }
+
+        console.log(`Checking ${expiredGifts.length} expired gifts...`);
+
+        const checkPromises = expiredGifts.map(card =>
+          handleGiftCheck(card.uuid)
+            .then(response => ({ card, response }))
+            .catch(error => {
+              console.error(`Error checking gift ${card.uuid}:`, error);
+              return { card, response: null };
+            }),
+        );
+
+        const results = await Promise.all(checkPromises);
+
+        // Batch database updates
+        const updatePromises = results
+          .filter(({ response }) => response?.didWork)
+          .map(async ({ card, response }) => {
+            try {
+              if (response.wasClaimed) {
+                await deleteGift(card.uuid);
+              }
+
+              await updateGiftLocal(card.uuid, {
+                state: response.wasClaimed ? 'Claimed' : 'Expired',
+              });
+
+              console.log(
+                `Updated gift ${card.uuid}:`,
+                response.wasClaimed ? 'Claimed' : 'Expired',
+              );
+            } catch (error) {
+              console.error(`Error updating gift ${card.uuid}:`, error);
+            }
+          });
+
+        await Promise.all(updatePromises);
+        await updateGiftList();
+        console.log(`Processed ${updatePromises.length} gift updates`);
+      } catch (err) {
+        console.log('error checking for gift refunds', err.message);
+      } finally {
+        isCheckingRefunds.current = false;
+      }
+    },
+    [updateGiftList],
+  );
+
+  const handleGiftRestoreOnDomeseday = useCallback(
+    async giftList => {
+      // If we have gifts that means we are not restoring and do not need to get gifts in database
+      if (giftList?.length) return;
+
+      const didCheckDBForGifts = JSON.parse(
+        await getLocalStorageItem('checkForOutstandingGifts'),
+      );
+
+      // We already checked for outstanding gifts and none exist so don't check again
+      if (didCheckDBForGifts) return;
+
+      const outstandingGifts = await reloadGiftsOnDomesday(
+        masterInfoObject.uuid,
+      );
+
+      // If no gifts exist, mark as checked and return
+      if (!outstandingGifts.length) {
+        await setLocalStorageItem(
+          'checkForOutstandingGifts',
+          JSON.stringify(true),
+        );
         return;
       }
 
-      console.log(`Checking ${expiredGifts.length} expired gifts...`);
+      const now = Date.now();
 
-      const checkPromises = expiredGifts.map(card =>
-        handleGiftCheck(card.uuid)
-          .then(response => ({ card, response }))
-          .catch(error => {
-            console.error(`Error checking gift ${card.uuid}:`, error);
-            return { card, response: null };
-          }),
-      );
+      // Process all gifts in parallel and wait for completion
+      const reconstructedGifts = await Promise.all(
+        outstandingGifts.map(async item => {
+          // Gift is expired
+          if (item.expireTime < now) {
+            await saveGiftLocal(item);
+            return item;
+          } else {
+            // Active gift - re-derive the seed to re-encrypt for sharing
+            let giftWalletMnemonic;
 
-      const results = await Promise.all(checkPromises);
-
-      // Batch database updates
-      const updatePromises = results
-        .filter(({ response }) => response?.didWork)
-        .map(async ({ card, response }) => {
-          console.log(card, response);
-          try {
-            if (response.wasClaimed) {
-              await deleteGift(card.uuid);
+            if (item.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
+              giftWalletMnemonic = await deriveSparkGiftMnemonic(
+                accountMnemoinc,
+                item.giftNum,
+              );
+            } else {
+              giftWalletMnemonic = await deriveKeyFromMnemonic(
+                accountMnemoinc,
+                item.giftNum,
+              );
             }
 
-            await updateGiftLocal(card.uuid, {
-              state: response.wasClaimed ? 'Claimed' : 'Expired',
-            });
-
-            console.log(
-              `Updated gift ${card.uuid}:`,
-              response.wasClaimed ? 'Claimed' : 'Expired',
+            // Update with new secret for sharing
+            const randomSecret = randomBytes(32);
+            const randomPubkey = getPublicKey(randomSecret);
+            const encryptedMnemonic = encriptMessage(
+              randomSecret,
+              randomPubkey,
+              giftWalletMnemonic.derivedMnemonic,
             );
-          } catch (error) {
-            console.error(`Error updating gift ${card.uuid}:`, error);
+            const urls = createGiftUrl(item.uuid, randomSecret);
+
+            const updatedGift = {
+              ...item,
+              claimURL: urls.webUrl,
+              encryptedText: encryptedMnemonic,
+            };
+
+            await Promise.all([
+              updateGiftInDatabase(updatedGift),
+              saveGiftLocal(updatedGift),
+            ]);
+
+            return updatedGift;
           }
-        });
+        }),
+      );
 
-      await Promise.all(updatePromises);
-      await updateGiftList();
-      console.log(`Processed ${updatePromises.length} gift updates`);
-    } catch (err) {
-      console.log('error checking for gift refunds', err.message);
-    } finally {
-      isCheckingRefunds.current = false;
-    }
-  }, [updateGiftList]);
-
-  const handleGiftRestoreOnDomeseday = useCallback(async giftList => {
-    // If we have gifts that means we are not restoring and do not need to get gifts in database
-    if (giftList?.length) return;
-
-    const didCheckDBForGifts = JSON.parse(
-      await getLocalStorageItem('checkForOutstandingGifts'),
-    );
-
-    // We already checked for outstanding gifts and none exist so don't check again
-    if (didCheckDBForGifts) return;
-
-    const outstandingGifts = await reloadGiftsOnDomesday(masterInfoObject.uuid);
-
-    // If no gifts exist, mark as checked and return
-    if (!outstandingGifts.length) {
+      dispatch({ type: 'BULK_ADD_GIFTS', payload: reconstructedGifts });
       await setLocalStorageItem(
         'checkForOutstandingGifts',
         JSON.stringify(true),
       );
-      return;
-    }
-
-    const now = Date.now();
-
-    // Process all gifts in parallel and wait for completion
-    const reconstructedGifts = await Promise.all(
-      outstandingGifts.map(async item => {
-        let giftWalletMnemonic;
-
-        if (item.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
-          giftWalletMnemonic = await deriveSparkGiftMnemonic(
-            accountMnemoinc,
-            item.giftNum,
-          );
-        } else {
-          giftWalletMnemonic = await deriveKeyFromMnemonic(
-            accountMnemoinc,
-            item.giftNum,
-          );
-        }
-
-        // Gift is expired - just add restore key
-        if (item.expireTime < now) {
-          const expiredGift = {
-            ...item,
-            restoreKey: giftWalletMnemonic.derivedMnemonic,
-          };
-          await saveGiftLocal(expiredGift);
-          return expiredGift;
-        } else {
-          // Active gift - update with new secret for sharing
-          const randomSecret = randomBytes(32);
-          const randomPubkey = getPublicKey(randomSecret);
-          const encryptedMnemonic = encriptMessage(
-            randomSecret,
-            randomPubkey,
-            giftWalletMnemonic.derivedMnemonic,
-          );
-          const urls = createGiftUrl(item.uuid, randomSecret);
-
-          const updatedGift = {
-            ...item,
-            claimURL: urls.webUrl,
-            encryptedText: encryptedMnemonic,
-          };
-
-          await Promise.all([
-            updateGiftInDatabase(updatedGift),
-            saveGiftLocal(updatedGift),
-          ]);
-
-          return updatedGift;
-        }
-      }),
-    );
-
-    dispatch({ type: 'BULK_ADD_GIFTS', payload: reconstructedGifts });
-    await setLocalStorageItem('checkForOutstandingGifts', JSON.stringify(true));
-  }, [accountMnemoinc, masterInfoObject.uuid]);
+    },
+    [accountMnemoinc, masterInfoObject.uuid],
+  );
 
   useEffect(() => {
     if (!didGetToHomepage) return;

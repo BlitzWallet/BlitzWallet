@@ -86,7 +86,6 @@ export default function ConfirmPinForLoginMode() {
     const filteredPin = pinSettings.enteredPin.filter(Boolean);
     const savedPin = pinSettings.savedPin.filter(Boolean);
 
-    console.log(filteredPin, savedPin);
     if (savedPin.length !== 4 && filteredPin.length === 4) {
       // here we need to switch fildterd pin to saved pin and clear filteerd poin
       setPinSettings({

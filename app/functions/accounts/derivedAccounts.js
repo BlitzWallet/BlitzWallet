@@ -1,5 +1,8 @@
 import { MAX_DERIVED_ACCOUNTS } from '../../constants';
-import { deriveSparkGiftMnemonic } from '../gift/deriveGiftWallet';
+import {
+  deriveSparkGiftMnemonic,
+  deriveSparkIdentityKey,
+} from '../gift/deriveGiftWallet';
 
 /**
  * Derive account mnemonic from main seed using Spark derivation scheme
@@ -32,6 +35,22 @@ export async function deriveAccountMnemonic(mainSeed, derivationIndex) {
     throw new Error(result.error || 'Failed to derive account');
   }
   return result.derivedMnemonic;
+}
+
+/**
+ * Deterministic account id: the first 16 hex characters of the account's
+ * Spark identity pubkey. Random ids (customUUID) change every time a seed is
+ * restored on a new device, which breaks accountsLnurl registry matching;
+ * this id is stable for the life of the wallet.
+ * @param {string} accountMnemonic - The account's mnemonic
+ * @returns {Promise<string>} 16-char hex id
+ */
+export async function generateAccountUuid(accountMnemonic) {
+  const identity = await deriveSparkIdentityKey(accountMnemonic, 1);
+  if (!identity.success || !identity.publicKeyHex) {
+    throw new Error(identity.error || 'Failed to derive account id');
+  }
+  return identity.publicKeyHex.slice(0, 16).toLowerCase();
 }
 
 /**
@@ -74,7 +93,13 @@ export function getRestorableIndices(
   nextAccountDerivationIndex,
 ) {
   try {
-    const maxIndex = nextAccountDerivationIndex || 3;
+    // Clamp to the account derivation range (0..MAX_DERIVED_ACCOUNTS-1).
+    // Indices >= MAX_DERIVED_ACCOUNTS belong to the gift wallet range and can
+    // never be restored as accounts, so they must never be enumerated here.
+    const maxIndex = Math.min(
+      Math.max(3, Math.floor(Number(nextAccountDerivationIndex) || 3)),
+      MAX_DERIVED_ACCOUNTS - 1,
+    );
     const existingIndices = new Set(
       custodyAccounts
         .filter(acc => acc.accountType === 'derived')

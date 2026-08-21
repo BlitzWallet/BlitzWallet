@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -66,26 +73,32 @@ export const DropdownProvider = ({ children }) => {
     }
   }, [dropdownState.isOpen, dropdownHeight]);
 
-  const openDropdown = (buttonLayout, options, onSelect, config = {}) => {
-    // setDropdownHeight(0); // Reset height when opening
-    setDropdownState({
-      isOpen: true,
-      options,
-      buttonLayout,
-      onSelect,
-      config,
-    });
-  };
-  const closeDropdownState = () => {
-    setDropdownState(prev => ({ ...prev, isOpen: false }));
-  };
+  const openDropdown = useCallback(
+    (buttonLayout, options, onSelect, config = {}) => {
+      // setDropdownHeight(0); // Reset height when opening
+      setDropdownState({
+        isOpen: true,
+        options,
+        buttonLayout,
+        onSelect,
+        config,
+      });
+    },
+    [],
+  );
 
-  const closeDropdown = () => {
+  const closeDropdownState = useCallback(() => {
+    setDropdownState(prev => ({ ...prev, isOpen: false }));
+  }, []);
+
+  const closeDropdown = useCallback(() => {
     animatedHeight.value = withTiming(0, { duration: 180 }, () => {
       scheduleOnRN(closeDropdownState);
     });
-  };
+  }, []);
 
+  // Internal-only handler (used in the overlay JSX which re-renders with fresh
+  // dropdownState anyway) — must NOT be memoized or it captures a stale onSelect.
   const handleSelect = item => {
     if (dropdownState.onSelect) dropdownState.onSelect(item);
     closeDropdown();
@@ -99,16 +112,7 @@ export const DropdownProvider = ({ children }) => {
       formattedDropdownHeight +
       80 >
       screenHeight;
-  console.log(
-    screenHeight,
-    dropdownState.buttonLayout,
-    formattedDropdownHeight,
-    dropdownState.buttonLayout &&
-      dropdownState.buttonLayout.y +
-        dropdownState.buttonLayout.height +
-        formattedDropdownHeight +
-        80,
-  );
+
   const {
     showFlag = true,
     translateLabelText = true,
@@ -128,10 +132,15 @@ export const DropdownProvider = ({ children }) => {
     };
   });
 
+  // Only expose the stable callbacks. dropdownState stays local so state
+  // changes (open/close/measure) don't re-render every consumer downstream.
+  const contextValue = useMemo(
+    () => ({ openDropdown, closeDropdown }),
+    [openDropdown, closeDropdown],
+  );
+
   return (
-    <DropdownContext.Provider
-      value={{ openDropdown, closeDropdown, dropdownState }}
-    >
+    <DropdownContext.Provider value={contextValue}>
       {children}
 
       {dropdownState.isOpen && (

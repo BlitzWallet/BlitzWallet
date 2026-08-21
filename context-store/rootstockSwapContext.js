@@ -30,7 +30,6 @@ import {
 import { FallbackProvider, JsonRpcProvider, Wallet } from 'ethers';
 import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
 import { useSparkWallet } from './sparkContext';
-import { useWebView } from './webViewContext';
 import { useAuthContext } from './authContext';
 
 export const RootstockSwapContext = createContext();
@@ -43,7 +42,6 @@ const isRootstockSwapMonitored = swap =>
   isRootstockSwapActive(swap) || isRootstockSwapPendingRefund(swap);
 
 export const RootstockSwapProvider = ({ children }) => {
-  const { sendWebViewRequest } = useWebView();
   const { authResetkey } = useAuthContext();
   const { sparkInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
@@ -138,9 +136,10 @@ export const RootstockSwapProvider = ({ children }) => {
       : new FallbackProvider(providers, network, { quorum: 1 });
   }, []);
 
-  const createSigner = useCallback(() => {
+  const createSigner = useCallback(async () => {
     try {
       console.log('PROCESSS WALLET', new Date().getTime());
+
       const wallet = Wallet.fromPhrase(accountMnemoinc);
 
       console.log('PROCESSS WALLET 2', new Date().getTime());
@@ -251,7 +250,6 @@ export const RootstockSwapProvider = ({ children }) => {
           minMaxLiquidSwapAmounts,
           provider,
           signer,
-          sendWebViewRequest,
           sparkInformation.identityPubKey,
         );
         return swap ? [swap] : [];

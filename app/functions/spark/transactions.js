@@ -1,8 +1,11 @@
 import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
-import { openDatabaseAsync } from 'expo-sqlite';
+import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
 import { USDB_TOKEN_ID } from '../../constants';
-import { createSpendAndReplaceTable } from './spendAndReplaceStorage';
+import {
+  createSpendAndReplaceTable,
+  SPEND_AND_REPLACE_TABLE,
+} from './spendAndReplaceStorage';
 import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
@@ -18,33 +21,15 @@ export const flashnetAutoSwapsEventListener = new EventEmitter();
 let bulkUpdateTransactionQueue = [];
 let isProcessingBulkUpdate = false;
 
-let sqlLiteDB;
-let isInitialized = false;
-let initPromise = null;
+// Schema is created separately by initializeSparkDatabase(); no setup here.
+const sparkTxDB = createSelfHealingDatabase({
+  name: `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
+});
+const sqlLiteDB = sparkTxDB.db;
 
-async function openDBConnection() {
-  if (!initPromise) {
-    initPromise = (async () => {
-      sqlLiteDB = await openDatabaseAsync(
-        `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
-      );
-      isInitialized = true;
-      return sqlLiteDB;
-    })();
-  }
-  return initPromise;
-}
+export const isSparkTxDatabaseOpen = () => sparkTxDB.isOpen();
 
-export const isSparkTxDatabaseOpen = () => {
-  return isInitialized;
-};
-
-export const ensureSparkDatabaseReady = async () => {
-  if (!isInitialized) {
-    await openDBConnection();
-  }
-  return sqlLiteDB;
-};
+export const ensureSparkDatabaseReady = () => sparkTxDB.ensureReady();
 
 const isConcretePaymentType = paymentType =>
   Boolean(paymentType) && paymentType !== 'unknown';
@@ -365,6 +350,42 @@ export const hasPaidSparkLightningInvoice = async invoiceAddress => {
   }
 };
 
+export const getBitcoinPaymentsByTxid = async accountId => {
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedAccountId) return new Map();
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const payments = await sqlLiteDB.getAllAsync(
+      `SELECT *
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+       AND paymentType = 'bitcoin'
+       AND json_valid(details)
+       AND TRIM(json_extract(details, '$.onChainTxid')) != ''`,
+      [normalizedAccountId],
+    );
+
+    const byTxid = new Map();
+    for (const payment of payments) {
+      try {
+        const paymentDetails = JSON.parse(payment.details);
+        if (paymentDetails.onChainTxid)
+          byTxid.set(paymentDetails.onChainTxid, payment);
+      } catch (error) {
+        // skip rows with unparseable details
+      }
+    }
+    return byTxid;
+  } catch (error) {
+    console.error('Error fetching bitcoin payments by txid:', error);
+    return new Map();
+  }
+};
+
 export const getSparkTransactionBySparkId = async (sparkID, accountId) => {
   const normalizedSparkID = typeof sparkID === 'string' ? sparkID.trim() : '';
   const normalizedAccountId =
@@ -454,8 +475,12 @@ const EXCLUDE_SAVINGS_TRANSFER_SQL = `
  * @returns {{ query: string, params: Array }}
  */
 export function buildFilterQuery(filters, accountId, now = Date.now()) {
-  const { directions = [], dateRange = null, types = [], searchTerm = '' } =
-    filters;
+  const {
+    directions = [],
+    dateRange = null,
+    types = [],
+    searchTerm = '',
+  } = filters;
   const conditions = [`accountId = ?`];
   const params = [String(accountId)];
 
@@ -517,8 +542,12 @@ export function buildFilterQuery(filters, accountId, now = Date.now()) {
  */
 export const getFilteredTransactions = async (filters, options = {}) => {
   const { accountId } = options;
-  const { directions = [], dateRange = null, types = [], searchTerm = '' } =
-    filters;
+  const {
+    directions = [],
+    dateRange = null,
+    types = [],
+    searchTerm = '',
+  } = filters;
   const hasActiveFilters =
     directions.length > 0 ||
     dateRange !== null ||
@@ -697,10 +726,10 @@ export const getAllPendingSparkPayments = async accountId => {
     }
 
     const result = await sqlLiteDB.getAllAsync(query.trim(), params);
-    return result || [];
+    return { didWork: true, response: result || [] };
   } catch (error) {
     console.error('Error fetching pending spark payments:', error);
-    return [];
+    return { didWork: false, response: [] };
   }
 };
 
@@ -1546,6 +1575,20 @@ export const deleteUnpaidSparkLightningTransactionTable = async () => {
     return true;
   } catch (error) {
     console.error('Error deleting spark_transactions table:', error);
+    return false;
+  }
+};
+
+// Drops the spend-and-replace intent table (same shared Spark db file as the
+// transaction tables). Recreated empty by initializeSparkDatabase. Returns
+// true/false.
+export const deleteSpendAndReplaceTable = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    await sqlLiteDB.runAsync(`DROP TABLE IF EXISTS ${SPEND_AND_REPLACE_TABLE}`);
+    return true;
+  } catch (error) {
+    console.error('Error deleting spend and replace table:', error);
     return false;
   }
 };

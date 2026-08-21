@@ -35,11 +35,6 @@ import {
   satsToDollars,
   USD_ASSET_ADDRESS,
 } from './flashnet';
-import {
-  abortOptimization,
-  isOptimizationRunning,
-  scheduleOptimization,
-} from '../spark/optimization';
 import { setFlashnetTransfer } from './handleFlashnetTransferIds';
 import {
   addSingleUnpaidSparkLightningTransaction,
@@ -86,14 +81,6 @@ export const sparkPaymenWrapper = async ({
     const sendingUUID =
       contactInfo?.uuid || paymentInfo?.blitzContactInfo?.uuid || '';
 
-    if (!getFee && (await isOptimizationRunning(mnemonic))) {
-      console.log(
-        'Optimization in progress, aborting immediately for payment...',
-      );
-      await abortOptimization(mnemonic);
-      // Small delay to ensure abort completes
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
     // if (!sparkWallet[sha256Hash(mnemonic)])
     //   throw new Error('sparkWallet not initialized');
     const supportFee = 0;
@@ -460,13 +447,11 @@ export const sparkPaymenWrapper = async ({
 
       let sparkPayResponse;
       let useLRC20Format = false;
-      const maxAttempts = isSwap ? 3 : 1;
 
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        if (attempt > 0) {
-          await new Promise(res => setTimeout(res, 3500));
-        }
-
+      // Single-attempt dispatch (plan §3.1.2): KEEP-GUARD funds ops never
+      // auto-retry. A lost-but-executed response must not re-send the payment —
+      // the intent store + foreground reconcile own the retry decision.
+      {
         if (expectedReceiveType === 'tokens' && seletctedToken === 'Bitcoin') {
           const originalSendAmount =
             satsToDollars(amountSats, poolInfoRef.currentPriceAInB).toFixed(3) *
@@ -506,9 +491,7 @@ export const sparkPaymenWrapper = async ({
           });
         }
 
-        if (sparkPayResponse.didWork) break;
-
-        if (attempt === maxAttempts - 1) {
+        if (!sparkPayResponse.didWork) {
           throw new Error(
             sparkPayResponse.error || 'Error when sending spark payment',
           );
@@ -617,10 +600,6 @@ export const sparkPaymenWrapper = async ({
       await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
     }
 
-    if (!getFee) {
-      console.log('Scheduling post-payment optimization...');
-      scheduleOptimization(mnemonic, sparkInformation.identityPubKey, 2000);
-    }
     return {
       didWork: true,
       response,

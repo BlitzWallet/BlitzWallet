@@ -1,12 +1,17 @@
 import { ClusterManager } from './mapClustering';
 
-const CACHE = new Map(); // key → {manager, createdAt, pointsHash}
+const CACHE = new Map(); // key → {manager, createdAt, pointsKey}
 const MAX_ENTRIES = 3;
 
-function hashPoints(points) {
-  let h = points.length;
-  for (const p of points) h = (h * 31 + p.id) >>> 0;
-  return h;
+// Exact, collision-free fingerprint of a point set. A 32-bit rolling hash of
+// (length, id-sequence) collides for ids differing by 2^32, silently serving a
+// stale ClusterManager; and aux-provider ids are TEXT, which coerced to NaN and
+// disabled the cache. Comparing the id/coordinate sequence as a string is
+// unambiguous for both numeric and string ids and catches moves within a bucket.
+function pointsKey(points) {
+  return JSON.stringify(
+    points.map(p => [p.source || 'btcmap', p.id, p.lat, p.lon]),
+  );
 }
 
 function evictIfNeeded() {
@@ -27,9 +32,9 @@ export function clearBTCMapClusterCache() {
 }
 
 export function getOrBuildBTCMapClusterManager(cacheKey, points, options) {
-  const hash = hashPoints(points);
+  const key = pointsKey(points);
   const existing = CACHE.get(cacheKey);
-  if (existing && existing.pointsHash === hash && existing.manager.isLoaded()) {
+  if (existing && existing.pointsKey === key && existing.manager.isLoaded()) {
     return existing.manager;
   }
 
@@ -40,7 +45,7 @@ export function getOrBuildBTCMapClusterManager(cacheKey, points, options) {
   CACHE.set(cacheKey, {
     manager,
     createdAt: Date.now(),
-    pointsHash: hash,
+    pointsKey: key,
   });
 
   const duration = Date.now() - t0;

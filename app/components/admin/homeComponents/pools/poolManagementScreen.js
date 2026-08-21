@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     ...CENTER,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

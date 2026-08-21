@@ -34,6 +34,7 @@ import {
 } from '../app/functions/localStorage';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
+import { useAuthContext } from './authContext';
 import {
   computeGoalBalanceMicros,
   computeSavingsBalanceMicros,
@@ -116,6 +117,7 @@ const isLikelySameSavingsTransaction = (existingTx, sparkTx) => {
 export function SavingsProvider({ children }) {
   const { accountMnemoinc } = useKeysContext();
   const { didGetToHomepage } = useAppStatus();
+  const { authResetkey } = useAuthContext();
 
   const [goals, setGoals] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -126,6 +128,7 @@ export function SavingsProvider({ children }) {
   const [interestPayouts, setInterestPayouts] = useState([]);
   const hasDerivedWalletRef = useRef(false);
   const savingsWalletMnemonicRef = useRef(null);
+  const isInitialRender = useRef(true);
   const initPromiseRef = useRef(null);
   const hasInitializedRef = useRef(false);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -190,6 +193,16 @@ export function SavingsProvider({ children }) {
       return null;
     }
   }, [accountMnemoinc, savingsWallet]);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    savingsWalletMnemonicRef.current = null;
+    hasDerivedWalletRef.current = false;
+  }, [authResetkey]);
 
   const loadSavingsState = useCallback(async () => {
     try {
@@ -523,8 +536,9 @@ export function SavingsProvider({ children }) {
         const bitcoinTxs = (pastBitcoinTxs?.transfers ?? [])
           .filter(
             transfer =>
-              Buffer.from(transfer.senderIdentityPublicKey).toString('hex') ===
-              activeWallet.identityPublicKeyHex,
+              Buffer.from(
+                Object.values(transfer.senderIdentityPublicKey),
+              ).toString('hex') === activeWallet.identityPublicKeyHex,
           )
           .map(tx => ({
             id: tx.id,

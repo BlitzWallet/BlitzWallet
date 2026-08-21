@@ -23,7 +23,10 @@ import { useKeysContext } from '../../../../context-store/keys';
 import {
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
+  isEncryptedMnemonicFormat,
 } from '../../../functions/handleMnemonic';
+import { validateMnemonic } from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -36,10 +39,12 @@ export default function PinPage() {
     needsToBeMigrated: null,
   });
   const [useRanomPinLayout, setUseRandomPinLayout] = useState(false);
-  const numRetriesBiometric = useRef(0);
   const { setAccountMnemonic } = useKeysContext();
   const { t } = useTranslation();
   const didNavigate = useRef(null);
+  // Block async Argon2 decrypt window from runing two checks that both fail and
+  // both increment the wrong-PIN count toward the factory reset.
+  const isCheckingPinRef = useRef(false);
 
   const navigate = useNavigation();
 
@@ -68,6 +73,30 @@ export default function PinPage() {
     ];
   }, [useRanomPinLayout, loginSettings.enteredPinCount]);
 
+  const handleWrongPin = useCallback(async () => {
+    if (loginSettings.enteredPinCount >= 7) {
+      const deleted = await factoryResetWallet();
+      if (deleted) {
+        clearSettings();
+        RNRestart.restart();
+      } else {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.deleteAccount'),
+        });
+      }
+    } else {
+      const next = loginSettings.enteredPinCount + 1;
+      setLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY, JSON.stringify(next));
+      setLoginSettings(prev => {
+        return {
+          ...prev,
+          enteredPinCount: next,
+          enteredPin: [null, null, null, null],
+        };
+      });
+    }
+  }, [loginSettings, navigate, t]);
+
   const handlePinCheck = useCallback(async () => {
     const filteredPin = loginSettings.enteredPin.filter(pin => {
       if (typeof pin === 'number') return true;
@@ -75,73 +104,85 @@ export default function PinPage() {
 
     if (filteredPin.length != 4) return;
     if (didNavigate.current) return;
-
-    let comparisonHash = '';
-    if (loginSettings.needsToBeMigrated) {
-      comparisonHash = sha256Hash(loginSettings.savedPin);
-    } else {
-      comparisonHash = loginSettings.savedPin;
-    }
-
     if (loginSettings.isBiometricEnabled) return;
-    if (
-      comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))
-    ) {
+    if (isCheckingPinRef.current) return;
+
+    isCheckingPinRef.current = true;
+    try {
       if (loginSettings.needsToBeMigrated) {
         const savedMnemonic = await retrieveData('encryptedMnemonic');
-        const migrationResponse = await handleLoginSecuritySwitch(
-          savedMnemonic.value,
-          loginSettings.enteredPin,
-          'pin',
-        );
-        if (migrationResponse) {
-          setAccountMnemonic(savedMnemonic.value);
-          didNavigate.current = true;
-          navigate.replace('ConnectingToNodeLoadingScreen', {
-            expectedMnemonicHash: sha256Hash(savedMnemonic.value),
-          });
-        } else
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('errormessages.failedToDecryptPin'),
-          });
-        return;
+        // Keychain glitch (value:false): count a wrong attempt rather than
+        // attempting a decrypt of a non-existent envelope.
+        if (!savedMnemonic.didWork) return handleWrongPin();
+        if (isEncryptedMnemonicFormat(savedMnemonic.value)) {
+          // Resume a crashed migration: an encrypted value (v2/v3/EvpKDF) was
+          // already written but the marker wasn't, so this install still looks
+          // needsToBeMigrated. Verify by decrypting — re-encrypting
+          // savedMnemonic here would double-encrypt the ciphertext and corrupt
+          // the wallet identity.
+          const mnemonicPlain = await decryptMnemonicWithPin(
+            JSON.stringify(loginSettings.enteredPin),
+          );
+          if (mnemonicPlain) {
+            setAccountMnemonic(mnemonicPlain);
+            didNavigate.current = true;
+            navigate.replace('ConnectingToNodeLoadingScreen', {
+              expectedMnemonicHash: sha256Hash(mnemonicPlain),
+            });
+            return;
+          }
+        } else if (
+          // savedMnemonic is still the plaintext seed and savedPin is the
+          // user's own raw plaintext PIN (very old plaintext-seed installs).
+          // The sha256 comparison is the ONLY authentication factor on this
+          // branch — validateMnemonic alone is always true for a valid seed —
+          // so it MUST stay: without it, anyone at the unlocked PIN screen
+          // types any 4 digits and the seed is re-encrypted under their PIN
+          // (wallet takeover). Comparing it is not an offline oracle — it is
+          // fixed the moment this login re-encrypts the seed to v3 below.
+          validateMnemonic(savedMnemonic.value, wordlist) &&
+          sha256Hash(loginSettings.savedPin) ===
+            sha256Hash(JSON.stringify(loginSettings.enteredPin))
+        ) {
+          const migrationResponse = await handleLoginSecuritySwitch(
+            savedMnemonic.value,
+            loginSettings.enteredPin,
+            'pin',
+          );
+          if (migrationResponse) {
+            setAccountMnemonic(savedMnemonic.value);
+            didNavigate.current = true;
+            navigate.replace('ConnectingToNodeLoadingScreen', {
+              expectedMnemonicHash: sha256Hash(savedMnemonic.value),
+            });
+          } else {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('errormessages.failedToDecryptPin'),
+            });
+          }
+          return;
+        }
       } else {
+        // Decrypt-to-verify: the Argon2+AES ciphertext is the PIN verifier. A
+        // non-null result is a correct PIN; no separate sha256 oracle exists.
         const mnemonicPlain = await decryptMnemonicWithPin(
           JSON.stringify(loginSettings.enteredPin),
         );
-        setAccountMnemonic(mnemonicPlain);
-
-        didNavigate.current = true;
-        navigate.replace('ConnectingToNodeLoadingScreen', {
-          expectedMnemonicHash: sha256Hash(mnemonicPlain),
-        });
-      }
-    } else {
-      if (loginSettings.enteredPinCount >= 7) {
-        const deleted = await factoryResetWallet();
-        if (deleted) {
-          clearSettings();
-          RNRestart.restart();
-        } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('errormessages.deleteAccount'),
+        if (mnemonicPlain) {
+          setAccountMnemonic(mnemonicPlain);
+          didNavigate.current = true;
+          navigate.replace('ConnectingToNodeLoadingScreen', {
+            expectedMnemonicHash: sha256Hash(mnemonicPlain),
           });
+          return;
         }
-      } else {
-        setLocalStorageItem(
-          PERSISTED_LOGIN_COUNT_KEY,
-          JSON.stringify(loginSettings.enteredPinCount + 1),
-        );
-        setLoginSettings(prev => {
-          return {
-            ...prev,
-            enteredPinCount: prev.enteredPinCount + 1,
-            enteredPin: [null, null, null, null],
-          };
-        });
       }
+
+      await handleWrongPin();
+    } finally {
+      isCheckingPinRef.current = false;
     }
-  }, [loginSettings, navigate]);
+  }, [loginSettings, navigate, handleWrongPin, t, setAccountMnemonic]);
 
   useEffect(() => {
     const filteredPin = loginSettings.enteredPin.filter(pin => {

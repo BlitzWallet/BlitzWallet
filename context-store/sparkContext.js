@@ -8,18 +8,23 @@ import {
   useCallback,
 } from 'react';
 import {
-  claimnSparkStaticDepositAddress,
+  attachWalletListeners,
   clearMnemonicCache,
   getSingleTxDetails,
   getSparkTransactions,
-  getSparkStaticBitcoinL1AddressQuote,
-  getUtxosForDepositAddress,
   initializeFlashnet,
   queryAllStaticDepositAddresses,
   selectSparkRuntime,
   sparkWallet,
   isOptimizationInProgress,
 } from '../app/functions/spark';
+import { clearEnrichedTxCache } from '../app/functions/spark/enrichedTxCache';
+import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
+import {
+  addPendingTransaction,
+  claimDepositUtxo,
+  fetchAllDepositUtxos,
+} from '../app/functions/spark/depositClaim';
 import {
   bulkUpdateSparkTransactions,
   insertSparkTransactionPlaceholders,
@@ -33,8 +38,10 @@ import {
 import { useAppStatus } from './appStatus';
 import {
   checkHodlInvoicePaymentStatuses,
+  fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
+import { hasPendingTxDrift } from '../app/functions/spark/pendingTxDrift';
 import { useGlobalContactsInfo } from './globalContacts';
 import { initWallet } from '../app/functions/initiateWalletConnection';
 // import { useNodeContext } from './nodeContext';
@@ -51,7 +58,6 @@ import EventEmitter from 'events';
 import { getLRC20Transactions } from '../app/functions/lrc20';
 import { useActiveCustodyAccount } from './activeAccount';
 import sha256Hash from '../app/functions/hash';
-import i18n from 'i18next';
 import {
   INCOMING_SPARK_TX_NAME,
   incomingSparkTransaction,
@@ -83,16 +89,11 @@ import {
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
 import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
-import {
-  cleanupOptimization,
-  checkIfOptimizationNeeded,
-  runLeafOptimization,
-  runTokenOptimization,
-} from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
 import { getCachedTokenImages } from '../app/functions/spark/tokenImageCache';
 import { useToastActions } from './toastManager';
+import { clearSharedSecretCache } from '../app/functions/messaging/encodingAndDecodingMessages';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -145,6 +146,11 @@ const BLOCKED_TOAST_ROUTE_NAMES = new Set([
   'StablecoinSendScreen', // stablecoinSendScreen.js
 ]);
 
+// Bounded read windows for homepage tx projection. Escalated only when a full
+// window still can't fill the display limit; the final fallback is the legacy
+// unbounded read.
+const TX_WINDOW_TIERS = [200, 800];
+
 function isOnSendScreen() {
   try {
     if (!navigationRef.isReady()) return false;
@@ -160,8 +166,8 @@ const SparkWalletManager = createContext(null);
 const SparkWalletProvider = ({ children }) => {
   const { authResetkey } = useAuthContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
-  const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
+  const { changeSparkConnectionState } = useWebView();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToastActions();
   const {
@@ -462,125 +468,122 @@ const SparkWalletProvider = ({ children }) => {
     };
   }, [toggleIsSendingPayment]);
 
-  const debouncedHandleIncomingPayment = useCallback(
-    async balance => {
-      if (pendingTransferIds.current.size === 0) return;
+  const debouncedHandleIncomingPayment = useCallback(async balance => {
+    if (pendingTransferIds.current.size === 0) return;
 
-      const transferIdsToProcess = Array.from(pendingTransferIds.current);
-      pendingTransferIds.current.clear();
+    const transferIdsToProcess = Array.from(pendingTransferIds.current);
+    pendingTransferIds.current.clear();
 
-      console.log(
-        'Processing debounced incoming payments:',
-        transferIdsToProcess,
+    console.log(
+      'Processing debounced incoming payments:',
+      transferIdsToProcess,
+    );
+
+    // ─── Step 1: Immediately write placeholders so the restore handler
+    //     sees these transfer IDs as already-present in SQLite and skips them.
+    const placeholders = transferIdsToProcess.map(transferId => ({
+      id: transferId,
+      paymentStatus: 'pending',
+      paymentType: 'unknown',
+      accountId: sparkInfoRef.current.identityPubKey,
+      details: {
+        createdTime: Date.now(),
+        isPlaceholder: true,
+        direction: 'INCOMING',
+      },
+    }));
+
+    try {
+      await insertSparkTransactionPlaceholders(placeholders);
+    } catch (error) {
+      console.error('Error writing placeholder transactions:', error);
+    }
+
+    // ─── Step 2: Fetch tx details in a SINGLE batched call (one WebView
+    //     message) instead of one round-trip per transfer.
+    let cachedTransfers = [];
+
+    try {
+      const idSet = new Set(transferIdsToProcess);
+      const { transfers = [] } = await getSparkTransactions(
+        Math.min(50, transferIdsToProcess.length),
+        undefined,
+        currentMnemonicRef.current,
+      );
+      cachedTransfers = transfers.filter(transfer => idSet.has(transfer.id));
+
+      // Fallback only for ids NOT in the batch window (e.g. an older transfer
+      // that settled while many newer transfers arrived in the same burst).
+      // Normal load hits zero of these, so the single-message goal holds; this
+      // just stops a dropped id from being stuck as a pending placeholder.
+      const foundIds = new Set(cachedTransfers.map(transfer => transfer.id));
+      const missingIds = transferIdsToProcess.filter(id => !foundIds.has(id));
+      for (const transferId of missingIds) {
+        const transfer = await getSingleTxDetails(
+          currentMnemonicRef.current,
+          transferId,
+        );
+        if (transfer) cachedTransfers.push(transfer);
+      }
+    } catch (error) {
+      console.error('Error fetching batched incoming payments:', error);
+    }
+
+    const paymentObjects = [];
+
+    const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
+      getAllUnpaidSparkLightningInvoices(),
+      getAllSparkContactInvoices(),
+    ]);
+
+    for (const transferId of transferIdsToProcess) {
+      const tx = cachedTransfers.find(t => t.id === transferId);
+      if (!tx) continue;
+
+      // Skip UTXO_SWAP handling here — old logic kept
+      if (tx.type === 'UTXO_SWAP') continue;
+
+      const paymentObj = await transformTxToPaymentObject(
+        tx,
+        sparkInfoRef.current.sparkAddress,
+        undefined,
+        false,
+        unpaidInvoices,
+        sparkInfoRef.current.identityPubKey,
+        1,
+        undefined,
+        unpaidContactInvoices,
+        currentMnemonicRef.current,
       );
 
-      // ─── Step 1: Immediately write placeholders so the restore handler
-      //     sees these transfer IDs as already-present in SQLite and skips them.
-      const placeholders = transferIdsToProcess.map(transferId => ({
-        id: transferId,
-        paymentStatus: 'pending',
-        paymentType: 'unknown',
-        accountId: sparkInfoRef.current.identityPubKey,
-        details: {
-          createdTime: Date.now(),
-          isPlaceholder: true,
-          direction: 'INCOMING',
-        },
-      }));
-
-      try {
-        await insertSparkTransactionPlaceholders(placeholders);
-      } catch (error) {
-        console.error('Error writing placeholder transactions:', error);
+      if (paymentObj) {
+        paymentObjects.push(paymentObj);
       }
+    }
 
-      // ─── Step 2: Fetch tx details in a SINGLE batched call (one WebView
-      //     message) instead of one round-trip per transfer.
-      let cachedTransfers = [];
+    if (!paymentObjects.length) {
+      // Authoritative claim balance; apply upward-only (a claim never reduces
+      // available) and coerce — the webview path delivers it as a string.
+      const claimedBalance = Number(balance);
+      setSparkInformation(prev =>
+        Number.isFinite(claimedBalance) && claimedBalance > prev.balance
+          ? { ...prev, balance: claimedBalance }
+          : prev,
+      );
+      return;
+    }
 
-      try {
-        const idSet = new Set(transferIdsToProcess);
-        const { transfers = [] } = await getSparkTransactions(
-          Math.max(50, transferIdsToProcess.length),
-          undefined,
-          currentMnemonicRef.current,
-        );
-        cachedTransfers = transfers.filter(transfer => idSet.has(transfer.id));
-
-        // Fallback only for ids NOT in the batch window (e.g. an older transfer
-        // that settled while many newer transfers arrived in the same burst).
-        // Normal load hits zero of these, so the single-message goal holds; this
-        // just stops a dropped id from being stuck as a pending placeholder.
-        const foundIds = new Set(cachedTransfers.map(transfer => transfer.id));
-        const missingIds = transferIdsToProcess.filter(id => !foundIds.has(id));
-        for (const transferId of missingIds) {
-          const transfer = await getSingleTxDetails(
-            currentMnemonicRef.current,
-            transferId,
-          );
-          if (transfer) cachedTransfers.push(transfer);
-        }
-      } catch (error) {
-        console.error('Error fetching batched incoming payments:', error);
-      }
-
-      const paymentObjects = [];
-
-      const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
-        getAllUnpaidSparkLightningInvoices(),
-        getAllSparkContactInvoices(),
-      ]);
-
-      for (const transferId of transferIdsToProcess) {
-        const tx = cachedTransfers.find(t => t.id === transferId);
-        if (!tx) continue;
-
-        // Skip UTXO_SWAP handling here — old logic kept
-        if (tx.type === 'UTXO_SWAP') continue;
-
-        const paymentObj = await transformTxToPaymentObject(
-          tx,
-          sparkInfoRef.current.sparkAddress,
-          undefined,
-          false,
-          unpaidInvoices,
-          sparkInfoRef.current.identityPubKey,
-          1,
-          undefined,
-          unpaidContactInvoices,
-          currentMnemonicRef.current,
-        );
-
-        if (paymentObj) {
-          paymentObjects.push(paymentObj);
-        }
-      }
-
-      if (!paymentObjects.length) {
-        // Authoritative claim balance; apply upward-only (a claim never reduces
-        // available) and coerce — the webview path delivers it as a string.
-        const claimedBalance = Number(balance);
-        setSparkInformation(prev =>
-          Number.isFinite(claimedBalance) && claimedBalance > prev.balance
-            ? { ...prev, balance: claimedBalance }
-            : prev,
-        );
-        return;
-      }
-
-      try {
-        await bulkUpdateSparkTransactions(
-          paymentObjects,
-          isSendingPaymentRef.current ? 'transactions' : 'incomingPayment',
-          0,
-          balance,
-        );
-      } catch (error) {
-        console.error('bulkUpdateSparkTransactions failed:', error);
-      }
-    },
-    [sendWebViewRequest],
-  );
+    try {
+      await bulkUpdateSparkTransactions(
+        paymentObjects,
+        isSendingPaymentRef.current ? 'transactions' : 'incomingPayment',
+        0,
+        balance,
+      );
+    } catch (error) {
+      console.error('bulkUpdateSparkTransactions failed:', error);
+    }
+  }, []);
 
   const filterAndSetTransactions = useCallback(
     freshTxs => {
@@ -598,45 +601,123 @@ const SparkWalletProvider = ({ children }) => {
     [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
   );
 
-  const updateHomepageScrollPosition = useCallback(
-    async pos => {
-      scrollPositionRef.current = pos;
+  // Tiered homepage projection. Tier 0 filters the newest ~50 rows — from
+  // the in-memory window for pure UI changes (pager swipes: zero I/O, last
+  // call wins by ordering), or re-read from SQLite when callers know rows
+  // were written since the window was captured (`refreshFromDb` — tx
+  // events), since the window alone cannot see new payments. Bounded reads
+  // escalate only while a FULL window suggests deeper rows may still match,
+  // so sparse histories (e.g. few USD txs deep in the table) stay correct
+  // without defaulting to full scans. Nothing is committed until a tier
+  // fills the display limit or the table is provably exhausted — the UI
+  // keeps showing the previous list rather than flashing an incomplete one,
+  // matching the original single-commit behavior. When `scrollPosition` is
+  // provided, async work aborts if the user swiped again mid-flight.
+  // Returns the raw rows behind the commit (null if superseded).
+  const projectHomepageTxs = useCallback(
+    async ({
+      limitNeeded,
+      scrollPosition = null,
+      smallPaymentOverrides = null,
+      refreshFromDb = false,
+    }) => {
+      const { identityPubKey } = sparkInfoRef.current;
+      if (!identityPubKey) return null;
+
+      const hasScrollGuard = scrollPosition !== null;
+      const isStale = () =>
+        hasScrollGuard && scrollPositionRef.current !== scrollPosition;
+
+      const runFilter = txs =>
+        filterDisplayableTransactions({
+          transactions: txs,
+          scrollPosition: scrollPosition ?? scrollPositionRef.current,
+          enabledLRC20: showTokensInformation,
+          tokens: sparkInfoRef.current.tokens,
+          limit: limitNeeded,
+          hideSmallPaymentsHomepage:
+            smallPaymentOverrides ?? hideSmallPaymentsHomepage,
+        });
+
+      const commit = filtered =>
+        setSparkInformation(prev => ({ ...prev, transactions: filtered }));
+
+      let searchPool = sparkInfoRef.current.transactions;
+
+      if (refreshFromDb) {
+        if (isStale()) return null;
+        searchPool = await getAllSparkTransactions({
+          limit: 50,
+          accountId: identityPubKey,
+        });
+        if (isStale()) return null;
+        sparkInfoRef.current.transactions = searchPool.slice(0, 50);
+        if (!searchPool.length) {
+          commit([]);
+          return searchPool;
+        }
+      }
+
+      if (searchPool.length) {
+        const filtered = runFilter(searchPool);
+        const tableExhausted = refreshFromDb && searchPool.length < 50;
+        if (filtered.length >= limitNeeded || tableExhausted) {
+          commit(filtered);
+          return searchPool;
+        }
+      }
+
+      for (const windowSize of TX_WINDOW_TIERS) {
+        if (isStale()) return null;
+        const rows = await getAllSparkTransactions({
+          limit: windowSize,
+          accountId: identityPubKey,
+        });
+        if (isStale()) return null;
+        sparkInfoRef.current.transactions = rows.slice(0, 50);
+        const filtered = runFilter(rows);
+        if (filtered.length >= limitNeeded || rows.length < windowSize) {
+          commit(filtered);
+          return rows;
+        }
+      }
+
+      if (isStale()) return null;
       const allTxs = await getAllSparkTransactions({
         limit: null,
-        accountId: sparkInfoRef.current.identityPubKey,
+        accountId: identityPubKey,
       });
-      const filtered = filterDisplayableTransactions({
-        transactions: allTxs,
-        scrollPosition: pos,
-        enabledLRC20: showTokensInformation,
-        tokens: sparkInfoRef.current.tokens,
-        limit: homepageTxPreferance,
-        hideSmallPaymentsHomepage,
-      });
-      if (scrollPositionRef.current !== pos) return;
-      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
+      if (isStale()) return null;
+      sparkInfoRef.current.transactions = allTxs.slice(0, 50);
+      const filtered = runFilter(allTxs);
+      commit(filtered);
+      return allTxs;
     },
     [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
   );
 
+  const updateHomepageScrollPosition = useCallback(
+    async pos => {
+      scrollPositionRef.current = pos;
+      // Skip while the key is unset (init) so we don't clobber a list another
+      // path populated.
+      if (!sparkInfoRef.current.identityPubKey) return;
+      await projectHomepageTxs({
+        limitNeeded: homepageTxPreferance,
+        scrollPosition: pos,
+      });
+    },
+    [projectHomepageTxs, homepageTxPreferance],
+  );
+
   const updateHomepageTxPreferance = useCallback(
     async (num, smallPaymentOverrides) => {
-      const allTxs = await getAllSparkTransactions({
-        limit: null,
-        accountId: sparkInfoRef.current.identityPubKey,
+      await projectHomepageTxs({
+        limitNeeded: num,
+        smallPaymentOverrides,
       });
-      const filtered = filterDisplayableTransactions({
-        transactions: allTxs,
-        scrollPosition: scrollPositionRef.current,
-        enabledLRC20: showTokensInformation,
-        tokens: sparkInfoRef.current.tokens,
-        limit: num,
-        hideSmallPaymentsHomepage:
-          smallPaymentOverrides ?? hideSmallPaymentsHomepage,
-      });
-      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
-    [showTokensInformation, hideSmallPaymentsHomepage],
+    [projectHomepageTxs],
   );
 
   const enqueueTxLane = useCallback((updateType, task) => {
@@ -705,7 +786,6 @@ const SparkWalletProvider = ({ children }) => {
           const { updated } = await updateSparkTxStatus(
             currentMnemonicRef.current,
             sparkInfoRef.current.identityPubKey,
-            sendWebViewRequest,
             true,
             contactsPrivateKey,
             publicKey,
@@ -856,12 +936,10 @@ const SparkWalletProvider = ({ children }) => {
         return;
       }
 
-      const txs = await getAllSparkTransactions({
-        limit: null,
-        accountId: identityPubKey,
+      const txs = await projectHomepageTxs({
+        limitNeeded: homepageTxPreferance,
+        refreshFromDb: true,
       });
-
-      filterAndSetTransactions(txs);
 
       enqueueUiLane(event.updateType, () =>
         maybeHandleConfirmNavigation(
@@ -871,7 +949,12 @@ const SparkWalletProvider = ({ children }) => {
         ),
       );
     },
-    [enqueueUiLane, maybeHandleConfirmNavigation, filterAndSetTransactions],
+    [
+      enqueueUiLane,
+      maybeHandleConfirmNavigation,
+      projectHomepageTxs,
+      homepageTxPreferance,
+    ],
   );
 
   // Applies the most recent balance:update value immediately, cancelling the
@@ -906,6 +989,12 @@ const SparkWalletProvider = ({ children }) => {
       );
 
       reconcileLeaves();
+      fullRestoreSparkState({
+        sparkAddress: sparkInfoRef.current.sparkAddress,
+        isSendingPayment: isSendingPaymentRef.current,
+        mnemonic: currentMnemonicRef.current,
+        identityPubKey: sparkInfoRef.current.identityPubKey,
+      });
 
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;
@@ -1533,16 +1622,19 @@ const SparkWalletProvider = ({ children }) => {
 
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
-    if (AppState.currentState !== 'active') return;
+    if (AppState.currentState !== 'active') return false;
 
     const walletHash = sha256Hash(currentMnemonicRef.current);
 
     if (listenerLock.get(walletHash)) {
       console.log('addListeners already running for this wallet, skippingdh');
-      return;
+      // Another run owns the attach — don't report it as a failure.
+      return true;
     }
 
     listenerLock.set(walletHash, true);
+
+    let attached = false;
 
     try {
       const runtime = await selectSparkRuntime(currentMnemonicRef.current);
@@ -1594,10 +1686,13 @@ const SparkWalletProvider = ({ children }) => {
               );
             }
           }
+          attached = !!nativeWallet;
         } else {
-          await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
-            mnemonic: currentMnemonicRef.current,
-          });
+          const mnemonic = currentMnemonicRef.current;
+          attached = await attachWalletListeners(
+            mnemonic,
+            () => mnemonic !== currentMnemonicRef.current,
+          );
         }
         // Single restore path for every connect (initial + subsequent). The
         // poller writes txs via bulkUpdateSparkTransactions, whose SPARK_TX
@@ -1617,7 +1712,6 @@ const SparkWalletProvider = ({ children }) => {
             console.log('RESTORE COMPLETE');
           },
           sparkInfoRef.current,
-          sendWebViewRequest,
         );
 
         restorePoller.start();
@@ -1625,7 +1719,6 @@ const SparkWalletProvider = ({ children }) => {
         updateSparkTxStatus(
           currentMnemonicRef.current,
           sparkInfoRef.current.identityPubKey,
-          sendWebViewRequest,
           false,
           contactsPrivateKey,
           publicKey,
@@ -1673,26 +1766,27 @@ const SparkWalletProvider = ({ children }) => {
             const response = await updateSparkTxStatus(
               currentMnemonicRef.current,
               sparkInfoRef.current.identityPubKey,
-              sendWebViewRequest,
               false,
               contactsPrivateKey,
               publicKey,
             );
 
-            if (response.shouldCheck) {
-              // No pending txs listed
-              const txs = sparkInfoRef.current.transactions;
-              // if we find a pending tx that means the db and spark state are unaligned
-              const isStateUnalighed = txs?.find(
-                tx => tx.paymentStatus === 'pending',
+            // Reconcile every tick, not only when shouldCheck: if a memory row
+            // still reads "pending" but the DB no longer lists it as pending, a
+            // SPARK_TX_UPDATE event was lost — re-project from the DB. Only when
+            // the DB read succeeded (pendingIds present); a lock-skip/error path
+            // omits it and we leave the projection untouched.
+            if (
+              Array.isArray(response.pendingIds) &&
+              hasPendingTxDrift(
+                sparkInfoRef.current.transactions,
+                response.pendingIds,
+              )
+            ) {
+              sparkTransactionsEventEmitter.emit(
+                SPARK_TX_UPDATE_ENVENT_NAME,
+                'transactions',
               );
-              if (isStateUnalighed) {
-                // send message to update the state with the correct txs
-                sparkTransactionsEventEmitter.emit(
-                  SPARK_TX_UPDATE_ENVENT_NAME,
-                  'transactions',
-                );
-              }
             }
 
             // await checkHodlInvoicePaymentStatuses(
@@ -1714,6 +1808,8 @@ const SparkWalletProvider = ({ children }) => {
       listenerLock.set(walletHash, false);
       console.log('Lock released for wallet:', walletHash);
     }
+
+    return attached;
   };
 
   const removeListeners = async (onlyClearIntervals = false) => {
@@ -1752,9 +1848,14 @@ const SparkWalletProvider = ({ children }) => {
           }
         }
       } else {
-        await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
-          mnemonic: prevAccountMnemoincRef.current,
-        });
+        const response = await sendWebViewRequestGlobal(
+          OPERATION_TYPES.removeListeners,
+          { mnemonic: prevAccountMnemoincRef.current },
+        );
+        // Benign: handlers are walletId-guarded and re-adding is idempotent.
+        if (!response?.didWork) {
+          console.log('removeWalletEventListener failed', response?.error);
+        }
       }
       prevAccountMnemoincRef.current = currentMnemonicRef.current;
     }
@@ -1809,6 +1910,9 @@ const SparkWalletProvider = ({ children }) => {
       await removeListeners(true);
       if (shouldClearMnemonicCache) {
         clearMnemonicCache();
+        clearSharedSecretCache();
+        disposeWalletViewer();
+        clearEnrichedTxCache();
       }
       prevAccountMnemoincRef.current = null;
       isRunningAddListeners.current = false;
@@ -1826,6 +1930,7 @@ const SparkWalletProvider = ({ children }) => {
         didConnect: false,
       };
       handledTransfers.current = new Set();
+      handledNavigatedTxs.current.clear();
       streamWasDisconnectedRef.current = false;
       prevListenerType.current = null;
       prevAppState.current = 'active';
@@ -1864,6 +1969,9 @@ const SparkWalletProvider = ({ children }) => {
       if (!internalRefresh) {
         setDidRunNormalConnection(false);
         setNormalConnectionTimeout(false);
+        currentMnemonicRef.current = null;
+        mainWalletHashRef.current = null;
+        setTokensImageCache({});
       }
     },
     [],
@@ -1922,9 +2030,42 @@ const SparkWalletProvider = ({ children }) => {
         appState === 'active'
       ) {
         await removeListeners(false);
-        if (newType) await addListeners(newType);
-        prevListenerType.current = newType;
+        // Leave prevListenerType null if the attach failed so the next
+        // foreground/account change re-attempts instead of assuming listeners
+        // are live.
+        const attached = newType ? await addListeners(newType) : true;
+        prevListenerType.current = attached ? newType : null;
         prevAccountId.current = sparkInfoRef.current.identityPubKey;
+      }
+
+      // Reconcile pending txs on every foreground transition, independent of the
+      // addListeners re-arm above — if that bailed (AppState race / listener
+      // lock) the 10s interval never gets recreated, and this is the only thing
+      // that then completes a stuck send without a full app restart. The
+      // single-flight latch dedupes the double-call on a successful re-arm.
+      if (appState === 'active' && prevAppState.current !== 'active') {
+        const response = await updateSparkTxStatus(
+          currentMnemonicRef.current,
+          sparkInfoRef.current.identityPubKey,
+          false,
+          contactsPrivateKeyRef.current,
+          contactsPublicKeyRef.current,
+        );
+        // Same drift backstop as the 10s interval: foregrounding recovers a
+        // stuck send without a full app restart even if the interval never
+        // re-armed (AppState race / listener lock).
+        if (
+          Array.isArray(response?.pendingIds) &&
+          hasPendingTxDrift(
+            sparkInfoRef.current.transactions,
+            response.pendingIds,
+          )
+        ) {
+          sparkTransactionsEventEmitter.emit(
+            SPARK_TX_UPDATE_ENVENT_NAME,
+            'transactions',
+          );
+        }
       }
 
       prevAppState.current = appState;
@@ -1937,7 +2078,6 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.identityPubKey,
     didGetToHomepage,
     // isSendingPayment,
-    sendWebViewRequest,
   ]);
 
   useEffect(() => {
@@ -1973,16 +2113,8 @@ const SparkWalletProvider = ({ children }) => {
 
           const [exploraData, unclaimedUtxos, allUtxos] = await Promise.all([
             getDepositAddressTxIds(address, contactsPrivateKey, publicKey),
-            getUtxosForDepositAddress({
-              depositAddress: address,
-              mnemonic: currentMnemonicRef.current,
-              excludeClaimed: true,
-            }),
-            getUtxosForDepositAddress({
-              depositAddress: address,
-              mnemonic: currentMnemonicRef.current,
-              excludeClaimed: false,
-            }),
+            fetchAllDepositUtxos(address, currentMnemonicRef.current, true),
+            fetchAllDepositUtxos(address, currentMnemonicRef.current, false),
           ]);
 
           const claimableByTxid = new Set(
@@ -2013,7 +2145,7 @@ const SparkWalletProvider = ({ children }) => {
                 creditAmountSats: tx.amount,
               },
               address,
-              sparkInfoRef.current,
+              sparkInfoRef.current.identityPubKey,
             );
             savedTxCache.set(tx.txid, {
               sparkID: tx.txid,
@@ -2027,134 +2159,74 @@ const SparkWalletProvider = ({ children }) => {
           for (const utxo of unclaimedUtxos.utxos) {
             const { txid, vout } = utxo;
             const exploraTx = exploraData?.find(t => t.txid === txid);
-            let savedTx = await getSavedTxByTxid(txid);
+            const savedTx = await getSavedTxByTxid(txid);
             const hasAlreadySaved = !!savedTx;
+            const savedTxDetails = (() => {
+              try {
+                return JSON.parse(savedTx?.details ?? 'null');
+              } catch {
+                return null;
+              }
+            })();
 
-            // Get quote for this specific UTXO
-            const {
-              didWork: quoteDidWorkResponse,
-              quote,
-              error,
-            } = await getSparkStaticBitcoinL1AddressQuote(
+            // Claim the UTXO (quote → SSP claim → settle check → persist).
+            const outcome = await claimDepositUtxo({
               txid,
-              currentMnemonicRef.current,
-            );
-
-            if (!quoteDidWorkResponse || !quote) {
-              console.log(error, 'Error getting deposit address quote');
-              continue;
-            }
-
-            // Attempt to claim the UTXO
-            const {
-              didWork,
-              error: claimError,
-              response: claimTx,
-            } = await claimnSparkStaticDepositAddress({
-              transactionId: quote.transactionId,
-              creditAmountSats: quote.creditAmountSats,
-              sspSignature: quote.signature,
-              outputIndex: vout, // Use the vout from the UTXO
+              vout,
+              address,
               mnemonic: currentMnemonicRef.current,
+              identityPubKey: sparkInfoRef.current.identityPubKey,
+              exploraTx,
+              savedTxDetails,
+              hasAlreadySaved,
             });
 
-            // Add pending transaction if not already saved
-            if (!hasAlreadySaved) {
-              const pendingTx = await addPendingTransaction(
-                quote,
-                address,
-                sparkInfoRef.current,
-              );
-              savedTx = {
-                sparkID: pendingTx.id,
-                accountId: pendingTx.accountId,
-                details: JSON.stringify(pendingTx.details),
-              };
-              savedTxCache.set(txid, savedTx);
+            // Keep the per-run cache in sync so a second vout of the same
+            // on-chain tx is not inserted twice.
+            if (outcome.pendingTx) {
+              savedTxCache.set(txid, {
+                sparkID: outcome.pendingTx.id,
+                accountId: outcome.pendingTx.accountId,
+                details: JSON.stringify(outcome.pendingTx.details),
+              });
             }
 
-            if (!claimTx || !didWork) {
-              console.log('Claim static deposit address error', claimError);
+            if (!outcome.didClaim) {
+              console.log('Claim static deposit address error', outcome.error);
               continue;
             }
 
-            // Mark the transfer as handled so transferHandler skips it.
-            // The SDK fires a transfer event for this claim, and without this guard,
-            // debouncedHandleIncomingPayment would write a placeholder record that
-            // races with our own bulkUpdateSparkTransactions call below.
-            handledTransfers.current.add(claimTx.transferId);
-
-            console.log('Claimed deposit address transaction:', claimTx);
-
-            // Wait for the transfer to settle
-            await new Promise(res => setTimeout(res, 2000));
-
-            const bitcoinTransfer = await getSingleTxDetails(
-              currentMnemonicRef.current,
-              claimTx.transferId,
-            );
-
-            let updatedTx = {};
-            if (!bitcoinTransfer) {
-              // Claim succeeded but the transfer has not settled yet (or the
-              // SDK lookup failed). Keep it pending keyed by the new
-              // transferId; a later run finalizes it. bitcoinTransfer is
-              // undefined here, so it must NOT be dereferenced below.
-              updatedTx = {
-                useTempId: true,
-                id: claimTx.transferId,
-                tempId: quote.transactionId,
-                paymentStatus: 'pending',
-                paymentType: 'bitcoin',
-                accountId: sparkInfoRef.current.identityPubKey,
-              };
+            // Mark the transfer as handled so transferHandler skips it ONLY
+            // once the row is persisted. The SDK fires a transfer:claimed
+            // event for this claim, and without the guard,
+            // debouncedHandleIncomingPayment would write a placeholder record
+            // that races our own bulkUpdateSparkTransactions call. If the row
+            // could not be persisted, keep the event path enabled — it is the
+            // remaining writer for that transfer.
+            if (outcome.persisted) {
+              handledTransfers.current.add(outcome.transferId);
             } else {
-              let fee = 0;
-
-              if (exploraTx) {
-                fee = Math.abs(exploraTx?.amount - bitcoinTransfer.totalValue);
-              } else {
-                const savedTxDetails = (() => {
-                  try {
-                    return JSON.parse(savedTx?.details ?? 'null');
-                  } catch {
-                    return null;
-                  }
-                })();
-                fee = Math.abs(
-                  savedTxDetails?.amount - bitcoinTransfer.totalValue,
-                );
-              }
-              updatedTx = {
-                useTempId: true,
-                tempId: quote.transactionId,
-                id: bitcoinTransfer.id,
-                paymentStatus: 'completed',
-                paymentType: 'bitcoin',
-                accountId: sparkInfoRef.current.identityPubKey,
-                details: {
-                  amount: bitcoinTransfer.totalValue,
-                  fee: fee,
-                  totalFee: fee,
-                  supportFee: 0,
-                  dateAddedToDb: Date.now(),
-                },
-              };
+              console.error(
+                'Claimed deposit but failed to persist transaction; transfer event path stays enabled',
+                outcome.transferId,
+              );
             }
 
-            console.log('Updated bitcoin transaction:', updatedTx);
-            await bulkUpdateSparkTransactions(
-              [updatedTx],
-              'fullUpdate-waitBalance',
+            console.log(
+              'Claimed deposit address transaction:',
+              outcome.transferId,
             );
+            console.log('Updated bitcoin transaction:', outcome.updatedTx);
 
             // Navigate to confirm screen if we have details
-            if (updatedTx.details) {
-              if (handledNavigatedTxs.current.has(updatedTx.id)) continue;
-              handledNavigatedTxs.current.add(updatedTx.id);
+            if (outcome.updatedTx.details) {
+              if (handledNavigatedTxs.current.has(outcome.updatedTx.id)) {
+                continue;
+              }
+              handledNavigatedTxs.current.add(outcome.updatedTx.id);
               if (!isOnSendScreen()) {
                 showToast({
-                  amount: updatedTx.details.amount,
+                  amount: outcome.updatedTx.details.amount,
                   duration: 7000,
                   type: 'confirmTx',
                 });
@@ -2165,27 +2237,6 @@ const SparkWalletProvider = ({ children }) => {
       } catch (err) {
         console.log('Handle deposit address check error', err);
       }
-    };
-
-    const addPendingTransaction = async (quote, address, sparkState) => {
-      const pendingTx = {
-        id: quote.transactionId,
-        paymentStatus: 'pending',
-        paymentType: 'bitcoin',
-        accountId: sparkState.identityPubKey,
-        details: {
-          fee: 0,
-          amount: quote.creditAmountSats,
-          address: address,
-          time: new Date().getTime(),
-          direction: 'INCOMING',
-          description: i18n.t('contexts.spark.depositLabel'),
-          onChainTxid: quote.transactionId,
-          isRestore: true, // This is a restore payment
-        },
-      };
-      await bulkUpdateSparkTransactions([pendingTx], 'transactions');
-      return pendingTx;
     };
 
     clearAllDepositIntervals();
@@ -2313,8 +2364,7 @@ const SparkWalletProvider = ({ children }) => {
         filterAndSetTransactions,
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
-        mnemonic: accountMnemoinc,
-        sendWebViewRequest,
+        mnemonic: currentMnemonicRef.current || currentWalletMnemoinc,
         // Restore now runs solely via createRestorePoller in addListeners, so
         // always load cached txs on connect (the poller's SPARK_TX events layer
         // in any newly restored txs afterward).
@@ -2334,7 +2384,7 @@ const SparkWalletProvider = ({ children }) => {
       // cycle or manual refresh.
       retryBalanceAfterTimeout();
     },
-    [accountMnemoinc, sendWebViewRequest, retryBalanceAfterTimeout],
+    [retryBalanceAfterTimeout, currentWalletMnemoinc],
   );
 
   // Function to update db when all reqiured information is loaded

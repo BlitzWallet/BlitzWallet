@@ -31,6 +31,7 @@ jest.mock('@react-native-firebase/storage', () => ({
 }));
 
 const mockGetInfoAsync = jest.fn();
+const mockReadDirectoryAsync = jest.fn();
 const mockDownloadAsync = jest.fn();
 const mockCopyAsync = jest.fn(async () => {});
 const mockMakeDirectoryAsync = jest.fn(async () => {});
@@ -39,6 +40,7 @@ jest.mock('expo-file-system/legacy', () => ({
   __esModule: true,
   cacheDirectory: 'file:///cache/',
   getInfoAsync: (...a) => mockGetInfoAsync(...a),
+  readDirectoryAsync: (...a) => mockReadDirectoryAsync(...a),
   downloadAsync: (...a) => mockDownloadAsync(...a),
   copyAsync: (...a) => mockCopyAsync(...a),
   makeDirectoryAsync: (...a) => mockMakeDirectoryAsync(...a),
@@ -96,6 +98,7 @@ jest.mock('../../context-store/context', () => ({
 const {
   ImageCacheProvider,
   useImageCache,
+  useImageCacheEntry,
 } = require('../../context-store/imageCache');
 
 const PREFIX = 'blitzProfileImg';
@@ -143,6 +146,7 @@ beforeEach(() => {
   mockGlobalCtx.masterInfoObject = { uuid: 'me-uuid' };
   mockGetAllLocalKeys.mockResolvedValue([]);
   mockGetMultipleItems.mockResolvedValue([]);
+  mockReadDirectoryAsync.mockResolvedValue([]);
   mockMakeDirectoryAsync.mockResolvedValue(undefined);
   mockCopyAsync.mockResolvedValue(undefined);
   mockSetLocalStorageItem.mockResolvedValue(undefined);
@@ -177,9 +181,7 @@ describe('reconcile pointers on load', () => {
         JSON.stringify({ uri: null, localUri: null, updated: 'x' }),
       ],
     ]);
-    mockGetInfoAsync.mockImplementation(async path => ({
-      exists: path.includes('present'),
-    }));
+    mockReadDirectoryAsync.mockResolvedValue(['present.jpg']);
 
     await mount();
 
@@ -189,6 +191,75 @@ describe('reconcile pointers on load', () => {
     expect(ctx.cache.deleted).toBeDefined();
     // Stale pointer to a purged file is dropped so nothing loads a dead path.
     expect(ctx.cache.missing).toBeUndefined();
+  });
+
+  test('getAllLocalKeys / getMultipleItems errors never reject the mount', async () => {
+    // A fired Storage/keys error is swallowed so the provider mounts with an
+    // untouched cache rather than crashing the tree.
+    mockGetAllLocalKeys.mockRejectedValue(new Error('keys boom'));
+    await mount();
+    expect(ctx.cache).toEqual({});
+  });
+
+  test('a single corrupt (crashed mid-write) entry is skipped without losing healthy entries', async () => {
+    // JSON.parse is guarded per entry, so one truncated blob (a crash left it
+    // mid-write) is dropped while every healthy sibling still rehydrates.
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/bad`, `${PREFIX}/good`]);
+    mockGetMultipleItems.mockResolvedValue([
+      [`${PREFIX}/bad`, '{"not json'],
+      storedEntry('good'),
+    ]);
+    mockReadDirectoryAsync.mockResolvedValue(['good.jpg']);
+    await mount();
+
+    expect(ctx.cache.bad).toBeUndefined();
+    expect(ctx.cache.good).toBeDefined();
+  });
+
+  test('ignores entries whose persisted pointer lives at a stale path but keeps null-uri deletes', async () => {
+    // A genuinely OS-purged file (no file anywhere on disk) drops the pointer,
+    // while a null-localUri delete is preserved.
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/purged`, `${PREFIX}/deleted`]);
+    mockGetMultipleItems.mockResolvedValue([
+      storedEntry('purged'),
+      [
+        `${PREFIX}/deleted`,
+        JSON.stringify({ uri: null, localUri: null, updated: 'x' }),
+      ],
+    ]);
+    // File totally gone (no surviving copy in any dir lending).
+    mockReadDirectoryAsync.mockResolvedValue([]);
+
+    await mount();
+
+    expect(ctx.cache.purged).toBeUndefined();
+    expect(ctx.cache.deleted).toBeDefined();
+    expect(ctx.cache.deleted.localUri).toBeNull();
+  });
+
+  test('keeps + rehydrates entry stored with a stale (pre-update) absolute path', async () => {
+    // Simulates an app version update: iOS moved the container so the persisted
+    // path points at an old dir, but the file survives at the current dir.
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/moved`]);
+    mockGetMultipleItems.mockResolvedValue([
+      [
+        `${PREFIX}/moved`,
+        JSON.stringify({
+          uri: 'file:///OLD-CONTAINER/profile_images/moved.jpg',
+          localUri: 'file:///OLD-CONTAINER/profile_images/moved.jpg',
+          updated: 'updated-moved',
+        }),
+      ],
+    ]);
+    // Only the current-dir file survives; the stale stored path would 404.
+    mockReadDirectoryAsync.mockResolvedValue(['moved.jpg']);
+
+    await mount();
+
+    expect(ctx.cache.moved).toBeDefined();
+    expect(ctx.cache.moved.localUri).toBe(
+      'file:///cache/profile_images/moved.jpg',
+    );
   });
 });
 
@@ -248,6 +319,152 @@ describe('hardened write path', () => {
     );
     expect(ctx.cache.xyz).toBeDefined();
   });
+
+  test('rejects and does not persist when downloadAsync resolves null/undefined', async () => {
+    // Simulates a cancelled / failed native download that returns nothing.
+    await mount();
+    mockDownloadAsync.mockResolvedValue(null);
+
+    let error;
+    await act(async () => {
+      try {
+        await ctx.refreshCache('abc', 'https://example.com/abc.jpg');
+      } catch (e) {
+        error = e;
+      }
+    });
+
+    expect(error).toBeTruthy();
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalled();
+    expect(ctx.cache.abc).toBeUndefined();
+  });
+
+  test('rejects and does not persist when the post-write file info reports missing', async () => {
+    // Crash during the write can leave the pointer "saved" but the file never
+    // committed (or the intermediate dir races with the OS purge).
+    await mount();
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: false, size: 0 });
+
+    let error;
+    await act(async () => {
+      try {
+        await ctx.refreshCache('mno', 'https://example.com/mno.jpg');
+      } catch (e) {
+        error = e;
+      }
+    });
+
+    expect(error).toBeTruthy();
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalled();
+    expect(ctx.cache.mno).toBeUndefined();
+  });
+
+  test('rejects and does not persist when makeDirectoryAsync fails', async () => {
+    // OS forbids writing (full disk / permissions) — downloadsteps before
+    // download even starts, so nothing is persisted.
+    await mount();
+    mockMakeDirectoryAsync.mockRejectedValue(new Error('disk full'));
+
+    let error;
+    await act(async () => {
+      try {
+        await ctx.refreshCache('jkl', 'https://example.com/jkl.jpg');
+      } catch (e) {
+        error = e;
+      }
+    });
+
+    expect(error).toBeTruthy();
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalled();
+    expect(ctx.cache.jkl).toBeUndefined();
+  });
+
+  test('uses copyAsync for non-http uris and validates the copied file', async () => {
+    // Local-source avatars (contact picker, gallery) don't go through the
+    // downloader. A successful copy still must pass the empty-file check.
+    await mount();
+    mockCopyAsync.mockResolvedValue(undefined);
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 1234 });
+
+    const result = await act(async () => {
+      return await ctx.refreshCache('cp', 'not/an/http/uri');
+    });
+
+    expect(mockDownloadAsync).not.toHaveBeenCalled();
+    expect(mockCopyAsync).toHaveBeenCalled();
+    expect(result.localUri).toBe('file:///cache/profile_images/cp.jpg');
+    expect(mockSetLocalStorageItem).toHaveBeenCalled();
+    expect(ctx.cache.cp).toBeDefined();
+  });
+
+  test('copy path rejects and does not persist when the copied file is empty', async () => {
+    await mount();
+    mockCopyAsync.mockResolvedValue(undefined);
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 0 });
+
+    let error;
+    await act(async () => {
+      try {
+        await ctx.refreshCache('cp2', 'not/an/uri');
+      } catch (e) {
+        error = e;
+      }
+    });
+
+    expect(error).toBeTruthy();
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalled();
+    expect(ctx.cache.cp2).toBeUndefined();
+  });
+
+  test('concurrent refreshes for the same uuid share a single in-flight request', async () => {
+    await mount();
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    let r1;
+    let r2;
+    await act(async () => {
+      r1 = ctx.refreshCache('dup', 'https://example.com/dup.jpg');
+      r2 = ctx.refreshCache('dup', 'https://example.com/dup.jpg');
+      await Promise.all([r1, r2]);
+    });
+
+    expect(mockDownloadAsync).toHaveBeenCalledTimes(1);
+    expect(mockSetLocalStorageItem).toHaveBeenCalledTimes(1);
+  });
+
+  test('explicit refresh with skipCacheUpdate persists but does not touch memory cache', async () => {
+    await mount();
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 9 });
+
+    await act(async () => {
+      await ctx.refreshCache('sk', 'https://example.com/sk.jpg', true);
+    });
+
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      `${PREFIX}/sk`,
+      expect.stringContaining('sk.jpg'),
+    );
+    expect(ctx.cache.sk).toBeUndefined();
+  });
+});
+
+describe('removeProfileImageFromCache (delete)', () => {
+  test('persists a null entry so the "no image" state is remembered', async () => {
+    await mount();
+    await act(async () => {
+      await ctx.removeProfileImageFromCache('me');
+    });
+
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      `${PREFIX}/me`,
+      expect.stringContaining('"localUri":null'),
+    );
+    expect(ctx.cache.me).toBeDefined();
+    expect(ctx.cache.me.localUri).toBeNull();
+  });
 });
 
 describe('auto-heal cooldown', () => {
@@ -270,6 +487,25 @@ describe('auto-heal cooldown', () => {
     });
     expect(mockGetMetadata).toHaveBeenCalledTimes(1);
     expect(mockDownloadAsync).toHaveBeenCalledTimes(1);
+  });
+
+  test('a Storage getMetadata rejection arms the cooldown (no download needed)', async () => {
+    await mount();
+    // Storage errors (network, permissions, missing key) fail before download.
+    mockGetMetadata.mockRejectedValue(new Error('storage boom'));
+
+    // First automatic attempt fails at the metadata step.
+    await act(async () => {
+      await ctx.refreshCache('net', null).catch(() => {});
+    });
+    expect(mockGetMetadata).toHaveBeenCalledTimes(1);
+
+    // Second automatic attempt within the window is skipped — no new storage IO.
+    await act(async () => {
+      await ctx.refreshCache('net', null).catch(() => {});
+    });
+    expect(mockGetMetadata).toHaveBeenCalledTimes(1);
+    expect(mockGetDownloadURL).not.toHaveBeenCalled();
   });
 
   test('explicit (user-driven) refresh is never throttled by the cooldown', async () => {
@@ -321,6 +557,54 @@ describe('auto-heal cooldown', () => {
       await ctx.refreshCache('zzz', null).catch(() => {});
     });
     expect(mockGetMetadata).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('cache reconcile only re-runs when the contact set changes', () => {
+  test('metadata-only edits (same uuids) skip the reload; a new uuid triggers it', async () => {
+    mockGetAllLocalKeys.mockResolvedValue([]);
+    mockGetMultipleItems.mockResolvedValue([]);
+    mockReadDirectoryAsync.mockResolvedValue([]);
+
+    let tree;
+    mockContacts.decodedAddedContacts = [{ uuid: 'a' }, { uuid: 'b' }];
+    await act(async () => {
+      tree = ReactTestRenderer.create(providerElement());
+    });
+    await flush();
+    expect(mockGetAllLocalKeys).toHaveBeenCalledTimes(1);
+
+    // Same uuids, new array reference (pin/name/bio edit re-encrypts the list)
+    // → no reload of the whole cache.
+    mockContacts.decodedAddedContacts = [
+      { uuid: 'b', isFavorite: true },
+      { uuid: 'a', name: 'renamed' },
+    ];
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    await flush();
+    expect(mockGetAllLocalKeys).toHaveBeenCalledTimes(1);
+
+    // A genuinely new contact uuid → reload.
+    mockContacts.decodedAddedContacts = [
+      { uuid: 'b', isFavorite: true },
+      { uuid: 'a', name: 'renamed' },
+      { uuid: 'c' },
+    ];
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    await flush();
+    expect(mockGetAllLocalKeys).toHaveBeenCalledTimes(2);
+
+    // A removed uuid also reloads.
+    mockContacts.decodedAddedContacts = [{ uuid: 'c' }];
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    await flush();
+    expect(mockGetAllLocalKeys).toHaveBeenCalledTimes(3);
   });
 });
 
@@ -393,8 +677,10 @@ describe('freshness pass is decoupled from Spark', () => {
     });
     expect(mockGetMetadata).toHaveBeenCalledTimes(1);
 
-    // Advance past the 30s pass throttle.
-    now += 31000;
+    // Advance past the 30s pass throttle AND the 24h success TTL, so the
+    // foreground re-heal actually re-checks the (now-stale) contact instead of
+    // being short-circuited by the freshness window.
+    now += 25 * 60 * 60 * 1000;
 
     // Background → foreground: appState transitions back to active.
     mockAppStatus.appState = 'background';
@@ -411,5 +697,114 @@ describe('freshness pass is decoupled from Spark', () => {
     // The pass ran again on foreground — driven by appStatus's appState, with no
     // second AppState listener of our own.
     expect(mockGetMetadata).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('freshness pass avoids JS-thread re-render storms', () => {
+  test('still-current refresh persists lastChecked but leaves React cache untouched', async () => {
+    // Seed a healthy, current entry (file present, updated matches server).
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/present`]);
+    mockGetMultipleItems.mockResolvedValue([storedEntry('present')]);
+    mockReadDirectoryAsync.mockResolvedValue(['present.jpg']);
+    mockGetMetadata.mockResolvedValue({ updated: 'updated-present' });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    await mount();
+    const cacheBefore = ctx.cache;
+
+    await act(async () => {
+      await ctx.refreshCache('present', null);
+    });
+
+    // TTL timestamp is persisted (cross-launch TTL still works)…
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      `${PREFIX}/present`,
+      expect.stringContaining('lastChecked'),
+    );
+    // …but nothing visible changed, so no setState was issued and no consumer
+    // re-rendered (with a large contact list, one setCache per contact on every
+    // pass was the dominant JS-thread cost of the freshness pass).
+    expect(ctx.cache).toBe(cacheBefore);
+    expect(ctx.cache.present.updated).toBe('updated-present');
+  });
+
+  test('still-current refresh commits when the visible entry actually changed', async () => {
+    // A "deleted" entry (null localUri) whose file survives on disk (a crash
+    // mid-delete). The metadata still matches, but re-anchoring the pointer is
+    // a real visible change, so the refresh MUST update React state.
+    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/resurrect`]);
+    mockGetMultipleItems.mockResolvedValue([
+      [
+        `${PREFIX}/resurrect`,
+        JSON.stringify({ uri: null, localUri: null, updated: 'updated-r' }),
+      ],
+    ]);
+    mockReadDirectoryAsync.mockResolvedValue(['resurrect.jpg']);
+    mockGetMetadata.mockResolvedValue({ updated: 'updated-r' });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    await mount();
+    expect(ctx.cache.resurrect.localUri).toBeNull();
+    const cacheBefore = ctx.cache;
+
+    await act(async () => {
+      await ctx.refreshCache('resurrect', null);
+    });
+
+    expect(ctx.cache).not.toBe(cacheBefore);
+    expect(ctx.cache.resurrect.localUri).toBe(
+      'file:///cache/profile_images/resurrect.jpg',
+    );
+  });
+
+  test('useImageCacheEntry consumers re-render only when their own uuid changes', async () => {
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    const renderCounts = { a: 0, b: 0 };
+    function EntryReader({ uuid }) {
+      useImageCacheEntry(uuid);
+      renderCounts[uuid] += 1;
+      return null;
+    }
+
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(
+          ImageCacheProvider,
+          null,
+          React.createElement(
+            React.Fragment,
+            null,
+            React.createElement(EntryReader, { uuid: 'a' }),
+            React.createElement(EntryReader, { uuid: 'b' }),
+            React.createElement(Capture, null),
+          ),
+        ),
+      );
+    });
+    await flush();
+
+    const aBefore = renderCounts.a;
+    const bBefore = renderCounts.b;
+
+    // Only uuid 'a' changes → only its subscriber re-renders.
+    await act(async () => {
+      await ctx.refreshCache('a', 'https://example.com/a.jpg');
+    });
+    await flush();
+
+    expect(renderCounts.a).toBeGreaterThan(aBefore);
+    expect(renderCounts.b).toBe(bBefore);
+
+    // A second update to the same uuid re-renders it again.
+    const aAfterFirst = renderCounts.a;
+    await act(async () => {
+      await ctx.refreshCache('a', 'https://example.com/a2.jpg');
+    });
+    await flush();
+    expect(renderCounts.a).toBeGreaterThan(aAfterFirst);
+    expect(renderCounts.b).toBe(bBefore);
   });
 });

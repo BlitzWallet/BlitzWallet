@@ -51,6 +51,7 @@ import useGuardedNavigation from '../../hooks/useGuardedNavigation';
 import {
   SATS_DISPLAY_CURRENCY,
   normalizeDisplayCurrency,
+  resolveFiatStatsForCurrency,
   resolveUsdFiatStats,
 } from '../../functions/displayCurrency';
 
@@ -326,6 +327,7 @@ export default function ReceivePaymentHome(props) {
             swapUSDPriceDollars={swapUSDPriceDollars}
             paymentDisplayCurrency={paymentDisplayCurrency}
             paymentDisplayAmount={paymentDisplayAmount}
+            paymentDisplayFiatStats={paymentDisplayFiatStats}
           />
           <TouchableOpacity
             onPress={() => {
@@ -513,17 +515,17 @@ function AmountDisplay({
   swapUSDPriceDollars,
   paymentDisplayCurrency,
   paymentDisplayAmount,
+  paymentDisplayFiatStats,
 }) {
   const inputDenomination = endReceiveType === 'USD' ? 'fiat' : 'sats';
   const usdFiatStats = resolveUsdFiatStats(fiatStats, swapUSDPriceDollars);
-  const { primaryDisplay, secondaryDisplay, conversionFiatStats } =
-    usePaymentInputDisplay({
-      paymentMode: endReceiveType,
-      inputDenomination,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
+  const { primaryDisplay, secondaryDisplay } = usePaymentInputDisplay({
+    paymentMode: endReceiveType,
+    inputDenomination,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
 
   if (!amountCardValue) return null;
 
@@ -535,8 +537,6 @@ function AmountDisplay({
     paymentDisplayAmount != null &&
     paymentDisplayAmount !== '' &&
     enteredCurrency !== SATS_DISPLAY_CURRENCY;
-
-  const primaryFiatStats = primaryDisplay.forceFiatStats || conversionFiatStats;
 
   const primaryCurrencyCode =
     endReceiveType === 'USD' ? 'USD' : SATS_DISPLAY_CURRENCY;
@@ -551,12 +551,22 @@ function AmountDisplay({
       }
     : secondaryDisplay;
 
-  const secondaryFiatStats = overrideSecondary
-    ? enteredCurrency === 'USD'
-      ? usdFiatStats
-      : fiatStats
-    : secondaryDisplay.forceFiatStats ||
-      (secondaryDisplay.forceCurrency === 'USD' ? usdFiatStats : fiatStats);
+  // A fiat line may only be converted with stats whose coin matches the
+  // currency being displayed; otherwise one currency's number would render
+  // under another currency's label (e.g. a stale USD rate shown as EUR). The
+  // pinned entry-time stats are preferred for the entered currency, then the
+  // USD stats, then the device stats — only when the coin matches.
+  const resolveLineFiatStats = displayConfig =>
+    resolveFiatStatsForCurrency(
+      displayConfig.forceCurrency ||
+        (displayConfig.denomination === 'fiat'
+          ? masterInfoObject?.fiatCurrency
+          : null),
+      { paymentDisplayFiatStats, usdFiatStats, fiatStats },
+    );
+
+  const primaryFiatStats = resolveLineFiatStats(primaryDisplay);
+  const secondaryFiatStats = resolveLineFiatStats(effectiveSecondaryDisplay);
 
   // Render one amount line. The line that matches the fiat currency the user
   // actually typed shows their verbatim entered value (so $100 always reads
@@ -569,6 +579,15 @@ function AmountDisplay({
       hasFiatLiteral &&
       displayConfig.denomination === 'fiat' &&
       normalizeDisplayCurrency(displayConfig.forceCurrency) === enteredCurrency;
+
+    // Never render a fiat conversion whose rate is unavailable or mismatched.
+    if (
+      displayConfig.denomination === 'fiat' &&
+      !isEnteredFiatLine &&
+      !lineFiatStats
+    ) {
+      return '';
+    }
 
     return displayCorrectDenomination({
       amount: isEnteredFiatLine ? paymentDisplayAmount : amountCardValue,

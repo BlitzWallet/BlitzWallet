@@ -10,10 +10,12 @@ export const NavBar = memo(function NavBar({
   sparkBalance,
   sparkTokens,
   didViewSeedPhrase,
+  isChildAccount,
 }) {
   const navigate = useNavigation();
 
   const shouldShowWarning =
+    !isChildAccount &&
     !didViewSeedPhrase &&
     (!!sparkBalance || !!Object.keys(sparkTokens || {}).length);
 

@@ -21,7 +21,7 @@ export default function AboutPage() {
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const deviceVersion = DeviceInfo.getVersion();
 
-  const isVerified = fileHash === process.env.WEBVIEW_BUNDLE_HASH;
+  const isVerified = fileHash === process.env.SPARK_WEBVIEW_SIGNING_PUBKEY;
   const [showDetails, setShowDetails] = useState(false);
 
   function openBrower(person) {
@@ -257,7 +257,7 @@ export default function AboutPage() {
             />
             <ThemeText
               styles={styles.hashValue}
-              content={process.env.WEBVIEW_BUNDLE_HASH}
+              content={process.env.SPARK_WEBVIEW_SIGNING_PUBKEY}
             />
           </View>
         )}

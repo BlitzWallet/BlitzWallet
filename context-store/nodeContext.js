@@ -12,7 +12,6 @@ import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
-import { useWebView } from './webViewContext';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 import { useAuthContext } from './authContext';
 import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
@@ -23,7 +22,6 @@ const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
   const { sparkInformation } = useSparkWallet();
-  const { sendWebViewRequest } = useWebView();
   const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
   const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -117,7 +115,6 @@ const GLobalNodeContextProider = ({ children }) => {
             mnemonic: accountMnemoinc,
             sparkInformation,
             spendableSat,
-            sendWebViewRequest,
           });
         }
       } catch (err) {
@@ -137,7 +134,6 @@ const GLobalNodeContextProider = ({ children }) => {
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     accountMnemoinc,
-    sendWebViewRequest,
     masterInfoObject.enabledLiquidAutoSwap,
   ]);
 
@@ -147,6 +143,7 @@ const GLobalNodeContextProider = ({ children }) => {
       return;
     }
     didRunLiquidConnection.current = false;
+    didRunCurrencyUpdate.current = null;
   }, [authResetkey]);
 
   const contextValue = useMemo(

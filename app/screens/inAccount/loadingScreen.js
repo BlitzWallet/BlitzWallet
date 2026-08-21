@@ -16,8 +16,11 @@ import {
 import { navigationRef } from '../../../navigation/navigationService';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useKeysContext } from '../../../context-store/keys';
-import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
-import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import { getMascatWalkingAnimation } from '../../functions/lottieAnimations';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { removeLocalStorageItem } from '../../functions/localStorage';
 import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshots';
@@ -34,8 +37,9 @@ import openWebBrowser from '../../functions/openWebBrowser';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
-
-const mascotAnimation = require('../../assets/MOSCATWALKING.json');
+import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
+import { isWipeInProgress } from '../../functions/secureStore';
+import i18next from 'i18next';
 
 export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
@@ -59,17 +63,25 @@ export default function ConnectingToNodeLoadingScreen() {
   const { theme } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
-  const { screenDimensions } = useAppStatus();
+  const { screenDimensions, toggleDidGetToHomepage } = useAppStatus();
   const { toggleFiatStats } = useNodeContext();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
   const didRunConnectionRef = useRef(null);
+  // Latched once startConnectProcess has fully settled (navigated, or errored
+  // into the recoverable UI). The watchdog below keys off this, NOT off
+  // didRunConnectionRef — see the comment there.
+  const didCompleteRef = useRef(false);
+  // Last boundary startConnectProcess got past. Reported with the watchdog error
+  // so a stall in the wild names its own phase in Crashlytics.
+  const phaseRef = useRef('mounted');
 
-  const transformedAnimation = useMemo(
-    () =>
-      updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue'),
-    [theme],
-  );
+  // Latched by the watchdog below. Blocks the navigation dispatch only — a login
+  // that resumes after the watchdog fired still applies its cached state (keys,
+  // balance, fiat rate), which is what makes the doomsday settings screen useful.
+  const didAbortLogin = useRef(false);
+
+  const transformedAnimation = getMascatWalkingAnimation(theme);
 
   useEffect(() => {
     async function startConnectProcess() {
@@ -83,6 +95,35 @@ export default function ConnectingToNodeLoadingScreen() {
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
+
+        // Onboarding (create/restore) routes here with shouldWipeLocalData so a
+        // previous wallet's stale AsyncStorage + SQLite can't render as the new
+        // wallet's live data. Runs first, before any init/cache reads, and only
+        // after the seed gate below has committed the correct seed. A failure
+        // throws into the catch (recoverable error UI) and a hang is caught by
+        // the 45s watchdog — neither was possible on the PIN page. isWipeInProgress
+        // re-arms a wipe that failed or was killed mid-run on a previous launch:
+        // wipeLocalWalletData leaves a keychain marker until it fully succeeds,
+        // and route params are gone after a restart, so without it the partially
+        // wiped previous wallet would proceed into the new account.
+        const wipeArmed = await isWipeInProgress();
+        if (route.params?.shouldWipeLocalData || wipeArmed) {
+          if (wipeArmed) {
+            crashlyticsLogReport(
+              'Re-running wipe: marker armed from a previous failed wipe',
+            );
+          }
+          phaseRef.current = 'wiping previous wallet local data';
+          crashlyticsLogReport('Wiping previous wallet local data before init');
+          const wiped = await wipeLocalWalletData();
+          if (!wiped)
+            throw new Error(t('createAccount.keySetup.pin.wipeError'));
+          // Small settle so re-created DB handles / dropped tables quiesce
+          // before the parallel init + cache reads below touch them.
+          await new Promise(res => setTimeout(res, 1000));
+        }
+
+        phaseRef.current = 'deriving keys + webview handshake + db init';
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
 
         // ── Phase 1: Derive keys + wait for webview handshake in parallel ──
@@ -108,6 +149,9 @@ export default function ConnectingToNodeLoadingScreen() {
           initializeAllDatabases(),
         ]);
 
+        crashlyticsLogReport('Derived keys, webview handshake and db ready');
+        phaseRef.current = 'loading user settings + cached balance/txs';
+
         // Start wallet connection after keys are derived — passes identityPubKey
         // so initializeSparkSession can skip getSparkBalance when snapshot exists
         connectToSparkWallet(identityPubKey.publicKeyHex);
@@ -126,7 +170,7 @@ export default function ConnectingToNodeLoadingScreen() {
             getCachedSparkTransactions(20, identityPubKey.publicKeyHex),
             getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
             hasSavedInfo
-              ? Promise.resolve(true)
+              ? Promise.resolve({ didWork: true })
               : initializeUserSettingsFromHistory({
                   setMasterInfoObject,
                   toggleGlobalContactsInformation,
@@ -141,7 +185,7 @@ export default function ConnectingToNodeLoadingScreen() {
 
         if (!hasSavedInfo) {
           crashlyticsLogReport('Opened all SQL lite tables');
-          if (!didLoadUserSettings)
+          if (!didLoadUserSettings.didWork)
             throw new Error(
               t('screens.inAccount.loadingScreen.userSettingsError'),
             );
@@ -153,6 +197,8 @@ export default function ConnectingToNodeLoadingScreen() {
         //https://github.com/firebase/firebase-ios-sdk/pull/15991
         toggleContactsPrivateKey(privateKey);
         console.log(balanceSnapshot, placeholderTxs, 'balance and tx snapshot');
+        crashlyticsLogReport('Loaded user settings and cached balance/txs');
+        phaseRef.current = 'applying cached state + navigating home';
 
         // ── Phase 3: Apply cached balance ─────────────────────────────────
         setSparkInformation(prev => ({
@@ -163,17 +209,22 @@ export default function ConnectingToNodeLoadingScreen() {
 
         // Seed the fiat rate from cache so Home paints with a real rate
         // instead of the placeholder while nodeContext fetches a fresh one.
-        const currency = masterInfoObject?.fiatCurrency || 'USD';
+        const currency =
+          masterInfoObject?.fiatCurrency ||
+          didLoadUserSettings?.response?.fiatCurrency ||
+          'USD';
         const cachedRate = await getCachedFiatRate(currency);
         if (cachedRate?.fiatRate) toggleFiatStats(cachedRate.fiatRate);
 
         // ── Phase 4: Minimum perceived loading time then navigate ─────────
         const elapsed = Date.now() - startTime;
-        const minDuration = hasSavedInfo ? 500 : 1500;
+        const minDuration = 1500;
         await new Promise(resolve =>
           setTimeout(resolve, Math.round(minDuration - elapsed)),
         );
 
+        if (didAbortLogin.current) return;
+        toggleDidGetToHomepage(true);
         // Idempotent + dispatched through the container (not this instance's
         // possibly-stale navigation prop): if a duplicate instance already
         // moved us to HomeAdmin, skip — re-committing the screen is what throws
@@ -199,6 +250,10 @@ export default function ConnectingToNodeLoadingScreen() {
             subtitle: err.message,
           });
         }
+      } finally {
+        // Settled either way (navigated, bailed as a stale duplicate, or errored
+        // into the recoverable UI) — disarm the watchdog.
+        didCompleteRef.current = true;
       }
     }
 
@@ -229,20 +284,36 @@ export default function ConnectingToNodeLoadingScreen() {
     expectedMnemonicHash,
   ]);
 
-  // Safety valve for the seed gate: if the in-context seed never converges to
-  // the expected one (should not happen once the eager restore-path generation
-  // is fixed), surface the recoverable error UI instead of spinning forever.
+  // Safety valve for the WHOLE login process, not just the seed gate.
+  //
+  // This previously keyed off didRunConnectionRef, which is set the instant
+  // startConnectProcess is scheduled — so the only timeout in the login flow was
+  // switched off at exactly the moment the risky work began. Everything after it
+  // (firebase auth, firestore reads/writes, the NWC spark wallet init) is network
+  // bound and can stay pending forever without ever rejecting, which no try/catch
+  // can see. That produced the reported symptom: an endless mascot animation with
+  // no error and no way out.
+  //
+  // Keying off didCompleteRef instead means no reachable path can spin forever —
+  // any stall lands on the recoverable error UI below, which carries the doomsday
+  // settings button and the recovery link. Deps are empty (t is read through a
+  // ref) so an i18n language change can't restart the timer.
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!didRunConnectionRef.current) {
-        setHasError({
-          title: t('screens.inAccount.loadingScreen.initErrorTitle'),
-          subtitle: t('screens.inAccount.loadingScreen.userSettingsError'),
-        });
-      }
-    }, 30000);
+      if (didCompleteRef.current) return;
+      didAbortLogin.current = true;
+      crashlyticsRecordErrorReport(
+        `Login watchdog fired after 45s. Last phase reached: ${phaseRef.current}`,
+      );
+      setHasError({
+        title: i18next.t('screens.inAccount.loadingScreen.initErrorTitle'),
+        subtitle: i18next.t(
+          'screens.inAccount.loadingScreen.userSettingsError',
+        ),
+      });
+    }, 45000);
     return () => clearTimeout(timer);
-  }, [t]);
+  }, []);
 
   return (
     <GlobalThemeView useStandardWidth={true}>

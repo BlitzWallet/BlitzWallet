@@ -1,4 +1,3 @@
-import {NOSTR_RELAY_URL} from '../../constants';
 
 const ABLY_PUBLISH_URL = 'https://api.getalby.com/nwc/publish';
 
@@ -30,7 +29,7 @@ export async function publishToSingleRelay(events, relayUrl) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            relayUrl: NOSTR_RELAY_URL,
+            relayUrl: relayUrl,
             event,
           }),
         });

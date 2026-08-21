@@ -1,27 +1,27 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Platform, View } from 'react-native';
-import * as TaskManager from 'expo-task-manager';
 import {
   getAPNSToken,
   getMessaging,
   isDeviceRegisteredForRemoteMessages,
   registerDeviceForRemoteMessages,
-  setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
 import { encriptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
 import { useGlobalContextProvider } from './context';
 import { useKeysContext } from './keys';
 import { checkGooglePlayServices } from '../app/functions/checkGoogleServices';
-import { isEmulatorSync } from 'react-native-device-info';
-import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofifications';
-import i18n from 'i18next';
 import {
   addNotificationReceivedListener,
   addNotificationResponseReceivedListener,
   AndroidImportance,
   getExpoPushTokenAsync,
   getPermissionsAsync,
-  registerTaskAsync,
   requestPermissionsAsync,
   setBadgeCountAsync,
   setNotificationChannelAsync,
@@ -41,13 +41,7 @@ export const PushNotificationProvider = ({ children }) => {
   const { contactsPrivateKey } = useKeysContext();
   const pushNotificationData = masterInfoObject?.pushNotifications;
 
-  useEffect(() => {
-    if (Platform.OS === 'ios') setBadgeCountAsync(0);
-    if (!pushNotificationData?.isEnabled) return;
-    registerNotificationHandlers();
-  }, [pushNotificationData]);
-
-  const getCurrentPushNotifiicationPermissions = async () => {
+  const getCurrentPushNotifiicationPermissions = useCallback(async () => {
     try {
       const permissionsResult = await getPermissionsAsync();
 
@@ -57,75 +51,109 @@ export const PushNotificationProvider = ({ children }) => {
       console.log('Error getting pussh notification settings', err);
       return false;
     }
-  };
-  const checkAndSavePushNotificationToDatabase = async deviceToken => {
-    try {
-      if (
-        pushNotificationData?.hash &&
-        typeof pushNotificationData?.key.encriptedText === 'string'
-      ) {
-        const hashedPushKey = sha256Hash(deviceToken);
+  }, []);
 
-        console.log(
-          'saved notification token hash',
-          pushNotificationData?.hash,
+  const savePushNotificationToDatabase = useCallback(
+    async pushKey => {
+      try {
+        const hashedPushKey = sha256Hash(pushKey);
+
+        const encriptedPushKey = encriptMessage(
+          contactsPrivateKey,
+          process.env.BACKEND_PUB_KEY,
+          pushKey,
         );
-        console.log('current notification token hash', hashedPushKey);
 
-        if (pushNotificationData?.hash === hashedPushKey)
-          return { shouldUpdate: false, error: '', didWork: true };
+        return {
+          data: {
+            platform: Platform.OS,
+            key: { encriptedText: encriptedPushKey },
+            hash: hashedPushKey,
+          },
+          didWork: true,
+        };
+      } catch (error) {
+        console.error('Error saving push notification to database', error);
+        return { didWork: false, error: error.message };
       }
+    },
+    [contactsPrivateKey],
+  );
 
-      const response = await savePushNotificationToDatabase(deviceToken);
-      if (!response.didWork) throw new Error(response.error);
+  const checkAndSavePushNotificationToDatabase = useCallback(
+    async deviceToken => {
+      try {
+        if (
+          pushNotificationData?.hash &&
+          typeof pushNotificationData?.key.encriptedText === 'string'
+        ) {
+          const hashedPushKey = sha256Hash(deviceToken);
 
-      return { shouldUpdate: true, didWork: true, data: response.data };
-    } catch (error) {
-      console.error('Error in checkAndSavePushNotificationToDatabase', error);
-      return { shouldUpdate: false, error: error.message, didWork: false };
-    }
-  };
+          console.log(
+            'saved notification token hash',
+            pushNotificationData?.hash,
+          );
+          console.log('current notification token hash', hashedPushKey);
 
-  const savePushNotificationToDatabase = async pushKey => {
-    try {
-      const hashedPushKey = sha256Hash(pushKey);
+          if (pushNotificationData?.hash === hashedPushKey)
+            return { shouldUpdate: false, error: '', didWork: true };
+        }
 
-      const encriptedPushKey = encriptMessage(
-        contactsPrivateKey,
-        process.env.BACKEND_PUB_KEY,
-        pushKey,
-      );
+        const response = await savePushNotificationToDatabase(deviceToken);
+        if (!response.didWork) throw new Error(response.error);
 
-      return {
-        data: {
-          platform: Platform.OS,
-          key: { encriptedText: encriptedPushKey },
-          hash: hashedPushKey,
-        },
-        didWork: true,
-      };
-    } catch (error) {
-      console.error('Error saving push notification to database', error);
-      return { didWork: false, error: error.message };
-    }
-  };
+        return { shouldUpdate: true, didWork: true, data: response.data };
+      } catch (error) {
+        console.error('Error in checkAndSavePushNotificationToDatabase', error);
+        return { shouldUpdate: false, error: error.message, didWork: false };
+      }
+    },
+    [pushNotificationData, savePushNotificationToDatabase],
+  );
 
-  const registerNotificationHandlers = () => {
-    addNotificationReceivedListener(() => {});
+  // const registerNotificationHandlers = useCallback(() => {
+  //   const receivedSubscription = addNotificationReceivedListener(() => {});
+  //   const responseSubscription = addNotificationResponseReceivedListener(
+  //     () => {},
+  //   );
+  //   return [receivedSubscription, responseSubscription];
+  // }, []);
 
-    addNotificationResponseReceivedListener(() => {});
-  };
+  useEffect(() => {
+    if (Platform.OS === 'ios') setBadgeCountAsync(0);
+    // if (!pushNotificationData?.isEnabled) return;
+    // const subscriptions = registerNotificationHandlers();
+    // notificationListenersRef.current = subscriptions;
+
+    // return () => {
+    //   notificationListenersRef.current.forEach(subscription =>
+    //     subscription?.remove(),
+    //   );
+    //   notificationListenersRef.current = [];
+    // };
+  }, [
+    pushNotificationData,
+    // registerNotificationHandlers
+  ]);
+
+  const contextValue = useMemo(
+    () => ({
+      checkAndSavePushNotificationToDatabase,
+      // registerNotificationHandlers,
+      registerForPushNotificationsAsync,
+      getCurrentPushNotifiicationPermissions,
+    }),
+    [
+      checkAndSavePushNotificationToDatabase,
+      // registerNotificationHandlers,
+      registerForPushNotificationsAsync,
+      getCurrentPushNotifiicationPermissions,
+    ],
+  );
 
   return (
-    <PushNotificationContext.Provider
-      value={{
-        checkAndSavePushNotificationToDatabase,
-        registerNotificationHandlers,
-        registerForPushNotificationsAsync,
-        getCurrentPushNotifiicationPermissions,
-      }}
-    >
-      <View style={{ flex: 1 }}>{children}</View>
+    <PushNotificationContext.Provider value={contextValue}>
+      {children}
     </PushNotificationContext.Provider>
   );
 };
@@ -188,3 +216,5 @@ async function registerForPushNotificationsAsync() {
 
 // --- Export hook to use the context --- //
 export const usePushNotification = () => useContext(PushNotificationContext);
+
+export { PushNotificationContext };

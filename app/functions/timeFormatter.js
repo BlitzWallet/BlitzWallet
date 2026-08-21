@@ -101,3 +101,10 @@ export function formatLocalTimeNumericMonthDay(date) {
     console.log('error formatting local time', err.message);
   }
 }
+
+export function formatCountdown(ms) {
+  const secs = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}

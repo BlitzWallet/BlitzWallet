@@ -29,7 +29,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ContactProfileImage from './internalComponents/profileImage';
-import { useImageCache } from '../../../../../context-store/imageCache';
+import { useImageCacheEntry } from '../../../../../context-store/imageCache';
 import {
   createFormattedDate,
   formatMessage,
@@ -51,10 +51,10 @@ import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import { PARENT_ACCOUNT_TRANSFER_MARKER } from '../../../../functions/messaging/parentAccountTransferMessage';
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { cache } = useImageCache();
   const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
@@ -75,17 +75,14 @@ export default function ContactsPage({ navigation }) {
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = myProfile?.didEditProfile;
-  console.log(contactsMessags, 'cm');
   useFocusEffect(
     useCallback(() => {
       if (!navigation) return;
-      const listenerID = navigation?.addListener('tabPress', () => {
+      return navigation?.addListener('tabPress', () => {
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollTo({ y: 0, animated: true });
         }
       });
-
-      return navigation?.removeListener?.('click', listenerID);
     }, [navigation]),
   );
 
@@ -146,7 +143,6 @@ export default function ContactsPage({ navigation }) {
           key={contact.contact.uuid}
           contact={contact.contact}
           hasUnlookedTransaction={contact.hasUnlookedTransaction}
-          cache={cache}
           darkModeType={darkModeType}
           theme={theme}
           backgroundOffset={backgroundOffset}
@@ -158,7 +154,6 @@ export default function ContactsPage({ navigation }) {
       ));
   }, [
     contactInfoList,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -178,7 +173,6 @@ export default function ContactsPage({ navigation }) {
         hasUnlookedTransaction={item.hasUnlookedTransaction}
         lastUpdated={item.lastUpdated}
         firstMessage={item.firstMessage}
-        cache={cache}
         darkModeType={darkModeType}
         theme={theme}
         backgroundOffset={backgroundOffset}
@@ -208,7 +202,6 @@ export default function ContactsPage({ navigation }) {
     return contacts;
   }, [
     filteredContacts,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -400,7 +393,6 @@ const PinnedContactElement = memo(
   ({
     contact,
     hasUnlookedTransaction,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -410,6 +402,7 @@ const PinnedContactElement = memo(
     screenDimensions,
   }) => {
     const [textWidth, setTextWidth] = useState(0);
+    const imageEntry = useImageCacheEntry(contact.uuid);
 
     // Memoize calculated dimensions
     const containerSize = useMemo(
@@ -487,8 +480,8 @@ const PinnedContactElement = memo(
         <View style={pinnedContactStyle}>
           <View style={imageContainerStyle}>
             <ContactProfileImage
-              updated={cache[contact.uuid]?.updated}
-              uri={cache[contact.uuid]?.localUri}
+              updated={imageEntry?.updated}
+              uri={imageEntry?.localUri}
               darkModeType={darkModeType}
               theme={theme}
             />
@@ -516,7 +509,6 @@ const ContactElement = memo(
     hasUnlookedTransaction,
     lastUpdated,
     firstMessage,
-    cache,
     darkModeType,
     theme,
     backgroundOffset,
@@ -528,6 +520,8 @@ const ContactElement = memo(
     t,
     isLastElement,
   }) => {
+    const imageEntry = useImageCacheEntry(contact.uuid);
+
     const imageContainerStyle = useMemo(
       () => ({
         ...memoizedStyles.contactImageContainer,
@@ -573,6 +567,21 @@ const ContactElement = memo(
         )
       : '';
 
+    const firstMessageContent = useMemo(() => {
+      const txParsed = firstMessage?.message;
+      if (
+        txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER] &&
+        typeof txParsed.isDeposit === 'boolean'
+      ) {
+        return t(
+          txParsed.isDeposit
+            ? 'transactionLabelText.accountTopup'
+            : 'transactionLabelText.accountWithdrawal',
+        );
+      }
+      return formatMessage(firstMessage);
+    }, [firstMessage, t]);
+
     return (
       <TouchableOpacity
         style={[
@@ -587,8 +596,8 @@ const ContactElement = memo(
       >
         <View style={imageContainerStyle}>
           <ContactProfileImage
-            updated={cache[contact.uuid]?.updated}
-            uri={cache[contact.uuid]?.localUri}
+            updated={imageEntry?.updated}
+            uri={imageEntry?.localUri}
             darkModeType={darkModeType}
             theme={theme}
           />
@@ -631,7 +640,7 @@ const ContactElement = memo(
             <ThemeIcon size={20} iconName={'ChevronRight'} />
           </View>
 
-          {!!formatMessage(firstMessage) && contact.isAdded && (
+          {!!firstMessageContent && contact.isAdded && (
             <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomNumberOfLines={2}
@@ -640,7 +649,7 @@ const ContactElement = memo(
                   flexShrink: 1,
                   opacity: HIDDEN_OPACITY,
                 }}
-                content={formatMessage(firstMessage)}
+                content={firstMessageContent}
               />
             </View>
           )}

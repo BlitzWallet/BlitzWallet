@@ -58,6 +58,7 @@ import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { useKeysContext } from '../../../../../context-store/keys';
+import { useAuthContext } from '../../../../../context-store/authContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
@@ -76,6 +77,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import useDebounce from '../../../../hooks/useDebounce';
 import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
+import { useChildSpendingLimitGate } from '../../../../hooks/useChildSpendingLimitGate';
 import { getLNAddressForLiquidPayment } from './functions/payments';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import {
@@ -87,6 +89,7 @@ import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 import { lnurlCurrencyToRate } from '../../../../functions/sendBitcoin/lnurlCurrencyRate';
 import { PROVIDER_COUNTRY_CURRENCY } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
+import { waitForForground } from '../../../../hooks/useWaitForForground';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -134,6 +137,16 @@ export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
+  // Provider-owned auth-reset counter. A long-background/logout reset bumps it
+  // AND navigates to SplashReload (login); it also tears down the WebView
+  // bridge, which settles any in-flight/held send with a fabricated cleanup
+  // result (didWork:false). That cleanup is NOT a real payment outcome, so the
+  // send screen must NOT navigate to the confirm/cancel screen off it —
+  // otherwise the user sees the cancel screen flash before login. We snapshot
+  // the counter at send-start and skip navigation if a reset intervened. Using
+  // the provider's ref (not a consumer mirror) keeps it valid even after this
+  // screen is unmounted by the reset's navigation.
+  const { authResetkeyRef } = useAuthContext();
   const { sparkInformation, showTokensInformation, sparkInfoRef } =
     useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -217,6 +230,11 @@ export default function SendPaymentScreen(props) {
     ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
     : 'Bitcoin';
 
+  const selectedContactInfo = contactInfo || paymentInfo?.blitzContactInfo;
+
+  // Intentionally keyed off `contactInfo` only: including blitzContactInfo here
+  // would swap the token selector for the BTC/USD chooser and unpin the payment
+  // method for @username sends. Display is handled by the InvoiceInfo props.
   const useFullTokensDisplay =
     enabledLRC20 &&
     isSparkPayment &&
@@ -239,7 +257,14 @@ export default function SendPaymentScreen(props) {
     ? paymentInfo?.data?.maxSendable / 1000
     : 0;
 
-  const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
+  // Tokens only exist on Spark — a bolt11/on-chain/LNURL invoice can never be
+  // funded with the default spend token. Before the decode lands paymentNetwork
+  // is undefined, so keep the user's pick: processSparkAddress reads it to
+  // decide isLRC20.
+  const selectedLRC20Asset =
+    !paymentInfo?.paymentNetwork || useFullTokensDisplay
+      ? masterTokenInfo?.tokenName || defaultToken
+      : 'Bitcoin';
   const seletctedToken =
     masterTokenInfo?.details ||
     sparkInformation?.tokens?.[selectedLRC20Asset] ||
@@ -247,6 +272,12 @@ export default function SendPaymentScreen(props) {
   const tokenDecimals = seletctedToken?.tokenMetadata?.decimals ?? 0;
   const tokenBalance = seletctedToken?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
+  // The ticker actually shown on this screen. USDB-funded sends that weren't
+  // picked through the token selector display as fiat, so the confirm screen
+  // must be told the label instead of re-deriving it from the tx's token info.
+  const displayTokenTicker = isUsingLRC20
+    ? seletctedToken?.tokenMetadata?.tokenTicker
+    : '';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
   const canEditAmount = paymentInfo?.canEditPayment === true;
@@ -517,6 +548,8 @@ export default function SendPaymentScreen(props) {
   ]);
 
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
+  const { isOverLimit: isOverChildLimit } =
+    useChildSpendingLimitGate(convertedSendAmount);
 
   useEffect(() => {
     primaryDisplayRef.current = primaryDisplay;
@@ -1196,10 +1229,22 @@ export default function SendPaymentScreen(props) {
       return;
     }
 
+    // if (isOverChildLimit) {
+    //   navigate.navigate('InformationPopup', {
+    //     textContent: t('settings.childAccounts.limitGate.message'),
+    //     buttonText: t('constants.understandText'),
+    //   });
+    //   return;
+    // }
+
     if (isSendingPayment.current) return;
 
     isSendingPayment.current = true;
     setShowProgressAnimation(true);
+    // Snapshot the auth-reset counter: if a reset lands while the payment is in
+    // flight, its result is a bridge-cleanup (not a real outcome) and login
+    // navigation has already fired — the send screen must not navigate on it.
+    const startAuthResetKey = authResetkeyRef.current;
 
     try {
       const formattedSparkPaymentInfo = formatSparkPaymentAddress(
@@ -1245,6 +1290,15 @@ export default function SendPaymentScreen(props) {
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);
+      await waitForForground();
+
+      // An auth reset landed mid-payment: this result is a bridge-cleanup, not a
+      // real outcome, and login navigation has already fired. Emit nothing and
+      // navigate nowhere — only the reset's login navigation should stand.
+      if (authResetkeyRef.current !== startAuthResetKey) {
+        isSendingPayment.current = false;
+        return;
+      }
 
       // Handle deferred save if identityPubKey wasn't available during payment
       if (paymentResponse.shouldSave) {
@@ -1301,9 +1355,10 @@ export default function SendPaymentScreen(props) {
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
-                    blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
+                    displayTokenTicker,
                   },
                 },
               ],
@@ -1331,9 +1386,10 @@ export default function SendPaymentScreen(props) {
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
-                    blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    blitzContactInfo: selectedContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
                     displayAmount,
+                    displayTokenTicker,
                   },
                 },
               ],
@@ -1346,6 +1402,9 @@ export default function SendPaymentScreen(props) {
       // Reset state on error
       isSendingPayment.current = false;
       setShowProgressAnimation(false);
+      // A reset intervened → the throw is teardown noise, not a real failure;
+      // login navigation has already fired, so don't surface an error screen.
+      if (authResetkeyRef.current !== startAuthResetKey) return;
       // Optionally show error to user
       errorMessageNavigation(error.message);
     }
@@ -1373,6 +1432,10 @@ export default function SendPaymentScreen(props) {
     fiatValueConvertedSendAmount,
     paymentValidation,
     displayAmount,
+    displayTokenTicker,
+    selectedContactInfo,
+    isOverChildLimit,
+    t,
   ]);
 
   const handleSelectPaymentMethod = useCallback(
@@ -1446,15 +1509,6 @@ export default function SendPaymentScreen(props) {
     });
   }, [paymentInfo?.verificationURL, navigate, t]);
 
-  const sendingAsset =
-    selectedLRC20Asset === 'Bitcoin'
-      ? !isLightningPayment &&
-        !isBitcoinPayment &&
-        !(isSparkPayment && receiverExpectsCurrency === 'sats')
-        ? t('constants.dollars_upper')
-        : t('constants.bitcoin_upper')
-      : seletctedToken?.tokenMetadata?.tokenTicker;
-
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -1501,9 +1555,7 @@ export default function SendPaymentScreen(props) {
                 forceCurrency={primaryDisplay.forceCurrency}
                 forceFiatStats={primaryDisplay.forceFiatStats}
                 activeOpacity={!sendingAmount ? 0.5 : 1}
-                customCurrencyCode={
-                  isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-                }
+                customCurrencyCode={displayTokenTicker}
                 maxDecimals={isUsingLRC20 ? tokenDecimals : 2}
               />
               {uiState === 'CONFIRM_PAYMENT' && !isUsingLRC20 && (
@@ -1549,13 +1601,16 @@ export default function SendPaymentScreen(props) {
           {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
-              contactInfo={contactInfo || paymentInfo?.blitzContactInfo}
-              fromPage={
-                fromPage || (paymentInfo?.blitzContactInfo ? 'contacts' : '')
-              }
+              contactInfo={selectedContactInfo}
+              fromPage={fromPage || (selectedContactInfo ? 'contacts' : '')}
               theme={theme}
               darkModeType={darkModeType}
               isUsingBranta={isUsingBranta}
+              isDollarBalance={
+                resolvedPaymentMethod === 'USD' ||
+                selectedLRC20Asset === USDB_TOKEN_ID
+              }
+              isToken={isUsingLRC20 && selectedLRC20Asset !== USDB_TOKEN_ID}
             />
           )}
           {uiState === 'CHOOSE_METHOD' && (
@@ -1762,6 +1817,7 @@ export default function SendPaymentScreen(props) {
         <EmojiQuickBar
           description={combinedPaymentDescription}
           onEmojiSelect={handleEmoji}
+          maxLength={paymentInfo?.data?.commentAllowed || 150}
         />
       )}
     </CustomKeyboardAvoidingView>

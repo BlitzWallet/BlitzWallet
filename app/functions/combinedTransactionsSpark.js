@@ -28,10 +28,12 @@ import ThemeIcon from './CustomElements/themeIcon';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../constants/theme';
 import { isOrchestraSwapFailed } from './spark/orchestraLightning';
 import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick';
+import { getStableTx } from './spark/enrichedTxCache';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
   VIEW_ALL_PAGE: 'viewAllTx',
+  MANAGED_ACCOUNT: 'managedAccount',
   SPARK_WALLET: 'sparkWallet',
   HOME: 'home',
   FAILED: 'failed',
@@ -123,7 +125,8 @@ const generateBannerText = (timeDifference, texts) => {
 };
 
 const getContainerWidth = frompage => {
-  return frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+  return frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+    frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
     ? INSET_WINDOW_WIDTH
     : '100%';
 };
@@ -145,7 +148,10 @@ const createLoadingSkeleton = (
         width: containerWidth,
         ...CENTER,
         paddingVertical:
-          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ? 13 : 0,
+          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+          frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+            ? 13
+            : 0,
       }}
     >
       <View style={SKELETON_STYLES.icon} />
@@ -272,7 +278,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
   let ln_funding_txIds = new Set();
   let currentGroupedDate = '';
   const transactionLimit =
-    frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+    frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+    frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
       ? sparkTransactionsLength
       : homepageTxPreferance;
 
@@ -424,7 +431,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const styledTx = (
         <UserTransaction
           key={uniuqeIDFromTx}
-          tx={{ ...currentTransaction, details: paymentDetails }}
+          tx={getStableTx(currentTransaction, paymentDetails)}
           navigate={navigate}
           transactionPaymentType={transactionPaymentType}
           paymentDate={paymentDate}
@@ -456,7 +463,10 @@ export default function getFormattedHomepageTxsForSpark(props) {
   }
 
   if (!formattedTxs?.length) {
-    if (frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE) {
+    if (
+      frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+      frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+    ) {
       return [
         {
           type: 'tx',
@@ -609,7 +619,11 @@ export const UserTransaction = memo(function UserTransaction({
   const containerWidth = useMemo(() => getContainerWidth(frompage), [frompage]);
 
   const handlePress = useCallback(() => {
-    if (frompage === TRANSACTION_CONSTANTS.SPARK_WALLET) return;
+    if (
+      frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ||
+      frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+    )
+      return;
     crashlyticsLogReport('Navigating to expanded tx from user transaction');
     navigate.navigate('ExpandedTx', { isFailedPayment: {}, transaction });
   }, [frompage, navigate, transaction]);
@@ -688,19 +702,26 @@ export const UserTransaction = memo(function UserTransaction({
         ...styles.transactionContainer,
         width: containerWidth,
         paddingTop:
-          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+          frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
             ? 13
             : isFirstItem
             ? 0
             : 13,
         paddingBottom:
-          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+          frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
             ? 13
             : isLastItem
             ? 0
             : 13,
       }}
-      activeOpacity={frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ? 1 : 0.5}
+      activeOpacity={
+        frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ||
+        frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+          ? 1
+          : 0.5
+      }
       onPress={handlePress}
     >
       {showPendingTransactionStatusIcon ? (
@@ -739,7 +760,10 @@ export const UserTransaction = memo(function UserTransaction({
         transaction.details.amount &&
         swapLimits.bitcoin <= transaction.details.amount ? (
           <FormattedSatText
-            neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
+            neverHideBalance={
+              frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+              frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+            }
             globalBalanceDenomination={userBalanceDenomination}
             containerStyles={styles.amountContainer}
             styles={{ color: amountColor }}
@@ -757,7 +781,10 @@ export const UserTransaction = memo(function UserTransaction({
           />
         ) : (
           <FormattedSatText
-            neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
+            neverHideBalance={
+              frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+              frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+            }
             globalBalanceDenomination={userBalanceDenomination}
             containerStyles={styles.amountContainer}
             styles={{ color: amountColor }}

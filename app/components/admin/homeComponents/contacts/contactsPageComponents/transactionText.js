@@ -1,9 +1,21 @@
+import { PARENT_ACCOUNT_TRANSFER_MARKER } from '../../../../../functions/messaging/parentAccountTransferMessage';
+
 export const getTransactionContent = ({
   paymentDescription,
   didDeclinePayment,
   txParsed,
   t,
 }) => {
+  if (txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER]) {
+    if (typeof txParsed.isDeposit === 'boolean') {
+      return t(
+        txParsed.isDeposit
+          ? 'transactionLabelText.accountTopup'
+          : 'transactionLabelText.accountWithdrawal',
+      );
+    }
+  }
+
   if (paymentDescription) {
     return paymentDescription;
   }

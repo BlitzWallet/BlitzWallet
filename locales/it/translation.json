@@ -133,7 +133,8 @@
     "total": "Totale",
     "stablecoinRefundReceived": "Rimborso stablecoin",
     "payWith": "Paga con",
-    "receiveAs": "Ricevi come"
+    "receiveAs": "Ricevi come",
+    "tokens": "Token"
   },
   "languages": {
     "english": "English",
@@ -180,7 +181,8 @@
     "daily": "Giornaliero",
     "weekly": "Settimanale",
     "monthly": "Mensile",
-    "yearly": "Annuale"
+    "yearly": "Annuale",
+    "noLimit": "Senza limite"
   },
   "transactionLabelText": {
     "notSent": "Pagamento non inviato",
@@ -198,6 +200,8 @@
     "paidRequest": "Richiesta pagata",
     "sent": "Inviato",
     "received": "Ricevuto",
+    "accountTopup": "Ricarica",
+    "accountWithdrawal": "Prelievo",
     "paidLower": "pagato",
     "declinedLower": "rifiutato",
     "receivedRequest": "Richiesta ricevuta",
@@ -218,18 +222,19 @@
       "subtitle": "Il tuo wallet. Il tuo denaro. Open source.",
       "buttons": {
         "button1": "Ripristina account",
-        "button2": "Inizia"
+        "button2": "Inizia",
+        "joinAccount": "Unisciti a un portafoglio condiviso"
       }
     },
     "disclaimerPage": {
-      "header": "Il tuo denaro. Il tuo controllo.",
+      "header": "I tuoi soldi. Il tuo controllo.",
       "subHeader": "Alcune cose da sapere prima di iniziare.",
       "row1Label": "Solo tu controlli i tuoi fondi",
       "row1Description": "Blitz non può detenerli, congelarli o toccarli.",
       "row2Label": "La tua frase di recupero è la chiave",
       "row2Description": "12 parole proteggono il tuo wallet.",
       "row3Label": "Perdi la frase, perdi l’accesso",
-      "row3Description": "Nessuno può recuperare il tuo wallet per te.",
+      "row3Description": "Nessuno può recuperarlo per te.",
       "readTerms": "Leggi Termini e Privacy completi",
       "acceptPrefix": "Comprendo di essere l’unico responsabile della mia frase di recupero e accetto i",
       "terms&Conditions": "Termini",
@@ -254,6 +259,7 @@
       "pin": {
         "savePinError": "Impossibile salvare il PIN",
         "removeWalletError": "Errore nella rimozione del portafoglio",
+        "wipeError": "Impossibile cancellare i dati del portafoglio precedente di questo dispositivo. Il tuo PIN è stato salvato, ma riprova prima di continuare.",
         "wrongPinError": "Riprova",
         "enterPinMessage": "Crea PIN",
         "confirmPin": "Conferma PIN",
@@ -280,6 +286,16 @@
       "header": "Ti consigliamo di scrivere la tua frase mnemonica",
       "subHeader": "Se non hai trascritto la tua frase mnemonica rischi di perdere i tuoi fondi.",
       "btn": "Ho capito"
+    },
+    "walletSetup": {
+      "title": "Configura il tuo portafoglio",
+      "subtitle": "Crea un nuovo portafoglio, unisciti a un portafoglio o ripristina uno esistente.",
+      "createTitle": "Crea nuovo portafoglio",
+      "createDesc": "Inizia con un nuovo portafoglio.",
+      "joinTitle": "Unisciti a un portafoglio gestito",
+      "joinDesc": "Unisciti a un portafoglio gestito per te.",
+      "restoreTitle": "Ripristina portafoglio esistente",
+      "restoreDesc": "Hai già un portafoglio? Importalo."
     }
   },
   "adminLogin": {
@@ -805,58 +821,6 @@
         "errorMessage": "Spiacenti, non è stato possibile salvare la conversazione."
       }
     },
-    "giftCards": {
-      "giftCardsPage": {
-        "searchPlaceholder": "Cerca una carta regalo",
-        "leftPageMessage": "Dove sei andato?",
-        "loadingCardsMessage": "Caricamento carte regalo",
-        "noCardsAvailable": "Nessuna carta regalo disponibile"
-      },
-      "confimPurchase": {
-        "quantity": "Quantità {{quantity}}",
-        "cardAmount": "Importo Carta: {{amount}} {{currency}}",
-        "price": "Prezzo: ",
-        "fee": "Commissione: "
-      },
-      "createAccount": {
-        "title": "Offerto da",
-        "saveEmail": "Non hai un’email salvata. Salva un’email per velocizzare il checkout.",
-        "termsAndConditions1": "Continuando accetti i",
-        "termsAndConditions2": "Termini di servizio",
-        "termsAndConditions3": "e",
-        "termsAndConditions4": "Informativa sulla privacy"
-      },
-      "expandedGiftCardPage": {
-        "purchasingCardMessage": "Acquisto carta regalo, non lasciare la pagina.",
-        "selectamount": "Seleziona un importo",
-        "sendingto": "Inviando a: ",
-        "minMaxPurchaseAmount": "Puoi acquistare un minimo di {{min}} e massimo di {{max}} {{currency}}",
-        "emailPlaceholder": "Inserisci indirizzo email",
-        "purchaseBTN": "Acquista carta regalo",
-        "differentEmailMessage": "L’email attuale è diversa da quella salvata. Vuoi renderla primaria?",
-        "terms": "Termini",
-        "cardDescription": "Descrizione carta",
-        "cardTerms": "Condizioni carta",
-        "dailyPurchaseAmountError": "Hai raggiunto il limite giornaliero di acquisti",
-        "giftMessage": "Aggiungi una nota al tuo regalo",
-        "giftMessagePlaceholder": "Digita qui il tuo messaggio",
-        "selectForContactBTN": "Seleziona la carta regalo",
-        "noAmountError": "Scegli un importo per la carta regalo"
-      },
-      "giftCardOrderDetails": {
-        "title": "Dettagli ordine",
-        "invoice": "Fattura",
-        "orderId": "ID Ordine",
-        "uuid": "UUID",
-        "openInbox": "Apri casella email"
-      },
-      "historicalPurchasesPage": {
-        "confirmRemoval": "Sei sicuro di voler rimuovere questa carta regalo?",
-        "purchased": "Acquistata:",
-        "noPurchases": "Non hai ancora acquistato nessuna carta regalo. Una volta che lo fai, apparirà qui.",
-        "customCopyMessage": "Email di assistenza copiata"
-      }
-    },
     "sms4sats": {
       "home": {
         "pageDescription": "Invia e ricevi messaggi SMS senza rivelare il tuo numero di telefono personale.",
@@ -1062,8 +1026,7 @@
       "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo.",
       "depositQRInstruction_spark_tokens": "Invia token a questo indirizzo.",
       "depositMinimumStablecoin": "I pagamenti devono essere di almeno {{amount}}",
-      "depositFeeText_network": "Commissioni di rete",
-      "depositFeeText_conversion": "Commissione di conversione",
+      "depositFeeText": "Dettagli delle commissioni",
       "depositFeePopup_bitcoin": "I Bitcoin inviati a questo indirizzo comportano una piccola commissione di rete per la ricezione. La commissione viene detratta dall'importo ricevuto, quindi il saldo potrebbe risultare leggermente inferiore rispetto all'importo inviato.",
       "depositFeePopup_liquid": "I Liquid Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione{{feeDisplay}}, detratta dall'importo ricevuto.",
       "depositFeePopup_rootstock": "I Rootstock Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione, detratta dall'importo ricevuto.",
@@ -1168,7 +1131,8 @@
     "cameraModal": {
       "noCamera": "Nessun accesso alla fotocamera",
       "settingsText": "Vai nelle impostazioni per permettere a Blitz Wallet di accedere alla tua fotocamera",
-      "noCameraDevice": "Non hai un dispositivo con fotocamera.",
+      "noCameraDevice": "Nessun dispositivo con fotocamera",
+      "noCameraDeviceSub": "Nessuna fotocamera disponibile su questo dispositivo.",
       "noFlash": "Il dispositivo non ha una torcia",
       "scanningResponse": "Sono accettati solo codici QR.",
       "qrDecodeError": "Errore nel decodificare il QR Code",
@@ -1190,7 +1154,8 @@
     "cameraPage": {
       "noCameraAccess": "Nessun accesso alla fotocamera",
       "settingsText": "Vai nelle impostazioni per permettere a Blitz Wallet di accedere alla tua fotocamera",
-      "noCameraDevice": "Non hai un dispositivo con fotocamera.",
+      "noCameraDevice": "Nessun dispositivo con fotocamera",
+      "noCameraDeviceSub": "Nessuna fotocamera disponibile su questo dispositivo.",
       "error1": "Il dispositivo non ha una torcia",
       "error2": "Hai già pagato questa fattura"
     },
@@ -1240,7 +1205,9 @@
         "swapRatesChangedButton": "Reinserisci importo",
         "feeEstimateError": "Impossibile stimare la commissione, riprova",
         "brantaVerification": "Questo pagamento è stato verificato da Branta",
-        "lightningPayment": "Pagamento Bitcoin"
+        "lightningPayment": "Pagamento Bitcoin",
+        "dollarPayment": "Pagamento in dollari",
+        "tokenPayment": "Pagamento con token"
       },
       "selectPaymentMethod": {
         "header": "Seleziona come desideri finanziare il pagamento."
@@ -1271,7 +1238,7 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "Messaggio di errore"
+        "title": "Qualcosa è andato storto"
       },
       "feeInfo": {
         "title": "Commissione e Velocità",
@@ -1495,11 +1462,6 @@
       "claimed": "Usato",
       "markAsClaimed": "Contrassegna come usato"
     },
-    "selectGiftPage": {
-      "noCards": "Nessuna carta disponibile",
-      "header": "Seleziona la carta regalo che desideri inviare",
-      "inputPlaceholder": "Cerca una carta regalo"
-    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Vuoi {{option}} {{option2}} foto"
@@ -1517,9 +1479,6 @@
         "header": "Le tue carte regalo",
         "cardsLengthSingular": "{{num}} carta",
         "cardsLengthPlural": "{{num}} carte"
-      },
-      "editGiftCard": {
-        "header": "Cosa desideri fare con il tuo regalo?"
       }
     },
     "showProfileQr": {
@@ -1603,8 +1562,8 @@
       "bundleUnverified": "Bundle non verificato",
       "showTechnicals": "Mostra dettagli tecnici",
       "hideTechnicals": "Nascondi dettagli tecnici",
-      "backendHash": "Hash backend",
-      "expectedHash": "Hash previsto",
+      "backendHash": "Firma del backend",
+      "expectedHash": "Firma prevista",
       "exchangeRatesHeader": "Tassi di cambio",
       "exchangeRatesDescription": "I tassi di cambio Bitcoin/fiat vengono recuperati da API di terze parti. I tassi potrebbero non essere perfettamente accurati, verifica sempre l’importo in Bitcoin prima di inviare un pagamento.",
       "exchangeRatesSourcesLabel": "Fonti dei dati",
@@ -1723,7 +1682,28 @@
     "accounts": {
       "inputPlaceholder": "Cerca account esistente",
       "mainWalletPlace": "Portafoglio principale",
-      "nwcWalletPlace": "NWC"
+      "managedWalletPlace": "Conto gestito",
+      "nwcWalletPlace": "NWC",
+      "tabs": {
+        "personal": "Personale",
+        "linked": "Gestiti"
+      },
+      "personalInfo": {
+        "title": "Cosa sono i conti personali?",
+        "body": "I conti personali sono portafogli che crei per te stesso. Usali per separare facilmente il tuo denaro per scopi diversi, come spese, risparmi o viaggi."
+      },
+      "linkedInfo": {
+        "title": "Cosa sono i conti gestiti?",
+        "body": "I conti gestiti sono portafogli che crei per qualcun altro. L'altra persona ottiene il proprio portafoglio e può usarlo come qualsiasi altro portafoglio Blitz, mentre tu gestisci il recupero per loro."
+      },
+      "emptyLinked": {
+        "title": "Ancora nessun conto gestito",
+        "subtitle": "Crea un portafoglio per una persona di cui ti fidi. Potrà usare Blitz senza dover gestire una frase di recupero."
+      },
+      "noResults": {
+        "title": "Nessun conto trovato",
+        "subtitle": "Non hai ancora nessun conto."
+      }
     },
     "resetWallet": {
       "header": "Sei sicuro?",
@@ -1855,11 +1835,15 @@
       "chainSwapFee": "0,5% commissione Blitz + 0,1%+ commissione piattaforma",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% commissione Blitz + commissioni di rete",
+      "roostock": "Rootstock <> BTC",
+      "roostockFee": "0,1% commissione Boltz + commissioni di rete",
       "accumulationType": "Indirizzi di accumulo",
       "accumulationFee": "0,5% commissione Blitz + 0,5% commissione piattaforma",
       "othersType": "Altro",
       "othersFee": "Commissioni di rete",
-      "networkFeeLinkDesc": "Tocca per vedere il dettaglio delle commissioni della rete Spark"
+      "networkFeeLinkDesc": "Tocca per vedere il dettaglio delle commissioni della rete Spark",
+      "rootstock": "Rootstock <> BTC",
+      "rootstockFee": "Commissione Boltz dello 0,1% + commissioni di rete"
     },
     "nip5": {
       "noNameError": "Il nome non può essere vuoto.",
@@ -1883,34 +1867,69 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Sei sicuro di voler eliminare questo elemento Nostr Connect?",
-      "searchAccountPlaceholder": "Cerca account NWC",
-      "noAccountsMessage": "Non hai account Nostr Connect.",
-      "addAccount": "Aggiungi Account",
+      "confirmDelete": "Sei sicuro di voler eliminare questa connessione?",
+      "addAccount": "Aggiungi connessione",
+      "empty": {
+        "title": "Nessuna connessione ancora",
+        "subtitle": "Crea una connessione per usare Nostr Wallet Connect con le tue app preferite."
+      },
+      "createNWCName": {
+        "navTitle": "Nome",
+        "title": "Dai un nome a questa connessione",
+        "editTitle": "Modifica nome connessione",
+        "subtitle": "Dai un nome alla connessione per poterla riconoscere in seguito.",
+        "editSubtitle": "Scegli un nuovo nome per riconoscere questa connessione in seguito.",
+        "placeholder": "Nome connessione"
+      },
+      "createNWCPermissions": {
+        "title": "Permessi",
+        "pageTitle": "Aggiungi permessi della connessione",
+        "pageSubtitle": "Scegli quali azioni può eseguire {{name}}.",
+        "editTitle": "Modifica permessi della connessione",
+        "editSubtitle": "Modifica quali azioni può eseguire {{name}}."
+      },
+      "createNWCAmount": {
+        "title": "Budget",
+        "pageTitle": "Imposta un budget di spesa",
+        "pageSubtitle": "Imposta un limite di spesa e quando si azzera. Lascia vuoto per nessun limite.",
+        "editTitle": "Modifica budget di spesa",
+        "editSubtitle": "Cambia il limite di spesa e quando si azzera. Lascia vuoto per nessun limite.",
+        "renewalPlaceholder": "Seleziona periodo di rinnovo",
+        "createButton": "Crea connessione"
+      },
+      "accountPage": {
+        "title": "Gestisci connessione",
+        "nameLabel": "Nome",
+        "permissionsLabel": "Permessi",
+        "permissionsCount_one": "{{count}} permesso",
+        "permissionsCount_other": "{{count}} permessi",
+        "renewalLabel": "Periodo di rinnovo",
+        "amountLabel": "Importo budget",
+        "viewSecretLabel": "Stringa di connessione",
+        "deleteAccount": "Elimina connessione"
+      },
       "createNWCAccount": {
-        "noAccountNameError": "Inserisci un nome account.",
+        "noAccountNameError": "Inserisci un nome di connessione.",
         "noPermissionsError": "Abilita almeno un permesso.",
         "noBudgetError": "Seleziona un periodo di rinnovo budget.",
         "noBudgetAmountError": "Seleziona un importo budget.",
-        "title": "Crea Account",
-        "loadingMessage": "Creazione Account",
-        "nameInputPlaceholder": "Inserisci nome account NWC",
+        "loadingMessage": "Creazione connessione...",
+        "updatingMessage": "Aggiornamento della connessione...",
+        "nameInputPlaceholder": "Inserisci nome connessione NWC",
         "permissionsHeader": "Permessi wallet",
         "receivePayments": "Ricevi pagamenti",
         "sendPayments": "Invia pagamenti",
         "getBalance": "Ottieni Saldo",
         "transactions": "Transazioni",
         "lookupInvoice": "Cerca Fattura",
-        "budgetRenewalHeader": "Rinnovo Budget",
-        "bugetPlaceholder": "Seleziona periodo rinnovo budget",
-        "createConnection": "",
-        "connectionName": ""
+        "budgetRenewalHeader": "Rinnovo Budget"
       },
       "hasNoAccounts": {
-        "warningMessage": "Per inviare soldi dal tuo wallet Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina impostazioni account."
+        "warningMessage": "Per inviare soldi dal tuo account Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo account principale.\n\nPuoi trasferire fondi dal tuo account principale a NWC nella pagina dell'account."
       },
       "noNotifications": {
-        "warningMessage": "Per usare Nostr Wallet Connect devi avere le notifiche push per Nostr Wallet Connect abilitate.\n\nAbilita le notifiche push nelle impostazioni e riprova."
+        "title": "Notifiche richieste",
+        "subtitle": "Nostr Wallet Connect richiede le notifiche push. Abilita le notifiche nelle Impostazioni e riprova."
       },
       "showSeedPage": {
         "loadingMessage": "Generazione della frase di recupero",
@@ -1918,14 +1937,23 @@
         "viewSeed": "Visualizza frase di recupero"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Finanziare il tuo wallet NWC",
-        "accountFundingMessage": "Per inviare denaro dal tuo wallet Nostr Connect, devi prima aggiungere fondi, ricevendoli oppure trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina delle impostazioni dell’account.",
-        "securityHeader": "Sicuro e isolato",
-        "securityMessage": "Nostr Wallet Connect crea un wallet separato dal tuo wallet principale per maggiore sicurezza. Questa frase seed è archiviata in modo sicuro e può essere visualizzata successivamente nella pagina Account nelle impostazioni, se necessario.",
+        "infoTitle": "Prima di iniziare",
+        "infoSubtitle": "Alcune cose da sapere su Nostr Wallet Connect.",
+        "row1Label": "Aggiungi fondi",
+        "row1Description": "Aggiungi denaro ricevendolo o trasferendolo dal tuo account principale.",
+        "row2Label": "Account separato",
+        "row2Description": "Questo account è separato dal tuo account principale per maggiore sicurezza.",
+        "row3Label": "Accesso all'app",
+        "row3Description": "Le app connesse possono usare questo account per effettuare pagamenti.",
         "continueButton": "Inizia",
         "initializingMessage": "Configurazione del tuo wallet NWC...",
         "errorTitle": "Configurazione non riuscita",
         "errorRetry": "Riprova configurazione"
+      },
+      "accountCreated": {
+        "title": "Connessione creata",
+        "subtitle": "La tua connessione è stata creata. Copia la stringa di connessione per iniziare a usarla.",
+        "copyConnection": "Copia stringa di connessione"
       }
     },
     "accountComponents": {
@@ -1946,6 +1974,10 @@
         "balanceError": "L’importo supera il tuo saldo incluse le commissioni",
         "noSendAddressError": "Impossibile ottenere l’indirizzo di trasferimento",
         "noAccountInformation": "Impossibile ottenere le informazioni dell’account",
+        "invalidAmountError": "Inserisci un importo valido da trasferire",
+        "invalidFeeError": "Impossibile calcolare una commissione di trasferimento valida",
+        "invalidBalanceError": "Impossibile verificare il saldo dell’account",
+        "sameAccountError": "Seleziona due account diversi",
         "title": "Trasferimento",
         "selectAccount": "Seleziona account",
         "inputPlaceHolderText": "Trasferimento tra account"
@@ -1971,9 +2003,10 @@
         "namePlaceholder": "Nome"
       },
       "editAccountPage": {
-        "title": "Modifica account",
+        "title": "Conto",
         "accountNameLabel": "Nome account",
         "showRecoveryPhraseLabel": "Mostra frase di recupero",
+        "lightningAddressLabel": "Indirizzo account",
         "removeAccountLabel": "Rimuovi account",
         "activeAccountError": "Non puoi eliminare l'account attualmente attivo. Passa a un altro account prima di eliminare questo.",
         "account_pin": "Fissa account",
@@ -1982,17 +2015,31 @@
         "accountTypeLabel": "Tipo di account",
         "accountType_derived": "Derivato",
         "accountType_imported": "Importato",
-        "accountTypeDerivedInfo": "Questo account è collegato alla tua seed phrase Blitz e verrà ripristinato quando ripristini il tuo wallet Blitz.",
-        "accountTypeImportedInfo": "Questo account ha una propria seed phrase e non verrà ripristinato quando ripristini il tuo wallet Blitz. Assicurati di salvare la frase di recupero."
+        "accountType_main": "Principale",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Questo account viene creato dalla tua frase di recupero Blitz e verrà ripristinato quando ripristini il tuo wallet Blitz.",
+        "accountTypeImportedInfo": "Questo account ha una propria seed phrase e non verrà ripristinato quando ripristini il tuo wallet Blitz. Assicurati di salvare la frase di recupero.",
+        "accountTypeNwcInfo": "Questo è il tuo account Nostr Wallet Connect (NWC). Viene usato dalle app connesse a Blitz e può sempre essere ripristinato dalla tua frase di recupero principale di Blitz.",
+        "balanceLabel": "Saldo",
+        "activeLabel": "Conto attivo",
+        "activateButton": "Attiva conto",
+        "addMoneyButton": "Aggiungi denaro",
+        "withdrawMoneyButton": "Preleva denaro",
+        "viewActivityLabel": "Visualizza la cronologia dell'account",
+        "loadError": "Impossibile caricare l'account",
+        "loadErrorDesc": "Riprova. Se il problema continua, contatta l'assistenza.",
+        "stillConnectingInfo": "Il tuo saldo potrebbe non essere aggiornato mentre completiamo la connessione al tuo conto."
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",
-        "createNewAccountTitle": "Crea nuovo account",
-        "createNewAccountDescription": "Recuperabile dalla frase seed principale",
+        "createNewAccountTitle": "Crea conto personale",
+        "createNewAccountDescription": "Crea un portafoglio per te stesso",
         "importRecoveryPhraseTitle": "Importa frase di recupero",
-        "importRecoveryPhraseDescription": "Importa account da un altro wallet",
-        "recoverRecoveryPhraseTitle": "Recupera account",
-        "recoverRecoveryPhraseDescription": "Ripristina un account già creato"
+        "importRecoveryPhraseDescription": "Importa conti personali da un altro wallet",
+        "recoverRecoveryPhraseTitle": "Recupera conto personale",
+        "recoverRecoveryPhraseDescription": "Ripristina un conto personale",
+        "createChildAccountTitle": "Crea conto gestito",
+        "createChildAccountDescription": "Crea un portafoglio per qualcun altro"
       },
       "selectProfileImage": {
         "title": "Scegli avatar",
@@ -2023,6 +2070,21 @@
         "explanation_imported": "Questo account è stato importato. Se lo rimuovi, dovrai reimportare la tua chiave privata per accedervi.",
         "cancelButton": "Annulla",
         "removeButton": "Rimuovi account"
+      },
+      "transferModal": {
+        "selectAccount": "Seleziona un conto",
+        "addFromTitle": "Scegli il conto da cui aggiungere denaro.",
+        "withdrawToTitle": "Scegli il conto su cui prelevare denaro.",
+        "noAccounts": "Nessun altro conto disponibile.",
+        "availableToAdd": "Disponibile da aggiungere",
+        "availableToWithdraw": "Disponibile da prelevare",
+        "using": "In uso",
+        "amount": "Importo",
+        "transferComplete": "Inviato a {{name}}",
+        "receivedFrom": "Ricevuto da {{name}}",
+        "selfTransfer": "Non puoi trasferire a te stesso",
+        "addFunds": "{{name}} ha aggiunto denaro",
+        "withdrawFunds": "{{name}} ha prelevato denaro"
       }
     },
     "accountsPoolsScreen": {
@@ -2030,13 +2092,12 @@
       "settingsButton": "Impostazioni",
       "poolsTitle": "Pool",
       "noPoolsMessage": "Non hai ancora creato alcun pool. Tocca per creare il tuo primo pool.",
-      "noActivePools": "Non hai pool attivi al momento. Tocca per vedere i tuoi pool.",
-      "yourAccountsTitle": "I tuoi account",
-      "addAccountButton": "Aggiungi account"
+      "noActivePools": "Non hai pool attivi al momento. Tocca per vedere i tuoi pool."
     },
     "hub": {
       "viewAll": "Vedi tutto",
       "accounts": "Account",
+      "accountsEmptyDesc": "Visualizza, crea, gestisci e trasferisci fondi tra tutti i tuoi conti.",
       "pinAccount": "Fissa",
       "unpinAccount": "Rimuovi",
       "maxPinsReached": "Massimo 2 account fissati. Rimuovine uno prima.",
@@ -2134,6 +2195,167 @@
         "defaultMessage": "Sei sicuro di voler svuotare il tuo wallet?",
         "ctaBTN": "Segna come {{option}}"
       }
+    },
+    "childAccounts": {
+      "tabs": {
+        "children": "Gestiti"
+      },
+      "dontMatch": "Non corrispondono",
+      "sasGrid": {
+        "blank": "Vuoto",
+        "x": "ics",
+        "plus": "più",
+        "filled": "pieno",
+        "outline": "contorno",
+        "position": "Riga {{row}} di 3, colonna {{column}} di 3.",
+        "shapes": {
+          "circle": "Cerchio",
+          "square": "Quadrato",
+          "triangle": "Triangolo",
+          "diamond": "Rombo",
+          "hexagon": "Esagono",
+          "moon": "Luna",
+          "cross": "Croce",
+          "star": "Stella",
+          "heart": "Cuore",
+          "checkmark": "Segno di spunta",
+          "shield": "Scudo",
+          "clock": "Orologio",
+          "bell": "Campana",
+          "house": "Casa",
+          "apple": "Mela"
+        }
+      },
+      "list": {
+        "spendingLimitLabel": "Limite",
+        "noLimit": "Nessun limite"
+      },
+      "enterName": {
+        "title": "Dai un nome a questo conto",
+        "subtitle": "Dai un nome al conto così puoi riconoscerlo in seguito.",
+        "placeholder": "Nome del conto",
+        "next": "Avanti",
+        "create": "Crea conto",
+        "editTitle": "Modifica il nome dell'account",
+        "editSubtitle": "Scegli un nuovo nome per riconoscere questo account in seguito."
+      },
+      "spendingLimit": {
+        "title": "Imposta un limite di spesa",
+        "subtitle": "Imposta un limite di spesa mensile per questo conto. È un budget flessibile monitorato sul loro dispositivo.",
+        "placeholder": "Limite mensile",
+        "noLimit": "Nessun limite",
+        "create": "Crea conto"
+      },
+      "creating": {
+        "loadingText": "Creazione del conto...",
+        "errorTitle": "Impossibile creare il conto. Riprova."
+      },
+      "confirmation": {
+        "done": "Fatto"
+      },
+      "pairing": {
+        "title": "Condividi",
+        "usernameTitle": "Condividi il tuo nome utente",
+        "usernameSubtitle": "Chiedi loro di aprire Blitz sul telefono e di scegliere \"Unisciti a un portafoglio gestito\".",
+        "generateCode": "Genera codice",
+        "usernameLabel": "Il tuo nome utente: {{name}}",
+        "codeNavTitle": "Condividi codice",
+        "codeTitle": "Condividi questo codice di associazione",
+        "codeSubtitle": "Condividi questo codice così che possano unirsi al tuo portafoglio condiviso.",
+        "waiting": "In attesa che inseriscano il codice…",
+        "sasNavTitle": "Verifica lo schema",
+        "sasTitle": "Verifica lo schema",
+        "sasSubtitle": "Controlla che questo schema di forme corrisponda a quello del suo telefono, forma per forma.",
+        "sasHint": "Conferma solo dopo aver confermato che entrambi i telefoni mostrano lo stesso schema.",
+        "confirmMatch": "Corrispondono",
+        "linkedTitle": "Portafoglio collegato",
+        "linkedSubtitle": "Il loro portafoglio gestito è pronto per l'uso.",
+        "done": "Inviato. Completeranno la configurazione sul loro telefono.",
+        "expired": "Questa associazione è scaduta. Ricomincia.",
+        "errorTitle": "Sessione di associazione terminata",
+        "declinedByChild": "Questa richiesta è stata rifiutata.",
+        "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
+        "areYouSure": "Sei sicuro?",
+        "confirmGate": "Conferma solo se gli schemi corrispondono esattamente, forma per forma. Confermando dai a questa persona l'accesso al conto.",
+        "confirmBTN": "Corrispondono",
+        "needsUsername": "Imposta un nome utente nel tuo profilo prima di associare un portafoglio.",
+        "notOwner": "Non siamo riusciti a confermare la tua prenotazione del nome utente. Riprova tra un momento.",
+        "startFailed": "Impossibile avviare l'associazione. Riprova.",
+        "codeOption": "Codice",
+        "qrOption": "QR",
+        "qrTitle": "Scansiona questo codice QR",
+        "qrSubtitle": "Chiedi loro di aprire Blitz sul telefono e di scegliere \"Unisciti a un portafoglio gestito\".",
+        "qrWaiting": "In attesa che scansionino…",
+        "noBlitz": "Non hanno Blitz?",
+        "downloadLink": "Condividi link di download",
+        "acceptTitle": "Accettare l'associazione?",
+        "acceptSubtitle": "Associando, dai a questa persona l'accesso a {{name}}. Assicurati di associare la persona giusta.",
+        "acceptBTN": "Accetta",
+        "declineBTN": "Rifiuta"
+      },
+      "transactions": {
+        "title": "Attività",
+        "noTxHistorySub": "Le transazioni del conto appariranno qui una volta che invieranno o riceveranno una."
+      },
+      "page": {
+        "title": "Conto figlio",
+        "balanceLabel": "Saldo",
+        "transactionsLabel": "Attività recente",
+        "noTransactions": "Ancora nessuna attività",
+        "spendingLimitLabel": "Limite di spesa",
+        "loadingBalance": "Caricamento del saldo...",
+        "shareLink": "Abbina con qualcuno"
+      },
+      "claim": {
+        "title": "Configura il tuo portafoglio",
+        "info": {
+          "navTitle": "Configura il tuo portafoglio",
+          "title": "Configura il tuo portafoglio gestito",
+          "intro": "Ti stai unendo a un portafoglio gestito per te.",
+          "row1Label": "Il tuo portafoglio",
+          "row1Description": "Invia e ricevi con il tuo saldo.",
+          "row2Label": "Facile da usare",
+          "row2Description": "Il recupero del tuo portafoglio è gestito per te.",
+          "row3Label": "Gestito da un'altra persona",
+          "row3Description": "Unisciti solo a un portafoglio di una persona che conosci.",
+          "continue": "Continua"
+        },
+        "codeNavTitle": "Inserisci nome utente",
+        "codeTitle": "Inserisci il loro nome utente",
+        "codeSubtitle": "Inserisci il nome utente mostrato sul telefono dell'altra persona.",
+        "pairCodeNavTitle": "Inserisci codice",
+        "pairCodeTitle": "Inserisci il codice di associazione",
+        "pairCodeSubtitle": "Inserisci il codice a 6 cifre mostrato sul telefono dell'altra persona.",
+        "wrongCode": "Questo codice non ha funzionato. Controlla il codice e il nome utente, poi riprova.",
+        "next": "Avanti",
+        "sasNavTitle": "Verifica schema",
+        "sasTitle": "Verifica lo schema",
+        "sasSubtitle": "Controlla che questo schema di forme corrisponda a quello dell'altro telefono, forma per forma.",
+        "sasHint": "Conferma solo dopo aver confermato che entrambi i telefoni mostrano lo stesso schema.",
+        "confirmMatch": "Corrispondono",
+        "tamper": "Non abbiamo potuto verificare questo passaggio. Ricomincia.",
+        "notFound": "Non abbiamo trovato un'associazione per questo nome utente. Chiedilo di nuovo.",
+        "slotTaken": "Qualcuno si è già unito con questo nome utente. Fermati ora e chiedi al proprietario del conto di annullare e ricominciare.",
+        "askToRestart": "Non siamo riusciti a unirci a questo abbinamento. Chiedi al proprietario del conto di avviarne uno nuovo.",
+        "rateLimited": "Troppi tentativi. Attendi un momento e riprova.",
+        "loading": "Configurazione del tuo portafoglio...",
+        "expired": "Questa associazione è scaduta. Ricomincia.",
+        "errorTitle": "Sessione di associazione terminata",
+        "canceledByParent": "Il proprietario del conto ha annullato la richiesta di associazione.",
+        "codePlaceholder": "nome utente",
+        "codeOption": "Codice",
+        "scanOption": "Scansiona",
+        "scanNavTitle": "Scansiona codice",
+        "scanTitle": "Scansiona il loro codice QR",
+        "scanHint": "Posiziona il codice QR in vista per attivare",
+        "scanWaiting": "In attesa che la richiesta venga accettata",
+        "scanSubtitle": "Punta la fotocamera sul codice QR del loro telefono.",
+        "connectingMessage": "Connessione dei tuoi dispositivi"
+      },
+      "limitGate": {
+        "title": "Limite di spesa raggiunto",
+        "message": "Questo pagamento supererebbe il limite di spesa impostato per questo conto."
+      }
     }
   },
   "screens": {
@@ -2154,15 +2376,19 @@
       "confirmTxPage": {
         "failedToSend": "Invio fallito",
         "paymentErrorMessage": "C'è stato un problema nell'inviare questo pagamento, riprova.",
-        "sendReport": "Invia report allo sviluppatore",
+        "sendReport": "Segnala un problema",
+        "lnurlAuthSuccess": "Hai effettuato l'accesso e sei pronto.",
+        "walletConnected": "Wallet connesso",
+        "lud9SuccessAction": "Visualizza ricevuta",
         "emailReport": "Invia via email",
         "copyReport": "Copia negli appunti",
         "confirmMessage_sent": "Inviato con successo",
         "confirmMessage_received": "Ricevuto con successo",
         "confirmMessage": "{{direction}} con successo",
-        "lnurlAuthSuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso.",
         "bulkSuccess": "Richieste inviate con successo",
-        "bulkPartialSuccess": "Nessuna richiesta inviata"
+        "bulkPartialSuccess": "Nessuna richiesta inviata",
+        "sendingInProgress": "Il tuo pagamento è stato inviato. Attendi mentre viene confermato.",
+        "stablecoinDesc": "{{asset}} su {{chain}}"
       },
       "expandedTxPage": {
         "confirmMessage_received": "Importo ricevuto",
@@ -2848,6 +3074,14 @@
       "request": "{{name}} ti ha richiesto {{amount}}",
       "payment": "{{name}} ti ha pagato {{amount}}",
       "giftCard": "{{name}} ti ha inviato una carta regalo {{giftCardName}}"
+    },
+    "nwc": {
+      "get_info": "Evento info NWC",
+      "get_balance": "Evento saldo NWC",
+      "list_transactions": "Ricevute transazioni NWC",
+      "make_invoice": "Fattura NWC creata",
+      "lookup_invoice": "Ricerca fattura NWC",
+      "pay_invoice": "Pagamento NWC inviato"
     }
   },
   "accountCard": {

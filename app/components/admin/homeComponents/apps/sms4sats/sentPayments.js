@@ -61,7 +61,9 @@ export default function HistoricalSMSMessagingPage({ route }) {
     async orderId => {
       try {
         const response = await fetch(
-          `${API_ENDPOINTS.ORDER_STATUS}?orderId=${orderId}`,
+          `${API_ENDPOINTS.ORDER_STATUS}?orderId=${encodeURIComponent(
+            orderId,
+          )}`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

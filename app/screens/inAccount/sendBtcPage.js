@@ -17,7 +17,7 @@ import {
 import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
 import { getQRImage, resolveExternalChainNavigation } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useTranslation } from 'react-i18next';
 import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPageNavbar';
 import {
@@ -207,18 +207,11 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         {from != 'home' && <CameraPageNavBar />}
-        <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <ThemeText
-            styles={styles.errorText}
-            content={t('wallet.cameraPage.noCameraAccess')}
-          />
-          <ThemeText
-            styles={styles.errorText}
-            content={t('wallet.cameraPage.settingsText')}
-          />
-        </View>
+        <NoContentScreen
+          iconName="Camera"
+          titleText={t('wallet.cameraPage.noCameraAccess')}
+          subTitleText={t('wallet.cameraPage.settingsText')}
+        />
       </GlobalThemeView>
     );
   }
@@ -226,9 +219,10 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         {from != 'home' && <CameraPageNavBar />}
-        <FullLoadingScreen
-          showLoadingIcon={false}
-          text={t('wallet.cameraPage.noCameraDevice')}
+        <NoContentScreen
+          iconName="Camera"
+          titleText={t('wallet.cameraPage.noCameraDevice')}
+          subTitleText={t('wallet.cameraPage.noCameraDeviceSub')}
         />
       </GlobalThemeView>
     );
@@ -310,7 +304,6 @@ export default function SendPaymentHome({ pageViewPage, from }) {
 }
 
 const styles = StyleSheet.create({
-  errorText: { width: '80%', textAlign: 'center' },
   bottomOverlay: {
     alignItems: 'center',
     justifyContent: 'flex-end',

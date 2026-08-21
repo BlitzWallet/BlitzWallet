@@ -28,7 +28,6 @@ import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic'
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
@@ -63,7 +62,6 @@ export default function LoginSecurity({ extraData }) {
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const updateSecuritySettings = async newSettings => {
@@ -81,7 +79,17 @@ export default function LoginSecurity({ extraData }) {
         getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(JSON.parse),
       ]);
 
-      if (saved) setSecurityLoginSettings(saved);
+      if (saved) {
+        setSecurityLoginSettings(saved);
+      } else {
+        const defaultConfig = {
+          isSecurityEnabled: true,
+          isPinEnabled: true,
+          isBiometricEnabled: false,
+        };
+        setSecurityLoginSettings(defaultConfig);
+        await updateSecuritySettings(defaultConfig);
+      }
       setUseRandomPinLayout(currentLayoutSetting);
     })();
   }, []);
@@ -114,35 +122,10 @@ export default function LoginSecurity({ extraData }) {
     })();
   }, [extraData]);
 
-  const toggleSecurityEnabled = useCallback(async () => {
-    try {
-      if (!securityLoginSettings.isSecurityEnabled) {
-        // Show choice when enabling security
-        setShowSecurityChoice(true);
-        return;
-      }
-
-      setIsSwitching(true);
-      const success = await handleLoginSecuritySwitch(
-        accountMnemoinc,
-        '',
-        'plain',
-      );
-      if (!success)
-        throw new Error(t('settings.loginSecurity.toggleSecurityModeError'));
-
-      await updateSecuritySettings({
-        ...securityLoginSettings,
-        isSecurityEnabled: false,
-      });
-      setShowSecurityChoice(false);
-    } catch (err) {
-      console.log('Toggle switch error:', err);
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
-    } finally {
-      setIsSwitching(false);
-    }
-  }, [securityLoginSettings]);
+  const toggleSecurityEnabled = useCallback(() => {
+    // Security can only be enabled, never disabled.
+    setShowSecurityChoice(true);
+  }, []);
 
   const toggleUseRandomPinLayout = useCallback(async () => {
     try {
@@ -268,23 +251,28 @@ export default function LoginSecurity({ extraData }) {
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <SettingsSection>
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          <SettingsItem
-            isLast
-            dividerColor={backgroundColor}
-            label={t('settings.loginSecurity.text1')}
+      {securityLoginSettings.isSecurityEnabled === false && (
+        <SettingsSection>
+          <View
+            style={[
+              styles.sectionContent,
+              { backgroundColor: backgroundOffset },
+            ]}
           >
-            <CustomToggleSwitch
-              page="LoginSecurityMode"
-              toggleSwitchFunction={toggleSecurityEnabled}
-              stateValue={securityLoginSettings.isSecurityEnabled}
-            />
-          </SettingsItem>
-        </View>
-      </SettingsSection>
+            <SettingsItem
+              isLast
+              dividerColor={backgroundColor}
+              label={t('settings.loginSecurity.text1')}
+            >
+              <CustomToggleSwitch
+                page="LoginSecurityMode"
+                toggleSwitchFunction={toggleSecurityEnabled}
+                stateValue={securityLoginSettings.isSecurityEnabled}
+              />
+            </SettingsItem>
+          </View>
+        </SettingsSection>
+      )}
 
       {showSecurityChoice && (
         <SettingsSection title={t('settings.loginSecurity.text2')}>

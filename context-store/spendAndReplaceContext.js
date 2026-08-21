@@ -9,6 +9,7 @@ import { SPEND_AND_REPLACE_STORAGE_KEY } from '../app/constants';
 import { useGlobalContextProvider } from './context';
 import { useSparkWallet } from './sparkContext';
 import { useKeysContext } from './keys';
+import { useAuthContext } from './authContext';
 import { processSpendAndReplaceIntents } from '../app/functions/spark/spendAndReplace';
 import { useFlashnet } from './flashnetContext';
 
@@ -20,13 +21,28 @@ export function SpendAndReplaceProvider({ children }) {
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
   const { poolInfoRef } = useFlashnet();
+  const { authResetkey } = useAuthContext();
   const isProcessingRef = useRef(false);
   const needsRerunRef = useRef(false);
+  const isInitialRender = useRef(true);
   const latestAccountRef = useRef({
     accountId: '',
     sparkAddress: '',
     mnemonic: '',
   });
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    latestAccountRef.current = {
+      accountId: '',
+      sparkAddress: '',
+      mnemonic: '',
+    };
+  }, [authResetkey]);
 
   useEffect(() => {
     latestAccountRef.current = {
@@ -41,12 +57,17 @@ export function SpendAndReplaceProvider({ children }) {
   ]);
 
   useEffect(() => {
+    const spendAndReplaceEnabled =
+      masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled;
+    const identityPubKey = sparkInformation?.identityPubKey;
+    const sparkAddress = sparkInformation?.sparkAddress;
+
     const handleTransactionUpdate = async () => {
-      if (!masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled) return;
+      if (!spendAndReplaceEnabled) return;
 
       const accountSnapshot = {
-        accountId: sparkInformation?.identityPubKey || '',
-        sparkAddress: sparkInformation?.sparkAddress || '',
+        accountId: identityPubKey || '',
+        sparkAddress: sparkAddress || '',
         mnemonic: accountMnemoinc || '',
       };
       if (
@@ -113,7 +134,13 @@ export function SpendAndReplaceProvider({ children }) {
         handleTransactionUpdate,
       );
     };
-  }, [masterInfoObject, sparkInformation, accountMnemoinc, t]);
+  }, [
+    masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled,
+    sparkInformation?.identityPubKey,
+    sparkInformation?.sparkAddress,
+    accountMnemoinc,
+    t,
+  ]);
 
   return (
     <SpendAndReplaceContext.Provider value={null}>
