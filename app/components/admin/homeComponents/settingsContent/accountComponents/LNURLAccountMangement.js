@@ -1,7 +1,6 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useMemo } from 'react';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -17,7 +16,6 @@ import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
 import { useNavigation } from '@react-navigation/native';
 
 export default function LNURLAccountMangement({ account, lnurlAddress }) {
-  const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
   const { showToast } = useToast();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -75,7 +73,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
         textContent={t('wallet.halfModal.copyAddress')}
       />
       <TouchableOpacity
-        style={[styles.changeCurrencyButton, { marginBottom: bottomPadding }]}
+        style={styles.changeCurrencyButton}
         onPress={() =>
           navigate.push('CustomHalfModal', {
             wantedContent: 'lnurlReceiveCurrencySelect',
