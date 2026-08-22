@@ -2073,8 +2073,8 @@
       },
       "transferModal": {
         "selectAccount": "Selecione uma conta",
-        "addFromTitle": "Escolha de qual conta o dinheiro será transferido.",
-        "withdrawToTitle": "Escolha para qual conta deseja transferir o dinheiro.",
+        "addFromTitle": "Escolha de qual conta o dinheiro será transferido",
+        "withdrawToTitle": "Escolha para qual conta deseja transferir o dinheiro",
         "noAccounts": "Nenhuma outra conta disponível.",
         "availableToAdd": "Disponível",
         "availableToWithdraw": "Disponível",
