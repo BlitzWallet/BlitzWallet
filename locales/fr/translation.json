@@ -3085,7 +3085,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Compte {{index}}"
+    "fallbackAccountName": "Compte {{index}}",
+    "lastUpdated": "Mis à jour {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "La requête n’a pas passé les vérifications de validation.",

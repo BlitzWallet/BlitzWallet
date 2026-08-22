@@ -3061,7 +3061,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Konto {{index}}"
+    "fallbackAccountName": "Konto {{index}}",
+    "lastUpdated": "Aktualisiert {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung leider nicht bestanden.",

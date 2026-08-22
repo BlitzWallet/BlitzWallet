@@ -15,6 +15,7 @@ import {
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { formatLocalTimeShort } from '../../../../functions/timeFormatter';
 
 /**
  * Account card component for account management.
@@ -29,6 +30,7 @@ export default function AccountCard({
   useAltBackground = false,
   isAccountSwitching = false,
   balanceSats,
+  lastUpdated,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
@@ -108,11 +110,20 @@ export default function AccountCard({
               : t('accountCard.fallbackAccountName', { index: accountIndex })
           }
         />
+        {lastUpdated != null && account.uuid !== MAIN_ACCOUNT_UUID && (
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.lastUpdated}
+            content={t('accountCard.lastUpdated', {
+              date: formatLocalTimeShort(new Date(lastUpdated)),
+            })}
+          />
+        )}
       </View>
 
       <View style={styles.rightSection}>
         {/* Right: Balance preview + Chevron */}
-        {balanceSats != null && (
+        {balanceSats != null && balanceSats > 0 && (
           <ThemeText
             styles={styles.previewBalance}
             content={displayCorrectDenomination({
@@ -159,6 +170,11 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   previewBalance: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    includeFontPadding: false,
+  },
+  lastUpdated: {
     fontSize: SIZES.small,
     opacity: 0.6,
     includeFontPadding: false,

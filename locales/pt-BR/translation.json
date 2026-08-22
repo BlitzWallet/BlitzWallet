@@ -3086,7 +3086,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Conta {{index}}"
+    "fallbackAccountName": "Conta {{index}}",
+    "lastUpdated": "Atualizado {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "A solicitação não passou pelas validações.",

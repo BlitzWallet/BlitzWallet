@@ -3095,7 +3095,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Аккаунт {{index}}"
+    "fallbackAccountName": "Аккаунт {{index}}",
+    "lastUpdated": "Обновлено {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "Запрос не прошел валидацию.",

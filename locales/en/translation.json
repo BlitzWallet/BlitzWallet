@@ -3061,7 +3061,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Account {{index}}"
+    "fallbackAccountName": "Account {{index}}",
+    "lastUpdated": "Updated {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "The request failed validation checks.",

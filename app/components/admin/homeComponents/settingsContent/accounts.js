@@ -41,7 +41,7 @@ export default function CreateCustodyAccounts() {
 
   const isLinked = activeTab === 'linked';
 
-  const computeTotalSats = useAccountBalancePreviews();
+  const { computeTotalSats, computeLastUpdated } = useAccountBalancePreviews();
 
   const handleNavigateAddAccount = useCallback(() => {
     if (isLinked) {
@@ -124,6 +124,7 @@ export default function CreateCustodyAccounts() {
                 account={item}
                 onPress={() => handleOpenAccount(item)}
                 balanceSats={isLinked ? undefined : computeTotalSats(item)}
+                lastUpdated={isLinked ? undefined : computeLastUpdated(item)}
               />
             ))}
           </View>

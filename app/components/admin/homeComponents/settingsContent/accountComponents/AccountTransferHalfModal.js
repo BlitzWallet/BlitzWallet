@@ -282,7 +282,7 @@ export default function AccountTransferHalfModal({
   const sourceStatus = isSourceActive ? 'ready' : sourceBalance.status;
   const sourceUsdMicros = Math.round(sourceUsdDollars * 1e6);
 
-  const computeTotalSats = useAccountBalancePreviews();
+  const { computeTotalSats } = useAccountBalancePreviews();
 
   // Cross-fade step transition (fade + directional slide), matching
   // halfModalDepositFunds / CreateAccumulationAddressModal: every visited page

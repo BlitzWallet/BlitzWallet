@@ -3086,7 +3086,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Konto {{index}}"
+    "fallbackAccountName": "Konto {{index}}",
+    "lastUpdated": "Uppdaterad {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "Begäran klarade inte valideringskontrollerna.",
