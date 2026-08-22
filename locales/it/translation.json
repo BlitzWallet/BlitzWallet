@@ -2084,7 +2084,8 @@
         "receivedFrom": "Ricevuto da {{name}}",
         "selfTransfer": "Non puoi trasferire a te stesso",
         "addFunds": "{{name}} ha aggiunto denaro",
-        "withdrawFunds": "{{name}} ha prelevato denaro"
+        "withdrawFunds": "{{name}} ha prelevato denaro",
+        "balanceLoadError": "Impossibile caricare il saldo di questo conto. Riprova."
       }
     },
     "accountsPoolsScreen": {

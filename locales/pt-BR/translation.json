@@ -2084,7 +2084,8 @@
         "receivedFrom": "Recebido de {{name}}",
         "selfTransfer": "Você não pode transferir para si mesmo",
         "addFunds": "{{name}} adicionou dinheiro",
-        "withdrawFunds": "{{name}} retirou dinheiro"
+        "withdrawFunds": "{{name}} retirou dinheiro",
+        "balanceLoadError": "Não foi possível carregar o saldo desta conta. Tente novamente."
       }
     },
     "accountsPoolsScreen": {

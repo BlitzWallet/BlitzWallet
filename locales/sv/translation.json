@@ -2084,7 +2084,8 @@
         "receivedFrom": "Mottaget från {{name}}",
         "selfTransfer": "Du kan inte överföra till dig själv",
         "addFunds": "{{name}} lade till pengar",
-        "withdrawFunds": "{{name}} tog ut pengar"
+        "withdrawFunds": "{{name}} tog ut pengar",
+        "balanceLoadError": "Det gick inte att läsa in saldot för det här kontot. Försök igen."
       }
     },
     "accountsPoolsScreen": {

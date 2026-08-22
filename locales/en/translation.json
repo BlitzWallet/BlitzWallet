@@ -2223,7 +2223,8 @@
         "receivedFrom": "Received from {{name}}",
         "selfTransfer": "You cannot transfer to yourself",
         "addFunds": "{{name}} added money",
-        "withdrawFunds": "{{name}} withdrew money"
+        "withdrawFunds": "{{name}} withdrew money",
+        "balanceLoadError": "Couldn't load this account's balance. Please try again."
       }
     },
     "accountsPoolsScreen": {

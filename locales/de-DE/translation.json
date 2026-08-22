@@ -2062,7 +2062,8 @@
         "receivedFrom": "Empfangen von {{name}}",
         "selfTransfer": "Sie können keine Übertragung an sich selbst durchführen",
         "addFunds": "{{name}} hat Geld hinzugefügt",
-        "withdrawFunds": "{{name}} hat Geld abgehoben"
+        "withdrawFunds": "{{name}} hat Geld abgehoben",
+        "balanceLoadError": "Der Kontostand konnte nicht geladen werden. Bitte versuche es erneut."
       }
     },
     "accountsPoolsScreen": {
