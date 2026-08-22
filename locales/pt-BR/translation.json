@@ -2073,7 +2073,7 @@
       },
       "transferModal": {
         "selectAccount": "Selecione uma conta",
-        "addFromTitle": "Escolha de qual conta transferir o saldo",
+        "addFromTitle": "Escolha de qual conta transferir",
         "withdrawToTitle": "Escolha a conta de destino",
         "noAccounts": "Nenhuma outra conta disponível.",
         "availableToAdd": "Disponível",
