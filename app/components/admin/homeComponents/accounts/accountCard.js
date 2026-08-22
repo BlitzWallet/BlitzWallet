@@ -115,7 +115,7 @@ export default function AccountCard({
             CustomNumberOfLines={1}
             styles={styles.lastUpdated}
             content={t('accountCard.lastUpdated', {
-              date: formatLocalTimeShort(new Date(lastUpdated)),
+              date: lastUpdated,
             })}
           />
         )}

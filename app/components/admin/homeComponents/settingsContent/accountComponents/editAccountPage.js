@@ -191,6 +191,7 @@ export default function EditAccountPage(props) {
 
         subscriptionRef.current = subscribeToSparkBalance({
           mnemonic,
+          stabilize: true,
           onUpdate: result => {
             if (cancelled || !result?.didWork) return;
             setAccountBalance({

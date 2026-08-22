@@ -690,11 +690,29 @@ export default function AccountTransferHalfModal({
     sendWebViewRequest,
     t,
   ]);
-
-  const candidates = custodyAccountsList.filter(
-    item => item.uuid !== currentAccount?.uuid,
-  );
+  const candidates = custodyAccountsList
+    .filter(item => item.uuid !== currentAccount?.uuid)
+    .filter(item => !isAdd || computeTotalSats(item) > 0);
   const isConfirmed = !errorMessage;
+
+  if (!candidates.length) {
+    return (
+      <NoContentSceen
+        iconName="Users"
+        titleText={t(
+          'settings.accountComponents.transferModal.noAvailableAccounts',
+        )}
+        subTitleText={
+          custodyAccountsList.length > 1
+            ? t(
+                'settings.accountComponents.transferModal.noAvailableAccountsSubtitle',
+              )
+            : t('settings.accountComponents.transferModal.noAccountsSubtitle')
+        }
+        containerStyles={styles.emptyContainer}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -711,68 +729,61 @@ export default function AccountTransferHalfModal({
               : 'settings.accountComponents.transferModal.withdrawToTitle',
           )}
         />
-        {candidates.length > 0 ? (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.accountList}
-            contentContainerStyle={styles.accountListContent}
-          >
-            {candidates.map((candidate, index) => {
-              // Only the currently-active account's balance is already in
-              // context (instant, no fetch); every other source is fetched.
-              // Keyed on the tapped card — NOT the component-scoped
-              // isSourceActive, which reflects the previously selected account —
-              // so the skeleton and the seeded 'loading' status always describe
-              // the card actually tapped (the main wallet may not be active, and
-              // the active account may not be the main wallet).
-              const candidateIsActive = candidate.uuid === activeAccount?.uuid;
-              return (
-                <AccountCard
-                  useAltBackground={theme && darkModeType}
-                  key={candidate.uuid || `Account ${index}`}
-                  account={candidate}
-                  isLoading={
-                    loadingAccountUuid === candidate.uuid && !candidateIsActive
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.accountList}
+          contentContainerStyle={styles.accountListContent}
+        >
+          {candidates.map((candidate, index) => {
+            // Only the currently-active account's balance is already in
+            // context (instant, no fetch); every other source is fetched.
+            // Keyed on the tapped card — NOT the component-scoped
+            // isSourceActive, which reflects the previously selected account —
+            // so the skeleton and the seeded 'loading' status always describe
+            // the card actually tapped (the main wallet may not be active, and
+            // the active account may not be the main wallet).
+            const candidateIsActive = candidate.uuid === activeAccount?.uuid;
+            return (
+              <AccountCard
+                useAltBackground={theme && darkModeType}
+                key={candidate.uuid || `Account ${index}`}
+                account={candidate}
+                isLoading={
+                  loadingAccountUuid === candidate.uuid && !candidateIsActive
+                }
+                onPress={() => {
+                  // Only one account loads at a time; ignore presses mid-load.
+                  if (loadingAccountRef.current || loadingAccountUuid) return;
+                  setSelectedAccount(candidate);
+                  if (!isAdd) {
+                    // Withdraw's destination needs no balance fetch.
+                    goToPage('amount');
+                    return;
                   }
-                  onPress={() => {
-                    // Only one account loads at a time; ignore presses mid-load.
-                    if (loadingAccountRef.current || loadingAccountUuid) return;
-                    setSelectedAccount(candidate);
-                    if (!isAdd) {
-                      // Withdraw's destination needs no balance fetch.
-                      goToPage('amount');
-                      return;
-                    }
-                    // The amount step is gated on this pick's real balance, so
-                    // show the card as loading and drop any previous read here —
-                    // synchronously with the selection change, or the ready-
-                    // watcher would see the prior account's 'ready' status.
-                    setSourceBalance({
-                      status: candidateIsActive ? 'ready' : 'loading',
-                      btcSats: 0,
-                      usdDollars: 0,
-                      tokensObj: null,
-                    });
-                    // Record the pick synchronously so the balance effect's
-                    // cleanup can distinguish this switch from a same-account
-                    // refetch before the re-render commits.
-                    pickedSourceUuidRef.current = candidate.uuid;
-                    loadingAccountRef.current = candidate.uuid;
-                    setBalanceReloadKey(key => key + 1);
-                    setLoadingAccountUuid(candidate.uuid);
-                  }}
-                  balanceSats={computeTotalSats(candidate)}
-                />
-              );
-            })}
-          </ScrollView>
-        ) : (
-          <NoContentSceen
-            iconName="Users"
-            titleText={t('settings.accountComponents.transferModal.noAccounts')}
-            containerStyles={styles.emptyContainer}
-          />
-        )}
+                  // The amount step is gated on this pick's real balance, so
+                  // show the card as loading and drop any previous read here —
+                  // synchronously with the selection change, or the ready-
+                  // watcher would see the prior account's 'ready' status.
+                  setSourceBalance({
+                    status: candidateIsActive ? 'ready' : 'loading',
+                    btcSats: 0,
+                    usdDollars: 0,
+                    tokensObj: null,
+                  });
+                  // Record the pick synchronously so the balance effect's
+                  // cleanup can distinguish this switch from a same-account
+                  // refetch before the re-render commits.
+                  pickedSourceUuidRef.current = candidate.uuid;
+                  loadingAccountRef.current = candidate.uuid;
+                  setBalanceReloadKey(key => key + 1);
+                  setLoadingAccountUuid(candidate.uuid);
+                }}
+                balanceSats={computeTotalSats(candidate)}
+              />
+            );
+          })}
+        </ScrollView>
       </Animated.View>
 
       {/* Amount entry */}

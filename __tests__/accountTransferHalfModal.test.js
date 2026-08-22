@@ -7,6 +7,10 @@ let mockActiveAccount = { uuid: 'active-uuid', name: 'Active' };
 let mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
 let mockCurrentAccount = { uuid: 'child-uuid', name: 'Child', childIndex: 0 };
 let mockCustodyAccounts = [];
+// Per-uuid balance previews consumed by the picker's zero-balance filter.
+// Unlisted accounts default to a positive balance so scenarios that don't
+// care about balances still see their cards.
+let mockAccountBalances = {};
 let mockActiveAccountBalance = 50000;
 let mockActiveDollarBalance = 2;
 let mockGetSparkBalance = jest.fn();
@@ -168,6 +172,17 @@ jest.mock('../app/hooks/useDebounce', () => ({
   },
 }));
 
+jest.mock('../app/hooks/useAccountBalancePreviews', () => ({
+  __esModule: true,
+  default: () => ({
+    computeTotalSats: account =>
+      account.uuid in mockAccountBalances
+        ? mockAccountBalances[account.uuid]
+        : 50000,
+    computeLastUpdated: () => null,
+  }),
+}));
+
 jest.mock('../app/functions/CustomElements', () => {
   const MockReact = require('react');
   const RN = require('react-native');
@@ -220,10 +235,20 @@ jest.mock('../app/functions/CustomElements/loadingScreen', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/functions/CustomElements/noContentScreen', () => ({
-  __esModule: true,
-  default: () => null,
-}));
+jest.mock('../app/functions/CustomElements/noContentScreen', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ titleText, subTitleText }) =>
+      MockReact.createElement(
+        RN.View,
+        { testID: 'no-content-screen' },
+        titleText,
+        subTitleText,
+      ),
+  };
+});
 
 jest.mock('../app/components/admin/homeComponents/accounts/accountCard', () => {
   const MockReact = require('react');
@@ -432,6 +457,7 @@ beforeEach(() => {
   mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child', childIndex: 0 }];
   mockCurrentAccount = { uuid: 'child-uuid', name: 'Child', childIndex: 0 };
   mockCustodyAccounts = [];
+  mockAccountBalances = {};
   mockActiveAccountBalance = 50000;
   mockActiveDollarBalance = 2;
   // Empty input parses to 0 sats; any entered amount maps to 1000 for the
@@ -476,6 +502,60 @@ describe('AccountTransferHalfModal step flow', () => {
     expect(() =>
       renderer.root.findByProps({ testID: 'account-card-other-child-uuid' }),
     ).toThrow();
+  });
+
+  test('picker hides zero and unknown balance accounts', async () => {
+    mockCustodyAccounts = [
+      { uuid: 'other-uuid', name: 'Other' },
+      { uuid: 'empty-uuid', name: 'Empty' },
+      { uuid: 'unknown-uuid', name: 'Unknown' },
+    ];
+    mockAccountBalances = { 'empty-uuid': 0, 'unknown-uuid': null };
+    const renderer = await renderModal();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-other-uuid' }),
+    ).not.toThrow();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-empty-uuid' }),
+    ).toThrow();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-unknown-uuid' }),
+    ).toThrow();
+  });
+
+  test('withdraw mode keeps zero balance accounts selectable', async () => {
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    mockAccountBalances = { 'other-uuid': 0 };
+    const renderer = await renderModal({ mode: 'withdraw' });
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-other-uuid' }),
+    ).not.toThrow();
+  });
+
+  test('picker shows the funds empty state when other accounts exist but have no balance', async () => {
+    mockCustodyAccounts = [
+      { uuid: 'child-uuid', name: 'Child' },
+      { uuid: 'other-uuid', name: 'Other' },
+    ];
+    mockAccountBalances = { 'other-uuid': 0 };
+    const renderer = await renderModal();
+    expect(
+      renderer.root.findByProps({ testID: 'no-content-screen' }).props.children,
+    ).toEqual([
+      'settings.accountComponents.transferModal.noAvailableAccounts',
+      'settings.accountComponents.transferModal.noAvailableAccountsSubtitle',
+    ]);
+  });
+
+  test('picker shows the create-account empty state when no other accounts exist', async () => {
+    mockCustodyAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
+    const renderer = await renderModal();
+    expect(
+      renderer.root.findByProps({ testID: 'no-content-screen' }).props.children,
+    ).toEqual([
+      'settings.accountComponents.transferModal.noAvailableAccounts',
+      'settings.accountComponents.transferModal.noAccountsSubtitle',
+    ]);
   });
 
   test('BTC confirm sends sats with the computed fee and asset BTC', async () => {

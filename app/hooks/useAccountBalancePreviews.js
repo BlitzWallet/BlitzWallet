@@ -9,6 +9,8 @@ import {
   getAllAccountBalanceSnapshots,
   getUsdTokenDollars,
 } from '../functions/spark/balanceSnapshots';
+import { createFormattedDate } from '../components/admin/homeComponents/contacts/contactsPageComponents/utilityFunctions';
+import { useTranslation } from 'react-i18next';
 
 // Cached balance snapshots keyed by identity pubkey, re-read every time the
 // page regains focus so balances updated while inside an account are current
@@ -21,6 +23,8 @@ export default function useAccountBalancePreviews() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { swapUSDPriceDollars } = useFlashnet();
+  const now = useMemo(() => Date.now(), []);
+  const { t } = useTranslation();
 
   const [snapshotMap, setSnapshotMap] = useState({});
   useFocusEffect(
@@ -98,9 +102,10 @@ export default function useAccountBalancePreviews() {
       if (isActiveAccount) return null;
       const pubkey = accountPubkeys[account.uuid];
       const snapshot = pubkey ? snapshotMap[pubkey] : null;
-      return snapshot?.updatedAt ?? null;
+      if (!snapshot?.updatedAt) return null;
+      return createFormattedDate(snapshot?.updatedAt, now, t);
     },
-    [activeAccount?.uuid, accountPubkeys, snapshotMap],
+    [activeAccount?.uuid, accountPubkeys, snapshotMap, now],
   );
 
   return { computeTotalSats, computeLastUpdated };
