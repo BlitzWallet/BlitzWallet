@@ -97,13 +97,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     fontSize: SIZES.smedium,
     lineHeight: 22,
-    marginBottom: 32,
+    marginBottom: 20,
   },
-  bullets: {
-    gap: 22,
-    marginTop: 20,
-    marginBottom: 'auto',
-  },
+
   button: {
     width: '100%',
     marginTop: CONTENT_KEYBOARD_OFFSET,
@@ -111,6 +107,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
+    marginTop: 24,
     borderRadius: 24,
     overflow: 'hidden',
     marginBottom: 'auto',
@@ -118,8 +115,8 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    paddingVertical: 15,
+    gap: 10,
+    paddingVertical: 16,
     paddingHorizontal: 16,
   },
   infoIcon: {
