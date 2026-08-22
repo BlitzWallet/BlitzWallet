@@ -2163,7 +2163,7 @@
         "activeLabel": "Active account",
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
-        "withdrawMoneyButton": "Withdraw money",
+        "withdrawMoneyButton": "Withdraw",
         "viewActivityLabel": "Account History",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",

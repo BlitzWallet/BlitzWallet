@@ -370,7 +370,9 @@ export default function EditAccountPage(props) {
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
   );
-  const withdrawLabel = t('savings.actionButtons.withdraw');
+  const withdrawLabel = t(
+    'settings.accountComponents.editAccountPage.withdrawMoneyButton',
+  );
   const depositBg =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
