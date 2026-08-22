@@ -2304,7 +2304,7 @@
         "noTransactions": "Nenhuma atividade ainda",
         "spendingLimitLabel": "Limite de gastos",
         "loadingBalance": "Carregando saldo...",
-        "shareLink": "Ativar supervisão"
+        "shareLink": "Vincular conta"
       },
       "claim": {
         "title": "Configure sua conta",
