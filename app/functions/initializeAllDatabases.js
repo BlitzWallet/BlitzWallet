@@ -26,20 +26,20 @@ export function resetDatabaseInitialization() {
 export function initializeAllDatabases() {
   if (!initPromise) {
     initPromise = (async () => {
-      const results = [];
-
-      results.push(await initializeDatabase());
-      results.push(await initializeGiftCardDatabase());
-      results.push(await initializePOSTransactionsDatabase());
-      results.push(await initializeSparkDatabase());
-      results.push(await initRootstockSwapDB());
-      results.push(await initGiftDb());
-      results.push(await initPoolDb());
-      results.push(await initSavingsDb());
-      results.push(await initLeavesDb());
-      results.push(await initBTCMapDB());
+      const results = await Promise.all([
+        initializeDatabase(),
+        initializeGiftCardDatabase(),
+        initializePOSTransactionsDatabase(),
+        initializeSparkDatabase(),
+        initRootstockSwapDB(),
+        initGiftDb(),
+        initPoolDb(),
+        initSavingsDb(),
+        initLeavesDb(),
+        initBTCMapDB(),
+      ]);
       if (results.some(result => !result)) {
-        initPromise = null;
+        initPromise = null; // allow a later retry to re-attempt
         throw new Error('dbInitError');
       }
       return true;
