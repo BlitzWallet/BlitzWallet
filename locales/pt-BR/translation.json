@@ -2074,7 +2074,7 @@
       },
       "transferModal": {
         "selectAccount": "Selecione uma conta",
-        "addFromTitle": "Escolha de qual conta transferir",
+        "addFromTitle": "Escolha de qual conta receber",
         "withdrawToTitle": "Escolha a conta de destino",
         "noAvailableAccounts": "Nenhuma conta disponível",
         "noAccountsSubtitle": "Você ainda não tem contas. Crie uma para começar.",
