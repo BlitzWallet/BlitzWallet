@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Поделиться моей ссылкой",
       "images": "Из изображения",
       "clipboard": "Из буфера обмена",
       "manual": "Вручную",

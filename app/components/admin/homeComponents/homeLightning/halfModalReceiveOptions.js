@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, SIZES } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
@@ -32,6 +32,8 @@ import { copyToClipboard } from '../../../../functions';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { share } from '../../../../functions/handleShare';
 
 // ─── LNURL Banner ────────────────────────────────────────────────────────────
 
@@ -123,11 +125,20 @@ export const LNURLBanner = ({
 
 // ─── LNURL QR Overlay ────────────────────────────────────────────────────────
 
-const LNURLQROverlay = ({ visible, onClose, lnurlAddress, navigate, t }) => {
+const LNURLQROverlay = ({
+  visible,
+  onClose,
+  lnurlAddress,
+  navigate,
+  t,
+  username,
+}) => {
   const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
   const { showToast } = useToast();
   const overlayOpacity = useSharedValue(0);
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
 
   useEffect(() => {
     overlayOpacity.value = withTiming(visible ? 1 : 0, { duration: 250 });
@@ -150,9 +161,19 @@ const LNURLQROverlay = ({ visible, onClose, lnurlAddress, navigate, t }) => {
   const qrContainerSize = Math.round(screenDimensions.width * 0.75);
   const qrInnerSize = qrContainerSize - 25;
 
+  const qrOuterContainerStyle = {
+    width: qrContainerSize,
+    height: qrContainerSize,
+  };
+  const qrInnerContainerStyle = { width: qrInnerSize, height: qrInnerSize };
+
   const handleCopy = () => {
     if (!lnurlAddress) return;
     copyToClipboard(lnurlAddress, showToast);
+  };
+  const handleShare = () => {
+    if (!lnurlAddress) return;
+    share({ url: `https://blitzwalletapp.com/${username}` });
   };
 
   return (
@@ -162,32 +183,41 @@ const LNURLQROverlay = ({ visible, onClose, lnurlAddress, navigate, t }) => {
           contentContainerStyle={styles.qrViewScrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity activeOpacity={0.8} onPress={handleCopy}>
+          <TouchableOpacity
+            style={[
+              styles.qrCardTouchable,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+            activeOpacity={0.8}
+            onPress={handleCopy}
+          >
             <QrCodeWrapper
               QRData={`${lnurlAddress}`}
               qrSize={qrInnerSize}
-              outerContainerStyle={{
-                width: qrContainerSize,
-                height: qrContainerSize,
-              }}
-              innerContainerStyle={{
-                width: qrInnerSize,
-                height: qrInnerSize,
-              }}
+              outerContainerStyle={qrOuterContainerStyle}
+              innerContainerStyle={qrInnerContainerStyle}
             />
-            <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
-              styles={styles.qrViewAddressText}
-              content={lnurlAddress}
-            />
+            <View style={[styles.qrAddressRow, { width: qrInnerSize }]}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                // adjustsFontSizeToFit={true}
+                styles={styles.qrViewAddressText}
+                content={lnurlAddress}
+              />
+              <View style={styles.copyIconWrapper}>
+                <ThemeIcon size={20} iconName={'Copy'} />
+              </View>
+            </View>
           </TouchableOpacity>
         </ScrollView>
 
         <CustomButton
-          buttonStyles={{ width: '100%', ...CENTER }}
-          actionFunction={handleCopy}
-          textContent={t('wallet.halfModal.copyAddress')}
+          buttonStyles={styles.shareButton}
+          actionFunction={handleShare}
+          textContent={t('wallet.halfModal.sharePaylink')}
         />
         <TouchableOpacity
           style={[styles.changeCurrencyButton, { marginBottom: bottomPadding }]}
@@ -285,7 +315,11 @@ export default function HalfModalReceiveOptions({
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
 
-  const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`;
+  const lnurlAddress = useMemo(
+    () =>
+      `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`,
+    [globalContactsInformation?.myProfile?.uniqueName],
+  );
 
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
@@ -401,7 +435,7 @@ export default function HalfModalReceiveOptions({
   // All single-step overlays close the same way: clear the active overlay and
   // reset the header back step. `closeOverlay` is idempotent so repeated back
   // presses during the close cannot fire duplicate navigation.
-  const handleLNURLClose = closeOverlay;
+  const handleLNURLClose = useCallback(() => closeOverlay(), [closeOverlay]);
   const handleAddContactsClose = closeOverlay;
   const handlePoolClose = closeOverlay;
   const handlePaylinkClose = closeOverlay;
@@ -460,9 +494,7 @@ export default function HalfModalReceiveOptions({
         >
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() =>
-              openOverlay({ type: 'payLink' })
-            }
+            onPress={() => openOverlay({ type: 'payLink' })}
           >
             <View
               style={[
@@ -598,6 +630,7 @@ export default function HalfModalReceiveOptions({
         visible={overlayType === 'lnurlQR'}
         onClose={handleLNURLClose}
         lnurlAddress={lnurlAddress}
+        username={globalContactsInformation?.myProfile?.uniqueName}
         t={t}
         navigate={navigate}
       />
@@ -722,8 +755,25 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
-    marginTop: 12,
+    flexShrink: 1,
     includeFontPadding: false,
+  },
+  shareButton: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
+  qrCardTouchable: {
+    borderRadius: 16,
+    paddingBottom: 12.5,
+    overflow: 'hidden',
+  },
+  qrAddressRow: {
+    flexDirection: 'row',
+    ...CENTER,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    paddingHorizontal: 10,
+  },
+  copyIconWrapper: {
+    opacity: HIDDEN_OPACITY,
   },
   changeCurrencyButton: {
     minHeight: 40,

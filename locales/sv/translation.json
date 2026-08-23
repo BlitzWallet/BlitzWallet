@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Dela min länk",
       "images": "Från bild",
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",

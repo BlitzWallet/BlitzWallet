@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Meinen Link teilen",
       "images": "Aus Bild",
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
