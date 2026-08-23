@@ -2067,8 +2067,8 @@
       },
       "removeAccountPage": {
         "title": "Remover conta",
-        "explanation_derived": "Mesmo que você arquive esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
-        "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
+        "explanation_derived": "Mesmo que você remova esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
         "removeButton": "Remover conta"
       },
@@ -3069,11 +3069,11 @@
       "body": "Você recebeu {{totalAmount}}"
     },
     "LNURL": {
-      "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
-      "regular": "Alguém te enviou {{totalAmount}}",
+      "zapped": "Você recebeu um Zap de {{totalAmount}}",
+      "regular": "Você recebeu {{totalAmount}}",
       "subAccount": {
-        "zapped": "Sua {{account}} recebeu um Zap de {{totalAmount}}",
-        "regular": "Sua {{account}} recebeu {{totalAmount}}",
+        "zapped": "Você recebeu um Zap de {{totalAmount}} na {{account}}",
+        "regular": "Você recebeu {{totalAmount}} na {{account}}",
         "fallbackName": "conta"
       }
     },
