@@ -3069,7 +3069,12 @@
     },
     "LNURL": {
       "zapped": "Fuiste electrocutado {{totalAmount}}",
-      "regular": "Acabas de recibir {{totalAmount}}"
+      "regular": "Acabas de recibir {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Tu {{account}} recibió un zap de {{totalAmount}}",
+        "regular": "Tu {{account}} recibió {{totalAmount}}",
+        "fallbackName": "cuenta"
+      }
     },
     "POS": "Pedido recibido: {{totalAmount}}",
     "contacts": {

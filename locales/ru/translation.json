@@ -3078,7 +3078,12 @@
     },
     "LNURL": {
       "zapped": "Вас запнули на {{totalAmount}}",
-      "regular": "Вы получили {{totalAmount}}"
+      "regular": "Вы получили {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Ваш {{account}} получил зап на {{totalAmount}}",
+        "regular": "На ваш {{account}} поступило {{totalAmount}}",
+        "fallbackName": "аккаунт"
+      }
     },
     "POS": "Заказ получен: {{totalAmount}}",
     "contacts": {

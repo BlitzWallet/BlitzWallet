@@ -1,21 +1,21 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { SIZES, COLORS, BASIC_ACCOUNT_NAME_REGEX } from '../../../../constants';
+import {
+  SIZES,
+  COLORS,
+  BASIC_ACCOUNT_NAME_REGEX,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import AccountProfileImage from './accountProfileImage';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-} from '../../../../../context-store/activeAccount';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { formatLocalTimeShort } from '../../../../functions/timeFormatter';
 
 /**
  * Account card component for account management.

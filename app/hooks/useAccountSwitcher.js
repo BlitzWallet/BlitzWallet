@@ -1,13 +1,10 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../context-store/activeAccount';
 import { useSparkWallet } from '../../context-store/sparkContext';
 import { initWallet } from '../functions/initiateWalletConnection';
 import { navigationRef } from '../../navigation/navigationService';
+import { MAIN_ACCOUNT_UUID, NWC_ACCOUNT_UUID } from '../constants';
 
 export default function useAccountSwitcher() {
   const navigate = useNavigation();

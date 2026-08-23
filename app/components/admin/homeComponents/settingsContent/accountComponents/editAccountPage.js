@@ -13,11 +13,7 @@ import {
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
@@ -29,7 +25,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../../constants';
 import { formatBalanceAmount } from '../../../../../functions';
 import {
   disposeSparkWallet,

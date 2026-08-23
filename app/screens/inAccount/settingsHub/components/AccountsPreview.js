@@ -2,13 +2,15 @@ import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import AccountProfileImage from '../../../../components/admin/homeComponents/accounts/accountProfileImage';
-import { BASIC_ACCOUNT_NAME_REGEX, COLORS, SIZES } from '../../../../constants';
-import { useTranslation } from 'react-i18next';
 import {
+  BASIC_ACCOUNT_NAME_REGEX,
+  COLORS,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../../../../context-store/activeAccount';
+  SIZES,
+} from '../../../../constants';
+import { useTranslation } from 'react-i18next';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';

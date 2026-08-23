@@ -3069,7 +3069,12 @@
     },
     "LNURL": {
       "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
-      "regular": "Alguém te enviou {{totalAmount}}"
+      "regular": "Alguém te enviou {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Sua {{account}} recebeu um Zap de {{totalAmount}}",
+        "regular": "Sua {{account}} recebeu {{totalAmount}}",
+        "fallbackName": "conta"
+      }
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {

@@ -3044,7 +3044,12 @@
     },
     "LNURL": {
       "zapped": "Sie wurden mit {{totalAmount}} gezappt.",
-      "regular": "Sie haben gerade {{totalAmount}} erhalten."
+      "regular": "Sie haben gerade {{totalAmount}} erhalten.",
+      "subAccount": {
+        "zapped": "Ihr {{account}} wurde mit {{totalAmount}} gezappt.",
+        "regular": "Ihr {{account}} hat gerade {{totalAmount}} erhalten.",
+        "fallbackName": "Konto"
+      }
     },
     "POS": "Bestellung erhalten: {{totalAmount}}",
     "contacts": {

@@ -13,8 +13,11 @@ import {
 } from '../app/functions';
 import {
   CUSTODY_ACCOUNTS_STORAGE_KEY,
+  CUSTODY_ACCOUNT_NAMES_KEY,
   NWC_SECURE_STORE_MNEMOINC,
   MAX_DERIVED_ACCOUNTS,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
 } from '../app/constants';
 import { useKeysContext } from './keys';
 import {
@@ -34,9 +37,6 @@ import { deriveSparkIdentityKey } from '../app/functions/gift/deriveGiftWallet';
 import { deleteLnurlRegistryEntry } from '../db';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
-
-export const MAIN_ACCOUNT_UUID = 'MW09xd09d8f0a9sf2n332';
-export const NWC_ACCOUNT_UUID = 'NWC038rsd0f8234ajsf';
 
 // One-time migration: accounts created before deterministic ids carried a
 // random customUUID() id, which no longer matches after restoring a seed on a
@@ -691,6 +691,22 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     nostrSeed,
     t,
   ]);
+
+  // Mirror decrypted account names to a plaintext uuid → name map so the
+  // background push handler can label sub-account payments without the master
+  // seed (loadCustodyAccounts needs it and can't run in the background). Only
+  // names are cached — never seeds.
+  useEffect(() => {
+    try {
+      const nameMap = {};
+      for (const acct of custodyAccountsList) {
+        if (acct?.uuid) nameMap[acct.uuid] = acct.name;
+      }
+      setLocalStorageItem(CUSTODY_ACCOUNT_NAMES_KEY, JSON.stringify(nameMap));
+    } catch (err) {
+      console.log('error updating custody account keymap', err);
+    }
+  }, [custodyAccountsList]);
 
   // Publish a per-account LNURL address registry into the user doc so the proxy
   // can mint invoices against each sub-account's own Spark identity key. Additive

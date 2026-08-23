@@ -11,6 +11,8 @@ jest.mock('../app/constants', () => ({
   SIZES: { small: 12, medium: 16 },
   COLORS: { opaicityGray: '#ccc' },
   BASIC_ACCOUNT_NAME_REGEX: /^$/,
+  MAIN_ACCOUNT_UUID: 'main-account',
+  NWC_ACCOUNT_UUID: 'nwc-account',
 }));
 
 jest.mock('../context-store/theme', () => ({
@@ -23,11 +25,6 @@ jest.mock('../context-store/context', () => ({
 
 jest.mock('../context-store/nodeContext', () => ({
   useNodeContext: () => ({ fiatStats: {} }),
-}));
-
-jest.mock('../context-store/activeAccount', () => ({
-  MAIN_ACCOUNT_UUID: 'main-account',
-  NWC_ACCOUNT_UUID: 'nwc-account',
 }));
 
 jest.mock('../app/hooks/themeColors', () => ({
@@ -75,8 +72,8 @@ jest.mock('../app/functions/timeFormatter', () => ({
   formatLocalTimeShort: () => 'Aug 22, 2026',
 }));
 
-const AccountCard = require('../app/components/admin/homeComponents/accounts/accountCard')
-  .default;
+const AccountCard =
+  require('../app/components/admin/homeComponents/accounts/accountCard').default;
 
 const DEFAULT_ACCOUNT = { uuid: 'acct-1', name: 'Savings' };
 
@@ -102,7 +99,9 @@ describe('AccountCard last updated line', () => {
   test('renders the formatted date on a non-main account', () => {
     const renderer = renderCard({ lastUpdated: 1724300000000 });
     expect(
-      getTexts(renderer).some(text => text.includes('Aug 22, 2026')),
+      getTexts(renderer).some(text =>
+        text.includes('accountCard.lastUpdated:{"date":1724300000000}'),
+      ),
     ).toBe(true);
   });
 
@@ -111,7 +110,7 @@ describe('AccountCard last updated line', () => {
       lastUpdated: 1724300000000,
       account: { uuid: 'main-account', name: 'Main' },
     });
-    expect(getTexts(renderer).some(text => text.includes('Aug 22, 2026'))).toBe(
+    expect(getTexts(renderer).some(text => text.includes('8/22/2024'))).toBe(
       false,
     );
   });

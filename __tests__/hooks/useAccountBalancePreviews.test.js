@@ -42,8 +42,8 @@ jest.mock('../../app/functions/spark/balanceSnapshots', () => ({
   getUsdTokenDollars: () => 0,
 }));
 
-const useAccountBalancePreviews = require('../../app/hooks/useAccountBalancePreviews')
-  .default;
+const useAccountBalancePreviews =
+  require('../../app/hooks/useAccountBalancePreviews').default;
 
 async function flushMicrotasks(times = 20) {
   for (let i = 0; i < times; i++) await Promise.resolve();
@@ -76,12 +76,15 @@ describe('useAccountBalancePreviews.computeLastUpdated', () => {
       acct1: { uuid: 'acct-1', identityPubKey: 'pk-1' },
     };
     mockSnapshots = [
-      { identityPubKey: 'pk-1', balance: 1000, tokens: {}, updatedAt: 1724300000000 },
+      {
+        identityPubKey: 'pk-1',
+        balance: 1000,
+        tokens: {},
+        updatedAt: 1724300000000,
+      },
     ];
     const hookResult = await renderHook();
-    expect(hookResult.computeLastUpdated({ uuid: 'acct-1' })).toBe(
-      1724300000000,
-    );
+    expect(hookResult.computeLastUpdated({ uuid: 'acct-1' })).toBe('8/22/2024');
   });
 
   test('returns null for the active account even when a snapshot exists', async () => {
@@ -89,7 +92,12 @@ describe('useAccountBalancePreviews.computeLastUpdated', () => {
       acct1: { uuid: 'active-uuid', identityPubKey: 'pk-1' },
     };
     mockSnapshots = [
-      { identityPubKey: 'pk-1', balance: 1000, tokens: {}, updatedAt: 1724300000000 },
+      {
+        identityPubKey: 'pk-1',
+        balance: 1000,
+        tokens: {},
+        updatedAt: 1724300000000,
+      },
     ];
     const hookResult = await renderHook();
     expect(hookResult.computeLastUpdated({ uuid: 'active-uuid' })).toBeNull();
@@ -108,7 +116,12 @@ describe('useAccountBalancePreviews.computeLastUpdated', () => {
       acct1: { uuid: 'acct-1', identityPubKey: 'pk-1' },
     };
     mockSnapshots = [
-      { identityPubKey: 'pk-1', balance: 1000, tokens: {}, updatedAt: 1724300000000 },
+      {
+        identityPubKey: 'pk-1',
+        balance: 1000,
+        tokens: {},
+        updatedAt: 1724300000000,
+      },
     ];
     const hookResult = await renderHook();
     expect(hookResult.computeTotalSats({ uuid: 'acct-1' })).toBe(1000);

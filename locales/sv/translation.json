@@ -3069,7 +3069,12 @@
     },
     "LNURL": {
       "zapped": "Du blev zappad {{totalAmount}}",
-      "regular": "Du har just fått {{totalAmount}}"
+      "regular": "Du har just fått {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Din {{account}} blev zappad {{totalAmount}}",
+        "regular": "Din {{account}} fick {{totalAmount}}",
+        "fallbackName": "konto"
+      }
     },
     "POS": "Beställning mottagen: {{totalAmount}}",
     "contacts": {

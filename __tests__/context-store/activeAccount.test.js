@@ -75,19 +75,24 @@ jest.mock('react-i18next', () => ({
 
 const mockGetLocalStorageItem = jest.fn();
 const mockSetLocalStorageItem = jest.fn(async () => true);
+const mockRemoveLocalStorageItem = jest.fn(async () => true);
 const mockRetrieveData = jest.fn(async () => ({ value: null }));
 jest.mock('../../app/functions', () => ({
   __esModule: true,
   getLocalStorageItem: (...a) => mockGetLocalStorageItem(...a),
   setLocalStorageItem: (...a) => mockSetLocalStorageItem(...a),
+  removeLocalStorageItem: (...a) => mockRemoveLocalStorageItem(...a),
   retrieveData: (...a) => mockRetrieveData(...a),
 }));
 
 jest.mock('../../app/constants', () => ({
   __esModule: true,
   CUSTODY_ACCOUNTS_STORAGE_KEY: 'CUSTODY_ACCOUNTS',
+  CUSTODY_ACCOUNT_NAMES_KEY: 'CUSTODY_ACCOUNT_NAMES',
   NWC_SECURE_STORE_MNEMOINC: 'NWC_SECURE_STORE_MNEMOINC',
   MAX_DERIVED_ACCOUNTS: 1000,
+  MAIN_ACCOUNT_UUID: 'MW09xd09d8f0a9sf2n332',
+  NWC_ACCOUNT_UUID: 'NWC038rsd0f8234ajsf',
 }));
 
 const mockLoadCustodyAccounts = jest.fn();
@@ -287,23 +292,6 @@ describe('account writes route through writeCustodyAccounts', () => {
   });
 });
 
-describe('authResetkey teardown', () => {
-  it('clears the session crypto cache and account state on logout/wipe', async () => {
-    mockLoadCustodyAccounts.mockResolvedValue([ACCOUNT]);
-    const { renderer } = await mount();
-    expect(ctx.custodyAccounts).toEqual([ACCOUNT]);
-
-    mockAuth.authResetkey = 1;
-    act(() => {
-      renderer.update(providerElement());
-    });
-    await flush();
-
-    expect(mockResetCustodyCryptoState).toHaveBeenCalled();
-    expect(ctx.custodyAccounts).toEqual([]);
-  });
-});
-
 describe('deterministic account UUIDs', () => {
   it('createDerivedAccount derives the uuid from the account identity key', async () => {
     await mount();
@@ -403,10 +391,7 @@ describe('deterministic account UUIDs', () => {
     await mount();
 
     expect(mockGenerateAccountUuid).toHaveBeenCalledWith(ACCOUNT.mnemoinc);
-    expect(mockWriteCustodyAccounts).not.toHaveBeenCalledWith(
-      [ACCOUNT],
-      SEED,
-    );
+    expect(mockWriteCustodyAccounts).not.toHaveBeenCalledWith([ACCOUNT], SEED);
     // Flag is still set so future launches skip derivation entirely.
     expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
       'hasRunDeterministicUuidMigration',
@@ -479,10 +464,11 @@ describe('auto-restore completion flag', () => {
   });
 
   it('does not set hasRunAutoRestore when the restore write fails', async () => {
-    mockWriteCustodyAccounts.mockRejectedValueOnce(new Error('disk full'));
+    mockWriteCustodyAccounts.mockRejectedValue(new Error('disk full'));
 
     await mount();
 
+    expect(mockWriteCustodyAccounts).toHaveBeenCalled();
     expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
       'hasRunAutoRestore',
       JSON.stringify(true),

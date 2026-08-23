@@ -3044,7 +3044,12 @@
     },
     "LNURL": {
       "zapped": "You were zapped {{totalAmount}}",
-      "regular": "You just received {{totalAmount}}"
+      "regular": "You just received {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Your {{account}} was zapped {{totalAmount}}",
+        "regular": "Your {{account}} received {{totalAmount}}",
+        "fallbackName": "account"
+      }
     },
     "POS": "Order received: {{totalAmount}}",
     "contacts": {

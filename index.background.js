@@ -15,6 +15,7 @@ import { formatBalanceAmount, getLocalStorageItem } from './app/functions';
 import displayCorrectDenomination from './app/functions/displayCorrectDenomination';
 import { pushInstantNotification } from './app/functions/notifications';
 import handleNWCBackgroundEvent from './app/functions/nwc/backgroundNofifications';
+import { CUSTODY_ACCOUNT_NAMES_KEY, MAIN_ACCOUNT_UUID } from './app/constants';
 import i18next from 'i18next';
 import { registerTaskAsync } from 'expo-notifications';
 console.log('INITIALIZING BACKGROUND NOTIFIACTIONS');
@@ -23,94 +24,117 @@ const firebaseMessaging = getMessaging();
 
 // Background notification formatting function
 async function formatPushNotification(data) {
-  const [selectedLanguage, satDisplay, thousandsSeperator] = await Promise.all([
-    getLocalStorageItem('userSelectedLanguage').then(
-      data => JSON.parse(data) || 'en',
-    ),
-    getLocalStorageItem('satDisplay').then(
-      data => JSON.parse(data) || 'symbol',
-    ),
-    getLocalStorageItem('thousandsSeperator').then(
-      data => JSON.parse(data) || 'space',
-    ),
-  ]);
+  try {
+    const [selectedLanguage, satDisplay, thousandsSeperator] =
+      await Promise.all([
+        getLocalStorageItem('userSelectedLanguage').then(
+          data => JSON.parse(data) || 'en',
+        ),
+        getLocalStorageItem('satDisplay').then(
+          data => JSON.parse(data) || 'symbol',
+        ),
+        getLocalStorageItem('thousandsSeperator').then(
+          data => JSON.parse(data) || 'space',
+        ),
+      ]);
 
-  if (selectedLanguage !== i18next.language) {
-    // Translations load lazily — wait so t() below doesn't fall back to English
-    await i18next.changeLanguage(selectedLanguage);
-  }
+    if (selectedLanguage !== i18next.language) {
+      // Translations load lazily — wait so t() below doesn't fall back to English
+      await i18next.changeLanguage(selectedLanguage);
+    }
 
-  let message = '';
-  let formattedAmount;
+    let message = '';
+    let formattedAmount;
 
-  if (
-    data.notificationType === 'contacts' &&
-    data.paymentDenomination === 'USD'
-  ) {
-    formattedAmount = displayCorrectDenomination({
-      amount: formatBalanceAmount(data.amountDollars, false, {
-        thousandsSeperator,
-      }),
-      masterInfoObject: {
-        userBalanceDenomination: 'fiat',
-        satDisplay: satDisplay,
-        thousandsSeperator,
-      },
-      convertAmount: false,
-      forceCurrency: 'USD',
-    });
-  } else {
-    const [bitcoinPrice, userBalanceDenomination] = await Promise.all([
-      getLocalStorageItem('cachedBitcoinPrice').then(
-        data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
-      ),
-      getLocalStorageItem('userBalanceDenomination').then(
-        data => JSON.parse(data) || 'sats',
-      ),
-    ]);
-
-    formattedAmount = data.amountSat
-      ? displayCorrectDenomination({
-          amount: data.amountSat,
-          masterInfoObject: {
-            userBalanceDenomination: userBalanceDenomination,
-            satDisplay: satDisplay,
-            thousandsSeperator,
-            fiatCurrency: bitcoinPrice.coin?.toUpperCase(),
-          },
-          fiatStats: bitcoinPrice,
-        })
-      : '';
-  }
-
-  if (data.notificationType === 'POS') {
-    message = i18next.t('pushNotifications.POS', {
-      totalAmount: formattedAmount,
-    });
-  } else if (data.notificationType === 'LNURL') {
-    message = i18next.t('pushNotifications.LNURL.' + data.type, {
-      totalAmount: formattedAmount,
-    });
-  } else if (data.notificationType === 'contacts') {
-    if (data.type === 'updateMessage') {
-      message = i18next.t('pushNotifications.contacts.updateMessage', {
-        name: data.name,
-        option: i18next.t('transactionLabelText.' + data.option),
-      });
-    } else if (data.type === 'giftCard') {
-      message = i18next.t('pushNotifications.contacts.giftCard', {
-        name: data.name,
-        giftCardName: data.giftCardName,
+    if (
+      data.notificationType === 'contacts' &&
+      data.paymentDenomination === 'USD'
+    ) {
+      formattedAmount = displayCorrectDenomination({
+        amount: formatBalanceAmount(data.amountDollars, false, {
+          thousandsSeperator,
+        }),
+        masterInfoObject: {
+          userBalanceDenomination: 'fiat',
+          satDisplay: satDisplay,
+          thousandsSeperator,
+        },
+        convertAmount: false,
+        forceCurrency: 'USD',
       });
     } else {
-      message = i18next.t('pushNotifications.contacts.' + data.type, {
-        name: data.name,
-        amount: formattedAmount,
-      });
-    }
-  }
+      const [bitcoinPrice, userBalanceDenomination] = await Promise.all([
+        getLocalStorageItem('cachedBitcoinPrice').then(
+          data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
+        ),
+        getLocalStorageItem('userBalanceDenomination').then(
+          data => JSON.parse(data) || 'sats',
+        ),
+      ]);
 
-  pushInstantNotification(message);
+      formattedAmount = data.amountSat
+        ? displayCorrectDenomination({
+            amount: data.amountSat,
+            masterInfoObject: {
+              userBalanceDenomination: userBalanceDenomination,
+              satDisplay: satDisplay,
+              thousandsSeperator,
+              fiatCurrency: bitcoinPrice.coin?.toUpperCase(),
+            },
+            fiatStats: bitcoinPrice,
+          })
+        : '';
+    }
+
+    if (data.notificationType === 'POS') {
+      message = i18next.t('pushNotifications.POS', {
+        totalAmount: formattedAmount,
+      });
+    } else if (data.notificationType === 'LNURL') {
+      const uuid = data.subAccountUUID;
+      if (!uuid || uuid === MAIN_ACCOUNT_UUID) {
+        // Legacy pushes carry no uuid; MAIN_ACCOUNT_UUID keeps the plain wording.
+        message = i18next.t('pushNotifications.LNURL.' + data.type, {
+          totalAmount: formattedAmount,
+        });
+      } else {
+        let names = {};
+        try {
+          names =
+            JSON.parse(await getLocalStorageItem(CUSTODY_ACCOUNT_NAMES_KEY)) ||
+            {};
+        } catch {}
+        const account =
+          names[uuid] ||
+          i18next.t('pushNotifications.LNURL.subAccount.fallbackName');
+        message = i18next.t('pushNotifications.LNURL.subAccount.' + data.type, {
+          totalAmount: formattedAmount,
+          account,
+        });
+      }
+    } else if (data.notificationType === 'contacts') {
+      if (data.type === 'updateMessage') {
+        message = i18next.t('pushNotifications.contacts.updateMessage', {
+          name: data.name,
+          option: i18next.t('transactionLabelText.' + data.option),
+        });
+      } else if (data.type === 'giftCard') {
+        message = i18next.t('pushNotifications.contacts.giftCard', {
+          name: data.name,
+          giftCardName: data.giftCardName,
+        });
+      } else {
+        message = i18next.t('pushNotifications.contacts.' + data.type, {
+          name: data.name,
+          amount: formattedAmount,
+        });
+      }
+    }
+
+    pushInstantNotification(message);
+  } catch (err) {
+    console.log('Error formatting push notification', err);
+  }
 }
 
 // Routes an FCM remoteMessage to either the display-only formatter or the NWC

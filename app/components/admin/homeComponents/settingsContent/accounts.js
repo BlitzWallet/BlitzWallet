@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../constants';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
@@ -10,11 +15,7 @@ import {
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
