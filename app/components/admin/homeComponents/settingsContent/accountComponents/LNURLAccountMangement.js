@@ -22,7 +22,7 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
-import { share } from '../../../../../functions/handleShare';
+import { shareMessage } from '../../../../../functions/handleShare';
 
 export default function LNURLAccountMangement({ account, lnurlAddress }) {
   const { screenDimensions } = useAppStatus();
@@ -67,8 +67,8 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
 
   const handleShare = useCallback(() => {
     if (!lnurlAddress) return;
-    share({
-      url: `https://blitzwalletapp.com/${globalContactsInformation?.myProfile?.uniqueName}`,
+    shareMessage({
+      message: `https://blitzwalletapp.com/${globalContactsInformation?.myProfile?.uniqueName}`,
     });
   }, [lnurlAddress, globalContactsInformation?.myProfile?.uniqueName]);
 

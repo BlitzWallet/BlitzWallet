@@ -33,7 +33,7 @@ import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { share } from '../../../../functions/handleShare';
+import { shareMessage } from '../../../../functions/handleShare';
 
 // ─── LNURL Banner ────────────────────────────────────────────────────────────
 
@@ -173,7 +173,7 @@ const LNURLQROverlay = ({
   };
   const handleShare = () => {
     if (!lnurlAddress) return;
-    share({ url: `https://blitzwalletapp.com/${username}` });
+    shareMessage({ message: `https://blitzwalletapp.com/${username}` });
   };
 
   return (
