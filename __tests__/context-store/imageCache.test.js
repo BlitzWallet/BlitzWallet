@@ -700,6 +700,62 @@ describe('freshness pass is decoupled from Spark', () => {
   });
 });
 
+describe('initial pass survives dep churn during its delay', () => {
+  test('churn mid-wait does not cancel the pending pass and runs the latest contacts', async () => {
+    jest.useFakeTimers();
+    // Child-account boot sequence from the bug report: no homepage and no
+    // profile uuid yet.
+    mockAppStatus.didGetToHomepage = false;
+    mockGlobalCtx.masterInfoObject = null;
+    mockContacts.decodedAddedContacts = [];
+    mockGetMetadata.mockResolvedValue({ updated: 'm1' });
+    mockGetDownloadURL.mockResolvedValue('https://example.com/x.jpg');
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(providerElement());
+    });
+
+    // Profile uuid arrives while still off-homepage.
+    mockGlobalCtx.masterInfoObject = { uuid: 'me-uuid' };
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    expect(mockGetMetadata).not.toHaveBeenCalled();
+
+    // Homepage settles → initial pass scheduled with a 5s delay.
+    mockAppStatus.didGetToHomepage = true;
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    expect(mockGetMetadata).not.toHaveBeenCalled();
+
+    // Mid-wait churn (the child-claim handoff adds the parent contact via
+    // addContact → new decodedAddedContacts → new runFreshnessPass identity).
+    // Previously the effect cleanup cleared the pending timer here and the
+    // one-shot guard never rescheduled, so the pass never ran.
+    mockContacts.decodedAddedContacts = [
+      { uuid: 'parent-uuid', isLNURL: false },
+    ];
+    await act(async () => {
+      tree.update(providerElement());
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+    await flush();
+
+    // The pass still fired despite the churn — and ran with the LATEST
+    // contact list, so the freshly added parent is checked too.
+    const refPaths = mockRef.mock.calls.map(c => c[1]);
+    expect(refPaths).toContain(`${PREFIX}/me-uuid.jpg`);
+    expect(refPaths).toContain(`${PREFIX}/parent-uuid.jpg`);
+  });
+});
+
 describe('freshness pass avoids JS-thread re-render storms', () => {
   test('still-current refresh persists lastChecked but leaves React cache untouched', async () => {
     // Seed a healthy, current entry (file present, updated matches server).
