@@ -84,6 +84,10 @@ export default function ChildEnterName(props) {
   );
 
   const handleNext = useCallback(async () => {
+    if (!canSave) {
+      navigate.goBack();
+      return;
+    }
     const trimmed = accountName.trim();
     if (!trimmed) return;
     if (editChild) {
@@ -187,6 +191,7 @@ export default function ChildEnterName(props) {
     toggleMasterInfoObject,
     navigate,
     t,
+    canSave,
   ]);
 
   useFocusEffect(
@@ -195,6 +200,7 @@ export default function ChildEnterName(props) {
     }, []),
   );
 
+  const canSave = editChild?.name !== accountName;
   const isOverLimit = accountName.length >= maxLength;
   const characterCountColor = isOverLimit
     ? theme && darkModeType
@@ -260,7 +266,9 @@ export default function ChildEnterName(props) {
         useLoading={isCreating}
         textContent={
           editChild
-            ? t('constants.save')
+            ? canSave
+              ? t('constants.save')
+              : t('constants.back')
             : t('settings.childAccounts.enterName.create')
         }
         actionFunction={handleNext}
