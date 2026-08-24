@@ -759,7 +759,7 @@ const SparkWalletProvider = ({ children }) => {
         if (txs) {
           lastAddedTx = txs[0];
         } else {
-          [lastAddedTx] = getAllSparkTransactions({
+          [lastAddedTx] = await getAllSparkTransactions({
             accountId: identityPubKey,
             limit: 1,
           });
