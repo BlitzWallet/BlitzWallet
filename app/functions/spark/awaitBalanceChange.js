@@ -55,6 +55,7 @@ export const subscribeToSparkBalance = ({
   let lastPainted = null;
   let debounceTimer = null;
   let maxWaitTimer = null;
+  let retryTimer = null;
   let flushGen = 0;
 
   const paint = result => {
@@ -67,8 +68,21 @@ export const subscribeToSparkBalance = ({
   const clearFlushTimers = () => {
     if (debounceTimer) clearTimeout(debounceTimer);
     if (maxWaitTimer) clearTimeout(maxWaitTimer);
+    if (retryTimer) clearTimeout(retryTimer);
     debounceTimer = null;
     maxWaitTimer = null;
+    retryTimer = null;
+  };
+
+  // A held dip must resolve deterministically — the balance read is ground
+  // truth EXCEPT mid-optimization, so instead of waiting on a future settle
+  // event (which can be lost or never fire in background), re-run the flush
+  // ourselves until the optimization clears and the read is trustworthy.
+  // ponytail: fixed 10s poll; fine for a mounted settings screen, revisit if
+  // this ever drives an always-on view.
+  const armRetry = () => {
+    if (cancelled) return;
+    retryTimer = setTimeout(flushStable, 10000);
   };
 
   // One gated read after the optimization burst goes quiet. Reading at flush
@@ -84,18 +98,23 @@ export const subscribeToSparkBalance = ({
         const value = Number(result.balance || 0);
         if (lastPainted != null && value === lastPainted) return;
         if (lastPainted != null && value < lastPainted) {
-          // A decrease is a real spend OR a transient optimization dip. Hold the
-          // dip; the settle event re-arms a flush at the true value.
+          // A decrease is a real spend OR a transient optimization dip. Paint
+          // only once we've CONFIRMED no optimization is running (the read is
+          // then trustworthy). If it's still optimizing — or the check itself
+          // is unknown (didWork:false / threw) — the dip can't be trusted, so
+          // re-arm a bounded retry instead of stranding the stale-high value
+          // behind a settle event that may never arrive.
           isOptimizationInProgress({ mnemonic })
             .then(res => {
-              console.log(res, 'is optimization happening');
               if (cancelled || gen !== flushGen) return; // superseded
-              if (res?.isOptimizing) return; // hold
-              paint(result);
+              if (res?.didWork && !res.isOptimizing) {
+                paint(result); // confirmed real spend
+              } else {
+                armRetry(); // optimizing, or status unknown
+              }
             })
-            // Fail-open: never strand a real withdrawal behind a bridge timeout.
             .catch(() => {
-              if (!cancelled && gen === flushGen) paint(result);
+              if (!cancelled && gen === flushGen) armRetry();
             });
           return;
         }

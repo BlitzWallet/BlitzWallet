@@ -111,11 +111,17 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     sub.unsubscribe();
   });
 
-  it('fails open and commits the decrease when the optimization check throws', async () => {
+  it('retries (does not fail-open paint) when the optimization check throws, then paints once it recovers', async () => {
+    // The check is "unknown" on a bridge timeout — the dip can't be trusted, so
+    // the value is held and a bounded retry re-reads. On the retry the check
+    // succeeds (not optimizing) so the real decrease finally paints.
     mockGetSparkBalance
-      .mockResolvedValueOnce(bal(200))
-      .mockResolvedValueOnce(bal(100));
-    mockIsOptimizationInProgress.mockRejectedValue(new Error('bridge timeout'));
+      .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(100)) // flush #1 (dip)
+      .mockResolvedValueOnce(bal(100)); // retry flush (still dip)
+    mockIsOptimizationInProgress
+      .mockRejectedValueOnce(new Error('bridge timeout'))
+      .mockResolvedValueOnce({ didWork: true, isOptimizing: false });
 
     const onUpdate = jest.fn();
     const sub = subscribeToSparkBalance({
@@ -128,7 +134,70 @@ describe('subscribeToSparkBalance stabilize mode', () => {
 
     emitBalance();
     await jest.advanceTimersByTimeAsync(3000);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]); // held
 
+    await jest.advanceTimersByTimeAsync(10000); // retry fires
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 100]);
+    sub.unsubscribe();
+  });
+
+  it('resolves a held optimization dip via retry when no further settle event fires', async () => {
+    // Dip held while optimizing; NO new balance event ever arrives. The retry
+    // re-reads after the optimization settles (back to 200) and the transient
+    // dip is dropped without ever painting.
+    mockGetSparkBalance
+      .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(120)) // flush #1 (dip)
+      .mockResolvedValueOnce(bal(200)); // retry flush (settled)
+    mockIsOptimizationInProgress.mockResolvedValue({
+      didWork: true,
+      isOptimizing: true,
+    });
+
+    const onUpdate = jest.fn();
+    const sub = subscribeToSparkBalance({
+      mnemonic: 'seed',
+      onUpdate,
+      stabilize: true,
+    });
+    await sub.ready;
+    await flushSetup();
+
+    emitBalance();
+    await jest.advanceTimersByTimeAsync(3000); // flush -> 120 -> optimizing -> hold
+    await jest.advanceTimersByTimeAsync(10000); // retry -> 200 (equal, dropped)
+
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]);
+    expect(mockIsOptimizationInProgress).toHaveBeenCalledTimes(1); // retry read equal, no re-check
+    sub.unsubscribe();
+  });
+
+  it('paints a real spend that lands while an optimization is in progress, via retry', async () => {
+    // The failure scenario: balance genuinely dropped (real spend) AND the SDK
+    // flags optimizing. The dip is held on flush #1, but the retry confirms the
+    // optimization cleared and paints the true lower balance — no event needed.
+    mockGetSparkBalance
+      .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(100)) // flush #1 (dip)
+      .mockResolvedValueOnce(bal(100)); // retry flush (still 100 — real spend)
+    mockIsOptimizationInProgress
+      .mockResolvedValueOnce({ didWork: true, isOptimizing: true })
+      .mockResolvedValueOnce({ didWork: true, isOptimizing: false });
+
+    const onUpdate = jest.fn();
+    const sub = subscribeToSparkBalance({
+      mnemonic: 'seed',
+      onUpdate,
+      stabilize: true,
+    });
+    await sub.ready;
+    await flushSetup();
+
+    emitBalance();
+    await jest.advanceTimersByTimeAsync(3000); // held
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]);
+
+    await jest.advanceTimersByTimeAsync(10000); // retry paints the real spend
     expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 100]);
     sub.unsubscribe();
   });
