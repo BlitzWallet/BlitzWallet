@@ -56,6 +56,7 @@ export default function DepositQRView({
   setContentHeight,
   onBack,
   isActive,
+  onAddressResolved,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -129,6 +130,7 @@ export default function DepositQRView({
         const saved = addressesForOption(triple)[0]?.depositAddress;
         if (saved) {
           if (isCancelled()) return;
+          onAddressResolved?.(saved);
           setAddressState(prev => ({
             ...prev,
             generatedAddress: saved,
@@ -148,6 +150,7 @@ export default function DepositQRView({
         const saved = addressesForOption(triple)[0]?.depositAddress;
         if (saved) {
           if (isCancelled()) return;
+          onAddressResolved?.(saved);
           setAddressState(prev => ({
             ...prev,
             generatedAddress: saved,
@@ -168,6 +171,7 @@ export default function DepositQRView({
           ? result.address
           : result.address?.depositAddress;
       if (isCancelled()) return;
+      onAddressResolved?.(newAddress);
       setAddressState(prev => ({
         ...prev,
         generatedAddress: newAddress || '',

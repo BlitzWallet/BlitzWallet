@@ -146,6 +146,13 @@ export default function HalfModalDepositFunds({
     [showView],
   );
 
+  // Keep qrConfig.depositAddress in sync with the address actually shown in
+  // the QR (a freshly minted one never came from a selector pick), so the
+  // address selector can highlight the right row.
+  const handleAddressResolved = useCallback(address => {
+    setQrConfig(prev => (prev ? {...prev, depositAddress: address} : prev));
+  }, []);
+
   // Addresses for the current qr option (only populated for the stablecoins subview).
   const qrGroupAddresses = useMemo(() => {
     if (activeView !== 'qr') return [];
@@ -466,6 +473,7 @@ export default function HalfModalDepositFunds({
           setContentHeight={setContentHeight}
           onBack={handleStepBack}
           isActive={activeView === 'qr'}
+          onAddressResolved={handleAddressResolved}
         />
       </Animated.View>
     </View>
