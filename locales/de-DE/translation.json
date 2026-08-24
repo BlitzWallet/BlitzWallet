@@ -200,8 +200,8 @@
     "paidRequest": "bezahlte Anfrage",
     "sent": "Gesendet",
     "received": "Empfangen",
-    "accountTopup": "Aufladen",
-    "accountWithdrawal": "Abhebung",
+    "accountTopup": "Einzahlung",
+    "accountWithdrawal": "Auszahlung",
     "paidLower": "bezahlt",
     "declinedLower": "abgelehnt",
     "receivedRequest": "erhaltene Anfrage",
@@ -289,11 +289,11 @@
     },
     "walletSetup": {
       "title": "Richten Sie Ihre Wallet ein",
-      "subtitle": "Erstellen Sie eine neue Wallet, treten Sie einer Wallet bei oder stellen Sie eine vorhandene wieder her.",
+      "subtitle": "Erstellen Sie eine neue Wallet, treten Sie einem Kinderkonto bei oder stellen Sie eine vorhandene Wallet wieder her.",
       "createTitle": "Neues Wallet erstellen",
       "createDesc": "Starten Sie mit einer neuen Wallet.",
-      "joinTitle": "Verwaltetem Wallet beitreten",
-      "joinDesc": "Treten Sie einem Wallet bei, das für Sie verwaltet wird.",
+      "joinTitle": "Kinderkonto beitreten",
+      "joinDesc": "Treten Sie einem Kinderkonto bei, das für Sie verwaltet wird.",
       "restoreTitle": "Vorhandenes Wallet wiederherstellen",
       "restoreDesc": "Sie haben bereits eine Wallet? Übernehmen Sie sie."
     }
@@ -937,7 +937,7 @@
   },
   "wallet": {
     "halfModal": {
-      "sharePaylink": "Meinen Link teilen",
+      "sharePaylink": "Meinen Zahlungslink teilen",
       "images": "Aus Bild",
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
@@ -1652,11 +1652,11 @@
         "title_accounts": "Bewahren Sie Ihre Wiederherstellungsphrase geheim auf.",
         "point1_accounts": "Ihre geheime Wiederherstellungsphrase ist wie ein Generalschlüssel für Ihre Wallet.",
         "point2_accounts": "Wenn jemand sie erhält, kann diese Person Ihre Gelder stehlen. Verlorene Gelder können nicht wiederhergestellt werden.",
-        "point3_accounts": "Teilen Sie sie niemals mit jemandem - keiner Person, keiner Website und keiner App.",
+        "point3_accounts": "Teilen Sie sie niemals mit jemandem – keiner Person, keiner Website und keiner App.",
         "title_settings": "Bewahren Sie Ihre Wiederherstellungsphrase geheim auf.",
         "point1_settings": "Ihre geheime Wiederherstellungsphrase ist wie ein Generalschlüssel für Ihre Wallet.",
         "point2_settings": "Wenn jemand sie erhält, kann diese Person Ihre Gelder stehlen. Verlorene Gelder können nicht wiederhergestellt werden.",
-        "point3_settings": "Teilen Sie sie niemals mit jemandem - keiner Person, keiner Website und keiner App.",
+        "point3_settings": "Teilen Sie sie niemals mit jemandem – keiner Person, keiner Website und keiner App.",
         "checkbox": "Ich verstehe, dass das Teilen meiner Wiederherstellungsphrase zu einem dauerhaften Verlust meiner Gelder führen kann.",
         "continueButton": "Weiter"
       }
@@ -1668,8 +1668,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Kontoname",
-      "mainWalletPlace": "Haupt-Konto",
-      "managedWalletPlace": "Verwaltetes Konto",
+      "mainWalletPlace": "Hauptkonto",
+      "managedWalletPlace": "Kinderkonto",
       "nwcWalletPlace": "NWC-Konto",
       "tabs": {
         "personal": "Persönlich",
@@ -1871,7 +1871,7 @@
         "pageTitle": "Verbindungsberechtigungen hinzufügen",
         "pageSubtitle": "Wählen Sie aus, welche Aktionen {{name}} ausführen darf.",
         "editTitle": "Verbindungsberechtigungen bearbeiten",
-        "editSubtitle": "Bearbeiten Sie, welche Aktionen {{name}} ausführen darf."
+        "editSubtitle": "Ändern Sie, welche Aktionen {{name}} ausführen darf."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -1910,7 +1910,7 @@
         "budgetRenewalHeader": "Budgetverlängerung"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf NWC auf der Kontoseite übertragen."
+        "warningMessage": "Um Geld von Ihrem NWC-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder indem Sie Geld empfangen oder es von Ihrem Hauptkonto übertragen.\n\nÜbertragen Sie dazu auf der Kontoseite Guthaben von Ihrem Hauptkonto auf Ihr NWC-Konto."
       },
       "noNotifications": {
         "title": "Benachrichtigungen erforderlich",
@@ -1996,9 +1996,9 @@
         "accountType_imported": "Importiert",
         "accountType_main": "Hauptkonto",
         "accountType_nwc": "NWC",
-        "accountTypeDerivedInfo": "Dieses Konto wird aus Ihrer Blitz-Wiederherstellungsphrase erstellt und wird wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen.",
+        "accountTypeDerivedInfo": "Dieses Konto basiert auf Ihrer Blitz-Wiederherstellungsphrase und wird zusammen mit Ihrer Blitz-Wallet wiederhergestellt.",
         "accountTypeImportedInfo": "Dieses Konto hat eine eigene Seed-Phrase und wird nicht wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen. Bewahren Sie die Wiederherstellungsphrase sicher auf.",
-        "accountTypeNwcInfo": "Dies ist Ihr Nostr Wallet Connect (NWC)-Konto. Es wird von Apps verwendet, die mit Blitz verbunden sind, und kann jederzeit aus der Wiederherstellungsphrase Ihres Blitz-Hauptkontos wiederhergestellt werden.",
+        "accountTypeNwcInfo": "Dies ist Ihr NWC-Konto (Nostr Wallet Connect). Es wird von Apps verwendet, die mit Blitz verbunden sind, und kann jederzeit mithilfe der Wiederherstellungsphrase Ihres Blitz-Hauptkontos wiederhergestellt werden.",
         "balanceLabel": "Saldo",
         "activeLabel": "Aktives Konto",
         "activateButton": "Konto aktivieren",
@@ -2007,7 +2007,7 @@
         "viewActivityLabel": "Kontoverlauf anzeigen",
         "loadError": "Konto konnte nicht geladen werden",
         "loadErrorDesc": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.",
-        "stillConnectingInfo": "Dein Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu deinem Konto herstellen."
+        "stillConnectingInfo": "Ihr Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu Ihrem Konto herstellen."
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
@@ -2052,8 +2052,8 @@
       },
       "transferModal": {
         "selectAccount": "Konto auswählen",
-        "addFromTitle": "Wähle das Konto, von dem Geld hinzugefügt werden soll.",
-        "withdrawToTitle": "Wähle das Konto, zu dem Geld abgehoben werden soll.",
+        "addFromTitle": "Wählen Sie das Konto aus, von dem Geld hinzugefügt werden soll.",
+        "withdrawToTitle": "Wählen Sie das Konto aus, auf das Geld abgehoben werden soll.",
         "noAvailableAccounts": "Keine verfügbaren Konten",
         "noAccountsSubtitle": "Sie haben noch keine Konten. Erstellen Sie eines, um loszulegen.",
         "noAvailableAccountsSubtitle": "Ihre Konten haben noch kein Guthaben. Fügen Sie Geld hinzu, um es hier zu verwenden.",
@@ -2066,7 +2066,7 @@
         "selfTransfer": "Sie können keine Übertragung an sich selbst durchführen",
         "addFunds": "{{name}} hat Geld hinzugefügt",
         "withdrawFunds": "{{name}} hat Geld abgehoben",
-        "balanceLoadError": "Der Kontostand konnte nicht geladen werden. Bitte versuche es erneut."
+        "balanceLoadError": "Der Kontostand konnte nicht geladen werden. Bitte versuchen Sie es erneut."
       }
     },
     "accountsPoolsScreen": {
@@ -2238,7 +2238,7 @@
       "pairing": {
         "title": "Kinderkonto teilen",
         "usernameTitle": "Benutzernamen weitergeben",
-        "usernameSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Verwaltetem Wallet beitreten“ auszuwählen.",
+        "usernameSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Kinderkonto beitreten“ auszuwählen.",
         "generateCode": "Code generieren",
         "usernameLabel": "Ihr Benutzername: {{name}}",
         "codeNavTitle": "Code teilen",
@@ -2266,9 +2266,9 @@
         "codeOption": "Code",
         "qrOption": "QR",
         "qrTitle": "Diesen QR-Code scannen",
-        "qrSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Verwaltetem Wallet beitreten“ auszuwählen.",
+        "qrSubtitle": "Bitten Sie die andere Person, Blitz auf ihrem Telefon zu öffnen und „Kinderkonto beitreten“ auszuwählen.",
         "qrWaiting": "Warten auf das Scannen durch die andere Person…",
-        "noBlitz": "Haben sie kein Blitz?",
+        "noBlitz": "Die andere Person hat Blitz noch nicht installiert?",
         "downloadLink": "Download-Link teilen",
         "acceptTitle": "Kopplung akzeptieren?",
         "acceptSubtitle": "Mit der Kopplung gewähren Sie dieser Person Zugriff auf {{name}}. Stellen Sie sicher, dass Sie sich mit der richtigen Person koppeln.",
