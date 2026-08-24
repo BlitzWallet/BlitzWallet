@@ -34,9 +34,7 @@ export default function SelectCreateAccountType() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('settings.accountComponents.selectCreateAccountType.title')}
-      />
+      <CustomSettingsTopBar label={t('settings.accounts.tabs.personal')} />
 
       <View style={styles.innerContainer}>
         {/* Derived Account Option */}

@@ -97,7 +97,7 @@ export default function CreateCustodyAccountPage() {
     >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={t('settings.accounts.tabs.personal')}
+        label={t('settings.accountComponents.editAccountName.title')}
         iconNew="Trash2"
       />
 

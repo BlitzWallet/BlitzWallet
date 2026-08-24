@@ -210,7 +210,7 @@ export default function ChildEnterName(props) {
     >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={t('settings.childAccounts.tabs.children')}
+        label={t('settings.accountComponents.editAccountName.title')}
       />
 
       <ScrollView
