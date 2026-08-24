@@ -261,7 +261,10 @@ function ResetStack(): JSX.Element | null {
   );
 
   const getInitialURL = useCallback(async () => {
-    const url = await Linking.getInitialURL();
+    const url = await Promise.race([
+      Linking.getInitialURL(),
+      new Promise<null>(resolve => setTimeout(() => resolve(null), 5000)),
+    ]);
     if (url) {
       handleDeepLink({ url }, true);
       console.log('Initial deep link stored:', url);
