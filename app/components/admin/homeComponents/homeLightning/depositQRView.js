@@ -44,10 +44,9 @@ import { useLiquidEvent } from '../../../../../context-store/liquidEventContext'
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useToast } from '../../../../../context-store/toastManager';
-import { applyErrorAnimationTheme } from '../../../../functions/lottieViewColorTransformer';
+import { getErrorTxAnimation } from '../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 
 const capitalize = value =>
   value ? value[0].toUpperCase() + value.slice(1) : '';
@@ -94,12 +93,7 @@ export default function DepositQRView({
     ACCUMULATION_CHAINS.find(c => c.id === config?.sourceChain)?.label ??
     capitalize(config?.sourceChain);
 
-  const errorAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      errorTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     if (isActive) setContentHeight(700);

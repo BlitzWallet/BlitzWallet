@@ -8,14 +8,12 @@ import {
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useCallback, useMemo } from 'react';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function SavingsGoalRemovedSuccess() {
   const navigate = useNavigation();
@@ -27,12 +25,7 @@ export default function SavingsGoalRemovedSuccess() {
     return true;
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useHandleBackPressNew(handleGoHome);
 

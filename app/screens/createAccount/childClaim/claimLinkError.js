@@ -6,13 +6,11 @@ import CustomButton from '../../../functions/CustomElements/button';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../constants';
 import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import { useMemo } from 'react';
-import { applyErrorAnimationTheme } from '../../../functions/lottieViewColorTransformer';
+import { getErrorTxAnimation } from '../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
-
-const confirmTxAnimation = require('../../../assets/errorTxAnimation.json');
 
 export default function ClaimLinkError() {
   const navigate = useNavigation();
@@ -25,12 +23,7 @@ export default function ClaimLinkError() {
     navigate.popTo('ChildClaimInfo');
   };
 
-  const confirmAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getErrorTxAnimation(theme, darkModeType);
 
   return (
     <GlobalThemeView useStandardWidth={true}>

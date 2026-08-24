@@ -389,6 +389,33 @@ const handleMakeInvoice = async (requestParams, selectedNWCAccount) => {
   };
 };
 
+// The invoice cache stores an internal shape (uppercase `type`, sat amounts,
+// millisecond timestamps, `status`). NIP-47 clients such as Alby Go do no
+// normalization — they cast the response straight to their transaction type —
+// so convert here: `state` ("settled" | "pending" | "failed"), lowercase
+// `type`, msat amounts and second-based timestamps.
+const toNip47Transaction = invoice => ({
+  type: invoice.type?.toLowerCase(),
+  state: invoice.status === 'completed' ? 'settled' : invoice.status,
+  invoice: invoice.invoice,
+  description: invoice.description || null,
+  description_hash: null,
+  preimage: invoice.preimage || '',
+  payment_hash: invoice.payment_hash,
+  amount: (invoice.amount || 0) * 1000,
+  fees_paid: (invoice.fees_paid || 0) * 1000,
+  created_at: invoice.created_at
+    ? Math.floor(invoice.created_at / 1000)
+    : null,
+  expires_at: invoice.expires_at
+    ? Math.floor(invoice.expires_at / 1000)
+    : null,
+  settled_at: invoice.settled_at
+    ? Math.floor(invoice.settled_at / 1000)
+    : null,
+  metadata: {},
+});
+
 const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
   let foundInvoice = null;
   try {
@@ -407,7 +434,7 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
     if (invoiceWithoutSparkID.status !== 'pending') {
       return {
         result_type: 'lookup_invoice',
-        result: invoiceWithoutSparkID,
+        result: toNip47Transaction(invoiceWithoutSparkID),
       };
     }
 
@@ -442,26 +469,27 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
       );
     const data = sparkPaymentResponse.paymentResponse;
     const status = spark.getSparkPaymentStatus(data.status);
+    const trueStatus = status === 'completed' ? 'settled' : status;
 
-    if (status !== 'pending') {
+    if (trueStatus !== 'pending') {
       await NWCInvoiceManager.markInvoiceAsNotPending(
         invoiceWithoutSparkID.payment_hash,
-        status,
+        trueStatus,
         data.paymentPreimage,
       );
       return {
         result_type: 'lookup_invoice',
-        result: {
+        result: toNip47Transaction({
           ...invoiceWithoutSparkID,
-          status: status,
+          status: trueStatus,
           preimage: data.paymentPreimage || '',
           settled_at: Date.now(),
-        },
+        }),
       };
     }
     return {
       result_type: 'lookup_invoice',
-      result: invoiceWithoutSparkID,
+      result: toNip47Transaction(invoiceWithoutSparkID),
     };
   }
 
@@ -1126,7 +1154,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
                 'userSelectedLanguage',
               ).then(data => JSON.parse(data) || 'en');
               if (selectedLanguage !== i18next.language) {
-                i18next.changeLanguage(selectedLanguage);
+                await i18next.changeLanguage(selectedLanguage);
               }
               pushInstantNotification(
                 i18next.t(successMessage),

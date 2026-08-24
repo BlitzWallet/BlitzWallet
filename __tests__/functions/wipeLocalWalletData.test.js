@@ -11,7 +11,7 @@ jest.mock('expo-sqlite', () => {
   const { DatabaseSync: DB } = require('node:sqlite');
   const connections = new Map();
   let poisonDb = null;
-  const openDatabaseAsync = async name => {
+  const openDatabaseAsync = jest.fn(async name => {
     if (!connections.has(name)) {
       connections.set(name, new DB(':memory:'));
     }
@@ -40,7 +40,7 @@ jest.mock('expo-sqlite', () => {
         return sqlite.prepare(sql).get(...params) ?? null;
       },
     };
-  };
+  });
   return {
     __esModule: true,
     openDatabaseAsync,
@@ -102,7 +102,10 @@ const {
 const {
   nwcEventLedger,
 } = require('../../app/functions/nwc/eventLedger');
-const { getLastModified } = require('../../app/functions/btcMap/btcMapStorage');
+const {
+  getLastModified,
+  initBTCMapDB,
+} = require('../../app/functions/btcMap/btcMapStorage');
 const {
   initializeAllDatabases,
 } = require('../../app/functions/initializeAllDatabases');
@@ -255,14 +258,8 @@ describe('wipeLocalWalletData', () => {
     expect(result).toBe(true);
     expect(store.size).toBe(0);
     for (const [dbName, table] of TABLES) {
-      if (dbName === 'btcmap.db') {
-        // btcMap is not part of initializeAllDatabases; it self-heals lazily on
-        // the next openDB() (deleteBtcMapTable resets the cached handle).
-        expect(tableExists(dbName, table)).toBe(false);
-      } else {
-        expect(tableExists(dbName, table)).toBe(true);
-        expect(countRows(dbName, table)).toBe(0);
-      }
+      expect(tableExists(dbName, table)).toBe(true);
+      expect(countRows(dbName, table)).toBe(0);
     }
     expect(deleteAsync).toHaveBeenCalledWith('file://cache/profile_images/', {
       idempotent: true,
@@ -272,13 +269,39 @@ describe('wipeLocalWalletData', () => {
     });
   });
 
-  test('btcMap tables self-heal lazily after the wipe', async () => {
+  test('btcMap tables are dropped and recreated on the same connection', async () => {
     seedAllTables();
+    const { openDatabaseAsync } = require('expo-sqlite');
 
     await wipeLocalWalletData();
 
+    // Regression guard for expo/expo#48999: deleteBtcMapTable must not drop
+    // the cached handle and reopen — the second JS wrapper around the same
+    // native database gets closed by GC and poisons the live one. The wipe
+    // must reuse the existing openDatabaseAsync connection.
+    expect(openDatabaseAsync).not.toHaveBeenCalled();
+    for (const [dbName, table] of TABLES) {
+      if (dbName === 'btcmap.db') {
+        expect(tableExists(dbName, table)).toBe(true);
+        expect(countRows(dbName, table)).toBe(0);
+      }
+    }
+    expect(await getLastModified()).toBe(null); // live handle still usable
+  });
+
+  test('initBTCMapDB recreates the schema on the live handle (post-wipe repair path)', async () => {
+    // Regression guard: every other module's init* re-runs setup on the live
+    // connection via reinitialize(), so the re-init pass after a wipe repairs
+    // a db whose tables were dropped without a successful recreate.
+    // initBTCMapDB must do the same rather than just awaiting the memoized
+    // openDB() promise.
+    const { openDatabaseAsync } = require('expo-sqlite');
+    raw('btcmap.db').exec('DROP TABLE btcmap_places');
     expect(tableExists('btcmap.db', 'btcmap_places')).toBe(false);
-    await getLastModified(); // next lazy openDB()
+
+    expect(await initBTCMapDB()).toBe(true);
+
+    expect(openDatabaseAsync).not.toHaveBeenCalled(); // same connection
     expect(tableExists('btcmap.db', 'btcmap_places')).toBe(true);
     expect(countRows('btcmap.db', 'btcmap_places')).toBe(0);
   });

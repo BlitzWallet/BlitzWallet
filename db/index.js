@@ -24,6 +24,7 @@ import {
   serverTimestamp,
   Timestamp,
   onSnapshot,
+  deleteField,
 } from '@react-native-firebase/firestore';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
@@ -315,6 +316,31 @@ export async function getDocsByIds(collectionName, docIds) {
     if (!snap.exists()) return null;
     return { id: snap.id, ...snap.data() };
   });
+}
+
+/**
+ * Removes one id from the user's accountsLnurl registry map. setDoc merge can
+ * add/overwrite map keys but never delete one, so pruning (deleted imported
+ * accounts) must use a FieldValue.delete() update.
+ * @param {string} publicKey - User's blitzWalletUsers doc id
+ * @param {string} id - Registry map key to remove
+ * @returns {Promise<boolean>}
+ */
+export async function deleteLnurlRegistryEntry(publicKey, id) {
+  try {
+    if (!publicKey || !id) throw Error('Missing user or registry entry id');
+    // ids are hex prefixes; reject anything else so it can't inject into the
+    // dotted Firestore field path.
+    if (!/^[0-9a-f]+$/.test(id)) throw Error('Invalid registry entry id');
+    const docRef = doc(db, 'blitzWalletUsers', publicKey);
+    await updateDoc(docRef, { [`accountsLnurl.${id}`]: deleteField() });
+    console.log('Deleted LNURL registry entry:', id);
+    return true;
+  } catch (e) {
+    console.error('Error deleting LNURL registry entry:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
 }
 
 export async function batchDeleteLnurlPayments(uuid, paymentIds) {

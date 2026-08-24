@@ -23,10 +23,8 @@ import CurrencySwitchButton from '../../../../functions/CustomElements/currencyS
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function ContactPaymentOverlay({
   visible,
@@ -101,14 +99,7 @@ export default function ContactPaymentOverlay({
     transform: [{ translateX: successTranslateX.value }],
   }));
 
-  const confirmAnimation = useMemo(
-    () =>
-      updateConfirmAnimation(
-        confirmTxAnimation,
-        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-      ),
-    [theme, darkModeType],
-  );
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   const handleBackPress = useCallback(() => {
     if (!visible) return false;

@@ -200,6 +200,8 @@
     "paidRequest": "Demande payée",
     "sent": "Envoyé",
     "received": "Reçu",
+    "accountTopup": "Rechargement",
+    "accountWithdrawal": "Retrait",
     "paidLower": "payé",
     "declinedLower": "décliné",
     "receivedRequest": "Demande reçue",
@@ -287,9 +289,11 @@
     },
     "walletSetup": {
       "title": "Configurer votre portefeuille",
-      "subtitle": "Créez un nouveau portefeuille ou restaurez-en un existant.",
+      "subtitle": "Créez un nouveau portefeuille, rejoignez un portefeuille ou restaurez-en un existant.",
       "createTitle": "Créer un nouveau portefeuille",
       "createDesc": "Commencez avec un nouveau portefeuille.",
+      "joinTitle": "Rejoindre un portefeuille géré",
+      "joinDesc": "Rejoignez un portefeuille qui est géré pour vous.",
       "restoreTitle": "Restaurer un portefeuille existant",
       "restoreDesc": "Vous avez déjà un portefeuille ? Importez-le."
     }
@@ -933,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Partager mon lien",
       "images": "De l'image",
       "clipboard": "Du presse-papiers",
       "manual": "Entrée manuelle",
@@ -1678,6 +1683,7 @@
     "accounts": {
       "inputPlaceholder": "Rechercher un compte existant",
       "mainWalletPlace": "Portefeuille principal",
+      "managedWalletPlace": "Compte géré",
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Personnel",
@@ -1861,21 +1867,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet article de Nostr Connect ?",
-      "addAccount": "Ajouter un compte",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette connexion ?",
+      "addAccount": "Ajouter une connexion",
       "empty": {
         "title": "Aucune connexion pour le moment",
         "subtitle": "Créez une connexion pour utiliser Nostr Wallet Connect avec vos applications préférées."
       },
       "createNWCName": {
-        "title": "Nom de la connexion"
+        "navTitle": "Nom",
+        "title": "Nommer cette connexion",
+        "editTitle": "Modifier le nom de la connexion",
+        "subtitle": "Donnez un nom à la connexion pour pouvoir la reconnaître plus tard.",
+        "editSubtitle": "Choisissez un nouveau nom pour pouvoir reconnaître cette connexion plus tard.",
+        "placeholder": "Nom de la connexion"
       },
       "createNWCPermissions": {
         "title": "Autorisations",
-        "pageTitle": "Ajouter des autorisations de portefeuille",
-        "pageSubtitle": "Choisissez les actions que ce portefeuille peut effectuer.",
-        "editTitle": "Modifier les autorisations du portefeuille",
-        "editSubtitle": "Modifiez les actions que ce portefeuille peut effectuer."
+        "pageTitle": "Ajouter des autorisations de connexion",
+        "pageSubtitle": "Choisissez les actions que {{name}} peut effectuer.",
+        "editTitle": "Modifier les autorisations de la connexion",
+        "editSubtitle": "Modifiez les actions que {{name}} peut effectuer."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -1884,10 +1895,10 @@
         "editTitle": "Modifier le budget de dépenses",
         "editSubtitle": "Modifiez la limite de dépenses et sa période de réinitialisation. Laissez vide pour aucune limite.",
         "renewalPlaceholder": "Sélectionner la période de renouvellement",
-        "createButton": "Créer un compte"
+        "createButton": "Créer une connexion"
       },
       "accountPage": {
-        "title": "Gérer le compte",
+        "title": "Gérer la connexion",
         "nameLabel": "Nom",
         "permissionsLabel": "Autorisations",
         "permissionsCount_one": "{{count}} autorisation",
@@ -1895,16 +1906,16 @@
         "renewalLabel": "Période de renouvellement",
         "amountLabel": "Montant du budget",
         "viewSecretLabel": "Chaîne de connexion",
-        "deleteAccount": "Supprimer le compte"
+        "deleteAccount": "Supprimer la connexion"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Veuillez saisir un nom de compte.",
+        "noAccountNameError": "Veuillez saisir un nom de connexion.",
         "noPermissionsError": "Veuillez activer au moins une autorisation.",
         "noBudgetError": "Veuillez sélectionner une période de renouvellement du budget.",
         "noBudgetAmountError": "Veuillez sélectionner un budget.",
-        "loadingMessage": "Création d'un compte",
-        "updatingMessage": "Mise à jour du compte...",
-        "nameInputPlaceholder": "Saisir le nom du compte de la CNO",
+        "loadingMessage": "Création de la connexion...",
+        "updatingMessage": "Mise à jour de la connexion...",
+        "nameInputPlaceholder": "Saisir le nom de la connexion NWC",
         "permissionsHeader": "Autorisations du portefeuille",
         "receivePayments": "Recevoir des paiements",
         "sendPayments": "Envoyer des paiements",
@@ -1914,7 +1925,7 @@
         "budgetRenewalHeader": "Renouvellement du budget"
       },
       "hasNoAccounts": {
-        "warningMessage": "Pour envoyer de l'argent depuis votre portefeuille Nostr Connect, vous devez d'abord ajouter des fonds, soit en recevant de l'argent, soit en effectuant un transfert depuis votre portefeuille principal.\n\n Vous pouvez transférer des fonds de votre portefeuille principal vers NWC dans la page des paramètres du compte."
+        "warningMessage": "Pour envoyer de l'argent depuis votre compte Nostr Connect, vous devez d'abord ajouter des fonds, soit en recevant de l'argent, soit en effectuant un transfert depuis votre compte principal.\n\n Vous pouvez transférer des fonds de votre compte principal vers NWC dans la page du compte."
       },
       "noNotifications": {
         "title": "Notifications requises",
@@ -1927,7 +1938,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Avant de commencer",
-        "infoSubtitle": "Quelques choses à savoir sur votre compte Nostr Wallet Connect.",
+        "infoSubtitle": "Quelques choses à savoir sur Nostr Wallet Connect.",
         "row1Label": "Ajouter des fonds",
         "row1Description": "Ajoutez de l'argent en le recevant ou en le transférant depuis votre compte principal.",
         "row2Label": "Compte séparé",
@@ -1940,8 +1951,8 @@
         "errorRetry": "Réessayer la configuration"
       },
       "accountCreated": {
-        "title": "Compte créé",
-        "subtitle": "Votre compte CNO a été créé. Copiez la chaîne de connexion pour commencer à l'utiliser.",
+        "title": "Connexion créée",
+        "subtitle": "Votre connexion a été créée. Copiez la chaîne de connexion pour commencer à l'utiliser.",
         "copyConnection": "Copier la chaîne de connexion"
       }
     },
@@ -1995,6 +2006,7 @@
         "title": "Compte",
         "accountNameLabel": "Nom du compte",
         "showRecoveryPhraseLabel": "Afficher la phrase de récupération",
+        "lightningAddressLabel": "Adresse du compte",
         "removeAccountLabel": "Supprimer le compte",
         "activeAccountError": "Vous ne pouvez pas supprimer le compte actuellement actif. Veuillez passer à un autre compte avant de supprimer celui-ci.",
         "account_pin": "Épingler le compte",
@@ -2003,15 +2015,20 @@
         "accountTypeLabel": "Type de compte",
         "accountType_derived": "Dérivé",
         "accountType_imported": "Importé",
-        "accountTypeDerivedInfo": "Ce compte est lié à votre phrase de récupération Blitz et sera restauré lorsque vous restaurerez votre portefeuille Blitz.",
-        "accountTypeImportedInfo": "Ce compte possède sa propre phrase de récupération et ne sera pas restauré lorsque vous restaurerez votre portefeuille Blitz. Assurez-vous de sauvegarder cette phrase.",
         "accountType_main": "Principal",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Ce compte est créé à partir de votre phrase de récupération Blitz et sera restauré lorsque vous restaurerez votre portefeuille Blitz.",
+        "accountTypeImportedInfo": "Ce compte possède sa propre phrase de récupération et ne sera pas restauré lorsque vous restaurerez votre portefeuille Blitz. Assurez-vous de sauvegarder cette phrase.",
+        "accountTypeNwcInfo": "Il s'agit de votre compte Nostr Wallet Connect (NWC). Il est utilisé par les applications connectées à Blitz et peut toujours être restauré à partir de votre phrase de récupération Blitz principale.",
         "balanceLabel": "Solde",
         "activeLabel": "Compte actif",
         "activateButton": "Activer le compte",
         "addMoneyButton": "Ajouter de l'argent",
         "withdrawMoneyButton": "Retirer de l'argent",
-        "viewActivityLabel": "Voir l'historique du compte"
+        "viewActivityLabel": "Voir l'historique du compte",
+        "loadError": "Impossible de charger le compte",
+        "loadErrorDesc": "Veuillez réessayer. Si le problème persiste, contactez le support.",
+        "stillConnectingInfo": "Votre solde peut ne pas être à jour pendant que nous terminons de connecter votre compte."
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",
@@ -2056,14 +2073,21 @@
       },
       "transferModal": {
         "selectAccount": "Sélectionner un compte",
+        "addFromTitle": "Choisissez le compte depuis lequel ajouter de l'argent.",
+        "withdrawToTitle": "Choisissez le compte vers lequel retirer de l'argent.",
+        "noAvailableAccounts": "Aucun compte disponible",
+        "noAccountsSubtitle": "Vous n'avez pas encore de compte. Créez-en un pour commencer.",
+        "noAvailableAccountsSubtitle": "Vos comptes n'ont pas encore de fonds. Ajoutez de l'argent pour les utiliser ici.",
         "availableToAdd": "Disponible à ajouter",
         "availableToWithdraw": "Disponible à retirer",
         "using": "Utilisation",
         "amount": "Montant",
         "transferComplete": "Envoyé à {{name}}",
+        "receivedFrom": "Reçu de {{name}}",
         "selfTransfer": "Vous ne pouvez pas transférer vers vous-même",
         "addFunds": "{{name}} a ajouté de l'argent",
-        "withdrawFunds": "{{name}} a retiré de l'argent"
+        "withdrawFunds": "{{name}} a retiré de l'argent",
+        "balanceLoadError": "Impossible de charger le solde de ce compte. Veuillez réessayer."
       }
     },
     "accountsPoolsScreen": {
@@ -2071,9 +2095,7 @@
       "settingsButton": "Paramètres",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
-      "noActivePools": "Vous n’avez aucun pool actif pour le moment. Appuyez pour voir vos pools.",
-      "yourAccountsTitle": "Vos comptes",
-      "addAccountButton": "Ajouter un compte"
+      "noActivePools": "Vous n’avez aucun pool actif pour le moment. Appuyez pour voir vos pools."
     },
     "hub": {
       "viewAll": "Tout voir",
@@ -2237,7 +2259,7 @@
       "pairing": {
         "title": "Partager",
         "usernameTitle": "Partagez votre nom d'utilisateur",
-        "usernameSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone, de choisir « Rejoindre un portefeuille partagé », puis de saisir ce nom d'utilisateur.",
+        "usernameSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone et de choisir « Rejoindre un portefeuille géré ».",
         "generateCode": "Générer le code",
         "usernameLabel": "Votre nom d'utilisateur : {{name}}",
         "codeNavTitle": "Partager le code",
@@ -2265,8 +2287,10 @@
         "codeOption": "Code",
         "qrOption": "QR",
         "qrTitle": "Scannez ce code QR",
-        "qrSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone, de choisir « Rejoindre un portefeuille partagé », puis de scanner ce code QR.",
+        "qrSubtitle": "Demandez-leur d'ouvrir Blitz sur leur téléphone et de choisir « Rejoindre un portefeuille géré ».",
         "qrWaiting": "En attente de leur scan…",
+        "noBlitz": "Ils n'ont pas Blitz ?",
+        "downloadLink": "Partager le lien de téléchargement",
         "acceptTitle": "Accepter l'association ?",
         "acceptSubtitle": "En associant, vous donnez à cette personne l'accès à {{name}}. Assurez-vous d'associer la bonne personne.",
         "acceptBTN": "Accepter",
@@ -2283,8 +2307,7 @@
         "noTransactions": "Aucune activité pour le moment",
         "spendingLimitLabel": "Limite de dépenses",
         "loadingBalance": "Chargement du solde...",
-        "shareLink": "Associer avec quelqu'un",
-        "sendInviteLink": "Inviter quelqu'un"
+        "shareLink": "Associer avec quelqu'un"
       },
       "claim": {
         "title": "Configurer votre portefeuille",
@@ -3046,7 +3069,12 @@
     },
     "LNURL": {
       "zapped": "Vous avez été zappé {{totalAmount}}",
-      "regular": "Vous venez de recevoir {{totalAmount}}"
+      "regular": "Vous venez de recevoir {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Votre {{account}} a été zappé de {{totalAmount}}",
+        "regular": "Votre {{account}} a reçu {{totalAmount}}",
+        "fallbackName": "compte"
+      }
     },
     "POS": "Commande reçue : {{totalAmount}}",
     "contacts": {
@@ -3065,7 +3093,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Compte {{index}}"
+    "fallbackAccountName": "Compte {{index}}",
+    "lastUpdated": "Mis à jour {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "La requête n’a pas passé les vérifications de validation.",

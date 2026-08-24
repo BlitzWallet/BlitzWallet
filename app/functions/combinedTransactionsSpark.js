@@ -28,6 +28,7 @@ import ThemeIcon from './CustomElements/themeIcon';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../constants/theme';
 import { isOrchestraSwapFailed } from './spark/orchestraLightning';
 import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick';
+import { getStableTx } from './spark/enrichedTxCache';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -43,17 +44,6 @@ const TRANSACTION_CONSTANTS = {
   OUTGOING: 'OUTGOING',
   UNKOWN: 'unknown',
 };
-
-const enrichedTxCache = new Map(); // sparkID -> { sig, obj }
-
-function getStableTx(currentTransaction, paymentDetails) {
-  const sig = `${currentTransaction.paymentStatus}:${currentTransaction.status}:${currentTransaction.details}`;
-  const hit = enrichedTxCache.get(currentTransaction.sparkID);
-  if (hit && hit.sig === sig) return hit.obj;
-  const obj = { ...currentTransaction, details: paymentDetails };
-  enrichedTxCache.set(currentTransaction.sparkID, { sig, obj });
-  return obj;
-}
 
 const shouldHideSmallPayment = ({
   frompage,

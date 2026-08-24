@@ -630,8 +630,9 @@ describe('adversarial — background crash & foreground recovery (N2/D3)', () =>
     expect(st.value).toEqual({ balance: 9 });
   });
 
-  test('background termination + didGetToHomepage=false → dead bridge: no reload, requests held forever (N2+D3 stuck state)', async () => {
+  test('background termination + didGetToHomepage=false → ERROR WebView is reloaded on foreground and re-handshakes (N2/D3 recovery)', async () => {
     const wv1 = await webviewReadyFull();
+    const verifyCallsBefore = mockVerify.mock.calls.length;
 
     mockAppStatus.appState = 'background';
     AppState.currentState = 'background';
@@ -647,20 +648,36 @@ describe('adversarial — background crash & foreground recovery (N2/D3)', () =>
     rerender();
     await flush();
 
-    // Foreground sees !nonceVerified but the homepage flag is false → the
-    // "boot phase" branch skips the reload entirely.
+    // Foreground sees !nonceVerified + wvState ERROR during boot → the bridge
+    // reloads (re-verifies) instead of staying dead (C-11 ERROR branch).
     await advance(500);
-    expect(postedCount('handshake:init', wv1)).toBe(1); // never re-handshakes
+    expect(mockVerify.mock.calls.length).toBeGreaterThan(verifyCallsBefore);
 
-    // The bridge stays dead (never re-handshakes), but a held request no longer
-    // hangs forever: the bounded hold TTL settles it not-ready (C-6).
+    // A request during the recovery window is held — and drains with the real
+    // outcome once the remounted page completes, never a silent hang.
     const st = track(SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true));
     await flush();
     expect(st.settled).toBe(false);
-    await advance(120001);
+
+    // The remounted page completes: load + NEW handshake → READY again.
+    wvLoadStart();
+    wvLoadEnd();
+    const wv2 = makeWebviewCrypto();
+    await advance(300);
+    expect(postedCount('handshake:init', wv1)).toBe(2);
+    wv2.answerHandshake();
+    await flush();
+    await completeWalletInit(wv2);
+    expect(SUT.getHandshakeComplete()).toBe(true);
+    expect(SUT.__getFallbackStateForTest()).toBe('webview');
+
+    // The held request drained and settles with the REAL response.
+    const sent = wv2.lastEncryptedPayload('getSparkBalance');
+    expect(sent).toBeTruthy();
+    wv2.respond(sent.id, { balance: 7 });
+    await flush();
     expect(st.settled).toBe(true);
-    expect(st.value.kind).toBe('not-ready');
-    expect(postedCount('getSparkBalance', wv1)).toBe(0);
+    expect(st.value).toEqual({ balance: 7 });
   });
 
   test('active crash (iOS termination / Android renderer gone) reloads immediately and re-handshakes', async () => {
@@ -830,7 +847,7 @@ describe('adversarial — in-flight handshake interrupted (N4, N8)', () => {
     expect(SUT.__getFallbackStateForTest()).toBe('webview');
   });
 
-  test('backgrounding during in-flight handshake → settles as unknown (not offline) → spurious fallback-pending (N8)', async () => {
+  test('backgrounding during in-flight handshake defers it: no fallback-pending, foreground re-arms and completes (N8)', async () => {
     mockLocal.get = async () => null;
     await mountTransport();
     await advance(300);
@@ -841,10 +858,24 @@ describe('adversarial — in-flight handshake interrupted (N4, N8)', () => {
     rerender();
     await flush();
 
-    // The background settle resolves the handshake with kind 'unknown' — the
-    // initHandshake continuation treats it as a bridge failure.
-    expect(SUT.__getFallbackStateForTest()).toBe('fallback-pending');
+    // Backgrounding is not a bridge failure: the handshake is DEFERRED (kind
+    // 'deferred') — no fallback-pending, no fallback budget consumed.
+    expect(SUT.__getFallbackStateForTest()).toBe('webview');
     expect(SUT.getHandshakeComplete()).toBe(false);
+
+    // Foreground re-arms the handshake (didRunInit was reset) — a NEW
+    // handshake:init posts and completes without any reset/bg-fg churn.
+    mockAppStatus.appState = 'active';
+    AppState.currentState = 'active';
+    rerender();
+    await flush();
+    await advance(300);
+    expect(postedCount('handshake:init', null)).toBe(2);
+    const wv = makeWebviewCrypto();
+    wv.answerHandshake();
+    await flush();
+    expect(SUT.getHandshakeComplete()).toBe(true);
+    expect(SUT.__getFallbackStateForTest()).toBe('webview');
   });
 
   test('handshake deferred while offline: no fallback transition, no reconnect emit, recovery on connection restore', async () => {
@@ -1238,7 +1269,8 @@ describe('adversarial — production reconcile queries & matchers', () => {
     await flush();
     expect(postedCount(op, wv)).toBe(1);
     // Keep-alive watchdog: first window resume-by-id, final deadline settles.
-    await advance(90001);
+    // Claim is a medium op (30s first window); other keep-alive ops are 90s.
+    await advance(op === 'claimnSparkStaticDepositAddress' ? 30001 : 90001);
     expect(st.settled).toBe(false);
     await advance(30001);
     expect(st.value.kind).toBe('unknown');

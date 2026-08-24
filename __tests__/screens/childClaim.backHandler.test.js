@@ -115,14 +115,15 @@ jest.mock('../../context-store/theme', () => ({
   useGlobalThemeContext: () => ({ theme: false, darkModeType: null }),
 }));
 jest.mock('lottie-react-native', () => 'LottieView');
-jest.mock('../../app/functions/lottieViewColorTransformer', () => ({
-  updateConfirmAnimation: () => ({}),
+jest.mock('../../app/functions/lottieAnimations', () => ({
+  getConfirmTxAnimation: () => ({}),
+  getErrorTxAnimation: () => ({}),
 }));
 
-const ChildEnterCode = require('../../app/screens/createAccount/childClaim/childEnterCode')
-  .default;
-const ChildEnterPairCode = require('../../app/screens/createAccount/childClaim/childEnterPairCode')
-  .default;
+const ChildEnterCode =
+  require('../../app/screens/createAccount/childClaim/childEnterCode').default;
+const ChildEnterPairCode =
+  require('../../app/screens/createAccount/childClaim/childEnterPairCode').default;
 
 describe('child claim screens — hardware back (F-5)', () => {
   let renderer;

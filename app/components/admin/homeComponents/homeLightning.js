@@ -159,11 +159,8 @@ export default function HomeLightning({ navigation }) {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const {
-    isConnectedToTheInternet,
-    didGetToHomepage,
-    screenDimensions,
-  } = useAppStatus();
+  const { isConnectedToTheInternet, didGetToHomepage, screenDimensions } =
+    useAppStatus();
   const scrollViewRef = useRef(null);
   const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
@@ -216,13 +213,11 @@ export default function HomeLightning({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       if (!navigation) return;
-      const listenerID = navigation?.addListener('tabPress', () => {
+      return navigation?.addListener('tabPress', () => {
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollTo({ y: 0, animated: true });
         }
       });
-
-      return navigation?.removeListener?.('click', listenerID);
     }, [navigation]),
   );
 
@@ -302,6 +297,8 @@ export default function HomeLightning({ navigation }) {
     showTokensInformation,
     hideSmallPaymentsHomepage,
     swapLimits.bitcoin,
+    theme,
+    darkModeType,
   ]);
 
   const handleRefresh = useCallback(async () => {

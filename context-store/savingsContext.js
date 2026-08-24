@@ -536,8 +536,9 @@ export function SavingsProvider({ children }) {
         const bitcoinTxs = (pastBitcoinTxs?.transfers ?? [])
           .filter(
             transfer =>
-              Buffer.from(transfer.senderIdentityPublicKey).toString('hex') ===
-              activeWallet.identityPublicKeyHex,
+              Buffer.from(
+                Object.values(transfer.senderIdentityPublicKey),
+              ).toString('hex') === activeWallet.identityPublicKeyHex,
           )
           .map(tx => ({
             id: tx.id,

@@ -14,7 +14,8 @@ const ED25519_SPKI_PREFIX = '302a300506032b6570032100';
 // Integrity failures (bad/missing signature, nonce injection) are tamper: they
 // justify persisting the FORCE_REACT_NATIVE kill-switch. Transient IO errors
 // (disk read/write) are NOT tamper and must never persist it (S-5).
-const tamperError = message => Object.assign(new Error(message), { isTamper: true });
+const tamperError = message =>
+  Object.assign(new Error(message), { isTamper: true });
 
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.

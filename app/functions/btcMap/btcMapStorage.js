@@ -9,49 +9,55 @@ const BATCH_SIZE = 250;
 let db = null;
 let initPromise = null;
 
+async function createSchema(database) {
+  await database.execAsync(`
+    PRAGMA journal_mode = WAL;
+    CREATE TABLE IF NOT EXISTS ${PLACES_TABLE} (
+      id   INTEGER PRIMARY KEY,
+      lat  REAL    NOT NULL,
+      lon  REAL    NOT NULL,
+      icon TEXT    DEFAULT '',
+      name TEXT    DEFAULT ''
+    );
+    CREATE INDEX IF NOT EXISTS idx_lat ON ${PLACES_TABLE}(lat);
+    CREATE INDEX IF NOT EXISTS idx_lon ON ${PLACES_TABLE}(lon);
+    CREATE INDEX IF NOT EXISTS idx_lat_lon ON ${PLACES_TABLE}(lat, lon);
+    CREATE TABLE IF NOT EXISTS ${META_TABLE} (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS ${PROVIDER_TABLE} (
+      source            TEXT NOT NULL,
+      native_id         TEXT NOT NULL,
+      lat               REAL NOT NULL,
+      lon               REAL NOT NULL,
+      icon              TEXT DEFAULT '',
+      name              TEXT DEFAULT '',
+      category          TEXT DEFAULT '',
+      address           TEXT,
+      website           TEXT,
+      phone             TEXT,
+      email             TEXT,
+      lightning_address TEXT,
+      PRIMARY KEY (source, native_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_pp_lat_lon ON ${PROVIDER_TABLE}(lat, lon);
+  `);
+  // Migrate existing installs that predate the `name` column.
+  try {
+    await database.execAsync(
+      `ALTER TABLE ${PLACES_TABLE} ADD COLUMN name TEXT`,
+    );
+  } catch (_) {
+    // Column already exists — ignore "duplicate column name" error.
+  }
+}
+
 async function openDB() {
   if (initPromise) return initPromise;
   initPromise = (async () => {
     db = await openDatabaseAsync(DB_NAME);
-    await db.execAsync(`
-      PRAGMA journal_mode = WAL;
-      CREATE TABLE IF NOT EXISTS ${PLACES_TABLE} (
-        id   INTEGER PRIMARY KEY,
-        lat  REAL    NOT NULL,
-        lon  REAL    NOT NULL,
-        icon TEXT    DEFAULT '',
-        name TEXT    DEFAULT ''
-      );
-      CREATE INDEX IF NOT EXISTS idx_lat ON ${PLACES_TABLE}(lat);
-      CREATE INDEX IF NOT EXISTS idx_lon ON ${PLACES_TABLE}(lon);
-      CREATE INDEX IF NOT EXISTS idx_lat_lon ON ${PLACES_TABLE}(lat, lon);
-      CREATE TABLE IF NOT EXISTS ${META_TABLE} (
-        key   TEXT PRIMARY KEY,
-        value TEXT NOT NULL
-      );
-      CREATE TABLE IF NOT EXISTS ${PROVIDER_TABLE} (
-        source            TEXT NOT NULL,
-        native_id         TEXT NOT NULL,
-        lat               REAL NOT NULL,
-        lon               REAL NOT NULL,
-        icon              TEXT DEFAULT '',
-        name              TEXT DEFAULT '',
-        category          TEXT DEFAULT '',
-        address           TEXT,
-        website           TEXT,
-        phone             TEXT,
-        email             TEXT,
-        lightning_address TEXT,
-        PRIMARY KEY (source, native_id)
-      );
-      CREATE INDEX IF NOT EXISTS idx_pp_lat_lon ON ${PROVIDER_TABLE}(lat, lon);
-    `);
-    // Migrate existing installs that predate the `name` column.
-    try {
-      await db.execAsync(`ALTER TABLE ${PLACES_TABLE} ADD COLUMN name TEXT`);
-    } catch (_) {
-      // Column already exists — ignore "duplicate column name" error.
-    }
+    await createSchema(db);
     return db;
   })();
   initPromise.catch(() => {
@@ -62,7 +68,21 @@ async function openDB() {
 }
 
 export async function initBTCMapDB() {
-  await openDB();
+  try {
+    const database = await openDB();
+    // Re-run the idempotent schema pass on the live handle (mirrors
+    // createSelfHealingDatabase.reinitialize). This is the post-wipe recreate
+    // path: just awaiting the memoized openDB() would recreate nothing if the
+    // recreate inside deleteBtcMapTable failed, leaving the tables dropped
+    // until a process restart.
+    await createSchema(database);
+    console.log('initialized btc map db');
+    return true;
+  } catch (error) {
+    console.error('initBTCMapDB error:', error);
+    // fail open, do not block wallet loading for btc map
+    return true;
+  }
 }
 
 export async function getLastModified() {
@@ -216,7 +236,9 @@ export async function replaceProviderPlaces(source, rows, { clear } = {}) {
     }
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
       const batch = rows.slice(i, i + BATCH_SIZE);
-      const placeholders = batch.map(() => '(?,?,?,?,?,?,?,?,?,?,?,?)').join(',');
+      const placeholders = batch
+        .map(() => '(?,?,?,?,?,?,?,?,?,?,?,?)')
+        .join(',');
       const values = batch.flatMap(p => [
         source,
         String(p.native_id),
@@ -287,11 +309,14 @@ export const deleteBtcMapTable = async () => {
     await db.runAsync(`DROP TABLE IF EXISTS ${PLACES_TABLE};`);
     await db.runAsync(`DROP TABLE IF EXISTS ${PROVIDER_TABLE};`);
     await db.runAsync(`DROP TABLE IF EXISTS ${META_TABLE};`);
+    // // Recreate the schema on the SAME connection. Dropping the cached handle
+    // // and reopening would wrap the same native database in a second JS object;
+    // // when the orphaned wrapper is GC'd, expo-sqlite closes the shared native
+    // // handle out from under the live one (expo/expo#48999) and every later
+    // // query throws a NullPointerException until the process restarts.
+    await createSchema(db);
     console.log(`btc map places and metadata deleted successfully`);
   } catch (error) {
     console.error('Error deleting table:', error);
-  } finally {
-    initPromise = null;
-    db = null;
   }
 };

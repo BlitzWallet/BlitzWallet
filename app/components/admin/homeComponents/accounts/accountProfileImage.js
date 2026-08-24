@@ -4,13 +4,14 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useChildAccountEmoji } from '../../../../functions/accounts/childAccountEmojis';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { COLORS, ICONS } from '../../../../constants';
-import ContactProfileImage from '../contacts/internalComponents/profileImage';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
+  ICONS,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
-} from '../../../../../context-store/activeAccount';
+} from '../../../../constants';
+import ContactProfileImage from '../contacts/internalComponents/profileImage';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+
 import { useState, useCallback } from 'react';
 
 export default function AccountProfileImage({

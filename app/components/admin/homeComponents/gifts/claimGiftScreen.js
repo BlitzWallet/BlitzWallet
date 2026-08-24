@@ -37,7 +37,7 @@ import {
 } from '../../../../functions/gift/giftsStorage';
 import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import {
@@ -46,8 +46,6 @@ import {
 } from '../../../../functions/gift/deriveGiftWallet';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function ClaimGiftScreen({
   url,
@@ -518,12 +516,7 @@ export default function ClaimGiftScreen({
     };
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   const containerBackgroundColor = useMemo(() => {
     return theme && darkModeType ? backgroundColor : backgroundOffset;

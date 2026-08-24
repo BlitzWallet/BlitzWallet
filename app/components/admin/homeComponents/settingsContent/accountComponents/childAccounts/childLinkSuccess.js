@@ -14,13 +14,11 @@ import {
 } from '../../../../../../constants/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import { useCallback, useMemo } from 'react';
-import { updateConfirmAnimation } from '../../../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
-
-const confirmTxAnimation = require('../../../../../../assets/confirmTxAnimation.json');
 
 export default function ChildLinkSuccess() {
   const navigate = useNavigation();
@@ -37,12 +35,7 @@ export default function ChildLinkSuccess() {
     return true;
   }, []);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useHandleBackPressNew(handleDone);
 

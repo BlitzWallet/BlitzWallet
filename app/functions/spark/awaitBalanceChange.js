@@ -10,6 +10,7 @@ import {
   selectSparkRuntime,
   getWallet,
   attachWalletListeners,
+  isOptimizationInProgress,
 } from './index';
 
 /**
@@ -24,18 +25,84 @@ import {
  * Events are wallet-scoped by mnemonic hash (walletId), so a derived wallet's
  * updates never leak into the main-wallet handlers and vice versa.
  *
+ * When `stabilize` is true, sats `balance:update` events are debounced and a
+ * decrease is held while the SDK reports an auto-optimization in progress —
+ * killing the transient dip→settle flicker on always-mounted balance screens.
+ * Default (false) keeps the raw per-event pass-through the predicate consumer
+ * (awaitSparkBalance) and existing callers rely on.
+ *
  * @param {Object} params
  * @param {string} params.mnemonic - derived wallet mnemonic
  * @param {(result: {balance: any, tokensObj?: object, didWork: boolean}) => void} params.onUpdate
+ * @param {boolean} [params.stabilize=false] - debounce + downward-gate sats updates
  * @returns {{ unsubscribe: () => void, ready: Promise<void> }}
  */
-export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
+export const subscribeToSparkBalance = ({
+  mnemonic,
+  onUpdate,
+  stabilize = false,
+}) => {
   const walletHash = sha256Hash(mnemonic);
 
   let cancelled = false;
   let reading = false;
   let pendingReRead = false;
   let nativeWallet = null;
+
+  // Stabilize-only state. lastPainted tracks the last value handed to onUpdate
+  // so the flush can tell an increase from a decrease; flushGen invalidates a
+  // slow optimization-check whose flush was superseded by a newer one.
+  let lastPainted = null;
+  let debounceTimer = null;
+  let maxWaitTimer = null;
+  let flushGen = 0;
+
+  const paint = result => {
+    if (cancelled) return;
+    if (result?.didWork) lastPainted = Number(result.balance || 0);
+    onUpdate(result);
+  };
+  const applyResult = stabilize ? paint : onUpdate;
+
+  const clearFlushTimers = () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (maxWaitTimer) clearTimeout(maxWaitTimer);
+    debounceTimer = null;
+    maxWaitTimer = null;
+  };
+
+  // One gated read after the optimization burst goes quiet. Reading at flush
+  // (rather than staging event values) means the read is ground truth — no
+  // X→Y→X guard needed — and coalesces the per-event read storm.
+  const flushStable = () => {
+    clearFlushTimers();
+    if (cancelled) return;
+    const gen = ++flushGen;
+    getSparkBalance(mnemonic)
+      .then(result => {
+        if (cancelled || gen !== flushGen || !result?.didWork) return;
+        const value = Number(result.balance || 0);
+        if (lastPainted != null && value === lastPainted) return;
+        if (lastPainted != null && value < lastPainted) {
+          // A decrease is a real spend OR a transient optimization dip. Hold the
+          // dip; the settle event re-arms a flush at the true value.
+          isOptimizationInProgress({ mnemonic })
+            .then(res => {
+              console.log(res, 'is optimization happening');
+              if (cancelled || gen !== flushGen) return; // superseded
+              if (res?.isOptimizing) return; // hold
+              paint(result);
+            })
+            // Fail-open: never strand a real withdrawal behind a bridge timeout.
+            .catch(() => {
+              if (!cancelled && gen === flushGen) paint(result);
+            });
+          return;
+        }
+        paint(result); // increase (or first paint)
+      })
+      .catch(() => {});
+  };
 
   const readBalance = async () => {
     if (cancelled) return;
@@ -48,7 +115,7 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
     reading = true;
     try {
       const result = await getSparkBalance(mnemonic);
-      if (!cancelled) onUpdate(result);
+      if (!cancelled) applyResult(result);
     } finally {
       reading = false;
       if (pendingReRead && !cancelled) {
@@ -61,6 +128,13 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
   // WebView runtime: events arrive on the shared emitters, tagged with walletId.
   const onBalanceEvent = (_data, walletId) => {
     if (walletId && walletId !== walletHash) return;
+    if (stabilize) {
+      // Trailing 3s debounce, capped at 10s so a sustained burst still flushes.
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(flushStable, 2000);
+      if (!maxWaitTimer) maxWaitTimer = setTimeout(flushStable, 5000);
+      return;
+    }
     readBalance();
   };
   const onTokenEvent = (_tokensObject, walletId) => {
@@ -68,8 +142,9 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
     readBalance();
   };
 
-  // Native runtime: events fire directly on the SDK wallet instance.
-  const nativeBalanceCb = () => readBalance();
+  // Native runtime: events fire directly on the SDK wallet instance. Route the
+  // sats event through the same debounce/gate so stabilize mode works on native.
+  const nativeBalanceCb = () => onBalanceEvent(null, null);
   const nativeTokenCb = () => readBalance();
 
   const setup = async () => {
@@ -109,6 +184,7 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
   const unsubscribe = () => {
     if (cancelled) return;
     cancelled = true;
+    clearFlushTimers();
     sparkBalanceUpdateEmitter.removeListener(
       BALANCE_UPDATE_EVENT_NAME,
       onBalanceEvent,

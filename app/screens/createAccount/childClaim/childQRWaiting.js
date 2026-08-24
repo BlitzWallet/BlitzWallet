@@ -3,21 +3,14 @@ import { useMemo } from 'react';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, View } from 'react-native';
-import { updateConfirmAnimation } from '../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../functions/lottieAnimations';
 import { ThemeText } from '../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
-
-const confirmTxAnimation = require('../../../../app/assets/confirmTxAnimation.json');
 
 export default function ChildQRWaiting() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   return (
     <View style={styles.container}>

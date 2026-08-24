@@ -38,6 +38,7 @@ describe('buildParentAccountTransferMessagePayload', () => {
     });
     expect(payload.txid).toBe('spark-id-1');
     expect(payload[PARENT_ACCOUNT_TRANSFER_MARKER]).toBe(true);
+    expect(payload.isDeposit).toBe(true);
     expect(payload.description).toBe(
       'settings.accountComponents.transferModal.addFunds',
     );
@@ -59,6 +60,8 @@ describe('buildParentAccountTransferMessagePayload', () => {
     );
     expect(payload.txid).toBe('spark-id-2');
     expect(payload[PARENT_ACCOUNT_TRANSFER_MARKER]).toBe(true);
+    expect(payload.isDeposit).toBe(false);
+    expect(payload.didSend).toBe(false);
   });
 });
 
@@ -144,6 +147,7 @@ describe('publishParentAccountTransferMessage', () => {
     );
     expect(arg.newMessage.txid).toBe('spark-id-1');
     expect(arg.newMessage[PARENT_ACCOUNT_TRANSFER_MARKER]).toBe(true);
+    expect(arg.newMessage.isDeposit).toBe(true);
   });
 
   it('no-ops without a txid', async () => {

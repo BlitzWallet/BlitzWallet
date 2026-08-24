@@ -404,7 +404,8 @@ async function dispatchThenLoseResponse(wv, op, args) {
   const st = track(SUT.sendWebViewRequestGlobal(op, args));
   await flush();
   expect(wv.lastEncryptedPayload(op)).toBeTruthy();
-  await advance(90001);
+  // Claim is a medium op (30s first window); other keep-alive ops are 90s.
+  await advance(op === 'claimnSparkStaticDepositAddress' ? 30001 : 90001);
   expect(st.settled).toBe(false);
   await advance(30001);
   expect(st.settled).toBe(true);
@@ -935,6 +936,67 @@ describe('final — C-11 load failure & watchdog recovery', () => {
     });
     // No onLoadEnd / onLoadProgress ever fires.
     await advance(30001);
+    expect(mockVerify.mock.calls.length).toBeGreaterThan(verifyCalls);
+  });
+
+  test('a background-suspended load is not a failure: the watchdog re-arms and the load completes on foreground', async () => {
+    mockLocal.get = async () => null;
+    mockActive.currentWalletMnemoinc = MNEMONIC;
+    await mountWebview();
+    await advance(400);
+
+    const verifyCalls = mockVerify.mock.calls.length;
+    act(() => {
+      mockWebview.props.onLoadStart();
+    });
+    // The page load is suspended while backgrounded: no onLoadEnd fires.
+    AppState.currentState = 'background';
+    // Several watchdog windows pass — none may declare failure (no reload,
+    // no fallback escalation).
+    await advance(30001);
+    await advance(30001);
+    expect(mockVerify.mock.calls.length).toBe(verifyCalls);
+    expect(SUT.__getFallbackStateForTest()).toBe('webview');
+
+    // Foreground: the suspended load completes normally and the handshake runs.
+    AppState.currentState = 'active';
+    act(() => {
+      mockWebview.props.onLoadEnd();
+    });
+    await advance(300);
+    expect(lastPosted('handshake:init')).toBeTruthy();
+  });
+
+  test('a WebView left in ERROR during boot is reloaded on foreground (before homepage)', async () => {
+    mockLocal.get = async () => null;
+    mockActive.currentWalletMnemoinc = MNEMONIC;
+    mockAppStatus.didGetToHomepage = false;
+    await mountWebview();
+    await advance(400);
+
+    const verifyCalls = mockVerify.mock.calls.length;
+    act(() => {
+      mockWebview.props.onLoadStart();
+    });
+    // Load fails while backgrounded: ERROR is latched, recovery deferred.
+    mockAppStatus.appState = 'background';
+    AppState.currentState = 'background';
+    rerender();
+    await flush();
+    act(() => {
+      mockWebview.props.onError({
+        nativeEvent: { description: 'bg load failed' },
+      });
+    });
+    await flush();
+    expect(mockVerify.mock.calls.length).toBe(verifyCalls);
+
+    // Foreground during boot (no homepage yet): the ERROR WebView never
+    // self-recovers, so it must be reloaded to re-arm verification + handshake.
+    mockAppStatus.appState = 'active';
+    AppState.currentState = 'active';
+    rerender();
+    await flush();
     expect(mockVerify.mock.calls.length).toBeGreaterThan(verifyCalls);
   });
 });

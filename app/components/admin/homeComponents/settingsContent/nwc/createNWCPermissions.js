@@ -166,6 +166,7 @@ export default function CreateNWCPermissions(props) {
                 isEditing
                   ? 'settings.nwc.createNWCPermissions.editSubtitle'
                   : 'settings.nwc.createNWCPermissions.pageSubtitle',
+                { name: passedParams?.accountName },
               )}
             />
             <SettingsSection

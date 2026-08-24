@@ -9,12 +9,18 @@ import React, {
 import {
   addDataToCollection,
   getDataFromCollection,
+  getSingleContact,
   syncDatabasePayment,
 } from '../db';
 import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+} from '../app/functions/localStorage';
+import { PENDING_PARENT_CONTACT_KEY } from '../app/constants';
 import {
   clearContactRaceRetryTimers,
   CONTACTS_TRANSACTION_UPDATE_NAME,
@@ -36,7 +42,11 @@ import {
 } from '@react-native-firebase/firestore';
 import { getCachedProfileImage } from '../app/functions/cachedImage';
 import { useAuthContext } from './authContext';
-import { isParentAccountTransferSender } from '../app/functions/messaging/parentAccountTransferMessage';
+import { useAppStatus } from './appStatus';
+import {
+  isParentAccountTransferSender,
+  PARENT_ACCOUNT_TRANSFER_MARKER,
+} from '../app/functions/messaging/parentAccountTransferMessage';
 
 // ─── Split contexts ────────────────────────────────────────────────────────────
 // Consumers that only need profile/contacts info won't re-render when messages
@@ -53,9 +63,11 @@ export const GlobalContactsList = ({ children }) => {
   const [globalContactsInformation, setGlobalContactsInformation] = useState(
     {},
   );
+  const { didGetToHomepage } = useAppStatus();
   const [contactsMessags, setContactsMessagses] = useState({});
   const unsubscribeMessagesRef = useRef(null);
   const isInitialLoad = useRef(true);
+  const addedParentContactRef = useRef(false);
 
   const globalContactsInformationRef = useRef(globalContactsInformation);
   useEffect(() => {
@@ -462,6 +474,7 @@ export const GlobalContactsList = ({ children }) => {
       unsubscribeMessagesRef.current();
       unsubscribeMessagesRef.current = null;
     }
+    setContactsMessagses({});
   }, [authResetkey]);
 
   const addContact = useCallback(
@@ -480,6 +493,7 @@ export const GlobalContactsList = ({ children }) => {
           profileImage: contact.profileImage,
           receiveAddress: contact.receiveAddress,
           transactions: [],
+          isParentContact: contact.isParentContact || false,
         };
 
         setGlobalContactsInformation(prev => {
@@ -511,6 +525,8 @@ export const GlobalContactsList = ({ children }) => {
                     bio: newContact.bio,
                     unlookedTransactions: 0,
                     isAdded: true,
+                    isParentContact:
+                      newContact.isParentContact || c.isParentContact,
                   }
                 : c,
             );
@@ -548,6 +564,7 @@ export const GlobalContactsList = ({ children }) => {
   const deleteContact = useCallback(
     async contact => {
       try {
+        if (contact?.isParentContact) return;
         await deleteCachedMessages(contact.uuid);
 
         setGlobalContactsInformation(prev => {
@@ -597,6 +614,48 @@ export const GlobalContactsList = ({ children }) => {
     [contactsPrivateKey, publicKey],
   );
 
+  // Child-claim handoff: the pairing flow persisted the parent's username in
+  // PENDING_PARENT_CONTACT_KEY; on first arrival home, resolve the parent's
+  // profile and add them as a non-deletable contact. Idempotent by design —
+  // addContact stamps an already-present parent as non-deletable instead of
+  // duplicating. The key + ref resolve together: cleared only on a definitive
+  // outcome (added / not-a-child / self), so a failed lookup retries on the
+  // next didGetToHomepage flip (long-background return).
+  useEffect(() => {
+    if (!didGetToHomepage || addedParentContactRef.current) return;
+    if (!publicKey || !globalContactsInformationRef.current?.myProfile) return;
+
+    (async () => {
+      const rid = await getLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
+      if (!rid) {
+        addedParentContactRef.current = true;
+        return;
+      }
+
+      const docs = await getSingleContact(rid);
+      const parent = docs?.[0]?.contacts?.myProfile;
+      if (!parent?.uuid) return;
+      if (parent.uuid === publicKey) {
+        await removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
+        addedParentContactRef.current = true;
+        return;
+      }
+
+      await addContact({
+        name: parent.name || '',
+        nameLower: parent.nameLower || '',
+        bio: parent.bio,
+        isLNURL: false,
+        uniqueName: parent.uniqueName || '',
+        uuid: parent.uuid,
+        receiveAddress: parent.receiveAddress,
+        isParentContact: true,
+      });
+      await removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
+      addedParentContactRef.current = true;
+    })();
+  }, [didGetToHomepage, publicKey, addContact]);
+
   // ─── Derived values (messages context) ─────────────────────────────────────
   const giftCardsList = useMemo(() => {
     if (!contactsMessags) return [];
@@ -641,7 +700,7 @@ export const GlobalContactsList = ({ children }) => {
           messages?.some(
             message =>
               !message.message.wasSeen &&
-              !message.message.isParentAccountTransfer,
+              !message.message?.[PARENT_ACCOUNT_TRANSFER_MARKER],
           ) ?? false
         );
       });

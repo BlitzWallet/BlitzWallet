@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,7 +13,6 @@ import { CENTER, COLORS, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import {
   FONT,
@@ -196,21 +195,11 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
             actionFunction={() => go('WalletSetupFork')}
           />
 
-          <TouchableOpacity
-            style={styles.joinBtn}
-            activeOpacity={0.7}
-            onPress={() => go('ChildClaimStack')}
-          >
-            <ThemeIcon
-              iconName={'Users'}
-              size={20}
-              colorOverride={COLORS.primary}
-            />
-            <ThemeText
-              styles={styles.joinBtnText}
-              content={t('createAccount.homePage.buttons.joinAccount')}
-            />
-          </TouchableOpacity>
+          <ThemeText
+            styles={styles.disclaimer}
+            content={t('createAccount.homePage.subtitle')}
+            isLight={true}
+          />
         </Animated.View>
       </View>
     </GlobalThemeView>
@@ -248,19 +237,12 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     letterSpacing: 0.1,
   },
-  joinBtn: {
-    width: '100%',
-    minHeight: 50,
-    borderRadius: 12,
-    backgroundColor: COLORS.lightModeBackground,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  joinBtnText: {
-    fontSize: SIZES.medium,
-    color: COLORS.lightModeText,
+  disclaimer: {
+    fontSize: SIZES.xSmall,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
     includeFontPadding: false,
+    marginTop: 8,
+    textTransform: 'uppercase',
   },
 });

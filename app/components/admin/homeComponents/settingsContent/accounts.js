@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../constants';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
@@ -9,20 +14,19 @@ import {
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import AccountCard from '../accounts/accountCard';
+import useAccountBalancePreviews from '../../../../hooks/useAccountBalancePreviews';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
   const route = useRoute();
   const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { textColor } = GetThemeColors();
   const { t } = useTranslation();
   const params = route.params || {};
   const [activeTab, setActiveTab] = useState(params?.initialTab || 'personal');
@@ -36,20 +40,17 @@ export default function CreateCustodyAccounts() {
     [masterInfoObject?.childAccounts],
   );
 
-  const handleNavigateAddAccount = useCallback(() => {
-    navigate.navigate('SelectCreateAccountType', {});
-  }, [navigate]);
+  const isLinked = activeTab === 'linked';
 
-  const handleNavigateSwap = useCallback(() => {
-    if (custodyAccountsList.length < 2) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('settings.accountComponents.homepage.swapAccountError'),
-      });
+  const { computeTotalSats, computeLastUpdated } = useAccountBalancePreviews();
+
+  const handleNavigateAddAccount = useCallback(() => {
+    if (isLinked) {
+      navigate.navigate('ChildEnterName');
       return;
     }
-
-    navigate.navigate('CustodyAccountPaymentPage');
-  }, [navigate, custodyAccountsList, t]);
+    navigate.navigate('SelectCreateAccountType', {});
+  }, [navigate, isLinked]);
 
   const handleOpenAccount = useCallback(
     item => {
@@ -61,13 +62,24 @@ export default function CreateCustodyAccounts() {
     [navigate],
   );
 
-  const isLinked = activeTab === 'linked';
-
   const activeAccounts = useMemo(() => {
-    return isLinked
-      ? childAccounts.map(child => ({ ...child, __type: 'child' }))
-      : custodyAccountsList;
-  }, [isLinked, childAccounts, custodyAccountsList]);
+    if (isLinked) {
+      return childAccounts.map(child => ({ ...child, __type: 'child' }));
+    }
+    if (masterInfoObject.isChildAccount) {
+      return custodyAccountsList.filter(
+        account =>
+          account.uuid === MAIN_ACCOUNT_UUID ||
+          account.uuid === NWC_ACCOUNT_UUID,
+      );
+    }
+    return custodyAccountsList;
+  }, [
+    isLinked,
+    childAccounts,
+    custodyAccountsList,
+    masterInfoObject.isChildAccount,
+  ]);
 
   const handleAboutClick = useCallback(() => {
     navigate.navigate('InformationPopup', {
@@ -112,6 +124,8 @@ export default function CreateCustodyAccounts() {
                 key={item.uuid || `Account ${index}`}
                 account={item}
                 onPress={() => handleOpenAccount(item)}
+                balanceSats={isLinked ? undefined : computeTotalSats(item)}
+                lastUpdated={isLinked ? undefined : computeLastUpdated(item)}
               />
             ))}
           </View>
@@ -133,28 +147,20 @@ export default function CreateCustodyAccounts() {
         )}
       </ScrollView>
 
-      <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-          ...CENTER,
-        }}
-        actionFunction={handleNavigateAddAccount}
-        textStyles={styles.actionButtonText}
-        textContent={t(
-          'settings.accountComponents.selectCreateAccountType.title',
-        )}
-      />
-      <CustomButton
-        buttonStyles={{
-          backgroundColor: undefined,
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-        }}
-        textStyles={{ color: textColor }}
-        actionFunction={handleNavigateSwap}
-        textContent={t('settings.accountComponents.homepage.swap')}
-      />
+      {!masterInfoObject.isChildAccount && (
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+            ...CENTER,
+          }}
+          actionFunction={handleNavigateAddAccount}
+          textStyles={styles.actionButtonText}
+          textContent={t(
+            'settings.accountComponents.selectCreateAccountType.title',
+          )}
+        />
+      )}
     </CustomKeyboardAvoidingView>
   );
 }

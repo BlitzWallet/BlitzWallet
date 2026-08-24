@@ -1,13 +1,14 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, COLORS } from '../../constants';
+import { CENTER, COLORS, PENDING_PARENT_CONTACT_KEY } from '../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import { ThemeText } from '../../functions/CustomElements';
 import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import { removeLocalStorageItem } from '../../functions';
 
 export default function WalletSetupFork() {
   const navigate = useNavigation();
@@ -20,7 +21,19 @@ export default function WalletSetupFork() {
       desc: t('createAccount.walletSetup.createDesc'),
       onPress: () => {
         crashlyticsLogReport('Navigating to disclaimer from wallet setup fork');
+        removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
         navigate.navigate('DisclaimerPage', { nextPage: 'PinSetup' });
+      },
+    },
+    {
+      icon: 'Users',
+      title: t('createAccount.walletSetup.joinTitle'),
+      desc: t('createAccount.walletSetup.joinDesc'),
+      onPress: () => {
+        crashlyticsLogReport(
+          'Navigating to join managed wallet from wallet setup fork',
+        );
+        navigate.navigate('ChildClaimStack');
       },
     },
     {
@@ -29,6 +42,7 @@ export default function WalletSetupFork() {
       desc: t('createAccount.walletSetup.restoreDesc'),
       onPress: () => {
         crashlyticsLogReport('Navigating to restore from wallet setup fork');
+        removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
         navigate.navigate('RestoreWallet');
       },
     },
@@ -115,7 +129,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    minHeight: 80,
     paddingVertical: 16,
     paddingHorizontal: 16,
   },

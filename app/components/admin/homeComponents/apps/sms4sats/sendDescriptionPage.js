@@ -31,11 +31,9 @@ import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { SMS_SEND_MAX_LENGTH } from './utils';
 import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
-import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../../functions/lottieAnimations';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-
-const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function SMSMessagingSendDescriptionPage(props) {
   const navigate = useNavigation();
@@ -81,12 +79,7 @@ export default function SMSMessagingSendDescriptionPage(props) {
     [contactsPrivateKey, publicKey, toggleGlobalAppDataInformation],
   );
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     if (isConfirmed) {

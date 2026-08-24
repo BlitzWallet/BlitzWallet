@@ -57,9 +57,9 @@ jest.mock('../app/functions', () => ({
   copyToClipboard: jest.fn(),
 }));
 
-jest.mock('../app/functions/lottieViewColorTransformer', () => ({
-  applyErrorAnimationTheme: animation => animation,
-  updateConfirmAnimation: animation => animation,
+jest.mock('../app/functions/lottieAnimations', () => ({
+  getErrorTxAnimation: animation => animation,
+  getConfirmTxAnimation: animation => animation,
 }));
 
 jest.mock('../app/functions/lrc20/formatTokensBalance', () => ({

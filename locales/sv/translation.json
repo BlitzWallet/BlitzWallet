@@ -200,6 +200,8 @@
     "paidRequest": "Betald förfrågan",
     "sent": "Skickad",
     "received": "Mottagna",
+    "accountTopup": "Påfyllning",
+    "accountWithdrawal": "Uttag",
     "paidLower": "betalda",
     "declinedLower": "avböjt",
     "receivedRequest": "Mottagen förfrågan",
@@ -287,9 +289,11 @@
     },
     "walletSetup": {
       "title": "Skapa din plånbok",
-      "subtitle": "Skapa en ny plånbok eller återställ en befintlig.",
+      "subtitle": "Skapa en ny plånbok, gå med i en plånbok eller återställ en befintlig.",
       "createTitle": "Skapa ny plånbok",
       "createDesc": "Börja om med en ny plånbok.",
+      "joinTitle": "Gå med i en hanterad plånbok",
+      "joinDesc": "Gå med i en plånbok som hanteras åt dig.",
       "restoreTitle": "Återställ befintlig plånbok",
       "restoreDesc": "Har du redan en plånbok? Ta med dig den."
     }
@@ -933,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Dela min länk",
       "images": "Från bild",
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",
@@ -1678,6 +1683,7 @@
     "accounts": {
       "inputPlaceholder": "Sök befintligt konto",
       "mainWalletPlace": "Huvudplånbok",
+      "managedWalletPlace": "Hanterat konto",
       "nwcWalletPlace": "NWC",
       "tabs": {
         "personal": "Personliga",
@@ -1862,21 +1868,26 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Är du säker att du vill ta bort det här Nostr Connect-objektet?",
-      "addAccount": "Lägg till konto",
+      "confirmDelete": "Är du säker på att du vill ta bort den här anslutningen?",
+      "addAccount": "Lägg till anslutning",
       "empty": {
         "title": "Inga anslutningar ännu",
         "subtitle": "Skapa en anslutning för att använda Nostr Wallet Connect med dina favoritappar."
       },
       "createNWCName": {
-        "title": "Anslutningsnamn"
+        "navTitle": "Namn",
+        "title": "Namnge den här anslutningen",
+        "editTitle": "Redigera anslutningsnamn",
+        "subtitle": "Ge anslutningen ett namn så att du kan känna igen den senare.",
+        "editSubtitle": "Välj ett nytt namn så att du kan känna igen den här anslutningen senare.",
+        "placeholder": "Anslutningsnamn"
       },
       "createNWCPermissions": {
         "title": "Behörigheter",
-        "pageTitle": "Lägg till plånboksbehörigheter",
-        "pageSubtitle": "Välj vilka åtgärder den här plånboken kan utföra.",
-        "editTitle": "Redigera plånboksbehörigheter",
-        "editSubtitle": "Redigera vilka åtgärder den här plånboken kan utföra."
+        "pageTitle": "Lägg till anslutningsbehörigheter",
+        "pageSubtitle": "Välj vilka åtgärder {{name}} kan utföra.",
+        "editTitle": "Redigera anslutningsbehörigheter",
+        "editSubtitle": "Redigera vilka åtgärder {{name}} kan utföra."
       },
       "createNWCAmount": {
         "title": "Budget",
@@ -1885,10 +1896,10 @@
         "editTitle": "Redigera utgiftsbudget",
         "editSubtitle": "Ändra utgiftsgränsen och när den återställs. Lämna tomt för ingen gräns.",
         "renewalPlaceholder": "Välj förnyelseperiod",
-        "createButton": "Skapa konto"
+        "createButton": "Skapa anslutning"
       },
       "accountPage": {
-        "title": "Hantera konto",
+        "title": "Hantera anslutning",
         "nameLabel": "Namn",
         "permissionsLabel": "Behörigheter",
         "permissionsCount_one": "{{count}} behörighet",
@@ -1896,16 +1907,16 @@
         "renewalLabel": "Förnyelseperiod",
         "amountLabel": "Budgetbelopp",
         "viewSecretLabel": "Anslutningssträng",
-        "deleteAccount": "Ta bort konto"
+        "deleteAccount": "Ta bort anslutning"
       },
       "createNWCAccount": {
-        "noAccountNameError": "Ange ett kontonamn.",
+        "noAccountNameError": "Ange ett anslutningsnamn.",
         "noPermissionsError": "Vänligen aktivera minst en behörighet.",
         "noBudgetError": "Vänligen välj en budgetförnyelseperiod.",
         "noBudgetAmountError": "Vänligen välj ett budgetbelopp.",
-        "loadingMessage": "Skapa konto",
-        "updatingMessage": "Uppdaterar konto...",
-        "nameInputPlaceholder": "Ange NWC-kontonamn",
+        "loadingMessage": "Skapar anslutning...",
+        "updatingMessage": "Uppdaterar anslutning...",
+        "nameInputPlaceholder": "Ange NWC-anslutningsnamn",
         "permissionsHeader": "Behörighet för plånbok",
         "receivePayments": "Ta emot betalningar",
         "sendPayments": "Skicka betalningar",
@@ -1915,7 +1926,7 @@
         "budgetRenewalHeader": "Förnyelse av budgeten"
       },
       "hasNoAccounts": {
-        "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
+        "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på kontosidan."
       },
       "noNotifications": {
         "title": "Aviseringar krävs",
@@ -1928,7 +1939,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Innan du börjar",
-        "infoSubtitle": "Några saker att veta om ditt Nostr Wallet Connect-konto.",
+        "infoSubtitle": "Några saker att veta om Nostr Wallet Connect.",
         "row1Label": "Lägg till pengar",
         "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
         "row2Label": "Separat konto",
@@ -1941,8 +1952,8 @@
         "errorRetry": "Försök igen"
       },
       "accountCreated": {
-        "title": "Konto skapat",
-        "subtitle": "Ditt NWC-konto har skapats. Kopiera anslutningssträngen för att börja använda det.",
+        "title": "Anslutning skapad",
+        "subtitle": "Din anslutning har skapats. Kopiera anslutningssträngen för att börja använda den.",
         "copyConnection": "Kopiera anslutningssträng"
       }
     },
@@ -1996,6 +2007,7 @@
         "title": "Konto",
         "accountNameLabel": "Kontonamn",
         "showRecoveryPhraseLabel": "Visa återställningsfras",
+        "lightningAddressLabel": "Kontoadress",
         "removeAccountLabel": "Ta bort konto",
         "activeAccountError": "Du kan inte ta bort det för närvarande aktiva kontot. Vänligen byt till ett annat konto innan du tar bort detta.",
         "account_pin": "Fäst konto",
@@ -2004,15 +2016,20 @@
         "accountTypeLabel": "Kontotyp",
         "accountType_derived": "Härledd",
         "accountType_imported": "Importerad",
-        "accountTypeDerivedInfo": "Detta konto är kopplat till din Blitz seed phrase och återställs när du återställer din Blitz-plånbok.",
-        "accountTypeImportedInfo": "Detta konto har en egen seed phrase och återställs inte när du återställer din Blitz-plånbok. Se till att säkerhetskopiera återställningsfrasen.",
         "accountType_main": "Huvud",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Detta konto skapas från din Blitz-återställningsfras och återställs när du återställer din Blitz-plånbok.",
+        "accountTypeImportedInfo": "Detta konto har en egen seed phrase och återställs inte när du återställer din Blitz-plånbok. Se till att säkerhetskopiera återställningsfrasen.",
+        "accountTypeNwcInfo": "Det här är ditt Nostr Wallet Connect (NWC)-konto. Det används av appar som är anslutna till Blitz och kan alltid återställas från din huvudsakliga Blitz-återställningsfras.",
         "balanceLabel": "Saldo",
         "activeLabel": "Aktivt konto",
         "activateButton": "Aktivera konto",
         "addMoneyButton": "Lägg till pengar",
         "withdrawMoneyButton": "Ta ut pengar",
-        "viewActivityLabel": "Visa kontohistorik"
+        "viewActivityLabel": "Visa kontohistorik",
+        "loadError": "Det gick inte att ladda kontot",
+        "loadErrorDesc": "Försök igen. Om problemet kvarstår, kontakta supporten.",
+        "stillConnectingInfo": "Ditt saldo kanske inte är uppdaterat medan vi slutför anslutningen av ditt konto."
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",
@@ -2057,14 +2074,21 @@
       },
       "transferModal": {
         "selectAccount": "Välj ett konto",
+        "addFromTitle": "Välj vilket konto pengarna ska läggas till från.",
+        "withdrawToTitle": "Välj vilket konto pengarna ska tas ut till.",
+        "noAvailableAccounts": "Inga tillgängliga konton",
+        "noAccountsSubtitle": "Du har inga konton än. Skapa ett för att komma igång.",
+        "noAvailableAccountsSubtitle": "Dina konton har inga medel än. Lägg till pengar för att använda dem här.",
         "availableToAdd": "Tillgängligt att lägga till",
         "availableToWithdraw": "Tillgängligt att ta ut",
         "using": "Använder",
         "amount": "Belopp",
         "transferComplete": "Skickat till {{name}}",
+        "receivedFrom": "Mottaget från {{name}}",
         "selfTransfer": "Du kan inte överföra till dig själv",
         "addFunds": "{{name}} lade till pengar",
-        "withdrawFunds": "{{name}} tog ut pengar"
+        "withdrawFunds": "{{name}} tog ut pengar",
+        "balanceLoadError": "Det gick inte att läsa in saldot för det här kontot. Försök igen."
       }
     },
     "accountsPoolsScreen": {
@@ -2072,9 +2096,7 @@
       "settingsButton": "Inställningar",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Du har inte skapat några pools ännu. Tryck för att skapa din första pool.",
-      "noActivePools": "Du har inga aktiva pooler just nu. Tryck för att visa dina pooler.",
-      "yourAccountsTitle": "Dina konton",
-      "addAccountButton": "Lägg till konto"
+      "noActivePools": "Du har inga aktiva pooler just nu. Tryck för att visa dina pooler."
     },
     "hub": {
       "viewAll": "Visa alla",
@@ -2238,7 +2260,7 @@
       "pairing": {
         "title": "Dela",
         "usernameTitle": "Dela ditt användarnamn",
-        "usernameSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan ange detta användarnamn.",
+        "usernameSubtitle": "Be dem öppna Blitz på sin telefon och välja \"Gå med i en hanterad plånbok\".",
         "generateCode": "Generera kod",
         "usernameLabel": "Ditt användarnamn: {{name}}",
         "codeNavTitle": "Dela kod",
@@ -2266,8 +2288,10 @@
         "codeOption": "Kod",
         "qrOption": "QR",
         "qrTitle": "Skanna denna QR-kod",
-        "qrSubtitle": "Be dem öppna Blitz på sin telefon, välja \"Gå med i delad plånbok\" och sedan skanna denna QR-kod.",
+        "qrSubtitle": "Be dem öppna Blitz på sin telefon och välja \"Gå med i en hanterad plånbok\".",
         "qrWaiting": "Väntar på att de ska skanna…",
+        "noBlitz": "Har de inte Blitz?",
+        "downloadLink": "Dela nedladdningslänk",
         "acceptTitle": "Acceptera ihopparningen?",
         "acceptSubtitle": "Genom att para ihop ger du den här personen åtkomst till {{name}}. Se till att du parar ihop med rätt person.",
         "acceptBTN": "Acceptera",
@@ -2284,8 +2308,7 @@
         "noTransactions": "Ingen aktivitet ännu",
         "spendingLimitLabel": "Utgiftsgräns",
         "loadingBalance": "Läser in saldo...",
-        "shareLink": "Para ihop med någon",
-        "sendInviteLink": "Bjud in någon"
+        "shareLink": "Para ihop med någon"
       },
       "claim": {
         "title": "Skapa din plånbok",
@@ -3047,7 +3070,12 @@
     },
     "LNURL": {
       "zapped": "Du blev zappad {{totalAmount}}",
-      "regular": "Du har just fått {{totalAmount}}"
+      "regular": "Du har just fått {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Din {{account}} blev zappad {{totalAmount}}",
+        "regular": "Din {{account}} fick {{totalAmount}}",
+        "fallbackName": "konto"
+      }
     },
     "POS": "Beställning mottagen: {{totalAmount}}",
     "contacts": {
@@ -3066,7 +3094,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Konto {{index}}"
+    "fallbackAccountName": "Konto {{index}}",
+    "lastUpdated": "Uppdaterad {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "Begäran klarade inte valideringskontrollerna.",

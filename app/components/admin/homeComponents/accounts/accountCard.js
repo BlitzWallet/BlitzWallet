@@ -1,34 +1,42 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { SIZES, COLORS, BASIC_ACCOUNT_NAME_REGEX } from '../../../../constants';
+import {
+  SIZES,
+  COLORS,
+  BASIC_ACCOUNT_NAME_REGEX,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import AccountProfileImage from './accountProfileImage';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-} from '../../../../../context-store/activeAccount';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 
 /**
  * Account card component for account management.
  * Rounded row: avatar badge, account name, and a chevron (hidden in the
- * compact `fromSettings` preview). Active accounts show a check-mark dot.
+ * compact `fromSettings` preview).
  */
 export default function AccountCard({
   account,
   onPress,
-  isActive = false,
   isLoading = false,
   fromSettings = false,
   useAltBackground = false,
   isAccountSwitching = false,
+  balanceSats,
+  lastUpdated,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
 
   const accountIndex =
     account?.uuid === MAIN_ACCOUNT_UUID
@@ -89,34 +97,44 @@ export default function AccountCard({
         >
           <AccountProfileImage imageSize={45} account={account} />
         </View>
-        {isActive && (
-          <View
-            style={[styles.activeDot, { backgroundColor: COLORS.darkModeText }]}
-          >
-            <ThemeIcon
-              colorOverride={COLORS.lightModeText}
-              size={12}
-              iconName={'Check'}
-              strokeWidth={2}
-            />
-          </View>
-        )}
       </View>
 
       {/* Middle: Account Name */}
-      <ThemeText
-        CustomNumberOfLines={1}
-        adjustsFontSizeToFit={true}
-        styles={styles.name}
-        content={
-          !BASIC_ACCOUNT_NAME_REGEX.test(account.name)
-            ? account.name
-            : t('accountCard.fallbackAccountName', { index: accountIndex })
-        }
-      />
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.name}
+          content={
+            !BASIC_ACCOUNT_NAME_REGEX.test(account.name)
+              ? account.name
+              : t('accountCard.fallbackAccountName', { index: accountIndex })
+          }
+        />
+        {lastUpdated != null && account.uuid !== MAIN_ACCOUNT_UUID && (
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.lastUpdated}
+            content={t('accountCard.lastUpdated', {
+              date: lastUpdated,
+            })}
+          />
+        )}
+      </View>
 
-      {/* Right: Chevron */}
-      {!fromSettings && <ThemeIcon iconName={'ChevronRight'} size={18} />}
+      <View style={styles.rightSection}>
+        {/* Right: Balance preview + Chevron */}
+        {balanceSats != null && balanceSats > 0 && (
+          <ThemeText
+            styles={styles.previewBalance}
+            content={displayCorrectDenomination({
+              amount: balanceSats,
+              masterInfoObject,
+              fiatStats,
+            })}
+          />
+        )}
+        {!fromSettings && <ThemeIcon iconName={'ChevronRight'} size={18} />}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -134,6 +152,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 1,
+  },
   avatar: {
     width: 45,
     height: 45,
@@ -142,19 +165,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activeDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 10,
-    position: 'absolute',
-    bottom: -5,
-    right: -2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   name: {
-    flex: 1,
     fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+  previewBalance: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    includeFontPadding: false,
+  },
+  lastUpdated: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
     includeFontPadding: false,
   },
   // Skeleton styles

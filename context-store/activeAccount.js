@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -12,8 +13,11 @@ import {
 } from '../app/functions';
 import {
   CUSTODY_ACCOUNTS_STORAGE_KEY,
+  CUSTODY_ACCOUNT_NAMES_KEY,
   NWC_SECURE_STORE_MNEMOINC,
   MAX_DERIVED_ACCOUNTS,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
 } from '../app/constants';
 import { useKeysContext } from './keys';
 import {
@@ -23,14 +27,76 @@ import {
 } from '../app/functions/custodyAccountsCrypto';
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
-import { deriveAccountMnemonic } from '../app/functions/accounts/derivedAccounts';
+import {
+  deriveAccountMnemonic,
+  generateAccountUuid,
+} from '../app/functions/accounts/derivedAccounts';
 import { deriveChildMnemonic } from '../app/functions/accounts/childAccounts';
-import customUUID from '../app/functions/customUUID';
+import { assignLnurlId } from '../app/functions/accounts/assignLnurlId';
+import { deriveSparkIdentityKey } from '../app/functions/gift/deriveGiftWallet';
+import { deleteLnurlRegistryEntry } from '../db';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
 
-export const MAIN_ACCOUNT_UUID = 'MW09xd09d8f0a9sf2n332';
-export const NWC_ACCOUNT_UUID = 'NWC038rsd0f8234ajsf';
+// One-time migration: accounts created before deterministic ids carried a
+// random customUUID() id, which no longer matches after restoring a seed on a
+// new device and breaks accountsLnurl registry matching. Rewrite each
+// account's uuid to the first 16 hex chars of its Spark identity pubkey (the
+// same scheme new accounts use). Gated by a localStorage flag so launch never
+// pays the key-derivation cost more than once. accountsLnurl itself is left
+// alone (unreleased feature).
+async function migrateToDeterministicUuids(accounts, masterSeed) {
+  try {
+    const hasMigrated = await getLocalStorageItem(
+      'hasRunDeterministicUuidMigration',
+    );
+    if (JSON.parse(hasMigrated)) return accounts;
+    let didChange = false;
+    let hadFailure = false;
+    const migrated = [];
+    for (const account of accounts) {
+      try {
+        const mnemonic =
+          account.mnemoinc ||
+          (account.derivationIndex !== undefined
+            ? await deriveAccountMnemonic(masterSeed, account.derivationIndex)
+            : null);
+        if (!mnemonic) {
+          migrated.push(account);
+          continue;
+        }
+        const uuid = await generateAccountUuid(mnemonic);
+        if (uuid === account.uuid) {
+          migrated.push(account);
+          continue;
+        }
+        didChange = true;
+        migrated.push({ ...account, uuid });
+      } catch (err) {
+        // One bad account must not wedge the batch: keep it unchanged and
+        // skip the completion flag so it retries on the next launch.
+        console.log(
+          `Deterministic UUID migration failed for account ${account.uuid}`,
+          err,
+        );
+        hadFailure = true;
+        migrated.push(account);
+      }
+    }
+
+    if (didChange) await writeCustodyAccounts(migrated, masterSeed);
+    if (!hadFailure) {
+      await setLocalStorageItem(
+        'hasRunDeterministicUuidMigration',
+        JSON.stringify(true),
+      );
+    }
+    return didChange ? migrated : accounts;
+  } catch (err) {
+    console.log('Deterministic account UUID migration error', err);
+    return accounts;
+  }
+}
 
 // Create a context for the WebView ref
 const ActiveCustodyAccount = createContext(null);
@@ -43,16 +109,30 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const { t } = useTranslation();
   const [custodyAccounts, setCustodyAccounts] = useState([]);
   const [isUsingNostr, setIsUsingNostr] = useState(false);
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, publicKey } = useKeysContext();
   const [nostrSeed, setNostrSeed] = useState('');
   const [activeDerivedMnemonic, setActiveDerivedMnemonic] = useState(null);
   const hasSessionReset = useRef(false);
   const hasAutoRestoreCheckRun = useRef(false);
-  const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
+  // Latest known account list. State is only ever set through setAccounts, so
+  // persisted mutations base on this ref instead of a stale render closure.
+  const custodyAccountsRef = useRef([]);
+  // Serializes persisted list mutations (create / remove / update / session
+  // reset / auto-restore): each waits for the previous write, so concurrent
+  // mutations can't read-modify-write the same base list and drop an account.
+  const custodyWriteQueue = useRef(Promise.resolve());
+  const lnurlSyncInFlight = useRef(false);
+  // After a fast-failing registry write the rollback re-triggers this effect
+  // (accountsLnurl dep), which would spin on derived-pubkey derivation + retry.
+  // Cooldown breaks the tight loop; a later account/doc change retries.
+  const lnurlSyncCooldownRef = useRef(0);
+  const selectedAltAccount = useMemo(
+    () => custodyAccounts.filter(item => item.isActive),
+    [custodyAccounts],
+  );
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
   const enabledNWC = masterInfoObject.didViewNWCMessage;
-  const currentPins = masterInfoObject.pinnedAccounts || [];
 
   useEffect(() => {
     if (nostrSeed.length || !enabledNWC) return;
@@ -64,9 +144,32 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     getNostrSeed();
   }, [nostrSeed, enabledNWC]);
 
-  const toggleIsUsingNostr = value => {
+  const toggleIsUsingNostr = useCallback(value => {
     setIsUsingNostr(value);
-  };
+  }, []);
+
+  const setAccounts = useCallback(next => {
+    custodyAccountsRef.current = next;
+    setCustodyAccounts(next);
+  }, []);
+
+  // Run one persisted mutation at a time. The mutator receives the freshest
+  // list and may return null to skip the write (nothing to change).
+  const queueCustodyWrite = useCallback(
+    mutator => {
+      const task = async () => {
+        const next = await mutator(custodyAccountsRef.current);
+        if (!next) return custodyAccountsRef.current;
+        await writeCustodyAccounts(next, accountMnemoinc);
+        setAccounts(next);
+        return next;
+      };
+      const result = custodyWriteQueue.current.then(task, task);
+      custodyWriteQueue.current = result.catch(() => {});
+      return result;
+    },
+    [accountMnemoinc, setAccounts],
+  );
   useEffect(() => {
     async function initializeAccouts() {
       try {
@@ -76,12 +179,16 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         // loadCustodyAccounts decrypts v3 envelopes with the seed-derived key
         // and lazily migrates legacy EvpKDF lists (fails closed, never
         // overwrites unreadable data).
-        const decryptedList = await loadCustodyAccounts(
+        let decryptedList = await loadCustodyAccounts(
           accoutList,
           accountMnemoinc,
         );
+        decryptedList = await migrateToDeterministicUuids(
+          decryptedList,
+          accountMnemoinc,
+        );
 
-        setCustodyAccounts(decryptedList);
+        setAccounts(decryptedList);
       } catch (err) {
         console.log('Custody account intialization error', err);
       }
@@ -90,7 +197,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     console.log('Initializing accounts....');
     if (!accountMnemoinc) return;
     initializeAccouts();
-  }, [accountMnemoinc]);
+  }, [accountMnemoinc, setAccounts]);
 
   // Clear active account once per session to sync with default accountMnemonic
   useEffect(() => {
@@ -106,16 +213,12 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         if (hasActiveAccounts) {
           console.log('Clearing active accounts for session sync...');
 
-          const clearedAccounts = custodyAccounts.map(account => ({
-            ...account,
-            isActive: false,
-          }));
-
-          writeCustodyAccounts(clearedAccounts, accountMnemoinc).catch(err =>
+          queueCustodyWrite(current => {
+            if (!current.some(account => account.isActive)) return null;
+            return current.map(account => ({ ...account, isActive: false }));
+          }).catch(err =>
             console.log('Session reset custody write failed', err),
           );
-
-          setCustodyAccounts(clearedAccounts);
         }
 
         hasSessionReset.current = true;
@@ -126,228 +229,284 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     }
 
     clearActiveAccountsOnSessionStart();
-  }, [custodyAccounts, accountMnemoinc]);
+  }, [custodyAccounts, accountMnemoinc, queueCustodyWrite]);
 
-  const removeAccount = async account => {
-    try {
-      let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-      let newAccounts = accountInformation.filter(accounts => {
-        return accounts.uuid !== account.uuid;
-      });
-      const isPinned = currentPins.includes(account.uuid);
-      if (isPinned) {
-        // clear from pinned list
-        toggleMasterInfoObject({
-          pinnedAccounts: currentPins.filter(id => id !== account.uuid),
+  const removeAccount = useCallback(
+    async account => {
+      try {
+        const currentPins = masterInfoObject.pinnedAccounts || [];
+        const isPinned = currentPins.includes(account.uuid);
+        if (isPinned) {
+          // clear from pinned list
+          toggleMasterInfoObject({
+            pinnedAccounts: currentPins.filter(id => id !== account.uuid),
+          });
+        }
+        // Prune the imported account's registry entry: it pins the account's
+        // spark identity pubkey server-side, and merge-writes can't remove a map
+        // key. Derived/child entries are re-derivable, so only imported accounts
+        // carry an unrecoverable seed worth pruning.
+        if (account.mnemoinc) {
+          const registry = masterInfoObject.accountsLnurl || {};
+          const hit = Object.entries(registry).find(
+            ([, v]) => v.uuid === account.uuid,
+          );
+          if (hit) {
+            // Gate local removal on a confirmed prune: the imported seed only
+            // lives in the custody store, so destroying it while the address is
+            // still live server-side would strand inbound payments.
+            const pruned = await deleteLnurlRegistryEntry(publicKey, hit[0]);
+            if (!pruned) {
+              return {
+                didWork: false,
+                err: 'Could not remove the account address. Please try again.',
+              };
+            }
+          }
+        }
+        //   clear spark information here too. Delte txs from database, reove listeners
+        await queueCustodyWrite(current =>
+          current.filter(item => item.uuid !== account.uuid),
+        );
+        return { didWork: true };
+      } catch (err) {
+        console.log('Remove account error', err);
+        return { didWork: false, err: err.message };
+      }
+    },
+    [masterInfoObject, publicKey, toggleMasterInfoObject, queueCustodyWrite],
+  );
+  const createAccount = useCallback(
+    async accountInformation => {
+      try {
+        await queueCustodyWrite(current => [...current, accountInformation]);
+        return { didWork: true };
+      } catch (err) {
+        console.log('Create custody account error', err);
+        return { didWork: false, err: err.message };
+      }
+    },
+    [queueCustodyWrite],
+  );
+
+  const updateAccount = useCallback(
+    async account => {
+      try {
+        await queueCustodyWrite(current =>
+          current.map(item =>
+            item.uuid === account.uuid ? { ...item, ...account } : item,
+          ),
+        );
+        return { didWork: true };
+      } catch (err) {
+        console.log('Remove account error', err);
+        return { didWork: false, err: err.message };
+      }
+    },
+    [queueCustodyWrite],
+  );
+  const updateAccountCacheOnly = useCallback(
+    async account => {
+      try {
+        if (!account) throw new Error('No account selected');
+        let accountInformation = JSON.parse(
+          JSON.stringify(custodyAccountsRef.current),
+        );
+        let newAccounts = accountInformation.map(accounts => {
+          if (account.uuid === accounts.uuid) {
+            return { ...accounts, ...account };
+          } else return { ...accounts, isActive: false };
         });
+
+        if (account.isActive && typeof account.derivationIndex === 'number') {
+          const derivedMnemonic = await deriveAccountMnemonic(
+            accountMnemoinc,
+            account.derivationIndex,
+          );
+          setActiveDerivedMnemonic(derivedMnemonic);
+        } else {
+          setActiveDerivedMnemonic(null);
+        }
+
+        setAccounts(newAccounts);
+        return { didWork: true };
+      } catch (err) {
+        console.log('Remove account error', err);
+        return { didWork: false, err: err.message };
       }
-      //   clear spark information here too. Delte txs from database, reove listeners
-      await writeCustodyAccounts(newAccounts, accountMnemoinc);
-      setCustodyAccounts(newAccounts);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Remove account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
-  const createAccount = async accountInformation => {
-    try {
-      let savedAccountInformation = JSON.parse(JSON.stringify(custodyAccounts));
+    },
+    [accountMnemoinc, setAccounts],
+  );
 
-      savedAccountInformation.push(accountInformation);
+  const createDerivedAccount = useCallback(
+    async accountName => {
+      try {
+        const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
 
-      await writeCustodyAccounts(savedAccountInformation, accountMnemoinc);
-      setCustodyAccounts(savedAccountInformation);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Create custody account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
+        const nextIndex = nextCloudIndex + 1;
 
-  const updateAccount = async account => {
-    try {
-      let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-      let newAccounts = accountInformation.map(accounts => {
-        if (account.uuid === accounts.uuid) {
-          return { ...accounts, ...account };
-        } else return accounts;
-      });
+        // Enforce hard cap to prevent overlap with gifts range (starts at index 1000)
+        if (nextIndex >= MAX_DERIVED_ACCOUNTS) {
+          return {
+            didWork: false,
+            error: `Maximum of ${MAX_DERIVED_ACCOUNTS} accounts reached. Please delete unused accounts.`,
+          };
+        }
 
-      await writeCustodyAccounts(newAccounts, accountMnemoinc);
-      setCustodyAccounts(newAccounts);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Remove account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
-  const updateAccountCacheOnly = async account => {
-    try {
-      if (!account) throw new Error('No account selected');
-      let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
-      let newAccounts = accountInformation.map(accounts => {
-        if (account.uuid === accounts.uuid) {
-          return { ...accounts, ...account };
-        } else return { ...accounts, isActive: false };
-      });
-
-      if (account.isActive && typeof account.derivationIndex === 'number') {
+        // Don't store the mnemonic, just metadata. The uuid is derived from
+        // the account's Spark identity pubkey so it survives seed restores
+        // and keeps matching the accountsLnurl registry.
         const derivedMnemonic = await deriveAccountMnemonic(
           accountMnemoinc,
-          account.derivationIndex,
+          nextIndex,
         );
-        setActiveDerivedMnemonic(derivedMnemonic);
-      } else {
-        setActiveDerivedMnemonic(null);
-      }
-
-      setCustodyAccounts(newAccounts);
-      return { didWork: true };
-    } catch (err) {
-      console.log('Remove account error', err);
-      return { didWork: false, err: err.message };
-    }
-  };
-
-  const createDerivedAccount = async accountName => {
-    try {
-      const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
-
-      const nextIndex = nextCloudIndex + 1;
-
-      // Enforce hard cap to prevent overlap with gifts range (starts at index 1000)
-      if (nextIndex >= MAX_DERIVED_ACCOUNTS) {
-        return {
-          didWork: false,
-          error: `Maximum of ${MAX_DERIVED_ACCOUNTS} accounts reached. Please delete unused accounts.`,
+        const accountInfo = {
+          uuid: await generateAccountUuid(derivedMnemonic),
+          name: accountName,
+          derivationIndex: nextIndex,
+          dateCreated: Date.now(),
+          isActive: false,
+          accountType: 'derived',
+          profileEmoji: '',
         };
+
+        await createAccount(accountInfo);
+
+        // Update masterInfoObject with new index (automatically syncs to Firebase)
+        await toggleMasterInfoObject({
+          nextAccountDerivationIndex: nextIndex,
+        });
+
+        return { didWork: true, uuid: accountInfo.uuid };
+      } catch (err) {
+        console.log('Create derived account error', err);
+        return { didWork: false, error: err.message };
       }
+    },
+    [
+      masterInfoObject.nextAccountDerivationIndex,
+      createAccount,
+      toggleMasterInfoObject,
+      accountMnemoinc,
+    ],
+  );
 
-      // Don't store the mnemonic, just metadata
-      const accountInfo = {
-        uuid: customUUID(),
-        name: accountName,
-        derivationIndex: nextIndex,
-        dateCreated: Date.now(),
-        isActive: false,
-        accountType: 'derived',
-        profileEmoji: '',
-      };
+  const restoreDerivedAccount = useCallback(
+    async (accountName, derivationIndex) => {
+      try {
+        // Validation #1: Type check
+        if (
+          typeof derivationIndex !== 'number' ||
+          !Number.isInteger(derivationIndex)
+        ) {
+          return {
+            didWork: false,
+            error: 'Derivation index must be a whole number',
+          };
+        }
 
-      await createAccount(accountInfo);
+        // Validation #2: Range check (minimum)
+        if (derivationIndex < 3) {
+          return {
+            didWork: false,
+            error:
+              'Derivation index must be 3 or higher (indices 0-2 are reserved)',
+          };
+        }
 
-      // Update masterInfoObject with new index (automatically syncs to Firebase)
-      await toggleMasterInfoObject({
-        nextAccountDerivationIndex: nextIndex,
-      });
+        // Validation #3: Range check (maximum - gifts boundary)
+        if (derivationIndex >= MAX_DERIVED_ACCOUNTS) {
+          return {
+            didWork: false,
+            error: `Derivation index must be less than ${MAX_DERIVED_ACCOUNTS} (gift wallet range)`,
+          };
+        }
 
-      return { didWork: true, uuid: accountInfo.uuid };
-    } catch (err) {
-      console.log('Create derived account error', err);
-      return { didWork: false, error: err.message };
-    }
-  };
+        // Validation #4: Check against nextAccountDerivationIndex
+        const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
+        if (derivationIndex > nextCloudIndex) {
+          return {
+            didWork: false,
+            error: `Cannot restore index ${derivationIndex}. Highest created account is ${
+              nextCloudIndex - 1
+            }`,
+          };
+        }
 
-  const restoreDerivedAccount = async (accountName, derivationIndex) => {
-    try {
-      // Validation #1: Type check
-      if (
-        typeof derivationIndex !== 'number' ||
-        !Number.isInteger(derivationIndex)
-      ) {
-        return {
-          didWork: false,
-          error: 'Derivation index must be a whole number',
-        };
-      }
+        // Validation #5: Check if account already exists (idempotency)
+        const existingAccount = custodyAccounts.find(
+          acc => acc.derivationIndex === derivationIndex,
+        );
+        if (existingAccount) {
+          return {
+            didWork: false,
+            error: `Account at index ${derivationIndex} already exists: "${existingAccount.name}"`,
+          };
+        }
 
-      // Validation #2: Range check (minimum)
-      if (derivationIndex < 3) {
-        return {
-          didWork: false,
-          error:
-            'Derivation index must be 3 or higher (indices 0-2 are reserved)',
-        };
-      }
-
-      // Validation #3: Range check (maximum - gifts boundary)
-      if (derivationIndex >= MAX_DERIVED_ACCOUNTS) {
-        return {
-          didWork: false,
-          error: `Derivation index must be less than ${MAX_DERIVED_ACCOUNTS} (gift wallet range)`,
-        };
-      }
-
-      // Validation #4: Check against nextAccountDerivationIndex
-      const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
-      if (derivationIndex > nextCloudIndex) {
-        return {
-          didWork: false,
-          error: `Cannot restore index ${derivationIndex}. Highest created account is ${
-            nextCloudIndex - 1
-          }`,
-        };
-      }
-
-      // Validation #5: Check if account already exists (idempotency)
-      const existingAccount = custodyAccounts.find(
-        acc => acc.derivationIndex === derivationIndex,
-      );
-      if (existingAccount) {
-        return {
-          didWork: false,
-          error: `Account at index ${derivationIndex} already exists: "${existingAccount.name}"`,
-        };
-      }
-
-      // Create account with EXACT same structure as auto-restore
-      const accountInfo = {
-        uuid: customUUID(),
-        name: accountName,
-        derivationIndex: derivationIndex,
-        dateCreated: Date.now(),
-        isActive: false,
-        accountType: 'derived',
-        profileEmoji: '',
-      };
-
-      await createAccount(accountInfo);
-
-      // CRITICAL: Do NOT update nextAccountDerivationIndex
-      // This is a restoration of an existing index, not a new sequential account
-
-      return { didWork: true };
-    } catch (err) {
-      console.log('Restore derived account error', err);
-      return { didWork: false, error: err.message };
-    }
-  };
-
-  const getAccountMnemonic = async account => {
-    try {
-      if (!account) throw new Error('No account provided');
-      // Linked (child) accounts derive from the parent seed via childIndex.
-      if (account.childIndex !== undefined) {
-        return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
-      }
-      // For derived accounts, re-derive on demand from main seed
-      if (account.derivationIndex !== undefined) {
+        // Create account with EXACT same structure as auto-restore. The uuid
+        // is derived from the account's Spark identity pubkey so it matches
+        // the id a fresh restore on another device would generate.
         const derivedMnemonic = await deriveAccountMnemonic(
           accountMnemoinc,
-          account.derivationIndex,
+          derivationIndex,
         );
-        return derivedMnemonic;
-      }
-      // For imported accounts, return stored mnemonic
-      return account.mnemoinc;
-    } catch (err) {
-      console.log('Get account mnemonic error', err);
-      throw err;
-    }
-  };
+        const accountInfo = {
+          uuid: await generateAccountUuid(derivedMnemonic),
+          name: accountName,
+          derivationIndex: derivationIndex,
+          dateCreated: Date.now(),
+          isActive: false,
+          accountType: 'derived',
+          profileEmoji: '',
+        };
 
-  const restoreDerivedAccountsFromCloud = async () => {
+        await createAccount(accountInfo);
+
+        // CRITICAL: Do NOT update nextAccountDerivationIndex
+        // This is a restoration of an existing index, not a new sequential account
+
+        return { didWork: true };
+      } catch (err) {
+        console.log('Restore derived account error', err);
+        return { didWork: false, error: err.message };
+      }
+    },
+    [
+      masterInfoObject.nextAccountDerivationIndex,
+      custodyAccounts,
+      createAccount,
+      accountMnemoinc,
+    ],
+  );
+
+  const getAccountMnemonic = useCallback(
+    async account => {
+      try {
+        if (!account) throw new Error('No account provided');
+        // Linked (child) accounts derive from the parent seed via childIndex.
+        if (account.childIndex !== undefined) {
+          return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
+        }
+        // For derived accounts, re-derive on demand from main seed
+        if (account.derivationIndex !== undefined) {
+          const derivedMnemonic = await deriveAccountMnemonic(
+            accountMnemoinc,
+            account.derivationIndex,
+          );
+          return derivedMnemonic;
+        }
+        // For imported accounts, return stored mnemonic
+        return account.mnemoinc;
+      } catch (err) {
+        console.log('Get account mnemonic error', err);
+        throw err;
+      }
+    },
+    [accountMnemoinc],
+  );
+
+  const restoreDerivedAccountsFromCloud = useCallback(async () => {
     try {
       // masterInfoObject is already loaded from Firebase by GlobalContextProvider
       const nextIndex = Math.min(
@@ -364,7 +523,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       }
 
       const existingDerivedIndexes = new Set(
-        custodyAccounts
+        custodyAccountsRef.current
           .map(account => account.derivationIndex)
           .filter(index => typeof index === 'number'),
       );
@@ -372,8 +531,9 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       const accountsToRestore = [];
       for (let i = 4; i <= nextIndex; i++) {
         if (existingDerivedIndexes.has(i)) continue;
+        const derivedMnemonic = await deriveAccountMnemonic(accountMnemoinc, i);
         accountsToRestore.push({
-          uuid: customUUID(),
+          uuid: await generateAccountUuid(derivedMnemonic),
           name: t('accountCard.fallbackAccountName', { index: i }),
           derivationIndex: i,
           dateCreated: Date.now(),
@@ -383,19 +543,37 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         });
       }
 
+      let accountsRestored = 0;
       if (accountsToRestore.length) {
-        const mergedAccounts = [...custodyAccounts, ...accountsToRestore];
-        await writeCustodyAccounts(mergedAccounts, accountMnemoinc);
-        setCustodyAccounts(mergedAccounts);
+        await queueCustodyWrite(current => {
+          // Re-filter against the freshest list: a concurrent create/restore
+          // may have added one of these indexes while deriving above.
+          const existing = new Set(
+            current
+              .map(account => account.derivationIndex)
+              .filter(index => typeof index === 'number'),
+          );
+          const toAdd = accountsToRestore.filter(
+            account => !existing.has(account.derivationIndex),
+          );
+          if (!toAdd.length) return null;
+          accountsRestored = toAdd.length;
+          return [...current, ...toAdd];
+        });
       }
 
-      console.log(`Restored ${accountsToRestore.length} derived account(s)`);
-      return { didWork: true, accountsRestored: accountsToRestore.length };
+      console.log(`Restored ${accountsRestored} derived account(s)`);
+      return { didWork: true, accountsRestored };
     } catch (err) {
       console.log('Restore derived accounts error', err);
       return { didWork: false, error: err.message };
     }
-  };
+  }, [
+    masterInfoObject.nextAccountDerivationIndex,
+    accountMnemoinc,
+    t,
+    queueCustodyWrite,
+  ]);
 
   useEffect(() => {
     async function restoreIfNeeded() {
@@ -419,8 +597,15 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
       console.log('Running auto-restore of derived accounts from cloud...');
       hasAutoRestoreCheckRun.current = true;
-      await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
-      await restoreDerivedAccountsFromCloud();
+      const result = await restoreDerivedAccountsFromCloud();
+      // Latch the one-time flag only after a successful restore: an
+      // interrupted run (killed app, failed write) must retry on the next
+      // launch instead of permanently disabling auto-restore.
+      if (result?.didWork) {
+        await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
+      } else {
+        hasAutoRestoreCheckRun.current = false;
+      }
     }
 
     restoreIfNeeded();
@@ -434,11 +619,14 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     setNostrSeed('');
     setIsUsingNostr(false);
     setActiveDerivedMnemonic(null);
-    setCustodyAccounts([]);
+    setAccounts([]);
     resetCustodyCryptoState();
+    // Drop any queued/pending persisted writes: they captured the previous
+    // seed and must not chain onto post-reset writes.
+    custodyWriteQueue.current = Promise.resolve();
     hasSessionReset.current = false;
     hasAutoRestoreCheckRun.current = false;
-  }, [authResetkey]);
+  }, [authResetkey, setAccounts]);
 
   const currentWalletMnemoinc = useMemo(() => {
     if (didSelectAltAccount) {
@@ -466,10 +654,14 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const isUsingAltAccount = didSelectAltAccount || isUsingNostr;
 
   const custodyAccountsList = useMemo(() => {
+    const mainWalletName = masterInfoObject.isChildAccount
+      ? t('settings.accounts.managedWalletPlace')
+      : t('settings.accounts.mainWalletPlace');
+
     return enabledNWC
       ? [
           {
-            name: t('settings.accounts.mainWalletPlace'),
+            name: mainWalletName,
             mnemoinc: accountMnemoinc,
             accountType: 'main',
             uuid: MAIN_ACCOUNT_UUID,
@@ -484,14 +676,104 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         ]
       : [
           {
-            name: t('settings.accounts.mainWalletPlace'),
+            name: mainWalletName,
             mnemoinc: accountMnemoinc,
             accountType: 'main',
             uuid: MAIN_ACCOUNT_UUID,
           },
           ...custodyAccounts,
         ];
-  }, [accountMnemoinc, custodyAccounts, enabledNWC, nostrSeed, t]);
+  }, [
+    accountMnemoinc,
+    custodyAccounts,
+    enabledNWC,
+    masterInfoObject.isChildAccount,
+    nostrSeed,
+    t,
+  ]);
+
+  // Mirror decrypted account names to a plaintext uuid → name map so the
+  // background push handler can label sub-account payments without the master
+  // seed (loadCustodyAccounts needs it and can't run in the background). Only
+  // names are cached — never seeds.
+  useEffect(() => {
+    try {
+      const nameMap = {};
+      for (const acct of custodyAccountsList) {
+        if (acct?.uuid) nameMap[acct.uuid] = acct.name;
+      }
+      setLocalStorageItem(CUSTODY_ACCOUNT_NAMES_KEY, JSON.stringify(nameMap));
+    } catch (err) {
+      console.log('error updating custody account keymap', err);
+    }
+  }, [custodyAccountsList]);
+
+  // Publish a per-account LNURL address registry into the user doc so the proxy
+  // can mint invoices against each sub-account's own Spark identity key. Additive
+  // only: existing entries are never rewritten (published addresses stay stable),
+  // main is excluded (its plain address stays canonical), child/linked accounts
+  // aren't in custodyAccountsList so they're untouched.
+  // ponytail: additive-only sync, prune orphans later if it matters
+  useEffect(() => {
+    if (!accountMnemoinc || !didGetToHomepage) return;
+    if (lnurlSyncInFlight.current) return;
+    if (Date.now() < lnurlSyncCooldownRef.current) return;
+
+    const registry = masterInfoObject.accountsLnurl || {};
+    const knownUuids = new Set(Object.values(registry).map(v => v.uuid));
+    const missing = custodyAccountsList.filter(
+      a => a.uuid !== MAIN_ACCOUNT_UUID && !knownUuids.has(a.uuid),
+    );
+    if (!missing.length) return;
+
+    lnurlSyncInFlight.current = true;
+    (async () => {
+      try {
+        const next = { ...registry };
+        let added = false;
+        for (const acct of missing) {
+          const mnemonic = await getAccountMnemonic(acct);
+          if (!mnemonic) continue; // e.g. NWC before nostrSeed loads
+          const pubkey = (
+            await deriveSparkIdentityKey(mnemonic, 1)
+          )?.publicKeyHex?.toLowerCase();
+          if (!pubkey) continue;
+          // Same pubkey already registered (duplicate-mnemonic import): reuse
+          // that entry instead of assigning a colliding id that would overwrite
+          // the sibling and flip its uuid mapping.
+          if (Object.values(next).some(v => v.identityPubKey === pubkey))
+            continue;
+          const id = assignLnurlId(pubkey, next);
+          next[id] = {
+            uuid: acct.uuid,
+            identityPubKey: pubkey,
+            receiveCurrency: 'btc',
+          };
+          added = true;
+        }
+        if (added) {
+          const didWrite = await toggleMasterInfoObject({
+            accountsLnurl: next,
+          });
+          // Failed write: roll the optimistic add back so the entry isn't
+          // masked until the next launch — the next tick then retries.
+          if (!didWrite) {
+            toggleMasterInfoObject({ accountsLnurl: registry }, false);
+            lnurlSyncCooldownRef.current = Date.now() + 60_000;
+          }
+        }
+      } catch (err) {
+        console.log('LNURL account sync error', err);
+      } finally {
+        lnurlSyncInFlight.current = false;
+      }
+    })();
+  }, [
+    accountMnemoinc,
+    didGetToHomepage,
+    custodyAccountsList,
+    masterInfoObject.accountsLnurl,
+  ]);
 
   const activeAccount = useMemo(() => {
     const activeAltAccount = selectedAltAccount[0];

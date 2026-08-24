@@ -18,7 +18,13 @@ jest.mock('react-native-quick-crypto', () => ({
   randomBytes: () => Buffer.alloc(16, 7),
   verify: () => true,
   createPublicKey: () => ({}),
-  createHash: () => ({ update: () => ({ digest: () => 'ab'.repeat(32) }) }),
+  createHash: () => {
+    const hasher = {
+      update: () => hasher,
+      digest: () => 'ab'.repeat(32),
+    };
+    return hasher;
+  },
 }));
 
 const {

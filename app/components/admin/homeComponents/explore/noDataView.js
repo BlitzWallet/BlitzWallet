@@ -4,7 +4,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { applyErrorAnimationTheme } from '../../../../functions/lottieViewColorTransformer';
+import { getErrorTxAnimation } from '../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import LottieView from 'lottie-react-native';
@@ -14,7 +14,6 @@ import { useKeysContext } from '../../../../../context-store/keys';
 import { setLocalStorageItem } from '../../../../functions';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 export default function NoDataView() {
   const [isLoading, setIsLoading] = useState(false);
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -24,12 +23,7 @@ export default function NoDataView() {
   const { t } = useTranslation();
   const animationRef = useRef(null);
 
-  const errorAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      errorTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     animationRef.current?.play();

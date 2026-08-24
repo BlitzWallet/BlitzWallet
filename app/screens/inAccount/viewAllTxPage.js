@@ -8,7 +8,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import { useUpdateHomepageTransactions } from '../../hooks/updateHomepageTransactions';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
@@ -51,7 +50,6 @@ export default function ViewAllTxPage() {
   const [txs, setTxs] = useState([]);
   const searchUUIDRef = useRef('');
   const isInitialLoad = useRef(true);
-  const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const enabledLRC20 = showTokensInformation;
@@ -86,7 +84,6 @@ export default function ViewAllTxPage() {
           }
 
           const formattedTxs = getFormattedHomepageTxsForSpark({
-            currentTime,
             sparkInformation: {
               ...sparkInformation,
               transactions,
@@ -127,7 +124,6 @@ export default function ViewAllTxPage() {
 
     return () => clearTimeout(debounceTimer);
   }, [
-    currentTime,
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     sparkInformation.tokens,

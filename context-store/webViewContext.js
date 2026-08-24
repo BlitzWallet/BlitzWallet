@@ -101,7 +101,6 @@ export const OPERATION_TYPES = {
 };
 
 const longOperations = new Set([
-  OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.sendSparkPayment,
   OPERATION_TYPES.sendTokenPayment,
   OPERATION_TYPES.getBitcoinPaymentRequest,
@@ -124,6 +123,7 @@ const longOperations = new Set([
 ]);
 
 const mediumOperations = new Set([
+  OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.getBalance,
   OPERATION_TYPES.queryStaticL1Address,
   OPERATION_TYPES.getUtxosForDepositAddress,
@@ -219,6 +219,22 @@ let webviewFailureCount = 0;
 // A page load that produces no events is a wedge (C-11): treat it as a load
 // failure after this window so the foregrounded bridge self-recovers.
 const LOAD_WATCHDOG_MS = 30 * 1000;
+// Verification/mount watchdog: covers VERIFYING and a WebView that mounts but
+// never emits ANY load event (onLoadStart missing). Without it a hung
+// verifyAndPrepareWebView / never-mounted WebView parks the bridge in VERIFYING
+// with no recovery path (R-1).
+const VERIFY_WATCHDOG_MS = 30 * 1000;
+// In-session fallback-pending recovery: a PENDING bridge retries once while the
+// app stays active instead of waiting for a bg/fg cycle (R-4).
+const FALLBACK_RETRY_DELAY_MS = 5 * 1000;
+// Bounded read of the hard-fail latch: a wedged AsyncStorage native read must
+// not park the handshake start forever (R-6).
+const HANDSHAKE_START_TIMEOUT_MS = 5 * 1000;
+// Re-check interval for a request watchdog that fired while the app was
+// backgrounded (W-2). The settle/resume is deferred to the foreground, but the
+// request keeps owning a timer so a missed AppState transition can never leave
+// a caller's promise with nothing to settle it.
+const BACKGROUND_RECHECK_MS = 5 * 1000;
 
 // ---------------------------------------------------------------------------
 // Intent store (plan §3.1 — the only surviving bespoke funds-safety machinery).
@@ -278,6 +294,8 @@ const KEEP_ALIVE_OPS = new Set([
   OPERATION_TYPES.receiveLightningPayment,
   OPERATION_TYPES.getLightningFee,
   OPERATION_TYPES.getSparkPaymentFee,
+  OPERATION_TYPES.initWallet,
+  OPERATION_TYPES.initializeSparkWalletViewer,
 ]);
 
 // Ops whose consumers cannot consume a reconcile-built success shape (swap
@@ -758,6 +776,10 @@ const VALID_TRANSITIONS = {
   [WV_STATES.UNLOADED]: [WV_STATES.VERIFYING, WV_STATES.UNLOADED],
   [WV_STATES.VERIFYING]: [
     WV_STATES.LOADING,
+    // Transport (test) mode marks the bridge loaded directly after
+    // verification (no native load events); production reaches LOADED via
+    // onLoadStart → LOADING → LOADED.
+    WV_STATES.LOADED,
     WV_STATES.ERROR,
     WV_STATES.UNLOADED,
   ],
@@ -770,6 +792,7 @@ const VALID_TRANSITIONS = {
   ],
   [WV_STATES.HANDSHAKING]: [
     WV_STATES.READY,
+    WV_STATES.HANDSHAKING, // deferred handshake re-armed on the same page
     WV_STATES.LOADING, // self-reload mid-handshake
     WV_STATES.ERROR,
     WV_STATES.UNLOADED,
@@ -798,6 +821,13 @@ export const WebViewProvider = ({ children, transport = null }) => {
   // dropped before processing.
   const [epoch, setEpoch] = useState(0);
   const epochRef = useRef(0);
+  // Epoch of the page session the current load callbacks belong to (W-1).
+  // onLoadStart bumps epochRef and records it here; onLoadEnd/onLoadProgress/
+  // onError compare against THIS instead of the render-time `epoch` state,
+  // which still lags by a commit when RN delivers those events in the same
+  // native batch as onLoadStart — the guard was dropping the page's OWN
+  // terminal load event and parking the bridge in LOADING until the watchdog.
+  const pageEpochRef = useRef(0);
   const holdBufferRef = useRef([]);
   const pendingRequests = useRef({});
   const activeTimeoutsRef = useRef({});
@@ -824,6 +854,14 @@ export const WebViewProvider = ({ children, transport = null }) => {
   const didGetToHomepageRef = useRef(didGetToHomepage);
   const foregroundIdRef = useRef(0);
   const loadWatchdogRef = useRef(null);
+  const verifyWatchdogRef = useRef(null);
+  const initRecoveryTimerRef = useRef(null);
+  // Latest load-error handler for the verify watchdog (defined later in the
+  // component; the watchdog itself must be armable from VERIFYING entry points).
+  const loadErrorHandlerRef = useRef(null);
+  // Latest refs for the always-on fallback-pending recovery tick (R-4).
+  const appStateRef = useRef(appState);
+  const blockAndResetRef = useRef(null);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
@@ -848,10 +886,15 @@ export const WebViewProvider = ({ children, transport = null }) => {
     console.log(`WebView state: ${current} → ${newState} (${reason})`);
     wvState.current = newState;
 
-    // Any transition out of LOADING disarms the load watchdog (C-11).
+    // Any transition out of LOADING disarms the load watchdog (C-11); any
+    // transition out of VERIFYING disarms the verification watchdog (R-1).
     if (newState !== WV_STATES.LOADING && loadWatchdogRef.current) {
       clearTimeout(loadWatchdogRef.current);
       loadWatchdogRef.current = null;
+    }
+    if (newState !== WV_STATES.VERIFYING && verifyWatchdogRef.current) {
+      clearTimeout(verifyWatchdogRef.current);
+      verifyWatchdogRef.current = null;
     }
 
     // Derive isWebViewReady from state machine
@@ -861,6 +904,26 @@ export const WebViewProvider = ({ children, transport = null }) => {
       newState === WV_STATES.READY;
     setIsWebViewReady(ready);
     return true;
+  }, []);
+
+  // Verification/mount watchdog (R-1): armed on every VERIFYING entry, disarmed
+  // by any transition out of VERIFYING (in transitionWvState). Covers both a
+  // hung verifyAndPrepareWebView and a WebView that mounts but never emits a
+  // single load event (onLoadStart missing). A backgrounded/suspended
+  // verification is re-armed, not failed — recovery happens 30s after the app
+  // is next foregrounded. Escalation mirrors the load watchdog (failure budget
+  // → fallback-pending → bounded retry → native).
+  const armVerifyWatchdog = useCallback(() => {
+    if (verifyWatchdogRef.current) clearTimeout(verifyWatchdogRef.current);
+    verifyWatchdogRef.current = setTimeout(() => {
+      verifyWatchdogRef.current = null;
+      if (wvState.current !== WV_STATES.VERIFYING) return;
+      if (AppState.currentState !== 'active') {
+        armVerifyWatchdog();
+        return;
+      }
+      loadErrorHandlerRef.current?.('verification watchdog timeout');
+    }, VERIFY_WATCHDOG_MS);
   }, []);
 
   const fileHash = !!verifiedPath
@@ -932,6 +995,19 @@ export const WebViewProvider = ({ children, transport = null }) => {
         if (typeof resolve === 'function') resolve(result);
       });
     });
+  }, []);
+
+  // Bounded single-flight re-init recovery (R-5): after an explicit
+  // initWallet timeout/malformed response, the bridge is handshake-complete but
+  // wallet-uninitialized with no other drain trigger. Scheduling a drain re-runs
+  // the auto-init path (its own bounded retries → fallback-pending → native).
+  const scheduleInitRecovery = useCallback(() => {
+    if (initRecoveryTimerRef.current) return;
+    initRecoveryTimerRef.current = setTimeout(() => {
+      initRecoveryTimerRef.current = null;
+      if (fallbackState === FALLBACK_STATE.NATIVE) return;
+      drainHoldBufferRef.current?.();
+    }, INIT_RETRY_DELAY_MS);
   }, []);
 
   // Single-settle: clears the watchdog + pending entry and resolves the caller.
@@ -1062,11 +1138,13 @@ export const WebViewProvider = ({ children, transport = null }) => {
   );
 
   const reloadWebViewSecurely = useCallback(async () => {
+    const verifyEpoch = epochRef.current;
     try {
       console.log('Re-verifying WebView before reload...');
       if (fallbackState === FALLBACK_STATE.NATIVE) return;
 
       transitionWvState(WV_STATES.VERIFYING, 'reload verification');
+      armVerifyWatchdog();
 
       // Unmount the old instance so the error-path reset actually remounts
       // (the old no-op same-value set was the reset wedge).
@@ -1079,14 +1157,22 @@ export const WebViewProvider = ({ children, transport = null }) => {
           : 'file:///android_asset/sparkContext.html',
       );
 
+      // A newer reset/session owns the bridge now — never apply a stale
+      // verification result (or a stale nonce) to the current session.
+      if (epochRef.current !== verifyEpoch) return;
+
       // File is verified, safe to reload
       console.log('File integrity verified, reloading WebView');
       didRunHandshakeRef.current = false;
       didRunInit.current = false; // re-arm the handshake for the reloaded page
       expectedNonceRef.current = nonceHex;
+      pageEpochRef.current = epochRef.current;
       setVerifiedPath(htmlPath);
       setReloadKey(prev => prev + 1);
     } catch (err) {
+      // A stale verification failure must not latch native after a newer
+      // verification already succeeded (R-3).
+      if (epochRef.current !== verifyEpoch) return;
       console.error('WebView re-verification failed:', err);
 
       // Hard-fail class — persist native fallback only on TAMPER (bad/missing
@@ -1100,6 +1186,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
         state: blockReset ? null : true,
         count: prev.count + 1,
       }));
+      // VERIFYING is terminal here (native latch) — disarm the watchdog.
+      if (verifyWatchdogRef.current) {
+        clearTimeout(verifyWatchdogRef.current);
+        verifyWatchdogRef.current = null;
+      }
     }
   }, []);
 
@@ -1107,6 +1198,13 @@ export const WebViewProvider = ({ children, transport = null }) => {
     resetWebViewState(false);
     reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
   }, [resetWebViewState, reloadWebViewSecurely]);
+
+  useEffect(() => {
+    appStateRef.current = appState;
+  }, [appState]);
+  useEffect(() => {
+    blockAndResetRef.current = blockAndResetWebview;
+  }, [blockAndResetWebview]);
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -1263,7 +1361,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
           return resolve({
             didWork: false,
             error: 'Request deferred: app is in the background',
-            kind: 'unknown',
+            // A handshake caught here backgrounded between the effect's
+            // (lagging) React appState check and the dispatch. That is a
+            // deferral, not a bridge failure — the same kind the background
+            // settle path uses, so it never consumes the fallback budget (W-3).
+            kind: action === 'handshake:init' ? 'deferred' : 'unknown',
           });
         }
 
@@ -1410,6 +1512,22 @@ export const WebViewProvider = ({ children, transport = null }) => {
           const entry = pendingRequests.current[id];
           if (!entry) return; // already settled
 
+          // Backgrounded deferral must RE-ARM, never return bare (W-2): the
+          // request would otherwise be left with no timer and no owner, and
+          // only the foreground AppState effect taking exactly the right
+          // branch could ever settle it. Mirrors armLoadWatchdog /
+          // armVerifyWatchdog — every pending request always owns a live timer
+          // until it is settled. (iOS suspends JS timers while backgrounded,
+          // so this costs nothing there; on Android it is a cheap re-check.)
+          const deferToForeground = () => {
+            const prev = activeTimeoutsRef.current[id];
+            if (prev?.timeoutId) clearTimeout(prev.timeoutId);
+            activeTimeoutsRef.current[id] = {
+              ...prev,
+              timeoutId: setTimeout(handleTimeout, BACKGROUND_RECHECK_MS),
+            };
+          };
+
           // Keep-alive ops (sends) never settle on a watchdog timeout alone:
           // the real outcome is still unknown. First timeout → resume-by-id
           // (same page: re-post the same id — the backend cache returns the
@@ -1420,7 +1538,30 @@ export const WebViewProvider = ({ children, transport = null }) => {
           // background; on Android we defer to the foreground effect too.)
           if (KEEP_ALIVE_OPS.has(entry.action)) {
             if (entry.keepAliveTimedOut) return; // final deadline owns the settle
-            if (AppState.currentState === 'background') return;
+            if (AppState.currentState === 'background') {
+              deferToForeground();
+              return;
+            }
+            // initWallet is kept alive across background (so a mid-init
+            // background transition isn't fabricated-failed) but must NOT
+            // resume-by-id on a foreground watchdog timeout: re-posting a hung
+            // init only delays the failure 30s and defeats the bounded re-init.
+            // Settle at its own timeout so the drain's awaited caller sees a
+            // non-connected result → onInitFailed → buffer settle + re-init
+            // (R-5/R-6/N9).
+            if (entry.action === OPERATION_TYPES.initWallet) {
+              finalizeRequest(
+                id,
+                {
+                  didWork: false,
+                  error: `Call unresponsive (timeout after ${timeoutDuration}ms)`,
+                  kind: 'timeout',
+                },
+                null,
+              );
+              scheduleInitRecovery();
+              return;
+            }
             const resumed = resumeKeepAliveRequest(id);
             if (!resumed) {
               // Page reloaded/crashed (epoch changed): re-sending there would
@@ -1441,6 +1582,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
           console.error(`WebView request timeout for action: ${entry.action}`);
 
           if (entry.action === 'handshake:init') {
+            if (AppState.currentState === 'background') {
+              deferToForeground(); // deferred (N8), not orphaned (W-2)
+              return;
+            }
             finalizeRequest(id, result, null);
             // Handshake failure handling (fallback transition, buffer settle,
             // connection state) lives in initHandshake — it owns the session
@@ -1523,6 +1668,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
       encryptMessage,
       postToWebView,
       resumeKeepAliveRequest,
+      scheduleInitRecovery,
       verifiedPath,
       handshakeComplete,
     ],
@@ -1555,14 +1701,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
         });
         if (initRetryCountRef.current < MAX_INIT_RETRIES) {
           initRetryCountRef.current += 1;
-          setTimeout(() => {
-            if (
-              fallbackState === FALLBACK_STATE.WEBVIEW &&
-              !walletInitialized.current
-            ) {
-              drainHoldBufferRef.current?.();
-            }
-          }, INIT_RETRY_DELAY_MS);
+          scheduleInitRecovery();
         } else {
           enterFallbackPending('wallet init retries exhausted');
         }
@@ -1607,7 +1746,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
         if (typeof resolve === 'function') resolve(result);
       });
     }
-  }, [sendWebViewRequestInternal, settleHoldBuffer]);
+  }, [sendWebViewRequestInternal, settleHoldBuffer, scheduleInitRecovery]);
 
   useEffect(() => {
     drainHoldBufferRef.current = drainHoldBuffer;
@@ -2021,6 +2160,11 @@ export const WebViewProvider = ({ children, transport = null }) => {
                   error: 'Wallet initialization failed, using React Native',
                   kind: 'not-ready',
                 });
+              } else {
+                // Malformed/unexpected init response (neither connected nor an
+                // error): the bridge is healthy but the wallet never
+                // initialized. Schedule the bounded auto-init recovery (R-5).
+                scheduleInitRecovery();
               }
             }
 
@@ -2059,6 +2203,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
       reconcileUnknownIntents,
       transitionWvState,
       finalizeRequest,
+      scheduleInitRecovery,
     ],
   );
 
@@ -2118,6 +2263,22 @@ export const WebViewProvider = ({ children, transport = null }) => {
           }
           return;
         }
+        if (entry?.action === 'handshake:init') {
+          // A backgrounded handshake is DEFERRED, not failed (N8): backgrounding
+          // is not a bridge failure and must not consume the fallback budget.
+          // didRunInit is re-armed so the foreground handshake effect re-runs.
+          didRunInit.current = false;
+          finalizeRequest(
+            id,
+            {
+              didWork: false,
+              error: 'Handshake deferred: app went to background',
+              kind: 'deferred',
+            },
+            null,
+          );
+          return;
+        }
         finalizeRequest(
           id,
           {
@@ -2174,6 +2335,12 @@ export const WebViewProvider = ({ children, transport = null }) => {
             console.log(
               'App became active and webview is not verified - reloading WebView',
             );
+            blockAndResetWebview();
+          } else if (wvState.current === WV_STATES.ERROR) {
+            // A load failure during boot (before homepage) left the WebView in
+            // ERROR; it will never self-recover. Reload to re-arm verification
+            // + handshake.
+            console.log('Foreground - WebView in ERROR during boot, reloading');
             blockAndResetWebview();
           } else if (connectionJustRestored && didRunHandshakeRef.current) {
             // Boot handshake was deferred while offline (didRunInit latched);
@@ -2242,6 +2409,25 @@ export const WebViewProvider = ({ children, transport = null }) => {
     settleHoldBuffer,
   ]);
 
+  // In-session fallback-pending recovery (R-4): a PENDING bridge retries once
+  // while the app stays active. Without this, a mid-session handshake/load
+  // failure left the bridge dead until the next bg/fg or auth reset. Bounded:
+  // each retry that fails escalates fallbackRetries; the second consecutive
+  // failure commits NATIVE (the designed terminal fallback). The tick loop is
+  // always-on (5s, one module-level boolean check) because PENDING is
+  // module-level state — relying on a re-render to arm a one-shot timer
+  // missed transitions that don't bump React state.
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (fallbackState !== FALLBACK_STATE.PENDING) return;
+      if (appStateRef.current !== 'active') return;
+      console.log('Auto-recovering fallback-pending WebView bridge');
+      fallbackState = FALLBACK_STATE.WEBVIEW;
+      blockAndResetRef.current?.();
+    }, FALLBACK_RETRY_DELAY_MS);
+    return () => clearInterval(id);
+  }, []);
+
   const initHandshake = useCallback(async () => {
     try {
       const privN = randomBytes(32);
@@ -2259,10 +2445,14 @@ export const WebViewProvider = ({ children, transport = null }) => {
       });
 
       if (!result?.didComplete) {
-        if (result?.kind === 'offline') {
-          // Offline is not a bridge failure: no fallback transition. The
-          // connection-restore path reloads and re-handshakes.
-          console.warn('Handshake deferred: offline');
+        if (result?.kind === 'offline' || result?.kind === 'deferred') {
+          // Offline/backgrounding is not a bridge failure: no fallback
+          // transition. Re-arm the start latch so the handshake effect's next
+          // natural run (foreground — appState is a dep) starts a fresh one;
+          // without this the bridge sits in HANDSHAKING with no watchdog and
+          // no owner when nothing dispatched a request to settle (W-3).
+          didRunInit.current = false;
+          console.warn('Handshake deferred:', result?.kind);
           return;
         }
         // Interrupted by a reset (auth/app-state/crash reload): the epoch moved
@@ -2302,33 +2492,61 @@ export const WebViewProvider = ({ children, transport = null }) => {
         kind: 'not-ready',
       });
     }
-  }, [sendWebViewRequestInternal, settleHoldBuffer]);
+  }, [sendWebViewRequestInternal, settleHoldBuffer, scheduleInitRecovery]);
 
   useEffect(() => {
     async function startHandshake() {
-      if (!transport && !webViewRef.current) return;
-      if (!transport && !isWebViewReady) return;
-      if (!verifiedPath) return;
-      // blocking background init event from firing
-      if (appState === 'background') return;
-      if (didRunInit.current) return;
-      didRunInit.current = true;
+      try {
+        if (!transport && !webViewRef.current) return;
+        if (!transport && !isWebViewReady) return;
+        if (!verifiedPath) return;
+        // blocking background init event from firing
+        if (appState === 'background') return;
+        if (didRunInit.current) return;
+        didRunInit.current = true;
 
-      const savedVariable = await getLocalStorageItem(HARD_FAIL_PERSIST_KEY);
+        // A wedged AsyncStorage native read must not park the handshake start
+        // forever (R-6): bound the latch read; a timeout behaves like "no
+        // latch" and proceeds to the (bounded) handshake watchdog.
+        const savedVariable = await Promise.race([
+          getLocalStorageItem(HARD_FAIL_PERSIST_KEY),
+          new Promise(resolve => {
+            setTimeout(() => resolve(null), HANDSHAKE_START_TIMEOUT_MS);
+          }),
+        ]);
 
-      // The latch is version-stamped (S-5): it only applies to the app version
-      // that wrote it. A stale stamp — including the legacy bare 'true' — is
-      // ignored: an app update retries the bridge, and a still-broken bundle
-      // re-persists on re-verification.
-      if (savedVariable && savedVariable === getVersion()) {
-        console.log('FORCE_REACT_NATIVE is set, skipping handshake');
-        enterNative('FORCE_REACT_NATIVE localStorage flag', false);
+        // The latch is version-stamped (S-5): it only applies to the app
+        // version that wrote it. A stale stamp — including the legacy bare
+        // 'true' — is ignored: an app update retries the bridge, and a
+        // still-broken bundle re-persists on re-verification.
+        if (savedVariable && savedVariable === getVersion()) {
+          console.log('FORCE_REACT_NATIVE is set, skipping handshake');
+          enterNative('FORCE_REACT_NATIVE localStorage flag', false);
+          didRunHandshakeRef.current = true;
+          return;
+        }
+        transitionWvState(WV_STATES.HANDSHAKING, 'handshake init');
+        await initHandshake();
         didRunHandshakeRef.current = true;
-        return;
+      } catch (error) {
+        // Fail closed: an unexpected handshake-start error must never leave the
+        // login flow waiting on didRunHandshakeRef. Route through the same
+        // bounded failure handling as initHandshake's catch.
+        console.warn('Handshake start failed:', error.message);
+        didRunHandshakeRef.current = true;
+        didRunInit.current = false; // foreground re-arms the handshake
+        enterFallbackPending('handshake start failed');
+        const blockReset = isOnStartupRoute();
+        setChangeSparkConnectionState(prev => ({
+          state: blockReset ? null : true,
+          count: prev.count + 1,
+        }));
+        settleHoldBuffer({
+          didWork: false,
+          error: 'Failed to process method, try again',
+          kind: 'not-ready',
+        });
       }
-      transitionWvState(WV_STATES.HANDSHAKING, 'handshake init');
-      await initHandshake();
-      didRunHandshakeRef.current = true;
     }
 
     const debouceID = setTimeout(() => {
@@ -2340,11 +2558,21 @@ export const WebViewProvider = ({ children, transport = null }) => {
         clearTimeout(debouceID);
       }
     };
-  }, [isWebViewReady, verifiedPath, initHandshake, appState, transport]);
+  }, [
+    isWebViewReady,
+    verifiedPath,
+    initHandshake,
+    appState,
+    transport,
+    settleHoldBuffer,
+    reloadKey,
+  ]);
 
   useEffect(() => {
+    const initialEpoch = epochRef.current;
     (async () => {
       transitionWvState(WV_STATES.VERIFYING, 'initial verification');
+      armVerifyWatchdog();
       try {
         const { htmlPath, nonceHex } = await verifyAndPrepareWebView(
           Platform.OS === 'ios'
@@ -2352,11 +2580,17 @@ export const WebViewProvider = ({ children, transport = null }) => {
             : 'file:///android_asset/sparkContext.html',
         );
 
+        // A reset/auth-change during verification owns the session now; a
+        // stale success must not mount a stale nonce (R-3).
+        if (epochRef.current !== initialEpoch) return;
+
         expectedNonceRef.current = nonceHex;
+        pageEpochRef.current = epochRef.current;
         setVerifiedPath(htmlPath);
         // Transport (test) mode has no load events — mark the bridge loaded.
         if (transport) transitionWvState(WV_STATES.LOADED, 'transport ready');
       } catch (err) {
+        if (epochRef.current !== initialEpoch) return;
         didRunHandshakeRef.current = true;
         // Persist the native fallback only on TAMPER; a transient IO error must
         // not permanently downgrade the install (S-5).
@@ -2365,6 +2599,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
           'WebView bundle verification failed. Using react-native bundle',
           err,
         );
+        if (verifyWatchdogRef.current) {
+          clearTimeout(verifyWatchdogRef.current);
+          verifyWatchdogRef.current = null;
+        }
       }
     })();
   }, []);
@@ -2393,6 +2631,14 @@ export const WebViewProvider = ({ children, transport = null }) => {
       if (loadWatchdogRef.current) {
         clearTimeout(loadWatchdogRef.current);
         loadWatchdogRef.current = null;
+      }
+      if (verifyWatchdogRef.current) {
+        clearTimeout(verifyWatchdogRef.current);
+        verifyWatchdogRef.current = null;
+      }
+      if (initRecoveryTimerRef.current) {
+        clearTimeout(initRecoveryTimerRef.current);
+        initRecoveryTimerRef.current = null;
       }
       settleHoldBufferRef.current?.({
         didWork: false,
@@ -2471,16 +2717,27 @@ export const WebViewProvider = ({ children, transport = null }) => {
     [transitionWvState, blockAndResetWebview],
   );
 
+  useEffect(() => {
+    loadErrorHandlerRef.current = handleWebViewLoadError;
+  }, [handleWebViewLoadError]);
+
   // Armed on a valid LOADING transition; disarmed by any state transition.
   // A load that never completes is recovered as a load failure (C-11).
   const armLoadWatchdog = useCallback(() => {
-    if (loadWatchdogRef.current) clearTimeout(loadWatchdogRef.current);
-    loadWatchdogRef.current = setTimeout(() => {
-      loadWatchdogRef.current = null;
-      if (wvState.current === WV_STATES.LOADING) {
+    const schedule = () => {
+      if (loadWatchdogRef.current) clearTimeout(loadWatchdogRef.current);
+      loadWatchdogRef.current = setTimeout(() => {
+        loadWatchdogRef.current = null;
+        if (wvState.current !== WV_STATES.LOADING) return;
+        if (AppState.currentState !== 'active') {
+          // Background-suspended load is not a failure; re-arm for foreground.
+          schedule();
+          return;
+        }
         handleWebViewLoadError('load watchdog timeout');
-      }
-    }, LOAD_WATCHDOG_MS);
+      }, LOAD_WATCHDOG_MS);
+    };
+    schedule();
   }, [handleWebViewLoadError]);
 
   const handleWebViewTermination = useCallback(
@@ -2550,15 +2807,26 @@ export const WebViewProvider = ({ children, transport = null }) => {
           }}
           onMessage={handleWebViewResponse}
           onError={event => {
-            if (epoch !== epochRef.current) return;
+            if (epochRef.current !== pageEpochRef.current) return;
             handleWebViewLoadError(
               event?.nativeEvent?.description || 'onError',
             );
           }}
           onLoadStart={() => {
             if (epoch !== epochRef.current) return;
+            // A load start is a NEW page session: bump the epoch so every
+            // callback from the previous page (late onLoadEnd/onLoadProgress,
+            // a stale handshake:reply, an old response) is dropped instead of
+            // corrupting the new session (R-2). This deliberately mirrors a
+            // reset for message/load-event purposes, while the in-flight
+            // request bookkeeping below keeps the keep-alive semantics (page
+            // died → reconcile, never re-execute).
+            epochRef.current += 1;
+            setEpoch(epochRef.current);
+            epochForTest = epochRef.current;
+            pageEpochRef.current = epochRef.current;
             // Silent page self-reload (DR-4): the page reloaded without a
-            // native reset / epoch bump (no crash event). Tear down the crypto
+            // native reset (no crash event). Tear down the crypto
             // session so (a) the reloaded page is never addressed with the
             // stale AES key (it cannot decrypt it — the old behavior wedged
             // the handshake until a second bg/fg) and (b) no in-flight request
@@ -2601,7 +2869,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
             didRunInit.current = false; // re-arm the handshake for the new load
           }}
           onLoadProgress={({ nativeEvent }) => {
-            if (epoch !== epochRef.current) return;
+            if (epochRef.current !== pageEpochRef.current) return;
             if (
               nativeEvent.progress === 1 &&
               wvState.current === WV_STATES.LOADING
@@ -2610,7 +2878,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
             }
           }}
           onLoadEnd={() => {
-            if (epoch !== epochRef.current) return;
+            if (epochRef.current !== pageEpochRef.current) return;
             // Only transition if still in LOADING state
             // (onLoadProgress might have already handled it)
             if (wvState.current === WV_STATES.LOADING) {

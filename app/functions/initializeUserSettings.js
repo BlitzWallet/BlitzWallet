@@ -184,10 +184,11 @@ export default async function initializeUserSettingsFromHistory({
         key: {},
       },
       enabledServices: {
-        contactPayments: false,
-        lnurlPayments: false,
-        nostrPayments: false,
-        pointOfSale: false,
+        contactPayments: true,
+        lnurlPayments: true,
+        nostrPayments: true,
+        NWC: true,
+        pointOfSale: true,
       },
     };
 
@@ -328,6 +329,7 @@ export default async function initializeUserSettingsFromHistory({
           contactPayments: hasNotificationsStored,
           lnurlPayments: hasNotificationsStored,
           nostrPayments: hasNotificationsStored,
+          NWC: hasNotificationsStored,
           pointOfSale: hasNotificationsStored,
         },
       };
@@ -475,6 +477,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['crashReportingSettings'] = crashReportingSettings;
     tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
     tempObject['didViewNWCMessage'] = didViewNWCMessage;
+    tempObject['accountsLnurl'] = blitzStoredData.accountsLnurl || {};
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       // Child fields stay out of the deferred write: a login-time snapshot of

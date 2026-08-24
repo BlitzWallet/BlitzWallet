@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import {
 } from '../../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../../../functions/CustomElements/button';
+import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import WordsQrToggle from '../../../../../../functions/CustomElements/wordsQrToggle';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
@@ -19,6 +20,9 @@ import { useChildPairing } from '../../../../../../../context-store/childPairing
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
+import { copyToClipboard } from '../../../../../../functions';
+import { share } from '../../../../../../functions/handleShare';
+import { useToast } from '../../../../../../../context-store/toastManager';
 
 export default function ChildLinkCode(props) {
   const navigate = useNavigation();
@@ -34,6 +38,7 @@ export default function ChildLinkCode(props) {
     qrValue,
     isEnded,
   } = useChildPairing();
+  const { showToast } = useToast();
   const reshareChild = props?.route?.params?.reshareChild ?? null;
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
 
@@ -66,6 +71,10 @@ export default function ChildLinkCode(props) {
     startPairing(reshareChild);
     navigate.navigate('ChildShareCode');
   };
+
+  const handleShareDownloadLink = useCallback(() => {
+    share({ message: 'https://blitzwalletapp.com/managed' });
+  }, []);
 
   // Security gate (QR path): the child connected, so the parent must consciously
   // grant. An Accept prompt arriving before the real child scanned is a visible
@@ -129,6 +138,24 @@ export default function ChildLinkCode(props) {
     status === 'idle' ||
     status === 'done';
 
+  const downloadPrompt = (
+    <View style={styles.downloadPrompt}>
+      <ThemeText
+        styles={styles.downloadHint}
+        content={t('settings.childAccounts.pairing.noBlitz')}
+      />
+      <TouchableOpacity
+        onPress={handleShareDownloadLink}
+        style={[styles.downloadLink, { backgroundColor: backgroundOffset }]}
+      >
+        <ThemeText
+          styles={styles.downloadLinkText}
+          content={t('settings.childAccounts.pairing.downloadLink')}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+
   const qrContent =
     isPreparing || !qrValue ? (
       <View style={styles.tabContent}>
@@ -150,6 +177,7 @@ export default function ChildLinkCode(props) {
         <View style={styles.qrWrap}>
           <QrCodeWrapper QRData={qrValue} />
         </View>
+        {downloadPrompt}
       </View>
     );
 
@@ -163,14 +191,18 @@ export default function ChildLinkCode(props) {
         styles={styles.subtitle}
         content={t('settings.childAccounts.pairing.usernameSubtitle')}
       />
-      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+      <TouchableOpacity
+        onPress={() => copyToClipboard(parentUniqueName, showToast)}
+        style={[styles.card, { backgroundColor: backgroundOffset }]}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           adjustsFontSizeToFit={true}
           styles={styles.usernameValue}
           content={parentUniqueName}
         />
-      </View>
+      </TouchableOpacity>
+      {downloadPrompt}
     </View>
   );
 
@@ -211,6 +243,7 @@ export default function ChildLinkCode(props) {
           </Animated.View>
         )}
       </View>
+
       {!isQrTab && (
         <CustomButton
           buttonStyles={styles.button}
@@ -262,6 +295,27 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     alignItems: 'center',
+  },
+  downloadPrompt: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  downloadHint: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    includeFontPadding: false,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  downloadLink: {
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  downloadLinkText: {
+    fontSize: SIZES.smedium,
+    includeFontPadding: false,
+    textAlign: 'center',
   },
   usernameValue: {
     fontSize: SIZES.xxLarge,

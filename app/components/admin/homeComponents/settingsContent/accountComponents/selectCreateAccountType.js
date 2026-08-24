@@ -77,7 +77,7 @@ export default function SelectCreateAccountType() {
         </TouchableOpacity>
 
         {/* Child Account Option */}
-        {!masterInfoObject.isChildAccount && (
+        {/* {!masterInfoObject.isChildAccount && (
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => navigate.navigate('ChildEnterName')}
@@ -113,7 +113,7 @@ export default function SelectCreateAccountType() {
               />
             </View>
           </TouchableOpacity>
-        )}
+        )} */}
         {/* Restore already created Account */}
         <TouchableOpacity
           activeOpacity={!restorableIndices.length ? HIDDEN_OPACITY : 0.7}

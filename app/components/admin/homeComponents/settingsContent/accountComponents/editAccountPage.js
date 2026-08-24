@@ -5,7 +5,7 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
   FONT,
@@ -13,13 +13,10 @@ import {
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import { deriveChildMnemonic } from '../../../../../functions/accounts/childAccounts';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -28,38 +25,69 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useToast } from '../../../../../../context-store/toastManager';
-import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  SKELETON_ANIMATION_SPEED,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
 } from '../../../../../constants';
-import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
-import useAccountSwitcher from '../../../../../hooks/useAccountSwitcher';
-import { getSparkAddress } from '../../../../../functions/spark';
+import { formatBalanceAmount } from '../../../../../functions';
 import {
-  getBitcoinBalance,
-  initializeSparkWalletViewer,
-} from '../../../../../functions/spark/walletViewer';
-import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
+  disposeSparkWallet,
+  getSparkIdentityPubKey,
+  initializeSparkWallet,
+} from '../../../../../functions/spark';
+import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
+import {
+  getAccountBalanceSnapshot,
+  getUsdTokenDollars,
+  saveAccountBalanceSnapshot,
+} from '../../../../../functions/spark/balanceSnapshots';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
-import { share } from '../../../../../functions/handleShare';
+import PagerView from 'react-native-pager-view';
+import Animated, {
+  useEvent,
+  useHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { BalanceDots } from '../../homeLightning/balanceDots';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
+
+// Custom hook for PagerView scroll handler
+function usePagerScrollHandler(handlers, dependencies) {
+  const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
+  const subscribeForEvents = ['onPageScroll'];
+
+  return useEvent(
+    event => {
+      'worklet';
+      const { onPageScroll } = handlers;
+      if (onPageScroll && event.eventName.endsWith('onPageScroll')) {
+        onPageScroll(event, context);
+      }
+    },
+    subscribeForEvents,
+    doDependenciesDiffer,
+  );
+}
 
 export default function EditAccountPage(props) {
-  const { showToast } = useToast();
   const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
   const { getAccountMnemonic, activeAccount, custodyAccountsList } =
     useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
-  const { toggleMasterInfoObject, masterInfoObject } =
-    useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { accountMnemoinc } = useKeysContext();
+  const { globalContactsInformation } = useGlobalContacts();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
 
   const isMainAccountAChild = masterInfoObject.isChildAccount;
 
@@ -77,79 +105,179 @@ export default function EditAccountPage(props) {
   // custody store, and derive their seed from childIndex.
   const isChild = selectedAccount?.childIndex !== undefined;
 
-  const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
-
-  const isPinned = pinnedAccountUUIDs.includes(
-    accountInformation.uuid || accountInformation.name,
-  );
-
   const isActive = activeAccount.uuid === accountInformation.uuid;
-  const isActivating =
-    isSwitchingAccount.isLoading &&
-    isSwitchingAccount.accountBeingLoaded ===
-      (accountInformation.uuid || accountInformation.name);
+
+  // Per-account Lightning address, once the registry sync has published this
+  // account's entry (main/child accounts have no entry → no row).
+  const lnurlAddress = useMemo(() => {
+    const uniqueName = globalContactsInformation?.myProfile?.uniqueName;
+    if (!uniqueName) return null; // no profile name yet → hide the row
+    const entry = Object.entries(masterInfoObject.accountsLnurl || {}).find(
+      ([, v]) => v.uuid === accountInformation.uuid,
+    );
+    if (!entry) return `${uniqueName}@blitzwalletapp.com`;
+    return `${uniqueName}-${entry[0]}@blitzwalletapp.com`;
+  }, [
+    globalContactsInformation,
+    masterInfoObject.accountsLnurl,
+    accountInformation.uuid,
+  ]);
+
+  const username = lnurlAddress?.split('@')?.[0];
 
   const navigate = useNavigation();
 
-  const [otherAccountBalance, setOtherAccountBalance] = useState({
-    isLoading: true,
+  const [accountBalance, setAccountBalance] = useState({
+    status: 'connecting', // 'connecting' | 'connected' | 'error'
     balance: 0,
+    tokensObj: null,
   });
+  const subscriptionRef = useRef(null);
+  const mnemonicRef = useRef(null);
+  const pubkeyRef = useRef(null);
+  const initPromiseRef = useRef(null);
+  const paintedFromSnapshotRef = useRef(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [showSlowConnectUI, setShowSlowConnectUI] = useState(false);
 
-  const [layout, setlayout] = useState({ height: 45, width: 87 });
-  const maxLayoutRef = useRef({ height: 45, width: 87 });
+  useEffect(() => {
+    if (isActive) return; // active account uses live context (below)
+    let cancelled = false;
+    paintedFromSnapshotRef.current = false;
 
-  useFocusEffect(
-    useCallback(() => {
-      if (isActive) return;
-      let isMounted = true;
-      (async () => {
-        try {
-          if (!otherAccountBalance.balance)
-            setOtherAccountBalance({ isLoading: true, balance: 0 });
-          const mnemonic = isChild
-            ? await deriveChildMnemonic(
-                accountMnemoinc,
-                accountInformation.childIndex,
-              )
-            : await getAccountMnemonic(accountInformation);
-          const addressResponse = await getSparkAddress(mnemonic);
-          if (!addressResponse.didWork) {
-            throw new Error('Unable to derive account spark address');
+    (async () => {
+      try {
+        setAccountBalance(prev => ({ ...prev, status: 'connecting' }));
+        const mnemonic = isChild
+          ? await deriveChildMnemonic(
+              accountMnemoinc,
+              accountInformation.childIndex,
+            )
+          : await getAccountMnemonic(accountInformation);
+        if (cancelled) return;
+        mnemonicRef.current = mnemonic;
+
+        // Instant paint: if a cached snapshot exists for this account's pubkey,
+        // seed the balance immediately so the pager renders (and the mascot
+        // loader is skipped) while the live wallet initializes in the background.
+        const pubkey = await getSparkIdentityPubKey(mnemonic);
+        if (cancelled) return;
+        if (pubkey) {
+          pubkeyRef.current = pubkey;
+          const snapshot = await getAccountBalanceSnapshot(pubkey);
+          if (cancelled) return;
+          if (snapshot) {
+            paintedFromSnapshotRef.current = true;
+            setAccountBalance({
+              status: 'connecting',
+              balance: snapshot.balance,
+              tokensObj: snapshot.tokens,
+            });
           }
-          await initializeSparkWalletViewer(mnemonic);
-          const balance = await getBitcoinBalance(addressResponse.response);
-          if (!isMounted) return;
-          setOtherAccountBalance({
-            isLoading: false,
-            balance: Number(balance || 0),
-          });
-        } catch (err) {
-          console.log('load account balance error', err);
-          if (!isMounted) return;
-          setOtherAccountBalance(prev => ({ ...prev, isLoading: false }));
         }
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }, [
-      isActive,
-      accountInformation.uuid,
-      isChild,
-      accountMnemoinc,
-      otherAccountBalance.balance,
-    ]),
-  );
 
-  const balance = isActive
+        const initRes = await (initPromiseRef.current = initializeSparkWallet(
+          mnemonic,
+          false,
+          {
+            maxRetries: 4,
+            shouldCancel: () => cancelled,
+          },
+        ));
+        if (cancelled) return;
+        if (!initRes?.isConnected && !paintedFromSnapshotRef.current) {
+          setAccountBalance(p => ({ ...p, status: 'error' }));
+          return;
+        }
+
+        subscriptionRef.current = subscribeToSparkBalance({
+          mnemonic,
+          stabilize: true,
+          onUpdate: result => {
+            if (cancelled || !result?.didWork) return;
+            setAccountBalance({
+              status: 'connected',
+              balance: Number(result.balance || 0),
+              tokensObj: result.tokensObj || null,
+            });
+            if (pubkeyRef.current) {
+              saveAccountBalanceSnapshot(
+                pubkeyRef.current,
+                Number(result.balance || 0),
+                result.tokensObj || null,
+              );
+            }
+          },
+        });
+      } catch (err) {
+        console.log('load account balance error', err);
+        if (!cancelled && !paintedFromSnapshotRef.current) {
+          setAccountBalance(p => ({ ...p, status: 'error' }));
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      subscriptionRef.current?.unsubscribe();
+      subscriptionRef.current = null;
+      // Await the in-flight init before disposing so we dispose the wallet init
+      // actually created (a pre-init dispose is a no-op). Never dispose when the
+      // account's mnemonic is the main seed — that wallet is session-long.
+      const m = mnemonicRef.current;
+      if (m && m !== accountMnemoinc) {
+        Promise.resolve(initPromiseRef.current).finally(() =>
+          disposeSparkWallet(m),
+        );
+      }
+      initPromiseRef.current = null;
+      mnemonicRef.current = null;
+      pubkeyRef.current = null;
+    };
+  }, [isActive, accountInformation.uuid, isChild, accountMnemoinc, reloadKey]);
+
+  const isConnecting = isActive
+    ? false
+    : accountBalance.status === 'connecting';
+
+  // Fast connects keep the blocking loader; past 5s we surface the account
+  // screen instead (with an hourglass indicator) so pairing/LNURL/etc. stay
+  // usable while the wallet finishes initializing in the background.
+  useEffect(() => {
+    if (!isConnecting) {
+      setShowSlowConnectUI(false);
+      return;
+    }
+    const timeout = setTimeout(() => setShowSlowConnectUI(true), 5000);
+    return () => clearTimeout(timeout);
+  }, [isConnecting]);
+  const btcBalance = isActive
     ? Number(sparkInformation?.balance || 0)
-    : otherAccountBalance.balance;
-  const isBalanceLoading = isActive ? false : otherAccountBalance.isLoading;
+    : accountBalance.balance;
+  const tokensObj = isActive
+    ? sparkInformation?.tokens
+    : accountBalance.tokensObj;
 
-  const handleActivate = useCallback(() => {
-    handleAccountPress(accountInformation);
-  }, [handleAccountPress, accountInformation]);
+  const dollarBalance = getUsdTokenDollars(tokensObj);
+
+  // Withdrawals move BTC *or* USDB, so either balance unlocks the button.
+  const hasWithdrawableBalance = !!btcBalance || !!dollarBalance;
+
+  const { screenDimensions } = useAppStatus();
+  const screenWidth = screenDimensions?.width ?? 0;
+
+  const balanceScrollX = useSharedValue(0);
+
+  const onBalancePageScroll = usePagerScrollHandler(
+    {
+      onPageScroll: e => {
+        'worklet';
+        const scrollOffset = (e.position + e.offset) * screenWidth;
+        balanceScrollX.value = scrollOffset;
+      },
+    },
+    [screenWidth],
+  );
 
   const handleProfileImage = () => {
     // Main + NWC accounts keep their fixed/contact-profile images; everything
@@ -209,66 +337,6 @@ export default function EditAccountPage(props) {
     });
   }, [navigate, accountInformation]);
 
-  const handleSendInviteLink = useCallback(async () => {
-    try {
-      share({
-        message: 'https://blitzwalletapp.com/child',
-      });
-    } catch (err) {
-      console.log('Error sharing child invite link:', err);
-    }
-  }, []);
-
-  const handlePinInfo = useCallback(() => {
-    navigate.navigate('InformationPopup', {
-      textContent: t(
-        'settings.accountComponents.editAccountPage.pin_account_info',
-      ),
-      buttonText: t('constants.back'),
-    });
-  }, [navigate, t]);
-
-  const handleAccountTypeInfo = useCallback(() => {
-    const isDerived = accountInformation.accountType === 'derived';
-    navigate.navigate('InformationPopup', {
-      textContent: t(
-        isDerived
-          ? 'settings.accountComponents.editAccountPage.accountTypeDerivedInfo'
-          : 'settings.accountComponents.editAccountPage.accountTypeImportedInfo',
-      ),
-      buttonText: t('constants.back'),
-    });
-  }, [navigate, t, accountInformation.accountType]);
-
-  const handlePinToggle = useCallback(() => {
-    const pinnedAccountId = accountInformation.uuid || accountInformation.name;
-    const currentPins = masterInfoObject.pinnedAccounts || [];
-    const isPinned = currentPins.includes(pinnedAccountId);
-
-    if (isPinned) {
-      toggleMasterInfoObject({
-        pinnedAccounts: currentPins.filter(id => id !== pinnedAccountId),
-      });
-    } else {
-      if (currentPins.length >= 2) {
-        showToast({
-          type: 'error',
-          title: t('settings.hub.maxPinsReached'),
-        });
-        return;
-      }
-      toggleMasterInfoObject({
-        pinnedAccounts: [...currentPins, pinnedAccountId],
-      });
-    }
-  }, [
-    masterInfoObject.pinnedAccounts,
-    toggleMasterInfoObject,
-    showToast,
-    t,
-    accountInformation,
-  ]);
-
   const handleDeleteAccount = useCallback(() => {
     if (isActive) {
       navigate.navigate('ErrorScreen', {
@@ -284,69 +352,162 @@ export default function EditAccountPage(props) {
     });
   }, [isActive, accountInformation, fromPage, navigate, t]);
 
-  const handleLayoutMeasurement = useCallback(event => {
-    const { height, width } = event.nativeEvent.layout;
-
-    const newMaxHeight = Math.max(maxLayoutRef.current.height, height);
-    const newMaxWidth = Math.max(maxLayoutRef.current.width, width);
-
-    if (
-      newMaxHeight !== maxLayoutRef.current.height ||
-      newMaxWidth !== maxLayoutRef.current.width
-    ) {
-      maxLayoutRef.current = { height: newMaxHeight, width: newMaxWidth };
-      setlayout({ height: newMaxHeight, width: newMaxWidth });
-    }
-  }, []);
-
-  const handleAddMoney = useCallback(() => {
+  const openTransfer = mode => () =>
     navigate.navigate('CustomHalfModal', {
-      wantedContent: 'accountAddMoney',
-      to: accountInformation.uuid,
-      balance: balance,
+      wantedContent: 'accountTransfer',
+      mode,
+      account: accountInformation,
       sliderHight: 0.8,
-      onTransferComplete: newBalance => {
-        if (typeof newBalance === 'number')
-          setOtherAccountBalance({ isLoading: false, balance: newBalance });
-      },
     });
-  }, [navigate, accountInformation.uuid, setOtherAccountBalance, balance]);
 
-  const handleWithdrawMoney = useCallback(() => {
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'accountWithdrawlMoney',
-      from: accountInformation.uuid,
-      balance: balance,
-      sliderHight: 0.8,
-      onTransferComplete: newBalance => {
-        if (typeof newBalance === 'number')
-          setOtherAccountBalance({ isLoading: false, balance: newBalance });
-      },
+  const handleSlowConnectInfo = useCallback(() => {
+    navigate.navigate('InformationPopup', {
+      textContent: t(
+        'settings.accountComponents.editAccountPage.stillConnectingInfo',
+      ),
+      buttonText: t('constants.understandText'),
     });
-  }, [navigate, accountInformation.uuid, balance, setOtherAccountBalance]);
+  }, [navigate, t]);
 
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
   );
-  const withdrawLabel = t('savings.actionButtons.withdraw');
+  const withdrawLabel = t(
+    'settings.accountComponents.editAccountPage.withdrawMoneyButton',
+  );
   const depositBg =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
   const addTextColor =
     theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
 
+  const isNWC = accountInformation.uuid === NWC_ACCOUNT_UUID;
+
+  // Declarative row model: each card is an array of rows, and dividers are
+  // inserted only *between* rows. Groups the same for every account type —
+  // "Details" (identity) then "Manage" (actions) — with rows filtered per type.
+  const detailRows = [
+    !isNWC &&
+      accountInformation.uuid !== MAIN_ACCOUNT_UUID && {
+        key: 'name',
+        label: t('settings.accountComponents.editAccountPage.accountNameLabel'),
+        value: accountInformation.name,
+        onPress: handleEditName,
+      },
+    lnurlAddress &&
+      !isChild && {
+        key: 'lnurl',
+        label: t(
+          'settings.accountComponents.editAccountPage.lightningAddressLabel',
+        ),
+        value: username,
+        onPress: () =>
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'LNURLAccountMangement',
+            lnurlAddress: lnurlAddress,
+            account: selectedAccount,
+            sliderHight: 0.7,
+          }),
+      },
+  ].filter(Boolean);
+
+  const manageRows = [
+    isChild && {
+      key: 'pair',
+      label: t('settings.childAccounts.page.shareLink'),
+      onPress: handlePairDevice,
+    },
+    accountInformation.uuid !== MAIN_ACCOUNT_UUID && {
+      key: 'history',
+      label: t('settings.accountComponents.editAccountPage.viewActivityLabel'),
+      onPress: handleViewActivity,
+    },
+    !(accountInformation.accountType === 'main' && isMainAccountAChild) &&
+      !isChild && {
+        key: 'recovery',
+        label: t(
+          'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
+        ),
+        onPress: handleNavigateView,
+      },
+  ].filter(Boolean);
+
+  const renderCard = rows => {
+    if (!rows.length) return null;
+    return (
+      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+        {rows.map((row, index) => (
+          <View key={row.key}>
+            {index > 0 && (
+              <View style={[styles.divider, { backgroundColor }]} />
+            )}
+            <TouchableOpacity style={styles.row} onPress={row.onPress}>
+              <ThemeText styles={styles.rowLabel} content={row.label} />
+              <View style={styles.rowRight}>
+                {row.value != null && (
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.rowValue}
+                    content={row.value}
+                  />
+                )}
+                <ThemeIcon iconName="ChevronRight" size={18} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  if (isConnecting && !showSlowConnectUI) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={accountInformation.name} />
+        <FullLoadingScreen showText={false} />
+      </GlobalThemeView>
+    );
+  }
+
+  if (accountBalance.status === 'error' && !isActive) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={accountInformation.name} />
+        <View style={styles.errorContainer}>
+          <NoContentSceen
+            iconName="Info"
+            titleText={t(
+              'settings.accountComponents.editAccountPage.loadError',
+            )}
+            subTitleText={t(
+              'settings.accountComponents.editAccountPage.loadErrorDesc',
+            )}
+          />
+          <CustomButton
+            actionFunction={() => setReloadKey(k => k + 1)}
+            textContent={t('constants.retry')}
+            buttonStyles={styles.retryButton}
+          />
+        </View>
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={t('settings.accountComponents.editAccountPage.title')}
+        label={accountInformation.name}
         showLeftImage={
-          accountInformation.uuid !== NWC_ACCOUNT_UUID &&
-          accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
-          !isChild
+          isConnecting ||
+          (accountInformation.uuid !== NWC_ACCOUNT_UUID &&
+            accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
+            !isChild)
         }
-        iconNew="Trash2"
+        iconNew={isConnecting ? 'ZapOff' : 'Trash2'}
         leftImageStyles={{ height: 25 }}
-        leftImageFunction={handleDeleteAccount}
+        leftImageFunction={
+          isConnecting ? handleSlowConnectInfo : handleDeleteAccount
+        }
       />
       <ScrollView
         contentContainerStyle={{
@@ -386,54 +547,60 @@ export default function EditAccountPage(props) {
           </TouchableOpacity>
         </View>
 
-        <ThemeText
-          styles={styles.balanceLabel}
-          content={t('constants.sat_balance')}
-        />
-
-        {/* Hidden component for layout measurement */}
-        <View
-          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-          onLayout={handleLayoutMeasurement}
-        >
-          <FormattedSatText
-            autoAdjustFontSize={true}
-            styles={styles.valueText}
-            balance={balance}
-            useSizing={true}
-            globalBalanceDenomination={'sats'}
-            forceCurrency={null}
-            useBalance={null}
-          />
-        </View>
-        <View
-          style={{
-            height: layout.height,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: 30,
-          }}
-        >
-          <SkeletonTextPlaceholder
-            highlightColor={backgroundColor}
-            backgroundColor={COLORS.opaicityGray}
-            speed={SKELETON_ANIMATION_SPEED}
-            enabled={isBalanceLoading}
-            layout={layout}
+        <View style={styles.pagerWrapper}>
+          <AnimatedPagerView
+            style={styles.pagerView}
+            initialPage={0}
+            onPageScroll={onBalancePageScroll}
           >
-            <FormattedSatText
-              autoAdjustFontSize={true}
-              styles={styles.valueText}
-              balance={balance}
-              useSizing={true}
-              globalBalanceDenomination={'sats'}
-              forceCurrency={null}
-              useBalance={null}
+            <View style={styles.pageContainer}>
+              <ThemeText
+                content={t('constants.sat_balance')}
+                styles={styles.balanceLabel}
+              />
+              <FormattedSatText
+                autoAdjustFontSize={true}
+                styles={styles.valueText}
+                balance={btcBalance}
+                useSizing={true}
+                globalBalanceDenomination={'sats'}
+                forceCurrency={null}
+                useBalance={null}
+              />
+            </View>
+            <View style={styles.pageContainer}>
+              <ThemeText
+                content={t('constants.usd_balance')}
+                styles={styles.balanceLabel}
+              />
+              <FormattedSatText
+                autoAdjustFontSize={true}
+                styles={styles.valueText}
+                balance={formatBalanceAmount(
+                  dollarBalance,
+                  false,
+                  masterInfoObject,
+                )}
+                useSizing={true}
+                globalBalanceDenomination={'fiat'}
+                forceCurrency={'USD'}
+                useBalance={true}
+              />
+            </View>
+          </AnimatedPagerView>
+          <View style={styles.staticOverlay} pointerEvents="box-none">
+            <BalanceDots
+              scrollX={balanceScrollX}
+              pageCount={2}
+              screenWidth={screenWidth}
+              theme={theme}
+              darkModeType={darkModeType}
+              fromAccounts={true}
             />
-          </SkeletonTextPlaceholder>
+          </View>
         </View>
 
-        {(isChild || custodyAccountsList?.length >= 2) && !isActive && (
+        {(isChild || custodyAccountsList?.length >= 2) && (
           <AdaptiveButtonRow
             labels={[addLabel, withdrawLabel]}
             containerStyle={{
@@ -445,13 +612,13 @@ export default function EditAccountPage(props) {
             {({ buttonStyle }) => (
               <>
                 <TouchableOpacity
-                  onPress={handleAddMoney}
-                  disabled={isBalanceLoading}
+                  onPress={openTransfer('add')}
+                  disabled={isConnecting}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: depositBg },
-                    isBalanceLoading && { opacity: HIDDEN_OPACITY },
+                    isConnecting && { opacity: HIDDEN_OPACITY },
                   ]}
                 >
                   <ThemeText
@@ -463,13 +630,15 @@ export default function EditAccountPage(props) {
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  disabled={isBalanceLoading}
-                  onPress={handleWithdrawMoney}
+                  disabled={isConnecting || !hasWithdrawableBalance}
+                  onPress={openTransfer('withdraw')}
                   style={[
                     styles.actionButton,
                     buttonStyle,
                     { backgroundColor: buttonBg },
-                    isBalanceLoading && { opacity: HIDDEN_OPACITY },
+                    (isConnecting || !hasWithdrawableBalance) && {
+                      opacity: HIDDEN_OPACITY,
+                    },
                   ]}
                 >
                   <ThemeText
@@ -482,164 +651,16 @@ export default function EditAccountPage(props) {
           </AdaptiveButtonRow>
         )}
 
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          {/* Account Name */}
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-            <TouchableOpacity style={styles.row} onPress={handleEditName}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t(
-                  'settings.accountComponents.editAccountPage.accountNameLabel',
-                )}
-              />
-              <View style={styles.rowRight}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.rowValue}
-                  content={accountInformation.name}
-                />
-                <ThemeIcon iconName="ChevronRight" size={18} />
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-            <View style={[styles.divider, { backgroundColor }]} />
-          )}
-
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && !isChild && (
-            <View style={styles.row}>
-              <View style={styles.infoContainer}>
-                <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.accountTypeLabel',
-                  )}
-                />
-                <TouchableOpacity onPress={handleAccountTypeInfo}>
-                  <ThemeIcon size={20} iconName={'Info'} />
-                </TouchableOpacity>
-              </View>
-              <View style={[styles.rowRight, { gap: 5 }]}>
-                <View
-                  style={[
-                    styles.accountTypePill,
-                    {
-                      backgroundColor,
-                    },
-                  ]}
-                >
-                  <ThemeText
-                    styles={[styles.accountTypePillText]}
-                    content={t(
-                      `settings.accountComponents.editAccountPage.accountType`,
-                      { context: accountInformation.accountType },
-                    )}
-                  />
-                </View>
-              </View>
-            </View>
-          )}
-
-          {accountInformation.uuid !== NWC_ACCOUNT_UUID && !isChild && (
-            <View style={[styles.divider, { backgroundColor }]} />
-          )}
-
-          {/* Show Recovery Phrase */}
-          {!(
-            accountInformation.accountType === 'main' && isMainAccountAChild
-          ) && (
-            <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
-              <ThemeText
-                styles={[styles.rowLabel]}
-                content={t(
-                  'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
-                )}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {isChild ? (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Pair device (always available — re-pair after wallet loss) */}
-            <TouchableOpacity style={styles.row} onPress={handlePairDevice}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t('settings.childAccounts.page.shareLink')}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-            <View style={[styles.divider, { backgroundColor }]} />
-            {/* Send the recipient a download/invite link */}
-            <TouchableOpacity style={styles.row} onPress={handleSendInviteLink}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t('settings.childAccounts.page.sendInviteLink')}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            {/* Pin Contact */}
-            <View style={styles.row}>
-              <View style={styles.infoContainer}>
-                <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
-                  content={t(
-                    'settings.accountComponents.editAccountPage.account',
-                    {
-                      context: isPinned ? 'unpin' : 'pin',
-                    },
-                  )}
-                />
-                <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon size={20} iconName={'Info'} />
-                </TouchableOpacity>
-              </View>
-              <CustomToggleSwitch
-                stateValue={isPinned}
-                toggleSwitchFunction={handlePinToggle}
-                page={'pinAccount'}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* View the managed account's transaction history */}
-        {isChild && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <TouchableOpacity style={styles.row} onPress={handleViewActivity}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t(
-                  'settings.accountComponents.editAccountPage.viewActivityLabel',
-                )}
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          </View>
-        )}
+        {/* Details (identity) then Manage (actions) — same grouping for every
+            account type, rows filtered per type via detailRows / manageRows. */}
+        {renderCard(detailRows)}
+        {renderCard(manageRows)}
       </ScrollView>
-      {/* Activate */}
-      {!isActive && !isChild && (
-        <CustomButton
-          textContent={t(
-            'settings.accountComponents.editAccountPage.activateButton',
-          )}
-          useLoading={isActivating}
-          actionFunction={handleActivate}
-          buttonStyles={styles.buttonContainer}
-        />
-      )}
     </GlobalThemeView>
   );
 }
 const styles = StyleSheet.create({
   avatarContainer: {
-    marginBottom: 25,
     alignSelf: 'center',
   },
 
@@ -678,14 +699,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 15,
   },
-  infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
 
   rowLabel: {
-    width: '100%',
-    flexShrink: 1,
     includeFontPadding: false,
   },
 
@@ -709,27 +724,6 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
 
-  dangerRow: {
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-  },
-  dangerText: {
-    color: COLORS.cancelRed,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  pinButton: {
-    height: 35,
-    width: 35,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
   balanceLabel: {
     textTransform: 'uppercase',
     includeFontPadding: false,
@@ -744,21 +738,46 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
 
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+
+  retryButton: {
+    width: INSET_WINDOW_WIDTH,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
+  },
+
+  pagerWrapper: {
+    position: 'relative',
+    width: '100%',
+    alignItems: 'center',
+  },
+
+  pagerView: {
+    width: '100%',
+    height: 175,
+  },
+
+  pageContainer: {
+    alignItems: 'center',
+    marginTop: 30,
+  },
+
+  staticOverlay: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+  },
+
   actionButton: {
     minHeight: 50,
     paddingHorizontal: 12,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-
-  accountTypePill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  accountTypePillText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
   },
 });

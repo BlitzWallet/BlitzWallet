@@ -9,7 +9,7 @@ import { SIZES } from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo, useRef } from 'react';
-import { applyErrorAnimationTheme } from '../../../../../functions/lottieViewColorTransformer';
+import { getErrorTxAnimation } from '../../../../../functions/lottieAnimations';
 import { useTranslation } from 'react-i18next';
 import { FONT, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
@@ -19,16 +19,7 @@ export default function ErrorWithPayment({ reason }) {
   const animationRef = useRef(null);
   const { t } = useTranslation();
 
-  const errorAnimation = useMemo(() => {
-    const confirmTxAnimationDarkMode = require('../../../../../assets/errorTxAnimation.json');
-
-    const defaultTheme = applyErrorAnimationTheme(
-      confirmTxAnimationDarkMode,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-
-    return defaultTheme;
-  }, [theme, darkModeType]);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   useEffect(() => {
     animationRef.current?.play();

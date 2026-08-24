@@ -1,6 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import GetThemeColors from '../../hooks/themeColors';
@@ -72,16 +73,24 @@ export default function WordsQrToggle({
     option2BlockedNavFunc,
   ]);
 
-  // Drive the pill position purely from the controlled selection so it stays
-  // correct on every render/reattach (e.g. returning from a pushed screen via
-  // popTo) with no separate animation state that can drift out of sync.
+  // Animate through a shared value instead of calling withTiming() inside
+  // useAnimatedStyle. An animation object in the returned style makes Reanimated
+  // ignore the forced update it fires when a view is re-attached (styleUpdater
+  // only honours forceUpdate on its no-animation branch) and gates the transform
+  // behind an isAnimationRunning latch. After a background/foreground rebuilt the
+  // native view, the transform could then never be re-pushed and the pill fell
+  // back to the first render's committed translateX while the controlled prop
+  // stayed on option 2 - selection and pill permanently out of sync.
+  const pillOffset = selectedDisplayOption === option1Value ? 0 : buttonWidth;
+  const translateX = useSharedValue(pillOffset);
+
+  useEffect(() => {
+    translateX.value = withTiming(pillOffset, { duration: 200 });
+  }, [pillOffset]);
+
   const animatedStyle = useAnimatedStyle(() => {
-    const target = selectedDisplayOption === option1Value ? 0 : buttonWidth;
     return {
-      transform: [
-        { translateX: withTiming(target, { duration: 200 }) },
-        { translateY: 3 },
-      ],
+      transform: [{ translateX: translateX.value }, { translateY: 3 }],
       backgroundColor:
         theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
       width: buttonWidth,

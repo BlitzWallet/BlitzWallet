@@ -41,7 +41,7 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -60,8 +60,6 @@ import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonVi
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
-
-const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const SKELETON_STYLES = {
   icon: {
@@ -444,12 +442,7 @@ export default function WithdrawFromSavingsHalfModal({
     return true;
   }, [currentPage, step]);
 
-  const confirmAnimation = useMemo(() => {
-    return updateConfirmAnimation(
-      confirmTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
 
   useHandleBackPressNew(handleBackPress);
 

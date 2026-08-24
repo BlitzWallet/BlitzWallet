@@ -36,13 +36,12 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import { applyErrorAnimationTheme } from '../../../../functions/lottieViewColorTransformer';
+import { getErrorTxAnimation } from '../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
-const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 
 const MAX_VISIBLE_ACTIVITY = 3;
 
@@ -86,7 +85,6 @@ export default function PoolDetailScreen(props) {
 
   const contributeLabel = t('wallet.pools.contribute');
   const shareLabel = t('wallet.pools.share');
-
 
   const formatAmount = useCallback(
     amount => {
@@ -243,12 +241,7 @@ export default function PoolDetailScreen(props) {
       })
     : '';
 
-  const errorAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      errorTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
+  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
 
   // ---------- Error / Loading states (unchanged) ----------
 

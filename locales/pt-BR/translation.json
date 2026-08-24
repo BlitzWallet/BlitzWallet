@@ -116,7 +116,7 @@
     "review": "Revisar",
     "loadMore": "Carregar mais",
     "invoice": "Fatura",
-    "annonName": "Usuário anônimo",
+    "annonName": "Sem nome definido",
     "claim": "Resgatar",
     "manage": "Emitidos",
     "reclaim": "Expirados",
@@ -200,6 +200,8 @@
     "paidRequest": "Solicitação paga",
     "sent": "Você enviou",
     "received": "Você recebeu",
+    "accountTopup": "Recarga",
+    "accountWithdrawal": "Saque",
     "paidLower": "pagou",
     "declinedLower": "recusou",
     "receivedRequest": "Solicitação recebida",
@@ -287,9 +289,11 @@
     },
     "walletSetup": {
       "title": "Configure sua carteira",
-      "subtitle": "Crie uma nova carteira ou restaure uma que já existe.",
+      "subtitle": "Crie uma nova carteira, acesse uma carteira ou restaure uma que já existe.",
       "createTitle": "Criar nova carteira",
       "createDesc": "Comece do zero com uma nova carteira.",
+      "joinTitle": "Acessar conta parental",
+      "joinDesc": "Acesse uma conta parental que alguém criou para você.",
       "restoreTitle": "Restaurar carteira existente",
       "restoreDesc": "Traga sua carteira para a Blitz."
     }
@@ -933,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Compartilhar meu link",
       "images": "Carregar imagem",
       "clipboard": "Área de transferência",
       "manual": "Digitar",
@@ -1019,7 +1024,7 @@
       "depositQRInstruction_liquid": "Envie apenas LBTC na rede Liquid para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
       "depositQRInstruction_rootstock": "Envie apenas RBTC na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
       "depositQRInstruction_spark": "Envie apenas BTC na rede Spark para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
-      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares",
+      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares.",
       "depositQRInstruction_spark_tokens": "Envie apenas tokens na rede Spark para este endereço.",
       "depositMinimumStablecoin": "Os pagamentos devem ser de pelo menos {{amount}}.",
       "depositFeeText": "Taxa de recebimento",
@@ -1678,6 +1683,7 @@
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
       "mainWalletPlace": "Conta principal",
+      "managedWalletPlace": "Conta parental",
       "nwcWalletPlace": "Conta NWC",
       "tabs": {
         "personal": "Pessoal",
@@ -1693,7 +1699,7 @@
       },
       "emptyLinked": {
         "title": "Nenhuma conta parental ainda",
-        "subtitle": "Crie uma carteira para alguém em quem você confia. Eles podem usar o Blitz sem precisar gerenciar uma frase de recuperação."
+        "subtitle": "Crie contas para outras pessoas. Elas podem usar a Blitz sem precisar gerenciar frases de recuperação."
       },
       "noResults": {
         "title": "Nenhuma conta encontrada",
@@ -1869,14 +1875,19 @@
         "subtitle": "Crie uma conexão para usar a conta NWC com seus aplicativos favoritos."
       },
       "createNWCName": {
-        "title": "Nome da conexão"
+        "navTitle": "Nome",
+        "title": "Nome da conexão",
+        "editTitle": "Editar nome da conexão",
+        "subtitle": "Escolha um nome para esta conexão.",
+        "editSubtitle": "Escolha um novo nome para esta conexão.",
+        "placeholder": "Nome da conexão"
       },
       "createNWCPermissions": {
         "title": "Permissões",
-        "pageTitle": "Adicionar permissões da conta",
-        "pageSubtitle": "Escolha quais ações esta conta pode realizar.",
-        "editTitle": "Editar permissões da conta",
-        "editSubtitle": "Edite quais ações esta conta pode realizar."
+        "pageTitle": "Adicionar permissões da conexão",
+        "pageSubtitle": "Escolha quais ações {{name}} pode realizar.",
+        "editTitle": "Editar permissões da conexão",
+        "editSubtitle": "Edite quais ações {{name}} pode realizar."
       },
       "createNWCAmount": {
         "title": "Orçamento",
@@ -1885,10 +1896,10 @@
         "editTitle": "Editar orçamento de gastos",
         "editSubtitle": "Altere o limite de gastos e quando ele é redefinido. Deixe em branco para não ter limite.",
         "renewalPlaceholder": "Selecione o período de renovação",
-        "createButton": "Criar conta"
+        "createButton": "Criar conexão"
       },
       "accountPage": {
-        "title": "Gerenciar conta",
+        "title": "Gerenciar conexão",
         "nameLabel": "Nome",
         "permissionsLabel": "Permissões",
         "permissionsCount_one": "{{count}} permissão",
@@ -1896,7 +1907,7 @@
         "renewalLabel": "Período de renovação",
         "amountLabel": "Valor do orçamento",
         "viewSecretLabel": "String de conexão",
-        "deleteAccount": "Excluir conta"
+        "deleteAccount": "Excluir conexão"
       },
       "createNWCAccount": {
         "noAccountNameError": "Por favor, insira um nome para essa conexão.",
@@ -1904,7 +1915,7 @@
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
         "loadingMessage": "Criando conexão",
-        "updatingMessage": "Atualizando conta...",
+        "updatingMessage": "Atualizando conexão...",
         "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
@@ -1915,11 +1926,11 @@
         "budgetRenewalHeader": "Renovação do limite de gastos"
       },
       "hasNoAccounts": {
-        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
+        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta NWC em Configurações/Contas."
       },
       "noNotifications": {
         "title": "Notificações necessárias",
-        "subtitle": "Contas NWC requer notificações push. Ative-as nas Configurações e tente novamente."
+        "subtitle": "Contas NWC requerem notificações push. Ative-as nas Configurações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
@@ -1928,7 +1939,7 @@
       },
       "combinedOnboarding": {
         "infoTitle": "Antes de começar",
-        "infoSubtitle": "Algumas coisas que você deve saber sobre sua conta NWC.",
+        "infoSubtitle": "Algumas coisas que você precisa saber sobre sua conta NWC.",
         "row1Label": "Adicionar fundos",
         "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
         "row2Label": "Conta separada",
@@ -1941,9 +1952,9 @@
         "errorRetry": "Tentar novamente"
       },
       "accountCreated": {
-        "title": "Conta criada",
-        "subtitle": "Sua conta NWC foi criada. Copie a string de conexão para começar a usá-la.",
-        "copyConnection": "Copiar string de conexão"
+        "title": "Conexão criada",
+        "subtitle": "Sua conexão foi criada. Copie o codigo de conexão para começar a usá-la.",
+        "copyConnection": "Copiar código de conexão"
       }
     },
     "accountComponents": {
@@ -1978,8 +1989,8 @@
         "createTitle_derived": "Criar conta",
         "createTitle_imported": "Importar conta",
         "updateTitle": "Atualizar conta",
-        "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
-        "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",
+        "cannotDeleteActiveAccountError": "Não é possível remover a conta que está selecionada. Selecione outra conta antes de remover esta.",
+        "deleteAccountConfirmation": "Tem certeza de que deseja remover esta conta?",
         "inputDesc": "Nome da conta",
         "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
         "nameInputPlaceholder": "Nome...",
@@ -1996,23 +2007,29 @@
         "title": "Conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "removeAccountLabel": "Arquivar conta",
-        "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
+        "lightningAddressLabel": "Endereço da conta",
+        "removeAccountLabel": "Remover conta",
+        "activeAccountError": "Você não pode remover a conta que está selecionada. Por favor, mude para uma conta diferente antes de remover esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
         "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada.",
         "accountTypeLabel": "Tipo de conta",
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
-        "accountTypeDerivedInfo": "Esta conta está vinculada à sua frase de recuperação da conta principal da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
-        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
         "accountType_main": "Principal",
+        "accountType_nwc": "NWC",
+        "accountTypeDerivedInfo": "Esta conta é criada a partir da sua frase de recuperação da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
+        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
+        "accountTypeNwcInfo": "Esta é a sua conta Nostr Wallet Connect (NWC). Ela é usada pelos aplicativos conectados à Blitz e sempre pode ser restaurada a partir da sua frase de recuperação principal da Blitz.",
         "balanceLabel": "Saldo",
-        "activeLabel": "Conta ativa",
-        "activateButton": "Ativar conta",
-        "addMoneyButton": "Adicionar dinheiro",
-        "withdrawMoneyButton": "Retirar dinheiro",
-        "viewActivityLabel": "Ver o histórico da conta"
+        "activeLabel": "Conta selecionada",
+        "activateButton": "Selecionar conta",
+        "addMoneyButton": "Depositar dinheiro",
+        "withdrawMoneyButton": "Transferir entre contas",
+        "viewActivityLabel": "Histórico da conta",
+        "loadError": "Não foi possível carregar a conta",
+        "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte.",
+        "stillConnectingInfo": "Seu saldo pode estar desatualizado enquanto terminamos de conectar sua conta."
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",
@@ -2049,22 +2066,29 @@
         "to": "Selecione a conta de destino"
       },
       "removeAccountPage": {
-        "title": "Arquivar conta",
-        "explanation_derived": "Mesmo que você arquive esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
-        "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
+        "title": "Remover conta",
+        "explanation_derived": "Mesmo que você remova esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Arquivar conta"
+        "removeButton": "Remover conta"
       },
       "transferModal": {
         "selectAccount": "Selecione uma conta",
-        "availableToAdd": "Disponível para adicionar",
-        "availableToWithdraw": "Disponível para retirar",
+        "addFromTitle": "Escolha de qual conta receber",
+        "withdrawToTitle": "Escolha a conta de destino",
+        "noAvailableAccounts": "Nenhuma conta disponível",
+        "noAccountsSubtitle": "Você ainda não tem contas. Crie uma para começar.",
+        "noAvailableAccountsSubtitle": "Suas contas ainda não têm fundos. Adicione dinheiro para usá-las aqui.",
+        "availableToAdd": "Disponível",
+        "availableToWithdraw": "Disponível",
         "using": "Usando",
         "amount": "Valor",
         "transferComplete": "Enviado para {{name}}",
+        "receivedFrom": "Recebido de {{name}}",
         "selfTransfer": "Você não pode transferir para si mesmo",
         "addFunds": "{{name}} adicionou dinheiro",
-        "withdrawFunds": "{{name}} retirou dinheiro"
+        "withdrawFunds": "{{name}} retirou dinheiro",
+        "balanceLoadError": "Não foi possível carregar o saldo desta conta. Tente novamente."
       }
     },
     "accountsPoolsScreen": {
@@ -2072,9 +2096,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Colete pagamentos para um objetivo",
-      "yourAccountsTitle": "Suas contas",
-      "addAccountButton": "Adicionar conta"
+      "noActivePools": "Colete pagamentos para um objetivo"
     },
     "hub": {
       "viewAll": "Ver tudo",
@@ -2180,7 +2202,7 @@
     },
     "childAccounts": {
       "tabs": {
-        "children": "Parentais"
+        "children": "Parental"
       },
       "dontMatch": "Não correspondem",
       "sasGrid": {
@@ -2213,13 +2235,13 @@
         "noLimit": "Sem limite"
       },
       "enterName": {
-        "title": "Dê um nome a esta conta",
-        "subtitle": "Dê um nome à conta para reconhecê-la mais tarde.",
+        "title": "Nome da conta",
+        "subtitle": "Escolha um nome para esta conta.",
         "placeholder": "Nome da conta",
         "next": "Próximo",
         "create": "Criar conta",
         "editTitle": "Editar nome da conta",
-        "editSubtitle": "Escolha um novo nome para reconhecer esta conta mais tarde."
+        "editSubtitle": "Escolha um novo nome para esta conta."
       },
       "spendingLimit": {
         "title": "Definir um limite de gastos",
@@ -2238,7 +2260,7 @@
       "pairing": {
         "title": "Compartilhar",
         "usernameTitle": "Compartilhe seu nome de usuário",
-        "usernameSubtitle": "Peça para a pessoa que receberá a conta parental para abrir a Blitz no telefone dela, escolher a opção \"Acessar conta parental\" e depois inserir este nome de usuário.",
+        "usernameSubtitle": "A pessoa que receberá a conta parental precisa abrir a Blitz no telefone dela e escolher \"Acessar conta parental\".",
         "generateCode": "Gerar código",
         "usernameLabel": "Seu nome de usuário: {{name}}",
         "codeNavTitle": "Compartilhar código",
@@ -2265,9 +2287,11 @@
         "startFailed": "Não foi possível iniciar o pareamento. Tente novamente.",
         "codeOption": "Código",
         "qrOption": "QR",
-        "qrTitle": "Escanee este código QR",
-        "qrSubtitle": "Peça para abrirem o Blitz no telefone deles, escolherem \"Entrar na carteira compartilhada\" e depois escanearem este código QR.",
-        "qrWaiting": "Aguardando eles escanearem…",
+        "qrTitle": "Leia este código QR",
+        "qrSubtitle": "A pessoa que receberá a conta parental precisa abrir a Blitz no telefone dela e escolher \"Acessa conta parental\".",
+        "qrWaiting": "Aguardando a leitura do código…",
+        "noBlitz": "Eles não usam Blitz?",
+        "downloadLink": "Compartilhar link de download",
         "acceptTitle": "Aceitar o pareamento?",
         "acceptSubtitle": "Ao parear, você está dando a esta pessoa acesso a {{name}}. Certifique-se de estar pareando com a pessoa certa.",
         "acceptBTN": "Aceitar",
@@ -2275,35 +2299,34 @@
       },
       "transactions": {
         "title": "Atividade",
-        "noTxHistorySub": "As transações da conta aparecerão aqui assim que enviarem ou receberem uma."
+        "noTxHistorySub": "As transações da conta aparecerão aqui."
       },
       "page": {
-        "title": "Conta de filho",
+        "title": "Conta parental",
         "balanceLabel": "Saldo",
         "transactionsLabel": "Atividade recente",
         "noTransactions": "Nenhuma atividade ainda",
         "spendingLimitLabel": "Limite de gastos",
         "loadingBalance": "Carregando saldo...",
-        "shareLink": "Vincular com alguém",
-        "sendInviteLink": "Convidar alguém"
+        "shareLink": "Vincular conta"
       },
       "claim": {
         "title": "Configure sua conta",
         "info": {
           "navTitle": "Configure sua conta",
-          "title": "Configure sua carteira parental",
-          "intro": "Você está acessando uma conta parental criada para você.",
+          "title": "Acesse uma conta parental",
+          "intro": "Você irá acessar uma conta administrada por outra pessoa.",
           "row1Label": "Sua própria conta",
-          "row1Description": "Envie e receba com seu próprio saldo.",
-          "row2Label": "Fácil de usar",
-          "row2Description": "A recuperação da sua conta é gerenciada pela pessoa que criou a conta parental para você.",
-          "row3Label": "Gerenciada por outra pessoa",
-          "row3Description": "Acesse somente contas de alguém que você conheça.",
+          "row1Description": "Envie e receba pagamentos.",
+          "row2Label": "Autonomia monitorada",
+          "row2Description": "A administração da sua conta é realizada pela pessoa que criou a conta parental para você.",
+          "row3Label": "Atenção",
+          "row3Description": "Acesse somente contas de alguém que você conheça e confia.",
           "continue": "Continuar"
         },
         "codeNavTitle": "Inserir nome de usuário",
-        "codeTitle": "Inserir o nome de usuário da outra pessoa",
-        "codeSubtitle": "Insira o nome de usuário mostrado no telefone da outra pessoa.",
+        "codeTitle": "Insira o nome de usuário do responsável pela conta parental",
+        "codeSubtitle": "O nome de usuário aparece no telefone da pessoa que criou a conta parental.",
         "pairCodeNavTitle": "Inserir código",
         "pairCodeTitle": "Insira o código de pareamento",
         "pairCodeSubtitle": "Insira o código de 6 dígitos mostrado no telefone da outra pessoa.",
@@ -2323,14 +2346,14 @@
         "expired": "Este pareamento expirou. Comece novamente.",
         "errorTitle": "Sessão de pareamento encerrada",
         "canceledByParent": "O dono da conta cancelou a solicitação de pareamento.",
-        "codePlaceholder": "nome de usuário",
+        "codePlaceholder": "Nome de usuário",
         "codeOption": "Código",
-        "scanOption": "Escanear",
-        "scanNavTitle": "Escanear código",
-        "scanTitle": "Escanee o código QR deles",
-        "scanHint": "Posicione o código QR à vista para ativar",
+        "scanOption": "Ler",
+        "scanNavTitle": "Ler código",
+        "scanTitle": "Leia o código QR",
+        "scanHint": "Posicione o código QR no campo de visão para ativar",
         "scanWaiting": "Aguardando a solicitação ser aceita",
-        "scanSubtitle": "Aponte sua câmera para o código QR no telefone deles.",
+        "scanSubtitle": "Aponte sua câmera para o código QR.",
         "connectingMessage": "Conectando seus dispositivos"
       },
       "limitGate": {
@@ -2963,7 +2986,7 @@
     "genericError": "Ocorreu um erro inesperado",
     "tryAgain": "Por favor, tente novamente",
     "contactSupport": "Entre em contato com o suporte se o problema persistir",
-    "deleteAccount": "Erro ao arquivar conta.",
+    "deleteAccount": "Erro ao remover conta.",
     "failedToDecryptPin": "Falha ao descriptografar o PIN",
     "decodePinWithBio": "Não foi possível decodificar o PIN com biometria",
     "insufficientBalanceError": "Saldo insuficiente para comprar {{planType}}",
@@ -3046,8 +3069,13 @@
       "body": "Você recebeu {{totalAmount}}"
     },
     "LNURL": {
-      "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
-      "regular": "Alguém te enviou {{totalAmount}}"
+      "zapped": "Você recebeu um Zap de {{totalAmount}}",
+      "regular": "Você recebeu {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Você recebeu um Zap de {{totalAmount}} na {{account}}",
+        "regular": "Você recebeu {{totalAmount}} na {{account}}",
+        "fallbackName": "conta"
+      }
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
@@ -3066,7 +3094,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Conta {{index}}"
+    "fallbackAccountName": "Conta {{index}}",
+    "lastUpdated": "Atualizado {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "A solicitação não passou pelas validações.",
