@@ -170,7 +170,8 @@ export function ImageCacheProvider({ children }) {
       });
 
       Object.entries(validatedCache).forEach(([uuid, entry]) => {
-        if (entry?.lastChecked) lastCheckedRef.current.set(uuid, entry.lastChecked);
+        if (entry?.lastChecked)
+          lastCheckedRef.current.set(uuid, entry.lastChecked);
       });
       entryStoreRef.current.setAll(validatedCache);
       setCache(validatedCache);
@@ -422,18 +423,18 @@ export function ImageCacheProvider({ children }) {
     return () => clearTimeout(timer);
   }, [didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
 
-  // Re-run the freshness pass when the app returns to the foreground. Only
-  // fires on an actual background→active transition, so the mount-time
-  // appState='active' never triggers an early pass. The 30s pass throttle and
-  // the per-uuid success TTL keep this cheap.
-  const prevAppStateRef = useRef(appState);
-  useEffect(() => {
-    const prev = prevAppStateRef.current;
-    prevAppStateRef.current = appState;
-    if (prev === 'active' || appState !== 'active') return;
-    if (!didGetToHomepage || !masterInfoObject?.uuid) return;
-    runFreshnessPass();
-  }, [appState, didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
+  // // Re-run the freshness pass when the app returns to the foreground. Only
+  // // fires on an actual background→active transition, so the mount-time
+  // // appState='active' never triggers an early pass. The 30s pass throttle and
+  // // the per-uuid success TTL keep this cheap.
+  // const prevAppStateRef = useRef(appState);
+  // useEffect(() => {
+  //   const prev = prevAppStateRef.current;
+  //   prevAppStateRef.current = appState;
+  //   if (prev === 'active' || appState !== 'active') return;
+  //   if (!didGetToHomepage || !masterInfoObject?.uuid) return;
+  //   runFreshnessPass();
+  // }, [appState, didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
 
   // Cancel any pending stagger chain on unmount so it can't fire setCache on a
   // torn-down provider.

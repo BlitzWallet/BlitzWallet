@@ -5616,7 +5616,7 @@ __metadata:
     react-native-pdf-from-image: ^0.3.6
     react-native-quick-base64: ^2.2.2
     react-native-quick-crypto: ^1.0.19
-    react-native-reanimated: ^4.3.1
+    react-native-reanimated: 4.3.4
     react-native-restart-newarch: ^1.0.85
     react-native-safe-area-context: ~5.6.0
     react-native-screens: 4.23.0
@@ -15920,9 +15920,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-reanimated@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "react-native-reanimated@npm:4.3.1"
+"react-native-reanimated@npm:4.3.4":
+  version: 4.3.4
+  resolution: "react-native-reanimated@npm:4.3.4"
   dependencies:
     react-native-is-edge-to-edge: ^1.3.1
     semver: ^7.7.3
@@ -15930,7 +15930,7 @@ __metadata:
     react: "*"
     react-native: 0.81 - 0.85
     react-native-worklets: 0.8.x
-  checksum: 2649672f72dbd52aa612e5c9bcf8ab2dc256d614ed3cd21cd44ba97b26eefd30e0be629f5aec6ba209ccc07aad46831866b69f6bf51fb9708d49431bd608507a
+  checksum: e180d8bda148e4b053bb078e1b3cf7cae8c24ebb200bcf8c8625ad0844fca98012b2cfb473692114df742327eae18310b7b7056732dd8ffcd31f84725a6c6798
   languageName: node
   linkType: hard
 

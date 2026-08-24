@@ -98,7 +98,7 @@
     "react-native-pdf-from-image": "^0.3.6",
     "react-native-quick-base64": "^2.2.2",
     "react-native-quick-crypto": "^1.0.19",
-    "react-native-reanimated": "^4.3.1",
+    "react-native-reanimated": "4.3.4",
     "react-native-restart-newarch": "^1.0.85",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "4.23.0",
