@@ -159,6 +159,13 @@ export function ChildClaimProvider({ children }) {
     genRef.current += 1;
     const session = sessionRef.current;
     teardownListeners();
+    // Local state clears synchronously — never gated on the server write below
+    // (offline Firestore deletes can stay queued indefinitely) — so leaving a
+    // failed pairing drops its terminal status/error at once instead of
+    // rendering the stale copy until the write settles.
+    setSas('');
+    setErrorMessage('');
+    setStatus(nextStatus);
     // A declined session leaves its docs (incl. the cancel signal) for the peer to
     // read; TTL cleans up. Otherwise tear our own handshake docs down unless the
     // seed already landed.
@@ -170,9 +177,6 @@ export function ChildClaimProvider({ children }) {
     ) {
       await deletePairingHandshake(session.rid, session.sessionId);
     }
-    setSas('');
-    setErrorMessage('');
-    setStatus(nextStatus);
   }, []);
 
   const importSeed = useCallback(
