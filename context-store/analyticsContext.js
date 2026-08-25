@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -195,10 +196,13 @@ export function AnalyticsNumbersProvider({ children }) {
     load();
   }, [txsHashKey, sparkInformation.identityPubKey, didGetToHomepage]);
 
+  const value = useMemo(
+    () => ({ ...computed, isLoading, isReloading }),
+    [computed, isLoading, isReloading],
+  );
+
   return (
-    <AnalyticsNumbersContext.Provider
-      value={{ ...computed, isLoading, isReloading }}
-    >
+    <AnalyticsNumbersContext.Provider value={value}>
       {children}
     </AnalyticsNumbersContext.Provider>
   );
@@ -266,10 +270,13 @@ export function AnalyticsArraysProvider({ children }) {
     load();
   }, [txsHashKey, sparkInformation.identityPubKey]);
 
+  const value = useMemo(
+    () => ({ inTxsBTC, outTxsBTC, inTxsUSD, outTxsUSD, isLoading }),
+    [inTxsBTC, outTxsBTC, inTxsUSD, outTxsUSD, isLoading],
+  );
+
   return (
-    <AnalyticsArraysContext.Provider
-      value={{ inTxsBTC, outTxsBTC, inTxsUSD, outTxsUSD, isLoading }}
-    >
+    <AnalyticsArraysContext.Provider value={value}>
       {children}
     </AnalyticsArraysContext.Provider>
   );
