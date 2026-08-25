@@ -929,6 +929,21 @@ describe('biometric crypto', () => {
     );
   });
 
+  it('generates a fresh key only when the key is truly absent', async () => {
+    // Absent keys resolve as didWork:true + null value (expo-secure-store),
+    // distinct from the read-error shape pinned above — this is the
+    // first-time-enrollment half of the boundary.
+    retrieveData.mockImplementation(() =>
+      Promise.resolve({ didWork: true, value: null }),
+    );
+
+    const key = await generateAndStoreEncryptionKeyForMnemoinc();
+    expect(key).toMatch(/^[0-9a-f]{64}$/);
+    expect(storeData).toHaveBeenCalledWith(BIOMETRIC_KEY, key, {
+      requireAuthentication: true,
+    });
+  });
+
   it('returns null when the ciphertext read fails (retryable), not false', async () => {
     retrieveData.mockImplementation(key =>
       key === BIOMETRIC_KEY

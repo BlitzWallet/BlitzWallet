@@ -466,9 +466,36 @@ describe('restoreDerivedAccount concurrency guard', () => {
     expect(results[0].didWork).toBe(true);
     expect(results[1].didWork).toBe(false);
     expect(results[2].didWork).toBe(false);
+    expect(results[1].error).toBe('Restore already in progress');
     expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(1);
     expect(mockWriteCustodyAccounts).toHaveBeenCalledTimes(1);
     const written = mockWriteCustodyAccounts.mock.calls[0][0];
+    expect(written.filter(a => a.derivationIndex === 4)).toHaveLength(1);
+    expect(
+      ctx.custodyAccounts.filter(a => a.derivationIndex === 4),
+    ).toHaveLength(1);
+  });
+
+  it('releases the restore lock when the owning attempt fails', async () => {
+    mockWriteCustodyAccounts.mockRejectedValueOnce(new Error('disk full'));
+
+    let failed, retried;
+    await act(async () => {
+      failed = await ctx.restoreDerivedAccount('First', 4);
+    });
+    expect(failed.didWork).toBe(false);
+    // The account never landed, so validation #5 still passes on retry.
+    expect(ctx.custodyAccounts).toHaveLength(0);
+
+    // A leaked lock would surface here as "Restore already in progress".
+    await act(async () => {
+      retried = await ctx.restoreDerivedAccount('First', 4);
+    });
+    expect(retried.didWork).toBe(true);
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(2);
+    const written = mockWriteCustodyAccounts.mock.calls[
+      mockWriteCustodyAccounts.mock.calls.length - 1
+    ][0];
     expect(written.filter(a => a.derivationIndex === 4)).toHaveLength(1);
     expect(
       ctx.custodyAccounts.filter(a => a.derivationIndex === 4),
@@ -484,6 +511,9 @@ describe('auto-restore completion flag', () => {
       pinnedAccounts: [],
       nextAccountDerivationIndex: 4,
     };
+    // jest.clearAllMocks keeps implementations, so the "disk full" rejection
+    // installed below would leak into later tests in this describe.
+    mockWriteCustodyAccounts.mockResolvedValue(true);
     mockLoadCustodyAccounts.mockResolvedValue([]);
   });
 
@@ -508,6 +538,42 @@ describe('auto-restore completion flag', () => {
 
     expect(mockWriteCustodyAccounts).toHaveBeenCalled();
     expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
+      'hasRunAutoRestore',
+      JSON.stringify(true),
+    );
+  });
+
+  it('does not latch hasRunAutoRestore while the disk list is still loading', async () => {
+    let resolveLoad;
+    mockLoadCustodyAccounts.mockReturnValue(
+      new Promise(resolve => {
+        resolveLoad = resolve;
+      }),
+    );
+
+    await mount();
+    await flush();
+
+    // The load gate blocked the run (didWork:false), so the caller must leave
+    // the one-time flag unlatched and reset its check-run ref — otherwise a
+    // slow decrypt at cold start would permanently disable auto-restore.
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
+      'hasRunAutoRestore',
+      JSON.stringify(true),
+    );
+
+    // Once the disk list lands, setAccounts re-triggers the effect and the
+    // restore completes normally, latching the flag. setImmediate drains the
+    // full promise chain (init → migration → effect re-run → write → latch),
+    // which the fixed-depth microtask flushes below can't reach.
+    await act(async () => {
+      resolveLoad([]);
+      await new Promise(resolve => setImmediate(resolve));
+      await new Promise(resolve => setImmediate(resolve));
+    });
+
+    expect(mockWriteCustodyAccounts).toHaveBeenCalled();
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
       'hasRunAutoRestore',
       JSON.stringify(true),
     );
