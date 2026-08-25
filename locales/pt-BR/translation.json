@@ -1523,7 +1523,8 @@
         "noAmount_even": "Digite o valor total.",
         "noAmount_custom": "Certifique-se de que todos tenham um valor.",
         "noDescription": "Adicione uma descrição.",
-        "noContactsSelected": "Selecione pelo menos um contato"
+        "noContactsSelected": "Selecione pelo menos um contato",
+        "contactLookupFailed": "Não foi possível carregar as informações de pagamento de um ou mais contatos. Tente novamente."
       }
     },
     "editProfileFieldPage": {

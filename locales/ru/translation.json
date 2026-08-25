@@ -1524,7 +1524,8 @@
         "noAmount_even": "Введите общую сумму.",
         "noAmount_custom": "Убедитесь, что у всех есть сумма.",
         "noDescription": "Добавьте описание.",
-        "noContactsSelected": "Выберите хотя бы один контакт"
+        "noContactsSelected": "Выберите хотя бы один контакт",
+        "contactLookupFailed": "Не удалось загрузить платёжную информацию одного или нескольких контактов. Попробуйте снова."
       }
     },
     "editProfileFieldPage": {

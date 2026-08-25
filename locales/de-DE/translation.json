@@ -1509,7 +1509,8 @@
         "noAmount_even": "Bitte geben Sie den Gesamtbetrag ein.",
         "noAmount_custom": "Bitte stellen Sie sicher, dass jeder einen Betrag hat.",
         "noDescription": "Bitte fügen Sie eine Beschreibung hinzu.",
-        "noContactsSelected": "Bitte wählen Sie mindestens einen weiteren Kontakt aus"
+        "noContactsSelected": "Bitte wählen Sie mindestens einen weiteren Kontakt aus",
+        "contactLookupFailed": "Die Zahlungsinformationen eines oder mehrerer Kontakte konnten nicht geladen werden. Bitte versuchen Sie es erneut."
       }
     },
     "editProfileFieldPage": {

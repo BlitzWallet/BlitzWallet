@@ -154,7 +154,15 @@ async function migrateMnemonicToV3(decrypted, secret, staleValue) {
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
     const existingKey = await retrieveData(BIOMETRIC_KEY);
-    if (existingKey.didWork && existingKey.value) return existingKey.value;
+    // didWork:false is a READ ERROR (locked keychain, cancelled prompt,
+    // invalidated biometric key) — not "not set up". expo-secure-store
+    // resolves null for an absent key, so absence arrives as didWork:true +
+    // empty value. Regenerating on an error would overwrite a possibly-good
+    // key and orphan any existing encryptedMnemonic ciphertext under it
+    // (permanent lockout when biometrics is the only login mode), so fail
+    // closed and let the caller retry later.
+    if (!existingKey.didWork) return false;
+    if (existingKey.value) return existingKey.value;
 
     const key = crypto.randomBytes(32).toString('hex');
 
@@ -175,6 +183,22 @@ export async function encryptAndStoreMnemonicWithBiometrics(mnemonic) {
     const key = await generateAndStoreEncryptionKeyForMnemoinc();
     if (!key) throw new Error('Unable to get encription key');
 
+    // Refuse to clobber an encryptedMnemonic holding a DIFFERENT valid
+    // plaintext seed — overwriting it would destroy the only copy of that
+    // wallet's seed. Same-seed plaintext must stay allowed so a crashed
+    // migration (marker missing) can resume via handleLoginSecuritySwitch.
+    const existing = await retrieveData('encryptedMnemonic');
+    if (
+      existing.didWork &&
+      existing.value &&
+      validateMnemonic(existing.value, wordlist) &&
+      existing.value !== mnemonic
+    ) {
+      throw new Error(
+        'Refusing to overwrite encryptedMnemonic holding a different seed',
+      );
+    }
+
     const cipherText = await encryptMnemonicV3(mnemonic, key);
 
     await storeData('encryptedMnemonic', cipherText);
@@ -185,6 +209,12 @@ export async function encryptAndStoreMnemonicWithBiometrics(mnemonic) {
   }
 }
 
+// Tri-state return contract: the mnemonic string on success; null on a
+// transient storage/auth read failure (safe to retry later); false on a
+// definitive failure (no biometric key stored, no ciphertext stored, wrong
+// key or corrupt envelope). Callers must never treat either falsy value as
+// "biometrics not enrolled" and re-run the setup path — that rotates
+// BIOMETRIC_KEY and orphans this ciphertext (seed loss).
 export async function decryptMnemonicWithBiometrics() {
   try {
     const key = await retrieveData(BIOMETRIC_KEY);
@@ -192,6 +222,7 @@ export async function decryptMnemonicWithBiometrics() {
     if (!key.didWork) return null;
     const cipherText = await retrieveData('encryptedMnemonic');
 
+    if (!cipherText.didWork) return null;
     if (!cipherText.value || !key.value) return false;
 
     const value = cipherText.value;

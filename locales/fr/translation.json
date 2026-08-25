@@ -1523,7 +1523,8 @@
         "noAmount_even": "Veuillez entrer le montant total à partager.",
         "noAmount_custom": "Assurez-vous que chacun a un montant.",
         "noDescription": "Veuillez ajouter une description.",
-        "noContactsSelected": "Veuillez sélectionner au moins un contact"
+        "noContactsSelected": "Veuillez sélectionner au moins un contact",
+        "contactLookupFailed": "Impossible de charger les informations de paiement d'un ou plusieurs contacts. Veuillez réessayer."
       }
     },
     "editProfileFieldPage": {

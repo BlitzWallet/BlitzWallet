@@ -1509,7 +1509,8 @@
         "noAmount_even": "Please enter the total amount to split.",
         "noAmount_custom": "Please make sure everyone has an amount.",
         "noDescription": "Please add a description for this split.",
-        "noContactsSelected": "Please select at least one other contact to continue"
+        "noContactsSelected": "Please select at least one other contact to continue",
+        "contactLookupFailed": "Couldn't load the payment info for one or more contacts. Please try again."
       }
     },
     "editProfileFieldPage": {

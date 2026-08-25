@@ -98,6 +98,11 @@ async function migrateToDeterministicUuids(accounts, masterSeed) {
   }
 }
 
+// Cloud-restore derivations are yielded back to the JS thread every this many
+// accounts so an inflated nextAccountDerivationIndex can't monopolize the
+// event loop and freeze the UI.
+const RESTORE_BATCH_SIZE = 10;
+
 // Create a context for the WebView ref
 const ActiveCustodyAccount = createContext(null);
 
@@ -114,6 +119,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const [activeDerivedMnemonic, setActiveDerivedMnemonic] = useState(null);
   const hasSessionReset = useRef(false);
   const hasAutoRestoreCheckRun = useRef(false);
+  // True only after initializeAccouts decrypted the store on disk (or found it
+  // empty). Cloud restore refuses to run against an unloaded list so an empty
+  // in-memory ref can't be mistaken for "nothing on disk".
+  const hasLoadedCustodyAccountsRef = useRef(false);
   // Latest known account list. State is only ever set through setAccounts, so
   // persisted mutations base on this ref instead of a stale render closure.
   const custodyAccountsRef = useRef([]);
@@ -122,6 +131,10 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   // mutations can't read-modify-write the same base list and drop an account.
   const custodyWriteQueue = useRef(Promise.resolve());
   const lnurlSyncInFlight = useRef(false);
+  // Indices with a restoreDerivedAccount derivation in flight. Concurrent
+  // callers share one stale custodyAccounts closure, so the existence check
+  // alone can't stop a same-index race from duplicating derivations/writes.
+  const restoresInFlight = useRef(new Set());
   // After a fast-failing registry write the rollback re-triggers this effect
   // (accountsLnurl dep), which would spin on derived-pubkey derivation + retry.
   // Cooldown breaks the tight loop; a later account/doc change retries.
@@ -189,6 +202,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         );
 
         setAccounts(decryptedList);
+        hasLoadedCustodyAccountsRef.current = true;
       } catch (err) {
         console.log('Custody account intialization error', err);
       }
@@ -393,6 +407,9 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
   const restoreDerivedAccount = useCallback(
     async (accountName, derivationIndex) => {
+      // Declared out here so the finally clause can see it (the try block is
+      // its own scope) and so early validation returns skip the release.
+      let ownsRestoreLock = false;
       try {
         // Validation #1: Type check
         if (
@@ -444,6 +461,15 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           };
         }
 
+        // Concurrent invocations pass validation #5 against the same stale
+        // list, so gate the expensive derivation per index and re-check
+        // inside the serialized write (same pattern as the cloud restore).
+        ownsRestoreLock = !restoresInFlight.current.has(derivationIndex);
+        if (!ownsRestoreLock) {
+          return { didWork: false, error: 'Restore already in progress' };
+        }
+        restoresInFlight.current.add(derivationIndex);
+
         // Create account with EXACT same structure as auto-restore. The uuid
         // is derived from the account's Spark identity pubkey so it matches
         // the id a fresh restore on another device would generate.
@@ -461,7 +487,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           profileEmoji: '',
         };
 
-        await createAccount(accountInfo);
+        await queueCustodyWrite(current => {
+          const alreadyExists = current.some(
+            acc => acc.derivationIndex === derivationIndex,
+          );
+          if (alreadyExists) return null;
+          return [...current, accountInfo];
+        });
 
         // CRITICAL: Do NOT update nextAccountDerivationIndex
         // This is a restoration of an existing index, not a new sequential account
@@ -470,12 +502,16 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       } catch (err) {
         console.log('Restore derived account error', err);
         return { didWork: false, error: err.message };
+      } finally {
+        // Only the caller that acquired the lock may release it: rejected
+        // concurrent callers exit through this finally too.
+        if (ownsRestoreLock) restoresInFlight.current.delete(derivationIndex);
       }
     },
     [
       masterInfoObject.nextAccountDerivationIndex,
       custodyAccounts,
-      createAccount,
+      queueCustodyWrite,
       accountMnemoinc,
     ],
   );
@@ -508,18 +544,31 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
   const restoreDerivedAccountsFromCloud = useCallback(async () => {
     try {
-      // masterInfoObject is already loaded from Firebase by GlobalContextProvider
-      const nextIndex = Math.min(
-        Math.max(
-          3,
-          Math.floor(Number(masterInfoObject.nextAccountDerivationIndex || 3)),
-        ),
-        MAX_DERIVED_ACCOUNTS - 1,
-      );
+      // nextAccountDerivationIndex comes from Firebase and is untrusted
+      // (Firebase compromise or a sync bug could inflate it). Validate it
+      // against the decrypted store on disk before entering the derivation
+      // loop: refuse to run until the disk list is loaded, reject values
+      // outside the derivation range instead of clamping them, and enumerate
+      // the indexes actually missing from disk up front so no key derivation
+      // happens unless the store genuinely has gaps.
+      if (!hasLoadedCustodyAccountsRef.current) {
+        console.log('Cloud restore skipped: disk account list not loaded yet');
+        return { didWork: false, error: 'Account list not loaded yet' };
+      }
 
-      if (!nextIndex || nextIndex === 0) {
-        console.log('No derived accounts to restore');
-        return { didWork: true, accountsRestored: 0 };
+      const cloudIndex = Number(
+        masterInfoObject.nextAccountDerivationIndex || 3,
+      );
+      const isValidIndex =
+        Number.isInteger(cloudIndex) &&
+        cloudIndex >= 3 &&
+        cloudIndex <= MAX_DERIVED_ACCOUNTS - 1;
+      if (!isValidIndex) {
+        console.log(
+          'Cloud restore skipped: invalid nextAccountDerivationIndex',
+          masterInfoObject.nextAccountDerivationIndex,
+        );
+        return { didWork: false, error: 'Invalid nextAccountDerivationIndex' };
       }
 
       const existingDerivedIndexes = new Set(
@@ -528,9 +577,18 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           .filter(index => typeof index === 'number'),
       );
 
+      const missingIndexes = [];
+      for (let i = 4; i <= cloudIndex; i++) {
+        if (!existingDerivedIndexes.has(i)) missingIndexes.push(i);
+      }
+      if (!missingIndexes.length) {
+        console.log('No derived accounts to restore');
+        return { didWork: true, accountsRestored: 0 };
+      }
+
       const accountsToRestore = [];
-      for (let i = 4; i <= nextIndex; i++) {
-        if (existingDerivedIndexes.has(i)) continue;
+      let processedInBatch = 0;
+      for (const i of missingIndexes) {
         const derivedMnemonic = await deriveAccountMnemonic(accountMnemoinc, i);
         accountsToRestore.push({
           uuid: await generateAccountUuid(derivedMnemonic),
@@ -541,6 +599,17 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           isActive: false,
           profileEmoji: '',
         });
+        processedInBatch += 1;
+        if (
+          processedInBatch === RESTORE_BATCH_SIZE &&
+          accountsToRestore.length < missingIndexes.length
+        ) {
+          // Yield to the event loop between batches so a large backlog
+          // (corrupted cloud index restoring ~MAX_DERIVED_ACCOUNTS wallets)
+          // can't freeze the UI in a single tick.
+          processedInBatch = 0;
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
       }
 
       let accountsRestored = 0;
@@ -626,6 +695,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     custodyWriteQueue.current = Promise.resolve();
     hasSessionReset.current = false;
     hasAutoRestoreCheckRun.current = false;
+    hasLoadedCustodyAccountsRef.current = false;
   }, [authResetkey, setAccounts]);
 
   const currentWalletMnemoinc = useMemo(() => {

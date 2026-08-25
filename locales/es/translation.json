@@ -1523,7 +1523,8 @@
         "noAmount_even": "Introduce el monto total a dividir.",
         "noAmount_custom": "Asegúrate de que todos tengan un monto.",
         "noDescription": "Agrega una descripción para esta división.",
-        "noContactsSelected": "Selecciona al menos un contacto para continuar"
+        "noContactsSelected": "Selecciona al menos un contacto para continuar",
+        "contactLookupFailed": "No se pudo cargar la información de pago de uno o más contactos. Inténtalo de nuevo."
       }
     },
     "editProfileFieldPage": {

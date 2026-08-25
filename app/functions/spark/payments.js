@@ -11,16 +11,14 @@ import {
   getSparkAddress,
   sparkWallet,
   sendSparkTokens,
-  getSingleTxDetails,
-  getSparkPaymentStatus,
 } from '.';
+import { waitForSwapCompletion } from './waitForSwapCompletion';
 import {
   isSendingPayingEventEmiiter,
   SENDING_PAYMENT_EVENT_NAME,
 } from '../../../context-store/sparkContext';
 import {
   DEFAULT_PAYMENT_EXPIRY_SEC,
-  IS_SPARK_ID,
   SPEND_AND_REPLACE_STORAGE_KEY,
   USDB_TOKEN_ID,
 } from '../../constants';
@@ -415,30 +413,7 @@ export const sparkPaymenWrapper = async ({
           }
         }
 
-        const MAX_WAIT_TIME = 60000;
-        const startTime = Date.now();
-
-        while (true) {
-          if (Date.now() - startTime > MAX_WAIT_TIME) {
-            throw new Error('Swap completion timeout');
-          }
-
-          if (!IS_SPARK_ID.test(outboundTransferId)) {
-            await new Promise(res => setTimeout(res, 2500));
-            break;
-          }
-
-          const sparkTransferResponse = await getSingleTxDetails(
-            mnemonic,
-            outboundTransferId,
-          );
-
-          const status = getSparkPaymentStatus(sparkTransferResponse?.status);
-          if (status === 'completed') break;
-
-          console.log('Swap is not complete, waiting for completion');
-          await new Promise(res => setTimeout(res, 1500));
-        }
+        await waitForSwapCompletion(mnemonic, outboundTransferId);
 
         isSwap = true;
         // small buffer to help smooth things out

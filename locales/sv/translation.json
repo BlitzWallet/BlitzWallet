@@ -1523,7 +1523,8 @@
         "noAmount_even": "Ange totalbeloppet.",
         "noAmount_custom": "Se till att alla har ett belopp.",
         "noDescription": "Lägg till en beskrivning.",
-        "noContactsSelected": "Välj minst en kontakt"
+        "noContactsSelected": "Välj minst en kontakt",
+        "contactLookupFailed": "Det gick inte att läsa in betalningsinformation för en eller flera kontakter. Försök igen."
       }
     },
     "editProfileFieldPage": {
