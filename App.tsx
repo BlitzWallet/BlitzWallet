@@ -669,13 +669,9 @@ function ResetStack(): JSX.Element | null {
       setInitSettings(prev => ({ ...prev, isLoaded: true }));
     };
 
-    if (!didInitializeSettings.current) {
-      didInitializeSettings.current = true;
-      initWallet(false).catch(onInitFailure);
-    } else {
-      didInitializeSettings.current = true;
-      initWallet(true).catch(onInitFailure);
-    }
+    const skipURL = didInitializeSettings.current;
+    didInitializeSettings.current = true;
+    initWallet(skipURL).catch(onInitFailure);
     return () => {
       cancelled = true;
     };
@@ -721,8 +717,6 @@ function ResetStack(): JSX.Element | null {
   if (theme === null || darkModeType === null || !initSettings.isLoaded) {
     return null;
   }
-
-  if (appState === 'background' && !didInitializeSettings.current) return null;
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
