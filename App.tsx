@@ -649,6 +649,13 @@ function ResetStack(): JSX.Element | null {
 
     if (appState === 'background') return;
 
+    // iOS reports 'inactive' for system-modal interruptions (Face ID prompt,
+    // Control Center, app-switcher peek) and on the way into background. The
+    // re-run only exists to re-inject the seed after an auth reset, which
+    // happens on the 'active' transition. First run stays unconditional so a
+    // non-'active' cold start can never strand the native splash.
+    if (didInitializeSettings.current && appState !== 'active') return;
+
     // initWallet is the ONLY thing that sets isLoaded, and the render gate below
     // returns null until it does. Because preventAutoHideAsync() runs at module
     // scope and only SplashScreen ever calls hideAsync(), a rejection here leaves
