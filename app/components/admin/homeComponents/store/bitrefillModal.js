@@ -50,6 +50,17 @@ import { KeyboardController } from 'react-native-keyboard-controller';
 
 const BITREFILL_REFERRAL_TOKEN = 'blitzwallet_brtoken_26';
 const BITREFILL_PAYMENT_METHODS = ['lightning'].join(',');
+const BITREFILL_EMBED_HOST = 'embed.bitrefill.com';
+
+// Exact-hostname match so lookalike hosts like embed.bitrefill.com.evil.com
+// are rejected (a plain startsWith on the full URL would let them through).
+const isBitrefillEmbedUrl = url => {
+  try {
+    return new URL(url).hostname === BITREFILL_EMBED_HOST;
+  } catch {
+    return false;
+  }
+};
 const languages = [
   'en', // English
   'ru', // Russian
@@ -514,8 +525,9 @@ export default function BitrefillShopModal() {
               startInLoadingState={true}
               onMessage={handleMessage}
               injectedJavaScript={WEBVIEW_NAV_LISTENER}
+              originWhitelist={[`https://${BITREFILL_EMBED_HOST}`]}
               onShouldStartLoadWithRequest={request =>
-                request.url.startsWith('https://embed.bitrefill.com')
+                isBitrefillEmbedUrl(request.url)
               }
             />
 
