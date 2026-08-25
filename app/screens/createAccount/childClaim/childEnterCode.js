@@ -110,6 +110,7 @@ export default function ChildEnterCode() {
 
   const selectDisplayOption = useCallback(option => {
     KeyboardController.dismiss();
+    setIsKeyboardActive(false);
     setSelectedDisplayOption(option);
   }, []);
 
