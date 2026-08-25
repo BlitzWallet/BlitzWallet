@@ -11,8 +11,26 @@ const CACHE_KEY = tokenId => `BLITZ_TOKEN_IMG/${tokenId}`;
 const EXTENSIONS = ['jpg', 'png'];
 // How long to trust a "no image exists" result before re-checking the network.
 const NEGATIVE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+// Bounds batch lookups so a huge tokenId list (e.g. from a crafted token
+// registry) can never exhaust sockets, memory, or disk: at most this many
+// downloads run at once. Every id is still resolved, just in waves.
+const CONCURRENCY_LIMIT = 10;
+// One in-flight lookup per tokenId, so overlapping callers share a request
+// instead of racing to download and write the same cache key twice.
+const inFlight = new Map();
 
-export async function getCachedTokenImage(tokenId) {
+export function getCachedTokenImage(tokenId) {
+  const existing = inFlight.get(tokenId);
+  if (existing) return existing;
+
+  const lookup = loadTokenImage(tokenId).finally(() =>
+    inFlight.delete(tokenId),
+  );
+  inFlight.set(tokenId, lookup);
+  return lookup;
+}
+
+async function loadTokenImage(tokenId) {
   try {
     const key = CACHE_KEY(tokenId);
 
@@ -64,11 +82,13 @@ export async function getCachedTokenImage(tokenId) {
 }
 
 export async function getCachedTokenImages(tokenIds) {
-  const entries = await Promise.all(
-    tokenIds.map(async tokenId => [
-      tokenId,
-      await getCachedTokenImage(tokenId),
-    ]),
-  );
+  const entries = [];
+  for (let i = 0; i < tokenIds.length; i += CONCURRENCY_LIMIT) {
+    const batch = tokenIds.slice(i, i + CONCURRENCY_LIMIT);
+    const resolved = await Promise.all(
+      batch.map(async tokenId => [tokenId, await getCachedTokenImage(tokenId)]),
+    );
+    entries.push(...resolved);
+  }
   return Object.fromEntries(entries);
 }

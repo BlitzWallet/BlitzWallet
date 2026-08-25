@@ -32,6 +32,11 @@ let processingLock = Promise.resolve();
 const RELAY_URL = NOSTR_RELAY_URL;
 const MAX_EVENT_AGE_SECONDS = 300;
 const DEFAULT_INVOICE_EXPIRY_SECONDS = 60 * 60 * 12;
+// Bounds per-push work from authorized clients: NIP-47 clients page with small
+// limits, so these caps never reject legitimate traffic.
+const MAX_EVENTS_PER_BATCH = 25;
+const MAX_TRANSACTION_LIMIT = 100;
+const MAX_TRANSACTION_OFFSET = 10000;
 
 const ERROR_CODES = {
   INTERNAL: 'INTERNAL',
@@ -202,7 +207,27 @@ const handleGetTransactions = async requestParams => {
     );
   }
 
-  const { from, until, limit = 20, offset = 0, type } = requestParams;
+  // Clamp pagination to bound work: an uncapped offset would make the loop
+  // below page through the whole transfer history (holding the processing
+  // lock), and an uncapped limit could overflow chunkSize to unsafe integers.
+  // Numeric strings are accepted because clients send them; the old code
+  // string-concatenated those into the offset and returned the wrong rows.
+  const { from, until, type } = requestParams;
+  let limit = Math.floor(Number(requestParams.limit));
+  let offset = Math.floor(Number(requestParams.offset));
+  if (!Number.isFinite(limit) || limit <= 0) limit = 20;
+  if (!Number.isFinite(offset) || offset < 0) offset = 0;
+  limit = Math.min(limit, MAX_TRANSACTION_LIMIT);
+  // Past the ceiling the page is reported as exhausted rather than clamped:
+  // clamping would hand a client paging to the end the same rows forever.
+  if (offset > MAX_TRANSACTION_OFFSET) {
+    return {
+      result_type: 'list_transactions',
+      result: {
+        transactions: [],
+      },
+    };
+  }
   const chunkSize = limit * 2;
 
   let allTransactions = [];
@@ -404,15 +429,9 @@ const toNip47Transaction = invoice => ({
   payment_hash: invoice.payment_hash,
   amount: (invoice.amount || 0) * 1000,
   fees_paid: (invoice.fees_paid || 0) * 1000,
-  created_at: invoice.created_at
-    ? Math.floor(invoice.created_at / 1000)
-    : null,
-  expires_at: invoice.expires_at
-    ? Math.floor(invoice.expires_at / 1000)
-    : null,
-  settled_at: invoice.settled_at
-    ? Math.floor(invoice.settled_at / 1000)
-    : null,
+  created_at: invoice.created_at ? Math.floor(invoice.created_at / 1000) : null,
+  expires_at: invoice.expires_at ? Math.floor(invoice.expires_at / 1000) : null,
+  settled_at: invoice.settled_at ? Math.floor(invoice.settled_at / 1000) : null,
   metadata: {},
 });
 
@@ -922,10 +941,10 @@ function decryptEventMessage(selectedNWCAccount, event) {
   return { data, encryptionScheme };
 }
 
-// Phase 1 of event verification: structural checks, signature verification and
-// freshness. These depend only on the raw event, so they can run while the
-// storage read is still in flight.
-function verifyEventSignatureAndFreshness(rawEvent) {
+// Phase 1 of event verification: structural checks and freshness. These are
+// cheap and depend only on the raw event, so they run before any expensive
+// cryptography while the storage read is still in flight.
+function validateEventStructureAndFreshness(rawEvent) {
   if (
     !rawEvent ||
     typeof rawEvent !== 'object' ||
@@ -952,17 +971,6 @@ function verifyEventSignatureAndFreshness(rawEvent) {
     return null;
   }
 
-  try {
-    let newEvent = JSON.parse(JSON.stringify(rawEvent));
-    if (!verifyEvent({ ...newEvent, pubkey: newEvent.clientPubKey })) {
-      console.error('Rejected NWC event: invalid signature', rawEvent.id);
-      return null;
-    }
-  } catch (e) {
-    console.error('Rejected NWC event: verification error', rawEvent.id, e);
-    return null;
-  }
-
   const now = Math.floor(Date.now() / 1000);
 
   if (Math.abs(rawEvent.created_at - now) > MAX_EVENT_AGE_SECONDS) {
@@ -980,6 +988,24 @@ function verifyEventSignatureAndFreshness(rawEvent) {
   }
 
   return rawEvent;
+}
+
+// Phase 3 of event verification: signature verification. This is the most
+// expensive check (Schnorr verify), so it only runs once an event has passed
+// the cheap structural and account checks — forged pushes then cost little
+// per rejected event.
+function verifyEventSignature(rawEvent) {
+  try {
+    let newEvent = JSON.parse(JSON.stringify(rawEvent));
+    if (!verifyEvent({ ...newEvent, pubkey: newEvent.clientPubKey })) {
+      console.error('Rejected NWC event: invalid signature', rawEvent.id);
+      return false;
+    }
+  } catch (e) {
+    console.error('Rejected NWC event: verification error', rawEvent.id, e);
+    return false;
+  }
+  return true;
 }
 
 // Phase 2 of event verification: resolve the target account and confirm the
@@ -1030,8 +1056,19 @@ export default async function handleNWCBackgroundEvent(notificationData) {
       nwcEvent = JSON.parse(nwcEvent);
     } catch (err) {}
 
-    const newEvents = nwcEvent?.events;
-    if (!newEvents) return;
+    const allEvents = nwcEvent?.events;
+    if (!Array.isArray(allEvents) || allEvents.length === 0) return;
+    // Bound the work without dropping the push: an oversized batch is trimmed
+    // rather than rejected, because the push is the only delivery path (there
+    // is no relay subscription and no retry) so a whole-batch drop would
+    // silently lose a legitimate pay_invoice.
+    if (allEvents.length > MAX_EVENTS_PER_BATCH) {
+      console.error(
+        'Trimming NWC push: batch exceeds max event count',
+        allEvents.length,
+      );
+    }
+    const newEvents = allEvents.slice(0, MAX_EVENTS_PER_BATCH);
 
     // Serialize with any concurrent background invocation. Everything that
     // reads-modifies-writes account state or the spend ledger runs inside this
@@ -1044,21 +1081,30 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     await previous;
 
     try {
-      // Start the storage read immediately so its I/O overlaps with the
-      // signature verification below; the full object is only needed once we
-      // reach account resolution and pay_invoice budget persistence.
+      // Start the storage read immediately so its I/O overlaps with the cheap
+      // structural checks below; the full object is needed once we reach
+      // account resolution and pay_invoice budget persistence.
       const fullStoragePromise = getNWCData();
 
-      const preVerifiedEvents = newEvents
-        .map(rawEvent => verifyEventSignatureAndFreshness(rawEvent))
+      const structurallyValidEvents = newEvents
+        .map(rawEvent => validateEventStructureAndFreshness(rawEvent))
         .filter(Boolean);
 
       const fullStorageObject = await fullStoragePromise;
       const nwcAccounts = fullStorageObject.accounts || {};
 
-      const verifiedEvents = preVerifiedEvents
+      // Account resolution is a cheap map lookup; run it (phase 2) before the
+      // costly Schnorr verification (phase 3) so forged events are dropped
+      // before any signature work is spent on them.
+      const resolvedEvents = structurallyValidEvents
         .map(rawEvent => normalizeAccountForEvent(rawEvent, nwcAccounts))
         .filter(Boolean);
+
+      // Verify on the raw event only: verifyEventSignature deep-clones what it
+      // is given, and the normalized event carries the account's private key.
+      const verifiedEvents = resolvedEvents.filter(
+        ({ selectedNWCAccount, ...event }) => verifyEventSignature(event),
+      );
 
       const nowMs = Date.now();
 
