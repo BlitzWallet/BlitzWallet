@@ -6,7 +6,6 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { InteractionManager } from 'react-native';
 import {
   getAllPlacesInBbox,
   getProviderPlace,
@@ -26,7 +25,6 @@ import {
 import { dedupeMerge } from '../app/functions/btcMap/mergePlaces';
 import { clearBTCMapClusterCache } from '../app/functions/btcMap/btcMapClusterCache';
 import { blitzProxyFetch } from '../app/functions/blitzProxyFetch';
-import { useKeysContext } from './keys';
 import * as Location from 'expo-location';
 
 // Merchant map data is served by the VPS proxy, not the getBTCMapData Cloud
@@ -73,7 +71,6 @@ export function BTCMapProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [syncError, setSyncError] = useState(null);
   const [dataVersion, setDataVersion] = useState(0);
-  const { contactsPrivateKey: privateKey, publicKey } = useKeysContext();
   const [userLocation, setUserLocation] = useState(null);
 
   // Sync from the proxy — full on first launch, incremental afterward
@@ -188,15 +185,6 @@ export function BTCMapProvider({ children }) {
     [],
   );
 
-  // Sync from network after mount (deferred so navigation transition isn't blocked)
-  useEffect(() => {
-    if (!privateKey || !publicKey) return;
-    const task = InteractionManager.runAfterInteractions(() => {
-      syncPlaces();
-    });
-    return () => task.cancel();
-  }, [syncPlaces, privateKey, publicKey]);
-
   // load location data
   useEffect(() => {
     (async () => {
@@ -257,6 +245,7 @@ export function BTCMapProvider({ children }) {
       isLoading,
       syncError,
       dataVersion,
+      syncPlaces,
       getPlacesInViewport,
       getPlaceDetail,
       userLocation,
@@ -268,6 +257,7 @@ export function BTCMapProvider({ children }) {
       isLoading,
       syncError,
       dataVersion,
+      syncPlaces,
       getPlacesInViewport,
       getPlaceDetail,
       userLocation,

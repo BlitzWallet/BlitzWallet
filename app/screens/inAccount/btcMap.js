@@ -48,6 +48,7 @@ export default function BTCMapScreen() {
   const {
     isLoading: storeLoading,
     dataVersion,
+    syncPlaces,
     getPlacesInViewport,
     userLocation,
     DEFAULT_LOCATION,
@@ -394,14 +395,20 @@ export default function BTCMapScreen() {
     });
   }, [navigate, filter, userLocation, SCREEN_ASPECT_RATIO, placeCount]);
 
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        // cleer cache to remove from ram
-        clearBTCMapClusterCache();
-      };
-    }, []),
-  );
+  useEffect(() => {
+    // Sync on visit — the only place merchant data is pulled from the
+    // network. Deferred so the navigation transition isn't blocked; throttled
+    // to once per 4h inside syncPlaces.
+    const task = InteractionManager.runAfterInteractions(() => {
+      syncPlaces();
+    });
+
+    return () => {
+      task.cancel();
+      // cleer cache to remove from ram
+      clearBTCMapClusterCache();
+    };
+  }, [syncPlaces]);
 
   return (
     <GlobalThemeView styles={{ paddingTop: 0, paddingBottom: 0 }}>
