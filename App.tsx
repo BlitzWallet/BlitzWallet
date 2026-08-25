@@ -75,6 +75,7 @@ import {
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
 import { resolveUserLanguage } from './i18n';
+import i18next from 'i18next';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
@@ -97,7 +98,6 @@ import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
-import { useTranslation } from 'react-i18next';
 import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
@@ -202,7 +202,6 @@ function ResetStack(): JSX.Element | null {
   const { publicKey, setAccountMnemonic } = useKeysContext();
   const didInitializeSettings = useRef(false);
   const { backgroundColor } = GetThemeColors();
-  const { i18n } = useTranslation();
 
   const handleDeepLink = useCallback(
     async (event: { url: string }, isInitialLoad = false) => {
@@ -602,26 +601,43 @@ function ResetStack(): JSX.Element | null {
       // For the no-security path the loading screen renders directly as Home, so
       // thread the intended seed's hash through its initialParams (kept out of the
       // persisted security-settings object) to gate its identity derivation.
-      setSecuritySettings(
-        isNoSecurityLogin
-          ? {
-              ...parsedSettings,
-              expectedMnemonicHash: sha256Hash(mnemonic.value),
-            }
-          : parsedSettings,
+      const nextSecuritySettings = isNoSecurityLogin
+        ? {
+            ...parsedSettings,
+            expectedMnemonicHash: sha256Hash(mnemonic.value),
+          }
+        : parsedSettings;
+      setSecuritySettings(prev =>
+        JSON.stringify(prev) === JSON.stringify(nextSecuritySettings)
+          ? prev
+          : nextSecuritySettings,
       );
 
       // Close the cold-start translation flash: hold the render gate below
       // until the lazily loaded translation for the resolved language is
       // ready, so first paint never shows English before swapping. Rejections
       // still open the gate via onInitFailure.
-      await i18n.changeLanguage(resolvedLanguage);
+      // changeLanguage emits languageChanged unconditionally, and every
+      // useTranslation subscriber gets a new `t` identity from it — a no-op
+      // call on a foreground rerenders the whole app. Compare resolvedLanguage
+      // (not i18n.language) so a failed lazy load still retries.
+      if (i18next.resolvedLanguage !== resolvedLanguage) {
+        await i18next.changeLanguage(resolvedLanguage);
+      }
 
       setInitSettings(prev => {
+        const isLoggedIn = !!pin.value && !!mnemonic.value;
+        const hasSecurityEnabled = parsedSettings.isSecurityEnabled;
+        if (
+          prev.isLoggedIn === isLoggedIn &&
+          prev.hasSecurityEnabled === hasSecurityEnabled &&
+          prev.isLoaded
+        )
+          return prev;
         return {
           ...prev,
-          isLoggedIn: !!pin.value && !!mnemonic.value,
-          hasSecurityEnabled: parsedSettings.isSecurityEnabled,
+          isLoggedIn,
+          hasSecurityEnabled,
           // Settings are now resolved — unblock the render gate below. Until this
           // is true the navigator stays unmounted so Home never mounts with the
           // wrong (still-loading) component. This is the login race-condition fix.
@@ -631,6 +647,13 @@ function ResetStack(): JSX.Element | null {
     }
 
     if (appState === 'background') return;
+
+    // iOS reports 'inactive' for system-modal interruptions (Face ID prompt,
+    // Control Center, app-switcher peek) and on the way into background. The
+    // re-run only exists to re-inject the seed after an auth reset, which
+    // happens on the 'active' transition. First run stays unconditional so a
+    // non-'active' cold start can never strand the native splash.
+    if (didInitializeSettings.current && appState !== 'active') return;
 
     // initWallet is the ONLY thing that sets isLoaded, and the render gate below
     // returns null until it does. Because preventAutoHideAsync() runs at module
@@ -645,13 +668,9 @@ function ResetStack(): JSX.Element | null {
       setInitSettings(prev => ({ ...prev, isLoaded: true }));
     };
 
-    if (!didInitializeSettings.current) {
-      didInitializeSettings.current = true;
-      initWallet(false).catch(onInitFailure);
-    } else {
-      didInitializeSettings.current = true;
-      initWallet(true).catch(onInitFailure);
-    }
+    const skipURL = didInitializeSettings.current;
+    didInitializeSettings.current = true;
+    initWallet(skipURL).catch(onInitFailure);
     return () => {
       cancelled = true;
     };
@@ -697,8 +716,6 @@ function ResetStack(): JSX.Element | null {
   if (theme === null || darkModeType === null || !initSettings.isLoaded) {
     return null;
   }
-
-  if (appState === 'background' && !didInitializeSettings.current) return null;
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
