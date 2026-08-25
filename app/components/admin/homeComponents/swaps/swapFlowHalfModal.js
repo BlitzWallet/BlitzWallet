@@ -167,6 +167,7 @@ export default function SwapFlowHalfModal({
   const currentRequetId = useRef(null);
   const lastSimulatedAmount = useRef(null);
   const isPillPressRef = useRef(false);
+  const isSwappingRef = useRef(false);
 
   // Shared values keyed by step name.
   const stepAnims = useMemo(
@@ -307,7 +308,7 @@ export default function SwapFlowHalfModal({
 
   // Android hardware back press — intercepts step-level navigation
   const handleBackPressAndroid = useCallback(() => {
-    if (isSwapping) return true;
+    if (isSwappingRef.current) return true;
     if (currentStep === 'historyExpanded') {
       navigateToStep('routeSelection', 'backward');
       return true;
@@ -321,7 +322,7 @@ export default function SwapFlowHalfModal({
       return true;
     }
     return false;
-  }, [currentStep, navigateToStep, isSwapping]);
+  }, [currentStep, navigateToStep]);
   useHandleBackPressNew(handleBackPressAndroid);
 
   // Derived state
@@ -995,6 +996,19 @@ export default function SwapFlowHalfModal({
   };
 
   const performSwap = async () => {
+    if (isSwappingRef.current) return;
+
+    const hasBalance =
+      (fromAsset === 'BTC' && Number(fromAmount) <= Number(bitcoinBalance)) ||
+      (fromAsset === 'USD' && Number(fromAmount) <= Number(dollarBalanceToken));
+    if (!hasBalance) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.insufficientBalance'),
+      });
+      return;
+    }
+
+    isSwappingRef.current = true;
     setIsSwapping(true);
     setError(null);
 
@@ -1186,6 +1200,7 @@ export default function SwapFlowHalfModal({
         errorMessage: t('screens.inAccount.swapsPage.fullSwapError'),
       });
     } finally {
+      isSwappingRef.current = false;
       setIsSwapping(false);
     }
   };
@@ -2161,6 +2176,7 @@ export default function SwapFlowHalfModal({
 
         <CustomButton
           buttonStyles={{ ...CENTER }}
+          disabled={isSwapping}
           useLoading={isSwapping}
           actionFunction={handleAcceptReview}
           textContent={t('constants.confirm')}
