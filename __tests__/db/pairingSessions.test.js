@@ -36,13 +36,18 @@ jest.mock('../../app/functions/accounts/childAccounts', () => ({
   getNextChildDerivationIndex: jest.fn(),
 }));
 
-// db/index.js calls the modular getIdToken(currentUser); the global
-// jest.setup.js auth mock does not export it, so provide it locally.
-jest.mock('@react-native-firebase/auth', () => ({
-  __esModule: true,
-  getAuth: jest.fn(() => ({ currentUser: null })),
-  getIdToken: jest.fn(async () => 'child-tok'),
-}));
+// blitzProxyFetch (used by claimPairingSession) calls getAuth() + getIdToken;
+// the global jest.setup.js auth mock exports neither a stable instance nor
+// getIdToken, so provide a singleton here that the tests can mutate via
+// firebaseAuth below.
+jest.mock('@react-native-firebase/auth', () => {
+  const authInstance = { currentUser: null };
+  return {
+    __esModule: true,
+    getAuth: jest.fn(() => authInstance),
+    getIdToken: jest.fn(async () => 'child-tok'),
+  };
+});
 
 jest.mock('@react-native-firebase/firestore', () => {
   const store = new Map();

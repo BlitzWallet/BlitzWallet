@@ -212,9 +212,9 @@ export default function BTCMapScreen() {
 
     const cacheGranularity = z >= 14 ? 20 : z >= 10 ? 10 : 5;
     const manager = getOrBuildBTCMapClusterManager(
-      `btcmap:${z}:${Math.round(lat * cacheGranularity) / cacheGranularity}:${
-        Math.round(lon * cacheGranularity) / cacheGranularity
-      }`,
+      `btcmap:v${dataVersion}:${z}:${
+        Math.round(lat * cacheGranularity) / cacheGranularity
+      }:${Math.round(lon * cacheGranularity) / cacheGranularity}`,
       points,
       { radius: 50, maxZoom: 17, minPoints: 2 },
     );
@@ -230,6 +230,7 @@ export default function BTCMapScreen() {
     updateMarkersForCamera,
     SCREEN_ASPECT_RATIO,
     filter.categories,
+    dataVersion,
   ]);
 
   // Trigger initial cluster build when map becomes ready

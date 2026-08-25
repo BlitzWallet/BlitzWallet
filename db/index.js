@@ -1,4 +1,4 @@
-import { db, firebaseAuth } from './initializeFirebase';
+import { db } from './initializeFirebase';
 import {
   getCachedMessages,
   queueSetCashedMessages,
@@ -40,7 +40,7 @@ import {
   makePairingCode,
   normalizePairingName,
 } from '../app/functions/accounts/childPairing';
-import { getIdToken } from '@react-native-firebase/auth';
+import { blitzProxyFetch } from '../app/functions/blitzProxyFetch';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -919,32 +919,24 @@ export async function createPairingSession(rid, parentWalletPub, { commit }) {
   return code;
 }
 
-// The mobile→proxy base URL. Not secret: the proxy is a public HTTPS endpoint
-// whose per-IP + per-uid rate limiters are the security control. A plain module
-// constant (not app/constants) so the lightweight pairing-session tests can load
-// this module without pulling the constants→icons→assets graph.
-const BLITZ_PROXY_URL = 'https://proxy.blitz-wallet.com';
-
 /**
  * Child discovers + atomically claims the parent's WAITING session through the
  * rate-limited /childPairingClaim proxy endpoint (admin-mediated). The client can
  * no longer read the session (get oracle closed in firestore.rules) or blind-
  * claim it (client WAITING→JOINED deleted), so this Bearer-token call is the only
  * claim path — and the proxy's per-IP + per-uid limiters bound a code scan to
- * ~10/min. Sends the child's Firebase ID token; the server stamps childUid from
- * the VERIFIED token and returns the parent's commit for verifyKeyCommitment.
- * Returns { ok, commit, error }; a non-200 maps its server error code to `error`.
- * NOT the fetchBackend/httpsCallable ECDH path — that hits GCF directly and would
- * bypass the proxy and its limiter.
+ * ~10/min. blitzProxyFetch sends the child's Firebase ID token; the server stamps
+ * childUid from the VERIFIED token and returns the parent's commit for
+ * verifyKeyCommitment. Returns { ok, commit, error }; a non-200 maps its server
+ * error code to `error`. NOT the fetchBackend/httpsCallable ECDH path — that hits
+ * GCF directly and would bypass the proxy and its limiter.
  */
 export async function claimPairingSession(rid, code) {
   try {
-    const token = await getIdToken(firebaseAuth.currentUser);
-    const res = await fetch(`${BLITZ_PROXY_URL}/childPairingClaim`, {
+    const res = await blitzProxyFetch('/childPairingClaim', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: rid, code }),
     });
