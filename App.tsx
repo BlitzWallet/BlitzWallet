@@ -75,6 +75,7 @@ import {
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
 import { resolveUserLanguage } from './i18n';
+import i18next from 'i18next';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
@@ -97,7 +98,6 @@ import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
-import { useTranslation } from 'react-i18next';
 import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
@@ -202,7 +202,6 @@ function ResetStack(): JSX.Element | null {
   const { publicKey, setAccountMnemonic } = useKeysContext();
   const didInitializeSettings = useRef(false);
   const { backgroundColor } = GetThemeColors();
-  const { i18n } = useTranslation();
 
   const handleDeepLink = useCallback(
     async (event: { url: string }, isInitialLoad = false) => {
@@ -622,8 +621,8 @@ function ResetStack(): JSX.Element | null {
       // useTranslation subscriber gets a new `t` identity from it — a no-op
       // call on a foreground rerenders the whole app. Compare resolvedLanguage
       // (not i18n.language) so a failed lazy load still retries.
-      if (i18n.resolvedLanguage !== resolvedLanguage) {
-        await i18n.changeLanguage(resolvedLanguage);
+      if (i18next.resolvedLanguage !== resolvedLanguage) {
+        await i18next.changeLanguage(resolvedLanguage);
       }
 
       setInitSettings(prev => {
