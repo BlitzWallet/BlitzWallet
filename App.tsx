@@ -602,26 +602,43 @@ function ResetStack(): JSX.Element | null {
       // For the no-security path the loading screen renders directly as Home, so
       // thread the intended seed's hash through its initialParams (kept out of the
       // persisted security-settings object) to gate its identity derivation.
-      setSecuritySettings(
-        isNoSecurityLogin
-          ? {
-              ...parsedSettings,
-              expectedMnemonicHash: sha256Hash(mnemonic.value),
-            }
-          : parsedSettings,
+      const nextSecuritySettings = isNoSecurityLogin
+        ? {
+            ...parsedSettings,
+            expectedMnemonicHash: sha256Hash(mnemonic.value),
+          }
+        : parsedSettings;
+      setSecuritySettings(prev =>
+        JSON.stringify(prev) === JSON.stringify(nextSecuritySettings)
+          ? prev
+          : nextSecuritySettings,
       );
 
       // Close the cold-start translation flash: hold the render gate below
       // until the lazily loaded translation for the resolved language is
       // ready, so first paint never shows English before swapping. Rejections
       // still open the gate via onInitFailure.
-      await i18n.changeLanguage(resolvedLanguage);
+      // changeLanguage emits languageChanged unconditionally, and every
+      // useTranslation subscriber gets a new `t` identity from it — a no-op
+      // call on a foreground rerenders the whole app. Compare resolvedLanguage
+      // (not i18n.language) so a failed lazy load still retries.
+      if (i18n.resolvedLanguage !== resolvedLanguage) {
+        await i18n.changeLanguage(resolvedLanguage);
+      }
 
       setInitSettings(prev => {
+        const isLoggedIn = !!pin.value && !!mnemonic.value;
+        const hasSecurityEnabled = parsedSettings.isSecurityEnabled;
+        if (
+          prev.isLoggedIn === isLoggedIn &&
+          prev.hasSecurityEnabled === hasSecurityEnabled &&
+          prev.isLoaded
+        )
+          return prev;
         return {
           ...prev,
-          isLoggedIn: !!pin.value && !!mnemonic.value,
-          hasSecurityEnabled: parsedSettings.isSecurityEnabled,
+          isLoggedIn,
+          hasSecurityEnabled,
           // Settings are now resolved — unblock the render gate below. Until this
           // is true the navigator stays unmounted so Home never mounts with the
           // wrong (still-loading) component. This is the login race-condition fix.
