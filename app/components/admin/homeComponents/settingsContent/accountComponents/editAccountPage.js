@@ -422,14 +422,13 @@ export default function EditAccountPage(props) {
       label: t('settings.accountComponents.editAccountPage.viewActivityLabel'),
       onPress: handleViewActivity,
     },
-    !(accountInformation.accountType === 'main' && isMainAccountAChild) &&
-      !isChild && {
-        key: 'recovery',
-        label: t(
-          'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
-        ),
-        onPress: handleNavigateView,
-      },
+    !isMainAccountAChild && {
+      key: 'recovery',
+      label: t(
+        'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
+      ),
+      onPress: handleNavigateView,
+    },
   ].filter(Boolean);
 
   const renderCard = rows => {
