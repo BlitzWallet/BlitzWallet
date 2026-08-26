@@ -505,31 +505,33 @@ export default function BitrefillShopModal() {
         leftImageFunction={handleEditEmail}
       />
       <View style={styles.overlayContainr}>
-        {/* WebView — always mounted so it loads in the background */}
+        {/* WebView — lazy-mounted only when step === 'webview' to save ~20–40 MB renderer until user shops */}
         <Animated.View style={[styles.webViewWrapper, webViewStyle]}>
           <View style={styles.webViewContainer}>
-            <WebView
-              source={{ uri: bitrefillHomeUrl }}
-              style={[styles.webView, { backgroundColor }]}
-              onLoadStart={() => {
-                if (!initialLoadDone.current) setIsLoading(true);
-              }}
-              onLoadEnd={() => {
-                initialLoadDone.current = true;
-                setIsLoading(false);
-              }}
-              onError={() => {
-                initialLoadDone.current = true;
-                setIsLoading(false);
-              }}
-              startInLoadingState={true}
-              onMessage={handleMessage}
-              injectedJavaScript={WEBVIEW_NAV_LISTENER}
-              originWhitelist={[`https://${BITREFILL_EMBED_HOST}`]}
-              onShouldStartLoadWithRequest={request =>
-                isBitrefillEmbedUrl(request.url)
-              }
-            />
+            {step === 'webview' && (
+              <WebView
+                source={{ uri: bitrefillHomeUrl }}
+                style={[styles.webView, { backgroundColor }]}
+                onLoadStart={() => {
+                  if (!initialLoadDone.current) setIsLoading(true);
+                }}
+                onLoadEnd={() => {
+                  initialLoadDone.current = true;
+                  setIsLoading(false);
+                }}
+                onError={() => {
+                  initialLoadDone.current = true;
+                  setIsLoading(false);
+                }}
+                startInLoadingState={true}
+                onMessage={handleMessage}
+                injectedJavaScript={WEBVIEW_NAV_LISTENER}
+                originWhitelist={[`https://${BITREFILL_EMBED_HOST}`]}
+                onShouldStartLoadWithRequest={request =>
+                  isBitrefillEmbedUrl(request.url)
+                }
+              />
+            )}
 
             {isLoading && (
               <View style={[styles.loadingOverlay, { backgroundColor }]}>
