@@ -102,7 +102,12 @@ export const fetchAllIdentityDepositUtxos = async (
  * Spark transfer id, so the amount here should come from the quote when
  * available and the explorer data otherwise.
  */
-export const addPendingTransaction = async (quote, address, identityPubKey) => {
+export const addPendingTransaction = async (
+  quote,
+  address,
+  identityPubKey,
+  vout = null,
+) => {
   const pendingTx = {
     id: quote.transactionId,
     paymentStatus: 'pending',
@@ -116,6 +121,7 @@ export const addPendingTransaction = async (quote, address, identityPubKey) => {
       direction: 'INCOMING',
       description: i18n.t('contexts.spark.depositLabel'),
       onChainTxid: quote.transactionId,
+      vout: vout !== null && vout !== undefined ? Number(vout) : null,
       isRestore: true, // This is a restore payment
     },
   };
@@ -124,15 +130,28 @@ export const addPendingTransaction = async (quote, address, identityPubKey) => {
 };
 
 /**
- * Looks for pending deposit id inside of spark transsactions database
+ * Looks for pending deposit id inside of spark transsactions database.
+ * When vout is provided, verifies the stored row's vout matches (txid-only
+ * sparkID is ambiguous for multi-output same-txid deposits). Legacy rows
+ * without a vout field are treated as matching any vout for backward compat.
  */
-const getSavedTxByTxid = async (txid, identityPubKey) => {
+const getSavedTxByTxid = async (txid, identityPubKey, vout = null) => {
   if (!txid) return null;
   if (!identityPubKey) return null;
   try {
     const savedTx = await getSparkTransactionBySparkId(txid, identityPubKey);
     if (!savedTx) return null;
-    return { ...savedTx, details: JSON.parse(savedTx.details ?? 'null') };
+    const details = JSON.parse(savedTx.details ?? 'null');
+    if (
+      vout !== null &&
+      vout !== undefined &&
+      details &&
+      details.vout !== null &&
+      details.vout !== undefined
+    ) {
+      if (Number(details.vout) !== Number(vout)) return null;
+    }
+    return { ...savedTx, details };
   } catch (err) {
     console.log('error gettting spark tx by id', err);
     return null;
@@ -141,17 +160,23 @@ const getSavedTxByTxid = async (txid, identityPubKey) => {
 
 /**
  * On-chain-txid–scoped existence check: finds any bitcoin row whose
- * details.onChainTxid matches `txid`, regardless of its current sparkID.
- * After a successful claim the original row is renamed from txid → transferId,
- * so a naïve sparkID-only lookup misses it and the re-swept UTXO (<60s window
- * before excludeClaimed takes effect) would insert a ghost pending row under
- * the old txid that never settles. This catches that case.
+ * details.onChainTxid matches `txid` (and, when provided, vout), regardless
+ * of its current sparkID. After a successful claim the original row is
+ * renamed from txid → transferId, so a naïve sparkID-only lookup misses it
+ * and the re-swept UTXO (<60s window before excludeClaimed takes effect)
+ * would insert a ghost pending row under the old txid that never settles.
+ * Matching on (txid, vout) prevents cross-vout collisions for multi-output
+ * same-txid deposits to one identity.
  */
-const getExistingByOnChainTxid = async (txid, identityPubKey) => {
+const getExistingByOnChainTxid = async (txid, identityPubKey, vout = null) => {
   if (!txid) return null;
   if (!identityPubKey) return null;
   try {
-    const row = await getBitcoinTransactionByOnChainTxid(txid, identityPubKey);
+    const row = await getBitcoinTransactionByOnChainTxid(
+      txid,
+      identityPubKey,
+      vout,
+    );
     if (!row) return null;
     return { ...row, details: JSON.parse(row.details ?? 'null') };
   } catch (err) {
@@ -196,13 +221,14 @@ export const claimDepositUtxo = async ({
   identityPubKey,
   isConfirmed,
 }) => {
-  const savedTx = await getSavedTxByTxid(txid, identityPubKey);
+  const savedTx = await getSavedTxByTxid(txid, identityPubKey, vout);
   // Ghost-row guard: after a successful claim the row is renamed txid → transferId,
   // so a sparkID-only lookup misses it while excludeClaimed is still lagging (<60s).
   // Checking onChainTxid catches the renamed row and prevents re-inserting a
-  // pending ghost under the old txid.
+  // pending ghost under the old txid. Matching on (txid, vout) avoids
+  // cross-vout collisions for multi-output same-txid deposits.
   const onChainExisting = !savedTx
-    ? await getExistingByOnChainTxid(txid, identityPubKey)
+    ? await getExistingByOnChainTxid(txid, identityPubKey, vout)
     : null;
   const hasAlreadySaved = !!savedTx || !!onChainExisting;
   const effectiveExisting = savedTx ?? onChainExisting;
@@ -213,7 +239,7 @@ export const claimDepositUtxo = async ({
     // Re-check onChainTxid scope right before writing to close the
     // <60s re-sweep race where the row was renamed between the initial
     // hasAlreadySaved check and this insert.
-    const raced = await getExistingByOnChainTxid(txid, identityPubKey);
+    const raced = await getExistingByOnChainTxid(txid, identityPubKey, vout);
     if (raced) return null;
 
     if (!quote.creditAmountSats) {
@@ -229,6 +255,7 @@ export const claimDepositUtxo = async ({
       quote,
       address,
       identityPubKey,
+      vout,
     );
     return pendingTx;
   };
@@ -329,8 +356,11 @@ export const claimDepositUtxo = async ({
       paymentStatus: 'pending',
       paymentType: 'bitcoin',
       accountId: identityPubKey,
-      address,
-      onChainTxid: txid,
+      details: {
+        vout: Number(vout),
+        onChainTxid: txid,
+        address,
+      },
     };
   } else {
     let fee = 0;
@@ -363,6 +393,7 @@ export const claimDepositUtxo = async ({
         dateAddedToDb: Date.now(),
         address,
         onChainTxid: txid,
+        vout: Number(vout),
       },
     };
   }

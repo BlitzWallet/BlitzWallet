@@ -725,3 +725,75 @@ describe('claimDepositUtxo — ghost-row guard (onChainTxid scope)', () => {
     expect(result.updatedTx.details.fee).toBe(20);
   });
 });
+
+describe('claimDepositUtxo — multi-output same-txid (F4)', () => {
+  beforeEach(setupClaimMocks);
+  afterEach(teardownClaimMocks);
+
+  test('second vout of the same txid claims independently and scopes the onChainTxid lookup by vout', async () => {
+    // The other output (vout 0) was already claimed and renamed, so neither the
+    // sparkID lookup nor the vout-scoped onChainTxid lookup matches THIS vout (1).
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(null);
+    mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
+    mockClaim.mockResolvedValue({
+      didWork: true,
+      response: { transferId: 'transfer-1' },
+    });
+    mockGetSingleTxDetails.mockResolvedValue(completeTransfer); // net 980
+
+    const promise = claimDepositUtxo(BASE); // vout: 1
+    await jest.advanceTimersByTimeAsync(2000);
+    const result = await promise;
+
+    // The onChainTxid lookup must be vout-scoped so a sibling vout can't collide.
+    expect(mockGetBitcoinByOnChainTxid).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'identity-pubkey',
+      1,
+    );
+    // Fee must come from THIS vout's on-chain gross (1000), not a sibling row.
+    expect(mockGetChainAmount).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'bc1deposit',
+      1,
+    );
+    expect(result.didClaim).toBe(true);
+    expect(result.updatedTx.details.fee).toBe(20);
+    expect(result.updatedTx.details.vout).toBe(1);
+  });
+
+  test('a saved row for a DIFFERENT vout of the same txid is not treated as already-saved', async () => {
+    // A pending row exists for vout 0 of this txid; the claim is for vout 1. The
+    // vout guard must reject the sparkID match so the vout-1 pending row is
+    // inserted (with the old txid-only check it would be suppressed).
+    mockGetSparkTxById.mockResolvedValue({
+      sparkID: 'onchain-txid-1',
+      paymentStatus: 'pending',
+      paymentType: 'bitcoin',
+      accountId: 'identity-pubkey',
+      details: JSON.stringify({
+        amount: 5000,
+        onChainTxid: 'onchain-txid-1',
+        vout: 0,
+      }),
+    });
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(null);
+    mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
+    mockClaim.mockResolvedValue({ didWork: false, error: 'SSP rejected' });
+
+    const result = await claimDepositUtxo(BASE); // vout: 1
+
+    expect(result.didClaim).toBe(false);
+    expect(mockBulkUpdate).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          id: 'onchain-txid-1',
+          paymentStatus: 'pending',
+          details: expect.objectContaining({ vout: 1 }),
+        }),
+      ],
+      'transactions',
+    );
+  });
+});

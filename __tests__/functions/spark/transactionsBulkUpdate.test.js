@@ -565,3 +565,109 @@ describe('getLatestSavedLRC20TransactionId', () => {
     expect(mockDb.getAllAsync).not.toHaveBeenCalled();
   });
 });
+
+describe('getBitcoinTransactionByOnChainTxid — vout scoping (F4)', () => {
+  const ROW = {
+    sparkID: 'transfer-1',
+    accountId: 'identity-pubkey',
+    paymentType: 'bitcoin',
+    details: JSON.stringify({ onChainTxid: 'tx-1', vout: 1, amount: 2000 }),
+  };
+
+  it('scopes the lookup to (onChainTxid, vout) and skips the fallback when the primary hits', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([ROW]);
+    const { getBitcoinTransactionByOnChainTxid } =
+      loadTransactionsModule(mockDb);
+
+    const result = await getBitcoinTransactionByOnChainTxid(
+      ' tx-1 ',
+      'identity-pubkey',
+      1,
+    );
+
+    expect(result).toBe(ROW);
+    // Primary query hit → no legacy (vout IS NULL) fallback issued.
+    expect(mockDb.getAllAsync).toHaveBeenCalledTimes(1);
+
+    const [sql, params] = mockDb.getAllAsync.mock.calls[0];
+    expect(sql).toContain("TRIM(json_extract(details, '$.onChainTxid')) = ?");
+    expect(sql).toContain(
+      "CAST(json_extract(details, '$.vout') AS INTEGER) = ?",
+    );
+    expect(params).toEqual(['identity-pubkey', 'tx-1', 1]);
+  });
+
+  it('treats vout 0 as a real vout, not a missing one (no falsy trap)', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([ROW]);
+    const { getBitcoinTransactionByOnChainTxid } =
+      loadTransactionsModule(mockDb);
+
+    await getBitcoinTransactionByOnChainTxid('tx-1', 'identity-pubkey', 0);
+
+    const [sql, params] = mockDb.getAllAsync.mock.calls[0];
+    expect(sql).toContain(
+      "CAST(json_extract(details, '$.vout') AS INTEGER) = ?",
+    );
+    expect(params).toEqual(['identity-pubkey', 'tx-1', 0]);
+  });
+
+  it('falls back to a vout-IS-NULL query for legacy rows when the vout-scoped query misses', async () => {
+    const mockDb = createMockDb();
+    const legacyRow = {
+      sparkID: 'transfer-legacy',
+      accountId: 'identity-pubkey',
+      paymentType: 'bitcoin',
+      details: JSON.stringify({ onChainTxid: 'tx-1', amount: 500 }),
+    };
+    // Primary (vout-scoped) misses; fallback (legacy, no vout) hits.
+    mockDb.getAllAsync
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([legacyRow]);
+    const { getBitcoinTransactionByOnChainTxid } =
+      loadTransactionsModule(mockDb);
+
+    const result = await getBitcoinTransactionByOnChainTxid(
+      'tx-1',
+      'identity-pubkey',
+      1,
+    );
+
+    expect(result).toBe(legacyRow);
+    expect(mockDb.getAllAsync).toHaveBeenCalledTimes(2);
+
+    const [fallbackSql] = mockDb.getAllAsync.mock.calls[1];
+    expect(fallbackSql).toContain("json_extract(details, '$.vout') IS NULL");
+  });
+
+  it('issues a txid-only query (no vout predicate, no fallback) when vout is omitted', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([]);
+    const { getBitcoinTransactionByOnChainTxid } =
+      loadTransactionsModule(mockDb);
+
+    await getBitcoinTransactionByOnChainTxid('tx-1', 'identity-pubkey');
+
+    expect(mockDb.getAllAsync).toHaveBeenCalledTimes(1);
+    const [sql, params] = mockDb.getAllAsync.mock.calls[0];
+    expect(sql).not.toContain("'$.vout'");
+    expect(params).toEqual(['identity-pubkey', 'tx-1']);
+  });
+
+  it('returns null without opening the database for missing input', async () => {
+    const mockDb = createMockDb();
+    const { getBitcoinTransactionByOnChainTxid } =
+      loadTransactionsModule(mockDb);
+
+    await expect(
+      getBitcoinTransactionByOnChainTxid('', 'identity-pubkey', 0),
+    ).resolves.toBe(null);
+    await expect(
+      getBitcoinTransactionByOnChainTxid('tx-1', '', 0),
+    ).resolves.toBe(null);
+
+    expect(mockOpenDatabaseAsync).not.toHaveBeenCalled();
+    expect(mockDb.getAllAsync).not.toHaveBeenCalled();
+  });
+});

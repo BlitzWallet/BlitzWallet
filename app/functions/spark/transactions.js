@@ -414,6 +414,7 @@ export const getSparkTransactionBySparkId = async (sparkID, accountId) => {
 export const getBitcoinTransactionByOnChainTxid = async (
   onChainTxid,
   accountId,
+  vout = null,
 ) => {
   const normalizedTxid =
     typeof onChainTxid === 'string' ? onChainTxid.trim() : '';
@@ -425,16 +426,39 @@ export const getBitcoinTransactionByOnChainTxid = async (
   try {
     await ensureSparkDatabaseReady();
 
-    const rows = await sqlLiteDB.getAllAsync(
-      `SELECT *
+    const hasVout = vout !== null && vout !== undefined;
+    let query = `SELECT *
+        FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+        WHERE accountId = ?
+        AND paymentType = 'bitcoin'
+        AND json_valid(details)
+        AND TRIM(json_extract(details, '$.onChainTxid')) = ?`;
+    const params = [normalizedAccountId, normalizedTxid];
+    if (hasVout) {
+      query += ` AND CAST(json_extract(details, '$.vout') AS INTEGER) = ?`;
+      params.push(Number(vout));
+    }
+    query += ` LIMIT 1`;
+
+    const rows = await sqlLiteDB.getAllAsync(query, params);
+
+    // Fallback for legacy rows that have no vout field: if we queried with vout
+    // and found nothing, try txid-only. This preserves existing single-output
+    // history while new multi-output rows (which store vout) remain distinct.
+    if (hasVout && (!rows || rows.length === 0)) {
+      const fallbackRows = await sqlLiteDB.getAllAsync(
+        `SELECT *
         FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
         WHERE accountId = ?
         AND paymentType = 'bitcoin'
         AND json_valid(details)
         AND TRIM(json_extract(details, '$.onChainTxid')) = ?
+        AND json_extract(details, '$.vout') IS NULL
         LIMIT 1`,
-      [normalizedAccountId, normalizedTxid],
-    );
+        [normalizedAccountId, normalizedTxid],
+      );
+      return fallbackRows?.[0] ?? null;
+    }
 
     return rows?.[0] ?? null;
   } catch (error) {
