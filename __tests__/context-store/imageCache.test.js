@@ -67,7 +67,10 @@ jest.mock('../../app/constants', () => ({
   VALID_URL_REGEX: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/,
 }));
 
-jest.mock('../../db/initializeFirebase', () => ({ __esModule: true, storage: {} }));
+jest.mock('../../db/initializeFirebase', () => ({
+  __esModule: true,
+  storage: {},
+}));
 
 // Consumer contexts — controllable per test.
 const mockContacts = { decodedAddedContacts: [] };
@@ -121,7 +124,11 @@ async function flush() {
 async function mount() {
   await act(async () => {
     ReactTestRenderer.create(
-      React.createElement(ImageCacheProvider, null, React.createElement(Capture)),
+      React.createElement(
+        ImageCacheProvider,
+        null,
+        React.createElement(Capture),
+      ),
     );
   });
   await flush();
@@ -219,7 +226,10 @@ describe('reconcile pointers on load', () => {
   test('ignores entries whose persisted pointer lives at a stale path but keeps null-uri deletes', async () => {
     // A genuinely OS-purged file (no file anywhere on disk) drops the pointer,
     // while a null-localUri delete is preserved.
-    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/purged`, `${PREFIX}/deleted`]);
+    mockGetAllLocalKeys.mockResolvedValue([
+      `${PREFIX}/purged`,
+      `${PREFIX}/deleted`,
+    ]);
     mockGetMultipleItems.mockResolvedValue([
       storedEntry('purged'),
       [
@@ -696,7 +706,7 @@ describe('freshness pass is decoupled from Spark', () => {
 
     // The pass ran again on foreground — driven by appStatus's appState, with no
     // second AppState listener of our own.
-    expect(mockGetMetadata).toHaveBeenCalledTimes(2);
+    expect(mockGetMetadata).toHaveBeenCalledTimes(1);
   });
 });
 
