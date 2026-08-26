@@ -79,7 +79,11 @@ export const GlobalContactsList = ({ children }) => {
   const toggleGlobalContactsInformation = useCallback(
     (newData, writeToDB) => {
       setGlobalContactsInformation(prev => {
-        const newContacts = { ...prev, ...newData };
+        const resolved = typeof newData === 'function' ? newData(prev) : newData;
+        // A functional payload may return null/undefined to abort (e.g. a
+        // failed encryption) — never merge that over live state.
+        if (!resolved) return prev;
+        const newContacts = { ...prev, ...resolved };
         if (writeToDB) {
           addDataToCollection(
             { contacts: newContacts },
@@ -540,6 +544,11 @@ export const GlobalContactsList = ({ children }) => {
             JSON.stringify(newAddedContacts),
           );
 
+          if (!newEncrypted) {
+            console.error('Encryption failed, aborting add contact');
+            return prev;
+          }
+
           const nextState = {
             ...prev,
             myProfile: { ...prev.myProfile, didEditProfile: true },
@@ -592,6 +601,11 @@ export const GlobalContactsList = ({ children }) => {
             publicKey,
             JSON.stringify(newAddedContacts),
           );
+
+          if (!newEncrypted) {
+            console.error('Encryption failed, aborting delete contact');
+            return prev;
+          }
 
           const nextState = {
             ...prev,
