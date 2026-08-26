@@ -5,8 +5,14 @@ import {
   getSparkPaymentStatus,
   getSparkStaticBitcoinL1AddressQuote,
   getUtxosForDepositAddress,
+  getUtxosForIdentity,
 } from './index';
-import { bulkUpdateSparkTransactions } from './transactions';
+import {
+  bulkUpdateSparkTransactions,
+  getBitcoinTransactionByOnChainTxid,
+  getSparkTransactionBySparkId,
+} from './transactions';
+import getBitcoinTransactionAmount from './getTxidFromChain';
 
 const wait = ms => new Promise(res => setTimeout(res, ms));
 
@@ -52,6 +58,44 @@ export const fetchAllDepositUtxos = async (
 };
 
 /**
+ * Identity-scoped variant of {@link fetchAllDepositUtxos}: pages every deposit
+ * UTXO owned by the identity across ALL of its static deposit addresses in one
+ * cursor-paginated sweep (each UTXO carries its own `address`). This is the
+ * detection path breez/spark-sdk uses; unlike the per-address query it does not
+ * depend on `queryStaticDepositAddresses` returning the funded address, so a
+ * deposit to a non-enumerated address is still found and claimed.
+ */
+export const fetchAllIdentityDepositUtxos = async (
+  mnemonic,
+  excludeClaimed,
+) => {
+  const utxos = [];
+  let cursor = '';
+
+  for (let page = 0; page < MAX_UTXO_PAGES; page++) {
+    const result = await getUtxosForIdentity({
+      mnemonic,
+      pageSize: UTXO_PAGE_SIZE,
+      cursor,
+      excludeClaimed,
+      includePending: true,
+    });
+
+    if (!result?.didWork) {
+      return { didWork: false, error: result?.error, utxos };
+    }
+
+    utxos.push(...(result.utxos || []));
+
+    const next = result.pageResponse?.nextCursor;
+    if (!result.pageResponse?.hasNextPage || !next) break;
+    cursor = next;
+  }
+
+  return { didWork: true, utxos };
+};
+
+/**
  * Inserts (or re-inserts, idempotently — keyed by the on-chain txid) the
  * pending transaction row that makes an on-chain deposit visible to the user
  * while it awaits claiming. A later successful claim renames this row to the
@@ -77,6 +121,43 @@ export const addPendingTransaction = async (quote, address, identityPubKey) => {
   };
   await bulkUpdateSparkTransactions([pendingTx], 'transactions');
   return pendingTx;
+};
+
+/**
+ * Looks for pending deposit id inside of spark transsactions database
+ */
+const getSavedTxByTxid = async (txid, identityPubKey) => {
+  if (!txid) return null;
+  if (!identityPubKey) return null;
+  try {
+    const savedTx = await getSparkTransactionBySparkId(txid, identityPubKey);
+    if (!savedTx) return null;
+    return { ...savedTx, details: JSON.parse(savedTx.details ?? 'null') };
+  } catch (err) {
+    console.log('error gettting spark tx by id', err);
+    return null;
+  }
+};
+
+/**
+ * On-chain-txid–scoped existence check: finds any bitcoin row whose
+ * details.onChainTxid matches `txid`, regardless of its current sparkID.
+ * After a successful claim the original row is renamed from txid → transferId,
+ * so a naïve sparkID-only lookup misses it and the re-swept UTXO (<60s window
+ * before excludeClaimed takes effect) would insert a ghost pending row under
+ * the old txid that never settles. This catches that case.
+ */
+const getExistingByOnChainTxid = async (txid, identityPubKey) => {
+  if (!txid) return null;
+  if (!identityPubKey) return null;
+  try {
+    const row = await getBitcoinTransactionByOnChainTxid(txid, identityPubKey);
+    if (!row) return null;
+    return { ...row, details: JSON.parse(row.details ?? 'null') };
+  } catch (err) {
+    console.log('error getting spark tx by onChainTxid', err);
+    return null;
+  }
 };
 
 /**
@@ -113,12 +194,37 @@ export const claimDepositUtxo = async ({
   address,
   mnemonic,
   identityPubKey,
-  exploraTx = null,
-  savedTxDetails = null,
-  hasAlreadySaved = false,
+  isConfirmed,
 }) => {
+  const savedTx = await getSavedTxByTxid(txid, identityPubKey);
+  // Ghost-row guard: after a successful claim the row is renamed txid → transferId,
+  // so a sparkID-only lookup misses it while excludeClaimed is still lagging (<60s).
+  // Checking onChainTxid catches the renamed row and prevents re-inserting a
+  // pending ghost under the old txid.
+  const onChainExisting = !savedTx
+    ? await getExistingByOnChainTxid(txid, identityPubKey)
+    : null;
+  const hasAlreadySaved = !!savedTx || !!onChainExisting;
+  const effectiveExisting = savedTx ?? onChainExisting;
+  const savedTxDetails = effectiveExisting?.details;
+
   const insertPendingIfNeeded = async quote => {
     if (hasAlreadySaved) return null;
+    // Re-check onChainTxid scope right before writing to close the
+    // <60s re-sweep race where the row was renamed between the initial
+    // hasAlreadySaved check and this insert.
+    const raced = await getExistingByOnChainTxid(txid, identityPubKey);
+    if (raced) return null;
+
+    if (!quote.creditAmountSats) {
+      const txAmount = await getBitcoinTransactionAmount(
+        quote.transactionId,
+        address,
+        vout,
+      );
+      if (!txAmount.didWork) return null;
+      quote.creditAmountSats = txAmount.value;
+    }
     const pendingTx = await addPendingTransaction(
       quote,
       address,
@@ -126,6 +232,23 @@ export const claimDepositUtxo = async ({
     );
     return pendingTx;
   };
+
+  if (!isConfirmed) {
+    if (hasAlreadySaved)
+      return {
+        didClaim: false,
+        error: 'Does not have enough on-chain confirmations',
+      };
+    await insertPendingIfNeeded({
+      transactionId: txid,
+      creditAmountSats: null,
+    });
+    return {
+      didClaim: false,
+      error:
+        'Does not have enough on-chain confirmations, but saved pending transfer',
+    };
+  }
 
   const quoteResult = await getSparkStaticBitcoinL1AddressQuote(
     txid,
@@ -136,13 +259,10 @@ export const claimDepositUtxo = async ({
   if (!quoteResult?.didWork || !quote) {
     // Surface the deposit even when quoting fails, but only with a real
     // amount from the explorer data (never a fabricated 0-sats row).
-    const pendingTx =
-      !hasAlreadySaved && exploraTx?.amount
-        ? await insertPendingIfNeeded({
-            transactionId: txid,
-            creditAmountSats: exploraTx.amount,
-          })
-        : null;
+    const pendingTx = await insertPendingIfNeeded({
+      transactionId: txid,
+      creditAmountSats: null,
+    });
     return {
       didClaim: false,
       error: quoteResult?.error || 'Quote unavailable',
@@ -156,11 +276,10 @@ export const claimDepositUtxo = async ({
   ) {
     // Surface the deposit with the real explorer amount when available — the
     // quote is bound to a different output, so its credit amount is wrong.
-    const pendingTx = await insertPendingIfNeeded(
-      exploraTx?.amount
-        ? { transactionId: txid, creditAmountSats: exploraTx.amount }
-        : quote,
-    );
+    const pendingTx = await insertPendingIfNeeded({
+      transactionId: txid,
+      creditAmountSats: null,
+    });
     return {
       didClaim: false,
       error: `Quote outputIndex ${quote.outputIndex} does not match claimed UTXO vout ${vout}`,
@@ -210,14 +329,22 @@ export const claimDepositUtxo = async ({
       paymentStatus: 'pending',
       paymentType: 'bitcoin',
       accountId: identityPubKey,
+      address,
+      onChainTxid: txid,
     };
   } else {
     let fee = 0;
-
-    if (exploraTx) {
-      fee = Math.abs(exploraTx?.amount - bitcoinTransfer.totalValue);
-    } else if (savedTxDetails) {
+    if (savedTxDetails) {
       fee = Math.abs(savedTxDetails?.amount - bitcoinTransfer.totalValue);
+    } else {
+      const txAmount = await getBitcoinTransactionAmount(
+        quote.transactionId,
+        address,
+        vout,
+      );
+      if (txAmount.didWork) {
+        fee = Math.abs(txAmount?.value - bitcoinTransfer.totalValue);
+      }
     }
 
     updatedTx = {
@@ -232,7 +359,10 @@ export const claimDepositUtxo = async ({
         fee: fee,
         totalFee: fee,
         supportFee: 0,
+        time: new Date().getTime(),
         dateAddedToDb: Date.now(),
+        address,
+        onChainTxid: txid,
       },
     };
   }

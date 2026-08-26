@@ -41,6 +41,7 @@ export const OPERATION_TYPES = {
   getL1Address: 'getSparkStaticBitcoinL1Address',
   queryStaticL1Address: 'queryAllStaticDepositAddresses',
   getUtxosForDepositAddress: 'getUtxosForDepositAddress',
+  getUtxosForIdentity: 'getUtxosForIdentity',
   getL1AddressQuote: 'getSparkStaticBitcoinL1AddressQuote',
   claimStaticDepositAddress: 'claimnSparkStaticDepositAddress',
   getSparkAddress: 'getSparkAddress',

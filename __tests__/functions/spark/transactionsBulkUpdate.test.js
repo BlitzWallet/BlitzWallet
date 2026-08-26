@@ -186,6 +186,86 @@ describe('Spark transaction bulk update guards', () => {
     });
   });
 
+  it('merges the temp row details when the final id row already exists', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        sparkID: 'transfer-1',
+        paymentStatus: 'pending',
+        paymentType: 'unknown',
+        accountId: 'identity-pubkey',
+        details: JSON.stringify({
+          createdTime: 1787757478469,
+          isPlaceholder: true,
+          direction: 'INCOMING',
+        }),
+      },
+      {
+        sparkID: 'onchain-txid',
+        paymentStatus: 'pending',
+        paymentType: 'bitcoin',
+        accountId: 'identity-pubkey',
+        details: JSON.stringify({
+          fee: 0,
+          amount: 6219,
+          address: 'bc1deposit',
+          time: 1787757478000,
+          direction: 'INCOMING',
+          description: 'On-chain deposit',
+          onChainTxid: 'onchain-txid',
+          isRestore: true,
+        }),
+      },
+    ]);
+    const { bulkUpdateSparkTransactions } = loadTransactionsModule(mockDb);
+
+    await bulkUpdateSparkTransactions([
+      {
+        useTempId: true,
+        id: 'transfer-1',
+        tempId: 'onchain-txid',
+        paymentStatus: 'completed',
+        paymentType: 'bitcoin',
+        accountId: 'identity-pubkey',
+        details: {
+          amount: 6219,
+          fee: 198,
+          totalFee: 198,
+          supportFee: 0,
+          time: 1787757480000,
+          dateAddedToDb: 1787757480000,
+        },
+      },
+    ]);
+
+    const updateCall = findUpdateCall(mockDb);
+    expect(updateCall).toBeDefined();
+
+    const values = updateCall[1];
+    expect(values[0]).toBe('completed');
+    expect(values[1]).toBe('bitcoin');
+    expect(JSON.parse(values[3])).toMatchObject({
+      createdTime: 1787757478469,
+      isPlaceholder: true,
+      direction: 'INCOMING',
+      amount: 6219,
+      fee: 198,
+      totalFee: 198,
+      address: 'bc1deposit',
+      description: 'On-chain deposit',
+      onChainTxid: 'onchain-txid',
+      isRestore: true,
+      time: 1787757480000,
+    });
+
+    // The renamed-away temp row is still cleaned up after the merge.
+    const deleteCall = mockDb.runAsync.mock.calls.find(([sql]) =>
+      sql.includes('DELETE FROM SPARK_TRANSACTIONS'),
+    );
+    expect(deleteCall).toBeDefined();
+    expect(deleteCall[1]).toEqual(['onchain-txid', 'identity-pubkey']);
+  });
+
   it('allows a final payment object to replace a placeholder', async () => {
     const mockDb = createMockDb();
     mockDb.getAllAsync.mockResolvedValue([

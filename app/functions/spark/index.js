@@ -1446,6 +1446,46 @@ export const getUtxosForDepositAddress = async ({
   }
 };
 
+// Identity-scoped deposit UTXO fetch: one call returns every unclaimed UTXO
+// across ALL of the identity's static deposit addresses (each tagged with its
+// address + isConfirmed), instead of enumerating addresses and querying each.
+// Mirrors breez/spark-sdk's get_utxos_for_identity so a deposit to any address
+// the identity owns is claimable even if it is not in queryStaticDepositAddresses.
+export const getUtxosForIdentity = async ({
+  mnemonic,
+  pageSize = 100,
+  cursor = '',
+  excludeClaimed = true,
+  includePending = false,
+}) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getUtxosForIdentity,
+        { mnemonic, pageSize, cursor, excludeClaimed, includePending },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to get utxos for identity',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const result = await wallet.getUtxosForIdentity({
+        pageSize,
+        cursor,
+        excludeClaimed,
+        includePending,
+      });
+      // { utxos: [{ address, txid, vout, isConfirmed }], pageResponse }
+      return { didWork: true, ...result };
+    }
+  } catch (err) {
+    console.log('Get utxos for identity error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
 export const sendSparkBitcoinPayment = async ({
   onchainAddress,
   exitSpeed,
