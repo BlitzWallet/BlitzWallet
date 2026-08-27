@@ -390,7 +390,6 @@ export const claimDepositUtxo = async ({
         fee: fee,
         totalFee: fee,
         supportFee: 0,
-        time: new Date().getTime(),
         dateAddedToDb: Date.now(),
         address,
         onChainTxid: txid,
