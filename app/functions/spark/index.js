@@ -1,20 +1,57 @@
 import {
-  SparkWallet,
-  getLatestDepositTxId,
-  isValidSparkAddress,
-  getNetworkFromSparkAddress,
-  decodeSparkAddress,
-  buildUnilateralExitChain,
-  Network,
-} from '@buildonspark/spark-sdk';
-import {
-  LightningSendRequestStatus,
-  SparkCoopExitRequestStatus,
-  LightningReceiveRequestStatus,
-  SparkLeavesSwapRequestStatus,
-  SparkUserRequestStatus,
-  ClaimStaticDepositStatus,
-} from '@buildonspark/spark-sdk/types';
+  loadSparkSdk,
+  getSparkWallet as getLazySparkWallet,
+  getBuildUnilateralExitChain,
+  getSparkAddressUtils,
+} from './lazySpark';
+
+// Inline status enums so the WebView path never evaluates @buildonspark/spark-sdk
+const LightningSendRequestStatus = {
+  TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
+  PREIMAGE_PROVIDED: 'PREIMAGE_PROVIDED',
+  LIGHTNING_PAYMENT_SUCCEEDED: 'LIGHTNING_PAYMENT_SUCCEEDED',
+  LIGHTNING_PAYMENT_RECEIVED: 'LIGHTNING_PAYMENT_RECEIVED',
+  USER_SWAP_RETURNED: 'USER_SWAP_RETURNED',
+  LIGHTNING_PAYMENT_FAILED: 'LIGHTNING_PAYMENT_FAILED',
+  TRANSFER_FAILED: 'TRANSFER_FAILED',
+  USER_TRANSFER_VALIDATION_FAILED: 'USER_TRANSFER_VALIDATION_FAILED',
+  PREIMAGE_PROVIDING_FAILED: 'PREIMAGE_PROVIDING_FAILED',
+  USER_SWAP_RETURN_FAILED: 'USER_SWAP_RETURN_FAILED',
+};
+const SparkCoopExitRequestStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+};
+const LightningReceiveRequestStatus = {
+  TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
+  LIGHTNING_PAYMENT_RECEIVED: 'LIGHTNING_PAYMENT_RECEIVED',
+  TRANSFER_FAILED: 'TRANSFER_FAILED',
+  PAYMENT_PREIMAGE_RECOVERING_FAILED: 'PAYMENT_PREIMAGE_RECOVERING_FAILED',
+  REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED:
+    'REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED',
+  REFUND_SIGNING_FAILED: 'REFUND_SIGNING_FAILED',
+  TRANSFER_CREATION_FAILED: 'TRANSFER_CREATION_FAILED',
+};
+const SparkLeavesSwapRequestStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+};
+const SparkUserRequestStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+};
+const ClaimStaticDepositStatus = {
+  TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
+  SPEND_TX_BROADCAST: 'SPEND_TX_BROADCAST',
+  TRANSFER_CREATION_FAILED: 'TRANSFER_CREATION_FAILED',
+  REFUND_SIGNING_FAILED: 'REFUND_SIGNING_FAILED',
+  UTXO_SWAPPING_FAILED: 'UTXO_SWAPPING_FAILED',
+  REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED:
+    'REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED',
+};
 import { getAllSparkTransactions } from './transactions';
 import { SPARK_TO_SPARK_FEE } from '../../constants/math';
 import {
@@ -302,6 +339,7 @@ export const initializeSparkWallet = async (
 };
 
 const initializeWallet = async mnemonic => {
+  const SparkWallet = await getLazySparkWallet();
   const { wallet } = await SparkWallet.initialize({
     mnemonicOrSeed: mnemonic,
     options: {
@@ -555,6 +593,8 @@ export const getSparkExitNodesForLeaves = async (mnemonic, leaves) => {
       );
     } else {
       if (!Array.isArray(leaves) || leaves.length === 0) return {};
+      const { buildUnilateralExitChain, Network } =
+        await getBuildUnilateralExitChain();
       if (typeof buildUnilateralExitChain !== 'function') return {};
 
       const wallet = await getWallet(mnemonic);
@@ -922,15 +962,18 @@ export const isOptimizationInProgress = async ({ mnemonic }) => {
 /**
  * Extracts the hex-encoded identity public key from a Spark address string.
  * Uses SDK static utilities — no wallet instance required.
+ * Lazy-loads the SDK (native only); WebView callers must await this.
  * @param {string} address - A bech32m Spark address
- * @returns {string} Hex-encoded secp256k1 compressed public key
+ * @returns {Promise<string>} Hex-encoded secp256k1 compressed public key
  */
-export const extractPubkeyFromSparkAddress = address => {
+export const extractPubkeyFromSparkAddress = async address => {
   if (!address || typeof address !== 'string') {
     throw new Error(
       'extractPubkeyFromSparkAddress: address must be a non-empty string',
     );
   }
+  const { isValidSparkAddress, getNetworkFromSparkAddress, decodeSparkAddress } =
+    await getSparkAddressUtils();
   if (!isValidSparkAddress(address)) {
     throw new Error(
       `extractPubkeyFromSparkAddress: invalid Spark address: ${address}`,
@@ -970,7 +1013,7 @@ export const generateSparkInvoiceFromAddress = async ({
       );
     }
 
-    const receiverIdentityPubkey = extractPubkeyFromSparkAddress(address);
+    const receiverIdentityPubkey = await extractPubkeyFromSparkAddress(address);
 
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {

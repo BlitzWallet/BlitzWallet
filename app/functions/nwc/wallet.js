@@ -1,9 +1,4 @@
-import {
-  SparkWallet,
-  SparkReadonlyClient,
-  DefaultSparkSigner,
-  encodeSparkAddress,
-} from '@buildonspark/spark-sdk/native';
+import { loadSparkNative } from '../spark/lazySpark';
 import { retrieveData } from '../secureStore';
 import { NWC_SECURE_STORE_MNEMOINC } from '../../constants';
 export let nwcWallet = null;
@@ -21,6 +16,7 @@ export const initializeNWCWallet = async () => {
 
     if (!NWCMnemoinc) throw new Error('No seed created');
 
+    const { SparkWallet } = await loadSparkNative();
     const { wallet } = await SparkWallet.initialize({
       mnemonicOrSeed: NWCMnemoinc,
       options: {
@@ -54,6 +50,8 @@ export const initializeNWCWalletViewer = async () => {
 
     if (!NWCMnemoinc) throw new Error('No seed created');
 
+    const { DefaultSparkSigner, SparkReadonlyClient, encodeSparkAddress } =
+      await loadSparkNative();
     const signer = new DefaultSparkSigner();
     // MAINNET wallets live at account 1 (SparkWallet.initialize and
     // SparkReadonlyClient.createWithMasterKey both default MAINNET to 1).

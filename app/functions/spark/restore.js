@@ -9,10 +9,11 @@ import {
   querySparkHodlLightningPayments,
   sparkPaymentType,
 } from '.';
-import {
-  LightningSendRequestStatus,
-  SparkCoopExitRequestStatus,
-} from '@buildonspark/spark-sdk/types';
+// Inline status constants so the WebView path never imports @buildonspark/spark-sdk
+const SparkCoopExitRequestStatus = {
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+};
 import {
   IS_BITCOIN_REQUEST_ID,
   IS_SPARK_ID,
