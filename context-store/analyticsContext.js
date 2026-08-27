@@ -10,40 +10,22 @@ import { useSparkWallet } from './sparkContext';
 import { useFlashnet } from './flashnetContext';
 import { getMonthlyTransactions } from '../app/functions/spark/transactions';
 import {
-  getSatsFromTx,
-  getDollarsFromTx,
-} from '../app/functions/analytics/index';
-import { buildCumulativeData } from '../app/components/admin/homeComponents/analytics/cumulativeLineChartHelpers';
+  computeSpentTotal,
+  deriveAnalytics,
+} from '../app/functions/analytics/deriveAnalytics';
 import { useAppStatus } from './appStatus';
-import {
-  convertToDecimals,
-  dollarsToSats,
-} from '../app/functions/spark/swapAmountUtils';
 
-// --- Global numbers provider: computes scalars + chart arrays, never stores raw tx arrays ---
+// --- Global numbers provider: always mounted. Computes ONLY spentTotal, the one
+// value budget hooks need outside the analytics stack. The heavy analytics-only
+// math (income totals, counts, chart series) lives in AnalyticsArraysProvider so
+// it never runs while analytics is closed. ---
 const AnalyticsNumbersContext = createContext(null);
-
-const COMPUTED_DEFAULTS = {
-  spentTotal: 0,
-  incomeTotalBTC: 0,
-  spentTotalBTC: 0,
-  incomeTotalUSD: 0,
-  spentTotalUSD: 0,
-  incomeTxCountBTC: 0,
-  spentTxCountBTC: 0,
-  incomeTxCountUSD: 0,
-  spentTxCountUSD: 0,
-  cumulativeIncomeDataBTC: [],
-  cumulativeSpentDataBTC: [],
-  cumulativeIncomeDataUSD: [],
-  cumulativeSpentDataUSD: [],
-};
 
 export function AnalyticsNumbersProvider({ children }) {
   const { sparkInformation, txsHashKey } = useSparkWallet();
   const { didGetToHomepage } = useAppStatus();
   const { poolInfoRef } = useFlashnet();
-  const [computed, setComputed] = useState(COMPUTED_DEFAULTS);
+  const [spentTotal, setSpentTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isReloading, setIsReloading] = useState(false);
   const hasLoadedRef = useRef(false);
@@ -59,126 +41,22 @@ export function AnalyticsNumbersProvider({ children }) {
       }
       try {
         const startTime = Date.now();
-        const [incomingBTC, outgoingBTC, incomingUSD, outgoingUSD] =
-          await Promise.all([
-            getMonthlyTransactions(sparkInformation.identityPubKey, 'INCOMING'),
-            getMonthlyTransactions(sparkInformation.identityPubKey, 'OUTGOING'),
-            getMonthlyTransactions(
-              sparkInformation.identityPubKey,
-              'INCOMING',
-              true,
-            ),
-            getMonthlyTransactions(
-              sparkInformation.identityPubKey,
-              'OUTGOING',
-              true,
-            ),
-          ]);
+        const [outgoingBTC, outgoingUSD] = await Promise.all([
+          getMonthlyTransactions(sparkInformation.identityPubKey, 'OUTGOING'),
+          getMonthlyTransactions(
+            sparkInformation.identityPubKey,
+            'OUTGOING',
+            true,
+          ),
+        ]);
 
-        const priceAInB = poolInfoRef.currentPriceAInB;
-
-        const incomeTotalBTC = incomingBTC.reduce((sum, tx) => {
-          try {
-            return sum + getSatsFromTx(tx, priceAInB, 'INCOMING');
-          } catch {
-            return sum;
-          }
-        }, 0);
-
-        const spentTotalBTC = outgoingBTC.reduce((sum, tx) => {
-          try {
-            return sum + getSatsFromTx(tx, priceAInB, 'OUTGOING');
-          } catch {
-            return sum;
-          }
-        }, 0);
-
-        const incomeTotalUSD = convertToDecimals(
-          incomingUSD.reduce((sum, tx) => {
-            try {
-              return sum + getDollarsFromTx(tx, priceAInB, 'INCOMING');
-            } catch {
-              return sum;
-            }
-          }, 0),
-        );
-
-        const spentTotalUSD = convertToDecimals(
-          outgoingUSD.reduce((sum, tx) => {
-            try {
-              return sum + getDollarsFromTx(tx, priceAInB, 'OUTGOING');
-            } catch {
-              return sum;
-            }
-          }, 0),
-        );
-
-        const spentTotal = Math.round(
-          spentTotalBTC + dollarsToSats(spentTotalUSD, priceAInB),
-        );
-
-        let cumulativeIncomeDataBTC = [];
-        let cumulativeSpentDataBTC = [];
-        let cumulativeIncomeDataUSD = [];
-        let cumulativeSpentDataUSD = [];
-        try {
-          cumulativeIncomeDataBTC = buildCumulativeData(
-            incomingBTC,
-            undefined,
-            priceAInB,
-            'INCOMING',
-          );
-        } catch (err) {
-          console.log('error creating cumulative income data', err);
-        }
-        try {
-          cumulativeSpentDataBTC = buildCumulativeData(
+        setSpentTotal(
+          computeSpentTotal(
             outgoingBTC,
-            undefined,
-            priceAInB,
-            'OUTGOING',
-          );
-        } catch (err) {
-          console.log('error creating cumulative spend data', err);
-        }
-        try {
-          cumulativeIncomeDataUSD = buildCumulativeData(
-            incomingUSD,
-            undefined,
-            priceAInB,
-            'INCOMING',
-            true,
-          );
-        } catch (err) {
-          console.log('error creating cumulative income data', err);
-        }
-        try {
-          cumulativeSpentDataUSD = buildCumulativeData(
             outgoingUSD,
-            undefined,
-            priceAInB,
-            'OUTGOING',
-            true,
-          );
-        } catch (err) {
-          console.log('error creating cumulative spend data', err);
-        }
-
-        setComputed({
-          spentTotal,
-          incomeTotalBTC,
-          spentTotalBTC,
-          incomeTotalUSD,
-          spentTotalUSD,
-          incomeTxCountBTC: incomingBTC.length,
-          spentTxCountBTC: outgoingBTC.length,
-          incomeTxCountUSD: incomingUSD.length,
-          spentTxCountUSD: outgoingUSD.length,
-          cumulativeIncomeDataBTC,
-          cumulativeSpentDataBTC,
-          cumulativeIncomeDataUSD,
-          cumulativeSpentDataUSD,
-        });
+            poolInfoRef.currentPriceAInB,
+          ),
+        );
 
         hasLoadedRef.current = true;
         const elapsed = Date.now() - startTime;
@@ -197,8 +75,8 @@ export function AnalyticsNumbersProvider({ children }) {
   }, [txsHashKey, sparkInformation.identityPubKey, didGetToHomepage]);
 
   const value = useMemo(
-    () => ({ ...computed, isLoading, isReloading }),
-    [computed, isLoading, isReloading],
+    () => ({ spentTotal, isLoading, isReloading }),
+    [spentTotal, isLoading, isReloading],
   );
 
   return (
@@ -217,15 +95,33 @@ export function useAnalyticsNumbers() {
   return ctx;
 }
 
-// --- Local arrays provider: scoped to analytics stack, GC'd on unmount ---
+// --- Local arrays provider: scoped to analytics stack, GC'd on unmount. Owns the
+// full analytics computation (raw month arrays + derived totals/counts/charts). ---
 const AnalyticsArraysContext = createContext(null);
+
+const DERIVED_DEFAULTS = {
+  incomeTotalBTC: 0,
+  spentTotalBTC: 0,
+  incomeTotalUSD: 0,
+  spentTotalUSD: 0,
+  incomeTxCountBTC: 0,
+  spentTxCountBTC: 0,
+  incomeTxCountUSD: 0,
+  spentTxCountUSD: 0,
+  cumulativeIncomeDataBTC: [],
+  cumulativeSpentDataBTC: [],
+  cumulativeIncomeDataUSD: [],
+  cumulativeSpentDataUSD: [],
+};
 
 export function AnalyticsArraysProvider({ children }) {
   const { sparkInformation, txsHashKey } = useSparkWallet();
+  const { poolInfoRef } = useFlashnet();
   const [inTxsBTC, setInTxsBTC] = useState([]);
   const [outTxsBTC, setOutTxsBTC] = useState([]);
   const [inTxsUSD, setInTxsUSD] = useState([]);
   const [outTxsUSD, setOutTxsUSD] = useState([]);
+  const [derived, setDerived] = useState(DERIVED_DEFAULTS);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -255,6 +151,12 @@ export function AnalyticsArraysProvider({ children }) {
         setOutTxsBTC(outgoingBTC);
         setInTxsUSD(incomingUSD);
         setOutTxsUSD(outgoingUSD);
+        setDerived(
+          deriveAnalytics(
+            { incomingBTC, outgoingBTC, incomingUSD, outgoingUSD },
+            poolInfoRef.currentPriceAInB,
+          ),
+        );
 
         const elapsed = Date.now() - startTime;
         const minDuration = 500;
@@ -271,8 +173,15 @@ export function AnalyticsArraysProvider({ children }) {
   }, [txsHashKey, sparkInformation.identityPubKey]);
 
   const value = useMemo(
-    () => ({ inTxsBTC, outTxsBTC, inTxsUSD, outTxsUSD, isLoading }),
-    [inTxsBTC, outTxsBTC, inTxsUSD, outTxsUSD, isLoading],
+    () => ({
+      inTxsBTC,
+      outTxsBTC,
+      inTxsUSD,
+      outTxsUSD,
+      ...derived,
+      isLoading,
+    }),
+    [inTxsBTC, outTxsBTC, inTxsUSD, outTxsUSD, derived, isLoading],
   );
 
   return (
@@ -282,7 +191,9 @@ export function AnalyticsArraysProvider({ children }) {
   );
 }
 
-// --- Merged convenience hook: works for all call sites unchanged ---
+// --- Merged convenience hook: works for all call sites unchanged. Inside the
+// analytics stack, arrays supplies the derived totals/counts/charts; spentTotal
+// and isReloading pass through from the global numbers provider. ---
 export function useAnalytics() {
   const numbers = useContext(AnalyticsNumbersContext);
   const arrays = useContext(AnalyticsArraysContext);
