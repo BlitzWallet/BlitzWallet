@@ -71,8 +71,7 @@ export async function transformTxToPaymentObject(
 
     const isSwapPayment = foundInvoice && foundInvoiceDetails.performSwaptoUSD;
     const isLiquidSwap = foundInvoice && foundInvoiceDetails.isLiquidSwap;
-    const isRootstockSwap =
-      foundInvoice && foundInvoiceDetails.isRootstockSwap;
+    const isRootstockSwap = foundInvoice && foundInvoiceDetails.isRootstockSwap;
     const placeholderSwapId = isRootstockSwap
       ? foundInvoiceDetails.rootstockSwapId
       : userRequestId;
@@ -85,7 +84,7 @@ export async function transformTxToPaymentObject(
     const effectivePaymentFee =
       isLiquidSwap || isRootstockSwap
         ? Math.max(paymentFee, Number.isFinite(swapFee) ? swapFee : 0)
-      : paymentFee;
+        : paymentFee;
 
     if (isSwapPayment) {
       updateSparkTransactionDetails(foundInvoice.sparkID, {
@@ -249,6 +248,19 @@ export async function transformTxToPaymentObject(
       blitzFee = await calculateProgressiveBracketFee(paymentAmount, 'bitcoin');
     }
 
+    // Preserve vout/onChainTxid for UTXO_SWAP so the pending ghost row
+    // (keyed by txid) can be collapsed deterministically even when the SDK
+    // omits userRequest.transactionId. ClaimStaticDeposit.transactionId/outputIndex (INCOMING) and
+    // CoopExitRequest.coopExitTxid (OUTGOING).
+    const resolvedOnChainTxid =
+      tx.transferDirection === 'OUTGOING'
+        ? userRequest?.coopExitTxid || ''
+        : userRequest?.transactionId || '';
+    const resolvedVout =
+      tx.transferDirection === 'INCOMING'
+        ? userRequest?.outputIndex ?? null
+        : undefined;
+
     return {
       id: tx.id,
       paymentStatus: status,
@@ -265,10 +277,9 @@ export async function transformTxToPaymentObject(
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: '',
-        onChainTxid:
-          tx.transferDirection === 'OUTGOING'
-            ? userRequest?.coopExitTxid || ''
-            : userRequest?.transactionId || '',
+        onChainTxid: resolvedOnChainTxid,
+        ...(resolvedVout !== null &&
+          resolvedVout !== undefined && { vout: Number(resolvedVout) }),
         refundTx: tx.refundTx || '',
         isRestore,
       },

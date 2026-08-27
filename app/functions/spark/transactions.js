@@ -369,12 +369,44 @@ export const getBitcoinPaymentsByTxid = async accountId => {
       [normalizedAccountId],
     );
 
+    const TXID_RE = /^[0-9a-f]{64}$/i;
+    const isTxidLike = id => TXID_RE.test(String(id || '').trim());
+    const shouldPrefer = (candidate, existing) => {
+      if (!existing) return true;
+      if (
+        existing.paymentStatus !== 'completed' &&
+        candidate.paymentStatus === 'completed'
+      )
+        return true;
+      if (
+        existing.paymentStatus === candidate.paymentStatus &&
+        isTxidLike(existing.sparkID) &&
+        !isTxidLike(candidate.sparkID)
+      )
+        return true;
+      return false;
+    };
+
     const byTxid = new Map();
     for (const payment of payments) {
       try {
         const paymentDetails = JSON.parse(payment.details);
-        if (paymentDetails.onChainTxid)
+        if (!paymentDetails.onChainTxid) continue;
+        const voutKey =
+          paymentDetails.vout !== null && paymentDetails.vout !== undefined
+            ? String(paymentDetails.vout)
+            : '';
+        const compositeKey = voutKey
+          ? `${paymentDetails.onChainTxid}:${voutKey}`
+          : paymentDetails.onChainTxid;
+        const existingComposite = byTxid.get(compositeKey);
+        if (shouldPrefer(payment, existingComposite)) {
+          byTxid.set(compositeKey, payment);
+        }
+        const existingTxidOnly = byTxid.get(paymentDetails.onChainTxid);
+        if (shouldPrefer(payment, existingTxidOnly)) {
           byTxid.set(paymentDetails.onChainTxid, payment);
+        }
       } catch (error) {
         // skip rows with unparseable details
       }

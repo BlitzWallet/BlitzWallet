@@ -201,7 +201,10 @@ export async function encryptAndStoreMnemonicWithBiometrics(mnemonic) {
 
     const cipherText = await encryptMnemonicV3(mnemonic, key);
 
-    await storeData('encryptedMnemonic', cipherText);
+    const ok = await storeData('encryptedMnemonic', cipherText);
+    if (!ok) return false;
+    const readback = await retrieveData('encryptedMnemonic');
+    if (!readback.didWork || readback.value !== cipherText) return false;
     return true;
   } catch (err) {
     console.log('encrpt mnemoinc with biometric error', err);
@@ -270,8 +273,14 @@ export async function storeMnemonicWithPinSecurity(mnemonic, pin) {
     // order a lost marker just self-heals on the next login. No PIN verifier is
     // stored — the Argon2+AES ciphertext already verifies the PIN (wrong PIN ⇒
     // GCM tag failure). PIN_MARKER only keeps needsToBeMigrated false.
-    await storeData('encryptedMnemonic', encrypted);
-    await storeData('pinHash', PIN_MARKER);
+    const ok = await storeData('encryptedMnemonic', encrypted);
+    if (!ok) return false;
+    const readback = await retrieveData('encryptedMnemonic');
+    if (!readback.didWork || readback.value !== encrypted) return false;
+    const pinOk = await storeData('pinHash', PIN_MARKER);
+    if (!pinOk) return false;
+    const pinReadback = await retrieveData('pinHash');
+    if (!pinReadback.didWork || pinReadback.value !== PIN_MARKER) return false;
     return true;
   } catch (err) {
     console.log('error encrypting mnemonic with pin', err);
@@ -355,7 +364,11 @@ export async function handleLoginSecuritySwitch(mnemoinc, pin, storageType) {
     } else {
       return false;
     }
-    await storeData(LOGIN_SECURITY_MODE_TYPE_KEY, storageType);
+    const modeOk = await storeData(LOGIN_SECURITY_MODE_TYPE_KEY, storageType);
+    if (!modeOk) throw new Error('Unable to save login mode');
+    const modeReadback = await retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY);
+    if (!modeReadback.didWork || modeReadback.value !== storageType)
+      throw new Error('Login mode readback failed');
     return true;
   } catch (error) {
     console.log('SecureStore Migration Error:', error);

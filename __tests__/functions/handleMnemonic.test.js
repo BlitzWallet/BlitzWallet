@@ -202,7 +202,20 @@ describe('storeMnemonicWithPinSecurity', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('stores a v3 GCM Argon2 JSON ciphertext and a pin hash', async () => {
-    storeData.mockResolvedValue(true);
+    let storedEnc = null;
+    let storedPinHash = null;
+    storeData.mockImplementation((key, value) => {
+      if (key === 'encryptedMnemonic') storedEnc = value;
+      if (key === 'pinHash') storedPinHash = value;
+      return Promise.resolve(true);
+    });
+    retrieveData.mockImplementation(key => {
+      if (key === 'encryptedMnemonic')
+        return Promise.resolve({ didWork: true, value: storedEnc });
+      if (key === 'pinHash')
+        return Promise.resolve({ didWork: true, value: storedPinHash });
+      return Promise.resolve({ didWork: true, value: null });
+    });
 
     const ok = await storeMnemonicWithPinSecurity(MNEMONIC, PIN_ARRAY);
 
@@ -982,6 +995,8 @@ describe('biometric crypto', () => {
     retrieveData.mockImplementation(key => {
       if (key === BIOMETRIC_KEY)
         return Promise.resolve({ didWork: true, value: 'some-key' });
+      // Guard read returns plaintext; readback after write returns the stored cipher
+      if (storedCipher !== null) return Promise.resolve({ didWork: true, value: storedCipher });
       return Promise.resolve({ didWork: true, value: MNEMONIC });
     });
 

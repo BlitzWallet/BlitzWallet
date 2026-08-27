@@ -16,6 +16,23 @@ import {
   getItemAsync,
   setItemAsync,
 } from 'expo-secure-store';
+
+function isV3Envelope(value) {
+  try {
+    const p = JSON.parse(value);
+    return (
+      p?.v === 3 &&
+      p.alg === 'aes-256-gcm' &&
+      p.kdf === 'argon2id' &&
+      typeof p.salt === 'string' &&
+      typeof p.iv === 'string' &&
+      typeof p.tag === 'string' &&
+      typeof p.ct === 'string'
+    );
+  } catch {
+    return false;
+  }
+}
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 export const MIGRATION_FLAG = 'secureStoreMigrationComplete';
 export const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
@@ -180,8 +197,21 @@ async function runPinAndMnemoicMigration() {
     ]);
 
     if (oldPin || oldMnemonic) {
+      // Never downgrade a v3 envelope: if the destination already holds a
+      // v3 ciphertext, the legacy plaintext must not overwrite it. Skip the
+      // copy but still clean up the stale legacy source afterwards.
+      let existingEncrypted = null;
+      try {
+        const existing = await retrieveData('encryptedMnemonic');
+        if (existing.didWork) existingEncrypted = existing.value;
+      } catch {}
+      const hasV3Destination =
+        typeof existingEncrypted === 'string' &&
+        isV3Envelope(existingEncrypted);
+      const shouldCopyMnemonic = !!oldMnemonic && !hasV3Destination;
+
       const pinStored = oldPin ? await storeData('pinHash', oldPin) : true;
-      const mnemonicStored = oldMnemonic
+      const mnemonicStored = shouldCopyMnemonic
         ? await storeData('encryptedMnemonic', oldMnemonic)
         : true;
       // Only delete the legacy source-of-truth once the copy is confirmed
@@ -190,7 +220,22 @@ async function runPinAndMnemoicMigration() {
       if (!pinStored || !mnemonicStored) {
         throw new Error('SecureStore migration write failed; will retry');
       }
+      // Readback-verify before deleting the source: write→verify→delete.
+      if (oldPin) {
+        const rb = await retrieveData('pinHash');
+        if (!rb.didWork || rb.value !== oldPin) {
+          throw new Error('SecureStore migration pinHash readback failed; will retry');
+        }
+      }
+      if (shouldCopyMnemonic) {
+        const rb = await retrieveData('encryptedMnemonic');
+        if (!rb.didWork || rb.value !== oldMnemonic) {
+          throw new Error('SecureStore migration encryptedMnemonic readback failed; will retry');
+        }
+      }
       if (oldPin) await deleteItemAsync('pin');
+      // Delete the legacy mnemonic source whether we copied it or skipped it
+      // due to an existing v3 destination (stale survivor cleanup).
       if (oldMnemonic) await deleteItemAsync('mnemonic');
     }
 
@@ -217,12 +262,24 @@ async function runSecureStoreMigrationV2() {
       getItemAsync('mnemonic', KEYCHAIN_OPTION),
     ]);
 
-    if (plainPin && plainMnemonic) {
-      const pinStored = await storeData('pinHash', plainPin);
-      const mnemonicStored = await storeData(
-        'encryptedMnemonic',
-        plainMnemonic,
-      );
+    if (plainPin || plainMnemonic) {
+      let existingEncrypted = null;
+      try {
+        const existing = await retrieveData('encryptedMnemonic');
+        if (existing.didWork) existingEncrypted = existing.value;
+      } catch {}
+      const hasV3Destination =
+        typeof existingEncrypted === 'string' &&
+        isV3Envelope(existingEncrypted);
+      const shouldCopyMnemonic = !!plainMnemonic && !hasV3Destination;
+      const shouldCopyPin = !!plainPin;
+
+      const pinStored = shouldCopyPin
+        ? await storeData('pinHash', plainPin)
+        : true;
+      const mnemonicStored = shouldCopyMnemonic
+        ? await storeData('encryptedMnemonic', plainMnemonic)
+        : true;
 
       // Only delete once the copy is confirmed written (storeData returns false
       // on failure); otherwise a failed write would destroy the only seed copy.
@@ -230,9 +287,23 @@ async function runSecureStoreMigrationV2() {
         throw new Error('V2 SecureStore migration write failed; will retry');
       }
 
-      // Delete old unencrypted values
-      await deleteItem('pin');
-      await deleteItem('mnemonic');
+      if (shouldCopyPin) {
+        const rb = await retrieveData('pinHash');
+        if (!rb.didWork || rb.value !== plainPin) {
+          throw new Error('V2 SecureStore migration pinHash readback failed; will retry');
+        }
+      }
+      if (shouldCopyMnemonic) {
+        const rb = await retrieveData('encryptedMnemonic');
+        if (!rb.didWork || rb.value !== plainMnemonic) {
+          throw new Error('V2 SecureStore migration encryptedMnemonic readback failed; will retry');
+        }
+      }
+
+      // Delete old unencrypted values — lone survivors too, and v3-skipped
+      // mnemonics (stale survivor cleanup). Only delete what existed.
+      if (plainPin) await deleteItem('pin');
+      if (plainMnemonic) await deleteItem('mnemonic');
     }
 
     await setLocalStorageItem(SECURE_MIGRATION_V2_FLAG, 'true');

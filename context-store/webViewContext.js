@@ -1987,6 +1987,19 @@ export const WebViewProvider = ({ children, transport = null }) => {
             console.error('Timeout: backend is unresponsive');
             return;
           }
+          // A handshake reply only ever answers the pending 'handshake:init'
+          // request. A reply whose id belongs to any OTHER pending request
+          // (page bug, id mix-up, or a stale reply racing a reset) must be
+          // dropped: settling that request with {didComplete:true} would
+          // fabricate a non-outcome, drive the state machine to READY for a
+          // handshake that never completed, and orphan the real handshake
+          // request (B1).
+          if (entry.action !== 'handshake:init') {
+            console.error(
+              'SECURITY: handshake reply for a non-handshake request — dropped',
+            );
+            return;
+          }
           if (!sessionKeyRef.current) {
             // no need to handle anything here, will be handled with timeout
             console.error(
