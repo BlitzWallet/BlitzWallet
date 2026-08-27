@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Partager mon lien",
       "images": "De l'image",
       "clipboard": "Du presse-papiers",
       "manual": "Entrée manuelle",
@@ -1522,7 +1523,8 @@
         "noAmount_even": "Veuillez entrer le montant total à partager.",
         "noAmount_custom": "Assurez-vous que chacun a un montant.",
         "noDescription": "Veuillez ajouter une description.",
-        "noContactsSelected": "Veuillez sélectionner au moins un contact"
+        "noContactsSelected": "Veuillez sélectionner au moins un contact",
+        "contactLookupFailed": "Impossible de charger les informations de paiement d'un ou plusieurs contacts. Veuillez réessayer."
       }
     },
     "editProfileFieldPage": {
@@ -2074,7 +2076,9 @@
         "selectAccount": "Sélectionner un compte",
         "addFromTitle": "Choisissez le compte depuis lequel ajouter de l'argent.",
         "withdrawToTitle": "Choisissez le compte vers lequel retirer de l'argent.",
-        "noAccounts": "Aucun autre compte disponible.",
+        "noAvailableAccounts": "Aucun compte disponible",
+        "noAccountsSubtitle": "Vous n'avez pas encore de compte. Créez-en un pour commencer.",
+        "noAvailableAccountsSubtitle": "Vos comptes n'ont pas encore de fonds. Ajoutez de l'argent pour les utiliser ici.",
         "availableToAdd": "Disponible à ajouter",
         "availableToWithdraw": "Disponible à retirer",
         "using": "Utilisation",
@@ -2083,7 +2087,8 @@
         "receivedFrom": "Reçu de {{name}}",
         "selfTransfer": "Vous ne pouvez pas transférer vers vous-même",
         "addFunds": "{{name}} a ajouté de l'argent",
-        "withdrawFunds": "{{name}} a retiré de l'argent"
+        "withdrawFunds": "{{name}} a retiré de l'argent",
+        "balanceLoadError": "Impossible de charger le solde de ce compte. Veuillez réessayer."
       }
     },
     "accountsPoolsScreen": {
@@ -3065,7 +3070,12 @@
     },
     "LNURL": {
       "zapped": "Vous avez été zappé {{totalAmount}}",
-      "regular": "Vous venez de recevoir {{totalAmount}}"
+      "regular": "Vous venez de recevoir {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Votre {{account}} a été zappé de {{totalAmount}}",
+        "regular": "Votre {{account}} a reçu {{totalAmount}}",
+        "fallbackName": "compte"
+      }
     },
     "POS": "Commande reçue : {{totalAmount}}",
     "contacts": {
@@ -3084,7 +3094,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Compte {{index}}"
+    "fallbackAccountName": "Compte {{index}}",
+    "lastUpdated": "Mis à jour {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "La requête n’a pas passé les vérifications de validation.",

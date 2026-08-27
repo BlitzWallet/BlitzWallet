@@ -398,15 +398,71 @@ export const getSparkTransactionBySparkId = async (sparkID, accountId) => {
 
     const rows = await sqlLiteDB.getAllAsync(
       `SELECT *
-       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-       WHERE sparkID = ? AND accountId = ?
-       LIMIT 1`,
+        FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+        WHERE sparkID = ? AND accountId = ?
+        LIMIT 1`,
       [normalizedSparkID, normalizedAccountId],
     );
 
     return rows?.[0] ?? null;
   } catch (error) {
     console.error('Error fetching spark transaction by sparkID:', error);
+    return null;
+  }
+};
+
+export const getBitcoinTransactionByOnChainTxid = async (
+  onChainTxid,
+  accountId,
+  vout = null,
+) => {
+  const normalizedTxid =
+    typeof onChainTxid === 'string' ? onChainTxid.trim() : '';
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedTxid || !normalizedAccountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const hasVout = vout !== null && vout !== undefined;
+    let query = `SELECT *
+        FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+        WHERE accountId = ?
+        AND paymentType = 'bitcoin'
+        AND json_valid(details)
+        AND TRIM(json_extract(details, '$.onChainTxid')) = ?`;
+    const params = [normalizedAccountId, normalizedTxid];
+    if (hasVout) {
+      query += ` AND CAST(json_extract(details, '$.vout') AS INTEGER) = ?`;
+      params.push(Number(vout));
+    }
+    query += ` LIMIT 1`;
+
+    const rows = await sqlLiteDB.getAllAsync(query, params);
+
+    // Fallback for legacy rows that have no vout field: if we queried with vout
+    // and found nothing, try txid-only. This preserves existing single-output
+    // history while new multi-output rows (which store vout) remain distinct.
+    if (hasVout && (!rows || rows.length === 0)) {
+      const fallbackRows = await sqlLiteDB.getAllAsync(
+        `SELECT *
+        FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+        WHERE accountId = ?
+        AND paymentType = 'bitcoin'
+        AND json_valid(details)
+        AND TRIM(json_extract(details, '$.onChainTxid')) = ?
+        AND json_extract(details, '$.vout') IS NULL
+        LIMIT 1`,
+        [normalizedAccountId, normalizedTxid],
+      );
+      return fallbackRows?.[0] ?? null;
+    }
+
+    return rows?.[0] ?? null;
+  } catch (error) {
+    console.error('Error fetching bitcoin transaction by onChainTxid:', error);
     return null;
   }
 };
@@ -1344,10 +1400,25 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           //     );
           //   }
           // } else {
-          const mergedDetails = mergeDetails(
-            existingTx.details,
-            processedTx.details,
-          );
+          // A same-batch temp-id rename can race an earlier writer that already
+          // inserted a row under the FINAL sparkID (e.g. the transfer:claimed
+          // placeholder landing before the claim path's rename). The temp row
+          // still carries details the final row lacks (deposit address, txid,
+          // description…), and it is about to be deleted below — so fold its
+          // details into the update first, with the incoming details winning.
+          const tempDetails = (() => {
+            try {
+              return existingTempTx?.details
+                ? JSON.parse(existingTempTx.details)
+                : {};
+            } catch {
+              return {};
+            }
+          })();
+          const mergedDetails = mergeDetails(existingTx.details, {
+            ...tempDetails,
+            ...processedTx.details,
+          });
           const paymentStatus = resolvePaymentStatusForUpdate(
             processedTx.paymentStatus,
             existingTx.paymentStatus,

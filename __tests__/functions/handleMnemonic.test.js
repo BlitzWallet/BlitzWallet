@@ -912,4 +912,81 @@ describe('biometric crypto', () => {
     const result = await decryptMnemonicWithBiometrics();
     expect(result).toBeNull();
   });
+
+  it('fails closed without rotating the key when the key read errors', async () => {
+    retrieveData.mockImplementation(key =>
+      key === BIOMETRIC_KEY
+        ? Promise.resolve({ didWork: false, value: false })
+        : Promise.resolve({ didWork: true, value: null }),
+    );
+
+    const key = await generateAndStoreEncryptionKeyForMnemoinc();
+    expect(key).toBe(false);
+    expect(storeData).not.toHaveBeenCalledWith(
+      BIOMETRIC_KEY,
+      expect.anything(),
+      { requireAuthentication: true },
+    );
+  });
+
+  it('generates a fresh key only when the key is truly absent', async () => {
+    // Absent keys resolve as didWork:true + null value (expo-secure-store),
+    // distinct from the read-error shape pinned above — this is the
+    // first-time-enrollment half of the boundary.
+    retrieveData.mockImplementation(() =>
+      Promise.resolve({ didWork: true, value: null }),
+    );
+
+    const key = await generateAndStoreEncryptionKeyForMnemoinc();
+    expect(key).toMatch(/^[0-9a-f]{64}$/);
+    expect(storeData).toHaveBeenCalledWith(BIOMETRIC_KEY, key, {
+      requireAuthentication: true,
+    });
+  });
+
+  it('returns null when the ciphertext read fails (retryable), not false', async () => {
+    retrieveData.mockImplementation(key =>
+      key === BIOMETRIC_KEY
+        ? Promise.resolve({ didWork: true, value: 'some-key' })
+        : Promise.resolve({ didWork: false, value: false }),
+    );
+    const result = await decryptMnemonicWithBiometrics();
+    expect(result).toBeNull();
+  });
+
+  it('refuses to encrypt-and-store over a different valid plaintext seed', async () => {
+    const otherSeed =
+      'legal winner thank year wave sausage worth useful legal winner thank yellow';
+    let storedCipher = null;
+    storeData.mockImplementation((key, value) => {
+      if (key === 'encryptedMnemonic') storedCipher = value;
+      return Promise.resolve(true);
+    });
+    retrieveData.mockImplementation(key => {
+      if (key === BIOMETRIC_KEY)
+        return Promise.resolve({ didWork: true, value: 'some-key' });
+      return Promise.resolve({ didWork: true, value: otherSeed });
+    });
+
+    const ok = await encryptAndStoreMnemonicWithBiometrics(MNEMONIC);
+    expect(ok).toBe(false);
+    expect(storedCipher).toBeNull();
+  });
+
+  it('allows re-storing the same plaintext seed (crashed-migration resume)', async () => {
+    let storedCipher = null;
+    storeData.mockImplementation((key, value) => {
+      if (key === 'encryptedMnemonic') storedCipher = value;
+      return Promise.resolve(true);
+    });
+    retrieveData.mockImplementation(key => {
+      if (key === BIOMETRIC_KEY)
+        return Promise.resolve({ didWork: true, value: 'some-key' });
+      return Promise.resolve({ didWork: true, value: MNEMONIC });
+    });
+
+    const ok = await encryptAndStoreMnemonicWithBiometrics(MNEMONIC);
+    expect(ok).toBe(true);
+    expect(JSON.parse(storedCipher).v).toBe(3);
+  });
 });

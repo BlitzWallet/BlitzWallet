@@ -1,4 +1,8 @@
-import { bech32mDecode } from '@buildonspark/spark-sdk';
+import { bech32m } from 'bech32';
+
+function bech32mDecode(address) {
+  return bech32m.decode(address, 1024);
+}
 
 /**
  * Convert 5-bit words to 8-bit bytes (BIP173)

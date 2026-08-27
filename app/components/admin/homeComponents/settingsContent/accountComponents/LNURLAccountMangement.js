@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useToast } from '../../../../../../context-store/toastManager';
@@ -7,13 +7,22 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { copyToClipboard } from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
-import { CENTER, SIZES } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  SIZES,
+} from '../../../../../constants';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
 import { useNavigation } from '@react-navigation/native';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import GetThemeColors from '../../../../../hooks/themeColors';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
+import { shareMessage } from '../../../../../functions/handleShare';
 
 export default function LNURLAccountMangement({ account, lnurlAddress }) {
   const { screenDimensions } = useAppStatus();
@@ -21,6 +30,9 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { t } = useTranslation();
   const navigate = useNavigation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { globalContactsInformation } = useGlobalContactsInfo();
 
   // Registry id for this account's LNURL entry; null for the main account
   // (no registry entry), which keeps the global currency behavior.
@@ -31,13 +43,34 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
     return entry ? entry[0] : null;
   }, [masterInfoObject.accountsLnurl, account?.uuid]);
 
-  const qrContainerSize = Math.round(screenDimensions.width * 0.75);
-  const qrInnerSize = qrContainerSize - 25;
+  const qrContainerSize = useMemo(
+    () => Math.round(screenDimensions.width * 0.75),
+    [screenDimensions.width],
+  );
+  const qrInnerSize = useMemo(() => qrContainerSize - 25, [qrContainerSize]);
 
-  const handleCopy = () => {
+  const qrOuterContainerStyle = useMemo(
+    () => ({ width: qrContainerSize, height: qrContainerSize }),
+    [qrContainerSize],
+  );
+  const qrInnerContainerStyle = useMemo(
+    () => ({ width: qrInnerSize, height: qrInnerSize }),
+    [qrInnerSize],
+  );
+
+  const isMain = !accountsLnurlId;
+
+  const handleCopy = useCallback(() => {
     if (!lnurlAddress) return;
     copyToClipboard(lnurlAddress, showToast);
-  };
+  }, [lnurlAddress, showToast]);
+
+  const handleShare = useCallback(() => {
+    if (!lnurlAddress) return;
+    shareMessage({
+      message: `https://blitzwalletapp.com/${globalContactsInformation?.myProfile?.uniqueName}`,
+    });
+  }, [lnurlAddress, globalContactsInformation?.myProfile?.uniqueName]);
 
   return (
     <View style={styles.qrViewContainer}>
@@ -45,32 +78,44 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
         contentContainerStyle={styles.qrViewScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity activeOpacity={0.8} onPress={handleCopy}>
+        <TouchableOpacity
+          style={[
+            styles.qrCardTouchable,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+          activeOpacity={0.8}
+          onPress={handleCopy}
+        >
           <QrCodeWrapper
             QRData={`${lnurlAddress}`}
             qrSize={qrInnerSize}
-            outerContainerStyle={{
-              width: qrContainerSize,
-              height: qrContainerSize,
-            }}
-            innerContainerStyle={{
-              width: qrInnerSize,
-              height: qrInnerSize,
-            }}
+            outerContainerStyle={qrOuterContainerStyle}
+            innerContainerStyle={qrInnerContainerStyle}
           />
-          <ThemeText
-            CustomNumberOfLines={1}
-            adjustsFontSizeToFit={true}
-            styles={styles.qrViewAddressText}
-            content={lnurlAddress}
-          />
+          <View style={[styles.qrAddressRow, { width: qrInnerSize }]}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.qrViewAddressText}
+              content={lnurlAddress}
+            />
+            <View style={styles.copyIconWrapper}>
+              <ThemeIcon size={20} iconName={'Copy'} />
+            </View>
+          </View>
         </TouchableOpacity>
       </ScrollView>
 
       <CustomButton
-        buttonStyles={{ width: '100%' }}
-        actionFunction={handleCopy}
-        textContent={t('wallet.halfModal.copyAddress')}
+        buttonStyles={styles.mainButton}
+        actionFunction={isMain ? handleShare : handleCopy}
+        textContent={
+          isMain
+            ? t('wallet.halfModal.sharePaylink')
+            : t('wallet.halfModal.copyAddress')
+        }
       />
       <TouchableOpacity
         style={styles.changeCurrencyButton}
@@ -107,8 +152,25 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
-    marginTop: 12,
+    flexShrink: 1,
     includeFontPadding: false,
+  },
+  mainButton: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
+  qrCardTouchable: {
+    borderRadius: 16,
+    paddingBottom: 12.5,
+    overflow: 'hidden',
+  },
+  qrAddressRow: {
+    flexDirection: 'row',
+    ...CENTER,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    paddingHorizontal: 10,
+  },
+  copyIconWrapper: {
+    opacity: HIDDEN_OPACITY,
   },
   changeCurrencyButton: {
     minHeight: 40,

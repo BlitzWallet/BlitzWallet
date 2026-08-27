@@ -156,24 +156,28 @@ export async function upsertPlaces(places) {
   });
 }
 
+// True until this install has completed one full sync under the
+// always-include-name backend. Exists to repair rows left blank by the old
+// delta-dropped-name bug: forces a single full resync (which stamps the flag)
+// instead of scanning every row for blank names on every launch.
 export async function needsToResyncMapsData() {
   try {
     await openDB();
-
-    const row = await db.getFirstAsync(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM ${PLACES_TABLE}
-        WHERE name IS NULL OR name = ''
-      ) AS missing
-    `);
-
-    console.log(row); // inspect actual result shape
-    return Boolean(row?.missing);
+    const row = await db.getFirstAsync(
+      `SELECT value FROM ${META_TABLE} WHERE key = 'name_backfill_done'`,
+    );
+    return !row;
   } catch (err) {
     console.log(err);
     return false;
   }
+}
+
+export async function markNameBackfillDone() {
+  await openDB();
+  await db.runAsync(
+    `INSERT OR REPLACE INTO ${META_TABLE} (key, value) VALUES ('name_backfill_done', '1')`,
+  );
 }
 
 export async function deletePlaces(ids) {

@@ -1,17 +1,18 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { SIZES, COLORS, BASIC_ACCOUNT_NAME_REGEX } from '../../../../constants';
+import {
+  SIZES,
+  COLORS,
+  BASIC_ACCOUNT_NAME_REGEX,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import AccountProfileImage from './accountProfileImage';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-} from '../../../../../context-store/activeAccount';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -29,6 +30,7 @@ export default function AccountCard({
   useAltBackground = false,
   isAccountSwitching = false,
   balanceSats,
+  lastUpdated,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
@@ -108,11 +110,20 @@ export default function AccountCard({
               : t('accountCard.fallbackAccountName', { index: accountIndex })
           }
         />
+        {lastUpdated != null && account.uuid !== MAIN_ACCOUNT_UUID && (
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.lastUpdated}
+            content={t('accountCard.lastUpdated', {
+              date: lastUpdated,
+            })}
+          />
+        )}
       </View>
 
       <View style={styles.rightSection}>
         {/* Right: Balance preview + Chevron */}
-        {balanceSats != null && (
+        {balanceSats != null && balanceSats > 0 && (
           <ThemeText
             styles={styles.previewBalance}
             content={displayCorrectDenomination({
@@ -159,6 +170,11 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   previewBalance: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    includeFontPadding: false,
+  },
+  lastUpdated: {
     fontSize: SIZES.small,
     opacity: 0.6,
     includeFontPadding: false,

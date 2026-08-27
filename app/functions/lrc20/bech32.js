@@ -1,4 +1,4 @@
-import {bech32m} from 'bech32';
+import { bech32m } from 'bech32';
 
 /**
  * Converts a raw token identifier (hex string) to bech32m format
@@ -32,7 +32,7 @@ export const convertToBech32m = (rawTokenId, prefix = 'btkn') => {
  */
 export const convertFromBech32m = bech32mTokenId => {
   try {
-    const decoded = bech32m.decode(bech32mTokenId);
+    const decoded = bech32m.decode(bech32mTokenId, 1024);
 
     const bytes = bech32m.fromWords(decoded.words);
 

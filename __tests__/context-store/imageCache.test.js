@@ -67,7 +67,10 @@ jest.mock('../../app/constants', () => ({
   VALID_URL_REGEX: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/,
 }));
 
-jest.mock('../../db/initializeFirebase', () => ({ __esModule: true, storage: {} }));
+jest.mock('../../db/initializeFirebase', () => ({
+  __esModule: true,
+  storage: {},
+}));
 
 // Consumer contexts — controllable per test.
 const mockContacts = { decodedAddedContacts: [] };
@@ -121,7 +124,11 @@ async function flush() {
 async function mount() {
   await act(async () => {
     ReactTestRenderer.create(
-      React.createElement(ImageCacheProvider, null, React.createElement(Capture)),
+      React.createElement(
+        ImageCacheProvider,
+        null,
+        React.createElement(Capture),
+      ),
     );
   });
   await flush();
@@ -219,7 +226,10 @@ describe('reconcile pointers on load', () => {
   test('ignores entries whose persisted pointer lives at a stale path but keeps null-uri deletes', async () => {
     // A genuinely OS-purged file (no file anywhere on disk) drops the pointer,
     // while a null-localUri delete is preserved.
-    mockGetAllLocalKeys.mockResolvedValue([`${PREFIX}/purged`, `${PREFIX}/deleted`]);
+    mockGetAllLocalKeys.mockResolvedValue([
+      `${PREFIX}/purged`,
+      `${PREFIX}/deleted`,
+    ]);
     mockGetMultipleItems.mockResolvedValue([
       storedEntry('purged'),
       [
@@ -696,7 +706,63 @@ describe('freshness pass is decoupled from Spark', () => {
 
     // The pass ran again on foreground — driven by appStatus's appState, with no
     // second AppState listener of our own.
-    expect(mockGetMetadata).toHaveBeenCalledTimes(2);
+    expect(mockGetMetadata).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('initial pass survives dep churn during its delay', () => {
+  test('churn mid-wait does not cancel the pending pass and runs the latest contacts', async () => {
+    jest.useFakeTimers();
+    // Child-account boot sequence from the bug report: no homepage and no
+    // profile uuid yet.
+    mockAppStatus.didGetToHomepage = false;
+    mockGlobalCtx.masterInfoObject = null;
+    mockContacts.decodedAddedContacts = [];
+    mockGetMetadata.mockResolvedValue({ updated: 'm1' });
+    mockGetDownloadURL.mockResolvedValue('https://example.com/x.jpg');
+    mockDownloadAsync.mockResolvedValue({ status: 200 });
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 10 });
+
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(providerElement());
+    });
+
+    // Profile uuid arrives while still off-homepage.
+    mockGlobalCtx.masterInfoObject = { uuid: 'me-uuid' };
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    expect(mockGetMetadata).not.toHaveBeenCalled();
+
+    // Homepage settles → initial pass scheduled with a 5s delay.
+    mockAppStatus.didGetToHomepage = true;
+    await act(async () => {
+      tree.update(providerElement());
+    });
+    expect(mockGetMetadata).not.toHaveBeenCalled();
+
+    // Mid-wait churn (the child-claim handoff adds the parent contact via
+    // addContact → new decodedAddedContacts → new runFreshnessPass identity).
+    // Previously the effect cleanup cleared the pending timer here and the
+    // one-shot guard never rescheduled, so the pass never ran.
+    mockContacts.decodedAddedContacts = [
+      { uuid: 'parent-uuid', isLNURL: false },
+    ];
+    await act(async () => {
+      tree.update(providerElement());
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+    await flush();
+
+    // The pass still fired despite the churn — and ran with the LATEST
+    // contact list, so the freshly added parent is checked too.
+    const refPaths = mockRef.mock.calls.map(c => c[1]);
+    expect(refPaths).toContain(`${PREFIX}/me-uuid.jpg`);
+    expect(refPaths).toContain(`${PREFIX}/parent-uuid.jpg`);
   });
 });
 

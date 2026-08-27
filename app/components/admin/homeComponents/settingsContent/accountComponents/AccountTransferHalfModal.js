@@ -17,6 +17,7 @@ import { useActiveCustodyAccount } from '../../../../../../context-store/activeA
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
+import { useToast } from '../../../../../../context-store/toastManager';
 
 import {
   getDefaultDisplayCurrency,
@@ -111,9 +112,15 @@ export default function AccountTransferHalfModal({
   } = useUserBalanceContext();
   const { sendWebViewRequest } = useWebView();
   const { screenDimensions } = useAppStatus();
+  const { showToast } = useToast();
 
   const [page, setPage] = useState('account'); // account | amount | loading | result
   const [selectedAccount, setSelectedAccount] = useState(null);
+  // Add-mode picker: the uuid whose balance is currently being fetched (its
+  // card renders the AccountCard skeleton), and a counter bumped on every pick
+  // so re-tapping the same account refetches instead of replaying its error.
+  const [loadingAccountUuid, setLoadingAccountUuid] = useState(null);
+  const [balanceReloadKey, setBalanceReloadKey] = useState(0);
   const [asset, setAsset] = useState('BTC');
   const [amountValue, setAmountValue] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -137,6 +144,19 @@ export default function AccountTransferHalfModal({
   const isSubmittingRef = useRef(false);
   const sourceMnemonicRef = useRef(null);
   const initPromiseRef = useRef(null);
+  // Synchronous twin of loadingAccountUuid: two rapid card taps can both fire
+  // before a re-render commits the state guard, so presses check/set this ref
+  // to guarantee only one account ever starts loading.
+  const loadingAccountRef = useRef(null);
+  // Add-mode wallet lifecycle. pickedSourceUuidRef synchronously mirrors the
+  // latest picked source uuid so the balance effect's cleanup can tell a real
+  // account switch (dispose the old wallet) from a same-account balance refetch
+  // (keep it alive — init early-returns, so no dispose/re-init race).
+  // disposableMnemonicRef holds the one wallet this modal exclusively acquired
+  // and must release, so the unmount backstop can dispose it without a stale
+  // closure.
+  const pickedSourceUuidRef = useRef(null);
+  const disposableMnemonicRef = useRef(null);
 
   // The edited account is passed in by the caller (it may be a personal custody
   // account or a linked child). The modal never resolves it from a global list,
@@ -173,6 +193,16 @@ export default function AccountTransferHalfModal({
         const mnemonic = await getAccountMnemonic(sourceAccount);
         if (cancelled) return;
         sourceMnemonicRef.current = mnemonic;
+        // Only a wallet we alone acquired is ours to dispose: a picked add-mode
+        // counterparty, never the main seed (session-long) or the edit page's
+        // own source wallet (withdraw — its editAccountPage owns the lifecycle
+        // and is live-subscribed to the shared per-mnemonic singleton). Set
+        // before init so a cancel mid-init still releases it.
+        disposableMnemonicRef.current =
+          mnemonic !== accountMnemoinc &&
+          sourceAccount?.uuid !== currentAccount?.uuid
+            ? mnemonic
+            : null;
         await (initPromiseRef.current = initializeSparkWallet(mnemonic, false, {
           maxRetries: 4,
           shouldCancel: () => cancelled,
@@ -199,21 +229,22 @@ export default function AccountTransferHalfModal({
     })();
     return () => {
       cancelled = true;
-      // The init above acquired a wallet; drop it so no orphan lingers after
-      // the sheet closes. Never for the main seed — that wallet is session-long.
-      // Await the in-flight init before disposing so we dispose the wallet init
-      // actually created (a pre-init dispose is a no-op).
-      const m = sourceMnemonicRef.current;
-      // Withdraw's source IS the edited account. Its still-mounted editAccountPage
-      // owns that wallet's lifecycle and is live-subscribed to it (shared
-      // per-mnemonic singleton) — disposing here would kill that subscription.
-      // Only dispose the picked counterparty wallet we alone acquired (add mode).
-      const ownedByEditPage = sourceAccount?.uuid === currentAccount?.uuid;
-      if (m && m !== accountMnemoinc && !ownedByEditPage) {
+      // Dispose the picked wallet ONLY when switching to a different source.
+      // A same-account balance refetch (balanceReloadKey bump) and unmount both
+      // leave the pick unchanged: the refetch keeps the wallet alive (init
+      // early-returns — no dispose/re-init race), and unmount is released by the
+      // backstop effect below, which reads the still-set refs.
+      const isSwitch = pickedSourceUuidRef.current !== sourceAccount?.uuid;
+      if (!isSwitch) return;
+      const m = disposableMnemonicRef.current;
+      if (m) {
+        // Await the in-flight init before disposing so we dispose the wallet
+        // init actually created (a pre-init dispose is a no-op).
         Promise.resolve(initPromiseRef.current).finally(() =>
           disposeSparkWallet(m),
         );
       }
+      disposableMnemonicRef.current = null;
       sourceMnemonicRef.current = null;
       initPromiseRef.current = null;
     };
@@ -222,7 +253,25 @@ export default function AccountTransferHalfModal({
     isSourceActive,
     getAccountMnemonic,
     accountMnemoinc,
+    currentAccount?.uuid,
+    balanceReloadKey,
   ]);
+
+  // Backstop: release the picked counterparty wallet when the sheet unmounts.
+  // The balance effect keeps that wallet alive across same-account reloads, so
+  // unmount is where a still-held pick is finally disposed. disposableMnemonicRef
+  // only ever holds a wallet this modal exclusively acquired, so no owner check
+  // is needed here.
+  useEffect(() => {
+    return () => {
+      const m = disposableMnemonicRef.current;
+      if (m) {
+        Promise.resolve(initPromiseRef.current).finally(() =>
+          disposeSparkWallet(m),
+        );
+      }
+    };
+  }, []);
 
   const sourceBtcSats = isSourceActive
     ? activeBitcoinBalance
@@ -233,7 +282,7 @@ export default function AccountTransferHalfModal({
   const sourceStatus = isSourceActive ? 'ready' : sourceBalance.status;
   const sourceUsdMicros = Math.round(sourceUsdDollars * 1e6);
 
-  const computeTotalSats = useAccountBalancePreviews();
+  const { computeTotalSats } = useAccountBalancePreviews();
 
   // Cross-fade step transition (fade + directional slide), matching
   // halfModalDepositFunds / CreateAccumulationAddressModal: every visited page
@@ -322,6 +371,25 @@ export default function AccountTransferHalfModal({
     );
     goToPage('result');
   }, [currentAccount, goToPage, t]);
+
+  // Add-mode picker gate: only advance to the amount step once the tapped
+  // source's true balance has landed. A failed load drops back to the idle
+  // list with a toast; tapping again refetches via balanceReloadKey.
+  useEffect(() => {
+    if (!loadingAccountUuid) return;
+    if (sourceStatus === 'ready') {
+      loadingAccountRef.current = null;
+      setLoadingAccountUuid(null);
+      goToPage('amount');
+    } else if (sourceStatus === 'error') {
+      loadingAccountRef.current = null;
+      setLoadingAccountUuid(null);
+      showToast({
+        type: 'error',
+        title: t('settings.accountComponents.transferModal.balanceLoadError'),
+      });
+    }
+  }, [loadingAccountUuid, sourceStatus, goToPage, showToast, t]);
 
   // Height follows the live page; account/amount share 0.8 so their (most
   // common) transition never resizes.
@@ -622,11 +690,29 @@ export default function AccountTransferHalfModal({
     sendWebViewRequest,
     t,
   ]);
-
-  const candidates = custodyAccountsList.filter(
-    item => item.uuid !== currentAccount?.uuid,
-  );
+  const candidates = custodyAccountsList
+    .filter(item => item.uuid !== currentAccount?.uuid)
+    .filter(item => !isAdd || computeTotalSats(item) > 0);
   const isConfirmed = !errorMessage;
+
+  if (!candidates.length) {
+    return (
+      <NoContentSceen
+        iconName="Users"
+        titleText={t(
+          'settings.accountComponents.transferModal.noAvailableAccounts',
+        )}
+        subTitleText={
+          custodyAccountsList.length > 1
+            ? t(
+                'settings.accountComponents.transferModal.noAvailableAccountsSubtitle',
+              )
+            : t('settings.accountComponents.transferModal.noAccountsSubtitle')
+        }
+        containerStyles={styles.emptyContainer}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -643,32 +729,61 @@ export default function AccountTransferHalfModal({
               : 'settings.accountComponents.transferModal.withdrawToTitle',
           )}
         />
-        {candidates.length > 0 ? (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.accountList}
-            contentContainerStyle={styles.accountListContent}
-          >
-            {candidates.map((candidate, index) => (
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.accountList}
+          contentContainerStyle={styles.accountListContent}
+        >
+          {candidates.map((candidate, index) => {
+            // Only the currently-active account's balance is already in
+            // context (instant, no fetch); every other source is fetched.
+            // Keyed on the tapped card — NOT the component-scoped
+            // isSourceActive, which reflects the previously selected account —
+            // so the skeleton and the seeded 'loading' status always describe
+            // the card actually tapped (the main wallet may not be active, and
+            // the active account may not be the main wallet).
+            const candidateIsActive = candidate.uuid === activeAccount?.uuid;
+            return (
               <AccountCard
                 useAltBackground={theme && darkModeType}
                 key={candidate.uuid || `Account ${index}`}
                 account={candidate}
+                isLoading={
+                  loadingAccountUuid === candidate.uuid && !candidateIsActive
+                }
                 onPress={() => {
+                  // Only one account loads at a time; ignore presses mid-load.
+                  if (loadingAccountRef.current || loadingAccountUuid) return;
                   setSelectedAccount(candidate);
-                  goToPage('amount');
+                  if (!isAdd) {
+                    // Withdraw's destination needs no balance fetch.
+                    goToPage('amount');
+                    return;
+                  }
+                  // The amount step is gated on this pick's real balance, so
+                  // show the card as loading and drop any previous read here —
+                  // synchronously with the selection change, or the ready-
+                  // watcher would see the prior account's 'ready' status.
+                  setSourceBalance({
+                    status: candidateIsActive ? 'ready' : 'loading',
+                    btcSats: 0,
+                    usdDollars: 0,
+                    tokensObj: null,
+                  });
+                  // Record the pick synchronously so the balance effect's
+                  // cleanup can distinguish this switch from a same-account
+                  // refetch before the re-render commits.
+                  pickedSourceUuidRef.current = candidate.uuid;
+                  loadingAccountRef.current = candidate.uuid;
+                  setBalanceReloadKey(key => key + 1);
+                  setLoadingAccountUuid(candidate.uuid);
                 }}
                 balanceSats={computeTotalSats(candidate)}
               />
-            ))}
-          </ScrollView>
-        ) : (
-          <NoContentSceen
-            iconName="Users"
-            titleText={t('settings.accountComponents.transferModal.noAccounts')}
-            containerStyles={styles.emptyContainer}
-          />
-        )}
+            );
+          })}
+        </ScrollView>
       </Animated.View>
 
       {/* Amount entry */}

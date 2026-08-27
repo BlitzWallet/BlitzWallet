@@ -9,16 +9,22 @@ import {
   getAllAccountBalanceSnapshots,
   getUsdTokenDollars,
 } from '../functions/spark/balanceSnapshots';
+import { createFormattedDate } from '../components/admin/homeComponents/contacts/contactsPageComponents/utilityFunctions';
+import { useTranslation } from 'react-i18next';
 
 // Cached balance snapshots keyed by identity pubkey, re-read every time the
 // page regains focus so balances updated while inside an account are current
-// when the user navigates back. Returns computeTotalSats(account) ->
-// combined BTC+USDB total in sats (null = unknown, hide).
+// when the user navigates back. Returns { computeTotalSats, computeLastUpdated }:
+// computeTotalSats(account) -> combined BTC+USDB total in sats (null = unknown,
+// hide); computeLastUpdated(account) -> snapshot updatedAt ms (null = live or
+// no snapshot).
 export default function useAccountBalancePreviews() {
   const { activeAccount } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { swapUSDPriceDollars } = useFlashnet();
+  const now = useMemo(() => Date.now(), []);
+  const { t } = useTranslation();
 
   const [snapshotMap, setSnapshotMap] = useState({});
   useFocusEffect(
@@ -29,7 +35,11 @@ export default function useAccountBalancePreviews() {
         if (cancelled) return;
         const map = {};
         for (const s of snapshots) {
-          map[s.identityPubKey] = { balance: s.balance, tokens: s.tokens };
+          map[s.identityPubKey] = {
+            balance: s.balance,
+            tokens: s.tokens,
+            updatedAt: s.updatedAt,
+          };
         }
         setSnapshotMap(map);
       })();
@@ -83,5 +93,20 @@ export default function useAccountBalancePreviews() {
     ],
   );
 
-  return computeTotalSats;
+  // When we last got a real balance for this account (snapshot timestamp).
+  // Null for the active account — its balance is live, so the cached
+  // snapshot's freshness is meaningless.
+  const computeLastUpdated = useCallback(
+    account => {
+      const isActiveAccount = account.uuid === activeAccount?.uuid;
+      if (isActiveAccount) return null;
+      const pubkey = accountPubkeys[account.uuid];
+      const snapshot = pubkey ? snapshotMap[pubkey] : null;
+      if (!snapshot?.updatedAt) return null;
+      return createFormattedDate(snapshot?.updatedAt, now, t);
+    },
+    [activeAccount?.uuid, accountPubkeys, snapshotMap, now],
+  );
+
+  return { computeTotalSats, computeLastUpdated };
 }

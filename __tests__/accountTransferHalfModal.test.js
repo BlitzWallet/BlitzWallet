@@ -7,10 +7,15 @@ let mockActiveAccount = { uuid: 'active-uuid', name: 'Active' };
 let mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
 let mockCurrentAccount = { uuid: 'child-uuid', name: 'Child', childIndex: 0 };
 let mockCustodyAccounts = [];
+// Per-uuid balance previews consumed by the picker's zero-balance filter.
+// Unlisted accounts default to a positive balance so scenarios that don't
+// care about balances still see their cards.
+let mockAccountBalances = {};
 let mockActiveAccountBalance = 50000;
 let mockActiveDollarBalance = 2;
 let mockGetSparkBalance = jest.fn();
 let mockInitializeSparkWallet = jest.fn();
+let mockDisposeSparkWallet = jest.fn(async () => ({ didWork: true }));
 let mockGetSparkIdentityPubKey = jest.fn();
 let mockOptimisticallyUpdateBalanceSnapshot = jest.fn();
 let mockExecuteAccountTransfer = jest.fn();
@@ -167,6 +172,17 @@ jest.mock('../app/hooks/useDebounce', () => ({
   },
 }));
 
+jest.mock('../app/hooks/useAccountBalancePreviews', () => ({
+  __esModule: true,
+  default: () => ({
+    computeTotalSats: account =>
+      account.uuid in mockAccountBalances
+        ? mockAccountBalances[account.uuid]
+        : 50000,
+    computeLastUpdated: () => null,
+  }),
+}));
+
 jest.mock('../app/functions/CustomElements', () => {
   const MockReact = require('react');
   const RN = require('react-native');
@@ -219,24 +235,41 @@ jest.mock('../app/functions/CustomElements/loadingScreen', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/functions/CustomElements/noContentScreen', () => ({
-  __esModule: true,
-  default: () => null,
-}));
+jest.mock('../app/functions/CustomElements/noContentScreen', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ titleText, subTitleText }) =>
+      MockReact.createElement(
+        RN.View,
+        { testID: 'no-content-screen' },
+        titleText,
+        subTitleText,
+      ),
+  };
+});
 
 jest.mock('../app/components/admin/homeComponents/accounts/accountCard', () => {
   const MockReact = require('react');
   const RN = require('react-native');
   return {
     __esModule: true,
-    default: ({ account, onPress }) =>
+    default: ({ account, onPress, isLoading }) =>
       MockReact.createElement(
         RN.TouchableOpacity,
-        { testID: `account-card-${account.uuid}`, onPress },
+        { testID: `account-card-${account.uuid}`, onPress, isLoading },
         account.name,
       ),
   };
 });
+
+let mockShowToast = jest.fn();
+
+jest.mock('../context-store/toastManager', () => ({
+  __esModule: true,
+  useToast: () => ({ showToast: mockShowToast }),
+}));
 
 // The asset card opens the SelectPaymentMethod picker via navigation; tests
 // capture the pushed params and drive onSelectMethod themselves.
@@ -291,7 +324,7 @@ jest.mock('../app/functions/spark/accountTransfer', () => ({
 }));
 
 jest.mock('../app/functions/spark', () => ({
-  disposeSparkWallet: jest.fn(async () => ({ didWork: true })),
+  disposeSparkWallet: (...args) => mockDisposeSparkWallet(...args),
   getSparkBalance: (...args) => mockGetSparkBalance(...args),
   getSparkIdentityPubKey: (...args) => mockGetSparkIdentityPubKey(...args),
   initializeSparkWallet: (...args) => mockInitializeSparkWallet(...args),
@@ -424,6 +457,7 @@ beforeEach(() => {
   mockChildAccounts = [{ uuid: 'child-uuid', name: 'Child', childIndex: 0 }];
   mockCurrentAccount = { uuid: 'child-uuid', name: 'Child', childIndex: 0 };
   mockCustodyAccounts = [];
+  mockAccountBalances = {};
   mockActiveAccountBalance = 50000;
   mockActiveDollarBalance = 2;
   // Empty input parses to 0 sats; any entered amount maps to 1000 for the
@@ -440,6 +474,7 @@ beforeEach(() => {
     tokensObj: {},
   });
   mockInitializeSparkWallet.mockResolvedValue({ isConnected: true });
+  mockDisposeSparkWallet = jest.fn(async () => ({ didWork: true }));
   mockGetSparkIdentityPubKey.mockImplementation(async mn => `pk-${mn}`);
   mockOptimisticallyUpdateBalanceSnapshot = jest.fn(async () => {});
   mockPublishParentAccountTransferMessage = jest.fn(async () => {});
@@ -467,6 +502,60 @@ describe('AccountTransferHalfModal step flow', () => {
     expect(() =>
       renderer.root.findByProps({ testID: 'account-card-other-child-uuid' }),
     ).toThrow();
+  });
+
+  test('picker hides zero and unknown balance accounts', async () => {
+    mockCustodyAccounts = [
+      { uuid: 'other-uuid', name: 'Other' },
+      { uuid: 'empty-uuid', name: 'Empty' },
+      { uuid: 'unknown-uuid', name: 'Unknown' },
+    ];
+    mockAccountBalances = { 'empty-uuid': 0, 'unknown-uuid': null };
+    const renderer = await renderModal();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-other-uuid' }),
+    ).not.toThrow();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-empty-uuid' }),
+    ).toThrow();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-unknown-uuid' }),
+    ).toThrow();
+  });
+
+  test('withdraw mode keeps zero balance accounts selectable', async () => {
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    mockAccountBalances = { 'other-uuid': 0 };
+    const renderer = await renderModal({ mode: 'withdraw' });
+    expect(() =>
+      renderer.root.findByProps({ testID: 'account-card-other-uuid' }),
+    ).not.toThrow();
+  });
+
+  test('picker shows the funds empty state when other accounts exist but have no balance', async () => {
+    mockCustodyAccounts = [
+      { uuid: 'child-uuid', name: 'Child' },
+      { uuid: 'other-uuid', name: 'Other' },
+    ];
+    mockAccountBalances = { 'other-uuid': 0 };
+    const renderer = await renderModal();
+    expect(
+      renderer.root.findByProps({ testID: 'no-content-screen' }).props.children,
+    ).toEqual([
+      'settings.accountComponents.transferModal.noAvailableAccounts',
+      'settings.accountComponents.transferModal.noAvailableAccountsSubtitle',
+    ]);
+  });
+
+  test('picker shows the create-account empty state when no other accounts exist', async () => {
+    mockCustodyAccounts = [{ uuid: 'child-uuid', name: 'Child' }];
+    const renderer = await renderModal();
+    expect(
+      renderer.root.findByProps({ testID: 'no-content-screen' }).props.children,
+    ).toEqual([
+      'settings.accountComponents.transferModal.noAvailableAccounts',
+      'settings.accountComponents.transferModal.noAccountsSubtitle',
+    ]);
   });
 
   test('BTC confirm sends sats with the computed fee and asset BTC', async () => {
@@ -630,6 +719,252 @@ describe('AccountTransferHalfModal step flow', () => {
       await flushMicrotasks();
     });
     expect(mockSetContentHeight).toHaveBeenLastCalledWith(440); // 0.55 * 800
+  });
+});
+
+describe('AccountTransferHalfModal picker loading gate', () => {
+  test('shows the tapped card as loading and only advances once its balance is ready', async () => {
+    let resolveBalance;
+    mockGetSparkBalance.mockReturnValueOnce(
+      new Promise(res => (resolveBalance = res)),
+    );
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    const renderer = await renderModal();
+
+    await act(async () => {
+      pressAccountCard(renderer, 'other-uuid');
+      await flushMicrotasks();
+    });
+
+    // The picked card renders the loading skeleton and the amount step has
+    // not been reached yet.
+    expect(
+      renderer.root.findByProps({
+        testID: 'account-card-other-uuid',
+        isLoading: true,
+      }),
+    ).toBeTruthy();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).toThrow();
+
+    await act(async () => {
+      resolveBalance({ didWork: true, balance: 2000n, tokensObj: {} });
+      await flushMicrotasks();
+    });
+
+    expect(mockGetSparkBalance).toHaveBeenCalledTimes(1);
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).not.toThrow();
+  });
+
+  test('ignores taps on other accounts while one is loading', async () => {
+    let resolveBalance;
+    mockGetSparkBalance.mockReturnValueOnce(
+      new Promise(res => (resolveBalance = res)),
+    );
+    mockCustodyAccounts = [
+      { uuid: 'other-uuid', name: 'Other' },
+      { uuid: 'second-uuid', name: 'Second' },
+    ];
+    const renderer = await renderModal();
+
+    await act(async () => {
+      pressAccountCard(renderer, 'other-uuid');
+      pressAccountCard(renderer, 'second-uuid');
+      await flushMicrotasks();
+    });
+
+    // Only the first pick started loading; the second press was dropped.
+    expect(mockInitializeSparkWallet).toHaveBeenCalledTimes(1);
+    expect(mockInitializeSparkWallet).toHaveBeenCalledWith(
+      'other-uuid-mnemonic',
+      false,
+      expect.anything(),
+    );
+
+    await act(async () => {
+      resolveBalance({ didWork: true, balance: 2000n, tokensObj: {} });
+      await flushMicrotasks();
+    });
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).not.toThrow();
+  });
+
+  test('a failed balance load toasts an error and stays on the picker; re-tapping refetches', async () => {
+    mockGetSparkBalance.mockReset();
+    mockGetSparkBalance.mockResolvedValue({ didWork: false });
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    const renderer = await renderModal();
+
+    await act(async () => {
+      pressAccountCard(renderer, 'other-uuid');
+      await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(50);
+      await flushMicrotasks();
+    });
+
+    expect(mockShowToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'error' }),
+    );
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).toThrow();
+
+    // Re-tapping the same account starts a fresh fetch that succeeds.
+    mockGetSparkBalance.mockResolvedValue({
+      didWork: true,
+      balance: 2000n,
+      tokensObj: {},
+    });
+    await selectAccount(renderer, 'other-uuid');
+    expect(mockGetSparkBalance).toHaveBeenCalledTimes(2);
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).not.toThrow();
+  });
+
+  test('a prior active-account pick does not leak a ready status onto the next non-active pick', async () => {
+    let resolveBalance;
+    mockGetSparkBalance.mockReturnValueOnce(
+      new Promise(res => (resolveBalance = res)),
+    );
+    mockCustodyAccounts = [
+      { uuid: 'active-uuid', name: 'Active' },
+      { uuid: 'other-uuid', name: 'Other' },
+    ];
+    let backOnPress;
+    const renderer = await renderModal({
+      setBackNav: nav => {
+        if (nav?.onPress) backOnPress = nav.onPress;
+      },
+    });
+
+    // Pick the active account: its balance is already in context, so it
+    // advances to the amount step immediately with no balance fetch.
+    await act(async () => {
+      pressAccountCard(renderer, 'active-uuid');
+      await flushMicrotasks();
+    });
+    expect(mockGetSparkBalance).not.toHaveBeenCalled();
+
+    // Back to the picker, then pick a NON-active account whose balance is still
+    // pending. The gate must key off THIS pick (loading), not the active
+    // account's leftover 'ready' status.
+    await act(async () => {
+      backOnPress();
+      await flushMicrotasks();
+    });
+    await act(async () => {
+      pressAccountCard(renderer, 'other-uuid');
+      await flushMicrotasks();
+    });
+
+    // Still loading — it must not have advanced on the previous pick's status.
+    // (If it had, the gate would have cleared loadingAccountUuid and the
+    // skeleton with it.)
+    expect(
+      renderer.root.findByProps({
+        testID: 'account-card-other-uuid',
+        isLoading: true,
+      }),
+    ).toBeTruthy();
+
+    await act(async () => {
+      resolveBalance({ didWork: true, balance: 2000n, tokensObj: {} });
+      await flushMicrotasks();
+    });
+    expect(mockGetSparkBalance).toHaveBeenCalledTimes(1);
+    expect(() =>
+      renderer.root.findByProps({
+        testID: 'account-card-other-uuid',
+        isLoading: true,
+      }),
+    ).toThrow();
+  });
+
+  test('a same-account retry refetches without disposing the wallet', async () => {
+    mockGetSparkBalance.mockReset();
+    mockGetSparkBalance.mockResolvedValueOnce({ didWork: false });
+    mockGetSparkBalance.mockResolvedValue({
+      didWork: true,
+      balance: 2000n,
+      tokensObj: {},
+    });
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    const renderer = await renderModal();
+
+    // First load fails (stays on the picker), then re-tapping succeeds.
+    await selectAccount(renderer, 'other-uuid');
+    await selectAccount(renderer, 'other-uuid');
+
+    // The wallet is kept alive across the refetch — never disposed then
+    // re-initialized, so there is no dispose/re-init race.
+    expect(mockDisposeSparkWallet).not.toHaveBeenCalled();
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).not.toThrow();
+  });
+
+  test('switching to a different source disposes the first account wallet', async () => {
+    mockCustodyAccounts = [
+      { uuid: 'first-uuid', name: 'First' },
+      { uuid: 'second-uuid', name: 'Second' },
+    ];
+    let backOnPress;
+    const renderer = await renderModal({
+      setBackNav: nav => {
+        if (nav?.onPress) backOnPress = nav.onPress;
+      },
+    });
+
+    await selectAccount(renderer, 'first-uuid');
+    expect(mockDisposeSparkWallet).not.toHaveBeenCalled();
+
+    // Back to the picker and pick a different account: the first pick's wallet
+    // is the one released.
+    await act(async () => {
+      backOnPress();
+      await flushMicrotasks();
+    });
+    await selectAccount(renderer, 'second-uuid');
+
+    expect(mockDisposeSparkWallet).toHaveBeenCalledWith('first-uuid-mnemonic');
+  });
+
+  test('unmounting after a pick disposes the held wallet', async () => {
+    mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
+    const renderer = await renderModal();
+    await selectAccount(renderer, 'other-uuid');
+    expect(mockDisposeSparkWallet).not.toHaveBeenCalled();
+
+    await act(async () => {
+      renderer.unmount();
+      await flushMicrotasks();
+    });
+    expect(mockDisposeSparkWallet).toHaveBeenCalledWith('other-uuid-mnemonic');
+  });
+
+  test('withdraw mode never disposes the edited account wallet', async () => {
+    // The edited (child) account is the withdraw source and is non-active, so
+    // its wallet is initialized here but owned by the edit page — never ours to
+    // dispose.
+    mockCustodyAccounts = [{ uuid: 'dest-uuid', name: 'Dest' }];
+    const renderer = await renderModal({ mode: 'withdraw' });
+    await act(async () => {
+      await flushMicrotasks();
+      await jest.advanceTimersByTimeAsync(50);
+    });
+
+    await act(async () => {
+      renderer.unmount();
+      await flushMicrotasks();
+    });
+    expect(mockDisposeSparkWallet).not.toHaveBeenCalled();
   });
 });
 

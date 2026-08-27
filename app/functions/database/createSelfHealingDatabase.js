@@ -47,7 +47,23 @@ export function createSelfHealingDatabase({ name, setup }) {
     if (!readyPromise) {
       readyPromise = (async () => {
         if (!rawDB) rawDB = await openDatabaseAsync(name);
-        if (setup) await setup(rawDB);
+        if (setup) {
+          try {
+            await setup(rawDB);
+          } catch (error) {
+            // setup runs raw (unproxied) queries — e.g. setupPoolsSchema /
+            // setupLeavesSchema call execAsync directly on the handle. The
+            // native handle can die between open and setup (OOM, or GC of a
+            // sibling wrapper — expo/expo#48999), so the released-handle error
+            // surfaces here, outside the query self-heal, as
+            // "NativeDatabase.execAsync has been rejected". Drop the dead
+            // handle, reopen once, and re-run setup — same recovery runHealing
+            // gives queries.
+            if (!RELEASED_ERROR_RE.test(String(error?.message))) throw error;
+            rawDB = await openDatabaseAsync(name);
+            await setup(rawDB);
+          }
+        }
         isReady = true;
         return db;
       })().catch(error => {

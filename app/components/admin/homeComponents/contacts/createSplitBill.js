@@ -34,6 +34,7 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
+import { matchSplitRecipientsToUsers } from '../../../../functions/payments/matchSplitRecipientsToUsers';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
@@ -337,24 +338,17 @@ export default function CreateSplitBill(props) {
       const docIds = recipients.map(r => r.contact.uuid);
       const users = await getDocsByIds('blitzWalletUsers', docIds);
 
-      const existingUsers = users.filter(Boolean);
+      // Join docs to recipients by uuid — an index-based join after dropping
+      // missing docs pairs payments with the wrong contact's spark address.
+      const { matched: recipientsWithAddress, missing } =
+        matchSplitRecipientsToUsers(recipients, users);
 
-      // Combine recipients with their sparkAddress from Firestore docs
-      const recipientsWithAddress = recipients
-        .map((recipient, index) => {
-          const user = existingUsers[index];
-          if (!user) return null;
-
-          return {
-            ...recipient,
-            contactFull: user,
-            contact: {
-              ...recipient.contact,
-              receiveAddress: user.contacts?.myProfile?.sparkAddress ?? null,
-            },
-          };
-        })
-        .filter(Boolean);
+      if (missing.length > 0) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('contacts.splitBill.errors.contactLookupFailed'),
+        });
+        return;
+      }
 
       keyboardNavigate(() =>
         navigate.navigate('ConfirmSplitPayment', {

@@ -1,5 +1,4 @@
 import { createSelfHealingDatabase } from '../database/createSelfHealingDatabase';
-import { TreeNode } from '@buildonspark/spark-sdk/proto/spark';
 
 export const LEAVES_DATABASE = 'WALLET_LEAVES';
 const LEAVES_TABLE = 'wallet_leaves';
@@ -185,8 +184,12 @@ function signingKeyshareForProto(keyshare) {
 // regardless of runtime path (native returns Uint8Array; webview returns hex or
 // {"0":n,...} maps). Returns null on failure so one bad leaf can't abort a
 // snapshot.
+// Lazy-requires the TreeNode proto at call time so the WebView path (which
+// already carries treeNodeHex and never calls this) never evaluates the SDK.
 export function treeNodeHexFromRaw(raw) {
   try {
+    // eslint-disable-next-line global-require
+    const { TreeNode } = require('@buildonspark/spark-sdk/proto/spark');
     const message = {
       id: raw.id ?? '',
       treeId: raw.treeId ?? '',
@@ -292,7 +295,7 @@ async function replaceAllLeavesInternal(identityPubKey, rawTreeNodes) {
     try {
       for (const raw of batch) {
         if (!raw?.id) continue;
-        const normalized = normalizeLeaf(raw);
+        const normalized = await normalizeLeaf(raw);
         // Exit status a NEW (or changed) leaf gets: pending if exit-eligible,
         // else skipped.
         const initialExitStatus =
@@ -424,7 +427,7 @@ export function saveExitNodesForLeaf(identityPubKey, leafId, rawNodes) {
       ]);
 
       for (const raw of nodes) {
-        const normalized = normalizeLeaf(raw);
+        const normalized = await normalizeLeaf(raw);
         if (!normalized?.id || !normalized?.treeNodeHex) continue;
         await db.runAsync(
           `INSERT INTO ${EXIT_NODES_TABLE}

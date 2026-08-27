@@ -17,7 +17,6 @@ import ThemeImage from '../../functions/CustomElements/themeImage';
 import AdaptiveButtonRow from '../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
-import { useKeysContext } from '../../../context-store/keys';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
@@ -33,7 +32,6 @@ export default function BTCMapMerchantContent({
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { getPlaceDetail } = useBTCMap();
-  const { contactsPrivateKey: privateKey, publicKey } = useKeysContext();
   const { t } = useTranslation();
 
   const [place, setPlace] = useState(null);
@@ -56,10 +54,10 @@ export default function BTCMapMerchantContent({
   useEffect(() => {
     if (!placeId) return;
     setDetailLoading(true);
-    getPlaceDetail(placeId, source, privateKey, publicKey)
+    getPlaceDetail(placeId, source)
       .then(detail => setPlace(detail))
       .finally(() => setDetailLoading(false));
-  }, [placeId, source, getPlaceDetail, privateKey, publicKey]);
+  }, [placeId, source, getPlaceDetail]);
 
   const handleDirections = useCallback(() => {
     if (!lat || !lon) return;

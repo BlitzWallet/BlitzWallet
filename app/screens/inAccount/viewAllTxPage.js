@@ -175,27 +175,26 @@ export default function ViewAllTxPage() {
       isKeyboardActive={isKeyboardActive}
       useLocalPadding={true}
     >
+      <CustomSettingsTopBar
+        showLeftImage={true}
+        iconNew="SlidersHorizontal"
+        badgeCount={badgeCount}
+        label={t('screens.inAccount.viewAllTxPage.title')}
+        leftImageFunction={() => {
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'txFilter',
+            sliderHight: 0.65,
+            currentFilter: {
+              directions: currentFilter.directions,
+              dateRange: currentFilter.dateRange,
+              types: currentFilter.types,
+            },
+            onSelectFilter: filters => handleFilterApply(filters),
+          });
+        }}
+        shouldDismissKeyboard={true}
+      />
       <View style={styles.contentContainer}>
-        <CustomSettingsTopBar
-          showLeftImage={true}
-          iconNew="SlidersHorizontal"
-          badgeCount={badgeCount}
-          label={t('screens.inAccount.viewAllTxPage.title')}
-          leftImageFunction={() => {
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'txFilter',
-              sliderHight: 0.65,
-              currentFilter: {
-                directions: currentFilter.directions,
-                dateRange: currentFilter.dateRange,
-                types: currentFilter.types,
-              },
-              onSelectFilter: filters => handleFilterApply(filters),
-            });
-          }}
-          shouldDismissKeyboard={true}
-        />
-
         <View style={styles.searchContainer}>
           <CustomSearchInput
             inputText={currentFilter.searchTerm}

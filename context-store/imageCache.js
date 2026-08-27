@@ -88,6 +88,8 @@ export function ImageCacheProvider({ children }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(false);
   const cacheRef = useRef(cache);
+  const initialPassTimerRef = useRef(null);
+  const runFreshnessPassRef = useRef(null);
 
   useEffect(() => {
     cacheRef.current = cache;
@@ -177,7 +179,8 @@ export function ImageCacheProvider({ children }) {
       });
 
       Object.entries(validatedCache).forEach(([uuid, entry]) => {
-        if (entry?.lastChecked) lastCheckedRef.current.set(uuid, entry.lastChecked);
+        if (entry?.lastChecked)
+          lastCheckedRef.current.set(uuid, entry.lastChecked);
       });
       entryStoreRef.current.setAll(validatedCache);
       setCache(validatedCache);
@@ -428,36 +431,46 @@ export function ImageCacheProvider({ children }) {
     processBatch();
   }, [decodedAddedContacts, masterInfoObject?.uuid, refreshCache]);
 
-  // Initial pass shortly after reaching the homepage.
+  // Initial pass shortly after reaching the homepage. The timer lives in a ref
+  // (cancelled only on unmount) because runFreshnessPass's deps churn right
+  // after the homepage settles (e.g. the child-account handoff adding the
+  // parent contact). An effect-local cleanup would clear the pending pass and
+  // the one-shot guard would never reschedule it. The pass is invoked through
+  // a ref so the delayed run picks up the latest contact list at fire time.
+  useEffect(() => {
+    runFreshnessPassRef.current = runFreshnessPass;
+  }, [runFreshnessPass]);
+
   useEffect(() => {
     if (!didGetToHomepage) return;
     if (didRunContextCacheCheck.current) return;
     if (!masterInfoObject?.uuid) return;
     didRunContextCacheCheck.current = true;
-    const timer = setTimeout(() => {
-      runFreshnessPass();
+    initialPassTimerRef.current = setTimeout(() => {
+      runFreshnessPassRef.current();
     }, 5000); //delay to allow homepage to settle
-    return () => clearTimeout(timer);
   }, [didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
 
-  // Re-run the freshness pass when the app returns to the foreground. Only
-  // fires on an actual background→active transition, so the mount-time
-  // appState='active' never triggers an early pass. The 30s pass throttle and
-  // the per-uuid success TTL keep this cheap.
-  const prevAppStateRef = useRef(appState);
-  useEffect(() => {
-    const prev = prevAppStateRef.current;
-    prevAppStateRef.current = appState;
-    if (prev === 'active' || appState !== 'active') return;
-    if (!didGetToHomepage || !masterInfoObject?.uuid) return;
-    runFreshnessPass();
-  }, [appState, didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
+  // // Re-run the freshness pass when the app returns to the foreground. Only
+  // // fires on an actual background→active transition, so the mount-time
+  // // appState='active' never triggers an early pass. The 30s pass throttle and
+  // // the per-uuid success TTL keep this cheap.
+  // const prevAppStateRef = useRef(appState);
+  // useEffect(() => {
+  //   const prev = prevAppStateRef.current;
+  //   prevAppStateRef.current = appState;
+  //   if (prev === 'active' || appState !== 'active') return;
+  //   if (!didGetToHomepage || !masterInfoObject?.uuid) return;
+  //   runFreshnessPass();
+  // }, [appState, didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
 
-  // Cancel any pending stagger chain on unmount so it can't fire setCache on a
-  // torn-down provider.
+  // Cancel any pending stagger chain / initial pass on unmount so they can't
+  // fire setCache on a torn-down provider.
   useEffect(() => {
     return () => {
       if (staggerTimerRef.current) clearTimeout(staggerTimerRef.current);
+      if (initialPassTimerRef.current)
+        clearTimeout(initialPassTimerRef.current);
     };
   }, []);
 

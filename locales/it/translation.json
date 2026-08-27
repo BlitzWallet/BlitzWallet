@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Condividi il mio link",
       "images": "Dall'Immagine",
       "clipboard": "Dalla Clipboard",
       "manual": "Inserimento Manuale",
@@ -1522,7 +1523,8 @@
         "noAmount_even": "Inserisci l’importo totale.",
         "noAmount_custom": "Assicurati che tutti abbiano un importo.",
         "noDescription": "Aggiungi una descrizione.",
-        "noContactsSelected": "Seleziona almeno un contatto"
+        "noContactsSelected": "Seleziona almeno un contatto",
+        "contactLookupFailed": "Impossibile caricare le informazioni di pagamento di uno o più contatti. Riprova."
       }
     },
     "editProfileFieldPage": {
@@ -2075,7 +2077,9 @@
         "selectAccount": "Seleziona un conto",
         "addFromTitle": "Scegli il conto da cui aggiungere denaro.",
         "withdrawToTitle": "Scegli il conto su cui prelevare denaro.",
-        "noAccounts": "Nessun altro conto disponibile.",
+        "noAvailableAccounts": "Nessun conto disponibile",
+        "noAccountsSubtitle": "Non hai ancora nessun conto. Creane uno per iniziare.",
+        "noAvailableAccountsSubtitle": "I tuoi conti non hanno ancora fondi. Aggiungi denaro per usarli qui.",
         "availableToAdd": "Disponibile da aggiungere",
         "availableToWithdraw": "Disponibile da prelevare",
         "using": "In uso",
@@ -2084,7 +2088,8 @@
         "receivedFrom": "Ricevuto da {{name}}",
         "selfTransfer": "Non puoi trasferire a te stesso",
         "addFunds": "{{name}} ha aggiunto denaro",
-        "withdrawFunds": "{{name}} ha prelevato denaro"
+        "withdrawFunds": "{{name}} ha prelevato denaro",
+        "balanceLoadError": "Impossibile caricare il saldo di questo conto. Riprova."
       }
     },
     "accountsPoolsScreen": {
@@ -3066,7 +3071,12 @@
     },
     "LNURL": {
       "zapped": "Sei stato zappato {{totalAmount}}",
-      "regular": "Hai appena ricevuto {{totalAmount}}"
+      "regular": "Hai appena ricevuto {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Il tuo {{account}} è stato zappato per {{totalAmount}}",
+        "regular": "Il tuo {{account}} ha ricevuto {{totalAmount}}",
+        "fallbackName": "conto"
+      }
     },
     "POS": "Ordine ricevuto: {{totalAmount}}",
     "contacts": {
@@ -3085,7 +3095,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Account {{index}}"
+    "fallbackAccountName": "Account {{index}}",
+    "lastUpdated": "Aggiornato {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "La richiesta non ha superato i controlli di validazione.",

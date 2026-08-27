@@ -1,5 +1,5 @@
-import { SparkReadonlyClient } from '@buildonspark/spark-sdk';
 import { USDB_TOKEN_ID } from '../../constants';
+import { getSparkReadonlyClient } from './lazySpark';
 import { selectSparkRuntime } from '.';
 import {
   OPERATION_TYPES,
@@ -27,6 +27,7 @@ export async function initializeSparkWalletViewer(mnemonic) {
       if (walletViewer && !mnemonic) return true;
       if (!mnemonic) return false;
 
+      const SparkReadonlyClient = await getSparkReadonlyClient();
       walletViewer = await SparkReadonlyClient.createWithMasterKey(
         {
           network: 'MAINNET',

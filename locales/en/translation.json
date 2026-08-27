@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Share my Link",
       "images": "From Image",
       "clipboard": "From Clipboard",
       "manual": "Manual Input",
@@ -1508,7 +1509,8 @@
         "noAmount_even": "Please enter the total amount to split.",
         "noAmount_custom": "Please make sure everyone has an amount.",
         "noDescription": "Please add a description for this split.",
-        "noContactsSelected": "Please select at least one other contact to continue"
+        "noContactsSelected": "Please select at least one other contact to continue",
+        "contactLookupFailed": "Couldn't load the payment info for one or more contacts. Please try again."
       }
     },
     "editProfileFieldPage": {
@@ -2163,7 +2165,7 @@
         "activeLabel": "Active account",
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
-        "withdrawMoneyButton": "Withdraw money",
+        "withdrawMoneyButton": "Withdraw",
         "viewActivityLabel": "Account History",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",
@@ -2214,7 +2216,9 @@
         "selectAccount": "Select an account",
         "addFromTitle": "Choose which account to add money from.",
         "withdrawToTitle": "Choose which account to withdraw money to.",
-        "noAccounts": "No other accounts available.",
+        "noAvailableAccounts": "No available accounts",
+        "noAccountsSubtitle": "You don’t have any accounts yet. Create one to get started.",
+        "noAvailableAccountsSubtitle": "Your accounts don’t have any funds yet. Add money to use it here.",
         "availableToAdd": "Available to add",
         "availableToWithdraw": "Available to withdraw",
         "using": "Using",
@@ -2223,7 +2227,8 @@
         "receivedFrom": "Received from {{name}}",
         "selfTransfer": "You cannot transfer to yourself",
         "addFunds": "{{name}} added money",
-        "withdrawFunds": "{{name}} withdrew money"
+        "withdrawFunds": "{{name}} withdrew money",
+        "balanceLoadError": "Couldn't load this account's balance. Please try again."
       }
     },
     "accountsPoolsScreen": {
@@ -3041,7 +3046,12 @@
     },
     "LNURL": {
       "zapped": "You were zapped {{totalAmount}}",
-      "regular": "You just received {{totalAmount}}"
+      "regular": "You just received {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Your {{account}} was zapped {{totalAmount}}",
+        "regular": "Your {{account}} received {{totalAmount}}",
+        "fallbackName": "account"
+      }
     },
     "POS": "Order received: {{totalAmount}}",
     "contacts": {
@@ -3060,7 +3070,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Account {{index}}"
+    "fallbackAccountName": "Account {{index}}",
+    "lastUpdated": "Updated {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "The request failed validation checks.",

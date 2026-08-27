@@ -1,5 +1,5 @@
 import { USDB_TOKEN_ID } from '../../constants';
-import { convertToDecimals, satsToDollars } from '../spark/flashnet';
+import { convertToDecimals, satsToDollars } from '../spark/swapAmountUtils';
 
 export function getDollarsFromTx(tx, currentPrice = 0, direction) {
   try {

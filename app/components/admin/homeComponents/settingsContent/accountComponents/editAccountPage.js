@@ -13,11 +13,7 @@ import {
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
-import {
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
@@ -29,7 +25,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../../constants';
 import { formatBalanceAmount } from '../../../../../functions';
 import {
   disposeSparkWallet,
@@ -191,6 +192,7 @@ export default function EditAccountPage(props) {
 
         subscriptionRef.current = subscribeToSparkBalance({
           mnemonic,
+          stabilize: true,
           onUpdate: result => {
             if (cancelled || !result?.didWork) return;
             setAccountBalance({
@@ -370,7 +372,9 @@ export default function EditAccountPage(props) {
   const addLabel = t(
     'settings.accountComponents.editAccountPage.addMoneyButton',
   );
-  const withdrawLabel = t('savings.actionButtons.withdraw');
+  const withdrawLabel = t(
+    'settings.accountComponents.editAccountPage.withdrawMoneyButton',
+  );
   const depositBg =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
@@ -418,14 +422,13 @@ export default function EditAccountPage(props) {
       label: t('settings.accountComponents.editAccountPage.viewActivityLabel'),
       onPress: handleViewActivity,
     },
-    !(accountInformation.accountType === 'main' && isMainAccountAChild) &&
-      !isChild && {
-        key: 'recovery',
-        label: t(
-          'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
-        ),
-        onPress: handleNavigateView,
-      },
+    !isMainAccountAChild && {
+      key: 'recovery',
+      label: t(
+        'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
+      ),
+      onPress: handleNavigateView,
+    },
   ].filter(Boolean);
 
   const renderCard = rows => {

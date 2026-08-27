@@ -11,9 +11,6 @@ import {
 // Fixed ASN.1 SPKI header for a raw-32-byte Ed25519 public key (no secret).
 const ED25519_SPKI_PREFIX = '302a300506032b6570032100';
 
-// Signature meta layout: <meta name="blitz-webview-sig" content="<128 hex chars>">
-const SIG_META_PREFIX = '<meta name="blitz-webview-sig" content="';
-
 // Integrity failures (bad/missing signature, nonce injection) are tamper: they
 // justify persisting the FORCE_REACT_NATIVE kill-switch. Transient IO errors
 // (disk read/write) are NOT tamper and must never persist it (S-5).
@@ -45,31 +42,52 @@ export async function verifyAndPrepareWebView(bundleSource) {
 
     // Verify the bundle's Ed25519 signature against the pinned public key. The
     // signature is computed offline over sha256(canonical HTML) with the
-    // signature slot holding the __SIGNATURE__ placeholder, so hash those
-    // exact bytes. Rather than materializing a canonical copy of the multi-MB
-    // document, it is UTF-8 encoded once and hashed incrementally over
-    // [head][__SIGNATURE__][tail] via zero-copy buffer views; Ed25519 then
-    // verifies just the 32-byte digest. Runs before nonce injection, so the
-    // shipped bytes (with __INJECT_NONCE__ intact) match what was signed.
-    const sigMetaStart = html.indexOf(SIG_META_PREFIX);
-    const sigStart = sigMetaStart + SIG_META_PREFIX.length;
-    const sigEnd = sigMetaStart === -1 ? -1 : html.indexOf('"', sigStart);
-    const signatureHex =
-      sigMetaStart === -1 || sigEnd === -1 || sigEnd - sigStart !== 128
-        ? null
-        : html.slice(sigStart, sigEnd);
+    // signature slot holding the __SIGNATURE__ placeholder, so reconstruct those
+    // exact bytes before hashing. The 5.3MB digest runs via JSI (quick-crypto)
+    // so it never crosses the bridge as a string; Ed25519 then verifies just the
+    // 32-byte digest. Runs before nonce injection, so the shipped bytes (with
+    // __INJECT_NONCE__ intact) match what was signed.
+    const SIG_META = /<meta name="blitz-webview-sig" content="([0-9a-f]{128})"/;
+    const SIG_META_ANY = /<meta name="blitz-webview-sig" content="[0-9a-f]{128}"/g;
+    const sigMatch = html.match(SIG_META);
 
-    if (!signatureHex || !/^[0-9a-f]{128}$/.test(signatureHex)) {
-      throw tamperError('WebView bundle missing signature meta.');
+    if (!sigMatch) throw tamperError('WebView bundle missing signature meta.');
+
+    // Anchor verification to document structure: the signed slot must sit in
+    // the head region at the top of the file so a valid signature can only
+    // vouch for a document whose signing meta is where the signer put it,
+    // never a variant with the meta relocated into the payload.
+    const MAX_SIG_META_OFFSET = 1024;
+    if (sigMatch.index > MAX_SIG_META_OFFSET) {
+      throw tamperError(
+        'Signature meta outside head region of WebView bundle.',
+      );
     }
 
-    const htmlBytes = Buffer.from(html, 'utf8');
-    const sigStartByte = Buffer.byteLength(html.slice(0, sigStart));
+    const canonicalHtml = html.replace(
+      /(<meta name="blitz-webview-sig" content=")[0-9a-f]{128}(")/,
+      '$1__SIGNATURE__$2',
+    );
+
+    // Canonicalization must be lossless and unique: exactly one signature slot
+    // (a planted literal would mean the signed bytes are ambiguous) and no
+    // additional signature metas may survive substitution.
+    const sigSlotCount = canonicalHtml.split('__SIGNATURE__').length - 1;
+    const remainingSigMetas = (canonicalHtml.match(SIG_META_ANY) || []).length;
+    if (sigSlotCount !== 1 || remainingSigMetas !== 0) {
+      throw tamperError('WebView bundle has malformed signature slots.');
+    }
+
     const digestHex = createHash('sha256')
-      .update(htmlBytes.subarray(0, sigStartByte))
-      .update(Buffer.from('__SIGNATURE__', 'utf8'))
-      .update(htmlBytes.subarray(sigStartByte + 128))
+      .update(canonicalHtml, 'utf8')
       .digest('hex');
+
+    // sha256 must yield exactly 32 bytes; fail closed rather than trusting the
+    // crypto library to reject a wrong-length buffer.
+    const digest = Buffer.from(digestHex, 'hex');
+    if (digest.length !== 32) {
+      throw tamperError('Unexpected digest length for signature verification.');
+    }
 
     const pubKey = createPublicKey({
       key: Buffer.concat([
@@ -79,14 +97,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
       format: 'der',
       type: 'spki',
     });
-    if (
-      !verify(
-        null,
-        Buffer.from(digestHex, 'hex'),
-        pubKey,
-        Buffer.from(signatureHex, 'hex'),
-      )
-    ) {
+    if (!verify(null, digest, pubKey, Buffer.from(sigMatch[1], 'hex'))) {
       throw tamperError('WebView bundle signature invalid — aborting.');
     }
 
@@ -98,17 +109,27 @@ export async function verifyAndPrepareWebView(bundleSource) {
       throw tamperError('No __INJECT_NONCE__ placeholder found in HTML.');
     }
 
-    // Replace only CSP and attribute placeholders. Literal splices (no regex):
-    // the bootstrap JS also contains bare "__INJECT_NONCE__" sentinel
-    // comparisons that must stay untouched, so never broaden this to a global
-    // placeholder replace.
-    let injectedHtml = html
-      .split(`'nonce-__INJECT_NONCE__'`)
-      .join(`'nonce-${nonceHex}'`)
-      .split('"nonce-__INJECT_NONCE__"')
-      .join(`"nonce-${nonceHex}"`)
-      .split('nonce="__INJECT_NONCE__"')
-      .join(`nonce="${nonceHex}"`);
+    // Census the placeholders before injecting so the post-conditions below can
+    // prove every substitutable slot got the fresh nonce exactly once. Bare
+    // __INJECT_NONCE__ literals used as runtime sentinels are never substituted
+    // and must survive injection untouched.
+    const NONCE_PLACEHOLDER_FORMS =
+      /'nonce-__INJECT_NONCE__'|"nonce-__INJECT_NONCE__"|nonce="__INJECT_NONCE__"/g;
+    const placeholderCount = (html.match(NONCE_PLACEHOLDER_FORMS) || []).length;
+    const sentinelCount =
+      html.split('__INJECT_NONCE__').length - 1 - placeholderCount;
+
+    // Replace only CSP and attribute placeholders, counting the slots actually
+    // rewritten so completeness never depends on guessing whether the random
+    // nonce value collides with unrelated bytes in the document.
+    let injectedCount = 0;
+    let injectedHtml = html.replace(
+      NONCE_PLACEHOLDER_FORMS,
+      match => {
+        injectedCount += 1;
+        return match.replace('__INJECT_NONCE__', nonceHex);
+      },
+    );
 
     // Ensure placeholders were replaced
     if (
@@ -118,6 +139,21 @@ export async function verifyAndPrepareWebView(bundleSource) {
       throw tamperError(
         'Nonce injection failed (meta or script attribute missing).',
       );
+    }
+
+    // Injection completeness: every censused slot was rewritten exactly once,
+    // no substitutable placeholder survives, and no placeholder text was added
+    // or removed anywhere else in the document.
+    const leftoverPlaceholders = (
+      injectedHtml.match(NONCE_PLACEHOLDER_FORMS) || []
+    ).length;
+    const leftoverSentinels = injectedHtml.split('__INJECT_NONCE__').length - 1;
+    if (
+      injectedCount !== placeholderCount ||
+      leftoverPlaceholders !== 0 ||
+      leftoverSentinels !== sentinelCount
+    ) {
+      throw tamperError('Nonce injection incomplete or malformed.');
     }
 
     // Write verified + nonce-injected HTML to cache

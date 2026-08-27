@@ -1,9 +1,5 @@
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  IS_SPARK_ID,
-} from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -54,10 +50,7 @@ import {
   simulateSwap,
 } from '../../../../functions/spark/flashnet';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
-import {
-  getSingleTxDetails,
-  getSparkPaymentStatus,
-} from '../../../../functions/spark';
+import { waitForSwapCompletion } from '../../../../functions/spark/waitForSwapCompletion';
 import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
@@ -603,28 +596,10 @@ export default function ConfirmSplitPayment(props) {
           if (swap) setFlashnetTransfer(swap.inboundTransferId);
         }
 
-        const MAX_WAIT_TIME = 60000;
-        const startTime = Date.now();
-        while (true) {
-          if (Date.now() - startTime > MAX_WAIT_TIME)
-            throw new Error('Swap completion timeout');
-
-          if (!IS_SPARK_ID.test(outboundTransferId)) {
-            await new Promise(res => setTimeout(res, 2500));
-            break;
-          }
-
-          const sparkTransferResponse = await getSingleTxDetails(
-            currentWalletMnemoinc,
-            outboundTransferId,
-          );
-          if (
-            getSparkPaymentStatus(sparkTransferResponse?.status) === 'completed'
-          )
-            break;
-
-          await new Promise(res => setTimeout(res, 1500));
-        }
+        await waitForSwapCompletion(
+          currentWalletMnemoinc,
+          outboundTransferId,
+        );
 
         // small buffer to help smooth things out
         await new Promise(res => setTimeout(res, 1500));

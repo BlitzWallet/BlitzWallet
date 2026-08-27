@@ -149,7 +149,10 @@ export async function getLRC20Transactions({
 }
 
 // We do not want to show failed flashnet swaps on homepage
-function markFlashnetTransfersAsFailed(transactions, timeWindowMs = 5000) {
+export function markFlashnetTransfersAsFailed(
+  transactions,
+  timeWindowMs = 5000,
+) {
   if (transactions.length < 2) return transactions;
 
   const flashnetIndices = new Set();
@@ -161,38 +164,46 @@ function markFlashnetTransfersAsFailed(transactions, timeWindowMs = 5000) {
     const tx = transactions[i];
     const key = `${tx.details.amount}-${tx.details.LRC20Token}`;
 
-    if (!byAmountAndToken.has(key)) {
-      byAmountAndToken.set(key, []);
+    let group = byAmountAndToken.get(key);
+    if (!group) {
+      group = { incoming: [], outgoing: [] };
+      byAmountAndToken.set(key, group);
     }
-    byAmountAndToken.get(key).push({ tx, index: i });
+    // A row with an unparseable timestamp is left alone: every comparison
+    // against NaN is false, so it would both escape detection itself and stall
+    // the sorted sweep below for the rest of its group. Showing a swap leg is
+    // the safe direction to fail; hiding a real payment is not.
+    if (!Number.isFinite(tx.details.time)) continue;
+
+    const entry = { time: tx.details.time, index: i };
+    if (tx.details.direction === 'INCOMING') group.incoming.push(entry);
+    else if (tx.details.direction === 'OUTGOING') group.outgoing.push(entry);
   }
 
-  // Check each amount+token group for flashnet patterns
-  for (const group of byAmountAndToken.values()) {
-    if (group.length < 2) continue;
-
-    // Check all pairs in this amount+token group
-    for (let i = 0; i < group.length; i++) {
-      for (let j = i + 1; j < group.length; j++) {
-        const tx1 = group[i].tx;
-        const tx2 = group[j].tx;
-
-        const timeDiff = Math.abs(tx1.details.time - tx2.details.time);
-        if (timeDiff > timeWindowMs) continue;
-
-        const oppositeDirs =
-          (tx1.details.direction === 'INCOMING' &&
-            tx2.details.direction === 'OUTGOING') ||
-          (tx1.details.direction === 'OUTGOING' &&
-            tx2.details.direction === 'INCOMING');
-
-        // If same amount, same token, opposite directions, and within time window = flashnet
-        if (oppositeDirs) {
-          flashnetIndices.add(group[i].index);
-          flashnetIndices.add(group[j].index);
-        }
+  // A transaction is a flashnet transfer when an opposite-direction
+  // counterpart with the same amount+token exists inside the time window.
+  // With both sides sorted by time, a forward-only pointer answers that
+  // existence check in amortized O(1) per transaction, keeping the whole
+  // scan O(n log n) instead of comparing every pair (O(n²)).
+  const findCounterpartMatches = (sideA, sideB) => {
+    let j = 0;
+    for (let i = 0; i < sideA.length; i++) {
+      const time = sideA[i].time;
+      while (j < sideB.length && sideB[j].time < time - timeWindowMs) j++;
+      if (j < sideB.length && sideB[j].time <= time + timeWindowMs) {
+        flashnetIndices.add(sideA[i].index);
       }
     }
+  };
+
+  // Check each amount+token group for flashnet patterns:
+  // same amount, same token, opposite directions, within time window
+  for (const { incoming, outgoing } of byAmountAndToken.values()) {
+    if (!incoming.length || !outgoing.length) continue;
+    incoming.sort((a, b) => a.time - b.time);
+    outgoing.sort((a, b) => a.time - b.time);
+    findCounterpartMatches(incoming, outgoing);
+    findCounterpartMatches(outgoing, incoming);
   }
 
   // Only create new array if we found flashnet transactions

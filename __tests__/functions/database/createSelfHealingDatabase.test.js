@@ -78,6 +78,55 @@ test('reinitialize re-runs setup on the same connection', async () => {
   expect(openDatabaseAsync).toHaveBeenCalledTimes(1); // no reopen
 });
 
+// Regression for the pools/leaves crash: setup runs raw execAsync on the
+// handle (setupPoolsSchema/setupLeavesSchema). If the handle dies (OOM / GC of a
+// sibling wrapper, expo/expo#48999) the released error surfaces inside setup —
+// outside the query self-heal — as "NativeDatabase.execAsync has been rejected".
+test('reopens and re-runs setup when the handle dies during schema setup', async () => {
+  const setup = jest.fn(db => db.execAsync('CREATE TABLE ...'));
+  const dead = makeHandle({
+    execAsync: jest.fn().mockRejectedValue(releasedError()),
+  });
+  const fresh = makeHandle();
+  openDatabaseAsync.mockResolvedValueOnce(dead).mockResolvedValueOnce(fresh);
+
+  const conn = createSelfHealingDatabase({ name: 'X.db', setup });
+
+  await expect(conn.ensureReady()).resolves.toBeDefined();
+  expect(openDatabaseAsync).toHaveBeenCalledTimes(2);
+  expect(dead.execAsync).toHaveBeenCalledTimes(1);
+  expect(fresh.execAsync).toHaveBeenCalledTimes(1);
+});
+
+test('reinitialize recovers when the live handle died before schema recreate', async () => {
+  const setup = jest.fn(db => db.execAsync('CREATE TABLE ...'));
+  // Same handle across the first open; its setup succeeds once, then the handle
+  // dies, so the reinitialize() setup pass rejects with the released error.
+  const dead = makeHandle({
+    execAsync: jest
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(releasedError()),
+  });
+  const fresh = makeHandle();
+  openDatabaseAsync.mockResolvedValueOnce(dead).mockResolvedValueOnce(fresh);
+
+  const conn = createSelfHealingDatabase({ name: 'X.db', setup });
+  await conn.ensureReady();
+  await expect(conn.reinitialize()).resolves.toBeDefined();
+  expect(openDatabaseAsync).toHaveBeenCalledTimes(2);
+  expect(fresh.execAsync).toHaveBeenCalledTimes(1);
+});
+
+test('setup that fails with an unrelated error still propagates (no reopen)', async () => {
+  const setup = jest.fn().mockRejectedValue(new Error('disk I/O error'));
+  openDatabaseAsync.mockResolvedValue(makeHandle());
+
+  const conn = createSelfHealingDatabase({ name: 'X.db', setup });
+  await expect(conn.ensureReady()).rejects.toThrow('disk I/O error');
+  expect(openDatabaseAsync).toHaveBeenCalledTimes(1);
+});
+
 test('a failed open is not cached; the next call retries', async () => {
   openDatabaseAsync
     .mockRejectedValueOnce(new Error('open failed'))

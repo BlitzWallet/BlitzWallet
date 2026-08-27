@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Dela min länk",
       "images": "Från bild",
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",
@@ -1522,7 +1523,8 @@
         "noAmount_even": "Ange totalbeloppet.",
         "noAmount_custom": "Se till att alla har ett belopp.",
         "noDescription": "Lägg till en beskrivning.",
-        "noContactsSelected": "Välj minst en kontakt"
+        "noContactsSelected": "Välj minst en kontakt",
+        "contactLookupFailed": "Det gick inte att läsa in betalningsinformation för en eller flera kontakter. Försök igen."
       }
     },
     "editProfileFieldPage": {
@@ -2075,7 +2077,9 @@
         "selectAccount": "Välj ett konto",
         "addFromTitle": "Välj vilket konto pengarna ska läggas till från.",
         "withdrawToTitle": "Välj vilket konto pengarna ska tas ut till.",
-        "noAccounts": "Inga andra konton tillgängliga.",
+        "noAvailableAccounts": "Inga tillgängliga konton",
+        "noAccountsSubtitle": "Du har inga konton än. Skapa ett för att komma igång.",
+        "noAvailableAccountsSubtitle": "Dina konton har inga medel än. Lägg till pengar för att använda dem här.",
         "availableToAdd": "Tillgängligt att lägga till",
         "availableToWithdraw": "Tillgängligt att ta ut",
         "using": "Använder",
@@ -2084,7 +2088,8 @@
         "receivedFrom": "Mottaget från {{name}}",
         "selfTransfer": "Du kan inte överföra till dig själv",
         "addFunds": "{{name}} lade till pengar",
-        "withdrawFunds": "{{name}} tog ut pengar"
+        "withdrawFunds": "{{name}} tog ut pengar",
+        "balanceLoadError": "Det gick inte att läsa in saldot för det här kontot. Försök igen."
       }
     },
     "accountsPoolsScreen": {
@@ -3066,7 +3071,12 @@
     },
     "LNURL": {
       "zapped": "Du blev zappad {{totalAmount}}",
-      "regular": "Du har just fått {{totalAmount}}"
+      "regular": "Du har just fått {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Din {{account}} blev zappad {{totalAmount}}",
+        "regular": "Din {{account}} fick {{totalAmount}}",
+        "fallbackName": "konto"
+      }
     },
     "POS": "Beställning mottagen: {{totalAmount}}",
     "contacts": {
@@ -3085,7 +3095,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Konto {{index}}"
+    "fallbackAccountName": "Konto {{index}}",
+    "lastUpdated": "Uppdaterad {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "Begäran klarade inte valideringskontrollerna.",

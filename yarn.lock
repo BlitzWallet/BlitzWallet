@@ -1795,10 +1795,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@branta-ops/branta@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "@branta-ops/branta@npm:3.1.2"
-  checksum: f9e5947ad8e812e296c4a5bf41da1919101bdd3dc5501095f74605d398b30c6b4528f35dfebf4b9480b3ed36edcdad0e701df415d4c712c640d8e4f507bf77a2
+"@branta-ops/branta@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "@branta-ops/branta@npm:3.2.1"
+  checksum: 1db64fde2fdb60282fe3b0c5807be46fd6c22bf524306e628628969ee679031adc07d237d651aa1bedecadce02858b893de6218cc2a5f448b39d40093a0a5c73
   languageName: node
   linkType: hard
 
@@ -5580,7 +5580,7 @@ __metadata:
     "@babel/plugin-transform-class-static-block": ^7.28.3
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
-    "@branta-ops/branta": ^3.1.2
+    "@branta-ops/branta": ^3.2.1
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.13
     "@buildonspark/spark-sdk": ^0.8.8
     "@craftzdog/react-native-buffer": ^6.1.0
@@ -5686,7 +5686,7 @@ __metadata:
     react-native-pdf-from-image: ^0.3.6
     react-native-quick-base64: ^2.2.2
     react-native-quick-crypto: ^1.0.19
-    react-native-reanimated: ^4.3.1
+    react-native-reanimated: 4.3.4
     react-native-restart-newarch: ^1.0.85
     react-native-safe-area-context: ~5.6.0
     react-native-screens: 4.23.0
@@ -5701,7 +5701,7 @@ __metadata:
     react-native-worklets: ^0.8.3
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#2a0225266a4439a6c94783ed0c3996bcdf15e8ac"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#3677d0bfd97ef5a594d799e8d2e93ec671801dc0"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     typescript: ^5.8.3
@@ -16435,9 +16435,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-reanimated@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "react-native-reanimated@npm:4.3.1"
+"react-native-reanimated@npm:4.3.4":
+  version: 4.3.4
+  resolution: "react-native-reanimated@npm:4.3.4"
   dependencies:
     react-native-is-edge-to-edge: ^1.3.1
     semver: ^7.7.3
@@ -16445,7 +16445,7 @@ __metadata:
     react: "*"
     react-native: 0.81 - 0.85
     react-native-worklets: 0.8.x
-  checksum: 2649672f72dbd52aa612e5c9bcf8ab2dc256d614ed3cd21cd44ba97b26eefd30e0be629f5aec6ba209ccc07aad46831866b69f6bf51fb9708d49431bd608507a
+  checksum: e180d8bda148e4b053bb078e1b3cf7cae8c24ebb200bcf8c8625ad0844fca98012b2cfb473692114df742327eae18310b7b7056732dd8ffcd31f84725a6c6798
   languageName: node
   linkType: hard
 
@@ -17744,16 +17744,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#2a0225266a4439a6c94783ed0c3996bcdf15e8ac":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#3677d0bfd97ef5a594d799e8d2e93ec671801dc0":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=2a0225266a4439a6c94783ed0c3996bcdf15e8ac"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=3677d0bfd97ef5a594d799e8d2e93ec671801dc0"
   dependencies:
     "@buildonspark/spark-sdk": ^0.8.8
     "@ecies/ciphers": ^0.2.4
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: e877b295841ee9fab8ea3ce6f3ec015d23fb123311faef46597f201ccde6cf27f08876fbf56b8958e9639ec730e4d3976a173006ed9d63b545c329d43f7fa7ed
+  checksum: e3546f217ae2a22b1f5f0d38701c99eb288735dcc1e5db49ce112614862c526918d79c4199c68f9d46b7d9e92290307ce4a3f03700608cd8c736182c2ccaf714
   languageName: node
   linkType: hard
 

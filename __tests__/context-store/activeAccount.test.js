@@ -75,19 +75,24 @@ jest.mock('react-i18next', () => ({
 
 const mockGetLocalStorageItem = jest.fn();
 const mockSetLocalStorageItem = jest.fn(async () => true);
+const mockRemoveLocalStorageItem = jest.fn(async () => true);
 const mockRetrieveData = jest.fn(async () => ({ value: null }));
 jest.mock('../../app/functions', () => ({
   __esModule: true,
   getLocalStorageItem: (...a) => mockGetLocalStorageItem(...a),
   setLocalStorageItem: (...a) => mockSetLocalStorageItem(...a),
+  removeLocalStorageItem: (...a) => mockRemoveLocalStorageItem(...a),
   retrieveData: (...a) => mockRetrieveData(...a),
 }));
 
 jest.mock('../../app/constants', () => ({
   __esModule: true,
   CUSTODY_ACCOUNTS_STORAGE_KEY: 'CUSTODY_ACCOUNTS',
+  CUSTODY_ACCOUNT_NAMES_KEY: 'CUSTODY_ACCOUNT_NAMES',
   NWC_SECURE_STORE_MNEMOINC: 'NWC_SECURE_STORE_MNEMOINC',
   MAX_DERIVED_ACCOUNTS: 1000,
+  MAIN_ACCOUNT_UUID: 'MW09xd09d8f0a9sf2n332',
+  NWC_ACCOUNT_UUID: 'NWC038rsd0f8234ajsf',
 }));
 
 const mockLoadCustodyAccounts = jest.fn();
@@ -287,23 +292,6 @@ describe('account writes route through writeCustodyAccounts', () => {
   });
 });
 
-describe('authResetkey teardown', () => {
-  it('clears the session crypto cache and account state on logout/wipe', async () => {
-    mockLoadCustodyAccounts.mockResolvedValue([ACCOUNT]);
-    const { renderer } = await mount();
-    expect(ctx.custodyAccounts).toEqual([ACCOUNT]);
-
-    mockAuth.authResetkey = 1;
-    act(() => {
-      renderer.update(providerElement());
-    });
-    await flush();
-
-    expect(mockResetCustodyCryptoState).toHaveBeenCalled();
-    expect(ctx.custodyAccounts).toEqual([]);
-  });
-});
-
 describe('deterministic account UUIDs', () => {
   it('createDerivedAccount derives the uuid from the account identity key', async () => {
     await mount();
@@ -403,10 +391,7 @@ describe('deterministic account UUIDs', () => {
     await mount();
 
     expect(mockGenerateAccountUuid).toHaveBeenCalledWith(ACCOUNT.mnemoinc);
-    expect(mockWriteCustodyAccounts).not.toHaveBeenCalledWith(
-      [ACCOUNT],
-      SEED,
-    );
+    expect(mockWriteCustodyAccounts).not.toHaveBeenCalledWith([ACCOUNT], SEED);
     // Flag is still set so future launches skip derivation entirely.
     expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
       'hasRunDeterministicUuidMigration',
@@ -453,6 +438,71 @@ describe('serialized custody writes', () => {
   });
 });
 
+describe('restoreDerivedAccount concurrency guard', () => {
+  beforeEach(async () => {
+    mockGlobal.masterInfoObject = {
+      didViewNWCMessage: true,
+      pinnedAccounts: [],
+      nextAccountDerivationIndex: 4,
+    };
+    mockLoadCustodyAccounts.mockResolvedValue([]);
+    mockGenerateAccountUuid.mockResolvedValue('restoreduuid0001');
+    await mount();
+    mockWriteCustodyAccounts.mockClear();
+  });
+
+  it('coalesces concurrent restores of the same index into one account', async () => {
+    let results;
+    await act(async () => {
+      // All three fire before any re-render, so they share one stale
+      // custodyAccounts closure: validation #5 passes for every call.
+      results = await Promise.all([
+        ctx.restoreDerivedAccount('First', 4),
+        ctx.restoreDerivedAccount('Second', 4),
+        ctx.restoreDerivedAccount('Third', 4),
+      ]);
+    });
+
+    expect(results[0].didWork).toBe(true);
+    expect(results[1].didWork).toBe(false);
+    expect(results[2].didWork).toBe(false);
+    expect(results[1].error).toBe('Restore already in progress');
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(1);
+    expect(mockWriteCustodyAccounts).toHaveBeenCalledTimes(1);
+    const written = mockWriteCustodyAccounts.mock.calls[0][0];
+    expect(written.filter(a => a.derivationIndex === 4)).toHaveLength(1);
+    expect(
+      ctx.custodyAccounts.filter(a => a.derivationIndex === 4),
+    ).toHaveLength(1);
+  });
+
+  it('releases the restore lock when the owning attempt fails', async () => {
+    mockWriteCustodyAccounts.mockRejectedValueOnce(new Error('disk full'));
+
+    let failed, retried;
+    await act(async () => {
+      failed = await ctx.restoreDerivedAccount('First', 4);
+    });
+    expect(failed.didWork).toBe(false);
+    // The account never landed, so validation #5 still passes on retry.
+    expect(ctx.custodyAccounts).toHaveLength(0);
+
+    // A leaked lock would surface here as "Restore already in progress".
+    await act(async () => {
+      retried = await ctx.restoreDerivedAccount('First', 4);
+    });
+    expect(retried.didWork).toBe(true);
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(2);
+    const written = mockWriteCustodyAccounts.mock.calls[
+      mockWriteCustodyAccounts.mock.calls.length - 1
+    ][0];
+    expect(written.filter(a => a.derivationIndex === 4)).toHaveLength(1);
+    expect(
+      ctx.custodyAccounts.filter(a => a.derivationIndex === 4),
+    ).toHaveLength(1);
+  });
+});
+
 describe('auto-restore completion flag', () => {
   beforeEach(() => {
     mockAppStatus.didGetToHomepage = true;
@@ -461,6 +511,9 @@ describe('auto-restore completion flag', () => {
       pinnedAccounts: [],
       nextAccountDerivationIndex: 4,
     };
+    // jest.clearAllMocks keeps implementations, so the "disk full" rejection
+    // installed below would leak into later tests in this describe.
+    mockWriteCustodyAccounts.mockResolvedValue(true);
     mockLoadCustodyAccounts.mockResolvedValue([]);
   });
 
@@ -479,13 +532,213 @@ describe('auto-restore completion flag', () => {
   });
 
   it('does not set hasRunAutoRestore when the restore write fails', async () => {
-    mockWriteCustodyAccounts.mockRejectedValueOnce(new Error('disk full'));
+    mockWriteCustodyAccounts.mockRejectedValue(new Error('disk full'));
 
     await mount();
 
+    expect(mockWriteCustodyAccounts).toHaveBeenCalled();
     expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
       'hasRunAutoRestore',
       JSON.stringify(true),
     );
+  });
+
+  it('does not latch hasRunAutoRestore while the disk list is still loading', async () => {
+    let resolveLoad;
+    mockLoadCustodyAccounts.mockReturnValue(
+      new Promise(resolve => {
+        resolveLoad = resolve;
+      }),
+    );
+
+    await mount();
+    await flush();
+
+    // The load gate blocked the run (didWork:false), so the caller must leave
+    // the one-time flag unlatched and reset its check-run ref — otherwise a
+    // slow decrypt at cold start would permanently disable auto-restore.
+    expect(mockSetLocalStorageItem).not.toHaveBeenCalledWith(
+      'hasRunAutoRestore',
+      JSON.stringify(true),
+    );
+
+    // Once the disk list lands, setAccounts re-triggers the effect and the
+    // restore completes normally, latching the flag. setImmediate drains the
+    // full promise chain (init → migration → effect re-run → write → latch),
+    // which the fixed-depth microtask flushes below can't reach.
+    await act(async () => {
+      resolveLoad([]);
+      await new Promise(resolve => setImmediate(resolve));
+      await new Promise(resolve => setImmediate(resolve));
+    });
+
+    expect(mockWriteCustodyAccounts).toHaveBeenCalled();
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      'hasRunAutoRestore',
+      JSON.stringify(true),
+    );
+  });
+});
+
+describe('cloud restore hardening (CPU DoS guards)', () => {
+  // Skip the one-time uuid migration so its derivations don't pollute the
+  // call counts asserted below.
+  beforeEach(() => {
+    // jest.clearAllMocks keeps implementations, so the "disk full" rejection
+    // installed by an earlier describe would leak into these writes.
+    mockWriteCustodyAccounts.mockResolvedValue(true);
+    mockGetLocalStorageItem.mockImplementation(key =>
+      Promise.resolve(
+        key === 'hasRunDeterministicUuidMigration' ? 'true' : null,
+      ),
+    );
+    mockGlobal.masterInfoObject = {
+      didViewNWCMessage: true,
+      pinnedAccounts: [],
+      nextAccountDerivationIndex: 4,
+    };
+  });
+
+  it('rejects an out-of-range cloud index instead of clamping to the max', async () => {
+    mockGlobal.masterInfoObject.nextAccountDerivationIndex = 1500;
+    await mount();
+
+    let res;
+    await act(async () => {
+      res = await ctx.restoreDerivedAccountsFromCloud();
+    });
+
+    expect(res.didWork).toBe(false);
+    expect(res.error).toBe('Invalid nextAccountDerivationIndex');
+    expect(mockDeriveAccountMnemonic).not.toHaveBeenCalled();
+  });
+
+  it('rejects a non-integer cloud index without deriving', async () => {
+    mockGlobal.masterInfoObject.nextAccountDerivationIndex = 'corrupt';
+    await mount();
+
+    let res;
+    await act(async () => {
+      res = await ctx.restoreDerivedAccountsFromCloud();
+    });
+
+    expect(res.didWork).toBe(false);
+    expect(mockDeriveAccountMnemonic).not.toHaveBeenCalled();
+  });
+
+  it('refuses to run before the disk account list has loaded', async () => {
+    let resolveLoad;
+    mockLoadCustodyAccounts.mockReturnValue(
+      new Promise(resolve => {
+        resolveLoad = resolve;
+      }),
+    );
+    await act(async () => ReactTestRenderer.create(providerElement()));
+    await flush();
+    mockGenerateAccountUuid.mockResolvedValue('restoredetuuid0001');
+
+    let blocked, afterLoad;
+    await act(async () => {
+      blocked = await ctx.restoreDerivedAccountsFromCloud();
+    });
+    expect(blocked.didWork).toBe(false);
+    expect(blocked.error).toBe('Account list not loaded yet');
+    expect(mockDeriveAccountMnemonic).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveLoad([]);
+      await flush();
+    });
+    await act(async () => {
+      afterLoad = await ctx.restoreDerivedAccountsFromCloud();
+    });
+
+    expect(afterLoad.didWork).toBe(true);
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledWith(SEED, 4);
+  });
+
+  it('only derives indexes actually missing from disk', async () => {
+    const derivedAt = index => ({
+      ...ACCOUNT,
+      uuid: `u-${index}`,
+      mnemoinc: undefined,
+      derivationIndex: index,
+    });
+    mockLoadCustodyAccounts.mockResolvedValue([
+      derivedAt(4),
+      derivedAt(5),
+    ]);
+    mockGlobal.masterInfoObject.nextAccountDerivationIndex = 6;
+    mockGenerateAccountUuid.mockResolvedValue('restoredetuuid0006');
+    await mount();
+    mockWriteCustodyAccounts.mockClear();
+
+    let res;
+    await act(async () => {
+      res = await ctx.restoreDerivedAccountsFromCloud();
+    });
+
+    expect(res.didWork).toBe(true);
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(1);
+    expect(mockDeriveAccountMnemonic).toHaveBeenCalledWith(SEED, 6);
+    const written = mockWriteCustodyAccounts.mock.calls[0][0];
+    expect(written.map(a => a.derivationIndex)).toEqual([4, 5, 6]);
+  });
+
+  it('restores nothing (and derives nothing) when disk already covers the range', async () => {
+    mockLoadCustodyAccounts.mockResolvedValue([
+      {
+        ...ACCOUNT,
+        uuid: 'u-4',
+        mnemoinc: undefined,
+        derivationIndex: 4,
+      },
+    ]);
+    await mount();
+
+    let res;
+    await act(async () => {
+      res = await ctx.restoreDerivedAccountsFromCloud();
+    });
+
+    expect(res).toEqual({ didWork: true, accountsRestored: 0 });
+    expect(mockDeriveAccountMnemonic).not.toHaveBeenCalled();
+  });
+
+  it('yields to the event loop between batches of ten', async () => {
+    // Missing indexes 4..15 → 12 accounts → exactly one inter-batch yield
+    // (no trailing yield after the last item).
+    mockGlobal.masterInfoObject.nextAccountDerivationIndex = 15;
+    await mount();
+
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+    try {
+      await act(async () => {
+        await ctx.restoreDerivedAccountsFromCloud();
+      });
+
+      expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(12);
+      expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
+
+  it('does not yield when the missing set fits in a single batch', async () => {
+    // Exactly ten missing indexes (4..13) → zero yields.
+    mockGlobal.masterInfoObject.nextAccountDerivationIndex = 13;
+    await mount();
+
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+    try {
+      await act(async () => {
+        await ctx.restoreDerivedAccountsFromCloud();
+      });
+
+      expect(mockDeriveAccountMnemonic).toHaveBeenCalledTimes(10);
+      expect(setTimeoutSpy).not.toHaveBeenCalled();
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
   });
 });

@@ -2,7 +2,10 @@ import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import {
+  decryptMessage,
+  encriptMessage,
+} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 
 /**
@@ -15,7 +18,6 @@ export function useNavigateToContact() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const {
     decodedAddedContacts,
-    globalContactsInformation,
     toggleGlobalContactsInformation,
   } = useGlobalContactsInfo();
 
@@ -25,29 +27,38 @@ export function useNavigateToContact() {
         crashlyticsLogReport('Navigating to expanded contact');
 
         if (!contact.isAdded) {
-          const newAddedContacts = [...decodedAddedContacts];
-          const index = newAddedContacts.findIndex(
-            obj => obj.uuid === contact.uuid,
-          );
+          // Read-modify-write the LATEST blob inside the updater so back-to-back
+          // taps (or a racing add/delete) can't clobber each other from a stale
+          // render snapshot. Abort the write if encryption fails rather than
+          // persisting `addedContacts: undefined`.
+          toggleGlobalContactsInformation(prev => {
+            let currentDecoded;
+            try {
+              currentDecoded =
+                JSON.parse(
+                  decryptMessage(contactsPrivateKey, publicKey, prev.addedContacts),
+                ) ?? [];
+            } catch {
+              currentDecoded = decodedAddedContacts ?? [];
+            }
+            if (!Array.isArray(currentDecoded)) currentDecoded = [];
 
-          if (index !== -1) {
-            newAddedContacts[index] = {
-              ...newAddedContacts[index],
-              isAdded: true,
+            const newAddedContacts = currentDecoded.map(obj =>
+              obj.uuid === contact.uuid ? { ...obj, isAdded: true } : obj,
+            );
+
+            const addedContacts = encriptMessage(
+              contactsPrivateKey,
+              publicKey,
+              JSON.stringify(newAddedContacts),
+            );
+            if (!addedContacts) return null;
+
+            return {
+              myProfile: { ...prev.myProfile },
+              addedContacts,
             };
-          }
-
-          toggleGlobalContactsInformation(
-            {
-              myProfile: { ...globalContactsInformation.myProfile },
-              addedContacts: encriptMessage(
-                contactsPrivateKey,
-                publicKey,
-                JSON.stringify(newAddedContacts),
-              ),
-            },
-            true,
-          );
+          }, true);
         }
 
         requestAnimationFrame(() => {
@@ -70,7 +81,6 @@ export function useNavigateToContact() {
     },
     [
       decodedAddedContacts,
-      globalContactsInformation,
       toggleGlobalContactsInformation,
       contactsPrivateKey,
       publicKey,

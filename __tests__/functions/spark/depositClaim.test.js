@@ -3,6 +3,10 @@ const mockClaim = jest.fn();
 const mockGetSingleTxDetails = jest.fn();
 const mockBulkUpdate = jest.fn();
 const mockGetUtxos = jest.fn();
+const mockGetIdentityUtxos = jest.fn();
+const mockGetSparkTxById = jest.fn();
+const mockGetBitcoinByOnChainTxid = jest.fn();
+const mockGetChainAmount = jest.fn();
 
 // Stub the native SDK/storage bundles so the real getSparkPaymentStatus
 // mapping (imported via requireActual) can run under Jest.
@@ -77,15 +81,27 @@ jest.mock('../../../app/functions/spark', () => {
     claimnSparkStaticDepositAddress: (...args) => mockClaim(...args),
     getSingleTxDetails: (...args) => mockGetSingleTxDetails(...args),
     getUtxosForDepositAddress: (...args) => mockGetUtxos(...args),
+    getUtxosForIdentity: (...args) => mockGetIdentityUtxos(...args),
   };
 });
+// claimDepositUtxo derives hasAlreadySaved / savedTxDetails from this lookup,
+// so the mock must be present and faithful: getSparkTransactionBySparkId
+// returns a raw SQLite row (details is a JSON string) or null when missing.
 jest.mock('../../../app/functions/spark/transactions', () => ({
   bulkUpdateSparkTransactions: (...args) => mockBulkUpdate(...args),
+  getSparkTransactionBySparkId: (...args) => mockGetSparkTxById(...args),
+  getBitcoinTransactionByOnChainTxid: (...args) =>
+    mockGetBitcoinByOnChainTxid(...args),
+}));
+jest.mock('../../../app/functions/spark/getTxidFromChain', () => ({
+  __esModule: true,
+  default: (...args) => mockGetChainAmount(...args),
 }));
 
 const {
   claimDepositUtxo,
   fetchAllDepositUtxos,
+  fetchAllIdentityDepositUtxos,
 } = require('../../../app/functions/spark/depositClaim');
 
 const BASE = {
@@ -94,9 +110,23 @@ const BASE = {
   address: 'bc1deposit',
   mnemonic: 'seed words here',
   identityPubKey: 'identity-pubkey',
-  exploraTx: { amount: 1000, isConfirmed: true },
-  savedTxDetails: null,
-  hasAlreadySaved: true,
+  isConfirmed: true,
+};
+
+// Mirrors the SQLite row returned by getSparkTransactionBySparkId: `details`
+// is stored as a JSON string keyed by the on-chain txid.
+const SAVED_PENDING_ROW = {
+  sparkID: 'onchain-txid-1',
+  paymentStatus: 'pending',
+  paymentType: 'bitcoin',
+  accountId: 'identity-pubkey',
+  details: JSON.stringify({
+    fee: 0,
+    amount: 1000,
+    address: 'bc1deposit',
+    direction: 'INCOMING',
+    onChainTxid: 'onchain-txid-1',
+  }),
 };
 
 const QUOTE = {
@@ -112,20 +142,32 @@ const completeTransfer = {
   totalValue: 980,
 };
 
-describe('claimDepositUtxo — quote phase', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-    mockGetQuote.mockReset();
-    mockClaim.mockReset();
-    mockGetSingleTxDetails.mockReset();
-    mockBulkUpdate.mockReset();
-    mockGetUtxos.mockReset();
-    mockBulkUpdate.mockResolvedValue(true);
-  });
+// Default: a pending deposit row already exists for BASE.txid (the common
+// case after the unconfirmed sweep has saved it). Tests exercising the
+// "no saved row" path override with mockGetSparkTxById.mockResolvedValue(null).
+const setupClaimMocks = () => {
+  jest.useFakeTimers();
+  mockGetQuote.mockReset();
+  mockClaim.mockReset();
+  mockGetSingleTxDetails.mockReset();
+  mockBulkUpdate.mockReset();
+  mockGetUtxos.mockReset();
+  mockGetSparkTxById.mockReset();
+  mockGetBitcoinByOnChainTxid.mockReset();
+  mockGetChainAmount.mockReset();
+  mockBulkUpdate.mockResolvedValue(true);
+  mockGetSparkTxById.mockResolvedValue(SAVED_PENDING_ROW);
+  mockGetBitcoinByOnChainTxid.mockResolvedValue(null);
+  mockGetChainAmount.mockResolvedValue({ didWork: true, value: 1000 });
+};
 
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+const teardownClaimMocks = () => {
+  jest.useRealTimers();
+};
+
+describe('claimDepositUtxo — quote phase', () => {
+  beforeEach(setupClaimMocks);
+  afterEach(teardownClaimMocks);
 
   test('quote failure: never claims, never persists, error surfaced', async () => {
     mockGetQuote.mockResolvedValue({
@@ -143,20 +185,30 @@ describe('claimDepositUtxo — quote phase', () => {
 
   test('quote failure still surfaces a pending row when one does not exist', async () => {
     mockGetQuote.mockResolvedValue({ didWork: false, error: 'boom' });
+    mockGetSparkTxById.mockResolvedValue(null);
 
     const result = await claimDepositUtxo({
       ...BASE,
-      hasAlreadySaved: false,
+      exploraTx: { amount: 1000, isConfirmed: true },
     });
 
     expect(result.didClaim).toBe(false);
     expect(result.pendingTx).toBeTruthy();
+    expect(mockGetChainAmount).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'bc1deposit',
+      1,
+    );
     expect(mockBulkUpdate).toHaveBeenCalledWith(
       [
         expect.objectContaining({
           id: 'onchain-txid-1',
           paymentStatus: 'pending',
-          details: expect.objectContaining({ amount: 1000 }),
+          details: expect.objectContaining({
+            amount: 1000,
+            direction: 'INCOMING',
+            onChainTxid: 'onchain-txid-1',
+          }),
         }),
       ],
       'transactions',
@@ -178,15 +230,15 @@ describe('claimDepositUtxo — quote phase', () => {
     expect(mockBulkUpdate).not.toHaveBeenCalled();
   });
 
-  test('mismatched quote with no saved row surfaces a pending row with the real explorer amount', async () => {
+  test('mismatched quote with no saved row surfaces a pending row with the real chain amount', async () => {
     mockGetQuote.mockResolvedValue({
       didWork: true,
       quote: { ...QUOTE, outputIndex: 0, creditAmountSats: 99999 },
     });
+    mockGetSparkTxById.mockResolvedValue(null);
 
     const result = await claimDepositUtxo({
       ...BASE,
-      hasAlreadySaved: false,
       exploraTx: { amount: 1000, isConfirmed: true },
     });
 
@@ -228,30 +280,83 @@ describe('claimDepositUtxo — quote phase', () => {
   });
 });
 
-describe('claimDepositUtxo — claim phase', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-    mockGetQuote.mockReset();
-    mockClaim.mockReset();
-    mockGetSingleTxDetails.mockReset();
-    mockBulkUpdate.mockReset();
-    mockGetUtxos.mockReset();
-    mockBulkUpdate.mockResolvedValue(true);
+describe('claimDepositUtxo — unconfirmed deposits', () => {
+  beforeEach(setupClaimMocks);
+  afterEach(teardownClaimMocks);
+
+  test('unconfirmed UTXO with an existing saved row is a no-op', async () => {
+    const result = await claimDepositUtxo({ ...BASE, isConfirmed: false });
+
+    expect(result.didClaim).toBe(false);
+    expect(result.error).toBe('Does not have enough on-chain confirmations');
+    expect(mockGetQuote).not.toHaveBeenCalled();
+    expect(mockClaim).not.toHaveBeenCalled();
+    expect(mockBulkUpdate).not.toHaveBeenCalled();
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
+  test('unconfirmed UTXO with no saved row inserts a pending row and never quotes', async () => {
+    // Regression guard: getSparkTransactionBySparkId returns null when the row
+    // is missing, so hasAlreadySaved must be false and the pending insert must
+    // run (a truthy "{...null}" here would silently disable every insert).
+    mockGetSparkTxById.mockResolvedValue(null);
+
+    const result = await claimDepositUtxo({ ...BASE, isConfirmed: false });
+
+    expect(result.didClaim).toBe(false);
+    expect(result.error).toMatch(/confirmations/);
+    expect(mockGetQuote).not.toHaveBeenCalled();
+    expect(mockClaim).not.toHaveBeenCalled();
+    expect(mockGetChainAmount).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'bc1deposit',
+      1,
+    );
+    expect(mockBulkUpdate).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          id: 'onchain-txid-1',
+          paymentStatus: 'pending',
+          paymentType: 'bitcoin',
+          details: expect.objectContaining({
+            amount: 1000,
+            direction: 'INCOMING',
+            onChainTxid: 'onchain-txid-1',
+          }),
+        }),
+      ],
+      'transactions',
+    );
   });
+
+  test('unconfirmed UTXO never fabricates a row when the chain amount lookup fails', async () => {
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetChainAmount.mockResolvedValue({ didWork: false });
+
+    const result = await claimDepositUtxo({ ...BASE, isConfirmed: false });
+
+    expect(result.didClaim).toBe(false);
+    expect(mockBulkUpdate).not.toHaveBeenCalled();
+    expect(mockGetQuote).not.toHaveBeenCalled();
+    expect(mockClaim).not.toHaveBeenCalled();
+  });
+});
+
+describe('claimDepositUtxo — claim phase', () => {
+  beforeEach(setupClaimMocks);
+  afterEach(teardownClaimMocks);
 
   test('claim failure: didClaim false, pending row inserted when missing', async () => {
     mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
     mockClaim.mockResolvedValue({ didWork: false, error: 'SSP rejected' });
+    mockGetSparkTxById.mockResolvedValue(null);
 
-    const result = await claimDepositUtxo({ ...BASE, hasAlreadySaved: false });
+    const result = await claimDepositUtxo(BASE);
 
     expect(result.didClaim).toBe(false);
     expect(result.error).toBe('SSP rejected');
     expect(result.pendingTx).toBeTruthy();
+    // The quote carries the amount, so no chain lookup is needed.
+    expect(mockGetChainAmount).not.toHaveBeenCalled();
     expect(mockBulkUpdate).toHaveBeenCalledWith(
       [
         expect.objectContaining({
@@ -293,22 +398,14 @@ describe('claimDepositUtxo — claim phase', () => {
 
 describe('claimDepositUtxo — settle + persist phase', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    mockGetQuote.mockReset();
-    mockClaim.mockReset();
-    mockGetSingleTxDetails.mockReset();
-    mockBulkUpdate.mockReset();
-    mockBulkUpdate.mockResolvedValue(true);
+    setupClaimMocks();
     mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
     mockClaim.mockResolvedValue({
       didWork: true,
       response: { transferId: 'transfer-1' },
     });
   });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+  afterEach(teardownClaimMocks);
 
   test('transfer not settled within the window: pending row keyed by transferId', async () => {
     mockGetSingleTxDetails.mockResolvedValue(undefined);
@@ -347,7 +444,7 @@ describe('claimDepositUtxo — settle + persist phase', () => {
     expect(result.updatedTx.paymentStatus).toBe('pending');
   });
 
-  test('completed transfer: writes completed with amount and fee from explora', async () => {
+  test('completed transfer: writes completed with amount and fee from the saved row details', async () => {
     mockGetSingleTxDetails.mockResolvedValue(completeTransfer);
 
     const promise = claimDepositUtxo(BASE);
@@ -363,19 +460,25 @@ describe('claimDepositUtxo — settle + persist phase', () => {
         supportFee: 0,
       }),
     );
+    // The saved row supplied the amount, so no chain lookup is needed.
+    expect(mockGetChainAmount).not.toHaveBeenCalled();
   });
 
-  test('fee falls back to the saved pending row details when explora is missing', async () => {
+  test('fee falls back to the on-chain lookup (keyed by the quote transactionId) when no row is saved', async () => {
+    mockGetSparkTxById.mockResolvedValue(null);
     mockGetSingleTxDetails.mockResolvedValue(completeTransfer);
 
-    const promise = claimDepositUtxo({
-      ...BASE,
-      exploraTx: null,
-      savedTxDetails: { amount: 1000 },
-    });
+    const promise = claimDepositUtxo(BASE);
     await jest.advanceTimersByTimeAsync(2000);
     const result = await promise;
 
+    // Regression guard: the lookup must use quote.transactionId — quote.txid
+    // is undefined on StaticDepositQuoteOutput and would fetch .../tx/undefined.
+    expect(mockGetChainAmount).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'bc1deposit',
+      1,
+    );
     expect(result.updatedTx.details.fee).toBe(20);
   });
 
@@ -472,5 +575,225 @@ describe('fetchAllDepositUtxos — pagination', () => {
     expect(result.didWork).toBe(false);
     expect(result.error).toBe('sdk down');
     expect(result.utxos).toEqual(fullPage);
+  });
+});
+
+describe('fetchAllIdentityDepositUtxos — cursor pagination', () => {
+  const MNEMONIC = 'seed words here';
+
+  beforeEach(() => {
+    mockGetIdentityUtxos.mockReset();
+  });
+
+  test('single page: returns utxos, stops when hasNextPage is false', async () => {
+    mockGetIdentityUtxos.mockResolvedValue({
+      didWork: true,
+      utxos: [{ address: 'bc1a', txid: 'a', vout: 0, isConfirmed: true }],
+      pageResponse: { hasNextPage: false, nextCursor: '' },
+    });
+
+    const result = await fetchAllIdentityDepositUtxos(MNEMONIC, true);
+
+    expect(result).toEqual({
+      didWork: true,
+      utxos: [{ address: 'bc1a', txid: 'a', vout: 0, isConfirmed: true }],
+    });
+    expect(mockGetIdentityUtxos).toHaveBeenCalledTimes(1);
+    expect(mockGetIdentityUtxos).toHaveBeenCalledWith({
+      mnemonic: MNEMONIC,
+      pageSize: 100,
+      cursor: '',
+      excludeClaimed: true,
+      includePending: true,
+    });
+  });
+
+  test('follows the cursor across pages and concatenates', async () => {
+    mockGetIdentityUtxos
+      .mockResolvedValueOnce({
+        didWork: true,
+        utxos: [{ address: 'bc1a', txid: 'a', vout: 0 }],
+        pageResponse: { hasNextPage: true, nextCursor: 'CURSOR2' },
+      })
+      .mockResolvedValueOnce({
+        didWork: true,
+        utxos: [{ address: 'bc1b', txid: 'b', vout: 1 }],
+        pageResponse: { hasNextPage: false, nextCursor: '' },
+      });
+
+    const result = await fetchAllIdentityDepositUtxos(MNEMONIC, false);
+
+    expect(result.didWork).toBe(true);
+    expect(result.utxos).toHaveLength(2);
+    expect(mockGetIdentityUtxos).toHaveBeenCalledTimes(2);
+    expect(mockGetIdentityUtxos).toHaveBeenLastCalledWith({
+      mnemonic: MNEMONIC,
+      pageSize: 100,
+      cursor: 'CURSOR2',
+      excludeClaimed: false,
+      includePending: true,
+    });
+  });
+
+  test('page failure: didWork false, keeps the partial set', async () => {
+    mockGetIdentityUtxos
+      .mockResolvedValueOnce({
+        didWork: true,
+        utxos: [{ address: 'bc1a', txid: 'a', vout: 0 }],
+        pageResponse: { hasNextPage: true, nextCursor: 'CURSOR2' },
+      })
+      .mockResolvedValueOnce({ didWork: false, error: 'sdk down' });
+
+    const result = await fetchAllIdentityDepositUtxos(MNEMONIC, true);
+
+    expect(result.didWork).toBe(false);
+    expect(result.error).toBe('sdk down');
+    expect(result.utxos).toEqual([{ address: 'bc1a', txid: 'a', vout: 0 }]);
+  });
+});
+
+describe('claimDepositUtxo — ghost-row guard (onChainTxid scope)', () => {
+  beforeEach(setupClaimMocks);
+  afterEach(teardownClaimMocks);
+
+  const RENAMED_ROW = {
+    sparkID: 'transfer-1',
+    paymentStatus: 'pending',
+    paymentType: 'bitcoin',
+    accountId: 'identity-pubkey',
+    details: JSON.stringify({
+      amount: 1000,
+      address: 'bc1deposit',
+      direction: 'INCOMING',
+      onChainTxid: 'onchain-txid-1',
+    }),
+  };
+
+  test('re-swept UTXO within 60s window does not insert ghost pending row on quote failure', async () => {
+    // First claim renamed txid → transferId; sparkID lookup now misses.
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(RENAMED_ROW);
+    mockGetQuote.mockResolvedValue({ didWork: false, error: 'boom' });
+
+    const result = await claimDepositUtxo(BASE);
+
+    expect(result.didClaim).toBe(false);
+    expect(mockBulkUpdate).not.toHaveBeenCalled();
+    expect(mockGetChainAmount).not.toHaveBeenCalled();
+  });
+
+  test('re-swept UTXO does not insert ghost pending row on claim failure', async () => {
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(RENAMED_ROW);
+    mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
+    mockClaim.mockResolvedValue({ didWork: false, error: 'SSP rejected' });
+
+    const result = await claimDepositUtxo(BASE);
+
+    expect(result.didClaim).toBe(false);
+    expect(mockBulkUpdate).not.toHaveBeenCalled();
+  });
+
+  test('re-swept unconfirmed UTXO with renamed row is a no-op (no ghost)', async () => {
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(RENAMED_ROW);
+
+    const result = await claimDepositUtxo({ ...BASE, isConfirmed: false });
+
+    expect(result.didClaim).toBe(false);
+    expect(result.error).toBe('Does not have enough on-chain confirmations');
+    expect(mockBulkUpdate).not.toHaveBeenCalled();
+    expect(mockGetChainAmount).not.toHaveBeenCalled();
+  });
+
+  test('fee uses onChainTxid-renamed row when sparkID lookup misses', async () => {
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(RENAMED_ROW);
+    mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
+    mockClaim.mockResolvedValue({
+      didWork: true,
+      response: { transferId: 'transfer-1' },
+    });
+    mockGetSingleTxDetails.mockResolvedValue(completeTransfer);
+
+    const promise = claimDepositUtxo(BASE);
+    await jest.advanceTimersByTimeAsync(2000);
+    const result = await promise;
+
+    // Must use the renamed row's amount (1000) for fee, not fall back to chain lookup.
+    expect(mockGetChainAmount).not.toHaveBeenCalled();
+    expect(result.updatedTx.details.fee).toBe(20);
+  });
+});
+
+describe('claimDepositUtxo — multi-output same-txid (F4)', () => {
+  beforeEach(setupClaimMocks);
+  afterEach(teardownClaimMocks);
+
+  test('second vout of the same txid claims independently and scopes the onChainTxid lookup by vout', async () => {
+    // The other output (vout 0) was already claimed and renamed, so neither the
+    // sparkID lookup nor the vout-scoped onChainTxid lookup matches THIS vout (1).
+    mockGetSparkTxById.mockResolvedValue(null);
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(null);
+    mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
+    mockClaim.mockResolvedValue({
+      didWork: true,
+      response: { transferId: 'transfer-1' },
+    });
+    mockGetSingleTxDetails.mockResolvedValue(completeTransfer); // net 980
+
+    const promise = claimDepositUtxo(BASE); // vout: 1
+    await jest.advanceTimersByTimeAsync(2000);
+    const result = await promise;
+
+    // The onChainTxid lookup must be vout-scoped so a sibling vout can't collide.
+    expect(mockGetBitcoinByOnChainTxid).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'identity-pubkey',
+      1,
+    );
+    // Fee must come from THIS vout's on-chain gross (1000), not a sibling row.
+    expect(mockGetChainAmount).toHaveBeenCalledWith(
+      'onchain-txid-1',
+      'bc1deposit',
+      1,
+    );
+    expect(result.didClaim).toBe(true);
+    expect(result.updatedTx.details.fee).toBe(20);
+    expect(result.updatedTx.details.vout).toBe(1);
+  });
+
+  test('a saved row for a DIFFERENT vout of the same txid is not treated as already-saved', async () => {
+    // A pending row exists for vout 0 of this txid; the claim is for vout 1. The
+    // vout guard must reject the sparkID match so the vout-1 pending row is
+    // inserted (with the old txid-only check it would be suppressed).
+    mockGetSparkTxById.mockResolvedValue({
+      sparkID: 'onchain-txid-1',
+      paymentStatus: 'pending',
+      paymentType: 'bitcoin',
+      accountId: 'identity-pubkey',
+      details: JSON.stringify({
+        amount: 5000,
+        onChainTxid: 'onchain-txid-1',
+        vout: 0,
+      }),
+    });
+    mockGetBitcoinByOnChainTxid.mockResolvedValue(null);
+    mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
+    mockClaim.mockResolvedValue({ didWork: false, error: 'SSP rejected' });
+
+    const result = await claimDepositUtxo(BASE); // vout: 1
+
+    expect(result.didClaim).toBe(false);
+    expect(mockBulkUpdate).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          id: 'onchain-txid-1',
+          paymentStatus: 'pending',
+          details: expect.objectContaining({ vout: 1 }),
+        }),
+      ],
+      'transactions',
+    );
   });
 });

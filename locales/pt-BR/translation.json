@@ -116,7 +116,7 @@
     "review": "Revisar",
     "loadMore": "Carregar mais",
     "invoice": "Fatura",
-    "annonName": "Usuário anônimo",
+    "annonName": "Sem nome definido",
     "claim": "Resgatar",
     "manage": "Emitidos",
     "reclaim": "Expirados",
@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Compartilhar meu link",
       "images": "Carregar imagem",
       "clipboard": "Área de transferência",
       "manual": "Digitar",
@@ -1522,7 +1523,8 @@
         "noAmount_even": "Digite o valor total.",
         "noAmount_custom": "Certifique-se de que todos tenham um valor.",
         "noDescription": "Adicione uma descrição.",
-        "noContactsSelected": "Selecione pelo menos um contato"
+        "noContactsSelected": "Selecione pelo menos um contato",
+        "contactLookupFailed": "Não foi possível carregar as informações de pagamento de um ou mais contatos. Tente novamente."
       }
     },
     "editProfileFieldPage": {
@@ -1875,10 +1877,10 @@
       },
       "createNWCName": {
         "navTitle": "Nome",
-        "title": "Dê um nome a esta conexão",
+        "title": "Nome da conexão",
         "editTitle": "Editar nome da conexão",
-        "subtitle": "Dê um nome à conexão para poder reconhecê-la mais tarde.",
-        "editSubtitle": "Escolha um novo nome para reconhecer esta conexão mais tarde.",
+        "subtitle": "Escolha um nome para esta conexão.",
+        "editSubtitle": "Escolha um novo nome para esta conexão.",
         "placeholder": "Nome da conexão"
       },
       "createNWCPermissions": {
@@ -1988,8 +1990,8 @@
         "createTitle_derived": "Criar conta",
         "createTitle_imported": "Importar conta",
         "updateTitle": "Atualizar conta",
-        "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
-        "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",
+        "cannotDeleteActiveAccountError": "Não é possível remover a conta que está selecionada. Selecione outra conta antes de remover esta.",
+        "deleteAccountConfirmation": "Tem certeza de que deseja remover esta conta?",
         "inputDesc": "Nome da conta",
         "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
         "nameInputPlaceholder": "Nome...",
@@ -2007,8 +2009,8 @@
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
         "lightningAddressLabel": "Endereço da conta",
-        "removeAccountLabel": "Arquivar conta",
-        "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
+        "removeAccountLabel": "Remover conta",
+        "activeAccountError": "Você não pode remover a conta que está selecionada. Por favor, mude para uma conta diferente antes de remover esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
         "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada.",
@@ -2023,8 +2025,8 @@
         "balanceLabel": "Saldo",
         "activeLabel": "Conta selecionada",
         "activateButton": "Selecionar conta",
-        "addMoneyButton": "Adicionar dinheiro",
-        "withdrawMoneyButton": "Retirar dinheiro",
+        "addMoneyButton": "Depositar dinheiro",
+        "withdrawMoneyButton": "Transferir entre contas",
         "viewActivityLabel": "Histórico da conta",
         "loadError": "Não foi possível carregar a conta",
         "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte.",
@@ -2065,17 +2067,19 @@
         "to": "Selecione a conta de destino"
       },
       "removeAccountPage": {
-        "title": "Arquivar conta",
-        "explanation_derived": "Mesmo que você arquive esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
-        "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
+        "title": "Remover conta",
+        "explanation_derived": "Mesmo que você remova esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Arquivar conta"
+        "removeButton": "Remover conta"
       },
       "transferModal": {
         "selectAccount": "Selecione uma conta",
-        "addFromTitle": "Escolha de qual conta o dinheiro será transferido.",
-        "withdrawToTitle": "Escolha para qual conta deseja transferir o dinheiro.",
-        "noAccounts": "Nenhuma outra conta disponível.",
+        "addFromTitle": "Escolha de qual conta receber",
+        "withdrawToTitle": "Escolha a conta de destino",
+        "noAvailableAccounts": "Nenhuma conta disponível",
+        "noAccountsSubtitle": "Você ainda não tem contas. Crie uma para começar.",
+        "noAvailableAccountsSubtitle": "Suas contas ainda não têm fundos. Adicione dinheiro para usá-las aqui.",
         "availableToAdd": "Disponível",
         "availableToWithdraw": "Disponível",
         "using": "Usando",
@@ -2084,7 +2088,8 @@
         "receivedFrom": "Recebido de {{name}}",
         "selfTransfer": "Você não pode transferir para si mesmo",
         "addFunds": "{{name}} adicionou dinheiro",
-        "withdrawFunds": "{{name}} retirou dinheiro"
+        "withdrawFunds": "{{name}} retirou dinheiro",
+        "balanceLoadError": "Não foi possível carregar o saldo desta conta. Tente novamente."
       }
     },
     "accountsPoolsScreen": {
@@ -2304,7 +2309,7 @@
         "noTransactions": "Nenhuma atividade ainda",
         "spendingLimitLabel": "Limite de gastos",
         "loadingBalance": "Carregando saldo...",
-        "shareLink": "Ativar supervisão"
+        "shareLink": "Vincular conta"
       },
       "claim": {
         "title": "Configure sua conta",
@@ -2982,7 +2987,7 @@
     "genericError": "Ocorreu um erro inesperado",
     "tryAgain": "Por favor, tente novamente",
     "contactSupport": "Entre em contato com o suporte se o problema persistir",
-    "deleteAccount": "Erro ao arquivar conta.",
+    "deleteAccount": "Erro ao remover conta.",
     "failedToDecryptPin": "Falha ao descriptografar o PIN",
     "decodePinWithBio": "Não foi possível decodificar o PIN com biometria",
     "insufficientBalanceError": "Saldo insuficiente para comprar {{planType}}",
@@ -3065,8 +3070,13 @@
       "body": "Você recebeu {{totalAmount}}"
     },
     "LNURL": {
-      "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
-      "regular": "Alguém te enviou {{totalAmount}}"
+      "zapped": "Você recebeu um Zap de {{totalAmount}}",
+      "regular": "Você recebeu {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Você recebeu um Zap de {{totalAmount}} na {{account}}",
+        "regular": "Você recebeu {{totalAmount}} na {{account}}",
+        "fallbackName": "conta"
+      }
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
@@ -3085,7 +3095,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Conta {{index}}"
+    "fallbackAccountName": "Conta {{index}}",
+    "lastUpdated": "Atualizado {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "A solicitação não passou pelas validações.",

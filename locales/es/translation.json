@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Compartir mi enlace",
       "images": "Desde imagen",
       "clipboard": "Desde portapapeles",
       "manual": "Entrada manual",
@@ -1522,7 +1523,8 @@
         "noAmount_even": "Introduce el monto total a dividir.",
         "noAmount_custom": "Asegúrate de que todos tengan un monto.",
         "noDescription": "Agrega una descripción para esta división.",
-        "noContactsSelected": "Selecciona al menos un contacto para continuar"
+        "noContactsSelected": "Selecciona al menos un contacto para continuar",
+        "contactLookupFailed": "No se pudo cargar la información de pago de uno o más contactos. Inténtalo de nuevo."
       }
     },
     "editProfileFieldPage": {
@@ -2072,7 +2074,9 @@
         "selectAccount": "Selecciona una cuenta",
         "addFromTitle": "Elige la cuenta desde la que añadir dinero.",
         "withdrawToTitle": "Elige la cuenta a la que retirar dinero.",
-        "noAccounts": "No hay otras cuentas disponibles.",
+        "noAvailableAccounts": "No hay cuentas disponibles",
+        "noAccountsSubtitle": "Aún no tienes cuentas. Crea una para empezar.",
+        "noAvailableAccountsSubtitle": "Tus cuentas aún no tienen fondos. Añade dinero para usarlas aquí.",
         "availableToAdd": "Disponible para añadir",
         "availableToWithdraw": "Disponible para retirar",
         "using": "Usando",
@@ -2081,7 +2085,8 @@
         "receivedFrom": "Recibido de {{name}}",
         "selfTransfer": "No puedes transferirte a ti mismo",
         "addFunds": "{{name}} agregó dinero",
-        "withdrawFunds": "{{name}} retiró dinero"
+        "withdrawFunds": "{{name}} retiró dinero",
+        "balanceLoadError": "No se pudo cargar el saldo de esta cuenta. Inténtalo de nuevo."
       }
     },
     "accountsPoolsScreen": {
@@ -3066,7 +3071,12 @@
     },
     "LNURL": {
       "zapped": "Fuiste electrocutado {{totalAmount}}",
-      "regular": "Acabas de recibir {{totalAmount}}"
+      "regular": "Acabas de recibir {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Tu {{account}} recibió un zap de {{totalAmount}}",
+        "regular": "Tu {{account}} recibió {{totalAmount}}",
+        "fallbackName": "cuenta"
+      }
     },
     "POS": "Pedido recibido: {{totalAmount}}",
     "contacts": {
@@ -3085,7 +3095,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Cuenta {{index}}"
+    "fallbackAccountName": "Cuenta {{index}}",
+    "lastUpdated": "Actualizado {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "La solicitud no superó las validaciones.",

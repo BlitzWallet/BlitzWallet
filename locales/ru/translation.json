@@ -937,6 +937,7 @@
   },
   "wallet": {
     "halfModal": {
+      "sharePaylink": "Поделиться моей ссылкой",
       "images": "Из изображения",
       "clipboard": "Из буфера обмена",
       "manual": "Вручную",
@@ -1523,7 +1524,8 @@
         "noAmount_even": "Введите общую сумму.",
         "noAmount_custom": "Убедитесь, что у всех есть сумма.",
         "noDescription": "Добавьте описание.",
-        "noContactsSelected": "Выберите хотя бы один контакт"
+        "noContactsSelected": "Выберите хотя бы один контакт",
+        "contactLookupFailed": "Не удалось загрузить платёжную информацию одного или нескольких контактов. Попробуйте снова."
       }
     },
     "editProfileFieldPage": {
@@ -2078,7 +2080,9 @@
         "selectAccount": "Выберите аккаунт",
         "addFromTitle": "Выберите аккаунт, с которого добавить деньги.",
         "withdrawToTitle": "Выберите аккаунт, на который вывести деньги.",
-        "noAccounts": "Нет других аккаунтов.",
+        "noAvailableAccounts": "Нет доступных аккаунтов",
+        "noAccountsSubtitle": "У вас ещё нет аккаунтов. Создайте один, чтобы начать.",
+        "noAvailableAccountsSubtitle": "На ваших аккаунтах пока нет средств. Добавьте деньги, чтобы использовать их здесь.",
         "availableToAdd": "Доступно для добавления",
         "availableToWithdraw": "Доступно для вывода",
         "using": "Используется",
@@ -2087,7 +2091,8 @@
         "receivedFrom": "Получено от {{name}}",
         "selfTransfer": "Нельзя перевести самому себе",
         "addFunds": "{{name}} пополнил(а) счет",
-        "withdrawFunds": "{{name}} снял(а) деньги"
+        "withdrawFunds": "{{name}} снял(а) деньги",
+        "balanceLoadError": "Не удалось загрузить баланс этого аккаунта. Попробуйте ещё раз."
       }
     },
     "accountsPoolsScreen": {
@@ -3075,7 +3080,12 @@
     },
     "LNURL": {
       "zapped": "Вас запнули на {{totalAmount}}",
-      "regular": "Вы получили {{totalAmount}}"
+      "regular": "Вы получили {{totalAmount}}",
+      "subAccount": {
+        "zapped": "Ваш {{account}} получил зап на {{totalAmount}}",
+        "regular": "На ваш {{account}} поступило {{totalAmount}}",
+        "fallbackName": "аккаунт"
+      }
     },
     "POS": "Заказ получен: {{totalAmount}}",
     "contacts": {
@@ -3094,7 +3104,8 @@
     }
   },
   "accountCard": {
-    "fallbackAccountName": "Аккаунт {{index}}"
+    "fallbackAccountName": "Аккаунт {{index}}",
+    "lastUpdated": "Обновлено {{date}}"
   },
   "flashnetUserMessages": {
     "FSAG-1000": "Запрос не прошел валидацию.",

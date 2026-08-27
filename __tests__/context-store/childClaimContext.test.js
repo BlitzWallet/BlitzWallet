@@ -556,6 +556,47 @@ describe('childClaimContext — terminal states', () => {
     );
   });
 
+  test('resetSession clears the terminal state synchronously — before server cleanup drains', async () => {
+    await mount();
+    await submitPairing();
+
+    await act(async () => {
+      listeners.session({ status: 'CANCELLED' });
+      await flush();
+    });
+    expect(api.status).toBe('error');
+    expect(api.errorMessage).toBe(
+      'settings.childAccounts.claim.canceledByParent',
+    );
+
+    // The handshake deletes hang (offline Firestore writes can stay queued
+    // indefinitely): leaving the failed pairing (tab switch / back) must drop
+    // the error at once instead of rendering the stale copy until the writes
+    // settle.
+    let resolveDelete;
+    mockDb.deletePairingHandshake.mockReturnValueOnce(
+      new Promise(res => {
+        resolveDelete = res;
+      }),
+    );
+    let pendingReset;
+    await act(async () => {
+      pendingReset = api.resetSession();
+    });
+    // resetSession is parked on the hung delete, yet the local reset has
+    // already landed — the terminal copy/status cannot outlive the tab switch.
+    expect(api.status).toBe('idle');
+    expect(api.errorMessage).toBe('');
+    expect(api.sas).toBe('');
+    expect(mockDb.deletePairingHandshake).toHaveBeenCalledWith(RID, CODE);
+
+    await act(async () => {
+      resolveDelete();
+      await pendingReset;
+    });
+    expect(api.status).toBe('idle');
+  });
+
   test('session doc deleted (TTL GC) → derived expired', async () => {
     await mount();
     await submitPairing();

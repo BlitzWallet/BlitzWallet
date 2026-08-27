@@ -108,10 +108,17 @@ export default function ChildEnterCode() {
     [submitPairing],
   );
 
-  const selectDisplayOption = useCallback(option => {
-    KeyboardController.dismiss();
-    setSelectedDisplayOption(option);
-  }, []);
+  const selectDisplayOption = useCallback(
+    option => {
+      KeyboardController.dismiss();
+      setIsKeyboardActive(false);
+      if (errorMessage) {
+        resetSession();
+      }
+      setSelectedDisplayOption(option);
+    },
+    [resetSession, errorMessage],
+  );
 
   const scannerActive = isScanTab && isFocused && isLiveScanning;
 
@@ -203,9 +210,6 @@ export default function ChildEnterCode() {
                 onBlurFunction={() => setIsKeyboardActive(false)}
               />
             </View>
-            {!!errorMessage && (
-              <ThemeText styles={styles.error} content={errorMessage} />
-            )}
           </ScrollView>
           <CustomButton
             buttonStyles={styles.button}
