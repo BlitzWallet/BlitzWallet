@@ -480,7 +480,7 @@ const identityKeyFromSparkAddress = address => {
   } catch {}
   try {
     // bech32m decode (prefix is network, not needed for key extraction)
-    const decoded = bech32m.decode(address);
+    const decoded = bech32m.decode(address, 1024);
     const data = convertBitsForSpark(decoded.words, 5, 8, false);
     // Minimal protobuf: field 1 (identity_public_key) is length-delimited
     let pos = 0;

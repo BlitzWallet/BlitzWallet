@@ -1,7 +1,7 @@
 import { bech32m } from 'bech32';
 
 function bech32mDecode(address) {
-  return bech32m.decode(address);
+  return bech32m.decode(address, 1024);
 }
 
 /**

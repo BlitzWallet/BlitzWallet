@@ -360,6 +360,7 @@ export const claimDepositUtxo = async ({
         vout: Number(vout),
         onChainTxid: txid,
         address,
+        amount: quote.creditAmountSats,
       },
     };
   } else {
