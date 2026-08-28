@@ -52,7 +52,7 @@ const RESTORE_RETRY_DELAY_MS = 1500;
 // after dispatch. Mark it failed instead of re-querying it every 10s forever
 // (and so a stuck Lightning send can be retried). RETURNED/EXPIRED are already
 // terminal failures via getSparkPaymentStatus and are left untouched here.
-const STUCK_SENDER_INITIATED_MS = 72 * 60 * 60 * 1000;
+const STUCK_SENDER_INITIATED_MS = 16 * 24 * 60 * 60 * 1000;
 
 // Age gate for the SENDER_INITIATED stuck-detector. Returns 'failed' only when
 // the CURRENT spark status is still the initial in-flight state AND the row has
