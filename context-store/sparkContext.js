@@ -17,6 +17,7 @@ import {
   sparkWallet,
   isOptimizationInProgress,
 } from '../app/functions/spark';
+import { shouldHoldBalanceDecrease } from '../app/functions/spark/balanceGate';
 import { clearEnrichedTxCache } from '../app/functions/spark/enrichedTxCache';
 import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
 import {
@@ -427,6 +428,7 @@ const SparkWalletProvider = ({ children }) => {
   const balanceDebounceTimeoutRef = useRef(null);
   const balanceDebounceMaxWaitRef = useRef(null);
   const latestBalanceRef = useRef(null);
+  const latestOwnedRef = useRef(null);
 
   // Debounce refs for token-balance:update — same coalescing for token events.
   const tokenDebounceTimeoutRef = useRef(null);
@@ -998,33 +1000,21 @@ const SparkWalletProvider = ({ children }) => {
       });
     };
 
-    // A decrease can be a real spend OR a transient dip while the SDK optimizes
-    // leaves (available drops below owned mid-swap, then settles back). Don't
-    // commit an optimization dip — hold the displayed balance; the optimization's
-    // settle event re-arms a flush at the true value, and the reconcile safety
-    // net backstops it. Skip the check during a send: that decrease is real and
-    // must land. Runs at most once per debounce window (not per event), so it
-    // can't storm the WebView rate limiter.
+    // A decrease is a real spend OR a transient dip while leaves optimize
+    // (available drops below owned mid-swap, then settles back). owned is
+    // invariant across optimization (LOCAL_LOCKED/SWAP_PENDING stay OWNED) but
+    // drops when funds actually leave — so it distinguishes a dip from a spend
+    // WITHOUT a process-local optimization flag (works cross-device). Skip during
+    // a send: that decrease is real and must land.
     if (
-      nextBalance < sparkInfoRef.current.balance &&
-      !isSendingPaymentRef.current
+      shouldHoldBalanceDecrease({
+        nextAvailable: nextBalance,
+        nextOwned: latestOwnedRef.current,
+        displayed: sparkInfoRef.current.balance,
+        isSending: isSendingPaymentRef.current,
+      })
     ) {
-      isOptimizationInProgress({ mnemonic: currentMnemonicRef.current })
-        .then(res => {
-          if (res?.isOptimizing) return; // hold — dip is an optimization artifact
-          // A newer event superseded this value while we awaited; its own flush
-          // handles it.
-          if (latestBalanceRef.current !== nextBalance) return;
-          if (nextBalance === sparkInfoRef.current.balance) return;
-          commit(nextBalance);
-        })
-        // ponytail: on check failure land the decrease rather than strand a real
-        // spend; the 10s WebView-bridge timeout caps the wait and reconcile
-        // corrects any rare false drop.
-        .catch(() => {
-          if (latestBalanceRef.current === nextBalance) commit(nextBalance);
-        });
-      return;
+      return; // hold — optimization/in-flight artifact; settle event re-arms flush
     }
 
     commit(nextBalance);
@@ -1068,6 +1058,11 @@ const SparkWalletProvider = ({ children }) => {
         if (Number.isFinite(numericBalance)) didApplyFinite = true;
         const { identityPubKey } = sparkInfoRef.current;
 
+        // ponytail: getBalance() reads `available` which can be dipped mid-optimization
+        // (owned stays correct). Without `owned` in the poll response we cannot gate
+        // the commit here — deferred to phase 2 (requires spark-web-context rebuild
+        // to forward satsBalance.owned). A dipped poll self-heals via next
+        // balance:update settle event (increase always commits).
         saveAccountBalanceSnapshot(
           identityPubKey,
           Number.isFinite(numericBalance)
@@ -1448,6 +1443,7 @@ const SparkWalletProvider = ({ children }) => {
       // Always flush with the most recent value, even when the max-wait timer
       // (set on the first event of the burst) fires.
       latestBalanceRef.current = available;
+      latestOwnedRef.current = Number(snapshot?.owned);
 
       // Trailing debounce: flush 3s after the last event…
       if (balanceDebounceTimeoutRef.current)
@@ -1935,6 +1931,8 @@ const SparkWalletProvider = ({ children }) => {
       txPollingTimeoutRef.current = null;
       balanceVersionRef.current = 0;
       hasRunInitBalancePoll.current = false;
+      latestBalanceRef.current = null;
+      latestOwnedRef.current = null;
 
       txLaneQueueRef.current = Promise.resolve();
       uiLaneQueueRef.current = Promise.resolve();
