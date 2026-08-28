@@ -1,8 +1,12 @@
 const mockSend = jest.fn();
+const mockSdkInitialize = jest.fn();
 
 // spark/index.js pulls in the native SDK/storage bundles; stub them so this
 // stays a plain unit test of the runtime-selection decision.
-jest.mock('@buildonspark/spark-sdk', () => ({ SparkWallet: {}, Network: {} }));
+jest.mock('@buildonspark/spark-sdk', () => ({
+  SparkWallet: { initialize: (...args) => mockSdkInitialize(...args) },
+  Network: {},
+}));
 jest.mock('@buildonspark/spark-sdk/types', () => ({}));
 jest.mock('@flashnet/sdk', () => ({ FlashnetClient: class {} }));
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn() }));
@@ -23,12 +27,21 @@ jest.mock('../../../context-store/webViewContext', () => ({
   setForceReactNative: jest.fn(),
 }));
 
-const { selectSparkRuntime } = require('../../../app/functions/spark');
+const {
+  clearMnemonicCache,
+  refundSparkStaticBitcoinL1AddressQuote,
+  selectSparkRuntime,
+} = require('../../../app/functions/spark');
 
 describe('selectSparkRuntime', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
+    clearMnemonicCache();
     mockGetHandshakeComplete.mockReset();
     mockGetIsNativeRuntime.mockReset();
+    mockSdkInitialize.mockResolvedValue({
+      wallet: { refundStaticDeposit: jest.fn(async () => ({ id: 'refund' })) },
+    });
   });
 
   test('holds on the WebView during a reload (handshake incomplete, not committed to native)', async () => {
@@ -60,4 +73,23 @@ describe('selectSparkRuntime', () => {
 
     await expect(selectSparkRuntime('seed words here')).resolves.toBe('webview');
   });
+
+  test.failing(
+    'a WebView-selected refund path cannot initialize the native Spark SDK',
+    async () => {
+      mockGetHandshakeComplete.mockReturnValue(true);
+      mockGetIsNativeRuntime.mockReturnValue(false);
+
+      await refundSparkStaticBitcoinL1AddressQuote({
+        depositTransactionId: 'txid',
+        destinationAddress: 'bc1destination',
+        fee: 100,
+        mnemonic: 'seed words here',
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSdkInitialize).not.toHaveBeenCalled();
+    },
+  );
 });

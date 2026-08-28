@@ -295,7 +295,6 @@ function track(promise) {
   return state;
 }
 
-const sha256Hash = require('../../app/functions/hash').default;
 const MNEMONIC = 'test mnemonic words';
 const SEND_ARGS = {
   receiverSparkAddress: 'sp1abc',
@@ -336,19 +335,12 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// R-1 — The reconcile 'executed' result shape breaks the consumer contract.
-// A live caller settled by foreground reconcile receives
-// {didWork:true, status:'executed', txid} — NOT {didWork:true, response:{…}}.
-// Every funds consumer passes the bridge result through validateWebViewResponse
-// (didWork:true passes) and then reads `.response`:
-//   payments.js:503  const data = sparkPayResponse.response;  … data.id  → TypeError
-//   payments.js:461  executionResponse.swap.amountOut        → TypeError
-// The executed payment is therefore reported to the user as a FAILURE
-// ("Cannot read properties of undefined"), the money has moved, and the
-// intent is now 'done' — a user retry re-dispatches (double pay).
+// R-1 — Payment history cannot bind a row to a bridge attempt. After an auth
+// reset, an interrupted send remains unknown and no history-derived success is
+// fabricated. A later user submission is a new payment and still dispatches.
 // ---------------------------------------------------------------------------
-describe('review — R-1 reconcile executed-shape breaks consumers', () => {
-  test('reconcile-settled send resolves WITHOUT the response payload consumers read', async () => {
+describe('review — R-1 payment history cannot settle a caller', () => {
+  test('auth reset posts no payment-history query and a new payment dispatches', async () => {
     mockLocal.get = async () => null;
     mockActive.currentWalletMnemoinc = MNEMONIC;
     await mountOnly();
@@ -366,8 +358,7 @@ describe('review — R-1 reconcile executed-shape breaks consumers', () => {
     await flush();
     expect(wv.lastEncryptedPayload('sendSparkPayment')).toBeTruthy();
 
-    // Auth reset reloads the page (epoch bump) — the caller stays live
-    // (keep-alive), and the new session reconciles from network history.
+    // Auth reset reloads the page (epoch bump) and initializes a fresh session.
     mockAuth.authResetkey = 1;
     rerender();
     await flush();
@@ -386,28 +377,20 @@ describe('review — R-1 reconcile executed-shape breaks consumers', () => {
     await advance(200);
 
     const query = wv2.lastEncryptedPayload('getSparkTransactions');
-    expect(query).toBeTruthy();
-    const created = Date.now();
-    wv2.respond(query.id, {
-      transfers: [
-        {
-          id: 'tx-1',
-          totalValue: '1000',
-          createdTime: created,
-          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-        },
-      ],
-    });
+    expect(query).toBeNull();
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
+    const entry = [...SUT.__getIntentStoreForTest().values()][0];
+    expect(entry.state).toBe('unknown');
+
+    const postsBefore = postedCount(wv2, 'sendSparkPayment');
+    const retry = track(
+      SUT.sendWebViewRequestGlobal('sendSparkPayment', SEND_ARGS),
+    );
     await flush();
 
-    expect(st.settled).toBe(true);
-    expect(st.value.didWork).toBe(true);
-    expect(st.value.status).toBe('executed');
-    // Consumers read sparkPayResponse.response.id; reconcile must supply a
-    // response object carrying the reconciled txid so the executed payment is
-    // reported as success, not crashed-as-failure. updatedTime rides along so
-    // the consumer's new Date(data.updatedTime) is real, not NaN (F-6).
-    expect(st.value.response).toEqual({ id: 'tx-1', updatedTime: created });
+    expect(postedCount(wv2, 'sendSparkPayment')).toBe(postsBefore + 1);
+    expect(retry.settled).toBe(false);
+    expect(st.value?.didWork).not.toBe(true);
   });
 });
 
@@ -617,21 +600,12 @@ describe('review — R-6 failed auto-init schedules a bounded re-init', () => {
 });
 
 // ---------------------------------------------------------------------------
-// S-4 (partial) — the payload-leaking background log is redacted to the action
-// only. The raw-mnemonic retention is NOT stripped: multiple wallets are used
-// concurrently, so each intent must keep its own seed to reconcile its own
-// wallet's history (see the multi-wallet reconcile test below).
+// Multi-wallet safety — an unknown send from a secondary wallet must not retain
+// that wallet's seed or query transaction history. Balance/transaction refresh
+// for each wallet owns the eventual result independently of the intent store.
 // ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// Multi-wallet reconcile — pool/savings/gift/child wallets are initialized and
-// used at the same time as the active custody account. A SECONDARY wallet's
-// unknown send must reconcile against ITS OWN seed; the old filter reconciled
-// only intents whose key matched currentWalletMnemoinc, so a secondary wallet's
-// executed-but-timed-out send stayed permanently 'unknown'.
-// ---------------------------------------------------------------------------
-describe('review — multi-wallet reconcile', () => {
-  test('a secondary wallet unknown send reconciles against its own seed', async () => {
+describe('review — multi-wallet unknown-send isolation', () => {
+  test('a secondary wallet unknown send stores no seed and posts no history query', async () => {
     mockLocal.get = async () => null;
     // Active custody account is wallet A; the send is from wallet B.
     mockActive.currentWalletMnemoinc = MNEMONIC;
@@ -657,7 +631,7 @@ describe('review — multi-wallet reconcile', () => {
     await advance(30001);
     expect(st.value.kind).toBe('unknown');
 
-    // Foreground reconcile.
+    // Foreground recovery does not attempt heuristic payment reconciliation.
     mockAppStatus.appState = 'background';
     AppState.currentState = 'background';
     rerender();
@@ -667,33 +641,12 @@ describe('review — multi-wallet reconcile', () => {
     rerender();
     await flush();
 
-    // The reconcile query is posted for wallet B's history — using B's seed
-    // (hashed in transit), NOT the active custody account's.
     const query = wv.lastEncryptedPayload('getSparkTransactions');
-    expect(query).toBeTruthy();
-    expect(query.args.mnemonic).toBe(sha256Hash(WALLET_B));
-    expect(query.args.mnemonic).not.toBe(sha256Hash(MNEMONIC));
-
-    const createdB = Date.now();
-    wv.respond(query.id, {
-      transfers: [
-        {
-          id: 'txB',
-          totalValue: '2000',
-          createdTime: createdB,
-          receivers: [{ amountSats: 2000, identityPublicKey: 'pk:sp1def' }],
-        },
-      ],
-    });
-    await flush();
+    expect(query).toBeNull();
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
 
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    expect(entry.state).toBe('done');
-    expect(entry.result).toEqual({
-      didWork: true,
-      status: 'executed',
-      txid: 'txB',
-      response: { id: 'txB', updatedTime: createdB },
-    });
+    expect(entry.state).toBe('unknown');
+    expect(entry.args.mnemonic).toBeUndefined();
   });
 });

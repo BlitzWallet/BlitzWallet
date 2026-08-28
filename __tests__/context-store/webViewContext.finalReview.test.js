@@ -435,66 +435,11 @@ async function resetAndGetReconcileQuery(wv1, queryAction) {
 }
 
 // ---------------------------------------------------------------------------
-// F-1 — A reconcile-confirmed SWAP/FULFILL executes but its history query can
-// only supply a txid — not the consumer's success shape (swaps read
-// executionResponse.swap.outboundTransferId at payments.js:403; fulfill reads
-// fulfillResult.satsTransactionSuccess at bulkPaymentFunctions.js:216). Settling
-// the live caller with {didWork:true, response:{id}} crashes/mis-marks the
-// executed op as a FAILURE. Correct: the intent records 'done' (double-pay
-// guard) but the live caller settles with the unknown shape it already handles.
+// Only operations whose query uniquely identifies the original attempt may be
+// reconciled. Invoice IDs provide that identity; payment and swap history does
+// not, so those operations deliberately remain unknown.
 // ---------------------------------------------------------------------------
-describe('final — F-1 reconcile must not settle swap/fulfill callers with an unconsumable success shape', () => {
-  test('executeSwap: intent done + txid recorded, live caller settles unknown', async () => {
-    const wv = await setupFundsReady();
-    const st = track(
-      SUT.sendWebViewRequestGlobal('executeSwap', {
-        poolId: 'pool1',
-        assetInAddress: 'btc',
-        assetOutAddress: 'tokA',
-        amountIn: '200',
-        mnemonic: MNEMONIC,
-      }),
-    );
-    await flush();
-    expect(wv.lastEncryptedPayload('executeSwap')).toBeTruthy();
-
-    // Auth reset mid-swap: caller survives (keep-alive); new session reconciles.
-    const { wv2, query } = await resetAndGetReconcileQuery(
-      wv,
-      'getUserSwapHistory',
-    );
-    wv2.respond(query.id, {
-      swaps: [
-        {
-          id: 'swap-1',
-          poolLpPublicKey: 'pool1',
-          amountIn: '200',
-          assetInAddress: 'btc',
-          assetOutAddress: 'tokA',
-          timestamp: Date.now(),
-        },
-      ],
-    });
-    await flush();
-
-    // The intent records the truth — the op executed (guard retained).
-    const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    expect(entry.state).toBe('done');
-    expect(entry.result).toMatchObject({
-      didWork: true,
-      status: 'executed',
-      txid: 'swap-1',
-    });
-    // …but the awaiting caller gets the unknown shape, not a success that
-    // crashes the consumer (.swap is absent).
-    expect(st.settled).toBe(true);
-    expect(st.value).toEqual({
-      didWork: false,
-      error: 'Request status unknown — check before retrying',
-      kind: 'unknown',
-    });
-  });
-
+describe('final — deterministic invoice reconciliation', () => {
   test('fufillSparkInvoices: intent done, live caller settles unknown (consumer reads satsTransactionSuccess)', async () => {
     const wv = await setupFundsReady();
     const st = track(
@@ -523,37 +468,6 @@ describe('final — F-1 reconcile must not settle swap/fulfill callers with an u
     expect(st.value.didWork).toBe(false);
   });
 
-  test('control — sendSparkPayment keeps the executed shape, now carrying a real updatedTime (F-6)', async () => {
-    const wv = await setupFundsReady();
-    const st = track(SUT.sendWebViewRequestGlobal('sendSparkPayment', SEND_ARGS));
-    await flush();
-    expect(wv.lastEncryptedPayload('sendSparkPayment')).toBeTruthy();
-
-    const { wv2, query } = await resetAndGetReconcileQuery(
-      wv,
-      'getSparkTransactions',
-    );
-    const created = Date.now();
-    wv2.respond(query.id, {
-      transfers: [
-        {
-          id: 'tx-1',
-          totalValue: '1000',
-          createdTime: created,
-          updatedTime: created,
-          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-        },
-      ],
-    });
-    await flush();
-
-    expect(st.settled).toBe(true);
-    expect(st.value.didWork).toBe(true);
-    expect(st.value.status).toBe('executed');
-    // payments.js:526 does new Date(data.updatedTime).getTime() — reconcile
-    // must supply a real timestamp, not undefined (NaN in the tx record).
-    expect(st.value.response).toEqual({ id: 'tx-1', updatedTime: created });
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -747,20 +661,17 @@ describe('final — F-7 reset-interrupted handshake consumes no fallback state',
 });
 
 // ---------------------------------------------------------------------------
-// F-8 — Reconcile matcher precision.
-// (a) A same-amount transfer to a DIFFERENT receiver inside the time window is
-//     not this payment: receivers carry identityPublicKey, so the matcher must
-//     compare it against the decoded receiverSparkAddress.
+// F-8 — Reconcile precision.
+// (a) Payment history is never used to settle an attempt because it has no
+//     bridge-attempt identifier.
 // (b) A FULL first page of unclaimed utxos may be truncated — absence of the
 //     deposit utxo is then unproven and must not mark the claim executed.
 // ---------------------------------------------------------------------------
-describe('final — F-8 reconcile matcher precision', () => {
-  test('same-amount transfer to a different receiver does NOT prove execution', async () => {
+describe('final — F-8 reconcile precision', () => {
+  test('payment history is not queried to prove execution', async () => {
     const wv = await setupFundsReady();
     await dispatchThenLoseResponse(wv, 'sendSparkPayment', SEND_ARGS);
 
-    // Foreground reconcile: history shows a same-amount transfer in the window
-    // — but to someone else.
     mockAppStatus.appState = 'background';
     AppState.currentState = 'background';
     rerender();
@@ -771,18 +682,8 @@ describe('final — F-8 reconcile matcher precision', () => {
     await flush();
 
     const query = wv.lastEncryptedPayload('getSparkTransactions');
-    expect(query).toBeTruthy();
-    wv.respond(query.id, {
-      transfers: [
-        {
-          id: 'tx-other',
-          totalValue: '1000',
-          createdTime: Date.now(),
-          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:someoneElse' }],
-        },
-      ],
-    });
-    await flush();
+    expect(query).toBeNull();
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
 
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
     expect(entry.state).toBe('unknown');
@@ -822,6 +723,29 @@ describe('final — F-8 reconcile matcher precision', () => {
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
     expect(entry.state).toBe('unknown');
   });
+
+  test(
+    'one identical transfer from before dispatch cannot prove the current send executed',
+    async () => {
+      const wv = await setupFundsReady();
+      await dispatchThenLoseResponse(wv, 'sendSparkPayment', SEND_ARGS);
+      const entry = [...SUT.__getIntentStoreForTest().values()][0];
+
+      mockAppStatus.appState = 'background';
+      AppState.currentState = 'background';
+      rerender();
+      await flush();
+      mockAppStatus.appState = 'active';
+      AppState.currentState = 'active';
+      rerender();
+      await flush();
+
+      const query = wv.lastEncryptedPayload('getSparkTransactions');
+      expect(query).toBeNull();
+      expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
+      expect(entry.state).toBe('unknown');
+    },
+  );
 });
 
 // ---------------------------------------------------------------------------

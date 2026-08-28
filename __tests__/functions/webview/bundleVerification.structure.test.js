@@ -7,6 +7,9 @@
 
 let mockRead;
 let written;
+let mockHashedInput;
+let mockVerifyResult;
+let mockVerifyArgs;
 jest.mock('expo-file-system/legacy', () => ({
   readAsStringAsync: (...a) => mockRead(...a),
   writeAsStringAsync: (path, html) => {
@@ -21,11 +24,17 @@ jest.mock('expo-asset', () => ({ Asset: { fromModule: jest.fn() } }));
 jest.mock('react-native', () => ({ Platform: { OS: 'android' } }));
 jest.mock('react-native-quick-crypto', () => ({
   randomBytes: () => Buffer.alloc(16, 7),
-  verify: () => true,
+  verify: (...args) => {
+    mockVerifyArgs = args;
+    return mockVerifyResult;
+  },
   createPublicKey: () => ({}),
   createHash: () => {
     const hasher = {
-      update: () => hasher,
+      update: (input, encoding) => {
+        mockHashedInput = { input, encoding };
+        return hasher;
+      },
       digest: () => 'ab'.repeat(32),
     };
     return hasher;
@@ -53,6 +62,9 @@ const validHtml = [
 describe('verifyAndPrepareWebView structural hardening', () => {
   beforeEach(() => {
     written = undefined;
+    mockHashedInput = undefined;
+    mockVerifyArgs = undefined;
+    mockVerifyResult = true;
     mockRead = async () => validHtml;
   });
 
@@ -62,6 +74,29 @@ describe('verifyAndPrepareWebView structural hardening', () => {
     const out = written.html;
     expect(out.split(NONCE_HEX).length - 1).toBe(2);
     expect(out.split('__INJECT_NONCE__').length - 1).toBe(1);
+  });
+
+  test('hashes the exact UTF-8 document with only the signature value canonicalized', async () => {
+    await verifyAndPrepareWebView('src');
+
+    const expectedCanonical = validHtml.replace(SIG, '__SIGNATURE__');
+    expect(mockHashedInput).toEqual({
+      input: expectedCanonical,
+      encoding: 'utf8',
+    });
+    expect(mockVerifyArgs[0]).toBeNull();
+    expect(mockVerifyArgs[1]).toEqual(Buffer.from('ab'.repeat(32), 'hex'));
+    expect(mockVerifyArgs[3]).toEqual(Buffer.from(SIG, 'hex'));
+  });
+
+  test('an invalid Ed25519 signature fails closed before nonce injection or write', async () => {
+    mockVerifyResult = false;
+
+    const err = await verifyAndPrepareWebView('src').catch(e => e);
+
+    expect(err.isTamper).toBe(true);
+    expect(err.message).toContain('signature invalid');
+    expect(written).toBeUndefined();
   });
 
   test('signature meta beyond the head-region offset bound is rejected', async () => {

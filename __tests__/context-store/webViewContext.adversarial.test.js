@@ -1105,98 +1105,6 @@ describe('adversarial — native fallback: reconcile disabled, user sends never 
 describe('adversarial — production reconcile queries & matchers', () => {
   const fixtures = [
     {
-      op: 'sendSparkPayment',
-      args: { receiverSparkAddress: 'sp1abc', amountSats: 1000, mnemonic: MNEMONIC },
-      queryAction: 'getSparkTransactions',
-      respond: ts => ({
-        transfers: [
-          {
-            id: 'tx-1',
-            totalValue: '1000',
-            createdTime: ts,
-            receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-          },
-        ],
-      }),
-      hit: true,
-      txid: 'tx-1',
-    },
-    {
-      op: 'executeSwap',
-      args: {
-        poolId: 'pool1',
-        assetInAddress: 'btc-asset',
-        assetOutAddress: 'usdb-token',
-        amountIn: '200',
-        mnemonic: MNEMONIC,
-      },
-      queryAction: 'getUserSwapHistory',
-      respond: ts => ({
-        swaps: [
-          {
-            id: 'swap-1',
-            poolLpPublicKey: 'pool1',
-            amountIn: '200',
-            assetInAddress: 'btc-asset',
-            assetOutAddress: 'usdb-token',
-            timestamp: ts,
-          },
-        ],
-      }),
-      hit: true,
-      txid: 'swap-1',
-    },
-    {
-      op: 'swapBitcoinToToken',
-      args: {
-        poolId: 'pool1',
-        tokenAddress: 'usdb-token',
-        amountSats: '200',
-        mnemonic: MNEMONIC,
-      },
-      queryAction: 'getUserSwapHistory',
-      respond: () => ({
-        swaps: [
-          {
-            id: 'swap-2',
-            poolLpPublicKey: 'pool1',
-            amountIn: '200',
-            assetInAddress:
-              '020202020202020202020202020202020202020202020202020202020202020202',
-            assetOutAddress: 'usdb-token',
-            timestamp: Date.now(),
-          },
-        ],
-      }),
-      hit: true,
-      txid: 'swap-2',
-    },
-    {
-      op: 'swapTokenToBitcoin',
-      args: {
-        poolId: 'pool1',
-        tokenAddress: 'usdb-token',
-        tokenAmount: '200',
-        mnemonic: MNEMONIC,
-      },
-      queryAction: 'getUserSwapHistory',
-      respond: () => ({
-        swaps: [
-          {
-            id: 'swap-3',
-            poolLpPublicKey: 'pool1',
-            amountIn: '200',
-            assetInAddress: 'usdb-token',
-            assetOutAddress:
-              '020202020202020202020202020202020202020202020202020202020202020202',
-            timestamp: Date.now(),
-          },
-        ],
-      }),
-      hit: true,
-      txid: 'swap-3',
-    },
-    {
       op: 'claimnSparkStaticDepositAddress', // OPERATION_TYPES.claimStaticDepositAddress
       args: {
         transactionId: 'txid-1',
@@ -1247,11 +1155,48 @@ describe('adversarial — production reconcile queries & matchers', () => {
       queryAction: 'querySparkInvoices',
       respond: () => ({ invoiceStatuses: [{ invoice: 'inv-1', status: 1 }] }),
     },
+  ];
+
+  const noHeuristicReconcileFixtures = [
     {
       op: 'sendSparkPayment',
-      args: { receiverSparkAddress: 'sp1abc', amountSats: 1000, mnemonic: MNEMONIC },
-      queryAction: 'getSparkTransactions',
-      respond: () => ({ transfers: [] }),
+      args: {
+        receiverSparkAddress: 'sp1abc',
+        amountSats: 1000,
+        mnemonic: MNEMONIC,
+      },
+      forbiddenQuery: 'getSparkTransactions',
+    },
+    {
+      op: 'executeSwap',
+      args: {
+        poolId: 'pool1',
+        assetInAddress: 'btc-asset',
+        assetOutAddress: 'usdb-token',
+        amountIn: '200',
+        mnemonic: MNEMONIC,
+      },
+      forbiddenQuery: 'getUserSwapHistory',
+    },
+    {
+      op: 'swapBitcoinToToken',
+      args: {
+        poolId: 'pool1',
+        tokenAddress: 'usdb-token',
+        amountSats: '200',
+        mnemonic: MNEMONIC,
+      },
+      forbiddenQuery: 'getUserSwapHistory',
+    },
+    {
+      op: 'swapTokenToBitcoin',
+      args: {
+        poolId: 'pool1',
+        tokenAddress: 'usdb-token',
+        tokenAmount: '200',
+        mnemonic: MNEMONIC,
+      },
+      forbiddenQuery: 'getUserSwapHistory',
     },
   ];
 
@@ -1288,19 +1233,8 @@ describe('adversarial — production reconcile queries & matchers', () => {
     await flush();
   }
 
-  // Timestamp-gated matchers run against both SDK shapes: numeric ms (the
-  // original fixtures) and ISO/RFC3339 strings (real SDK serialization). A
-  // regression to Number(ts) inside withinReconcileWindow flips the ISO
-  // variants red (F-2).
-  const timestampGatedOps = new Set([
-    'sendSparkPayment', // Transfer.createdTime
-    'executeSwap', // Swap.timestamp
-  ]);
-
   for (const fx of fixtures) {
-    const tsModes = timestampGatedOps.has(fx.op) ? ['numeric', 'iso'] : ['numeric'];
-    for (const tsMode of tsModes) {
-      test(`${fx.op}: real reconcile query ${fx.queryAction} hits → done + txid extracted (${tsMode} timestamp)`, async () => {
+    test(`${fx.op}: deterministic reconcile query ${fx.queryAction} hits → done + txid extracted`, async () => {
       const wv = await setupUnknown(fx.op, fx.args);
       await foreground();
 
@@ -1309,32 +1243,20 @@ describe('adversarial — production reconcile queries & matchers', () => {
       expect(query).toBeTruthy();
       expect(SUT.__getReconcileQueryCountForTest()).toBe(1);
 
-      const ts =
-        tsMode === 'iso'
-          ? new Date(Date.now() - 30000).toISOString()
-          : Date.now();
-      wv.respond(query.id, fx.respond(ts));
+      wv.respond(query.id, fx.respond());
       await flush();
 
       const entry = [...SUT.__getIntentStoreForTest().values()][0];
       expect(entry.state).toBe('done');
-      // C-1: reconcile supplies a consumer-readable `response` (sendSparkPayment
-      // also carries the matched transfer's timestamp as updatedTime (F-6);
-      // every other op { id }).
-      const expectedResponse =
-        fx.op === 'sendSparkPayment'
-          ? { id: fx.txid, updatedTime: ts }
-          : { id: fx.txid };
       expect(entry.result).toEqual({
         didWork: true,
         status: 'executed',
         txid: fx.txid,
-        response: expectedResponse,
+        response: { id: fx.txid },
       });
       // N7: reconcile-confirmed entries are retained for the double-pay guard.
       expect(SUT.__getIntentStoreForTest().size).toBe(1);
-      });
-    }
+    });
   }
 
   for (const fx of missFixtures) {
@@ -1356,70 +1278,40 @@ describe('adversarial — production reconcile queries & matchers', () => {
     });
   }
 
+  for (const fx of noHeuristicReconcileFixtures) {
+    test(`${fx.op}: history cannot prove execution and a new user request still dispatches`, async () => {
+      const wv = await setupUnknown(fx.op, fx.args);
+      await foreground();
+
+      expect(wv.lastEncryptedPayload(fx.forbiddenQuery)).toBeNull();
+      expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
+      const entry = [...SUT.__getIntentStoreForTest().values()][0];
+      expect(entry.state).toBe('unknown');
+      expect(entry.args.mnemonic).toBeUndefined();
+
+      const postsBefore = postedCount(fx.op, wv);
+      const retry = track(SUT.sendWebViewRequestGlobal(fx.op, fx.args));
+      await flush();
+
+      expect(postedCount(fx.op, wv)).toBe(postsBefore + 1);
+      expect(retry.settled).toBe(false);
+    });
+  }
+
   test('production reconcile query hashes the mnemonic exactly once', async () => {
     const nodeCrypto = require('node:crypto');
     const hashOf = s =>
       nodeCrypto.createHash('sha256').update(s).digest().toString('hex');
-    const wv = await setupUnknown('sendSparkPayment', {
-      receiverSparkAddress: 'sp1abc',
-      amountSats: 1000,
+    const wv = await setupUnknown('claimnSparkStaticDepositAddress', {
+      transactionId: 'txid-1',
+      outputIndex: 0,
+      depositAddress: 'bc1abc',
       mnemonic: MNEMONIC,
     });
     await foreground();
 
-    const query = wv.lastEncryptedPayload('getSparkTransactions');
+    const query = wv.lastEncryptedPayload('getUtxosForDepositAddress');
     expect(query.args.mnemonic).toBe(hashOf(MNEMONIC));
-  });
-
-  // F-3 — A reconcile-confirmed 'done' intent is retained forever (N7 double-pay
-  // guard) and is keyed ONLY on {op, canonicalArgs, walletHash}. sendSparkPayment
-  // args are fully deterministic ({mnemonic, receiverSparkAddress, amountSats} —
-  // no nonce/idempotency token), so a LEGITIMATELY SEPARATE later payment of the
-  // same amount to the same address collides on stableKey and is silently
-  // short-circuited to the stored executed result: the second real payment is
-  // never dispatched, yet the caller sees {didWork:true, txid:<old>} — a false
-  // success / dropped payment. (In production this is currently masked by F-2:
-  // real ISO-string timestamps keep sends 'unknown', so 'done' is never reached.
-  // Fixing F-2 so reconcile actually hits ACTIVATES this money-loss bug.)
-  test('reconcile-done intent blocks a legitimately-separate identical payment → false success, never re-dispatched (F-3)', async () => {
-    const args = {
-      receiverSparkAddress: 'sp1abc',
-      amountSats: 1000,
-      mnemonic: MNEMONIC,
-    };
-    const wv = await setupUnknown('sendSparkPayment', args);
-    await foreground();
-
-    // Reconcile hits (numeric timestamp) → intent 'done', retained.
-    const query = wv.lastEncryptedPayload('getSparkTransactions');
-    wv.respond(query.id, {
-      transfers: [
-        {
-          id: 'tx-1',
-          totalValue: '1000',
-          createdTime: Date.now(),
-          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-        },
-      ],
-    });
-    await flush();
-    expect([...SUT.__getIntentStoreForTest().values()][0].state).toBe('done');
-
-    const postsBefore = postedCount('sendSparkPayment', wv);
-
-    // A brand-new, legitimately-separate payment: same person, same round
-    // amount, minutes later. This MUST reach the wallet.
-    const second = track(SUT.sendWebViewRequestGlobal('sendSparkPayment', args));
-    await flush();
-
-    // Correct behavior: the new payment is actually dispatched to the bridge.
-    expect(postedCount('sendSparkPayment', wv)).toBe(postsBefore + 1); // FAILS today: 0 new posts
-    // Correct behavior: it is NOT resolved from the FIRST payment's stored txid.
-    expect(second.value).not.toEqual({
-      didWork: true,
-      status: 'executed',
-      txid: 'tx-1',
-    }); // FAILS today: returns the stale executed result as a fresh success
   });
 });
 
@@ -1787,7 +1679,7 @@ describe('adversarial — foreground reconcile gating (§3.4, §3.9)', () => {
     expect([...SUT.__getIntentStoreForTest().values()][0].state).toBe('unknown');
   });
 
-  test('boot-phase connection restore reconciles WITHOUT reloading the page (§3.9)', async () => {
+  test('boot-phase connection restore does not reload or heuristically reconcile a send (§3.9)', async () => {
     const wv = await unknownIntentReady();
     const handshakesBefore = postedCount('handshake:init', wv);
 
@@ -1804,11 +1696,12 @@ describe('adversarial — foreground reconcile gating (§3.4, §3.9)', () => {
     rerender();
     await flush();
 
-    // Reconcile ran; no reload (handshake:init NOT re-posted).
-    expect(SUT.__getReconcileQueryCountForTest()).toBe(1);
+    // No reload, and no history query that could attribute another payment to
+    // this unknown attempt. Transaction/balance refresh owns eventual truth.
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
     expect(postedCount('handshake:init', wv)).toBe(handshakesBefore);
     const query = wv.lastEncryptedPayload('getSparkTransactions');
-    expect(query).toBeTruthy();
+    expect(query).toBeNull();
   });
 });
 
@@ -1926,152 +1819,23 @@ describe('adversarial — boot-offline deadlock (F-1)', () => {
   });
 });
 
-// F-2 — Production reconcile matchers are dead against real SDK data. The
-// Spark SDK serializes Transfer.createdTime / TokenTransaction
-// .clientCreatedTimestamp as ISO strings (Date → toISOString) and Flashnet
-// swap timestamps as RFC3339 strings; withinReconcileWindow does
-// Number(ts), which is NaN for ISO strings, so every timestamp-gated matcher
-// misses. An executed-but-timed-out send is never upgraded to 'executed'.
-describe('adversarial — reconcile matchers vs real SDK timestamps (F-2)', () => {
-  test('sendSparkPayment reconcile MISSES real SDK-shaped data (createdTime ISO string) → executed payment stays unknown', async () => {
-    mockLocal.get = async () => null;
-    mockActive.currentWalletMnemoinc = MNEMONIC;
-    await mountTransport();
-    await advance(300);
-    const wv = makeWebviewCrypto();
-    wv.answerHandshake();
-    await flush();
-    await completeWalletInit(wv);
-
-    const st = track(
-      SUT.sendWebViewRequestGlobal('sendSparkPayment', {
-        receiverSparkAddress: 'sp1abc',
-        amountSats: 1000,
-        mnemonic: MNEMONIC,
-      }),
-    );
-    await flush();
-    expect(wv.lastEncryptedPayload('sendSparkPayment')).toBeTruthy();
-    await advance(90001);
-    expect(st.settled).toBe(false);
-    await advance(30001);
-    expect(st.value.kind).toBe('unknown');
-
-    // Foreground → production reconcile query posted.
-    mockAppStatus.appState = 'background';
-    AppState.currentState = 'background';
-    rerender();
-    await flush();
-    mockAppStatus.appState = 'active';
-    AppState.currentState = 'active';
-    rerender();
-    await flush();
-    const query = wv.lastEncryptedPayload('getSparkTransactions');
-    expect(query).toBeTruthy();
-
-    // The payment DID execute and appears in history with the real SDK shape:
-    // createdTime is an ISO string (the SDK's Date is JSON-serialized).
-    const isoTs = new Date(Date.now() - 30000).toISOString();
-    wv.respond(query.id, {
-      transfers: [
-        {
-          id: 'tx-1',
-          totalValue: '1000',
-          createdTime: isoTs,
-          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-        },
-      ],
-    });
-    await flush();
-
-    const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    // Correct behavior: matcher hit → state 'done' with the executed result
-    // (updatedTime falls back to the matched transfer's createdTime, F-6).
-    expect(entry.state).toBe('done');
-    expect(entry.result).toEqual({
-      didWork: true,
-      status: 'executed',
-      txid: 'tx-1',
-      response: { id: 'tx-1', updatedTime: isoTs },
-    });
-  });
-
-  test('executeSwap reconcile MISSES real Flashnet data (timestamp RFC3339 string) → executed swap stays unknown', async () => {
-    mockLocal.get = async () => null;
-    mockActive.currentWalletMnemoinc = MNEMONIC;
-    await mountTransport();
-    await advance(300);
-    const wv = makeWebviewCrypto();
-    wv.answerHandshake();
-    await flush();
-    await completeWalletInit(wv);
-
-    const st = track(
-      SUT.sendWebViewRequestGlobal('executeSwap', {
-        poolId: 'pool1',
-        amountIn: '200',
-        mnemonic: MNEMONIC,
-      }),
-    );
-    await flush();
-    expect(wv.lastEncryptedPayload('executeSwap')).toBeTruthy();
-    await advance(90001);
-    expect(st.settled).toBe(false);
-    await advance(30001);
-    expect(st.value.kind).toBe('unknown');
-
-    mockAppStatus.appState = 'background';
-    AppState.currentState = 'background';
-    rerender();
-    await flush();
-    mockAppStatus.appState = 'active';
-    AppState.currentState = 'active';
-    rerender();
-    await flush();
-    const query = wv.lastEncryptedPayload('getUserSwapHistory');
-    expect(query).toBeTruthy();
-
-    // Flashnet SDK Swap.timestamp is a string (RFC3339).
-    wv.respond(query.id, {
-      swaps: [
-        {
-          id: 'swap-1',
-          poolLpPublicKey: 'pool1',
-          amountIn: '200',
-          timestamp: new Date(Date.now() - 30000).toISOString(),
-        },
-      ],
-    });
-    await flush();
-
-    const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    expect(entry.state).toBe('done'); // FAILS today: stays 'unknown'
-  });
-});
-
 // ---------------------------------------------------------------------------
-// C2 — reconcile precision guard. A matcher may only confirm an op when EXACTLY
-// ONE in-window history row matches. A legitimately-separate identical payment
-// (same amount + recipient, no per-send idempotency token) collides; matching
-// it would report a not-executed send as a false success and silently drop the
-// real second payment. Ambiguity → stays unknown.
+// Payment and swap history does not carry a bridge-attempt identifier. Even a
+// single identical row can belong to an earlier or later user-authorized
+// operation, so it must not settle an unknown attempt.
 // ---------------------------------------------------------------------------
-describe('adversarial — reconcile ambiguity: two identical in-window txs → stays unknown (C2)', () => {
-  test('sendSparkPayment reconcile with two matching transfers does NOT confirm', async () => {
+describe('adversarial — history cannot settle an unknown payment attempt', () => {
+  test('identical history cannot be attributed and an identical new payment dispatches', async () => {
     const wv = await transportReadyFull();
     const args = {
       receiverSparkAddress: 'sp1abc',
       amountSats: 1000,
       mnemonic: MNEMONIC,
     };
-
     track(SUT.sendWebViewRequestGlobal('sendSparkPayment', args));
     await flush();
     await advance(90001);
     await advance(30001);
-    expect(
-      [...SUT.__getIntentStoreForTest().values()][0].state,
-    ).toBe('unknown');
 
     mockAppStatus.appState = 'background';
     AppState.currentState = 'background';
@@ -2082,58 +1846,18 @@ describe('adversarial — reconcile ambiguity: two identical in-window txs → s
     rerender();
     await flush();
     const query = wv.lastEncryptedPayload('getSparkTransactions');
-    expect(query).toBeTruthy();
-
-    // TWO in-window transfers of the same amount to the same recipient: a real
-    // prior payment plus (maybe) this one. Which is "ours" is unprovable.
-    const ts = new Date(Date.now() - 30000).toISOString();
-    const transfer = id => ({
-      id,
-      totalValue: '1000',
-      createdTime: ts,
-      receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-    });
-    wv.respond(query.id, { transfers: [transfer('tx-old'), transfer('tx-new')] });
-    await flush();
-
-    // Precision over recall: the collision leaves the intent unknown, never a
-    // false 'done' pointing at some other payment's txid.
+    expect(query).toBeNull();
+    expect(SUT.__getReconcileQueryCountForTest()).toBe(0);
     expect([...SUT.__getIntentStoreForTest().values()][0].state).toBe('unknown');
-  });
 
-  test('a single matching transfer still confirms (guard does not over-reject)', async () => {
-    const wv = await transportReadyFull();
-    const args = {
-      receiverSparkAddress: 'sp1abc',
-      amountSats: 1000,
-      mnemonic: MNEMONIC,
-    };
-    track(SUT.sendWebViewRequestGlobal('sendSparkPayment', args));
+    const postsBefore = postedCount('sendSparkPayment', wv);
+    const nextPayment = track(
+      SUT.sendWebViewRequestGlobal('sendSparkPayment', args),
+    );
     await flush();
-    await advance(90001);
-    await advance(30001);
 
-    mockAppStatus.appState = 'background';
-    AppState.currentState = 'background';
-    rerender();
-    await flush();
-    mockAppStatus.appState = 'active';
-    AppState.currentState = 'active';
-    rerender();
-    await flush();
-    const query = wv.lastEncryptedPayload('getSparkTransactions');
-    wv.respond(query.id, {
-      transfers: [
-        {
-          id: 'tx-1',
-          totalValue: '1000',
-          createdTime: new Date(Date.now() - 30000).toISOString(),
-          receivers: [{ amountSats: 1000, identityPublicKey: 'pk:sp1abc' }],
-        },
-      ],
-    });
-    await flush();
-    expect([...SUT.__getIntentStoreForTest().values()][0].state).toBe('done');
+    expect(postedCount('sendSparkPayment', wv)).toBe(postsBefore + 1);
+    expect(nextPayment.settled).toBe(false);
   });
 });
 
