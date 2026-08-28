@@ -7,7 +7,6 @@ import { initGiftDb } from './gift/giftsStorage';
 import { initPoolDb } from './pools/poolsStorage';
 import { initSavingsDb } from './savings/savingsStorage';
 import { initLeavesDb } from './spark/leavesStorage';
-import { initBTCMapDB } from './btcMap/btcMapStorage';
 
 let initPromise = null;
 
@@ -36,7 +35,6 @@ export function initializeAllDatabases() {
         initPoolDb(),
         initSavingsDb(),
         initLeavesDb(),
-        initBTCMapDB(),
       ]);
       if (results.some(result => !result)) {
         initPromise = null; // allow a later retry to re-attempt
