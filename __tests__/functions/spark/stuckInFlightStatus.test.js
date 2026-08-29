@@ -73,7 +73,7 @@ const {
   stuckInFlightStatus,
 } = require('../../../app/functions/spark/restore');
 
-const PAST_STUCK_WINDOW_MS = 73 * 60 * 60 * 1000; // 73h — beyond the 72h gate
+const PAST_STUCK_WINDOW_MS = 17 * 24 * 60 * 60 * 1000; // 17days — beyond the 16day gate
 const INSIDE_STUCK_WINDOW_MS = 60 * 60 * 1000; // 1h
 
 function pendingSparkTx(direction, ageMs) {
@@ -147,7 +147,7 @@ describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
     expect(res.updated[0].paymentStatus).toBe('pending');
   });
 
-  test('OUTGOING lightning row older than 72h flips to failed so it can be retried', async () => {
+  test('OUTGOING lightning row older than 16 days flips to failed so it can be retried', async () => {
     expect(
       stuckInFlightStatus(
         'TRANSFER_STATUS_SENDER_INITIATED',
