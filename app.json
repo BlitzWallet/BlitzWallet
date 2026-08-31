@@ -7,6 +7,14 @@
   "plugins": ["expo-sqlite", "expo-web-browser", "expo-secure-store"],
   "web": {
     "bundler": "metro",
-    "output": "single"
+    "output": "single",
+    "favicon": "./app/assets/favicon.png",
+    "name": "Blitz Wallet",
+    "shortName": "Blitz",
+    "lang": "en",
+    "themeColor": "#0375F6",
+    "backgroundColor": "#FFFFFF",
+    "display": "standalone",
+    "startUrl": "."
   }
 }
