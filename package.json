@@ -82,6 +82,7 @@
     "lottie-react-native": "^7.3.4",
     "lucide-react": "^1.26.0",
     "lucide-react-native": "^0.562.0",
+    "maplibre-gl": "5.24.0",
     "nostr-tools": "^2.15.0",
     "qrcode": "^1.5.4",
     "react": "19.1.0",
@@ -121,6 +122,7 @@
     "rn-qr-generator": "^2.0.0",
     "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#3677d0bfd97ef5a594d799e8d2e93ec671801dc0",
     "stream-browserify": "^3.0.0",
+    "supercluster": "^9.0.0",
     "text-encoding": "^0.7.0",
     "unique-names-generator": "^4.7.1",
     "uuid": "^14.0.1"

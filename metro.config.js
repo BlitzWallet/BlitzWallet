@@ -32,7 +32,7 @@ const WEB_STUBS = {
   // on web). They only fail if a hidden screen is actually reached.
   '@breeztech/react-native-breez-sdk-liquid': EMPTY_NATIVE,
   'react-native-maps': EMPTY_NATIVE,
-  'react-native-clusterer': EMPTY_NATIVE,
+  'react-native-clusterer': shim('react-native-clusterer.js'),
   'expo-notifications': EMPTY_NATIVE,
   'expo-background-task': EMPTY_NATIVE,
   'expo-task-manager': EMPTY_NATIVE,
