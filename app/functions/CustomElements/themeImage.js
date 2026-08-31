@@ -2,6 +2,7 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useMemo } from 'react';
 import { Image } from 'expo-image';
 import { COLORS } from '../../constants';
+import { tintStyle } from '../webTintColor';
 
 export default function ThemeImage({
   imgName,
@@ -27,33 +28,22 @@ export default function ThemeImage({
   }, [theme, darkModeType, disableTint]);
 
   const imageStyles = useMemo(() => {
-    const baseStyles = {
-      width: 30,
-      height: 30,
-      ...styles,
-    };
+    const baseStyles = { width: 30, height: 30 };
 
     // Add tintColor to styles only if we are using new format
-    if (tintColor && source) {
-      baseStyles.tintColor = tintColor;
+    if (tintColor && source) baseStyles.tintColor = tintColor;
+
+    const merged = Array.isArray(styles)
+      ? styles.reduce((acc, style) => ({ ...acc, ...(style || {}) }), baseStyles)
+      : { ...baseStyles, ...styles };
+
+    // Convert the winning tintColor (internal or from `styles`) for web.
+    if (merged.tintColor) {
+      const color = merged.tintColor;
+      delete merged.tintColor;
+      Object.assign(merged, tintStyle(color));
     }
-
-    if (!styles) return baseStyles;
-
-    if (Array.isArray(styles)) {
-      return styles.reduce(
-        (acc, style) => ({
-          ...acc,
-          ...(style || {}),
-        }),
-        baseStyles,
-      );
-    }
-
-    return {
-      ...baseStyles,
-      ...styles,
-    };
+    return merged;
   }, [styles, tintColor, source]);
   const imageSource = useMemo(() => {
     if (source) return source;

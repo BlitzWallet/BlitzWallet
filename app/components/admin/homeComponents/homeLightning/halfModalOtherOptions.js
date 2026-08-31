@@ -6,6 +6,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { COLORS, HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import { ICONS } from '../../../../constants';
 import { Image } from 'expo-image';
+import { tintStyle } from '../../../../functions/webTintColor';
 
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
@@ -87,7 +88,7 @@ function ChainRow({
         {chain.id === 'bitcoin' ? (
           <Image
             source={ICONS.bitcoinIcon}
-            style={{ width: 26, height: 26, tintColor: 'white' }}
+            style={{ width: 26, height: 26, ...tintStyle('white') }}
           />
         ) : (
           <Image

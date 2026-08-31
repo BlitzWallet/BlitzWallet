@@ -37,6 +37,7 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
+import { tintStyle } from '../../../../../functions/webTintColor';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
@@ -81,10 +82,7 @@ const ChatMessage = ({
         >
           {item.role === 'user' ? (
             <Image
-              style={[
-                chatObjectStyles.logoIcon,
-                { tintColor: blitzLogoFilter },
-              ]}
+              style={[chatObjectStyles.logoIcon, tintStyle(blitzLogoFilter)]}
               source={ICONS.logoIcon}
             />
           ) : (
@@ -490,7 +488,7 @@ export default function ChatGPTHome(props) {
               ]}
             >
               <Image
-                style={[styles.emptyStateLogo, { tintColor: blitzLogoFilter }]}
+                style={[styles.emptyStateLogo, tintStyle(blitzLogoFilter)]}
                 source={ICONS.logoIcon}
               />
             </View>
