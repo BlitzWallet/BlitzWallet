@@ -148,6 +148,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarContainer: {
+    width: '100%',
+    maxWidth: 150,
     alignItems: 'center',
     justifyContent: 'center',
   },
