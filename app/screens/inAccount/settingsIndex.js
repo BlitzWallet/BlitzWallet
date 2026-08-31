@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -206,7 +206,9 @@ export default function SettingsIndex() {
         ]}
       >
         {renderSection(
-          PREFERENCES_ROWS,
+          Platform.OS === 'web'
+            ? PREFERENCES_ROWS.filter(row => row.name !== 'Notifications')
+            : PREFERENCES_ROWS,
           t('screens.inAccount.settingsContent.preferences'),
         )}
 
@@ -219,7 +221,11 @@ export default function SettingsIndex() {
         )}
 
         {renderSection(
-          TECHNICAL_ROWS,
+          Platform.OS === 'web'
+            ? TECHNICAL_ROWS.filter(
+                row => row.name !== 'Nostr' && row.name !== 'Crash Reports',
+              )
+            : TECHNICAL_ROWS,
           t('screens.inAccount.settingsContent.technical settings'),
         )}
 
