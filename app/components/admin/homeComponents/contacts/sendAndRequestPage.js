@@ -1,5 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -149,6 +155,7 @@ export default function SendAndRequestPage(props) {
         style={[
           styles.replacementContainer,
           isDescriptionFocused ? { flexShrink: 1 } : { flexGrow: 1 },
+          Platform.OS === 'web' && styles.webScrollableContainer,
         ]}
       >
         <CustomSettingsTopBar
@@ -214,20 +221,20 @@ export default function SendAndRequestPage(props) {
           </View>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollViewContainer,
-            paymentType === 'Gift' && { justifyContent: 'flex-start' },
-            {
-              opacity:
-                !isDescriptionFocused || paymentType === 'Gift'
-                  ? 1
-                  : HIDDEN_OPACITY,
-            },
-          ]}
-        >
-          <View>
+        <View style={styles.minHeightContainer}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.scrollViewContainer,
+              paymentType === 'Gift' && { justifyContent: 'flex-start' },
+              {
+                opacity:
+                  !isDescriptionFocused || paymentType === 'Gift'
+                    ? 1
+                    : HIDDEN_OPACITY,
+              },
+            ]}
+          >
             <FormattedBalanceInput
               maxWidth={0.9}
               amountValue={payment.amountValue || 0}
@@ -235,9 +242,8 @@ export default function SendAndRequestPage(props) {
               forceCurrency={payment.primaryDisplay.forceCurrency}
               forceFiatStats={payment.primaryDisplay.forceFiatStats}
             />
-          </View>
-        </ScrollView>
-
+          </ScrollView>
+        </View>
         <View style={styles.inputAndGiftContainer}>
           <ThemeText
             styles={{ opacity: HIDDEN_OPACITY }}
@@ -329,6 +335,11 @@ const styles = StyleSheet.create({
     width: WINDOWWIDTH,
     ...CENTER,
   },
+  webScrollableContainer: {
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto',
+  },
   identityBadge: {
     alignItems: 'center',
     alignSelf: 'center',
@@ -365,6 +376,10 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
+  },
+  minHeightContainer: {
+    minHeight: 100,
+    flex: 1,
   },
   scrollViewContainer: {
     paddingTop: 5,
