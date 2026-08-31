@@ -157,6 +157,7 @@ export default function ChoosePaymentMethod({
 const styles = StyleSheet.create({
   paymentMethodContainer: {
     width: INSET_WINDOW_WIDTH,
+    maxWidth: 400,
     ...CENTER,
   },
   header: {

@@ -377,6 +377,7 @@ const styles = StyleSheet.create({
   },
   inputAndGiftContainer: {
     width: INSET_WINDOW_WIDTH,
+    maxWidth: 400,
     alignSelf: 'center',
   },
   button: {

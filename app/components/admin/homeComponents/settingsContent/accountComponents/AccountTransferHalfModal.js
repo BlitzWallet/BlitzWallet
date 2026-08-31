@@ -807,7 +807,12 @@ export default function AccountTransferHalfModal({
           </View>
 
           <View
-            style={{ width: INSET_WINDOW_WIDTH, marginTop: 'auto', ...CENTER }}
+            style={{
+              width: INSET_WINDOW_WIDTH,
+              marginTop: 'auto',
+              ...CENTER,
+              maxWidth: 400,
+            }}
           >
             <ThemeText
               styles={styles.availableLabel}
