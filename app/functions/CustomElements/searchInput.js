@@ -117,7 +117,7 @@ export default function CustomSearchInput({
     return baseStyles;
   }, [textInputStyles, editable, textInputColor, textInputBackground]);
   const viewContainerStyles = useMemo(() => {
-    return { ...styles.inputContainer, ...containerStyles };
+    return [styles.inputContainer, containerStyles];
   }, [containerStyles]);
 
   const keyboardAppearance = useMemo(() => {
