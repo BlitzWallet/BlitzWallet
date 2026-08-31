@@ -497,7 +497,7 @@ function InnerContent({
 
   if (hideProfileImage) {
     return (
-      <>
+      <View style={styles.innerContainer}>
         <View style={styles.hideProfileContainer}>
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             <ProfileInputFields {...inputFieldsProps} />
@@ -522,7 +522,7 @@ function InnerContent({
               : t('constants.back')
           }
         />
-      </>
+      </View>
     );
   }
 
@@ -923,6 +923,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
+    width: '100%',
   },
   card: {
     width: '100%',
