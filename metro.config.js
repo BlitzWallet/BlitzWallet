@@ -41,7 +41,7 @@ const WEB_STUBS = {
   'react-native-context-menu-view': EMPTY_NATIVE,
   'rn-qr-generator': EMPTY_NATIVE,
   'react-native-email-link': EMPTY_NATIVE,
-  'react-native-country-picker-modal': EMPTY_NATIVE,
+  'react-native-country-picker-modal': shim('react-native-country-picker-modal.js'),
   'react-native-tcp-socket': EMPTY_NATIVE,
   'react-native-nitro-image': EMPTY_NATIVE,
   'react-native-nitro-modules': EMPTY_NATIVE,
@@ -122,6 +122,18 @@ const config = {
 
       if (platform === 'web' && WEB_STUBS[moduleName]) {
         return {filePath: WEB_STUBS[moduleName], type: 'sourceFile'};
+      }
+      // Sub-path imports like 'react-native-country-picker-modal/lib/CountryService'
+      // don't match WEB_STUBS exactly — handle any sub-path of the country picker
+      // with the same shim so CountryCodeList + getCountryInfoAsync both resolve.
+      if (
+        platform === 'web' &&
+        moduleName.startsWith('react-native-country-picker-modal/')
+      ) {
+        return {
+          filePath: shim('react-native-country-picker-modal.js'),
+          type: 'sourceFile',
+        };
       }
 
       return context.resolveRequest(context, moduleName, platform);
