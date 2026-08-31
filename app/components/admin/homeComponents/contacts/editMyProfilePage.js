@@ -127,13 +127,16 @@ export default function EditMyProfilePage(props) {
             cancelFunction: () => deleteUser(false),
           })
         }
-        showLeftImage={!isEditingMyProfile && !selectedAddedContact?.isParentContact}
+        showLeftImage={
+          !isEditingMyProfile && !selectedAddedContact?.isParentContact
+        }
       />
       <View
         style={{
           flex: 1,
           width: fromSettings ? '100%' : INSET_WINDOW_WIDTH,
           ...CENTER,
+          alignItems: 'center',
         }}
       >
         <InnerContent
