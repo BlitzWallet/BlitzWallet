@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -25,22 +31,29 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
           { id: 'liquid', label: 'Liquid' },
           { id: 'rootstock', label: 'Rootstock' },
           { id: 'spark', label: 'Spark' },
-        ].map(chain => (
-          <ChainRow
-            key={chain.id}
-            chain={chain}
-            onSelectAsset={() =>
-              onShowQR({
-                selectedRecieveOption:
-                  chain.id === 'bitcoin' ? 'Bitcoin' : chain.id,
-              })
-            }
-            theme={theme}
-            darkModeType={darkModeType}
-            backgroundColor={backgroundColor}
-            backgroundOffset={backgroundOffset}
-          />
-        ))}
+        ]
+          // Liquid and Rootstock are unsupported on web (native SDKs stubbed).
+          .filter(
+            chain =>
+              Platform.OS !== 'web' ||
+              (chain.id !== 'liquid' && chain.id !== 'rootstock'),
+          )
+          .map(chain => (
+            <ChainRow
+              key={chain.id}
+              chain={chain}
+              onSelectAsset={() =>
+                onShowQR({
+                  selectedRecieveOption:
+                    chain.id === 'bitcoin' ? 'Bitcoin' : chain.id,
+                })
+              }
+              theme={theme}
+              darkModeType={darkModeType}
+              backgroundColor={backgroundColor}
+              backgroundOffset={backgroundOffset}
+            />
+          ))}
       </ScrollView>
     </View>
   );
@@ -63,7 +76,7 @@ function ChainRow({
       : chain.id === 'rootstock'
       ? t('wallet.halfModal.roostockDesc')
       : t('wallet.halfModal.sparkDesc');
-
+  console.log(chain);
   return (
     <TouchableOpacity
       onPress={onSelectAsset}
@@ -75,13 +88,15 @@ function ChainRow({
           styles.chainIconContainer,
           {
             backgroundColor:
-              chain.id === 'bitcoin'
-                ? theme && darkModeType
+              chain.id !== 'spark'
+                ? chain.id === 'bitcoin'
+                  ? theme && darkModeType
+                    ? backgroundColor
+                    : COLORS.bitcoinOrange
+                  : theme && darkModeType
                   ? backgroundColor
-                  : COLORS.bitcoinOrange
-                : theme && darkModeType
-                ? backgroundColor
-                : COLORS.primary,
+                  : COLORS.primary
+                : 'transparent',
           },
         ]}
       >

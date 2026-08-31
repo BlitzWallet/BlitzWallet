@@ -223,7 +223,10 @@ export default function SettingsIndex() {
         {renderSection(
           Platform.OS === 'web'
             ? TECHNICAL_ROWS.filter(
-                row => row.name !== 'Nostr' && row.name !== 'Crash Reports',
+                row =>
+                  row.name !== 'Nostr' &&
+                  row.name !== 'Crash Reports' &&
+                  row.name !== 'ViewAllSwaps',
               )
             : TECHNICAL_ROWS,
           t('screens.inAccount.settingsContent.technical settings'),

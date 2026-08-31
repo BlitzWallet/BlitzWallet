@@ -7,6 +7,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
+import { Platform } from 'react-native';
 import { useGlobalContextProvider } from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
@@ -75,6 +76,7 @@ const GLobalNodeContextProider = ({ children }) => {
   }, [contactsPrivateKey, selectedCurrency, publicKey]);
 
   useEffect(() => {
+    if (Platform.OS === 'web') return; // Liquid (Breez SDK) unsupported on web.
     if (
       !contactsPrivateKey ||
       !publicKey ||
@@ -121,6 +123,7 @@ const GLobalNodeContextProider = ({ children }) => {
         console.log('transfering liquid to spark error', err);
       }
     }
+    if (Platform.OS === 'web') return; // No Liquid balance to sweep on web.
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
     if (!sparkInformation.identityPubKey) return;

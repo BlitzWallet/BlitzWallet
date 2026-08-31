@@ -6,6 +6,7 @@ import {
   useRef,
   useMemo,
 } from 'react';
+import { Platform } from 'react-native';
 import {
   addEventListener,
   removeEventListener,
@@ -55,6 +56,7 @@ export function LiquidEventProvider({ children }) {
       isInitialRender.current = false;
       return;
     }
+    if (Platform.OS === 'web') return;
     cleanup();
     disconnect();
     resetLiquidConnectionStatus();
@@ -140,6 +142,7 @@ export function LiquidEventProvider({ children }) {
 
   const startLiquidEventListener = useCallback(
     async (numberOfAttempts = DEFAULT_EVENT_LIMIT) => {
+      if (Platform.OS === 'web') return; // Liquid (Breez SDK) unsupported on web.
       try {
         if (liquidEventListenerId.current) {
           liquidEventRunCounter.current = 0;

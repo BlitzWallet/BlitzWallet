@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { Platform } from 'react-native';
 
 import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
 import {
@@ -305,6 +306,7 @@ export const RootstockSwapProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (Platform.OS === 'web') return; // Rootstock (Boltz) unsupported on web.
     if (!sparkInformation.identityPubKey) return;
     if (!accountMnemoinc) return;
     if (didRunSignerCreation.current) return;
@@ -320,6 +322,7 @@ export const RootstockSwapProvider = ({ children }) => {
 
   const startRootstockEventListener = useCallback(
     async ({ durationMs = 60000, intervalMs = 20000 } = {}) => {
+      if (Platform.OS === 'web') return; // Rootstock (Boltz) unsupported on web.
       let swaps = await loadRootstockSwaps();
 
       // Check if we should open a new WebSocket or use existing one
