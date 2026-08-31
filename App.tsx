@@ -277,7 +277,10 @@ function ResetStack(): JSX.Element | null {
     // Belt-and-braces: same web dev-origin check as handleDeepLink, so we
     // never store localhost as pendingDeepLinkData in the first place.
     if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
-      console.log('[deeplink] ignoring web dev server url at getInitialURL:', url);
+      console.log(
+        '[deeplink] ignoring web dev server url at getInitialURL:',
+        url,
+      );
       return;
     }
     handleDeepLink({ url }, true);
@@ -738,7 +741,11 @@ function ResetStack(): JSX.Element | null {
   }
 
   return (
-    <NavigationContainer theme={navigationTheme} ref={navigationRef}>
+    <NavigationContainer
+      theme={navigationTheme}
+      ref={navigationRef}
+      documentTitle={{ formatter: () => 'Blitz Wallet' }}
+    >
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <ToastContainer />
