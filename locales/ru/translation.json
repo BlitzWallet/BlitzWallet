@@ -264,6 +264,15 @@
         "enterPinMessage": "Создайте PIN-код",
         "confirmPin": "Подтвердите PIN-код",
         "attemptsText": "Осталось попыток: {{number}}"
+      },
+      "password": {
+        "createHeader": "Создать пароль",
+        "createSubtitle": "Выберите надежный пароль для защиты вашего кошелька.",
+        "createButton": "Создать кошелек",
+        "newPasswordPlaceholder": "Введите пароль",
+        "confirmPasswordPlaceholder": "Подтвердите пароль",
+        "mismatchError": "Пароли не совпадают",
+        "commonWarning": "Распространенный пароль"
       }
     },
     "restoreWallet": {
@@ -305,6 +314,16 @@
       "enterPinMessage": "Введите PIN",
       "attemptsText": "Осталось попыток: {{attempts}}",
       "biometricsHeader": "Войти по биометрии"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Введите пароль",
+      "welcomeBackTitle": "С возвращением!",
+      "wrongPasswordError": "Неверный пароль, попробуйте снова",
+      "attemptsText": "Осталось попыток: {{attempts}}",
+      "passwordPlaceholder": "Пароль",
+      "forgotPassword": "Забыли пароль?",
+      "forgotPasswordConfirm": "Забыли пароль? Единственный способ восстановить доступ — сбросить данные и восстановить кошелек с помощью сид-фразы.\n\nХотите удалить все данные кошелька? Продолжайте только если ваша сид-фраза надежно сохранена.",
+      "loginButton": "Войти"
     }
   },
   "apps": {
@@ -1126,15 +1145,10 @@
       "noPoolsTitle": "Нет созданных пулов",
       "noPoolsSubTitle": "Как только вы создадите пул, он появится здесь как активный или неактивный."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Адрес Liquid, Молнии или инвойс",
-      "active": "Активный"
-    },
     "cameraModal": {
       "noCamera": "Нет доступа к камере",
       "settingsText": "Перейдите в настройки, чтобы разрешить доступ",
       "noCameraDevice": "Нет камеры",
-      "noCameraDeviceSub": "На этом устройстве нет камеры.",
       "noFlash": "Нет вспышки",
       "scanningResponse": "Принимаются только QR-коды.",
       "qrDecodeError": "Ошибка декодирования QR",
@@ -1183,13 +1197,8 @@
         "sparkDesc": "Мгновенно, токены",
         "sparkTitle": "Адрес Spark",
         "bitcoinTitle": "Адрес Биткоин",
-        "lightningTitle": "Инвойс Молнии",
         "liquidTitle": "Адрес Liquid",
         "rootstockTitle": "Адрес Rootstock"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Изменение имени пользователя обновит ваш адрес Молнии (username@blitzwalletapp.com) и поиск в контактах.\n\nАдрес Молнии позволяет легко получать Биткоин.",
-        "usernameInputDesc": "Изменить имя пользователя"
       }
     },
     "sendPages": {
@@ -1293,10 +1302,6 @@
         "noTokensText": "У вас нет токенов",
         "noTokensFoundText": "Токены не найдены"
       },
-      "manualEnterSendAddress": {
-        "title": "Введите назначение",
-        "paymentTypesDesc": "Blitz поддерживает адреса Spark, Биткоин и Молнии (инвойсы/адреса)"
-      },
       "sparkErrorScreen": {
         "connectionError": "Проблемы с подключением. Сообщите нам об этом.\n\nВаша сид-фраза гарантирует сохранность средств.",
         "retry": "Не удалось загрузить кошелек. Попробуйте снова.\n\nСредства в безопасности, пока у вас есть сид-фраза."
@@ -1332,7 +1337,6 @@
       "recipientGets": "Получатель получает",
       "youSend": "Вы отправляете",
       "quoteExpiresIn": "Котировка истекает через",
-      "payWithLightning": "Оплатить через Lightning",
       "payWithUSDb": "Оплатить через USDb",
       "chainNotSupportedForAsset": "Недоступно в этой сети",
       "swapInProgress": "Обмен выполняется",
@@ -1655,7 +1659,16 @@
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
       "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN.",
       "biometricsHead": "О биометрии",
-      "biometricsSubHead": "Ваша фраза восстановления защищена текущими биометрическими данными устройства. Их изменение не позволит Blitz Wallet получить доступ к вашей фразе восстановления и заблокирует доступ к кошельку."
+      "biometricsSubHead": "Ваша фраза восстановления защищена текущими биометрическими данными устройства. Их изменение не позволит Blitz Wallet получить доступ к вашей фразе восстановления и заблокирует доступ к кошельку.",
+      "changePasswordTitle": "Изменить пароль",
+      "currentPasswordSubtitle": "Введите текущий пароль, чтобы изменить его.",
+      "currentPasswordPlaceholder": "Текущий пароль",
+      "wrongCurrentPassword": "Неверный пароль",
+      "newPasswordHeader": "Новый пароль",
+      "newPasswordSubtitle": "Выберите новый пароль.",
+      "changePasswordButton": "Изменить пароль",
+      "passwordChanged": "Пароль обновлен",
+      "passwordChangeFailed": "Не удалось обновить пароль"
     },
     "seedPhrase": {
       "header": "Храните сид-фразу в надежном месте",
@@ -1838,8 +1851,6 @@
       "chainSwapFee": "0,5% комиссия Blitz + 0,1%+ комиссия платформы",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% комиссия Blitz + сетевые комиссии",
-      "roostock": "Roostock <> BTC",
-      "roostockFee": "0,1% комиссия Boltz + сетевые комиссии",
       "accumulationType": "Адреса накопления",
       "accumulationFee": "0,5% комиссия Blitz + 0,5% комиссия платформы",
       "othersType": "Остальное",
@@ -1988,17 +1999,11 @@
         "inputPlaceHolderText": "Перевод между счетами"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Эта сид-фраза уже используется",
         "editTitle": "Изменить счет",
-        "createTitle_derived": "Создать аккаунт",
-        "createTitle_imported": "Импортировать аккаунт",
         "updateTitle": "Обновить счет",
         "cannotDeleteActiveAccountError": "Нельзя удалить активный счет.",
         "deleteAccountConfirmation": "Удалить этот счет?",
-        "inputDesc": "Имя счета",
-        "nameTakenError": "Имя занято.",
-        "nameInputPlaceholder": "Имя...",
-        "seedHeader": "Сид-фраза счета"
+        "nameTakenError": "Имя занято."
       },
       "viewAccountPage": {
         "informationMessage": "Показать QR-код?\n\nСканируйте только на безопасном устройстве."
@@ -2943,8 +2948,6 @@
         "noName": "Неизвестный продавец",
         "directions": "Маршрут",
         "pay": "Оплатить",
-        "lightning": "Lightning",
-        "lightningMessage": "Принимает платежи в биткоинах мгновенно через сеть Lightning",
         "dataMessage": "Данные с {{source}}"
       },
       "filter": {
@@ -3028,7 +3031,6 @@
     "noDataInQRError": "Данные в QR не найдены.",
     "noInvoiceInImageError": "Инвойс в изображении не найден.",
     "savingImageError": "Не удалось сохранить изображение.",
-    "invalidSeedError": "Неверная сид-фраза",
     "invalidSeedWordLengthErorr": "Неверная длина слов",
     "invalidSeedLengthError": "Нужно 12 слов.",
     "noGooglePlay": "Для уведомлений нужны Google Play Services.",
@@ -3283,8 +3285,6 @@
         "subtitle": "У вас пока нет сбережений или вознаграждений в Bitcoin для вывода."
       },
       "balanceLoadError": "Не удалось загрузить кошелёк. Вернитесь назад и попробуйте снова.",
-      "fromInterest": "Из ваших процентов",
-      "fromSavings": "Из ваших сбережений",
       "interestPaymentLabel": "Вывод процентов",
       "chooseGoalTitle": "Вывести средства из",
       "withdrawAll": "Вывести всё",
@@ -3299,9 +3299,6 @@
       "confirmSubtitle_goal": "Вывести из {{goalName}} на ваш {{destination}}",
       "confirmSubtitle_generalAll": "Вывести всё с целевого баланса на ваш {{destination}}",
       "confirmSubtitle_general": "Вывести с целевого баланса на ваш {{destination}}",
-      "youAreWithdrawingAll": "Ты выводишь все сбережения",
-      "youAreWithdrawing": "Ты выводишь",
-      "toYourBalance": "на {{destination}}",
       "estimatedSats": "≈ {{sats}} после обмена",
       "confirmButton": "Подтвердить",
       "processing": "Обработка вывода…",

@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   CENTER,
   COLORS,
@@ -24,10 +30,18 @@ import {
 } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic';
+import {
+  decryptMnemonicWithPin,
+  handleLoginSecuritySwitch,
+  storeMnemonicWithPinSecurity,
+} from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import CustomButton from '../../../../functions/CustomElements/button';
+import PasswordCreateForm from '../../../admin/loginComponents/passwordCreateForm';
+import { useToast } from '../../../../../context-store/toastManager';
 
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
@@ -50,7 +64,150 @@ const SettingsItem = ({ label, children, isLast, dividerColor }) => (
   </>
 );
 
-export default function LoginSecurity({ extraData }) {
+function WebChangePassword() {
+  const { accountMnemoinc } = useKeysContext();
+  const { t } = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
+  const { showToast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [step, setStep] = useState(1);
+  const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const verifyCurrent = async () => {
+    if (!currentPassword) return;
+    setIsVerifying(true);
+    setError('');
+    try {
+      const seed = await decryptMnemonicWithPin(
+        JSON.stringify(currentPassword),
+      );
+      if (seed && seed === accountMnemoinc) {
+        setStep(2);
+      } else {
+        setError(
+          t('settings.loginSecurity.wrongCurrentPassword', 'Wrong password'),
+        );
+      }
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleNewPassword = async newPassword => {
+    setIsSubmitting(true);
+    try {
+      const ok = await storeMnemonicWithPinSecurity(
+        accountMnemoinc,
+        newPassword,
+      );
+      if (ok) {
+        showToast({
+          type: 'success',
+          text: t('settings.loginSecurity.passwordChanged', 'Password updated'),
+        });
+        setStep(1);
+        setCurrentPassword('');
+        setError('');
+      } else {
+        setError(
+          t(
+            'settings.loginSecurity.passwordChangeFailed',
+            'Failed to update password',
+          ),
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (step === 2) {
+    return (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.innerContainer}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { flexGrow: 1, paddingBottom: 0 },
+        ]}
+      >
+        <PasswordCreateForm
+          headerText={t(
+            'settings.loginSecurity.newPasswordHeader',
+            'New Password',
+          )}
+          subtitleText={t(
+            'settings.loginSecurity.newPasswordSubtitle',
+            'Choose a new password.',
+          )}
+          buttonText={t(
+            'settings.loginSecurity.changePasswordButton',
+            'Change Password',
+          )}
+          onSubmit={handleNewPassword}
+          isSubmitting={isSubmitting}
+        />
+        {!!error && <ThemeText styles={styles.webErrorText} content={error} />}
+        <TouchableOpacity
+          style={{ marginTop: 15 }}
+          onPress={() => {
+            setStep(1);
+            setError('');
+          }}
+        >
+          <ThemeText
+            content={t('constants.back', 'Back')}
+            styles={{ textAlign: 'center' }}
+          />
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <SettingsSection>
+        <View
+          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+        >
+          <ThemeText
+            styles={{ marginBottom: 10 }}
+            content={t('settings.loginSecurity.currentPasswordSubtitle')}
+          />
+          <CustomSearchInput
+            inputText={currentPassword}
+            setInputText={setCurrentPassword}
+            placeholderText={t(
+              'settings.loginSecurity.currentPasswordPlaceholder',
+            )}
+            secureTextEntry={true}
+            autoComplete="current-password"
+            textContentType="password"
+          />
+          {!!error && (
+            <ThemeText styles={styles.webErrorText} content={error} />
+          )}
+          <View style={{ marginTop: 15 }}>
+            <CustomButton
+              textContent={t('constants.continue')}
+              actionFunction={verifyCurrent}
+              disabled={!currentPassword || isVerifying}
+              useLoading={isVerifying}
+            />
+          </View>
+        </View>
+      </SettingsSection>
+    </ScrollView>
+  );
+}
+
+function LoginSecurityNative({ extraData }) {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
     isSecurityEnabled: null,
     isPinEnabled: null,
@@ -487,4 +644,16 @@ const styles = StyleSheet.create({
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
   },
+  webErrorText: {
+    fontSize: SIZES.small,
+    color: '#e74c3c',
+    marginTop: 8,
+  },
 });
+
+export default function LoginSecurity(props) {
+  if (Platform.OS === 'web') {
+    return <WebChangePassword />;
+  }
+  return <LoginSecurityNative {...props} />;
+}

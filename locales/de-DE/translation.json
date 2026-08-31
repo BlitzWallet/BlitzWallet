@@ -264,6 +264,15 @@
         "enterPinMessage": "PIN erstellen",
         "confirmPin": "PIN bestätigen",
         "attemptsText": "Noch {{number}} Versuche"
+      },
+      "password": {
+        "createHeader": "Passwort erstellen",
+        "createSubtitle": "Wähle ein starkes Passwort, um deine Wallet zu schützen.",
+        "createButton": "Wallet erstellen",
+        "newPasswordPlaceholder": "Passwort eingeben",
+        "confirmPasswordPlaceholder": "Passwort bestätigen",
+        "mismatchError": "Passwörter stimmen nicht überein",
+        "commonWarning": "Häufiges Passwort"
       }
     },
     "restoreWallet": {
@@ -305,6 +314,16 @@
       "enterPinMessage": "PIN eingeben",
       "attemptsText": "Noch {{attempts}} Versuche",
       "biometricsHeader": "Mit Biometrie entsperren"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Passwort eingeben",
+      "welcomeBackTitle": "Willkommen zurück!",
+      "wrongPasswordError": "Falsches Passwort, bitte erneut versuchen",
+      "attemptsText": "Noch {{attempts}} Versuche",
+      "passwordPlaceholder": "Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "forgotPasswordConfirm": "Passwort vergessen? Der einzige Weg zur Wiederherstellung ist das Zurücksetzen und Wiederherstellen mit deiner Wiederherstellungsphrase.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Wiederherstellungsphrase sicher gesichert ist.",
+      "loginButton": "Anmelden"
     }
   },
   "apps": {
@@ -1640,7 +1659,16 @@
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
       "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
       "biometricsHead": "Biometrie",
-      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Wenn sich diese ändern, kann Blitz Wallet nicht mehr auf Ihre Wiederherstellungsphrase zugreifen und Ihre Wallet wird gesperrt."
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Wenn sich diese ändern, kann Blitz Wallet nicht mehr auf Ihre Wiederherstellungsphrase zugreifen und Ihre Wallet wird gesperrt.",
+      "changePasswordTitle": "Passwort ändern",
+      "currentPasswordSubtitle": "Gib dein aktuelles Passwort ein, um es zu ändern.",
+      "currentPasswordPlaceholder": "Aktuelles Passwort",
+      "wrongCurrentPassword": "Falsches Passwort",
+      "newPasswordHeader": "Neues Passwort",
+      "newPasswordSubtitle": "Wähle ein neues Passwort.",
+      "changePasswordButton": "Passwort ändern",
+      "passwordChanged": "Passwort aktualisiert",
+      "passwordChangeFailed": "Passwort konnte nicht aktualisiert werden"
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",

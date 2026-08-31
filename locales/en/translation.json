@@ -274,6 +274,15 @@
         "enterPinMessage": "Create PIN",
         "confirmPin": "Confirm Pin",
         "attemptsText": "{{number}} attempts left"
+      },
+      "password": {
+        "createHeader": "Create Password",
+        "createSubtitle": "Choose a strong password to protect your wallet.",
+        "createButton": "Create Wallet",
+        "newPasswordPlaceholder": "Enter password",
+        "confirmPasswordPlaceholder": "Confirm password",
+        "mismatchError": "Passwords do not match",
+        "commonWarning": "Common password"
       }
     },
     "restoreWallet": {
@@ -305,6 +314,16 @@
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left",
       "biometricsHeader": "Open with Biometrics"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Enter Password",
+      "welcomeBackTitle": "Welcome back!",
+      "wrongPasswordError": "Wrong password, try again",
+      "attemptsText": "{{attempts}} attempts left",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Forgot password?",
+      "forgotPasswordConfirm": "Forgot your password? The only way to recover is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
+      "loginButton": "Log In"
     }
   },
   "apps": {
@@ -1640,7 +1659,16 @@
       "randomPinKeyboardToggle": "Shuffle Keypad",
       "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
       "biometricsHead": "About biometrics",
-      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet."
+      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet.",
+      "changePasswordTitle": "Change Password",
+      "currentPasswordSubtitle": "Enter your current password to change it.",
+      "currentPasswordPlaceholder": "Current password",
+      "wrongCurrentPassword": "Wrong password",
+      "newPasswordHeader": "New Password",
+      "newPasswordSubtitle": "Choose a new password.",
+      "changePasswordButton": "Change Password",
+      "passwordChanged": "Password updated",
+      "passwordChangeFailed": "Failed to update password"
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",

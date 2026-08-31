@@ -114,6 +114,8 @@ const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 let lastInitialUrl: string | null = null;
 // Pending deep links older than this are discarded instead of replayed.
 const PENDING_DEEP_LINK_MAX_AGE_MS = 10 * 60 * 1000;
+const WEB_DEV_URL_REGEX =
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?([?#].*)?$/i;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
 ExpoSplashScreen.preventAutoHideAsync()
@@ -205,8 +207,15 @@ function ResetStack(): JSX.Element | null {
 
   const handleDeepLink = useCallback(
     async (event: { url: string }, isInitialLoad = false) => {
-      console.log(event);
+      console.log(event, 'deeplink event');
       const { url } = event;
+      // Web: Linking.getInitialURL() returns window.location.href on every load
+      // (http://localhost:8081/ on Expo/Metro). Not a payment link — ignore.
+      // Platform-gated so iOS/Android behavior is unchanged.
+      if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
+        console.log('[deeplink] ignoring web dev server url:', url);
+        return;
+      }
       try {
         if (isInitialLoad) {
           // Suppress Android relaunches from Recents, which redeliver the
@@ -264,10 +273,15 @@ function ResetStack(): JSX.Element | null {
       Linking.getInitialURL(),
       new Promise<null>(resolve => setTimeout(() => resolve(null), 5000)),
     ]);
-    if (url) {
-      handleDeepLink({ url }, true);
-      console.log('Initial deep link stored:', url);
+    if (!url) return;
+    // Belt-and-braces: same web dev-origin check as handleDeepLink, so we
+    // never store localhost as pendingDeepLinkData in the first place.
+    if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
+      console.log('[deeplink] ignoring web dev server url at getInitialURL:', url);
+      return;
     }
+    handleDeepLink({ url }, true);
+    console.log('Initial deep link stored:', url);
   }, [handleDeepLink]);
 
   const setNavigationBar = useCallback(async () => {
@@ -310,6 +324,14 @@ function ResetStack(): JSX.Element | null {
       }
       const { url, timestamp } = parsed || {};
       if (!url) return;
+
+      // Web: discard localhost dev origin if it was stored before the
+      // handleDeepLink/getInitialURL guards existed. Web-only.
+      if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
+        console.log(`[deeplink] discarding web dev pending link url=${url}`);
+        await removeLocalStorageItem('pendingDeepLinkData');
+        return;
+      }
 
       // Discard stale links (e.g. tapped while locked and abandoned) instead
       // of replaying a long-expired invoice after a much later unlock.
@@ -474,6 +496,7 @@ function ResetStack(): JSX.Element | null {
               // reset (not navigate) so any open transparent modal
               // (e.g. CustomHalfModal) is torn down instead of staying
               // presented above the pushed card. Mirrors the paylink branch.
+              console.log(paymentUrl, 'payments url');
               navigationRef.current.reset({
                 index: 0,
                 routes: [

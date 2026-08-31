@@ -42,6 +42,7 @@ import {
   disarmWipeInProgress,
   wipeStaleWalletKeychain,
 } from './secureStore';
+import { Platform } from 'react-native';
 
 // AsyncStorage keys carried across the wipe. userSelectedLanguage keeps
 // non-English users from flipping to en mid-onboarding; didViewSeedPhrase holds
@@ -82,14 +83,37 @@ const tableDeletes = [
 ];
 
 export async function deleteAllLocalWalletTables() {
+  if (Platform.OS === 'web') {
+    let rejectedCount = 0;
+
+    for (const run of tableDeletes) {
+      try {
+        await run();
+      } catch {
+        rejectedCount += 1;
+      }
+    }
+
+    if (rejectedCount > 0) {
+      crashlyticsRecordErrorReport(
+        `wipeLocalWalletData: ${rejectedCount} table deletes rejected`,
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   const results = await Promise.allSettled(tableDeletes.map(run => run()));
   const rejected = results.filter(result => result.status === 'rejected');
+
   if (rejected.length > 0) {
     crashlyticsRecordErrorReport(
       `wipeLocalWalletData: ${rejected.length} table deletes rejected`,
     );
     return false;
   }
+
   return true;
 }
 

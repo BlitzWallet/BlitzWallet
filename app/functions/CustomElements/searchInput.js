@@ -75,6 +75,9 @@ export default function CustomSearchInput({
   editable = true,
   autoFocus = false,
   returnKeyType = 'default',
+  secureTextEntry,
+  autoComplete,
+  textContentType,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
@@ -491,6 +494,9 @@ export default function CustomSearchInput({
         autoCorrect={false}
         editable={editable}
         returnKeyType={returnKeyType}
+        secureTextEntry={secureTextEntry}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
       />
       {buttonComponent && buttonComponent}
     </View>

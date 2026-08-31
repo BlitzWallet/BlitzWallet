@@ -8,6 +8,7 @@ import { initPoolDb } from './pools/poolsStorage';
 import { initSavingsDb } from './savings/savingsStorage';
 import { initLeavesDb } from './spark/leavesStorage';
 import { documentDirectory, makeDirectoryAsync } from 'expo-file-system/legacy';
+import { Platform } from 'react-native';
 
 let initPromise = null;
 
@@ -43,6 +44,38 @@ export function resetDatabaseInitialization() {
 export function initializeAllDatabases() {
   if (!initPromise) {
     initPromise = (async () => {
+      if (Platform.OS === 'web') {
+        const results = [];
+        // Sequential — one openDatabaseAsync + CREATE TABLE at a time.
+        // Startup-critical DBs (0, 3, 8) are opened first so a retry clears the
+        // memoized promise sooner if they fail; optional feature DBs follow.
+        results[0] = await initializeDatabase(); // startup-critical
+        await new Promise(res => setTimeout(res, 50));
+        results[1] = await initializeGiftCardDatabase();
+        await new Promise(res => setTimeout(res, 50));
+        results[2] = await initializePOSTransactionsDatabase();
+        await new Promise(res => setTimeout(res, 50));
+        results[3] = await initializeSparkDatabase(); // startup-critical
+        await new Promise(res => setTimeout(res, 50));
+        results[4] = await initRootstockSwapDB();
+        await new Promise(res => setTimeout(res, 50));
+        results[5] = await initGiftDb();
+        await new Promise(res => setTimeout(res, 50));
+        results[6] = await initPoolDb();
+        await new Promise(res => setTimeout(res, 50));
+        results[7] = await initSavingsDb();
+        await new Promise(res => setTimeout(res, 50));
+        results[8] = await initLeavesDb(); // startup-critical
+
+        // Only the three startup-critical DBs (messages, spark, leaves) must
+        // succeed to load the wallet. Optional feature DBs self-init on first
+        // use, so a failure here must not block login or the memoized retry.
+        if (!results[0] || !results[3] || !results[8]) {
+          initPromise = null; // allow a later retry to re-attempt
+          throw new Error('dbInitError');
+        }
+        return true;
+      }
       await ensureSQLiteDirExists();
       const results = await Promise.all([
         initializeDatabase(), // 0 — startup-critical

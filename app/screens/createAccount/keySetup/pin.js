@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
 import { SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
@@ -15,8 +15,75 @@ import { privateKeyFromSeedWords } from '../../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
 import { initializeFirebase } from '../../../../db/initializeFirebase';
 import sha256Hash from '../../../functions/hash';
+import PasswordCreateForm from '../../../components/admin/loginComponents/passwordCreateForm';
 
-export default function PinPage(props) {
+function WebCreatePassword(props) {
+  const { accountMnemoinc } = useKeysContext();
+  const navigate = useNavigation();
+  const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const didRestoreWallet = props.route.params?.didRestoreWallet;
+  const restoreExpectedHash = props.route.params?.expectedMnemonicHash;
+
+  useEffect(() => {
+    async function preConnectToFirebase() {
+      const privateKey = await privateKeyFromSeedWords(accountMnemoinc);
+      const publicKey = privateKey ? getPublicKey(privateKey) : null;
+      if (privateKey && publicKey) {
+        initializeFirebase(publicKey, privateKey);
+      }
+    }
+    preConnectToFirebase();
+  }, []);
+
+  const handleSubmit = async password => {
+    setIsSubmitting(true);
+    try {
+      const response = await storeMnemonicWithPinSecurity(accountMnemoinc, password);
+      if (!response) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('createAccount.keySetup.pin.savePinError'),
+          customNavigator: () => {
+            factoryResetWallet();
+            setTimeout(() => {
+              RNRestart.restart();
+            }, 300);
+          },
+        });
+        return;
+      }
+      await setLocalStorageItem('didViewSeedPhrase', JSON.stringify(!!didRestoreWallet));
+      navigate.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'ConnectingToNodeLoadingScreen',
+            params: {
+              shouldWipeLocalData: true,
+              expectedMnemonicHash: restoreExpectedHash || sha256Hash(accountMnemoinc),
+            },
+          },
+        ],
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
+      <PasswordCreateForm
+        headerText={t('createAccount.keySetup.password.createHeader', 'Create Password')}
+        subtitleText={t('createAccount.keySetup.password.createSubtitle', 'Choose a strong password to protect your wallet.')}
+        buttonText={t('createAccount.keySetup.password.createButton', 'Create Wallet')}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
+    </GlobalThemeView>
+  );
+}
+
+function PinPageNative(props) {
   const { accountMnemoinc } = useKeysContext();
   const [pin, setPin] = useState([null, null, null, null]);
   const [confirmPin, setConfirmPin] = useState([]);
@@ -213,6 +280,13 @@ export default function PinPage(props) {
     setIsConfirming(false);
     setPinEnterCount(0);
   }
+}
+
+export default function PinPage(props) {
+  if (Platform.OS === 'web') {
+    return <WebCreatePassword {...props} />;
+  }
+  return <PinPageNative {...props} />;
 }
 
 const styles = StyleSheet.create({
