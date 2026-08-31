@@ -694,6 +694,7 @@ const styles = StyleSheet.create({
   },
 
   bannerContainer: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
