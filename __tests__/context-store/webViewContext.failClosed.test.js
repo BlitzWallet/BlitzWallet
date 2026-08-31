@@ -528,6 +528,133 @@ describe('fail-closed — R-2 silent reload invalidates the old page session', (
     expect(SUT.getHandshakeComplete()).toBe(true);
     expect(SUT.__getFallbackStateForTest()).toBe('webview');
   });
+
+  test.failing(
+    'a renderer-termination callback from the replaced page cannot reset the new READY session',
+    async () => {
+      await webviewReadyFull();
+      const staleTermination = mockWebview.props.onRenderProcessGone;
+
+      // Replace the page and bring the replacement all the way to READY.
+      wvLoadStart();
+      wvLoadEnd();
+      await advance(300);
+      const wv2 = makeWebviewCrypto();
+      wv2.answerHandshake();
+      await flush();
+      await advance(150);
+      const initMsg = wv2.lastEncryptedPayload('initializeSparkWallet');
+      wv2.respond(initMsg.id, { isConnected: true });
+      await flush();
+      await advance(200);
+
+      const epochBefore = SUT.__getEpochForTest();
+      expect(SUT.getHandshakeComplete()).toBe(true);
+
+      // Native may deliver the old instance's terminal callback late. It must
+      // be guarded by that instance's epoch, just like onMessage is.
+      act(() => {
+        staleTermination({ nativeEvent: { didCrash: true } });
+      });
+      await flush();
+
+      expect(SUT.__getEpochForTest()).toBe(epochBefore);
+      expect(SUT.getHandshakeComplete()).toBe(true);
+    },
+  );
+
+  test.failing(
+    'a stale onLoadEnd cannot advance the replacement page from LOADING',
+    async () => {
+      const wv1 = await webviewReadyFull();
+      const staleLoadEnd = mockWebview.props.onLoadEnd;
+      const handshakesBefore = postedCount('handshake:init', wv1);
+
+      // The replacement has started, but has not emitted its own terminal load
+      // event. A late terminal event from the old instance must be ignored.
+      wvLoadStart();
+      act(() => {
+        staleLoadEnd();
+      });
+      await advance(300);
+
+      expect(postedCount('handshake:init', wv1)).toBe(handshakesBefore);
+    },
+  );
+
+  test.failing(
+    'an authenticated funds response cannot settle a different operation by reusing its request id',
+    async () => {
+      const wv = await webviewReadyFull();
+      const sparkSend = track(
+        SUT.sendWebViewRequestGlobal('sendSparkPayment', {
+          receiverSparkAddress: 'sp1spark',
+          amountSats: 1000,
+          mnemonic: MNEMONIC,
+        }),
+      );
+      const tokenSend = track(
+        SUT.sendWebViewRequestGlobal('sendTokenPayment', {
+          receiverSparkAddress: 'sp1token',
+          tokenAmount: '25',
+          tokenIdentifier: 'token-id',
+          mnemonic: MNEMONIC,
+        }),
+      );
+      await flush();
+
+      const tokenRequest = wv.lastEncryptedPayload('sendTokenPayment');
+      expect(tokenRequest).toBeTruthy();
+
+      // This payload is a sendSparkPayment-shaped success, but carries the live
+      // sendTokenPayment id. Authentication proves the current page sent it; it
+      // does not prove which operation it answers.
+      wv.respond(tokenRequest.id, {
+        didWork: true,
+        response: { id: 'spark-transfer-id' },
+      });
+      await flush();
+
+      expect(tokenSend.settled).toBe(false);
+      expect(sparkSend.settled).toBe(false);
+    },
+  );
+
+  test.failing(
+    'fallback-pending blocks new requests until its bounded recovery starts',
+    async () => {
+      const wv = await webviewReadyFull();
+
+      postInbound({ encrypted: 'garbage-1' });
+      postInbound({ encrypted: 'garbage-2' });
+      await flush();
+      expect(SUT.__getFallbackStateForTest()).toBe('fallback-pending');
+
+      const postedBefore = postedCount('getSparkBalance', wv);
+      const balance = track(
+        SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true),
+      );
+      await flush();
+
+      expect(postedCount('getSparkBalance', wv)).toBe(postedBefore);
+      expect(balance.settled).toBe(false);
+    },
+  );
+
+  test.failing(
+    'provider teardown clears the module-level dispatcher',
+    async () => {
+      await webviewReadyFull();
+      act(() => {
+        renderer.unmount();
+      });
+      renderer = null;
+
+      await expect(
+        SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true),
+      ).rejects.toThrow('WebView not initialized');
+    },
+  );
 });
 
 describe('fail-closed — R-3 stale verification results are dropped', () => {

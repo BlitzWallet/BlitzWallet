@@ -662,9 +662,6 @@ function ResetStack(): JSX.Element | null {
     // open the gate — landing on a screen is recoverable, an endless splash isn't.
     const onInitFailure = (err: unknown) => {
       console.log('initWallet error', err);
-      crashlyticsRecordErrorReport(
-        `initWallet failed: ${(err as Error)?.message}`,
-      );
       setInitSettings(prev => ({ ...prev, isLoaded: true }));
     };
 

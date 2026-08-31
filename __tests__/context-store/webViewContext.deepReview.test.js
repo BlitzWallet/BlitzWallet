@@ -560,96 +560,45 @@ describe('deep review — token sends have no reconcile query (DR-1)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// DR-2 — swap reconcile ignores direction / asset pair
+// DR-2/3 — swap history has no bridge-attempt identifier. Direction, amount,
+// and pool are descriptive fields and cannot prove which user request created
+// a row, so swap attempts are deliberately not history-reconciled.
 // ---------------------------------------------------------------------------
-describe('deep review — swap reconcile direction identity (DR-2)', () => {
-  test(
-    'a same-pool same-amount swap in the OPPOSITE direction must NOT confirm (assetInAddress/assetOutAddress are available but ignored)',
-    async () => {
+describe('deep review — swap history cannot settle an attempt (DR-2/3)', () => {
+  for (const fixture of [
+    {
+      op: 'swapBitcoinToToken',
+      args: {
+        tokenAddress: 'usdb-token',
+        amountSats: '200',
+        poolId: 'pool1',
+        maxSlippageBps: 500,
+        mnemonic: MNEMONIC,
+      },
+    },
+    {
+      op: 'swapTokenToBitcoin',
+      args: {
+        tokenAddress: 'usdb-token',
+        tokenAmount: '200',
+        poolId: 'pool1',
+        maxSlippageBps: 500,
+        mnemonic: MNEMONIC,
+      },
+    },
+  ]) {
+    test(`${fixture.op} posts no swap-history reconcile query and remains unknown`, async () => {
       const wv = await transportReadyFull();
-      await setupUnknownViaError(
-        'swapBitcoinToToken', // user swapped BTC -> USDB, amountSats 200
-        {
-          tokenAddress: 'usdb-token',
-          amountSats: '200',
-          poolId: 'pool1',
-          maxSlippageBps: 500,
-          mnemonic: MNEMONIC,
-        },
-        wv,
-      );
+      await setupUnknownViaError(fixture.op, fixture.args, wv);
 
       const query = wv.lastEncryptedPayload('getUserSwapHistory');
-      expect(query).toBeTruthy();
-
-      // History row is the user's OTHER swap: USDB -> BTC (opposite direction),
-      // same pool, same amount. The user's own swap never executed.
-      wv.respond(query.id, {
-        swaps: [
-          {
-            id: 'swap-usdb-to-btc',
-            poolLpPublicKey: 'pool1',
-            amountIn: '200',
-            assetInAddress: 'usdb-token',
-            assetOutAddress: '020202020202020202020202020202020202020202020202020202020202020202',
-            timestamp: new Date(Date.now() - 30000).toISOString(),
-          },
-        ],
-      });
-      await flush();
+      expect(query).toBeNull();
 
       const entry = [...SUT.__getIntentStoreForTest().values()][0];
-      // Correct behavior: a USDB->BTC swap cannot prove a BTC->USDB swap.
       expect(entry.state).toBe('unknown');
-    },
-  );
-
-});
-
-// ---------------------------------------------------------------------------
-// DR-3 — swapTokenToBitcoin reconcile is dead with real caller args
-// ---------------------------------------------------------------------------
-describe('deep review — swapTokenToBitcoin reconcile dead with real args (DR-3)', () => {
-  test(
-    'an executed swapTokenToBitcoin must reconcile to done with the real caller args (tokenAmount, no amountIn/amountSats)',
-    async () => {
-      const wv = await transportReadyFull();
-      await setupUnknownViaError(
-        'swapTokenToBitcoin',
-        {
-          tokenAddress: 'usdb-token',
-          tokenAmount: '200',
-          poolId: 'pool1',
-          maxSlippageBps: 500,
-          mnemonic: MNEMONIC,
-        },
-        wv,
-      );
-
-      const query = wv.lastEncryptedPayload('getUserSwapHistory');
-      expect(query).toBeTruthy();
-
-      // The swap DID execute: same pool, the SDK records amountIn '200'.
-      wv.respond(query.id, {
-        swaps: [
-          {
-            id: 'swap-tok-to-btc',
-            poolLpPublicKey: 'pool1',
-            amountIn: '200',
-            assetInAddress: 'usdb-token',
-            assetOutAddress:
-              '020202020202020202020202020202020202020202020202020202020202020202',
-            timestamp: new Date(Date.now() - 30000).toISOString(),
-          },
-        ],
-      });
-      await flush();
-
-      const entry = [...SUT.__getIntentStoreForTest().values()][0];
-      // Correct behavior: the executed swap confirms the intent.
-      expect(entry.state).toBe('done');
-    },
-  );
+      expect(entry.args.mnemonic).toBeUndefined();
+    });
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -934,16 +883,10 @@ describe('deep review — user send never blocked by guard (DR-5)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// DR-6 — reconcile-done caller-unknown op: retry re-dispatches (INTENDED)
+// DR-6 — user retry after an unknown swap re-dispatches
 // ---------------------------------------------------------------------------
-// Product contract (2026-08): a user-initiated identical send is a new payment
-// and always dispatches, even when reconcile already recorded the earlier
-// attempt as executed. The old code comment ("a retry ... must resolve this
-// executed result, never re-dispatch (double-pay guard)") was wrong and has
-// been corrected — the done intent records truth for restore/balance handlers;
-// it does not gate user sends. This test pins the intended behavior.
-describe('deep review — reconcile-done retry re-dispatches (DR-6)', () => {
-  test('a user-initiated identical send after a reconcile-confirmed execution dispatches as a NEW payment (intended per contract)', async () => {
+describe('deep review — unknown swap retry re-dispatches (DR-6)', () => {
+  test('a user-initiated identical swap after an unknown result dispatches as a NEW payment', async () => {
     const wv = await transportReadyFull();
     const args = {
       poolId: 'pool1',
@@ -962,33 +905,17 @@ describe('deep review — reconcile-done retry re-dispatches (DR-6)', () => {
     await flush();
     expect(st.value.kind).toBe('bridge');
 
-    // Foreground reconcile confirms the swap executed.
+    // Foreground recovery cannot identify this attempt from swap history.
     await background();
     await foreground();
     const query = wv.lastEncryptedPayload('getUserSwapHistory');
-    expect(query).toBeTruthy();
-    wv.respond(query.id, {
-      swaps: [
-        {
-          id: 'swap-1',
-          poolLpPublicKey: 'pool1',
-          amountIn: '200',
-          assetInAddress: 'btc-asset',
-          assetOutAddress: 'usdb-token',
-          timestamp: new Date(Date.now() - 30000).toISOString(),
-        },
-      ],
-    });
-    await flush();
+    expect(query).toBeNull();
 
     const entry = [...SUT.__getIntentStoreForTest().values()][0];
-    expect(entry.state).toBe('done');
+    expect(entry.state).toBe('unknown');
 
-    // The user saw "unknown — check before retrying" and retries with the same
-    // args. Per the guard contract this is a deliberate NEW payment: the done
-    // record is dropped and the swap dispatches again. Whether the first swap
-    // actually executed is surfaced by the restore/balance handlers, not by
-    // blocking this send.
+    // The identical retry is a deliberate new payment. Transaction/balance
+    // handlers surface the earlier attempt independently.
     const postsBefore = postedCount('executeSwap', wv);
     const retry = track(SUT.sendWebViewRequestGlobal('executeSwap', args));
     await flush();
@@ -1020,8 +947,8 @@ describe('deep review — intent-store retention (DR-12)', () => {
 
       const entry = [...SUT.__getIntentStoreForTest().values()][0];
       expect(entry.state).toBe('unknown');
-      // The raw seed is retained inside the module-level store.
-      expect(entry.args.mnemonic).toBe(MNEMONIC);
+      // Non-reconcilable sends scrub the raw seed at record time.
+      expect(entry.args.mnemonic).toBeUndefined();
 
       // Case-B TTL: past the reconcile window the intent can no longer block
       // anything or reconcile — the lazy sweep evicts it on the next bridge
@@ -1036,7 +963,7 @@ describe('deep review — intent-store retention (DR-12)', () => {
     },
   );
 
-  test('an unknown intent INSIDE the reconcile window is retained for reconcile (not pruned by the sweep)', async () => {
+  test('an unknown intent inside the retention window keeps only scrubbed bookkeeping data', async () => {
     const wv = await transportReadyFull();
     const st = track(
       SUT.sendWebViewRequestGlobal('sendSparkPayment', {
@@ -1051,15 +978,15 @@ describe('deep review — intent-store retention (DR-12)', () => {
     await flush();
     expect(st.value.kind).toBe('bridge');
 
-    // Still inside the 3-minute reconcile window: the intent is a reconcile
-    // candidate and must survive the sweep on the next dispatch.
+    // Still inside the retention window: the intent survives the sweep for
+    // bounded bookkeeping, but it is not a history-reconcile candidate.
     await advance(60000);
     track(SUT.sendWebViewRequestGlobal('getSparkBalance', {}, true));
     await flush();
     const entries = [...SUT.__getIntentStoreForTest().values()];
     expect(entries.length).toBe(1);
     expect(entries[0].state).toBe('unknown');
-    expect(entries[0].args.mnemonic).toBe(MNEMONIC);
+    expect(entries[0].args.mnemonic).toBeUndefined();
   });
 });
 

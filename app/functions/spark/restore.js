@@ -30,6 +30,7 @@ import {
   getAllUnpaidSparkLightningInvoices,
   getAllUnpaidHoldInvoicesFromTxs,
   getBitcoinPaymentsByTxid,
+  getBitcoinTransactionByOnChainTxid,
   getBulkPaymentGroupTransferIds,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
@@ -51,7 +52,7 @@ const RESTORE_RETRY_DELAY_MS = 1500;
 // after dispatch. Mark it failed instead of re-querying it every 10s forever
 // (and so a stuck Lightning send can be retried). RETURNED/EXPIRED are already
 // terminal failures via getSparkPaymentStatus and are left untouched here.
-const STUCK_SENDER_INITIATED_MS = 72 * 60 * 60 * 1000;
+const STUCK_SENDER_INITIATED_MS = 16 * 24 * 60 * 60 * 1000;
 
 // Age gate for the SENDER_INITIATED stuck-detector. Returns 'failed' only when
 // the CURRENT spark status is still the initial in-flight state AND the row has
@@ -61,9 +62,18 @@ const STUCK_SENDER_INITIATED_MS = 72 * 60 * 60 * 1000;
 // incoming row must stay pending (the claim can still arrive) rather than being
 // written 'failed' — the poller only revisits pending rows, so a lost claim
 // event would leave received money marked failed forever.
-function stuckInFlightStatus(rawStatus, details, direction) {
+// Spark-to-spark transfers can legitimately sit SENDER_INITIATED >72h until the
+// receiver claims (offline). Auto-failing them would tell the user it failed →
+// resend → double-pay if the original is later claimed. Gate to Lightning only.
+export function stuckInFlightStatus(
+  rawStatus,
+  details,
+  direction,
+  paymentType,
+) {
   if (direction?.toLowerCase() !== 'outgoing') return null;
   if (rawStatus !== 'TRANSFER_STATUS_SENDER_INITIATED') return null;
+  if (paymentType && paymentType !== 'lightning') return null;
   const created = Number(
     details?.time ??
       details?.createdAt ??
@@ -1007,8 +1017,12 @@ async function processLightningTransaction(
       tempId: txStateUpdate.sparkID,
       id: tx.id ? tx.id : txStateUpdate.sparkID,
       paymentStatus:
-        stuckInFlightStatus(tx.status, details, details.direction) ||
-        getSparkPaymentStatus(tx.status),
+        stuckInFlightStatus(
+          tx.status,
+          details,
+          details.direction,
+          'lightning',
+        ) || getSparkPaymentStatus(tx.status),
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
       details: {
@@ -1039,6 +1053,7 @@ async function processLightningTransaction(
     sparkResponse.status,
     details,
     details.direction,
+    'lightning',
   );
 
   if (
@@ -1115,11 +1130,48 @@ async function processBitcoinTransactions(
       !IS_BITCOIN_REQUEST_ID.test(txStateUpdate.sparkID)
     ) {
       if (!IS_SPARK_ID.test(txStateUpdate.sparkID)) {
+        const oldDetails = JSON.parse(txStateUpdate.details);
+        const txid = oldDetails.onChainTxid || txStateUpdate.sparkID;
+        const vout = oldDetails.vout;
+        const compositeKey =
+          vout !== null && vout !== undefined
+            ? `${txid}:${String(vout)}`
+            : null;
         const paymentsByTxid = await getBitcoinPaymentsByTxid(accountId);
-        const foundPayment = paymentsByTxid.get(txStateUpdate.sparkID);
+        let foundPayment = null;
+        if (compositeKey) foundPayment = paymentsByTxid.get(compositeKey);
+        if (!foundPayment) foundPayment = paymentsByTxid.get(txid);
+        // Fallback: direct vout-scoped DB lookup when map missed (e.g., completed
+        // row's onChainTxid was empty originally but later fixed). This is the
+        // deterministic source for multi-output same-txid deposits.
+        if (!foundPayment || foundPayment.sparkID === txStateUpdate.sparkID) {
+          try {
+            const direct = await getBitcoinTransactionByOnChainTxid(
+              txid,
+              accountId,
+              vout,
+            );
+            if (direct && direct.sparkID !== txStateUpdate.sparkID) {
+              foundPayment = direct;
+            }
+          } catch {}
+        }
         if (foundPayment && foundPayment.sparkID !== txStateUpdate.sparkID) {
-          const newDetails = JSON.parse(foundPayment.details);
-          const oldDetails = JSON.parse(txStateUpdate.details);
+          const newDetails =
+            typeof foundPayment.details === 'string'
+              ? JSON.parse(foundPayment.details)
+              : foundPayment.details;
+          // Guard cross-vout collapse for multi-output same-txid: both rows
+          // carry vout, they must match.
+          if (
+            vout !== null &&
+            vout !== undefined &&
+            newDetails?.vout !== null &&
+            newDetails?.vout !== undefined &&
+            Number(newDetails.vout) !== Number(vout)
+          ) {
+            continue;
+          }
 
           if (
             sha256Hash(JSON.stringify(foundPayment)) ===
@@ -1153,8 +1205,12 @@ async function processBitcoinTransactions(
       if (!transfer) continue;
 
       const newPaymentStatus =
-        stuckInFlightStatus(transfer.status, details, details.direction) ||
-        getSparkPaymentStatus(transfer.status);
+        stuckInFlightStatus(
+          transfer.status,
+          details,
+          details.direction,
+          'bitcoin',
+        ) || getSparkPaymentStatus(transfer.status);
       if (txStateUpdate.paymentStatus === newPaymentStatus) continue;
 
       updatedTxs.push({
@@ -1270,6 +1326,7 @@ async function processSparkTransactions(
             findTxResponse.status,
             details,
             details.direction,
+            'spark',
           ) || getSparkPaymentStatus(findTxResponse.status),
         paymentType: 'spark',
         accountId: txStateUpdate.accountId,

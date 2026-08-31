@@ -301,7 +301,7 @@ describe('loading screen wipe trigger + re-arm marker', () => {
     expect(showsErrorUI(renderer)).toBe(false);
   });
 
-  test('shows the recoverable error UI when the re-armed wipe fails', async () => {
+  test('continues even though the re-armed wipe fails', async () => {
     isWipeInProgress.mockResolvedValue(true);
     wipeLocalWalletData.mockResolvedValue(false);
 
@@ -312,7 +312,7 @@ describe('loading screen wipe trigger + re-arm marker', () => {
     await flush();
 
     expect(wipeLocalWalletData).toHaveBeenCalledTimes(1);
-    expect(showsErrorUI(renderer)).toBe(true);
+    expect(showsErrorUI(renderer)).toBe(false);
     // The wipe threw before the watchdog's 45s window; no watchdog report.
     expect(crashlyticsRecordErrorReport).not.toHaveBeenCalled();
   });

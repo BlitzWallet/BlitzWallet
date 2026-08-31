@@ -126,8 +126,8 @@ describe('lazySpark — lazy guarantee', () => {
     const failing = Promise.reject(new Error('transient load failure'));
     // Silence unhandled rejection warning for the raw promise
     failing.catch(() => {});
-    lazy.__setRawLazySparkForTest({ sdk: failing });
     const wrapped = lazy.__testWithResetForTest(failing, 'sdk');
+    lazy.__setRawLazySparkForTest({ sdk: wrapped });
     await expect(wrapped).rejects.toThrow('transient load failure');
     // withReset should have nulled the slot
     expect(lazy.__getLazySparkStateForTest().sdkPromise).toBeNull();
@@ -160,12 +160,30 @@ describe('lazySpark — lazy guarantee', () => {
     lazy3.__resetLazySparkForTest();
     const failingTypes = Promise.reject(new Error('types fail'));
     failingTypes.catch(() => {});
-    lazy3.__setRawLazySparkForTest({ types: failingTypes });
     const wrappedTypes = lazy3.__testWithResetForTest(failingTypes, 'types');
+    lazy3.__setRawLazySparkForTest({ types: wrappedTypes });
     await expect(wrappedTypes).rejects.toThrow('types fail');
     expect(lazy3.__getLazySparkStateForTest().typesPromise).toBeNull();
     // Next load succeeds
     const typesMod = await lazy3.loadSparkTypes();
     expect(typesMod).toBeDefined();
   });
+
+  test(
+    'the promise actually cached by a loader is cleared after its source rejects',
+    async () => {
+      const lazy = require('../../../app/functions/spark/lazySpark');
+      lazy.__resetLazySparkForTest();
+
+      // This mirrors loadSparkSdk(): withReset receives `source`, while the
+      // module slot stores the chained promise returned by withReset.
+      const source = Promise.reject(new Error('transient load failure'));
+      source.catch(() => {});
+      const cached = lazy.__testWithResetForTest(source, 'sdk');
+      lazy.__setRawLazySparkForTest({ sdk: cached });
+
+      await expect(cached).rejects.toThrow('transient load failure');
+      expect(lazy.__getLazySparkStateForTest().sdkPromise).toBeNull();
+    },
+  );
 });

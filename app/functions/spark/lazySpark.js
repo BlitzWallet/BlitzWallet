@@ -16,14 +16,15 @@ let protoPromise = null;
 let nativePromise = null;
 
 function withReset(promise, slot) {
-  return promise.catch(err => {
+  const wrappedPromise = promise.catch(err => {
     // Allow retry after a transient load failure
-    if (slot === 'sdk' && sdkPromise === promise) sdkPromise = null;
-    if (slot === 'types' && typesPromise === promise) typesPromise = null;
-    if (slot === 'proto' && protoPromise === promise) protoPromise = null;
-    if (slot === 'native' && nativePromise === promise) nativePromise = null;
+    if (slot === 'sdk' && sdkPromise === wrappedPromise) sdkPromise = null;
+    if (slot === 'types' && typesPromise === wrappedPromise) typesPromise = null;
+    if (slot === 'proto' && protoPromise === wrappedPromise) protoPromise = null;
+    if (slot === 'native' && nativePromise === wrappedPromise) nativePromise = null;
     throw err;
   });
+  return wrappedPromise;
 }
 
 // Each loader uses a static literal so Metro can statically analyze the

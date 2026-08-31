@@ -17,8 +17,9 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 //   race a second concurrent attempt (auto-trigger + tap, or a double tap)
 //        must never launch a second biometric prompt.
 //   nav  a completed login must never navigate twice.
-//   retry a genuine failure counts toward the 3-strike factory-reset prompt;
-//        OS churn / foregrounding resets the counter.
+//   retry biometrics retry indefinitely; after >4 failed prompts a trash icon
+//        appears that routes to wallet removal. OS churn / foregrounding must
+//        NOT reset the counter (that reset was the infinite-loop bug).
 // ---------------------------------------------------------------------------
 
 // Mutable context/hook state the mocks read on every render.
@@ -330,19 +331,41 @@ describe('BiometricsLogin - race guards', () => {
 // ---------------------------------------------------------------------------
 
 describe('BiometricsLogin - retry handling', () => {
-  test('escalates to the factory-reset confirmation after 3 genuine failures', async () => {
+  const removeButton = renderer =>
+    renderer.root
+      .findAllByProps({ testID: 'remove-biometric-wallet' })
+      .find(n => typeof n.props.onPress === 'function');
+
+  test('keeps prompting on repeated failures and never auto-navigates to reset', async () => {
     mockAppStatus.isAppFocused = false; // manual control, no auto retries
     mockDecrypt.mockResolvedValue(false); // every attempt fails
     const renderer = mount();
 
-    await tap(renderer); // fail 1
-    await tap(renderer); // fail 2
-    await tap(renderer); // fail 3
-    expect(mockDecrypt).toHaveBeenCalledTimes(3);
-    expect(mockNavigate.navigate).not.toHaveBeenCalled();
+    for (let i = 0; i < 6; i++) await tap(renderer);
 
-    await tap(renderer); // 4th attempt short-circuits to the reset prompt
-    expect(mockDecrypt).toHaveBeenCalledTimes(3); // no 4th prompt
+    // Every tap launches a fresh prompt — no short-circuit, no forced dead end.
+    expect(mockDecrypt).toHaveBeenCalledTimes(6);
+    expect(mockNavigate.navigate).not.toHaveBeenCalled();
+  });
+
+  test('after >4 failures a trash icon appears that routes to wallet removal', async () => {
+    mockAppStatus.isAppFocused = false;
+    mockDecrypt.mockResolvedValue(false);
+    const renderer = mount();
+
+    await tap(renderer); // 1
+    await tap(renderer); // 2
+    await tap(renderer); // 3
+    await tap(renderer); // 4
+    expect(removeButton(renderer)).toBeUndefined(); // not yet
+
+    await tap(renderer); // 5th attempt crosses > 4
+    const btn = removeButton(renderer);
+    expect(btn).toBeTruthy();
+
+    await act(async () => {
+      btn.props.onPress();
+    });
     expect(mockNavigate.navigate).toHaveBeenCalledWith(
       'ConfirmActionPage',
       expect.objectContaining({
@@ -351,25 +374,25 @@ describe('BiometricsLogin - retry handling', () => {
     );
   });
 
-  test('foregrounding resets the retry counter so the user is not marched toward reset', async () => {
+  test('background/foreground churn does not reset the counter (the infinite-loop bug)', async () => {
     mockAppStatus.isAppFocused = false; // start not-focused: no auto-trigger
     mockDecrypt.mockResolvedValue(false);
     const renderer = mount();
 
-    await tap(renderer); // fail 1
-    await tap(renderer); // fail 2
-    await tap(renderer); // fail 3
-    expect(mockDecrypt).toHaveBeenCalledTimes(3);
+    await tap(renderer); // 1
+    await tap(renderer); // 2
+    await tap(renderer); // 3
+    await tap(renderer); // 4
+    expect(removeButton(renderer)).toBeUndefined();
 
-    // App comes to the foreground -> focus effect resets retries to 0 and
-    // arms the auto-trigger. Without the reset this next attempt would hit the
-    // 3-strike escalation instead of prompting.
+    // App foregrounds and the auto-trigger fires again. The counter is NOT
+    // wiped, so this 5th attempt crosses the threshold and reveals the trash.
     mockAppStatus.isAppFocused = true;
     await rerender(renderer);
     await fireAutoTrigger();
 
-    expect(mockNavigate.navigate).not.toHaveBeenCalled();
-    expect(mockDecrypt).toHaveBeenCalledTimes(4); // a fresh prompt, not escalation
+    expect(mockDecrypt).toHaveBeenCalledTimes(5);
+    expect(removeButton(renderer)).toBeTruthy();
   });
 });
 

@@ -30,7 +30,6 @@ import {
   subscribePairingDoc,
   subscribePairingSession,
 } from '../db';
-import { crashlyticsRecordErrorReport } from '../app/functions/crashlyticsLogs';
 import { useAccountsExpiryTimeTick } from '../app/functions/accounts/expiryTimeTick';
 import { buildPairingQr } from '../app/functions/accounts/childPairing';
 
@@ -343,7 +342,6 @@ export function ChildPairingProvider({ children }) {
         setStatus('waiting');
       } catch (err) {
         console.log('child pairing setup error', err);
-        crashlyticsRecordErrorReport(err.message);
         sessionRef.current = null;
         setStatus('error');
         setErrorMessage(t('settings.childAccounts.pairing.startFailed'));
@@ -413,7 +411,6 @@ export function ChildPairingProvider({ children }) {
         setStatus('done');
       } catch (err) {
         console.log('child grant error', err);
-        crashlyticsRecordErrorReport(err.message);
         if (sessionRef.current === session) endSession('error');
       }
     },

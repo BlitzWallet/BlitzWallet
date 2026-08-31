@@ -18,8 +18,6 @@ import {
   createDecipheriv,
   randomBytes,
 } from 'react-native-quick-crypto';
-import { bech32m } from 'bech32';
-import { BTC_ASSET_ADDRESS } from '../app/functions/spark/swapAmountUtils';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 import DeviceInfo, {
@@ -255,15 +253,13 @@ const intentStore = new Map();
 //   * Whether the previous payment actually sent is surfaced by the restore
 //     handler and the balance handler (transaction restore + balance updates),
 //     not by the bridge refusing the new send.
-//   * The 'unknown' intent state exists so reconcile/restore can later record
-//     the true outcome; it must not gate later user sends.
-// Sites that still implement the old "block an identical retry" behavior are
-// marked CONTRACT-VIOLATION below (dispatch-site unknown branch, native gate).
+//   * The 'unknown' intent state preserves lifecycle bookkeeping; transaction
+//     restore and balance updates surface any completed payment independently.
+//     It must not gate later user sends.
 // ───────────────────────────────────────────────────────────────────────────
 
-// Mutating funds ops that need the intent guard: KEEP-GUARD (no idempotency
-// key, no deterministic pre-response reconcile) plus SAFE-VIA-RECONCILE ops
-// that must persist their request before dispatch. sendSparkLightningPayment is
+// Mutating funds ops that need the intent guard so the SYSTEM never reposts an
+// unresolved operation into a fresh page. sendSparkLightningPayment is
 // deliberately excluded: it is SAFE-VIA-IDEMPOTENCY (bundle passes
 // idempotencyKey = invoice, D-10) and never auto-retries.
 const FUNDS_OPS = new Set([
@@ -283,8 +279,9 @@ const FUNDS_OPS = new Set([
 // Keep-alive ops (every send / mutating op): NEVER fabricated-settled by an
 // app-state/background transition. Their promises stay live until a real
 // outcome — backend response (page survived), resume-by-id (same epoch), or
-// network reconcile (page reloaded) — with a bounded watchdog final deadline
-// as the sole negative last resort. FUNDS_OPS plus the lightning send, which
+// deterministic network reconcile where available (page reloaded) — with a
+// bounded watchdog final deadline as the sole negative last resort. FUNDS_OPS
+// plus the lightning send, which
 // is SAFE-VIA-IDEMPOTENCY (bundle passes idempotencyKey = invoice, D-10) but
 // must not be fabricated-failed mid-send either.
 const KEEP_ALIVE_OPS = new Set([
@@ -299,17 +296,13 @@ const KEEP_ALIVE_OPS = new Set([
   OPERATION_TYPES.initializeSparkWalletViewer,
 ]);
 
-// Ops whose consumers cannot consume a reconcile-built success shape (swap
-// consumers read .swap.outboundTransferId, fulfill reads
+// Fulfill consumers cannot consume a reconcile-built success shape (they read
 // .satsTransactionSuccess): on a reconcile hit the RECORDED truth settles
 // 'done' (so restore/reconcile can surface it), but a live caller resolves
 // with the unknown shape it already handles, never a success it mis-parses as
 // a failure (F-1). That caller-visible 'unknown' is informational — per the
 // guard contract it never blocks a later user-initiated identical send.
 const RECONCILE_CALLER_UNKNOWN_OPS = new Set([
-  OPERATION_TYPES.executeSwap,
-  OPERATION_TYPES.swapBitcoinToToken,
-  OPERATION_TYPES.swapTokenToBitcoin,
   OPERATION_TYPES.fufillSparkInvoices,
 ]);
 const RECONCILE_UNKNOWN_CALLER_RESULT = {
@@ -324,6 +317,14 @@ const RECONCILE_UNKNOWN_CALLER_RESULT = {
 // the guard keys off the CALLER's args, so the intent key matches any
 // identical call (and per the contract that call dispatches as a NEW payment).
 const NO_RECONCILE_QUERY_OPS = new Set([
+  // Send/swap history has no request-level idempotency key. Amount, recipient,
+  // pool, direction and timestamps cannot distinguish two legitimate payments
+  // submitted close together, so history must never fabricate the outcome of a
+  // specific attempt. Transaction/balance handling remains the source of truth.
+  OPERATION_TYPES.sendSparkPayment,
+  OPERATION_TYPES.executeSwap,
+  OPERATION_TYPES.swapBitcoinToToken,
+  OPERATION_TYPES.swapTokenToBitcoin,
   OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.requestClawback,
   OPERATION_TYPES.requestBatchClawback,
@@ -346,8 +347,7 @@ const RECONCILE_WINDOW_MS = 3 * 60 * 1000;
 // Bounded final deadline for keep-alive ops (last-resort backstop): one
 // timeout window + this grace, then the watchdog settles a real
 // {didWork:false, kind:'unknown'} so the promise can never zombie. Kept short
-// so the total stays inside the reconcile window (a settled-but-executed op
-// can still be matched by amount+time from network history).
+// so the total stays inside the intent-retention window.
 const KEEP_ALIVE_FINAL_DEADLINE_MS = 30 * 1000;
 const FULFILLED_INVOICE_STATUSES = new Set([
   2,
@@ -397,18 +397,7 @@ const settleIntent = (entry, result, newState, resolverResult = result) => {
   });
 };
 
-const withinReconcileWindow = (ts, anchorMs) => {
-  const t =
-    ts instanceof Date
-      ? ts.getTime()
-      : typeof ts === 'number'
-      ? ts
-      : Date.parse(ts);
-  if (!Number.isFinite(t)) return false;
-  return Math.abs(t - anchorMs) <= RECONCILE_WINDOW_MS;
-};
-
-// Eviction (DR-12 / S-4): an intent whose reconcile window has fully elapsed
+// Eviction (DR-12 / S-4): an intent whose retention window has fully elapsed
 // is either 'done' (confirmed — the record is spent; a later identical call
 // dispatches as a new payment anyway) or still 'unknown' (treated as
 // never-executed; the contract never blocks a user send on it). Retaining the
@@ -427,208 +416,11 @@ const pruneExpiredIntents = () => {
   }
 };
 
-// Receivers on a WalletTransfer carry identityPublicKey, not the spark
-// address — decode the caller's receiverSparkAddress for the comparison (F-8).
-// Precision over recall: an undecodable address means no transfer can prove
-// the payment, so the intent stays unknown rather than risking a false
-// "executed" from a same-amount transfer to someone else.
-// Pure-JS bech32m + protobuf parse so the WebView path never imports
-// @buildonspark/spark-sdk (native-only lazy load).
-function convertBitsForSpark(data, fromBits, toBits, pad) {
-  let acc = 0;
-  let bits = 0;
-  const ret = [];
-  const maxv = (1 << toBits) - 1;
-  for (const value of data) {
-    if (value < 0 || value >> fromBits !== 0) throw new Error('Invalid data');
-    acc = (acc << fromBits) | value;
-    bits += fromBits;
-    while (bits >= toBits) {
-      bits -= toBits;
-      ret.push((acc >> bits) & maxv);
-    }
-  }
-  if (pad) {
-    if (bits > 0) ret.push((acc << (toBits - bits)) & maxv);
-  } else if (bits >= fromBits || ((acc << (toBits - bits)) & maxv) !== 0) {
-    throw new Error('Invalid padding');
-  }
-  return Buffer.from(ret);
-}
-
-const identityKeyFromSparkAddress = address => {
-  if (!address) return null;
-  // Test seam: when jest mocks @buildonspark/spark-sdk to map
-  // address → `pk:${address}` (e.g. sp1abc → pk:sp1abc), honour it so
-  // reconcile tests that use fake addresses keep working without a
-  // real bech32 valid address. Only active when the mock exists and
-  // returns a pk: prefixed value — production always uses the pure JS
-  // bech32 path and never imports the SDK.
-  try {
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line global-require
-      const mocked = require('@buildonspark/spark-sdk');
-      if (mocked && typeof mocked.decodeSparkAddress === 'function') {
-        try {
-          const decoded = mocked.decodeSparkAddress(address, 'MAINNET');
-          if (decoded?.identityPublicKey?.startsWith?.('pk:')) {
-            return decoded.identityPublicKey;
-          }
-        } catch {}
-      }
-    }
-  } catch {}
-  try {
-    // bech32m decode (prefix is network, not needed for key extraction)
-    const decoded = bech32m.decode(address, 1024);
-    const data = convertBitsForSpark(decoded.words, 5, 8, false);
-    // Minimal protobuf: field 1 (identity_public_key) is length-delimited
-    let pos = 0;
-    while (pos < data.length) {
-      let tag = 0;
-      let shift = 0;
-      let byte;
-      do {
-        byte = data[pos++];
-        tag |= (byte & 0x7f) << shift;
-        shift += 7;
-      } while (byte & 0x80);
-      const fieldNumber = tag >> 3;
-      const wireType = tag & 0x7;
-      if (wireType === 2) {
-        let len = 0;
-        shift = 0;
-        do {
-          byte = data[pos++];
-          len |= (byte & 0x7f) << shift;
-          shift += 7;
-        } while (byte & 0x80);
-        const bytes = data.slice(pos, pos + len);
-        if (fieldNumber === 1) {
-          return Buffer.from(bytes).toString('hex') || null;
-        }
-        pos += len;
-      } else {
-        // varint
-        while (data[pos++] & 0x80) {}
-      }
-    }
-    return null;
-  } catch (err) {
-    return null;
-  }
-};
-
-// Reconcile precision guard (C2): a matcher may only confirm an op when EXACTLY
-// ONE in-window history row matches. Zero → not executed. More than one → a
-// legitimately-separate identical op (same amount/recipient/pool, no per-send
-// idempotency token in history) collides and there is no way to prove WHICH row
-// is this attempt, so the intent stays unknown — precision over recall. Reading
-// a colliding prior payment as "this one executed" would report a not-executed
-// send as a false success and silently drop the intended second payment.
-const exactlyOneMatch = (rows, predicate) => {
-  if (!Array.isArray(rows)) return undefined;
-  let found;
-  let count = 0;
-  for (const row of rows) {
-    if (predicate(row)) {
-      found = row;
-      count += 1;
-      if (count > 1) return undefined;
-    }
-  }
-  return count === 1 ? found : undefined;
-};
-
-// The sendSparkPayment reconcile match: same amount AND same receiver identity
-// within the window. Shared by the matcher, the txid extractor and the
-// response builder so all three always agree on WHICH transfer proved it. Must
-// be UNAMBIGUOUS (exactly one in-window match) — see exactlyOneMatch.
-const findReconciledSendTransfer = (entry, result) => {
-  const amount = Number(entry.args.amountSats);
-  const receiverKey = identityKeyFromSparkAddress(
-    entry.args.receiverSparkAddress,
-  );
-  if (!receiverKey) return undefined;
-  return exactlyOneMatch(
-    result?.transfers,
-    tx =>
-      Number(tx.totalValue) === amount &&
-      withinReconcileWindow(tx.createdTime, entry.dispatchedAt) &&
-      Array.isArray(tx.receivers) &&
-      tx.receivers.some(
-        r =>
-          Number(r.amountSats) === amount &&
-          r.identityPublicKey === receiverKey,
-      ),
-  );
-};
-
-// Swap reconcile direction mapping (DR-2/DR-3): the history row must match the
-// op's asset pair and amount. swapBitcoinToToken / swapTokenToBitcoin do not
-// carry assetInAddress/assetOutAddress in their webview args — the direction is
-// implied by the op and the tokenAddress, with BTC on the other side. The
-// amount lives in amountIn (executeSwap), amountSats (swapBitcoinToToken) or
-// tokenAmount (swapTokenToBitcoin) — the matcher must read the real caller's
-// field (DR-3: tokenAmount was never consulted, so the matcher was dead).
-const swapDirectionFor = entry => {
-  switch (entry.op) {
-    case OPERATION_TYPES.executeSwap:
-      return {
-        assetInAddress: entry.args.assetInAddress,
-        assetOutAddress: entry.args.assetOutAddress,
-        amountIn: entry.args.amountIn,
-      };
-    case OPERATION_TYPES.swapBitcoinToToken:
-      return {
-        assetInAddress: BTC_ASSET_ADDRESS,
-        assetOutAddress: entry.args.tokenAddress,
-        amountIn: entry.args.amountSats,
-      };
-    case OPERATION_TYPES.swapTokenToBitcoin:
-      return {
-        assetInAddress: entry.args.tokenAddress,
-        assetOutAddress: BTC_ASSET_ADDRESS,
-        amountIn: entry.args.tokenAmount,
-      };
-    default:
-      return null;
-  }
-};
-
-const findReconciledSwap = (entry, result) => {
-  const dir = swapDirectionFor(entry);
-  if (!dir) return undefined;
-  const amountIn = String(dir.amountIn ?? '');
-  if (!amountIn) return undefined; // missing amount → unprovable, stay unknown
-  return exactlyOneMatch(
-    result?.swaps,
-    s =>
-      s.poolLpPublicKey === entry.args.poolId &&
-      String(s.amountIn) === amountIn &&
-      s.assetInAddress === dir.assetInAddress &&
-      s.assetOutAddress === dir.assetOutAddress &&
-      withinReconcileWindow(s.timestamp, entry.dispatchedAt),
-  );
-};
-
 // Per-op reconcile query builders (plan §3.1.3). Return null for ops with no
-// pre-response reconcile query (sendBitcoinPayment, clawbacks — their outcome
-// stays {kind:'unknown'} for the UI; never re-dispatched).
+// deterministic pre-response reconcile query. Send/swap history matching is
+// deliberately excluded because it cannot identify a specific attempt.
 const buildReconcileQuery = (op, entry, mnemonic) => {
   switch (op) {
-    case OPERATION_TYPES.sendSparkPayment:
-      return {
-        action: OPERATION_TYPES.getTransactions,
-        args: { mnemonic, transferCount: 20, offsetIndex: 0 },
-      };
-    case OPERATION_TYPES.executeSwap:
-    case OPERATION_TYPES.swapBitcoinToToken:
-    case OPERATION_TYPES.swapTokenToBitcoin:
-      return {
-        action: OPERATION_TYPES.getUserSwapHistory,
-        args: { mnemonic, limit: 50 },
-      };
     case OPERATION_TYPES.claimStaticDepositAddress:
       return {
         action: OPERATION_TYPES.getUtxosForDepositAddress,
@@ -655,14 +447,6 @@ const buildReconcileQuery = (op, entry, mnemonic) => {
 
 const buildReconcileMatcher = op => {
   switch (op) {
-    case OPERATION_TYPES.sendSparkPayment:
-      return (entry, result) => !!findReconciledSendTransfer(entry, result);
-    case OPERATION_TYPES.executeSwap:
-    case OPERATION_TYPES.swapBitcoinToToken:
-    case OPERATION_TYPES.swapTokenToBitcoin:
-      // Same pool + amount AND same asset direction (DR-2) with the real
-      // caller's amount field (DR-3).
-      return (entry, result) => !!findReconciledSwap(entry, result);
     case OPERATION_TYPES.claimStaticDepositAddress:
       return (entry, result) => {
         // A failed/absent query (didWork:false or no utxos array) is a MISS,
@@ -698,12 +482,6 @@ const buildReconcileMatcher = op => {
 
 const extractReconcileTxid = (op, result, entry) => {
   switch (op) {
-    case OPERATION_TYPES.sendSparkPayment:
-      return findReconciledSendTransfer(entry, result)?.id;
-    case OPERATION_TYPES.executeSwap:
-    case OPERATION_TYPES.swapBitcoinToToken:
-    case OPERATION_TYPES.swapTokenToBitcoin:
-      return findReconciledSwap(entry, result)?.id;
     case OPERATION_TYPES.claimStaticDepositAddress:
       return entry.args.transactionId;
     default:
@@ -711,22 +489,9 @@ const extractReconcileTxid = (op, result, entry) => {
   }
 };
 
-// Consumer-compatible response for a reconcile-confirmed op. Every funds
-// consumer reads `.response` off the bridge result and reads `.response.id`.
-// Reconcile can only supply the txid it matched from history (other fields
-// self-heal on the next sync).
-// sendSparkPayment also carries the matched transfer's timestamp as
-// updatedTime — the consumer stores new Date(data.updatedTime) and undefined
-// would record NaN (F-6).
+// Consumer-compatible response for a deterministically reconciled op.
 const extractReconcileResponse = (op, result, entry) => {
-  switch (op) {
-    case OPERATION_TYPES.sendSparkPayment: {
-      const tx = findReconciledSendTransfer(entry, result);
-      return { id: tx?.id, updatedTime: tx?.updatedTime ?? tx?.createdTime };
-    }
-    default:
-      return { id: extractReconcileTxid(op, result, entry) };
-  }
+  return { id: extractReconcileTxid(op, result, entry) };
 };
 
 const setHandshakeComplete = value => {
@@ -1200,10 +965,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
             return;
           }
           // Live-page / clean-reset send: never fabricate a settle. The caller's
-          // promise stays live — the new session's reconcile settles it from
-          // network history after the handshake, and the watchdog's final
-          // deadline is the floor. The intent is marked unknown so reconcile
-          // picks it up (its resolvers are NOT called here).
+          // promise stays live — deterministic reconciliation may settle it
+          // after the handshake; otherwise the watchdog's final deadline is
+          // the floor. The intent is marked unknown for lifecycle bookkeeping
+          // (its resolvers are NOT called here).
           if (intent && intent.state === 'in-flight') {
             intent.state = 'unknown';
             intent.result = null;
@@ -1366,7 +1131,8 @@ export const WebViewProvider = ({ children, transport = null }) => {
   // is provably the dispatch session (`dispatchEpoch` matches + handshake
   // verified); a reloaded page has a new epoch (and a new session key + empty
   // backend cache), so re-sending there would re-execute → double pay — that
-  // caller falls back to reconcile. Always arms the bounded final deadline:
+  // caller falls back to deterministic reconciliation when available. Always
+  // arms the bounded final deadline:
   // the ONLY negative settle for a keep-alive op, and only when the real
   // outcome never arrives.
   const resumeKeepAliveRequest = useCallback(
@@ -1379,10 +1145,10 @@ export const WebViewProvider = ({ children, transport = null }) => {
       if (entry.pageDied) {
         // DR-4: the page that dispatched this request died and a fresh page
         // loaded. Its id→outcome cache is empty — re-posting the same id
-        // there would EXECUTE a second payment. Reconcile settles it from
-        // network history; the final deadline below is still the bounded
-        // floor — without it, a pageDied keep-alive op that reconcile cannot
-        // confirm would hang the caller forever (no re-post, no settle).
+        // there would EXECUTE a second payment. Deterministic reconciliation
+        // may settle it; the final deadline below is still the bounded floor —
+        // without it, a pageDied keep-alive op with no deterministic query
+        // would hang the caller forever (no re-post, no settle).
         // Fall through with resumed=false: skip the re-post, arm the deadline.
       } else if (
         entry.dispatchEpoch === epochRef.current &&
@@ -1678,7 +1444,8 @@ export const WebViewProvider = ({ children, transport = null }) => {
             const resumed = resumeKeepAliveRequest(id);
             if (!resumed) {
               // Page reloaded/crashed (epoch changed): re-sending there would
-              // re-execute → double pay. Reconcile from network history.
+              // re-execute → double pay. Reconcile only when the operation has
+              // a deterministic query; otherwise the final watchdog settles.
               reconcileUnknownIntents();
             }
             return;
@@ -1688,8 +1455,9 @@ export const WebViewProvider = ({ children, transport = null }) => {
           const result = {
             didWork: false,
             error: `Call unresponsive (timeout after ${timeoutDuration}ms)`,
-            // KEEP-GUARD ops settle as unknown — the op may have executed; the
-            // distinction is what stops a blind retry (plan §3.1.2).
+            // Funds ops settle as unknown — the op may have executed. This
+            // prevents a fabricated failure/success while transaction and
+            // balance handling surface the eventual result.
             kind: isFundsOp ? 'unknown' : 'timeout',
           };
           console.error(`WebView request timeout for action: ${entry.action}`);
@@ -1866,9 +1634,9 @@ export const WebViewProvider = ({ children, transport = null }) => {
   }, [drainHoldBuffer]);
 
   // Foreground settle-then-reconcile (plan §3.1.3): for intents still unknown,
-  // run the per-op history query. Hit → settle {didWork:true, status:'executed',
-  // txid}; miss → leave unknown. At most once per op per foreground; zero
-  // queries when no unknown intents exist.
+  // run a per-op query only when it uniquely identifies the original attempt.
+  // Hit → settle {didWork:true, status:'executed', txid}; miss/no-query → leave
+  // unknown. At most once per op per foreground.
   const reconcileUnknownIntents = useCallback(async () => {
     if (fallbackState !== FALLBACK_STATE.WEBVIEW) return;
     pruneExpiredIntents();
@@ -1985,6 +1753,19 @@ export const WebViewProvider = ({ children, transport = null }) => {
           if (!entry) {
             // no need to handle anything here, will be handled with timeout
             console.error('Timeout: backend is unresponsive');
+            return;
+          }
+          // A handshake reply only ever answers the pending 'handshake:init'
+          // request. A reply whose id belongs to any OTHER pending request
+          // (page bug, id mix-up, or a stale reply racing a reset) must be
+          // dropped: settling that request with {didComplete:true} would
+          // fabricate a non-outcome, drive the state machine to READY for a
+          // handshake that never completed, and orphan the real handshake
+          // request (B1).
+          if (entry.action !== 'handshake:init') {
+            console.error(
+              'SECURITY: handshake reply for a non-handshake request — dropped',
+            );
             return;
           }
           if (!sessionKeyRef.current) {
@@ -2474,7 +2255,8 @@ export const WebViewProvider = ({ children, transport = null }) => {
           // a reload would wipe the backend id→outcome cache mid-send (and
           // the session key). Resume each request by re-posting the same id;
           // requests whose page died (epoch changed) skip the re-send
-          // (double-pay guard) and are settled by reconcile instead.
+          // (double-pay guard) and use deterministic reconciliation when the
+          // operation supports it; otherwise their watchdog settles unknown.
           console.log(
             'Foreground - resuming in-flight keep-alive requests (no reload)',
           );

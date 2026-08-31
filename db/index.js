@@ -546,7 +546,6 @@ export async function updateMessage({
     return true;
   } catch (err) {
     console.error('Error updating message:', err);
-    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }
@@ -592,7 +591,7 @@ export async function bulkUpdateMessages(messages) {
     return true;
   } catch (err) {
     console.error('Error bulk updating messages:', err);
-    crashlyticsRecordErrorReport(err.message);
+
     return false;
   }
 }
@@ -631,7 +630,6 @@ export async function syncDatabasePayment(myPubKey, privateKey) {
     return processedMessages;
   } catch (err) {
     console.error('Error syncing database payments:', err);
-    crashlyticsLogReport(err.message);
     return [];
   }
 }
@@ -762,7 +760,7 @@ export async function addGiftToDatabase(dataObject) {
     return true;
   } catch (e) {
     console.error('Error adding gift to database: ', e);
-    crashlyticsRecordErrorReport(e.message);
+
     return false;
   }
 }
@@ -799,7 +797,6 @@ export async function bulkAddGiftsToDatabase(gifts) {
     return true;
   } catch (e) {
     console.error('Error bulk adding gifts to database:', e);
-    crashlyticsRecordErrorReport(e.message);
     return false;
   }
 }
@@ -816,7 +813,7 @@ export async function updateGiftInDatabase(dataObject) {
     return true;
   } catch (e) {
     console.error('Error adding gift to database: ', e);
-    crashlyticsRecordErrorReport(e.message);
+
     return false;
   }
 }
@@ -1003,7 +1000,7 @@ export async function setPairingDoc(rid, sessionId, party, data) {
     return true;
   } catch (e) {
     console.error('Error writing pairing doc:', e);
-    crashlyticsRecordErrorReport(e.message);
+
     return false;
   }
 }

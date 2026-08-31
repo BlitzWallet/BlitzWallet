@@ -105,6 +105,7 @@ const {
 const {
   getLastModified,
   initBTCMapDB,
+  deleteBtcMapTable,
 } = require('../../app/functions/btcMap/btcMapStorage');
 const {
   initializeAllDatabases,
@@ -124,6 +125,8 @@ const { deleteAsync } = require('expo-file-system/legacy');
 // Fixtures: every wallet-local table (db file name, table name, seed row)
 // ---------------------------------------------------------------------------
 
+// btcmap.db is intentionally NOT wallet-local — public merchant cache that
+// persists cross-wallet and is only opened JIT on BTCMap screen visit
 const TABLES = [
   ['CASHED_CONTACTS_MESSAGES.db', 'messagesTable'],
   ['POS_TRANSACTIONS.db', 'POS_TRANSACTIONS'],
@@ -139,9 +142,6 @@ const TABLES = [
   ['SAVED_SAVINGS.db', 'savings_goals'],
   ['SAVED_SAVINGS.db', 'savings_transactions'],
   ['SAVED_SAVINGS.db', 'savings_payouts'],
-  ['btcmap.db', 'btcmap_places'],
-  ['btcmap.db', 'provider_places'],
-  ['btcmap.db', 'btcmap_meta'],
   ['WALLET_LEAVES.db', 'wallet_leaves'],
   ['WALLET_LEAVES.db', 'wallet_leaf_exit_nodes'],
   ['WALLET_LEAVES.db', 'leaves_meta'],
@@ -149,6 +149,12 @@ const TABLES = [
   ['nwc_invoices.db', 'invoices'],
   ['nwc_event_ledger.db', 'handled_events'],
   ['nwc_event_ledger.db', 'nwc_ledger_state'],
+];
+
+const BTCMAP_TABLES = [
+  ['btcmap.db', 'btcmap_places'],
+  ['btcmap.db', 'provider_places'],
+  ['btcmap.db', 'btcmap_meta'],
 ];
 
 const SEEDS = [
@@ -235,8 +241,12 @@ describe('wipeLocalWalletData', () => {
   beforeEach(async () => {
     require('expo-sqlite').__setPoisonDb(null);
     require('@react-native-async-storage/async-storage').__store.clear();
-    // A full wipe is the cleanest reset: tables empty + AsyncStorage empty.
+    // A full wipe is the cleanest reset: wallet-local tables empty +
+    // AsyncStorage empty. btcmap is NOT wallet-local (public, JIT, cross-wallet)
+    // so the wipe intentionally leaves it intact — clear it explicitly for a
+    // deterministic per-test baseline.
     await wipeLocalWalletData();
+    await deleteBtcMapTable();
     await openAllDatabases();
     // Drop the reset wipe's calls (scrub + marker arm/disarm + cache deletes)
     // so tests only count their own invocation.
@@ -269,24 +279,36 @@ describe('wipeLocalWalletData', () => {
     });
   });
 
-  test('btcMap tables are dropped and recreated on the same connection', async () => {
+  test('btcMap tables persist cross-wallet (not wiped)', async () => {
     seedAllTables();
     const { openDatabaseAsync } = require('expo-sqlite');
+    const btcmapBefore = BTCMAP_TABLES.map(([db, tbl]) => [
+      db,
+      tbl,
+      countRows(db, tbl),
+    ]);
 
     await wipeLocalWalletData();
 
-    // Regression guard for expo/expo#48999: deleteBtcMapTable must not drop
-    // the cached handle and reopen — the second JS wrapper around the same
-    // native database gets closed by GC and poisons the live one. The wipe
-    // must reuse the existing openDatabaseAsync connection.
+    // btcmap is public merchant cache, intentionally excluded from the
+    // wallet-local wipe — it must survive and remain readable on the live
+    // handle (no GC-poison of the expo-sqlite wrapper).
     expect(openDatabaseAsync).not.toHaveBeenCalled();
-    for (const [dbName, table] of TABLES) {
-      if (dbName === 'btcmap.db') {
-        expect(tableExists(dbName, table)).toBe(true);
-        expect(countRows(dbName, table)).toBe(0);
-      }
+    for (const [dbName, table, beforeCount] of btcmapBefore) {
+      expect(tableExists(dbName, table)).toBe(true);
+      expect(countRows(dbName, table)).toBe(beforeCount);
     }
-    expect(await getLastModified()).toBe(null); // live handle still usable
+    // verify live handle still usable (seed's meta key 'k' survives)
+    expect(await getLastModified()).toBe(null); // last_modified still null, meta 'k' untouched by wipe
+    // explicit deleteBtcMapTable still works on same connection when called directly
+    const connBefore = openDatabaseAsync.mock.calls.length;
+    await deleteBtcMapTable();
+    expect(openDatabaseAsync).not.toHaveBeenCalledWith('btcmap.db');
+    expect(openDatabaseAsync.mock.calls.length).toBe(connBefore);
+    for (const [dbName, table] of BTCMAP_TABLES) {
+      expect(tableExists(dbName, table)).toBe(true);
+      expect(countRows(dbName, table)).toBe(0);
+    }
   });
 
   test('initBTCMapDB recreates the schema on the live handle (post-wipe repair path)', async () => {

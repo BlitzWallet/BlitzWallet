@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, AppState, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, ICONS, SIZES } from '../../../constants';
 import { Image } from 'expo-image';
 import { ThemeText } from '../../../functions/CustomElements';
@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import RNRestart from 'react-native-restart-newarch';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import { useAppStatus } from '../../../../context-store/appStatus';
+import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 
 export default function BiometricsLogin() {
   const { appState, isAppFocused } = useAppStatus();
@@ -31,6 +32,10 @@ export default function BiometricsLogin() {
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const numRetriesBiometric = useRef(0);
+  // After more than 4 unsuccessful biometric prompts, reveal a trash icon that
+  // lets the user remove the wallet from the biometric system. Biometrics keep
+  // retrying regardless — this is an escape hatch, not a forced dead end.
+  const [showRemoveOption, setShowRemoveOption] = useState(false);
   // Tracks whether a biometric attempt is currently in flight. We guard
   // re-entry on this ref (not the isAuthenticating state) so a stale render
   // closure can't slip a second concurrent attempt through.
@@ -65,15 +70,13 @@ export default function BiometricsLogin() {
     // Only proceed if app is active AND screen is focused AND Android focus events say we're focused
     const isFullyFocused = appState === 'active' && isFocused && isAppFocused;
 
-    if (isFullyFocused) {
+    // Once the remove option is showing (>4 failed prompts), stop auto-firing
+    // biometrics on focus — otherwise the prompt would always be up and the
+    // user could never reach the trash icon. From here it's button-driven only.
+    if (isFullyFocused && numRetriesBiometric.current <= 4) {
       console.log(
         'App fully focused (appState + isFocused + isAppFocused), starting 500ms timer...',
       );
-
-      // Fresh set of retries each time the screen comes to the foreground so
-      // background/foreground churn can't silently march the user toward the
-      // factory-reset confirmation.
-      numRetriesBiometric.current = 0;
 
       authTimeoutRef.current = setTimeout(() => {
         console.log('500ms elapsed, triggering authentication');
@@ -169,21 +172,7 @@ export default function BiometricsLogin() {
           expectedMnemonicHash: sha256Hash(savedMnemonic.value),
         });
       } else {
-        navigate.navigate('ConfirmActionPage', {
-          confirmMessage: t(
-            'adminLogin.pinPage.isBiometricEnabledConfirmAction',
-          ),
-          confirmFunction: async () => {
-            const deleted = await factoryResetWallet();
-            if (deleted) {
-              RNRestart.restart();
-            } else {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t('errormessages.deleteAccount'),
-              });
-            }
-          },
-        });
+        promptBiometricRemoval();
       }
       return;
     }
@@ -191,27 +180,33 @@ export default function BiometricsLogin() {
     await handleFaceID();
   }
 
+  // Routes to the confirm page that removes the wallet from the biometric
+  // system (factory reset). Shared by the migration-failure path and the trash
+  // icon that appears after repeated biometric failures.
+  const promptBiometricRemoval = () => {
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: t('adminLogin.pinPage.isBiometricEnabledConfirmAction'),
+      confirmFunction: async () => {
+        const deleted = await factoryResetWallet();
+        if (deleted) {
+          RNRestart.restart();
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('errormessages.deleteAccount'),
+          });
+        }
+      },
+    });
+  };
+
   const handleFaceID = async () => {
     if (didNavigate.current) return;
 
-    if (numRetriesBiometric.current >= 3) {
-      navigate.navigate('ConfirmActionPage', {
-        confirmMessage: t('adminLogin.pinPage.isBiometricEnabledConfirmAction'),
-        confirmFunction: async () => {
-          const deleted = await factoryResetWallet();
-          if (deleted) {
-            RNRestart.restart();
-          } else {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: t('errormessages.deleteAccount'),
-            });
-          }
-        },
-        cancelFunction: () => {
-          numRetriesBiometric.current = 0;
-        },
-      });
-      return;
+    // Count each biometric prompt. Once it's been tried more than 4 times with
+    // no success, surface the trash icon — but keep prompting either way.
+    numRetriesBiometric.current++;
+    if (numRetriesBiometric.current > 4) {
+      setShowRemoveOption(true);
     }
 
     console.log('Starting biometric authentication...');
@@ -224,14 +219,20 @@ export default function BiometricsLogin() {
       navigate.replace('ConnectingToNodeLoadingScreen', {
         expectedMnemonicHash: sha256Hash(decryptResponse),
       });
-    } else {
-      // Genuine failure/cancel — count it toward the retry limit.
-      numRetriesBiometric.current++;
     }
   };
 
   return (
     <View style={styles.container}>
+      {showRemoveOption && (
+        <TouchableOpacity
+          testID="remove-biometric-wallet"
+          style={styles.removeButton}
+          onPress={promptBiometricRemoval}
+        >
+          <ThemeIcon iconName={'Trash2'} />
+        </TouchableOpacity>
+      )}
       <View style={styles.centerContent}>
         <Image
           source={ICONS.logoIcon}
@@ -271,6 +272,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 10,
+    zIndex: 1,
   },
   centerContent: {
     flex: 1,

@@ -10,10 +10,7 @@ import {
   sendPayment,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import { BLITZ_DEFAULT_PAYMENT_DESCRIPTION } from '../../constants';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../crashlyticsLogs';
+import { crashlyticsLogReport } from '../crashlyticsLogs';
 
 export async function breezLiquidReceivePaymentWrapper({
   sendAmount,
@@ -59,7 +56,6 @@ export async function breezLiquidReceivePaymentWrapper({
     return { destination, receiveFeesSat };
   } catch (err) {
     console.log(err);
-    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }
@@ -110,7 +106,6 @@ export async function breezLiquidPaymentWrapper({
     return { payment, fee: sendFeesSat, didWork: true };
   } catch (err) {
     console.log(err);
-    crashlyticsRecordErrorReport(err.message);
     return { error: err, didWork: false };
   }
 }
@@ -155,7 +150,6 @@ export async function breezLiquidLNAddressPaymentWrapper({
     return { payment, fee: feesSat, didWork: true };
   } catch (err) {
     console.log(err, 'BREEZ LIQUID TO LN ADDRESS PAYMENT WRAPPER');
-    crashlyticsRecordErrorReport(err.message);
     return { error: err, didWork: false };
   }
 }

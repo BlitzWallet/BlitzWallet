@@ -600,9 +600,6 @@ export default function ConfirmSplitPayment(props) {
           currentWalletMnemoinc,
           outboundTransferId,
         );
-
-        // small buffer to help smooth things out
-        await new Promise(res => setTimeout(res, 1500));
       }
 
       let effectiveSplitRecipients = splitRecipients;

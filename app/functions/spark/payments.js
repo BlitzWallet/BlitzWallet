@@ -416,8 +416,6 @@ export const sparkPaymenWrapper = async ({
         await waitForSwapCompletion(mnemonic, outboundTransferId);
 
         isSwap = true;
-        // small buffer to help smooth things out
-        await new Promise(res => setTimeout(res, 1500));
       }
 
       let sparkPayResponse;

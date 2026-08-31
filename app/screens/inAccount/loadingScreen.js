@@ -115,9 +115,9 @@ export default function ConnectingToNodeLoadingScreen() {
           }
           phaseRef.current = 'wiping previous wallet local data';
           crashlyticsLogReport('Wiping previous wallet local data before init');
-          const wiped = await wipeLocalWalletData();
-          if (!wiped)
-            throw new Error(t('createAccount.keySetup.pin.wipeError'));
+          // Best attempt a wipe, do not block login this is cosmetic and an edge case issue
+          await wipeLocalWalletData();
+
           // Small settle so re-created DB handles / dropped tables quiesce
           // before the parallel init + cache reads below touch them.
           await new Promise(res => setTimeout(res, 1000));

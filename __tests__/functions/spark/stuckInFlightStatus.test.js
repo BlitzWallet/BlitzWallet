@@ -68,15 +68,32 @@ jest.mock('../../../app/functions/spark/timeoutHelpers', () => ({
   getBalanceWithTimeout: jest.fn(),
 }));
 
-const { updateSparkTxStatus } = require('../../../app/functions/spark/restore');
+const {
+  updateSparkTxStatus,
+  stuckInFlightStatus,
+} = require('../../../app/functions/spark/restore');
 
-const PAST_STUCK_WINDOW_MS = 73 * 60 * 60 * 1000; // 73h — beyond the 72h gate
+const PAST_STUCK_WINDOW_MS = 17 * 24 * 60 * 60 * 1000; // 17days — beyond the 16day gate
 const INSIDE_STUCK_WINDOW_MS = 60 * 60 * 1000; // 1h
 
 function pendingSparkTx(direction, ageMs) {
   return {
     sparkID: 'spark-stuck-1',
     paymentType: 'spark',
+    paymentStatus: 'pending',
+    accountId: 'acct-1',
+    details: JSON.stringify({
+      direction,
+      time: Date.now() - ageMs,
+      amount: 1000,
+    }),
+  };
+}
+
+function pendingLightningTx(direction, ageMs) {
+  return {
+    sparkID: 'spark-lightning-1',
+    paymentType: 'lightning',
     paymentStatus: 'pending',
     accountId: 'acct-1',
     details: JSON.stringify({
@@ -110,25 +127,54 @@ describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
     expect(res.updated[0].paymentStatus).toBe('pending');
   });
 
-  test('OUTGOING row older than 72h flips to failed so it can be retried', async () => {
+  test('OUTGOING spark row older than 72h stays pending (receiver may claim late — no double-pay)', async () => {
+    // Direct unit: spark must never be auto-failed by the 72h gate
+    expect(
+      stuckInFlightStatus(
+        'TRANSFER_STATUS_SENDER_INITIATED',
+        { time: Date.now() - PAST_STUCK_WINDOW_MS },
+        'OUTGOING',
+        'spark',
+      ),
+    ).toBe(null);
+
+    // Integration: spark pending row stays pending even after the window
     mockGetAllPendingSparkPayments.mockResolvedValue({
       didWork: true,
       response: [pendingSparkTx('OUTGOING', PAST_STUCK_WINDOW_MS)],
     });
-
     const res = await updateSparkTxStatus('mnemonic', 'acct-1');
+    expect(res.updated[0].paymentStatus).toBe('pending');
+  });
 
-    expect(res.updated[0].paymentStatus).toBe('failed');
+  test('OUTGOING lightning row older than 16 days flips to failed so it can be retried', async () => {
+    expect(
+      stuckInFlightStatus(
+        'TRANSFER_STATUS_SENDER_INITIATED',
+        { time: Date.now() - PAST_STUCK_WINDOW_MS },
+        'OUTGOING',
+        'lightning',
+      ),
+    ).toBe('failed');
   });
 
   test('OUTGOING row inside the 72h window stays pending', async () => {
+    expect(
+      stuckInFlightStatus(
+        'TRANSFER_STATUS_SENDER_INITIATED',
+        { time: Date.now() - INSIDE_STUCK_WINDOW_MS },
+        'OUTGOING',
+        'lightning',
+      ),
+    ).toBe(null);
+
     mockGetAllPendingSparkPayments.mockResolvedValue({
       didWork: true,
       response: [pendingSparkTx('OUTGOING', INSIDE_STUCK_WINDOW_MS)],
     });
-
     const res = await updateSparkTxStatus('mnemonic', 'acct-1');
-
+    // Spark stays pending regardless of window; lightning inside window also stays pending (no update)
+    // For spark, the status remains pending so an update is still emitted (paymentStatus pending)
     expect(res.updated[0].paymentStatus).toBe('pending');
   });
 });

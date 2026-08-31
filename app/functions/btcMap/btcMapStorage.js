@@ -69,13 +69,16 @@ async function openDB() {
 
 export async function initBTCMapDB() {
   try {
+    // On a fresh open, openDB() already runs createSchema (a full 3-table +
+    // index pass plus a throwing ALTER), so re-running it here would duplicate
+    // that work every cold start. Only re-run when the handle was already open
+    // — the post-wipe recreate path: awaiting the memoized openDB() recreates
+    // nothing, so this pass rebuilds the tables deleteBtcMapTable dropped
+    // (belt-and-suspenders if its inline recreate failed), mirroring
+    // createSelfHealingDatabase.reinitialize.
+    const wasAlreadyOpen = initPromise !== null;
     const database = await openDB();
-    // Re-run the idempotent schema pass on the live handle (mirrors
-    // createSelfHealingDatabase.reinitialize). This is the post-wipe recreate
-    // path: just awaiting the memoized openDB() would recreate nothing if the
-    // recreate inside deleteBtcMapTable failed, leaving the tables dropped
-    // until a process restart.
-    await createSchema(database);
+    if (wasAlreadyOpen) await createSchema(database);
     console.log('initialized btc map db');
     return true;
   } catch (error) {
