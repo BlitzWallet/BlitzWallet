@@ -13,6 +13,33 @@ import { useTranslation } from 'react-i18next';
 
 const EmptyLogo = () => null;
 
+export const MAX_QR_SIZE = 375;
+
+export function clampDimension(value) {
+  return typeof value === 'number' ? Math.min(value, MAX_QR_SIZE) : value;
+}
+
+function clampStyleDimensions(style) {
+  if (!style || typeof style !== 'object') return style;
+  if (Array.isArray(style)) {
+    const merged = {};
+    for (const entry of style) {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+      Object.assign(merged, entry);
+    }
+    if (merged.width !== undefined) merged.width = clampDimension(merged.width);
+    if (merged.height !== undefined)
+      merged.height = clampDimension(merged.height);
+    return merged;
+  }
+  const clamped = { ...style };
+  if (clamped.width !== undefined)
+    clamped.width = clampDimension(clamped.width);
+  if (clamped.height !== undefined)
+    clamped.height = clampDimension(clamped.height);
+  return clamped;
+}
+
 export default function QrCodeWrapper({
   QRData,
   outerContainerStyle,
@@ -31,7 +58,11 @@ export default function QrCodeWrapper({
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
-  const imageSize = Math.round(qrSize * 0.2);
+  const clampedQrSize = clampDimension(qrSize);
+  const clampedOuterContainerStyle = clampStyleDimensions(outerContainerStyle);
+  const clampedInnerContainerStyle = clampStyleDimensions(innerContainerStyle);
+
+  const imageSize = Math.round(clampedQrSize * 0.2);
 
   const content = QRData || t('constants.noData');
 
@@ -41,12 +72,14 @@ export default function QrCodeWrapper({
         ...styles.qrContainer,
         backgroundColor:
           theme && darkModeType ? backgroundColor : backgroundOffset,
-        ...outerContainerStyle,
+        ...clampedOuterContainerStyle,
       }}
     >
-      <View style={{ ...styles.qrInnerContianer, ...innerContainerStyle }}>
+      <View
+        style={{ ...styles.qrInnerContianer, ...clampedInnerContainerStyle }}
+      >
         <QRCode
-          size={qrSize}
+          size={clampedQrSize}
           quietZone={quietZone}
           value={content}
           color={COLORS.lightModeText}

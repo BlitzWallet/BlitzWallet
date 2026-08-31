@@ -16,7 +16,9 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
-import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
+import QrCodeWrapper, {
+  MAX_QR_SIZE,
+} from '../../../../../functions/CustomElements/QrWrapper';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -44,7 +46,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
   }, [masterInfoObject.accountsLnurl, account?.uuid]);
 
   const qrContainerSize = useMemo(
-    () => Math.round(screenDimensions.width * 0.75),
+    () => Math.min(Math.round(screenDimensions.width * 0.75), MAX_QR_SIZE),
     [screenDimensions.width],
   );
   const qrInnerSize = useMemo(() => qrContainerSize - 25, [qrContainerSize]);

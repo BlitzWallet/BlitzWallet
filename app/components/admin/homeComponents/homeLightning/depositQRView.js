@@ -21,7 +21,9 @@ import {
 } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import QrCodeWrapper, {
+  MAX_QR_SIZE,
+} from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { copyToClipboard } from '../../../../functions';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -77,7 +79,10 @@ export default function DepositQRView({
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
   const { bottomPadding } = useGlobalInsets();
 
-  const qrContainerSize = Math.round(screenDimensions.width * 0.7);
+  const qrContainerSize = Math.min(
+    Math.round(screenDimensions.width * 0.7),
+    MAX_QR_SIZE,
+  );
   const errorIconSize = Math.round(screenDimensions.width * 0.5);
   const qrInnerSize = qrContainerSize - 25;
 

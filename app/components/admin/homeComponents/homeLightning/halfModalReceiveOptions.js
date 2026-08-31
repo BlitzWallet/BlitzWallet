@@ -29,7 +29,9 @@ import PayLinkCreationOverlay from '../payLinks/payLinkCreationOverlay';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
-import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import QrCodeWrapper, {
+  MAX_QR_SIZE,
+} from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -158,7 +160,10 @@ const LNURLQROverlay = ({
 
   if (!visible) return null;
 
-  const qrContainerSize = Math.round(screenDimensions.width * 0.75);
+  const qrContainerSize = Math.min(
+    Math.round(screenDimensions.width * 0.75),
+    MAX_QR_SIZE,
+  );
   const qrInnerSize = qrContainerSize - 25;
 
   const qrOuterContainerStyle = {
