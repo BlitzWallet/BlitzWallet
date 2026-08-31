@@ -15,7 +15,8 @@
     "depCheck": "npx depcheck",
     "apkBuild": "cd android && ./gradlew assembleRelease && cd ..",
     "apkBuild:clean": "cd android && ./gradlew clean assembleRelease && cd ..",
-    "playstoreBuild": "cd android && ./gradlew bundleRelease && cd .."
+    "playstoreBuild": "cd android && ./gradlew bundleRelease && cd ..",
+    "export:web": "expo export --platform web && mv dist/assets/node_modules dist/assets/deps"
   },
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
