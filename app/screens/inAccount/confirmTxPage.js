@@ -496,7 +496,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  contentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
   },
