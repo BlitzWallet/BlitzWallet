@@ -822,7 +822,7 @@ const memoizedStyles = StyleSheet.create({
     paddingVertical: 10,
   },
   rowNameAndUnkonwnContainer: {
-    width: '100%',
+    flex: 1,
     flexDirection: 'column',
     marginRight: 10,
     flexShrink: 1,
