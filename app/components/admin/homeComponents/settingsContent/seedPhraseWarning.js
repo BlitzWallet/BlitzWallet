@@ -235,12 +235,13 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   checkboxContainer: {
+    width: INSET_WINDOW_WIDTH,
     paddingTop: CONTENT_KEYBOARD_OFFSET,
     paddingBottom: 15,
-    paddingLeft: 20,
     marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'center',
+    ...CENTER,
   },
   checkbox: {
     width: 20,
