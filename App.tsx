@@ -313,6 +313,7 @@ function ResetStack(): JSX.Element | null {
       if (!navigationRef.current) return;
       if (appState !== 'active') return;
       if (!didGetToHomepage || !publicKey) return;
+      if (Platform.OS === 'web') return;
 
       const stored = await getLocalStorageItem('pendingDeepLinkData');
       if (cancelled || !stored) return;
