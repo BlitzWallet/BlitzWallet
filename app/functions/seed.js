@@ -12,23 +12,7 @@ import { mnemonicToSeedAsync } from './nostrCompatability';
 export async function createAccountMnemonic() {
   try {
     crashlyticsLogReport('Starting generting account mnemoinc');
-    let generatedMnemonic = generateMnemonic(wordlist);
-    const unuiqueKeys = new Set(generatedMnemonic.split(' '));
-
-    if (unuiqueKeys.size !== 12) {
-      let runCount = 0;
-      let didFindValidMnemoinc = false;
-      while (runCount < 50 && !didFindValidMnemoinc) {
-        console.log(`Running retry for account mnemoinc count: ${runCount}`);
-        runCount += 1;
-        const newTry = generateMnemonic(wordlist);
-        const uniqueItems = new Set(newTry.split(' '));
-        if (uniqueItems.size != 12) continue;
-        didFindValidMnemoinc = true;
-        generatedMnemonic = newTry;
-      }
-    }
-
+    const generatedMnemonic = generateMnemonic(wordlist);
     const filtedMnemoinc = generatedMnemonic
       .split(' ')
       .filter(word => word.length > 2)
