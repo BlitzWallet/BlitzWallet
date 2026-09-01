@@ -240,7 +240,8 @@
       "terms&Conditions": "Bedingungen",
       "acceptSuffix": ".",
       "acceptError": "Um fortzufahren, müssen Sie die Allgemeinen Geschäftsbedingungen akzeptieren.",
-      "continueBTN": "Akzeptieren und fortfahren"
+      "continueBTN": "Akzeptieren und fortfahren",
+      "acceptPrefixManaged": "Ich verstehe, dass dieses Konto von jemand anderem verwaltet wird, und ich akzeptiere die"
     },
     "verifyKeyPage": {
       "header": "Bestätigen Sie bitte Ihre Wiederherstellungsphrase (Seed-Phrase)!"

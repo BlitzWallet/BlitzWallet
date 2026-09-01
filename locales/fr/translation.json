@@ -240,7 +240,8 @@
       "terms&Conditions": "Conditions",
       "acceptSuffix": ".",
       "acceptError": "Pour continuer, vous devez accepter les Conditions générales.",
-      "continueBTN": "Accepter et continuer"
+      "continueBTN": "Accepter et continuer",
+      "acceptPrefixManaged": "Je comprends que ce compte est géré par quelqu'un d'autre et j'accepte les"
     },
     "verifyKeyPage": {
       "header": "Confirmons votre phrase de semence !"
@@ -1126,14 +1127,10 @@
       "noPoolsTitle": "Aucun Pool Créé",
       "noPoolsSubTitle": "Une fois que vous avez créé un pool, il apparaîtra ici comme actif ou inactif."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"
-    },
     "cameraModal": {
       "noCamera": "Pas d'accès à l'appareil photo",
       "settingsText": "Allez dans les paramètres pour permettre à Blitz Wallet d'accéder à votre appareil photo.",
       "noCameraDevice": "Aucun appareil photo",
-      "noCameraDeviceSub": "Aucun appareil photo n'est disponible sur cet appareil.",
       "noFlash": " L'appareil n'est pas équipé d'une torche",
       "scanningResponse": "Seuls les codes QR sont acceptés.",
       "qrDecodeError": "Erreur de décodage du code QR",
@@ -1182,13 +1179,8 @@
         "sparkDesc": "Instantané, soutient les jetons",
         "sparkTitle": "Adresse de l'étincelle",
         "bitcoinTitle": "Adresse Bitcoin",
-        "lightningTitle": "Facture Lightning",
         "liquidTitle": "Adresse liquide",
         "rootstockTitle": "Adresse du porte-greffe"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Le changement de votre nom d'utilisateur met à jour la façon dont les autres vous trouvent dans Blitz Contacts et votre adresse Lightning (nom d'utilisateur @blitzwalletapp.com).\n\nUne adresse Lightning permet aux autres de vous envoyer facilement des bitcoins. Il vous suffit de partager votre adresse (username@blitzwalletapp.com) pour être payé.",
-        "usernameInputDesc": "Modifier le nom d'utilisateur"
       }
     },
     "sendPages": {
@@ -1292,10 +1284,6 @@
         "noTokensText": "Vous n'avez pas de jetons",
         "noTokensFoundText": "Aucun jeton trouvé"
       },
-      "manualEnterSendAddress": {
-        "title": "Entrer la destination",
-        "paymentTypesDesc": "Le portefeuille Blitz peut envoyer vers des adresses spark, des adresses bitcoin et des adresses/factures lightning."
-      },
       "sparkErrorScreen": {
         "connectionError": "Nous avons des difficultés à nous connecter à votre portefeuille. Veuillez nous informer de ce problème.\n\nN'oubliez pas que votre phrase d'initialisation assure la sécurité de vos fonds.",
         "retry": "Nous n'avons pas pu charger votre portefeuille pour le moment. Veuillez réessayer. \n\nVos fonds sont en sécurité tant que vous avez votre phrase d'initialisation."
@@ -1331,7 +1319,6 @@
       "recipientGets": "Le destinataire reçoit",
       "youSend": "Vous envoyez",
       "quoteExpiresIn": "Le devis expire dans",
-      "payWithLightning": "Payer avec Lightning",
       "payWithUSDb": "Payer avec USDb",
       "chainNotSupportedForAsset": "Non disponible sur ce réseau",
       "swapInProgress": "Échange en Cours",
@@ -1837,7 +1824,6 @@
       "chainSwapFee": "0,5 % de frais Blitz + 0,1 %+ de frais de plateforme",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % de frais Blitz + frais de réseau",
-      "roostock": "Rootstock <> BTC",
       "rootstockFee": "0,1 % de frais Boltz + frais de réseau",
       "accumulationType": "Adresses d'accumulation",
       "accumulationFee": "0,5 % de frais Blitz + 0,5 % de frais de plateforme",
@@ -1984,17 +1970,11 @@
         "inputPlaceHolderText": "Transfert de compte"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Cette phrase d'introduction existe déjà pour un autre compte",
         "editTitle": "Modifier le compte",
-        "createTitle_derived": "Créer un compte",
-        "createTitle_imported": "Importer un compte",
         "updateTitle": "Mise à jour du compte",
         "cannotDeleteActiveAccountError": "Vous ne pouvez pas supprimer le compte actif. Veuillez sélectionner un autre compte avant de le supprimer.",
         "deleteAccountConfirmation": "Êtes-vous sûr de vouloir supprimer ce compte ?",
-        "inputDesc": "Nom du compte",
-        "nameTakenError": "Ce nom est actuellement utilisé. Veuillez utiliser un autre nom de compte.",
-        "nameInputPlaceholder": "Nom...",
-        "seedHeader": "Phrase d'amorçage du compte"
+        "nameTakenError": "Ce nom est actuellement utilisé. Veuillez utiliser un autre nom de compte."
       },
       "viewAccountPage": {
         "informationMessage": "Êtes-vous sûr de vouloir afficher ce code QR ?\n\nScanner votre phrase de semence est pratique, mais assurez-vous d'utiliser un appareil sécurisé et de confiance. Cela permet de préserver la sécurité de votre portefeuille."
@@ -2933,8 +2913,6 @@
         "noName": "Marchand inconnu",
         "directions": "Itinéraire",
         "pay": "Payer",
-        "lightning": "Lightning",
-        "lightningMessage": "Accepte les paiements en bitcoin instantanément via le réseau Lightning",
         "dataMessage": "Données de {{source}}"
       },
       "filter": {
@@ -3018,7 +2996,6 @@
     "noDataInQRError": "Impossible d'obtenir des données de recherche à partir de l'image.",
     "noInvoiceInImageError": "Impossible d'obtenir une facture à partir de l'image.",
     "savingImageError": "Impossible d'enregistrer l'image, veuillez réessayer.",
-    "invalidSeedError": "Vous n'avez pas saisi une phrase de semence valide",
     "invalidSeedWordLengthErorr": "Tous les mots n'ont pas la même longueur",
     "invalidSeedLengthError": "Impossible de trouver 12 mots à partir d'une phrase copiée.",
     "noGooglePlay": "Les services Google Play sont nécessaires pour recevoir les notifications.",
@@ -3273,8 +3250,6 @@
         "subtitle": "Vous n’avez pas encore d’épargne ni de récompenses en Bitcoin à retirer."
       },
       "balanceLoadError": "Impossible de charger le portefeuille. Revenez en arrière et réessayez.",
-      "fromInterest": "Depuis vos intérêts",
-      "fromSavings": "Depuis votre épargne",
       "interestPaymentLabel": "Retrait d’intérêts",
       "chooseGoalTitle": "Retirer de l'argent depuis",
       "withdrawAll": "Tout retirer",
@@ -3289,9 +3264,6 @@
       "confirmSubtitle_goal": "Retirer de {{goalName}} vers votre {{destination}}",
       "confirmSubtitle_generalAll": "Tout retirer du solde objectif vers votre {{destination}}",
       "confirmSubtitle_general": "Retirer du solde objectif vers votre {{destination}}",
-      "youAreWithdrawingAll": "Tu retires toute ton épargne",
-      "youAreWithdrawing": "Tu retires",
-      "toYourBalance": "vers ton {{destination}}",
       "estimatedSats": "≈ {{sats}} après échange",
       "confirmButton": "Confirmer",
       "processing": "Retrait en cours…",

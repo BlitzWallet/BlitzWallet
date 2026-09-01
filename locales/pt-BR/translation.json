@@ -240,7 +240,8 @@
       "terms&Conditions": "Termos",
       "acceptSuffix": ".",
       "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
-      "continueBTN": "Aceitar e continuar"
+      "continueBTN": "Aceitar e continuar",
+      "acceptPrefixManaged": "Entendo que esta conta é gerenciada por outra pessoa e aceito os"
     },
     "verifyKeyPage": {
       "header": "Vamos confirmar seu backup!"
@@ -1126,14 +1127,10 @@
       "noPoolsTitle": "Nenhum Vaquinha criada",
       "noPoolsSubTitle": "Quando você criar uma Vaquinha, ela aparecerá aqui como aberta ou encerrada."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
-    },
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
       "noCameraDevice": "Nenhum dispositivo com câmera",
-      "noCameraDeviceSub": "Nenhuma câmera está disponível neste dispositivo.",
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Somente códigos QR são aceitos.",
       "qrDecodeError": "Erro ao decodificar o código QR",
@@ -1182,13 +1179,8 @@
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
-        "lightningTitle": "Endereço Blitz",
         "liquidTitle": "Endereço Liquid",
         "rootstockTitle": "Endereço Rootstock"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Alterar seu perfil atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (perfil@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem dinheiro facilmente. Basta compartilhar seu endereço (perfil@blitzwalletapp.com) para receber um pagamento.",
-        "usernameInputDesc": "Editar perfil"
       }
     },
     "sendPages": {
@@ -1292,10 +1284,6 @@
         "noTokensText": "Você não possui tokens",
         "noTokensFoundText": "Nenhum token encontrado"
       },
-      "manualEnterSendAddress": {
-        "title": "Digite o destino",
-        "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Blitz"
-      },
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase de recuperação mantém seus fundos seguros.",
         "retry": "Não foi possível carregar sua carteira. Por favor, tente novamente. \n\nSeus fundos estarão seguros enquanto você tiver sua frase de recuperação."
@@ -1331,7 +1319,6 @@
       "recipientGets": "Destinatário recebe",
       "youSend": "Você envia",
       "quoteExpiresIn": "Cotação expira em",
-      "payWithLightning": "Pagar com Bitcoin",
       "payWithUSDb": "Pagar com USDB",
       "chainNotSupportedForAsset": "Não disponível nesta rede",
       "swapInProgress": "Transação em andamento",
@@ -1837,8 +1824,6 @@
       "chainSwapFee": "0,5% de taxa da Blitz Wallet + 0,1%+ de taxa da Flashnet",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% de taxa da Blitz Wallet + taxas de rede",
-      "roostock": "Rootstock <> BTC",
-      "roostockFee": "0,1% de taxa da Boltz + taxas de rede",
       "accumulationType": "Conversão automática",
       "accumulationFee": "0,5% de taxa da Blitz Wallet + 0,5% de taxa da Flashnet",
       "othersType": "Outros",
@@ -1985,17 +1970,11 @@
         "inputPlaceHolderText": "Transferência entre contas"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Esta frase de recuperação já existe para outra conta",
         "editTitle": "Editar conta",
-        "createTitle_derived": "Criar conta",
-        "createTitle_imported": "Importar conta",
         "updateTitle": "Atualizar conta",
         "cannotDeleteActiveAccountError": "Não é possível remover a conta que está selecionada. Selecione outra conta antes de remover esta.",
         "deleteAccountConfirmation": "Tem certeza de que deseja remover esta conta?",
-        "inputDesc": "Nome da conta",
-        "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
-        "nameInputPlaceholder": "Nome...",
-        "seedHeader": "Frase de recuperação da conta"
+        "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente."
       },
       "viewAccountPage": {
         "informationMessage": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase de recuperação é conveniente, mas certifique-se de estar usando um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura."
@@ -2934,8 +2913,6 @@
         "noName": "Loja desconhecida",
         "directions": "Direções",
         "pay": "Pagar",
-        "lightning": "Bitcoin",
-        "lightningMessage": "Aceita pagamentos Bitcoin",
         "dataMessage": "Dados do {{source}}"
       },
       "filter": {
@@ -3019,7 +2996,6 @@
     "noDataInQRError": "Não foi possível encontrar dados da imagem.",
     "noInvoiceInImageError": "Não foi possível obter a fatura a partir da imagem.",
     "savingImageError": "Não foi possível salvar a imagem, tente novamente.",
-    "invalidSeedError": "Não foi inserida uma frase de recuperação válida",
     "invalidSeedWordLengthErorr": "Nem toda palavra tem comprimento válido",
     "invalidSeedLengthError": "Não foi possível encontrar 12 palavras da frase de recuperação copiada.",
     "noGooglePlay": "Os serviços do Google Play são necessários para receber notificações.",
@@ -3274,8 +3250,6 @@
         "subtitle": "Você não tem saldo nas Caixinhas ou recompensas em Bitcoin para resgatar"
       },
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
-      "fromInterest": "Das suas recompensas",
-      "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Resgate recompensas",
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
@@ -3290,9 +3264,6 @@
       "confirmSubtitle_goal": "Resgatar de {{goalName}} para seu {{destination}}",
       "confirmSubtitle_generalAll": "Resgatar tudo do saldo metas para seu {{destination}}",
       "confirmSubtitle_general": "Resgatar do saldo metas para seu {{destination}}",
-      "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
-      "youAreWithdrawing": "Você está resgatando",
-      "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando resgate…",

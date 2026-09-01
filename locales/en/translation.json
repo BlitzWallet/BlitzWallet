@@ -247,6 +247,7 @@
       "row3Description": "No one can recover it for you.",
       "readTerms": "Read full Terms & Privacy",
       "acceptPrefix": "I understand I'm solely responsible for my recovery phrase, and I agree to the",
+      "acceptPrefixManaged": "I understand this account is managed by someone else, and I agree to the",
       "terms&Conditions": "Terms",
       "acceptSuffix": ".",
       "acceptError": "Please accept the Terms & Conditions to continue.",

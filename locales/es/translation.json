@@ -240,7 +240,8 @@
       "terms&Conditions": "Términos",
       "acceptSuffix": ".",
       "acceptError": "Para continuar, debes aceptar los Términos y Condiciones.",
-      "continueBTN": "Aceptar y continuar"
+      "continueBTN": "Aceptar y continuar",
+      "acceptPrefixManaged": "Entiendo que esta cuenta es administrada por otra persona y acepto los"
     },
     "verifyKeyPage": {
       "header": "¡Confirmemos tu frase semilla!"
@@ -1126,14 +1127,10 @@
       "noPoolsTitle": "Sin Pools Creados",
       "noPoolsSubTitle": "Una vez que crees un pool, aparecerá aquí como activo o inactivo."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Introduce o pega una dirección/factura de Liquid o Lightning"
-    },
     "cameraModal": {
       "noCamera": "Sin acceso a la cámara",
       "settingsText": "Ve a configuración para permitir que Blitz Wallet acceda a tu cámara",
       "noCameraDevice": "Sin dispositivo de cámara",
-      "noCameraDeviceSub": "No hay ninguna cámara disponible en este dispositivo.",
       "noFlash": "El dispositivo no tiene linterna",
       "scanningResponse": "Solo se aceptan códigos QR.",
       "qrDecodeError": "Error al decodificar el código QR",
@@ -1182,13 +1179,8 @@
         "sparkDesc": "Instantáneo, admite tokens",
         "sparkTitle": "Dirección Spark",
         "bitcoinTitle": "Dirección Bitcoin",
-        "lightningTitle": "Factura Lightning",
         "liquidTitle": "Dirección Liquid",
         "rootstockTitle": "Dirección Rootstock"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Cambiar tu nombre de usuario actualiza cómo otros te encuentran en Blitz Contacts y tu dirección Lightning (usuario@blitzwalletapp.com).\n\nUna dirección Lightning permite que otros te envíen Bitcoin fácilmente. Solo comparte tu dirección (usuario@blitzwalletapp.com) para recibir pagos.",
-        "usernameInputDesc": "Editar nombre de usuario"
       }
     },
     "sendPages": {
@@ -1292,10 +1284,6 @@
         "noTokensText": "No tienes tokens",
         "noTokensFoundText": "No se encontraron tokens"
       },
-      "manualEnterSendAddress": {
-        "title": "Ingresar destino",
-        "paymentTypesDesc": "Blitz Wallet puede enviar a direcciones spark, en cadena, LNURL y BOLT 11"
-      },
       "sparkErrorScreen": {
         "connectionError": "Estamos teniendo problemas para conectar tu billetera. Por favor infórmanos sobre este problema.\n\nRecuerda, tu frase semilla mantiene tus fondos seguros.",
         "retry": "No pudimos cargar tu billetera en este momento. Intenta de nuevo.\n\nTus fondos están seguros mientras tengas tu frase semilla."
@@ -1331,7 +1319,6 @@
       "recipientGets": "El destinatario recibe",
       "youSend": "Tú envías",
       "quoteExpiresIn": "La cotización vence en",
-      "payWithLightning": "Pagar con Lightning",
       "payWithUSDb": "Pagar con USDb",
       "chainNotSupportedForAsset": "No disponible en esta red",
       "swapInProgress": "Intercambio en Proceso",
@@ -1834,8 +1821,6 @@
       "chainSwapFee": "0,5 % de comisión de Blitz + 0,1 %+ de comisión de plataforma",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % de comisión de Blitz + comisiones de red",
-      "roostock": "Roostock <> BTC",
-      "roostockFee": "0,1 % de comisión de Boltz + comisiones de red",
       "accumulationType": "Direcciones de acumulación",
       "accumulationFee": "0,5 % de comisión de Blitz + 0,5 % de comisión de plataforma",
       "othersType": "Otros",
@@ -1982,17 +1967,11 @@
         "inputPlaceHolderText": "Transferencia entre cuentas"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Esta frase semilla ya existe para otra cuenta",
         "editTitle": "Editar cuenta",
-        "createTitle_derived": "Crear cuenta",
-        "createTitle_imported": "Importar cuenta",
         "updateTitle": "Actualizar cuenta",
         "cannotDeleteActiveAccountError": "No puedes eliminar la cuenta activa. Por favor selecciona otra antes de borrarla.",
         "deleteAccountConfirmation": "¿Estás seguro de que quieres eliminar esta cuenta?",
-        "inputDesc": "Nombre de la cuenta",
-        "nameTakenError": "Este nombre ya está en uso. Por favor usa un nombre de cuenta diferente.",
-        "nameInputPlaceholder": "Nombre...",
-        "seedHeader": "Frase inicial de la cuenta"
+        "nameTakenError": "Este nombre ya está en uso. Por favor usa un nombre de cuenta diferente."
       },
       "viewAccountPage": {
         "informationMessage": "¿Estás seguro de que quieres mostrar este código QR?\n\nEscanear tu semilla es conveniente, pero asegúrate de usar un dispositivo seguro y confiable. Esto ayuda a mantener tu billetera segura."
@@ -2934,8 +2913,6 @@
         "noName": "Comercio desconocido",
         "directions": "Indicaciones",
         "pay": "Pagar",
-        "lightning": "Lightning",
-        "lightningMessage": "Acepta pagos en bitcoin instantáneamente a través de la red Lightning",
         "dataMessage": "Datos de {{source}}"
       },
       "filter": {
@@ -3019,7 +2996,6 @@
     "noDataInQRError": "No se pudo encontrar datos en la imagen.",
     "noInvoiceInImageError": "No se pudo obtener factura de la imagen.",
     "savingImageError": "No se pudo guardar la imagen, intenta de nuevo.",
-    "invalidSeedError": "No se ingresó una frase semilla válida",
     "invalidSeedWordLengthErorr": "No todas las palabras tienen una longitud válida",
     "invalidSeedLengthError": "No se pueden encontrar 12 palabras de la frase inicial copiada.",
     "noGooglePlay": "Se requieren los servicios de Google Play para recibir notificaciones.",
@@ -3274,8 +3250,6 @@
         "subtitle": "Todavía no tienes ahorros ni recompensas en Bitcoin para retirar."
       },
       "balanceLoadError": "No se pudo cargar la billetera. Regresa e inténtalo nuevamente.",
-      "fromInterest": "De tus intereses",
-      "fromSavings": "De tus ahorros",
       "interestPaymentLabel": "Retiro de intereses",
       "chooseGoalTitle": "Retirar dinero de",
       "withdrawAll": "Retirar todo",
@@ -3290,9 +3264,6 @@
       "confirmSubtitle_goal": "Retira de {{goalName}} a tu {{destination}}",
       "confirmSubtitle_generalAll": "Retira todo del saldo del objetivo a tu {{destination}}",
       "confirmSubtitle_general": "Retira del saldo del objetivo a tu {{destination}}",
-      "youAreWithdrawingAll": "Estás retirando todos tus ahorros",
-      "youAreWithdrawing": "Estás retirando",
-      "toYourBalance": "a tu {{destination}}",
       "estimatedSats": "≈ {{sats}} tras el cambio",
       "confirmButton": "Confirmar",
       "processing": "Procesando retiro…",

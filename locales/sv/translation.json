@@ -240,7 +240,8 @@
       "terms&Conditions": "Villkor",
       "acceptSuffix": ".",
       "acceptError": "För att fortsätta måste du acceptera Villkoren.",
-      "continueBTN": "Godkänn och fortsätt"
+      "continueBTN": "Godkänn och fortsätt",
+      "acceptPrefixManaged": "Jag förstår att detta konto hanteras av någon annan och godkänner"
     },
     "verifyKeyPage": {
       "header": "Låt oss bekräfta din fröfras!"
@@ -1126,14 +1127,10 @@
       "noPoolsTitle": "Inga skapade pooler",
       "noPoolsSubTitle": "När du skapar en pool visas den här som aktiv eller inaktiv."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
-    },
     "cameraModal": {
       "noCamera": "Ingen tillgång till kamera",
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
       "noCameraDevice": "Ingen kameraenhet",
-      "noCameraDeviceSub": "Ingen kamera finns tillgänglig på den här enheten.",
       "noFlash": " Enheten har inte en fackla",
       "scanningResponse": "Endast QR-koder accepteras.",
       "qrDecodeError": "Fel vid avkodning av QR-kod",
@@ -1182,13 +1179,8 @@
         "sparkDesc": "Omedelbar, stöder polletter",
         "sparkTitle": "Spark Adress",
         "bitcoinTitle": "Bitcoin-adress",
-        "lightningTitle": "Blixtfaktura",
         "liquidTitle": "Likvid adress",
         "rootstockTitle": "Rotstock Adress"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Om du ändrar ditt användarnamn uppdateras hur andra hittar dig i Blitz Contacts och din Lightning-adress (användarnamn @blitzwalletapp.com).\n\nMed en Lightning-adress kan andra enkelt skicka Bitcoin till dig. Dela bara din adress (username@blitzwalletapp.com) för att få betalt.",
-        "usernameInputDesc": "Redigera användarnamn"
       }
     },
     "sendPages": {
@@ -1292,10 +1284,6 @@
         "noTokensText": "Du har inga polletter",
         "noTokensFoundText": "Inga polletter hittades"
       },
-      "manualEnterSendAddress": {
-        "title": "Ange destination",
-        "paymentTypesDesc": "Blitz-plånboken kan skicka till spark-adresser, bitcoin-adresser och lightning-adresser/fakturor"
-      },
       "sparkErrorScreen": {
         "connectionError": "Vi har problem med att ansluta till din plånbok. Vänligen meddela oss om detta problem.\n\nKom ihåg att din seed-fras håller dina pengar säkra.",
         "retry": "Vi kunde inte ladda din plånbok just nu. Vänligen försök igen. \n\nDina pengar är säkra så länge du har din seed-fras."
@@ -1331,7 +1319,6 @@
       "recipientGets": "Mottagaren får",
       "youSend": "Du skickar",
       "quoteExpiresIn": "Offerten löper ut om",
-      "payWithLightning": "Betala med Lightning",
       "payWithUSDb": "Betala med USDb",
       "chainNotSupportedForAsset": "Inte tillgängligt i detta nätverk",
       "swapInProgress": "Byte pågår",
@@ -1837,8 +1824,6 @@
       "chainSwapFee": "0,5 % Blitz-avgift + 0,1 %+ plattformsavgift",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-avgift + nätverksavgifter",
-      "roostock": "Roostock <> BTC",
-      "roostockFee": "0,1 % Boltz-avgift + nätverksavgifter",
       "accumulationType": "Ackumuleringsadresser",
       "accumulationFee": "0,5 % Blitz-avgift + 0,5 % plattformsavgift",
       "othersType": "Övrigt",
@@ -1985,17 +1970,11 @@
         "inputPlaceHolderText": "Överföring av konto"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Denna seed phrase finns redan för ett annat konto",
         "editTitle": "Redigera konto",
-        "createTitle_derived": "Skapa konto",
-        "createTitle_imported": "Importera konto",
         "updateTitle": "Uppdatera konto",
         "cannotDeleteActiveAccountError": "Du kan inte radera det aktiva kontot. Välj ett annat konto innan du raderar det.",
         "deleteAccountConfirmation": "Är du säker på att du vill radera det här kontot?",
-        "inputDesc": "Kontots namn",
-        "nameTakenError": "Detta namn används för närvarande. Vänligen använd ett annat kontonamn.",
-        "nameInputPlaceholder": "Namn...",
-        "seedHeader": "Konto fröfras"
+        "nameTakenError": "Detta namn används för närvarande. Vänligen använd ett annat kontonamn."
       },
       "viewAccountPage": {
         "informationMessage": "Är du säker på att du vill visa den här QR-koden?\n\nAtt skanna din seed-fras är bekvämt, men se till att du använder en säker och betrodd enhet. Detta hjälper till att hålla din plånbok säker."
@@ -2934,8 +2913,6 @@
         "noName": "Okänd handlare",
         "directions": "Vägbeskrivning",
         "pay": "Betala",
-        "lightning": "Lightning",
-        "lightningMessage": "Tar emot bitcoinbetalningar direkt via Lightning-nätverket",
         "dataMessage": "Data från {{source}}"
       },
       "filter": {
@@ -3019,7 +2996,6 @@
     "noDataInQRError": "Det går inte att få fram sökdata från bilden.",
     "noInvoiceInImageError": "Kan inte hämta faktura från bild.",
     "savingImageError": "Det går inte att spara bilden, försök igen.",
-    "invalidSeedError": "Har inte angett en giltig fröfras",
     "invalidSeedWordLengthErorr": "Alla ord är inte av giltig längd",
     "invalidSeedLengthError": "Det gick inte att hitta 12 ord från kopierad fröfras.",
     "noGooglePlay": "Google Play Services krävs för att ta emot meddelanden.",
@@ -3274,8 +3250,6 @@
         "subtitle": "Du har ännu inga besparingar eller Bitcoin-belöningar att ta ut."
       },
       "balanceLoadError": "Det gick inte att ladda plånboken. Gå tillbaka och försök igen.",
-      "fromInterest": "Från din ränta",
-      "fromSavings": "Från ditt sparande",
       "interestPaymentLabel": "Ränteuttag",
       "chooseGoalTitle": "Ta ut pengar från",
       "withdrawAll": "Ta ut allt",
@@ -3290,9 +3264,6 @@
       "confirmSubtitle_goal": "Ta ut från {{goalName}} till ditt {{destination}}",
       "confirmSubtitle_generalAll": "Ta ut allt från målsaldot till ditt {{destination}}",
       "confirmSubtitle_general": "Ta ut från målsaldot till ditt {{destination}}",
-      "youAreWithdrawingAll": "Du tar ut alla dina besparingar",
-      "youAreWithdrawing": "Du tar ut",
-      "toYourBalance": "till din {{destination}}",
       "estimatedSats": "≈ {{sats}} efter byte",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar uttag…",
