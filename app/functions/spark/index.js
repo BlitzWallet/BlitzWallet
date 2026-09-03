@@ -961,8 +961,11 @@ export const isOptimizationInProgress = async ({ mnemonic }) => {
 
 /**
  * Extracts the hex-encoded identity public key from a Spark address string.
- * Uses SDK static utilities — no wallet instance required.
- * Lazy-loads the SDK (native only); WebView callers must await this.
+ * No wallet instance required — a pure decode.
+ *
+ * Runtime-split so the WebView path never evaluates @buildonspark/spark-sdk:
+ * on WebView we dispatch to the in-page bundle; on native we lazy-load the
+ * SDK's static utilities.
  * @param {string} address - A bech32m Spark address
  * @returns {Promise<string>} Hex-encoded secp256k1 compressed public key
  */
@@ -972,8 +975,24 @@ export const extractPubkeyFromSparkAddress = async address => {
       'extractPubkeyFromSparkAddress: address must be a non-empty string',
     );
   }
-  const { isValidSparkAddress, getNetworkFromSparkAddress, decodeSparkAddress } =
-    await getSparkAddressUtils();
+
+  if (!getIsNativeRuntime()) {
+    const response = await sendWebViewRequestGlobal(
+      OPERATION_TYPES.extractPubkeyFromSparkAddress,
+      { address },
+    );
+    const validated = validateWebViewResponse(
+      response,
+      `extractPubkeyFromSparkAddress: could not decode pubkey from: ${address}`,
+    );
+    return validated;
+  }
+
+  const {
+    isValidSparkAddress,
+    getNetworkFromSparkAddress,
+    decodeSparkAddress,
+  } = await getSparkAddressUtils();
   if (!isValidSparkAddress(address)) {
     throw new Error(
       `extractPubkeyFromSparkAddress: invalid Spark address: ${address}`,
@@ -1070,7 +1089,7 @@ export const fufillSparkInvoices = async ({ mnemonic, invoices = [] }) => {
     } else {
       const wallet = await getWallet(mnemonic);
       const fulfillResult = await wallet.fulfillSparkInvoice(invoices);
-      return { didWork: true, fulfillResult };
+      return { didWork: true, ...fulfillResult };
     }
   } catch (err) {
     console.log('generateSparkInvoiceFromAddress error', err);

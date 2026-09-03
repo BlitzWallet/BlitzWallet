@@ -72,6 +72,8 @@ export const OPERATION_TYPES = {
   querySparkHodlLightningPayments: 'querySparkHodlLightningPayments',
   isOptimizationInProgress: 'isOptimizationInProgress',
   querySparkInvoices: 'querySparkInvoices',
+  decodeSparkInvoice: 'decodeSparkInvoice',
+  extractPubkeyFromSparkAddress: 'extractPubkeyFromSparkAddress',
 
   // Flashnet
   initializeFlashnet: 'initializeFlashnet',

@@ -15,6 +15,7 @@ import {
 import { parseInput, InputTypes } from 'bitcoin-address-parser';
 import { decodeSparkInvoice } from '../../../../../functions/spark/decodeInvoices';
 import { deriveSparkAddress } from '../../../../../functions/gift/deriveGiftWallet';
+import buildSparkInvoiceDecode from './buildSparkInvoiceDecode';
 import { getSingleContact } from '../../../../../../db';
 import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 
@@ -254,46 +255,30 @@ export default async function decodeSendAddress(props) {
       btcAdress?.toLowerCase()?.startsWith('sp1p') ||
       btcAdress?.toLowerCase()?.startsWith('spark1')
     ) {
+      let decodedAddress = btcAdress;
+      let message;
+      let label;
+      let bip21Amount;
+
       if (btcAdress.startsWith('spark:')) {
         const processedAddress = decodeBip21Address(btcAdress, 'spark');
-
-        const decodeResponse = decodeSparkInvoice(processedAddress.address);
-
-        const sparkAddress = deriveSparkAddress(
-          Buffer.from(decodeResponse.identityPublicKey, 'hex'),
-        );
-
-        parsedInvoice = {
-          type: 'Spark',
-          address: {
-            address: sparkAddress.address,
-            message: processedAddress.options.message,
-            label: processedAddress.options.label,
-            network: 'Spark',
-            expectedReceive: decodeResponse.paymentType,
-            expectedToken: decodeResponse.tokenIdentifierBech32m,
-            amount: processedAddress.options.amount,
-          },
-        };
-      } else {
-        const decodeResponse = decodeSparkInvoice(btcAdress);
-        const sparkAddress = deriveSparkAddress(
-          Buffer.from(decodeResponse.identityPublicKey, 'hex'),
-        );
-
-        parsedInvoice = {
-          type: 'Spark',
-          address: {
-            address: sparkAddress.address,
-            message: null,
-            label: null,
-            network: 'Spark',
-            expectedReceive: decodeResponse.paymentType,
-            expectedToken: decodeResponse.tokenIdentifierBech32m,
-            amount: null,
-          },
-        };
+        decodedAddress = processedAddress.address;
+        message = processedAddress.options.message;
+        label = processedAddress.options.label;
+        bip21Amount = processedAddress.options.amount;
       }
+
+      const decodeResponse = await decodeSparkInvoice(decodedAddress);
+
+      parsedInvoice = {
+        type: 'Spark',
+        address: buildSparkInvoiceDecode({
+          decodeResponse,
+          label,
+          message,
+          bip21Amount,
+        }),
+      };
     }
 
     console.log(btcAdress, 'bitcoin address');
