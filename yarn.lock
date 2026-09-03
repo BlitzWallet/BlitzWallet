@@ -5555,7 +5555,7 @@ __metadata:
     babel-preset-expo: ~54.0.0
     bech32: ^2.0.0
     bip21: ^3.0.0
-    bitcoin-address-parser: ^1.0.9
+    bitcoin-address-parser: ^1.1.0
     boltz-core: ^5.0.0
     crypto-es: ^3.1.2
     eslint: ^8.19.0
@@ -6828,9 +6828,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoin-address-parser@npm:^1.0.9":
-  version: 1.0.9
-  resolution: "bitcoin-address-parser@npm:1.0.9"
+"bitcoin-address-parser@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "bitcoin-address-parser@npm:1.1.0"
   dependencies:
     base58-js: ^3.0.2
     bech32: ^2.0.0
@@ -6838,7 +6838,7 @@ __metadata:
     js-lnurl: ^0.6.0
     light-bolt11-decoder: ^3.2.0
     sha256-uint8array: ^0.10.7
-  checksum: 18248a269c409221bc5d53a5a2e604e0f7985be6b527c9ebce92796219d8a1ee2f900ab2f8e0f0084e39761081e530274a46f6f278af39b25981a8b23df1b481
+  checksum: 96e8c335288f9bbde83728b76d82172f82d8157a3efd67310958d0224c24e89bee45fc8cbc4b86a176499a738abc27f41abebcd949b8a7d9c72aaa68c5b59760
   languageName: node
   linkType: hard
 

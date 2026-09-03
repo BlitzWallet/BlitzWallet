@@ -81,6 +81,7 @@ export default async function decodeSendAddress(props) {
       throw new Error(
         t('wallet.sendPages.handlingAddressErrors.invalidFormat'),
       );
+    btcAdress = btcAdress.replace(/^mailto:/i, '');
 
     if (btcAdress.toLowerCase().startsWith('paylink://')) {
       const payLinkId = btcAdress.slice('paylink://'.length);
@@ -155,6 +156,7 @@ export default async function decodeSendAddress(props) {
       !isPhonePayment &&
       (btcAdress.startsWith('@') || isBlitzLNURLAddress(btcAdress))
     ) {
+      console.log('RUNNING HERE');
       let username = '';
 
       if (isBlitzLNURLAddress(btcAdress)) {
