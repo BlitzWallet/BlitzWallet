@@ -938,7 +938,7 @@
   },
   "wallet": {
     "halfModal": {
-      "sharePaylink": "Compartilhar meu link",
+      "sharePaylink": "Link de pagamento",
       "images": "Carregar imagem",
       "clipboard": "Área de transferência",
       "manual": "Digitar",
@@ -2419,9 +2419,9 @@
         "stablecoinsFeeMessage": "Para receber dólares digitais, aplica-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
-        "copyInvoice": "Copiar fatura",
+        "copyInvoice": "Copiar código",
         "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão recebidos em dólares",
-        "shareInvoice": "Compartilhar fatura",
+        "shareInvoice": "Link de pagamento",
         "walletNotConnected": "Carteira não conectada. Tente novamente.",
         "paylinkSaveError": "Falha ao salvar o link de pagamento",
         "receiveAsHeader": "Receber em",
