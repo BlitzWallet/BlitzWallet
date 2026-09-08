@@ -449,7 +449,9 @@ export default function BTCMapScreen() {
   }, [syncPlaces]);
 
   return (
-    <GlobalThemeView styles={{ paddingTop: 0, paddingBottom: 0 }}>
+    <GlobalThemeView
+      styles={{ paddingTop: 0, paddingBottom: 0, maxWidth: 'unset' }}
+    >
       <View style={styles.container}>
         {!isMapReady && (
           <FullLoadingScreen text={t('screens.btcMap.map.loadingMap')} />

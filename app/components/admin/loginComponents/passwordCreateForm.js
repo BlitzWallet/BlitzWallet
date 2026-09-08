@@ -1,5 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { createElement, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
+
+const AUTOSAVE_USERNAME = 'blitzwallet';
 import { SIZES } from '../../../constants';
 import { ThemeText } from '../../../functions/CustomElements';
 import CustomSearchInput from '../../../functions/CustomElements/searchInput';
@@ -9,7 +11,7 @@ import {
   MIN_PASSWORD_LENGTH,
   getPasswordStrength,
 } from '../../../functions/passwordStrength';
-import { WINDOWWIDTH } from '../../../constants/theme';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
 
 export default function PasswordCreateForm({
   headerText,
@@ -40,6 +42,27 @@ export default function PasswordCreateForm({
       {subtitleText ? (
         <ThemeText styles={styles.subtitle} content={subtitleText} />
       ) : null}
+
+      {/* Hidden username field so the browser saves the credential under
+          "blitzwallet" instead of guessing. Web only. */}
+      {Platform.OS === 'web'
+        ? createElement('input', {
+            type: 'text',
+            name: 'username',
+            autoComplete: 'username',
+            value: AUTOSAVE_USERNAME,
+            readOnly: true,
+            'aria-hidden': true,
+            tabIndex: -1,
+            style: {
+              position: 'absolute',
+              width: 1,
+              height: 1,
+              opacity: 0,
+              pointerEvents: 'none',
+            },
+          })
+        : null}
 
       <View style={styles.inputWrapper}>
         <CustomSearchInput
@@ -112,6 +135,7 @@ export default function PasswordCreateForm({
           textContent={buttonText}
           actionFunction={submit}
           disabled={!canSubmit}
+          buttonStyles={{ opacity: canSubmit ? 1 : HIDDEN_OPACITY }}
           useLoading={isSubmitting}
         />
       </View>

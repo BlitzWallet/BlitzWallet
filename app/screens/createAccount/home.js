@@ -9,7 +9,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import Svg, { Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { CENTER, COLORS, SIZES } from '../../constants';
+import { CENTER, COLORS, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
@@ -148,7 +148,7 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
   };
 
   return (
-    <GlobalThemeView>
+    <GlobalThemeView styles={{ maxWidth: 'unset' }}>
       <BoxGrid W={screenDimensions.width} H={screenDimensions.height} />
 
       <View style={styles.container}>
@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     ...CENTER,
   },
   heroWrap: {

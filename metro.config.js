@@ -9,6 +9,10 @@ const EMPTY_NATIVE = shim('empty-native-module.js');
 // resolver so the browser bundle never pulls a native-only package. This is
 // the mechanism that lets the ~400 RN UI files build unchanged.
 const WEB_STUBS = {
+  '@buildonspark/spark-sdk': path.resolve(
+    __dirname,
+    'node_modules/@buildonspark/spark-sdk/dist/index.browser.js',
+  ),
   'react-native-quick-crypto': shim('quick-crypto.js'),
   crypto: shim('quick-crypto.js'),
   '@react-native-firebase/app': shim('firebase-app.js'),
@@ -41,7 +45,9 @@ const WEB_STUBS = {
   'react-native-context-menu-view': EMPTY_NATIVE,
   'rn-qr-generator': EMPTY_NATIVE,
   'react-native-email-link': EMPTY_NATIVE,
-  'react-native-country-picker-modal': shim('react-native-country-picker-modal.js'),
+  'react-native-country-picker-modal': shim(
+    'react-native-country-picker-modal.js',
+  ),
   'react-native-tcp-socket': EMPTY_NATIVE,
   'react-native-nitro-image': EMPTY_NATIVE,
   'react-native-nitro-modules': EMPTY_NATIVE,
@@ -121,7 +127,7 @@ const config = {
       }
 
       if (platform === 'web' && WEB_STUBS[moduleName]) {
-        return {filePath: WEB_STUBS[moduleName], type: 'sourceFile'};
+        return { filePath: WEB_STUBS[moduleName], type: 'sourceFile' };
       }
       // Sub-path imports like 'react-native-country-picker-modal/lib/CountryService'
       // don't match WEB_STUBS exactly — handle any sub-path of the country picker
