@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { TriangleAlert } from 'lucide-react-native';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useAnalyticsNumbers } from '../../../../../../context-store/analyticsContext';
 import { CENTER, COLORS, SIZES } from '../../../../../constants';
@@ -59,7 +59,11 @@ export default function BudgetWarningModal({
     <View style={[styles.sheet]}>
       {/* Icon */}
       <View style={styles.iconContainer}>
-        <TriangleAlert color={accentColor} size={40} />
+        <ThemeIcon
+          iconName={'TriangleAlert'}
+          colorOverride={accentColor}
+          size={40}
+        />
       </View>
 
       {/* Header */}

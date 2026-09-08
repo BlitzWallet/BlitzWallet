@@ -1,7 +1,23 @@
 import { useMemo } from 'react';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import * as LucidIcons from 'lucide-react-native';
 import { COLORS } from '../../constants';
+import lucideIconFile from './lucideIconFile';
+import lucideIcon from './lucideIcons';
+
+function loadIcon(iconName) {
+  const fileName = lucideIconFile(iconName);
+  if (!fileName) return null;
+  try {
+    return lucideIcon(fileName);
+  } catch {
+    if (__DEV__) {
+      console.warn(
+        `ThemeIcon: no lucide icon for "${iconName}" (looked for ${fileName}.js)`,
+      );
+    }
+    return null;
+  }
+}
 
 export default function ThemeIcon({
   iconName,
@@ -15,7 +31,7 @@ export default function ThemeIcon({
 
   // Determine which icon to render based on theme
   const IconComponent = useMemo(() => {
-    return LucidIcons[iconName];
+    return loadIcon(iconName);
   }, [theme, darkModeType, iconName]);
 
   // Determine the color tint

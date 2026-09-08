@@ -9,7 +9,6 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
-import ThemeImage from '../functions/CustomElements/themeImage';
 import { COLORS, ICONS } from '../constants';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { SIZES, WINDOWWIDTH } from '../constants/theme';
@@ -17,7 +16,6 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
-import { ArrowUpDown } from 'lucide-react-native';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import ThemeIcon from '../functions/CustomElements/themeIcon';
 
@@ -154,11 +152,13 @@ export function Toast({
                 iconName={'Info'}
               />
             ) : toast.type === 'handleSwap' ? (
-              <ArrowUpDown
-                style={{ marginRight: 15 }}
-                color={
+              <ThemeIcon
+                colorOverride={
                   theme && darkModeType ? COLORS.lightModeText : COLORS.primary
                 }
+                size={25}
+                styles={{ marginRight: 15 }}
+                iconName={'ArrowUpDown'}
               />
             ) : toast.type === 'error' ? (
               <ThemeIcon
