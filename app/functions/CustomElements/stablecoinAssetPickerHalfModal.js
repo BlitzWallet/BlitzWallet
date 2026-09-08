@@ -6,7 +6,7 @@ import { ThemeText } from '.';
 import GetThemeColors from '../../hooks/themeColors';
 import { CENTER, ICONS, SIZES } from '../../constants';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { ChevronRight } from 'lucide-react-native';
+import ThemeIcon from './themeIcon';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { useTranslation } from 'react-i18next';
 
@@ -110,11 +110,13 @@ export default function StablecoinAssetPickerHalfModal({
               )}
             </View>
             {!isUnsupported && (
-              <ChevronRight
-                size={20}
-                color={textColor}
-                style={{ opacity: 0.5 }}
-              />
+              <View style={{ opacity: 0.5 }}>
+                <ThemeIcon
+                  iconName={'ChevronRight'}
+                  size={20}
+                  colorOverride={textColor}
+                />
+              </View>
             )}
           </>
         );

@@ -32,6 +32,7 @@ export default function ConfirmSMSReceiveCode(props) {
     title,
     location,
     imgSrc,
+    handleBackPressFunction,
   } = props;
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
@@ -40,13 +41,15 @@ export default function ConfirmSMSReceiveCode(props) {
   console.log(serviceCode);
 
   const onSwipeSuccess = useCallback(() => {
-    navigate.goBack();
-    requestAnimationFrame(() => {
+    handleBackPressFunction(() => {
+      navigate.goBack();
       requestAnimationFrame(() => {
-        getReceiveCode(invoiceInformation);
+        requestAnimationFrame(() => {
+          getReceiveCode(invoiceInformation);
+        });
       });
     });
-  }, [invoiceInformation]);
+  }, [getReceiveCode, handleBackPressFunction, invoiceInformation, navigate]);
 
   useEffect(() => {
     let mounted = true;

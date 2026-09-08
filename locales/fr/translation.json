@@ -240,7 +240,8 @@
       "terms&Conditions": "Conditions",
       "acceptSuffix": ".",
       "acceptError": "Pour continuer, vous devez accepter les Conditions générales.",
-      "continueBTN": "Accepter et continuer"
+      "continueBTN": "Accepter et continuer",
+      "acceptPrefixManaged": "Je comprends que ce compte est géré par quelqu'un d'autre et j'accepte les"
     },
     "verifyKeyPage": {
       "header": "Confirmons votre phrase de semence !"

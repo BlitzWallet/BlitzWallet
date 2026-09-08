@@ -15,6 +15,7 @@ export default function LRC20AssetSelectorHalfModal({
   theme,
   darkModeType,
   slideHeight,
+  handleBackPressFunction,
 }) {
   const { t } = useTranslation();
   const { sparkInformation } = useSparkWallet();
@@ -31,13 +32,15 @@ export default function LRC20AssetSelectorHalfModal({
   };
 
   const selectToken = token => {
-    navigate.popTo(
-      'ConfirmPaymentScreen',
-      { selectedLRC20Asset: token },
-      {
-        merge: true,
-      },
-    );
+    handleBackPressFunction(() => {
+      navigate.popTo(
+        'ConfirmPaymentScreen',
+        { selectedLRC20Asset: token },
+        {
+          merge: true,
+        },
+      );
+    });
   };
 
   const filteredData = [

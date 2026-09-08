@@ -2,13 +2,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useCallback, useMemo } from 'react';
 
-import { Gift, Home, Store, Users2 } from 'lucide-react-native';
-
 import { CENTER, COLORS } from '../../app/constants';
 import GetThemeColors from '../../app/hooks/themeColors';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContactsMessages } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
+import ThemeIcon from '../../app/functions/CustomElements/themeIcon';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,19 +19,19 @@ const ICON_SIZE = 26;
 function renderIcon(label, focused, color) {
   const props = {
     size: ICON_SIZE,
-    color,
+    colorOverride: color,
     strokeWidth: focused ? 2.4 : 2,
   };
 
   switch (label) {
     case 'Contacts':
-      return <Users2 {...props} />;
+      return <ThemeIcon iconName={'Users2'} {...props} />;
     case 'Home':
-      return <Home {...props} />;
+      return <ThemeIcon iconName={'Home'} {...props} />;
     case 'App Store':
-      return <Store {...props} />;
+      return <ThemeIcon iconName={'Store'} {...props} />;
     default:
-      return <Gift {...props} />;
+      return <ThemeIcon iconName={'Gift'} {...props} />;
   }
 }
 

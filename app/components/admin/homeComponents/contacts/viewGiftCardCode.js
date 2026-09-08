@@ -30,6 +30,7 @@ export default function ViewGiftCardCodePage({
   giftCardInfo,
   isOutgoingPayment,
   message,
+  handleBackPressFunction,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const [codeInformation, setCodeInformation] = useState(null);
@@ -52,16 +53,32 @@ export default function ViewGiftCardCodePage({
         if (cardData) {
           setCodeInformation(cardData);
         } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('contacts.viewGiftCardCode.noCardInfoError'),
+          handleBackPressFunction(() => {
+            navigate.goBack();
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('contacts.viewGiftCardCode.noCardInfoError'),
+            });
           });
         }
       } catch (err) {
         console.error('Error loading gift card:', err);
+        handleBackPressFunction(() => {
+          navigate.goBack();
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('contacts.viewGiftCardCode.noCardInfoError'),
+          });
+        });
       }
     }
     getCardInformation();
-  }, [giftCardInfo?.invoice, contactsPrivateKey, publicKey]);
+  }, [
+    giftCardInfo?.invoice,
+    contactsPrivateKey,
+    publicKey,
+    handleBackPressFunction,
+    navigate,
+    t,
+  ]);
 
   const handleClaimPress = () => {
     if (codeInformation?.claimData?.claimLink) {
@@ -81,8 +98,11 @@ export default function ViewGiftCardCodePage({
     if (response) {
       setCodeInformation(newData);
     } else {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('errormessages.genericError'),
+      handleBackPressFunction(() => {
+        navigate.goBack();
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.genericError'),
+        });
       });
     }
   };

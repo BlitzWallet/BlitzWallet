@@ -240,7 +240,8 @@
       "terms&Conditions": "Villkor",
       "acceptSuffix": ".",
       "acceptError": "För att fortsätta måste du acceptera Villkoren.",
-      "continueBTN": "Godkänn och fortsätt"
+      "continueBTN": "Godkänn och fortsätt",
+      "acceptPrefixManaged": "Jag förstår att detta konto hanteras av någon annan och godkänner"
     },
     "verifyKeyPage": {
       "header": "Låt oss bekräfta din fröfras!"

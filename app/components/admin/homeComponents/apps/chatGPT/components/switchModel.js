@@ -12,6 +12,7 @@ import { useGlobalInsets } from '../../../../../../../context-store/insetsProvid
 export default function SwitchGenerativeAIModel({
   setSelectedRecieveOption,
   setIsKeyboardActive,
+  handleBackPressFunction,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -25,10 +26,12 @@ export default function SwitchGenerativeAIModel({
 
   const handleClick = useCallback(
     selectedOption => {
-      setSelectedRecieveOption(selectedOption);
-      navigate.goBack();
+      handleBackPressFunction(() => {
+        navigate.goBack();
+        setSelectedRecieveOption(selectedOption);
+      });
     },
-    [navigate, setSelectedRecieveOption],
+    [handleBackPressFunction, navigate, setSelectedRecieveOption],
   );
 
   const filteredList = models.filter(item =>

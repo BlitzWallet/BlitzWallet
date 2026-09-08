@@ -19,9 +19,12 @@ function withReset(promise, slot) {
   const wrappedPromise = promise.catch(err => {
     // Allow retry after a transient load failure
     if (slot === 'sdk' && sdkPromise === wrappedPromise) sdkPromise = null;
-    if (slot === 'types' && typesPromise === wrappedPromise) typesPromise = null;
-    if (slot === 'proto' && protoPromise === wrappedPromise) protoPromise = null;
-    if (slot === 'native' && nativePromise === wrappedPromise) nativePromise = null;
+    if (slot === 'types' && typesPromise === wrappedPromise)
+      typesPromise = null;
+    if (slot === 'proto' && protoPromise === wrappedPromise)
+      protoPromise = null;
+    if (slot === 'native' && nativePromise === wrappedPromise)
+      nativePromise = null;
     throw err;
   });
   return wrappedPromise;
@@ -65,7 +68,9 @@ export function loadSparkTypes() {
           resolve(mod);
         } catch (e) {
           try {
-            import('@buildonspark/spark-sdk/types').then(resolve, () => reject(e));
+            import('@buildonspark/spark-sdk/types').then(resolve, () =>
+              reject(e),
+            );
           } catch {
             reject(e);
           }
@@ -87,7 +92,9 @@ export function loadSparkProto() {
           resolve(mod);
         } catch (e) {
           try {
-            import('@buildonspark/spark-sdk/proto/spark').then(resolve, () => reject(e));
+            import('@buildonspark/spark-sdk/proto/spark').then(resolve, () =>
+              reject(e),
+            );
           } catch {
             reject(e);
           }
@@ -109,7 +116,9 @@ export function loadSparkNative() {
           resolve(mod);
         } catch (e) {
           try {
-            import('@buildonspark/spark-sdk/native').then(resolve, () => reject(e));
+            import('@buildonspark/spark-sdk/native').then(resolve, () =>
+              reject(e),
+            );
           } catch {
             reject(e);
           }
@@ -133,6 +142,7 @@ export async function getSparkAddressUtils() {
     isValidSparkAddress: m.isValidSparkAddress,
     getNetworkFromSparkAddress: m.getNetworkFromSparkAddress,
     decodeSparkAddress: m.decodeSparkAddress,
+    encodeBech32mTokenIdentifier: m.encodeBech32mTokenIdentifier,
     bech32mDecode: m.bech32mDecode,
     getLatestDepositTxId: m.getLatestDepositTxId,
   };

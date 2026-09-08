@@ -32,7 +32,7 @@ import { useNodeContext } from '../../../../../../../context-store/nodeContext';
 const PRESET_AMOUNTS = [2000, 5000, 10000, 25000, 50000];
 
 export default function ConfirmChatGPTPage(props) {
-  const { setBackNav } = props;
+  const { setBackNav, handleBackPressFunction } = props;
   const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -174,12 +174,19 @@ export default function ConfirmChatGPTPage(props) {
   }, [currentPage]);
 
   const onSwipeSuccess = useCallback(() => {
-    navigate.popTo('AppStorePageIndex', {
-      page: 'ai',
-      purchaseCredits: true,
-      invoiceInformation: { ...invoiceInformation, selectedAmountSats },
+    handleBackPressFunction(() => {
+      navigate.popTo('AppStorePageIndex', {
+        page: 'ai',
+        purchaseCredits: true,
+        invoiceInformation: { ...invoiceInformation, selectedAmountSats },
+      });
     });
-  }, [invoiceInformation, selectedAmountSats]);
+  }, [
+    handleBackPressFunction,
+    invoiceInformation,
+    navigate,
+    selectedAmountSats,
+  ]);
 
   const renderButton = item => {
     if (item.isCustomButton) {

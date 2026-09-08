@@ -240,7 +240,8 @@
       "terms&Conditions": "Termini",
       "acceptSuffix": ".",
       "acceptError": "Per continuare, devi accettare i Termini e Condizioni.",
-      "continueBTN": "Accetta e continua"
+      "continueBTN": "Accetta e continua",
+      "acceptPrefixManaged": "Comprendo che questo account è gestito da un'altra persona e accetto i"
     },
     "verifyKeyPage": {
       "header": "¡Confirmemos tu frase semilla!"

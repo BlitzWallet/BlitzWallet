@@ -43,7 +43,7 @@ export default function WalletSetupFork() {
       onPress: () => {
         crashlyticsLogReport('Navigating to restore from wallet setup fork');
         removeLocalStorageItem(PENDING_PARENT_CONTACT_KEY);
-        navigate.navigate('RestoreWallet');
+        navigate.navigate('DisclaimerPage', { nextPage: 'RestoreWallet' });
       },
     },
   ];

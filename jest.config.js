@@ -23,5 +23,10 @@ module.exports = {
   ],
   transformIgnorePatterns: [`node_modules/(?!(${esModules})/)`],
   // Global mocks shared by every test (e.g. Firebase native modules).
+  // lucideIcons.js uses Metro's require.context, which jest has no equivalent
+  // for; the mock resolves the same icon files through a plain require.
+  moduleNameMapper: {
+    '^\\./lucideIcons$': '<rootDir>/__mocks__/lucideIcons.js',
+  },
   setupFiles: ['<rootDir>/jest.setup.js'],
 };
