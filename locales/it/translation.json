@@ -1757,7 +1757,8 @@
       "refunded": "Rimborsato",
       "rootstockTx": "Tx Rootstock",
       "lockTx": "Tx di blocco",
-      "refundTx": "Tx di rimborso"
+      "refundTx": "Tx di rimborso",
+      "refundError": "Rimborso non riuscito. Riprova o contatta l’assistenza."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Riscansione completa",

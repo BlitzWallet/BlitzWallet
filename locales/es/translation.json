@@ -1754,7 +1754,8 @@
       "refunded": "Reembolsado",
       "rootstockTx": "Tx de Rootstock",
       "lockTx": "Tx de bloqueo",
-      "refundTx": "Tx de reembolso"
+      "refundTx": "Tx de reembolso",
+      "refundError": "El reembolso falló. Inténtalo de nuevo o contacta con soporte."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Reescan completo",

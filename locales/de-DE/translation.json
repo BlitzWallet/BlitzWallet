@@ -1757,7 +1757,8 @@
       "refunded": "Erstattet",
       "rootstockTx": "Rootstock-Tx",
       "lockTx": "Sperr-Tx",
-      "refundTx": "Rückerstattungs-Tx"
+      "refundTx": "Rückerstattungs-Tx",
+      "refundError": "Rückerstattung fehlgeschlagen. Bitte erneut versuchen oder den Support kontaktieren."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Neu scannen abgeschlossen",

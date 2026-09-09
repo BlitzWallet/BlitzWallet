@@ -1757,7 +1757,8 @@
       "refunded": "Remboursé",
       "rootstockTx": "Tx Rootstock",
       "lockTx": "Tx de verrouillage",
-      "refundTx": "Tx de remboursement"
+      "refundTx": "Tx de remboursement",
+      "refundError": "Le remboursement a échoué. Réessayez ou contactez le support."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan terminé",

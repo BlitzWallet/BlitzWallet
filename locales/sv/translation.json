@@ -1757,7 +1757,8 @@
       "refunded": "Återbetald",
       "rootstockTx": "Rootstock-Tx",
       "lockTx": "Låsnings-Tx",
-      "refundTx": "Återbetalnings-Tx"
+      "refundTx": "Återbetalnings-Tx",
+      "refundError": "Återbetalningen misslyckades. Försök igen eller kontakta supporten."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Återskanning slutförd",

@@ -1757,7 +1757,8 @@
       "refunded": "Возвращено",
       "rootstockTx": "Tx Rootstock",
       "lockTx": "Tx блокировки",
-      "refundTx": "Tx возврата"
+      "refundTx": "Tx возврата",
+      "refundError": "Не удалось выполнить возврат. Повторите попытку или обратитесь в поддержку."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Повторное сканирование завершено",

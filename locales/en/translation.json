@@ -1918,7 +1918,8 @@
       "refunded": "Refunded",
       "rootstockTx": "Rootstock Tx",
       "lockTx": "Lock Tx",
-      "refundTx": "Refund Tx"
+      "refundTx": "Refund Tx",
+      "refundError": "Refund failed. Please try again or contact support."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",

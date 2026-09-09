@@ -16,6 +16,10 @@ import { copyToClipboard } from '../../../../../functions';
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { getRootstockSwapStatusLabel } from '../../../../../functions/boltz/rootstock/swapProgress';
+import {
+  isRootstockSwapPendingRefund,
+  isRootstockSwapTerminalFailureStatus,
+} from '../../../../../functions/boltz/rootstock/swapStatus';
 
 const EMPTY_VALUE = '--';
 
@@ -41,6 +45,12 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const [isRefunding, setIsRefunding] = useState(false);
   const { showToast } = useToast();
   const { t } = useTranslation();
+
+  const showRefundError = () =>
+    showToast({
+      type: 'error',
+      title: t('settings.rootstockSwapInfo.refundError'),
+    });
 
   const data = swap?.data || {};
   const status = data?.status;
@@ -93,7 +103,14 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const cardBackground =
     theme && darkModeType ? backgroundColor : backgroundOffset;
 
-  const canRefund = data?.didSwapFail && !data?.refundTxHash;
+  // Also cover swaps the disabled retry loop used to re-drive: a failed refund
+  // leaves refundState 'retryable_error' without didSwapFail, and a swap that
+  // never reached the lifecycle handler has neither.
+  const canRefund =
+    !data?.refundTxHash &&
+    (data?.didSwapFail ||
+      isRootstockSwapPendingRefund(swap) ||
+      isRootstockSwapTerminalFailureStatus(status));
 
   return (
     <View style={styles.container}>
@@ -188,8 +205,10 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
                 Wallet.fromPhrase(accountMnemoinc).connect(provider);
               const response = await refundRootstockSubmarineSwap(swap, signer);
               if (response) handleBackPressFunction();
+              else showRefundError();
             } catch (err) {
               console.log('Error preparing rootstock refund', err);
+              showRefundError();
             } finally {
               provider?.destroy();
               setIsRefunding(false);
