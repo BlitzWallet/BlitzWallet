@@ -10,8 +10,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-// import { useRootstockProvider } from '../../../../../../context-store/rootstockSwapContext';
-// import { refundRootstockSubmarineSwap } from '../../../../../functions/boltz/rootstock/claims';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../../functions';
 import { useTranslation } from 'react-i18next';
@@ -38,8 +37,7 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
-  // const { signer } = useRootstockProvider();
-  const signer = null;
+  const { accountMnemoinc } = useKeysContext();
   const [isRefunding, setIsRefunding] = useState(false);
   const { showToast } = useToast();
   const { t } = useTranslation();
@@ -95,8 +93,7 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const cardBackground =
     theme && darkModeType ? backgroundColor : backgroundOffset;
 
-  // const canRefund = data?.didSwapFail && !data?.refundTxHash;
-  const canRefund = false;
+  const canRefund = data?.didSwapFail && !data?.refundTxHash;
 
   return (
     <View style={styles.container}>
@@ -154,13 +151,49 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
       {canRefund && (
         <CustomButton
           actionFunction={async () => {
-            // setIsRefunding(true);
-            // const response = await refundRootstockSubmarineSwap(swap, signer);
-            // await new Promise(res => setTimeout(res, 3000));
-            // setIsRefunding(false);
-            // if (response) handleBackPressFunction();
-            // ROOTSTOCK DISABLED: refund flow commented. Original kept above.
-            setIsRefunding(false);
+            if (isRefunding) return;
+            setIsRefunding(true);
+            let provider;
+            try {
+              // Load Rootstock only for a user-requested refund.
+              const {
+                FallbackProvider,
+                JsonRpcProvider,
+                Wallet,
+              } = require('ethers');
+              const {
+                getRoostockProviderEndpoints,
+                getRoostockProviderNetwork,
+                rootstockEnvironment,
+              } = require('../../../../../functions/boltz/rootstock');
+              const {
+                refundRootstockSubmarineSwap,
+              } = require('../../../../../functions/boltz/rootstock/claims');
+              const network = getRoostockProviderNetwork(rootstockEnvironment);
+              const providers = getRoostockProviderEndpoints(
+                rootstockEnvironment,
+              ).map((endpoint, index) => ({
+                provider: new JsonRpcProvider(endpoint, network, {
+                  staticNetwork: true,
+                }),
+                priority: index + 1,
+                weight: 1,
+                stallTimeout: 2000,
+              }));
+              provider =
+                providers.length === 1
+                  ? providers[0].provider
+                  : new FallbackProvider(providers, network, { quorum: 1 });
+              const signer =
+                Wallet.fromPhrase(accountMnemoinc).connect(provider);
+              const response = await refundRootstockSubmarineSwap(swap, signer);
+              if (response) handleBackPressFunction();
+            } catch (err) {
+              console.log('Error preparing rootstock refund', err);
+            } finally {
+              provider?.destroy();
+              setIsRefunding(false);
+            }
           }}
           buttonStyles={styles.refundButton}
           textContent={t('settings.rootstockSwapInfo.refundSwap')}
