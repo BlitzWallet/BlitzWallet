@@ -39,6 +39,8 @@ import { isEncryptedMnemonicFormat } from './app/functions/handleMnemonic';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
+import LegacyWebMigration from './app/screens/createAccount/legacyWebMigration';
+import { LEGACY_WALLET_KEY } from './app/functions/legacyWebMigration';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -191,10 +193,12 @@ function ResetStack(): JSX.Element | null {
   const [initSettings, setInitSettings] = useState<{
     isLoggedIn: boolean | null;
     hasSecurityEnabled: boolean | null;
+    needsLegacyMigration: boolean;
     isLoaded: boolean | null;
   }>({
     isLoggedIn: null,
     hasSecurityEnabled: null,
+    needsLegacyMigration: false,
     isLoaded: null,
   });
   const [securitySettings, setSecuritySettings] = useState<any>(null);
@@ -569,6 +573,7 @@ function ResetStack(): JSX.Element | null {
         mnemonic,
         securitySettings,
         resolvedLanguage,
+        legacyWalletKey,
       ] = await Promise.all([
         skipURL ? Promise.resolve() : getInitialURL(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
@@ -578,6 +583,11 @@ function ResetStack(): JSX.Element | null {
         // Language resolution runs alongside the other reads so it adds no
         // serial cold-start time.
         resolveUserLanguage(),
+        // Seed left behind by the legacy blitz-web-app, in this origin's
+        // localStorage. Native never wrote this key.
+        Platform.OS === 'web'
+          ? getLocalStorageItem(LEGACY_WALLET_KEY)
+          : Promise.resolve(null),
       ]);
 
       crashlyticsLogReport('initWallet: read secure store + local settings');
@@ -655,9 +665,13 @@ function ResetStack(): JSX.Element | null {
       setInitSettings(prev => {
         const isLoggedIn = !!pin.value && !!mnemonic.value;
         const hasSecurityEnabled = parsedSettings.isSecurityEnabled;
+        // Only offer the migration to a browser with no wallet of its own — a
+        // user who already onboarded here keeps the wallet they onboarded with.
+        const needsLegacyMigration = !!legacyWalletKey && !isLoggedIn;
         if (
           prev.isLoggedIn === isLoggedIn &&
           prev.hasSecurityEnabled === hasSecurityEnabled &&
+          prev.needsLegacyMigration === needsLegacyMigration &&
           prev.isLoaded
         )
           return prev;
@@ -665,6 +679,7 @@ function ResetStack(): JSX.Element | null {
           ...prev,
           isLoggedIn,
           hasSecurityEnabled,
+          needsLegacyMigration,
           // Settings are now resolved — unblock the render gate below. Until this
           // is true the navigator stays unmounted so Home never mounts with the
           // wrong (still-loading) component. This is the login race-condition fix.
@@ -734,8 +749,13 @@ function ResetStack(): JSX.Element | null {
         ? AdminLogin
         : ConnectingToNodeLoadingScreen;
     }
+    if (initSettings.needsLegacyMigration) return LegacyWebMigration;
     return CreateAccountHome;
-  }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
+  }, [
+    initSettings.isLoggedIn,
+    initSettings.hasSecurityEnabled,
+    initSettings.needsLegacyMigration,
+  ]);
 
   if (theme === null || darkModeType === null || !initSettings.isLoaded) {
     return null;
