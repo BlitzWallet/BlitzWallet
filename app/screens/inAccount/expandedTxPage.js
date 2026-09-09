@@ -307,12 +307,12 @@ export default function ExpandedTx(props) {
 
     try {
       await openComposer({
-        to: 'blake@blitzwalletapp.com',
+        to: 'support@blitzwalletapp.com',
         subject: 'Failed Payment Support',
         body,
       });
     } catch {
-      copyToClipboard('blake@blitzwalletapp.com', showToast, null);
+      copyToClipboard('support@blitzwalletapp.com', showToast, null);
     }
   };
 

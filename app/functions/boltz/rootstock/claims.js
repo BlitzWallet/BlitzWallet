@@ -76,6 +76,11 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       );
     }
 
+    // Wait for the receipt before recording success: a reverted or dropped tx
+    // must leave the swap refundable (the retry loop that used to re-drive it
+    // is disabled), and throwing here routes to persistRefundError below.
+    await tx.wait();
+
     console.log(`Refunded RBTC tx: ${tx.hash}`);
 
     if (tx) {

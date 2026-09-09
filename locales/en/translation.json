@@ -1051,7 +1051,8 @@
       "depositFeePopup_bitcoin": "Bitcoin sent to this address will cost a small network fee to recieve. The fee is taken out of the amount you receive, so your balance may show slightly less than what was sent.",
       "depositFeePopup_liquid": "Liquid Bitcoin sent to this address is converted into Bitcoin your wallet can use. The conversion costs a small fee, which is taken out of the amount you receive.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin sent to this address is converted into Bitcoin your wallet can use. The conversion costs a small fee, which is taken out of the amount you receive.",
-      "depositFeePopup_stablecoins": "Stablecoins sent to this address are converted into dollars in your wallet. A small conversion fee of about 1% is taken out of the amount you receive."
+      "depositFeePopup_stablecoins": "Stablecoins sent to this address are converted into dollars in your wallet. A small conversion fee of about 1% is taken out of the amount you receive.",
+      "depositFeePopup_accumulation_bitcoin": "Bitcoin sent to this address is converted into bitcoin your wallet can use. A small conversion fee of about 1% is taken out of the amount you receive."
     },
     "payLinks": {
       "skip": "Skip",
@@ -1946,7 +1947,8 @@
       "refunded": "Refunded",
       "rootstockTx": "Rootstock Tx",
       "lockTx": "Lock Tx",
-      "refundTx": "Refund Tx"
+      "refundTx": "Refund Tx",
+      "refundError": "Refund failed. Please try again or contact support."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",
@@ -1963,7 +1965,10 @@
       "swap": "Transfer",
       "rescanning": "Scanning…",
       "autoClaimLabel": "Auto-Claim",
-      "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached."
+      "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached.",
+      "unsupportedTitle": "We no longer support {{type}}",
+      "unsupportedDesc": "If you still have funds on {{type}}, restore your Blitz recovery phrase in a compatible wallet to access them. Need help? Contact us below.",
+      "contactUs": "Contact us"
     },
     "notifications": {
       "mainToggle_enabled": "Enabled notifications",
