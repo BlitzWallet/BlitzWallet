@@ -596,7 +596,7 @@ export default function BTCMapScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, width: 200 },
+  container: { flex: 1 },
   navbar: {
     position: 'absolute',
     left: 16,
