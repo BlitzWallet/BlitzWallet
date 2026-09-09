@@ -64,7 +64,9 @@ jest.mock('../../../context-store/webViewContext', () => ({
 
 const MNEMONIC = 'seed words here';
 const sha256Hash = require('../../../app/functions/hash').default;
-const { BTC_ASSET_ADDRESS } = require('../../../app/functions/spark/swapAmountUtils');
+const {
+  BTC_ASSET_ADDRESS,
+} = require('../../../app/functions/spark/swapAmountUtils');
 
 let spark;
 let flashnet;
@@ -190,7 +192,7 @@ describe('native runtime never blocks a user send (guard contract)', () => {
     expect(wallet.fulfillSparkInvoice).toHaveBeenCalledWith(invoices);
     expect(res).toEqual({
       didWork: true,
-      fulfillResult: { satsTransactionSuccess: [] },
+      satsTransactionSuccess: [],
     });
   });
 
@@ -277,10 +279,7 @@ describe('native runtime never blocks a user send (guard contract)', () => {
   test('requestBatchClawback: executes on native while a WebView attempt is unresolved', async () => {
     const res = await flashnet.requestBatchClawback(MNEMONIC, ['t-1'], 'pool1');
 
-    expect(mockClient.clawbackMultiple).toHaveBeenCalledWith(
-      ['t-1'],
-      'pool1',
-    );
+    expect(mockClient.clawbackMultiple).toHaveBeenCalledWith(['t-1'], 'pool1');
     expect(res).toEqual({
       didWork: true,
       result: [{ transferId: 't-1' }],

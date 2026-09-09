@@ -52,6 +52,7 @@ export default function ClaimGiftScreen({
   claimType,
   expertMode,
   customGiftIndex,
+  handleBackPressFunction,
 }) {
   const { poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
@@ -170,8 +171,10 @@ export default function ClaimGiftScreen({
         });
     } catch (err) {
       console.log('error loading gift details', err);
-      navigate.goBack();
-      handleError(err.message);
+      handleBackPressFunction(() => {
+        navigate.goBack();
+        handleError(err.message);
+      });
     }
   }, [
     claimType,
@@ -179,6 +182,7 @@ export default function ClaimGiftScreen({
     deriveClaimGiftSeed,
     navigate,
     handleError,
+    handleBackPressFunction,
   ]);
 
   const getBalanceWithStatusRetry = useCallback(
@@ -463,8 +467,10 @@ export default function ClaimGiftScreen({
       setDidClaim(true);
     } catch (err) {
       console.log('Error claiming gift:', err);
-      navigate.goBack();
-      handleError(err.message || 'Failed to claim gift');
+      handleBackPressFunction(() => {
+        navigate.goBack();
+        handleError(err.message || 'Failed to claim gift');
+      });
     } finally {
       // Tear down the gift wallet session/listeners once the claim is done.
       if (giftDetails.giftSeed) await disposeSparkWallet(giftDetails.giftSeed);
@@ -482,6 +488,7 @@ export default function ClaimGiftScreen({
     handleError,
     denomination,
     t,
+    handleBackPressFunction,
   ]);
 
   useEffect(() => {
@@ -548,7 +555,7 @@ export default function ClaimGiftScreen({
           content={t('screens.inAccount.giftPages.claimPage.confirmMessage')}
         />
         <CustomButton
-          actionFunction={navigate.goBack}
+          actionFunction={handleBackPressFunction}
           textContent={t('constants.done')}
         />
       </View>

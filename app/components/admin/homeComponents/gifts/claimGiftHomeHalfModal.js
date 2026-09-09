@@ -27,6 +27,7 @@ import { hasStringAsync } from 'expo-clipboard';
 export default function ClaimGiftHomeHalfModal({
   setContentHeight,
   setIsKeyboardActive,
+  handleBackPressFunction,
 }) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -96,6 +97,7 @@ export default function ClaimGiftHomeHalfModal({
         claimType={'claim'}
         expertMode={false}
         customGiftIndex={undefined}
+        handleBackPressFunction={handleBackPressFunction}
         theme={theme}
         darkModeType={darkModeType}
       />

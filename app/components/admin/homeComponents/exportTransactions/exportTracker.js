@@ -18,6 +18,7 @@ export default function ConfirmExportPayments({
   startExport,
   theme,
   darkModeType,
+  handleBackPressFunction,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
@@ -93,26 +94,33 @@ export default function ConfirmExportPayments({
           'text/csv',
         );
 
-        navigate.goBack();
-        if (!response.success) {
-          setTimeout(() => {
+        handleBackPressFunction(() => {
+          navigate.goBack();
+          if (!response.success) {
             navigate.navigate('ErrorScreen', {
               errorMessage: response.error,
               useTranslationString: true,
             });
-          }, 200);
-        }
+          }
+        });
       } catch (err) {
         console.log(err);
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'errormessages.createTransactionsFileError',
-          useTranslationString: true,
+        handleBackPressFunction(() => {
+          navigate.goBack();
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'errormessages.createTransactionsFileError',
+            useTranslationString: true,
+          });
         });
       }
     }, 1000);
   }, [
     masterInfoObject.thousandsSeperator,
     masterInfoObject.userSelectedLanguage,
+    handleBackPressFunction,
+    navigate,
+    sparkInformation.identityPubKey,
+    t,
   ]);
 
   const dynamicStyles = useMemo(() => {

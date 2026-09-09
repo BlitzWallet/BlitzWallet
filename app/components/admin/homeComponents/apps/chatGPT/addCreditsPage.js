@@ -21,7 +21,7 @@ import { useActiveCustodyAccount } from '../../../../../../context-store/activeA
 import { useTranslation } from 'react-i18next';
 import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { useWebView } from '../../../../../../context-store/webViewContext';
-import { Check } from 'lucide-react-native';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import QuestionDiscoveryGrid from './questionDiscoveryGrid';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -62,7 +62,11 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
   const featureElements = FEATURES.map((key, index) => (
     <View key={index} style={styles.featureRow}>
       <View style={[styles.checkCircle, { backgroundColor: offseColor }]}>
-        <Check size={14} color={backgroundColor} strokeWidth={3} />
+        <ThemeIcon
+          iconName={'Check'}
+          colorOverride={backgroundColor}
+          strokeWidth={3}
+        />
       </View>
       <ThemeText styles={styles.featureText} content={t(key)} />
     </View>

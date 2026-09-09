@@ -265,6 +265,7 @@ export default function CustomHalfModal(props) {
             areaCodeNum={props.route.params?.areaCodeNum}
             normalizedPhoneNumber={props.route.params?.normalizedPhoneNumber}
             sendTextMessage={props.route.params?.sendTextMessage}
+            handleBackPressFunction={handleBackPressFunction}
             page={'sendSMS'}
           />
         );
@@ -278,6 +279,7 @@ export default function CustomHalfModal(props) {
             title={props.route.params?.title}
             imgSrc={props.route.params?.imgSrc}
             getReceiveCode={props.route.params?.getReceiveCode}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
 
@@ -287,6 +289,7 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             startExport={props.route.params?.startExport}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'switchGenerativeAiModel':
@@ -296,6 +299,7 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
             setSelectedRecieveOption={props.route.params?.setSelectedModel}
             setIsKeyboardActive={setIsKeyboardActive}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'chatGPT':
@@ -303,6 +307,7 @@ export default function CustomHalfModal(props) {
           <ConfirmChatGPTPage
             setContentHeight={setContentHeight}
             setBackNav={setBackNav}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'addContacts':
@@ -379,6 +384,7 @@ export default function CustomHalfModal(props) {
           <LRC20AssetSelectorHalfModal
             theme={theme}
             darkModeType={darkModeType}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'LRC20TokenInformation':
@@ -429,6 +435,7 @@ export default function CustomHalfModal(props) {
             from={props?.route?.params?.from}
             isOutgoingPayment={props?.route?.params?.isOutgoingPayment}
             message={props?.route?.params?.message}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'ViewAllGiftCards':
@@ -471,6 +478,7 @@ export default function CustomHalfModal(props) {
             claimType={props?.route?.params?.claimType}
             expertMode={props?.route?.params?.expertMode}
             customGiftIndex={props?.route?.params?.customGiftIndex}
+            handleBackPressFunction={handleBackPressFunction}
             theme={theme}
             darkModeType={darkModeType}
           />
@@ -742,6 +750,7 @@ export default function CustomHalfModal(props) {
             onCreated={props.route.params?.onCreated}
             setContentHeight={setContentHeight}
             sharePayLinkCache={props.route.params?.sharePayLinkCache}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'rootstockSwapInfo':

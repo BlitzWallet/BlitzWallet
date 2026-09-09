@@ -32,6 +32,7 @@ export default function ConfirmSMSPayment(props) {
     normalizedPhoneNumber,
     page,
     sendTextMessage,
+    handleBackPressFunction,
     theme,
     darkModeType,
   } = props;
@@ -53,13 +54,15 @@ export default function ConfirmSMSPayment(props) {
   };
 
   const onSwipeSuccess = useCallback(() => {
-    navigate.goBack();
-    requestAnimationFrame(() => {
+    handleBackPressFunction(() => {
+      navigate.goBack();
       requestAnimationFrame(() => {
-        sendTextMessage(invoiceInformation);
+        requestAnimationFrame(() => {
+          sendTextMessage(invoiceInformation);
+        });
       });
     });
-  }, [invoiceInformation]);
+  }, [handleBackPressFunction, invoiceInformation, navigate, sendTextMessage]);
 
   useEffect(() => {
     let mounted = true;
