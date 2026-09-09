@@ -47,6 +47,7 @@ export default function ShareInvoicePayLinkModal({
   onCreated,
   setContentHeight,
   sharePayLinkCache,
+  handleBackPressFunction,
 }) {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -69,10 +70,18 @@ export default function ShareInvoicePayLinkModal({
 
     async function createPayLink() {
       if (!sparkInformation.identityPubKey) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t(
-            'screens.inAccount.receiveBtcPage.walletNotConnected',
-          ),
+        // This branch runs synchronously during mount, before the half modal's
+        // useFocusEffect marks the screen active — defer a frame so
+        // handleBackPressFunction doesn't drop the callback.
+        requestAnimationFrame(() => {
+          handleBackPressFunction(() => {
+            navigate.goBack();
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t(
+                'screens.inAccount.receiveBtcPage.walletNotConnected',
+              ),
+            });
+          });
         });
         return;
       }
@@ -123,7 +132,10 @@ export default function ShareInvoicePayLinkModal({
         setPayLinkId(newPayLinkId);
       } catch (err) {
         console.log('Error creating share paylink:', err);
-        navigate.navigate('ErrorScreen', { errorMessage: err.message });
+        handleBackPressFunction(() => {
+          navigate.goBack();
+          navigate.navigate('ErrorScreen', { errorMessage: err.message });
+        });
       }
     }
 
@@ -131,6 +143,7 @@ export default function ShareInvoicePayLinkModal({
   }, [
     currencyType,
     globalContactsInformation,
+    handleBackPressFunction,
     masterInfoObject.uuid,
     navigate,
     onCreated,
