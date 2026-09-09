@@ -1032,7 +1032,8 @@
       "depositFeePopup_bitcoin": "Bitcoin som skickas till den här adressen medför en liten nätverksavgift för att tas emot. Avgiften dras av från beloppet du får, så ditt saldo kan bli något lägre än det skickade beloppet.",
       "depositFeePopup_liquid": "Liquid Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift{{feeDisplay}}, som dras från beloppet du tar emot.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift, som dras från beloppet du tar emot.",
-      "depositFeePopup_stablecoins": "Stablecoins som skickas till den här adressen omvandlas till dollar i din plånbok. En liten växlingsavgift på cirka 1 % dras från beloppet du tar emot."
+      "depositFeePopup_stablecoins": "Stablecoins som skickas till den här adressen omvandlas till dollar i din plånbok. En liten växlingsavgift på cirka 1 % dras från beloppet du tar emot.",
+      "depositFeePopup_accumulation_bitcoin": "Bitcoin som skickas till den här adressen omvandlas till bitcoin som din plånbok kan använda. En liten växlingsavgift på cirka 1 % dras från beloppet du tar emot."
     },
     "payLinks": {
       "skip": "Hoppa över",

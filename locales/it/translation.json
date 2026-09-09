@@ -1032,7 +1032,8 @@
       "depositFeePopup_bitcoin": "I Bitcoin inviati a questo indirizzo comportano una piccola commissione di rete per la ricezione. La commissione viene detratta dall'importo ricevuto, quindi il saldo potrebbe risultare leggermente inferiore rispetto all'importo inviato.",
       "depositFeePopup_liquid": "I Liquid Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione{{feeDisplay}}, detratta dall'importo ricevuto.",
       "depositFeePopup_rootstock": "I Rootstock Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione, detratta dall'importo ricevuto.",
-      "depositFeePopup_stablecoins": "Le stablecoin inviate a questo indirizzo vengono convertite in dollari nel tuo portafoglio. Una piccola commissione di conversione di circa l'1% viene detratta dall'importo ricevuto."
+      "depositFeePopup_stablecoins": "Le stablecoin inviate a questo indirizzo vengono convertite in dollari nel tuo portafoglio. Una piccola commissione di conversione di circa l'1% viene detratta dall'importo ricevuto.",
+      "depositFeePopup_accumulation_bitcoin": "Il Bitcoin inviato a questo indirizzo viene convertito in bitcoin utilizzabile dal tuo portafoglio. Una piccola commissione di conversione di circa l'1% viene detratta dall'importo ricevuto."
     },
     "payLinks": {
       "skip": "Salta",

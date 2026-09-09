@@ -101,6 +101,7 @@ export default {
   chain_solana,
   chain_tempo,
   chain_binance,
+  chain_cbbtc: bitcoinIcon,
   usdcLogo,
   usdtLogo,
 

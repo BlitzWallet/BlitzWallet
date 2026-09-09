@@ -309,11 +309,22 @@ export default function DepositQRView({
     if (option === 'stablecoins') {
       return {
         label: t('wallet.halfModal.depositFeeText'),
-        explanation: t('wallet.halfModal.depositFeePopup_stablecoins'),
+        explanation: t(
+          config?.destinationAsset === 'BTC'
+            ? 'wallet.halfModal.depositFeePopup_accumulation_bitcoin'
+            : 'wallet.halfModal.depositFeePopup_stablecoins',
+        ),
       };
     }
     return null;
-  }, [option, addressState.fee, masterInfoObject, fiatStats, t]);
+  }, [
+    option,
+    config?.destinationAsset,
+    addressState.fee,
+    masterInfoObject,
+    fiatStats,
+    t,
+  ]);
 
   const address = addressState.generatedAddress || '';
   const addressSegments = useMemo(() => {
@@ -339,10 +350,15 @@ export default function DepositQRView({
 
   const instruction =
     option === 'stablecoins'
-      ? t('wallet.halfModal.depositQRInstruction_stablecoins', {
-          asset: config.sourceAsset,
-          chain: chainDisplayLabel,
-        })
+      ? t(
+          config.destinationAsset === 'BTC'
+            ? 'wallet.halfModal.depositQRInstruction_accumulation_bitcoin'
+            : 'wallet.halfModal.depositQRInstruction_stablecoins',
+          {
+            asset: config.sourceAsset,
+            chain: chainDisplayLabel,
+          },
+        )
       : t(
           `wallet.halfModal.depositQRInstruction_${option}${
             option === 'spark' && config.fromStablecoin

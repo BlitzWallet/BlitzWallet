@@ -9,124 +9,136 @@ import { Image } from 'expo-image';
 
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
+import {
+  ACCUMULATION_BTC_SOURCES,
+  ACCUMULATION_CHAINS,
+} from '../../../../constants/accumulationAddresses';
+
+const CHAINS = [
+  {
+    id: 'bitcoin',
+    label: 'Bitcoin',
+    iconSource: ICONS.bitcoinIcon,
+    isBitcoinIcon: true,
+  },
+  // {
+  //   id: 'liquid',
+  //   label: 'Liquid',
+  //   subtextKey: 'wallet.halfModal.liquidDesc',
+  //   iconSource: ICONS.liquidLogo,
+  // },
+  // {
+  //   id: 'rootstock',
+  //   label: 'Rootstock',
+  //   subtextKey: 'wallet.halfModal.roostockDesc',
+  //   iconSource: ICONS.rootstockLogo,
+  // },
+  // {
+  //   id: 'spark',
+  //   label: 'Spark',
+  //   subtextKey: 'wallet.halfModal.sparkDesc',
+  //   iconSource: ICONS.sparkLogoLight,
+  // },
+];
 
 export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
 
-  // ── Chain step ──────────────────────────────────────────────────────────────
+  const isDark = theme && darkModeType;
+  const getCircleBackground = isOrange =>
+    isDark
+      ? backgroundOffset
+      : isOrange
+      ? COLORS.bitcoinOrange
+      : COLORS.primary;
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {[
-          { id: 'bitcoin', label: 'Bitcoin' },
-          // { id: 'liquid', label: 'Liquid' },
-          // { id: 'rootstock', label: 'Rootstock' },
-          { id: 'spark', label: 'Spark' },
-        ].map(chain => (
-          <ChainRow
+        {CHAINS.map(chain => (
+          <ReceiveOptionRow
             key={chain.id}
-            chain={chain}
-            onSelectAsset={() =>
+            label={chain.label}
+            subtext={t(chain.subtextKey)}
+            iconSource={chain.iconSource}
+            isBitcoinIcon={chain.isBitcoinIcon}
+            circleBackground={getCircleBackground(chain.id === 'bitcoin')}
+            onPress={() =>
               onShowQR({
                 selectedRecieveOption:
                   chain.id === 'bitcoin' ? 'Bitcoin' : chain.id,
               })
             }
-            theme={theme}
-            darkModeType={darkModeType}
-            backgroundColor={backgroundColor}
-            backgroundOffset={backgroundOffset}
           />
         ))}
+
+        {/* Bitcoin held on other chains — routed to BTC via an accumulation
+            address, so it reuses the 'Stablecoins' (accumulation) QR path. */}
+        {ACCUMULATION_BTC_SOURCES.map(source => {
+          const chainLabel =
+            ACCUMULATION_CHAINS.find(c => c.id === source.chain)?.label ??
+            source.chain;
+          return (
+            <ReceiveOptionRow
+              key={`${source.chain}:${source.asset}`}
+              label={chainLabel}
+              subtext={`${source.asset} · ${source.name}`}
+              iconSource={ICONS[`chain_${chainLabel.toLowerCase()}`]}
+              circleBackground={getCircleBackground(true)}
+              onPress={() =>
+                onShowQR({
+                  selectedRecieveOption: 'Stablecoins',
+                  sourceChain: source.chain,
+                  sourceAsset: source.asset,
+                  destinationAsset: 'BTC',
+                })
+              }
+            />
+          );
+        })}
       </ScrollView>
     </View>
   );
 }
 
-function ChainRow({
-  chain,
-  onSelectAsset,
-  theme,
-  darkModeType,
-  backgroundColor,
+function ReceiveOptionRow({
+  label,
+  subtext,
+  iconSource,
+  isBitcoinIcon,
+  circleBackground,
+  onPress,
 }) {
-  const { t } = useTranslation();
-
-  const subtext =
-    chain.id === 'bitcoin'
-      ? t('wallet.halfModal.bitcoinDesc')
-      : chain.id === 'liquid'
-      ? t('wallet.halfModal.liquidDesc')
-      : chain.id === 'rootstock'
-      ? t('wallet.halfModal.roostockDesc')
-      : t('wallet.halfModal.sparkDesc');
-
   return (
-    <TouchableOpacity
-      onPress={onSelectAsset}
-      activeOpacity={0.7}
-      style={styles.chainRow}
-    >
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.row}>
       <View
-        style={[
-          styles.chainIconContainer,
-          {
-            backgroundColor:
-              chain.id === 'bitcoin'
-                ? theme && darkModeType
-                  ? backgroundColor
-                  : COLORS.bitcoinOrange
-                : theme && darkModeType
-                ? backgroundColor
-                : COLORS.primary,
-          },
-        ]}
+        style={[styles.iconContainer, { backgroundColor: circleBackground }]}
       >
-        {chain.id === 'bitcoin' ? (
-          <Image
-            source={ICONS.bitcoinIcon}
-            style={{ width: 26, height: 26, tintColor: 'white' }}
-          />
-        ) : (
-          <Image
-            style={styles.assetIcon}
-            source={
-              ICONS[
-                chain.id === 'liquid'
-                  ? 'liquidLogo'
-                  : chain.id === 'spark'
-                  ? 'sparkLogoLight'
-                  : 'rootstockLogo'
-              ]
-            }
-            contentFit="contain"
-          />
-        )}
+        <Image
+          source={iconSource}
+          style={isBitcoinIcon ? styles.bitcoinIcon : styles.assetIcon}
+          contentFit="contain"
+        />
       </View>
-      <View style={styles.chainTextContainer}>
-        <ThemeText styles={styles.optionLabel} content={chain.label} />
+      <View style={styles.textContainer}>
+        <ThemeText styles={styles.optionLabel} content={label} />
+        {!!subtext && <ThemeText styles={styles.subtext} content={subtext} />}
       </View>
-
       <ThemeIcon iconName="ChevronRight" size={18} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-  },
-  chainRow: {
+  row: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingVertical: 8,
     paddingBottom: 16,
   },
-  chainIconContainer: {
+  iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 44,
@@ -135,61 +147,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 15,
   },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingVertical: 10,
-    marginBottom: 8,
-    gap: 10,
+  bitcoinIcon: {
+    width: 26,
+    height: 26,
+    tintColor: 'white',
   },
-  chainTextContainer: {
+  assetIcon: {
+    width: '100%',
+    height: '100%',
+  },
+  textContainer: {
     flex: 1,
   },
   optionLabel: {
     includeFontPadding: false,
     marginBottom: 2,
   },
-  chainSubtext: {
+  subtext: {
     fontSize: SIZES.small,
     opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
-  },
-  iconContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  assetIcon: {
-    width: '100%',
-    height: '100%',
-  },
-  assetOptionsContainer: {
-    overflow: 'hidden',
-    gap: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
-  assetOptionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    gap: 12,
-  },
-  assetOptionIconContainer: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  assetOptionIcon: {
-    width: 35,
-    height: 35,
   },
 });

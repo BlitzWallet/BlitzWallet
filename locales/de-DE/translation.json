@@ -1032,7 +1032,8 @@
       "depositFeePopup_bitcoin": "Für Bitcoin, die an diese Adresse gesendet werden, fällt eine geringe Netzwerkgebühr an. Die Gebühr wird vom empfangenen Betrag abgezogen, sodass Ihr Guthaben etwas niedriger sein kann als der gesendete Betrag.",
       "depositFeePopup_liquid": "Liquid Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, die in Ihrer Wallet verwendet werden können. Für die Umwandlung fällt eine geringe Gebühr an, die vom empfangenen Betrag abgezogen wird.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, die in Ihrer Wallet verwendet werden können. Für die Umwandlung fällt eine geringe Gebühr an, die vom empfangenen Betrag abgezogen wird.",
-      "depositFeePopup_stablecoins": "Stablecoins, die an diese Adresse gesendet werden, werden in Ihrer Wallet in Dollar umgewandelt. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
+      "depositFeePopup_stablecoins": "Stablecoins, die an diese Adresse gesendet werden, werden in Ihrer Wallet in Dollar umgewandelt. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen.",
+      "depositFeePopup_accumulation_bitcoin": "Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, das in Ihrer Wallet verwendet werden kann. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
     },
     "payLinks": {
       "skip": "Überspringen",
