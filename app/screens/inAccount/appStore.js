@@ -53,7 +53,10 @@ export default function AppStore({ navigation }) {
   );
 
   return (
-    <GlobalThemeView styles={styles.container} useStandardWidth={false}>
+    <GlobalThemeView
+      styles={styles.container}
+      useStandardWidth={Platform.OS === 'web'}
+    >
       <View style={styles.navbar}>
         <ThemeText
           CustomNumberOfLines={1}
@@ -163,7 +166,7 @@ function PreviewCard({
 const styles = StyleSheet.create({
   container: { paddingBottom: 0 },
   navbar: {
-    width: WINDOWWIDTH,
+    width: Platform.OS === 'web' ? '100%' : WINDOWWIDTH,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',

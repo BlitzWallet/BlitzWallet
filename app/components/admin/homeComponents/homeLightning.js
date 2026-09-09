@@ -383,7 +383,10 @@ export default function HomeLightning({ navigation }) {
   );
 
   return (
-    <GlobalThemeView styles={styles.themeViewStyle}>
+    <GlobalThemeView
+      styles={styles.themeViewStyle}
+      useStandardWidth={Platform.OS === 'web'}
+    >
       <Animated.ScrollView
         ref={scrollViewRef}
         // refreshControl={refreshControl}
