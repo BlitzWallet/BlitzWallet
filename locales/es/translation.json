@@ -1771,7 +1771,10 @@
       "swap": "Transferir",
       "rescanning": "Escaneando…",
       "autoClaimLabel": "Cobro automático",
-      "autoClaimHelper": "Convierte automáticamente fondos de Liquid a Lightning cuando se alcanza el umbral mínimo."
+      "autoClaimHelper": "Convierte automáticamente fondos de Liquid a Lightning cuando se alcanza el umbral mínimo.",
+      "unsupportedTitle": "Ya no admitimos {{type}}",
+      "unsupportedDesc": "Si aún tienes fondos en {{type}}, restaura tu frase de recuperación de Blitz en una billetera compatible para acceder a ellos. ¿Necesitas ayuda? Contáctanos abajo.",
+      "contactUs": "Contáctanos"
     },
     "notifications": {
       "mainToggle_enabled": "Notificaciones activadas",

@@ -1935,7 +1935,10 @@
       "swap": "Transfer",
       "rescanning": "Scanning…",
       "autoClaimLabel": "Auto-Claim",
-      "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached."
+      "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached.",
+      "unsupportedTitle": "We no longer support {{type}}",
+      "unsupportedDesc": "If you still have funds on {{type}}, restore your Blitz recovery phrase in a compatible wallet to access them. Need help? Contact us below.",
+      "contactUs": "Contact us"
     },
     "notifications": {
       "mainToggle_enabled": "Enabled notifications",

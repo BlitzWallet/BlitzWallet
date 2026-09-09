@@ -41,7 +41,7 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useKeysContext } from '../../../context-store/keys';
 import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
-import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
+// import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
 import customUUID from '../../functions/customUUID';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
@@ -66,7 +66,8 @@ export default function ReceivePaymentHome(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { screenDimensions } = useAppStatus();
-  const { signer } = useRootstockProvider();
+  // const { signer } = useRootstockProvider();
+  const signer = null;
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
   const { isUsingAltAccount, currentWalletMnemoinc } =

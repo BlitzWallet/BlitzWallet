@@ -39,8 +39,8 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { useRootstockProvider } from '../../../../../context-store/rootstockSwapContext';
-import { useLiquidEvent } from '../../../../../context-store/liquidEventContext';
+// import { useRootstockProvider } from '../../../../../context-store/rootstockSwapContext';
+// import { useLiquidEvent } from '../../../../../context-store/liquidEventContext';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useToast } from '../../../../../context-store/toastManager';
@@ -68,8 +68,10 @@ export default function DepositQRView({
   const { swapLimits, poolInfoRef } = useFlashnet();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { startRootstockEventListener, signer } = useRootstockProvider();
-  const { startLiquidEventListener } = useLiquidEvent();
+  // const { startRootstockEventListener, signer } = useRootstockProvider();
+  const signer = null;
+  // const { startLiquidEventListener } = useLiquidEvent();
+
   const { isUsingAltAccount, currentWalletMnemoinc } =
     useActiveCustodyAccount();
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
@@ -239,9 +241,9 @@ export default function DepositQRView({
       if (cancelled) return;
       const option = config.selectedRecieveOption?.toLowerCase();
       if (option === 'liquid') {
-        startLiquidEventListener(60);
+        // startLiquidEventListener(60);
       } else if (option === 'rootstock') {
-        startRootstockEventListener({ durationMs: 1200000 });
+        // startRootstockEventListener({ durationMs: 1200000 });
       }
     }
 

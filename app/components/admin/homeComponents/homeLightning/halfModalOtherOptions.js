@@ -21,8 +21,8 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         {[
           { id: 'bitcoin', label: 'Bitcoin' },
-          { id: 'liquid', label: 'Liquid' },
-          { id: 'rootstock', label: 'Rootstock' },
+          // { id: 'liquid', label: 'Liquid' },
+          // { id: 'rootstock', label: 'Rootstock' },
           { id: 'spark', label: 'Spark' },
         ].map(chain => (
           <ChainRow

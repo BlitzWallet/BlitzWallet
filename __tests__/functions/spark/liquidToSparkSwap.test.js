@@ -1,3 +1,6 @@
+// BREEZ LIQUID DISABLED: swap execution is stubbed to {didWork:false}, so the
+// original orchestration tests below are skipped (not deleted) until the SDK
+// is re-enabled. Original header kept:
 // liquidToSparkSwap orchestrates the Liquid -> Spark auto-swap: reuse-or-mint a
 // fixed-amount spark lightning invoice, insert a pending placeholder keyed by
 // the invoice id, then pay it from Liquid. Dependencies are mocked so we can
@@ -69,7 +72,18 @@ beforeEach(() => {
   bulkUpdateSparkTransactions.mockResolvedValue(true);
 });
 
-test('mints a non-zero invoice below spendable minus fees, inserts a pending placeholder keyed by the invoice id, then pays it', async () => {
+test('returns disabled stub without side effects while Breez Liquid is removed', async () => {
+  const result = await liquidToSparkSwap(baseArgs);
+
+  expect(result.didWork).toBe(false);
+  expect(result.error).toMatch(/disabled/i);
+  expect(sparkReceivePaymentWrapper).not.toHaveBeenCalled();
+  expect(insertSparkTransactionPlaceholders).not.toHaveBeenCalled();
+  expect(bulkUpdateSparkTransactions).not.toHaveBeenCalled();
+});
+
+// BREEZ LIQUID DISABLED: original orchestration tests skipped, not deleted.
+test.skip('mints a non-zero invoice below spendable minus fees, inserts a pending placeholder keyed by the invoice id, then pays it', async () => {
   const result = await liquidToSparkSwap(baseArgs);
 
   expect(result).toEqual({ didWork: true });
@@ -124,7 +138,7 @@ test('mints a non-zero invoice below spendable minus fees, inserts a pending pla
   });
 });
 
-test('reuses an active swap invoice instead of minting a new one', async () => {
+test.skip('reuses an active swap invoice instead of minting a new one', async () => {
   getActiveLiquidSwapInvoice.mockResolvedValue({
     sparkID: 'reused-invoice-id',
     amount: 49400,
@@ -149,7 +163,7 @@ test('reuses an active swap invoice instead of minting a new one', async () => {
   expect(placeholder.details.fee).toBe(103);
 });
 
-test('a concurrent call is rejected while a swap is in progress', async () => {
+test.skip('a concurrent call is rejected while a swap is in progress', async () => {
   // Park the first call on its very first await (after the lock is taken).
   let releaseLookup;
   getActiveLiquidSwapInvoice.mockImplementation(
@@ -173,7 +187,7 @@ test('a concurrent call is rejected while a swap is in progress', async () => {
   expect(sparkReceivePaymentWrapper).toHaveBeenCalledTimes(2);
 });
 
-test('marks the placeholder failed when the Liquid payment fails', async () => {
+test.skip('marks the placeholder failed when the Liquid payment fails', async () => {
   breezLiquidPaymentWrapper.mockImplementation(({ getFee }) => {
     if (getFee) return Promise.resolve({ didWork: true, fee: 103 });
     return Promise.resolve({
@@ -192,7 +206,7 @@ test('marks the placeholder failed when the Liquid payment fails', async () => {
   expect(failedTx.paymentStatus).toBe('failed');
 });
 
-test('uses a fee-aware retry amount after a quote failure instead of dropping by 10%', async () => {
+test.skip('uses a fee-aware retry amount after a quote failure instead of dropping by 10%', async () => {
   let quoteCalls = 0;
   breezLiquidPaymentWrapper.mockImplementation(({ getFee }) => {
     if (getFee) {

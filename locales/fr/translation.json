@@ -1774,7 +1774,10 @@
       "swap": "Transfert",
       "rescanning": "Analyse en cours…",
       "autoClaimLabel": "Réclamation automatique",
-      "autoClaimHelper": "Convertit automatiquement les fonds Liquid en Lightning lorsque le seuil minimum est atteint."
+      "autoClaimHelper": "Convertit automatiquement les fonds Liquid en Lightning lorsque le seuil minimum est atteint.",
+      "unsupportedTitle": "Nous ne prenons plus en charge {{type}}",
+      "unsupportedDesc": "Si vous avez encore des fonds sur {{type}}, restaurez votre phrase de récupération Blitz dans un portefeuille compatible pour y accéder. Besoin d'aide ? Contactez-nous ci-dessous.",
+      "contactUs": "Contactez nous"
     },
     "notifications": {
       "mainToggle_enabled": "Notifications activées",

@@ -10,8 +10,8 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import { useRootstockProvider } from '../../../../../../context-store/rootstockSwapContext';
-import { refundRootstockSubmarineSwap } from '../../../../../functions/boltz/rootstock/claims';
+// import { useRootstockProvider } from '../../../../../../context-store/rootstockSwapContext';
+// import { refundRootstockSubmarineSwap } from '../../../../../functions/boltz/rootstock/claims';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../../functions';
 import { useTranslation } from 'react-i18next';
@@ -38,7 +38,8 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
-  const { signer } = useRootstockProvider();
+  // const { signer } = useRootstockProvider();
+  const signer = null;
   const [isRefunding, setIsRefunding] = useState(false);
   const { showToast } = useToast();
   const { t } = useTranslation();
@@ -94,7 +95,8 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const cardBackground =
     theme && darkModeType ? backgroundColor : backgroundOffset;
 
-  const canRefund = data?.didSwapFail && !data?.refundTxHash;
+  // const canRefund = data?.didSwapFail && !data?.refundTxHash;
+  const canRefund = false;
 
   return (
     <View style={styles.container}>
@@ -152,11 +154,13 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
       {canRefund && (
         <CustomButton
           actionFunction={async () => {
-            setIsRefunding(true);
-            const response = await refundRootstockSubmarineSwap(swap, signer);
-            await new Promise(res => setTimeout(res, 3000));
+            // setIsRefunding(true);
+            // const response = await refundRootstockSubmarineSwap(swap, signer);
+            // await new Promise(res => setTimeout(res, 3000));
+            // setIsRefunding(false);
+            // if (response) handleBackPressFunction();
+            // ROOTSTOCK DISABLED: refund flow commented. Original kept above.
             setIsRefunding(false);
-            if (response) handleBackPressFunction();
           }}
           buttonStyles={styles.refundButton}
           textContent={t('settings.rootstockSwapInfo.refundSwap')}

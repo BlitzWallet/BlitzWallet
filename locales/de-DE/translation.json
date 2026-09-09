@@ -1774,7 +1774,10 @@
       "swap": "Übertragen",
       "rescanning": "Scannen...",
       "autoClaimLabel": "Automatisch einlösen",
-      "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist."
+      "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist.",
+      "unsupportedTitle": "Wir unterstützen {{type}} nicht mehr",
+      "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie Ihre Blitz-Wiederherstellungsphrase in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
+      "contactUs": "Kontaktieren Sie uns"
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
