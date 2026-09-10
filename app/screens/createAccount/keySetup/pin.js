@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
 import { CENTER, SIZES } from '../../../constants';
@@ -26,6 +26,7 @@ import {
   storeMnemonicWithPasskey,
 } from '../../../functions/passkeyMnemonic';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 
 function WebCreatePassword(props) {
   const { accountMnemoinc } = useKeysContext();
@@ -180,13 +181,15 @@ function WebCreatePassword(props) {
     }
   };
 
-  const handleGoBack = () => {
+  const handleGoBack = useCallback(() => {
     if (step === 'password' && !passkeyUnsupported) {
       setStep('offer');
     } else {
       navigate.goBack();
     }
-  };
+  }, [step, passkeyUnsupported]);
+
+  useHandleBackPressNew(handleGoBack);
 
   if (step === 'checking') {
     return (
