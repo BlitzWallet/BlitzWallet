@@ -16,6 +16,7 @@ import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
 import { decryptMnemonicWithPin } from '../../../functions/handleMnemonic';
+import { getStoredPasskeyInfo } from '../../../functions/passkeyMnemonic';
 import RNRestart from 'react-native-restart-newarch';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
 
@@ -51,6 +52,22 @@ export default function PasswordPage() {
   }, []);
 
   const handleWrongPassword = useCallback(async () => {
+    // A stale password tab must never count attempts against a passkey wallet.
+    // An unreadable envelope is not evidence of a wrong password either.
+    try {
+      if (await getStoredPasskeyInfo()) {
+        window.location.reload();
+        return;
+      }
+    } catch {
+      setError(
+        t(
+          'adminLogin.passwordPage.storageError',
+          'Unable to read wallet storage. Please try again.',
+        ),
+      );
+      return;
+    }
     if (attemptCount >= 7) {
       const deleted = await factoryResetWallet();
       if (deleted) {
@@ -138,6 +155,7 @@ export default function PasswordPage() {
           })}
         />
       )}
+      {!!error && <ThemeText styles={styles.errorText} content={error} />}
       <View style={styles.inputWrapper}>
         <CustomSearchInput
           inputText={password}

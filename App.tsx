@@ -35,7 +35,10 @@ import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
 import sha256Hash from './app/functions/hash';
-import { isEncryptedMnemonicFormat } from './app/functions/handleMnemonic';
+import {
+  isEncryptedMnemonicFormat,
+  isPasskeyMnemonicFormat,
+} from './app/functions/handleMnemonic';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
@@ -643,7 +646,10 @@ function ResetStack(): JSX.Element | null {
             ...parsedSettings,
             expectedMnemonicHash: sha256Hash(mnemonic.value),
           }
-        : parsedSettings;
+        : {
+            ...parsedSettings,
+            usesPasskey: isPasskeyMnemonicFormat(mnemonic.value),
+          };
       setSecuritySettings(prev =>
         JSON.stringify(prev) === JSON.stringify(nextSecuritySettings)
           ? prev

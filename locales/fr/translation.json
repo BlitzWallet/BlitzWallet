@@ -274,6 +274,15 @@
         "confirmPasswordPlaceholder": "Confirmer le mot de passe",
         "mismatchError": "Les mots de passe ne correspondent pas",
         "commonWarning": "Mot de passe courant"
+      },
+      "passkey": {
+        "offerHeader": "Protégez votre portefeuille avec une clé d'accès",
+        "offerSubtitle": "Déverrouillez avec votre visage, empreinte ou code PIN au lieu d'un mot de passe. Si vous perdez votre clé d'accès, vous pouvez restaurer votre portefeuille avec votre phrase de récupération.",
+        "createButton": "Créer une clé d'accès",
+        "usePassword": "Utiliser un mot de passe à la place",
+        "unsupported": "Votre gestionnaire de mots de passe ne peut pas encore protéger un portefeuille avec une clé d'accès. Définissez un mot de passe à la place.",
+        "confirmFailed": "Impossible de confirmer votre clé d'accès",
+        "tryAgain": "Réessayer"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Mot de passe",
       "forgotPassword": "Mot de passe oublié ?",
       "forgotPasswordConfirm": "Vous avez oublié votre mot de passe ? La seule façon de récupérer est de réinitialiser et de restaurer avec votre phrase de récupération.\n\nVoulez-vous supprimer toutes les données du portefeuille ? Ne continuez que si votre phrase de récupération est sauvegardée en toute sécurité.",
-      "loginButton": "Se connecter"
+      "loginButton": "Se connecter",
+      "storageError": "Impossible de lire le stockage du portefeuille. Veuillez réessayer."
+    },
+    "passkeyPage": {
+      "unlockButton": "Déverrouiller avec la clé d'accès",
+      "unlockError": "Impossible de déverrouiller avec votre clé d'accès",
+      "lostPasskey": "Clé d'accès perdue ?",
+      "lostPasskeyConfirm": "Clé d'accès perdue ? Le seul moyen de revenir est de réinitialiser et restaurer avec votre phrase de récupération.\n\nVoulez-vous supprimer toutes les données du portefeuille ? Ne continuez que si votre phrase de récupération est sauvegardée en toute sécurité."
     }
   },
   "apps": {
@@ -1670,7 +1686,19 @@
       "newPasswordSubtitle": "Choisissez un nouveau mot de passe.",
       "changePasswordButton": "Changer le mot de passe",
       "passwordChanged": "Mot de passe mis à jour",
-      "passwordChangeFailed": "Échec de la mise à jour du mot de passe"
+      "passwordChangeFailed": "Échec de la mise à jour du mot de passe",
+      "loadError": "Impossible de lire les paramètres de sécurité de votre portefeuille. Veuillez réessayer.",
+      "passkeyCardTitle": "Utiliser une clé d'accès à la place",
+      "passkeyCardBody": "Déverrouillez avec votre visage, empreinte ou code PIN. Votre clé d'accès remplace votre mot de passe.",
+      "passkeyPasswordSubtitle": "Saisissez votre mot de passe actuel pour passer à une clé d'accès.",
+      "passkeyCreated": "Clé d'accès créée",
+      "passkeySetupFailed": "Échec de la configuration de la clé d'accès",
+      "passkeyTitle": "Clé d'accès",
+      "passkeyCreatedOn": "Créée le {{date}}",
+      "passkeySavedAs": "Enregistrée dans votre gestionnaire de mots de passe sous {{name}}",
+      "switchToPassword": "Passer au mot de passe",
+      "switchToPasswordSubtitle": "Choisissez un mot de passe. Il remplace votre clé d'accès.",
+      "switchedToPassword": "Passé au mot de passe"
     },
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",

@@ -274,6 +274,15 @@
         "confirmPasswordPlaceholder": "Confirme a senha",
         "mismatchError": "As senhas não coincidem",
         "commonWarning": "Senha comum"
+      },
+      "passkey": {
+        "offerHeader": "Proteja sua carteira com uma chave de acesso",
+        "offerSubtitle": "Desbloqueie com seu rosto, impressão digital ou PIN do dispositivo em vez de uma senha. Se você perder sua chave de acesso, poderá restaurar sua carteira com sua frase de recuperação.",
+        "createButton": "Criar chave de acesso",
+        "usePassword": "Usar uma senha em vez disso",
+        "unsupported": "Seu gerenciador de senhas ainda não pode proteger uma carteira com chave de acesso. Defina uma senha em vez disso.",
+        "confirmFailed": "Não foi possível confirmar sua chave de acesso",
+        "tryAgain": "Tentar novamente"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Senha",
       "forgotPassword": "Esqueceu a senha?",
       "forgotPasswordConfirm": "Esqueceu sua senha? A única forma de recuperar é redefinir e restaurar com sua frase de recuperação.\n\nDeseja apagar todos os dados da carteira? Continue apenas se sua frase de recuperação estiver salva com segurança.",
-      "loginButton": "Entrar"
+      "loginButton": "Entrar",
+      "storageError": "Não foi possível ler o armazenamento da carteira. Tente novamente."
+    },
+    "passkeyPage": {
+      "unlockButton": "Desbloquear com chave de acesso",
+      "unlockError": "Não foi possível desbloquear com sua chave de acesso",
+      "lostPasskey": "Perdeu sua chave de acesso?",
+      "lostPasskeyConfirm": "Perdeu sua chave de acesso? A única forma de voltar é redefinir e restaurar com sua frase de recuperação.\n\nDeseja excluir todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança."
     }
   },
   "apps": {
@@ -1670,7 +1686,19 @@
       "newPasswordSubtitle": "Escolha uma nova senha.",
       "changePasswordButton": "Alterar senha",
       "passwordChanged": "Senha atualizada",
-      "passwordChangeFailed": "Falha ao atualizar a senha"
+      "passwordChangeFailed": "Falha ao atualizar a senha",
+      "loadError": "Não foi possível ler as configurações de segurança da sua carteira. Tente novamente.",
+      "passkeyCardTitle": "Usar uma chave de acesso em vez disso",
+      "passkeyCardBody": "Desbloqueie com seu rosto, impressão digital ou PIN do dispositivo. Sua chave de acesso substitui sua senha.",
+      "passkeyPasswordSubtitle": "Digite sua senha atual para mudar para uma chave de acesso.",
+      "passkeyCreated": "Chave de acesso criada",
+      "passkeySetupFailed": "Falha ao configurar a chave de acesso",
+      "passkeyTitle": "Chave de acesso",
+      "passkeyCreatedOn": "Criada em {{date}}",
+      "passkeySavedAs": "Salva no seu gerenciador de senhas como {{name}}",
+      "switchToPassword": "Mudar para senha",
+      "switchToPasswordSubtitle": "Escolha uma senha. Ela substitui sua chave de acesso.",
+      "switchedToPassword": "Mudado para senha"
     },
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",

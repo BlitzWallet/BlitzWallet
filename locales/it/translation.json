@@ -274,6 +274,15 @@
         "confirmPasswordPlaceholder": "Conferma password",
         "mismatchError": "Le password non corrispondono",
         "commonWarning": "Password comune"
+      },
+      "passkey": {
+        "offerHeader": "Proteggi il tuo portafoglio con una passkey",
+        "offerSubtitle": "Sblocca con viso, impronta o PIN del dispositivo invece della password. Se perdi la passkey, puoi ripristinare il portafoglio con la tua frase di recupero.",
+        "createButton": "Crea una passkey",
+        "usePassword": "Usa una password invece",
+        "unsupported": "Il tuo gestore di password non può ancora proteggere un portafoglio con una passkey. Imposta invece una password.",
+        "confirmFailed": "Impossibile confermare la tua passkey",
+        "tryAgain": "Riprova"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Password",
       "forgotPassword": "Password dimenticata?",
       "forgotPasswordConfirm": "Hai dimenticato la password? L'unico modo per recuperarla è reimpostare e ripristinare con la tua frase di recupero.\n\nVuoi eliminare tutti i dati del portafoglio? Continua solo se la tua frase di recupero è stata salvata in modo sicuro.",
-      "loginButton": "Accedi"
+      "loginButton": "Accedi",
+      "storageError": "Impossibile leggere l'archiviazione del portafoglio. Riprova."
+    },
+    "passkeyPage": {
+      "unlockButton": "Sblocca con passkey",
+      "unlockError": "Impossibile sbloccare con la tua passkey",
+      "lostPasskey": "Hai perso la passkey?",
+      "lostPasskeyConfirm": "Hai perso la passkey? L'unico modo per rientrare è reimpostare e ripristinare con la tua frase di recupero.\n\nVuoi eliminare tutti i dati del portafoglio? Continua solo se la tua frase di recupero è al sicuro."
     }
   },
   "apps": {
@@ -1670,7 +1686,19 @@
       "newPasswordSubtitle": "Scegli una nuova password.",
       "changePasswordButton": "Cambia password",
       "passwordChanged": "Password aggiornata",
-      "passwordChangeFailed": "Impossibile aggiornare la password"
+      "passwordChangeFailed": "Impossibile aggiornare la password",
+      "loadError": "Impossibile leggere le impostazioni di sicurezza del tuo portafoglio. Riprova.",
+      "passkeyCardTitle": "Usa invece una passkey",
+      "passkeyCardBody": "Sblocca con viso, impronta o PIN del dispositivo. La tua passkey sostituisce la tua password.",
+      "passkeyPasswordSubtitle": "Inserisci la tua password attuale per passare a una passkey.",
+      "passkeyCreated": "Passkey creata",
+      "passkeySetupFailed": "Impossibile configurare la passkey",
+      "passkeyTitle": "Passkey",
+      "passkeyCreatedOn": "Creata il {{date}}",
+      "passkeySavedAs": "Salvata nel tuo gestore di password come {{name}}",
+      "switchToPassword": "Passa a password",
+      "switchToPasswordSubtitle": "Scegli una password. Sostituisce la tua passkey.",
+      "switchedToPassword": "Passato a password"
     },
     "seedPhrase": {
       "header": "Conserva questa frase seme in un luogo sicuro e protetto",

@@ -274,6 +274,15 @@
         "confirmPasswordPlaceholder": "Confirmar contraseña",
         "mismatchError": "Las contraseñas no coinciden",
         "commonWarning": "Contraseña común"
+      },
+      "passkey": {
+        "offerHeader": "Protege tu billetera con una clave de acceso",
+        "offerSubtitle": "Desbloquea con tu rostro, huella o PIN del dispositivo en lugar de una contraseña. Si pierdes tu clave de acceso, puedes restaurar tu billetera con tu frase de recuperación.",
+        "createButton": "Crear clave de acceso",
+        "usePassword": "Usar una contraseña en su lugar",
+        "unsupported": "Tu gestor de contraseñas aún no puede proteger una billetera con clave de acceso. Usa una contraseña en su lugar.",
+        "confirmFailed": "No se pudo confirmar tu clave de acceso",
+        "tryAgain": "Intentar de nuevo"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Contraseña",
       "forgotPassword": "¿Olvidaste tu contraseña?",
       "forgotPasswordConfirm": "¿Olvidaste tu contraseña? La única forma de recuperar es restablecer y restaurar con tu frase de recuperación.\n\n¿Quieres borrar todos los datos de la billetera? Continúa solo si tu frase de recuperación está respaldada de forma segura.",
-      "loginButton": "Iniciar sesión"
+      "loginButton": "Iniciar sesión",
+      "storageError": "No se pudo leer el almacenamiento de la billetera. Inténtalo de nuevo."
+    },
+    "passkeyPage": {
+      "unlockButton": "Desbloquear con clave de acceso",
+      "unlockError": "No se pudo desbloquear con tu clave de acceso",
+      "lostPasskey": "¿Perdiste tu clave de acceso?",
+      "lostPasskeyConfirm": "¿Perdiste tu clave de acceso? La única forma de volver es restablecer y restaurar con tu frase de recuperación.\n\n¿Quieres borrar todos los datos de la billetera? Continúa solo si tu frase de recuperación está respaldada de forma segura."
     }
   },
   "apps": {
@@ -1667,7 +1683,19 @@
       "newPasswordSubtitle": "Elige una nueva contraseña.",
       "changePasswordButton": "Cambiar contraseña",
       "passwordChanged": "Contraseña actualizada",
-      "passwordChangeFailed": "No se pudo actualizar la contraseña"
+      "passwordChangeFailed": "No se pudo actualizar la contraseña",
+      "loadError": "No se pudieron leer los ajustes de seguridad de tu billetera. Inténtalo de nuevo.",
+      "passkeyCardTitle": "Usar una clave de acceso en su lugar",
+      "passkeyCardBody": "Desbloquea con tu rostro, huella o PIN del dispositivo. Tu clave de acceso reemplaza tu contraseña.",
+      "passkeyPasswordSubtitle": "Ingresa tu contraseña actual para cambiar a una clave de acceso.",
+      "passkeyCreated": "Clave de acceso creada",
+      "passkeySetupFailed": "No se pudo configurar la clave de acceso",
+      "passkeyTitle": "Clave de acceso",
+      "passkeyCreatedOn": "Creada el {{date}}",
+      "passkeySavedAs": "Guardada en tu gestor de contraseñas como {{name}}",
+      "switchToPassword": "Cambiar a contraseña",
+      "switchToPasswordSubtitle": "Elige una contraseña. Reemplaza tu clave de acceso.",
+      "switchedToPassword": "Cambiado a contraseña"
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",

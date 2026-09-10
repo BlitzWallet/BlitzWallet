@@ -47,10 +47,15 @@ export function WebView({
   // on web the iframe is cross-origin so we listen for `message` events and
   // re-shape them to the RN `onMessage({ nativeEvent: { data } })` contract.
   React.useEffect(() => {
-    if (!onMessage) return;
+    // srcDoc embeds (no uri) have no origin to pin the sender to: no messages.
+    if (!onMessage || !uri) return;
+    const origin = new URL(uri).origin;
     const handler = event => {
-      // Only accept messages from the embedded Bitrefill origin or any
-      // `srcDoc` (null origin). Keep it permissive for other consumers.
+      // Any window holding a handle to ours (opener, popup, a frame nested in
+      // the embed) can post here, e.g. a forged `payment_intent`. Like native,
+      // only hear our own iframe, and only while it is on the source origin.
+      if (event.source !== ref.current?.contentWindow) return;
+      if (event.origin !== origin) return;
       const data = event.data;
       if (data == null) return;
       const asString = typeof data === 'string' ? data : JSON.stringify(data);
@@ -60,7 +65,7 @@ export function WebView({
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [onMessage]);
+  }, [onMessage, uri]);
 
   const handleLoad = e => {
     try {

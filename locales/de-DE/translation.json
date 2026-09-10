@@ -274,6 +274,15 @@
         "confirmPasswordPlaceholder": "Passwort bestätigen",
         "mismatchError": "Passwörter stimmen nicht überein",
         "commonWarning": "Häufiges Passwort"
+      },
+      "passkey": {
+        "offerHeader": "Schütze deine Wallet mit einem Passkey",
+        "offerSubtitle": "Entsperre mit deinem Gesicht, Fingerabdruck oder Geräte-PIN statt mit einem Passwort. Falls du deinen Passkey verlierst, kannst du deine Wallet mit deiner Wiederherstellungsphrase wiederherstellen.",
+        "createButton": "Passkey erstellen",
+        "usePassword": "Stattdessen ein Passwort verwenden",
+        "unsupported": "Dein Passwort-Manager kann eine Wallet noch nicht mit einem Passkey schützen. Lege stattdessen ein Passwort fest.",
+        "confirmFailed": "Passkey konnte nicht bestätigt werden",
+        "tryAgain": "Erneut versuchen"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Passwort",
       "forgotPassword": "Passwort vergessen?",
       "forgotPasswordConfirm": "Passwort vergessen? Der einzige Weg zur Wiederherstellung ist das Zurücksetzen und Wiederherstellen mit deiner Wiederherstellungsphrase.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Wiederherstellungsphrase sicher gesichert ist.",
-      "loginButton": "Anmelden"
+      "loginButton": "Anmelden",
+      "storageError": "Wallet-Speicher konnte nicht gelesen werden. Bitte versuche es erneut."
+    },
+    "passkeyPage": {
+      "unlockButton": "Mit Passkey entsperren",
+      "unlockError": "Entsperren mit Passkey fehlgeschlagen",
+      "lostPasskey": "Passkey verloren?",
+      "lostPasskeyConfirm": "Passkey verloren? Der einzige Weg zurück ist das Zurücksetzen und Wiederherstellen mit deiner Wiederherstellungsphrase.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Wiederherstellungsphrase sicher gesichert ist."
     }
   },
   "apps": {
@@ -1670,7 +1686,19 @@
       "newPasswordSubtitle": "Wähle ein neues Passwort.",
       "changePasswordButton": "Passwort ändern",
       "passwordChanged": "Passwort aktualisiert",
-      "passwordChangeFailed": "Passwort konnte nicht aktualisiert werden"
+      "passwordChangeFailed": "Passwort konnte nicht aktualisiert werden",
+      "loadError": "Deine Wallet-Sicherheitseinstellungen konnten nicht gelesen werden. Bitte versuche es erneut.",
+      "passkeyCardTitle": "Stattdessen einen Passkey verwenden",
+      "passkeyCardBody": "Entsperre mit deinem Gesicht, Fingerabdruck oder Geräte-PIN. Dein Passkey ersetzt dein Passwort.",
+      "passkeyPasswordSubtitle": "Gib dein aktuelles Passwort ein, um zu einem Passkey zu wechseln.",
+      "passkeyCreated": "Passkey erstellt",
+      "passkeySetupFailed": "Passkey-Einrichtung fehlgeschlagen",
+      "passkeyTitle": "Passkey",
+      "passkeyCreatedOn": "Erstellt am {{date}}",
+      "passkeySavedAs": "In deinem Passwort-Manager gespeichert als {{name}}",
+      "switchToPassword": "Zu Passwort wechseln",
+      "switchToPasswordSubtitle": "Wähle ein Passwort. Es ersetzt deinen Passkey.",
+      "switchedToPassword": "Zu Passwort gewechselt"
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",

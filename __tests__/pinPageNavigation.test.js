@@ -130,6 +130,22 @@ jest.mock('../app/functions/hash', () => ({
   default: str => `HASH(${str})`,
 }));
 
+// Web-only components and passkey storage are not loaded by native tests.
+jest.mock('../app/components/admin/loginComponents/passwordCreateForm', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../app/functions/CustomElements/button', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../app/functions/passkeyMnemonic', () => ({}));
+
 const OnboardingPinPage = require('../app/screens/createAccount/keySetup/pin').default;
 const LoginPinPage = require('../app/components/admin/loginComponents/pinPage').default;
 

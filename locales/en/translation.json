@@ -284,6 +284,15 @@
         "confirmPasswordPlaceholder": "Confirm password",
         "mismatchError": "Passwords do not match",
         "commonWarning": "Common password"
+      },
+      "passkey": {
+        "offerHeader": "Protect your wallet with a passkey",
+        "offerSubtitle": "If you ever lose your passkey, you can restore your wallet with your recovery phrase.",
+        "createButton": "Create a passkey",
+        "usePassword": "Use a password instead",
+        "unsupported": "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",
+        "confirmFailed": "Couldn't confirm your passkey",
+        "tryAgain": "Try again"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Password",
       "forgotPassword": "Forgot password?",
       "forgotPasswordConfirm": "Forgot your password? The only way to recover is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
+      "storageError": "Unable to read wallet storage. Please try again.",
       "loginButton": "Log In"
+    },
+    "passkeyPage": {
+      "unlockButton": "Open with Passkey",
+      "unlockError": "Couldn't unlock with your passkey",
+      "lostPasskey": "Lost your passkey?",
+      "lostPasskeyConfirm": "Lost your passkey? The only way back in is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up."
     }
   },
   "apps": {
@@ -1670,7 +1686,19 @@
       "newPasswordSubtitle": "Choose a new password.",
       "changePasswordButton": "Change Password",
       "passwordChanged": "Password updated",
-      "passwordChangeFailed": "Failed to update password"
+      "passwordChangeFailed": "Failed to update password",
+      "loadError": "Could not read your wallet security settings. Please try again.",
+      "passkeyCardTitle": "Use a passkey instead",
+      "passkeyCardBody": "Unlock with your face, fingerprint, or device PIN. Your passkey replaces your password.",
+      "passkeyPasswordSubtitle": "Enter your current password to switch to a passkey.",
+      "passkeyCreated": "Your Passkey was created",
+      "passkeySetupFailed": "Failed to set up passkey",
+      "passkeyTitle": "Passkey",
+      "passkeyCreatedOn": "Created {{date}}",
+      "passkeySavedAs": "Saved in your password manager as {{name}}",
+      "switchToPassword": "Switch to password",
+      "switchToPasswordSubtitle": "Choose a password. It replaces your passkey.",
+      "switchedToPassword": "Switched to password"
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",

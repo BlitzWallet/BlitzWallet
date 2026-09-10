@@ -313,6 +313,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
       touchableWithoutFeedbackFunction={KeyboardController.dismiss}
       useLocalPadding={false}
       useTouchableWithoutFeedback={true}
+      useStandardWidth={true}
     >
       <View style={styles.keyContainer}>
         <CustomSettingsTopBar />
@@ -384,7 +385,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
 const styles = StyleSheet.create({
   keyContainer: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
   },
   navContainer: {

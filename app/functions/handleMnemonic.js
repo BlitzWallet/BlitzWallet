@@ -29,7 +29,7 @@ const ARGON2_KEY_LEN = 32;
 const ARGON2_PARAMS = { memory: 19456, passes: 2, parallelism: 1 }; // OWASP baseline (was 16384)
 // Binds the v3 mnemonic envelope to this storage context so it can't be
 // replayed into another field (mirrors custodyAccountsCrypto's AAD).
-const MNEMONIC_AAD = Buffer.from('blitz.encryptedMnemonic.v3', 'utf8');
+export const MNEMONIC_AAD = Buffer.from('blitz.encryptedMnemonic.v3', 'utf8');
 // Login-critical KDF bounds: a tampered m/t/p must not be able to make login
 // allocate unbounded Argon2 memory (OOM at cold start bricks login) or pick
 // degenerate parameters. Ceiling sized for low-end devices (legit params are
@@ -102,13 +102,23 @@ export function isV3MnemonicFormat(value) {
   return isGcmV3(value);
 }
 
+// Web wallet locked by a passkey (passkeyMnemonic.js). isGcmV3 defaults to
+// kdf 'argon2id', so isV3MnemonicFormat never matches this envelope and the
+// password path never runs Argon2 on it.
+export function isPasskeyMnemonicFormat(value) {
+  return isGcmV3(value, 'aes-256-gcm', 'webauthn-prf');
+}
+
 export function isLegacyEvpKDF(value) {
   return typeof value === 'string' && value.startsWith('U2FsdGVkX1');
 }
 
 export function isEncryptedMnemonicFormat(value) {
   return (
-    isV3MnemonicFormat(value) || isArgon2Format(value) || isLegacyEvpKDF(value)
+    isV3MnemonicFormat(value) ||
+    isArgon2Format(value) ||
+    isLegacyEvpKDF(value) ||
+    isPasskeyMnemonicFormat(value)
   );
 }
 

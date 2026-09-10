@@ -274,6 +274,15 @@
         "confirmPasswordPlaceholder": "Bekräfta lösenord",
         "mismatchError": "Lösenorden matchar inte",
         "commonWarning": "Vanligt lösenord"
+      },
+      "passkey": {
+        "offerHeader": "Skydda din plånbok med en passnyckel",
+        "offerSubtitle": "Lås upp med ansikte, fingeravtryck eller enhetens PIN istället för lösenord. Om du förlorar din passnyckel kan du återställa plånboken med din återställningsfras.",
+        "createButton": "Skapa passnyckel",
+        "usePassword": "Använd lösenord istället",
+        "unsupported": "Din lösenordshanterare kan inte skydda en plånbok med passnyckel ännu. Ställ in ett lösenord istället.",
+        "confirmFailed": "Kunde inte bekräfta din passnyckel",
+        "tryAgain": "Försök igen"
       }
     },
     "restoreWallet": {
@@ -324,7 +333,14 @@
       "passwordPlaceholder": "Lösenord",
       "forgotPassword": "Glömt lösenordet?",
       "forgotPasswordConfirm": "Har du glömt ditt lösenord? Det enda sättet att återställa är att radera och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad.",
-      "loginButton": "Logga in"
+      "loginButton": "Logga in",
+      "storageError": "Kunde inte läsa plånbokens lagring. Försök igen."
+    },
+    "passkeyPage": {
+      "unlockButton": "Lås upp med passnyckel",
+      "unlockError": "Kunde inte låsa upp med din passnyckel",
+      "lostPasskey": "Tappat din passnyckel?",
+      "lostPasskeyConfirm": "Tappat din passnyckel? Det enda sättet tillbaka är att återställa och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad."
     }
   },
   "apps": {
@@ -1670,7 +1686,19 @@
       "newPasswordSubtitle": "Välj ett nytt lösenord.",
       "changePasswordButton": "Ändra lösenord",
       "passwordChanged": "Lösenord uppdaterat",
-      "passwordChangeFailed": "Kunde inte uppdatera lösenordet"
+      "passwordChangeFailed": "Kunde inte uppdatera lösenordet",
+      "loadError": "Kunde inte läsa plånbokens säkerhetsinställningar. Försök igen.",
+      "passkeyCardTitle": "Använd passnyckel istället",
+      "passkeyCardBody": "Lås upp med ansikte, fingeravtryck eller enhetens PIN. Din passnyckel ersätter ditt lösenord.",
+      "passkeyPasswordSubtitle": "Ange ditt nuvarande lösenord för att byta till passnyckel.",
+      "passkeyCreated": "Passnyckel skapad",
+      "passkeySetupFailed": "Misslyckades med att ställa in passnyckel",
+      "passkeyTitle": "Passnyckel",
+      "passkeyCreatedOn": "Skapad {{date}}",
+      "passkeySavedAs": "Sparad i din lösenordshanterare som {{name}}",
+      "switchToPassword": "Byt till lösenord",
+      "switchToPasswordSubtitle": "Välj ett lösenord. Det ersätter din passnyckel.",
+      "switchedToPassword": "Bytt till lösenord"
     },
     "seedPhrase": {
       "header": "Förvara denna fröfras på ett säkert och tryggt ställe",
