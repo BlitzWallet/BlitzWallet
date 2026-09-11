@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
-import { decryptMnemonicWithPasskey } from '../../../functions/passkeyMnemonic';
+import { decryptMnemonicWithPasskey, getStoredPasskeyInfo } from '../../../functions/passkeyMnemonic';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
 import { tintStyle } from '../../../functions/webTintColor';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
