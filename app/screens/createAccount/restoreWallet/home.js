@@ -23,11 +23,7 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
@@ -207,7 +203,10 @@ export default function RestoreWallet({ navigation: { reset } }) {
       rows.push(
         <View
           key={`row${item1}`}
-          style={[styles.seedRow, { marginBottom: item2 !== 12 ? 10 : 0 }]}
+          style={[
+            styles.seedRow,
+            { marginBottom: item2 !== 12 || Platform.OS === 'web' ? 10 : 0 },
+          ]}
         >
           {/* First item in row */}
           <View
@@ -315,78 +314,102 @@ export default function RestoreWallet({ navigation: { reset } }) {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      <View style={styles.keyContainer}>
+      <View style={styles.viewContainer}>
         <CustomSettingsTopBar />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
-          <ThemeText
-            CustomNumberOfLines={1}
-            adjustsFontSizeToFit={true}
-            styles={styles.title}
-            content={t('createAccount.restoreWallet.home.header')}
-          />
-          <ThemeText
-            CustomNumberOfLines={2}
-            adjustsFontSizeToFit={true}
-            styles={styles.subtitle}
-            content={t('createAccount.restoreWallet.home.desc')}
-          />
-          {inputKeys}
-        </ScrollView>
-
-        {!currentFocused && (
-          <View
-            style={{
-              paddingBottom: bottomPadding,
-              width: INSET_WINDOW_WIDTH,
-              ...CENTER,
-              marginTop: CONTENT_KEYBOARD_OFFSET,
-            }}
+        <View style={styles.keyContainer}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.contentContainer}
           >
-            {/* Paste + Scan row */}
-            <View style={styles.secondaryButtonRow}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
+              styles={styles.title}
+              content={t('createAccount.restoreWallet.home.header')}
+            />
+            <ThemeText
+              CustomNumberOfLines={2}
+              adjustsFontSizeToFit={true}
+              styles={styles.subtitle}
+              content={t('createAccount.restoreWallet.home.desc')}
+            />
+            {inputKeys}
+            {currentFocused && Platform.OS === 'web' && (
+              <SuggestedWordContainer
+                inputedKey={inputedKey}
+                setInputedKey={setInputedKey}
+                selectedKey={currentFocused}
+                keyRefs={keyRefs}
+              />
+            )}
+          </ScrollView>
+
+          {!currentFocused && (
+            <View
+              style={{
+                paddingBottom: bottomPadding,
+                width: INSET_WINDOW_WIDTH,
+                ...CENTER,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
+              }}
+            >
+              {/* Paste + Scan row */}
+              <View style={styles.secondaryButtonRow}>
+                <CustomButton
+                  buttonStyles={styles.secondaryButton}
+                  textContent={t('createAccount.restoreWallet.home.scanQr')}
+                  actionFunction={() =>
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: handleCameraScan,
+                      fromPage: 'addContact',
+                    })
+                  }
+                />
+              </View>
+
+              {/* Restore — full width */}
               <CustomButton
-                buttonStyles={styles.secondaryButton}
-                textContent={t('createAccount.restoreWallet.home.scanQr')}
-                actionFunction={() =>
-                  navigate.navigate('CameraModal', {
-                    updateBitcoinAdressFunc: handleCameraScan,
-                    fromPage: 'addContact',
-                  })
-                }
+                buttonStyles={styles.restoreButton}
+                textStyles={{ color: COLORS.darkModeText }}
+                textContent={t('constants.restore')}
+                actionFunction={keyValidation}
               />
             </View>
-
-            {/* Restore — full width */}
-            <CustomButton
-              buttonStyles={styles.restoreButton}
-              textStyles={{ color: COLORS.darkModeText }}
-              textContent={t('constants.restore')}
-              actionFunction={keyValidation}
-            />
-          </View>
-        )}
+          )}
+        </View>
       </View>
 
-      {currentFocused && (
-        <SuggestedWordContainer
-          inputedKey={inputedKey}
-          setInputedKey={setInputedKey}
-          selectedKey={currentFocused}
-          keyRefs={keyRefs}
-        />
+      {currentFocused && Platform.OS !== 'web' && (
+        <View style={styles.suggestionBreakout}>
+          <SuggestedWordContainer
+            inputedKey={inputedKey}
+            setInputedKey={setInputedKey}
+            selectedKey={currentFocused}
+            keyRefs={keyRefs}
+          />
+        </View>
       )}
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  viewContainer: {
+    flex: 1,
+    width: '100%',
+    ...CENTER,
+  },
   keyContainer: {
     flex: 1,
     width: '100%',
     ...CENTER,
+  },
+  suggestionBreakout: {
+    // Parent is the 95% standard-width container, but the suggestion strip
+    // must stay full screen width on native: 100/95 ≈ 105.263% wide,
+    // shifted left by 2.5/95 ≈ 2.632% to bleed symmetrically.
+    width: '105.263%',
+    marginLeft: '-2.632%',
   },
   navContainer: {
     marginRight: 'auto',
@@ -423,9 +446,11 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 10,
   },
   seedItem: {
-    width: '48%',
+    flexShrink: 1,
+    width: '100%',
     minHeight: 55,
     flexDirection: 'row',
     alignItems: 'center',
@@ -438,7 +463,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   textInputStyle: {
-    flex: 1,
+    width: '100%',
+    flexShrink: 1,
     minHeight: Platform.OS === 'ios' ? 0 : 55,
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
