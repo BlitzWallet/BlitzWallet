@@ -32,14 +32,21 @@ export default function AppStore({ navigation }) {
   const scrollViewRef = useRef(null);
 
   const hasLegacyChatGPT =
-    (decodedChatGPT?.credits ?? 0) > 0 || Platform.OS === 'android';
+    (decodedChatGPT?.credits ?? 0) > 0 ||
+    Platform.OS === 'android' ||
+    Platform.OS === 'web';
 
   const hasLegacySMS =
     (decodedMessages?.sent?.length ?? 0) > 0 ||
     (decodedMessages?.received?.length ?? 0) > 0 ||
-    Platform.OS === 'android';
+    Platform.OS === 'android' ||
+    Platform.OS === 'web';
+
   const showLegacySection =
-    hasLegacyChatGPT || hasLegacySMS || Platform.OS === 'android';
+    hasLegacyChatGPT ||
+    hasLegacySMS ||
+    Platform.OS === 'android' ||
+    Platform.OS === 'web';
 
   useFocusEffect(
     useCallback(() => {
