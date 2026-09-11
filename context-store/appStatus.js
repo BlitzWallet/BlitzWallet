@@ -47,8 +47,11 @@ const AppStatusProvider = ({ children }) => {
   const [didGetToHomepage, setDidGetToHomePage] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
   const [isAppFocused, setIsAppFocused] = useState(true);
+  // react-native-web's 'screen' is window.screen, the physical monitor. It never
+  // tracks the browser window the app is drawn in, so web sizes off 'window'.
+  const dimensionKey = Platform.OS === 'web' ? 'window' : 'screen';
   const [screenDimensions, setScreenDimensions] = useState(() =>
-    Dimensions.get('screen'),
+    Dimensions.get(dimensionKey),
   );
   const shouldResetStateRef = useRef(null);
   // const lastConnectedTimeRef = useRef(null);
@@ -70,8 +73,8 @@ const AppStatusProvider = ({ children }) => {
 
   useEffect(() => {
     const handleWindowSizeChange = newDimensions => {
-      console.log('Window size state changed to:', newDimensions.screen);
-      setScreenDimensions(newDimensions.screen);
+      console.log('Window size state changed to:', newDimensions[dimensionKey]);
+      setScreenDimensions(newDimensions[dimensionKey]);
     };
 
     const subscription = Dimensions.addEventListener(

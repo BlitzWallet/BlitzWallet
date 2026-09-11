@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 import ReactTestRenderer, { act } from 'react-test-renderer';
 import useAdaptiveButtonLayout from '../app/hooks/useAdaptiveButtonLayout';
 
@@ -41,6 +41,12 @@ function setup(initialLabels, options) {
       const texts = renderer.root.findAllByType(Text);
       act(() =>
         texts[index].props.onTextLayout({ nativeEvent: { lines: [{ width }] } }),
+      );
+    },
+    fireLabelLayout(index, width) {
+      const texts = renderer.root.findAllByType(Text);
+      act(() =>
+        texts[index].props.onLayout({ nativeEvent: { layout: { width } } }),
       );
     },
   };
@@ -167,5 +173,18 @@ describe('useAdaptiveButtonLayout', () => {
     h.fireLabel(1, 60);
     // With padding 24 this would be a row; padding 44 forces a stack.
     expect(h.state.result.shouldStack).toBe(true);
+  });
+
+  it('measures labels via onLayout on web, where onTextLayout never fires', () => {
+    const os = jest.replaceProperty(Platform, 'OS', 'web');
+    try {
+      const h = setup(['Contribute to goal', 'Share with friends']);
+      h.fireContainer(300);
+      h.fireLabelLayout(0, 126);
+      h.fireLabelLayout(1, 128);
+      expect(h.state.result.shouldStack).toBe(true);
+    } finally {
+      os.restore();
+    }
   });
 });
