@@ -29,10 +29,12 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import getClipboardText from '../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useGlobalThemeContext } from '../../../context-store/theme';
+import GetThemeColors from '../../hooks/themeColors';
 
 export default function SendPaymentHome({ pageViewPage, from }) {
   const navigate = useNavigation();
   const isFocused = useIsFocused();
+  const { backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const isPhotoeLibraryOpen = useRef(false);
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -232,7 +234,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { alignItems: 'center', justifyContent: 'center' },
+        { alignItems: 'center', justifyContent: 'center', backgroundColor },
       ]}
     >
       <Camera

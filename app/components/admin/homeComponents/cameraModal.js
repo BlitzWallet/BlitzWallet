@@ -22,10 +22,12 @@ import { detectQRCode } from '../../../functions/detectQrCode';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
+import GetThemeColors from '../../../hooks/themeColors';
 
 export default function CameraModal(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor } = GetThemeColors();
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
   const { t } = useTranslation();
@@ -181,7 +183,7 @@ export default function CameraModal(props) {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { alignItems: 'center', justifyContent: 'center' },
+        { alignItems: 'center', justifyContent: 'center', backgroundColor },
       ]}
     >
       <Camera
