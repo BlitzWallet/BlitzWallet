@@ -2473,7 +2473,9 @@
         "liquidWalletError2": "Não foi possível configurar sua carteira. Tente novamente.",
         "dbInitError1": "Não foi possível configurar seu aplicativo.",
         "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação.",
-        "initErrorTitle": "Algo deu errado"
+        "initErrorTitle": "Algo deu errado",
+        "dbTabConflictError1": "Carteira já aberta em outra aba.",
+        "dbTabConflictError2": "Feche a outra aba para continuar aqui e tente novamente. Apenas uma aba pode acessar a carteira por vez."
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",

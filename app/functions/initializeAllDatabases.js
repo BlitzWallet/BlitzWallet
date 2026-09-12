@@ -9,6 +9,7 @@ import { initSavingsDb } from './savings/savingsStorage';
 import { initLeavesDb } from './spark/leavesStorage';
 import { documentDirectory, makeDirectoryAsync } from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import { acquireWebDatabaseOwnership } from './webDatabaseOwnership';
 
 let initPromise = null;
 
@@ -45,6 +46,15 @@ export function initializeAllDatabases() {
   if (!initPromise) {
     initPromise = (async () => {
       if (Platform.OS === 'web') {
+        // Single-tab ownership BEFORE touching SQLite: a second tab that opens
+        // the same OPFS databases poisons its worker ("Invalid VFS state"), so
+        // non-owners throw dbTabConflictError and never reach openDatabaseAsync.
+        try {
+          await acquireWebDatabaseOwnership();
+        } catch (err) {
+          initPromise = null;
+          throw err;
+        }
         const results = [];
         // Sequential — one openDatabaseAsync + CREATE TABLE at a time.
         // Startup-critical DBs (0, 3, 8) are opened first so a retry clears the

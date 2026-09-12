@@ -43,6 +43,7 @@ import {
   wipeStaleWalletKeychain,
 } from './secureStore';
 import { Platform } from 'react-native';
+import { acquireWebDatabaseOwnership } from './webDatabaseOwnership';
 
 // AsyncStorage keys carried across the wipe. userSelectedLanguage keeps
 // non-English users from flipping to en mid-onboarding; didViewSeedPhrase holds
@@ -141,6 +142,9 @@ async function wipeImageCacheDirectories() {
 // stale AsyncStorage, SQLite cache, and keychain identity can never render as
 // the new wallet's live data. Returns true only when the wipe fully succeeded.
 export default async function wipeLocalWalletData() {
+  // On web, claim single-tab ownership first so a second tab cannot wipe
+  // secure-store / AsyncStorage / SQLite state out from under the owner.
+  await acquireWebDatabaseOwnership();
   // Arm the re-arm marker BEFORE any destructive step. It lives in the
   // keychain so removeAllLocalData can't clear it; it is disarmed only after
   // every step succeeded, so a failure or a process kill mid-wipe is retried

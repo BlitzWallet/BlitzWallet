@@ -2473,7 +2473,9 @@
         "liquidWalletError2": "Nous n'avons pas pu configurer votre portefeuille. Veuillez réessayer.",
         "dbInitError1": "Nous ne pouvons pas configurer votre application.",
         "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation.",
-        "initErrorTitle": "Une erreur s’est produite"
+        "initErrorTitle": "Une erreur s’est produite",
+        "dbTabConflictError1": "Portefeuille déjà ouvert dans un autre onglet.",
+        "dbTabConflictError2": "Fermez l'autre onglet pour continuer ici, puis réessayez. Un seul onglet peut accéder au portefeuille à la fois."
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Pour recevoir un paiement Bitcoin, vous devrez payer des frais réseau on-chain. Ces frais varient selon les frais actuels du réseau Bitcoin.",

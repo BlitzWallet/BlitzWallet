@@ -81,9 +81,12 @@ export function Camera({
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
         });
+        // getUserMedia() resolves asynchronously: the scanner may have
+        // unmounted (stopped) or its video element may be gone while
+        // permission was pending. Stop the fresh stream in either case —
+        // returning early without stopping leaks an active camera track.
         const video = videoRef.current;
-        if (!video) return;
-        if (stopped) {
+        if (!video || stopped) {
           stopStream();
           return;
         }

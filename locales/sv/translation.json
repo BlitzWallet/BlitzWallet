@@ -2473,7 +2473,9 @@
         "liquidWalletError2": "Vi kunde inte konfigurera din plånbok. Vänligen försök igen.",
         "dbInitError1": "Vi kan inte konfigurera din app.",
         "dbInitError2": "Vänligen försök igen. Om detta problem fortsätter kan du säkert återfå dina pengar med hjälp av din seed-fras.",
-        "initErrorTitle": "Något gick fel"
+        "initErrorTitle": "Något gick fel",
+        "dbTabConflictError1": "Plånboken är redan öppen i en annan flik.",
+        "dbTabConflictError2": "Stäng den andra fliken för att fortsätta här och försök sedan igen. Endast en flik kan komma åt plånboken åt gången."
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "För att ta emot en Bitcoin-betalning betalar du en on-chain-nätverksavgift. Denna avgift varierar beroende på aktuella Bitcoin-nätverksavgifter.",
