@@ -15,7 +15,12 @@
 import React from 'react';
 import ReactTestRenderer, { act } from 'react-test-renderer';
 
-const mockNavigate = { navigate: jest.fn(), reset: jest.fn(), replace: jest.fn() };
+const mockNavigate = {
+  navigate: jest.fn(),
+  reset: jest.fn(),
+  replace: jest.fn(),
+  goBack: jest.fn(),
+};
 const mockStoreMnemonic = jest.fn();
 const mockSetLocalStorageItem = jest.fn();
 const mockGetLocalStorageItem = jest.fn();
@@ -28,7 +33,11 @@ const mockLoginSecuritySwitch = jest.fn();
 const mockSetAccountMnemonic = jest.fn();
 
 jest.mock('../app/constants', () => ({
-  SIZES: { xLarge: 30, large: 20, medium: 16 },
+  CENTER: {},
+  COLORS: { primary: '#000', darkModeText: '#fff', lightModeText: '#000' },
+  FONT: {},
+  ICONS: {},
+  SIZES: { xLarge: 30, large: 20, medium: 16, small: 12 },
   LOGIN_SECUITY_MODE_KEY: 'LOGIN_SECURITY_MODE',
   PERSISTED_LOGIN_COUNT_KEY: 'PERSISTED_LOGIN_COUNT_KEY',
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY: 'RANDOM_KEYBOARD_LAYOUT_KEY',
@@ -54,6 +63,7 @@ jest.mock('../app/functions/CustomElements/pinDot', () => ({
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => mockNavigate,
+  useFocusEffect: jest.fn(),
 }));
 
 jest.mock('react-i18next', () => ({
@@ -140,11 +150,50 @@ jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
   __esModule: true,
   default: () => null,
 }));
+jest.mock('../app/functions/CustomElements/actionCircleContainer', () => ({
+  __esModule: true,
+  default: () => null,
+}));
 jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: () => null,
 }));
 jest.mock('../app/functions/passkeyMnemonic', () => ({}));
+
+jest.mock('../context-store/theme', () => ({
+  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+}));
+
+jest.mock('../context-store/appStatus', () => ({
+  useAppStatus: () => ({ screenDimensions: { width: 400, height: 800 } }),
+}));
+
+jest.mock('../app/hooks/themeColors', () => ({
+  __esModule: true,
+  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+}));
+
+jest.mock('../app/functions/customNavigation', () => ({
+  keyboardGoBack: jest.fn(async () => {}),
+}));
+
+jest.mock('expo-image', () => ({
+  Image: () => null,
+}));
+
+jest.mock('expo-secure-store', () => ({
+  AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 1,
+  getItemAsync: jest.fn(async () => null),
+  setItemAsync: jest.fn(async () => {}),
+  deleteItemAsync: jest.fn(async () => {}),
+}));
+
+jest.mock('expo-local-authentication', () => ({
+  hasHardwareAsync: jest.fn(async () => false),
+  isEnrolledAsync: jest.fn(async () => false),
+  supportedAuthenticationTypesAsync: jest.fn(async () => []),
+  authenticateAsync: jest.fn(async () => ({ success: false })),
+}));
 
 const OnboardingPinPage = require('../app/screens/createAccount/keySetup/pin').default;
 const LoginPinPage = require('../app/components/admin/loginComponents/pinPage').default;

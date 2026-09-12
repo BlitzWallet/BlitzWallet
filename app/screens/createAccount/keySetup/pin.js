@@ -16,8 +16,6 @@ import { getPublicKey } from 'nostr-tools';
 import { initializeFirebase } from '../../../../db/initializeFirebase';
 import sha256Hash from '../../../functions/hash';
 import PasswordCreateForm from '../../../components/admin/loginComponents/passwordCreateForm';
-
-import PasskeyIcon from '../../../components/admin/loginComponents/passkeyIcon';
 import CustomButton from '../../../functions/CustomElements/button';
 import {
   createPasskey,
@@ -27,9 +25,15 @@ import {
 } from '../../../functions/passkeyMnemonic';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import IconActionCircle from '../../../functions/CustomElements/actionCircleContainer';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
+import GetThemeColors from '../../../hooks/themeColors';
 
 function WebCreatePassword(props) {
   const { accountMnemoinc } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -234,49 +238,59 @@ function WebCreatePassword(props) {
   return (
     <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
       <CustomSettingsTopBar customBackFunction={handleGoBack} />
-      <View style={styles.passkeyContent}>
-        <PasskeyIcon />
-        <ThemeText
-          styles={styles.passkeyHeader}
-          content={t('createAccount.keySetup.passkey.offerHeader')}
-        />
-        <ThemeText
-          styles={styles.passkeySubtitle}
-          content={t(
-            'createAccount.keySetup.passkey.offerSubtitle',
-            'Unlock with your face, fingerprint, or device PIN instead of a password. If you ever lose your passkey, you can restore your wallet with your recovery phrase.',
+      <View style={styles.container}>
+        <View style={styles.passkeyContent}>
+          <ThemeText
+            styles={styles.passkeyHeader}
+            content={t('createAccount.keySetup.passkey.offerHeader')}
+          />
+          <ThemeText
+            styles={styles.passkeySubtitle}
+            content={t(
+              'createAccount.keySetup.passkey.offerSubtitle',
+              'Unlock with your face, fingerprint, or device PIN instead of a password. If you ever lose your passkey, you can restore your wallet with your recovery phrase.',
+            )}
+          />
+          {step === 'confirm-failed' && (
+            <ThemeText
+              styles={styles.passkeyError}
+              content={t('createAccount.keySetup.passkey.confirmFailed')}
+            />
           )}
-        />
-        {step === 'confirm-failed' && (
-          <ThemeText
-            styles={styles.passkeyError}
-            content={t('createAccount.keySetup.passkey.confirmFailed')}
+        </View>
+        <View style={styles.keyIconContainer}>
+          <IconActionCircle
+            customBackgroundColor={
+              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
+            }
+            icon={'Key'}
+            size={130}
           />
-        )}
-      </View>
-      <View style={styles.passkeyButtons}>
-        <CustomButton
-          textContent={
-            step === 'confirm-failed'
-              ? t('createAccount.keySetup.passkey.tryAgain')
-              : t('createAccount.keySetup.passkey.createButton')
-          }
-          actionFunction={handlePasskey}
-          disabled={isSubmitting}
-          useLoading={isSubmitting}
-        />
-        <TouchableOpacity
-          testID="use-password-instead"
-          style={styles.usePasswordButton}
-          onPress={() => {
-            if (!isPasskeyBusyRef.current) showPasswordForm(false);
-          }}
-          disabled={isSubmitting}
-        >
-          <ThemeText
-            content={t('createAccount.keySetup.passkey.usePassword')}
+        </View>
+        <View style={styles.passkeyButtons}>
+          <CustomButton
+            textContent={
+              step === 'confirm-failed'
+                ? t('createAccount.keySetup.passkey.tryAgain')
+                : t('createAccount.keySetup.passkey.createButton')
+            }
+            actionFunction={handlePasskey}
+            disabled={isSubmitting}
+            useLoading={isSubmitting}
           />
-        </TouchableOpacity>
+          <TouchableOpacity
+            testID="use-password-instead"
+            style={styles.usePasswordButton}
+            onPress={() => {
+              if (!isPasskeyBusyRef.current) showPasswordForm(false);
+            }}
+            disabled={isSubmitting}
+          >
+            <ThemeText
+              content={t('createAccount.keySetup.passkey.usePassword')}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </GlobalThemeView>
   );
@@ -492,6 +506,10 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: 'center',
   },
+  container: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+  },
   header: {
     fontSize: SIZES.xLarge,
     marginTop: 50,
@@ -540,21 +558,17 @@ const styles = StyleSheet.create({
   },
   passkeyContent: {
     width: '100%',
-    alignItems: 'center',
-    marginTop: 50,
   },
   passkeyHeader: {
     fontSize: SIZES.large,
     fontWeight: '500',
-    textAlign: 'center',
-    marginTop: 20,
+    marginTop: 28,
     marginBottom: 8,
   },
   passkeySubtitle: {
     opacity: 0.6,
     fontSize: SIZES.smedium,
     lineHeight: 22,
-    textAlign: 'center',
   },
   passkeyError: {
     fontSize: SIZES.small,
@@ -562,9 +576,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 12,
   },
+  keyIconContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   passkeyButtons: {
     width: '100%',
-    marginTop: 'auto',
   },
   usePasswordButton: {
     marginTop: 15,

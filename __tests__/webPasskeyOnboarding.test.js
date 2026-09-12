@@ -10,7 +10,7 @@ import React from 'react';
 import ReactTestRenderer, { act } from 'react-test-renderer';
 import { Platform } from 'react-native';
 
-const mockNavigate = { navigate: jest.fn(), reset: jest.fn() };
+const mockNavigate = { navigate: jest.fn(), reset: jest.fn(), goBack: jest.fn() };
 const mockSetLocalStorageItem = jest.fn();
 const mockStoreWithPin = jest.fn();
 const mockIsPasskeySupported = jest.fn();
@@ -48,6 +48,16 @@ jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
   default: () => null,
 }));
 
+jest.mock('../app/functions/CustomElements/actionCircleContainer', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../app/hooks/themeColors', () => ({
+  __esModule: true,
+  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+}));
+
 jest.mock('../app/functions/CustomElements/key', () => ({
   __esModule: true,
   default: () => null,
@@ -60,6 +70,7 @@ jest.mock('../app/functions/CustomElements/pinDot', () => ({
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => mockNavigate,
+  useFocusEffect: jest.fn(),
 }));
 
 jest.mock('react-i18next', () => ({

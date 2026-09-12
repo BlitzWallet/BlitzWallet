@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactTestRenderer, { act } from 'react-test-renderer';
-import { AppState, Platform, TextInput, View } from 'react-native';
+import { AppState, Platform, StyleSheet, TextInput, View } from 'react-native';
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -446,7 +446,10 @@ describe('CustomSearchInput - prop passthrough', () => {
     const { renderer } = renderSearchInput({
       containerStyles: { marginTop: 42 },
     });
-    expect(renderer.root.findByType(View).props.style.marginTop).toBe(42);
+    const style = StyleSheet.flatten(
+      renderer.root.findByType(View).props.style,
+    );
+    expect(style.marginTop).toBe(42);
   });
 
   test('renders buttonComponent when provided and omits it otherwise', () => {

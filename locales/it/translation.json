@@ -268,16 +268,19 @@
       },
       "password": {
         "createHeader": "Crea password",
-        "createSubtitle": "Scegli una password forte per proteggere il tuo portafoglio.",
+        "createSubtitle": "La tua password protegge l'accesso al tuo portafoglio. La tua frase di recupero è ciò che lo ripristina, quindi conservala in un luogo sicuro. Puoi visualizzarla in qualsiasi momento nelle Impostazioni.",
         "createButton": "Crea portafoglio",
         "newPasswordPlaceholder": "Inserisci password",
         "confirmPasswordPlaceholder": "Conferma password",
         "mismatchError": "Le password non corrispondono",
-        "commonWarning": "Password comune"
+        "commonWarning": "Password comune",
+        "whatMakesStrongPassword": "Cosa rende una password sicura?",
+        "showPassword": "Mostra password",
+        "hidePassword": "Nascondi password"
       },
       "passkey": {
-        "offerHeader": "Proteggi il tuo portafoglio con una passkey",
-        "offerSubtitle": "Sblocca con viso, impronta o PIN del dispositivo invece della password. Se perdi la passkey, puoi ripristinare il portafoglio con la tua frase di recupero.",
+        "offerHeader": "Crea passkey",
+        "offerSubtitle": "La tua passkey protegge l'accesso al tuo portafoglio. La tua frase di recupero è ciò che lo ripristina, quindi conservala in un luogo sicuro. Puoi visualizzarla in qualsiasi momento nelle Impostazioni.",
         "createButton": "Crea una passkey",
         "usePassword": "Usa una password invece",
         "unsupported": "Il tuo gestore di password non può ancora proteggere un portafoglio con una passkey. Imposta invece una password.",

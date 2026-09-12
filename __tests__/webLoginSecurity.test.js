@@ -210,8 +210,8 @@ describe('password wallet', () => {
     );
     expect(mockStoreWithPasskey).toHaveBeenCalledWith(MNEMONIC, 'CRED');
     expect(mockShowToast).toHaveBeenCalledWith({
-      type: 'success',
-      text: 'settings.loginSecurity.passkeyCreated',
+      type: 'clipboard',
+      title: 'settings.loginSecurity.passkeyCreated',
     });
     // Re-read: the screen now shows the passkey wallet state.
     expect(texts(renderer)).toContain('settings.loginSecurity.passkeyTitle');
@@ -357,7 +357,7 @@ describe('passkey wallet', () => {
     );
     expect(mockShowToast).toHaveBeenCalledWith({
       type: 'success',
-      text: 'settings.loginSecurity.switchedToPassword',
+      title: 'settings.loginSecurity.switchedToPassword',
     });
     // Re-read: now a password wallet.
     expect(texts(renderer)).toContain(

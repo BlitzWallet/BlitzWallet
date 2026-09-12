@@ -268,16 +268,19 @@
       },
       "password": {
         "createHeader": "Skapa lösenord",
-        "createSubtitle": "Välj ett starkt lösenord för att skydda din plånbok.",
+        "createSubtitle": "Ditt lösenord skyddar åtkomsten till din plånbok. Din återställningsfras är det som återställer den, så förvara den på en säker plats. Du kan se den när som helst i Inställningar.",
         "createButton": "Skapa plånbok",
         "newPasswordPlaceholder": "Ange lösenord",
         "confirmPasswordPlaceholder": "Bekräfta lösenord",
         "mismatchError": "Lösenorden matchar inte",
-        "commonWarning": "Vanligt lösenord"
+        "commonWarning": "Vanligt lösenord",
+        "whatMakesStrongPassword": "Vad gör ett lösenord starkt?",
+        "showPassword": "Visa lösenord",
+        "hidePassword": "Dölj lösenord"
       },
       "passkey": {
-        "offerHeader": "Skydda din plånbok med en passnyckel",
-        "offerSubtitle": "Lås upp med ansikte, fingeravtryck eller enhetens PIN istället för lösenord. Om du förlorar din passnyckel kan du återställa plånboken med din återställningsfras.",
+        "offerHeader": "Skapa passnyckel",
+        "offerSubtitle": "Din passnyckel skyddar åtkomsten till din plånbok. Din återställningsfras är det som återställer den, så förvara den på en säker plats. Du kan se den när som helst i Inställningar.",
         "createButton": "Skapa passnyckel",
         "usePassword": "Använd lösenord istället",
         "unsupported": "Din lösenordshanterare kan inte skydda en plånbok med passnyckel ännu. Ställ in ett lösenord istället.",

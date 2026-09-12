@@ -268,16 +268,19 @@
       },
       "password": {
         "createHeader": "Criar senha",
-        "createSubtitle": "Escolha uma senha forte para proteger sua carteira.",
+        "createSubtitle": "Sua senha protege o acesso à sua carteira. Sua frase de recuperação é o que a restaura, então guarde-a em um lugar seguro. Você pode visualizá-la a qualquer momento em Configurações.",
         "createButton": "Criar carteira",
         "newPasswordPlaceholder": "Digite a senha",
         "confirmPasswordPlaceholder": "Confirme a senha",
         "mismatchError": "As senhas não coincidem",
-        "commonWarning": "Senha comum"
+        "commonWarning": "Senha comum",
+        "whatMakesStrongPassword": "O que torna uma senha forte?",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha"
       },
       "passkey": {
-        "offerHeader": "Proteja sua carteira com uma chave de acesso",
-        "offerSubtitle": "Desbloqueie com seu rosto, impressão digital ou PIN do dispositivo em vez de uma senha. Se você perder sua chave de acesso, poderá restaurar sua carteira com sua frase de recuperação.",
+        "offerHeader": "Criar chave de acesso",
+        "offerSubtitle": "Sua chave de acesso protege o acesso à sua carteira. Sua frase de recuperação é o que a restaura, então guarde-a em um lugar seguro. Você pode visualizá-la a qualquer momento em Configurações.",
         "createButton": "Criar chave de acesso",
         "usePassword": "Usar uma senha em vez disso",
         "unsupported": "Seu gerenciador de senhas ainda não pode proteger uma carteira com chave de acesso. Defina uma senha em vez disso.",

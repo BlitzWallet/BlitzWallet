@@ -278,16 +278,19 @@
       },
       "password": {
         "createHeader": "Create Password",
-        "createSubtitle": "Choose a strong password to protect your wallet.",
+        "createSubtitle": "Your password protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
         "createButton": "Create Wallet",
         "newPasswordPlaceholder": "Enter password",
         "confirmPasswordPlaceholder": "Confirm password",
         "mismatchError": "Passwords do not match",
-        "commonWarning": "Common password"
+        "commonWarning": "Common password",
+        "whatMakesStrongPassword": "What makes a strong password?",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
       },
       "passkey": {
-        "offerHeader": "Protect your wallet with a passkey",
-        "offerSubtitle": "If you ever lose your passkey, you can restore your wallet with your recovery phrase.",
+        "offerHeader": "Create Passkey",
+        "offerSubtitle": "Your passkey protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
         "createButton": "Create a passkey",
         "usePassword": "Use a password instead",
         "unsupported": "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",

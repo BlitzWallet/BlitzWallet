@@ -268,16 +268,19 @@
       },
       "password": {
         "createHeader": "Créer un mot de passe",
-        "createSubtitle": "Choisissez un mot de passe fort pour protéger votre portefeuille.",
+        "createSubtitle": "Votre mot de passe protège l'accès à votre portefeuille. Votre phrase de récupération permet de le restaurer, alors conservez-la en lieu sûr. Vous pouvez la consulter à tout moment dans les Paramètres.",
         "createButton": "Créer le portefeuille",
         "newPasswordPlaceholder": "Saisir le mot de passe",
         "confirmPasswordPlaceholder": "Confirmer le mot de passe",
         "mismatchError": "Les mots de passe ne correspondent pas",
-        "commonWarning": "Mot de passe courant"
+        "commonWarning": "Mot de passe courant",
+        "whatMakesStrongPassword": "Qu'est-ce qui fait un mot de passe fort ?",
+        "showPassword": "Afficher le mot de passe",
+        "hidePassword": "Masquer le mot de passe"
       },
       "passkey": {
-        "offerHeader": "Protégez votre portefeuille avec une clé d'accès",
-        "offerSubtitle": "Déverrouillez avec votre visage, empreinte ou code PIN au lieu d'un mot de passe. Si vous perdez votre clé d'accès, vous pouvez restaurer votre portefeuille avec votre phrase de récupération.",
+        "offerHeader": "Créer une clé d'accès",
+        "offerSubtitle": "Votre clé d'accès protège l'accès à votre portefeuille. Votre phrase de récupération permet de le restaurer, alors conservez-la en lieu sûr. Vous pouvez la consulter à tout moment dans les Paramètres.",
         "createButton": "Créer une clé d'accès",
         "usePassword": "Utiliser un mot de passe à la place",
         "unsupported": "Votre gestionnaire de mots de passe ne peut pas encore protéger un portefeuille avec une clé d'accès. Définissez un mot de passe à la place.",

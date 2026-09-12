@@ -12,6 +12,7 @@ import { Platform } from 'react-native';
 const mockNavigate = { navigate: jest.fn(), replace: jest.fn() };
 const mockSetAccountMnemonic = jest.fn();
 const mockDecryptWithPasskey = jest.fn();
+const mockGetStoredPasskeyInfo = jest.fn();
 const mockFactoryReset = jest.fn();
 
 jest.mock('../app/constants', () => ({
@@ -63,6 +64,7 @@ jest.mock('expo-image', () => ({
 
 jest.mock('../app/functions/passkeyMnemonic', () => ({
   decryptMnemonicWithPasskey: (...args) => mockDecryptWithPasskey(...args),
+  getStoredPasskeyInfo: (...args) => mockGetStoredPasskeyInfo(...args),
 }));
 
 jest.mock('../app/functions/factoryResetWallet', () => ({
@@ -146,6 +148,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   originalOS = Platform.OS;
   mockDecryptWithPasskey.mockResolvedValue(MNEMONIC);
+  mockGetStoredPasskeyInfo.mockResolvedValue({ credentialId: 'CRED' });
   mockFactoryReset.mockResolvedValue(true);
   global.location = { reload: jest.fn() };
 });

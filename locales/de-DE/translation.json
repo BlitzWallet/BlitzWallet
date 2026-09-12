@@ -268,16 +268,19 @@
       },
       "password": {
         "createHeader": "Passwort erstellen",
-        "createSubtitle": "Wähle ein starkes Passwort, um deine Wallet zu schützen.",
+        "createSubtitle": "Dein Passwort schützt den Zugang zu deiner Wallet. Deine Wiederherstellungsphrase stellt sie wieder her, also bewahre sie sicher auf. Du kannst sie jederzeit in den Einstellungen ansehen.",
         "createButton": "Wallet erstellen",
         "newPasswordPlaceholder": "Passwort eingeben",
         "confirmPasswordPlaceholder": "Passwort bestätigen",
         "mismatchError": "Passwörter stimmen nicht überein",
-        "commonWarning": "Häufiges Passwort"
+        "commonWarning": "Häufiges Passwort",
+        "whatMakesStrongPassword": "Was macht ein starkes Passwort aus?",
+        "showPassword": "Passwort anzeigen",
+        "hidePassword": "Passwort verbergen"
       },
       "passkey": {
-        "offerHeader": "Schütze deine Wallet mit einem Passkey",
-        "offerSubtitle": "Entsperre mit deinem Gesicht, Fingerabdruck oder Geräte-PIN statt mit einem Passwort. Falls du deinen Passkey verlierst, kannst du deine Wallet mit deiner Wiederherstellungsphrase wiederherstellen.",
+        "offerHeader": "Passkey erstellen",
+        "offerSubtitle": "Dein Passkey schützt den Zugang zu deiner Wallet. Deine Wiederherstellungsphrase stellt sie wieder her, also bewahre sie sicher auf. Du kannst sie jederzeit in den Einstellungen ansehen.",
         "createButton": "Passkey erstellen",
         "usePassword": "Stattdessen ein Passwort verwenden",
         "unsupported": "Dein Passwort-Manager kann eine Wallet noch nicht mit einem Passkey schützen. Lege stattdessen ein Passwort fest.",

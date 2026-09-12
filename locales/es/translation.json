@@ -268,16 +268,19 @@
       },
       "password": {
         "createHeader": "Crear contraseña",
-        "createSubtitle": "Elige una contraseña segura para proteger tu billetera.",
+        "createSubtitle": "Tu contraseña protege el acceso a tu billetera. Tu frase de recuperación es la que la restaura, así que guárdala en un lugar seguro. Puedes verla en cualquier momento en Ajustes.",
         "createButton": "Crear billetera",
         "newPasswordPlaceholder": "Ingresa la contraseña",
         "confirmPasswordPlaceholder": "Confirmar contraseña",
         "mismatchError": "Las contraseñas no coinciden",
-        "commonWarning": "Contraseña común"
+        "commonWarning": "Contraseña común",
+        "whatMakesStrongPassword": "¿Qué hace que una contraseña sea segura?",
+        "showPassword": "Mostrar contraseña",
+        "hidePassword": "Ocultar contraseña"
       },
       "passkey": {
-        "offerHeader": "Protege tu billetera con una clave de acceso",
-        "offerSubtitle": "Desbloquea con tu rostro, huella o PIN del dispositivo en lugar de una contraseña. Si pierdes tu clave de acceso, puedes restaurar tu billetera con tu frase de recuperación.",
+        "offerHeader": "Crear clave de acceso",
+        "offerSubtitle": "Tu clave de acceso protege el acceso a tu billetera. Tu frase de recuperación es la que la restaura, así que guárdala en un lugar seguro. Puedes verla en cualquier momento en Ajustes.",
         "createButton": "Crear clave de acceso",
         "usePassword": "Usar una contraseña en su lugar",
         "unsupported": "Tu gestor de contraseñas aún no puede proteger una billetera con clave de acceso. Usa una contraseña en su lugar.",
