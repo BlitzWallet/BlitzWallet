@@ -221,7 +221,14 @@ export default function SendAndRequestPage(props) {
           </View>
         </View>
 
-        <View style={styles.minHeightContainer}>
+        <View
+          style={[
+            styles.minHeightContainer,
+            Platform.OS !== 'web' &&
+              isDescriptionFocused &&
+              styles.focusedAmountContainer,
+          ]}
+        >
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
@@ -380,6 +387,10 @@ const styles = StyleSheet.create({
   minHeightContainer: {
     minHeight: 100,
     flex: 1,
+  },
+  focusedAmountContainer: {
+    minHeight: 0,
+    flexShrink: 1,
   },
   scrollViewContainer: {
     paddingTop: 5,
