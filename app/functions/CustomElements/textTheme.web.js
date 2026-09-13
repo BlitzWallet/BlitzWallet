@@ -25,6 +25,7 @@ import {
 
 const SEARCH_STEPS = 12;
 const SIZE_EPSILON = 0.5;
+const FULL_SIZE_TOLERANCE_PX = 1;
 
 // SSR-safe: expo web export prerenders without a DOM.
 const useIsomorphicLayoutEffect =
@@ -146,7 +147,7 @@ export default function ThemeText({
 
     // Sub-pixel check: scrollWidth/clientWidth are rounded integers, and CSS
     // draws the ellipsis on any overflow, even a fraction of a pixel.
-    const fitsAtSize = size => {
+    const fitsAtSize = (size, tolerance = 0) => {
       el.style.fontSize = `${size}px`;
       range.selectNodeContents(el);
       const cs = window.getComputedStyle(el);
@@ -156,17 +157,21 @@ export default function ThemeText({
         parseFloat(cs.paddingRight) -
         parseFloat(cs.borderLeftWidth) -
         parseFloat(cs.borderRightWidth);
-      return range.getBoundingClientRect().width <= available;
+      return range.getBoundingClientRect().width <= available + tolerance;
     };
 
     const fit = () => {
       if (disposed) return;
       if (!el.isConnected || el.clientWidth === 0) return;
-      const best = findLargestFittingFontSize(
-        minFontSize,
-        baseFontSize,
-        fitsAtSize,
-      );
+      // Shrink-wrapped text (the usual flex-row case) has box width == text
+      // width, so a strict compare is decided by rounding: at fractional DPR
+      // (e.g. 2.625 on Android) the range can read a fraction wider than its
+      // own box, shrinking text that has room — randomly per element, which
+      // resizes the shared row and makes every sibling refit. Only real
+      // overflow (beyond sub-pixel slack) starts the search.
+      const best = fitsAtSize(baseFontSize, FULL_SIZE_TOLERANCE_PX)
+        ? baseFontSize
+        : findLargestFittingFontSize(minFontSize, baseFontSize, fitsAtSize);
       // Write the winner to the DOM now so this frame paints it; the state
       // update keeps React's style prop in sync (it only re-renders on change).
       el.style.fontSize = `${best}px`;

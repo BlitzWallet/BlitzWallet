@@ -1,13 +1,34 @@
 // Web shim for react-native-vision-camera: live camera preview via getUserMedia
 // rendered as a raw <video> element, with a jsqr decode loop that drives the
 // barcode-scanner stub's output handle (see its __isBarcodeOutput marker).
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import { ActivityIndicator } from 'react-native';
 import jsQR from 'jsqr';
 
 const hasWebcam =
   typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
 
 const BACK_DEVICE = hasWebcam ? { deviceId: 'back', position: 'back' } : null;
+
+// Native knows the OS permission on first render; the web can only learn it by
+// opening the camera. So 'unknown' counts as permitted: <Camera> mounts right
+// away and its own getUserMedia doubles as the prompt, instead of a probe
+// stream followed by a second one. A failure there flips screens to no-access.
+let permissionStatus = hasWebcam ? 'unknown' : 'denied';
+const listeners = new Set();
+function setPermissionStatus(status) {
+  permissionStatus = status;
+  listeners.forEach(listener => listener());
+}
+function subscribe(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
 async function probeCamera() {
   if (!hasWebcam) return false;
@@ -16,23 +37,17 @@ async function probeCamera() {
       video: { facingMode: 'environment' },
     });
     stream.getTracks().forEach(track => track.stop());
+    setPermissionStatus('granted');
     return true;
   } catch (err) {
+    setPermissionStatus('denied');
     return false;
   }
 }
 
 export function useCameraPermission() {
-  const [hasPermission, setHasPermission] = useState(false);
-
-  // Resolves instantly without a prompt when the user already granted access.
-  const requestPermission = useCallback(async () => {
-    const granted = await probeCamera();
-    setHasPermission(granted);
-    return granted;
-  }, []);
-
-  return { hasPermission, requestPermission };
+  const status = useSyncExternalStore(subscribe, () => permissionStatus);
+  return { hasPermission: status !== 'denied', requestPermission: probeCamera };
 }
 
 export async function requestCameraPermission() {
@@ -54,6 +69,7 @@ export function Camera({
   style,
 }) {
   const videoRef = useRef(null);
+  const [isStreaming, setIsStreaming] = useState(false);
   const outputsRef = useRef(outputs);
   outputsRef.current = outputs;
 
@@ -78,9 +94,15 @@ export function Camera({
 
     async function start() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-        });
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+          });
+        } catch (err) {
+          setPermissionStatus('denied');
+          throw err;
+        }
+        setPermissionStatus('granted');
         // getUserMedia() resolves asynchronously: the scanner may have
         // unmounted (stopped) or its video element may be gone while
         // permission was pending. Stop the fresh stream in either case —
@@ -92,6 +114,7 @@ export function Camera({
         }
         video.srcObject = stream;
         await video.play();
+        if (!stopped) setIsStreaming(true);
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -135,6 +158,7 @@ export function Camera({
     start();
     return () => {
       stopped = true;
+      setIsStreaming(false);
       if (rafId !== undefined) cancelAnimationFrame(rafId);
       stopStream();
     };
@@ -153,19 +177,32 @@ export function Camera({
 
   if (!hasWebcam) return null;
 
-  return React.createElement('video', {
-    ref: videoRef,
-    autoPlay: true,
-    muted: true,
-    playsInline: true,
-    style: {
-      objectFit: 'cover',
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      ...flowStyle,
-    },
-  });
+  return React.createElement(
+    React.Fragment,
+    null,
+    React.createElement('video', {
+      ref: videoRef,
+      autoPlay: true,
+      muted: true,
+      playsInline: true,
+      style: {
+        objectFit: 'cover',
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        // Native previews are black while the camera warms up, not see-through.
+        backgroundColor: 'black',
+        ...flowStyle,
+      },
+    }),
+    isActive &&
+      !isStreaming &&
+      React.createElement(ActivityIndicator, {
+        size: 'large',
+        color: 'white',
+        style: { position: 'absolute' },
+      }),
+  );
 }
 
 export default Camera;
