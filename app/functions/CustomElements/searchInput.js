@@ -146,6 +146,7 @@ export default function CustomSearchInput({
   }, [onSubmitEditingFunction]);
 
   const focusFunction = useCallback(() => {
+    clearTimer(blurDelayTimerRef);
     clearTimer(blurConfirmationTimerRef);
     clearTimer(keyboardHideTimerRef);
     pendingBlurRef.current = false;
@@ -410,6 +411,11 @@ export default function CustomSearchInput({
   }, [diagnosticLabel, inputRef, runBlurCallback, scheduleKeyboardHiddenBlur]);
 
   useEffect(() => {
+    // The web keyboard controller always reports hidden. Browser focus/blur
+    // events own focus there; the native foreground check would emit a false
+    // blur while the description remains focused after a PWA/tab return.
+    if (Platform.OS === 'web') return;
+
     const appStateListener = AppState.addEventListener('change', nextState => {
       clearTimer(appStateTimerRef);
 

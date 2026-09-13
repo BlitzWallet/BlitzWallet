@@ -686,6 +686,70 @@ describe('CustomSearchInput - Android blur confirmation', () => {
 // autoFocus
 // ---------------------------------------------------------------------------
 
+describe('CustomSearchInput - web foreground focus', () => {
+  beforeEach(() => {
+    Platform.OS = 'web';
+    // The web keyboard-controller implementation has no keyboard events and
+    // always reports false / height 0, even with the browser keyboard open.
+    setKeyboardVisible(false);
+  });
+
+  test('keeps the description focused across repeated PWA/tab returns', () => {
+    const onFocus = jest.fn();
+    const onBlur = jest.fn();
+    const { ref, input, unmount } = renderSearchInput({
+      onFocusFunction: onFocus,
+      onBlurFunction: onBlur,
+    });
+    ref.current = makeNativeInput({ focused: true });
+    act(() => input().props.onFocus());
+
+    for (let i = 0; i < 3; i++) {
+      fireAppState('background');
+      fireAppState('active');
+      // The browser retains the input focus, so no new onFocus is emitted.
+      advance(APP_ACTIVE_KEYBOARD_CHECK_DELAY_MS + BLUR_DELAY_MS + 50);
+    }
+
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onBlur).not.toHaveBeenCalled();
+    expect(ref.current.blur).not.toHaveBeenCalled();
+    unmount();
+  });
+
+  test('still reports a real input blur after returning to the PWA', () => {
+    const onBlur = jest.fn();
+    const { ref, input, unmount } = renderSearchInput({
+      onBlurFunction: onBlur,
+    });
+    ref.current = makeNativeInput({ focused: true });
+    act(() => input().props.onFocus());
+    fireAppState('background');
+    fireAppState('active');
+    advance(APP_ACTIVE_KEYBOARD_CHECK_DELAY_MS + BLUR_DELAY_MS + 50);
+
+    ref.current._focused = false;
+    act(() => input().props.onBlur());
+    advance(BLUR_DELAY_MS);
+
+    expect(onBlur).toHaveBeenCalledTimes(1);
+    unmount();
+  });
+
+  test('cancels a delayed blur if the browser refocuses the same input', () => {
+    const onBlur = jest.fn();
+    const { input, unmount } = renderSearchInput({ onBlurFunction: onBlur });
+    act(() => input().props.onFocus());
+    act(() => input().props.onBlur());
+    advance(BLUR_DELAY_MS / 2);
+    act(() => input().props.onFocus());
+    advance(BLUR_DELAY_MS);
+
+    expect(onBlur).not.toHaveBeenCalled();
+    unmount();
+  });
+});
+
 describe('CustomSearchInput - autoFocus', () => {
   test('focuses the input after AUTO_FOCUS_DELAY_MS when autoFocus and editable', () => {
     const { ref } = renderSearchInput({ autoFocus: true, editable: true });
