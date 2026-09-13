@@ -2814,7 +2814,7 @@
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
-        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para realizar trocas",
+        "insufficientBTCToSwap": "É necessário um saldo em bitcoin de pelo menos {{amount}} para realizar trocas",
         "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para realizar trocas",
         "belowSwapLimitTitle": "Saldo muito baixo para realizar trocas",
         "belowSwapLimitBitcoin": "Seu saldo bitcoin está abaixo do mínimo necessário para realizar trocas. Adicione pelo menos {{btcMin}}",
