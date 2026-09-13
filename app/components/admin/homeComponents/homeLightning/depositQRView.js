@@ -39,8 +39,8 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { useRootstockProvider } from '../../../../../context-store/rootstockSwapContext';
-import { useLiquidEvent } from '../../../../../context-store/liquidEventContext';
+// import { useRootstockProvider } from '../../../../../context-store/rootstockSwapContext';
+// import { useLiquidEvent } from '../../../../../context-store/liquidEventContext';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useToast } from '../../../../../context-store/toastManager';
@@ -68,8 +68,10 @@ export default function DepositQRView({
   const { swapLimits, poolInfoRef } = useFlashnet();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { startRootstockEventListener, signer } = useRootstockProvider();
-  const { startLiquidEventListener } = useLiquidEvent();
+  // const { startRootstockEventListener, signer } = useRootstockProvider();
+  const signer = null;
+  // const { startLiquidEventListener } = useLiquidEvent();
+
   const { isUsingAltAccount, currentWalletMnemoinc } =
     useActiveCustodyAccount();
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
@@ -239,9 +241,9 @@ export default function DepositQRView({
       if (cancelled) return;
       const option = config.selectedRecieveOption?.toLowerCase();
       if (option === 'liquid') {
-        startLiquidEventListener(60);
+        // startLiquidEventListener(60);
       } else if (option === 'rootstock') {
-        startRootstockEventListener({ durationMs: 1200000 });
+        // startRootstockEventListener({ durationMs: 1200000 });
       }
     }
 
@@ -307,11 +309,22 @@ export default function DepositQRView({
     if (option === 'stablecoins') {
       return {
         label: t('wallet.halfModal.depositFeeText'),
-        explanation: t('wallet.halfModal.depositFeePopup_stablecoins'),
+        explanation: t(
+          config?.destinationAsset === 'BTC'
+            ? 'wallet.halfModal.depositFeePopup_accumulation_bitcoin'
+            : 'wallet.halfModal.depositFeePopup_stablecoins',
+        ),
       };
     }
     return null;
-  }, [option, addressState.fee, masterInfoObject, fiatStats, t]);
+  }, [
+    option,
+    config?.destinationAsset,
+    addressState.fee,
+    masterInfoObject,
+    fiatStats,
+    t,
+  ]);
 
   const address = addressState.generatedAddress || '';
   const addressSegments = useMemo(() => {
@@ -337,10 +350,15 @@ export default function DepositQRView({
 
   const instruction =
     option === 'stablecoins'
-      ? t('wallet.halfModal.depositQRInstruction_stablecoins', {
-          asset: config.sourceAsset,
-          chain: chainDisplayLabel,
-        })
+      ? t(
+          config.destinationAsset === 'BTC'
+            ? 'wallet.halfModal.depositQRInstruction_accumulation_bitcoin'
+            : 'wallet.halfModal.depositQRInstruction_stablecoins',
+          {
+            asset: config.sourceAsset,
+            chain: chainDisplayLabel,
+          },
+        )
       : t(
           `wallet.halfModal.depositQRInstruction_${option}${
             option === 'spark' && config.fromStablecoin

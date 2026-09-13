@@ -21,8 +21,12 @@ import { useSparkWallet } from '../../../../context-store/sparkContext';
 import getFormattedHomepageTxsForSpark from '../../../functions/combinedTransactionsSpark';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
-import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
+// import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
+// BREEZ LIQUID DISABLED: liquid event hook import commented so the SDK chain
+// is never loaded.
+// import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
+// ROOTSTOCK DISABLED: provider import commented so the ethers + boltz chain is
+// never loaded.
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import { COLORS, FONT, SIZES, USDB_TOKEN_ID } from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
@@ -156,7 +160,7 @@ export default function HomeLightning({ navigation }) {
     totalSatValue,
     dollarBalanceToken,
   } = useUserBalanceContext();
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  // const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet, didGetToHomepage, screenDimensions } =
@@ -192,10 +196,11 @@ export default function HomeLightning({ navigation }) {
     },
   });
 
-  const [refreshing, setRefreshing] = useState(false);
+  // const [refreshing, setRefreshing] = useState(false);
 
-  const { startLiquidEventListener } = useLiquidEvent();
-  const { startRootstockEventListener } = useRootstockProvider();
+  // const { startLiquidEventListener } = useLiquidEvent();
+  // const { startRootstockEventListener } = useRootstockProvider();
+  // ROOTSTOCK DISABLED: event listener hook commented. See handleRefresh below.
 
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
@@ -301,24 +306,25 @@ export default function HomeLightning({ navigation }) {
     darkModeType,
   ]);
 
-  const handleRefresh = useCallback(async () => {
-    crashlyticsLogReport(`Running in handle refresh function on homepage`);
-    try {
-      if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
-        return;
-      startLiquidEventListener(6);
-      startRootstockEventListener({ intervalMs: 60000 });
-    } catch (err) {
-      console.log('error refreshing on homepage', err);
-    } finally {
-      setRefreshing(false);
-    }
-  }, [
-    startLiquidEventListener,
-    startRootstockEventListener,
-    sparkInformation,
-    currentWalletMnemoinc,
-  ]);
+  // const handleRefresh = useCallback(async () => {
+  //   crashlyticsLogReport(`Running in handle refresh function on homepage`);
+  //   try {
+  //     if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
+  //       return;
+  //     // startLiquidEventListener(6);
+  //     // startRootstockEventListener({ intervalMs: 60000 });
+  //     // ROOTSTOCK DISABLED: listener trigger commented. Original kept above.
+  //   } catch (err) {
+  //     console.log('error refreshing on homepage', err);
+  //   } finally {
+  //     setRefreshing(false);
+  //   }
+  // }, [
+  //   // startLiquidEventListener,
+  //   // startRootstockEventListener,
+  //   sparkInformation,
+  //   currentWalletMnemoinc,
+  // ]);
 
   const handleNavbarLayout = useCallback(event => {
     const { height } = event.nativeEvent.layout;
@@ -332,26 +338,26 @@ export default function HomeLightning({ navigation }) {
     [updateScrollPosition],
   );
 
-  const colors = useMemo(
-    () =>
-      Platform.select({
-        ios: darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-        android: darkModeType && theme ? COLORS.lightModeText : COLORS.primary,
-      }),
-    [darkModeType, theme],
-  );
+  // const colors = useMemo(
+  //   () =>
+  //     Platform.select({
+  //       ios: darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+  //       android: darkModeType && theme ? COLORS.lightModeText : COLORS.primary,
+  //     }),
+  //   [darkModeType, theme],
+  // );
 
-  const refreshControl = useMemo(
-    () => (
-      <RefreshControl
-        colors={[colors]}
-        tintColor={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
-        refreshing={refreshing}
-        onRefresh={handleRefresh}
-      />
-    ),
-    [colors, refreshing, handleRefresh, darkModeType, theme],
-  );
+  // const refreshControl = useMemo(
+  //   () => (
+  //     <RefreshControl
+  //       colors={[colors]}
+  //       tintColor={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
+  //       refreshing={refreshing}
+  //       onRefresh={handleRefresh}
+  //     />
+  //   ),
+  //   [colors, refreshing, handleRefresh, darkModeType, theme],
+  // );
 
   const scrollViewContainerStyles = useMemo(() => {
     return {
@@ -380,7 +386,7 @@ export default function HomeLightning({ navigation }) {
     <GlobalThemeView styles={styles.themeViewStyle}>
       <Animated.ScrollView
         ref={scrollViewRef}
-        refreshControl={refreshControl}
+        // refreshControl={refreshControl}
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}

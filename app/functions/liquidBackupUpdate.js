@@ -1,4 +1,11 @@
-import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
+// import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
+// let _cachedBreezLiquidModule = null;
+// function getBreezLiquidSDK() {
+//   if (!_cachedBreezLiquidModule) {
+//     _cachedBreezLiquidModule = require('@breeztech/react-native-breez-sdk-liquid');
+//   }
+//   return _cachedBreezLiquidModule;
+// }
 
 const runIntervalTimes = (callback, interval, times) => {
   let count = 0;
@@ -23,27 +30,25 @@ const runIntervalTimes = (callback, interval, times) => {
 
 // Usage example with your function:
 const startLiquidUpdateInterval = (toggleLiquidNodeInformation, runCount) => {
-  const updateNodeInfo = async () => {
-    console.log('RUNNING UPDATE LIQUID DATA');
-    try {
-      const info = await getInfo();
-
-      const balanceSat = info.walletInfo.balanceSat;
-
-      const liquidNodeObject = {
-        userBalance: balanceSat,
-        pendingReceive: info.walletInfo.pendingReceiveSat,
-        pendingSend: info.walletInfo.pendingSendSat,
-      };
-
-      toggleLiquidNodeInformation(liquidNodeObject);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  // Run 2 times with 30 second interval
-  return runIntervalTimes(updateNodeInfo, 1000 * 30, runCount);
+  return null;
+  // const updateNodeInfo = async () => {
+  //   console.log('RUNNING UPDATE LIQUID DATA');
+  //   try {
+  //     // const {getInfo} = getBreezLiquidSDK();
+  //     const info = await getInfo();
+  //     const balanceSat = info.walletInfo.balanceSat;
+  //     const liquidNodeObject = {
+  //       userBalance: balanceSat,
+  //       pendingReceive: info.walletInfo.pendingReceiveSat,
+  //       pendingSend: info.walletInfo.pendingSendSat,
+  //     };
+  //     toggleLiquidNodeInformation(liquidNodeObject);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+  // // Run 2 times with 30 second interval
+  // return runIntervalTimes(updateNodeInfo, 1000 * 30, runCount);
 };
 
 export default startLiquidUpdateInterval;

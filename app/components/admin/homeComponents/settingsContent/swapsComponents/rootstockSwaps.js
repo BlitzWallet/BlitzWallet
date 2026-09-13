@@ -17,6 +17,7 @@ import { getRootstockSwapStatusLabel } from '../../../../../functions/boltz/root
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import SupportMessage from './supportMessage';
 
 export default function RoostockSwapsPage() {
   const [swapList, setSwapList] = useState(null);
@@ -98,7 +99,7 @@ export default function RoostockSwapsPage() {
         </TouchableOpacity>
       );
     },
-    [theme, backgroundOffset, navigate],
+    [theme, backgroundOffset, navigate, masterInfoObject, fiatStats],
   );
 
   if (swapList === null) {
@@ -110,13 +111,7 @@ export default function RoostockSwapsPage() {
     );
   }
   if (!swapList?.length) {
-    return (
-      <FullLoadingScreen
-        showLoadingIcon={false}
-        textStyles={styles.textStyles}
-        text={t('settings.viewRoostockSwaps.noSwapsMessage')}
-      />
-    );
+    return <SupportMessage type={t('settings.viewSwapsHome.rootstock')} />;
   }
   return (
     <FlatList

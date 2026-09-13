@@ -7,41 +7,86 @@ import React, {
   useState,
 } from 'react';
 
-import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
-import {
-  executeSubmarineSwap,
-  isSubmarineLockUnresolved,
-} from '../app/functions/boltz/rootstock/submarineSwap';
-import {
-  isRootstockSwapActive,
-  isRootstockSwapPendingRefund,
-} from '../app/functions/boltz/rootstock/swapStatus';
-import { reconcileSubmarineSwapLock } from '../app/functions/boltz/rootstock/reconcileSubmarineSwap';
-import { handleRootstockSwapUpdate } from '../app/functions/boltz/rootstock/swapLifecycle';
-import { refundRootstockSubmarineSwap } from '../app/functions/boltz/rootstock/claims';
-import { fetchBoltzSwapStatus } from '../app/functions/boltz/rootstock/boltzStatus';
-import { useKeysContext } from './keys';
-import { useAppStatus } from './appStatus';
-import {
-  getRoostockProviderEndpoints,
-  getRoostockProviderNetwork,
-  rootstockEnvironment,
-} from '../app/functions/boltz/rootstock';
-import { FallbackProvider, JsonRpcProvider, Wallet } from 'ethers';
-import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
-import { useSparkWallet } from './sparkContext';
-import { useAuthContext } from './authContext';
+// import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
+// import {
+//   executeSubmarineSwap,
+//   isSubmarineLockUnresolved,
+// } from '../app/functions/boltz/rootstock/submarineSwap';
+// import {
+//   isRootstockSwapActive,
+//   isRootstockSwapPendingRefund,
+// } from '../app/functions/boltz/rootstock/swapStatus';
+// import { reconcileSubmarineSwapLock } from '../app/functions/boltz/rootstock/reconcileSubmarineSwap';
+// import { handleRootstockSwapUpdate } from '../app/functions/boltz/rootstock/swapLifecycle';
+// import { refundRootstockSubmarineSwap } from '../app/functions/boltz/rootstock/claims';
+// import { fetchBoltzSwapStatus } from '../app/functions/boltz/rootstock/boltzStatus';
+// import { useKeysContext } from './keys';
+// import { useAppStatus } from './appStatus';
+// import {
+//   getRoostockProviderEndpoints,
+//   getRoostockProviderNetwork,
+//   rootstockEnvironment,
+// } from '../app/functions/boltz/rootstock';
+// import { FallbackProvider, JsonRpcProvider, Wallet } from 'ethers';
+// import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
+// import { useSparkWallet } from './sparkContext';
+// import { useAuthContext } from './authContext';
+// ROOTSTOCK DISABLED: static imports removed so the ethers + boltz rootstock
+// chain (incl. boltz-core EtherSwap JSON) is never evaluated at startup.
+// Re-enable via lazy require getters below.
+// let _cachedEthers = null;
+// function getEthers() {
+//   if (!_cachedEthers) {
+//     _cachedEthers = require('ethers');
+//   }
+//   return _cachedEthers;
+// }
+// let _cachedRootstockModules = null;
+// function getRootstockModules() {
+//   if (!_cachedRootstockModules) {
+//     _cachedRootstockModules = {
+//       swapDb: require('../app/functions/boltz/rootstock/swapDb'),
+//       submarineSwap: require('../app/functions/boltz/rootstock/submarineSwap'),
+//       swapStatus: require('../app/functions/boltz/rootstock/swapStatus'),
+//       reconcile: require('../app/functions/boltz/rootstock/reconcileSubmarineSwap'),
+//       lifecycle: require('../app/functions/boltz/rootstock/swapLifecycle'),
+//       claims: require('../app/functions/boltz/rootstock/claims'),
+//       boltzStatus: require('../app/functions/boltz/rootstock/boltzStatus'),
+//       rootstock: require('../app/functions/boltz/rootstock'),
+//       endpoints: require('../app/functions/boltz/boltzEndpoitns'),
+//     };
+//   }
+//   return _cachedRootstockModules;
+// }
 
 export const RootstockSwapContext = createContext();
 
-// Minimum gap between on-chain reconciliation attempts for the same swap, so the
-// recurring interval doesn't hammer the RPC for swaps left in broadcast_unknown.
-const RECONCILE_THROTTLE_MS = 60000;
-
-const isRootstockSwapMonitored = swap =>
-  isRootstockSwapActive(swap) || isRootstockSwapPendingRefund(swap);
+// // Minimum gap between on-chain reconciliation attempts for the same swap, so the
+// // recurring interval doesn't hammer the RPC for swaps left in broadcast_unknown.
+// const RECONCILE_THROTTLE_MS = 60000;
+// const isRootstockSwapMonitored = swap =>
+//   isRootstockSwapActive(swap) || isRootstockSwapPendingRefund(swap);
+// ROOTSTOCK DISABLED: monitor helper commented with its imports. Original kept.
 
 export const RootstockSwapProvider = ({ children }) => {
+  // ROOTSTOCK DISABLED: no-op stub provider so the ethers + boltz rootstock
+  // chain is never loaded at runtime. Original implementation is preserved
+  // below inside the block comment for re-enable (lazy-load via getEthers() /
+  // getRootstockModules()).
+  const contextValue = useMemo(() => {
+    return {
+      provider: null,
+      signer: null,
+      createSigner: async () => false,
+      startRootstockEventListener: async () => {},
+    };
+  }, []);
+  return (
+    <RootstockSwapContext.Provider value={contextValue}>
+      {children}
+    </RootstockSwapContext.Provider>
+  );
+  /*
   const { authResetkey } = useAuthContext();
   const { sparkInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
@@ -482,6 +527,7 @@ export const RootstockSwapProvider = ({ children }) => {
       {children}
     </RootstockSwapContext.Provider>
   );
+  */
 };
 
 export const useRootstockProvider = () => {

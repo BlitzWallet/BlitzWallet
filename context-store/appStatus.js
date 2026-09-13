@@ -8,11 +8,14 @@ import {
   useRef,
 } from 'react';
 import { AppState, Dimensions, Platform } from 'react-native';
-import { getBoltzSwapPairInformation } from '../app/functions/boltz/boltzSwapInfo';
-import {
-  buildRootstockSubmarineLimits,
-  DEFAULT_ROOTSTOCK_SUBMARINE_PAIR,
-} from '../app/functions/boltz/rootstock/swapLimits';
+// import { getBoltzSwapPairInformation } from '../app/functions/boltz/boltzSwapInfo';
+// import {
+//   buildRootstockSubmarineLimits,
+//   DEFAULT_ROOTSTOCK_SUBMARINE_PAIR,
+// } from '../app/functions/boltz/rootstock/swapLimits';
+// SWAP LIMITS DISABLED: Boltz pair-info + rootstock limits imports removed so
+// those network modules are never loaded. minMaxLiquidSwapAmounts below is now
+// frozen static defaults; setMinMaxLiquidSwapAmounts was removed.
 import * as Network from 'expo-network';
 import { navigationRef } from '../navigation/navigationService';
 import {
@@ -25,13 +28,18 @@ import { crashlyticsLogReport } from '../app/functions/crashlyticsLogs';
 const AppStatusManager = createContext(null);
 
 const AppStatusProvider = ({ children }) => {
-  const [minMaxLiquidSwapAmounts, setMinMaxLiquidSwapAmounts] = useState({
+  // SWAP LIMITS DISABLED: frozen static defaults (no updater, no fetch).
+  // Original dynamic initializer kept below for re-enable.
+  const [minMaxLiquidSwapAmounts] = useState({
     min: 1000,
     max: 25000000,
     rsk: {
-      min: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR.limits.minimal,
-      max: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR.limits.maximal,
-      submarine: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR,
+      // min: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR.limits.minimal,
+      // max: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR.limits.maximal,
+      // submarine: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR,
+      min: 2500,
+      max: 25000000,
+      submarine: null,
     },
   });
   const [isConnectedToTheInternet, setIsConnectedToTheInternet] =
@@ -54,9 +62,11 @@ const AppStatusProvider = ({ children }) => {
     setDidGetToHomePage(newInfo);
   }, []);
 
-  const toggleMinMaxLiquidSwapAmounts = useCallback(newInfo => {
-    setMinMaxLiquidSwapAmounts(prev => ({ ...prev, ...newInfo }));
-  }, []);
+  // const toggleMinMaxLiquidSwapAmounts = useCallback(newInfo => {
+  //   setMinMaxLiquidSwapAmounts(prev => ({ ...prev, ...newInfo }));
+  // }, []);
+  // SWAP LIMITS DISABLED: setMinMaxLiquidSwapAmounts removed — no updater is
+  // exposed anymore. Original kept above for re-enable.
 
   useEffect(() => {
     const handleWindowSizeChange = newDimensions => {
@@ -169,41 +179,39 @@ const AppStatusProvider = ({ children }) => {
     };
   }, [appState]);
 
-  useEffect(() => {
-    if (appState !== 'active' || hasInitializedBoltzData.current) {
-      if (appState !== 'active' && !hasInitializedBoltzData.current) {
-        console.log('Skipping Boltz API calls - app not active');
-      }
-      return;
-    }
-
-    console.log('Making Boltz API calls - first time app is active');
-    hasInitializedBoltzData.current = true;
-
-    (async () => {
-      try {
-        const [submarineSwapStats, reverseSwapStats] = await Promise.all([
-          getBoltzSwapPairInformation('submarine'),
-          getBoltzSwapPairInformation('reverse'),
-        ]);
-
-        const liquidReverse = reverseSwapStats?.BTC?.['L-BTC'];
-        const min = liquidReverse?.limits?.minimal || 1000;
-        const max = liquidReverse?.limits?.maximal || 25000000;
-
-        setMinMaxLiquidSwapAmounts(prev => ({
-          // reverseSwapStats: liquidReverse,
-          // submarineSwapStats: submarineSwapStats['L-BTC'].BTC,
-          ...prev,
-          min,
-          max,
-          rsk: buildRootstockSubmarineLimits(submarineSwapStats, prev.rsk),
-        }));
-      } catch (error) {
-        console.error('Error fetching Boltz swap information:', error);
-      }
-    })();
-  }, [appState]);
+  // useEffect(() => {
+  //   if (appState !== 'active' || hasInitializedBoltzData.current) {
+  //     if (appState !== 'active' && !hasInitializedBoltzData.current) {
+  //       console.log('Skipping Boltz API calls - app not active');
+  //     }
+  //     return;
+  //   }
+  //   console.log('Making Boltz API calls - first time app is active');
+  //   hasInitializedBoltzData.current = true;
+  //   (async () => {
+  //     try {
+  //       const [submarineSwapStats, reverseSwapStats] = await Promise.all([
+  //         getBoltzSwapPairInformation('submarine'),
+  //         getBoltzSwapPairInformation('reverse'),
+  //       ]);
+  //       const liquidReverse = reverseSwapStats?.BTC?.['L-BTC'];
+  //       const min = liquidReverse?.limits?.minimal || 1000;
+  //       const max = liquidReverse?.limits?.maximal || 25000000;
+  //       setMinMaxLiquidSwapAmounts(prev => ({
+  //         // reverseSwapStats: liquidReverse,
+  //         // submarineSwapStats: submarineSwapStats['L-BTC'].BTC,
+  //         ...prev,
+  //         min,
+  //         max,
+  //         rsk: buildRootstockSubmarineLimits(submarineSwapStats, prev.rsk),
+  //       }));
+  //     } catch (error) {
+  //       console.error('Error fetching Boltz swap information:', error);
+  //     }
+  //   })();
+  // }, [appState]);
+  // SWAP LIMITS DISABLED: Boltz pair-info fetch removed so those network
+  // modules never load. Original effect kept above for re-enable.
 
   useEffect(() => {
     if (appState !== 'active') {
@@ -248,7 +256,7 @@ const AppStatusProvider = ({ children }) => {
   const contextValue = useMemo(
     () => ({
       minMaxLiquidSwapAmounts,
-      toggleMinMaxLiquidSwapAmounts,
+      // toggleMinMaxLiquidSwapAmounts,
       isConnectedToTheInternet,
       didGetToHomepage,
       toggleDidGetToHomepage,
@@ -260,7 +268,7 @@ const AppStatusProvider = ({ children }) => {
     }),
     [
       minMaxLiquidSwapAmounts,
-      toggleMinMaxLiquidSwapAmounts,
+      // toggleMinMaxLiquidSwapAmounts,
       isConnectedToTheInternet,
       didGetToHomepage,
       toggleDidGetToHomepage,

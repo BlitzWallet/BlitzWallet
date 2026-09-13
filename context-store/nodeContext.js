@@ -12,18 +12,20 @@ import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
-import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
+// import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
+// BREEZ LIQUID DISABLED: liquid auto-swap + connection imports commented so
+// the SDK chain is never loaded. Original lines kept for re-enable.
 import { useAuthContext } from './authContext';
-import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
+// import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
 import { SATSPERBITCOIN } from '../app/constants';
 
 // Initiate context
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
-  const { sparkInformation } = useSparkWallet();
+  // const { sparkInformation } = useSparkWallet();
   const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
-  const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
+  // const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
@@ -74,68 +76,71 @@ const GLobalNodeContextProider = ({ children }) => {
     initFiatData();
   }, [contactsPrivateKey, selectedCurrency, publicKey]);
 
-  useEffect(() => {
-    if (
-      !contactsPrivateKey ||
-      !publicKey ||
-      didRunLiquidConnection.current ||
-      !sparkInformation.didConnect ||
-      !sparkInformation.identityPubKey
-    )
-      return;
-    didRunLiquidConnection.current = true;
+  // useEffect(() => {
+  //   if (
+  //     !contactsPrivateKey ||
+  //     !publicKey ||
+  //     didRunLiquidConnection.current ||
+  //     !sparkInformation.didConnect ||
+  //     !sparkInformation.identityPubKey
+  //   )
+  //     return;
+  //   didRunLiquidConnection.current = true;
 
-    async function connectToLiquid() {
-      const connectionResponse = await ensureLiquidConnection(accountMnemoinc);
-      console.log('liquid connection response', connectionResponse);
-      if (connectionResponse) {
-        toggleLiquidNodeInformation({ didConnectToNode: true });
-      }
-    }
-    connectToLiquid();
-  }, [
-    contactsPrivateKey,
-    publicKey,
-    accountMnemoinc,
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-  ]);
+  //   // BREEZ LIQUID DISABLED: auto-connect commented out. Original kept below.
+  //   // async function connectToLiquid() {
+  //   //   const connectionResponse = await ensureLiquidConnection(accountMnemoinc);
+  //   //   console.log('liquid connection response', connectionResponse);
+  //   //   if (connectionResponse) {
+  //   //     toggleLiquidNodeInformation({ didConnectToNode: true });
+  //   //   }
+  //   // }
+  //   // connectToLiquid();
+  // }, [
+  //   contactsPrivateKey,
+  //   publicKey,
+  //   accountMnemoinc,
+  //   sparkInformation.didConnect,
+  //   sparkInformation.identityPubKey,
+  // ]);
 
   // This function checks to see if there are any liquid funds that need to be sent to spark
-  useEffect(() => {
-    async function swapLiquidToSpark() {
-      try {
-        // Only sweep funds that aren't already locked in an in-flight send,
-        // so overlapping balance updates can't trigger a double swap.
-        const spendableSat =
-          liquidNodeInformation.userBalance -
-          (liquidNodeInformation.pendingSend || 0);
-        if (spendableSat > minMaxLiquidSwapAmounts.min) {
-          await liquidToSparkSwap({
-            mnemonic: accountMnemoinc,
-            sparkInformation,
-            spendableSat,
-          });
-        }
-      } catch (err) {
-        console.log('transfering liquid to spark error', err);
-      }
-    }
-    if (!didGetToHomepage) return;
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (!masterInfoObject.enabledLiquidAutoSwap) return;
-    swapLiquidToSpark();
-  }, [
-    didGetToHomepage,
-    liquidNodeInformation.userBalance,
-    liquidNodeInformation.pendingSend,
-    minMaxLiquidSwapAmounts.min,
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-    accountMnemoinc,
-    masterInfoObject.enabledLiquidAutoSwap,
-  ]);
+  // BREEZ LIQUID DISABLED: auto-swap to spark commented out. Original kept below.
+  // useEffect(() => {
+  //   // async function swapLiquidToSpark() {
+  //   //   try {
+  //   //     // Only sweep funds that aren't already locked in an in-flight send,
+  //   //     // so overlapping balance updates can't trigger a double swap.
+  //   //     const spendableSat =
+  //   //       liquidNodeInformation.userBalance -
+  //   //       (liquidNodeInformation.pendingSend || 0);
+  //   //     if (spendableSat > minMaxLiquidSwapAmounts.min) {
+  //   //       await liquidToSparkSwap({
+  //   //         mnemonic: accountMnemoinc,
+  //   //         sparkInformation,
+  //   //         spendableSat,
+  //   //       });
+  //   //     }
+  //   //   } catch (err) {
+  //   //     console.log('transfering liquid to spark error', err);
+  //   //   }
+  //   // }
+  //   // if (!didGetToHomepage) return;
+  //   // if (!sparkInformation.didConnect) return;
+  //   // if (!sparkInformation.identityPubKey) return;
+  //   // if (!masterInfoObject.enabledLiquidAutoSwap) return;
+  //   // swapLiquidToSpark();
+  //   return;
+  // }, [
+  //   didGetToHomepage,
+  //   liquidNodeInformation.userBalance,
+  //   liquidNodeInformation.pendingSend,
+  //   minMaxLiquidSwapAmounts.min,
+  //   sparkInformation.didConnect,
+  //   sparkInformation.identityPubKey,
+  //   accountMnemoinc,
+  //   masterInfoObject.enabledLiquidAutoSwap,
+  // ]);
 
   useEffect(() => {
     if (isInitialRender.current) {

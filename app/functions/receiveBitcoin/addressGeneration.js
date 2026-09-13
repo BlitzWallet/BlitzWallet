@@ -4,13 +4,13 @@ import {
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
   SATSPERBITCOIN,
 } from '../../constants';
-import { breezLiquidReceivePaymentWrapper } from '../breezLiquid';
+// import { breezLiquidReceivePaymentWrapper } from '../breezLiquid';
 import { randomBytes } from 'react-native-quick-crypto';
 import customUUID from '../customUUID';
 import { crashlyticsLogReport } from '../crashlyticsLogs';
 import { sparkReceivePaymentWrapper } from '../spark/payments';
 import { encriptMessage } from '../messaging/encodingAndDecodingMessages';
-import { getRootstockAddress } from '../boltz/rootstock/submarineSwap';
+// import { getRootstockAddress } from '../boltz/rootstock/submarineSwap';
 import { formatBip21Address } from '../spark/handleBip21SparkAddress';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import sha256Hash from '../hash';
@@ -382,45 +382,55 @@ export async function initializeAddressProcess(wolletInfo) {
 }
 
 async function generateLiquidAddress(wolletInfo) {
-  const { receivingAmount, setAddressState, description } = wolletInfo;
-
-  const addressResponse = await breezLiquidReceivePaymentWrapper({
-    sendAmount: receivingAmount,
-    paymentType: 'liquid',
-    description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION || undefined,
-  });
-  if (!addressResponse) {
-    return {
-      generatedAddress: null,
-      errorMessageText: {
-        type: 'stop',
-        text: `errormessages.liquidInvoiceError`,
-      },
-    };
-  }
-
-  const { destination, receiveFeesSat } = addressResponse;
-
   return {
-    generatedAddress: destination,
-    fee: receiveFeesSat,
+    generatedAddress: null,
+    errorMessageText: {
+      type: 'stop',
+      text: `errormessages.liquidInvoiceError`,
+    },
   };
+  // const { receivingAmount, setAddressState, description } = wolletInfo;
+  // const addressResponse = await breezLiquidReceivePaymentWrapper({
+  //   sendAmount: receivingAmount,
+  //   paymentType: 'liquid',
+  //   description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION || undefined,
+  // });
+  // if (!addressResponse) {
+  //   return {
+  //     generatedAddress: null,
+  //     errorMessageText: {
+  //       type: 'stop',
+  //       text: `errormessages.liquidInvoiceError`,
+  //     },
+  //   };
+  // }
+  // const { destination, receiveFeesSat } = addressResponse;
+  // return {
+  //   generatedAddress: destination,
+  //   fee: receiveFeesSat,
+  // };
 }
 
 async function generateRootstockAddress(wolletInfo) {
-  const { signer } = wolletInfo;
-
-  const address = await getRootstockAddress(signer);
-  if (!address)
-    return {
-      generatedAddress: null,
-      errorMessageText: {
-        type: 'stop',
-        text: `errormessages.rootstockInvoiceError`,
-      },
-    };
   return {
-    generatedAddress: address,
-    fee: 0,
+    generatedAddress: null,
+    errorMessageText: {
+      type: 'stop',
+      text: `errormessages.rootstockInvoiceError`,
+    },
   };
+  // const { signer } = wolletInfo;
+  // const address = await getRootstockAddress(signer);
+  // if (!address)
+  //   return {
+  //     generatedAddress: null,
+  //     errorMessageText: {
+  //       type: 'stop',
+  //       text: `errormessages.rootstockInvoiceError`,
+  //     },
+  //   };
+  // return {
+  //   generatedAddress: address,
+  //   fee: 0,
+  // };
 }

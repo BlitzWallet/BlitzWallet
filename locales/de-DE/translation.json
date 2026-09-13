@@ -1032,7 +1032,8 @@
       "depositFeePopup_bitcoin": "Für Bitcoin, die an diese Adresse gesendet werden, fällt eine geringe Netzwerkgebühr an. Die Gebühr wird vom empfangenen Betrag abgezogen, sodass Ihr Guthaben etwas niedriger sein kann als der gesendete Betrag.",
       "depositFeePopup_liquid": "Liquid Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, die in Ihrer Wallet verwendet werden können. Für die Umwandlung fällt eine geringe Gebühr an, die vom empfangenen Betrag abgezogen wird.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, die in Ihrer Wallet verwendet werden können. Für die Umwandlung fällt eine geringe Gebühr an, die vom empfangenen Betrag abgezogen wird.",
-      "depositFeePopup_stablecoins": "Stablecoins, die an diese Adresse gesendet werden, werden in Ihrer Wallet in Dollar umgewandelt. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
+      "depositFeePopup_stablecoins": "Stablecoins, die an diese Adresse gesendet werden, werden in Ihrer Wallet in Dollar umgewandelt. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen.",
+      "depositFeePopup_accumulation_bitcoin": "Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, das in Ihrer Wallet verwendet werden kann. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -1757,7 +1758,8 @@
       "refunded": "Erstattet",
       "rootstockTx": "Rootstock-Tx",
       "lockTx": "Sperr-Tx",
-      "refundTx": "Rückerstattungs-Tx"
+      "refundTx": "Rückerstattungs-Tx",
+      "refundError": "Rückerstattung fehlgeschlagen. Bitte erneut versuchen oder den Support kontaktieren."
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Neu scannen abgeschlossen",
@@ -1774,7 +1776,10 @@
       "swap": "Übertragen",
       "rescanning": "Scannen...",
       "autoClaimLabel": "Automatisch einlösen",
-      "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist."
+      "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist.",
+      "unsupportedTitle": "Wir unterstützen {{type}} nicht mehr",
+      "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie Ihre Blitz-Wiederherstellungsphrase in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
+      "contactUs": "Kontaktieren Sie uns"
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",

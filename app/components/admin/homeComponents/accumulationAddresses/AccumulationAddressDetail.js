@@ -297,11 +297,31 @@ export default function AccumulationAddressDetail() {
                   { borderColor: backgroundColor },
                 ]}
               >
-                <Image
-                  style={styles.confirmCurrencyIcon}
-                  source={ICONS[`${selected.sourceAsset.toLowerCase()}Logo`]}
-                  contentFit="contain"
-                />
+                {selected.sourceAsset?.toLowerCase()?.includes('btc') ? (
+                  <View
+                    style={[
+                      styles.confirmCurrencyIcon,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundOffset
+                            : COLORS.bitcoinOrange,
+                      },
+                    ]}
+                  >
+                    <Image
+                      style={styles.tokenIconImg}
+                      source={ICONS['bitcoinIcon']}
+                      contentFit="contain"
+                    />
+                  </View>
+                ) : (
+                  <Image
+                    style={styles.confirmCurrencyIcon}
+                    source={ICONS[`${selected.sourceAsset.toLowerCase()}Logo`]}
+                    contentFit="contain"
+                  />
+                )}
               </View>
             </View>
             <ThemeIcon styles={{ opacity: 0.7 }} iconName={'ArrowRight'} />
@@ -444,6 +464,8 @@ const styles = StyleSheet.create({
   confirmCurrencyIcon: {
     width: '100%',
     height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   printBtn: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
   viewAllBtn: { backgroundColor: 'transparent' },
@@ -453,4 +475,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cancelRed,
   },
   deleteText: { color: COLORS.white },
+  tokenIconImg: {
+    width: 15,
+    height: 15,
+  },
 });

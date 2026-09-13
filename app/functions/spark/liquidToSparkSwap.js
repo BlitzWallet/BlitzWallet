@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { breezLiquidPaymentWrapper } from '../breezLiquid';
+// import { breezLiquidPaymentWrapper } from '../breezLiquid';
 import { sparkReceivePaymentWrapper } from './payments';
 import {
   bulkUpdateSparkTransactions,
@@ -150,17 +150,18 @@ async function createSparkSwapInvoice({ amountSat, mnemonic }) {
 }
 
 async function quoteLiquidLightningFee(bolt11) {
-  const feeResponse = await breezLiquidPaymentWrapper({
-    paymentType: 'lightning',
-    invoice: bolt11,
-    getFee: true,
-  });
-  if (!feeResponse.didWork) {
-    throw new Error(
-      getSwapError(feeResponse.error, 'Unable to estimate Liquid swap fee'),
-    );
-  }
-  return Math.ceil(Number(feeResponse.fee) || 0);
+  throw new Error('Breez Liquid disabled');
+  // const feeResponse = await breezLiquidPaymentWrapper({
+  //   paymentType: 'lightning',
+  //   invoice: bolt11,
+  //   getFee: true,
+  // });
+  // if (!feeResponse.didWork) {
+  //   throw new Error(
+  //     getSwapError(feeResponse.error, 'Unable to estimate Liquid swap fee'),
+  //   );
+  // }
+  // return Math.ceil(Number(feeResponse.fee) || 0);
 }
 
 async function getReusableSwapInvoice(spendableSat) {
@@ -299,9 +300,10 @@ export default async function liquidToSparkSwap({
   sparkInformation,
   spendableSat,
 }) {
-  if (isRunningLiquidSwap) {
-    return { didWork: false, error: 'Liquid swap already in progress' };
-  }
+  return { didWork: false, error: 'Breez Liquid disabled' };
+  // if (isRunningLiquidSwap) {
+  //   return { didWork: false, error: 'Liquid swap already in progress' };
+  // }
   isRunningLiquidSwap = true;
 
   const accountId = sparkInformation?.identityPubKey;
@@ -343,16 +345,15 @@ export default async function liquidToSparkSwap({
     // Show the pending swap in history right away once the swap starts.
     await insertSparkTransactionPlaceholders([pendingSwapTx]);
 
-    const paymentResponse = await breezLiquidPaymentWrapper({
-      paymentType: 'lightning',
-      invoice: swapInvoice.bolt11,
-    });
-
-    if (!paymentResponse.didWork) {
-      throw new Error(
-        getSwapError(paymentResponse.error, 'Liquid swap payment failed'),
-      );
-    }
+    // const paymentResponse = await breezLiquidPaymentWrapper({
+    //   paymentType: 'lightning',
+    //   invoice: swapInvoice.bolt11,
+    // });
+    // if (!paymentResponse.didWork) {
+    //   throw new Error(
+    //     getSwapError(paymentResponse.error, 'Liquid swap payment failed'),
+    //   );
+    // }
 
     return { didWork: true };
   } catch (err) {

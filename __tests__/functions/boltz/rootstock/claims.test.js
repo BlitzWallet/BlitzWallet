@@ -64,9 +64,13 @@ describe('Rootstock submarine refunds', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     signer.provider.getBlockNumber.mockResolvedValue(50);
-    mockContract.refundCooperative.mockResolvedValue({ hash: '0xcoop' });
+    mockContract.refundCooperative.mockResolvedValue({
+      hash: '0xcoop',
+      wait: jest.fn().mockResolvedValue({ status: 1 }),
+    });
     mockContract['refund(bytes32,uint256,address,uint256)'].mockResolvedValue({
       hash: '0xtimeout',
+      wait: jest.fn().mockResolvedValue({ status: 1 }),
     });
     global.fetch = jest
       .fn()
@@ -162,6 +166,28 @@ describe('Rootstock submarine refunds', () => {
     expect(updateSwap).toHaveBeenCalledWith(
       'swap-1',
       expect.objectContaining({ refundState: 'retryable_error' }),
+    );
+  });
+
+  it('leaves the swap refundable when the broadcast tx reverts', async () => {
+    // The retry loop that used to re-drive pending refunds is disabled, so a
+    // reverted tx must not persist refundTxHash — that would hide the manual
+    // refund button permanently.
+    mockContract.refundCooperative.mockResolvedValue({
+      hash: '0xreverted',
+      wait: jest.fn().mockRejectedValue(new Error('execution reverted')),
+    });
+
+    const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
+
+    expect(didRefund).toBe(false);
+    expect(updateSwap).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ refundState: 'retryable_error' }),
+    );
+    expect(updateSwap).not.toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ refundTxHash: expect.anything() }),
     );
   });
 });

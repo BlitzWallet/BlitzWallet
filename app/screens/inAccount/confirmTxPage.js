@@ -364,7 +364,7 @@ export default function ConfirmTxPage(props) {
             if (item.value === 'email') {
               try {
                 await openComposer({
-                  to: 'blake@blitzwalletapp.com',
+                  to: 'support@blitzwalletapp.com',
                   subject: 'Payment Failed',
                   body: String(errorMessage),
                 });

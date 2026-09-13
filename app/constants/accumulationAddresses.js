@@ -11,6 +11,15 @@ export const ACCUMULATION_CHAINS = [
 ];
 export const ACCUMULATION_DESTINATIONS = ['BTC', 'USDB'];
 
+// Bitcoin-backed tokens on other chains. Per FlashNet's route catalog
+// (GET /v1/orchestration/routes) these are the only non-native BTC sources
+// that deliver BTC on Spark.
+export const ACCUMULATION_BTC_SOURCES = [
+  { chain: 'ethereum', asset: 'WBTC', name: 'Wrapped Bitcoin' },
+  { chain: 'solana', asset: 'cbBTC', name: 'Coinbase BTC' },
+  { chain: 'base', asset: 'cbBTC', name: 'Coinbase BTC' },
+];
+
 export const CHAIN_ASSET_ROW_HEIGHT = 65;
 export const CHAIN_EXPAND_PADDING = 26;
 export const getChainExpandHeight = chainId => {
