@@ -11,6 +11,10 @@ import './App';
 
 // index.web.js — add after the existing side-effect imports
 import * as Font from 'expo-font';
+import installWebViewport from './app/functions/webViewport.web';
+
+const removeWebViewport = installWebViewport();
+if (module.hot) module.hot.dispose(removeWebViewport);
 
 Font.loadAsync({
   'Poppins-Light': require('./app/assets/fonts/Poppins-Light.ttf'),

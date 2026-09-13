@@ -203,10 +203,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
       rows.push(
         <View
           key={`row${item1}`}
-          style={[
-            styles.seedRow,
-            { marginBottom: item2 !== 12 || Platform.OS === 'web' ? 10 : 0 },
-          ]}
+          style={[styles.seedRow, { marginBottom: item2 !== 12 ? 10 : 0 }]}
         >
           {/* First item in row */}
           <View
@@ -334,14 +331,6 @@ export default function RestoreWallet({ navigation: { reset } }) {
               content={t('createAccount.restoreWallet.home.desc')}
             />
             {inputKeys}
-            {currentFocused && Platform.OS === 'web' && (
-              <SuggestedWordContainer
-                inputedKey={inputedKey}
-                setInputedKey={setInputedKey}
-                selectedKey={currentFocused}
-                keyRefs={keyRefs}
-              />
-            )}
           </ScrollView>
 
           {!currentFocused && (
@@ -379,7 +368,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
         </View>
       </View>
 
-      {currentFocused && Platform.OS !== 'web' && (
+      {currentFocused && (
         <View style={styles.suggestionBreakout}>
           <SuggestedWordContainer
             inputedKey={inputedKey}

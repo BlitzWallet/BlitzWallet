@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no, interactive-widget=resizes-content"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -25,8 +25,12 @@
 
       #root {
         display: flex;
-        height: 100%;
-        flex: 1;
+        position: fixed;
+        top: var(--app-viewport-top, 0px);
+        left: 0;
+        width: 100%;
+        height: var(--app-viewport-height, 100%);
+        overflow: hidden;
       }
 
       input:focus,
