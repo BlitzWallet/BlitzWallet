@@ -836,6 +836,7 @@ export default function StablecoinSendScreen() {
             maxLength={150}
             containerStyles={{
               width: INSET_WINDOW_WIDTH,
+              maxWidth: 400,
               marginTop: 10,
               ...CENTER,
             }}

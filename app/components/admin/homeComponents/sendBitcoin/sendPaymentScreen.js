@@ -1688,6 +1688,7 @@ export default function SendPaymentScreen(props) {
               maxLength={paymentInfo?.data?.commentAllowed || 150}
               containerStyles={{
                 width: INSET_WINDOW_WIDTH,
+                maxWidth: 400,
                 marginTop: 10,
               }}
             />
