@@ -318,6 +318,14 @@
       "joinDesc": "Únete a una wallet que se gestiona por ti.",
       "restoreTitle": "Restaurar wallet existente",
       "restoreDesc": "¿Ya tienes una wallet? Tráela contigo."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {

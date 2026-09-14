@@ -318,6 +318,14 @@
       "joinDesc": "Rejoignez un portefeuille qui est géré pour vous.",
       "restoreTitle": "Restaurer un portefeuille existant",
       "restoreDesc": "Vous avez déjà un portefeuille ? Importez-le."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {

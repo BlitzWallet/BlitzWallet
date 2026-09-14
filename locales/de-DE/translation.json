@@ -318,6 +318,14 @@
       "joinDesc": "Treten Sie einem Konto bei, das für Sie verwaltet wird.",
       "restoreTitle": "Vorhandenes Wallet wiederherstellen",
       "restoreDesc": "Sie haben bereits eine Wallet? Übernehmen Sie sie."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {

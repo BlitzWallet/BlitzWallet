@@ -318,6 +318,14 @@
       "joinDesc": "Присоединитесь к кошельку, которым управляют за вас.",
       "restoreTitle": "Восстановить существующий кошелёк",
       "restoreDesc": "Уже есть кошелёк? Импортируйте его."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {

@@ -318,6 +318,14 @@
       "joinDesc": "Gå med i en plånbok som hanteras åt dig.",
       "restoreTitle": "Återställ befintlig plånbok",
       "restoreDesc": "Har du redan en plånbok? Ta med dig den."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {

@@ -14,8 +14,13 @@ import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
 import { migrateLegacyWallet } from '../../functions/legacyWebMigration';
 import { useKeysContext } from '../../../context-store/keys';
 import sha256Hash from '../../functions/hash';
+import IconActionCircle from '../../functions/CustomElements/actionCircleContainer';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import GetThemeColors from '../../hooks/themeColors';
 
 export default function LegacyWebMigration() {
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -103,6 +108,15 @@ export default function LegacyWebMigration() {
           />
           {!!error && <ThemeText styles={styles.errorText} content={error} />}
         </View>
+        <View style={styles.keyIconContainer}>
+          <IconActionCircle
+            customBackgroundColor={
+              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
+            }
+            icon={'Key'}
+            size={130}
+          />
+        </View>
         <View style={styles.buttonContainer}>
           <CustomButton
             textContent={t(
@@ -123,23 +137,21 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: WINDOWWIDTH,
-    alignItems: 'center',
     ...CENTER,
   },
   header: {
-    fontSize: SIZES.xxLarge,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: 50,
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 28,
+    marginBottom: 8,
   },
   description: {
-    marginTop: 12,
-    textAlign: 'center',
-    opacity: HIDDEN_OPACITY,
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
   },
   inputWrapper: {
     width: '100%',
-    maxWidth: 400,
     marginTop: 40,
   },
   errorText: {
@@ -151,5 +163,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 'auto',
     width: '100%',
+  },
+  keyIconContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
