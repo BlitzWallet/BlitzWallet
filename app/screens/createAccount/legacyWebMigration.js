@@ -35,6 +35,7 @@ export default function LegacyWebMigration() {
     setIsSubmitting(true);
     setError('');
     try {
+      await new Promise(res => setTimeout(res, 100)); // add small promise to fix UI thread block
       const result = await migrateLegacyWallet(password);
 
       if (result.status === 'wrong-password') {
