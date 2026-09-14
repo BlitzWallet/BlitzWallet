@@ -19,7 +19,6 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
-  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -175,7 +174,7 @@ export default function AddFriendsToSplit(props) {
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
-      useStandardWidth={false}
+      useStandardWidth={true}
     >
       <View style={styles.standardContainerWidth}>
         <CustomSettingsTopBar label={t('contacts.splitBill.addFriendsTitle')} />
@@ -251,7 +250,7 @@ export default function AddFriendsToSplit(props) {
 
 const styles = StyleSheet.create({
   standardContainerWidth: {
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
   },
   selectedSection: {

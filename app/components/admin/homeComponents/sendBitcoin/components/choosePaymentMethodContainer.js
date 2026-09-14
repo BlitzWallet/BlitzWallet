@@ -1,6 +1,10 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { CENTER, ICONS } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+} from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   COLORS,
@@ -72,7 +76,9 @@ export default function ChoosePaymentMethod({
     <View
       style={[
         styles.paymentMethodContainer,
-        { marginTop: uiState === 'CHOOSE_METHOD' ? 30 : 5 },
+        {
+          marginTop: uiState === 'CHOOSE_METHOD' ? 30 : CONTENT_KEYBOARD_OFFSET,
+        },
         containerStyles,
       ]}
     >

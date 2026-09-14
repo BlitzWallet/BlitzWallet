@@ -47,7 +47,6 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
-  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { InputTypes } from 'bitcoin-address-parser';
@@ -1526,7 +1525,10 @@ export default function SendPaymentScreen(props) {
   }
 
   return (
-    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      globalThemeViewStyles={memorizedKeyboardStyle}
+    >
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           label={t('constants.send')}
@@ -1828,7 +1830,7 @@ export default function SendPaymentScreen(props) {
 const styles = StyleSheet.create({
   replacementContainer: {
     flexGrow: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
   },
   sectionTitle: {

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import { WebView } from 'react-native-webview';
 import { CENTER } from '../../constants';
-import { SIZES, WINDOWWIDTH } from '../../constants/theme';
+import { SIZES } from '../../constants/theme';
 import { useRef } from 'react';
 import CustomSettingsTopBar from './settingsTopBar';
 
@@ -64,7 +64,7 @@ export default function CustomWebView(props) {
   const originWhitelist = isHTML || !allowedOrigin ? null : [allowedOrigin];
 
   return (
-    <GlobalThemeView styles={{ paddingBottom: 0 }}>
+    <GlobalThemeView useStandardWidth={true} styles={{ paddingBottom: 0 }}>
       <CustomSettingsTopBar
         containerStyles={styles.topBar}
         label={props.route.params?.headerText}
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
   },
   topBar: {
-    width: WINDOWWIDTH,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,

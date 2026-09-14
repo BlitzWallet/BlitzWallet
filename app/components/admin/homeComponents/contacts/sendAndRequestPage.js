@@ -14,7 +14,6 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
-  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import {
   CustomKeyboardAvoidingView,
@@ -125,6 +124,7 @@ export default function SendAndRequestPage(props) {
   if (payment.isAutoResolvingCurrency) {
     return (
       <CustomKeyboardAvoidingView
+        useStandardWidth={true}
         globalThemeViewStyles={memorizedKeyboardStyle}
       >
         <View
@@ -150,7 +150,10 @@ export default function SendAndRequestPage(props) {
   }
 
   return (
-    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      globalThemeViewStyles={memorizedKeyboardStyle}
+    >
       <View
         style={[
           styles.replacementContainer,
@@ -339,7 +342,7 @@ export default function SendAndRequestPage(props) {
 const styles = StyleSheet.create({
   replacementContainer: {
     flexGrow: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
   },
   webScrollableContainer: {
