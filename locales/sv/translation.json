@@ -2493,7 +2493,6 @@
         "stablecoinsFeeMessage": "För att ta emot stablecoins tillkommer en Blitz-avgift på 0,5 % och en Flashnet-avgift på 0,05 %.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
-        "copyInvoice": "Kopiera faktura",
         "usdSwapMinNotice": "Endast betalningar över {{amount}} kommer att konverteras till dollar",
         "shareInvoice": "Dela faktura",
         "walletNotConnected": "Plånboken är inte ansluten. Försök igen.",
@@ -2533,7 +2532,9 @@
         "expiry_86400": "24 timmar",
         "expiry_604800": "7 dagar",
         "expiry_2592000": "30 dagar",
-        "expiry_7776000": "90 dagar"
+        "expiry_7776000": "90 dagar",
+        "copy_invoice": "Kopiera faktura",
+        "copy_address": "Kopiera adress"
       },
       "settingsContent": {
         "about": "Om",

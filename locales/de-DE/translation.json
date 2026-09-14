@@ -2493,7 +2493,6 @@
         "stablecoinsFeeMessage": "Für den Empfang über Stablecoin-Adressen fallen eine Blitz-Gebühr von 0,5 % und eine Flashnet-Gebühr von 0,05 % an.",
         "generatingInvoice": "Rechnung wird generiert...",
         "amountPlaceholder": "Beliebigen Betrag",
-        "copyInvoice": "Rechnung kopieren",
         "usdSwapMinNotice": "Nur Zahlungen über {{amount}} werden in Dollar umgewandelt",
         "shareInvoice": "Rechnung teilen",
         "walletNotConnected": "Wallet nicht verbunden. Bitte versuchen Sie es erneut.",
@@ -2533,7 +2532,9 @@
         "expiry_86400": "24 Stunden",
         "expiry_604800": "7 Tage",
         "expiry_2592000": "30 Tage",
-        "expiry_7776000": "90 Tage"
+        "expiry_7776000": "90 Tage",
+        "copy_invoice": "Rechnung kopieren",
+        "copy_address": "Adresse kopieren"
       },
       "settingsContent": {
         "about": "Über uns",

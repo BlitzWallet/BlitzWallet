@@ -2493,7 +2493,6 @@
         "stablecoinsFeeMessage": "Pour recevoir des stablecoins, des frais Blitz de 0,5 % et des frais Flashnet de 0,05 % s’appliquent.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
-        "copyInvoice": "Copier la facture",
         "usdSwapMinNotice": "Seuls les paiements supérieurs à {{amount}} seront convertis en dollars",
         "shareInvoice": "Partager la facture",
         "walletNotConnected": "Portefeuille non connecté. Veuillez réessayer.",
@@ -2533,7 +2532,9 @@
         "expiry_86400": "24 heures",
         "expiry_604800": "7 jours",
         "expiry_2592000": "30 jours",
-        "expiry_7776000": "90 jours"
+        "expiry_7776000": "90 jours",
+        "copy_invoice": "Copier la facture",
+        "copy_address": "Copier l’adresse"
       },
       "settingsContent": {
         "about": "A propos de",

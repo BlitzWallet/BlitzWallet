@@ -2495,7 +2495,6 @@
         "stablecoinsFeeMessage": "Для получения стейблкоинов взимаются комиссия Blitz 0,5% и комиссия Flashnet 0,05%.",
         "generatingInvoice": "Создание инвойса",
         "amountPlaceholder": "Любая сумма",
-        "copyInvoice": "Скопировать счёт",
         "usdSwapMinNotice": "Только платежи свыше {{amount}} будут конвертированы в доллары",
         "shareInvoice": "Поделиться счётом",
         "walletNotConnected": "Кошелёк не подключён. Повторите попытку.",
@@ -2535,7 +2534,9 @@
         "expiry_86400": "24 часа",
         "expiry_604800": "7 дней",
         "expiry_2592000": "30 дней",
-        "expiry_7776000": "90 дней"
+        "expiry_7776000": "90 дней",
+        "copy_invoice": "Скопировать счёт",
+        "copy_address": "Скопировать адрес"
       },
       "settingsContent": {
         "about": "О приложении",

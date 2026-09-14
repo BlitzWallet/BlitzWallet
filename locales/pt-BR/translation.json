@@ -2493,7 +2493,6 @@
         "stablecoinsFeeMessage": "Para receber dólares digitais, aplica-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
-        "copyInvoice": "Copiar código",
         "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão recebidos em dólares",
         "shareInvoice": "Link de pagamento",
         "walletNotConnected": "Carteira não conectada. Tente novamente.",
@@ -2533,7 +2532,9 @@
         "expiry_86400": "24 horas",
         "expiry_604800": "7 dias",
         "expiry_2592000": "30 dias",
-        "expiry_7776000": "90 dias"
+        "expiry_7776000": "90 dias",
+        "copy_invoice": "Copiar código",
+        "copy_address": "Copiar endereço"
       },
       "settingsContent": {
         "about": "Sobre",

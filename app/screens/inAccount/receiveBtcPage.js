@@ -399,23 +399,27 @@ export default function ReceivePaymentHome(props) {
           />
           <ThemeText
             CustomNumberOfLines={1}
-            content={t('screens.inAccount.receiveBtcPage.copyInvoice')}
+            content={t('screens.inAccount.receiveBtcPage.copy', {
+              context: isUsingLnurl ? 'address' : 'invoice',
+            })}
             styles={[styles.actionButtonText, { color: actionTextColor }]}
           />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[styles.actionButton, { backgroundColor: 'transparent' }]}
-          onPress={handleShareInvoice}
-        >
-          <ThemeIcon iconName={'Share'} size={18} />
-          <ThemeText
-            CustomNumberOfLines={1}
-            content={t('screens.inAccount.receiveBtcPage.shareInvoice')}
-            styles={styles.actionButtonText}
-          />
-        </TouchableOpacity>
+        {!isUsingLnurl && (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={[styles.actionButton, { backgroundColor: 'transparent' }]}
+            onPress={handleShareInvoice}
+          >
+            <ThemeIcon iconName={'Share'} size={18} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              content={t('screens.inAccount.receiveBtcPage.shareInvoice')}
+              styles={styles.actionButtonText}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </GlobalThemeView>
   );

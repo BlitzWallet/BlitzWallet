@@ -2493,7 +2493,6 @@
         "stablecoinsFeeMessage": "Per ricevere stablecoin, si applicano una commissione Blitz dello 0,5% e una commissione Flashnet dello 0,05%.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
-        "copyInvoice": "Copia fattura",
         "usdSwapMinNotice": "Solo i pagamenti superiori a {{amount}} saranno convertiti in dollari",
         "shareInvoice": "Condividi fattura",
         "walletNotConnected": "Wallet non connesso. Riprova.",
@@ -2533,7 +2532,9 @@
         "expiry_86400": "24 ore",
         "expiry_604800": "7 giorni",
         "expiry_2592000": "30 giorni",
-        "expiry_7776000": "90 giorni"
+        "expiry_7776000": "90 giorni",
+        "copy_invoice": "Copia fattura",
+        "copy_address": "Copia indirizzo"
       },
       "settingsContent": {
         "about": "Informazioni",
