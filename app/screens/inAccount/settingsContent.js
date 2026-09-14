@@ -20,16 +20,15 @@ import {
 } from '../../components/admin/homeComponents/settingsContent';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
-import { MAX_CONTENT_WIDTH } from '../../constants/theme';
 import { EditMyProfilePage } from '../../components/admin';
 
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useCallback } from 'react';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 import { useTranslation } from 'react-i18next';
 import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
+import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
   largeDeviceWrapper: {
     flex: 1,
     width: '100%',
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     alignSelf: 'center',
   },
 });

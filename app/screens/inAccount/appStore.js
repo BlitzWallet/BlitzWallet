@@ -10,12 +10,8 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { CENTER, SIZES } from '../../constants';
-import {
-  HIDDEN_OPACITY,
-  MAX_CONTENT_WIDTH,
-  WINDOWWIDTH,
-} from '../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../constants';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
 import ProfileImageSettingsNavigator from '../../functions/CustomElements/profileSettingsNavigator';
@@ -192,7 +188,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 8,
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     alignSelf: 'center',
     width: '100%',
   },
