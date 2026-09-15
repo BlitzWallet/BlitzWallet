@@ -128,6 +128,7 @@ export default function PasswordCreateForm({
         onPress={() =>
           openBrowserAsync(
             'https://www.nist.gov/cybersecurity-and-privacy/how-do-i-create-good-password?utm_source=chatgpt.com',
+            { windowFeatures: { noopener: true, noreferrer: true } },
           )
         }
       >

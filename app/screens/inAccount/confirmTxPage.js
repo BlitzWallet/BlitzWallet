@@ -70,7 +70,10 @@ export default function ConfirmTxPage(props) {
   // Payee-controlled (LUD-09). Allow-list to https before it can be opened so a
   // javascript:/data:/app-deeplink scheme can never reach the browser; '' hides
   // the button entirely.
-  const successActionUrl = getNormalizedWebsiteUrl(successAction?.url);
+  const successActionUrl =
+    successAction?.tag === 'url'
+      ? getNormalizedWebsiteUrl(successAction?.url)
+      : '';
 
   const didSucceed = !hasError || isLNURLAuth;
 

@@ -22,6 +22,18 @@ export default function CustomWebView(props) {
   const initialURL = props.route.params?.webViewURL;
   const allowedOrigin = getAllowedOrigin(initialURL);
 
+  // The initial load bypasses shouldStartLoadWithRequest on native and the
+  // request filter is inert on web, so refuse non-http(s) embeds here. No
+  // current caller passes such a URL; this guards future/scanned input.
+  const isInitialUrlAllowed = (() => {
+    if (isHTML) return false;
+    try {
+      return ALLOWED_SCHEMES.has(new URL(initialURL).protocol);
+    } catch {
+      return false;
+    }
+  })();
+
   const htmlSource = isHTML
     ? `
       <!DOCTYPE html>
@@ -69,24 +81,26 @@ export default function CustomWebView(props) {
         containerStyles={styles.topBar}
         label={props.route.params?.headerText}
       />
-      <WebView
-        style={styles.container}
-        source={isHTML ? { html: htmlSource } : { uri: initialURL }}
-        javaScriptEnabled={!isHTML}
-        onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
-        originWhitelist={originWhitelist}
-        allowFileAccess={false}
-        allowFileAccessFromFileURLs={false}
-        allowUniversalAccessFromFileURLs={false}
-        javaScriptCanOpenWindowsAutomatically={false}
-        setSupportMultipleWindows={false}
-        geolocationEnabled={false}
-        thirdPartyCookiesEnabled={false}
-        sharedCookiesEnabled={false}
-        mediaPlaybackRequiresUserAction={true}
-        allowsInlineMediaPlayback={false}
-        ref={webViewRef}
-      />
+      {isInitialUrlAllowed && (
+        <WebView
+          style={styles.container}
+          source={isHTML ? { html: htmlSource } : { uri: initialURL }}
+          javaScriptEnabled={!isHTML}
+          onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
+          originWhitelist={originWhitelist}
+          allowFileAccess={false}
+          allowFileAccessFromFileURLs={false}
+          allowUniversalAccessFromFileURLs={false}
+          javaScriptCanOpenWindowsAutomatically={false}
+          setSupportMultipleWindows={false}
+          geolocationEnabled={false}
+          thirdPartyCookiesEnabled={false}
+          sharedCookiesEnabled={false}
+          mediaPlaybackRequiresUserAction={true}
+          allowsInlineMediaPlayback={false}
+          ref={webViewRef}
+        />
+      )}
     </GlobalThemeView>
   );
 }

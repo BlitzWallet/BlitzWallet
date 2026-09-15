@@ -21,6 +21,7 @@ import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
+import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 
 export default function BTCMapMerchantContent({
   placeId,
@@ -128,10 +129,11 @@ export default function BTCMapMerchantContent({
               {
                 value: website,
                 icon: 'Globe',
-                onPress: () =>
-                  Linking.openURL(
-                    website.startsWith('http') ? website : `https://${website}`,
-                  ),
+                onPress: () => {
+                  // Directory data is attacker-submittable: https-only.
+                  const safeUrl = getNormalizedWebsiteUrl(website);
+                  if (safeUrl) Linking.openURL(safeUrl);
+                },
               },
               {
                 value: email,

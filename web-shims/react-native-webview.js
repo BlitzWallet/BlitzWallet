@@ -28,6 +28,17 @@ function flattenStyle(style) {
   return style;
 }
 
+const BITREFILL_ORIGIN = 'https://embed.bitrefill.com';
+const PERMISSION_FEATURES = [
+  'accelerometer',
+  'gyroscope',
+  'magnetometer',
+  'payment',
+  'clipboard-write',
+  'fullscreen',
+  'geolocation',
+];
+
 export function WebView({
   source,
   style,
@@ -38,9 +49,28 @@ export function WebView({
   onError,
   title,
 }) {
-  const uri = source?.uri;
   const html = source?.html;
   const ref = React.useRef(null);
+  // Only http(s) uris may load; anything else (javascript:/data:/malformed)
+  // renders nothing and never registers a message listener.
+  let origin = null;
+  if (source?.uri) {
+    try {
+      const parsed = new URL(source.uri);
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+        origin = parsed.origin;
+    } catch {}
+  }
+  const uri = origin ? source.uri : undefined;
+  // Sensor/payment/geolocation grants only for Bitrefill checkout's exact
+  // origin; ordinary embeds (any scanned website) and srcDoc get none.
+  const allowOrigin =
+    !html && origin === BITREFILL_ORIGIN ? BITREFILL_ORIGIN : "'none'";
+
+  // Native hardening props (allow-list, javaScriptEnabled, geolocationEnabled)
+  // have no effect on web — the iframe is the enforcement point. Only
+  // http(s) embeds may load: a javascript:/data: uri in an iframe src/srcDoc
+  // would execute in the wallet origin.
 
   // Bridge native `window.ReactNativeWebView.postMessage` → web `window.postMessage`.
   // Bitrefill (and other embeds) post `payment_intent` etc. via the RN bridge;
@@ -48,8 +78,7 @@ export function WebView({
   // re-shape them to the RN `onMessage({ nativeEvent: { data } })` contract.
   React.useEffect(() => {
     // srcDoc embeds (no uri) have no origin to pin the sender to: no messages.
-    if (!onMessage || !uri) return;
-    const origin = new URL(uri).origin;
+    if (!onMessage || !origin) return;
     const handler = event => {
       // Any window holding a handle to ours (opener, popup, a frame nested in
       // the embed) can post here, e.g. a forged `payment_intent`. Like native,
@@ -65,7 +94,7 @@ export function WebView({
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [onMessage, uri]);
+  }, [onMessage, origin]);
 
   const handleLoad = e => {
     try {
@@ -85,6 +114,10 @@ export function WebView({
     }
   };
 
+  // Block non-http(s) embeds before they reach the <iframe>. The native
+  // allow-list props are inert on web so this is the enforcement point.
+  if (source?.uri && !origin) return null;
+
   return React.createElement('iframe', {
     ref,
     src: uri,
@@ -93,9 +126,8 @@ export function WebView({
     // accelerometer + gyroscope (devicemotion) and Payment Request API.
     // Without an explicit `allow` the browser blocks them and logs
     // "[Violation] accelerometer is not allowed" + "devicemotion blocked".
-    allow:
-      'accelerometer *; gyroscope *; magnetometer *; payment *; clipboard-write *; fullscreen *; geolocation *',
-    allowFullscreen: true,
+    allow: PERMISSION_FEATURES.map(f => `${f} ${allowOrigin}`).join('; '),
+    allowFullscreen: allowOrigin === BITREFILL_ORIGIN,
     referrerPolicy: 'strict-origin-when-cross-origin',
     title: title || 'Embedded content',
     style: { border: 'none', width: '100%', height: '100%', ...flattenStyle(style) },
