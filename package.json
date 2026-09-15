@@ -120,6 +120,7 @@
     "react-native-web": "0.21.2",
     "react-native-webview": "^13.16.1",
     "react-native-worklets": "^0.8.3",
+    "rn-qr-generator": "^2.0.0",
     "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#e9f51dd0cbe7f5e76e63dadc548ef6b94b0f62ea",
     "stream-browserify": "^3.0.0",
     "supercluster": "^9.0.0",
@@ -154,6 +155,15 @@
     "react-native-dotenv": "^3.4.11",
     "react-test-renderer": "19.1.0",
     "typescript": "^5.8.3"
+  },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "react-native-vision-camera-barcode-scanner"
+        ]
+      }
+    }
   },
   "resolutions": {
     "tar": "7.5.19",

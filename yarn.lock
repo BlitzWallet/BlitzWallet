@@ -5772,6 +5772,7 @@ __metadata:
     react-native-webview: ^13.16.1
     react-native-worklets: ^0.8.3
     react-test-renderer: 19.1.0
+    rn-qr-generator: ^2.0.0
     spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#e9f51dd0cbe7f5e76e63dadc548ef6b94b0f62ea"
     stream-browserify: ^3.0.0
     supercluster: ^9.0.0
@@ -17329,6 +17330,16 @@ __metadata:
     hash-base: ^3.1.2
     inherits: ^2.0.4
   checksum: da25591f15d3f03d3a26cabc8255634ee9e0ae89fc053846e6b3975bbdbae6941baeb539dba30e0aaec9a726c7442149de064e13c2510332e119e50beaf3314d
+  languageName: node
+  linkType: hard
+
+"rn-qr-generator@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "rn-qr-generator@npm:2.0.0"
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.71.0"
+  checksum: bcae392b8d3530ec0bd63d6ae4d045bf42665adf352eaf702b4808adfee8069138d35a7b3a71bdaf54fa4272b5e283da212093ed47420ccef0594852a931140c
   languageName: node
   linkType: hard
 

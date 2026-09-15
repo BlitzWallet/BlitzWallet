@@ -2,7 +2,7 @@ import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { BARCODE_FORMATS, COLORS, SIZES } from '../../constants';
+import { COLORS, SIZES } from '../../constants';
 import {
   useFocusEffect,
   useIsFocused,
@@ -14,7 +14,7 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
+import useQrScannerOutput from '../../hooks/useQrScannerOutput';
 import { getQRImage, resolveExternalChainNavigation } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
@@ -121,8 +121,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     [handleInvoice, isNavigatingAway],
   );
 
-  const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: BARCODE_FORMATS,
+  const barcodeOutput = useQrScannerOutput({
     onBarcodeScanned: handleBarCodeScanned,
     onError: err => crashlyticsRecordErrorReport(err),
   });
@@ -239,6 +238,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     >
       <Camera
         outputs={[barcodeOutput]}
+        onError={crashlyticsRecordErrorReport}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}

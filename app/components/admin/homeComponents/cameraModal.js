@@ -5,9 +5,9 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
+import useQrScannerOutput from '../../../hooks/useQrScannerOutput';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { BARCODE_FORMATS, COLORS, SIZES } from '../../../constants';
+import { COLORS, SIZES } from '../../../constants';
 import { ThemeText, GlobalThemeView } from '../../../functions/CustomElements';
 import NoContentScreen from '../../../functions/CustomElements/noContentScreen';
 import { getImageFromLibrary } from '../../../functions/imagePickerWrapper';
@@ -90,8 +90,7 @@ export default function CameraModal(props) {
     [handleFinish],
   );
 
-  const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: BARCODE_FORMATS,
+  const barcodeOutput = useQrScannerOutput({
     onBarcodeScanned: handleBarcodeScanned,
     onError: err => crashlyticsRecordErrorReport(err),
   });
@@ -188,6 +187,7 @@ export default function CameraModal(props) {
     >
       <Camera
         outputs={[barcodeOutput]}
+        onError={crashlyticsRecordErrorReport}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}
