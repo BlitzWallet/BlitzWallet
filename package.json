@@ -47,8 +47,6 @@
     "bip21": "^3.0.0",
     "bitcoin-address-parser": "^1.1.0",
     "boltz-core": "^5.0.0",
-    "browserify-aes": "^1.2.0",
-    "crypto-browserify": "^3.12.1",
     "crypto-es": "^3.1.2",
     "ethers": "^6.17.0",
     "events": "^3.3.0",
