@@ -23,6 +23,7 @@ import {
 } from './swipeButton/constants';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { useAutoFitFontSize } from './textTheme.web';
 
 const BORDER_WIDTH = 3;
 const MARGIN = 2;
@@ -82,6 +83,15 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   const containerRef = useRef(null);
   const thumbRef = useRef(null);
   const titleRef = useRef(null);
+  // Native title uses adjustsFontSizeToFit + minimumFontScale 0.7; RNW drops
+  // both, so share ThemeText's web fit. shouldAutoFit flips with the spinner so
+  // the fit re-runs when the title remounts.
+  const titleFontSize = useAutoFitFontSize(titleRef, {
+    shouldAutoFit: !showLoadingIcon,
+    baseFontSize: SIZES.medium,
+    minFontSize: SIZES.medium * 0.7,
+    content: titleText,
+  });
 
   // Latest props/derived values for the DOM pointer handlers (avoid stale
   // closures without re-binding listeners every render — pager-view pattern).
@@ -340,6 +350,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
             style={[
               styles.title,
               { left: height + 10, right: height + 10 },
+              { fontSize: titleFontSize },
               titleDynamicStyles,
             ]}
           >

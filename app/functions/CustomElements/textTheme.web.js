@@ -56,72 +56,13 @@ export function findLargestFittingFontSize(
   return best;
 }
 
-export default function ThemeText({
-  content,
-  styles,
-  reversed,
-  CustomEllipsizeMode = 'tail',
-  CustomNumberOfLines = null,
-  onLayout = null,
-  onTextLayout = null,
-  adjustsFontSizeToFit = false,
-  minimumFontScale = 0.5,
-  allowFontScaling = true,
-}) {
-  const { theme } = useGlobalThemeContext();
-
-  const memorizedStyles = useMemo(() => {
-    // Base styles with theme color
-    const baseStyles = {
-      ...textStyles.localTextStyles,
-      color: theme
-        ? reversed
-          ? COLORS.lightModeText
-          : COLORS.darkModeText
-        : reversed
-        ? COLORS.darkModeText
-        : COLORS.lightModeText,
-    };
-
-    if (!styles) {
-      return baseStyles;
-    }
-
-    if (Array.isArray(styles)) {
-      return styles.reduce(
-        (acc, style) => ({
-          ...acc,
-          ...(style || {}),
-        }),
-        baseStyles,
-      );
-    }
-
-    return {
-      ...baseStyles,
-      ...styles,
-    };
-  }, [theme, reversed, styles]);
-
-  const layoutCallback = useCallback(
-    e => {
-      if (!onLayout) return;
-      onLayout(e);
-    },
-    [onLayout],
-  );
-
-  // Native only shrinks when the text is width/height-constrained. On web the
-  // overwhelmingly common case is single-line labels/amounts, so polyfill just
-  // that; everything else renders exactly like the native file.
-  const shouldAutoFit = adjustsFontSizeToFit && CustomNumberOfLines === 1;
-
-  const flatStyle = StyleSheet.flatten(memorizedStyles) || {};
-  const baseFontSize =
-    typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : SIZES.medium;
-  const minFontSize = Math.max(1, baseFontSize * minimumFontScale);
-
-  const textRef = useRef(null);
+// Shared web auto-fit for single-line text (RNW drops adjustsFontSizeToFit).
+// Exported so other web shims (sliderButton.web.js) shrink exactly like
+// ThemeText. `ref` must point at the RNW Text host node.
+export function useAutoFitFontSize(
+  ref,
+  { shouldAutoFit, baseFontSize, minFontSize, content },
+) {
   const [fittedFontSize, setFittedFontSize] = useState(baseFontSize);
 
   // Reset so text can grow back when content shortens or space increases.
@@ -132,7 +73,7 @@ export default function ThemeText({
   useIsomorphicLayoutEffect(() => {
     if (!shouldAutoFit) return;
     if (typeof window === 'undefined') return;
-    const el = textRef.current;
+    const el = ref.current;
     if (!el) return;
     if (
       typeof window.HTMLElement !== 'undefined' &&
@@ -211,6 +152,82 @@ export default function ThemeText({
       window.removeEventListener('resize', fit);
     };
   }, [shouldAutoFit, baseFontSize, minFontSize, content]);
+
+  return fittedFontSize;
+}
+
+export default function ThemeText({
+  content,
+  styles,
+  reversed,
+  CustomEllipsizeMode = 'tail',
+  CustomNumberOfLines = null,
+  onLayout = null,
+  onTextLayout = null,
+  adjustsFontSizeToFit = false,
+  minimumFontScale = 0.5,
+  allowFontScaling = true,
+}) {
+  const { theme } = useGlobalThemeContext();
+
+  const memorizedStyles = useMemo(() => {
+    // Base styles with theme color
+    const baseStyles = {
+      ...textStyles.localTextStyles,
+      color: theme
+        ? reversed
+          ? COLORS.lightModeText
+          : COLORS.darkModeText
+        : reversed
+        ? COLORS.darkModeText
+        : COLORS.lightModeText,
+    };
+
+    if (!styles) {
+      return baseStyles;
+    }
+
+    if (Array.isArray(styles)) {
+      return styles.reduce(
+        (acc, style) => ({
+          ...acc,
+          ...(style || {}),
+        }),
+        baseStyles,
+      );
+    }
+
+    return {
+      ...baseStyles,
+      ...styles,
+    };
+  }, [theme, reversed, styles]);
+
+  const layoutCallback = useCallback(
+    e => {
+      if (!onLayout) return;
+      onLayout(e);
+    },
+    [onLayout],
+  );
+
+  // Native only shrinks when the text is width/height-constrained. On web the
+  // overwhelmingly common case is single-line labels/amounts, so polyfill just
+  // that; everything else renders exactly like the native file.
+  const shouldAutoFit = adjustsFontSizeToFit && CustomNumberOfLines === 1;
+
+  const flatStyle = StyleSheet.flatten(memorizedStyles) || {};
+  const baseFontSize =
+    typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : SIZES.medium;
+  const minFontSize = Math.max(1, baseFontSize * minimumFontScale);
+
+  const textRef = useRef(null);
+  const fittedFontSize = useAutoFitFontSize(textRef, {
+    shouldAutoFit,
+    baseFontSize,
+    minFontSize,
+    content,
+  });
 
   if (!shouldAutoFit) {
     return (
