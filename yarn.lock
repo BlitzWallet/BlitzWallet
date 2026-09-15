@@ -2156,17 +2156,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/dom-webview@npm:^57.0.1":
-  version: 57.0.1
-  resolution: "@expo/dom-webview@npm:57.0.1"
-  peerDependencies:
-    expo: "*"
-    react: "*"
-    react-native: "*"
-  checksum: 980e3829401b0aa182b8ffc4df1c808c27c16fd1535326461466f38083fdcafc6d0927e2b399e37cd594531fbf5b8c29ce3e80b0a2703acf2972a3b04e6495d0
-  languageName: node
-  linkType: hard
-
 "@expo/env@npm:~2.0.7":
   version: 2.0.7
   resolution: "@expo/env@npm:2.0.7"
@@ -2229,22 +2218,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/log-box@npm:^57.0.1":
-  version: 57.0.1
-  resolution: "@expo/log-box@npm:57.0.1"
-  dependencies:
-    "@expo/dom-webview": ^57.0.1
-    anser: ^1.4.9
-    stacktrace-parser: ^0.1.10
-  peerDependencies:
-    "@expo/dom-webview": ^57.0.1
-    expo: "*"
-    react: "*"
-    react-native: "*"
-  checksum: c1ce6e0f51bcf31473e705cbee53eacb587a7c60c99c46cdc98422a3a4b7a8444940268af9cf108d2e9e4263562576d94e771f75e32230f4946c141ea2df1596
-  languageName: node
-  linkType: hard
-
 "@expo/mcp-tunnel@npm:~0.0.7":
   version: 0.0.8
   resolution: "@expo/mcp-tunnel@npm:0.0.8"
@@ -2295,17 +2268,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/metro-runtime@npm:57.0.7":
-  version: 57.0.7
-  resolution: "@expo/metro-runtime@npm:57.0.7"
+"@expo/metro-runtime@npm:~6.1.2":
+  version: 6.1.2
+  resolution: "@expo/metro-runtime@npm:6.1.2"
   dependencies:
-    "@expo/log-box": ^57.0.1
     anser: ^1.4.9
     pretty-format: ^29.7.0
     stacktrace-parser: ^0.1.10
     whatwg-fetch: ^3.0.0
   peerDependencies:
-    "@expo/log-box": ^57.0.1
     expo: "*"
     react: "*"
     react-dom: "*"
@@ -2313,7 +2284,7 @@ __metadata:
   peerDependenciesMeta:
     react-dom:
       optional: true
-  checksum: de0af3c37f6c3b8d3021870c56df4ad8870fe24e4f5a7c27ad5e839523c44a9379574f674a8afef9822fae38b309e3d02a22b682d69bfbe705815d70017de023
+  checksum: 75f37e0f72bf34e56f525712ad4e89c122f2183559829f36a9c44f088e6631384415006f8861eb292b023269d33125edc7f9463ac90f09d072035a0d784f0101
   languageName: node
   linkType: hard
 
@@ -5684,7 +5655,7 @@ __metadata:
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.13
     "@buildonspark/spark-sdk": ^0.8.8
     "@craftzdog/react-native-buffer": ^6.1.0
-    "@expo/metro-runtime": 57.0.7
+    "@expo/metro-runtime": ~6.1.2
     "@firebase/rules-unit-testing": ^5.0.1
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^1.8.0
@@ -5781,8 +5752,8 @@ __metadata:
     react-native-keyboard-controller: 1.21.7
     react-native-localize: ^3.6.0
     react-native-maps: ^1.27.2
-    react-native-nitro-image: ^0.14.0
-    react-native-nitro-modules: ^0.35.6
+    react-native-nitro-image: 0.15.2
+    react-native-nitro-modules: ^0.37
     react-native-pager-view: 6.9.1
     react-native-pdf-from-image: ^0.3.6
     react-native-quick-base64: ^2.2.2
@@ -5794,14 +5765,13 @@ __metadata:
     react-native-svg: 15.12.1
     react-native-url-polyfill: ^3.0.0
     react-native-view-shot: ^4.0.3
-    react-native-vision-camera: ^5.0.9
-    react-native-vision-camera-barcode-scanner: ^5.0.9
+    react-native-vision-camera: ^5.2.3
+    react-native-vision-camera-barcode-scanner: ^5.2.3
     react-native-wagmi-charts: ^2.9.1
     react-native-web: 0.21.2
     react-native-webview: ^13.16.1
     react-native-worklets: ^0.8.3
     react-test-renderer: 19.1.0
-    rn-qr-generator: ^2.0.0
     spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#e9f51dd0cbe7f5e76e63dadc548ef6b94b0f62ea"
     stream-browserify: ^3.0.0
     supercluster: ^9.0.0
@@ -16565,24 +16535,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-nitro-image@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "react-native-nitro-image@npm:0.14.0"
+"react-native-nitro-image@npm:0.15.2":
+  version: 0.15.2
+  resolution: "react-native-nitro-image@npm:0.15.2"
   peerDependencies:
     react: "*"
     react-native: "*"
     react-native-nitro-modules: "*"
-  checksum: ea5d19665bdffc8bb38fd5fef78a7d9c5f3f033cf0e0b6c224a39f718b863f3de74d776765eb7f5440743e985e2ea6c9ab210a1545947b0dcf02570408af5877
+  peerDependenciesMeta:
+    react-native-nitro-modules:
+      optional: true
+  checksum: 04313b5995c402e173ddea286f9a40777b69d7f2f36e6b7b4566acf4a7279de695320bab95f6a8cb199e5ac52bf609214c2bcb6c574c83cf71357f9a6f97e87e
   languageName: node
   linkType: hard
 
-"react-native-nitro-modules@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "react-native-nitro-modules@npm:0.35.6"
+"react-native-nitro-modules@npm:^0.37":
+  version: 0.37.1
+  resolution: "react-native-nitro-modules@npm:0.37.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: b057dc606c4717bff2447cff3efdeebf5cd7342fa11b3f51cfd420ccce1224d0b4be5999ea63c9856721520f1cbb50fba9372109f49a4c8b14202d7ab4d3b37e
+  checksum: ef8a3fbf9b66bc6e5ec9db3aa2f4566600777a5d95e3f897e09e50b2fd33860a1bda4bfa54887709a6fc2ce2cc80a26d9cbb6e77f8c33aea9537c788d089638b
   languageName: node
   linkType: hard
 
@@ -16741,27 +16714,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-vision-camera-barcode-scanner@npm:^5.0.9":
-  version: 5.0.9
-  resolution: "react-native-vision-camera-barcode-scanner@npm:5.0.9"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-    react-native-nitro-modules: "*"
-    react-native-vision-camera: "*"
-  checksum: 7fbb2537bb6bed23514af1a910b492023559fee3a61d795f5bf3b86734cf9efc2d8599ede9e4ae1134111c1f9c8c439451736f3d171b1ac639fe4b8f0180872d
-  languageName: node
-  linkType: hard
-
-"react-native-vision-camera@npm:^5.0.9":
-  version: 5.0.9
-  resolution: "react-native-vision-camera@npm:5.0.9"
+"react-native-vision-camera-barcode-scanner@npm:^5.2.3":
+  version: 5.2.3
+  resolution: "react-native-vision-camera-barcode-scanner@npm:5.2.3"
   peerDependencies:
     react: "*"
     react-native: "*"
     react-native-nitro-image: "*"
     react-native-nitro-modules: "*"
-  checksum: 34423f0f4c71ae9f6ce3eb22a2622ac0491f7808776d90d1e0e005b1adee4e1119b5688115f739467942b6952665e86b7f3ae13b9a6f649298fa1528aeb6c0ef
+    react-native-vision-camera: "*"
+  peerDependenciesMeta:
+    react-native-nitro-modules:
+      optional: true
+  checksum: 8ff49a26bd1c4c49862076e16c0125d82eb01445819de9974263855d10558b9853a016e105e9fae06d806bd13f5ec0c0a833e49fa50f88b28c1c4ac50a3b3d87
+  languageName: node
+  linkType: hard
+
+"react-native-vision-camera@npm:^5.2.3":
+  version: 5.2.3
+  resolution: "react-native-vision-camera@npm:5.2.3"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-nitro-image: "*"
+    react-native-nitro-modules: "*"
+  peerDependenciesMeta:
+    react-native-nitro-modules:
+      optional: true
+  checksum: 5b8be90814e9f3e4e43f8ede7043cc6b306fac0f385fdef55cdb4454d6590099f8a6e4aaa4c643649893dc9743324c999d51882295929ed5528465baa460e49a
   languageName: node
   linkType: hard
 
@@ -17349,16 +17329,6 @@ __metadata:
     hash-base: ^3.1.2
     inherits: ^2.0.4
   checksum: da25591f15d3f03d3a26cabc8255634ee9e0ae89fc053846e6b3975bbdbae6941baeb539dba30e0aaec9a726c7442149de064e13c2510332e119e50beaf3314d
-  languageName: node
-  linkType: hard
-
-"rn-qr-generator@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "rn-qr-generator@npm:2.0.0"
-  peerDependencies:
-    react: "*"
-    react-native: ">=0.71.0"
-  checksum: bcae392b8d3530ec0bd63d6ae4d045bf42665adf352eaf702b4808adfee8069138d35a7b3a71bdaf54fa4272b5e283da212093ed47420ccef0594852a931140c
   languageName: node
   linkType: hard
 

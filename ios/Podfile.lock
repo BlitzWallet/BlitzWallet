@@ -1290,6 +1290,8 @@ PODS:
     - ExpoModulesCore
   - ExpoCrypto (15.0.7):
     - ExpoModulesCore
+  - ExpoDomWebView (57.0.1):
+    - ExpoModulesCore
   - ExpoFileSystem (19.0.16):
     - ExpoModulesCore
   - ExpoFont (14.0.8):
@@ -1315,6 +1317,8 @@ PODS:
     - ExpoModulesCore
   - ExpoLocation (19.0.8):
     - ExpoModulesCore
+  - ExpoLogBox (57.0.1):
+    - React-Core
   - ExpoModulesCore (3.0.20):
     - boost
     - DoubleConversion
@@ -1477,11 +1481,11 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleMLKit/BarcodeScanning (8.0.0):
+  - GoogleMLKit/BarcodeScanning (9.0.0):
     - GoogleMLKit/MLKitCore
-    - MLKitBarcodeScanning (~> 7.0.0)
-  - GoogleMLKit/MLKitCore (8.0.0):
-    - MLKitCommon (~> 13.0.0)
+    - MLKitBarcodeScanning (~> 8.0.0)
+  - GoogleMLKit/MLKitCore (9.0.0):
+    - MLKitCommon (~> 14.0.0)
   - GoogleToolboxForMac/Defines (4.2.1)
   - GoogleToolboxForMac/Logger (4.2.1):
     - GoogleToolboxForMac/Defines (= 4.2.1)
@@ -1665,29 +1669,29 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - MLImage (1.0.0-beta7)
-  - MLKitBarcodeScanning (7.0.0):
-    - MLKitCommon (~> 13.0)
-    - MLKitVision (~> 9.0)
-  - MLKitCommon (13.0.0):
+  - MLImage (1.0.0-beta8)
+  - MLKitBarcodeScanning (8.0.0):
+    - MLKitCommon (~> 14.0)
+    - MLKitVision (~> 10.0)
+  - MLKitCommon (14.0.0):
     - GoogleDataTransport (~> 10.0)
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
     - GoogleUtilities/Logger (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-  - MLKitVision (9.0.0):
+  - MLKitVision (10.0.0):
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-    - MLImage (= 1.0.0-beta7)
-    - MLKitCommon (~> 13.0)
+    - MLImage (= 1.0.0-beta8)
+    - MLKitCommon (~> 14.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - NitroImage (0.14.0):
+  - NitroImage (0.15.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1717,7 +1721,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - NitroModules (0.35.6):
+  - NitroModules (0.37.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -4726,35 +4730,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNQrGenerator (2.0.0):
-    - boost
-    - DoubleConversion
-    - fast_float
-    - fmt
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCT-Folly/Fabric
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - SocketRocket
-    - Yoga
-    - ZXingObjC
   - RNReanimated (4.3.4):
     - boost
     - DoubleConversion
@@ -5200,7 +5175,7 @@ PODS:
     - SwiftNIOTLS (< 3, >= 2.32.0)
   - SwiftProtobuf (1.38.1)
   - UMAppLoader (6.0.7)
-  - VisionCamera (5.0.9):
+  - VisionCamera (5.2.3):
     - boost
     - DoubleConversion
     - fast_float
@@ -5231,14 +5206,15 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - VisionCameraBarcodeScanner (5.0.9):
+  - VisionCameraBarcodeScanner (5.2.3):
     - boost
     - DoubleConversion
     - fast_float
     - fmt
     - glog
-    - GoogleMLKit/BarcodeScanning (= 8.0.0)
+    - GoogleMLKit/BarcodeScanning (= 9.0.0)
     - hermes-engine
+    - NitroImage
     - NitroModules
     - RCT-Folly
     - RCT-Folly/Fabric
@@ -5264,9 +5240,6 @@ PODS:
     - VisionCamera
     - Yoga
   - Yoga (0.0.0)
-  - ZXingObjC (3.6.9):
-    - ZXingObjC/All (= 3.6.9)
-  - ZXingObjC/All (3.6.9)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
@@ -5282,6 +5255,7 @@ DEPENDENCIES:
   - ExpoBackgroundTask (from `../node_modules/expo-background-task/ios`)
   - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
+  - "ExpoDomWebView (from `../node_modules/@expo/dom-webview/ios`)"
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
@@ -5291,6 +5265,7 @@ DEPENDENCIES:
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - ExpoLocation (from `../node_modules/expo-location/ios`)
+  - "ExpoLogBox (from `../node_modules/@expo/log-box`)"
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoNetwork (from `../node_modules/expo-network/ios`)
   - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
@@ -5396,7 +5371,6 @@ DEPENDENCIES:
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNLocalize (from `../node_modules/react-native-localize`)
-  - RNQrGenerator (from `../node_modules/rn-qr-generator`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -5482,7 +5456,6 @@ SPEC REPOS:
     - SwiftNIOTLS
     - SwiftNIOTransportServices
     - SwiftProtobuf
-    - ZXingObjC
 
 EXTERNAL SOURCES:
   boost:
@@ -5511,6 +5484,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-clipboard/ios"
   ExpoCrypto:
     :path: "../node_modules/expo-crypto/ios"
+  ExpoDomWebView:
+    :path: "../node_modules/@expo/dom-webview/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -5529,6 +5504,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-local-authentication/ios"
   ExpoLocation:
     :path: "../node_modules/expo-location/ios"
+  ExpoLogBox:
+    :path: "../node_modules/@expo/log-box"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
   ExpoNetwork:
@@ -5738,8 +5715,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
-  RNQrGenerator:
-    :path: "../node_modules/rn-qr-generator"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -5786,6 +5761,7 @@ SPEC CHECKSUMS:
   ExpoBackgroundTask: e0d201d38539c571efc5f9cb661fae8ab36ed61b
   ExpoClipboard: af650d14765f19c60ce2a1eaf9dfe6445eff7365
   ExpoCrypto: c1fbce112d1b6b79652bbe380b4fd4cc91676595
+  ExpoDomWebView: beaec034e51bd028428b98bb1f2633ab79c6d095
   ExpoFileSystem: f4bf6bac4ede3b6671c22777f01102a02a028412
   ExpoFont: 86ceec09ffed1c99cfee36ceb79ba149074901b5
   ExpoImage: 686f972bff29525733aa13357f6691dc90aa03d8
@@ -5795,6 +5771,7 @@ SPEC CHECKSUMS:
   ExpoLinearGradient: a464898cb95153125e3b81894fd479bcb1c7dd27
   ExpoLocalAuthentication: ea7b9878fefac9ae38dc5766af00b52cac55c51b
   ExpoLocation: d5b61cb4970fa982e39ca94246a206a0c3b812ca
+  ExpoLogBox: 8a3cfa2897e088083cd49fc1ff7fdb2de4385547
   ExpoModulesCore: 110490095f5bf1c110673078832c6792c08ca8cd
   ExpoNetwork: b87392dcc24d49a595f186ca25cdcf7293d30275
   ExpoSecureStore: 9c6571fe3fcb045a671c4011c451546eaaab98fd
@@ -5827,7 +5804,7 @@ SPEC CHECKSUMS:
   fmt: 530618a01105dae0fa3a2f27c81ae11fa8f67eac
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleMLKit: ddd51d7dff36ff28defa69afedd9cdce684fd857
+  GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   "gRPC-C++": cc207623316fb041a7a3e774c252cf68a058b9e8
@@ -5842,13 +5819,13 @@ SPEC CHECKSUMS:
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
   lottie-react-native: d2b7601b28c063bde347fac764166b5362037846
-  MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
-  MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
-  MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
-  MLKitVision: fa8dea9012ac59497c79ddbe9ebf32051047ac4c
+  MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
+  MLKitBarcodeScanning: 39de223e7b1b8a8fbf10816a536dd292d8a39343
+  MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
+  MLKitVision: 39a5a812db83c4a0794445088e567f3631c11961
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  NitroImage: f62fdf750e1c819832fa992c96a4ed2c7c12220c
-  NitroModules: d2038959f7d0a9bf7b6f87e9a7c18da8b13311ff
+  NitroImage: 68bfdafa38678ecb7d6e3d5f77aca99353a2a81e
+  NitroModules: f2a165630c12aed5793d6b42b9002c6a649ea04e
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   QuickCrypto: c61acb962654725417b5faf92bac64542446c0b9
@@ -5939,7 +5916,6 @@ SPEC CHECKSUMS:
   RNFBStorage: be773adcf213c4e22a33d0a277c1ff64d11e75f4
   RNGestureHandler: b8d2e75c2e88fc2a1f6be3b3beeeed80b88fa37d
   RNLocalize: a0bf70cf27f116db4e32be09a6f549715db0686d
-  RNQrGenerator: 52e7e215efc31a88dc2cdbfa97903b6ab486ced9
   RNReanimated: 7972806320838725053dde0a9983f6c415bb3732
   RNScreens: 199799bdab32fa1e17ebf938b06fec52033e81e5
   RNSVG: 94a1be05fab4043354bcf7104f0f9b0e2231ef05
@@ -5965,11 +5941,10 @@ SPEC CHECKSUMS:
   SwiftNIOTransportServices: 0b2b407819d82eb63af558c5396e33c945759503
   SwiftProtobuf: 409d3aaec90e51b1705b1dd8065b56893450e77c
   UMAppLoader: e1234c45d2b7da239e9e90fc4bbeacee12afd5b6
-  VisionCamera: 5b6f63b24500f1155d4374d3953a066f2b540b1d
-  VisionCameraBarcodeScanner: 511c60d761c429fe1fffa42efb2a10efcb284aed
+  VisionCamera: 1a62a209b073cdc6ad5e47bbb67116a834ea4e61
+  VisionCameraBarcodeScanner: 46e628c7d10819b0f4bfb2fcc1618b53069fe9aa
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace
-  ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: e62e78d0cd5726fb8b5f8f4408c764aac8de62d8
+PODFILE CHECKSUM: 47fef827893e162447c87c65b2688faa7e8a7fb1
 
 COCOAPODS: 1.16.2
