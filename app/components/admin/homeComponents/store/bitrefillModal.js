@@ -38,7 +38,6 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useWebView } from '../../../../../context-store/webViewContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import { useToast } from '../../../../../context-store/toastManager';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import {
   getLightningPaymentQuote,
@@ -511,7 +510,10 @@ export default function BitrefillShopModal() {
             {step === 'webview' && (
               <WebView
                 source={{ uri: bitrefillHomeUrl }}
-                style={[styles.webView, { backgroundColor }]}
+                style={StyleSheet.flatten([
+                  styles.webView,
+                  { backgroundColor },
+                ])}
                 onLoadStart={() => {
                   if (!initialLoadDone.current) setIsLoading(true);
                 }}
@@ -637,7 +639,12 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 0,
   },
-  overlayContainr: { flex: 1, position: 'relative' },
+  overlayContainr: {
+    flex: 1,
+    width: WINDOWWIDTH,
+    position: 'relative',
+    ...CENTER,
+  },
   topBar: {
     width: WINDOWWIDTH,
     ...CENTER,
@@ -665,7 +672,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingVertical: 8,
   },
   editEmailText: {
@@ -693,7 +700,7 @@ const styles = StyleSheet.create({
   },
   emailContent: {
     flex: 1,
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     justifyContent: 'space-between',
   },
   emailTopSection: {

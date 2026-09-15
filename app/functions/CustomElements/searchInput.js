@@ -75,6 +75,9 @@ export default function CustomSearchInput({
   editable = true,
   autoFocus = false,
   returnKeyType = 'default',
+  secureTextEntry,
+  autoComplete,
+  textContentType,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
@@ -114,7 +117,7 @@ export default function CustomSearchInput({
     return baseStyles;
   }, [textInputStyles, editable, textInputColor, textInputBackground]);
   const viewContainerStyles = useMemo(() => {
-    return { ...styles.inputContainer, ...containerStyles };
+    return [styles.inputContainer, containerStyles];
   }, [containerStyles]);
 
   const keyboardAppearance = useMemo(() => {
@@ -143,6 +146,7 @@ export default function CustomSearchInput({
   }, [onSubmitEditingFunction]);
 
   const focusFunction = useCallback(() => {
+    clearTimer(blurDelayTimerRef);
     clearTimer(blurConfirmationTimerRef);
     clearTimer(keyboardHideTimerRef);
     pendingBlurRef.current = false;
@@ -407,6 +411,11 @@ export default function CustomSearchInput({
   }, [diagnosticLabel, inputRef, runBlurCallback, scheduleKeyboardHiddenBlur]);
 
   useEffect(() => {
+    // The web keyboard controller always reports hidden. Browser focus/blur
+    // events own focus there; the native foreground check would emit a false
+    // blur while the description remains focused after a PWA/tab return.
+    if (Platform.OS === 'web') return;
+
     const appStateListener = AppState.addEventListener('change', nextState => {
       clearTimer(appStateTimerRef);
 
@@ -491,6 +500,9 @@ export default function CustomSearchInput({
         autoCorrect={false}
         editable={editable}
         returnKeyType={returnKeyType}
+        secureTextEntry={secureTextEntry}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
       />
       {buttonComponent && buttonComponent}
     </View>

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import { WebView } from 'react-native-webview';
 import { CENTER } from '../../constants';
-import { SIZES, WINDOWWIDTH } from '../../constants/theme';
+import { SIZES } from '../../constants/theme';
 import { useRef } from 'react';
 import CustomSettingsTopBar from './settingsTopBar';
 
@@ -21,6 +21,18 @@ export default function CustomWebView(props) {
   const isHTML = !!props.route.params?.isHTML;
   const initialURL = props.route.params?.webViewURL;
   const allowedOrigin = getAllowedOrigin(initialURL);
+
+  // The initial load bypasses shouldStartLoadWithRequest on native and the
+  // request filter is inert on web, so refuse non-http(s) embeds here. No
+  // current caller passes such a URL; this guards future/scanned input.
+  const isInitialUrlAllowed = (() => {
+    if (isHTML) return false;
+    try {
+      return ALLOWED_SCHEMES.has(new URL(initialURL).protocol);
+    } catch {
+      return false;
+    }
+  })();
 
   const htmlSource = isHTML
     ? `
@@ -64,29 +76,31 @@ export default function CustomWebView(props) {
   const originWhitelist = isHTML || !allowedOrigin ? null : [allowedOrigin];
 
   return (
-    <GlobalThemeView styles={{ paddingBottom: 0 }}>
+    <GlobalThemeView useStandardWidth={true} styles={{ paddingBottom: 0 }}>
       <CustomSettingsTopBar
         containerStyles={styles.topBar}
         label={props.route.params?.headerText}
       />
-      <WebView
-        style={styles.container}
-        source={isHTML ? { html: htmlSource } : { uri: initialURL }}
-        javaScriptEnabled={!isHTML}
-        onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
-        originWhitelist={originWhitelist}
-        allowFileAccess={false}
-        allowFileAccessFromFileURLs={false}
-        allowUniversalAccessFromFileURLs={false}
-        javaScriptCanOpenWindowsAutomatically={false}
-        setSupportMultipleWindows={false}
-        geolocationEnabled={false}
-        thirdPartyCookiesEnabled={false}
-        sharedCookiesEnabled={false}
-        mediaPlaybackRequiresUserAction={true}
-        allowsInlineMediaPlayback={false}
-        ref={webViewRef}
-      />
+      {isInitialUrlAllowed && (
+        <WebView
+          style={styles.container}
+          source={isHTML ? { html: htmlSource } : { uri: initialURL }}
+          javaScriptEnabled={!isHTML}
+          onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
+          originWhitelist={originWhitelist}
+          allowFileAccess={false}
+          allowFileAccessFromFileURLs={false}
+          allowUniversalAccessFromFileURLs={false}
+          javaScriptCanOpenWindowsAutomatically={false}
+          setSupportMultipleWindows={false}
+          geolocationEnabled={false}
+          thirdPartyCookiesEnabled={false}
+          sharedCookiesEnabled={false}
+          mediaPlaybackRequiresUserAction={true}
+          allowsInlineMediaPlayback={false}
+          ref={webViewRef}
+        />
+      )}
     </GlobalThemeView>
   );
 }
@@ -97,7 +111,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
   },
   topBar: {
-    width: WINDOWWIDTH,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,

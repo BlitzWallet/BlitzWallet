@@ -1,5 +1,6 @@
 import {
   FlatList,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -535,7 +536,7 @@ export default function HalfModalSendOptions({
         console.log('error checking clipboard', err);
       }
     }
-    checkClipboard();
+    Platform.OS !== 'web' && checkClipboard();
   }, []);
 
   const handleSelectContact = useCallback(

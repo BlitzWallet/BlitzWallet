@@ -15,7 +15,8 @@
     "depCheck": "npx depcheck",
     "apkBuild": "cd android && ./gradlew assembleRelease && cd ..",
     "apkBuild:clean": "cd android && ./gradlew clean assembleRelease && cd ..",
-    "playstoreBuild": "cd android && ./gradlew bundleRelease && cd .."
+    "playstoreBuild": "cd android && ./gradlew bundleRelease && cd ..",
+    "export:web": "expo export --platform web --clear && mv dist/assets/node_modules dist/assets/deps && node scripts/generate-image-service-worker.js"
   },
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
@@ -23,6 +24,7 @@
     "@breeztech/react-native-breez-sdk-liquid": "^0.11.13",
     "@buildonspark/spark-sdk": "^0.8.8",
     "@craftzdog/react-native-buffer": "^6.1.0",
+    "@expo/metro-runtime": "~6.1.2",
     "@flashnet/sdk": "^0.5.7",
     "@noble/hashes": "^1.8.0",
     "@noble/secp256k1": "^3.0.0",
@@ -72,13 +74,18 @@
     "expo-web-browser": "~15.0.8",
     "i18next": "^25.2.0",
     "intl-pluralrules": "^2.0.1",
+    "jsqr": "^1.4.0",
     "libphonenumber-js": "1.13.2",
     "light-bolt11-decoder": "^3.2.0",
+    "lottie-react": "^2.4.1",
     "lottie-react-native": "^7.3.4",
+    "lucide-react": "^1.26.0",
     "lucide-react-native": "^0.562.0",
+    "maplibre-gl": "5.24.0",
     "nostr-tools": "^2.15.0",
     "qrcode": "^1.5.4",
     "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-i18next": "^16.0.0",
     "react-native": "0.81.4",
     "react-native-clusterer": "^5.0.2",
@@ -92,8 +99,8 @@
     "react-native-keyboard-controller": "1.21.7",
     "react-native-localize": "^3.6.0",
     "react-native-maps": "^1.27.2",
-    "react-native-nitro-image": "^0.14.0",
-    "react-native-nitro-modules": "^0.35.6",
+    "react-native-nitro-image": "0.15.2",
+    "react-native-nitro-modules": "^0.37",
     "react-native-pager-view": "6.9.1",
     "react-native-pdf-from-image": "^0.3.6",
     "react-native-quick-base64": "^2.2.2",
@@ -105,14 +112,16 @@
     "react-native-svg": "15.12.1",
     "react-native-url-polyfill": "^3.0.0",
     "react-native-view-shot": "^4.0.3",
-    "react-native-vision-camera": "^5.0.9",
-    "react-native-vision-camera-barcode-scanner": "^5.0.9",
+    "react-native-vision-camera": "^5.2.3",
+    "react-native-vision-camera-barcode-scanner": "^5.2.3",
     "react-native-wagmi-charts": "^2.9.1",
+    "react-native-web": "0.21.2",
     "react-native-webview": "^13.16.1",
     "react-native-worklets": "^0.8.3",
     "rn-qr-generator": "^2.0.0",
     "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#e9f51dd0cbe7f5e76e63dadc548ef6b94b0f62ea",
     "stream-browserify": "^3.0.0",
+    "supercluster": "^9.0.0",
     "text-encoding": "^0.7.0",
     "unique-names-generator": "^4.7.1",
     "uuid": "^14.0.1"
@@ -145,6 +154,15 @@
     "react-test-renderer": "19.1.0",
     "typescript": "^5.8.3"
   },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "react-native-vision-camera-barcode-scanner"
+        ]
+      }
+    }
+  },
   "resolutions": {
     "tar": "7.5.19",
     "node-forge": "1.3.2"
@@ -152,5 +170,6 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "yarn@3.6.4"
+  "packageManager": "yarn@3.6.4",
+  "main": "index"
 }

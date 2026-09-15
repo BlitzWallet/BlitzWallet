@@ -23,11 +23,7 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
@@ -56,6 +52,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
+  const blurTimeoutRef = useRef(null);
   const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
 
   // Helper functions
@@ -89,7 +86,19 @@ export default function RestoreWallet({ navigation: { reset } }) {
   }, []);
 
   const handleFocus = useCallback(keyNumber => {
-    setCurrentFocused(keyNumber); // Update the current focused key
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    setCurrentFocused(keyNumber);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+    blurTimeoutRef.current = setTimeout(() => {
+      blurTimeoutRef.current = null;
+      setCurrentFocused(null);
+    }, 150);
   }, []);
 
   const handleSubmit = useCallback(
@@ -217,6 +226,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}
               onFocus={() => handleFocus(item1)}
+              onBlur={handleBlur}
               onSubmitEditing={() => handleSubmit(item1)}
               onChangeText={e => handleInputElement(e, item1)}
               blurOnSubmit={false}
@@ -246,6 +256,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
               ref={ref => (keyRefs.current[item2] = ref)}
               value={inputedKey[`key${item2}`]}
               onFocus={() => handleFocus(item2)}
+              onBlur={handleBlur}
               onSubmitEditing={() => handleSubmit(item2)}
               onChangeText={e => handleInputElement(e, item2)}
               blurOnSubmit={false}
@@ -266,6 +277,12 @@ export default function RestoreWallet({ navigation: { reset } }) {
     inputedKey,
     seedItemBackgroundColor,
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const keyboardDidHideListener = KeyboardEvents.addListener(
@@ -292,79 +309,96 @@ export default function RestoreWallet({ navigation: { reset } }) {
       touchableWithoutFeedbackFunction={KeyboardController.dismiss}
       useLocalPadding={false}
       useTouchableWithoutFeedback={true}
+      useStandardWidth={true}
     >
-      <View style={styles.keyContainer}>
+      <View style={styles.viewContainer}>
         <CustomSettingsTopBar />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
-          <ThemeText
-            CustomNumberOfLines={1}
-            adjustsFontSizeToFit={true}
-            styles={styles.title}
-            content={t('createAccount.restoreWallet.home.header')}
-          />
-          <ThemeText
-            CustomNumberOfLines={2}
-            adjustsFontSizeToFit={true}
-            styles={styles.subtitle}
-            content={t('createAccount.restoreWallet.home.desc')}
-          />
-          {inputKeys}
-        </ScrollView>
-
-        {!currentFocused && (
-          <View
-            style={{
-              paddingBottom: bottomPadding,
-              width: INSET_WINDOW_WIDTH,
-              ...CENTER,
-              marginTop: CONTENT_KEYBOARD_OFFSET,
-            }}
+        <View style={styles.keyContainer}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.contentContainer}
           >
-            {/* Paste + Scan row */}
-            <View style={styles.secondaryButtonRow}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
+              styles={styles.title}
+              content={t('createAccount.restoreWallet.home.header')}
+            />
+            <ThemeText
+              CustomNumberOfLines={2}
+              adjustsFontSizeToFit={true}
+              styles={styles.subtitle}
+              content={t('createAccount.restoreWallet.home.desc')}
+            />
+            {inputKeys}
+          </ScrollView>
+
+          {!currentFocused && (
+            <View
+              style={{
+                paddingBottom: bottomPadding,
+                width: INSET_WINDOW_WIDTH,
+                ...CENTER,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
+              }}
+            >
+              {/* Paste + Scan row */}
+              <View style={styles.secondaryButtonRow}>
+                <CustomButton
+                  buttonStyles={styles.secondaryButton}
+                  textContent={t('createAccount.restoreWallet.home.scanQr')}
+                  actionFunction={() =>
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: handleCameraScan,
+                      fromPage: 'addContact',
+                    })
+                  }
+                />
+              </View>
+
+              {/* Restore — full width */}
               <CustomButton
-                buttonStyles={styles.secondaryButton}
-                textContent={t('createAccount.restoreWallet.home.scanQr')}
-                actionFunction={() =>
-                  navigate.navigate('CameraModal', {
-                    updateBitcoinAdressFunc: handleCameraScan,
-                    fromPage: 'addContact',
-                  })
-                }
+                buttonStyles={styles.restoreButton}
+                textStyles={{ color: COLORS.darkModeText }}
+                textContent={t('constants.restore')}
+                actionFunction={keyValidation}
               />
             </View>
-
-            {/* Restore — full width */}
-            <CustomButton
-              buttonStyles={styles.restoreButton}
-              textStyles={{ color: COLORS.darkModeText }}
-              textContent={t('constants.restore')}
-              actionFunction={keyValidation}
-            />
-          </View>
-        )}
+          )}
+        </View>
       </View>
 
       {currentFocused && (
-        <SuggestedWordContainer
-          inputedKey={inputedKey}
-          setInputedKey={setInputedKey}
-          selectedKey={currentFocused}
-          keyRefs={keyRefs}
-        />
+        <View style={styles.suggestionBreakout}>
+          <SuggestedWordContainer
+            inputedKey={inputedKey}
+            setInputedKey={setInputedKey}
+            selectedKey={currentFocused}
+            keyRefs={keyRefs}
+          />
+        </View>
       )}
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  viewContainer: {
+    flex: 1,
+    width: '100%',
+    ...CENTER,
+  },
   keyContainer: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
+  },
+  suggestionBreakout: {
+    // Parent is the 95% standard-width container, but the suggestion strip
+    // must stay full screen width on native: 100/95 ≈ 105.263% wide,
+    // shifted left by 2.5/95 ≈ 2.632% to bleed symmetrically.
+    width: '105.263%',
+    marginLeft: '-2.632%',
   },
   navContainer: {
     marginRight: 'auto',
@@ -401,9 +435,11 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 10,
   },
   seedItem: {
-    width: '48%',
+    flexShrink: 1,
+    width: '100%',
     minHeight: 55,
     flexDirection: 'row',
     alignItems: 'center',
@@ -416,7 +452,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   textInputStyle: {
-    flex: 1,
+    width: '100%',
+    flexShrink: 1,
     minHeight: Platform.OS === 'ios' ? 0 : 55,
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,

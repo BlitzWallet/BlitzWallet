@@ -13,7 +13,7 @@ export const ToastContainer = () => {
   const { masterInfoObject } = useGlobalContextProvider();
 
   return (
-    <View pointerEvents="box-none">
+    <View style={{ zIndex: 1000, pointerEvents: 'box-none' }}>
       {toasts.map(toast => (
         <Toast
           key={toast.id}

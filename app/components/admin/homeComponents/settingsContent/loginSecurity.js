@@ -1,11 +1,17 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   CENTER,
   COLORS,
   LOGIN_SECUITY_MODE_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
 } from '../../../../constants';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   getLocalStorageItem,
@@ -24,10 +30,29 @@ import {
 } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic';
+import {
+  decryptMnemonicWithPin,
+  handleLoginSecuritySwitch,
+  storeMnemonicWithPinSecurity,
+} from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import CustomButton from '../../../../functions/CustomElements/button';
+import PasswordCreateForm from '../../../admin/loginComponents/passwordCreateForm';
+import { useToast } from '../../../../../context-store/toastManager';
+
+import PasskeyIcon from '../../../admin/loginComponents/passkeyIcon';
+import {
+  createPasskey,
+  decryptMnemonicWithPasskey,
+  forgetPasskey,
+  getStoredPasskeyInfo,
+  isPasskeySupported,
+  passkeyName,
+  storeMnemonicWithPasskey,
+} from '../../../../functions/passkeyMnemonic';
 
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
@@ -50,7 +75,569 @@ const SettingsItem = ({ label, children, isLast, dividerColor }) => (
   </>
 );
 
-export default function LoginSecurity({ extraData }) {
+// Web login security, read from the stored envelope: a password wallet
+// (change password, or switch to a passkey) or a passkey wallet (switch back
+// to a password). A wallet always has exactly one unlock method.
+function WebLoginSecurity() {
+  // undefined while loading, null for a password wallet.
+  const [passkeyInfo, setPasskeyInfo] = useState(undefined);
+  const [canUsePasskey, setCanUsePasskey] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const { t } = useTranslation();
+
+  // Re-read after every switch attempt: the envelope is the only source of
+  // truth, and a write that reported failure may still have landed.
+  const refresh = useCallback(async () => {
+    try {
+      const info = await getStoredPasskeyInfo();
+      setPasskeyInfo(info);
+      setLoadFailed(false);
+    } catch {
+      setLoadFailed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    isPasskeySupported().then(setCanUsePasskey, () => setCanUsePasskey(false));
+  }, [refresh]);
+
+  if (loadFailed)
+    return (
+      <View style={styles.innerContainer}>
+        <ThemeText content={t('settings.loginSecurity.loadError')} />
+        <CustomButton
+          textContent={t('createAccount.keySetup.passkey.tryAgain')}
+          actionFunction={refresh}
+        />
+      </View>
+    );
+  if (passkeyInfo === undefined) return null;
+  if (passkeyInfo) {
+    return <WebPasskeySettings passkeyInfo={passkeyInfo} onChanged={refresh} />;
+  }
+  return (
+    <WebChangePassword canUsePasskey={canUsePasskey} onChanged={refresh} />
+  );
+}
+
+// Step 2 of both web flows: pick a new password, or go back.
+function NewPasswordStep({
+  subtitleText,
+  buttonText,
+  onSubmit,
+  isSubmitting,
+  error,
+  onBack,
+}) {
+  const { t } = useTranslation();
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { flexGrow: 1, paddingBottom: 0 },
+      ]}
+    >
+      <PasswordCreateForm
+        headerText={t(
+          'settings.loginSecurity.newPasswordHeader',
+          'New Password',
+        )}
+        subtitleText={subtitleText}
+        buttonText={buttonText}
+        onSubmit={onSubmit}
+        isSubmitting={isSubmitting}
+      />
+      {!!error && <ThemeText styles={styles.webErrorText} content={error} />}
+      <TouchableOpacity
+        style={{ marginTop: 15 }}
+        onPress={onBack}
+        disabled={isSubmitting}
+      >
+        <ThemeText
+          content={t('constants.back', 'Back')}
+          styles={{ textAlign: 'center' }}
+        />
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+function WebChangePassword({ canUsePasskey, onChanged }) {
+  const { accountMnemoinc } = useKeysContext();
+  const { t } = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
+  const { showToast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [step, setStep] = useState(1);
+  // Set by "Use a passkey instead": the current-password check then leads to
+  // the passkey prompts instead of step 2.
+  const [isSwitchingToPasskey, setIsSwitchingToPasskey] = useState(false);
+  // A created passkey whose confirm prompt failed. [Try again] reuses it so a
+  // second one is never registered.
+  const [pendingCredentialId, setPendingCredentialId] = useState(null);
+  const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isVerifyingRef = useRef(false);
+  const isWritingRef = useRef(false);
+  // Ref, not state: a double tap must not open a second create prompt.
+  const isPasskeyBusyRef = useRef(false);
+
+  const unsupportedMessage = t(
+    'createAccount.keySetup.passkey.unsupported',
+    "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",
+  );
+
+  // Create (unless retrying) + confirm. The passkey envelope replaces the
+  // password one in a single write, only after both prompts succeeded.
+  const setUpPasskey = async existingCredentialId => {
+    if (isPasskeyBusyRef.current) return;
+    isPasskeyBusyRef.current = true;
+    setIsSubmitting(true);
+    setError('');
+    try {
+      let credentialId = existingCredentialId;
+      if (!credentialId) {
+        const created = await createPasskey();
+        if (created.status === 'cancelled') return;
+        if (created.status !== 'ok') {
+          setError(unsupportedMessage);
+          return;
+        }
+        credentialId = created.credentialId;
+      }
+      const result = await storeMnemonicWithPasskey(
+        accountMnemoinc,
+        credentialId,
+      );
+      if (result === 'confirm-failed') {
+        setPendingCredentialId(credentialId);
+        return;
+      }
+      setPendingCredentialId(null);
+      if (result === 'ok') {
+        showToast({
+          type: 'clipboard',
+          title: t('settings.loginSecurity.passkeyCreated', 'Passkey created'),
+        });
+      } else if (result === 'unsupported') {
+        forgetPasskey(credentialId);
+        setError(unsupportedMessage);
+      } else {
+        setError(
+          t(
+            'settings.loginSecurity.passkeySetupFailed',
+            'Failed to set up passkey',
+          ),
+        );
+      }
+      await onChanged();
+    } catch {
+      setError(t('settings.loginSecurity.passkeySetupFailed'));
+      await onChanged();
+    } finally {
+      isPasskeyBusyRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
+
+  const abandonPasskey = () => {
+    if (isVerifyingRef.current || isPasskeyBusyRef.current) return;
+    forgetPasskey(pendingCredentialId);
+    setPendingCredentialId(null);
+    setIsSwitchingToPasskey(false);
+    setCurrentPassword('');
+  };
+
+  const verifyCurrent = async () => {
+    if (
+      !currentPassword ||
+      isVerifyingRef.current ||
+      isPasskeyBusyRef.current ||
+      isWritingRef.current
+    )
+      return;
+    isVerifyingRef.current = true;
+    setIsVerifying(true);
+    setError('');
+    try {
+      const seed = await decryptMnemonicWithPin(
+        JSON.stringify(currentPassword),
+      );
+      if (seed && seed === accountMnemoinc) {
+        if (isSwitchingToPasskey) await setUpPasskey(null);
+        else setStep(2);
+      } else {
+        setError(
+          t('settings.loginSecurity.wrongCurrentPassword', 'Wrong password'),
+        );
+      }
+    } catch {
+      setError(t('settings.loginSecurity.wrongCurrentPassword'));
+    } finally {
+      isVerifyingRef.current = false;
+      setIsVerifying(false);
+    }
+  };
+
+  const handleNewPassword = async newPassword => {
+    if (isWritingRef.current || isVerifyingRef.current) return;
+    isWritingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      const ok = await storeMnemonicWithPinSecurity(
+        accountMnemoinc,
+        newPassword,
+      );
+      if (ok) {
+        showToast({
+          type: 'success',
+          title: t(
+            'settings.loginSecurity.passwordChanged',
+            'Password updated',
+          ),
+        });
+        setStep(1);
+        setCurrentPassword('');
+        setError('');
+      } else {
+        setError(
+          t(
+            'settings.loginSecurity.passwordChangeFailed',
+            'Failed to update password',
+          ),
+        );
+      }
+    } catch {
+      setError(t('settings.loginSecurity.passwordChangeFailed'));
+      await onChanged();
+    } finally {
+      isWritingRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
+
+  if (step === 2) {
+    return (
+      <NewPasswordStep
+        subtitleText={t(
+          'settings.loginSecurity.newPasswordSubtitle',
+          'Choose a new password.',
+        )}
+        buttonText={t(
+          'settings.loginSecurity.changePasswordButton',
+          'Change Password',
+        )}
+        onSubmit={handleNewPassword}
+        isSubmitting={isSubmitting}
+        error={error}
+        onBack={() => {
+          if (isWritingRef.current) return;
+          setStep(1);
+          setError('');
+        }}
+      />
+    );
+  }
+
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <SettingsSection>
+        <View
+          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+        >
+          {pendingCredentialId ? (
+            <>
+              <ThemeText
+                styles={{ marginBottom: 15 }}
+                content={t(
+                  'createAccount.keySetup.passkey.confirmFailed',
+                  "Couldn't confirm your passkey",
+                )}
+              />
+              <CustomButton
+                textContent={t(
+                  'createAccount.keySetup.passkey.tryAgain',
+                  'Try again',
+                )}
+                actionFunction={() => setUpPasskey(pendingCredentialId)}
+                disabled={isSubmitting}
+                useLoading={isSubmitting}
+              />
+              <TouchableOpacity
+                testID="use-password-instead"
+                style={{ marginTop: 15 }}
+                onPress={abandonPasskey}
+                disabled={isSubmitting}
+              >
+                <ThemeText
+                  styles={{ textAlign: 'center' }}
+                  content={t(
+                    'createAccount.keySetup.passkey.usePassword',
+                    'Use a password instead',
+                  )}
+                />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <ThemeText
+                styles={{ marginBottom: 10 }}
+                content={
+                  isSwitchingToPasskey
+                    ? t(
+                        'settings.loginSecurity.passkeyPasswordSubtitle',
+                        'Enter your current password to switch to a passkey.',
+                      )
+                    : t('settings.loginSecurity.currentPasswordSubtitle')
+                }
+              />
+              <CustomSearchInput
+                inputText={currentPassword}
+                setInputText={setCurrentPassword}
+                placeholderText={t(
+                  'settings.loginSecurity.currentPasswordPlaceholder',
+                )}
+                secureTextEntry={true}
+                autoComplete="current-password"
+                textContentType="password"
+              />
+              {!!error && (
+                <ThemeText styles={styles.webErrorText} content={error} />
+              )}
+              <View style={{ marginTop: 15 }}>
+                <CustomButton
+                  textContent={t('constants.continue')}
+                  actionFunction={verifyCurrent}
+                  disabled={!currentPassword || isVerifying || isSubmitting}
+                  useLoading={isVerifying || isSubmitting}
+                />
+              </View>
+              {isSwitchingToPasskey && (
+                <TouchableOpacity
+                  style={{ marginTop: 15 }}
+                  disabled={isVerifying || isSubmitting}
+                  onPress={() => {
+                    if (isVerifyingRef.current || isPasskeyBusyRef.current)
+                      return;
+                    setIsSwitchingToPasskey(false);
+                    setError('');
+                  }}
+                >
+                  <ThemeText
+                    content={t('constants.back', 'Back')}
+                    styles={{ textAlign: 'center' }}
+                  />
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+        </View>
+      </SettingsSection>
+      {canUsePasskey && !isSwitchingToPasskey && (
+        <SettingsSection>
+          <View
+            style={[
+              styles.sectionContent,
+              styles.passkeyCard,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <PasskeyIcon size={40} />
+            <ThemeText
+              styles={styles.passkeyTitle}
+              content={t(
+                'settings.loginSecurity.passkeyCardTitle',
+                'Use a passkey instead',
+              )}
+            />
+            <ThemeText
+              styles={styles.passkeyText}
+              content={t(
+                'settings.loginSecurity.passkeyCardBody',
+                'Unlock with your face, fingerprint, or device PIN. Your passkey replaces your password.',
+              )}
+            />
+            <CustomButton
+              buttonStyles={{ marginTop: 15 }}
+              textContent={t(
+                'createAccount.keySetup.passkey.createButton',
+                'Create a passkey',
+              )}
+              disabled={isVerifying || isSubmitting}
+              actionFunction={() => {
+                if (isVerifyingRef.current || isWritingRef.current) return;
+                setIsSwitchingToPasskey(true);
+                setError('');
+              }}
+            />
+          </View>
+        </SettingsSection>
+      )}
+    </ScrollView>
+  );
+}
+
+function WebPasskeySettings({ passkeyInfo, onChanged }) {
+  const { accountMnemoinc } = useKeysContext();
+  const { t } = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
+  const { showToast } = useToast();
+  const [step, setStep] = useState(1);
+  const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isVerifyingRef = useRef(false);
+  const isWritingRef = useRef(false);
+
+  // Unlock with the passkey first, like the current-password check on a
+  // password wallet.
+  const verifyPasskey = async () => {
+    if (isVerifyingRef.current || isWritingRef.current) return;
+    isVerifyingRef.current = true;
+    setIsVerifying(true);
+    setError('');
+    try {
+      const seed = await decryptMnemonicWithPasskey();
+      if (seed && seed === accountMnemoinc) {
+        setStep(2);
+      } else if (seed !== null) {
+        setError(
+          t(
+            'adminLogin.passkeyPage.unlockError',
+            "Couldn't unlock with your passkey",
+          ),
+        );
+      }
+    } catch {
+      setError(t('adminLogin.passkeyPage.unlockError'));
+    } finally {
+      isVerifyingRef.current = false;
+      setIsVerifying(false);
+    }
+  };
+
+  const handleNewPassword = async newPassword => {
+    if (isWritingRef.current || isVerifyingRef.current) return;
+    isWritingRef.current = true;
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const ok = await storeMnemonicWithPinSecurity(
+        accountMnemoinc,
+        newPassword,
+      );
+      if (ok) {
+        // Only once the password envelope was written and read back.
+        await forgetPasskey(passkeyInfo.credentialId);
+        showToast({
+          type: 'success',
+          title: t(
+            'settings.loginSecurity.switchedToPassword',
+            'Switched to password',
+          ),
+        });
+      } else {
+        setError(
+          t(
+            'settings.loginSecurity.passwordChangeFailed',
+            'Failed to update password',
+          ),
+        );
+      }
+      await onChanged();
+    } catch {
+      setError(t('settings.loginSecurity.passwordChangeFailed'));
+      await onChanged();
+    } finally {
+      isWritingRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
+
+  if (step === 2) {
+    return (
+      <NewPasswordStep
+        subtitleText={t(
+          'settings.loginSecurity.switchToPasswordSubtitle',
+          'Choose a password. It replaces your passkey.',
+        )}
+        buttonText={t(
+          'settings.loginSecurity.switchToPassword',
+          'Switch to password',
+        )}
+        onSubmit={handleNewPassword}
+        isSubmitting={isSubmitting}
+        error={error}
+        onBack={() => {
+          if (isWritingRef.current) return;
+          setStep(1);
+          setError('');
+        }}
+      />
+    );
+  }
+
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <SettingsSection>
+        <View
+          style={[
+            styles.sectionContent,
+            styles.passkeyCard,
+            { backgroundColor: backgroundOffset },
+          ]}
+        >
+          <PasskeyIcon size={40} />
+          <ThemeText
+            styles={styles.passkeyTitle}
+            content={t('settings.loginSecurity.passkeyTitle', 'Passkey')}
+          />
+          <ThemeText
+            styles={styles.passkeyText}
+            content={t('settings.loginSecurity.passkeyCreatedOn', {
+              defaultValue: 'Created {{date}}',
+              date: new Date(passkeyInfo.createdAt).toLocaleDateString(),
+            })}
+          />
+          <ThemeText
+            styles={styles.passkeyText}
+            content={t('settings.loginSecurity.passkeySavedAs', {
+              defaultValue: 'Saved in your password manager as {{name}}',
+              name: passkeyName(passkeyInfo.createdAt),
+            })}
+          />
+          {!!error && (
+            <ThemeText styles={styles.webErrorText} content={error} />
+          )}
+          <CustomButton
+            buttonStyles={{ marginTop: 15 }}
+            textContent={t(
+              'settings.loginSecurity.switchToPassword',
+              'Switch to password',
+            )}
+            actionFunction={verifyPasskey}
+            disabled={isVerifying}
+            useLoading={isVerifying}
+          />
+        </View>
+      </SettingsSection>
+    </ScrollView>
+  );
+}
+
+function LoginSecurityNative({ extraData }) {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
     isSecurityEnabled: null,
     isPinEnabled: null,
@@ -487,4 +1074,30 @@ const styles = StyleSheet.create({
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
   },
+  webErrorText: {
+    fontSize: SIZES.small,
+    color: '#e74c3c',
+    marginTop: 8,
+  },
+  passkeyCard: {
+    alignItems: 'center',
+  },
+  passkeyTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  passkeyText: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+  },
 });
+
+export default function LoginSecurity(props) {
+  if (Platform.OS === 'web') {
+    return <WebLoginSecurity />;
+  }
+  return <LoginSecurityNative {...props} />;
+}

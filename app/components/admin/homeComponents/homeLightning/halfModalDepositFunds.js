@@ -19,6 +19,7 @@ import CreateAccumulationAddressDepositModal from '../accumulationAddresses/Crea
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { Image } from 'expo-image';
+import { tintStyle } from '../../../../functions/webTintColor';
 import ICONS from '../../../../constants/icons';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
@@ -301,7 +302,7 @@ export default function HalfModalDepositFunds({
             >
               <Image
                 source={ICONS.bitcoinIcon}
-                style={[styles.rowIcon, { tintColor: 'white' }]}
+                style={[styles.rowIcon, tintStyle('white')]}
               />
             </View>
             <View style={styles.scanTextContainer}>
@@ -336,7 +337,7 @@ export default function HalfModalDepositFunds({
             >
               <Image
                 source={ICONS.dollarIcon}
-                style={[styles.rowIcon, { tintColor: 'white' }]}
+                style={[styles.rowIcon, tintStyle('white')]}
               />
             </View>
             <View style={styles.scanTextContainer}>

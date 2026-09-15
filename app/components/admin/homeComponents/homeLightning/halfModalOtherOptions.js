@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -6,6 +12,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { COLORS, HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import { ICONS } from '../../../../constants';
 import { Image } from 'expo-image';
+import { tintStyle } from '../../../../functions/webTintColor';
 
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';

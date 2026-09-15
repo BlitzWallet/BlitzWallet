@@ -99,5 +99,19 @@ target 'BlitzWallet' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Xcode 26 rejects pod targets below iOS 15; let them inherit the Pods project's target
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # glog 0.3.5 #includes its own headers inside `namespace google`, which newer clang
+        # rejects once glog is a module. Nothing imports it as a module, so don't define one.
+        # TODO: remove after updating RN
+        config.build_settings['DEFINES_MODULE'] = 'NO' if target.name == 'glog'
+        target_version = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if target_version && Gem::Version.new(target_version) < Gem::Version.new('15.0')
+          config.build_settings.delete('IPHONEOS_DEPLOYMENT_TARGET')
+        end
+      end
+    end
   end
 end

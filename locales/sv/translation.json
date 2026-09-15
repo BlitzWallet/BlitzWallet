@@ -265,6 +265,27 @@
         "enterPinMessage": "Skapa PIN-kod",
         "confirmPin": "Bekräfta stift",
         "attemptsText": "{{number}} försök kvar"
+      },
+      "password": {
+        "createHeader": "Skapa lösenord",
+        "createSubtitle": "Ditt lösenord skyddar åtkomsten till din plånbok. Din återställningsfras är det som återställer den, så förvara den på en säker plats. Du kan se den när som helst i Inställningar.",
+        "createButton": "Skapa plånbok",
+        "newPasswordPlaceholder": "Ange lösenord",
+        "confirmPasswordPlaceholder": "Bekräfta lösenord",
+        "mismatchError": "Lösenorden matchar inte",
+        "commonWarning": "Vanligt lösenord",
+        "whatMakesStrongPassword": "Vad gör ett lösenord starkt?",
+        "showPassword": "Visa lösenord",
+        "hidePassword": "Dölj lösenord"
+      },
+      "passkey": {
+        "offerHeader": "Skapa passnyckel",
+        "offerSubtitle": "Din passnyckel skyddar åtkomsten till din plånbok. Din återställningsfras är det som återställer den, så förvara den på en säker plats. Du kan se den när som helst i Inställningar.",
+        "createButton": "Skapa passnyckel",
+        "usePassword": "Använd lösenord istället",
+        "unsupported": "Din lösenordshanterare kan inte skydda en plånbok med passnyckel ännu. Ställ in ett lösenord istället.",
+        "confirmFailed": "Kunde inte bekräfta din passnyckel",
+        "tryAgain": "Försök igen"
       }
     },
     "restoreWallet": {
@@ -297,6 +318,14 @@
       "joinDesc": "Gå med i en plånbok som hanteras åt dig.",
       "restoreTitle": "Återställ befintlig plånbok",
       "restoreDesc": "Har du redan en plånbok? Ta med dig den."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +335,23 @@
       "enterPinMessage": "Ange PIN-kod",
       "attemptsText": "{{attempts}} försök kvar",
       "biometricsHeader": "Öppna med biometrik"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Ange lösenord",
+      "welcomeBackTitle": "Välkommen tillbaka!",
+      "wrongPasswordError": "Fel lösenord, försök igen",
+      "attemptsText": "{{attempts}} försök kvar",
+      "passwordPlaceholder": "Lösenord",
+      "forgotPassword": "Glömt lösenordet?",
+      "forgotPasswordConfirm": "Har du glömt ditt lösenord? Det enda sättet att återställa är att radera och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad.",
+      "loginButton": "Logga in",
+      "storageError": "Kunde inte läsa plånbokens lagring. Försök igen."
+    },
+    "passkeyPage": {
+      "unlockButton": "Lås upp med passnyckel",
+      "unlockError": "Kunde inte låsa upp med din passnyckel",
+      "lostPasskey": "Tappat din passnyckel?",
+      "lostPasskeyConfirm": "Tappat din passnyckel? Det enda sättet tillbaka är att återställa och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad."
     }
   },
   "apps": {
@@ -1642,7 +1688,28 @@
       "randomPinKeyboardToggle": "Knappsats för shuffle",
       "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster.",
       "biometricsHead": "Om biometri",
-      "biometricsSubHead": "Din återställningsfras skyddas av din enhets nuvarande biometriska data. Om du ändrar dem kommer Blitz Wallet inte längre att kunna komma åt din återställningsfras och du låses ute från din plånbok."
+      "biometricsSubHead": "Din återställningsfras skyddas av din enhets nuvarande biometriska data. Om du ändrar dem kommer Blitz Wallet inte längre att kunna komma åt din återställningsfras och du låses ute från din plånbok.",
+      "changePasswordTitle": "Ändra lösenord",
+      "currentPasswordSubtitle": "Ange ditt nuvarande lösenord för att ändra det.",
+      "currentPasswordPlaceholder": "Nuvarande lösenord",
+      "wrongCurrentPassword": "Fel lösenord",
+      "newPasswordHeader": "Nytt lösenord",
+      "newPasswordSubtitle": "Välj ett nytt lösenord.",
+      "changePasswordButton": "Ändra lösenord",
+      "passwordChanged": "Lösenord uppdaterat",
+      "passwordChangeFailed": "Kunde inte uppdatera lösenordet",
+      "loadError": "Kunde inte läsa plånbokens säkerhetsinställningar. Försök igen.",
+      "passkeyCardTitle": "Använd passnyckel istället",
+      "passkeyCardBody": "Lås upp med ansikte, fingeravtryck eller enhetens PIN. Din passnyckel ersätter ditt lösenord.",
+      "passkeyPasswordSubtitle": "Ange ditt nuvarande lösenord för att byta till passnyckel.",
+      "passkeyCreated": "Passnyckel skapad",
+      "passkeySetupFailed": "Misslyckades med att ställa in passnyckel",
+      "passkeyTitle": "Passnyckel",
+      "passkeyCreatedOn": "Skapad {{date}}",
+      "passkeySavedAs": "Sparad i din lösenordshanterare som {{name}}",
+      "switchToPassword": "Byt till lösenord",
+      "switchToPasswordSubtitle": "Välj ett lösenord. Det ersätter din passnyckel.",
+      "switchedToPassword": "Bytt till lösenord"
     },
     "seedPhrase": {
       "header": "Förvara denna fröfras på ett säkert och tryggt ställe",
@@ -2414,7 +2481,9 @@
         "liquidWalletError2": "Vi kunde inte konfigurera din plånbok. Vänligen försök igen.",
         "dbInitError1": "Vi kan inte konfigurera din app.",
         "dbInitError2": "Vänligen försök igen. Om detta problem fortsätter kan du säkert återfå dina pengar med hjälp av din seed-fras.",
-        "initErrorTitle": "Något gick fel"
+        "initErrorTitle": "Något gick fel",
+        "dbTabConflictError1": "Plånboken är redan öppen i en annan flik.",
+        "dbTabConflictError2": "Stäng den andra fliken för att fortsätta här och försök sedan igen. Endast en flik kan komma åt plånboken åt gången."
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "För att ta emot en Bitcoin-betalning betalar du en on-chain-nätverksavgift. Denna avgift varierar beroende på aktuella Bitcoin-nätverksavgifter.",
@@ -2424,7 +2493,6 @@
         "stablecoinsFeeMessage": "För att ta emot stablecoins tillkommer en Blitz-avgift på 0,5 % och en Flashnet-avgift på 0,05 %.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
-        "copyInvoice": "Kopiera faktura",
         "usdSwapMinNotice": "Endast betalningar över {{amount}} kommer att konverteras till dollar",
         "shareInvoice": "Dela faktura",
         "walletNotConnected": "Plånboken är inte ansluten. Försök igen.",
@@ -2464,7 +2532,9 @@
         "expiry_86400": "24 timmar",
         "expiry_604800": "7 dagar",
         "expiry_2592000": "30 dagar",
-        "expiry_7776000": "90 dagar"
+        "expiry_7776000": "90 dagar",
+        "copy_invoice": "Kopiera faktura",
+        "copy_address": "Kopiera adress"
       },
       "settingsContent": {
         "about": "Om",

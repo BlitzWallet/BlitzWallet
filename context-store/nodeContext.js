@@ -7,6 +7,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
+import { Platform } from 'react-native';
 import { useGlobalContextProvider } from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';

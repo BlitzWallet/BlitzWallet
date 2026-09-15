@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import { CENTER } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, WINDOWWIDTH } from '../../../constants/theme';
@@ -57,7 +57,7 @@ export const NavBar = memo(function NavBar({
 
 const styles = StyleSheet.create({
   topBar: {
-    width: WINDOWWIDTH,
+    width: Platform.OS === 'web' ? '100%' : WINDOWWIDTH,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

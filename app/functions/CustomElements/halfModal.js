@@ -1,11 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import {
   KeyboardAvoidingView,
   KeyboardController,
 } from 'react-native-keyboard-controller';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { COLORS, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
+import {
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+} from '../../constants';
 import {
   HalfModalSendOptions,
   HalfModalReceiveOptions,
@@ -24,7 +29,7 @@ import GetThemeColors from '../../hooks/themeColors';
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
 // import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import { KEYBOARDTIMEOUT } from '../../constants/styles';
+import { CENTER, KEYBOARDTIMEOUT } from '../../constants/styles';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
@@ -841,6 +846,7 @@ export default function CustomHalfModal(props) {
             backgroundColor: 'black',
             marginTop: topPadding,
           },
+          Platform.OS === 'web' && styles.webContentConteiner,
         ]}
       >
         <View
@@ -995,5 +1001,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     flexShrink: 1,
     overflow: 'hidden',
+  },
+  webContentConteiner: {
+    width: '100%',
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
+    ...CENTER,
   },
 });

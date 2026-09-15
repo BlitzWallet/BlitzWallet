@@ -5,9 +5,9 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
+import useQrScannerOutput from '../../../hooks/useQrScannerOutput';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { BARCODE_FORMATS, COLORS, SIZES } from '../../../constants';
+import { COLORS, SIZES } from '../../../constants';
 import { ThemeText, GlobalThemeView } from '../../../functions/CustomElements';
 import NoContentScreen from '../../../functions/CustomElements/noContentScreen';
 import { getImageFromLibrary } from '../../../functions/imagePickerWrapper';
@@ -22,10 +22,12 @@ import { detectQRCode } from '../../../functions/detectQrCode';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
+import GetThemeColors from '../../../hooks/themeColors';
 
 export default function CameraModal(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor } = GetThemeColors();
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
   const { t } = useTranslation();
@@ -88,8 +90,7 @@ export default function CameraModal(props) {
     [handleFinish],
   );
 
-  const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: BARCODE_FORMATS,
+  const barcodeOutput = useQrScannerOutput({
     onBarcodeScanned: handleBarcodeScanned,
     onError: err => crashlyticsRecordErrorReport(err),
   });
@@ -181,11 +182,12 @@ export default function CameraModal(props) {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { alignItems: 'center', justifyContent: 'center' },
+        { alignItems: 'center', justifyContent: 'center', backgroundColor },
       ]}
     >
       <Camera
         outputs={[barcodeOutput]}
+        onError={crashlyticsRecordErrorReport}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}
