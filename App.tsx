@@ -708,9 +708,19 @@ function ResetStack(): JSX.Element | null {
     // scope and only SplashScreen ever calls hideAsync(), a rejection here leaves
     // the native splash on screen forever with no error and no way out. Always
     // open the gate — landing on a screen is recoverable, an endless splash isn't.
-    const onInitFailure = (err: unknown) => {
+    const onInitFailure = async (err: unknown) => {
       console.log('initWallet error', err);
-      setInitSettings(prev => ({ ...prev, isLoaded: true }));
+      // Never let a legacy web seed fall through to onboarding, whose wipe
+      // would delete it. getLocalStorageItem never rejects.
+      const legacyWalletKey =
+        Platform.OS === 'web'
+          ? await getLocalStorageItem(LEGACY_WALLET_KEY)
+          : null;
+      setInitSettings(prev => ({
+        ...prev,
+        needsLegacyMigration: prev.needsLegacyMigration || !!legacyWalletKey,
+        isLoaded: true,
+      }));
     };
 
     const skipURL = didInitializeSettings.current;
