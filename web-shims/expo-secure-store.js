@@ -25,7 +25,14 @@ function tx(mode, fn) {
   return getDB().then(
     db =>
       new Promise((resolve, reject) => {
-        const t = db.transaction(STORE, mode);
+        // Strict: `complete` only fires once the write is flushed to disk.
+        // Callers (legacy migration) delete other seed copies right after.
+        // Engines that don't support the option ignore it.
+        const t = db.transaction(
+          STORE,
+          mode,
+          mode === 'readwrite' ? { durability: 'strict' } : undefined,
+        );
         const store = t.objectStore(STORE);
         const request = fn(store);
         t.oncomplete = () => resolve(request?.result ?? null);
