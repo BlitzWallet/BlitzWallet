@@ -28,8 +28,8 @@ import { useGlobalThemeContext } from '../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import { useKeysContext } from '../../../../context-store/keys';
-import { wordlist } from '@scure/bip39/wordlists/english';
 import { handleRestoreFromText } from '../../../functions/seed';
+import parseStandardSeedQR from '../../../functions/parseStandardSeedQR';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import {
@@ -155,29 +155,19 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const handleCameraScan = (data, localTry = false) => {
     try {
       if (!data) return;
-      let indexMnemonic = [];
-
-      for (let index = 0; index < 12; index++) {
-        const start = index * 4;
-        const end = start + 4;
-        indexMnemonic.push(data.slice(start, end));
-      }
-      const seedMnemoinc = indexMnemonic
-        .map(item => {
-          if (isNaN(Number(item))) return false;
-          return wordlist.at(Number(item));
-        })
-        .filter(Boolean);
-      if (seedMnemoinc.length !== 12)
+      const seedMnemoinc = parseStandardSeedQR(data);
+      if (!seedMnemoinc) {
+        if (localTry) return false;
         throw new Error(
           t('createAccount.restoreWallet.home.noSeedInNumberArray'),
         );
+      }
       const newKeys = {};
       NUMARRAY.forEach((num, index) => {
         newKeys[`key${num}`] = seedMnemoinc[index];
       });
       setInputedKey(newKeys);
-      return true;
+      return seedMnemoinc;
     } catch (err) {
       console.log('error getting seed from camera', err);
       if (localTry) return false;
