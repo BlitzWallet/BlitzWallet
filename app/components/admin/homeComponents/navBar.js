@@ -17,7 +17,9 @@ export const NavBar = memo(function NavBar({
   const shouldShowWarning =
     !isChildAccount &&
     !didViewSeedPhrase &&
-    (!!sparkBalance || !!Object.keys(sparkTokens || {}).length);
+    (!!sparkBalance ||
+      !!Object.keys(sparkTokens || {}).length ||
+      Platform.OS === 'web');
 
   return (
     <View style={[styles.topBar]}>
