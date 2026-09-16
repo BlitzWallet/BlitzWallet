@@ -3,7 +3,7 @@ import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 import { fetchPhonePaymentInvoice } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { decode as decodeBolt11 } from '../../../../../functions/decodeBolt11';
 
-// LUD-09 successAction is payee-controlled. Only a same-host https URL may
+// LUD-09 successAction is payee-controlled. Only a https URL may
 // be persisted; anything else (javascript:/data:/cross-host) is dropped so a
 // malicious successAction.url can never reach the browser from history.
 export function sanitizeLUD9SuccessAction(successAction, callbackUrl) {

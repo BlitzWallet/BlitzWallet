@@ -324,6 +324,9 @@
       "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
       "passwordPlaceholder": "Password",
       "button": "Log in & update",
+      "useRecoveryPhrase": "Use my recovery phrase instead",
+      "recoveryConfirm": "This will remove the old wallet saved in this browser and return you to setup, where you can restore or create a wallet. You will need your recovery phrase to access your existing funds.",
+      "recoveryError": "Could not remove the old wallet. Please try again.",
       "wrongPassword": "Wrong password, try again",
       "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }

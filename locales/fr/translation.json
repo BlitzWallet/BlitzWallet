@@ -324,6 +324,9 @@
       "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
       "passwordPlaceholder": "Password",
       "button": "Log in & update",
+      "useRecoveryPhrase": "Utiliser ma phrase de récupération à la place",
+      "recoveryConfirm": "Cette action supprimera l’ancien portefeuille enregistré dans ce navigateur et vous ramènera à la configuration, où vous pourrez restaurer ou créer un portefeuille. Vous aurez besoin de votre phrase de récupération pour accéder à vos fonds existants.",
+      "recoveryError": "Impossible de supprimer l’ancien portefeuille. Veuillez réessayer.",
       "wrongPassword": "Wrong password, try again",
       "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }

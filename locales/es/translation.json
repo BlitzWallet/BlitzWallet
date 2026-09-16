@@ -324,6 +324,9 @@
       "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
       "passwordPlaceholder": "Password",
       "button": "Log in & update",
+      "useRecoveryPhrase": "Usar mi frase de recuperación en su lugar",
+      "recoveryConfirm": "Esto eliminará la billetera antigua guardada en este navegador y te llevará a la configuración, donde podrás restaurar o crear una billetera. Necesitarás tu frase de recuperación para acceder a tus fondos actuales.",
+      "recoveryError": "No se pudo eliminar la billetera antigua. Inténtalo de nuevo.",
       "wrongPassword": "Wrong password, try again",
       "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }

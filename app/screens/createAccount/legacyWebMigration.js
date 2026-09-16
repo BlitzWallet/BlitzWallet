@@ -2,26 +2,33 @@
 // logic lives in app/functions/legacyWebMigration.js; this is the single screen
 // that drives it.
 import { useCallback, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import RNRestart from 'react-native-restart-newarch';
 
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import CustomButton from '../../functions/CustomElements/button';
 import { CENTER, COLORS, SIZES } from '../../constants';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
-import { migrateLegacyWallet } from '../../functions/legacyWebMigration';
+import {
+  LEGACY_WALLET_KEY,
+  migrateLegacyWallet,
+} from '../../functions/legacyWebMigration';
+import { removeLocalStorageItem } from '../../functions/localStorage';
 import { useKeysContext } from '../../../context-store/keys';
 import sha256Hash from '../../functions/hash';
 import IconActionCircle from '../../functions/CustomElements/actionCircleContainer';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function LegacyWebMigration() {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, textColor, textInputBackground } = GetThemeColors();
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isRunningRef = useRef(false);
@@ -77,6 +84,27 @@ export default function LegacyWebMigration() {
     }
   }, [password, navigate, setAccountMnemonic, t]);
 
+  const handleUseRecoveryPhrase = () => {
+    if (isRunningRef.current) return;
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: t('createAccount.legacyWebMigration.recoveryConfirm'),
+      confirmFunction: async () => {
+        if (isRunningRef.current) return;
+        isRunningRef.current = true;
+        setIsSubmitting(true);
+        setError('');
+        const removed = await removeLocalStorageItem(LEGACY_WALLET_KEY);
+        if (removed) {
+          RNRestart.restart();
+          return;
+        }
+        setError(t('createAccount.legacyWebMigration.recoveryError'));
+        isRunningRef.current = false;
+        setIsSubmitting(false);
+      },
+    });
+  };
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={styles.contentContainer}>
@@ -94,7 +122,12 @@ export default function LegacyWebMigration() {
             'Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.',
           )}
         />
-        <View style={styles.inputWrapper}>
+        <View
+          style={[
+            styles.inputWrapper,
+            { backgroundColor: textInputBackground },
+          ]}
+        >
           <CustomSearchInput
             inputText={password}
             setInputText={setPassword}
@@ -102,13 +135,38 @@ export default function LegacyWebMigration() {
               'createAccount.legacyWebMigration.passwordPlaceholder',
               'Password',
             )}
-            secureTextEntry={true}
+            secureTextEntry={!showPassword}
             autoComplete="current-password"
             textContentType="password"
+            containerStyles={styles.eyeInputContainer}
+            textInputStyles={styles.eyeInputText}
+            buttonComponent={
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(prev => !prev)}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showPassword
+                    ? t('createAccount.keySetup.password.hidePassword')
+                    : t('createAccount.keySetup.password.showPassword')
+                }
+              >
+                <ThemeIcon
+                  iconName={showPassword ? 'Eye' : 'EyeOff'}
+                  size={22}
+                  colorOverride={
+                    theme && !darkModeType
+                      ? COLORS.darkModePlaceholder
+                      : COLORS.lightModePlaceholder
+                  }
+                />
+              </TouchableOpacity>
+            }
             onSubmitEditingFunction={handleSubmit}
           />
-          {!!error && <ThemeText styles={styles.errorText} content={error} />}
         </View>
+        {!!error && <ThemeText styles={styles.errorText} content={error} />}
         <View style={styles.keyIconContainer}>
           <IconActionCircle
             customBackgroundColor={
@@ -127,6 +185,16 @@ export default function LegacyWebMigration() {
             actionFunction={handleSubmit}
             disabled={!password || isSubmitting}
             useLoading={isSubmitting}
+          />
+          <CustomButton
+            textContent={t(
+              'createAccount.legacyWebMigration.useRecoveryPhrase',
+            )}
+            actionFunction={handleUseRecoveryPhrase}
+            disabled={isSubmitting}
+            enableElipsis={false}
+            buttonStyles={styles.recoveryButton}
+            textStyles={{ color: textColor }}
           />
         </View>
       </View>
@@ -154,6 +222,18 @@ const styles = StyleSheet.create({
   inputWrapper: {
     width: '100%',
     marginTop: 40,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  eyeInputContainer: {
+    justifyContent: 'center',
+  },
+  eyeInputText: {
+    paddingRight: 45,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 12,
   },
   errorText: {
     fontSize: SIZES.small,
@@ -164,6 +244,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 'auto',
     width: '100%',
+  },
+  recoveryButton: {
+    marginTop: 12,
+    backgroundColor: 'transparent',
   },
   keyIconContainer: {
     flex: 1,

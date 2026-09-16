@@ -100,7 +100,7 @@ export default function PasswordCreateForm({
               }
             >
               <ThemeIcon
-                iconName={showPassword ? 'EyeOff' : 'Eye'}
+                iconName={showPassword ? 'Eye' : 'EyeOff'}
                 size={22}
                 colorOverride={
                   theme && !darkModeType

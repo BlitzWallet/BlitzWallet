@@ -324,6 +324,9 @@
       "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
       "passwordPlaceholder": "Password",
       "button": "Log in & update",
+      "useRecoveryPhrase": "Использовать фразу восстановления",
+      "recoveryConfirm": "Старый кошелёк, сохранённый в этом браузере, будет удалён. Вы вернётесь к настройке, где сможете восстановить или создать кошелёк. Для доступа к имеющимся средствам вам понадобится фраза восстановления.",
+      "recoveryError": "Не удалось удалить старый кошелёк. Попробуйте ещё раз.",
       "wrongPassword": "Wrong password, try again",
       "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
