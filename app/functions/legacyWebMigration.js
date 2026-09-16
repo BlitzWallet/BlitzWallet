@@ -8,7 +8,8 @@
 // readable.
 //
 // Safety model: nothing is deleted until storeMnemonicWithPinSecurity has
-// written the new envelope AND read it back, and the account list has been
+// written the new envelope, read it back, AND decrypted it to the same seed
+// through the login reader, and the account list has been
 // re-encrypted under the new format. Every earlier failure leaves the legacy
 // data exactly as it was, so the user can reload and try again.
 import { validateMnemonic } from '@scure/bip39';
@@ -16,6 +17,7 @@ import { wordlist } from '@scure/bip39/wordlists/english';
 import { CUSTODY_ACCOUNTS_STORAGE_KEY } from '../constants';
 import {
   decryptMnemonic,
+  decryptMnemonicWithPin,
   storeMnemonicWithPinSecurity,
 } from './handleMnemonic';
 import {
@@ -102,6 +104,11 @@ export async function migrateLegacyWallet(password) {
   // half failed. Until this returns true, nothing may be deleted.
   const stored = await storeMnemonicWithPinSecurity(mnemonic, password);
   if (!stored) return { status: 'failed' };
+
+  // A byte-exact read-back only proves storage; prove the login reader can
+  // actually decrypt it to this seed before destroying the only other copy.
+  const verified = await decryptMnemonicWithPin(JSON.stringify(password));
+  if (verified !== mnemonic) return { status: 'failed' };
 
   // Re-encrypt the account list under the new format BEFORE the wipe, so the
   // accounts are never held only in memory. An empty result means either there

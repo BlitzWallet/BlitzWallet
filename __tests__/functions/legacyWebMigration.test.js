@@ -139,3 +139,83 @@ test('nothing is deleted when the new envelope cannot be stored', async () => {
   );
   expect(await getLocalStorageItem('swapPoolInfo')).not.toBeNull();
 });
+
+// Swaps the stored envelope right after storeMnemonicWithPinSecurity's
+// byte-exact read-back passed (the pinHash marker is written next), so only a
+// real decrypt can notice. This is the gap a string-compare read-back misses.
+function replaceEnvelopeAfterReadback(makeEnvelope) {
+  const store = secureStoreMock.__store;
+  secureStoreMock.setItemAsync.mockImplementationOnce(async (key, value) => {
+    store.set(key, value); // encryptedMnemonic, written as normal
+  });
+  secureStoreMock.setItemAsync.mockImplementationOnce(async (key, value) => {
+    store.set(key, value); // pinHash
+    store.set(
+      'encryptedMnemonic',
+      makeEnvelope(store.get('encryptedMnemonic')),
+    );
+  });
+}
+
+async function expectLegacyUntouched() {
+  expect(await getLocalStorageItem(LEGACY_WALLET_KEY)).toBe(
+    LEGACY_WALLET_VALUE,
+  );
+  // loadCustodyAccounts upgrades the list in place on read (before the seed is
+  // stored), so check it is still recoverable rather than byte-identical.
+  resetCustodyCryptoState();
+  await expect(
+    loadCustodyAccounts(
+      await getLocalStorageItem(CUSTODY_ACCOUNTS_STORAGE_KEY),
+      MNEMONIC,
+    ),
+  ).resolves.toEqual([LEGACY_ACCOUNT]);
+  expect(await getLocalStorageItem('swapPoolInfo')).not.toBeNull();
+}
+
+test('nothing is deleted when the stored envelope cannot be decrypted', async () => {
+  await seedLegacyStorage();
+  replaceEnvelopeAfterReadback(envelope => {
+    const env = JSON.parse(envelope);
+    const tag = Buffer.from(env.tag, 'base64');
+    tag[0] ^= 0xff;
+    return JSON.stringify({ ...env, tag: tag.toString('base64') });
+  });
+
+  const result = await migrateLegacyWallet(PASSWORD);
+  expect(result).toEqual({ status: 'failed' });
+
+  await expectLegacyUntouched();
+});
+
+test('nothing is deleted when the envelope decrypts to a different seed', async () => {
+  const {
+    storeMnemonicWithPinSecurity,
+  } = require('../../app/functions/handleMnemonic');
+  // A genuine envelope under the same password, but for another seed.
+  await storeMnemonicWithPinSecurity(LEGACY_ACCOUNT.mnemoinc, PASSWORD);
+  const otherEnvelope = secureStoreMock.__store.get('encryptedMnemonic');
+  secureStoreMock.__store.clear();
+
+  await seedLegacyStorage();
+  replaceEnvelopeAfterReadback(() => otherEnvelope);
+
+  const result = await migrateLegacyWallet(PASSWORD);
+  expect(result).toEqual({ status: 'failed' });
+
+  await expectLegacyUntouched();
+});
+
+test('a failed verify can be retried and then succeeds', async () => {
+  await seedLegacyStorage();
+  replaceEnvelopeAfterReadback(() => '{"v":3,"garbage":true}');
+
+  expect((await migrateLegacyWallet(PASSWORD)).status).toBe('failed');
+  await expectLegacyUntouched();
+
+  await expect(migrateLegacyWallet(PASSWORD)).resolves.toEqual({
+    status: 'ok',
+    mnemonic: MNEMONIC,
+  });
+  expect(await getLocalStorageItem(LEGACY_WALLET_KEY)).toBeNull();
+});
