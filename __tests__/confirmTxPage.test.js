@@ -174,6 +174,27 @@ const ConfirmTxPage = require('../app/screens/inAccount/confirmTxPage').default;
 const CustomButton = require('../app/functions/CustomElements/button').default;
 const { openBrowserAsync } = require('expo-web-browser');
 
+test('opens a failed-payment email through a mailto URL on web', async () => {
+  const {Platform, Linking} = require('react-native');
+  const DropdownMenu = require('../app/functions/CustomElements/dropdownMenu').default;
+  const {openComposer} = require('react-native-email-link');
+  const originalOS = Platform.OS;
+  Platform.OS = 'web';
+  jest.spyOn(Linking, 'openURL').mockResolvedValue();
+  try {
+    const renderer = await renderConfirm({error: 'Failed: payment & retry'});
+    const menu = renderer.root.findByType(DropdownMenu);
+    await act(async () => menu.props.onSelect({value: 'email'}));
+    expect(Linking.openURL).toHaveBeenCalledWith(
+      'mailto:support@blitzwalletapp.com?subject=Payment%20Failed&body=Failed%3A%20payment%20%26%20retry',
+    );
+    expect(openComposer).not.toHaveBeenCalled();
+  } finally {
+    Platform.OS = originalOS;
+    Linking.openURL.mockRestore();
+  }
+});
+
 describe('confirmation receipt links', () => {
   test.each([
     { tag: 'message', message: 'Receipt', url: 'https://other.example' },

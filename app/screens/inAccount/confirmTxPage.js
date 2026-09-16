@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Linking, Platform, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -366,11 +366,17 @@ export default function ConfirmTxPage(props) {
           onSelect={async item => {
             if (item.value === 'email') {
               try {
-                await openComposer({
-                  to: 'support@blitzwalletapp.com',
-                  subject: 'Payment Failed',
-                  body: String(errorMessage),
-                });
+                if (Platform.OS === 'web') {
+                  await Linking.openURL(
+                    `mailto:support@blitzwalletapp.com?subject=${encodeURIComponent('Payment Failed')}&body=${encodeURIComponent(String(errorMessage))}`,
+                  );
+                } else {
+                  await openComposer({
+                    to: 'support@blitzwalletapp.com',
+                    subject: 'Payment Failed',
+                    body: String(errorMessage),
+                  });
+                }
               } catch (err) {
                 console.log('Email composer error:', err);
               }
