@@ -42,6 +42,18 @@
         outline: none !important;
         box-shadow: none !important;
       }
+
+      * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      input,
+      textarea {
+        -moz-user-select: text;
+        user-select: text;
+      }
     </style>
   </head>
 
