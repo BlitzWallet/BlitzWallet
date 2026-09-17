@@ -1,7 +1,12 @@
 {
   "name": "Blitz Wallet",
   "short_name": "Blitz",
-  "description": "A self-custodial Bitcoin and Lightning wallet.",
+  "description": "Self-custodial global payments app — send money anywhere as easily as a message. Contact payments, instant settlement, Bitcoin & stablecoins (USDB, USDT, USDC). No install, no KYC, open source with 12-word backup.",
+  "id": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "utilities"],
+  "screenshots": [],
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

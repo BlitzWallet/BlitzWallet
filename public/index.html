@@ -7,8 +7,55 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, interactive-widget=resizes-content, viewport-fit=cover"
     />
+
+    <!-- Primary SEO — primary canonical is wallet.blitzwalletapp.com; JS below keeps social cards host-aware for Netlify aliases -->
+    <title>
+      %WEB_TITLE% — Self-Custodial Global Payments App | Bitcoin, Lightning &
+      Stablecoins
+    </title>
+    <meta
+      name="description"
+      content="Blitz Wallet Web in your browser — no install, no registration. Send money anywhere as easily as a message with free contact payments, instant settlement & full control of Bitcoin & stablecoins."
+    />
+    <meta name="author" content="Blitz Wallet" />
+    <meta
+      name="keywords"
+      content="Blitz Wallet, self-custodial Bitcoin wallet, Lightning wallet, stablecoin wallet, USDB, USDT, USDC, global payments app, Bitcoin payments, Spark Bitcoin Layer 2, PWA wallet, web wallet, no KYC Bitcoin wallet"
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow" />
+    <!-- Primary canonical. Served on Netlify from blitzwalletapp.com, blitz-wallet.com and blitzwallet.app — all aliases canonicalize here to consolidate SEO equity. If you want each domain to self-canonicalize instead, change href to current host via the script below. -->
+    <link rel="canonical" href="https://wallet.blitzwalletapp.com/" />
+    <!-- Alternate Netlify aliases (hint for crawlers; canonical still points to primary) -->
+    <link
+      rel="alternate"
+      href="https://wallet.blitzwalletapp.com/"
+      hreflang="x-default"
+    />
+    <link
+      rel="alternate"
+      href="https://wallet.blitz-wallet.com/"
+      hreflang="x-default"
+    />
+    <link
+      rel="alternate"
+      href="https://wallet.blitzwallet.app/"
+      hreflang="x-default"
+    />
+    <meta name="application-name" content="Blitz Wallet" />
+    <meta name="theme-color" content="#0375F6" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- PWA / Apple -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Blitz" />
     <link rel="manifest" href="/manifest.json" />
@@ -17,7 +64,145 @@
       sizes="180x180"
       href="/pwa/apple-touch-icon.png?v=2"
     />
-    <title>%WEB_TITLE%</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/pwa/icon-192.png?v=2"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/pwa/icon-512.png?v=2"
+    />
+
+    <!-- Open Graph / Facebook — og:url and twitter:url are host-aware via script below for correct social previews on alias domains -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Blitz Wallet" />
+    <meta property="og:locale" content="%LANG_ISO_CODE%" />
+    <meta
+      property="og:title"
+      content="Blitz Wallet Web — Self-Custodial Global Payments App | Bitcoin, Lightning & Stablecoins"
+    />
+    <meta
+      property="og:description"
+      content="Send money to anyone anywhere as easily as sending a message. Free payments between contacts, instant settlement across borders, and full user control — Bitcoin, Lightning and stablecoins (USDB, USDT, USDC) in your browser. No install, no KYC, open source with 12-word backup."
+    />
+    <meta
+      property="og:image"
+      content="https://wallet.blitzwalletapp.com/twitterCard.png"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://wallet.blitzwalletapp.com/twitterCard.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="628" />
+    <meta
+      property="og:image:alt"
+      content="Blitz Wallet — self-custodial global payments app for Bitcoin, Lightning and stablecoins"
+    />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@BlitzWalletApp" />
+    <meta name="twitter:creator" content="@BlitzWalletApp" />
+    <meta
+      name="twitter:title"
+      content="Blitz Wallet Web — Self-Custodial Global Payments App | Bitcoin, Lightning & Stablecoins"
+    />
+    <meta
+      name="twitter:description"
+      content="The simplest Bitcoin wallet for everyday payments — in your browser. Free contact payments, global instant settlement, gifts, pools & point-of-sale. Hold Bitcoin or dollars (USDB/USDT/USDC), 12-word backup, fully open source."
+    />
+    <meta
+      name="twitter:image"
+      content="https://wallet.blitzwalletapp.com/twitterCard.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Blitz Wallet — global payments as simple as sending a message"
+    />
+
+    <!-- Structured Data — primary URL is blitzwalletapp.com per llms.txt; aliases listed in sameAs for entity consolidation -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Blitz Wallet Web",
+        "alternateName": "Blitz Wallet",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Blitz Wallet",
+          "url": "https://blitzwalletapp.com/",
+          "alternateName": [
+            "https://blitz-wallet.com/",
+            "https://blitzwallet.app/"
+          ]
+        },
+        "description": "Self-custodial global payments app that makes sending money to anyone anywhere feel as simple as sending a message, with free payments between contacts, instant settlement across borders, and full user control through Bitcoin, Lightning and stablecoins (USDB, USDT, USDC) on Spark. No app install, no registration.",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Pay contacts by name with free Blitz-to-Blitz payments",
+          "Send Bitcoin or stablecoin gifts via shareable link",
+          "Collect group payments with pools and payment links",
+          "Hold Bitcoin and dollars (USDB, USDT, USDC)",
+          "Self-custodial with 12-word backup and open-source recovery",
+          "Instant settlement on Spark Bitcoin Layer 2 and Lightning",
+          "Point-of-Sale for merchants without card hardware",
+          "Accounts, Dollar Goals, accumulation addresses and analytics"
+        ],
+        "publisher": {
+          "@type": "Organization",
+          "name": "Blitz Wallet",
+          "url": "https://blitzwalletapp.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://wallet.blitzwalletapp.com/pwa/icon-512.png?v=2"
+          },
+          "sameAs": [
+            "https://github.com/BlitzWallet/BlitzWallet",
+            "https://x.com/BlitzWalletApp",
+            "https://apps.apple.com/us/app/blitz-wallet/id6476810582",
+            "https://play.google.com/store/apps/details?id=com.blitzwallet",
+            "https://blitzwalletapp.com/",
+            "https://blitz-wallet.com/",
+            "https://blitzwallet.app/",
+            "https://wallet.blitz-wallet.com/",
+            "https://wallet.blitzwallet.app/"
+          ]
+        },
+        "image": "https://wallet.blitzwalletapp.com/twitterCard.png",
+        "inLanguage": "%LANG_ISO_CODE%"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Blitz Wallet",
+        "url": "https://blitzwalletapp.com/",
+        "logo": "https://wallet.blitzwalletapp.com/pwa/icon-512.png?v=2",
+        "description": "Blitz Wallet is a free, open-source, self-custodial Bitcoin and Lightning wallet for everyday global payments — familiar as Venmo or Cash App, but working worldwide on open money rails with Bitcoin, Lightning and stablecoins.",
+        "sameAs": [
+          "https://github.com/BlitzWallet/BlitzWallet",
+          "https://x.com/BlitzWalletApp",
+          "https://blitz-wallet.com/",
+          "https://blitzwallet.app/",
+          "https://wallet.blitz-wallet.com/",
+          "https://wallet.blitzwallet.app/"
+        ]
+      }
+    </script>
     <style id="expo-reset">
       html,
       body {
