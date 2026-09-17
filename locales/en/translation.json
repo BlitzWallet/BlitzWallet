@@ -3453,5 +3453,15 @@
     "title": "Blitz is open in another tab",
     "description": "Your wallet can only be open in one tab at a time. Use it here to close it in the other tab.",
     "button": "Use here"
+  },
+  "webUpdate": {
+    "title": "Update available",
+    "description": "Blitz {{version}} is ready to install.",
+    "requiredTitle": "Update required",
+    "requiredDescription": "Blitz {{version}} is required to keep using your wallet.",
+    "button": "Update now",
+    "progress": "Updating… {{percent}}%",
+    "later": "Later",
+    "error": "Update failed. Check your connection and try again."
   }
 }

@@ -3453,5 +3453,15 @@
     "title": "Blitz está abierto en otra pestaña",
     "description": "Tu billetera solo puede estar abierta en una pestaña a la vez. Úsala aquí para cerrarla en la otra pestaña.",
     "button": "Usar aquí"
+  },
+  "webUpdate": {
+    "title": "Actualización disponible",
+    "description": "Blitz {{version}} está lista para instalar.",
+    "requiredTitle": "Actualización requerida",
+    "requiredDescription": "Blitz {{version}} es necesaria para seguir usando tu billetera.",
+    "button": "Actualizar ahora",
+    "progress": "Actualizando… {{percent}}%",
+    "later": "Más tarde",
+    "error": "Error al actualizar. Revisa tu conexión e inténtalo de nuevo."
   }
 }

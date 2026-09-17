@@ -3453,5 +3453,15 @@
     "title": "Blitz è aperto in un'altra scheda",
     "description": "Il tuo portafoglio può essere aperto in una sola scheda alla volta. Usalo qui per chiuderlo nell'altra scheda.",
     "button": "Usa qui"
+  },
+  "webUpdate": {
+    "title": "Aggiornamento disponibile",
+    "description": "Blitz {{version}} è pronta per l'installazione.",
+    "requiredTitle": "Aggiornamento richiesto",
+    "requiredDescription": "Blitz {{version}} è richiesta per continuare a utilizzare il tuo portafoglio.",
+    "button": "Aggiorna ora",
+    "progress": "Aggiornamento… {{percent}}%",
+    "later": "Più tardi",
+    "error": "Aggiornamento non riuscito. Controlla la tua connessione e riprova."
   }
 }

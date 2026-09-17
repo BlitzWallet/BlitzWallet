@@ -6,6 +6,7 @@ type RootStackParamList = {
   ExpandedAddContactsPage: { newContact: object };
   ConfirmPaymentScreen: { btcAdress: string; fromPage?: string };
   ErrorScreen: { errorMessage: string; useTranslationString?: boolean };
+  WebUpdate: undefined;
   CustomHalfModal: {
     wantedContent: string;
     url: string;

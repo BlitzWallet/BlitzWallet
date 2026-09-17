@@ -3453,5 +3453,15 @@
     "title": "O Blitz está aberto em outra aba",
     "description": "Sua carteira só pode ficar aberta em uma aba por vez. Use aqui para fechá-la na outra aba.",
     "button": "Usar aqui"
+  },
+  "webUpdate": {
+    "title": "Atualização disponível",
+    "description": "Blitz {{version}} está pronta para instalar.",
+    "requiredTitle": "Atualização obrigatória",
+    "requiredDescription": "Blitz {{version}} é necessária para continuar usando sua carteira.",
+    "button": "Atualizar agora",
+    "progress": "Atualizando… {{percent}}%",
+    "later": "Depois",
+    "error": "Falha na atualização. Verifique sua conexão e tente novamente."
   }
 }

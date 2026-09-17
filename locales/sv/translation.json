@@ -3453,5 +3453,15 @@
     "title": "Blitz är öppet i en annan flik",
     "description": "Din plånbok kan bara vara öppen i en flik åt gången. Använd den här för att stänga den i den andra fliken.",
     "button": "Använd här"
+  },
+  "webUpdate": {
+    "title": "Uppdatering tillgänglig",
+    "description": "Blitz {{version}} är redo att installeras.",
+    "requiredTitle": "Uppdatering krävs",
+    "requiredDescription": "Blitz {{version}} krävs för att fortsätta använda din plånbok.",
+    "button": "Uppdatera nu",
+    "progress": "Uppdaterar… {{percent}}%",
+    "later": "Senare",
+    "error": "Uppdateringen misslyckades. Kontrollera din anslutning och försök igen."
   }
 }

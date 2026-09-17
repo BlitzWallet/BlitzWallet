@@ -3453,5 +3453,15 @@
     "title": "Blitz ist in einem anderen Tab geöffnet",
     "description": "Ihre Wallet kann nur in einem Tab gleichzeitig geöffnet sein. Verwenden Sie sie hier, um sie im anderen Tab zu schließen.",
     "button": "Hier verwenden"
+  },
+  "webUpdate": {
+    "title": "Update verfügbar",
+    "description": "Blitz {{version}} ist bereit zur Installation.",
+    "requiredTitle": "Update erforderlich",
+    "requiredDescription": "Blitz {{version}} ist erforderlich, um deine Wallet weiterhin nutzen zu können.",
+    "button": "Jetzt aktualisieren",
+    "progress": "Aktualisierung… {{percent}}%",
+    "later": "Später",
+    "error": "Update fehlgeschlagen. Überprüfe deine Verbindung und versuche es erneut."
   }
 }

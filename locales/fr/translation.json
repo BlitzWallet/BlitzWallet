@@ -3453,5 +3453,15 @@
     "title": "Blitz est ouvert dans un autre onglet",
     "description": "Votre portefeuille ne peut être ouvert que dans un seul onglet à la fois. Utilisez-le ici pour le fermer dans l'autre onglet.",
     "button": "Utiliser ici"
+  },
+  "webUpdate": {
+    "title": "Mise à jour disponible",
+    "description": "Blitz {{version}} est prête à être installée.",
+    "requiredTitle": "Mise à jour requise",
+    "requiredDescription": "Blitz {{version}} est requise pour continuer à utiliser votre portefeuille.",
+    "button": "Mettre à jour maintenant",
+    "progress": "Mise à jour… {{percent}}%",
+    "later": "Plus tard",
+    "error": "Échec de la mise à jour. Vérifiez votre connexion et réessayez."
   }
 }

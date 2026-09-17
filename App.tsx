@@ -45,6 +45,11 @@ import { CreateAccountHome } from './app/screens/createAccount';
 import LegacyWebMigration from './app/screens/createAccount/legacyWebMigration';
 import { LEGACY_WALLET_KEY } from './app/functions/legacyWebMigration';
 import TabInUse from './app/screens/tabInUse';
+import WebUpdate from './app/screens/webUpdate';
+import {
+  checkForWebUpdate,
+  getPendingWebUpdate,
+} from './app/functions/pwaRelease';
 import { acquireWebDatabaseOwnership } from './app/functions/webDatabaseOwnership';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
@@ -200,12 +205,14 @@ function ResetStack(): JSX.Element | null {
     hasSecurityEnabled: boolean | null;
     needsLegacyMigration: boolean;
     isTabInUse: boolean;
+    isUpdateRequired: boolean;
     isLoaded: boolean | null;
   }>({
     isLoggedIn: null,
     hasSecurityEnabled: null,
     needsLegacyMigration: false,
     isTabInUse: false,
+    isUpdateRequired: false,
     isLoaded: null,
   });
   const [securitySettings, setSecuritySettings] = useState<any>(null);
@@ -558,6 +565,16 @@ function ResetStack(): JSX.Element | null {
     };
   }, [linkTrigger, appState, didGetToHomepage, publicKey]);
 
+  // Web: offer an optional PWA update once per launch, on top of home.
+  const didOfferWebUpdate = useRef(false);
+  useEffect(() => {
+    if (!didGetToHomepage || didOfferWebUpdate.current) return;
+    const update = getPendingWebUpdate();
+    if (!update || update.mandatory || !navigationRef.isReady()) return;
+    didOfferWebUpdate.current = true;
+    navigationRef.navigate('WebUpdate');
+  }, [didGetToHomepage]);
+
   useEffect(() => {
     const subscription = Linking.addEventListener('url', handleDeepLink);
 
@@ -574,22 +591,39 @@ function ResetStack(): JSX.Element | null {
       // or routing, so two tabs never write seed storage at once. The newest
       // tab takes over; a tab that loses lands on TabInUse and does nothing.
       if (Platform.OS === 'web') {
-        try {
-          await acquireWebDatabaseOwnership();
-        } catch {
-          if (cancelled) return;
-          // Must not throw: onInitFailure would route this tab to onboarding.
+        // Screens shown before the normal init path still need the language.
+        // Must not throw: onInitFailure would route this tab to onboarding.
+        const applyUserLanguage = async () => {
           try {
             const language = await resolveUserLanguage();
             if (i18next.resolvedLanguage !== language) {
               await i18next.changeLanguage(language);
             }
           } catch {}
+        };
+        try {
+          await acquireWebDatabaseOwnership();
+        } catch {
+          if (cancelled) return;
+          await applyUserLanguage();
           setInitSettings(prev =>
             prev.isTabInUse && prev.isLoaded
               ? prev
               : { ...prev, isTabInUse: true, isLoaded: true },
           );
+          return;
+        }
+        // Mandatory PWA updates block the wallet; optional ones are offered
+        // once home is reached. Offline checks resolve null and never block.
+        const update = await checkForWebUpdate();
+        if (cancelled) return;
+        if (update?.mandatory) {
+          await applyUserLanguage();
+          setInitSettings(prev => ({
+            ...prev,
+            isUpdateRequired: true,
+            isLoaded: true,
+          }));
           return;
         }
       }
@@ -788,6 +822,7 @@ function ResetStack(): JSX.Element | null {
 
   const HomeComponent = useMemo(() => {
     if (initSettings.isTabInUse) return TabInUse;
+    if (initSettings.isUpdateRequired) return WebUpdate;
     if (initSettings.isLoggedIn) {
       return initSettings.hasSecurityEnabled
         ? AdminLogin
@@ -797,6 +832,7 @@ function ResetStack(): JSX.Element | null {
     return CreateAccountHome;
   }, [
     initSettings.isTabInUse,
+    initSettings.isUpdateRequired,
     initSettings.isLoggedIn,
     initSettings.hasSecurityEnabled,
     initSettings.needsLegacyMigration,
@@ -844,6 +880,11 @@ function ResetStack(): JSX.Element | null {
           name="TabInUse"
           component={TabInUse}
           options={{ animation: 'fade', gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="WebUpdate"
+          component={WebUpdate}
+          options={{ animation: 'slide_from_bottom' }}
         />
         <Stack.Screen
           name="ConnectingToNodeLoadingScreen"
