@@ -2484,8 +2484,6 @@
         "liquidWalletError2": "We were unable to set up your wallet. Please try again.",
         "dbInitError1": "We’re unable to set up your app.",
         "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your recovery phrase.",
-        "dbTabConflictError1": "Wallet already open in another tab.",
-        "dbTabConflictError2": "Close the other tab to continue here, then try again. Only one tab can access the wallet at a time.",
         "initErrorTitle": "Something went wrong"
       },
       "receiveBtcPage": {
@@ -3450,5 +3448,10 @@
       "willExceedBudgetWarning": "Sending this payment will put you over your monthly spending limit",
       "budgetWarningHeadsUp": "Heads up"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz is open in another tab",
+    "description": "Your wallet can only be open in one tab at a time. Use it here to close it in the other tab.",
+    "button": "Use here"
   }
 }

@@ -8,3 +8,5 @@ export async function acquireWebDatabaseOwnership() {
 export function isTabConflictError() {
   return false;
 }
+
+export function takeOverFromOtherTab() {}

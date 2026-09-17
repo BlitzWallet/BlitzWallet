@@ -2484,9 +2484,7 @@
         "liquidWalletError2": "Nous n'avons pas pu configurer votre portefeuille. Veuillez réessayer.",
         "dbInitError1": "Nous ne pouvons pas configurer votre application.",
         "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation.",
-        "initErrorTitle": "Une erreur s’est produite",
-        "dbTabConflictError1": "Portefeuille déjà ouvert dans un autre onglet.",
-        "dbTabConflictError2": "Fermez l'autre onglet pour continuer ici, puis réessayez. Un seul onglet peut accéder au portefeuille à la fois."
+        "initErrorTitle": "Une erreur s’est produite"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Pour recevoir un paiement Bitcoin, vous devrez payer des frais réseau on-chain. Ces frais varient selon les frais actuels du réseau Bitcoin.",
@@ -3450,5 +3448,10 @@
       "willExceedBudgetWarning": "Ce paiement dépassera votre limite mensuelle",
       "budgetWarningHeadsUp": "Attention"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz est ouvert dans un autre onglet",
+    "description": "Votre portefeuille ne peut être ouvert que dans un seul onglet à la fois. Utilisez-le ici pour le fermer dans l'autre onglet.",
+    "button": "Utiliser ici"
   }
 }

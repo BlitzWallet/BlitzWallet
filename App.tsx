@@ -44,6 +44,8 @@ import { GlobalContactsList } from './context-store/globalContacts';
 import { CreateAccountHome } from './app/screens/createAccount';
 import LegacyWebMigration from './app/screens/createAccount/legacyWebMigration';
 import { LEGACY_WALLET_KEY } from './app/functions/legacyWebMigration';
+import TabInUse from './app/screens/tabInUse';
+import { acquireWebDatabaseOwnership } from './app/functions/webDatabaseOwnership';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -197,11 +199,13 @@ function ResetStack(): JSX.Element | null {
     isLoggedIn: boolean | null;
     hasSecurityEnabled: boolean | null;
     needsLegacyMigration: boolean;
+    isTabInUse: boolean;
     isLoaded: boolean | null;
   }>({
     isLoggedIn: null,
     hasSecurityEnabled: null,
     needsLegacyMigration: false,
+    isTabInUse: false,
     isLoaded: null,
   });
   const [securitySettings, setSecuritySettings] = useState<any>(null);
@@ -566,6 +570,29 @@ function ResetStack(): JSX.Element | null {
     let cancelled = false;
     async function initWallet(skipURL = false) {
       crashlyticsLogReport('initWallet: start');
+      // Web: claim the wallet for this tab before any storage read, migration
+      // or routing, so two tabs never write seed storage at once. The newest
+      // tab takes over; a tab that loses lands on TabInUse and does nothing.
+      if (Platform.OS === 'web') {
+        try {
+          await acquireWebDatabaseOwnership();
+        } catch {
+          if (cancelled) return;
+          // Must not throw: onInitFailure would route this tab to onboarding.
+          try {
+            const language = await resolveUserLanguage();
+            if (i18next.resolvedLanguage !== language) {
+              await i18next.changeLanguage(language);
+            }
+          } catch {}
+          setInitSettings(prev =>
+            prev.isTabInUse && prev.isLoaded
+              ? prev
+              : { ...prev, isTabInUse: true, isLoaded: true },
+          );
+          return;
+        }
+      }
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
       crashlyticsLogReport('initWallet: secure store migrations done');
@@ -760,6 +787,7 @@ function ResetStack(): JSX.Element | null {
   }, []);
 
   const HomeComponent = useMemo(() => {
+    if (initSettings.isTabInUse) return TabInUse;
     if (initSettings.isLoggedIn) {
       return initSettings.hasSecurityEnabled
         ? AdminLogin
@@ -768,6 +796,7 @@ function ResetStack(): JSX.Element | null {
     if (initSettings.needsLegacyMigration) return LegacyWebMigration;
     return CreateAccountHome;
   }, [
+    initSettings.isTabInUse,
     initSettings.isLoggedIn,
     initSettings.hasSecurityEnabled,
     initSettings.needsLegacyMigration,
@@ -810,6 +839,11 @@ function ResetStack(): JSX.Element | null {
               backfaceVisibility: 'hidden',
             },
           }}
+        />
+        <Stack.Screen
+          name="TabInUse"
+          component={TabInUse}
+          options={{ animation: 'fade', gestureEnabled: false }}
         />
         <Stack.Screen
           name="ConnectingToNodeLoadingScreen"

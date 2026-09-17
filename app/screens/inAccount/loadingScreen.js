@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -32,10 +32,7 @@ import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
 import { useAppStatus } from '../../../context-store/appStatus';
-import {
-  initializeAllDatabases,
-  resetDatabaseInitialization,
-} from '../../functions/initializeAllDatabases';
+import { initializeAllDatabases } from '../../functions/initializeAllDatabases';
 import { isTabConflictError } from '../../functions/webDatabaseOwnership';
 import openWebBrowser from '../../functions/openWebBrowser';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
@@ -244,15 +241,9 @@ export default function ConnectingToNodeLoadingScreen() {
       } catch (err) {
         console.log('intializatiion error', err);
         if (isTabConflictError(err)) {
-          // Second web tab: the OPFS SQLite worker is owned by another tab.
-          // Retrying SQLite in this tab would hit a poisoned worker
-          // ("Invalid VFS state"), so surface an explicit state whose retry
-          // reloads (fresh worker + fresh ownership claim) instead.
-          setHasError({
-            title: t('screens.inAccount.loadingScreen.dbTabConflictError1'),
-            subtitle: t('screens.inAccount.loadingScreen.dbTabConflictError2'),
-            isTabConflict: true,
-          });
+          // Another web tab owns the wallet. TabInUse is the single place for
+          // that; its "Use here" reloads, which recreates the SQLite worker.
+          navigate.reset({ index: 0, routes: [{ name: 'TabInUse' }] });
         } else if (err.message === 'dbInitError') {
           setHasError({
             title: t('screens.inAccount.loadingScreen.dbInitError1'),
@@ -329,26 +320,6 @@ export default function ConnectingToNodeLoadingScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Tab-conflict retry: the SQLite worker may be poisoned ("Invalid VFS
-  // state") after a cross-tab lock failure, so a plain in-place retry would
-  // reuse it. A reload recreates the worker and re-runs the ownership claim
-  // from scratch once the other tab is closed.
-  const handleTabConflictRetry = () => {
-    resetDatabaseInitialization();
-    if (
-      Platform.OS === 'web' &&
-      typeof window !== 'undefined' &&
-      window.location?.reload
-    ) {
-      window.location.reload();
-      return;
-    }
-    setHasError(null);
-    didRunConnectionRef.current = false;
-    didCompleteRef.current = false;
-    didAbortLogin.current = false;
-  };
-
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={styles.globalContainer}>
@@ -367,19 +338,12 @@ export default function ConnectingToNodeLoadingScreen() {
               titleText={hasError.title}
               subTitleText={hasError.subtitle}
               showButton={true}
-              buttonText={
-                hasError.isTabConflict
-                  ? t('constants.retry')
-                  : t('constants.recover')
-              }
-              buttonFunction={
-                hasError.isTabConflict
-                  ? handleTabConflictRetry
-                  : () =>
-                      openWebBrowser({
-                        navigate,
-                        link: 'https://recover.blitzwalletapp.com/',
-                      })
+              buttonText={t('constants.recover')}
+              buttonFunction={() =>
+                openWebBrowser({
+                  navigate,
+                  link: 'https://recover.blitzwalletapp.com/',
+                })
               }
             />
           </>
