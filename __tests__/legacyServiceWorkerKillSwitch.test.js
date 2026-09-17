@@ -36,14 +36,14 @@ describe('legacy service worker kill switch (public/sw.js)', () => {
     const { self, stores, client, listeners, lifecycle } = startWorker([
       'workbox-precache-v2-https://wallet.example/',
       'vite-pwa-runtime',
-      'blitz-pwa-images-abc',
+      'blitz-app-abc',
     ]);
 
     lifecycle('install');
     expect(self.skipWaiting).toHaveBeenCalled();
 
     await lifecycle('activate');
-    expect([...stores]).toEqual(['blitz-pwa-images-abc']);
+    expect([...stores]).toEqual(['blitz-app-abc']);
     expect(self.registration.unregister).toHaveBeenCalled();
     expect(client.navigate).toHaveBeenCalledWith(client.url);
     // No fetch handler: nothing may be answered from a cache during teardown.

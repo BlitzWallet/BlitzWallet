@@ -4,3 +4,7 @@
 /sw.js
   Content-Type: application/javascript; charset=utf-8
   Cache-Control: no-cache
+
+/service-worker.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache

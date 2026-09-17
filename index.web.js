@@ -18,8 +18,8 @@ if (module.hot) module.hot.dispose(removeWebViewport);
 
 if (!__DEV__ && 'serviceWorker' in navigator) {
   navigator.serviceWorker
-    .register('/image-service-worker.js', { updateViaCache: 'none' })
-    .catch(error => console.warn('Image precaching unavailable', error));
+    .register('/service-worker.js', { updateViaCache: 'none' })
+    .catch(error => console.warn('Offline app shell unavailable', error));
 }
 
 Font.loadAsync({

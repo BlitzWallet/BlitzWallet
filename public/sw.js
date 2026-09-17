@@ -15,7 +15,7 @@
  */
 
 // Workbox precache (`workbox-precache-v2-*`) and vite-plugin-pwa runtime
-// caches only. The current app's `blitz-pwa-images-*` cache must survive.
+// caches only. The current app's `blitz-app-*` cache must survive.
 const LEGACY_CACHE_PREFIXES = ['workbox-', 'vite-pwa'];
 
 self.addEventListener('install', () => {
