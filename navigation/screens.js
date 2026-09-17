@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import {
   AddOrDeleteContactImage,
   CameraModal,
@@ -260,12 +261,13 @@ const FADE_TRANSPARENT_MODAL_SCREENS = [
   //   component: RefundLiquidSwapPopup,
   // },
 ];
-const MODAL_CARD_SCREENS = [
-  {
-    name: 'BitrefillShopModal',
-    component: BitrefillShopModal,
-  },
-];
+const BITREFILL_SCREEN = {
+  name: 'BitrefillShopModal',
+  component: BitrefillShopModal,
+};
+// Web: Bitrefill is a normal page (like online listings / SMS), not a modal.
+const MODAL_CARD_SCREENS = Platform.OS === 'web' ? [] : [BITREFILL_SCREEN];
+if (Platform.OS === 'web') SLIDE_FROM_RIGHT_SCREENS.push(BITREFILL_SCREEN);
 
 export {
   SLIDE_FROM_BOTTOM_SCREENS,

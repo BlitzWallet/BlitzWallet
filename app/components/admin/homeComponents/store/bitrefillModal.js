@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import WebView from 'react-native-webview';
 import {
   GlobalThemeView,
@@ -18,7 +23,7 @@ import {
   SIZES,
 } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useKeysContext } from '../../../../../context-store/keys';
@@ -50,6 +55,7 @@ import { KeyboardController } from 'react-native-keyboard-controller';
 const BITREFILL_REFERRAL_TOKEN = 'blitzwallet_brtoken_26';
 const BITREFILL_PAYMENT_METHODS = ['lightning'].join(',');
 const BITREFILL_EMBED_HOST = 'embed.bitrefill.com';
+const isWeb = Platform.OS === 'web';
 
 // Exact-hostname match so lookalike hosts like embed.bitrefill.com.evil.com
 // are rejected (a plain startsWith on the full URL would let them through).
@@ -494,7 +500,7 @@ export default function BitrefillShopModal() {
   useHandleBackPressNew(handleBack);
 
   return (
-    <GlobalThemeView styles={styles.emailOverlayInner}>
+    <GlobalThemeView styles={isWeb ? undefined : styles.emailOverlayInner}>
       <CustomSettingsTopBar
         customBackFunction={handleBack}
         containerStyles={styles.topBar}
@@ -641,7 +647,8 @@ const styles = StyleSheet.create({
   },
   overlayContainr: {
     flex: 1,
-    width: WINDOWWIDTH,
+    // Web: embedded page spans the full content column.
+    width: isWeb ? '100%' : WINDOWWIDTH,
     position: 'relative',
     ...CENTER,
   },
@@ -700,6 +707,7 @@ const styles = StyleSheet.create({
   },
   emailContent: {
     flex: 1,
+    ...(isWeb && { width: INSET_WINDOW_WIDTH, ...CENTER }),
     // paddingHorizontal: 16,
     justifyContent: 'space-between',
   },
