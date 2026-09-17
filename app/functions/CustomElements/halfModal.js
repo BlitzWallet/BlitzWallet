@@ -146,7 +146,8 @@ export default function CustomHalfModal(props) {
     contentType === 'AddMessageReceivePage' ? true : false,
   );
   const isScreenActive = useRef(false);
-  const { bottomPadding, topPadding } = useGlobalInsets();
+  const { bottomPadding, topPadding, leftPadding, rightPadding } =
+    useGlobalInsets();
   const didHandleBackpress = useRef(false);
   const closeTimerRef = useRef(null);
   const shouldDismissKeyboardOnMount =
@@ -854,6 +855,10 @@ export default function CustomHalfModal(props) {
             flex: 1,
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
+            ...(Platform.OS === 'web' && {
+              paddingLeft: leftPadding,
+              paddingRight: rightPadding,
+            }),
             paddingBottom:
               contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||

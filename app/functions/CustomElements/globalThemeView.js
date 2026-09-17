@@ -17,17 +17,22 @@ const GlobalThemeView = memo(function GlobalThemeView({
   useStandardWidth,
   globalContainerStyles,
 }) {
-  const { topPadding, bottomPadding } = useGlobalInsets();
+  const { topPadding, bottomPadding, leftPadding, rightPadding } =
+    useGlobalInsets();
   const { backgroundColor } = GetThemeColors();
 
   const useStandardWidthOuterStyles = useMemo(() => {
     return {
       flex: 1,
       backgroundColor: backgroundColor,
-      ...(isWeb && { alignItems: 'center' }),
       ...globalContainerStyles,
+      ...(isWeb && {
+        alignItems: 'center',
+        paddingLeft: leftPadding,
+        paddingRight: rightPadding,
+      }),
     };
-  }, [globalContainerStyles, backgroundColor]);
+  }, [globalContainerStyles, backgroundColor, leftPadding, rightPadding]);
   const useStandardWidthInnerStyles = useMemo(() => {
     return {
       ...referenceStyles.widthContainer,
@@ -61,7 +66,15 @@ const GlobalThemeView = memo(function GlobalThemeView({
   // without leaving unthemed gutters.
   if (isWeb) {
     return (
-      <View style={{ flex: 1, backgroundColor, alignItems: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor,
+          alignItems: 'center',
+          paddingLeft: leftPadding,
+          paddingRight: rightPadding,
+        }}
+      >
         <View
           style={{
             width: '100%',
