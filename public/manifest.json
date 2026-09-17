@@ -11,7 +11,7 @@
   "scope": ".",
   "display": "standalone",
   "theme_color": "#0375F6",
-  "background_color": "#FFFFFF",
+  "background_color": "#EBEBEB",
   "icons": [
     {
       "src": "/pwa/icon-192.png?v=2",

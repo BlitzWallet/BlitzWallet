@@ -314,6 +314,11 @@ function ResetStack(): JSX.Element | null {
           setStatusBarBackgroundColor(backgroundColor, false);
           setStatusBarStyle(theme ? 'light' : 'dark', false);
         }
+        if (Platform.OS === 'web') {
+          (globalThis as any).document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', backgroundColor);
+        }
         await SystemUI.setBackgroundColorAsync(backgroundColor);
       } catch (error) {
         console.warn('Failed to set navigation bar:', error);
