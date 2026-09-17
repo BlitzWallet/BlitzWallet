@@ -7,26 +7,33 @@
   "dir": "ltr",
   "categories": ["finance", "utilities"],
   "screenshots": [],
-  "start_url": ".",
-  "scope": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay"],
   "theme_color": "#0375F6",
   "background_color": "#EBEBEB",
   "icons": [
     {
-      "src": "/pwa/icon-192.png?v=2",
+      "src": "/pwa/icon-192.png?v=3",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa/icon-512.png?v=2",
+      "src": "/pwa/icon-512.png?v=3",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa/maskable-512.png?v=2",
+      "src": "/pwa/maskable-192.png?v=5",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa/maskable-512.png?v=5",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
