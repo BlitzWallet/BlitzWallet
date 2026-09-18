@@ -43,6 +43,7 @@ import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { KeyboardController } from 'react-native-keyboard-controller';
 
 // Extract ChatMessage component for better performance
@@ -429,43 +430,32 @@ export default function ChatGPTHome(props) {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={[styles.topBarButton, { left: 0 }]}
-          onPress={() => keyboardNavigate(closeChat)}
-        >
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={openModelSelector}
-          style={[
-            styles.switchModel,
-            {
-              maxWidth: screenDimensions.width * 0.95 - 80,
-              backgroundColor: backgroundOffset,
-            },
-          ]}
-        >
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.topBarText}
-            content={model}
-          />
-          <ThemeIcon
-            colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
-            iconName={'ChevronUp'}
-            size={20}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.topBarButton, { right: 0 }]}
-          onPress={openDrawer}
-        >
-          <ThemeIcon iconName={'Menu'} />
-        </TouchableOpacity>
-      </View>
+      <CustomSettingsTopBar
+        customBackFunction={() => keyboardNavigate(closeChat)}
+        containerStyles={{ marginBottom: 15 }}
+        centerContent={
+          <TouchableOpacity
+            onPress={openModelSelector}
+            style={[styles.switchModel, { backgroundColor: backgroundOffset }]}
+          >
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.topBarText}
+              content={model}
+            />
+            <ThemeIcon
+              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              iconName={'ChevronUp'}
+              size={20}
+            />
+          </TouchableOpacity>
+        }
+        rightContent={
+          <TouchableOpacity onPress={openDrawer}>
+            <ThemeIcon iconName={'Menu'} />
+          </TouchableOpacity>
+        }
+      />
 
       <ThemeText
         styles={styles.creditsText}
@@ -574,17 +564,6 @@ export default function ChatGPTHome(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-    ...CENTER,
-  },
-  topBarButton: {
-    position: 'absolute',
   },
   switchModel: {
     flexDirection: 'row',

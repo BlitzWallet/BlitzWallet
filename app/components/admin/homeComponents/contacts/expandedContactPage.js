@@ -33,6 +33,7 @@ import {
 } from '../../../../constants/theme';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { shareMessage } from '../../../../functions/handleShare';
 
 export default function ExpandedContactsPage(props) {
@@ -333,39 +334,39 @@ export default function ExpandedContactsPage(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={styles.backButtonContainer}
-          onPress={navigate.goBack}
-        >
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-        {selectedContact && (
-          <TouchableOpacity
-            style={styles.starContianer}
-            onPress={() => handleFavortie({ selectedContact })}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-              fill={
-                selectedContact.isFavorite
-                  ? theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.primary
-                  : backgroundColor
-              }
-              iconName={'Star'}
-            />
-          </TouchableOpacity>
-        )}
-        {selectedContact && (
-          <TouchableOpacity onPress={() => handleSettings({ selectedContact })}>
-            <ThemeIcon iconName={'Settings'} />
-          </TouchableOpacity>
-        )}
-      </View>
+      <CustomSettingsTopBar
+        containerStyles={{ marginBottom: 15 }}
+        rightContent={
+          <>
+            {selectedContact && (
+              <TouchableOpacity
+                onPress={() => handleFavortie({ selectedContact })}
+              >
+                <ThemeIcon
+                  colorOverride={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                  fill={
+                    selectedContact.isFavorite
+                      ? theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary
+                      : backgroundColor
+                  }
+                  iconName={'Star'}
+                />
+              </TouchableOpacity>
+            )}
+            {selectedContact && (
+              <TouchableOpacity
+                onPress={() => handleSettings({ selectedContact })}
+              >
+                <ThemeIcon iconName={'Settings'} />
+              </TouchableOpacity>
+            )}
+          </>
+        }
+      />
 
       {!selectedContact ? (
         <FullLoadingScreen
@@ -413,17 +414,9 @@ export default function ExpandedContactsPage(props) {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   globalContainer: { paddingBottom: 0 },
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
   profileImageContainer: {
     ...CENTER,
   },
-  backButtonContainer: { marginRight: 'auto' },
-  starContianer: { marginRight: 5 },
   profileImage: {
     width: 150,
     height: 150,
