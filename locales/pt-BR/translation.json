@@ -13,7 +13,7 @@
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
-    "total_balance": "Total na conta",
+    "total_balance": "Saldo total",
     "sat_balance": "Saldo Bitcoin",
     "usd_balance": "Saldo Dólar",
     "amount": "Quantia",
@@ -1032,8 +1032,8 @@
       "depositFeePopup_bitcoin": "Se aplica uma taxa da rede Bitcoin no recebimento desse pagamento. A taxa é descontada do valor recebido, portanto o valor que chegar na sua carteira será ligeiramente menor do que o valor esperado.",
       "depositFeePopup_liquid": "Os bitcoins recebidos na rede Liquid são convertidos para bitcoins nativos da sua carteira. A conversão tem uma pequena taxa descontada do valor recebido.",
       "depositFeePopup_rootstock": "Os bitcoins recebidos na rede Rootstock são convertidos para bitcoins nativos da sua carteira. A conversão tem uma pequena taxa, descontada do valor recebido.",
-      "depositFeePopup_stablecoins": "Os dólares digitais (USDC, USDT...) enviados para este endereço são convertidos em dólares nativos da sua carteira. Uma pequena taxa de conversão de cerca de 1% é descontada do valor recebido.",
-      "depositFeePopup_accumulation_bitcoin": "O Bitcoin enviado para este endereço é convertido em bitcoin que sua carteira pode usar. Uma pequena taxa de conversão de cerca de 1% é descontada do valor recebido."
+      "depositFeePopup_stablecoins": "Os dólares digitais enviados para este endereço são convertidos em dólares nativos da sua carteira. Uma pequena taxa de conversão de cerca de 1% é descontada do valor recebido.",
+      "depositFeePopup_accumulation_bitcoin": "Os bitcoins enviados para este endereço são convertidos em bitcoins nativos da sua carteira. Uma pequena taxa de conversão de cerca de 1% é descontada do valor recebido."
     },
     "payLinks": {
       "skip": "Pular",
@@ -1125,8 +1125,8 @@
         "howStep3": "• Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
         "howStep4": "• Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
       },
-      "noPoolsTitle": "Nenhum Vaquinha criada",
-      "noPoolsSubTitle": "Quando você criar uma Vaquinha, ela aparecerá aqui como aberta ou encerrada."
+      "noPoolsTitle": "Nenhuma Vaquinha criada",
+      "noPoolsSubTitle": "Quando você criar uma Vaquinha, ela aparecerá aqui."
     },
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
@@ -2086,7 +2086,7 @@
     "hub": {
       "viewAll": "Ver tudo",
       "accounts": "Contas",
-      "accountsEmptyDesc": "Visualize, crie, gerencie e mova fundos entre todas as suas contas.",
+      "accountsEmptyDesc": "Visualize, crie, gerencie e mova fundos entre suas contas",
       "pinAccount": "Fixar",
       "unpinAccount": "Desafixar",
       "maxPinsReached": "Máximo de 2 contas fixadas. Desafixe uma primeiro.",
@@ -2814,12 +2814,12 @@
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
-        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para realizar trocas",
+        "insufficientBTCToSwap": "É necessário um saldo em bitcoin de pelo menos {{amount}} para realizar trocas",
         "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para realizar trocas",
         "belowSwapLimitTitle": "Saldo muito baixo para realizar trocas",
-        "belowSwapLimitBitcoin": "Seu saldo de Bitcoin está abaixo do mínimo para realizar trocas. Adicione pelo menos {{btcMin}}",
-        "belowSwapLimitDollar": "Seu saldo em dólares está abaixo do mínimo para realizar trocas. Adicione pelo menos {{usdMin}}",
-        "belowSwapLimitBoth": "Seus saldos estão abaixo do mínimo para realizar trocas. Você precisa de pelo menos {{btcMin}} em Bitcoin ou {{usdMin}} em dólares",
+        "belowSwapLimitBitcoin": "Seu saldo bitcoin está abaixo do mínimo necessário para realizar trocas. Adicione pelo menos {{btcMin}}",
+        "belowSwapLimitDollar": "Seu saldo dólar está abaixo do mínimo necessário para realizar trocas. Adicione pelo menos {{usdMin}}",
+        "belowSwapLimitBoth": "Seus saldos estão abaixo do mínimo necessário para realizar trocas. Você precisa de pelo menos {{btcMin}} em bitcoin ou {{usdMin}} em dólares",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2834,10 +2834,10 @@
       "sendAndReplace": {
         "slider": "{{state}} Gastar & Repor",
         "userDollarAmount": "Saldo disponível em dólares: {{dollarAmount}}",
-        "explainer": "Quando ativado, cada gasto realizado usando Bitcoin é automaticamente reposto usando o seu saldo de dólar. Se seu saldo em dólares for menor que o valor gasto, o saldo total disponível será trocado. Nenhuma troca será realizada se o valor a ser reposto for inferior a {{minAmount}}.",
+        "explainer": "Quando ativado, cada gasto realizado usando bitcoin é automaticamente reposto usando o seu saldo dólar. Se seu saldo em dólares for menor que o valor gasto, o saldo total disponível será trocado. Nenhuma troca será realizada se o valor a ser reposto for inferior a {{minAmount}}.",
         "fundingDescription": "Compra Gasto & Reposição",
         "acceptingDescription": "Recarga Gasto & Reposição",
-        "toastMessageTitle": "Saldo de Bitcoin recarregado"
+        "toastMessageTitle": "Saldo Bitcoin recarregado"
       }
     },
     "accumulationAddresses": {
