@@ -101,6 +101,8 @@ export default function CustomSearchInput({
     return textInputMultiline !== undefined ? textInputMultiline : false;
   }, [textInputMultiline]);
 
+  const isWebMultiline = Platform.OS === 'web' && mutlilineValue;
+
   const textAlignVerticalValue = useMemo(() => {
     return textAlignVertical !== undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
@@ -111,11 +113,18 @@ export default function CustomSearchInput({
       color: textInputColor,
       backgroundColor: textInputBackground,
       opacity: editable ? 1 : HIDDEN_OPACITY,
+      ...(isWebMultiline && { fieldSizing: 'content' }),
       ...textInputStyles,
     };
 
     return baseStyles;
-  }, [textInputStyles, editable, textInputColor, textInputBackground]);
+  }, [
+    textInputStyles,
+    editable,
+    textInputColor,
+    textInputBackground,
+    isWebMultiline,
+  ]);
   const viewContainerStyles = useMemo(() => {
     return [styles.inputContainer, containerStyles];
   }, [containerStyles]);
@@ -493,6 +502,7 @@ export default function CustomSearchInput({
         onFocus={focusFunction}
         onBlur={blurFunction}
         multiline={mutlilineValue}
+        rows={isWebMultiline ? 1 : undefined}
         textAlignVertical={textAlignVerticalValue}
         maxLength={maxLenValue}
         style={memorizedStyles}
