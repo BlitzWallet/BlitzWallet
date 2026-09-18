@@ -1125,8 +1125,8 @@
         "howStep3": "• Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
         "howStep4": "• Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
       },
-      "noPoolsTitle": "Nenhum Vaquinha criada",
-      "noPoolsSubTitle": "Quando você criar uma Vaquinha, ela aparecerá aqui como aberta ou encerrada."
+      "noPoolsTitle": "Nenhuma Vaquinha criada",
+      "noPoolsSubTitle": "Quando você criar uma Vaquinha, ela aparecerá aqui."
     },
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
