@@ -50,16 +50,12 @@ const CHAINS = [
 
 export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const isDark = theme && darkModeType;
   const getCircleBackground = isOrange =>
-    isDark
-      ? backgroundOffset
-      : isOrange
-      ? COLORS.bitcoinOrange
-      : COLORS.primary;
+    isDark ? backgroundColor : isOrange ? COLORS.bitcoinOrange : COLORS.primary;
 
   return (
     <View style={{ flex: 1 }}>
