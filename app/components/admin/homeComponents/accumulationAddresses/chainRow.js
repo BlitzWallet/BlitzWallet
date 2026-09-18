@@ -97,7 +97,10 @@ export default function ChainRow({
         </Animated.View>
       </TouchableOpacity>
 
-      <Animated.View style={[styles.assetOptionsContainer, expandedStyle]}>
+      <Animated.View
+        pointerEvents={expanded ? 'auto' : 'none'}
+        style={[styles.assetOptionsContainer, expandedStyle]}
+      >
         {chain.assets.map(asset => {
           const disabled = isAssetTaken(asset);
           return (
