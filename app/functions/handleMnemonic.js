@@ -276,6 +276,7 @@ export async function decryptMnemonicWithBiometrics() {
  */
 export async function storeMnemonicWithPinSecurity(mnemonic, pin) {
   try {
+    if (!validateMnemonic(mnemonic, wordlist)) return false;
     const encrypted = await encryptMnemonicV3(mnemonic, JSON.stringify(pin));
     // Ciphertext first, marker last: a crash between the two writes must never
     // leave the marker set over a stale ciphertext (that would send a correct

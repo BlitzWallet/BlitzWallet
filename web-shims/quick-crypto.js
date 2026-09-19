@@ -12,10 +12,20 @@ import { argon2id } from '@noble/hashes/argon2';
 const HASHES = { sha256, sha512 };
 
 function toBytes(data, encoding) {
-  if (data == null) return new Uint8Array(0);
+  if (typeof data === 'string')
+    return new Uint8Array(Buffer.from(data, encoding || 'utf8'));
   if (data instanceof Uint8Array) return data;
-  if (typeof data === 'string') return new Uint8Array(Buffer.from(data, encoding || 'utf8'));
-  return new Uint8Array(Buffer.from(data));
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  if (
+    typeof globalThis.SharedArrayBuffer !== 'undefined' &&
+    data instanceof globalThis.SharedArrayBuffer
+  )
+    return new Uint8Array(data);
+  if (ArrayBuffer.isView(data))
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  throw new TypeError(
+    'quick-crypto shim: data must be string, Buffer, TypedArray, or DataView',
+  );
 }
 
 export function randomBytes(size) {

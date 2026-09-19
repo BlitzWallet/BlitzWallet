@@ -1,6 +1,9 @@
 // Web shim for react-native-vision-camera: live camera preview via getUserMedia
-// rendered as a raw <video> element, with a jsqr decode loop that drives the
+// rendered as a raw <video> element, with a decode loop that drives the
 // barcode-scanner stub's output handle (see its __isBarcodeOutput marker).
+// The loop prefers the browser's BarcodeDetector — on Android Chrome that is
+// ML Kit, the same engine the native Android path uses — and falls back to
+// jsqr where the API is missing (Safari, Firefox).
 import React, {
   useEffect,
   useRef,
@@ -14,6 +17,31 @@ const hasWebcam =
   typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
 
 const BACK_DEVICE = hasWebcam ? { deviceId: 'back', position: 'back' } : null;
+
+// Cap the ingested stream. Unconstrained, phones hand back a 1080p/4K texture
+// and every decode pays a full-size GPU readback plus a scale in drawImage.
+// Not 640x480: BOLT11 invoice QRs are version 15+ (~77 modules) and start
+// losing decodes there. 'ideal' is a soft constraint, so this never rejects.
+const VIDEO_CONSTRAINTS = {
+  facingMode: 'environment',
+  width: { ideal: 1280 },
+  height: { ideal: 720 },
+};
+
+// undefined = not probed yet, null = unsupported or unusable.
+let qrDetector;
+function getQrDetector() {
+  if (qrDetector !== undefined) return qrDetector;
+  qrDetector = null;
+  try {
+    if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+      qrDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+    }
+  } catch (err) {
+    // Constructor rejects qr_code, or the API is a stub — jsqr covers it.
+  }
+  return qrDetector;
+}
 
 // Native knows the OS permission on first render; the web can only learn it by
 // opening the camera. So 'unknown' counts as permitted: <Camera> mounts right
@@ -34,7 +62,7 @@ async function probeCamera() {
   if (!hasWebcam) return false;
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
+      video: VIDEO_CONSTRAINTS,
     });
     stream.getTracks().forEach(track => track.stop());
     setPermissionStatus('granted');
@@ -82,7 +110,7 @@ export function Camera({
 
     let stopped = false;
     let stream;
-    let rafId;
+    let cancelFrame = () => {};
 
     function stopStream() {
       if (stream) {
@@ -96,7 +124,7 @@ export function Camera({
       try {
         try {
           stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
+            video: VIDEO_CONSTRAINTS,
           });
         } catch (err) {
           setPermissionStatus('denied');
@@ -119,35 +147,80 @@ export function Camera({
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         let lastDecode = 0;
+        let frameId;
 
-        const scanFrame = timestamp => {
+        // requestVideoFrameCallback fires once per *new* frame, so we never
+        // re-decode a frame rAF already handed us. rAF is the Firefox path.
+        const hasFrameCallback =
+          typeof video.requestVideoFrameCallback === 'function';
+        function scheduleFrame() {
           if (stopped) return;
-          // Decode at ~10fps; jsqr on every rAF frame would burn CPU.
+          frameId = hasFrameCallback
+            ? video.requestVideoFrameCallback(now => scanFrame(now))
+            : requestAnimationFrame(scanFrame);
+        }
+        cancelFrame = () => {
+          if (frameId === undefined) return;
+          if (hasFrameCallback) video.cancelVideoFrameCallback(frameId);
+          else cancelAnimationFrame(frameId);
+          frameId = undefined;
+        };
+
+        const readQrCode = async () => {
+          const detector = getQrDetector();
+          if (detector) {
+            try {
+              // Reads the video frame natively: no canvas, no getImageData.
+              const codes = await detector.detect(video);
+              return codes?.[0]?.rawValue || null;
+            } catch (err) {
+              // Present but unusable — demote to jsqr for the session.
+              qrDetector = null;
+            }
+          }
+          const scale = Math.min(1, 480 / video.videoWidth);
+          canvas.width = Math.round(video.videoWidth * scale);
+          canvas.height = Math.round(video.videoHeight * scale);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          // jsqr defaults inversionAttempts to 'attemptBoth', which binarizes
+          // and decodes twice on every miss — and a miss is every frame until
+          // the hit. The upload path in detectQrCode.web.js keeps both passes
+          // because it only gets one shot at the image.
+          const code = jsQR(frame.data, frame.width, frame.height, {
+            inversionAttempts: 'dontInvert',
+          });
+          return code?.data || null;
+        };
+
+        const scanFrame = async timestamp => {
+          if (stopped) return;
+          // Decode at ~10fps; decoding every frame would burn CPU.
           if (
             timestamp - lastDecode > 100 &&
             video.readyState >= 2 &&
             video.videoWidth > 0
           ) {
             lastDecode = timestamp;
-            const scale = Math.min(1, 480 / video.videoWidth);
-            canvas.width = Math.round(video.videoWidth * scale);
-            canvas.height = Math.round(video.videoHeight * scale);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(frame.data, frame.width, frame.height);
-            if (code?.data) {
+            const rawValue = await readQrCode();
+            if (stopped) return;
+            if (rawValue) {
+              // Stop decoding before dispatching: the consumer takes ~200ms to
+              // animate away, and the loop would otherwise keep scanning until
+              // unmount. The stream stays up so the preview isn't black
+              // mid-animation; the effect cleanup still stops the tracks.
+              stopped = true;
               outputsRef.current.forEach(output => {
                 if (output?.__isBarcodeOutput) {
-                  output.onBarcodeScanned([
-                    { format: 'qr-code', rawValue: code.data },
-                  ]);
+                  output.onBarcodeScanned([{ format: 'qr-code', rawValue }]);
                 }
               });
+              return;
             }
           }
-          rafId = requestAnimationFrame(scanFrame);
+          scheduleFrame();
         };
-        rafId = requestAnimationFrame(scanFrame);
+        scheduleFrame();
       } catch (err) {
         outputsRef.current.forEach(output => {
           if (output?.__isBarcodeOutput) output.onError?.(err);
@@ -159,7 +232,7 @@ export function Camera({
     return () => {
       stopped = true;
       setIsStreaming(false);
-      if (rafId !== undefined) cancelAnimationFrame(rafId);
+      cancelFrame();
       stopStream();
     };
   }, [isActive]);
