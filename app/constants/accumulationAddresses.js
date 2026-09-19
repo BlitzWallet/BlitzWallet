@@ -15,7 +15,7 @@ export const ACCUMULATION_DESTINATIONS = ['BTC', 'USDB'];
 // (GET /v1/orchestration/routes) these are the only non-native BTC sources
 // that deliver BTC on Spark.
 export const ACCUMULATION_BTC_SOURCES = [
-  { chain: 'ethereum', asset: 'WBTC', name: 'Wrapped Bitcoin' },
+  // { chain: 'ethereum', asset: 'WBTC', name: 'Wrapped Bitcoin' },
   { chain: 'solana', asset: 'cbBTC', name: 'Coinbase BTC' },
   { chain: 'base', asset: 'cbBTC', name: 'Coinbase BTC' },
 ];

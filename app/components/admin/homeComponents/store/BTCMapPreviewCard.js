@@ -45,12 +45,13 @@ function MapPreview({ cardBackground, isDarkMode }) {
   //   withAlpha(cardBackground, isDarkMode ? 0.2 : 0.04),
   //   withAlpha(cardBackground, 0),
   // ];
+  const platform = Platform.OS === 'web' ? 'ios' : Platform.OS;
 
   return (
     <View style={styles.mapArea} pointerEvents="none">
       <Image
         style={{ width: '100%', height: '100%' }}
-        source={ICONS[`${Platform.OS}_maps_${isDarkMode ? 'dark' : 'light'}`]}
+        source={ICONS[`${platform}_maps_${isDarkMode ? 'dark' : 'light'}`]}
       />
       <LinearGradient
         colors={leftFade}

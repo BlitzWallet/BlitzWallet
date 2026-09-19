@@ -265,6 +265,27 @@
         "enterPinMessage": "Создайте PIN-код",
         "confirmPin": "Подтвердите PIN-код",
         "attemptsText": "Осталось попыток: {{number}}"
+      },
+      "password": {
+        "createHeader": "Создать пароль",
+        "createSubtitle": "Пароль защищает доступ к вашему кошельку. Фраза восстановления — это то, что его восстанавливает, поэтому сохраните её в надёжном месте. Вы можете посмотреть её в любое время в Настройках.",
+        "createButton": "Создать кошелек",
+        "newPasswordPlaceholder": "Введите пароль",
+        "confirmPasswordPlaceholder": "Подтвердите пароль",
+        "mismatchError": "Пароли не совпадают",
+        "commonWarning": "Распространенный пароль",
+        "whatMakesStrongPassword": "Что делает пароль надёжным?",
+        "showPassword": "Показать пароль",
+        "hidePassword": "Скрыть пароль"
+      },
+      "passkey": {
+        "offerHeader": "Создать пасскей",
+        "offerSubtitle": "Пасскей защищает доступ к вашему кошельку. Фраза восстановления — это то, что его восстанавливает, поэтому сохраните её в надёжном месте. Вы можете посмотреть её в любое время в Настройках.",
+        "createButton": "Создать пасскей",
+        "usePassword": "Использовать пароль",
+        "unsupported": "Ваш менеджер паролей пока не может защитить кошелек с помощью пасскея. Установите пароль.",
+        "confirmFailed": "Не удалось подтвердить пасскей",
+        "tryAgain": "Попробовать снова"
       }
     },
     "restoreWallet": {
@@ -297,6 +318,17 @@
       "joinDesc": "Присоединитесь к кошельку, которым управляют за вас.",
       "restoreTitle": "Восстановить существующий кошелёк",
       "restoreDesc": "Уже есть кошелёк? Импортируйте его."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "useRecoveryPhrase": "Использовать фразу восстановления",
+      "recoveryConfirm": "Старый кошелёк, сохранённый в этом браузере, будет удалён. Вы вернётесь к настройке, где сможете восстановить или создать кошелёк. Для доступа к имеющимся средствам вам понадобится фраза восстановления.",
+      "recoveryError": "Не удалось удалить старый кошелёк. Попробуйте ещё раз.",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +338,23 @@
       "enterPinMessage": "Введите PIN",
       "attemptsText": "Осталось попыток: {{attempts}}",
       "biometricsHeader": "Войти по биометрии"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Введите пароль",
+      "welcomeBackTitle": "С возвращением!",
+      "wrongPasswordError": "Неверный пароль, попробуйте снова",
+      "attemptsText": "Осталось попыток: {{attempts}}",
+      "passwordPlaceholder": "Пароль",
+      "forgotPassword": "Забыли пароль?",
+      "forgotPasswordConfirm": "Забыли пароль? Единственный способ восстановить доступ — сбросить данные и восстановить кошелек с помощью сид-фразы.\n\nХотите удалить все данные кошелька? Продолжайте только если ваша сид-фраза надежно сохранена.",
+      "loginButton": "Войти",
+      "storageError": "Не удалось прочитать хранилище кошелька. Попробуйте снова."
+    },
+    "passkeyPage": {
+      "unlockButton": "Разблокировать пасскеем",
+      "unlockError": "Не удалось разблокировать пасскеем",
+      "lostPasskey": "Потеряли пасскей?",
+      "lostPasskeyConfirm": "Потеряли пасскей? Единственный способ вернуться — сбросить и восстановить кошелек с помощью фразы восстановления.\n\nХотите удалить все данные кошелька? Продолжайте только если ваша фраза восстановления надежно сохранена."
     }
   },
   "apps": {
@@ -1642,7 +1691,28 @@
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
       "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN.",
       "biometricsHead": "О биометрии",
-      "biometricsSubHead": "Ваша фраза восстановления защищена текущими биометрическими данными устройства. Их изменение не позволит Blitz Wallet получить доступ к вашей фразе восстановления и заблокирует доступ к кошельку."
+      "biometricsSubHead": "Ваша фраза восстановления защищена текущими биометрическими данными устройства. Их изменение не позволит Blitz Wallet получить доступ к вашей фразе восстановления и заблокирует доступ к кошельку.",
+      "changePasswordTitle": "Изменить пароль",
+      "currentPasswordSubtitle": "Введите текущий пароль, чтобы изменить его.",
+      "currentPasswordPlaceholder": "Текущий пароль",
+      "wrongCurrentPassword": "Неверный пароль",
+      "newPasswordHeader": "Новый пароль",
+      "newPasswordSubtitle": "Выберите новый пароль.",
+      "changePasswordButton": "Изменить пароль",
+      "passwordChanged": "Пароль обновлен",
+      "passwordChangeFailed": "Не удалось обновить пароль",
+      "loadError": "Не удалось прочитать настройки безопасности кошелька. Попробуйте снова.",
+      "passkeyCardTitle": "Использовать пасскей",
+      "passkeyCardBody": "Разблокируйте по лицу, отпечатку или PIN-коду. Ваш пасскей заменяет пароль.",
+      "passkeyPasswordSubtitle": "Введите текущий пароль, чтобы перейти на пасскей.",
+      "passkeyCreated": "Пасскей создан",
+      "passkeySetupFailed": "Не удалось настроить пасскей",
+      "passkeyTitle": "Пасскей",
+      "passkeyCreatedOn": "Создан {{date}}",
+      "passkeySavedAs": "Сохранен в менеджере паролей как {{name}}",
+      "switchToPassword": "Переключиться на пароль",
+      "switchToPasswordSubtitle": "Выберите пароль. Он заменит ваш пасскей.",
+      "switchedToPassword": "Переключено на пароль"
     },
     "seedPhrase": {
       "header": "Храните сид-фразу в надежном месте",
@@ -2426,7 +2496,6 @@
         "stablecoinsFeeMessage": "Для получения стейблкоинов взимаются комиссия Blitz 0,5% и комиссия Flashnet 0,05%.",
         "generatingInvoice": "Создание инвойса",
         "amountPlaceholder": "Любая сумма",
-        "copyInvoice": "Скопировать счёт",
         "usdSwapMinNotice": "Только платежи свыше {{amount}} будут конвертированы в доллары",
         "shareInvoice": "Поделиться счётом",
         "walletNotConnected": "Кошелёк не подключён. Повторите попытку.",
@@ -2466,7 +2535,9 @@
         "expiry_86400": "24 часа",
         "expiry_604800": "7 дней",
         "expiry_2592000": "30 дней",
-        "expiry_7776000": "90 дней"
+        "expiry_7776000": "90 дней",
+        "copy_invoice": "Скопировать счёт",
+        "copy_address": "Скопировать адрес"
       },
       "settingsContent": {
         "about": "О приложении",
@@ -3385,5 +3456,20 @@
       "willExceedBudgetWarning": "Этот платёж превысит месячный лимит",
       "budgetWarningHeadsUp": "Внимание"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz открыт в другой вкладке",
+    "description": "Кошелек может быть открыт только в одной вкладке. Используйте его здесь, чтобы закрыть его в другой вкладке.",
+    "button": "Использовать здесь"
+  },
+  "webUpdate": {
+    "title": "Доступно обновление",
+    "description": "Blitz {{version}} готова к установке.",
+    "requiredTitle": "Требуется обновление",
+    "requiredDescription": "Blitz {{version}} требуется для дальнейшего использования кошелька.",
+    "button": "Обновить сейчас",
+    "progress": "Обновление… {{percent}}%",
+    "later": "Позже",
+    "error": "Не удалось обновить. Проверьте соединение и попробуйте снова."
   }
 }

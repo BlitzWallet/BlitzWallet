@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../../constants';
+import { COLORS, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
@@ -12,7 +12,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { MAX_CONTENT_WIDTH } from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
@@ -41,7 +40,9 @@ export default function SkipCreateAccountPathMessage() {
         if (isFinished) {
           scheduleOnRN(navigate.goBack);
           if (goToPinRef.current) {
-            scheduleOnRN(navigate.navigate, 'PinSetup', { isInitialLoad: true });
+            scheduleOnRN(navigate.navigate, 'PinSetup', {
+              isInitialLoad: true,
+            });
           }
         }
       });
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     width: '70%',
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     backgroundColor: COLORS.darkModeText,
     padding: 10,
     borderRadius: 8,

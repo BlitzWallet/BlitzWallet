@@ -265,6 +265,27 @@
         "enterPinMessage": "Crear PIN",
         "confirmPin": "Confirmar PIN",
         "attemptsText": "{{number}} intentos restantes"
+      },
+      "password": {
+        "createHeader": "Crear contraseña",
+        "createSubtitle": "Tu contraseña protege el acceso a tu billetera. Tu frase de recuperación es la que la restaura, así que guárdala en un lugar seguro. Puedes verla en cualquier momento en Ajustes.",
+        "createButton": "Crear billetera",
+        "newPasswordPlaceholder": "Ingresa la contraseña",
+        "confirmPasswordPlaceholder": "Confirmar contraseña",
+        "mismatchError": "Las contraseñas no coinciden",
+        "commonWarning": "Contraseña común",
+        "whatMakesStrongPassword": "¿Qué hace que una contraseña sea segura?",
+        "showPassword": "Mostrar contraseña",
+        "hidePassword": "Ocultar contraseña"
+      },
+      "passkey": {
+        "offerHeader": "Crear clave de acceso",
+        "offerSubtitle": "Tu clave de acceso protege el acceso a tu billetera. Tu frase de recuperación es la que la restaura, así que guárdala en un lugar seguro. Puedes verla en cualquier momento en Ajustes.",
+        "createButton": "Crear clave de acceso",
+        "usePassword": "Usar una contraseña en su lugar",
+        "unsupported": "Tu gestor de contraseñas aún no puede proteger una billetera con clave de acceso. Usa una contraseña en su lugar.",
+        "confirmFailed": "No se pudo confirmar tu clave de acceso",
+        "tryAgain": "Intentar de nuevo"
       }
     },
     "restoreWallet": {
@@ -297,6 +318,17 @@
       "joinDesc": "Únete a una wallet que se gestiona por ti.",
       "restoreTitle": "Restaurar wallet existente",
       "restoreDesc": "¿Ya tienes una wallet? Tráela contigo."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "useRecoveryPhrase": "Usar mi frase de recuperación en su lugar",
+      "recoveryConfirm": "Esto eliminará la billetera antigua guardada en este navegador y te llevará a la configuración, donde podrás restaurar o crear una billetera. Necesitarás tu frase de recuperación para acceder a tus fondos actuales.",
+      "recoveryError": "No se pudo eliminar la billetera antigua. Inténtalo de nuevo.",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +338,23 @@
       "enterPinMessage": "Ingresar PIN",
       "attemptsText": "{{attempts}} intentos restantes",
       "biometricsHeader": "Abrir con biometría"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Ingresar contraseña",
+      "welcomeBackTitle": "¡Bienvenido de nuevo!",
+      "wrongPasswordError": "Contraseña incorrecta, intenta de nuevo",
+      "attemptsText": "{{attempts}} intentos restantes",
+      "passwordPlaceholder": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "forgotPasswordConfirm": "¿Olvidaste tu contraseña? La única forma de recuperar es restablecer y restaurar con tu frase de recuperación.\n\n¿Quieres borrar todos los datos de la billetera? Continúa solo si tu frase de recuperación está respaldada de forma segura.",
+      "loginButton": "Iniciar sesión",
+      "storageError": "No se pudo leer el almacenamiento de la billetera. Inténtalo de nuevo."
+    },
+    "passkeyPage": {
+      "unlockButton": "Desbloquear con clave de acceso",
+      "unlockError": "No se pudo desbloquear con tu clave de acceso",
+      "lostPasskey": "¿Perdiste tu clave de acceso?",
+      "lostPasskeyConfirm": "¿Perdiste tu clave de acceso? La única forma de volver es restablecer y restaurar con tu frase de recuperación.\n\n¿Quieres borrar todos los datos de la billetera? Continúa solo si tu frase de recuperación está respaldada de forma segura."
     }
   },
   "apps": {
@@ -1639,7 +1688,28 @@
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
       "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
       "biometricsHead": "Sobre la biometría",
-      "biometricsSubHead": "Tu frase de recuperación está protegida por los datos biométricos actuales de tu dispositivo. Cambiarlos impedirá que Blitz Wallet acceda a tu frase de recuperación y bloqueará el acceso a tu billetera."
+      "biometricsSubHead": "Tu frase de recuperación está protegida por los datos biométricos actuales de tu dispositivo. Cambiarlos impedirá que Blitz Wallet acceda a tu frase de recuperación y bloqueará el acceso a tu billetera.",
+      "changePasswordTitle": "Cambiar contraseña",
+      "currentPasswordSubtitle": "Ingresa tu contraseña actual para cambiarla.",
+      "currentPasswordPlaceholder": "Contraseña actual",
+      "wrongCurrentPassword": "Contraseña incorrecta",
+      "newPasswordHeader": "Nueva contraseña",
+      "newPasswordSubtitle": "Elige una nueva contraseña.",
+      "changePasswordButton": "Cambiar contraseña",
+      "passwordChanged": "Contraseña actualizada",
+      "passwordChangeFailed": "No se pudo actualizar la contraseña",
+      "loadError": "No se pudieron leer los ajustes de seguridad de tu billetera. Inténtalo de nuevo.",
+      "passkeyCardTitle": "Usar una clave de acceso en su lugar",
+      "passkeyCardBody": "Desbloquea con tu rostro, huella o PIN del dispositivo. Tu clave de acceso reemplaza tu contraseña.",
+      "passkeyPasswordSubtitle": "Ingresa tu contraseña actual para cambiar a una clave de acceso.",
+      "passkeyCreated": "Clave de acceso creada",
+      "passkeySetupFailed": "No se pudo configurar la clave de acceso",
+      "passkeyTitle": "Clave de acceso",
+      "passkeyCreatedOn": "Creada el {{date}}",
+      "passkeySavedAs": "Guardada en tu gestor de contraseñas como {{name}}",
+      "switchToPassword": "Cambiar a contraseña",
+      "switchToPasswordSubtitle": "Elige una contraseña. Reemplaza tu clave de acceso.",
+      "switchedToPassword": "Cambiado a contraseña"
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",
@@ -2424,7 +2494,6 @@
         "stablecoinsFeeMessage": "Para recibir stablecoins, se aplica una comisión de Blitz del 0,5 % y una comisión de Flashnet del 0,05 %.",
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
-        "copyInvoice": "Copiar factura",
         "usdSwapMinNotice": "Solo los pagos superiores a {{amount}} se convertirán a dólares",
         "shareInvoice": "Compartir factura",
         "walletNotConnected": "La billetera no está conectada. Inténtalo de nuevo.",
@@ -2464,7 +2533,9 @@
         "expiry_86400": "24 horas",
         "expiry_604800": "7 días",
         "expiry_2592000": "30 días",
-        "expiry_7776000": "90 días"
+        "expiry_7776000": "90 días",
+        "copy_invoice": "Copiar factura",
+        "copy_address": "Copiar dirección"
       },
       "settingsContent": {
         "about": "Acerca de",
@@ -3377,5 +3448,20 @@
       "willExceedBudgetWarning": "Este pago te pondrá por encima de tu límite mensual",
       "budgetWarningHeadsUp": "Aviso"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz está abierto en otra pestaña",
+    "description": "Tu billetera solo puede estar abierta en una pestaña a la vez. Úsala aquí para cerrarla en la otra pestaña.",
+    "button": "Usar aquí"
+  },
+  "webUpdate": {
+    "title": "Actualización disponible",
+    "description": "Blitz {{version}} está lista para instalar.",
+    "requiredTitle": "Actualización requerida",
+    "requiredDescription": "Blitz {{version}} es necesaria para seguir usando tu billetera.",
+    "button": "Actualizar ahora",
+    "progress": "Actualizando… {{percent}}%",
+    "later": "Más tarde",
+    "error": "Error al actualizar. Revisa tu conexión e inténtalo de nuevo."
   }
 }

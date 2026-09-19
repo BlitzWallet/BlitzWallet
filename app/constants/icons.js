@@ -39,6 +39,7 @@ import ios_maps_dark from '../assets/apple_maps_dark.png';
 import android_maps_light from '../assets/google_maps_light.png';
 import android_maps_dark from '../assets/google_maps_dark.png';
 import bankIcon from '../assets/icons/bank.png';
+import passkeyIcon from '../assets/icons/passkey.svg';
 import aqua from '../assets/social_logos/aqua.png';
 import blink from '../assets/social_logos/blink.png';
 import breez from '../assets/social_logos/breez.png';
@@ -111,6 +112,8 @@ export default {
   android_maps_dark,
 
   bankIcon,
+  // FIDO Alliance passkey mark (web passkey unlock).
+  passkeyIcon,
 
   // LNURL Providers
   aqua,

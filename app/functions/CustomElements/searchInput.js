@@ -75,6 +75,9 @@ export default function CustomSearchInput({
   editable = true,
   autoFocus = false,
   returnKeyType = 'default',
+  secureTextEntry,
+  autoComplete,
+  textContentType,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
@@ -98,6 +101,8 @@ export default function CustomSearchInput({
     return textInputMultiline !== undefined ? textInputMultiline : false;
   }, [textInputMultiline]);
 
+  const isWebMultiline = Platform.OS === 'web' && mutlilineValue;
+
   const textAlignVerticalValue = useMemo(() => {
     return textAlignVertical !== undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
@@ -108,13 +113,20 @@ export default function CustomSearchInput({
       color: textInputColor,
       backgroundColor: textInputBackground,
       opacity: editable ? 1 : HIDDEN_OPACITY,
+      ...(isWebMultiline && { fieldSizing: 'content' }),
       ...textInputStyles,
     };
 
     return baseStyles;
-  }, [textInputStyles, editable, textInputColor, textInputBackground]);
+  }, [
+    textInputStyles,
+    editable,
+    textInputColor,
+    textInputBackground,
+    isWebMultiline,
+  ]);
   const viewContainerStyles = useMemo(() => {
-    return { ...styles.inputContainer, ...containerStyles };
+    return [styles.inputContainer, containerStyles];
   }, [containerStyles]);
 
   const keyboardAppearance = useMemo(() => {
@@ -143,6 +155,7 @@ export default function CustomSearchInput({
   }, [onSubmitEditingFunction]);
 
   const focusFunction = useCallback(() => {
+    clearTimer(blurDelayTimerRef);
     clearTimer(blurConfirmationTimerRef);
     clearTimer(keyboardHideTimerRef);
     pendingBlurRef.current = false;
@@ -407,6 +420,11 @@ export default function CustomSearchInput({
   }, [diagnosticLabel, inputRef, runBlurCallback, scheduleKeyboardHiddenBlur]);
 
   useEffect(() => {
+    // The web keyboard controller always reports hidden. Browser focus/blur
+    // events own focus there; the native foreground check would emit a false
+    // blur while the description remains focused after a PWA/tab return.
+    if (Platform.OS === 'web') return;
+
     const appStateListener = AppState.addEventListener('change', nextState => {
       clearTimer(appStateTimerRef);
 
@@ -484,6 +502,7 @@ export default function CustomSearchInput({
         onFocus={focusFunction}
         onBlur={blurFunction}
         multiline={mutlilineValue}
+        rows={isWebMultiline ? 1 : undefined}
         textAlignVertical={textAlignVerticalValue}
         maxLength={maxLenValue}
         style={memorizedStyles}
@@ -491,6 +510,9 @@ export default function CustomSearchInput({
         autoCorrect={false}
         editable={editable}
         returnKeyType={returnKeyType}
+        secureTextEntry={secureTextEntry}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
       />
       {buttonComponent && buttonComponent}
     </View>

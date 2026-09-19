@@ -41,7 +41,8 @@ export default function ContactProfileImage({
       const version = new Date(updated).getTime();
       // Only add version if it's valid
       if (!isNaN(version)) {
-        return `${uri}?v=${version}`;
+        const sep = uri.includes('?') ? '&' : '?';
+        return `${uri}${sep}v=${version}`;
       }
     }
 

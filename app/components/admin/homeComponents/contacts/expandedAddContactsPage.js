@@ -14,6 +14,7 @@ import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import AddContactsPage from './addContactsPage';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import ContactRingAvatar from './internalComponents/contactsRingAvatar';
 
 // Memoized shared header component
@@ -93,38 +94,42 @@ const MemoizedNavBar = memo(
     handleSettings,
   }) => {
     return (
-      <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backButtonContainer} onPress={onBack}>
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-        {selectedContact && isContactAdded && (
-          <TouchableOpacity
-            style={styles.starContianer}
-            onPress={() => {
-              handleFavortie({ selectedContact });
-            }}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-              fill={
-                selectedContact.isFavorite
-                  ? theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.primary
-                  : backgroundColor
-              }
-              iconName={'Star'}
-            />
-          </TouchableOpacity>
-        )}
-        {selectedContact && isContactAdded && (
-          <TouchableOpacity onPress={() => handleSettings({ selectedContact })}>
-            <ThemeIcon iconName={'Settings'} />
-          </TouchableOpacity>
-        )}
-      </View>
+      <CustomSettingsTopBar
+        customBackFunction={onBack}
+        containerStyles={{ marginBottom: 15 }}
+        rightContent={
+          <>
+            {selectedContact && isContactAdded && (
+              <TouchableOpacity
+                onPress={() => {
+                  handleFavortie({ selectedContact });
+                }}
+              >
+                <ThemeIcon
+                  colorOverride={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                  fill={
+                    selectedContact.isFavorite
+                      ? theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary
+                      : backgroundColor
+                  }
+                  iconName={'Star'}
+                />
+              </TouchableOpacity>
+            )}
+            {selectedContact && isContactAdded && (
+              <TouchableOpacity
+                onPress={() => handleSettings({ selectedContact })}
+              >
+                <ThemeIcon iconName={'Settings'} />
+              </TouchableOpacity>
+            )}
+          </>
+        }
+      />
     );
   },
 );
@@ -248,12 +253,4 @@ const styles = StyleSheet.create({
     bottom: 12.5,
     zIndex: 2,
   },
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  backButtonContainer: { marginRight: 'auto' },
-  starContianer: { marginRight: 5 },
 });

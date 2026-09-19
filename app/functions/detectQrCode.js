@@ -23,7 +23,7 @@ export async function detectQRCode(uri) {
 
     return response;
   } catch (error) {
-    if (error.message.includes('OutOfMemoryError')) {
+    if (error?.message?.includes('OutOfMemoryError')) {
       console.warn('Image too large — could not scan QR. Try a smaller image.');
     } else {
       console.error('QR detection failed:', error);

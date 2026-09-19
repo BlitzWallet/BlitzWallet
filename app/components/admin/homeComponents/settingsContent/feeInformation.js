@@ -101,14 +101,14 @@ function FeeTable({ masterInfoObject }) {
       transactionType: t('settings.feeInformation.chainSwapType'),
       fee: t('settings.feeInformation.chainSwapFee'),
     },
-    {
-      transactionType: t('settings.feeInformation.liquid'),
-      fee: t('settings.feeInformation.liquidFee'),
-    },
-    {
-      transactionType: t('settings.feeInformation.rootstock'),
-      fee: t('settings.feeInformation.rootstockFee'),
-    },
+    // {
+    //   transactionType: t('settings.feeInformation.liquid'),
+    //   fee: t('settings.feeInformation.liquidFee'),
+    // },
+    // {
+    //   transactionType: t('settings.feeInformation.rootstock'),
+    //   fee: t('settings.feeInformation.rootstockFee'),
+    // },
     {
       transactionType: t('settings.feeInformation.accumulationType'),
       fee: t('settings.feeInformation.accumulationFee'),

@@ -1,6 +1,10 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { CENTER, ICONS } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+} from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   COLORS,
@@ -54,9 +58,13 @@ export default function ChooseLRC20TokenContainer({
           customLabel: seletctedToken?.tokenMetadata?.tokenTicker,
           fiatStats,
         });
-  console.log(selectedLRC20Asset, seletctedToken, 'tokens', imageUri);
+
   return (
     <View style={[styles.paymentMethodContainer, containerStyles]}>
+      <ThemeText
+        styles={{ opacity: HIDDEN_OPACITY, marginBottom: 5 }}
+        content={t('constants.payWith')}
+      />
       <TouchableOpacity
         onPress={handleSelectPaymentMethod}
         style={styles.selectorContainer}
@@ -129,8 +137,9 @@ export default function ChooseLRC20TokenContainer({
 const styles = StyleSheet.create({
   paymentMethodContainer: {
     width: INSET_WINDOW_WIDTH,
+    maxWidth: 400,
     ...CENTER,
-    marginTop: 5,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   header: {
     fontSize: SIZES.smedium,

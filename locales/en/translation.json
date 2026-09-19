@@ -275,6 +275,27 @@
         "enterPinMessage": "Create PIN",
         "confirmPin": "Confirm Pin",
         "attemptsText": "{{number}} attempts left"
+      },
+      "password": {
+        "createHeader": "Create Password",
+        "createSubtitle": "Your password protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
+        "createButton": "Create Wallet",
+        "newPasswordPlaceholder": "Enter password",
+        "confirmPasswordPlaceholder": "Confirm password",
+        "mismatchError": "Passwords do not match",
+        "commonWarning": "Common password",
+        "whatMakesStrongPassword": "What makes a strong password?",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
+      },
+      "passkey": {
+        "offerHeader": "Create Passkey",
+        "offerSubtitle": "Your passkey protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
+        "createButton": "Create a passkey",
+        "usePassword": "Use a password instead",
+        "unsupported": "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",
+        "confirmFailed": "Couldn't confirm your passkey",
+        "tryAgain": "Try again"
       }
     },
     "restoreWallet": {
@@ -297,6 +318,17 @@
       "header": "We recommend that you write down your recovery phrase",
       "subHeader": "If you do not have your recovery phrase written down you risk losing your money.",
       "btn": "I understand"
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "useRecoveryPhrase": "Use my recovery phrase instead",
+      "recoveryConfirm": "This will remove the old wallet saved in this browser and return you to setup, where you can restore or create a wallet. You will need your recovery phrase to access your existing funds.",
+      "recoveryError": "Could not remove the old wallet. Please try again.",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +338,23 @@
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left",
       "biometricsHeader": "Open with Biometrics"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Enter Password",
+      "welcomeBackTitle": "Welcome back!",
+      "wrongPasswordError": "Wrong password, try again",
+      "attemptsText": "{{attempts}} attempts left",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Forgot password?",
+      "forgotPasswordConfirm": "Forgot your password? The only way to recover is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
+      "storageError": "Unable to read wallet storage. Please try again.",
+      "loginButton": "Log In"
+    },
+    "passkeyPage": {
+      "unlockButton": "Open with Passkey",
+      "unlockError": "Couldn't unlock with your passkey",
+      "lostPasskey": "Lost your passkey?",
+      "lostPasskeyConfirm": "Lost your passkey? The only way back in is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up."
     }
   },
   "apps": {
@@ -1642,7 +1691,28 @@
       "randomPinKeyboardToggle": "Shuffle Keypad",
       "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
       "biometricsHead": "About biometrics",
-      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet."
+      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet.",
+      "changePasswordTitle": "Change Password",
+      "currentPasswordSubtitle": "Enter your current password to change it.",
+      "currentPasswordPlaceholder": "Current password",
+      "wrongCurrentPassword": "Wrong password",
+      "newPasswordHeader": "New Password",
+      "newPasswordSubtitle": "Choose a new password.",
+      "changePasswordButton": "Change Password",
+      "passwordChanged": "Password updated",
+      "passwordChangeFailed": "Failed to update password",
+      "loadError": "Could not read your wallet security settings. Please try again.",
+      "passkeyCardTitle": "Use a passkey instead",
+      "passkeyCardBody": "Unlock with your face, fingerprint, or device PIN. Your passkey replaces your password.",
+      "passkeyPasswordSubtitle": "Enter your current password to switch to a passkey.",
+      "passkeyCreated": "Your Passkey was created",
+      "passkeySetupFailed": "Failed to set up passkey",
+      "passkeyTitle": "Passkey",
+      "passkeyCreatedOn": "Created {{date}}",
+      "passkeySavedAs": "Saved in your password manager as {{name}}",
+      "switchToPassword": "Switch to password",
+      "switchToPasswordSubtitle": "Choose a password. It replaces your passkey.",
+      "switchedToPassword": "Switched to password"
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",
@@ -2424,7 +2494,8 @@
         "stablecoinsFeeMessage": "To receive stablecoins, a 0.5% Blitz fee and a 0.05% Flashnet fee apply.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
-        "copyInvoice": "Copy Invoice",
+        "copy_invoice": "Copy Invoice",
+        "copy_address": "Copy Address",
         "usdSwapMinNotice": "Only payments over {{amount}} will be received to dollars",
         "shareInvoice": "Share Invoice",
         "walletNotConnected": "Wallet not connected. Please try again.",
@@ -3377,5 +3448,20 @@
       "willExceedBudgetWarning": "Sending this payment will put you over your monthly spending limit",
       "budgetWarningHeadsUp": "Heads up"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz is open in another tab",
+    "description": "Your wallet can only be open in one tab at a time. Use it here to close it in the other tab.",
+    "button": "Use here"
+  },
+  "webUpdate": {
+    "title": "Update available",
+    "description": "Blitz {{version}} is ready to install.",
+    "requiredTitle": "Update required",
+    "requiredDescription": "Blitz {{version}} is required to keep using your wallet.",
+    "button": "Update now",
+    "progress": "Updating… {{percent}}%",
+    "later": "Later",
+    "error": "Update failed. Check your connection and try again."
   }
 }

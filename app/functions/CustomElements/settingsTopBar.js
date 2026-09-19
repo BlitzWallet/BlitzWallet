@@ -2,12 +2,16 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../constants';
+import { COLORS, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
-import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useRef } from 'react';
+
+// Nav chrome is a fixed metric, not a result of its contents: the back arrow has
+// to land on the same pixel on every screen. Slot content must fit inside this;
+// raise it here (for everyone) rather than letting one screen grow its own bar.
+export const TOPBAR_HEIGHT = 40;
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -25,8 +29,8 @@ export default function CustomSettingsTopBar({
   iconNewColor = undefined,
   badgeCount = 0,
   rightContent,
+  centerContent,
 }) {
-  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const lastBackPressRef = useRef(0);
@@ -51,77 +55,77 @@ export default function CustomSettingsTopBar({
 
   return (
     <View style={{ ...styles.topbar, ...containerStyles }}>
-      <TouchableOpacity style={styles.backArrow} onPress={handleBackPress}>
-        <ThemeIcon colorOverride={customBackColor} iconName={'ArrowLeft'} />
-      </TouchableOpacity>
-      <ThemeText
-        CustomNumberOfLines={1}
-        CustomEllipsizeMode={'tail'}
-        content={label || ''}
-        styles={{
-          ...styles.topBarText,
-          width: screenDimensions.width * 0.95 - 60,
-          ...textStyles,
-        }}
-      />
-      {(showLeftImage || rightContent) && (
-        <View style={styles.rightSlot}>
-          {showLeftImage && (
-            <View>
-              <TouchableOpacity onPress={leftImageFunction}>
-                {iconNew ? (
-                  <ThemeIcon
-                    colorOverride={iconNewColor}
-                    size={leftImageStyles?.height}
-                    iconName={iconNew}
-                  />
-                ) : (
-                  <ThemeImage
-                    styles={{ ...leftImageStyles }}
-                    lightsOutIcon={LeftImageDarkMode}
-                    darkModeIcon={leftImageBlue}
-                    lightModeIcon={leftImageBlue}
-                  />
-                )}
-              </TouchableOpacity>
-              {badgeCount > 0 && (
-                <View
-                  style={[
-                    styles.badge,
+      <View style={styles.sideSlot}>
+        <TouchableOpacity onPress={handleBackPress}>
+          <ThemeIcon colorOverride={customBackColor} iconName={'ArrowLeft'} />
+        </TouchableOpacity>
+      </View>
+      {centerContent ? (
+        <View style={styles.centerSlot}>{centerContent}</View>
+      ) : (
+        <ThemeText
+          CustomNumberOfLines={1}
+          CustomEllipsizeMode={'tail'}
+          content={label || ''}
+          styles={{ ...styles.topBarText, ...textStyles }}
+        />
+      )}
+      <View style={[styles.sideSlot, styles.rightSlot]}>
+        {showLeftImage && (
+          <View>
+            <TouchableOpacity onPress={leftImageFunction}>
+              {iconNew ? (
+                <ThemeIcon
+                  colorOverride={iconNewColor}
+                  size={leftImageStyles?.height}
+                  iconName={iconNew}
+                />
+              ) : (
+                <ThemeImage
+                  styles={{ ...leftImageStyles }}
+                  lightsOutIcon={LeftImageDarkMode}
+                  darkModeIcon={leftImageBlue}
+                  lightModeIcon={leftImageBlue}
+                />
+              )}
+            </TouchableOpacity>
+            {badgeCount > 0 && (
+              <View
+                style={[
+                  styles.badge,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                    borderColor:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                pointerEvents="none"
+              >
+                <ThemeText
+                  adjustsFontSizeToFit={true}
+                  allowFontScaling={true}
+                  styles={[
+                    styles.badgeText,
                     {
-                      backgroundColor:
+                      color:
                         theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                      borderColor:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
+                          ? COLORS.lightModeText
+                          : COLORS.darkModeText,
                     },
                   ]}
-                  pointerEvents="none"
-                >
-                  <ThemeText
-                    adjustsFontSizeToFit={true}
-                    allowFontScaling={true}
-                    styles={[
-                      styles.badgeText,
-                      {
-                        color:
-                          theme && darkModeType
-                            ? COLORS.lightModeText
-                            : COLORS.darkModeText,
-                      },
-                    ]}
-                    content={badgeCount}
-                  />
-                </View>
-              )}
-            </View>
-          )}
-          {rightContent}
-        </View>
-      )}
+                  content={badgeCount}
+                />
+              </View>
+            )}
+          </View>
+        )}
+        {rightContent}
+      </View>
     </View>
   );
 }
@@ -130,26 +134,41 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
     marginBottom: 10,
-    minHeight: 30,
+    height: TOPBAR_HEIGHT,
   },
-  backArrow: { position: 'absolute', left: 0, zIndex: 1 },
 
-  rightSlot: {
-    position: 'absolute',
-    right: 0,
-    zIndex: 1,
+  // Both sides are in flow and take an equal share of the width the label leaves
+  // behind, which is what keeps the label centered without absolute positioning.
+  sideSlot: {
+    height: '100%',
+    flexGrow: 1,
+    flexShrink: 0,
+    flexBasis: 0,
+    minWidth: 40,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  rightSlot: { justifyContent: 'flex-end' },
+
+  // Same shrink rules as the label, for screens whose centre is a control rather
+  // than text (a picker, a cross-fading title).
+  centerSlot: {
+    flexShrink: 1,
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   topBarText: {
     fontSize: SIZES.large,
     fontFamily: FONT.Title_Regular,
     textAlign: 'center',
-    ...CENTER,
+    flexShrink: 1,
+    // Yoga gives flex items minWidth 0; CSS gives them `auto`. Without this the
+    // label won't shrink on web and shoves the slots off the bar instead.
+    minWidth: 0,
     includeFontPadding: false,
   },
 

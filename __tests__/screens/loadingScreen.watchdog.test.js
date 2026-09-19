@@ -20,6 +20,8 @@ const ERROR_UI_TEXT = 'NO_CONTENT_SCREEN';
 // Mutable route params so tests can simulate onboarding (shouldWipeLocalData).
 // Referenced from the jest.mock factory below, hence the mock* prefix.
 const mockRouteParams = {};
+// Props of the last rendered error screen, so tests can press its button.
+const mockNoContentProps = { current: null };
 
 // ── Contexts ────────────────────────────────────────────────────────────────
 const didRunHandshakeRef = { current: true };
@@ -94,7 +96,10 @@ jest.mock('../../app/functions/CustomElements/noContentScreen', () => {
   const { Text } = require('react-native');
   return {
     __esModule: true,
-    default: () => MockReact.createElement(Text, null, 'NO_CONTENT_SCREEN'),
+    default: props => {
+      mockNoContentProps.current = props;
+      return MockReact.createElement(Text, null, 'NO_CONTENT_SCREEN');
+    },
   };
 });
 jest.mock('../../app/functions/lottieAnimations', () => ({
@@ -125,6 +130,7 @@ jest.mock('../../app/functions/gift/deriveGiftWallet', () => ({
   deriveSparkIdentityKey: jest.fn(async () => ({ publicKeyHex: 'abc' })),
 }));
 jest.mock('../../app/functions/initializeAllDatabases', () => ({
+  DB_INIT_TIMEOUT_ERROR: 'dbInitTimeout',
   initializeAllDatabases: jest.fn(async () => true),
 }));
 jest.mock('../../app/functions/spark', () => ({
@@ -315,5 +321,60 @@ describe('loading screen wipe trigger + re-arm marker', () => {
     expect(showsErrorUI(renderer)).toBe(false);
     // The wipe threw before the watchdog's 45s window; no watchdog report.
     expect(crashlyticsRecordErrorReport).not.toHaveBeenCalled();
+  });
+});
+
+describe('loading screen database setup errors', () => {
+  const {
+    initializeAllDatabases,
+  } = require('../../app/functions/initializeAllDatabases');
+  const openWebBrowser = require('../../app/functions/openWebBrowser').default;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+    delete mockRouteParams.shouldWipeLocalData;
+    mockNoContentProps.current = null;
+    // Earlier suites leave the wipe marker armed; start past the wipe.
+    isWipeInProgress.mockResolvedValue(false);
+    // Under the react-native Jest preset `window` is `global`.
+    global.location = { reload: jest.fn() };
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+    initializeAllDatabases.mockImplementation(async () => true);
+    delete global.location;
+  });
+
+  const renderWithDatabaseError = async message => {
+    initializeAllDatabases.mockRejectedValue(new Error(message));
+    let renderer;
+    await act(async () => {
+      renderer = ReactTestRenderer.create(<ConnectingToNodeLoadingScreen />);
+    });
+    await flush();
+    return renderer;
+  };
+
+  test('a setup timeout offers Retry, which reloads the page', async () => {
+    const renderer = await renderWithDatabaseError('dbInitTimeout');
+
+    expect(showsErrorUI(renderer)).toBe(true);
+    expect(mockNoContentProps.current.buttonText).toBe('constants.retry');
+    mockNoContentProps.current.buttonFunction();
+    expect(global.location.reload).toHaveBeenCalledTimes(1);
+    expect(openWebBrowser).not.toHaveBeenCalled();
+  });
+
+  test('a failed database open keeps Recover', async () => {
+    const renderer = await renderWithDatabaseError('dbInitError');
+
+    expect(showsErrorUI(renderer)).toBe(true);
+    expect(mockNoContentProps.current.buttonText).toBe('constants.recover');
+    mockNoContentProps.current.buttonFunction();
+    expect(openWebBrowser).toHaveBeenCalledWith(
+      expect.objectContaining({ link: 'https://recover.blitzwalletapp.com/' }),
+    );
+    expect(global.location.reload).not.toHaveBeenCalled();
   });
 });

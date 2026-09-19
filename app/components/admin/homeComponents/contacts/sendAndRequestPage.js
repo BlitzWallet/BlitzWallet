@@ -1,5 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +14,6 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
-  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import {
   CustomKeyboardAvoidingView,
@@ -119,6 +124,7 @@ export default function SendAndRequestPage(props) {
   if (payment.isAutoResolvingCurrency) {
     return (
       <CustomKeyboardAvoidingView
+        useStandardWidth={true}
         globalThemeViewStyles={memorizedKeyboardStyle}
       >
         <View
@@ -144,11 +150,15 @@ export default function SendAndRequestPage(props) {
   }
 
   return (
-    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      globalThemeViewStyles={memorizedKeyboardStyle}
+    >
       <View
         style={[
           styles.replacementContainer,
           isDescriptionFocused ? { flexShrink: 1 } : { flexGrow: 1 },
+          Platform.OS === 'web' && styles.webScrollableContainer,
         ]}
       >
         <CustomSettingsTopBar
@@ -214,20 +224,27 @@ export default function SendAndRequestPage(props) {
           </View>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollViewContainer,
-            paymentType === 'Gift' && { justifyContent: 'flex-start' },
-            {
-              opacity:
-                !isDescriptionFocused || paymentType === 'Gift'
-                  ? 1
-                  : HIDDEN_OPACITY,
-            },
+        <View
+          style={[
+            styles.minHeightContainer,
+            Platform.OS !== 'web' &&
+              isDescriptionFocused &&
+              styles.focusedAmountContainer,
           ]}
         >
-          <View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.scrollViewContainer,
+              paymentType === 'Gift' && { justifyContent: 'flex-start' },
+              {
+                opacity:
+                  !isDescriptionFocused || paymentType === 'Gift'
+                    ? 1
+                    : HIDDEN_OPACITY,
+              },
+            ]}
+          >
             <FormattedBalanceInput
               maxWidth={0.9}
               amountValue={payment.amountValue || 0}
@@ -235,9 +252,8 @@ export default function SendAndRequestPage(props) {
               forceCurrency={payment.primaryDisplay.forceCurrency}
               forceFiatStats={payment.primaryDisplay.forceFiatStats}
             />
-          </View>
-        </ScrollView>
-
+          </ScrollView>
+        </View>
         <View style={styles.inputAndGiftContainer}>
           <ThemeText
             styles={{ opacity: HIDDEN_OPACITY }}
@@ -326,8 +342,13 @@ export default function SendAndRequestPage(props) {
 const styles = StyleSheet.create({
   replacementContainer: {
     flexGrow: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
+  },
+  webScrollableContainer: {
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto',
   },
   identityBadge: {
     alignItems: 'center',
@@ -366,6 +387,14 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },
+  minHeightContainer: {
+    minHeight: 100,
+    flex: 1,
+  },
+  focusedAmountContainer: {
+    minHeight: 0,
+    flexShrink: 1,
+  },
   scrollViewContainer: {
     paddingTop: 5,
     paddingBottom: 20,
@@ -377,6 +406,7 @@ const styles = StyleSheet.create({
   },
   inputAndGiftContainer: {
     width: INSET_WINDOW_WIDTH,
+    maxWidth: 400,
     alignSelf: 'center',
   },
   button: {

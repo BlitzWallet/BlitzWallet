@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { BLITZ_PROFILE_IMG_STORAGE_REF } from '../constants';
 import {
   getDownloadURL,
@@ -13,8 +14,12 @@ import {
 } from 'expo-file-system/legacy';
 import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
 
-const FILE_DIR = cacheDirectory + 'profile_images/';
 const CACHE_KEY = uuid => `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
+// expo-file-system is unavailable on web — there the cache serves the remote
+// Firebase download URL directly instead of caching bytes on disk (mirrors
+// context-store/imageCache.js).
+const isWeb = () => Platform.OS === 'web';
+const getFileDir = () => cacheDirectory + 'profile_images/';
 
 export async function getCachedProfileImage(uuid) {
   try {
@@ -31,6 +36,18 @@ export async function getCachedProfileImage(uuid) {
     const cacheEntry = await getLocalStorageItem(key);
     const parsed = cacheEntry ? JSON.parse(cacheEntry) : null;
 
+    if (isWeb()) {
+      if (parsed?.updated === updated && parsed?.localUri) {
+        return { localUri: parsed.localUri, updated: parsed?.updated };
+      }
+
+      const url = await getDownloadURL(reference);
+      const newEntry = { localUri: url, updated };
+      await setLocalStorageItem(key, JSON.stringify(newEntry));
+
+      return { localUri: url, updated };
+    }
+
     if (parsed?.updated === updated) {
       const exists = await getInfoAsync(parsed.localUri);
       if (exists.exists)
@@ -39,6 +56,7 @@ export async function getCachedProfileImage(uuid) {
 
     const url = await getDownloadURL(reference);
 
+    const FILE_DIR = getFileDir();
     await makeDirectoryAsync(FILE_DIR, { intermediates: true });
     const localUri = `${FILE_DIR}${uuid}.jpg`;
 

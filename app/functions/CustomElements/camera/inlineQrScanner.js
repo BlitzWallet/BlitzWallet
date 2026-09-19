@@ -5,9 +5,8 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
+import useQrScannerOutput from '../../../hooks/useQrScannerOutput';
 import { useFocusEffect } from '@react-navigation/native';
-import { BARCODE_FORMATS } from '../../../constants';
 import NoContentScreen from '../noContentScreen';
 import {
   crashlyticsLogReport,
@@ -59,8 +58,7 @@ export default function InlineQrScanner({
     [onScan],
   );
 
-  const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: BARCODE_FORMATS,
+  const barcodeOutput = useQrScannerOutput({
     onBarcodeScanned: handleBarcodeScanned,
     onError: err => crashlyticsRecordErrorReport(err),
   });
@@ -89,6 +87,7 @@ export default function InlineQrScanner({
     <View style={StyleSheet.absoluteFill}>
       <Camera
         outputs={[barcodeOutput]}
+        onError={crashlyticsRecordErrorReport}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isActive}
