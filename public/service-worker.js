@@ -91,12 +91,50 @@ async function releaseForRequest(event) {
   return id;
 }
 
+// The active release can no longer produce a working page. Forget it (and the
+// pin of the navigation that hit the failure) so the next load comes from the
+// network and the page installs it as a fresh release. The broken cache stays:
+// its intact files are reused by that install, and it is pruned once nothing
+// points at it. Releases other windows are pinned to are left alone.
+async function abandonRelease(event, id) {
+  try {
+    const active = await readMeta(ACTIVE_KEY);
+    if (active?.id === id) {
+      await (await caches.open(META_CACHE)).delete(ACTIVE_KEY);
+    }
+    const map = await getClientReleases();
+    const pinned = event.resultingClientId;
+    if (pinned && map[pinned] === id) {
+      delete map[pinned];
+      await writeMeta(CLIENTS_KEY, map);
+    }
+  } catch (error) {
+    console.log('release cleanup failed', error);
+  }
+}
+
+// A page whose script failed can't reload itself, and a standalone PWA has no
+// address bar to do it with. Once per window: the retry loads from the network,
+// and a second navigate would fight it.
+const reloading = new Set();
+async function reloadClient(clientId) {
+  if (!clientId || reloading.has(clientId)) return;
+  reloading.add(clientId);
+  try {
+    const client = await self.clients.get(clientId);
+    await client?.navigate(client.url);
+  } catch (error) {
+    console.log('reload failed', error);
+  }
+}
+
 async function respond(event, path) {
   let expected = null;
   let cache = null;
   let key = path;
+  let id = null;
   try {
-    const id = await releaseForRequest(event);
+    id = await releaseForRequest(event);
     if (id && (await caches.has(APP_CACHE_PREFIX + id))) {
       cache = await caches.open(APP_CACHE_PREFIX + id);
       const cached =
@@ -120,16 +158,31 @@ async function respond(event, path) {
     console.log('release cache unavailable', error);
   }
   if (expected) {
+    let fromHost = null;
     try {
       const response = await fetch(key, { cache: 'no-store' });
       if (await matchesHash(response, expected)) {
-        await cache.put(key, response.clone());
+        try {
+          await cache.put(key, response.clone());
+        } catch (error) {
+          // Out of quota: the bytes are still this release's, so serve them.
+          console.log('release file not stored', error);
+        }
         return response;
       }
+      fromHost = response;
     } catch (error) {
       console.log('release file unavailable', error);
     }
     // A newer deploy's file must never run in an older page.
+    // Offline, or the host is down: keep the release, it may still repair.
+    if (!fromHost?.ok) return Response.error();
+    // The host has moved on, so this file is gone for good and every reload
+    // would replay the same broken boot. Drop the release and load the page
+    // from the network instead.
+    await abandonRelease(event, id);
+    if (event.request.mode === 'navigate') return fromHost;
+    reloadClient(event.clientId);
     return Response.error();
   }
   return fetch(event.request);

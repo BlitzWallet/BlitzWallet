@@ -125,11 +125,25 @@ describe('release-pinned service worker', () => {
   function startWorker({ caches = createCaches(), liveClients = [] } = {}) {
     const listeners = {};
     const fetch = jest.fn(async url => text(`network ${url.url ?? url}`));
+    const windows = new Map();
+    const window = id => {
+      if (!windows.has(id)) {
+        windows.set(id, {
+          id,
+          url: `${ORIGIN}/`,
+          navigate: jest.fn(async () => {}),
+        });
+      }
+      return windows.get(id);
+    };
     const self = {
       location: { origin: ORIGIN },
       clients: {
         claim: jest.fn(async () => {}),
-        matchAll: jest.fn(async () => liveClients.map(id => ({ id }))),
+        matchAll: jest.fn(async () => liveClients.map(window)),
+        get: jest.fn(async id =>
+          liveClients.includes(id) ? window(id) : undefined,
+        ),
       },
       addEventListener: (type, callback) => (listeners[type] = callback),
     };
@@ -176,7 +190,7 @@ describe('release-pinned service worker', () => {
         },
       };
     };
-    return { caches, fetch, self, lifecycle, request, liveClients };
+    return { caches, fetch, self, lifecycle, request, liveClients, window };
   }
 
   async function install(caches, id, files) {
@@ -273,7 +287,9 @@ describe('release-pinned service worker', () => {
       .request('/', { mode: 'navigate', resultingClientId: 'a' })
       .body();
     expect(await worker.request('/app.js', { clientId: 'a' }).body()).toBe('');
-    expect(await (await caches.open('blitz-app-v1')).match('/app.js')).toBeUndefined();
+    expect(
+      await (await caches.open('blitz-app-v1')).match('/app.js'),
+    ).toBeUndefined();
   });
 
   it('restores a missing installed asset only when the bytes match', async () => {
@@ -287,8 +303,112 @@ describe('release-pinned service worker', () => {
     await worker
       .request('/', { mode: 'navigate', resultingClientId: 'a' })
       .body();
-    expect(await worker.request('/app.js', { clientId: 'a' }).body()).toBe('app v1');
-    expect(await (await caches.open('blitz-app-v1')).match('/app.js')).toBeDefined();
+    expect(await worker.request('/app.js', { clientId: 'a' }).body()).toBe(
+      'app v1',
+    );
+    expect(
+      await (await caches.open('blitz-app-v1')).match('/app.js'),
+    ).toBeDefined();
+  });
+
+  const activeRelease = caches =>
+    caches.open('blitz-meta').then(meta => meta.match('/__active-release'));
+
+  it('drops a release the host can no longer repair, and reloads the page', async () => {
+    const caches = createCaches();
+    await install(caches, 'v1', V1);
+    await activate(caches, 'v1');
+    await (await caches.open('blitz-app-v1')).delete('/lazy-v1.js');
+    const worker = startWorker({ caches, liveClients: ['a'] });
+    // Netlify answers a deleted build file with index.html.
+    worker.fetch.mockImplementation(async () => text('shell v2'));
+
+    expect(await worker.request('/lazy-v1.js', { clientId: 'a' }).body()).toBe(
+      '',
+    );
+    expect(await activeRelease(caches)).toBeUndefined();
+    expect(worker.window('a').navigate).toHaveBeenCalledWith(`${ORIGIN}/`);
+    // The reload is no longer pinned to the broken release.
+    expect(
+      await worker
+        .request('/', { mode: 'navigate', resultingClientId: 'b' })
+        .body(),
+    ).toBe('shell v2');
+  });
+
+  it('reloads a page only once however many of its files are gone', async () => {
+    const caches = createCaches();
+    await install(caches, 'v1', V1);
+    await activate(caches, 'v1');
+    const cache = await caches.open('blitz-app-v1');
+    await cache.delete('/app.js');
+    await cache.delete('/lazy-v1.js');
+    const worker = startWorker({ caches, liveClients: ['a'] });
+    worker.fetch.mockImplementation(async () => text('shell v2'));
+
+    await worker.request('/app.js', { clientId: 'a' }).body();
+    await worker.request('/lazy-v1.js', { clientId: 'a' }).body();
+    expect(worker.window('a').navigate).toHaveBeenCalledTimes(1);
+  });
+
+  it("serves the host's shell when the installed one is gone for good", async () => {
+    const caches = createCaches();
+    await install(caches, 'v1', V1);
+    await activate(caches, 'v1');
+    await (await caches.open('blitz-app-v1')).delete('/');
+    const worker = startWorker({ caches, liveClients: ['a'] });
+    worker.fetch.mockImplementation(async () => text('shell v2'));
+
+    expect(
+      await worker
+        .request('/paylink/abc', { mode: 'navigate', resultingClientId: 'a' })
+        .body(),
+    ).toBe('shell v2');
+    expect(await activeRelease(caches)).toBeUndefined();
+    // That page's files come from the network too, never half of v1.
+    expect(await worker.request('/app.js', { clientId: 'a' }).body()).toBe(
+      'shell v2',
+    );
+  });
+
+  it('keeps the release when the repair fails offline', async () => {
+    const caches = createCaches();
+    await install(caches, 'v1', V1);
+    await activate(caches, 'v1');
+    await (await caches.open('blitz-app-v1')).delete('/lazy-v1.js');
+    const worker = startWorker({ caches, liveClients: ['a'] });
+    worker.fetch.mockRejectedValue(new Error('offline'));
+
+    expect(await worker.request('/lazy-v1.js', { clientId: 'a' }).body()).toBe(
+      '',
+    );
+    expect(await activeRelease(caches)).toBeDefined();
+    expect(worker.window('a').navigate).not.toHaveBeenCalled();
+  });
+
+  it('keeps the release when a repaired file cannot be stored', async () => {
+    const caches = createCaches();
+    await install(caches, 'v1', V1);
+    await activate(caches, 'v1');
+    await (await caches.open('blitz-app-v1')).delete('/app.js');
+    const open = caches.open;
+    caches.open = async name => {
+      const cache = await open(name);
+      if (name !== 'blitz-app-v1') return cache;
+      return {
+        ...cache,
+        put: async () => {
+          throw new Error('QuotaExceededError');
+        },
+      };
+    };
+    const worker = startWorker({ caches, liveClients: ['a'] });
+    worker.fetch.mockImplementation(async () => text('app v1'));
+
+    expect(await worker.request('/app.js', { clientId: 'a' }).body()).toBe(
+      'app v1',
+    );
+    expect(await activeRelease(caches)).toBeDefined();
   });
 
   it('never intercepts release checks, update downloads, writes or other origins', () => {
