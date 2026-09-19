@@ -44,10 +44,10 @@ import {
 } from '../../../../../functions/spark/accountTransfer';
 import {
   disposeSparkWallet,
-  getSparkBalance,
   getSparkIdentityPubKey,
   initializeSparkWallet,
 } from '../../../../../functions/spark';
+import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
 import {
   getUsdTokenDollars,
   optimisticallyUpdateBalanceSnapshot,
@@ -177,11 +177,16 @@ export default function AccountTransferHalfModal({
 
   // The source's spendable balance. The active account's balance is already
   // loaded in userBalanceContext (instant, no init); any other source wallet is
-  // initialized and read here — getSparkBalance returns BTC sats and the USDB
-  // token together in one call.
+  // initialized and subscribed here. It has to be a live subscription, not a
+  // one-shot read: withdraw never re-picks its source, so a single read would
+  // pin the sheet to whatever the wallet reported the instant it opened — and
+  // right after a transfer that instant can be a transient mid-settlement dip
+  // the edit page's own stabilized subscription deliberately hides. Same hook
+  // and same stabilize policy as editAccountPage, so the two always agree.
   useEffect(() => {
     if (!sourceAccount?.uuid || isSourceActive) return;
     let cancelled = false;
+    let subscription = null;
     setSourceBalance({
       status: 'loading',
       btcSats: 0,
@@ -208,18 +213,35 @@ export default function AccountTransferHalfModal({
           shouldCancel: () => cancelled,
         }));
         if (cancelled) return;
-        const balanceResponse = await getSparkBalance(mnemonic);
-        if (cancelled) return;
-        setSourceBalance(
-          balanceResponse?.didWork
-            ? {
-                status: 'ready',
-                btcSats: Number(balanceResponse.balance || 0),
-                usdDollars: getUsdTokenDollars(balanceResponse.tokensObj),
-                tokensObj: balanceResponse.tokensObj || null,
-              }
-            : { status: 'error', btcSats: 0, usdDollars: 0, tokensObj: null },
-        );
+        subscription = subscribeToSparkBalance({
+          mnemonic,
+          stabilize: true,
+          onUpdate: result => {
+            if (cancelled) return;
+            if (!result?.didWork) {
+              // Only the first read can fail the sheet — that's the one the
+              // add-mode picker gate is waiting on. A later transient failure
+              // must not wipe a balance the user is already entering against.
+              setSourceBalance(prev =>
+                prev.status === 'ready'
+                  ? prev
+                  : {
+                      status: 'error',
+                      btcSats: 0,
+                      usdDollars: 0,
+                      tokensObj: null,
+                    },
+              );
+              return;
+            }
+            setSourceBalance({
+              status: 'ready',
+              btcSats: Number(result.balance || 0),
+              usdDollars: getUsdTokenDollars(result.tokensObj),
+              tokensObj: result.tokensObj || null,
+            });
+          },
+        });
       } catch (err) {
         console.log('load source account balance error', err);
         if (!cancelled) {
@@ -229,6 +251,7 @@ export default function AccountTransferHalfModal({
     })();
     return () => {
       cancelled = true;
+      subscription?.unsubscribe();
       // Dispose the picked wallet ONLY when switching to a different source.
       // A same-account balance refetch (balanceReloadKey bump) and unmount both
       // leave the pick unchanged: the refetch keeps the wallet alive (init
