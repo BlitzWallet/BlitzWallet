@@ -39,6 +39,9 @@ const PERMISSION_FEATURES = [
   'geolocation',
 ];
 
+const SRC_SANDBOX = 'allow-same-origin allow-popups allow-scripts allow-forms';
+const SRCDOC_SANDBOX = '';
+
 export function WebView({
   source,
   style,
@@ -122,6 +125,11 @@ export function WebView({
     ref,
     src: uri,
     srcDoc: html,
+    // Sandbox: without this the embed can navigate the top-level window
+    // (top.location = …). Omitting allow-top-navigation closes that hole;
+    // the value mirrors Bitrefill's own playground embed so checkout keeps
+    // working. srcDoc gets the fully-locked-down empty sandbox.
+    sandbox: html ? SRCDOC_SANDBOX : SRC_SANDBOX,
     // Permissions Policy: Castle / Bitrefill's fraud check uses
     // accelerometer + gyroscope (devicemotion) and Payment Request API.
     // Without an explicit `allow` the browser blocks them and logs
@@ -130,7 +138,12 @@ export function WebView({
     allowFullscreen: allowOrigin === BITREFILL_ORIGIN,
     referrerPolicy: 'strict-origin-when-cross-origin',
     title: title || 'Embedded content',
-    style: { border: 'none', width: '100%', height: '100%', ...flattenStyle(style) },
+    style: {
+      border: 'none',
+      width: '100%',
+      height: '100%',
+      ...flattenStyle(style),
+    },
     onLoad: handleLoad,
     onError,
   });
