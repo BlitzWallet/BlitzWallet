@@ -63,10 +63,14 @@ const flush = () => new Promise(res => setTimeout(res, 0));
 
 describe('webDatabaseOwnership', () => {
   let session;
+  let localStore;
 
   beforeEach(() => {
     channels.clear();
     session = new Map();
+    // Origin-shared storage for the boot-sequence counter. Fresh per test but
+    // shared by every tab within a test, like the real localStorage.
+    localStore = new Map();
     Object.defineProperty(navigator, 'locks', {
       value: makeLocks(),
       configurable: true,
@@ -77,6 +81,11 @@ describe('webDatabaseOwnership', () => {
       setItem: (k, v) => session.set(k, String(v)),
       removeItem: k => session.delete(k),
     };
+    global.localStorage = {
+      getItem: k => (localStore.has(k) ? localStore.get(k) : null),
+      setItem: (k, v) => localStore.set(String(k), String(v)),
+      removeItem: k => localStore.delete(k),
+    };
     global.window.location = { reload: jest.fn() };
   });
 
@@ -85,6 +94,7 @@ describe('webDatabaseOwnership', () => {
     jest.resetModules();
     delete global.BroadcastChannel;
     delete global.sessionStorage;
+    delete global.localStorage;
   });
 
   test('first tab owns for its lifetime, re-acquire is idempotent', async () => {
@@ -105,6 +115,47 @@ describe('webDatabaseOwnership', () => {
 
     expect(window.location.reload).toHaveBeenCalledTimes(1);
     expect(tabA.isTabDisplaced()).toBe(true);
+  });
+
+  test('takeover broadcast carries an ordering stamp', async () => {
+    const tab = loadTab();
+    await tab.acquireWebDatabaseOwnership();
+    const ch = [...channels].pop();
+    expect(ch.sent).toHaveLength(1);
+    expect(ch.sent[0]).toMatchObject({ type: 'takeover' });
+    expect(typeof ch.sent[0].at).toBe('number');
+    expect(typeof ch.sent[0].seq).toBe('number');
+    expect(typeof ch.sent[0].nonce).toBe('number');
+  });
+
+  test('simultaneous boot in the same millisecond: exactly one tab wins', async () => {
+    // Force tied timestamps: the boot-sequence counter alone must order them
+    // so the two tabs don't displace each other into a mutual TabInUse.
+    const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(1720000000000);
+    try {
+      const tabA = loadTab();
+      await tabA.acquireWebDatabaseOwnership();
+      // The reload unloads tab A, which releases its lock.
+      window.location.reload.mockImplementation(() =>
+        navigator.locks.release(),
+      );
+
+      const tabB = loadTab();
+      await expect(tabB.acquireWebDatabaseOwnership()).resolves.toBe(true);
+      // Let the async broadcast delivery run.
+      await new Promise(res => setTimeout(res, 10));
+
+      const stamps = [...channels].map(c => c.sent[0]);
+      expect(stamps).toHaveLength(2);
+      expect(stamps[0].at).toBe(stamps[1].at);
+      expect(stamps[1].seq).toBeGreaterThan(stamps[0].seq);
+
+      // Exactly one tab yields; the other owns the wallet.
+      expect(window.location.reload).toHaveBeenCalledTimes(1);
+      expect(tabA.isTabDisplaced()).toBe(true);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   test('displaced tab never broadcasts or requests the lock', async () => {
@@ -171,6 +222,102 @@ describe('webDatabaseOwnership', () => {
     expect(typeof ch.onmessage).toBe('function');
     // A takeover arriving while queued comes from a newer tab: yield.
     ch.onmessage({ data: 'takeover' });
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+    expect(tab.isTabDisplaced()).toBe(true);
+  });
+
+  // Boot a tab whose lock is never granted, so it stays queued and keeps its
+  // listener installed. Returns its channel and the stamp it broadcast.
+  function bootQueuedTab() {
+    const tab = loadTab();
+    tab.acquireWebDatabaseOwnership().catch(() => {});
+    const ch = [...channels].pop();
+    return { tab, ch, mine: ch.sent[0] };
+  }
+
+  test('ordered takeover: yields only to a strictly newer sender', async () => {
+    // Fake timers so the pending 3s abort timer doesn't keep jest alive.
+    jest.useFakeTimers();
+    navigator.locks.request.mockImplementation(
+      () => new Promise(() => {}), // never grants
+    );
+    const { ch, mine } = bootQueuedTab();
+    const reloads = () => window.location.reload.mock.calls.length;
+
+    // Older sender (smaller boot sequence) is ignored, even with a far newer
+    // timestamp and the largest possible nonce.
+    ch.onmessage({
+      data: {
+        type: 'takeover',
+        at: mine.at + 1000,
+        seq: mine.seq - 1,
+        nonce: 0.999,
+      },
+    });
+    expect(reloads()).toBe(0);
+
+    // Same sequence falls back to the timestamp: older timestamp ignored.
+    ch.onmessage({
+      data: { type: 'takeover', at: mine.at - 1, seq: mine.seq, nonce: 0.999 },
+    });
+    expect(reloads()).toBe(0);
+
+    // Same sequence and timestamp falls back to the nonce: strictly greater
+    // yields, equal-or-smaller is ignored.
+    ch.onmessage({
+      data: { type: 'takeover', at: mine.at, seq: mine.seq, nonce: mine.nonce },
+    });
+    expect(reloads()).toBe(0);
+    ch.onmessage({
+      data: {
+        type: 'takeover',
+        at: mine.at,
+        seq: mine.seq,
+        nonce: mine.nonce - 1,
+      },
+    });
+    expect(reloads()).toBe(0);
+
+    // Strictly newer sender yields: larger sequence wins regardless of the
+    // timestamp, and larger timestamp wins on a tied sequence.
+    ch.onmessage({
+      data: {
+        type: 'takeover',
+        at: mine.at - 1000,
+        seq: mine.seq + 1,
+        nonce: 0,
+      },
+    });
+    expect(reloads()).toBe(1);
+  });
+
+  test('ordered takeover: newer timestamp on a tied sequence yields', async () => {
+    jest.useFakeTimers();
+    navigator.locks.request.mockImplementation(
+      () => new Promise(() => {}), // never grants
+    );
+    const { tab, ch, mine } = bootQueuedTab();
+    ch.onmessage({
+      data: { type: 'takeover', at: mine.at + 1, seq: mine.seq, nonce: 0 },
+    });
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+    expect(tab.isTabDisplaced()).toBe(true);
+  });
+
+  test('ordered takeover: larger nonce on a tied stamp yields', async () => {
+    jest.useFakeTimers();
+    navigator.locks.request.mockImplementation(
+      () => new Promise(() => {}), // never grants
+    );
+    const { tab, ch, mine } = bootQueuedTab();
+    ch.onmessage({
+      data: {
+        type: 'takeover',
+        at: mine.at,
+        seq: mine.seq,
+        nonce: mine.nonce + 1,
+      },
+    });
     expect(window.location.reload).toHaveBeenCalledTimes(1);
     expect(tab.isTabDisplaced()).toBe(true);
   });
