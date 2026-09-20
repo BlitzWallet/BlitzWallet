@@ -1180,6 +1180,10 @@
     "cameraModal": {
       "noCamera": "Ingen tillgång till kamera",
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
+      "permissionDismissed": "Kameraåtkomst beviljades inte. Tryck nedan för att försöka igen.",
+      "allowCamera": "Tillåt kamera",
+      "cameraBusy": "Kameran är inte tillgänglig",
+      "cameraBusySub": "En annan app eller flik använder kameran. Stäng den och försök igen.",
       "noCameraDevice": "Ingen kameraenhet",
       "noFlash": " Enheten har inte en fackla",
       "scanningResponse": "Endast QR-koder accepteras.",

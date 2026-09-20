@@ -16,7 +16,10 @@ import jsQR from 'jsqr';
 const hasWebcam =
   typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
 
-const BACK_DEVICE = hasWebcam ? { deviceId: 'back', position: 'back' } : null;
+// Browsers only report torch support on a live track's getCapabilities(), so
+// hasTorch stays undefined until a stream starts (see setHasTorch). Consumers
+// snapshot the device object, so it is replaced rather than mutated.
+let backDevice = hasWebcam ? { deviceId: 'back', position: 'back' } : null;
 
 // Cap the ingested stream. Unconstrained, phones hand back a 1080p/4K texture
 // and every decode pays a full-size GPU readback plus a scale in drawImage.
@@ -47,35 +50,122 @@ function getQrDetector() {
 // opening the camera. So 'unknown' counts as permitted: <Camera> mounts right
 // away and its own getUserMedia doubles as the prompt, instead of a probe
 // stream followed by a second one. A failure there flips screens to no-access.
-let permissionStatus = hasWebcam ? 'unknown' : 'denied';
+// 'nodevice' and 'busy' are kept apart from 'denied': neither is a permission
+// problem, so neither may send the user to browser settings. 'prompt-dismissed'
+// is the third failure: the user closed the browser prompt (the X) without
+// choosing. Access is not granted, but a new prompt can still be shown, so it
+// must not be treated as a permanent block.
+let cameraStatus = hasWebcam ? 'unknown' : 'denied';
+// True once a getUserMedia attempt has run this session. On the web the first
+// attempt is <Camera>'s own getUserMedia, so consumers use this to stop their
+// focus effect from probing again after a failure — that second probe is a
+// second browser prompt, and Chrome hard-blocks the origin after a few.
+let permissionAttempted = false;
+// useSyncExternalStore requires a cached snapshot, so the state is one object
+// replaced only when a value actually changes.
+let cameraState = { status: cameraStatus, permissionAttempted };
 const listeners = new Set();
-function setPermissionStatus(status) {
-  permissionStatus = status;
+function emit() {
+  cameraState = { status: cameraStatus, permissionAttempted };
   listeners.forEach(listener => listener());
+}
+function setCameraStatus(status) {
+  if (cameraStatus === status) return;
+  cameraStatus = status;
+  emit();
+}
+function markPermissionAttempted() {
+  if (permissionAttempted) return;
+  permissionAttempted = true;
+  emit();
 }
 function subscribe(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
+function getCameraState() {
+  return cameraState;
+}
+function getBackDevice() {
+  return backDevice;
+}
+function setHasTorch(hasTorch) {
+  if (!backDevice || backDevice.hasTorch === hasTorch) return;
+  backDevice = { ...backDevice, hasTorch };
+  listeners.forEach(listener => listener());
+}
+
+// getUserMedia rejects with a DOMException; map the names browsers actually
+// use onto the states the app can render. NotAllowedError is the interesting
+// one: it covers both an explicit Block and dismissing the prompt, and only the
+// Permissions API separates them — state 'prompt' means the prompt was
+// dismissed and can be shown again; anything else means settings is the only
+// way back in. Browsers without the API (Safari) keep the old 'denied'
+// behavior, as does an opaque failure.
+async function classifyCameraError(err) {
+  switch (err?.name) {
+    case 'NotFoundError':
+    case 'DevicesNotFoundError':
+    case 'OverconstrainedError':
+    case 'ConstraintNotSatisfiedError':
+      return 'nodevice';
+    case 'NotReadableError':
+    case 'TrackStartError':
+    case 'AbortError':
+      return 'busy';
+  }
+  try {
+    const permission = await navigator.permissions?.query({ name: 'camera' });
+    if (permission?.state === 'prompt') return 'prompt-dismissed';
+  } catch {
+    // Permissions API absent or doesn't know the camera name.
+  }
+  return 'denied';
+}
 
 async function probeCamera() {
   if (!hasWebcam) return false;
+  markPermissionAttempted();
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: VIDEO_CONSTRAINTS,
     });
     stream.getTracks().forEach(track => track.stop());
-    setPermissionStatus('granted');
+    setCameraStatus('granted');
     return true;
   } catch (err) {
-    setPermissionStatus('denied');
+    setCameraStatus(await classifyCameraError(err));
     return false;
   }
 }
 
+// Native's requestPermission opens the OS prompt directly. The web's only
+// permission prompt is getUserMedia, and <Camera> issues one on mount, so
+// re-asking just resets the state to 'unknown'. Consumers then mount <Camera>
+// and get the prompt — instead of this opening a probe stream that the real
+// preview stream would immediately follow.
+function requestPermission() {
+  if (!hasWebcam) return;
+  setCameraStatus('unknown');
+}
+
 export function useCameraPermission() {
-  const status = useSyncExternalStore(subscribe, () => permissionStatus);
-  return { hasPermission: status !== 'denied', requestPermission: probeCamera };
+  const { status, permissionAttempted: attempted } = useSyncExternalStore(
+    subscribe,
+    getCameraState,
+  );
+  return {
+    status,
+    hasPermission: status !== 'denied' && status !== 'prompt-dismissed',
+    // Mirrors the native API: true while a new prompt can still be shown.
+    // 'unknown' is the web's 'not-determined'; a dismissed prompt can be shown
+    // again, while a blocked one can only be undone in browser settings.
+    canRequestPermission: status === 'unknown' || status === 'prompt-dismissed',
+    // Web-only, undefined on native: a probe already ran, so consumers must not
+    // auto-probe again even though a prompt is technically still available.
+    hasAttemptedPermission: attempted,
+    requestPermission,
+  };
 }
 
 export async function requestCameraPermission() {
@@ -83,10 +173,14 @@ export async function requestCameraPermission() {
 }
 
 export function useCameraDevice() {
-  return BACK_DEVICE;
+  const { status } = useSyncExternalStore(subscribe, getCameraState);
+  const device = useSyncExternalStore(subscribe, getBackDevice);
+  return status === 'nodevice' ? null : device;
 }
 export function useCameraDevices() {
-  return BACK_DEVICE ? [BACK_DEVICE] : [];
+  const { status } = useSyncExternalStore(subscribe, getCameraState);
+  const device = useSyncExternalStore(subscribe, getBackDevice);
+  return device && status !== 'nodevice' ? [device] : [];
 }
 
 export function Camera({
@@ -98,6 +192,9 @@ export function Camera({
 }) {
   const videoRef = useRef(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  // Bumped when the browser kills the stream out from under us (page hidden,
+  // capture interrupted). Re-runs the effect so start() reopens the camera.
+  const [restartToken, setRestartToken] = useState(0);
   const outputsRef = useRef(outputs);
   outputsRef.current = outputs;
 
@@ -111,6 +208,7 @@ export function Camera({
     let stopped = false;
     let stream;
     let cancelFrame = () => {};
+    let muteTimer;
 
     function stopStream() {
       if (stream) {
@@ -120,17 +218,71 @@ export function Camera({
       if (videoRef.current) videoRef.current.srcObject = null;
     }
 
+    // iOS Safari/PWA ends (or leaves muted) MediaStreamTracks when the page is
+    // hidden. video.srcObject still points at the dead stream, so the decode
+    // loop spins on a frozen frame and the effect — keyed on focus, not
+    // visibility — never re-runs. Watch for that and reopen the camera.
+    function restartCamera() {
+      if (stopped) return;
+      if (document.visibilityState !== 'visible') return;
+      if (
+        cameraStatus === 'denied' ||
+        cameraStatus === 'prompt-dismissed' ||
+        cameraStatus === 'nodevice'
+      ) {
+        return;
+      }
+      setRestartToken(token => token + 1);
+    }
+
+    function streamIsDead() {
+      const tracks = stream?.getTracks?.() || [];
+      return (
+        tracks.length === 0 ||
+        tracks.some(track => track.readyState === 'ended')
+      );
+    }
+
+    function handleVisibilityChange() {
+      clearTimeout(muteTimer);
+      if (document.visibilityState !== 'visible' || stopped) return;
+      if (streamIsDead()) {
+        restartCamera();
+        return;
+      }
+      // A track that is merely muted usually unmutes on its own; reopen only
+      // if the browser doesn't bring the capture back.
+      if (stream?.getTracks().some(track => track.muted)) {
+        muteTimer = setTimeout(() => {
+          if (stopped) return;
+          const tracks = stream?.getTracks() || [];
+          if (tracks.some(track => track.muted)) restartCamera();
+        }, 500);
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     async function start() {
       try {
         try {
+          markPermissionAttempted();
           stream = await navigator.mediaDevices.getUserMedia({
             video: VIDEO_CONSTRAINTS,
           });
         } catch (err) {
-          setPermissionStatus('denied');
+          setCameraStatus(await classifyCameraError(err));
           throw err;
         }
-        setPermissionStatus('granted');
+        setCameraStatus('granted');
+        // Chrome Android reports { torch: true } here; browsers without torch
+        // support report nothing. Probe before the unmount check so the
+        // device-level fact survives a scanner that closed mid-prompt.
+        try {
+          setHasTorch(!!stream.getTracks()[0]?.getCapabilities?.().torch);
+        } catch (err) {
+          setHasTorch(false);
+        }
         // getUserMedia() resolves asynchronously: the scanner may have
         // unmounted (stopped) or its video element may be gone while
         // permission was pending. Stop the fresh stream in either case —
@@ -140,6 +292,9 @@ export function Camera({
           stopStream();
           return;
         }
+        stream.getTracks().forEach(track => {
+          track.addEventListener('ended', restartCamera);
+        });
         video.srcObject = stream;
         await video.play();
         if (!stopped) setIsStreaming(true);
@@ -231,11 +386,18 @@ export function Camera({
     start();
     return () => {
       stopped = true;
+      clearTimeout(muteTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (stream) {
+        stream.getTracks().forEach(track => {
+          track.removeEventListener('ended', restartCamera);
+        });
+      }
       setIsStreaming(false);
       cancelFrame();
       stopStream();
     };
-  }, [isActive]);
+  }, [isActive, restartToken]);
 
   const isTorchOn = torchMode === 'on';
   useEffect(() => {
@@ -246,7 +408,8 @@ export function Camera({
         // Torch unsupported in this browser — flash button is a silent no-op.
       }
     });
-  }, [isTorchOn]);
+    // isStreaming re-applies the current torch state to a restarted stream.
+  }, [isTorchOn, isStreaming]);
 
   if (!hasWebcam) return null;
 

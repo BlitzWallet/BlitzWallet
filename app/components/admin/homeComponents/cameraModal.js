@@ -28,7 +28,13 @@ export default function CameraModal(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor } = GetThemeColors();
-  const { hasPermission, requestPermission } = useCameraPermission();
+  const {
+    status,
+    hasPermission,
+    requestPermission,
+    canRequestPermission,
+    hasAttemptedPermission,
+  } = useCameraPermission();
   const device = useCameraDevice('back');
   const { t } = useTranslation();
   const { topPadding, bottomPadding } = useGlobalInsets();
@@ -41,11 +47,21 @@ export default function CameraModal(props) {
   const containerWidth =
     props?.route?.params?.fromPage !== 'addContact' ? 210 : 140;
   const isCameraActive = isFocused && !isClosing;
+  // hasAttemptedPermission is web-only (undefined on native), where <Camera>'s
+  // own getUserMedia is the prompt. Once an attempt has failed the focus effect
+  // must not probe again — that is a second prompt in the same visit, and
+  // Chrome hard-blocks the origin after a few. The no-access screen's button
+  // re-requests on demand.
+  const canAutoRequestPermission = !hasPermission && !hasAttemptedPermission;
+  // Only reachable alongside !hasPermission below: a dismissed web prompt or
+  // an Android denial that can still be re-prompted. A hard block shows the
+  // settings copy instead.
+  const showPermissionRetry = canRequestPermission;
 
   useFocusEffect(
     useCallback(() => {
       crashlyticsLogReport('Loading camera model page');
-      if (!hasPermission) {
+      if (canAutoRequestPermission) {
         requestPermission();
       }
 
@@ -56,7 +72,7 @@ export default function CameraModal(props) {
       return () => {
         setIsFocused(false);
       };
-    }, [hasPermission, requestPermission]),
+    }, [canAutoRequestPermission, requestPermission]),
   );
 
   const handleFinish = useCallback(
@@ -159,7 +175,32 @@ export default function CameraModal(props) {
         <NoContentScreen
           iconName="Camera"
           titleText={t('wallet.cameraModal.noCamera')}
-          subTitleText={t('wallet.cameraModal.settingsText')}
+          subTitleText={
+            showPermissionRetry
+              ? t('wallet.cameraModal.permissionDismissed')
+              : t('wallet.cameraModal.settingsText')
+          }
+          showButton={showPermissionRetry}
+          buttonText={t('wallet.cameraModal.allowCamera')}
+          buttonFunction={requestPermission}
+        />
+      </GlobalThemeView>
+    );
+  }
+
+  // The camera is held by another app or tab. Retrying re-mounts <Camera>,
+  // whose getUserMedia asks again.
+  if (status === 'busy') {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CameraPageNavBar />
+        <NoContentScreen
+          iconName="Camera"
+          titleText={t('wallet.cameraModal.cameraBusy')}
+          subTitleText={t('wallet.cameraModal.cameraBusySub')}
+          showButton={true}
+          buttonText={t('constants.tryAgain')}
+          buttonFunction={requestPermission}
         />
       </GlobalThemeView>
     );

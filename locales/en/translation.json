@@ -1180,6 +1180,10 @@
     "cameraModal": {
       "noCamera": "No access to camera",
       "settingsText": "Go to settings to let Blitz Wallet access your camera",
+      "permissionDismissed": "Camera access was not granted. Tap below to try again.",
+      "allowCamera": "Allow camera",
+      "cameraBusy": "Camera is unavailable",
+      "cameraBusySub": "Another app or tab is using the camera. Close it and try again.",
       "noCameraDevice": "You do not have a camera device.",
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Only QR codes are accepted.",

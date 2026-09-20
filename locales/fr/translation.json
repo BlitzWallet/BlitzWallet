@@ -1180,6 +1180,10 @@
     "cameraModal": {
       "noCamera": "Pas d'accès à l'appareil photo",
       "settingsText": "Allez dans les paramètres pour permettre à Blitz Wallet d'accéder à votre appareil photo.",
+      "permissionDismissed": "L'accès à l'appareil photo n'a pas été accordé. Appuyez ci-dessous pour réessayer.",
+      "allowCamera": "Autoriser l'appareil photo",
+      "cameraBusy": "Appareil photo indisponible",
+      "cameraBusySub": "Une autre application ou un autre onglet utilise l'appareil photo. Fermez-le et réessayez.",
       "noCameraDevice": "Aucun appareil photo",
       "noFlash": " L'appareil n'est pas équipé d'une torche",
       "scanningResponse": "Seuls les codes QR sont acceptés.",

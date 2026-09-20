@@ -19,6 +19,9 @@ import InlineQrScanner from '../../../../app/functions/CustomElements/camera/inl
 import { crashlyticsRecordErrorReport } from '../../../../app/functions/crashlyticsLogs';
 
 let mockHasPermission = true;
+let mockCanRequestPermission = true;
+let mockHasAttemptedPermission = false;
+let mockStatus = 'unknown';
 let mockDevice = { id: 'back-device' };
 const mockRequestPermission = jest.fn();
 const mockUseObjectOutput = jest.fn(options => {
@@ -35,8 +38,11 @@ jest.mock('react-native-vision-camera', () => {
     isScannedCode: object => 'value' in object,
     useCameraDevice: jest.fn(() => mockDevice),
     useCameraPermission: jest.fn(() => ({
+      status: mockStatus,
       hasPermission: mockHasPermission,
       requestPermission: mockRequestPermission,
+      canRequestPermission: mockCanRequestPermission,
+      hasAttemptedPermission: mockHasAttemptedPermission,
     })),
   };
 });
@@ -105,6 +111,9 @@ function fireBarcode(barcode) {
 beforeEach(() => {
   jest.clearAllMocks();
   mockHasPermission = true;
+  mockCanRequestPermission = true;
+  mockHasAttemptedPermission = false;
+  mockStatus = 'unknown';
   mockDevice = { id: 'back-device' };
   mockScannerOptions = null;
 });
@@ -182,8 +191,69 @@ describe('inlineQrScanner — permission fallbacks', () => {
     expect(mockRequestPermission).toHaveBeenCalled();
   });
 
+  test('does not auto-request again after a failed attempt', () => {
+    mockHasPermission = false;
+    mockCanRequestPermission = true;
+    mockHasAttemptedPermission = true;
+    renderScanner();
+    expect(mockRequestPermission).not.toHaveBeenCalled();
+  });
+
+  test('a dismissed prompt shows an Allow camera button that re-requests', () => {
+    mockHasPermission = false;
+    mockCanRequestPermission = true;
+    mockHasAttemptedPermission = true;
+    const renderer = renderScanner();
+
+    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    expect(screens).toHaveLength(1);
+    expect(screens[0].props.showButton).toBe(true);
+    expect(screens[0].props.buttonText).toBe('wallet.cameraModal.allowCamera');
+    expect(screens[0].props.subTitleText).toBe(
+      'wallet.cameraModal.permissionDismissed',
+    );
+
+    act(() => screens[0].props.buttonFunction());
+    expect(mockRequestPermission).toHaveBeenCalled();
+  });
+
+  test('a native re-prompt keeps the retry button without an attempted probe', () => {
+    // Android reports canRequestPermission true after a plain denial and
+    // hasAttemptedPermission is undefined on native, so the button must only
+    // depend on canRequestPermission.
+    mockHasPermission = false;
+    mockCanRequestPermission = true;
+    mockHasAttemptedPermission = undefined;
+    const renderer = renderScanner();
+
+    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    expect(screens[0].props.showButton).toBe(true);
+    expect(screens[0].props.buttonText).toBe('wallet.cameraModal.allowCamera');
+  });
+
+  test('a busy camera renders a retry screen instead of a dead preview', () => {
+    mockHasPermission = true;
+    mockStatus = 'busy';
+    const renderer = renderScanner();
+
+    expect(renderer.root.findAllByType('MockCamera')).toHaveLength(0);
+    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    expect(screens).toHaveLength(1);
+    expect(screens[0].props.titleText).toBe('wallet.cameraModal.cameraBusy');
+    expect(screens[0].props.subTitleText).toBe(
+      'wallet.cameraModal.cameraBusySub',
+    );
+    expect(screens[0].props.showButton).toBe(true);
+    expect(screens[0].props.buttonText).toBe('constants.tryAgain');
+
+    act(() => screens[0].props.buttonFunction());
+    expect(mockRequestPermission).toHaveBeenCalled();
+  });
+
   test('permission denied renders the no-camera NoContentScreen copy', () => {
     mockHasPermission = false;
+    mockCanRequestPermission = false;
+    mockHasAttemptedPermission = true;
     const renderer = renderScanner();
 
     const screens = renderer.root.findAllByType('MockNoContentScreen');
@@ -192,6 +262,7 @@ describe('inlineQrScanner — permission fallbacks', () => {
     expect(screens[0].props.subTitleText).toBe(
       'wallet.cameraModal.settingsText',
     );
+    expect(screens[0].props.showButton).toBe(false);
   });
 
   test('no back device renders the noCameraDevice NoContentScreen', () => {

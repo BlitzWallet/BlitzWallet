@@ -14,13 +14,22 @@ let Camera;
 
 let frameCallback;
 let fakeVideo;
+let fakeTrack;
 let detect;
 
 function setupGlobals() {
   frameCallback = undefined;
   detect = jest.fn();
 
-  const track = { stop: jest.fn(), applyConstraints: jest.fn() };
+  const track = {
+    stop: jest.fn(),
+    applyConstraints: jest.fn(),
+    readyState: 'live',
+    muted: false,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  };
+  fakeTrack = track;
   Object.defineProperty(global, 'navigator', {
     value: {
       mediaDevices: {
@@ -41,6 +50,9 @@ function setupGlobals() {
   };
   global.document = {
     createElement: () => ({ getContext: () => ctx, width: 0, height: 0 }),
+    visibilityState: 'visible',
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
   };
   global.window = {
     BarcodeDetector: function BarcodeDetector() {
@@ -139,5 +151,26 @@ describe('vision-camera web scan loop', () => {
     expect(await pumpFrame(2000)).toBe(false);
     expect(detect).toHaveBeenCalledTimes(1);
     expect(onBarcodeScanned).toHaveBeenCalledTimes(1);
+  });
+
+  it('reopens the camera when the page resumes and the track has ended', async () => {
+    detect.mockResolvedValue([]);
+    const onBarcodeScanned = jest.fn();
+
+    await mountCamera(onBarcodeScanned);
+    const getUserMedia = global.navigator.mediaDevices.getUserMedia;
+    expect(getUserMedia).toHaveBeenCalledTimes(1);
+
+    // WebKit ends MediaStreamTracks while the page is hidden; on resume the
+    // loop must acquire a fresh stream instead of spinning on the dead one.
+    fakeTrack.readyState = 'ended';
+    const visibilityListener = global.document.addEventListener.mock.calls.find(
+      ([event]) => event === 'visibilitychange',
+    )[1];
+    await act(async () => {
+      visibilityListener();
+    });
+
+    expect(getUserMedia).toHaveBeenCalledTimes(2);
   });
 });
