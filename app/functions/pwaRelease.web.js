@@ -96,6 +96,14 @@ export function getPendingWebUpdate() {
  * only then marks it active. On failure the active release is untouched.
  */
 export async function installRelease(release, onProgress) {
+  // Every file must come from this origin ('//host' and '/\host' resolve away).
+  if (
+    Object.keys(release.files).some(
+      path => new URL(path, location.origin).origin !== location.origin,
+    )
+  ) {
+    throw new Error('Invalid release manifest');
+  }
   const name = APP_CACHE_PREFIX + release.id;
   const meta = await caches.open(META_CACHE);
   // Keeps the worker from pruning this cache while it fills.

@@ -57,6 +57,7 @@ describe('pwaRelease.web', () => {
     deployed = null;
     global.__DEV__ = false;
     global.caches = caches;
+    global.location = { origin: 'https://app.example' };
     Object.defineProperty(global, 'crypto', {
       value: webcrypto,
       configurable: true,
@@ -78,6 +79,7 @@ describe('pwaRelease.web', () => {
   afterEach(() => {
     global.__DEV__ = true;
     delete global.caches;
+    delete global.location;
   });
 
   async function installActive(id, files, appVersion = '1.0.0') {
@@ -197,5 +199,27 @@ describe('pwaRelease.web', () => {
     expect(pwa.compareVersions('0.2.10', '0.2.9')).toBe(1);
     expect(pwa.compareVersions('1.0', '1.0.0')).toBe(0);
     expect(pwa.compareVersions('0.9.9', '1.0.0')).toBe(-1);
+  });
+
+  it('rejects manifest paths outside the app origin before any download', async () => {
+    await installActive('v1', { '/': 'shell v1' });
+    for (const [index, evilPath] of [
+      'https://evil.com/payload.js',
+      '//evil.com/app.js',
+      '/\\evil.com/app.js',
+    ].entries()) {
+      await expect(
+        pwa.installRelease({
+          id: `evil${index}`,
+          appVersion: '9.9.9',
+          minAppVersion: '0.0.0',
+          files: { [evilPath]: sha256('evil payload') },
+        }),
+      ).rejects.toThrow('Invalid release manifest');
+    }
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect((await readJson(caches, 'blitz-meta', '/__active-release')).id).toBe(
+      'v1',
+    );
   });
 });
