@@ -37,6 +37,8 @@ function tx(mode, fn) {
         const request = fn(store);
         t.oncomplete = () => resolve(request?.result ?? null);
         t.onerror = () => reject(t.error);
+        t.onabort = () =>
+          reject(t.error || new DOMException('Transaction aborted', 'AbortError'));
       }),
   );
 }
