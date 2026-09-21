@@ -4,7 +4,8 @@
 const DB_NAME = 'blitz-secure-store';
 const STORE = 'kv';
 
-export const AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY = 'afterFirstUnlockThisDeviceOnly';
+export const AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY =
+  'afterFirstUnlockThisDeviceOnly';
 export const WHEN_UNLOCKED = 'whenUnlocked';
 
 let dbPromise = null;
@@ -38,7 +39,9 @@ function tx(mode, fn) {
         t.oncomplete = () => resolve(request?.result ?? null);
         t.onerror = () => reject(t.error);
         t.onabort = () =>
-          reject(t.error || new DOMException('Transaction aborted', 'AbortError'));
+          reject(
+            t.error || new DOMException('Transaction aborted', 'AbortError'),
+          );
       }),
   );
 }
