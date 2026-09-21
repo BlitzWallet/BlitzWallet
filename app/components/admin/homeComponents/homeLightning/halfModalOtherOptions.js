@@ -89,7 +89,7 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
               label={chainLabel}
               subtext={`${source.asset} · ${source.name}`}
               iconSource={ICONS[`chain_${chainLabel.toLowerCase()}`]}
-              circleBackground={getCircleBackground(true)}
+              circleBackground={'transparent'}
               onPress={() =>
                 onShowQR({
                   selectedRecieveOption: 'Stablecoins',
