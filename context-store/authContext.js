@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { navigationRef } from '../navigation/navigationService';
 import { useAppStatus } from './appStatus';
+import { Platform } from 'react-native';
 
 // Initiate context
 const AuthStatusManager = createContext(null);
@@ -23,6 +24,13 @@ const AuthStatusProvider = ({ children }) => {
 
   useEffect(() => {
     if (appState === 'active' && shouldResetStateRef.current) {
+      if (Platform.OS === 'web') {
+        shouldResetStateRef.current = false;
+        if (typeof window !== 'undefined' && window.location?.reload) {
+          window.location.reload();
+        }
+        return;
+      }
       authResetkeyRef.current += 1;
       setAuthResetKey(prev => prev + 1);
       if (navigationRef.current)
