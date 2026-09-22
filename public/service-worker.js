@@ -21,6 +21,13 @@
  * worker, deploy a self-unregistering script at the same URL (see public/sw.js).
  */
 
+// The public half of the offline release-signing keypair. MUST match
+// SPARK_WEBVIEW_SIGNING_PUBKEY (same keypair as the WebView bundle), which is
+// baked into the web bundle at build time. Rotating it requires shipping a new
+// worker, which installs only once no Blitz window is open.
+const RELEASE_SIGNING_PUBKEY =
+  '413720a6792729a097f379fe18551b9faef4406361c5b75e6b5e3b1c785973e4';
+
 const APP_CACHE_PREFIX = 'blitz-app-';
 // Caches of the images-only worker the first app shell worker replaced.
 const IMAGE_CACHE_PREFIX = 'blitz-pwa-images-';
@@ -35,10 +42,90 @@ async function matchesHash(response, expected) {
   if (!response.ok || response.redirected) return false;
   const bytes = await response.clone().arrayBuffer();
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
-  const actual = Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join(
-    '',
-  );
+  const actual = Array.from(digest, byte =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('');
   return actual === expected;
+}
+
+function hexToBytes(hex) {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) {
+    out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+  return out;
+}
+
+// The exact bytes covered by the offline signature. Keep in sync with
+// scripts/generate-release.js and app/functions/pwaRelease.web.js.
+function canonicalReleaseString(release, sortedFiles) {
+  return JSON.stringify({
+    id: release.id,
+    appVersion: release.appVersion,
+    minAppVersion: release.minAppVersion,
+    files: sortedFiles,
+  });
+}
+
+let verifyKeyPromise = null;
+function getVerifyKey() {
+  if (!verifyKeyPromise) {
+    verifyKeyPromise = crypto.subtle.importKey(
+      'raw',
+      hexToBytes(process.env.SPARK_WEBVIEW_SIGNING_PUBKEY),
+      { name: 'Ed25519' },
+      false,
+      ['verify'],
+    );
+  }
+  return verifyKeyPromise;
+}
+
+// Manifests verified this worker lifetime: id -> sorted files map. Failures
+// are NOT cached so a later legitimate install of the same id can recover.
+const verifiedManifests = new Map();
+
+// Returns the sorted files map when blitz-app-<id>'s manifest is a valid
+// signed release for this id, else null (poisoned pointer, planted cache,
+// legacy unsigned manifest, or tampered bytes: all fail closed).
+async function getVerifiedFiles(id) {
+  if (verifiedManifests.has(id)) return verifiedManifests.get(id);
+  let files = null;
+  try {
+    const cache = await caches.open(APP_CACHE_PREFIX + id);
+    const stored = await cache.match(MANIFEST_KEY);
+    if (stored) {
+      const manifest = await stored.json();
+      if (
+        manifest &&
+        manifest.id === id &&
+        manifest.files &&
+        typeof manifest.files === 'object' &&
+        typeof manifest.signature === 'string' &&
+        /^[0-9a-fA-F]{128}$/.test(manifest.signature)
+      ) {
+        const sorted = {};
+        for (const key of Object.keys(manifest.files).sort()) {
+          sorted[key] = manifest.files[key];
+        }
+        // The signature covers id and files together, binding this cache name
+        // to exactly this file list.
+        const ok = await crypto.subtle.verify(
+          'Ed25519',
+          await getVerifyKey(),
+          hexToBytes(manifest.signature),
+          new TextEncoder().encode(canonicalReleaseString(manifest, sorted)),
+        );
+        if (ok) files = sorted;
+      }
+    }
+  } catch (error) {
+    // Unsupported Ed25519, unreadable storage, malformed JSON: untrusted.
+    console.log('release manifest check failed', error);
+    files = null;
+  }
+  if (files) verifiedManifests.set(id, files);
+  return files;
 }
 
 async function readMeta(key) {
@@ -136,21 +223,35 @@ async function respond(event, path) {
   try {
     id = await releaseForRequest(event);
     if (id && (await caches.has(APP_CACHE_PREFIX + id))) {
+      const files = await getVerifiedFiles(id);
+      if (!files) {
+        await abandonRelease(event, id);
+        // No expected hash exists to safely check network bytes against, so a
+        // subresource must not be served from the network into an old page
+        // (version mixing). Navigations load fresh from the network instead.
+        if (event.request.mode === 'navigate') return fetch(event.request);
+        reloadClient(event.clientId);
+        return Response.error();
+      }
       cache = await caches.open(APP_CACHE_PREFIX + id);
-      const cached =
-        (await cache.match(path)) ??
-        (event.request.mode === 'navigate'
-          ? await cache.match(SHELL) // SPA routes and deep links
-          : undefined);
-      if (cached) return cached;
-      const manifest = await cache.match(MANIFEST_KEY);
-      if (manifest) {
-        const files = await manifest.json();
-        if (files[path]) expected = files[path];
-        else if (event.request.mode === 'navigate') {
-          key = SHELL;
-          expected = files[SHELL];
+      if (files[path]) {
+        key = path;
+        expected = files[path];
+      } else if (event.request.mode === 'navigate') {
+        // SPA routes and deep links serve the shell. A planted per-route
+        // entry is never served: only the verified shell bytes are.
+        key = SHELL;
+        expected = files[SHELL];
+      }
+      if (expected) {
+        const cached = await cache.match(key);
+        if (cached) {
+          if (await matchesHash(cached, expected)) return cached;
+          console.log('release file hash mismatch', key);
         }
+      } else {
+        // Not part of this release (e.g. /sw.js): never serve from cache.
+        return fetch(event.request);
       }
     }
   } catch (error) {

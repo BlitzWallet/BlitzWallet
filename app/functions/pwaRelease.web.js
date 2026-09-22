@@ -2,6 +2,7 @@
 // User-approved PWA updates. public/service-worker.js serves the release this
 // module marks active; a deploy only publishes /release.json. See the worker's
 // header comment for the full lifecycle.
+import { getReleaseSigningPubkeyHex } from './pwaReleaseSigningKey';
 
 const APP_CACHE_PREFIX = 'blitz-app-';
 const META_CACHE = 'blitz-meta';
@@ -24,6 +25,76 @@ async function sha256Hex(response) {
   );
 }
 
+function hexToBytes(hex) {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) {
+    out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+  return out;
+}
+
+// The exact bytes covered by the offline Ed25519 signature. Keep in sync with
+// scripts/generate-release.js and public/service-worker.js.
+function canonicalReleaseString(release, sortedFiles) {
+  return JSON.stringify({
+    id: release.id,
+    appVersion: release.appVersion,
+    minAppVersion: release.minAppVersion,
+    files: sortedFiles,
+  });
+}
+
+let verifyKeyPromise = null;
+function getVerifyKey() {
+  if (!verifyKeyPromise) {
+    verifyKeyPromise = (async () => {
+      const raw = getReleaseSigningPubkeyHex();
+      if (!/^[0-9a-fA-F]{64}$/.test(raw)) {
+        throw new Error('Missing release signing public key');
+      }
+      return crypto.subtle.importKey(
+        'raw',
+        hexToBytes(raw),
+        { name: 'Ed25519' },
+        false,
+        ['verify'],
+      );
+    })();
+  }
+  return verifyKeyPromise;
+}
+
+// W-07: release.json is untrusted host input. Only a release whose file list
+// the offline key signed may be installed or activated; anything else (a
+// poisoned pointer, a planted cache, a host-only push) is refused.
+export async function verifyReleaseSignature(release) {
+  try {
+    if (
+      !release ||
+      !/^[0-9a-fA-F]{64}$/.test(release.id ?? '') ||
+      !release.files ||
+      typeof release.files !== 'object' ||
+      typeof release.appVersion !== 'string' ||
+      typeof release.minAppVersion !== 'string' ||
+      !/^[0-9a-fA-F]{128}$/.test(release.signature ?? '')
+    ) {
+      return false;
+    }
+    const sorted = {};
+    for (const key of Object.keys(release.files).sort()) {
+      sorted[key] = release.files[key];
+    }
+    return await crypto.subtle.verify(
+      'Ed25519',
+      await getVerifyKey(),
+      hexToBytes(release.signature),
+      new TextEncoder().encode(canonicalReleaseString(release, sorted)),
+    );
+  } catch {
+    return false;
+  }
+}
+
 // x.y.z; a missing part counts as 0.
 export function compareVersions(a = '0', b = '0') {
   const left = String(a).split('.').map(Number);
@@ -44,7 +115,14 @@ async function fetchRelease() {
       signal: controller.signal,
     });
     if (!response.ok) return null;
-    return await response.json();
+    const release = await response.json();
+    // Fail closed: an unsigned or mis-signed release is indistinguishable
+    // from a host-only push, so it is never offered or installed.
+    if (!(await verifyReleaseSignature(release))) {
+      console.log('PWA release signature invalid');
+      return null;
+    }
+    return release;
   } finally {
     clearTimeout(timer);
   }
@@ -104,6 +182,9 @@ export async function installRelease(release, onProgress) {
   ) {
     throw new Error('Invalid release manifest');
   }
+  if (!(await verifyReleaseSignature(release))) {
+    throw new Error('Invalid release signature');
+  }
   const name = APP_CACHE_PREFIX + release.id;
   const meta = await caches.open(META_CACHE);
   // Keeps the worker from pruning this cache while it fills.
@@ -144,9 +225,19 @@ export async function installRelease(release, onProgress) {
       await target.put(path, response);
       onProgress?.((index + 1) / paths.length);
     }
-    // The worker uses these hashes to verify a file if the browser evicts only
-    // part of an installed cache after a newer release reaches the host.
-    await target.put('/__release-manifest', jsonResponse(release.files));
+    // The worker trusts these hashes only through the manifest signature
+    // it re-verifies the signature and every file's hash before
+    // serving, so a same-origin writer cannot persist poisoned bytes.
+    await target.put(
+      '/__release-manifest',
+      jsonResponse({
+        id: release.id,
+        appVersion: release.appVersion,
+        minAppVersion: release.minAppVersion,
+        files: release.files,
+        signature: release.signature,
+      }),
+    );
     await meta.put(
       ACTIVE_KEY,
       jsonResponse({ id: release.id, appVersion: release.appVersion }),
