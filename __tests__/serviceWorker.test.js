@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const vm = require('node:vm');
+const { execFileSync } = require('node:child_process');
 const {
   createHash,
   generateKeyPairSync,
@@ -131,7 +132,22 @@ describe('generateRelease', () => {
   });
 
   it('fails without a signing key instead of writing an unsigned release', () => {
-    expect(() => generateRelease(directory, { version: '1.0.0' })).toThrow(
+    // Run plain Node so the Babel dotenv transform cannot inline a local key.
+    expect(() =>
+      execFileSync(
+        process.execPath,
+        [
+          '-e',
+          'require(process.argv[1]).generateRelease(process.argv[2], { version: "1.0.0" })',
+          path.join(__dirname, '..', 'scripts', 'generate-release.js'),
+          directory,
+        ],
+        {
+          env: { ...process.env, SPARK_WEBVIEW_SIGNING_PRIVATE_KEY: '' },
+          stdio: 'pipe',
+        },
+      ),
+    ).toThrow(
       'SPARK_WEBVIEW_SIGNING_PRIVATE_KEY is not set',
     );
     expect(fs.existsSync(path.join(directory, 'release.json'))).toBe(false);
@@ -378,6 +394,22 @@ describe('release-pinned service worker', () => {
         .request('/', { mode: 'navigate', resultingClientId: 'a' })
         .body(),
     ).toBe('shell v1');
+    expect(worker.fetch).not.toHaveBeenCalled();
+  });
+
+  it('serves signed assets without discarding the release or reloading the page', async () => {
+    const bodies = { '/': 'shell v1', '/assets/icon.png': 'icon v1' };
+    const { release } = await makeSignedRelease(bodies);
+    const caches = createCaches();
+    await install(caches, release, bodies);
+    await activate(caches, release);
+    const worker = startWorker({ caches, liveClients: ['a'] });
+
+    expect(
+      await worker.request('/assets/icon.png', { clientId: 'a' }).body(),
+    ).toBe('icon v1');
+    expect(await activeRelease(caches)).toBeDefined();
+    expect(worker.window('a').navigate).not.toHaveBeenCalled();
     expect(worker.fetch).not.toHaveBeenCalled();
   });
 

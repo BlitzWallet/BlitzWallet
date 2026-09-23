@@ -240,6 +240,24 @@ describe('pwaRelease.web', () => {
     expect(caches.stores.has(`blitz-app-${v1.id}`)).toBe(true);
   });
 
+  it('reuses verified files in the target cache during a repeated install', async () => {
+    server = { '/': 'shell v1', '/app.js': 'app v1' };
+    const release = await makeRelease(server);
+    const target = await caches.open(`blitz-app-${release.id}`);
+    await target.put('/', new Response('shell v1'));
+    await target.put('/app.js', new Response('poisoned app'));
+
+    await pwa.installRelease(release);
+
+    expect(global.fetch.mock.calls.map(([url]) => url)).toEqual([
+      `/app.js?blitz-release=${release.id}`,
+    ]);
+    expect(await (await target.match('/app.js')).text()).toBe('app v1');
+    expect((await readJson(caches, 'blitz-meta', '/__active-release')).id).toBe(
+      release.id,
+    );
+  });
+
   it('a failed download leaves the installed release active and removes the partial cache', async () => {
     const v1bodies = { '/': 'shell v1' };
     const v1 = await makeRelease(v1bodies);

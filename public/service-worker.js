@@ -72,7 +72,7 @@ function getVerifyKey() {
   if (!verifyKeyPromise) {
     verifyKeyPromise = crypto.subtle.importKey(
       'raw',
-      hexToBytes(process.env.SPARK_WEBVIEW_SIGNING_PUBKEY),
+      hexToBytes(RELEASE_SIGNING_PUBKEY),
       { name: 'Ed25519' },
       false,
       ['verify'],

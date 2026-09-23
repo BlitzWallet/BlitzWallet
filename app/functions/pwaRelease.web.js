@@ -197,6 +197,11 @@ export async function installRelease(release, onProgress) {
     const paths = Object.keys(release.files);
     for (const [index, path] of paths.entries()) {
       const expected = release.files[path];
+      const existing = await target.match(path);
+      if (existing && (await sha256Hex(existing)) === expected) {
+        onProgress?.((index + 1) / paths.length);
+        continue;
+      }
       let response = null;
       // Unchanged files are reused from an installed release.
       for (const other of others) {

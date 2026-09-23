@@ -26,4 +26,11 @@ module.exports = {
     DOMException: 'readonly', // web shims (IndexedDB transaction errors)
     XMLSerializer: 'readonly', // web-only DOM raster path
   },
+  overrides: [
+    {
+      files: ['public/**/*.js'],
+      env: { serviceworker: true, node: false },
+      globals: { process: 'off' },
+    },
+  ],
 };
