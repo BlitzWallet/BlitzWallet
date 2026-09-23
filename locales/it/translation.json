@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Inserisci password",
         "confirmPasswordPlaceholder": "Conferma password",
         "mismatchError": "Le password non corrispondono",
+        "tooShortError": "La password deve contenere almeno {{count}} caratteri",
         "commonWarning": "Password comune",
         "whatMakesStrongPassword": "Cosa rende una password sicura?",
         "showPassword": "Mostra password",

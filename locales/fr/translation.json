@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Saisir le mot de passe",
         "confirmPasswordPlaceholder": "Confirmer le mot de passe",
         "mismatchError": "Les mots de passe ne correspondent pas",
+        "tooShortError": "Le mot de passe doit contenir au moins {{count}} caractères",
         "commonWarning": "Mot de passe courant",
         "whatMakesStrongPassword": "Qu'est-ce qui fait un mot de passe fort ?",
         "showPassword": "Afficher le mot de passe",

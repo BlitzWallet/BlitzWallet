@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Passwort eingeben",
         "confirmPasswordPlaceholder": "Passwort bestätigen",
         "mismatchError": "Passwörter stimmen nicht überein",
+        "tooShortError": "Das Passwort muss mindestens {{count}} Zeichen lang sein",
         "commonWarning": "Häufiges Passwort",
         "whatMakesStrongPassword": "Was macht ein starkes Passwort aus?",
         "showPassword": "Passwort anzeigen",

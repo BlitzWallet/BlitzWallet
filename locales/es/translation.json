@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Ingresa la contraseña",
         "confirmPasswordPlaceholder": "Confirmar contraseña",
         "mismatchError": "Las contraseñas no coinciden",
+        "tooShortError": "La contraseña debe tener al menos {{count}} caracteres",
         "commonWarning": "Contraseña común",
         "whatMakesStrongPassword": "¿Qué hace que una contraseña sea segura?",
         "showPassword": "Mostrar contraseña",

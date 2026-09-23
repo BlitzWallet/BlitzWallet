@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Ange lösenord",
         "confirmPasswordPlaceholder": "Bekräfta lösenord",
         "mismatchError": "Lösenorden matchar inte",
+        "tooShortError": "Lösenordet måste vara minst {{count}} tecken",
         "commonWarning": "Vanligt lösenord",
         "whatMakesStrongPassword": "Vad gör ett lösenord starkt?",
         "showPassword": "Visa lösenord",

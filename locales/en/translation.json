@@ -283,6 +283,7 @@
         "newPasswordPlaceholder": "Enter password",
         "confirmPasswordPlaceholder": "Confirm password",
         "mismatchError": "Passwords do not match",
+        "tooShortError": "Password must be at least {{count}} characters",
         "commonWarning": "Common password",
         "whatMakesStrongPassword": "What makes a strong password?",
         "showPassword": "Show password",

@@ -2,6 +2,9 @@ import { createElement, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const AUTOSAVE_USERNAME = 'blitzwallet';
+// New passwords only. Unlock and legacy migration accept any existing
+// password, so wallets created before this minimum still open.
+export const MIN_PASSWORD_LENGTH = 6;
 import { COLORS, SIZES } from '../../../constants';
 import { ThemeText } from '../../../functions/CustomElements';
 import CustomSearchInput from '../../../functions/CustomElements/searchInput';
@@ -31,10 +34,20 @@ export default function PasswordCreateForm({
 
   const doesMatch = password === confirm;
 
-  const canSubmit = doesMatch && !isSubmitting && !!password.length;
+  const isLongEnough = password.length >= MIN_PASSWORD_LENGTH;
+
+  const canSubmit = doesMatch && !isSubmitting && isLongEnough;
 
   const submit = () => {
     if (isSubmitting) return;
+    if (password.length && !isLongEnough) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('createAccount.keySetup.password.tooShortError', {
+          count: MIN_PASSWORD_LENGTH,
+        }),
+      });
+      return;
+    }
     if (password.length && !doesMatch) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('createAccount.keySetup.password.mismatchError'),

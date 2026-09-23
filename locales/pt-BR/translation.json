@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Digite a senha",
         "confirmPasswordPlaceholder": "Confirme a senha",
         "mismatchError": "As senhas não coincidem",
+        "tooShortError": "A senha deve ter pelo menos {{count}} caracteres",
         "commonWarning": "Senha comum",
         "whatMakesStrongPassword": "O que torna uma senha forte?",
         "showPassword": "Mostrar senha",

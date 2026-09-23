@@ -273,6 +273,7 @@
         "newPasswordPlaceholder": "Введите пароль",
         "confirmPasswordPlaceholder": "Подтвердите пароль",
         "mismatchError": "Пароли не совпадают",
+        "tooShortError": "Пароль должен содержать не менее {{count}} символов",
         "commonWarning": "Распространенный пароль",
         "whatMakesStrongPassword": "Что делает пароль надёжным?",
         "showPassword": "Показать пароль",
