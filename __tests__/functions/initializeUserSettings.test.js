@@ -12,6 +12,7 @@
  */
 
 const PUBLIC_KEY = 'parent-pubkey';
+const { Platform } = require('react-native');
 
 const mockSendDataToDB = jest.fn(async () => true);
 const mockGetDataFromCollection = jest.fn();
@@ -172,4 +173,26 @@ describe('initializeUserSettings child-field echo', () => {
     expect(mockSendDataToDB).not.toHaveBeenCalled();
     expect(mockSetMasterInfoObject).toHaveBeenCalledTimes(1);
   });
+});
+
+test('a migrated web wallet with no backup flag keeps the backup reminder', async () => {
+  const originalPlatform = Platform.OS;
+  Platform.OS = 'web';
+  try {
+    const result = await runInit(baseStoredData(), {
+      ...baseLocalData(),
+      didViewSeedPhrase: null,
+    });
+
+    expect(result.didWork).toBe(true);
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      'didViewSeedPhrase',
+      'false',
+    );
+    expect(mockSetMasterInfoObject.mock.calls[0][0].didViewSeedPhrase).toBe(
+      false,
+    );
+  } finally {
+    Platform.OS = originalPlatform;
+  }
 });

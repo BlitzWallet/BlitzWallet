@@ -255,7 +255,11 @@
         "keyGenError": "Impossible de générer une phrase d'amorçage valide",
         "seedPrivacyMessage": "Assurez-vous qu'il n'y a personne qui puisse voir votre écran.",
         "showIt": "Montrez-le",
-        "invalidSeedError": "Impossible de générer une phrase d'amorçage valide"
+        "invalidSeedError": "Impossible de générer une phrase d'amorçage valide",
+        "webHeader": "Sauvegardez votre phrase de récupération",
+        "webStorageWarning": "Votre phrase de récupération est le seul moyen de restaurer votre portefeuille. Les données du navigateur peuvent être effacées ou supprimées, ce qui peut effacer votre portefeuille de cet appareil.",
+        "webSubHeader": "Gardez votre phrase de récupération dans un endroit privé. N'enregistrez pas de capture d'écran et ne la partagez avec personne.",
+        "revealTitle": "Appuyez pour révéler votre phrase de récupération"
       },
       "pin": {
         "savePinError": "Impossible d'enregistrer la broche",

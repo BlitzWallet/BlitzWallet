@@ -255,7 +255,11 @@
         "keyGenError": "Não foi possível gerar uma frase de recuperação válida",
         "seedPrivacyMessage": "Certifique-se de que não haja ninguém por perto que possa ver sua tela.",
         "showIt": "Mostrar",
-        "invalidSeedError": "Não foi possível gerar uma frase de recuperação válida"
+        "invalidSeedError": "Não foi possível gerar uma frase de recuperação válida",
+        "webHeader": "Faça backup da sua frase de recuperação",
+        "webStorageWarning": "Sua frase de recuperação é a única forma de restaurar sua carteira. Os dados do navegador podem ser apagados ou removidos, o que pode apagar sua carteira deste dispositivo.",
+        "webSubHeader": "Mantenha sua frase de recuperação em um local privado. Não salve uma captura de tela nem a compartilhe com ninguém.",
+        "revealTitle": "Toque para revelar sua frase de recuperação"
       },
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",

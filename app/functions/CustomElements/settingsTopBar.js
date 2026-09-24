@@ -2,16 +2,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, FONT, ICONS, SIZES } from '../../constants';
+import { COLORS, FONT, ICONS, SIZES, TOPBAR_HEIGHT } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import ThemeIcon from './themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useRef } from 'react';
-
-// Nav chrome is a fixed metric, not a result of its contents: the back arrow has
-// to land on the same pixel on every screen. Slot content must fit inside this;
-// raise it here (for everyone) rather than letting one screen grow its own bar.
-export const TOPBAR_HEIGHT = 40;
 
 export default function CustomSettingsTopBar({
   containerStyles,

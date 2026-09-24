@@ -255,7 +255,11 @@
         "keyGenError": "No se puede generar una frase semilla válida",
         "seedPrivacyMessage": "Asegúrate de que no haya nadie cerca que pueda ver tu pantalla.",
         "showIt": "Mostrarla",
-        "invalidSeedError": "No se puede generar una frase semilla válida"
+        "invalidSeedError": "No se puede generar una frase semilla válida",
+        "webHeader": "Haz una copia de seguridad de tu frase de recuperación",
+        "webStorageWarning": "Tu frase de recuperación es la única forma de restaurar tu billetera. Los datos del navegador pueden borrarse o eliminarse, lo que podría borrar tu billetera de este dispositivo.",
+        "webSubHeader": "Mantén tu frase de recuperación en un lugar privado. No guardes una captura de pantalla ni la compartas con nadie.",
+        "revealTitle": "Toca para revelar tu frase de recuperación"
       },
       "pin": {
         "savePinError": "No se pudo guardar el PIN",

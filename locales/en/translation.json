@@ -259,10 +259,14 @@
     "keySetup": {
       "generateKey": {
         "header": "This is your password to your money, if you lose it you lose your money!",
+        "webHeader": "Back up your recovery phrase",
+        "webStorageWarning": "Your recovery phrase is the only way to restore your wallet. Browser data can be cleared or removed, which may erase your wallet from this device.",
+        "webSubHeader": "Keep your recovery phrase somewhere private. Do not save a screenshot or share them with anyone.",
         "subHeader": "Write it down with a pen and paper and keep it safe!",
         "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
         "errorText": "Error fetching recovery phrase",
         "keyGenError": "Unable to generate a valid recovery phrase",
+        "revealTitle": "Tap to reveal your recovery phrase",
         "seedPrivacyMessage": "Make sure no one is around who can see your screen.",
         "showIt": "Show it",
         "invalidSeedError": "Unable to generate a valid recovery phrase"

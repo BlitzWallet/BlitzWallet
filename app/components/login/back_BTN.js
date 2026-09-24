@@ -17,6 +17,6 @@ export default function Back_BTN() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 10,
+    // marginBottom: 10,
   },
 });

@@ -101,3 +101,5 @@ plans
 .claude/launch.json
 .agents
 skills-lock.json
+# Maestro E2E output
+e2e-artifacts/

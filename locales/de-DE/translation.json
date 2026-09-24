@@ -255,7 +255,11 @@
         "keyGenError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden.",
         "seedPrivacyMessage": "Achten Sie darauf, dass niemand Ihren Bildschirm sehen kann.",
         "showIt": "Anzeigen",
-        "invalidSeedError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden."
+        "invalidSeedError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden.",
+        "webHeader": "Sichere deine Wiederherstellungsphrase",
+        "webStorageWarning": "Deine Wiederherstellungsphrase ist der einzige Weg, deine Wallet wiederherzustellen. Browser-Daten können gelöscht oder entfernt werden, was deine Wallet auf diesem Gerät löschen kann.",
+        "webSubHeader": "Bewahre deine Wiederherstellungsphrase an einem privaten Ort auf. Speichere keinen Screenshot und teile sie mit niemandem.",
+        "revealTitle": "Tippe, um deine Wiederherstellungsphrase anzuzeigen"
       },
       "pin": {
         "savePinError": "PIN konnte nicht gespeichert werden.",

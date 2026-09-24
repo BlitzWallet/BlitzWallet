@@ -255,7 +255,11 @@
         "keyGenError": "Det går inte att generera en giltig seed-fras",
         "seedPrivacyMessage": "Se till att det inte finns någon i närheten som kan se din skärm.",
         "showIt": "Visa det",
-        "invalidSeedError": "Det går inte att generera en giltig seed-fras"
+        "invalidSeedError": "Det går inte att generera en giltig seed-fras",
+        "webHeader": "Säkerhetskopiera din återställningsfras",
+        "webStorageWarning": "Din återställningsfras är det enda sättet att återställa din plånbok. Webbläsardata kan rensas eller tas bort, vilket kan radera din plånbok från denna enhet.",
+        "webSubHeader": "Förvara din återställningsfras på en privat plats. Spara inte en skärmdump och dela den inte med någon.",
+        "revealTitle": "Tryck för att visa din återställningsfras"
       },
       "pin": {
         "savePinError": "Det går inte att spara pinnen",

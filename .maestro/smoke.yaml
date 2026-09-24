@@ -1,0 +1,13 @@
+# Fresh install boots to onboarding. Run with `yarn e2e:ios` or `yarn e2e:android`.
+appId: ${APP_ID}
+---
+# The seed lives in the iOS keychain, which survives clearState.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+- assertVisible: Get Started
+- takeScreenshot: onboarding-home

@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
+    "e2e:ios": "maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts .maestro",
+    "e2e:android": "maestro test -e APP_ID=com.blitzwallet --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts .maestro",
     "test:rules": "firebase emulators:exec --only firestore \"jest --runInBand --config jest.rules.config.js\"",
     "build-android": "react-native build-android",
     "build-ios": "react-native build-ios",

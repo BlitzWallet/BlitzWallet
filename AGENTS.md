@@ -35,6 +35,7 @@ BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet 
 - `navigation/` — stack/drawer/tab navigators (`GiftsStack`, `POSStack`, `PoolsStack`, `SavingsStack`, …) and `navigationService.tsx`
 - `db/` — Firebase init (`initializeFirebase.js`) and Firestore access layer (`index.js`, `handleBackend.js`); user-facing data is encrypted via `app/functions/messaging/encodingAndDecodingMessages.js`
 - `locales/` — translation JSON per language (`en` is the source of truth) and `localeslist.js`; contribution guide in `locales/how_to_contribute.md`
+- `.maestro/` — Maestro E2E flows (YAML), the preferred way to test (see "Testing")
 - `__tests__/` — Jest tests, mirroring source layout (`functions/`, `context-store/`, `screens/`, plus flat files)
 - `patches/` — `patch-package`-style patches for native/JS deps (`@noble/*`, ecpair, pbkdf2, Lottie, LWK) — see `patches/breezSDK.md` for the manual Breez SDK Kotlin edit
 - `docs/` — design docs and plans (`docs/plans/`, `docs/superpowers/`)
@@ -53,6 +54,7 @@ All commands are Yarn scripts (`package.json`); install deps with `yarn install`
 - `yarn lint` — ESLint over the repo (the only CI check)
 - `yarn test` — Jest
 - `yarn test:rules` — Firestore security-rules tests (needs the Firebase emulator + a local JRE)
+- `yarn e2e:ios` / `yarn e2e:android` — run every Maestro flow in `.maestro/` against the app installed on the booted simulator/emulator
 - `yarn export:web` — production web build into `dist/` (Expo export + `scripts/generate-release.js`)
 - `yarn apkBuild` / `yarn apkBuild:clean` — Android release APK (`./gradlew assembleRelease`)
 - `yarn playstoreBuild` — Play Store bundle (`./gradlew bundleRelease`)
@@ -63,11 +65,20 @@ No Fastlane/CocoaPods-level scripts live at the root beyond the `Gemfile`; app-s
 
 ## Testing
 
+E2E tests are the default (see Working Rule 5). They run on **Maestro**:
+
+- Flows are YAML files in `.maestro/`; `appId: ${APP_ID}` is filled in by the yarn script (iOS `org.reactjs.native.example.BlitzWallet`, Android `com.blitzwallet`). `.maestro/smoke.yaml` is the starting template
+- Run: build and install the app (`yarn ios` / `yarn android`), keep **exactly one** simulator/emulator booted, then `yarn e2e:ios` or `yarn e2e:android`
+- Artifact: every run writes `e2e-artifacts/report.xml` (JUnit) plus screenshots and `commands.json` to `e2e-artifacts/` (gitignored). End each flow with a `takeScreenshot` of the verified end state, and cite the report and screenshots when claiming a feature works
+- Flows share the device's keychain and storage, so start from a known state (`clearState`, `clearKeychain` on iOS) and never point a flow at a wallet holding real funds
+
+Jest unit tests:
+
 - Framework: **Jest 29** with the `react-native` preset, tests in `__tests__/**/*.test.js`
 - `jest.config.js`: `transformIgnorePatterns` whitelists the ESM packages that must go through babel-jest (`@noble`, `@buildonspark/spark-sdk`, `@react-navigation`, Firebase, …). If a test imports another untranspiled ESM dependency, add it to the `esModules` list there
 - `.worktrees/` is excluded from Jest to avoid haste collisions
 - `jest.setup.js` runs before every test and globally mocks all `@react-native-firebase/*` modules, `react-native-localize`, and `react-native-quick-crypto` (delegating to `node:crypto` so encryption code actually works under Jest). Individual tests override these with local `jest.mock(...)` when they need return values
-- Tests are plain unit/integration tests of pure logic (payments parsing, hooks, contexts); there is no E2E harness and `yarn test` is **not** run in CI — run it locally when touching logic: `yarn test` (or `yarn test <pattern>`)
+- Tests are plain unit/integration tests of pure logic (payments parsing, hooks, contexts); `yarn test` is **not** run in CI — run it locally when touching logic: `yarn test` (or `yarn test <pattern>`)
 
 ## Code Style
 
@@ -118,18 +129,24 @@ These are binding for every AI agent working in this repo.
 
 - Touch only what the request requires. Don't "improve" adjacent code, comments, or formatting.
 - Match existing style, even if you'd do it differently.
-- Remove imports/variables/functions that *your* change orphaned. Mention pre-existing dead code — don't delete it.
+- Remove imports/variables/functions that _your_ change orphaned. Mention pre-existing dead code — don't delete it.
 - Every changed line should trace directly to the request.
 
 ### 4. Goal-driven execution
 
 Turn tasks into verifiable goals and loop until verified:
 
-- "Add validation" → write tests for invalid inputs, then make them pass
-- "Fix the bug" → write a test that reproduces it, then make it pass
-- "Refactor X" → tests pass before and after
+- "Add validation" → list the invalid inputs, write the code, then prove it with a Maestro flow
+- "Fix the bug" → reproduce it in a Maestro flow (or an isolated test per Rule 5 when the UI can't reach it), then make it pass
+- "Refactor X" → existing flows and tests pass before and after
 
 For multi-step tasks, state a brief plan with a verification step for each item.
+
+### 5. Testing
+
+- Never write unit tests after you write code.
+- Highly prefer E2E tests (Maestro, see "Testing") as the sole testing mechanism. Use them to verify complex features work. At the end of E2E tests, produce a verifiable and repeatable artifact.
+- If you must test a system in isolation, first write down all the ways it could fail, then write the code.
 
 ## CI and Releases
 

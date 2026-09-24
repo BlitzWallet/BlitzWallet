@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 import { useRef } from 'react';
 import ThemeIcon from './themeIcon';
-import { TOPBAR_HEIGHT } from './settingsTopBar';
+import { TOPBAR_HEIGHT } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 
 export default function NavBarWithBalance({

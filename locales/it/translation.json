@@ -255,7 +255,11 @@
         "keyGenError": "Impossibile generare una frase seed valida",
         "seedPrivacyMessage": "Assicurati che nessuno sia vicino e veda lo schermo.",
         "showIt": "Mostra",
-        "invalidSeedError": "Impossibile generare una frase seed valida"
+        "invalidSeedError": "Impossibile generare una frase seed valida",
+        "webHeader": "Fai il backup della tua frase di recupero",
+        "webStorageWarning": "La tua frase di recupero è l'unico modo per ripristinare il tuo portafoglio. I dati del browser possono essere cancellati o rimossi, il che potrebbe cancellare il tuo portafoglio da questo dispositivo.",
+        "webSubHeader": "Tieni la tua frase di recupero in un luogo privato. Non salvare uno screenshot né condividerla con nessuno.",
+        "revealTitle": "Tocca per rivelare la tua frase di recupero"
       },
       "pin": {
         "savePinError": "Impossibile salvare il PIN",

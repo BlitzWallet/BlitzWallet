@@ -33,6 +33,7 @@ import {
 import { db } from '../db/initializeFirebase';
 import { useKeysContext } from './keys';
 import {
+  and,
   collection,
   onSnapshot,
   or,
@@ -373,10 +374,12 @@ export const GlobalContactsList = ({ children }) => {
 
       const combinedMessageQuery = query(
         collection(db, 'contactMessages'),
-        where('timestamp', '>', savedMillis),
-        or(
-          where('toPubKey', '==', myProfileUUID),
-          where('fromPubKey', '==', myProfileUUID),
+        and(
+          where('timestamp', '>', savedMillis),
+          or(
+            where('toPubKey', '==', myProfileUUID),
+            where('fromPubKey', '==', myProfileUUID),
+          ),
         ),
         orderBy('timestamp'),
       );

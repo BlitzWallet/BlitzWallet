@@ -50,6 +50,7 @@ function WebCreatePassword(props) {
   // Ref, not state: a double tap must not open a second create prompt.
   const isPasskeyBusyRef = useRef(false);
   const didRestoreWallet = props.route.params?.didRestoreWallet;
+  const didBackupSeedPhrase = props.route.params?.didBackupSeedPhrase;
   const restoreExpectedHash = props.route.params?.expectedMnemonicHash;
 
   useEffect(() => {
@@ -91,7 +92,7 @@ function WebCreatePassword(props) {
   const finishSetup = async () => {
     await setLocalStorageItem(
       'didViewSeedPhrase',
-      JSON.stringify(!!didRestoreWallet),
+      JSON.stringify(!!didRestoreWallet || !!didBackupSeedPhrase),
     );
     navigate.reset({
       index: 0,
