@@ -47,4 +47,11 @@ describe('resolveUserLanguage', () => {
 
     await expect(resolveUserLanguage()).resolves.toBe('fr');
   });
+
+  it('falls back to en when the device reports no locales', async () => {
+    getLocalStorageItem.mockResolvedValue(null);
+    getLocales.mockReturnValue([]);
+
+    await expect(resolveUserLanguage()).resolves.toBe('en');
+  });
 });

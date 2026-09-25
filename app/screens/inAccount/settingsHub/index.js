@@ -32,7 +32,9 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import CustomSettingsTopBar, {
+  TOPBAR_HEIGHT,
+} from '../../../functions/CustomElements/settingsTopBar';
 import SectionCard from './components/SectionCard';
 import SettingsRow from './components/SettingsRow';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
@@ -398,7 +400,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
-    minHeight: 30,
+    height: TOPBAR_HEIGHT,
   },
   goBackTopbar: {
     marginRight: 'auto',

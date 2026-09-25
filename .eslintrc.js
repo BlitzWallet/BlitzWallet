@@ -20,5 +20,17 @@ module.exports = {
     TextDecoder: 'readonly',
     TextEncoder: 'readonly',
     structuredClone: 'readonly',
+    globalThis: 'readonly', // ES2020 global (es6 env doesn't provide it)
+    crypto: 'readonly', // Web Crypto API (web shims + web-only modules)
+    indexedDB: 'readonly', // web shims + legacy web migration
+    DOMException: 'readonly', // web shims (IndexedDB transaction errors)
+    XMLSerializer: 'readonly', // web-only DOM raster path
   },
+  overrides: [
+    {
+      files: ['public/**/*.js'],
+      env: { serviceworker: true, node: false },
+      globals: { process: 'off' },
+    },
+  ],
 };

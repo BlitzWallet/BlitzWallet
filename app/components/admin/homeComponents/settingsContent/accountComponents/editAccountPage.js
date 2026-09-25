@@ -704,7 +704,6 @@ const styles = StyleSheet.create({
   },
 
   rowRight: {
-    width: '100%',
     flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',

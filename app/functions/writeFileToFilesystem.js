@@ -17,6 +17,22 @@ export default async function writeAndShareFileToFilesystem(
   try {
     crashlyticsLogReport('Starting write to filesystem process');
 
+    if (Platform.OS === 'web') {
+      const blob = new Blob([fileData], {type: `${fileType};charset=utf-8`});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      try {
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        return {success: true, error: null};
+      } finally {
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    }
+
     const fileUri = `${documentDirectory}${fileName}`;
     await writeAsStringAsync(fileUri, fileData, {
       encoding: EncodingType.UTF8,

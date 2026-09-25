@@ -23,7 +23,6 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import AnalyticsToggle from '../../components/admin/homeComponents/analytics/analyticsToggle';
-import { useAppStatus } from '../../../context-store/appStatus';
 
 export default function AnalyticsPage() {
   const navigate = useNavigation();
@@ -45,7 +44,6 @@ export default function AnalyticsPage() {
     isLoading,
     isReloading,
   } = useAnalytics();
-  const { screenDimensions } = useAppStatus();
   const { t } = useTranslation();
 
   const budget = masterInfoObject?.monthlyBudget;
@@ -92,24 +90,15 @@ export default function AnalyticsPage() {
 
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
-      <View style={styles.topbar}>
-        <TouchableOpacity style={styles.backArrow} onPress={navigate.goBack}>
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-        <ThemeText
-          CustomNumberOfLines={1}
-          CustomEllipsizeMode={'tail'}
-          content={t('analytics.home.title')}
-          styles={{
-            ...styles.topBarText,
-            width: screenDimensions.width * 0.95 - 75,
-          }}
-        />
-        <AnalyticsToggle
-          denomination={localDenomination}
-          onToggle={handleToggleDenomination}
-        />
-      </View>
+      <CustomSettingsTopBar
+        label={t('analytics.home.title')}
+        rightContent={
+          <AnalyticsToggle
+            denomination={localDenomination}
+            onToggle={handleToggleDenomination}
+          />
+        }
+      />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -325,20 +314,6 @@ export default function AnalyticsPage() {
 }
 
 const styles = StyleSheet.create({
-  topbar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-    minHeight: 30,
-  },
-  backArrow: { position: 'absolute', left: 0, zIndex: 1 },
-  topBarText: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-    ...CENTER,
-    includeFontPadding: false,
-  },
   scrollContent: {
     width: INSET_WINDOW_WIDTH,
     paddingTop: 20,

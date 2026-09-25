@@ -39,3 +39,6 @@ jobs:
         run: |
           set -euxo pipefail
           yarn lint
+
+      - name: Test signed web releases
+        run: yarn test __tests__/serviceWorker.test.js __tests__/pwaRelease.test.js --runInBand --watchman=false

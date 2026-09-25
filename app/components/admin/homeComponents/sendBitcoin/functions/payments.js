@@ -3,6 +3,34 @@ import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 import { fetchPhonePaymentInvoice } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { decode as decodeBolt11 } from '../../../../../functions/decodeBolt11';
 
+// LUD-09 successAction is payee-controlled. Only a https URL may
+// be persisted; anything else (javascript:/data:/cross-host) is dropped so a
+// malicious successAction.url can never reach the browser from history.
+export function sanitizeLUD9SuccessAction(successAction, callbackUrl) {
+  if (
+    !successAction ||
+    typeof successAction !== 'object' ||
+    Array.isArray(successAction)
+  )
+    return null;
+  // Non-url actions (message/aes) carry no link; drop any url field so it
+  // can't bypass the host check below via a different tag.
+  if (successAction.tag !== 'url') {
+    const { url, ...rest } = successAction;
+    return rest;
+  }
+  const rawUrl =
+    typeof successAction.url === 'string' ? successAction.url.trim() : '';
+  if (!rawUrl) return null;
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'https:') return null;
+    return { ...successAction, url: rawUrl };
+  } catch {
+    return null;
+  }
+}
+
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
   sendingValue,
@@ -71,7 +99,12 @@ export async function getLNAddressForLiquidPayment(
         );
       }
 
-      invoiceAddress = data;
+      // Persist only the invoice plus a sanitized successAction so stored
+      // history can never carry a javascript:/data: or cross-host URL.
+      invoiceAddress = {
+        pr: data.pr,
+        successAction: sanitizeLUD9SuccessAction(data.successAction, callback),
+      };
     } else {
       invoiceAddress = {
         pr: paymentInfo.data.invoice.bolt11,

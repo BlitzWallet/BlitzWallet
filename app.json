@@ -3,6 +3,21 @@
   "displayName": "Blitz Wallet",
   "slug": "BlitzWallet",
   "scheme": "BlitzWallet",
-  "version": "0.2.7",
-  "plugins": ["expo-sqlite", "expo-web-browser", "expo-secure-store"]
+  "version": "4.1.4",
+  "extra": {
+    "minWebAppVersion": "0.0.0"
+  },
+  "plugins": ["expo-sqlite", "expo-web-browser", "expo-secure-store"],
+  "web": {
+    "bundler": "metro",
+    "output": "single",
+    "favicon": "./app/assets/favicon.png",
+    "name": "Blitz Wallet",
+    "shortName": "Blitz",
+    "lang": "en",
+    "themeColor": "#EBEBEB",
+    "backgroundColor": "#EBEBEB",
+    "display": "standalone",
+    "startUrl": "."
+  }
 }

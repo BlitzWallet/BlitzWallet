@@ -2,16 +2,19 @@ import {
   scheduleNotificationAsync,
   setNotificationHandler,
 } from 'expo-notifications';
+import { Platform } from 'react-native';
 
-// Configure notification behavior
-setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+if (Platform.OS !== 'web') {
+  // Configure notification behavior
+  setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 /**
  * Pushes an instant local notification

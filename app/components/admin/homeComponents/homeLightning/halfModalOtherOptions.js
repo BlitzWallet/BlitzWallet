@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -6,6 +12,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { COLORS, HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import { ICONS } from '../../../../constants';
 import { Image } from 'expo-image';
+import { tintStyle } from '../../../../functions/webTintColor';
 
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
@@ -43,16 +50,12 @@ const CHAINS = [
 
 export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const isDark = theme && darkModeType;
   const getCircleBackground = isOrange =>
-    isDark
-      ? backgroundOffset
-      : isOrange
-      ? COLORS.bitcoinOrange
-      : COLORS.primary;
+    isDark ? backgroundColor : isOrange ? COLORS.bitcoinOrange : COLORS.primary;
 
   return (
     <View style={{ flex: 1 }}>
@@ -86,7 +89,7 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
               label={chainLabel}
               subtext={`${source.asset} · ${source.name}`}
               iconSource={ICONS[`chain_${chainLabel.toLowerCase()}`]}
-              circleBackground={getCircleBackground(true)}
+              circleBackground={'transparent'}
               onPress={() =>
                 onShowQR({
                   selectedRecieveOption: 'Stablecoins',

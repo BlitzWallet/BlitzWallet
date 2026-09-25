@@ -16,7 +16,9 @@ import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
-import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
+import QrCodeWrapper, {
+  MAX_QR_SIZE,
+} from '../../functions/CustomElements/QrWrapper';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
@@ -75,7 +77,10 @@ export default function ReceivePaymentHome(props) {
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
   const { createAddress } = useAccumulationAddresses();
   const { bottomPadding } = useGlobalInsets();
-  const qrContainerSize = Math.round(screenDimensions.width * 0.8);
+  const qrContainerSize = Math.min(
+    Math.round(screenDimensions.width * 0.8),
+    MAX_QR_SIZE,
+  );
   const qrInnerSize = qrContainerSize - 25;
 
   const routeParams = props.route?.params || {};
@@ -394,23 +399,27 @@ export default function ReceivePaymentHome(props) {
           />
           <ThemeText
             CustomNumberOfLines={1}
-            content={t('screens.inAccount.receiveBtcPage.copyInvoice')}
+            content={t('screens.inAccount.receiveBtcPage.copy', {
+              context: isUsingLnurl ? 'address' : 'invoice',
+            })}
             styles={[styles.actionButtonText, { color: actionTextColor }]}
           />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[styles.actionButton, { backgroundColor: 'transparent' }]}
-          onPress={handleShareInvoice}
-        >
-          <ThemeIcon iconName={'Share'} size={18} />
-          <ThemeText
-            CustomNumberOfLines={1}
-            content={t('screens.inAccount.receiveBtcPage.shareInvoice')}
-            styles={styles.actionButtonText}
-          />
-        </TouchableOpacity>
+        {!isUsingLnurl && (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={[styles.actionButton, { backgroundColor: 'transparent' }]}
+            onPress={handleShareInvoice}
+          >
+            <ThemeIcon iconName={'Share'} size={18} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              content={t('screens.inAccount.receiveBtcPage.shareInvoice')}
+              styles={styles.actionButtonText}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </GlobalThemeView>
   );

@@ -36,12 +36,15 @@ export default function ContactProfileImage({
   const customURI = useMemo(() => {
     if (!uri) return null;
 
-    // If we have an updated timestamp, use it for cache busting
-    if (updated) {
+    // If we have an updated timestamp, use it for cache busting.
+    // blob:/data: URIs are already unique, and a query string makes a blob URL
+    // unresolvable (ERR_FILE_NOT_FOUND on web).
+    if (updated && !/^(blob|data):/.test(uri)) {
       const version = new Date(updated).getTime();
       // Only add version if it's valid
       if (!isNaN(version)) {
-        return `${uri}?v=${version}`;
+        const sep = uri.includes('?') ? '&' : '?';
+        return `${uri}${sep}v=${version}`;
       }
     }
 

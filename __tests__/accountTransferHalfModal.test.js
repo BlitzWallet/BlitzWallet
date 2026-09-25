@@ -14,6 +14,9 @@ let mockAccountBalances = {};
 let mockActiveAccountBalance = 50000;
 let mockActiveDollarBalance = 2;
 let mockGetSparkBalance = jest.fn();
+let mockSubscribeToSparkBalance = jest.fn();
+let mockBalanceListeners = [];
+let mockUnsubscribeBalance = jest.fn();
 let mockInitializeSparkWallet = jest.fn();
 let mockDisposeSparkWallet = jest.fn(async () => ({ didWork: true }));
 let mockGetSparkIdentityPubKey = jest.fn();
@@ -330,6 +333,10 @@ jest.mock('../app/functions/spark', () => ({
   initializeSparkWallet: (...args) => mockInitializeSparkWallet(...args),
 }));
 
+jest.mock('../app/functions/spark/awaitBalanceChange', () => ({
+  subscribeToSparkBalance: (...args) => mockSubscribeToSparkBalance(...args),
+}));
+
 jest.mock('../app/functions/spark/balanceSnapshots', () => ({
   getAllAccountBalanceSnapshots: jest.fn(async () => []),
   getUsdTokenDollars: tokensObj => {
@@ -371,6 +378,10 @@ function pressAccountCard(renderer, uuid) {
 
 function pressAssetCard(renderer) {
   renderer.root.findByProps({ testID: 'asset-card' }).props.onPress();
+}
+
+function pushBalanceUpdate(result) {
+  mockBalanceListeners.forEach(push => push(result));
 }
 
 function pressKeyboardInput(renderer) {
@@ -474,6 +485,25 @@ beforeEach(() => {
     tokensObj: {},
   });
   mockInitializeSparkWallet.mockResolvedValue({ isConnected: true });
+  // Mirrors the real hook: one immediate getSparkBalance read, then live
+  // pushes. Tests drive the later pushes with pushBalanceUpdate.
+  mockBalanceListeners = [];
+  mockUnsubscribeBalance = jest.fn();
+  mockSubscribeToSparkBalance = jest.fn(({ mnemonic, onUpdate }) => {
+    let closed = false;
+    const push = result => {
+      if (!closed) onUpdate(result);
+    };
+    mockBalanceListeners.push(push);
+    Promise.resolve(mockGetSparkBalance(mnemonic)).then(push);
+    return {
+      unsubscribe: () => {
+        closed = true;
+        mockUnsubscribeBalance();
+      },
+      ready: Promise.resolve(),
+    };
+  });
   mockDisposeSparkWallet = jest.fn(async () => ({ didWork: true }));
   mockGetSparkIdentityPubKey.mockImplementation(async mn => `pk-${mn}`);
   mockOptimisticallyUpdateBalanceSnapshot = jest.fn(async () => {});
@@ -1101,5 +1131,82 @@ describe('AccountTransferHalfModal optimistic balance snapshot', () => {
 
     expect(mockExecuteAccountTransfer).toHaveBeenCalledTimes(1);
     expect(mockOptimisticallyUpdateBalanceSnapshot).not.toHaveBeenCalled();
+  });
+});
+
+// The amount step's source balance is only observable through the params the
+// asset card pushes to the SelectPaymentMethod picker.
+async function readShownBalance(renderer) {
+  await act(async () => {
+    pressAssetCard(renderer);
+  });
+  return mockPush.mock.calls[mockPush.mock.calls.length - 1][1];
+}
+
+describe('AccountTransferHalfModal live source balance', () => {
+  test('withdraw mode follows the source wallet after the sheet is open', async () => {
+    // Withdraw never re-picks its source, so a one-shot read would pin the
+    // sheet to whatever the wallet reported at mount.
+    mockCustodyAccounts = [{ uuid: 'dest-uuid', name: 'Dest' }];
+    mockGetSparkBalance.mockResolvedValue({
+      didWork: true,
+      balance: 6000n,
+      tokensObj: {},
+    });
+    const renderer = await renderModal({ mode: 'withdraw' });
+    await act(async () => {
+      await flushMicrotasks();
+      await jest.advanceTimersByTimeAsync(50);
+    });
+    await selectAccount(renderer, 'dest-uuid');
+    expect((await readShownBalance(renderer)).bitcoinBalance).toBe(6000);
+
+    await act(async () => {
+      pushBalanceUpdate({ didWork: true, balance: 10000n, tokensObj: {} });
+      await flushMicrotasks();
+    });
+
+    expect((await readShownBalance(renderer)).bitcoinBalance).toBe(10000);
+  });
+
+  test('a later failed read keeps the balance already on screen', async () => {
+    mockCustodyAccounts = [{ uuid: 'dest-uuid', name: 'Dest' }];
+    mockGetSparkBalance.mockResolvedValue({
+      didWork: true,
+      balance: 6000n,
+      tokensObj: {},
+    });
+    const renderer = await renderModal({ mode: 'withdraw' });
+    await act(async () => {
+      await flushMicrotasks();
+      await jest.advanceTimersByTimeAsync(50);
+    });
+    await selectAccount(renderer, 'dest-uuid');
+
+    await act(async () => {
+      pushBalanceUpdate({ didWork: false });
+      await flushMicrotasks();
+    });
+
+    expect((await readShownBalance(renderer)).bitcoinBalance).toBe(6000);
+    expect(() =>
+      renderer.root.findByProps({ testID: 'keyboard-input' }),
+    ).not.toThrow();
+  });
+
+  test('unmounting drops the balance subscription', async () => {
+    mockCustodyAccounts = [{ uuid: 'dest-uuid', name: 'Dest' }];
+    const renderer = await renderModal({ mode: 'withdraw' });
+    await act(async () => {
+      await flushMicrotasks();
+      await jest.advanceTimersByTimeAsync(50);
+    });
+    expect(mockSubscribeToSparkBalance).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      renderer.unmount();
+      await flushMicrotasks();
+    });
+    expect(mockUnsubscribeBalance).toHaveBeenCalledTimes(1);
   });
 });

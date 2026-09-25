@@ -85,7 +85,8 @@ export async function resolveUserLanguage() {
   } catch {
     // Corrupt stored value — fall through to device detection.
   }
-  const [{ languageTag = 'en' }] = getLocales();
+  // Web getLocales() returns [] when navigator.languages is empty.
+  const [{ languageTag = 'en' } = {}] = getLocales();
   const deviceShortId = languageTag.split('-')[0];
   const matched = supportedLanguagesList.find(l => l.shortId === deviceShortId);
   const resolvedLanguage = matched ? matched.id : 'en';

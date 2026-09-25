@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 import { useRef } from 'react';
 import ThemeIcon from './themeIcon';
+import { TOPBAR_HEIGHT } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 
 export default function NavBarWithBalance({
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 30,
+    height: TOPBAR_HEIGHT,
   },
   backArrow: { position: 'absolute', zIndex: 99, left: 0 },
   maxAndAcceptContainer: {

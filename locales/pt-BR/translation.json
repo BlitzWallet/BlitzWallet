@@ -255,7 +255,11 @@
         "keyGenError": "Não foi possível gerar uma frase de recuperação válida",
         "seedPrivacyMessage": "Certifique-se de que não haja ninguém por perto que possa ver sua tela.",
         "showIt": "Mostrar",
-        "invalidSeedError": "Não foi possível gerar uma frase de recuperação válida"
+        "invalidSeedError": "Não foi possível gerar uma frase de recuperação válida",
+        "webHeader": "Faça backup da sua frase de recuperação",
+        "webStorageWarning": "Sua frase de recuperação é a única forma de restaurar sua carteira. Os dados do navegador podem ser apagados ou removidos, o que pode apagar sua carteira deste dispositivo.",
+        "webSubHeader": "Mantenha sua frase de recuperação em um local privado. Não salve uma captura de tela nem a compartilhe com ninguém.",
+        "revealTitle": "Toque para revelar sua frase de recuperação"
       },
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
@@ -265,6 +269,28 @@
         "enterPinMessage": "Criar PIN",
         "confirmPin": "Confirmar PIN",
         "attemptsText": "{{number}} tentativas restantes"
+      },
+      "password": {
+        "createHeader": "Criar senha",
+        "createSubtitle": "Sua senha protege o acesso à sua carteira. Sua frase de recuperação é o que a restaura, então guarde-a em um lugar seguro. Você pode visualizá-la a qualquer momento em Configurações.",
+        "createButton": "Criar carteira",
+        "newPasswordPlaceholder": "Digite a senha",
+        "confirmPasswordPlaceholder": "Confirme a senha",
+        "mismatchError": "As senhas não coincidem",
+        "tooShortError": "A senha deve ter pelo menos {{count}} caracteres",
+        "commonWarning": "Senha comum",
+        "whatMakesStrongPassword": "O que torna uma senha forte?",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha"
+      },
+      "passkey": {
+        "offerHeader": "Criar chave de acesso",
+        "offerSubtitle": "Sua chave de acesso protege o acesso à sua carteira. Sua frase de recuperação é o que a restaura, então guarde-a em um lugar seguro. Você pode visualizá-la a qualquer momento em Configurações.",
+        "createButton": "Criar chave de acesso",
+        "usePassword": "Usar uma senha em vez disso",
+        "unsupported": "Seu gerenciador de senhas ainda não pode proteger uma carteira com chave de acesso. Defina uma senha em vez disso.",
+        "confirmFailed": "Não foi possível confirmar sua chave de acesso",
+        "tryAgain": "Tentar novamente"
       }
     },
     "restoreWallet": {
@@ -297,6 +323,17 @@
       "joinDesc": "Acesse uma conta parental que alguém criou para você.",
       "restoreTitle": "Restaurar carteira existente",
       "restoreDesc": "Traga sua carteira para a Blitz."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "useRecoveryPhrase": "Usar minha frase de recuperação",
+      "recoveryConfirm": "Isso removerá a carteira antiga salva neste navegador e retornará à configuração, onde você poderá restaurar ou criar uma carteira. Você precisará da sua frase de recuperação para acessar seus fundos existentes.",
+      "recoveryError": "Não foi possível remover a carteira antiga. Tente novamente.",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +343,23 @@
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes",
       "biometricsHeader": "Desbloquear"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Digite a senha",
+      "welcomeBackTitle": "Bem-vindo de volta!",
+      "wrongPasswordError": "Senha incorreta, tente novamente",
+      "attemptsText": "{{attempts}} tentativas restantes",
+      "passwordPlaceholder": "Senha",
+      "forgotPassword": "Esqueceu a senha?",
+      "forgotPasswordConfirm": "Esqueceu sua senha? A única forma de recuperar é redefinir e restaurar com sua frase de recuperação.\n\nDeseja apagar todos os dados da carteira? Continue apenas se sua frase de recuperação estiver salva com segurança.",
+      "loginButton": "Entrar",
+      "storageError": "Não foi possível ler o armazenamento da carteira. Tente novamente."
+    },
+    "passkeyPage": {
+      "unlockButton": "Desbloquear com chave de acesso",
+      "unlockError": "Não foi possível desbloquear com sua chave de acesso",
+      "lostPasskey": "Perdeu sua chave de acesso?",
+      "lostPasskeyConfirm": "Perdeu sua chave de acesso? A única forma de voltar é redefinir e restaurar com sua frase de recuperação.\n\nDeseja excluir todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança."
     }
   },
   "apps": {
@@ -1131,6 +1185,10 @@
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
+      "permissionDismissed": "O acesso à câmera não foi concedido. Toque abaixo para tentar novamente.",
+      "allowCamera": "Permitir câmera",
+      "cameraBusy": "Câmera indisponível",
+      "cameraBusySub": "Outro aplicativo ou aba está usando a câmera. Feche-o e tente novamente.",
       "noCameraDevice": "Nenhum dispositivo com câmera",
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Somente códigos QR são aceitos.",
@@ -1642,7 +1700,28 @@
       "randomPinKeyboardToggle": "Embaralhar teclado",
       "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN.",
       "biometricsHead": "Sobre biometria",
-      "biometricsSubHead": "Sua frase de recuperação é protegida pelos dados biométricos atuais do seu dispositivo. Alterá-los impedirá que a Blitz Wallet acesse sua frase de recuperação e bloqueará o acesso à sua carteira."
+      "biometricsSubHead": "Sua frase de recuperação é protegida pelos dados biométricos atuais do seu dispositivo. Alterá-los impedirá que a Blitz Wallet acesse sua frase de recuperação e bloqueará o acesso à sua carteira.",
+      "changePasswordTitle": "Alterar senha",
+      "currentPasswordSubtitle": "Digite sua senha atual para alterá-la.",
+      "currentPasswordPlaceholder": "Senha atual",
+      "wrongCurrentPassword": "Senha incorreta",
+      "newPasswordHeader": "Nova senha",
+      "newPasswordSubtitle": "Escolha uma nova senha.",
+      "changePasswordButton": "Alterar senha",
+      "passwordChanged": "Senha atualizada",
+      "passwordChangeFailed": "Falha ao atualizar a senha",
+      "loadError": "Não foi possível ler as configurações de segurança da sua carteira. Tente novamente.",
+      "passkeyCardTitle": "Usar uma chave de acesso em vez disso",
+      "passkeyCardBody": "Desbloqueie com seu rosto, impressão digital ou PIN do dispositivo. Sua chave de acesso substitui sua senha.",
+      "passkeyPasswordSubtitle": "Digite sua senha atual para mudar para uma chave de acesso.",
+      "passkeyCreated": "Chave de acesso criada",
+      "passkeySetupFailed": "Falha ao configurar a chave de acesso",
+      "passkeyTitle": "Chave de acesso",
+      "passkeyCreatedOn": "Criada em {{date}}",
+      "passkeySavedAs": "Salva no seu gerenciador de senhas como {{name}}",
+      "switchToPassword": "Mudar para senha",
+      "switchToPasswordSubtitle": "Escolha uma senha. Ela substitui sua chave de acesso.",
+      "switchedToPassword": "Mudado para senha"
     },
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
@@ -2424,7 +2503,6 @@
         "stablecoinsFeeMessage": "Para receber dólares digitais, aplica-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
-        "copyInvoice": "Copiar código",
         "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão recebidos em dólares",
         "shareInvoice": "Link de pagamento",
         "walletNotConnected": "Carteira não conectada. Tente novamente.",
@@ -2464,7 +2542,9 @@
         "expiry_86400": "24 horas",
         "expiry_604800": "7 dias",
         "expiry_2592000": "30 dias",
-        "expiry_7776000": "90 dias"
+        "expiry_7776000": "90 dias",
+        "copy_invoice": "Copiar código",
+        "copy_address": "Copiar endereço"
       },
       "settingsContent": {
         "about": "Sobre",
@@ -3377,5 +3457,20 @@
       "willExceedBudgetWarning": "Este pagamento fará você ultrapassar seu limite mensal",
       "budgetWarningHeadsUp": "Atenção"
     }
+  },
+  "tabInUse": {
+    "title": "O Blitz está aberto em outra aba",
+    "description": "Sua carteira só pode ficar aberta em uma aba por vez. Use aqui para fechá-la na outra aba.",
+    "button": "Usar aqui"
+  },
+  "webUpdate": {
+    "title": "Atualização disponível",
+    "description": "Blitz {{version}} está pronta para instalar.",
+    "requiredTitle": "Atualização obrigatória",
+    "requiredDescription": "Blitz {{version}} é necessária para continuar usando sua carteira.",
+    "button": "Atualizar agora",
+    "progress": "Atualizando… {{percent}}%",
+    "later": "Depois",
+    "error": "Falha na atualização. Verifique sua conexão e tente novamente."
   }
 }

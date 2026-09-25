@@ -1,0 +1,16 @@
+/*
+  Content-Security-Policy: default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss: blob:; media-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self' https:; frame-ancestors 'none'; frame-src 'self' https:; worker-src 'self' blob:; upgrade-insecure-requests
+  Cross-Origin-Opener-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin
+
+/sw.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache
+
+/service-worker.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache
+
+/release.json
+  Cache-Control: no-cache

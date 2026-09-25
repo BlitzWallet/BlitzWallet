@@ -1,0 +1,152 @@
+// Web shim for react-native-webview. The core wallet no longer uses the
+// offscreen Spark WebView on web (see webViewContext.web.js). Remaining
+// consumers (bitrefill/webViewPopup) render an <iframe>; deferred features
+// keep it importable.
+import React from 'react';
+import { StyleSheet } from 'react-native';
+
+// react-native style props accept arrays / falsy values / registered IDs.
+// Spreading an array directly into the <iframe> style object produces numeric
+// keys (0, 1, …) which makes React DOM try `style[0] = …` and throws:
+// "Failed to set an indexed property [0] on 'CSSStyleDeclaration'".
+function flattenStyle(style) {
+  if (!style) return {};
+  // On web StyleSheet.flatten resolves arrays + registered styles; fall back
+  // to manual recursion if unavailable (e.g. in tests).
+  if (StyleSheet.flatten) {
+    const flat = StyleSheet.flatten(style);
+    return flat || {};
+  }
+  if (Array.isArray(style)) {
+    const out = {};
+    for (const item of style) {
+      if (!item) continue;
+      Object.assign(out, flattenStyle(item));
+    }
+    return out;
+  }
+  return style;
+}
+
+const BITREFILL_ORIGIN = 'https://embed.bitrefill.com';
+const PERMISSION_FEATURES = [
+  'accelerometer',
+  'gyroscope',
+  'magnetometer',
+  'payment',
+  'clipboard-write',
+  'fullscreen',
+  'geolocation',
+];
+
+const SRC_SANDBOX = 'allow-same-origin allow-popups allow-scripts allow-forms';
+const SRCDOC_SANDBOX = '';
+
+export function WebView({
+  source,
+  style,
+  onMessage,
+  injectedJavaScript,
+  onLoadStart,
+  onLoadEnd,
+  onError,
+  title,
+}) {
+  const html = source?.html;
+  const ref = React.useRef(null);
+  // Only http(s) uris may load; anything else (javascript:/data:/malformed)
+  // renders nothing and never registers a message listener.
+  let origin = null;
+  if (source?.uri) {
+    try {
+      const parsed = new URL(source.uri);
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+        origin = parsed.origin;
+    } catch {}
+  }
+  const uri = origin ? source.uri : undefined;
+  // Sensor/payment/geolocation grants only for Bitrefill checkout's exact
+  // origin; ordinary embeds (any scanned website) and srcDoc get none.
+  const allowOrigin =
+    !html && origin === BITREFILL_ORIGIN ? BITREFILL_ORIGIN : "'none'";
+
+  // Native hardening props (allow-list, javaScriptEnabled, geolocationEnabled)
+  // have no effect on web — the iframe is the enforcement point. Only
+  // http(s) embeds may load: a javascript:/data: uri in an iframe src/srcDoc
+  // would execute in the wallet origin.
+
+  // Bridge native `window.ReactNativeWebView.postMessage` → web `window.postMessage`.
+  // Bitrefill (and other embeds) post `payment_intent` etc. via the RN bridge;
+  // on web the iframe is cross-origin so we listen for `message` events and
+  // re-shape them to the RN `onMessage({ nativeEvent: { data } })` contract.
+  React.useEffect(() => {
+    // srcDoc embeds (no uri) have no origin to pin the sender to: no messages.
+    if (!onMessage || !origin) return;
+    const handler = event => {
+      // Any window holding a handle to ours (opener, popup, a frame nested in
+      // the embed) can post here, e.g. a forged `payment_intent`. Like native,
+      // only hear our own iframe, and only while it is on the source origin.
+      if (event.source !== ref.current?.contentWindow) return;
+      if (event.origin !== origin) return;
+      const data = event.data;
+      if (data == null) return;
+      const asString = typeof data === 'string' ? data : JSON.stringify(data);
+      try {
+        onMessage({ nativeEvent: { data: asString } });
+      } catch {}
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [onMessage, origin]);
+
+  const handleLoad = e => {
+    try {
+      onLoadStart?.(e);
+    } catch {}
+    try {
+      onLoadEnd?.(e);
+    } catch {}
+    // Best-effort injectedJavaScript for same-origin `srcDoc` embeds.
+    // Cross-origin `src` (e.g. embed.bitrefill.com) will throw due to SOP –
+    // intentionally swallowed; Bitrefill still navigates, just without the
+    // `embed_navigation` helper (pending checkout is then cleared via `pop`).
+    if (injectedJavaScript && ref.current?.contentWindow) {
+      try {
+        ref.current.contentWindow.eval(injectedJavaScript);
+      } catch {}
+    }
+  };
+
+  // Block non-http(s) embeds before they reach the <iframe>. The native
+  // allow-list props are inert on web so this is the enforcement point.
+  if (source?.uri && !origin) return null;
+
+  return React.createElement('iframe', {
+    ref,
+    src: uri,
+    srcDoc: html,
+    // Sandbox: without this the embed can navigate the top-level window
+    // (top.location = …). Omitting allow-top-navigation closes that hole;
+    // the value mirrors Bitrefill's own playground embed so checkout keeps
+    // working. srcDoc gets the fully-locked-down empty sandbox.
+    sandbox: html ? SRCDOC_SANDBOX : SRC_SANDBOX,
+    // Permissions Policy: Castle / Bitrefill's fraud check uses
+    // accelerometer + gyroscope (devicemotion) and Payment Request API.
+    // Without an explicit `allow` the browser blocks them and logs
+    // "[Violation] accelerometer is not allowed" + "devicemotion blocked".
+    allow: PERMISSION_FEATURES.map(f => `${f} ${allowOrigin}`).join('; '),
+    allowFullscreen: allowOrigin === BITREFILL_ORIGIN,
+    referrerPolicy: 'strict-origin-when-cross-origin',
+    title: title || 'Embedded content',
+    style: {
+      border: 'none',
+      width: '100%',
+      height: '100%',
+      ...flattenStyle(style),
+    },
+    onLoad: handleLoad,
+    onError,
+  });
+}
+
+export default WebView;
