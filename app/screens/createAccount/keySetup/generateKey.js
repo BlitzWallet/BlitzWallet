@@ -28,8 +28,6 @@ export default function GenerateKey() {
   const isWeb = Platform.OS === 'web';
 
   const isValidMnemonic = mnemonic.length === 12;
-  // Web has no later reminder it can rely on (storage may be wiped), so the
-  // phrase must be revealed here before continuing.
   const canContinue = isValidMnemonic;
 
   const handleNextPress = () => {
