@@ -351,7 +351,7 @@
       "attemptsText": "{{attempts}} tentativas restantes",
       "passwordPlaceholder": "Senha",
       "forgotPassword": "Esqueceu a senha?",
-      "forgotPasswordConfirm": "Esqueceu sua senha? A única forma de recuperar é redefinindo e restaurarando com sua frase de recuperação.\n\nDeseja apagar todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança.",
+      "forgotPasswordConfirm": "Esqueceu sua senha? A única forma de recuperar é redefinindo e restaurando com sua frase de recuperação.\n\nDeseja apagar todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança.",
       "loginButton": "Entrar",
       "storageError": "Não foi possível ler o armazenamento da carteira. Tente novamente."
     },
