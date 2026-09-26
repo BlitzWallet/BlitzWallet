@@ -1,6 +1,7 @@
 import {
   getNWCData,
   getSupportedMethods,
+  getSupportedNotifications,
   isWithinNWCBalanceTimeFrame,
   splitAndStoreNWCData,
 } from '.';
@@ -18,6 +19,7 @@ import {
   encriptMessage,
 } from '../messaging/encodingAndDecodingMessages';
 import { getLocalStorageItem } from '../localStorage';
+import { writeNativeNWCConfig } from './sharedStorage';
 
 let walletInitializationPromise = null;
 let viewerInitializationPromise = null;
@@ -194,6 +196,7 @@ const handleGetInfo = selectedNWCAccount => ({
     block_height: 1,
     block_hash: 'N/A',
     methods: getSupportedMethods(selectedNWCAccount.permissions),
+    notifications: getSupportedNotifications(selectedNWCAccount.permissions),
   },
 });
 
@@ -469,6 +472,45 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
     const wallet = getWalletModule();
     const spark = getSparkModule();
 
+    // Invoices created or paid by the native handler carry no Spark request
+    // id; resolve them from the wallet's recent transfers instead.
+    if (!sparkID) {
+      const transfers =
+        (await wallet.getNWCSparkTransactions(50, 0))?.transfers || [];
+      const match = transfers.find(tx => {
+        const request = tx.userRequest;
+        const encoded =
+          request?.typename === 'LightningSendRequest'
+            ? request.encodedInvoice
+            : request?.invoice?.encodedInvoice;
+        return encoded === invoiceWithoutSparkID.invoice;
+      });
+      const matchStatus = match
+        ? spark.getSparkPaymentStatus(match.status)
+        : 'pending';
+      if (matchStatus === 'pending') {
+        return {
+          result_type: 'lookup_invoice',
+          result: toNip47Transaction(invoiceWithoutSparkID),
+        };
+      }
+      const preimage = match.userRequest?.paymentPreimage || '';
+      await NWCInvoiceManager.markInvoiceAsNotPending(
+        invoiceWithoutSparkID.payment_hash,
+        matchStatus,
+        preimage,
+      );
+      return {
+        result_type: 'lookup_invoice',
+        result: toNip47Transaction({
+          ...invoiceWithoutSparkID,
+          status: matchStatus,
+          preimage,
+          settled_at: Date.now(),
+        }),
+      };
+    }
+
     let sparkPaymentResponse;
     if (invoiceWithoutSparkID.type === 'INCOMING') {
       sparkPaymentResponse = await wallet.getNWCLightningReceiveRequest(
@@ -576,26 +618,6 @@ const handlePayInvoice = async (
 
   const renewalSettings = selectedNWCAccount.budgetRenewalSettings || {};
   const now = Date.now();
-
-  let spendState = null;
-  try {
-    spendState = await nwcEventLedger.getSpendState(
-      selectedNWCAccount.publicKey,
-    );
-  } catch (err) {
-    console.error('Error reading spend state', err);
-  }
-
-  let windowStart =
-    spendState?.windowStart ?? selectedNWCAccount.lastRotated ?? now;
-  let budgetSentMsat =
-    spendState?.budgetSentMsat ?? (selectedNWCAccount.totalSent || 0) * 1000;
-
-  if (!isWithinNWCBalanceTimeFrame(renewalSettings.option, windowStart)) {
-    windowStart = now;
-    budgetSentMsat = 0;
-  }
-
   const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
 
   const connectResponse = await ensureWalletConnection();
@@ -613,10 +635,32 @@ const handlePayInvoice = async (
     renewalSettings.amount === 'Unlimited'
       ? null
       : (renewalSettings.amount || 0) * 1000;
-  if (
-    budgetLimitMsat !== null &&
-    budgetLimitMsat < budgetSentMsat + amountMsat
-  ) {
+
+  // Reserve BEFORE sending, in the ledger the native handlers (Android :nwc
+  // process, iOS extension) also pay from. Check and increment are one SQL
+  // statement, so a concurrent payer can never pass on a stale total, and a
+  // crash mid-payment cannot under-count the budget.
+  let windowStart;
+  try {
+    windowStart = await nwcEventLedger.reserveSpend({
+      accountPubkey: selectedNWCAccount.publicKey,
+      amountMsat,
+      limitMsat: budgetLimitMsat,
+      fallbackSentMsat: (selectedNWCAccount.totalSent || 0) * 1000,
+      fallbackWindowStart: selectedNWCAccount.lastRotated ?? now,
+      now,
+      isWindowCurrent: start =>
+        isWithinNWCBalanceTimeFrame(renewalSettings.option, start),
+    });
+  } catch (err) {
+    console.error('Error reserving spend', err);
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to reserve budget',
+    );
+  }
+  if (windowStart === null) {
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.QUOTA_EXCEEDED,
@@ -624,34 +668,46 @@ const handlePayInvoice = async (
     );
   }
 
-  const persistBudget = async finalMsat => {
+  // Mirrors the ledger (the source of truth) into the stored account for display.
+  const syncDisplayedSpend = async () => {
     try {
-      await nwcEventLedger.setSpendState(
+      const spend = await nwcEventLedger.getSpendState(
         selectedNWCAccount.publicKey,
-        finalMsat,
-        windowStart,
       );
+      if (!spend) return;
       await splitAndStoreNWCData({
         ...fullStorageObject,
         accounts: {
           ...fullStorageObject.accounts,
           [selectedNWCAccount.publicKey]: {
             ...selectedNWCAccount,
-            totalSent: (finalMsat - (finalMsat % 1000)) / 1000,
-            lastRotated: windowStart,
+            totalSent:
+              (spend.budgetSentMsat - (spend.budgetSentMsat % 1000)) / 1000,
+            lastRotated: spend.windowStart,
           },
         },
       });
     } catch (err) {
-      console.error('Failed to persist spend state', err);
+      console.error('Failed to store spend state', err);
     }
   };
 
-  // Reserve the worst-case spend and drop a pending idempotency marker BEFORE
-  // sending. A crash mid-payment then cannot be replayed into a second send and
-  // cannot under-count the budget (the reservation is only reconciled down on a
-  // confirmed result). Concurrent invocations are serialized by the module lock.
-  await persistBudget(budgetSentMsat + amountMsat);
+  // Relative change to this payment's reservation only, so it never erases
+  // spend a concurrent payer added in the meantime.
+  const adjustBudget = async deltaMsat => {
+    try {
+      await nwcEventLedger.adjustSpend(
+        selectedNWCAccount.publicKey,
+        windowStart,
+        deltaMsat,
+      );
+    } catch (err) {
+      console.error('Failed to adjust spend state', err);
+    }
+    await syncDisplayedSpend();
+  };
+
+  await syncDisplayedSpend();
   if (paymentHash) {
     try {
       await NWCInvoiceManager.storeCreatedInvoice({
@@ -677,7 +733,7 @@ const handlePayInvoice = async (
   console.log(invoice);
   if (!invoice.didWork) {
     // Payment never left — release the reservation and mark the attempt failed.
-    await persistBudget(budgetSentMsat);
+    await adjustBudget(-amountMsat);
     if (paymentHash) {
       try {
         await NWCInvoiceManager.markInvoiceAsNotPending(
@@ -711,11 +767,7 @@ const handlePayInvoice = async (
 
   // Reconcile the reservation: release it entirely if the send failed,
   // otherwise settle it to the actual amount + fee.
-  await persistBudget(
-    paymentStatus === 'failed'
-      ? budgetSentMsat
-      : budgetSentMsat + amountMsat + feeMsat,
-  );
+  await adjustBudget(paymentStatus === 'failed' ? -amountMsat : feeMsat);
 
   if (paymentHash) {
     try {
@@ -1042,6 +1094,54 @@ function normalizeAccountForEvent(rawEvent, accounts) {
     accountPubkey,
     selectedNWCAccount,
   };
+}
+
+// Opens (and on iOS migrates into the App Group) both shared NWC databases
+// before the native handlers get a config, so an extension can never create a
+// fresh ledger ahead of the migration and strand the old one. Returns whether
+// the config snapshot was written.
+export async function prepareNativeNWCHandler(nwcData) {
+  try {
+    await Promise.all([
+      nwcEventLedger.ensureInitialized(),
+      NWCInvoiceManager.getDatabase().ensureInitialized(),
+    ]);
+    return writeNativeNWCConfig(nwcData);
+  } catch (err) {
+    console.error('Error preparing native NWC handler', err);
+    return false;
+  }
+}
+
+// Runs events a native handler (iOS NSE / Android :nwc service) handed off or
+// abandoned through the normal JS path. The ledger claim makes this safe to call
+// from every app start / foreground: each event is processed at most once.
+export async function drainNativeNWCHandoffs() {
+  try {
+    const now = Date.now();
+    const handoffs = await nwcEventLedger.getNativeHandoffs(now);
+    const events = handoffs
+      .map(row => {
+        try {
+          return JSON.parse(row.payload);
+        } catch (err) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+    if (events.length) {
+      console.log('Draining native NWC handoffs', events.length);
+      await handleNWCBackgroundEvent({
+        data: { body: JSON.stringify({ events }) },
+      });
+    }
+    await nwcEventLedger.pruneNativeHandoffs(
+      Date.now(),
+      MAX_EVENT_AGE_SECONDS * 1000,
+    );
+  } catch (err) {
+    console.error('Error draining native NWC handoffs', err);
+  }
 }
 
 export default async function handleNWCBackgroundEvent(notificationData) {

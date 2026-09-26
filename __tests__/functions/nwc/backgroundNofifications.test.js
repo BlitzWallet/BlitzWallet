@@ -18,10 +18,14 @@ jest.mock('../../../app/functions/nwc/publishResponse', () => ({
   publishToSingleRelay: jest.fn(async () => {}),
 }));
 
+jest.mock('../../../app/functions/nwc/sharedStorage', () => ({
+  writeNativeNWCConfig: jest.fn(() => true),
+}));
 jest.mock('../../../app/functions/nwc/eventLedger', () => ({
   nwcEventLedger: {
     getSpendState: jest.fn(async () => null),
-    setSpendState: jest.fn(async () => {}),
+    reserveSpend: jest.fn(async ({ now }) => now),
+    adjustSpend: jest.fn(async () => {}),
     claimEvent: jest.fn(async () => 'claimed'),
     markFailed: jest.fn(async () => {}),
     markDone: jest.fn(async () => {}),

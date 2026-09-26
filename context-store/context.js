@@ -11,7 +11,10 @@ import { sendDataToDB } from '../db/interactionManager';
 import { useKeysContext } from './keys';
 import { addDataToCollection, getDataFromCollection } from '../db';
 import { splitAndStoreNWCData } from '../app/functions/nwc';
+import { NWC_NATIVE_HANDLER_VERSION } from '../app/functions/nwc/sharedStorage';
 import { firebaseAuth } from '../db/initializeFirebase';
+import { useAppStatus } from './appStatus';
+import { Platform } from 'react-native';
 
 // Initiate context
 const GlobalContextManger = createContext(null);
@@ -27,6 +30,7 @@ const GlobalContextProvider = ({ children }) => {
   });
 
   const { i18n } = useTranslation();
+  const { appState, didGetToHomepage } = useAppStatus();
 
   const toggleNWCInformation = useCallback(
     async newData => {
@@ -40,6 +44,15 @@ const GlobalContextProvider = ({ children }) => {
           platform: masterInfoObject.pushNotifications.platform,
           key: masterInfoObject.pushNotifications.key,
           isEnabled: masterInfoObject.pushNotifications.enabledServices?.NWC,
+        };
+      }
+
+      // Tells the backend this app handles NWC pushes natively (iOS NSE),
+      // so it can switch this device to the native push format.
+      if (newData.pushNotifications && Platform.OS !== 'web') {
+        newData.pushNotifications = {
+          ...newData.pushNotifications,
+          nativeHandler: NWC_NATIVE_HANDLER_VERSION,
         };
       }
 
@@ -106,6 +119,31 @@ const GlobalContextProvider = ({ children }) => {
     },
     [masterInfoObject.accountsLnurl, publicKey],
   );
+
+  // Native NWC handlers: on every foreground, refresh their config snapshot
+  // (strings follow the current language), advertise support to the backend
+  // once, and run any request they handed off to JS.
+  useEffect(() => {
+    if (Platform.OS === 'web' || !didGetToHomepage || appState !== 'active')
+      return;
+    const nwc = masterInfoObject.NWC;
+    if (!nwc?.accounts || !Object.keys(nwc.accounts).length) return;
+
+    const {
+      prepareNativeNWCHandler,
+      drainNativeNWCHandoffs,
+    } = require('../app/functions/nwc/backgroundNofifications');
+    prepareNativeNWCHandler(nwc).then(ready => {
+      if (
+        ready &&
+        nwc.pushNotifications &&
+        nwc.pushNotifications.nativeHandler !== NWC_NATIVE_HANDLER_VERSION
+      ) {
+        toggleNWCInformation({ pushNotifications: nwc.pushNotifications });
+      }
+      drainNativeNWCHandoffs();
+    });
+  }, [didGetToHomepage, appState]);
 
   useEffect(() => {
     async function preloadUserData() {

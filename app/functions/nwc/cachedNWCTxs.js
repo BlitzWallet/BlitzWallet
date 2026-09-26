@@ -1,4 +1,5 @@
 import { openDatabaseAsync } from 'expo-sqlite';
+import { getNWCDatabaseDirectory, migrateNWCDatabase } from './sharedStorage';
 
 // Database configuration
 const DB_NAME = 'nwc_invoices.db';
@@ -13,7 +14,14 @@ class InvoiceDatabase {
   // Initialize database connection
   async initialize() {
     try {
-      this.db = await openDatabaseAsync(DB_NAME);
+      // Shared with the native NWC handlers — see sharedStorage.js.
+      migrateNWCDatabase(DB_NAME);
+      this.db = await openDatabaseAsync(
+        DB_NAME,
+        undefined,
+        getNWCDatabaseDirectory(),
+      );
+      await this.db.execAsync('PRAGMA busy_timeout = 5000;');
       await this.createTables();
       this.isInitialized = true;
       console.log('Invoice database initialized successfully');
