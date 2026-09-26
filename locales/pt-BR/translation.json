@@ -3152,7 +3152,8 @@
       "list_transactions": "Transações NWC obtidas",
       "make_invoice": "Fatura NWC criada",
       "lookup_invoice": "Consulta de fatura NWC",
-      "pay_invoice": "Pagamento NWC enviado"
+      "pay_invoice": "Pagamento NWC enviado",
+      "openApp": "Abrir Blitz para concluir esta solicitação NWC"
     }
   },
   "accountCard": {

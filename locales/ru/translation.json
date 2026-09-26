@@ -3160,7 +3160,8 @@
       "list_transactions": "Получены транзакции NWC",
       "make_invoice": "Создан счет NWC",
       "lookup_invoice": "Поиск счета NWC",
-      "pay_invoice": "Отправлен платеж NWC"
+      "pay_invoice": "Отправлен платеж NWC",
+      "openApp": "Открыть Blitz, чтобы завершить этот NWC-запрос"
     }
   },
   "accountCard": {
