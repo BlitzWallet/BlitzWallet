@@ -1,55 +1,26 @@
-import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useKeysContext } from '../../../../../../context-store/keys';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  FONT,
   SIZES,
 } from '../../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { initializeNWCSeedInBackground } from './initializeNWCSeed';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
-export default function CombinedOnboardingWarning({ setHasSeenMnemoinc }) {
+export default function CombinedOnboardingWarning() {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
-  const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
-  const [isInitializing, setIsInitializing] = useState(false);
-  const [error, setError] = useState(null);
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
-  const handleContinue = async () => {
-    setIsInitializing(true);
-    setError(null);
-
-    const result = await initializeNWCSeedInBackground(
-      accountMnemoinc,
-      toggleMasterInfoObject,
-    );
-
-    if (result.success) {
-      toggleMasterInfoObject({ didViewNWCMessage: true });
-      setHasSeenMnemoinc(true);
-    } else {
-      setIsInitializing(false);
-      setError(result.error);
-    }
+  // The NWC seed is created at login (ensureNWCSeed); this is informational only.
+  const handleContinue = () => {
+    toggleMasterInfoObject({ didViewNWCMessage: true });
   };
-
-  if (isInitializing) {
-    return (
-      <FullLoadingScreen
-        text={t('settings.nwc.combinedOnboarding.initializingMessage')}
-      />
-    );
-  }
 
   return (
     <View style={styles.content}>
@@ -102,28 +73,10 @@ export default function CombinedOnboardingWarning({ setHasSeenMnemoinc }) {
           ))}
         </View>
 
-        {error && (
-          <View
-            style={[
-              styles.errorContainer,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <ThemeText
-              styles={styles.errorTitle}
-              content={t('settings.nwc.combinedOnboarding.errorTitle')}
-            />
-            <ThemeText styles={styles.errorMessage} content={error} />
-          </View>
-        )}
       </ScrollView>
       <CustomButton
         buttonStyles={styles.button}
-        textContent={
-          error
-            ? t('settings.nwc.combinedOnboarding.errorRetry')
-            : t('settings.nwc.combinedOnboarding.continueButton')
-        }
+        textContent={t('settings.nwc.combinedOnboarding.continueButton')}
         actionFunction={handleContinue}
       />
     </View>
@@ -188,20 +141,5 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     opacity: 0.65,
     includeFontPadding: false,
-  },
-  errorContainer: {
-    marginTop: 20,
-    padding: 15,
-    borderRadius: 8,
-  },
-  errorTitle: {
-    fontFamily: FONT.Title_Bold,
-    fontSize: SIZES.large,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    fontSize: SIZES.medium,
-    textAlign: 'center',
   },
 });

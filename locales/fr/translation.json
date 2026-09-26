@@ -2016,10 +2016,7 @@
         "row2Description": "Ce compte est séparé de votre compte principal pour plus de sécurité.",
         "row3Label": "Accès à l'application",
         "row3Description": "Les applications connectées peuvent utiliser ce compte pour effectuer des paiements.",
-        "continueButton": "Commencer",
-        "initializingMessage": "Configuration de votre wallet NWC...",
-        "errorTitle": "Échec de la configuration",
-        "errorRetry": "Réessayer la configuration"
+        "continueButton": "Commencer"
       },
       "accountCreated": {
         "title": "Connexion créée",

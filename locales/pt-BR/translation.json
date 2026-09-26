@@ -2016,10 +2016,7 @@
         "row2Description": "Esta conta é separada da sua conta principal para maior segurança.",
         "row3Label": "Acesso ao aplicativo",
         "row3Description": "Aplicativos conectados podem usar esta conta para fazer pagamentos.",
-        "continueButton": "Começar",
-        "initializingMessage": "Configurando sua conta NWC...",
-        "errorTitle": "Falha na configuração",
-        "errorRetry": "Tentar novamente"
+        "continueButton": "Começar"
       },
       "accountCreated": {
         "title": "Conexão criada",

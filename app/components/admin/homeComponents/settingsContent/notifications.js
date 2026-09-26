@@ -93,7 +93,7 @@ export default function NotificationPreferances() {
             // User wants to enable notifications
             // Must re-register with system
             const response = await registerForPushNotificationsAsync();
-            if (!response.didWork) throw new Error(response.error);
+            if (!response.didWork) throw new Error(t(response.error));
             const checkResponse = await checkAndSavePushNotificationToDatabase(
               response.token,
             );
@@ -162,6 +162,7 @@ export default function NotificationPreferances() {
       checkAndSavePushNotificationToDatabase,
       loadCurrentNotificationPermission,
       toggleNWCInformation,
+      t,
     ],
   );
 

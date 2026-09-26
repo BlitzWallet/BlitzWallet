@@ -2016,10 +2016,7 @@
         "row2Description": "Dieses Konto ist aus Sicherheitsgründen von Ihrem Hauptkonto getrennt.",
         "row3Label": "App-Zugriff",
         "row3Description": "Verbundene Apps können dieses Konto verwenden, um Zahlungen auszuführen.",
-        "continueButton": "Loslegen",
-        "initializingMessage": "Ihr NWC-Konto wird eingerichtet...",
-        "errorTitle": "Einrichtung fehlgeschlagen",
-        "errorRetry": "Einrichtung erneut versuchen"
+        "continueButton": "Loslegen"
       },
       "accountCreated": {
         "title": "Verbindung erstellt",

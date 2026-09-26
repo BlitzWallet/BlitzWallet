@@ -2016,10 +2016,7 @@
         "row2Description": "Det här kontot är åtskilt från ditt huvudkonto för ökad säkerhet.",
         "row3Label": "Appåtkomst",
         "row3Description": "Anslutna appar kan använda det här kontot för att göra betalningar.",
-        "continueButton": "Kom igång",
-        "initializingMessage": "Konfigurerar din NWC-wallet...",
-        "errorTitle": "Installationen misslyckades",
-        "errorRetry": "Försök igen"
+        "continueButton": "Kom igång"
       },
       "accountCreated": {
         "title": "Anslutning skapad",

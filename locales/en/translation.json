@@ -2182,10 +2182,7 @@
         "row2Description": "This account is separate from your main account for added security.",
         "row3Label": "App access",
         "row3Description": "Connected apps can use this account to make payments.",
-        "continueButton": "Get Started",
-        "initializingMessage": "Setting up your NWC account...",
-        "errorTitle": "Setup Failed",
-        "errorRetry": "Retry Setup"
+        "continueButton": "Get Started"
       }
     },
     "accountComponents": {
@@ -2252,6 +2249,7 @@
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw",
         "viewActivityLabel": "Account History",
+        "manageConnectionsLabel": "Manage Connections",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",
         "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."
