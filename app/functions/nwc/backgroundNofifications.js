@@ -585,35 +585,41 @@ const handlePayInvoice = async (
   const paymentHash = (decoded.tags || []).find(
     tag => tag.tagName === 'payment_hash',
   )?.data;
-  if (paymentHash) {
-    let existing = null;
-    try {
-      existing = await NWCInvoiceManager.handleLookupInvoice({
-        payment_hash: paymentHash,
-      });
-    } catch (err) {
-      console.error('Idempotency lookup failed', err);
+  // Every valid BOLT11 has one; without it the payment can't be claimed below.
+  if (!paymentHash) {
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Invalid invoice',
+    );
+  }
+  let existing = null;
+  try {
+    existing = await NWCInvoiceManager.handleLookupInvoice({
+      payment_hash: paymentHash,
+    });
+  } catch (err) {
+    console.error('Idempotency lookup failed', err);
+  }
+  if (
+    existing &&
+    existing.type === 'OUTGOING' &&
+    existing.status !== 'failed'
+  ) {
+    // 'completed' → return the known preimage; 'pending' → an earlier send is
+    // still in flight, so refuse rather than risk a second send. A 'failed'
+    // record falls through and is allowed to retry.
+    if (existing.status === 'completed') {
+      return {
+        result_type: 'pay_invoice',
+        result: { preimage: existing.preimage || '' },
+      };
     }
-    if (
-      existing &&
-      existing.type === 'OUTGOING' &&
-      existing.status !== 'failed'
-    ) {
-      // 'completed' → return the known preimage; 'pending' → an earlier send is
-      // still in flight, so refuse rather than risk a second send. A 'failed'
-      // record falls through and is allowed to retry.
-      if (existing.status === 'completed') {
-        return {
-          result_type: 'pay_invoice',
-          result: { preimage: existing.preimage || '' },
-        };
-      }
-      return createErrorResponse(
-        'pay_invoice',
-        ERROR_CODES.INTERNAL,
-        'Payment already in progress',
-      );
-    }
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Payment already in progress',
+    );
   }
 
   const renewalSettings = selectedNWCAccount.budgetRenewalSettings || {};
@@ -707,24 +713,30 @@ const handlePayInvoice = async (
     await syncDisplayedSpend();
   };
 
-  await syncDisplayedSpend();
-  if (paymentHash) {
-    try {
-      await NWCInvoiceManager.storeCreatedInvoice({
-        payment_hash: paymentHash,
-        invoice: requestParams.invoice,
-        amount: amountSats,
-        fee: 0,
-        description: '',
-        created_at: now,
-        sparkID: '',
-        type: 'OUTGOING',
-        preimage: '',
-      });
-    } catch (err) {
-      console.error('Failed to store pending outgoing marker', err);
-    }
+  // The lookup above only filters. The native handlers pay from their own
+  // processes, so a marker can appear after it; only the attempt that takes the
+  // payment_hash here may send.
+  let claimed;
+  try {
+    claimed = await NWCInvoiceManager.claimOutgoingPayment({
+      payment_hash: paymentHash,
+      invoice: requestParams.invoice,
+      amount: amountSats,
+    });
+  } catch (err) {
+    console.error('Failed to claim outgoing payment', err);
   }
+  if (!claimed) {
+    await adjustBudget(-amountMsat);
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      claimed === false
+        ? 'Payment already in progress'
+        : 'Unable to send payment',
+    );
+  }
+  await syncDisplayedSpend();
 
   const invoice = await wallet.sendNWCSparkLightningPayment({
     invoice: requestParams.invoice,
@@ -734,16 +746,14 @@ const handlePayInvoice = async (
   if (!invoice.didWork) {
     // Payment never left — release the reservation and mark the attempt failed.
     await adjustBudget(-amountMsat);
-    if (paymentHash) {
-      try {
-        await NWCInvoiceManager.markInvoiceAsNotPending(
-          paymentHash,
-          'failed',
-          '',
-        );
-      } catch (err) {
-        console.error('Failed to mark outgoing marker failed', err);
-      }
+    try {
+      await NWCInvoiceManager.markInvoiceAsNotPending(
+        paymentHash,
+        'failed',
+        '',
+      );
+    } catch (err) {
+      console.error('Failed to mark outgoing marker failed', err);
     }
     return createErrorResponse(
       'pay_invoice',
@@ -769,17 +779,15 @@ const handlePayInvoice = async (
   // otherwise settle it to the actual amount + fee.
   await adjustBudget(paymentStatus === 'failed' ? -amountMsat : feeMsat);
 
-  if (paymentHash) {
-    try {
-      await NWCInvoiceManager.markInvoiceAsNotPending(
-        paymentHash,
-        paymentStatus,
-        paymentPreimage,
-        (feeMsat - (feeMsat % 1000)) / 1000,
-      );
-    } catch (err) {
-      console.error('Failed to update outgoing marker', err);
-    }
+  try {
+    await NWCInvoiceManager.markInvoiceAsNotPending(
+      paymentHash,
+      paymentStatus,
+      paymentPreimage,
+      (feeMsat - (feeMsat % 1000)) / 1000,
+    );
+  } catch (err) {
+    console.error('Failed to update outgoing marker', err);
   }
 
   if (!status.didWork) {

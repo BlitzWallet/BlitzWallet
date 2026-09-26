@@ -80,17 +80,13 @@ struct NwcConfig {
       }
       guard let clientPubkey else { continue }
       let budget = raw["budgetRenewalSettings"] as? [String: Any] ?? [:]
-      let amount = budget["amount"]
       accounts[publicKey] = NwcAccount(
         publicKey: publicKey,
         privateKey: privateKey,
         clientPubkey: clientPubkey,
         permissions: raw["permissions"] as? [String: Bool] ?? [:],
         budgetOption: budget["option"] as? String,
-        // Same coercion as JS `(amount || 0) * 1000`.
-        budgetLimitMsat: (amount as? String) == "Unlimited"
-          ? nil
-          : Int64(((amount as? NSNumber)?.doubleValue ?? Double(amount as? String ?? "") ?? 0) * 1000),
+        budgetLimitMsat: budgetLimitMsat(budget["amount"]),
         lastRotated: (raw["lastRotated"] as? NSNumber)?.int64Value,
         totalSent: (raw["totalSent"] as? NSNumber)?.int64Value ?? 0)
     }
@@ -101,6 +97,18 @@ struct NwcConfig {
       accounts: accounts,
       strings: json["strings"] as? [String: String] ?? [:],
       mnemonic: NwcShared.secureStoreValue("NWC_SECURE_STORE_MNEMOINC"))
+  }
+
+  // Same coercion as JS `(amount || 0) * 1000` and Kotlin `toLong()`: nil =
+  // unlimited, junk → 0, out of range saturates. The amount is user input, and
+  // Int64(_: Double) traps past 2^63, on NaN and on infinity.
+  static func budgetLimitMsat(_ amount: Any?) -> Int64? {
+    if (amount as? String) == "Unlimited" { return nil }
+    let msat = ((amount as? NSNumber)?.doubleValue ?? Double(amount as? String ?? "") ?? 0) * 1000
+    if msat.isNaN { return 0 }
+    if msat >= Double(Int64.max) { return .max }
+    if msat <= Double(Int64.min) { return .min }
+    return Int64(msat)
   }
 }
 
@@ -355,6 +363,27 @@ final class NwcInvoices {
         paymentHash, invoice, amountSats, description, now, now, expiresAt,
         String(decoding: try JSONSerialization.data(withJSONObject: metadata), as: UTF8.self), type,
       ])
+  }
+
+  // Takes the right to pay `paymentHash`: a new pending OUTGOING marker, or a
+  // failed one flipped back to pending. The app's JS handler pays from another
+  // process, so only the attempt whose statement changed the row may send.
+  // Same SQL as cachedNWCTxs.js claimOutgoingPayment and NwcStorage.kt.
+  func claimPayment(paymentHash: String, invoice: String, amountSats: Int64) throws -> Bool {
+    let now = NwcClock.nowMs
+    let inserted = try db.run(
+      """
+      INSERT OR IGNORE INTO invoices (payment_hash, invoice, amount, description, created_at, updated_at,
+        expires_at, settled_at, metadata, sparkID, type, status, fee, preimage)
+      VALUES (?, ?, ?, '', ?, ?, NULL, NULL, ?, '', 'OUTGOING', 'pending', 0, '')
+      """,
+      [paymentHash, invoice, amountSats, now, now, #"{"created_via":"nwc_create_invoice"}"#])
+    if inserted > 0 { return true }
+    return try db.run(
+      """
+      UPDATE invoices SET status = 'pending', updated_at = ?, settled_at = NULL, preimage = ''
+      WHERE payment_hash = ? AND type = 'OUTGOING' AND status = 'failed'
+      """, [now, paymentHash]) > 0
   }
 
   func updateStatus(paymentHash: String, status: String, preimage: String, feeSats: Int64? = nil)

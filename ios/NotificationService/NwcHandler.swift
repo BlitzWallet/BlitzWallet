@@ -141,12 +141,22 @@ final class NwcHandler: @unchecked Sendable {
         nwcLog.error("NWC native: rejected event \(event.id, privacy: .public)")
         continue
       }
-      guard
-        (try? ledger.claim(
-          eventId: event.id, account: accountKey, createdAt: event.createdAt,
-          payload: Self.payload(event))) == true
-      else {
-        nwcLog.log("NWC native: skipping already-handled event \(event.id, privacy: .public)")
+      do {
+        guard
+          try ledger.claim(
+            eventId: event.id, account: accountKey, createdAt: event.createdAt,
+            payload: Self.payload(event))
+        else {
+          nwcLog.log("NWC native: skipping already-handled event \(event.id, privacy: .public)")
+          continue
+        }
+      } catch {
+        // Not a duplicate: the ledger failed, so nothing was stored for the app
+        // to pick up either. Surface it instead of dropping it as handled.
+        nwcLog.error(
+          "NWC native: could not claim event \(event.id, privacy: .public): \(String(describing: error), privacy: .public)"
+        )
+        outcome.handedOff = true
         continue
       }
       claimed.append((event, account))
@@ -402,12 +412,20 @@ final class NwcHandler: @unchecked Sendable {
     else {
       return errorResponse(method, "QUOTA_EXCEEDED", "The wallet has exceeded its spending quota.")
     }
-    if existing == nil {
-      try invoices.store(
-        paymentHash: paymentHash, invoice: invoice, amountSats: amountMsat / 1000,
-        description: "", expiresAt: nil, type: "OUTGOING")
-    } else {
-      try invoices.updateStatus(paymentHash: paymentHash, status: "pending", preimage: "")
+    // The lookup above only filters. The app's JS handler pays from its own
+    // process, so a marker can appear after it; only the attempt that takes the
+    // payment_hash here may send.
+    let claimed: Bool
+    do {
+      claimed = try invoices.claimPayment(
+        paymentHash: paymentHash, invoice: invoice, amountSats: amountMsat / 1000)
+    } catch {
+      try? ledger.adjustSpend(account.publicKey, windowStart: windowStart, deltaMsat: -reservedMsat)
+      throw error
+    }
+    guard claimed else {
+      try? ledger.adjustSpend(account.publicKey, windowStart: windowStart, deltaMsat: -reservedMsat)
+      return errorResponse(method, "INTERNAL", "Payment already in progress")
     }
     guard setCurrent((event.id, true)) else { throw NwcError.handOff("expired") }
 
@@ -415,8 +433,7 @@ final class NwcHandler: @unchecked Sendable {
     var neverLeft = false
     do {
       payment = try await wallet.send(
-        prepared, idempotencyKey: nwcIdempotencyKey(paymentHash: paymentHash),
-        timeoutSeconds: UInt32(max(1, min(15, remaining - 4))))
+        prepared, timeoutSeconds: UInt32(max(1, min(15, remaining - 4))))
     } catch {
       neverLeft = Self.isRejectedBeforeSend(error)
       payment = try? await wallet.lightningPayment(paymentHash: paymentHash)

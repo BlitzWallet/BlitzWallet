@@ -21,6 +21,7 @@ module BlitzSecp256k1 {
   export *
 }
 MAP
-swiftc -O -module-cache-path "$OUT/mc" -I "$OUT/module" ../NotificationService/NwcCrypto.swift main.swift \
-  "$OUT/secp256k1.o" "$OUT/ecmult.o" "$OUT/ecmult_gen.o" -o "$OUT/check"
-"$OUT/check" ../../android/app/src/test/resources/nwc-crypto-vectors.json
+swiftc -O -module-cache-path "$OUT/mc" -I "$OUT/module" ../NotificationService/NwcCrypto.swift \
+  ../NotificationService/NwcStorage.swift main.swift \
+  "$OUT/secp256k1.o" "$OUT/ecmult.o" "$OUT/ecmult_gen.o" -lsqlite3 -o "$OUT/check"
+"$OUT/check" ../../android/app/src/test/resources/nwc-crypto-vectors.json "$OUT/storage"

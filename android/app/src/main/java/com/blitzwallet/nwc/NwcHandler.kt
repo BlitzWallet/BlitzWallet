@@ -104,20 +104,40 @@ class NwcHandler(
       }
       outcome.strings = config.strings
 
-      val claimed = events.mapNotNull { event ->
-        val account = config.accounts[event.accountKey]
-        if (account == null || account.clientPubkey != event.clientPubKey || !verifySignature(event)) {
-          Log.w(NWC_TAG, "rejected event ${event.id}")
-          return@mapNotNull null
+      val claimed = mutableListOf<Pair<RawEvent, NwcAccount>>()
+      val invoices = try {
+        for (event in events) {
+          val account = config.accounts[event.accountKey]
+          if (account == null || account.clientPubkey != event.clientPubKey || !verifySignature(event)) {
+            Log.w(NWC_TAG, "rejected event ${event.id}")
+            continue
+          }
+          val isNew = try {
+            ledger.claim(event.id, event.accountKey, event.createdAt, event.json.toString())
+          } catch (e: Exception) {
+            // Not a duplicate: nothing was recorded, so the JS handler (started
+            // with the original push) claims and runs this event instead.
+            Log.e(NWC_TAG, "could not claim event ${event.id}", e)
+            outcome.handedOff = true
+            continue
+          }
+          if (!isNew) {
+            Log.i(NWC_TAG, "skipping already-handled event ${event.id}")
+            continue
+          }
+          claimed += event to account
         }
-        if (!runCatching { ledger.claim(event.id, event.accountKey, event.createdAt, event.json.toString()) }.getOrDefault(false)) {
-          Log.i(NWC_TAG, "skipping already-handled event ${event.id}")
-          return@mapNotNull null
-        }
-        event to account
+        NwcInvoices(context)
+      } catch (e: Throwable) {
+        // Nothing has run yet (e.g. a native library failed to load): hand every
+        // claimed event to the JS handler instead of leaving it 'processing'.
+        Log.e(NWC_TAG, "native setup failed, handing off", e)
+        claimed.forEach { ledger.handOff(it.first.id) }
+        outcome.handedOff = true
+        return@withContext outcome
       }
 
-      NwcInvoices(context).use { invoices ->
+      invoices.use {
         for ((event, account) in claimed) process(event, account, config, ledger, invoices, outcome)
       }
       wallet?.disconnect()
@@ -165,7 +185,9 @@ class NwcHandler(
       ledger.finish(event.id, "done")
       if (response.has("result")) outcome.notifyMethod = method
       Log.i(NWC_TAG, "$method handled in ${SystemClock.elapsedRealtime() - methodStart} ms")
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
+      // Throwable: a Breez/secp256k1 library that fails to load throws an Error,
+      // which must still hand the event off rather than crash the process.
       Log.w(NWC_TAG, "$method not completed: $e")
       if (sending) ledger.abandon(event.id) else ledger.handOff(event.id)
       outcome.handedOff = true
@@ -326,16 +348,24 @@ class NwcHandler(
       account.lastRotated ?: now, now,
     ) { isWithinBudgetWindow(account.budgetOption, it) }
       ?: return errorResponse(method, "QUOTA_EXCEEDED", "The wallet has exceeded its spending quota.")
-    if (existing == null) {
-      invoices.store(paymentHash, invoice, amountMsat / 1000, "", null, "OUTGOING")
-    } else {
-      invoices.updateStatus(paymentHash, "pending", "")
+    // The lookup above only filters. The JS handler pays from the main process,
+    // so a marker can appear after it; only the attempt that takes the
+    // payment_hash here may send.
+    val claimed = try {
+      invoices.claimPayment(paymentHash, invoice, amountMsat / 1000)
+    } catch (e: Exception) {
+      runCatching { ledger.adjustSpend(account.publicKey, windowStart, -reservedMsat) }
+      throw e
+    }
+    if (!claimed) {
+      runCatching { ledger.adjustSpend(account.publicKey, windowStart, -reservedMsat) }
+      return errorResponse(method, "INTERNAL", "Payment already in progress")
     }
     sending = true
 
     var neverLeft = false
     val payment: Payment? = try {
-      wallet.send(prepared, nwcIdempotencyKey(paymentHash), max(1, min(15, (remainingMs / 1000 - 4).toInt())))
+      wallet.send(prepared, max(1, min(15, (remainingMs / 1000 - 4).toInt())))
     } catch (e: Exception) {
       neverLeft = isRejectedBeforeSend(e)
       runCatching { wallet.lightningPayment(paymentHash) }.getOrNull()

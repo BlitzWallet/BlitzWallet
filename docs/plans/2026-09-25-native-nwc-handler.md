@@ -57,9 +57,13 @@ bundled SQLite never share one process (POSIX lock loss). Rollback journal only
   reclaims; JS reclaims only `handoff` rows or native rows abandoned > 60 s.
 - Native stores the raw event in `nwc_handoff` at claim time, deletes it when it
   reaches `done`/`failed`. A killed NSE/process therefore leaves a recoverable row.
-- `pay_invoice`: budget reserved and a pending OUTGOING marker keyed by
-  `payment_hash` written before sending (same as JS). Once a send starts, the
-  event is never handed off or retried; any later attempt hits the marker.
+- `pay_invoice`: budget reserved, then the `payment_hash` claimed before
+  sending: a new pending OUTGOING marker, or a `failed` one flipped back to
+  pending (`claimPayment` / `claimOutgoingPayment`, same SQL in all three). A
+  payer that loses the claim releases its reservation and does not send. Once a
+  send starts, the event is never handed off or retried; any later attempt hits
+  the marker. No Breez idempotency key: the claim allows one send per attempt,
+  and a per-invoice key would replay the old failed payment on every retry.
 - Response publish failure after a completed payment → event `done`; a client
   retry gets the stored preimage from the marker.
 

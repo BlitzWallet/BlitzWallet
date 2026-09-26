@@ -66,11 +66,12 @@ class NwcWallet private constructor(private val sdk: BreezSdk) {
     return prepared to method.lightningFeeSats.toLong()
   }
 
-  // idempotencyKey makes the Spark operators return the same payment for a
-  // repeated key instead of paying twice.
-  suspend fun send(prepared: PrepareSendPaymentResponse, idempotencyKey: String, timeoutSeconds: Int): Payment =
+  // No idempotency key: the payment_hash claim (NwcInvoices.claimPayment) allows
+  // one send per attempt, and a key fixed per invoice made Breez return the old
+  // failed payment on every retry.
+  suspend fun send(prepared: PrepareSendPaymentResponse, timeoutSeconds: Int): Payment =
     sdk.sendPayment(
-      SendPaymentRequest(prepared, SendPaymentOptions.Bolt11Invoice(false, timeoutSeconds.toUInt()), idempotencyKey),
+      SendPaymentRequest(prepared, SendPaymentOptions.Bolt11Invoice(false, timeoutSeconds.toUInt()), null),
     ).payment
 
   suspend fun payments(offset: Int, limit: Int, from: Long?, until: Long?, type: PaymentType?): List<Payment> =
@@ -94,13 +95,3 @@ class NwcWallet private constructor(private val sdk: BreezSdk) {
 val Payment.lightning: PaymentDetails.Lightning? get() = details as? PaymentDetails.Lightning
 val Payment.amountSats: Long get() = amount.toLong()
 val Payment.feeSats: Long get() = fees.toLong()
-
-// Idempotency keys must be UUIDs: derive one from the payment hash.
-fun nwcIdempotencyKey(paymentHash: String): String {
-  val bytes = (paymentHash.hexToBytes() ?: NwcCrypto.randomBytes(16)).copyOf(16)
-  bytes[6] = ((bytes[6].toInt() and 0x0f) or 0x40).toByte()
-  bytes[8] = ((bytes[8].toInt() and 0x3f) or 0x80).toByte()
-  val hex = bytes.toHex()
-  return listOf(hex.substring(0, 8), hex.substring(8, 12), hex.substring(12, 16), hex.substring(16, 20), hex.substring(20))
-    .joinToString("-")
-}

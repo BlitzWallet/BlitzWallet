@@ -62,16 +62,15 @@ final class NwcWallet {
     return (prepared, lightningFeeSats)
   }
 
-  // idempotencyKey makes the Spark operators return the same payment for a
-  // repeated key instead of paying twice.
-  func send(_ prepared: PrepareSendPaymentResponse, idempotencyKey: String, timeoutSeconds: UInt32)
-    async throws -> Payment
-  {
+  // No idempotency key: the payment_hash claim (NwcInvoices.claimPayment) allows
+  // one send per attempt, and a key fixed per invoice made Breez return the old
+  // failed payment on every retry.
+  func send(_ prepared: PrepareSendPaymentResponse, timeoutSeconds: UInt32) async throws -> Payment {
     try await sdk.sendPayment(
       request: SendPaymentRequest(
         prepareResponse: prepared,
         options: .bolt11Invoice(preferSpark: false, completionTimeoutSecs: timeoutSeconds),
-        idempotencyKey: idempotencyKey)
+        idempotencyKey: nil)
     ).payment
   }
 
@@ -109,17 +108,4 @@ extension Payment {
 
   var amountSats: Int64 { Int64(amount.description) ?? 0 }
   var feeSats: Int64 { Int64(fees.description) ?? 0 }
-}
-
-// Idempotency keys must be UUIDs: derive one from the payment hash.
-func nwcIdempotencyKey(paymentHash: String) -> String {
-  var bytes = Array(([UInt8](hex: paymentHash) ?? NwcCrypto.randomBytes(16)).prefix(16))
-  bytes[6] = (bytes[6] & 0x0f) | 0x40
-  bytes[8] = (bytes[8] & 0x3f) | 0x80
-  let hex = bytes.hex
-  let parts = [0..<8, 8..<12, 12..<16, 16..<20, 20..<32].map {
-    String(hex[hex.index(hex.startIndex, offsetBy: $0.lowerBound)..<hex.index(
-      hex.startIndex, offsetBy: $0.upperBound)])
-  }
-  return parts.joined(separator: "-")
 }

@@ -1,7 +1,8 @@
 import Foundation
 
 // Conformance check for NotificationService/NwcCrypto.swift against the shared
-// vectors (official NIP-44 set + nostr-tools generated NIP-04/NIP-01 cases).
+// vectors (official NIP-44 set + nostr-tools generated NIP-04/NIP-01 cases),
+// plus NwcStorage.swift budget parsing and payment claims on real SQLite.
 // Run: ios/NotificationServiceTests/run.sh
 let path = CommandLine.arguments[1]
 let vectors = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: path))) as! [String: Any]
@@ -60,6 +61,47 @@ for item in nip44["encrypt_decrypt"] as! [[String: String]] {
 for item in nip44["invalid_decrypt"] as! [[String: String]] {
   check((try? NwcCrypto.nip44Decrypt(item["payload"]!, conversationKey: bytes(item["conversation_key"]))) == nil, "invalid decrypt: \(item["note"]!)")
 }
+
+// MARK: NwcStorage
+// Budget: the value is user input (no keypad cap). Must never trap (Int64(Double)
+// does past 2^63 / on NaN / inf) and must match the Kotlin/JS coercion:
+// "Unlimited" → nil, junk or missing → 0, out of range saturates.
+let budgetCases: [(Any?, Int64?)] = [
+  (NSNumber(value: 100_000), 100_000_000), ("5000", 5_000_000), ("Unlimited", nil), (nil, 0),
+  (NSNull(), 0), ("junk", 0), ("nan", 0), (NSNumber(value: 9_999_999_999_999_999 as Int64), .max),
+  ("1e400", .max), ("-1e400", .min),
+]
+for (amount, expected) in budgetCases {
+  check(NwcConfig.budgetLimitMsat(amount) == expected, "budget \(String(describing: amount))")
+}
+
+// Payment claim: the payment_hash marker is the only thing stopping two payers
+// in separate processes from sending the same invoice. Ways it fails: both
+// claim a new hash; a pending or completed marker is taken over; a failed one
+// is never retryable or is retried twice; an INCOMING invoice becomes a payment.
+let storageDir = URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true)
+try! FileManager.default.createDirectory(at: storageDir, withIntermediateDirectories: true)
+let payerA = try! NwcInvoices(directory: storageDir)
+let payerB = try! NwcInvoices(directory: storageDir)  // second connection = another process
+func claim(_ payer: NwcInvoices, _ hash: String) -> Bool {
+  try! payer.claimPayment(paymentHash: hash, invoice: "lnbc-\(hash)", amountSats: 5)
+}
+func markerStatus(_ hash: String) -> String? {
+  try! payerA.lookup(invoice: nil, paymentHash: hash)?["status"] as? String
+}
+check(claim(payerA, "h1"), "claim a new hash")
+check(!claim(payerB, "h1"), "pending hash not claimed twice")
+try! payerA.updateStatus(paymentHash: "h1", status: "completed", preimage: "p")
+check(!claim(payerB, "h1"), "completed hash not claimed")
+try! payerA.updateStatus(paymentHash: "h1", status: "failed", preimage: "")
+check(claim(payerB, "h1"), "failed hash reclaimed")
+check(!claim(payerA, "h1"), "failed hash reclaimed once")
+check(markerStatus("h1") == "pending", "reclaimed marker is pending")
+try! payerA.store(
+  paymentHash: "h2", invoice: "lnbc-incoming", amountSats: 5, description: nil, expiresAt: nil,
+  type: "INCOMING")
+check(!claim(payerB, "h2"), "incoming invoice not claimed")
+check(try! payerA.lookup(invoice: nil, paymentHash: "h2")?["type"] as? String == "INCOMING", "incoming untouched")
 
 print("\(checks - failures)/\(checks) checks passed")
 exit(failures == 0 ? 0 : 1)

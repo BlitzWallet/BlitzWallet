@@ -49,7 +49,9 @@ class NwcNativeService : Service() {
           outcome.handedOff -> fallBackToJs(extras, outcome.strings)
           outcome.notifyMethod != null -> notify(outcome.strings["title"], outcome.strings[outcome.notifyMethod!!])
         }
-      } catch (e: Exception) {
+      } catch (e: Throwable) {
+        // Throwable, not Exception: a native library that fails to load throws an
+        // Error, and the JS path must still get the push.
         Log.e(NWC_TAG, "native handler crashed", e)
         fallBackToJs(extras, emptyMap())
       } finally {

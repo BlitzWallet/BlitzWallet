@@ -325,6 +325,36 @@ class NwcInvoices(context: Context) : AutoCloseable {
     )
   }
 
+  // Takes the right to pay `paymentHash`: a new pending OUTGOING marker, or a
+  // failed one flipped back to pending. The JS handler pays from the main
+  // process, so only the attempt whose statement changed the row may send.
+  // Same SQL as cachedNWCTxs.js claimOutgoingPayment and NwcStorage.swift.
+  fun claimPayment(paymentHash: String, invoice: String, amountSats: Long): Boolean {
+    val now = System.currentTimeMillis()
+    val inserted = db.compileStatement(
+      """INSERT OR IGNORE INTO invoices (payment_hash, invoice, amount, description, created_at, updated_at,
+        expires_at, settled_at, metadata, sparkID, type, status, fee, preimage)
+      VALUES (?, ?, ?, '', ?, ?, NULL, NULL, ?, '', 'OUTGOING', 'pending', 0, '')""",
+    ).use {
+      it.bindString(1, paymentHash)
+      it.bindString(2, invoice)
+      it.bindLong(3, amountSats)
+      it.bindLong(4, now)
+      it.bindLong(5, now)
+      it.bindString(6, """{"created_via":"nwc_create_invoice"}""")
+      it.executeInsert() != -1L
+    }
+    if (inserted) return true
+    return db.compileStatement(
+      """UPDATE invoices SET status = 'pending', updated_at = ?, settled_at = NULL, preimage = ''
+      WHERE payment_hash = ? AND type = 'OUTGOING' AND status = 'failed'""",
+    ).use {
+      it.bindLong(1, now)
+      it.bindString(2, paymentHash)
+      it.executeUpdateDelete() > 0
+    }
+  }
+
   fun updateStatus(paymentHash: String, status: String, preimage: String, feeSats: Long? = null) {
     val now = System.currentTimeMillis()
     db.execSQL(
