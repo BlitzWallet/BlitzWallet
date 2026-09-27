@@ -17,6 +17,7 @@
 //  9. One side's release/settle of its reservation erases the other's spend.
 // 10. Two payers that both see an expired window each reset it, erasing a
 //     reservation made in the new window.
+// 11. A handed-off pay_invoice pays minutes later, after the client gave up.
 
 jest.mock('expo-sqlite', () => {
   const { DatabaseSync: DB } = require('node:sqlite');
@@ -235,14 +236,17 @@ describe('drainNativeNWCHandoffs (7)', () => {
   const clientPubkey = getPublicKey(clientSecret);
 
   // The push event shape NWC-Backend forwards and native stores verbatim.
-  const pushEvent = () => {
+  const pushEvent = (method = 'get_info', ageSeconds = 0) => {
     const key = nip44.getConversationKey(Buffer.from(clientSecret, 'hex'), servicePubkey);
     const signed = finalizeEvent(
       {
         kind: 23194,
-        created_at: Math.floor(Date.now() / 1000),
+        created_at: Math.floor(Date.now() / 1000) - ageSeconds,
         tags: [['p', servicePubkey]],
-        content: nip44.encrypt(JSON.stringify({ method: 'get_info', params: {} }), key),
+        content: nip44.encrypt(
+          JSON.stringify({ method, params: { invoice: 'lnbc1' } }),
+          key,
+        ),
       },
       Buffer.from(clientSecret, 'hex'),
     );
@@ -253,7 +257,7 @@ describe('drainNativeNWCHandoffs (7)', () => {
     getNWCData.mockResolvedValue({
       accounts: {
         [servicePubkey]: {
-          permissions: {},
+          permissions: { sendPayments: true },
           privateKey: accountPrivateKey,
           publicKey: servicePubkey,
           clientPubkey,
@@ -281,5 +285,22 @@ describe('drainNativeNWCHandoffs (7)', () => {
 
     await drainNativeNWCHandoffs();
     expect(publishToSingleRelay).toHaveBeenCalledTimes(1);
+  });
+
+  test('(11) answers a stale handed-off pay_invoice without paying', async () => {
+    const stale = pushEvent('pay_invoice', 120);
+    nativeClaim(stale.id, JSON.stringify(stale));
+    nativeHandOff(stale.id);
+
+    await drainNativeNWCHandoffs();
+
+    const [[response]] = publishToSingleRelay.mock.calls.at(-1);
+    expect(response.tags).toContainEqual(['e', stale.id]);
+    const key = nip44.getConversationKey(Buffer.from(clientSecret, 'hex'), servicePubkey);
+    expect(JSON.parse(nip44.decrypt(response.content, key))).toEqual({
+      result_type: 'pay_invoice',
+      error: { code: 'OTHER', message: 'Request expired' },
+    });
+    expect(status(stale.id)).toBe('done');
   });
 });

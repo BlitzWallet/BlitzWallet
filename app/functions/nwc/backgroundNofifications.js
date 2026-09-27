@@ -33,6 +33,10 @@ let processingLock = Promise.resolve();
 
 const RELAY_URL = NOSTR_RELAY_URL;
 const MAX_EVENT_AGE_SECONDS = 300;
+// A handed-off pay_invoice runs only when the user opens the app, by which
+// point the client has likely timed out and may have retried elsewhere. Past
+// this age (and without a client-set expiration) it is answered, not paid.
+const MAX_HANDOFF_PAYMENT_AGE_SECONDS = 60;
 const DEFAULT_INVOICE_EXPIRY_SECONDS = 60 * 60 * 12;
 // Bounds per-push work from authorized clients: NIP-47 clients page with small
 // limits, so these caps never reject legitimate traffic.
@@ -45,6 +49,7 @@ const ERROR_CODES = {
   RESTRICTED: 'RESTRICTED',
   QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   NOT_FOUND: 'NOT_FOUND',
+  OTHER: 'OTHER',
 };
 
 // User-facing push fired only after an event was successfully handled and its
@@ -1139,9 +1144,10 @@ export async function drainNativeNWCHandoffs() {
       .filter(Boolean);
     if (events.length) {
       console.log('Draining native NWC handoffs', events.length);
-      await handleNWCBackgroundEvent({
-        data: { body: JSON.stringify({ events }) },
-      });
+      await handleNWCBackgroundEvent(
+        { data: { body: JSON.stringify({ events }) } },
+        { fromHandoff: true },
+      );
     }
     await nwcEventLedger.pruneNativeHandoffs(
       Date.now(),
@@ -1152,7 +1158,21 @@ export async function drainNativeNWCHandoffs() {
   }
 }
 
-export default async function handleNWCBackgroundEvent(notificationData) {
+function isStaleHandoffPayment(event) {
+  if (event.requestMethod !== 'pay_invoice') return false;
+  // An unexpired client expiration (checked during validation) is the
+  // client's own deadline, so honor it instead of the default.
+  if (event.tags.some(tag => tag[0] === 'expiration')) return false;
+  return (
+    Math.floor(Date.now() / 1000) - event.created_at >
+    MAX_HANDOFF_PAYMENT_AGE_SECONDS
+  );
+}
+
+export default async function handleNWCBackgroundEvent(
+  notificationData,
+  { fromHandoff = false } = {},
+) {
   try {
     let {
       data: { body: nwcEvent },
@@ -1253,11 +1273,18 @@ export default async function handleNWCBackgroundEvent(notificationData) {
           event.requestParams = parsedData.params;
           await nwcEventLedger.setMethod(event.id, parsedData.method);
 
-          const returnObject = await processEvent(
-            event,
-            selectedNWCAccount,
-            fullStorageObject,
-          );
+          const returnObject =
+            fromHandoff && isStaleHandoffPayment(event)
+              ? createErrorResponse(
+                  event.requestMethod,
+                  ERROR_CODES.OTHER,
+                  'Request expired',
+                )
+              : await processEvent(
+                  event,
+                  selectedNWCAccount,
+                  fullStorageObject,
+                );
           if (!returnObject) {
             await nwcEventLedger.markDone(event.id, Date.now());
             continue;
