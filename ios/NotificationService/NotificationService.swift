@@ -52,7 +52,7 @@ final class NotificationService: UNNotificationServiceExtension {
     let content = UNMutableNotificationContent()
     if outcome.handedOff {
       content.title = strings["title"] ?? "Nostr Connect"
-      content.body = strings["openApp"] ?? "Open Blitz to finish this NWC request"
+      content.body = strings["openApp"] ?? "Open Blitz to finish this request"
     } else if let method = outcome.notifyMethod {
       content.title = strings["title"] ?? "Nostr Connect"
       content.body = strings[method] ?? original.body

@@ -80,7 +80,7 @@ class NwcNativeService : Service() {
       Log.i(NWC_TAG, "handed off to JS headless task")
     } catch (e: Exception) {
       Log.w(NWC_TAG, "JS headless start refused, asking user to open the app", e)
-      notify(strings["title"], strings["openApp"] ?: "Open Blitz to finish this NWC request")
+      notify(strings["title"], strings["openApp"] ?: "Open Blitz to finish this request")
     }
   }
 

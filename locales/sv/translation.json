@@ -3144,13 +3144,13 @@
       "giftCard": "{{name}} skickade ett presentkort till dig på {{giftCardName}} "
     },
     "nwc": {
-      "get_info": "NWC-informationshändelse",
-      "get_balance": "NWC-saldo-händelse",
-      "list_transactions": "NWC-transaktioner hämtade",
-      "make_invoice": "NWC-faktura skapad",
-      "lookup_invoice": "NWC-fakturasökning",
-      "pay_invoice": "NWC-betalning skickad",
-      "openApp": "Öppna Blitz för att slutföra denna NWC-begäran"
+      "get_info": "Plånboksinfo begärd",
+      "get_balance": "Saldo kontrollerat",
+      "list_transactions": "Transaktioner visade",
+      "make_invoice": "Faktura skapad",
+      "lookup_invoice": "Faktura kontrollerad",
+      "pay_invoice": "Betalning skickad",
+      "openApp": "Öppna Blitz för att slutföra begäran"
     }
   },
   "accountCard": {

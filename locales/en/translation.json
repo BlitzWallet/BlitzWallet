@@ -3145,13 +3145,13 @@
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     },
     "nwc": {
-      "get_info": "NWC info event",
-      "get_balance": "NWC balance event",
-      "list_transactions": "Got NWC transactions",
-      "make_invoice": "Created NWC invoice",
-      "lookup_invoice": "NWC invoice lookup",
-      "pay_invoice": "Sent NWC payment",
-      "openApp": "Open Blitz to finish this NWC request"
+      "get_info": "Wallet info requested",
+      "get_balance": "Balance checked",
+      "list_transactions": "Transactions viewed",
+      "make_invoice": "Invoice created",
+      "lookup_invoice": "Invoice checked",
+      "pay_invoice": "Payment sent",
+      "openApp": "Open Blitz to finish request"
     }
   },
   "accountCard": {

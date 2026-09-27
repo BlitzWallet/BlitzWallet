@@ -3144,13 +3144,13 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet."
     },
     "nwc": {
-      "get_info": "NWC-Info-Event",
-      "get_balance": "NWC-Guthaben-Event",
-      "list_transactions": "NWC-Transaktionen abgerufen",
-      "make_invoice": "NWC-Rechnung erstellt",
-      "lookup_invoice": "NWC-Rechnungsabfrage",
-      "pay_invoice": "NWC-Zahlung gesendet",
-      "openApp": "Blitz öffnen, um diese NWC-Anfrage abzuschließen"
+      "get_info": "Wallet-Infos angefragt",
+      "get_balance": "Guthaben abgefragt",
+      "list_transactions": "Transaktionen angesehen",
+      "make_invoice": "Rechnung erstellt",
+      "lookup_invoice": "Rechnung geprüft",
+      "pay_invoice": "Zahlung gesendet",
+      "openApp": "Blitz öffnen, um Anfrage abzuschließen"
     }
   },
   "accountCard": {

@@ -3152,13 +3152,13 @@
       "giftCard": "{{name}} отправил вам карту {{giftCardName}}"
     },
     "nwc": {
-      "get_info": "Событие информации NWC",
-      "get_balance": "Событие баланса NWC",
-      "list_transactions": "Получены транзакции NWC",
-      "make_invoice": "Создан счет NWC",
-      "lookup_invoice": "Поиск счета NWC",
-      "pay_invoice": "Отправлен платеж NWC",
-      "openApp": "Открыть Blitz, чтобы завершить этот NWC-запрос"
+      "get_info": "Запрошены данные кошелька",
+      "get_balance": "Баланс проверен",
+      "list_transactions": "Транзакции просмотрены",
+      "make_invoice": "Счёт создан",
+      "lookup_invoice": "Счёт проверен",
+      "pay_invoice": "Платёж отправлен",
+      "openApp": "Откройте Blitz, чтобы завершить запрос"
     }
   },
   "accountCard": {
