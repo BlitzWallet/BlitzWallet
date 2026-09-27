@@ -75,7 +75,9 @@ class NwcConfig(
       val rawAccounts = json.optJSONObject("accounts") ?: JSONObject()
       for (publicKey in rawAccounts.keys()) {
         val raw = rawAccounts.getJSONObject(publicKey)
-        val secret = secrets.optJSONObject(publicKey) ?: continue
+        // A missing secret can mean this process cached SecureStore before the app added the account.
+        // Let the JS handler read fresh secrets instead of silently dropping its requests.
+        val secret = secrets.optJSONObject(publicKey) ?: return null
         val privateKey = secret.optString("privateKey").hexToBytes() ?: continue
         val clientPubkey = raw.optString("clientPubkey").takeIf { it.isNotEmpty() && it != "null" }
           ?: secret.optString("secret").hexToBytes()?.let { runCatching { NwcCrypto.publicKey(it).toHex() }.getOrNull() }
