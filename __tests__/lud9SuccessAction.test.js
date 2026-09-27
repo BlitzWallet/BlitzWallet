@@ -20,38 +20,41 @@ const receipt = {
 };
 
 describe('LUD-09 callback actions', () => {
-  test('keeps a same-host HTTPS receipt, including case and whitespace normalization', () => {
+  test('keeps an HTTPS receipt, including whitespace normalization', () => {
     expect(
-      sanitizeLUD9SuccessAction(
-        { ...receipt, url: '  https://MERCHANT.example/receipt  ' },
-        callback,
-      ),
+      sanitizeLUD9SuccessAction({
+        ...receipt,
+        url: '  https://MERCHANT.example/receipt  ',
+      }),
     ).toEqual({ ...receipt, url: 'https://MERCHANT.example/receipt' });
+  });
+
+  test('keeps a cross-domain HTTPS receipt (LUD-09 same-domain is not client-enforced)', () => {
+    expect(
+      sanitizeLUD9SuccessAction({
+        ...receipt,
+        url: 'https://receipts.other.example/order/1',
+      }),
+    ).toEqual({ ...receipt, url: 'https://receipts.other.example/order/1' });
   });
 
   test.each([
     'javascript:void(0)',
     'data:text/html,receipt',
     'http://merchant.example/receipt',
-    'https://other.example/receipt',
-    'https://merchant.example.other.example/receipt',
-    'https://merchant.example@other.example/receipt',
+    'javascript://merchant.example/%0aalert(1)',
     '/receipt',
     '',
     null,
     {},
   ])('drops an unsafe receipt URL: %p', url => {
-    expect(sanitizeLUD9SuccessAction({ ...receipt, url }, callback)).toBeNull();
-  });
-
-  test('rejects a malformed callback', () => {
-    expect(sanitizeLUD9SuccessAction(receipt, 'not a URL')).toBeNull();
+    expect(sanitizeLUD9SuccessAction({ ...receipt, url })).toBeNull();
   });
 
   test.each([null, undefined, false, 'receipt', []])(
     'rejects a non-object action: %p',
     action => {
-      expect(sanitizeLUD9SuccessAction(action, callback)).toBeNull();
+      expect(sanitizeLUD9SuccessAction(action)).toBeNull();
     },
   );
 
@@ -59,9 +62,9 @@ describe('LUD-09 callback actions', () => {
     { tag: 'message', message: 'Thank you' },
     { tag: 'aes', description: 'Receipt', ciphertext: 'fixture', iv: 'fixture' },
   ])('strips URL fields from $tag actions without changing their payload', action => {
-    const supplied = { ...action, url: 'https://other.example/receipt' };
-    expect(sanitizeLUD9SuccessAction(supplied, callback)).toEqual(action);
-    expect(supplied.url).toBe('https://other.example/receipt');
+    const supplied = { ...action, url: 'javascript:void(0)' };
+    expect(sanitizeLUD9SuccessAction(supplied)).toEqual(action);
+    expect(supplied.url).toBe('javascript:void(0)');
   });
 
   describe('invoice callback integration', () => {
