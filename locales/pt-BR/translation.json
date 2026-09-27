@@ -13,7 +13,7 @@
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
-    "total_balance": "Saldo total",
+    "total_balance": "Saldo disponível",
     "sat_balance": "Saldo Bitcoin",
     "usd_balance": "Saldo Dólar",
     "amount": "Quantia",
@@ -276,7 +276,7 @@
         "createButton": "Criar carteira",
         "newPasswordPlaceholder": "Digite a senha",
         "confirmPasswordPlaceholder": "Confirme a senha",
-        "mismatchError": "As senhas não coincidem",
+        "mismatchError": "As senhas não correspondem",
         "tooShortError": "A senha deve ter pelo menos {{count}} caracteres",
         "commonWarning": "Senha comum",
         "whatMakesStrongPassword": "O que torna uma senha forte?",
@@ -325,15 +325,15 @@
       "restoreDesc": "Traga sua carteira para a Blitz."
     },
     "legacyWebMigration": {
-      "title": "Blitz has been updated",
-      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
-      "passwordPlaceholder": "Password",
-      "button": "Log in & update",
+      "title": "A Blitz foi atualizada",
+      "description": "Acesse sua conta com sua senha atual para transferir sua carteira. Seu saldo, suas contas e seu histórico permanecem os mesmos.",
+      "passwordPlaceholder": "Senha",
+      "button": "Acesse & atualize",
       "useRecoveryPhrase": "Usar minha frase de recuperação",
-      "recoveryConfirm": "Isso removerá a carteira antiga salva neste navegador e retornará à configuração, onde você poderá restaurar ou criar uma carteira. Você precisará da sua frase de recuperação para acessar seus fundos existentes.",
+      "recoveryConfirm": "Isso removerá a carteira antiga salva neste navegador e retornará à configuração, onde você poderá restaurar ou criar uma carteira. Você precisará da sua frase de recuperação para acessar seus fundos.",
       "recoveryError": "Não foi possível remover a carteira antiga. Tente novamente.",
-      "wrongPassword": "Wrong password, try again",
-      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
+      "wrongPassword": "Senha incorreta, tente novamente.",
+      "error": "A atualização falhou. Sua carteira não foi alterada — recarregue a página e tente novamente."
     }
   },
   "adminLogin": {
@@ -351,7 +351,7 @@
       "attemptsText": "{{attempts}} tentativas restantes",
       "passwordPlaceholder": "Senha",
       "forgotPassword": "Esqueceu a senha?",
-      "forgotPasswordConfirm": "Esqueceu sua senha? A única forma de recuperar é redefinir e restaurar com sua frase de recuperação.\n\nDeseja apagar todos os dados da carteira? Continue apenas se sua frase de recuperação estiver salva com segurança.",
+      "forgotPasswordConfirm": "Esqueceu sua senha? A única forma de recuperar é redefinindo e restaurando com sua frase de recuperação.\n\nDeseja apagar todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança.",
       "loginButton": "Entrar",
       "storageError": "Não foi possível ler o armazenamento da carteira. Tente novamente."
     },
@@ -359,7 +359,7 @@
       "unlockButton": "Desbloquear com chave de acesso",
       "unlockError": "Não foi possível desbloquear com sua chave de acesso",
       "lostPasskey": "Perdeu sua chave de acesso?",
-      "lostPasskeyConfirm": "Perdeu sua chave de acesso? A única forma de voltar é redefinir e restaurar com sua frase de recuperação.\n\nDeseja excluir todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança."
+      "lostPasskeyConfirm": "Perdeu sua chave de acesso? A única forma de acessar sua carteira é redefinindo e restaurando com sua frase de recuperação.\n\nDeseja excluir todos os dados da carteira? Continue apenas se sua frase de recuperação estiver guardada com segurança."
     }
   },
   "apps": {
@@ -3459,7 +3459,7 @@
     }
   },
   "tabInUse": {
-    "title": "O Blitz está aberto em outra aba",
+    "title": "A Blitz está aberta em outra aba",
     "description": "Sua carteira só pode ficar aberta em uma aba por vez. Use aqui para fechá-la na outra aba.",
     "button": "Usar aqui"
   },
