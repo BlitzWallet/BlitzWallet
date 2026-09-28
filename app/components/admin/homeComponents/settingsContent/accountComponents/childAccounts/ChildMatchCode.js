@@ -82,7 +82,10 @@ export default function ChildMatchCode() {
           content={t('settings.childAccounts.pairing.sasSubtitle')}
         />
         <SasPatternGrid
-          cellSize={Math.round((screenDimensions?.width * 0.75) / 3) - 15}
+          cellSize={Math.min(
+            Math.round((screenDimensions?.width * 0.75) / 3) - 15,
+            150,
+          )}
           sas={sas}
         />
         <ThemeText
