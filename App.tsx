@@ -35,10 +35,22 @@ import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
 import sha256Hash from './app/functions/hash';
-import { isEncryptedMnemonicFormat } from './app/functions/handleMnemonic';
+import {
+  isEncryptedMnemonicFormat,
+  isPasskeyMnemonicFormat,
+} from './app/functions/handleMnemonic';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
+import LegacyWebMigration from './app/screens/createAccount/legacyWebMigration';
+import { LEGACY_WALLET_KEY } from './app/functions/legacyWebMigration';
+import TabInUse from './app/screens/tabInUse';
+import WebUpdate from './app/screens/webUpdate';
+import {
+  checkForWebUpdate,
+  getPendingWebUpdate,
+} from './app/functions/pwaRelease';
+import { acquireWebDatabaseOwnership } from './app/functions/webDatabaseOwnership';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -114,6 +126,8 @@ const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 let lastInitialUrl: string | null = null;
 // Pending deep links older than this are discarded instead of replayed.
 const PENDING_DEEP_LINK_MAX_AGE_MS = 10 * 60 * 1000;
+const WEB_DEV_URL_REGEX =
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?([?#].*)?$/i;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
 ExpoSplashScreen.preventAutoHideAsync()
@@ -189,10 +203,16 @@ function ResetStack(): JSX.Element | null {
   const [initSettings, setInitSettings] = useState<{
     isLoggedIn: boolean | null;
     hasSecurityEnabled: boolean | null;
+    needsLegacyMigration: boolean;
+    isTabInUse: boolean;
+    isUpdateRequired: boolean;
     isLoaded: boolean | null;
   }>({
     isLoggedIn: null,
     hasSecurityEnabled: null,
+    needsLegacyMigration: false,
+    isTabInUse: false,
+    isUpdateRequired: false,
     isLoaded: null,
   });
   const [securitySettings, setSecuritySettings] = useState<any>(null);
@@ -205,8 +225,15 @@ function ResetStack(): JSX.Element | null {
 
   const handleDeepLink = useCallback(
     async (event: { url: string }, isInitialLoad = false) => {
-      console.log(event);
+      console.log(event, 'deeplink event');
       const { url } = event;
+      // Web: Linking.getInitialURL() returns window.location.href on every load
+      // (http://localhost:8081/ on Expo/Metro). Not a payment link — ignore.
+      // Platform-gated so iOS/Android behavior is unchanged.
+      if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
+        console.log('[deeplink] ignoring web dev server url:', url);
+        return;
+      }
       try {
         if (isInitialLoad) {
           // Suppress Android relaunches from Recents, which redeliver the
@@ -264,10 +291,18 @@ function ResetStack(): JSX.Element | null {
       Linking.getInitialURL(),
       new Promise<null>(resolve => setTimeout(() => resolve(null), 5000)),
     ]);
-    if (url) {
-      handleDeepLink({ url }, true);
-      console.log('Initial deep link stored:', url);
+    if (!url) return;
+    // Belt-and-braces: same web dev-origin check as handleDeepLink, so we
+    // never store localhost as pendingDeepLinkData in the first place.
+    if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
+      console.log(
+        '[deeplink] ignoring web dev server url at getInitialURL:',
+        url,
+      );
+      return;
     }
+    handleDeepLink({ url }, true);
+    console.log('Initial deep link stored:', url);
   }, [handleDeepLink]);
 
   const setNavigationBar = useCallback(async () => {
@@ -278,6 +313,11 @@ function ResetStack(): JSX.Element | null {
           await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
           setStatusBarBackgroundColor(backgroundColor, false);
           setStatusBarStyle(theme ? 'light' : 'dark', false);
+        }
+        if (Platform.OS === 'web') {
+          (globalThis as any).document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', backgroundColor);
         }
         await SystemUI.setBackgroundColorAsync(backgroundColor);
       } catch (error) {
@@ -296,6 +336,7 @@ function ResetStack(): JSX.Element | null {
       if (!navigationRef.current) return;
       if (appState !== 'active') return;
       if (!didGetToHomepage || !publicKey) return;
+      if (Platform.OS === 'web') return;
 
       const stored = await getLocalStorageItem('pendingDeepLinkData');
       if (cancelled || !stored) return;
@@ -310,6 +351,14 @@ function ResetStack(): JSX.Element | null {
       }
       const { url, timestamp } = parsed || {};
       if (!url) return;
+
+      // Web: discard localhost dev origin if it was stored before the
+      // handleDeepLink/getInitialURL guards existed. Web-only.
+      if (Platform.OS === 'web' && WEB_DEV_URL_REGEX.test(url)) {
+        console.log(`[deeplink] discarding web dev pending link url=${url}`);
+        await removeLocalStorageItem('pendingDeepLinkData');
+        return;
+      }
 
       // Discard stale links (e.g. tapped while locked and abandoned) instead
       // of replaying a long-expired invoice after a much later unlock.
@@ -474,6 +523,7 @@ function ResetStack(): JSX.Element | null {
               // reset (not navigate) so any open transparent modal
               // (e.g. CustomHalfModal) is torn down instead of staying
               // presented above the pushed card. Mirrors the paylink branch.
+              console.log(paymentUrl, 'payments url');
               navigationRef.current.reset({
                 index: 0,
                 routes: [
@@ -520,6 +570,16 @@ function ResetStack(): JSX.Element | null {
     };
   }, [linkTrigger, appState, didGetToHomepage, publicKey]);
 
+  // Web: offer an optional PWA update once per launch, on top of home.
+  const didOfferWebUpdate = useRef(false);
+  useEffect(() => {
+    if (!didGetToHomepage || didOfferWebUpdate.current) return;
+    const update = getPendingWebUpdate();
+    if (!update || update.mandatory || !navigationRef.isReady()) return;
+    didOfferWebUpdate.current = true;
+    navigationRef.navigate('WebUpdate');
+  }, [didGetToHomepage]);
+
   useEffect(() => {
     const subscription = Linking.addEventListener('url', handleDeepLink);
 
@@ -532,6 +592,46 @@ function ResetStack(): JSX.Element | null {
     let cancelled = false;
     async function initWallet(skipURL = false) {
       crashlyticsLogReport('initWallet: start');
+      // Web: claim the wallet for this tab before any storage read, migration
+      // or routing, so two tabs never write seed storage at once. The newest
+      // tab takes over; a tab that loses lands on TabInUse and does nothing.
+      if (Platform.OS === 'web') {
+        // Screens shown before the normal init path still need the language.
+        // Must not throw: onInitFailure would route this tab to onboarding.
+        const applyUserLanguage = async () => {
+          try {
+            const language = await resolveUserLanguage();
+            if (i18next.resolvedLanguage !== language) {
+              await i18next.changeLanguage(language);
+            }
+          } catch {}
+        };
+        try {
+          await acquireWebDatabaseOwnership();
+        } catch {
+          if (cancelled) return;
+          await applyUserLanguage();
+          setInitSettings(prev =>
+            prev.isTabInUse && prev.isLoaded
+              ? prev
+              : { ...prev, isTabInUse: true, isLoaded: true },
+          );
+          return;
+        }
+        // Mandatory PWA updates block the wallet; optional ones are offered
+        // once home is reached. Offline checks resolve null and never block.
+        const update = await checkForWebUpdate();
+        if (cancelled) return;
+        if (update?.mandatory) {
+          await applyUserLanguage();
+          setInitSettings(prev => ({
+            ...prev,
+            isUpdateRequired: true,
+            isLoaded: true,
+          }));
+          return;
+        }
+      }
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
       crashlyticsLogReport('initWallet: secure store migrations done');
@@ -542,6 +642,7 @@ function ResetStack(): JSX.Element | null {
         mnemonic,
         securitySettings,
         resolvedLanguage,
+        legacyWalletKey,
       ] = await Promise.all([
         skipURL ? Promise.resolve() : getInitialURL(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
@@ -551,6 +652,11 @@ function ResetStack(): JSX.Element | null {
         // Language resolution runs alongside the other reads so it adds no
         // serial cold-start time.
         resolveUserLanguage(),
+        // Seed left behind by the legacy blitz-web-app, in this origin's
+        // localStorage. Native never wrote this key.
+        Platform.OS === 'web'
+          ? getLocalStorageItem(LEGACY_WALLET_KEY)
+          : Promise.resolve(null),
       ]);
 
       crashlyticsLogReport('initWallet: read secure store + local settings');
@@ -606,7 +712,10 @@ function ResetStack(): JSX.Element | null {
             ...parsedSettings,
             expectedMnemonicHash: sha256Hash(mnemonic.value),
           }
-        : parsedSettings;
+        : {
+            ...parsedSettings,
+            usesPasskey: isPasskeyMnemonicFormat(mnemonic.value),
+          };
       setSecuritySettings(prev =>
         JSON.stringify(prev) === JSON.stringify(nextSecuritySettings)
           ? prev
@@ -628,9 +737,13 @@ function ResetStack(): JSX.Element | null {
       setInitSettings(prev => {
         const isLoggedIn = !!pin.value && !!mnemonic.value;
         const hasSecurityEnabled = parsedSettings.isSecurityEnabled;
+        // Only offer the migration to a browser with no wallet of its own — a
+        // user who already onboarded here keeps the wallet they onboarded with.
+        const needsLegacyMigration = !!legacyWalletKey && !isLoggedIn;
         if (
           prev.isLoggedIn === isLoggedIn &&
           prev.hasSecurityEnabled === hasSecurityEnabled &&
+          prev.needsLegacyMigration === needsLegacyMigration &&
           prev.isLoaded
         )
           return prev;
@@ -638,6 +751,7 @@ function ResetStack(): JSX.Element | null {
           ...prev,
           isLoggedIn,
           hasSecurityEnabled,
+          needsLegacyMigration,
           // Settings are now resolved — unblock the render gate below. Until this
           // is true the navigator stays unmounted so Home never mounts with the
           // wrong (still-loading) component. This is the login race-condition fix.
@@ -660,9 +774,19 @@ function ResetStack(): JSX.Element | null {
     // scope and only SplashScreen ever calls hideAsync(), a rejection here leaves
     // the native splash on screen forever with no error and no way out. Always
     // open the gate — landing on a screen is recoverable, an endless splash isn't.
-    const onInitFailure = (err: unknown) => {
+    const onInitFailure = async (err: unknown) => {
       console.log('initWallet error', err);
-      setInitSettings(prev => ({ ...prev, isLoaded: true }));
+      // Never let a legacy web seed fall through to onboarding, whose wipe
+      // would delete it. getLocalStorageItem never rejects.
+      const legacyWalletKey =
+        Platform.OS === 'web'
+          ? await getLocalStorageItem(LEGACY_WALLET_KEY)
+          : null;
+      setInitSettings(prev => ({
+        ...prev,
+        needsLegacyMigration: prev.needsLegacyMigration || !!legacyWalletKey,
+        isLoaded: true,
+      }));
     };
 
     const skipURL = didInitializeSettings.current;
@@ -702,20 +826,33 @@ function ResetStack(): JSX.Element | null {
   }, []);
 
   const HomeComponent = useMemo(() => {
+    if (initSettings.isTabInUse) return TabInUse;
+    if (initSettings.isUpdateRequired) return WebUpdate;
     if (initSettings.isLoggedIn) {
       return initSettings.hasSecurityEnabled
         ? AdminLogin
         : ConnectingToNodeLoadingScreen;
     }
+    if (initSettings.needsLegacyMigration) return LegacyWebMigration;
     return CreateAccountHome;
-  }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
+  }, [
+    initSettings.isTabInUse,
+    initSettings.isUpdateRequired,
+    initSettings.isLoggedIn,
+    initSettings.hasSecurityEnabled,
+    initSettings.needsLegacyMigration,
+  ]);
 
   if (theme === null || darkModeType === null || !initSettings.isLoaded) {
     return null;
   }
 
   return (
-    <NavigationContainer theme={navigationTheme} ref={navigationRef}>
+    <NavigationContainer
+      theme={navigationTheme}
+      ref={navigationRef}
+      documentTitle={{ formatter: () => 'Blitz Wallet' }}
+    >
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <ToastContainer />
@@ -743,6 +880,16 @@ function ResetStack(): JSX.Element | null {
               backfaceVisibility: 'hidden',
             },
           }}
+        />
+        <Stack.Screen
+          name="TabInUse"
+          component={TabInUse}
+          options={{ animation: 'fade', gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="WebUpdate"
+          component={WebUpdate}
+          options={{ animation: 'slide_from_bottom' }}
         />
         <Stack.Screen
           name="ConnectingToNodeLoadingScreen"

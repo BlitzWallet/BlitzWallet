@@ -1,5 +1,6 @@
 import {
   ScrollView,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -48,7 +49,11 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
         return;
       }
     }
-    navigate(nextPageName);
+    navigate(
+      Platform.OS === 'web' && nextPageName === 'PinSetup'
+        ? 'GenerateKey'
+        : nextPageName,
+    );
   };
 
   const openTermsAndConditions = () => {
@@ -265,7 +270,7 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     paddingVertical: 15,
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },

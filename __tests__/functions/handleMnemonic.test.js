@@ -91,6 +91,7 @@ const {
   isV3MnemonicFormat,
   isEncryptedMnemonicFormat,
   isLegacyEvpKDF,
+  isPasskeyMnemonicFormat,
   PIN_MARKER,
 } = require('../../app/functions/handleMnemonic');
 
@@ -107,6 +108,21 @@ const flushAsync = () => new Promise(resolve => setImmediate(resolve));
 const CURRENT_PARAMS = { memory: 19456, passes: 2, parallelism: 1 };
 const LEGACY_PARAMS = { memory: 16384, passes: 2, parallelism: 1 };
 const MNEMONIC_AAD = Buffer.from('blitz.encryptedMnemonic.v3', 'utf8');
+
+// Shape of the web passkey envelope (passkeyMnemonic.js). Its contents are
+// opaque here: only format detection and the password path's handling of it
+// are under test (real passkey crypto: passkeyMnemonic.test.js).
+const PASSKEY_ENVELOPE = JSON.stringify({
+  v: 3,
+  alg: 'aes-256-gcm',
+  kdf: 'webauthn-prf',
+  credentialId: 'Y3JlZGVudGlhbC1pZA',
+  salt: '00'.repeat(32),
+  iv: Buffer.alloc(12).toString('base64'),
+  tag: Buffer.alloc(16).toString('base64'),
+  ct: Buffer.from('opaque').toString('base64'),
+  createdAt: 1757500000000,
+});
 
 // Must mirror the mock argon2 derivation above (same domain-separation context
 // and iteration count) so forged ciphertexts decrypt under the mock.
@@ -795,6 +811,42 @@ describe('envelope format detection', () => {
     );
     expect(isEncryptedMnemonicFormat(MNEMONIC)).toBe(false); // plaintext seed
     expect(isEncryptedMnemonicFormat('garbage')).toBe(false);
+  });
+  it('isPasskeyMnemonicFormat detects the passkey envelope only', () => {
+    expect(isPasskeyMnemonicFormat(PASSKEY_ENVELOPE)).toBe(true);
+    expect(isPasskeyMnemonicFormat(forgeV3(MNEMONIC, PIN_JSON))).toBe(false);
+    expect(isPasskeyMnemonicFormat(forgeV2(MNEMONIC, PIN_JSON))).toBe(false);
+    expect(isPasskeyMnemonicFormat(encryptMnemonic(MNEMONIC, PIN_JSON))).toBe(
+      false,
+    );
+    expect(isPasskeyMnemonicFormat(MNEMONIC)).toBe(false);
+    expect(isPasskeyMnemonicFormat(null)).toBe(false);
+  });
+
+  it('a passkey envelope counts as encrypted but is never a v3 password envelope', () => {
+    // isEncryptedMnemonicFormat: App.tsx's R4 guard must never inject it as a
+    // plaintext seed. isV3MnemonicFormat: the password path must never run
+    // Argon2 on it.
+    expect(isEncryptedMnemonicFormat(PASSKEY_ENVELOPE)).toBe(true);
+    expect(isV3MnemonicFormat(PASSKEY_ENVELOPE)).toBe(false);
+  });
+});
+
+describe('decryptMnemonicWithPin – passkey envelope', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('returns null without running Argon2 and never writes', async () => {
+    // Pins existing behavior the passkey design relies on (a stale password
+    // tab submitting against a passkey wallet): no format branch matches.
+    const argon2Spy = jest.spyOn(require('react-native-quick-crypto'), 'argon2');
+    installMemoryStore(PASSKEY_ENVELOPE);
+
+    expect(await decryptMnemonicWithPin(PIN_JSON)).toBeNull();
+    expect(argon2Spy).not.toHaveBeenCalled();
+    expect(
+      storeData.mock.calls.filter(c => c[0] === 'encryptedMnemonic'),
+    ).toHaveLength(0);
+    argon2Spy.mockRestore();
   });
 });
 

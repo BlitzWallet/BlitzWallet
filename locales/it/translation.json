@@ -255,7 +255,11 @@
         "keyGenError": "Impossibile generare una frase seed valida",
         "seedPrivacyMessage": "Assicurati che nessuno sia vicino e veda lo schermo.",
         "showIt": "Mostra",
-        "invalidSeedError": "Impossibile generare una frase seed valida"
+        "invalidSeedError": "Impossibile generare una frase seed valida",
+        "webHeader": "Fai il backup della tua frase di recupero",
+        "webStorageWarning": "La tua frase di recupero è l'unico modo per ripristinare il tuo portafoglio. I dati del browser possono essere cancellati o rimossi, il che potrebbe cancellare il tuo portafoglio da questo dispositivo.",
+        "webSubHeader": "Tieni la tua frase di recupero in un luogo privato. Non salvare uno screenshot né condividerla con nessuno.",
+        "revealTitle": "Tocca per rivelare la tua frase di recupero"
       },
       "pin": {
         "savePinError": "Impossibile salvare il PIN",
@@ -265,6 +269,28 @@
         "enterPinMessage": "Crea PIN",
         "confirmPin": "Conferma PIN",
         "attemptsText": "{{number}} tentativi rimasti"
+      },
+      "password": {
+        "createHeader": "Crea password",
+        "createSubtitle": "La tua password protegge l'accesso al tuo portafoglio. La tua frase di recupero è ciò che lo ripristina, quindi conservala in un luogo sicuro. Puoi visualizzarla in qualsiasi momento nelle Impostazioni.",
+        "createButton": "Crea portafoglio",
+        "newPasswordPlaceholder": "Inserisci password",
+        "confirmPasswordPlaceholder": "Conferma password",
+        "mismatchError": "Le password non corrispondono",
+        "tooShortError": "La password deve contenere almeno {{count}} caratteri",
+        "commonWarning": "Password comune",
+        "whatMakesStrongPassword": "Cosa rende una password sicura?",
+        "showPassword": "Mostra password",
+        "hidePassword": "Nascondi password"
+      },
+      "passkey": {
+        "offerHeader": "Crea passkey",
+        "offerSubtitle": "La tua passkey protegge l'accesso al tuo portafoglio. La tua frase di recupero è ciò che lo ripristina, quindi conservala in un luogo sicuro. Puoi visualizzarla in qualsiasi momento nelle Impostazioni.",
+        "createButton": "Crea una passkey",
+        "usePassword": "Usa una password invece",
+        "unsupported": "Il tuo gestore di password non può ancora proteggere un portafoglio con una passkey. Imposta invece una password.",
+        "confirmFailed": "Impossibile confermare la tua passkey",
+        "tryAgain": "Riprova"
       }
     },
     "restoreWallet": {
@@ -297,6 +323,17 @@
       "joinDesc": "Unisciti a un portafoglio gestito per te.",
       "restoreTitle": "Ripristina portafoglio esistente",
       "restoreDesc": "Hai già un portafoglio? Importalo."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "useRecoveryPhrase": "Usa invece la mia frase di recupero",
+      "recoveryConfirm": "Questa operazione rimuoverà il vecchio portafoglio salvato in questo browser e ti riporterà alla configurazione, dove potrai ripristinare o creare un portafoglio. Avrai bisogno della tua frase di recupero per accedere ai fondi esistenti.",
+      "recoveryError": "Impossibile rimuovere il vecchio portafoglio. Riprova.",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +343,23 @@
       "enterPinMessage": "Inserisci PIN",
       "attemptsText": "{{attempts}} tentativi rimasti",
       "biometricsHeader": "Apri con biometria"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Inserisci password",
+      "welcomeBackTitle": "Bentornato!",
+      "wrongPasswordError": "Password errata, riprova",
+      "attemptsText": "{{attempts}} tentativi rimasti",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Password dimenticata?",
+      "forgotPasswordConfirm": "Hai dimenticato la password? L'unico modo per recuperarla è reimpostare e ripristinare con la tua frase di recupero.\n\nVuoi eliminare tutti i dati del portafoglio? Continua solo se la tua frase di recupero è stata salvata in modo sicuro.",
+      "loginButton": "Accedi",
+      "storageError": "Impossibile leggere l'archiviazione del portafoglio. Riprova."
+    },
+    "passkeyPage": {
+      "unlockButton": "Sblocca con passkey",
+      "unlockError": "Impossibile sbloccare con la tua passkey",
+      "lostPasskey": "Hai perso la passkey?",
+      "lostPasskeyConfirm": "Hai perso la passkey? L'unico modo per rientrare è reimpostare e ripristinare con la tua frase di recupero.\n\nVuoi eliminare tutti i dati del portafoglio? Continua solo se la tua frase di recupero è al sicuro."
     }
   },
   "apps": {
@@ -1131,6 +1185,10 @@
     "cameraModal": {
       "noCamera": "Nessun accesso alla fotocamera",
       "settingsText": "Vai nelle impostazioni per permettere a Blitz Wallet di accedere alla tua fotocamera",
+      "permissionDismissed": "Accesso alla fotocamera non concesso. Tocca sotto per riprovare.",
+      "allowCamera": "Consenti fotocamera",
+      "cameraBusy": "Fotocamera non disponibile",
+      "cameraBusySub": "Un'altra app o scheda sta usando la fotocamera. Chiudila e riprova.",
       "noCameraDevice": "Nessun dispositivo con fotocamera",
       "noFlash": "Il dispositivo non ha una torcia",
       "scanningResponse": "Sono accettati solo codici QR.",
@@ -1642,7 +1700,28 @@
       "randomPinKeyboardToggle": "Mescola tastierino numerico",
       "randomPinKeyboardInfo": "Abilita questa funzione per mescolare i numeri del tastierino ogni volta che accedi. Aggiunge un ulteriore livello di sicurezza rendendo più difficile per chi ti sta vicino scoprire il tuo schema PIN.",
       "biometricsHead": "Informazioni sulla biometria",
-      "biometricsSubHead": "La tua frase di recupero è protetta dai dati biometrici attuali del dispositivo. Modificarli impedirà a Blitz Wallet di accedere alla tua frase di recupero e bloccherà l’accesso al tuo wallet."
+      "biometricsSubHead": "La tua frase di recupero è protetta dai dati biometrici attuali del dispositivo. Modificarli impedirà a Blitz Wallet di accedere alla tua frase di recupero e bloccherà l’accesso al tuo wallet.",
+      "changePasswordTitle": "Cambia password",
+      "currentPasswordSubtitle": "Inserisci la tua password attuale per cambiarla.",
+      "currentPasswordPlaceholder": "Password attuale",
+      "wrongCurrentPassword": "Password errata",
+      "newPasswordHeader": "Nuova password",
+      "newPasswordSubtitle": "Scegli una nuova password.",
+      "changePasswordButton": "Cambia password",
+      "passwordChanged": "Password aggiornata",
+      "passwordChangeFailed": "Impossibile aggiornare la password",
+      "loadError": "Impossibile leggere le impostazioni di sicurezza del tuo portafoglio. Riprova.",
+      "passkeyCardTitle": "Usa invece una passkey",
+      "passkeyCardBody": "Sblocca con viso, impronta o PIN del dispositivo. La tua passkey sostituisce la tua password.",
+      "passkeyPasswordSubtitle": "Inserisci la tua password attuale per passare a una passkey.",
+      "passkeyCreated": "Passkey creata",
+      "passkeySetupFailed": "Impossibile configurare la passkey",
+      "passkeyTitle": "Passkey",
+      "passkeyCreatedOn": "Creata il {{date}}",
+      "passkeySavedAs": "Salvata nel tuo gestore di password come {{name}}",
+      "switchToPassword": "Passa a password",
+      "switchToPasswordSubtitle": "Scegli una password. Sostituisce la tua passkey.",
+      "switchedToPassword": "Passato a password"
     },
     "seedPhrase": {
       "header": "Conserva questa frase seme in un luogo sicuro e protetto",
@@ -2424,7 +2503,6 @@
         "stablecoinsFeeMessage": "Per ricevere stablecoin, si applicano una commissione Blitz dello 0,5% e una commissione Flashnet dello 0,05%.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
-        "copyInvoice": "Copia fattura",
         "usdSwapMinNotice": "Solo i pagamenti superiori a {{amount}} saranno convertiti in dollari",
         "shareInvoice": "Condividi fattura",
         "walletNotConnected": "Wallet non connesso. Riprova.",
@@ -2464,7 +2542,9 @@
         "expiry_86400": "24 ore",
         "expiry_604800": "7 giorni",
         "expiry_2592000": "30 giorni",
-        "expiry_7776000": "90 giorni"
+        "expiry_7776000": "90 giorni",
+        "copy_invoice": "Copia fattura",
+        "copy_address": "Copia indirizzo"
       },
       "settingsContent": {
         "about": "Informazioni",
@@ -3377,5 +3457,20 @@
       "willExceedBudgetWarning": "Questo pagamento supererà il tuo limite mensile",
       "budgetWarningHeadsUp": "Attenzione"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz è aperto in un'altra scheda",
+    "description": "Il tuo portafoglio può essere aperto in una sola scheda alla volta. Usalo qui per chiuderlo nell'altra scheda.",
+    "button": "Usa qui"
+  },
+  "webUpdate": {
+    "title": "Aggiornamento disponibile",
+    "description": "Blitz {{version}} è pronta per l'installazione.",
+    "requiredTitle": "Aggiornamento richiesto",
+    "requiredDescription": "Blitz {{version}} è richiesta per continuare a utilizzare il tuo portafoglio.",
+    "button": "Aggiorna ora",
+    "progress": "Aggiornamento… {{percent}}%",
+    "later": "Più tardi",
+    "error": "Aggiornamento non riuscito. Controlla la tua connessione e riprova."
   }
 }

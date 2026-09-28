@@ -99,6 +99,22 @@ jest.mock('../app/hooks/themeColors', () => ({
   default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
 }));
 
+// Web-only components and passkey storage are not loaded by native tests.
+jest.mock('../app/functions/CustomElements/searchInput', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../app/functions/CustomElements/button', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../app/functions/passkeyMnemonic', () => ({}));
+
 const LoginSecurity =
   require('../app/components/admin/homeComponents/settingsContent/loginSecurity')
     .default;

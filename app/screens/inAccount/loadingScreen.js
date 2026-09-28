@@ -32,7 +32,11 @@ import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
 import { useAppStatus } from '../../../context-store/appStatus';
-import { initializeAllDatabases } from '../../functions/initializeAllDatabases';
+import {
+  DB_INIT_TIMEOUT_ERROR,
+  initializeAllDatabases,
+} from '../../functions/initializeAllDatabases';
+import { isTabConflictError } from '../../functions/webDatabaseOwnership';
 import openWebBrowser from '../../functions/openWebBrowser';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -239,7 +243,20 @@ export default function ConnectingToNodeLoadingScreen() {
         }
       } catch (err) {
         console.log('intializatiion error', err);
-        if (err.message === 'dbInitError') {
+        if (isTabConflictError(err)) {
+          // Another web tab owns the wallet. TabInUse is the single place for
+          // that; its "Use here" reloads, which recreates the SQLite worker.
+          navigate.reset({ index: 0, routes: [{ name: 'TabInUse' }] });
+        } else if (err.message === DB_INIT_TIMEOUT_ERROR) {
+          setHasError({
+            title: t('screens.inAccount.loadingScreen.dbInitError1'),
+            subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
+            // Web only. expo-sqlite keeps the stalled worker for the page's
+            // lifetime, so an in-page retry would stall again; a reload
+            // replaces it. A failed open (dbInitError) keeps Recover.
+            reloadOnRetry: true,
+          });
+        } else if (err.message === 'dbInitError') {
           setHasError({
             title: t('screens.inAccount.loadingScreen.dbInitError1'),
             subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
@@ -333,12 +350,19 @@ export default function ConnectingToNodeLoadingScreen() {
               titleText={hasError.title}
               subTitleText={hasError.subtitle}
               showButton={true}
-              buttonText={t('constants.recover')}
-              buttonFunction={() =>
-                openWebBrowser({
-                  navigate,
-                  link: 'https://recover.blitzwalletapp.com/',
-                })
+              buttonText={
+                hasError.reloadOnRetry
+                  ? t('constants.retry')
+                  : t('constants.recover')
+              }
+              buttonFunction={
+                hasError.reloadOnRetry
+                  ? () => window.location.reload()
+                  : () =>
+                      openWebBrowser({
+                        navigate,
+                        link: 'https://recover.blitzwalletapp.com/',
+                      })
               }
             />
           </>

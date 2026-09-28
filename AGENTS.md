@@ -4,11 +4,11 @@ Guidance for AI coding agents working in this repository. Assumes no prior knowl
 
 ## Project Overview
 
-BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet for iOS and Android, built with React Native and Expo. Users control their own 12-word BIP39 seed phrase; there is no KYC and no custodial service. Payments run primarily on the [Spark](https://spark.info) Layer 2 network, with additional support for Lightning (via Breez Liquid SDK), Liquid, Rootstock, Boltz swaps, LNURL, Nostr Wallet Connect (NWC), stablecoins (USDB/USDT/USDC), and merchant/POS tools. Backend services (contacts, messaging, notifications, gifts, pools) use Firebase. The app is localized into 8 languages.
+BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet for iOS, Android, and the web (PWA), built with React Native and Expo. Users control their own 12-word BIP39 seed phrase; there is no KYC and no custodial service. Payments run primarily on the [Spark](https://spark.info) Layer 2 network, with additional support for Lightning (via Breez Liquid SDK), Liquid, Rootstock, Boltz swaps, LNURL, Nostr Wallet Connect (NWC), stablecoins (USDB/USDT/USDC), and merchant/POS tools. Backend services (contacts, messaging, notifications, gifts, pools) use Firebase. The app is localized into 8 languages.
 
 - License: Apache 2.0 (`LICENSE`)
 - Public repo: https://github.com/BlitzWallet/BlitzWallet
-- `app.json` version: `0.2.7`; releases are tagged per platform (e.g. `Android-v0.7.10-pre4`, `Spark-v0.0.7-beta`)
+- Releases are tagged per platform on GitHub
 
 ## Tech Stack
 
@@ -35,11 +35,13 @@ BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet 
 - `navigation/` — stack/drawer/tab navigators (`GiftsStack`, `POSStack`, `PoolsStack`, `SavingsStack`, …) and `navigationService.tsx`
 - `db/` — Firebase init (`initializeFirebase.js`) and Firestore access layer (`index.js`, `handleBackend.js`); user-facing data is encrypted via `app/functions/messaging/encodingAndDecodingMessages.js`
 - `locales/` — translation JSON per language (`en` is the source of truth) and `localeslist.js`; contribution guide in `locales/how_to_contribute.md`
+- `.maestro/` — Maestro E2E flows (YAML), the preferred way to test (see "Testing")
 - `__tests__/` — Jest tests, mirroring source layout (`functions/`, `context-store/`, `screens/`, plus flat files)
 - `patches/` — `patch-package`-style patches for native/JS deps (`@noble/*`, ecpair, pbkdf2, Lottie, LWK) — see `patches/breezSDK.md` for the manual Breez SDK Kotlin edit
 - `docs/` — design docs and plans (`docs/plans/`, `docs/superpowers/`)
 - `android/`, `ios/` — checked-in native projects
-- `CLAUDE.md` — working-agreement rules for AI agents (see "Working Conventions" below); `CVE_AUDIT_REPORT.md` — dependency security audit (2026-07-19)
+- `web-shims/`, `public/`, `index.web.js` — web target (see "Web Target" below)
+- `CLAUDE.md` — imports this file; `CVE_AUDIT_REPORT.md` — dependency security audit
 - `CLAUDE-SECURITY-*/` — artifacts of past automated security runs; not part of the app
 
 ## Build and Run Commands
@@ -51,6 +53,9 @@ All commands are Yarn scripts (`package.json`); install deps with `yarn install`
 - `yarn android:clean` — `./gradlew clean` then run
 - `yarn lint` — ESLint over the repo (the only CI check)
 - `yarn test` — Jest
+- `yarn test:rules` — Firestore security-rules tests (needs the Firebase emulator + a local JRE)
+- `yarn e2e:ios` / `yarn e2e:android` — run every Maestro flow in `.maestro/` against the app installed on the booted simulator/emulator
+- `yarn export:web` — production web build into `dist/` (Expo export + `scripts/generate-release.js`)
 - `yarn apkBuild` / `yarn apkBuild:clean` — Android release APK (`./gradlew assembleRelease`)
 - `yarn playstoreBuild` — Play Store bundle (`./gradlew bundleRelease`)
 - `yarn build-android` / `yarn build-ios` — RN CLI build
@@ -60,11 +65,20 @@ No Fastlane/CocoaPods-level scripts live at the root beyond the `Gemfile`; app-s
 
 ## Testing
 
+E2E tests are the default (see Working Rule 5). They run on **Maestro**:
+
+- Flows are YAML files in `.maestro/`; `appId: ${APP_ID}` is filled in by the yarn script (iOS `org.reactjs.native.example.BlitzWallet`, Android `com.blitzwallet`). `.maestro/smoke.yaml` is the starting template
+- Run: build and install the app (`yarn ios` / `yarn android`), keep **exactly one** simulator/emulator booted, then `yarn e2e:ios` or `yarn e2e:android`
+- Artifact: every run writes `e2e-artifacts/report.xml` (JUnit) plus screenshots and `commands.json` to `e2e-artifacts/` (gitignored). End each flow with a `takeScreenshot` of the verified end state, and cite the report and screenshots when claiming a feature works
+- Flows share the device's keychain and storage, so start from a known state (`clearState`, `clearKeychain` on iOS) and never point a flow at a wallet holding real funds
+
+Jest unit tests:
+
 - Framework: **Jest 29** with the `react-native` preset, tests in `__tests__/**/*.test.js`
 - `jest.config.js`: `transformIgnorePatterns` whitelists the ESM packages that must go through babel-jest (`@noble`, `@buildonspark/spark-sdk`, `@react-navigation`, Firebase, …). If a test imports another untranspiled ESM dependency, add it to the `esModules` list there
 - `.worktrees/` is excluded from Jest to avoid haste collisions
 - `jest.setup.js` runs before every test and globally mocks all `@react-native-firebase/*` modules, `react-native-localize`, and `react-native-quick-crypto` (delegating to `node:crypto` so encryption code actually works under Jest). Individual tests override these with local `jest.mock(...)` when they need return values
-- Tests are plain unit/integration tests of pure logic (payments parsing, hooks, contexts); there is no E2E harness and `yarn test` is **not** run in CI — run it locally when touching logic: `yarn test` (or `yarn test <pattern>`)
+- Tests are plain unit/integration tests of pure logic (payments parsing, hooks, contexts); `yarn test` is **not** run in CI — run it locally when touching logic: `yarn test` (or `yarn test <pattern>`)
 
 ## Code Style
 
@@ -74,6 +88,17 @@ No Fastlane/CocoaPods-level scripts live at the root beyond the `Gemfile`; app-s
 - Babel (`babel.config.js`): `babel-preset-expo`, `react-native-dotenv`, module-resolver aliases (`crypto` → `react-native-quick-crypto`, `stream` → `stream-browserify`, `buffer` → `@craftzdog/react-native-buffer`), `transform-remove-console` in production, and `react-native-worklets/plugin` **must stay last**
 - Metro (`metro.config.js`): extensive Node-polyfill shims required by the Spark/crypto stack (`ws` → `ws-shim.js`, `net`/`tls` → `react-native-tcp-socket`, most other Node core modules → `empty-module.js`). Do not remove these without testing a full app boot
 
+## Web Target
+
+The app also ships as a browser PWA via react-native-web, from the same source tree.
+
+- Platform overrides use the `*.web.js` suffix next to the native file (e.g. `context-store/webViewContext.web.js`, `app/functions/detectQrCode.web.js`). Metro picks them automatically for `platform === 'web'`
+- Native-only modules are replaced on web by the `WEB_STUBS` table in `metro.config.js`, which points at files in `web-shims/`. Add a stub there instead of adding `Platform.OS` branches across UI files
+- `context-store/webViewContext.web.js` runs the Spark SDK in-page but keeps the same `sendWebViewRequestGlobal` contract as native — callers must not need to know which runtime they're on
+- `web-shims/quick-crypto.js` must stay byte-compatible with Node crypto (mobile and web wallets decrypt each other's data); `web-shims/__parity__/quickCryptoParity.mjs` checks this
+- `public/` holds the PWA shell: `index.html`, `manifest.json`, `service-worker.js`, hosting `_headers`/`_redirects`
+- react-native-web gaps to remember: `Text` has no `onTextLayout`, and `Dimensions.get('screen')` returns the physical monitor — use `'window'`
+
 ## Configuration, Secrets, and Security
 
 - Runtime config comes from a **`.env` file at the repo root**, loaded via `react-native-dotenv` and read as `process.env.*` (e.g. `BOLTZ_ENVIRONMENT`, `LIQUID_BREEZ_KEY`, `SPARK_IDENTITY_PUBKEY`, `BACKEND_PUB_KEY`, `DEVICE_IP`). `.env` is gitignored — never commit it; the app will not run correctly without one
@@ -82,16 +107,48 @@ No Fastlane/CocoaPods-level scripts live at the root beyond the `Gemfile`; app-s
 - Security rules: never log seed phrases/private keys; Firestore-bound user data is encrypted client-side; keep PIN/biometric paths (`context-store/authContext.js`, `app/functions/biometricAuthentication.js`) intact; production builds strip `console.*`
 - `patches/` are applied to `node_modules` — check them before upgrading the patched dependency
 
-## Working Conventions (from CLAUDE.md)
+## Working Rules
 
-The repo's `CLAUDE.md` defines binding working rules for AI agents — in short:
+These are binding for every AI agent working in this repo.
 
-1. **Think before coding** — state assumptions, surface tradeoffs, ask when unclear rather than picking silently
-2. **Simplicity first** — minimum code that solves the problem; no speculative features, abstractions, or configurability
-3. **Surgical changes** — touch only what the request requires; match existing style; don't refactor or "improve" adjacent code; remove only dead code your own changes orphaned; mention (don't delete) pre-existing dead code
-4. **Goal-driven execution** — turn tasks into verifiable goals (write the failing test first, then make it pass) and loop until verified
+### 1. Think before coding
+
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop, name what's confusing, and ask.
+
+### 2. Simplicity first
+
+- Minimum code that solves the problem. No features beyond what was asked.
+- No abstractions for single-use code; no unrequested flexibility or configurability.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+### 3. Surgical changes
+
+- Touch only what the request requires. Don't "improve" adjacent code, comments, or formatting.
+- Match existing style, even if you'd do it differently.
+- Remove imports/variables/functions that _your_ change orphaned. Mention pre-existing dead code — don't delete it.
+- Every changed line should trace directly to the request.
+
+### 4. Goal-driven execution
+
+Turn tasks into verifiable goals and loop until verified:
+
+- "Add validation" → list the invalid inputs, write the code, then prove it with a Maestro flow
+- "Fix the bug" → reproduce it in a Maestro flow (or an isolated test per Rule 5 when the UI can't reach it), then make it pass
+- "Refactor X" → existing flows and tests pass before and after
+
+For multi-step tasks, state a brief plan with a verification step for each item.
+
+### 5. Testing
+
+- Never write unit tests after you write code.
+- Highly prefer E2E tests (Maestro, see "Testing") as the sole testing mechanism. Use them to verify complex features work. At the end of E2E tests, produce a verifiable and repeatable artifact.
+- If you must test a system in isolation, first write down all the ways it could fail, then write the code.
 
 ## CI and Releases
 
 - CI: single GitHub Actions workflow `.github/workflows/ci.yml` on macOS, Node 20 + Corepack, `yarn install` (with retry) then `yarn lint` — that is the entire gate
-- Releases: tagged per platform on GitHub; Android release artifacts built via the `apkBuild`/`playstoreBuild` scripts above; `docs/plans/` and `docs/superpowers/` hold past design docs useful for context on chart/analytics and transaction-filtering work
+- Releases: tagged per platform on GitHub; Android artifacts built via the `apkBuild`/`playstoreBuild` scripts, web via `export:web`; `docs/plans/` and `docs/superpowers/` hold past design docs

@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  Platform,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -1927,7 +1928,11 @@ export default function SwapFlowHalfModal({
                 {isSimulating ? (
                   <FullLoadingScreen
                     showText={false}
-                    containerStyles={{ flex: 0, marginRight: 'auto' }}
+                    containerStyles={{
+                      flex: 0,
+                      marginRight: 'auto',
+                      marginLeft: Platform.OS === 'web' ? 10 : 0,
+                    }}
                     size="small"
                   />
                 ) : (

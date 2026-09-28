@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   CENTER,
   COLORS,
@@ -341,13 +347,15 @@ export default function DisplayOptions() {
             { backgroundColor: containerBackground },
           ]}
         >
-          <SettingsItem
-            label={t('settings.displayOptions.cameraSwipe')}
-            description={t('settings.displayOptions.cameraSwipeDesc')}
-            backgroundColor={backgroundColor}
-          >
-            <CustomToggleSwitch page={'cameraSlider'} />
-          </SettingsItem>
+          {Platform.OS !== 'web' && (
+            <SettingsItem
+              label={t('settings.displayOptions.cameraSwipe')}
+              description={t('settings.displayOptions.cameraSwipeDesc')}
+              backgroundColor={backgroundColor}
+            >
+              <CustomToggleSwitch page={'cameraSlider'} />
+            </SettingsItem>
+          )}
           <SettingsItem
             label={t('settings.displayOptions.unkownSenders')}
             description={t('settings.displayOptions.unknownSenderDesc')}

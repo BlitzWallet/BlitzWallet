@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Platform, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { COLORS } from '../../constants';
 import lucideIconFile from './lucideIconFile';
@@ -59,6 +60,31 @@ export default function ThemeIcon({
     return { ...baseStyles, ...styles };
   }, [styles, iconColor]);
   if (!IconComponent) return;
+  // On react-native-web the icon renders as an <svg> element, where a CSS
+  // `transform` rotates around the origin (0,0) instead of the center, so a
+  // rotate like '180deg' moves the glyph out of its box and it disappears.
+  if (Platform.OS === 'web' && iconStyles.transform) {
+    const { transform, ...svgStyles } = iconStyles;
+    return (
+      <View style={{ transform }}>
+        {fill ? (
+          <IconComponent
+            strokeWidth={strokeWidth}
+            fill={fill}
+            size={size}
+            style={svgStyles}
+          />
+        ) : (
+          <IconComponent
+            strokeWidth={strokeWidth}
+            size={size}
+            style={svgStyles}
+          />
+        )}
+      </View>
+    );
+  }
+
   if (fill) {
     return (
       <IconComponent

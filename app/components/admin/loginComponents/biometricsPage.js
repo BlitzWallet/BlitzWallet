@@ -16,6 +16,7 @@ import {
   PIN_MARKER,
 } from '../../../functions/handleMnemonic';
 import sha256Hash from '../../../functions/hash';
+import { tintStyle } from '../../../functions/webTintColor';
 import { useKeysContext } from '../../../../context-store/keys';
 import { useTranslation } from 'react-i18next';
 import RNRestart from 'react-native-restart-newarch';
@@ -238,9 +239,7 @@ export default function BiometricsLogin() {
           source={ICONS.logoIcon}
           style={[
             styles.logo,
-            {
-              tintColor: theme ? COLORS.darkModeText : undefined,
-            },
+            tintStyle(theme ? COLORS.darkModeText : undefined),
           ]}
         />
       </View>

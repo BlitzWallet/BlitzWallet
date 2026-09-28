@@ -10,6 +10,10 @@ export default async function processLNUrlWithdraw(input, context) {
     t('wallet.sendPages.handlingAddressErrors.lnurlWithdrawlStart'),
   );
 
+  // Reject before minting an invoice, so pr/k1 never go to a plaintext callback.
+  const callbackUrl = new URL(input.data.callback);
+  if (!isHTTPS(callbackUrl.toString())) throw new Error('LNURL must use HTTPS');
+
   const maxAmount = input.data.maxWithdrawable;
 
   const invoice = await sparkReceivePaymentWrapper({
@@ -25,11 +29,8 @@ export default async function processLNUrlWithdraw(input, context) {
       t('wallet.sendPages.handlingAddressErrors.lnurlWithdrawlInvoiceError'),
     );
 
-  const callbackUrl = new URL(input.data.callback);
   callbackUrl.searchParams.set('k1', input.data.k1);
   callbackUrl.searchParams.set('pr', invoice.invoice);
-
-  if (!isHTTPS(callbackUrl.toString())) throw new Error('LNURL must use HTTPS');
 
   const callbackResponse = await fetch(callbackUrl.toString());
   const responseData = await callbackResponse.json();

@@ -95,6 +95,8 @@ export function Toast({
         return [...baseStyle, styles.clipboardToast];
       case 'error':
         return [...baseStyle, styles.clipboardToast];
+      case 'success':
+        return [...baseStyle, styles.clipboardToast];
       case 'warning':
         return [...baseStyle, styles.warningToast];
       case 'info':
@@ -168,6 +170,15 @@ export function Toast({
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Info'}
+              />
+            ) : toast.type === 'success' ? (
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={25}
+                styles={{ marginRight: 15 }}
+                iconName={'Check'}
               />
             ) : (
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />

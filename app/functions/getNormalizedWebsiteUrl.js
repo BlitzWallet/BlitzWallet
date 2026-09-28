@@ -5,11 +5,13 @@
 const ALLOWED_SCHEMES = new Set(['https:']);
 
 export function getNormalizedWebsiteUrl(website) {
-  if (!website) return '';
+  if (!website || typeof website !== 'string') return '';
+  const trimmed = website.trim();
+  if (!trimmed) return '';
   try {
-    const url = new URL(website);
-    return ALLOWED_SCHEMES.has(url.protocol) ? website : '';
+    const url = new URL(trimmed);
+    return ALLOWED_SCHEMES.has(url.protocol) ? trimmed : '';
   } catch {
-    return `https://${website}`;
+    return `https://${trimmed}`;
   }
 }

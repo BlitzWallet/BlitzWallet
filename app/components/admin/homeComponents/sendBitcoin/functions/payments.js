@@ -3,6 +3,31 @@ import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 import { fetchPhonePaymentInvoice } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { decode as decodeBolt11 } from '../../../../../functions/decodeBolt11';
 
+export function sanitizeLUD9SuccessAction(successAction) {
+  if (
+    !successAction ||
+    typeof successAction !== 'object' ||
+    Array.isArray(successAction)
+  )
+    return null;
+  // Non-url actions (message/aes) carry no link; drop any url field so a
+  // javascript:/data: value can't ride along under a different tag.
+  if (successAction.tag !== 'url') {
+    const { url, ...rest } = successAction;
+    return rest;
+  }
+  const rawUrl =
+    typeof successAction.url === 'string' ? successAction.url.trim() : '';
+  if (!rawUrl) return null;
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'https:') return null;
+    return { ...successAction, url: rawUrl };
+  } catch {
+    return null;
+  }
+}
+
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
   sendingValue,
@@ -71,7 +96,12 @@ export async function getLNAddressForLiquidPayment(
         );
       }
 
-      invoiceAddress = data;
+      // Persist only the invoice plus a sanitized successAction so stored
+      // history can never carry a javascript:/data: URL.
+      invoiceAddress = {
+        pr: data.pr,
+        successAction: sanitizeLUD9SuccessAction(data.successAction),
+      };
     } else {
       invoiceAddress = {
         pr: paymentInfo.data.invoice.bolt11,

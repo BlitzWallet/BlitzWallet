@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
-import { SIZES } from '../../../constants';
+import { CENTER, SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -15,8 +15,289 @@ import { privateKeyFromSeedWords } from '../../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
 import { initializeFirebase } from '../../../../db/initializeFirebase';
 import sha256Hash from '../../../functions/hash';
+import PasswordCreateForm from '../../../components/admin/loginComponents/passwordCreateForm';
+import CustomButton from '../../../functions/CustomElements/button';
+import {
+  createPasskey,
+  forgetPasskey,
+  isPasskeySupported,
+  storeMnemonicWithPasskey,
+} from '../../../functions/passkeyMnemonic';
+import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import IconActionCircle from '../../../functions/CustomElements/actionCircleContainer';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
+import GetThemeColors from '../../../hooks/themeColors';
 
-export default function PinPage(props) {
+function WebCreatePassword(props) {
+  const { accountMnemoinc } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
+  const navigate = useNavigation();
+  const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // 'checking' until the capability check resolves, then 'offer' (passkey
+  // step), 'confirm-failed' (created but the confirm prompt failed) or
+  // 'password' (today's form).
+  const [step, setStep] = useState('checking');
+  const [passkeyUnsupported, setPasskeyUnsupported] = useState(false);
+  // A created passkey: [Try again] reuses it so a second one is never
+  // registered.
+  const credentialIdRef = useRef(null);
+  // An uncertain write may have persisted this credential as the active unlock.
+  const mayHaveStoredPasskeyRef = useRef(false);
+  // Ref, not state: a double tap must not open a second create prompt.
+  const isPasskeyBusyRef = useRef(false);
+  const didRestoreWallet = props.route.params?.didRestoreWallet;
+  const didBackupSeedPhrase = props.route.params?.didBackupSeedPhrase;
+  const restoreExpectedHash = props.route.params?.expectedMnemonicHash;
+
+  useEffect(() => {
+    async function preConnectToFirebase() {
+      const privateKey = await privateKeyFromSeedWords(accountMnemoinc);
+      const publicKey = privateKey ? getPublicKey(privateKey) : null;
+      if (privateKey && publicKey) {
+        initializeFirebase(publicKey, privateKey);
+      }
+    }
+    preConnectToFirebase();
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    isPasskeySupported().then(
+      supported => active && setStep(supported ? 'offer' : 'password'),
+      () => active && setStep('password'),
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const showSaveError = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('createAccount.keySetup.pin.savePinError'),
+      customNavigator: () => {
+        factoryResetWallet();
+        setTimeout(() => {
+          RNRestart.restart();
+        }, 300);
+      },
+    });
+  };
+
+  // Same exit for both unlock methods. The loading screen's wipe keeps
+  // encryptedMnemonic + pinHash, so either envelope survives it.
+  const finishSetup = async () => {
+    await setLocalStorageItem(
+      'didViewSeedPhrase',
+      JSON.stringify(!!didRestoreWallet || !!didBackupSeedPhrase),
+    );
+    navigate.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'ConnectingToNodeLoadingScreen',
+          params: {
+            shouldWipeLocalData: true,
+            expectedMnemonicHash:
+              restoreExpectedHash || sha256Hash(accountMnemoinc),
+          },
+        },
+      ],
+    });
+  };
+
+  const handleSubmit = async password => {
+    if (isPasskeyBusyRef.current) return;
+    isPasskeyBusyRef.current = true;
+    setIsSubmitting(true);
+    try {
+      const response = await storeMnemonicWithPinSecurity(
+        accountMnemoinc,
+        password,
+      );
+      if (!response) {
+        showSaveError();
+        return;
+      }
+      if (credentialIdRef.current) {
+        await forgetPasskey(credentialIdRef.current);
+        credentialIdRef.current = null;
+      }
+      await finishSetup();
+    } catch {
+      showSaveError();
+    } finally {
+      isPasskeyBusyRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
+
+  // Falls back to the password form. A created passkey that will never be
+  // used is dropped from the password manager (best-effort).
+  const showPasswordForm = unsupported => {
+    if (credentialIdRef.current && !mayHaveStoredPasskeyRef.current) {
+      forgetPasskey(credentialIdRef.current);
+      credentialIdRef.current = null;
+    }
+    setPasskeyUnsupported(unsupported);
+    setStep('password');
+  };
+
+  const handlePasskey = async () => {
+    if (isPasskeyBusyRef.current) return;
+    isPasskeyBusyRef.current = true;
+    setIsSubmitting(true);
+    try {
+      if (!credentialIdRef.current) {
+        const created = await createPasskey();
+        if (created.status === 'cancelled') return;
+        if (created.status !== 'ok') {
+          showPasswordForm(true);
+          return;
+        }
+        credentialIdRef.current = created.credentialId;
+      }
+      const previouslyStored = mayHaveStoredPasskeyRef.current;
+      mayHaveStoredPasskeyRef.current = true;
+      const result = await storeMnemonicWithPasskey(
+        accountMnemoinc,
+        credentialIdRef.current,
+      );
+      if (result === 'confirm-failed' || result === 'unsupported') {
+        mayHaveStoredPasskeyRef.current = previouslyStored;
+      }
+      if (result === 'ok') {
+        await finishSetup();
+      } else if (result === 'confirm-failed') {
+        setStep('confirm-failed');
+      } else if (result === 'unsupported') {
+        showPasswordForm(true);
+      } else {
+        showSaveError();
+      }
+    } catch {
+      showSaveError();
+    } finally {
+      isPasskeyBusyRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoBack = useCallback(() => {
+    if (step === 'password' && !passkeyUnsupported) {
+      setStep('offer');
+    } else {
+      navigate.goBack();
+    }
+  }, [step, passkeyUnsupported]);
+
+  useHandleBackPressNew(handleGoBack);
+
+  if (step === 'checking') {
+    return (
+      <GlobalThemeView
+        styles={styles.contentContainer}
+        useStandardWidth={true}
+      />
+    );
+  }
+
+  if (step === 'password') {
+    return (
+      <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
+        <CustomSettingsTopBar customBackFunction={handleGoBack} />
+        <PasswordCreateForm
+          headerText={t(
+            'createAccount.keySetup.password.createHeader',
+            'Create Password',
+          )}
+          subtitleText={
+            passkeyUnsupported
+              ? t(
+                  'createAccount.keySetup.passkey.unsupported',
+                  "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",
+                )
+              : t(
+                  'createAccount.keySetup.password.createSubtitle',
+                  'Choose a strong password to protect your wallet.',
+                )
+          }
+          buttonText={t(
+            'createAccount.keySetup.password.createButton',
+            'Create Wallet',
+          )}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
+      </GlobalThemeView>
+    );
+  }
+
+  return (
+    <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
+      <CustomSettingsTopBar customBackFunction={handleGoBack} />
+      <View style={styles.container}>
+        <View style={styles.passkeyContent}>
+          <ThemeText
+            styles={styles.passkeyHeader}
+            content={t('createAccount.keySetup.passkey.offerHeader')}
+          />
+          <ThemeText
+            styles={styles.passkeySubtitle}
+            content={t(
+              'createAccount.keySetup.passkey.offerSubtitle',
+              'Unlock with your face, fingerprint, or device PIN instead of a password. If you ever lose your passkey, you can restore your wallet with your recovery phrase.',
+            )}
+          />
+          {step === 'confirm-failed' && (
+            <ThemeText
+              styles={styles.passkeyError}
+              content={t('createAccount.keySetup.passkey.confirmFailed')}
+            />
+          )}
+        </View>
+        <View style={styles.keyIconContainer}>
+          <IconActionCircle
+            customBackgroundColor={
+              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
+            }
+            icon={'Key'}
+            size={130}
+          />
+        </View>
+        <View style={styles.passkeyButtons}>
+          <CustomButton
+            textContent={
+              step === 'confirm-failed'
+                ? t('createAccount.keySetup.passkey.tryAgain')
+                : t('createAccount.keySetup.passkey.createButton')
+            }
+            actionFunction={handlePasskey}
+            disabled={isSubmitting}
+            useLoading={isSubmitting}
+          />
+          <TouchableOpacity
+            testID="use-password-instead"
+            style={styles.usePasswordButton}
+            onPress={() => {
+              if (!isPasskeyBusyRef.current) showPasswordForm(false);
+            }}
+            disabled={isSubmitting}
+          >
+            <ThemeText
+              content={t('createAccount.keySetup.passkey.usePassword')}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </GlobalThemeView>
+  );
+}
+
+function PinPageNative(props) {
   const { accountMnemoinc } = useKeysContext();
   const [pin, setPin] = useState([null, null, null, null]);
   const [confirmPin, setConfirmPin] = useState([]);
@@ -215,9 +496,20 @@ export default function PinPage(props) {
   }
 }
 
+export default function PinPage(props) {
+  if (Platform.OS === 'web') {
+    return <WebCreatePassword {...props} />;
+  }
+  return <PinPageNative {...props} />;
+}
+
 const styles = StyleSheet.create({
   contentContainer: {
     alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
   },
   header: {
     fontSize: SIZES.xLarge,
@@ -264,5 +556,38 @@ const styles = StyleSheet.create({
   },
   keyText: {
     fontSize: SIZES.xLarge,
+  },
+  passkeyContent: {
+    width: '100%',
+  },
+  passkeyHeader: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 28,
+    marginBottom: 8,
+  },
+  passkeySubtitle: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+  },
+  passkeyError: {
+    fontSize: SIZES.small,
+    color: '#e74c3c',
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  keyIconContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  passkeyButtons: {
+    width: '100%',
+  },
+  usePasswordButton: {
+    marginTop: 15,
+    padding: 5,
+    ...CENTER,
   },
 });

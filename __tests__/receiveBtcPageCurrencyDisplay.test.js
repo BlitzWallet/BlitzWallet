@@ -163,7 +163,8 @@ jest.mock('react-i18next', () => ({
         'constants.bitcoin_upper': 'BITCOIN',
         'constants.dollars_upper': 'DOLLARS',
         'constants.noDescription': 'No description',
-        'screens.inAccount.receiveBtcPage.copyInvoice': 'Copy invoice',
+        'screens.inAccount.receiveBtcPage.copy':
+          params?.context === 'address' ? 'Copy address' : 'Copy invoice',
         'screens.inAccount.receiveBtcPage.shareInvoice': 'Share invoice',
         'screens.inAccount.receiveBtcPage.usdSwapMinNotice': `Minimum USD swap ${params?.amount}`,
         'wallet.halfModal.paylinkAmountRequired': 'Amount required',
@@ -308,9 +309,14 @@ function amountLines(renderer) {
     t =>
       !t.includes('@blitzwalletapp.com') &&
       !t.startsWith('invoice-') &&
-      !['BITCOIN', 'DOLLARS', 'Receive', 'Copy invoice', 'Share invoice'].includes(
-        t,
-      ) &&
+      ![
+        'BITCOIN',
+        'DOLLARS',
+        'Receive',
+        'Copy invoice',
+        'Copy address',
+        'Share invoice',
+      ].includes(t) &&
       !t.startsWith('Minimum USD swap') &&
       !t.startsWith('No description') &&
       t !== 'Loading' &&

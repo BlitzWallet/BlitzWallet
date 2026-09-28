@@ -1,5 +1,6 @@
 import * as Crypto from 'expo-crypto';
 import * as FileSystem from 'expo-file-system/legacy';
+import { Platform } from 'react-native';
 
 async function getImageHash(imageUri) {
   if (!imageUri) return '';
@@ -16,6 +17,8 @@ async function getImageHash(imageUri) {
 }
 
 export async function areImagesSame(uri1, uri2) {
+  if (Platform.OS === 'web') return false;
+
   const hash1 = await getImageHash(uri1);
   const hash2 = await getImageHash(uri2);
 

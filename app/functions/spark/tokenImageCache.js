@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import {
   cacheDirectory,
   downloadAsync,
@@ -6,7 +7,11 @@ import {
 } from 'expo-file-system/legacy';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 
-const FILE_DIR = cacheDirectory + 'tokenImages/';
+// expo-file-system is unavailable on web — there the cache serves the remote
+// URL directly instead of caching bytes on disk (mirrors
+// context-store/imageCache.js).
+const isWeb = () => Platform.OS === 'web';
+const getFileDir = () => cacheDirectory + 'tokenImages/';
 const CACHE_KEY = tokenId => `BLITZ_TOKEN_IMG/${tokenId}`;
 const EXTENSIONS = ['jpg', 'png'];
 // How long to trust a "no image exists" result before re-checking the network.
@@ -38,6 +43,7 @@ async function loadTokenImage(tokenId) {
     const parsed = cacheEntry ? JSON.parse(cacheEntry) : null;
 
     if (parsed?.exists === true && parsed.localUri) {
+      if (isWeb()) return parsed.localUri;
       const info = await getInfoAsync(parsed.localUri);
       console.log(info, 'image info');
       if (info.exists) return parsed.localUri;
@@ -56,6 +62,15 @@ async function loadTokenImage(tokenId) {
         const response = await fetch(url, { method: 'HEAD' });
         if (!response.ok) continue;
 
+        if (isWeb()) {
+          await setLocalStorageItem(
+            key,
+            JSON.stringify({ localUri: url, exists: true, checkedAt: Date.now() }),
+          );
+          return url;
+        }
+
+        const FILE_DIR = getFileDir();
         await makeDirectoryAsync(FILE_DIR, { intermediates: true });
         const localUri = `${FILE_DIR}${tokenId}.${ext}`;
         await downloadAsync(url, localUri);

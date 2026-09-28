@@ -3,6 +3,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAIN_ACCOUNT_UUID,
+  MAX_WEB_CONTENT_WIDTH,
   NWC_ACCOUNT_UUID,
 } from '../../../../constants';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
@@ -10,10 +11,7 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import {
-  INSET_WINDOW_WIDTH,
-  MAX_CONTENT_WIDTH,
-} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
@@ -171,7 +169,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     width: INSET_WINDOW_WIDTH,
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     ...CENTER,
     flexGrow: 1,
   },

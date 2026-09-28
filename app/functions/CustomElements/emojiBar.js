@@ -549,7 +549,11 @@ const ALL_EMOJIS = [
 // Default emoji order (most common first)
 const DEFAULT_EMOJI_ORDER = ['💵', '🏠', '⛽', '🍕', '☕', '🎁', '🎉', '🎫'];
 
-const EmojiQuickBar = ({ description = '', onEmojiSelect, maxLength = 150 }) => {
+const EmojiQuickBar = ({
+  description = '',
+  onEmojiSelect,
+  maxLength = 150,
+}) => {
   const { backgroundOffset } = GetThemeColors();
 
   const defalutItems = useMemo(() => {

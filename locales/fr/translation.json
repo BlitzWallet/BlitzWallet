@@ -255,7 +255,11 @@
         "keyGenError": "Impossible de générer une phrase d'amorçage valide",
         "seedPrivacyMessage": "Assurez-vous qu'il n'y a personne qui puisse voir votre écran.",
         "showIt": "Montrez-le",
-        "invalidSeedError": "Impossible de générer une phrase d'amorçage valide"
+        "invalidSeedError": "Impossible de générer une phrase d'amorçage valide",
+        "webHeader": "Sauvegardez votre phrase de récupération",
+        "webStorageWarning": "Votre phrase de récupération est le seul moyen de restaurer votre portefeuille. Les données du navigateur peuvent être effacées ou supprimées, ce qui peut effacer votre portefeuille de cet appareil.",
+        "webSubHeader": "Gardez votre phrase de récupération dans un endroit privé. N'enregistrez pas de capture d'écran et ne la partagez avec personne.",
+        "revealTitle": "Appuyez pour révéler votre phrase de récupération"
       },
       "pin": {
         "savePinError": "Impossible d'enregistrer la broche",
@@ -265,6 +269,28 @@
         "enterPinMessage": "Créer un code PIN",
         "confirmPin": "Confirmer la broche",
         "attemptsText": "{{number}} tentatives restantes"
+      },
+      "password": {
+        "createHeader": "Créer un mot de passe",
+        "createSubtitle": "Votre mot de passe protège l'accès à votre portefeuille. Votre phrase de récupération permet de le restaurer, alors conservez-la en lieu sûr. Vous pouvez la consulter à tout moment dans les Paramètres.",
+        "createButton": "Créer le portefeuille",
+        "newPasswordPlaceholder": "Saisir le mot de passe",
+        "confirmPasswordPlaceholder": "Confirmer le mot de passe",
+        "mismatchError": "Les mots de passe ne correspondent pas",
+        "tooShortError": "Le mot de passe doit contenir au moins {{count}} caractères",
+        "commonWarning": "Mot de passe courant",
+        "whatMakesStrongPassword": "Qu'est-ce qui fait un mot de passe fort ?",
+        "showPassword": "Afficher le mot de passe",
+        "hidePassword": "Masquer le mot de passe"
+      },
+      "passkey": {
+        "offerHeader": "Créer une clé d'accès",
+        "offerSubtitle": "Votre clé d'accès protège l'accès à votre portefeuille. Votre phrase de récupération permet de le restaurer, alors conservez-la en lieu sûr. Vous pouvez la consulter à tout moment dans les Paramètres.",
+        "createButton": "Créer une clé d'accès",
+        "usePassword": "Utiliser un mot de passe à la place",
+        "unsupported": "Votre gestionnaire de mots de passe ne peut pas encore protéger un portefeuille avec une clé d'accès. Définissez un mot de passe à la place.",
+        "confirmFailed": "Impossible de confirmer votre clé d'accès",
+        "tryAgain": "Réessayer"
       }
     },
     "restoreWallet": {
@@ -297,6 +323,17 @@
       "joinDesc": "Rejoignez un portefeuille qui est géré pour vous.",
       "restoreTitle": "Restaurer un portefeuille existant",
       "restoreDesc": "Vous avez déjà un portefeuille ? Importez-le."
+    },
+    "legacyWebMigration": {
+      "title": "Blitz has been updated",
+      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
+      "passwordPlaceholder": "Password",
+      "button": "Log in & update",
+      "useRecoveryPhrase": "Utiliser ma phrase de récupération à la place",
+      "recoveryConfirm": "Cette action supprimera l’ancien portefeuille enregistré dans ce navigateur et vous ramènera à la configuration, où vous pourrez restaurer ou créer un portefeuille. Vous aurez besoin de votre phrase de récupération pour accéder à vos fonds existants.",
+      "recoveryError": "Impossible de supprimer l’ancien portefeuille. Veuillez réessayer.",
+      "wrongPassword": "Wrong password, try again",
+      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
     }
   },
   "adminLogin": {
@@ -306,6 +343,23 @@
       "enterPinMessage": "Saisir le code PIN",
       "attemptsText": "{{attempts}} tentatives restantes",
       "biometricsHeader": "Ouvrir avec la biométrie"
+    },
+    "passwordPage": {
+      "enterPasswordMessage": "Saisir le mot de passe",
+      "welcomeBackTitle": "Bon retour !",
+      "wrongPasswordError": "Mot de passe incorrect, réessayez",
+      "attemptsText": "{{attempts}} tentatives restantes",
+      "passwordPlaceholder": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "forgotPasswordConfirm": "Vous avez oublié votre mot de passe ? La seule façon de récupérer est de réinitialiser et de restaurer avec votre phrase de récupération.\n\nVoulez-vous supprimer toutes les données du portefeuille ? Ne continuez que si votre phrase de récupération est sauvegardée en toute sécurité.",
+      "loginButton": "Se connecter",
+      "storageError": "Impossible de lire le stockage du portefeuille. Veuillez réessayer."
+    },
+    "passkeyPage": {
+      "unlockButton": "Déverrouiller avec la clé d'accès",
+      "unlockError": "Impossible de déverrouiller avec votre clé d'accès",
+      "lostPasskey": "Clé d'accès perdue ?",
+      "lostPasskeyConfirm": "Clé d'accès perdue ? Le seul moyen de revenir est de réinitialiser et restaurer avec votre phrase de récupération.\n\nVoulez-vous supprimer toutes les données du portefeuille ? Ne continuez que si votre phrase de récupération est sauvegardée en toute sécurité."
     }
   },
   "apps": {
@@ -1131,6 +1185,10 @@
     "cameraModal": {
       "noCamera": "Pas d'accès à l'appareil photo",
       "settingsText": "Allez dans les paramètres pour permettre à Blitz Wallet d'accéder à votre appareil photo.",
+      "permissionDismissed": "L'accès à l'appareil photo n'a pas été accordé. Appuyez ci-dessous pour réessayer.",
+      "allowCamera": "Autoriser l'appareil photo",
+      "cameraBusy": "Appareil photo indisponible",
+      "cameraBusySub": "Une autre application ou un autre onglet utilise l'appareil photo. Fermez-le et réessayez.",
       "noCameraDevice": "Aucun appareil photo",
       "noFlash": " L'appareil n'est pas équipé d'une torche",
       "scanningResponse": "Seuls les codes QR sont acceptés.",
@@ -1642,7 +1700,28 @@
       "randomPinKeyboardToggle": "Clavier de lecture aléatoire",
       "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité.",
       "biometricsHead": "À propos de la biométrie",
-      "biometricsSubHead": "Votre phrase de récupération est protégée par les données biométriques actuelles de votre appareil. Les modifier empêchera Blitz Wallet d’accéder à votre phrase de récupération et vous bloquera l’accès à votre portefeuille."
+      "biometricsSubHead": "Votre phrase de récupération est protégée par les données biométriques actuelles de votre appareil. Les modifier empêchera Blitz Wallet d’accéder à votre phrase de récupération et vous bloquera l’accès à votre portefeuille.",
+      "changePasswordTitle": "Changer le mot de passe",
+      "currentPasswordSubtitle": "Saisissez votre mot de passe actuel pour le modifier.",
+      "currentPasswordPlaceholder": "Mot de passe actuel",
+      "wrongCurrentPassword": "Mot de passe incorrect",
+      "newPasswordHeader": "Nouveau mot de passe",
+      "newPasswordSubtitle": "Choisissez un nouveau mot de passe.",
+      "changePasswordButton": "Changer le mot de passe",
+      "passwordChanged": "Mot de passe mis à jour",
+      "passwordChangeFailed": "Échec de la mise à jour du mot de passe",
+      "loadError": "Impossible de lire les paramètres de sécurité de votre portefeuille. Veuillez réessayer.",
+      "passkeyCardTitle": "Utiliser une clé d'accès à la place",
+      "passkeyCardBody": "Déverrouillez avec votre visage, empreinte ou code PIN. Votre clé d'accès remplace votre mot de passe.",
+      "passkeyPasswordSubtitle": "Saisissez votre mot de passe actuel pour passer à une clé d'accès.",
+      "passkeyCreated": "Clé d'accès créée",
+      "passkeySetupFailed": "Échec de la configuration de la clé d'accès",
+      "passkeyTitle": "Clé d'accès",
+      "passkeyCreatedOn": "Créée le {{date}}",
+      "passkeySavedAs": "Enregistrée dans votre gestionnaire de mots de passe sous {{name}}",
+      "switchToPassword": "Passer au mot de passe",
+      "switchToPasswordSubtitle": "Choisissez un mot de passe. Il remplace votre clé d'accès.",
+      "switchedToPassword": "Passé au mot de passe"
     },
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",
@@ -2424,7 +2503,6 @@
         "stablecoinsFeeMessage": "Pour recevoir des stablecoins, des frais Blitz de 0,5 % et des frais Flashnet de 0,05 % s’appliquent.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
-        "copyInvoice": "Copier la facture",
         "usdSwapMinNotice": "Seuls les paiements supérieurs à {{amount}} seront convertis en dollars",
         "shareInvoice": "Partager la facture",
         "walletNotConnected": "Portefeuille non connecté. Veuillez réessayer.",
@@ -2464,7 +2542,9 @@
         "expiry_86400": "24 heures",
         "expiry_604800": "7 jours",
         "expiry_2592000": "30 jours",
-        "expiry_7776000": "90 jours"
+        "expiry_7776000": "90 jours",
+        "copy_invoice": "Copier la facture",
+        "copy_address": "Copier l’adresse"
       },
       "settingsContent": {
         "about": "A propos de",
@@ -3377,5 +3457,20 @@
       "willExceedBudgetWarning": "Ce paiement dépassera votre limite mensuelle",
       "budgetWarningHeadsUp": "Attention"
     }
+  },
+  "tabInUse": {
+    "title": "Blitz est ouvert dans un autre onglet",
+    "description": "Votre portefeuille ne peut être ouvert que dans un seul onglet à la fois. Utilisez-le ici pour le fermer dans l'autre onglet.",
+    "button": "Utiliser ici"
+  },
+  "webUpdate": {
+    "title": "Mise à jour disponible",
+    "description": "Blitz {{version}} est prête à être installée.",
+    "requiredTitle": "Mise à jour requise",
+    "requiredDescription": "Blitz {{version}} est requise pour continuer à utiliser votre portefeuille.",
+    "button": "Mettre à jour maintenant",
+    "progress": "Mise à jour… {{percent}}%",
+    "later": "Plus tard",
+    "error": "Échec de la mise à jour. Vérifiez votre connexion et réessayez."
   }
 }

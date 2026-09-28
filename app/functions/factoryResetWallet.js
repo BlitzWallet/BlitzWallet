@@ -2,9 +2,12 @@ import { terminateAccount } from './secureStore';
 import { signOut } from '@react-native-firebase/auth';
 import { firebaseAuth } from '../../db/initializeFirebase';
 import { deleteAllLocalWalletTables } from './wipeLocalWalletData';
+import { acquireWebDatabaseOwnership } from './webDatabaseOwnership';
 
 export default async function factoryResetWallet() {
   try {
+    // Web: refuse to reset while another tab owns the wallet.
+    await acquireWebDatabaseOwnership();
     const didTerminate = await terminateAccount();
     if (!didTerminate) throw new Error('Did not terminate');
 

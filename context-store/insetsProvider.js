@@ -18,6 +18,8 @@ export function InsetsProvider({children}) {
   const [insets, setInsets] = useState({
     topPadding: safeInsets.top,
     bottomPadding: safeInsets.bottom,
+    leftPadding: safeInsets.left,
+    rightPadding: safeInsets.right,
   });
 
   console.log(insets, 'safe area insets in context');
@@ -25,12 +27,16 @@ export function InsetsProvider({children}) {
   useEffect(() => {
     if (
       safeInsets.top === insets.topPadding &&
-      safeInsets.bottom === insets.bottomPadding
+      safeInsets.bottom === insets.bottomPadding &&
+      safeInsets.left === insets.leftPadding &&
+      safeInsets.right === insets.rightPadding
     )
       return;
     setInsets({
       topPadding: safeInsets.top,
       bottomPadding: safeInsets.bottom,
+      leftPadding: safeInsets.left,
+      rightPadding: safeInsets.right,
     });
   }, [safeInsets]);
 
@@ -39,6 +45,8 @@ export function InsetsProvider({children}) {
       topPadding: insets.topPadding !== 0 ? insets.topPadding : ANDROIDSAFEAREA,
       bottomPadding:
         insets.bottomPadding !== 0 ? insets.bottomPadding : ANDROIDSAFEAREA,
+      leftPadding: insets.leftPadding,
+      rightPadding: insets.rightPadding,
     };
   }, [insets]);
 

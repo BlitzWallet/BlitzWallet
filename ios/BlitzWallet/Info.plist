@@ -108,8 +108,12 @@
 	<string>Blitz Wallet uses your camera to scan QR codes invoices or contact information for seamless payments.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Blitz Wallet uses Face ID to securely unlock your wallet</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to use your location</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to use your location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Blitz wallet is now using your location</string>
+	<string>Allow $(PRODUCT_NAME) to use your location</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Blitz Wallet needs photo library access to select contact images and read payment QR codes.</string>
 	<key>RCTNewArchEnabled</key>
@@ -150,18 +154,12 @@
 	<key>UIStatusBarHidden</key>
 	<false/>
 	<key>UIStatusBarStyle</key>
-	<string/>
+	<string></string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use your location</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use your location</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use your location</string>
 </dict>
 </plist>

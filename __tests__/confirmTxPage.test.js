@@ -171,6 +171,62 @@ jest.mock('../app/functions/CustomElements/formattedBalanceInput', () => {
 });
 
 const ConfirmTxPage = require('../app/screens/inAccount/confirmTxPage').default;
+const CustomButton = require('../app/functions/CustomElements/button').default;
+const { openBrowserAsync } = require('expo-web-browser');
+
+test('opens a failed-payment email through a mailto URL on web', async () => {
+  const {Platform, Linking} = require('react-native');
+  const DropdownMenu = require('../app/functions/CustomElements/dropdownMenu').default;
+  const {openComposer} = require('react-native-email-link');
+  const originalOS = Platform.OS;
+  Platform.OS = 'web';
+  jest.spyOn(Linking, 'openURL').mockResolvedValue();
+  try {
+    const renderer = await renderConfirm({error: 'Failed: payment & retry'});
+    const menu = renderer.root.findByType(DropdownMenu);
+    await act(async () => menu.props.onSelect({value: 'email'}));
+    expect(Linking.openURL).toHaveBeenCalledWith(
+      'mailto:support@blitzwalletapp.com?subject=Payment%20Failed&body=Failed%3A%20payment%20%26%20retry',
+    );
+    expect(openComposer).not.toHaveBeenCalled();
+  } finally {
+    Platform.OS = originalOS;
+    Linking.openURL.mockRestore();
+  }
+});
+
+describe('confirmation receipt links', () => {
+  test.each([
+    { tag: 'message', message: 'Receipt', url: 'https://other.example' },
+    { tag: 'aes', description: 'Receipt', url: 'https://other.example' },
+    { tag: 'url', description: 'Receipt', url: 'javascript:void(0)' },
+  ])('does not offer unchecked or executable receipt links: %p', async successAction => {
+    const renderer = await renderConfirm({
+      transaction: { details: { amount: 1000, direction: 'OUTGOING', successAction } },
+    });
+    const receiptButtons = renderer.root.findAllByType(CustomButton).filter(
+      button => button.props.textContent === 'screens.inAccount.confirmTxPage.lud9SuccessAction',
+    );
+    expect(receiptButtons).toHaveLength(0);
+  });
+
+  test('keeps a valid receipt clickable through the protected browser helper', async () => {
+    openBrowserAsync.mockClear();
+    const renderer = await renderConfirm({
+      transaction: { details: { amount: 1000, direction: 'OUTGOING', successAction: {
+        tag: 'url', description: 'Receipt', url: 'https://merchant.example/receipt',
+      } } },
+    });
+    const receiptButton = renderer.root.findAllByType(CustomButton).find(
+      button => button.props.textContent === 'screens.inAccount.confirmTxPage.lud9SuccessAction',
+    );
+    expect(receiptButton).toBeDefined();
+    await act(async () => receiptButton.props.actionFunction());
+    expect(openBrowserAsync).toHaveBeenCalledWith('https://merchant.example/receipt', {
+      windowFeatures: { noopener: true, noreferrer: true },
+    });
+  });
+});
 
 async function renderConfirm(routeParams = {}) {
   let renderer;

@@ -157,7 +157,7 @@ const CustomToggleSwitch = ({
           toggleSwitch();
         }
       }}
-      style={{ ...containerStyles }}
+      style={containerStyles}
       activeOpacity={0.7}
     >
       <Animated.View style={[styles.switch, { backgroundColor: switchColor }]}>

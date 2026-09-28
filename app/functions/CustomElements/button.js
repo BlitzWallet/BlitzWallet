@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12,
     backgroundColor: COLORS.darkModeText,
+    cursor: 'pointer',
   },
   text: {
     includeFontPadding: false,

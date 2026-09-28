@@ -87,6 +87,7 @@ export default function AboutPage() {
         <SettingsRow
           // iconName={'Zap'}
           label={t('settings.about.poweredByFlashnet')}
+          isLast
           onPress={() =>
             openWebBrowser({
               navigate,
@@ -94,7 +95,7 @@ export default function AboutPage() {
             })
           }
         />
-        <SettingsRow
+        {/* <SettingsRow
           // iconName={'Waves'}
           label={t('settings.about.poweredByBreez')}
           onPress={() =>
@@ -103,9 +104,9 @@ export default function AboutPage() {
               link: 'https://breez.technology',
             })
           }
-        />
+        /> */}
 
-        <SettingsRow
+        {/* <SettingsRow
           // iconName={'ArrowLeftRight'}
           label={t('settings.about.poweredByBoltz')}
           isLast
@@ -115,7 +116,7 @@ export default function AboutPage() {
               link: 'https://boltz.exchange',
             })
           }
-        />
+        /> */}
       </SectionCard>
 
       {/* GOOD TO KNOW / SPARK */}

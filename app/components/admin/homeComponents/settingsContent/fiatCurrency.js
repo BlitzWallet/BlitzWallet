@@ -1,5 +1,9 @@
 import { FlatList, StyleSheet } from 'react-native';
-import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+import {
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+} from '../../../../constants';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -16,7 +20,6 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
-  MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
@@ -205,7 +208,7 @@ const keyExtractor = currency => currency.id;
 const styles = StyleSheet.create({
   list: {
     width: '100%',
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     alignSelf: 'center',
   },
   listContent: {

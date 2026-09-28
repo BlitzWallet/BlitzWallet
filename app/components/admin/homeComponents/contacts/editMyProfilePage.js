@@ -4,6 +4,7 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
+  MAX_WEB_CONTENT_WIDTH,
   SIZES,
   VALID_NAME_BIO_REGEX,
 } from '../../../../constants';
@@ -21,10 +22,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../context-store/keys';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import {
-  INSET_WINDOW_WIDTH,
-  MAX_CONTENT_WIDTH,
-} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
@@ -127,13 +125,16 @@ export default function EditMyProfilePage(props) {
             cancelFunction: () => deleteUser(false),
           })
         }
-        showLeftImage={!isEditingMyProfile && !selectedAddedContact?.isParentContact}
+        showLeftImage={
+          !isEditingMyProfile && !selectedAddedContact?.isParentContact
+        }
       />
       <View
         style={{
           flex: 1,
           width: fromSettings ? '100%' : INSET_WINDOW_WIDTH,
           ...CENTER,
+          alignItems: 'center',
         }}
       >
         <InnerContent
@@ -494,7 +495,7 @@ function InnerContent({
 
   if (hideProfileImage) {
     return (
-      <>
+      <View style={styles.innerContainer}>
         <View style={styles.hideProfileContainer}>
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             <ProfileInputFields {...inputFieldsProps} />
@@ -519,7 +520,7 @@ function InnerContent({
               : t('constants.back')
           }
         />
-      </>
+      </View>
     );
   }
 
@@ -529,7 +530,7 @@ function InnerContent({
       <View
         style={[
           styles.innerContainer,
-          fromSettings && { maxWidth: MAX_CONTENT_WIDTH, width: '100%' },
+          fromSettings && { maxWidth: MAX_WEB_CONTENT_WIDTH, width: '100%' },
         ]}
       >
         <ScrollView
@@ -637,7 +638,7 @@ function InnerContent({
     <View
       style={[
         styles.innerContainer,
-        fromSettings && { maxWidth: MAX_CONTENT_WIDTH, width: '100%' },
+        fromSettings && { maxWidth: MAX_WEB_CONTENT_WIDTH, width: '100%' },
       ]}
     >
       <ScrollView
@@ -920,6 +921,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
+    width: '100%',
   },
   card: {
     width: '100%',

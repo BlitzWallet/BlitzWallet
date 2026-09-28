@@ -28,7 +28,6 @@ import {
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
@@ -690,7 +689,10 @@ export default function StablecoinSendScreen() {
   }, [isConfirmMode, shouldWarn, convertedSendAmount]);
 
   return (
-    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      globalThemeViewStyles={memorizedKeyboardStyle}
+    >
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           label={`${t('constants.send')}`}
@@ -836,6 +838,7 @@ export default function StablecoinSendScreen() {
             maxLength={150}
             containerStyles={{
               width: INSET_WINDOW_WIDTH,
+              maxWidth: 400,
               marginTop: 10,
               ...CENTER,
             }}
@@ -925,7 +928,7 @@ const styles = StyleSheet.create({
   },
   replacementContainer: {
     flexGrow: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
   },
   scrollContent: {

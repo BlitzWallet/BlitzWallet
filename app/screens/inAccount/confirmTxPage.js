@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Linking, Platform, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -70,7 +70,10 @@ export default function ConfirmTxPage(props) {
   // Payee-controlled (LUD-09). Allow-list to https before it can be opened so a
   // javascript:/data:/app-deeplink scheme can never reach the browser; '' hides
   // the button entirely.
-  const successActionUrl = getNormalizedWebsiteUrl(successAction?.url);
+  const successActionUrl =
+    successAction?.tag === 'url'
+      ? getNormalizedWebsiteUrl(successAction?.url)
+      : '';
 
   const didSucceed = !hasError || isLNURLAuth;
 
@@ -363,11 +366,17 @@ export default function ConfirmTxPage(props) {
           onSelect={async item => {
             if (item.value === 'email') {
               try {
-                await openComposer({
-                  to: 'support@blitzwalletapp.com',
-                  subject: 'Payment Failed',
-                  body: String(errorMessage),
-                });
+                if (Platform.OS === 'web') {
+                  await Linking.openURL(
+                    `mailto:support@blitzwalletapp.com?subject=${encodeURIComponent('Payment Failed')}&body=${encodeURIComponent(String(errorMessage))}`,
+                  );
+                } else {
+                  await openComposer({
+                    to: 'support@blitzwalletapp.com',
+                    subject: 'Payment Failed',
+                    body: String(errorMessage),
+                  });
+                }
               } catch (err) {
                 console.log('Email composer error:', err);
               }
@@ -496,7 +505,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  contentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
   },

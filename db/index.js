@@ -4,6 +4,7 @@ import {
   queueSetCashedMessages,
 } from '../app/functions/messaging/cachedMessages';
 import {
+  and,
   collection,
   query,
   where,
@@ -606,10 +607,12 @@ export async function syncDatabasePayment(myPubKey, privateKey) {
     const messagesRef = collection(db, 'contactMessages');
     const combinedQuery = query(
       messagesRef,
-      where('timestamp', '>', savedMillis),
-      or(
-        where('toPubKey', '==', myPubKey),
-        where('fromPubKey', '==', myPubKey),
+      and(
+        where('timestamp', '>', savedMillis),
+        or(
+          where('toPubKey', '==', myPubKey),
+          where('fromPubKey', '==', myPubKey),
+        ),
       ),
       orderBy('timestamp'),
     );

@@ -10,6 +10,7 @@ import {
   NWC_ACCOUNT_UUID,
 } from '../../../../constants';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
+import { tintStyle } from '../../../../functions/webTintColor';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 import { useState, useCallback } from 'react';
@@ -58,7 +59,7 @@ export default function AccountProfileImage({
           style={{
             aspectRatio: 1,
             width: '60%',
-            tintColor: theme && darkModeType ? textColor : undefined,
+            ...tintStyle(theme && darkModeType ? textColor : undefined),
           }}
           source={ICONS.nwcLogo}
         />

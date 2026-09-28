@@ -98,3 +98,8 @@ docs/firestore-rules-audit-2026-08.md
 security_reviews
 security
 plans
+.claude/launch.json
+.agents
+skills-lock.json
+# Maestro E2E output
+e2e-artifacts/

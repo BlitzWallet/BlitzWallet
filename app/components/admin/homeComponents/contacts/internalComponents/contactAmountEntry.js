@@ -80,7 +80,7 @@ export default function ContactAmountEntry({
         </View>
       </ScrollView>
 
-      <View style={{ width: INSET_WINDOW_WIDTH }}>
+      <View style={{ width: INSET_WINDOW_WIDTH, maxWidth: 400 }}>
         <ThemeText
           styles={{ opacity: HIDDEN_OPACITY }}
           content={

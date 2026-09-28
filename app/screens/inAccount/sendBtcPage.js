@@ -2,7 +2,7 @@ import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { BARCODE_FORMATS, COLORS, SIZES } from '../../constants';
+import { COLORS, SIZES } from '../../constants';
 import {
   useFocusEffect,
   useIsFocused,
@@ -14,7 +14,7 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
+import useQrScannerOutput from '../../hooks/useQrScannerOutput';
 import { getQRImage, resolveExternalChainNavigation } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
@@ -29,13 +29,21 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import getClipboardText from '../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useGlobalThemeContext } from '../../../context-store/theme';
+import GetThemeColors from '../../hooks/themeColors';
 
 export default function SendPaymentHome({ pageViewPage, from }) {
   const navigate = useNavigation();
   const isFocused = useIsFocused();
+  const { backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const isPhotoeLibraryOpen = useRef(false);
-  const { hasPermission, requestPermission } = useCameraPermission();
+  const {
+    status,
+    hasPermission,
+    requestPermission,
+    canRequestPermission,
+    hasAttemptedPermission,
+  } = useCameraPermission();
   const device = useCameraDevice('back');
   const [isFlashOn, setIsFlashOn] = useState(false);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
@@ -47,19 +55,29 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     const baseActive = navigate.canGoBack() ? isFocused : pageViewPage === 0;
     return baseActive && !isNavigatingAway;
   }, [isFocused, pageViewPage, navigate, isNavigatingAway]);
+  // hasAttemptedPermission is web-only (undefined on native), where <Camera>'s
+  // own getUserMedia is the prompt. Once an attempt has failed the focus effect
+  // must not probe again — that is a second prompt in the same visit, and
+  // Chrome hard-blocks the origin after a few. The no-access screen's button
+  // re-requests on demand.
+  const canAutoRequestPermission = !hasPermission && !hasAttemptedPermission;
+  // Only reachable alongside !hasPermission below: a dismissed web prompt or
+  // an Android denial that can still be re-prompted. A hard block shows the
+  // settings copy instead.
+  const showPermissionRetry = canRequestPermission;
 
   useFocusEffect(
     useCallback(() => {
       crashlyticsLogReport('Loading camera model page');
 
-      if (!hasPermission) {
+      if (canAutoRequestPermission) {
         requestPermission();
       }
 
       return () => {
         didScanRef.current = false;
       };
-    }, [hasPermission, requestPermission]),
+    }, [canAutoRequestPermission, requestPermission]),
   );
 
   const handleInvoice = useCallback(
@@ -119,8 +137,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     [handleInvoice, isNavigatingAway],
   );
 
-  const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: BARCODE_FORMATS,
+  const barcodeOutput = useQrScannerOutput({
     onBarcodeScanned: handleBarCodeScanned,
     onError: err => crashlyticsRecordErrorReport(err),
   });
@@ -210,11 +227,36 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         <NoContentScreen
           iconName="Camera"
           titleText={t('wallet.cameraPage.noCameraAccess')}
-          subTitleText={t('wallet.cameraPage.settingsText')}
+          subTitleText={
+            showPermissionRetry
+              ? t('wallet.cameraModal.permissionDismissed')
+              : t('wallet.cameraPage.settingsText')
+          }
+          showButton={showPermissionRetry}
+          buttonText={t('wallet.cameraModal.allowCamera')}
+          buttonFunction={requestPermission}
         />
       </GlobalThemeView>
     );
   }
+  // The camera is held by another app or tab. Retrying re-mounts <Camera>,
+  // whose getUserMedia asks again.
+  if (status === 'busy') {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        {from != 'home' && <CameraPageNavBar />}
+        <NoContentScreen
+          iconName="Camera"
+          titleText={t('wallet.cameraModal.cameraBusy')}
+          subTitleText={t('wallet.cameraModal.cameraBusySub')}
+          showButton={true}
+          buttonText={t('constants.tryAgain')}
+          buttonFunction={requestPermission}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   if (device == null) {
     return (
       <GlobalThemeView useStandardWidth={true}>
@@ -232,11 +274,12 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { alignItems: 'center', justifyContent: 'center' },
+        { alignItems: 'center', justifyContent: 'center', backgroundColor },
       ]}
     >
       <Camera
         outputs={[barcodeOutput]}
+        onError={crashlyticsRecordErrorReport}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}

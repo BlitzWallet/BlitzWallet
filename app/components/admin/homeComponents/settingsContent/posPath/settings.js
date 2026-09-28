@@ -27,14 +27,12 @@ import {
   WINDOWWIDTH,
 } from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {
-  keyboardGoBack,
-  keyboardNavigate,
-} from '../../../../../functions/customNavigation';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { fiatCurrencies } from '../../../../../functions/currencyOptions';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import BrandLogoUploader from './internalComponents/brandLogoUploader';
@@ -174,7 +172,7 @@ const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
 export default function PosSettingsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
+  const { isConnectedToTheInternet } = useAppStatus();
   const { cache } = useImageCache();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -294,54 +292,41 @@ export default function PosSettingsPage() {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      <View style={styles.topbar}>
-        <TouchableOpacity
-          style={styles.backArrow}
-          onPress={() => {
-            keyboardGoBack(navigate);
-          }}
-        >
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-        <ThemeText
-          CustomNumberOfLines={1}
-          CustomEllipsizeMode={'tail'}
-          content={t('settings.posPath.settings.title')}
-          styles={[
-            styles.topBarText,
-            { width: screenDimensions.width * 0.95 - 130 },
-          ]}
-        />
-
-        <TouchableOpacity
-          style={styles.infoIcon}
-          onPress={() => {
-            navigate.navigate('POSInstructionsPath');
-          }}
-        >
-          <ThemeIcon iconName={'Info'} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.receiptIcon}
-          onPress={() => {
-            keyboardNavigate(() => {
-              if (!isConnectedToTheInternet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('errormessges.nointernet'),
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('settings.posPath.settings.title')}
+        containerStyles={{ marginBottom: 8 }}
+        rightContent={
+          <>
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('POSInstructionsPath');
+              }}
+            >
+              <ThemeIcon iconName={'Info'} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                keyboardNavigate(() => {
+                  if (!isConnectedToTheInternet) {
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage: t('errormessges.nointernet'),
+                    });
+                    return;
+                  }
+                  navigate.navigate('POSStack');
                 });
-                return;
-              }
-              navigate.navigate('POSStack');
-            });
-          }}
-        >
-          <ThemeImage
-            lightsOutIcon={ICONS.receiptWhite}
-            darkModeIcon={ICONS.receiptIcon}
-            lightModeIcon={ICONS.receiptIcon}
-          />
-        </TouchableOpacity>
-      </View>
+              }}
+            >
+              <ThemeImage
+                lightsOutIcon={ICONS.receiptWhite}
+                darkModeIcon={ICONS.receiptIcon}
+                lightModeIcon={ICONS.receiptIcon}
+              />
+            </TouchableOpacity>
+          </>
+        }
+      />
       <ScrollView
         style={[styles.scrollView, CENTER]}
         contentContainerStyle={[
@@ -412,22 +397,6 @@ export default function PosSettingsPage() {
 }
 
 const styles = StyleSheet.create({
-  topbar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-    marginBottom: 8,
-  },
-  backArrow: { position: 'absolute', top: 0, left: 0, zIndex: 1 },
-  topBarText: {
-    fontSize: SIZES.large,
-    fontFamily: FONT.Title_Regular,
-    textAlign: 'center',
-    ...CENTER,
-  },
-  infoIcon: { position: 'absolute', top: 0, right: 35, zIndex: 1 },
-  receiptIcon: { position: 'absolute', top: 0, right: 0, zIndex: 1 },
   scrollView: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,

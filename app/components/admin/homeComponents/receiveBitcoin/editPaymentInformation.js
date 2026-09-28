@@ -11,7 +11,7 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import customUUID from '../../../../functions/customUUID';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
@@ -246,7 +246,10 @@ export default function EditReceivePaymentInformation(props) {
   }, [bottomPadding, isKeyboardFocused]);
 
   return (
-    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      globalThemeViewStyles={memorizedKeyboardStyle}
+    >
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
@@ -325,7 +328,7 @@ export default function EditReceivePaymentInformation(props) {
 const styles = StyleSheet.create({
   replacementContainer: {
     flexGrow: 1,
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
   },
   globalContainer: {

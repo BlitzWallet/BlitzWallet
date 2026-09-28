@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import ThemeText from '../functions/CustomElements/textTheme';
 
 // Pure decision: given the container width and each label's intrinsic single-line
@@ -89,8 +89,8 @@ export default function useAdaptiveButtonLayout(labels = [], options = {}) {
   );
 
   const onLabelMeasure = useCallback(
-    (index, e) => {
-      const next = e?.nativeEvent?.lines?.[0]?.width ?? 0;
+    (index, width) => {
+      const next = width ?? 0;
       if (labelWidthsRef.current[index] === next) return;
       labelWidthsRef.current[index] = next;
       reconcile();
@@ -119,7 +119,16 @@ export default function useAdaptiveButtonLayout(labels = [], options = {}) {
             content={label}
             CustomNumberOfLines={1}
             styles={[{ alignSelf: 'flex-start' }, textStyle]}
-            onTextLayout={e => onLabelMeasure(i, e)}
+            onTextLayout={e =>
+              onLabelMeasure(i, e?.nativeEvent?.lines?.[0]?.width)
+            }
+            // react-native-web never fires onTextLayout. The layer is
+            // width-unconstrained, so the label box's width is the same measure.
+            onLayout={
+              Platform.OS === 'web'
+                ? e => onLabelMeasure(i, e?.nativeEvent?.layout?.width)
+                : null
+            }
           />
         ))}
       </View>

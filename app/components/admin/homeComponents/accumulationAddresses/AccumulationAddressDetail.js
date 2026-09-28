@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -123,6 +124,8 @@ export default function AccumulationAddressDetail() {
   }, [navigate, groupAddresses, selected]);
 
   const handlePrint = useCallback(async () => {
+    if (Platform.OS === 'web') return;
+    if (!viewShotRef.current?.capture) return;
     try {
       setIsPrinting(true);
       const imageURI = await viewShotRef.current.capture();
@@ -251,23 +254,27 @@ export default function AccumulationAddressDetail() {
         leftImageFunction={handleDelete}
         textStyles={{ textTransform: 'capitalize' }}
         rightContent={
-          groupAddresses.length >= 1 ? (
-            <TouchableOpacity
-              style={{ width: 22, height: 22 }}
-              onPress={handlePrint}
-            >
-              {isPrinting ? (
-                <FullLoadingScreen
-                  loadingColor={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                  size="small"
-                  showText={false}
-                />
-              ) : (
-                <ThemeIcon iconName="Printer" size={22} />
-              )}
-            </TouchableOpacity>
+          Platform.OS === 'web'
+            ? null
+            : groupAddresses.length >= 1 ? (
+                <TouchableOpacity
+                  style={{ width: 22, height: 22 }}
+                  onPress={handlePrint}
+                >
+                  {isPrinting ? (
+                    <FullLoadingScreen
+                      loadingColor={
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary
+                      }
+                      size="small"
+                      showText={false}
+                    />
+                  ) : (
+                    <ThemeIcon iconName="Printer" size={22} />
+                  )}
+                </TouchableOpacity>
           ) : null
         }
       />

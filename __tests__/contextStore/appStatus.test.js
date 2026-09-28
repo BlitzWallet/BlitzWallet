@@ -1,8 +1,8 @@
 /* eslint-env jest */
 import React from 'react';
 import ReactTestRenderer, { act } from 'react-test-renderer';
-import { Dimensions, Text } from 'react-native';
-import { AppStatusProvider } from '../../context-store/appStatus';
+import { Dimensions, Platform, Text } from 'react-native';
+import { AppStatusProvider, useAppStatus } from '../../context-store/appStatus';
 
 const mockRemove = jest.fn();
 let addListenerSpy = null;
@@ -80,5 +80,62 @@ describe('AppStatusProvider subscription lifecycle', () => {
 
     expect(addListenerSpy).toHaveBeenCalledTimes(2);
     expect(mockRemove).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('AppStatusProvider screenDimensions', () => {
+  // On react-native-web, 'screen' is window.screen: the physical monitor.
+  const MONITOR = { width: 1512, height: 982, scale: 2, fontScale: 1 };
+  const BROWSER_WINDOW = { width: 420, height: 700, scale: 2, fontScale: 1 };
+
+  async function renderAndRead() {
+    let latest;
+    function Probe() {
+      latest = useAppStatus().screenDimensions;
+      return null;
+    }
+    await act(async () => {
+      renderer = ReactTestRenderer.create(
+        <AppStatusProvider>
+          <Probe />
+        </AppStatusProvider>,
+      );
+    });
+    return () => latest;
+  }
+
+  it('sizes against the browser window on web and follows its resizes', async () => {
+    const os = jest.replaceProperty(Platform, 'OS', 'web');
+    const get = jest
+      .spyOn(Dimensions, 'get')
+      .mockImplementation(key => (key === 'window' ? BROWSER_WINDOW : MONITOR));
+    try {
+      const read = await renderAndRead();
+      expect(read().width).toBe(420);
+
+      const onChange = addListenerSpy.mock.calls[0][1];
+      await act(async () => {
+        onChange({
+          window: { ...BROWSER_WINDOW, width: 380 },
+          screen: MONITOR,
+        });
+      });
+      expect(read().width).toBe(380);
+    } finally {
+      os.restore();
+      get.mockRestore();
+    }
+  });
+
+  it('keeps the device screen on native', async () => {
+    const get = jest
+      .spyOn(Dimensions, 'get')
+      .mockImplementation(key => (key === 'window' ? BROWSER_WINDOW : MONITOR));
+    try {
+      const read = await renderAndRead();
+      expect(read().width).toBe(1512);
+    } finally {
+      get.mockRestore();
+    }
   });
 });

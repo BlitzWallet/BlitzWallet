@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useCallback, useMemo } from 'react';
 
 import { CENTER, COLORS } from '../../app/constants';
@@ -83,7 +83,7 @@ function MyTabBar({ state, descriptors, navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { bottomPadding } = useGlobalInsets();
+  const { bottomPadding, leftPadding, rightPadding } = useGlobalInsets();
 
   const tabCount = state.routes.length || 1;
   const containerWidth = tabCount * TAB_ITEM_WIDTH;
@@ -92,8 +92,12 @@ function MyTabBar({ state, descriptors, navigation }) {
     () => ({
       bottom: bottomPadding,
       ...styles.tabsContainer,
+      ...(Platform.OS === 'web' && {
+        paddingLeft: leftPadding,
+        paddingRight: rightPadding,
+      }),
     }),
-    [bottomPadding],
+    [bottomPadding, leftPadding, rightPadding],
   );
 
   const activeColor =

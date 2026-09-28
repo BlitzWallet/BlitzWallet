@@ -16,6 +16,7 @@ import { fetchLocalStorageItems } from './initializeUserSettingsHelpers';
 import { crashlyticsLogReport } from './crashlyticsLogs';
 import { setLocalStorageItem } from './localStorage';
 import { getNWCData } from './nwc';
+import { Platform } from 'react-native';
 import { getNWCSparkIdentityPubKey, initializeNWCWallet } from './nwc/wallet';
 import { claimUniqueName } from '../../db';
 import { normalizePairingName } from './accounts/childPairing';
@@ -390,8 +391,11 @@ export default async function initializeUserSettingsFromHistory({
     }
 
     if (didViewSeedPhrase === null) {
-      didViewSeedPhrase = true;
-      setLocalStorageItem('didViewSeedPhrase', JSON.stringify(true));
+      didViewSeedPhrase = Platform.OS !== 'web';
+      setLocalStorageItem(
+        'didViewSeedPhrase',
+        JSON.stringify(didViewSeedPhrase),
+      );
     }
 
     // if (!lnurlPubKey) {

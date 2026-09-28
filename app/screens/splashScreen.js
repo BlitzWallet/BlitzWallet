@@ -12,6 +12,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { COLORS } from '../constants';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
+import { tintStyle } from '../functions/webTintColor';
 
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { initializeAllDatabases } from '../functions/initializeAllDatabases';
@@ -101,10 +102,7 @@ const SplashScreen = () => {
           source={SplashLogo}
           style={[
             styles.logo,
-            {
-              tintColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-            },
+            tintStyle(theme && darkModeType ? COLORS.darkModeText : COLORS.primary),
           ]}
           contentFit="contain"
         />

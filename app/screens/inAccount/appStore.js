@@ -10,12 +10,8 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { CENTER, SIZES } from '../../constants';
-import {
-  HIDDEN_OPACITY,
-  MAX_CONTENT_WIDTH,
-  WINDOWWIDTH,
-} from '../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../constants';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
 import ProfileImageSettingsNavigator from '../../functions/CustomElements/profileSettingsNavigator';
@@ -32,14 +28,21 @@ export default function AppStore({ navigation }) {
   const scrollViewRef = useRef(null);
 
   const hasLegacyChatGPT =
-    (decodedChatGPT?.credits ?? 0) > 0 || Platform.OS === 'android';
+    (decodedChatGPT?.credits ?? 0) > 0 ||
+    Platform.OS === 'android' ||
+    Platform.OS === 'web';
 
   const hasLegacySMS =
     (decodedMessages?.sent?.length ?? 0) > 0 ||
     (decodedMessages?.received?.length ?? 0) > 0 ||
-    Platform.OS === 'android';
+    Platform.OS === 'android' ||
+    Platform.OS === 'web';
+
   const showLegacySection =
-    hasLegacyChatGPT || hasLegacySMS || Platform.OS === 'android';
+    hasLegacyChatGPT ||
+    hasLegacySMS ||
+    Platform.OS === 'android' ||
+    Platform.OS === 'web';
 
   useFocusEffect(
     useCallback(() => {
@@ -53,7 +56,10 @@ export default function AppStore({ navigation }) {
   );
 
   return (
-    <GlobalThemeView styles={styles.container} useStandardWidth={false}>
+    <GlobalThemeView
+      styles={styles.container}
+      useStandardWidth={Platform.OS === 'web'}
+    >
       <View style={styles.navbar}>
         <ThemeText
           CustomNumberOfLines={1}
@@ -163,7 +169,7 @@ function PreviewCard({
 const styles = StyleSheet.create({
   container: { paddingBottom: 0 },
   navbar: {
-    width: WINDOWWIDTH,
+    width: Platform.OS === 'web' ? '100%' : WINDOWWIDTH,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -182,7 +188,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 8,
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MAX_WEB_CONTENT_WIDTH,
     alignSelf: 'center',
     width: '100%',
   },

@@ -5,9 +5,8 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
+import useQrScannerOutput from '../../../hooks/useQrScannerOutput';
 import { useFocusEffect } from '@react-navigation/native';
-import { BARCODE_FORMATS } from '../../../constants';
 import NoContentScreen from '../noContentScreen';
 import {
   crashlyticsLogReport,
@@ -29,9 +28,25 @@ export default function InlineQrScanner({
   resetToken = 0,
 }) {
   const { t } = useTranslation();
-  const { hasPermission, requestPermission } = useCameraPermission();
+  const {
+    status,
+    hasPermission,
+    requestPermission,
+    canRequestPermission,
+    hasAttemptedPermission,
+  } = useCameraPermission();
   const device = useCameraDevice('back');
   const didScanRef = useRef(false);
+  // hasAttemptedPermission is web-only (undefined on native), where <Camera>'s
+  // own getUserMedia is the prompt. Once an attempt has failed the focus effect
+  // must not probe again — that is a second prompt in the same visit, and
+  // Chrome hard-blocks the origin after a few. The no-access screen's button
+  // re-requests on demand.
+  const canAutoRequestPermission = !hasPermission && !hasAttemptedPermission;
+  // Only reachable alongside !hasPermission above: a dismissed web prompt or
+  // an Android denial that can still be re-prompted. A hard block shows the
+  // settings copy instead.
+  const showPermissionRetry = canRequestPermission;
 
   // Re-arm after the host flips to an error status so a re-scan can fire.
   useEffect(() => {
@@ -40,10 +55,10 @@ export default function InlineQrScanner({
 
   useFocusEffect(
     useCallback(() => {
-      if (!hasPermission) {
+      if (canAutoRequestPermission) {
         requestPermission();
       }
-    }, [hasPermission, requestPermission]),
+    }, [canAutoRequestPermission, requestPermission]),
   );
 
   const handleBarcodeScanned = useCallback(
@@ -59,8 +74,7 @@ export default function InlineQrScanner({
     [onScan],
   );
 
-  const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: BARCODE_FORMATS,
+  const barcodeOutput = useQrScannerOutput({
     onBarcodeScanned: handleBarcodeScanned,
     onError: err => crashlyticsRecordErrorReport(err),
   });
@@ -70,7 +84,29 @@ export default function InlineQrScanner({
       <NoContentScreen
         iconName="Camera"
         titleText={t('wallet.cameraModal.noCamera')}
-        subTitleText={t('wallet.cameraModal.settingsText')}
+        subTitleText={
+          showPermissionRetry
+            ? t('wallet.cameraModal.permissionDismissed')
+            : t('wallet.cameraModal.settingsText')
+        }
+        showButton={showPermissionRetry}
+        buttonText={t('wallet.cameraModal.allowCamera')}
+        buttonFunction={requestPermission}
+      />
+    );
+  }
+
+  // The camera is held by another app or tab. Retrying re-mounts <Camera>,
+  // whose getUserMedia asks again.
+  if (status === 'busy') {
+    return (
+      <NoContentScreen
+        iconName="Camera"
+        titleText={t('wallet.cameraModal.cameraBusy')}
+        subTitleText={t('wallet.cameraModal.cameraBusySub')}
+        showButton={true}
+        buttonText={t('constants.tryAgain')}
+        buttonFunction={requestPermission}
       />
     );
   }
@@ -89,6 +125,7 @@ export default function InlineQrScanner({
     <View style={StyleSheet.absoluteFill}>
       <Camera
         outputs={[barcodeOutput]}
+        onError={crashlyticsRecordErrorReport}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isActive}

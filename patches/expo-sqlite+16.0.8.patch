@@ -1,0 +1,27 @@
+--- a/node_modules/expo-sqlite/web/wa-sqlite/AccessHandlePoolVFS.js
++++ b/node_modules/expo-sqlite/web/wa-sqlite/AccessHandlePoolVFS.js
+@@ -22,7 +22,7 @@
+   VFS.SQLITE_OPEN_SUPER_JOURNAL |
+   VFS.SQLITE_OPEN_WAL;
+ 
+-const DEFAULT_CAPACITY = 6;
++const DEFAULT_CAPACITY = 32;
+ 
+ /**
+  * This VFS uses the updated Access Handle API with all synchronous methods
+@@ -227,8 +227,13 @@
+       this.#directoryHandle = handle;
+ 
+       await this.#acquireAccessHandles();
+-      if (this.getCapacity() === 0) {
+-        await this.addCapacity(DEFAULT_CAPACITY);
++      // Top up to DEFAULT_CAPACITY instead of only seeding an empty pool.
++      // An OPFS seeded when DEFAULT_CAPACITY was smaller (or a partially-
++      // created pool) reports getCapacity() != 0 and would otherwise stay
++      // stuck below DEFAULT_CAPACITY forever, throwing "cannot create file"
++      // once more DBs are opened than the pool can hold.
++      if (this.getCapacity() < DEFAULT_CAPACITY) {
++        await this.addCapacity(DEFAULT_CAPACITY - this.getCapacity());
+       }
+     }
+     return true;

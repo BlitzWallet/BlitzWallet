@@ -64,6 +64,7 @@ import { openComposer } from 'react-native-email-link';
 import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swapProgress';
 import { uses24HourClock } from 'react-native-localize';
 import openWebBrowser from '../../functions/openWebBrowser';
+import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContactsInfo();
@@ -516,10 +517,15 @@ export default function ExpandedTx(props) {
     const { tag, message, description, url } = showSuccessActionLabel;
 
     if (tag === 'url') {
+      // Payee-controlled (LUD-09). Allow-list to https before it can be
+      // opened so a javascript:/data: scheme can never reach the browser;
+      // '' hides the row entirely (mirrors confirmTxPage).
+      const safeUrl = getNormalizedWebsiteUrl(url);
+      if (!safeUrl) return null;
       return (
         <View style={styles.successActionContainer}>
           <TouchableOpacity
-            onPress={() => openWebBrowser({ navigate, link: url })}
+            onPress={() => openWebBrowser({ navigate, link: safeUrl })}
             style={[
               styles.descriptionContent,
               styles.successActionUrlRow,

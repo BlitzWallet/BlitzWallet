@@ -411,7 +411,12 @@ export default function BTCMapScreen() {
   }, [syncPlaces]);
 
   return (
-    <GlobalThemeView styles={{ paddingTop: 0, paddingBottom: 0 }}>
+    <GlobalThemeView
+      styles={{
+        paddingTop: 0,
+        paddingBottom: 0,
+      }}
+    >
       <View style={styles.container}>
         {/* Skeleton shown until map is ready */}
         {!isMapReady && (
