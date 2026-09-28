@@ -1,7 +1,7 @@
 {
   "name": "Blitz Wallet",
   "short_name": "Blitz",
-  "description": "Self-custodial global payments app — send money anywhere as easily as a message. Contact payments, instant settlement, Bitcoin & stablecoins (USDB, USDT, USDC). No install, no KYC, open source with 12-word backup.",
+  "description": "Blitz Wallet is a free wallet for Bitcoin and dollars. Send money to anyone in seconds. It works right in your browser. No download. No sign-up.",
   "id": "/",
   "lang": "en",
   "dir": "ltr",
