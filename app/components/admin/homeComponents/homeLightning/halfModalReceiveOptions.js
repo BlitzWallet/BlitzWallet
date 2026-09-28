@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -184,7 +185,7 @@ const LNURLQROverlay = ({
   return (
     <Animated.View style={[styles.overlayContainer, overlayStyle]}>
       <View style={styles.qrViewContainer}>
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={styles.qrViewScrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -217,7 +218,7 @@ const LNURLQROverlay = ({
               </View>
             </View>
           </TouchableOpacity>
-        </ScrollView>
+        </CustomScrollView>
 
         <CustomButton
           buttonStyles={styles.shareButton}
@@ -487,7 +488,7 @@ export default function HalfModalReceiveOptions({
             }
           />
         </View>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
@@ -626,7 +627,7 @@ export default function HalfModalReceiveOptions({
               />
             </View>
           )}
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
 
       {/* ── Overlays ── */}

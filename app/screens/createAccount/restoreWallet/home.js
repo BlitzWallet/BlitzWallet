@@ -2,9 +2,9 @@ import {
   View,
   TextInput,
   StyleSheet,
-  ScrollView,
   Platform,
 } from 'react-native';
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -304,7 +304,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
       <View style={styles.viewContainer}>
         <CustomSettingsTopBar />
         <View style={styles.keyContainer}>
-          <ScrollView
+          <CustomScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.contentContainer}
           >
@@ -321,7 +321,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
               content={t('createAccount.restoreWallet.home.desc')}
             />
             {inputKeys}
-          </ScrollView>
+          </CustomScrollView>
 
           {!currentFocused && (
             <View

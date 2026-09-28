@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import NostrWalletConnectNoNotifications from './nwc/noNotifications';
@@ -53,7 +54,7 @@ export default function NosterWalletConnect({ route }) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={'NWC'} />
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         style={styles.innerContainer}
         contentContainerStyle={styles.scrollContent}
@@ -85,7 +86,7 @@ export default function NosterWalletConnect({ route }) {
             containerStyles={styles.emptyContainer}
           />
         )}
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         actionFunction={() => {
           navigate.navigate('CreateNWCName');

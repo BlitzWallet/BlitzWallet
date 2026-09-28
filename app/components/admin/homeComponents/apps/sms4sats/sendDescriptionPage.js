@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -283,7 +284,7 @@ export default function SMSMessagingSendDescriptionPage(props) {
         label={t('constants.send')}
         shouldDismissKeyboard={true}
       />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
@@ -310,7 +311,7 @@ export default function SMSMessagingSendDescriptionPage(props) {
             textAlignVertical="top"
           />
         </View>
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={[
           styles.button,

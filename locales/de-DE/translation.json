@@ -1861,9 +1861,9 @@
       "contactUs": "Kontaktieren Sie uns"
     },
     "notifications": {
-      "mainToggle_enabled": "Benachrichtigungen aktiviert",
-      "mainToggle_disabled": "Benachrichtigungen deaktiviert",
-      "mainToggleDesc": "Benachrichtigungen informieren Sie über wichtige Ereignisse und Updates in der App",
+      "mainToggle": "Benachrichtigungen zulassen",
+      "disabledTitle": "Benachrichtigungen sind ausgeschaltet",
+      "disabledSubtitle": "Aktivieren Sie oben die Benachrichtigungen, um zu wählen, über welche Zahlungen und Ereignisse Sie informiert werden möchten.",
       "optionsTitle": "Benachrichtigungsoptionen",
       "contact": "Kontakte",
       "contactDesc": "Zahlungen von Ihren gespeicherten Kontakten",
@@ -2090,7 +2090,8 @@
         "viewActivityLabel": "Kontoverlauf anzeigen",
         "loadError": "Konto konnte nicht geladen werden",
         "loadErrorDesc": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.",
-        "stillConnectingInfo": "Ihr Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu Ihrem Konto herstellen."
+        "stillConnectingInfo": "Ihr Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu Ihrem Konto herstellen.",
+        "manageConnectionsLabel": "Verbindungen verwalten"
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",

@@ -1,4 +1,5 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
@@ -48,7 +49,7 @@ export default function CrashReportingSettingsPage() {
   }, [isCrashReportingEnabled]);
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}>
@@ -80,7 +81,7 @@ export default function CrashReportingSettingsPage() {
           content={t('settings.crashReporting.descriptionText')}
         />
       </SettingsSection>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

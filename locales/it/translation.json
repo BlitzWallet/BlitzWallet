@@ -1861,9 +1861,9 @@
       "contactUs": "Contattaci"
     },
     "notifications": {
-      "mainToggle_enabled": "Notifiche abilitate",
-      "mainToggle_disabled": "Notifiche disabilitate",
-      "mainToggleDesc": "Le notifiche ti tengono informato su eventi e aggiornamenti importanti che accadono nell'app.",
+      "mainToggle": "Consenti le notifiche",
+      "disabledTitle": "Le notifiche sono disattivate",
+      "disabledSubtitle": "Attiva le notifiche qui sopra per scegliere per quali pagamenti ed eventi vuoi ricevere avvisi.",
       "optionsTitle": "Opzioni notifiche",
       "contact": "Contatto",
       "contactDesc": "Pagamenti ricevuti dai tuoi contatti salvati",
@@ -2090,7 +2090,8 @@
         "viewActivityLabel": "Visualizza la cronologia dell'account",
         "loadError": "Impossibile caricare l'account",
         "loadErrorDesc": "Riprova. Se il problema continua, contatta l'assistenza.",
-        "stillConnectingInfo": "Il tuo saldo potrebbe non essere aggiornato mentre completiamo la connessione al tuo conto."
+        "stillConnectingInfo": "Il tuo saldo potrebbe non essere aggiornato mentre completiamo la connessione al tuo conto.",
+        "manageConnectionsLabel": "Gestisci connessioni"
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",

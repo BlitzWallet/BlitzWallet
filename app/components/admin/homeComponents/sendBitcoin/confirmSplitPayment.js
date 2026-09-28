@@ -1,4 +1,5 @@
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -747,7 +748,7 @@ export default function ConfirmSplitPayment(props) {
           containerStyles={{ marginBottom: 0 }}
         />
 
-        <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
+        <CustomScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display — always shown except during rate-change intercept */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
             <View>
@@ -818,7 +819,7 @@ export default function ConfirmSplitPayment(props) {
 
           {/* Rates changed */}
           {uiState === 'SWAP_RATES_CHANGED' && <SwapRatesChangedState />}
-        </ScrollView>
+        </CustomScrollView>
 
         {/* CHOOSE_METHOD — continue button */}
         {uiState === 'CHOOSE_METHOD' && (

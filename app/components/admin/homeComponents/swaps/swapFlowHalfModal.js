@@ -9,10 +9,10 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   FlatList,
   Platform,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -1788,7 +1788,7 @@ export default function SwapFlowHalfModal({
         pointerEvents={currentStep === 'amountInput' ? 'auto' : 'none'}
       >
         <View style={[styles.stepContent, { width: '100%' }]}>
-          <ScrollView
+          <CustomScrollView
             contentContainerStyle={{
               paddingBottom: 20,
               width: INSET_WINDOW_WIDTH,
@@ -2015,7 +2015,7 @@ export default function SwapFlowHalfModal({
                 </TouchableOpacity>
               ))}
             </View>
-          </ScrollView>
+          </CustomScrollView>
 
           {currentStep === 'amountInput' && (
             <HandleKeyboardRender
@@ -2057,7 +2057,7 @@ export default function SwapFlowHalfModal({
         ]}
         pointerEvents={currentStep === 'review' ? 'auto' : 'none'}
       >
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.reviewScroll}
         >
@@ -2177,7 +2177,7 @@ export default function SwapFlowHalfModal({
               />
             </View>
           </View>
-        </ScrollView>
+        </CustomScrollView>
 
         <CustomButton
           buttonStyles={{ ...CENTER }}

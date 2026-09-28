@@ -4,7 +4,8 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
 import { CENTER, NOSTR_RELAY_URL } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -79,7 +80,7 @@ export default function NWCAccountPage(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={t('settings.nwc.accountPage.title')} />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -130,7 +131,7 @@ export default function NWCAccountPage(props) {
             <ThemeIcon iconName="ChevronRight" size={18} />
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         actionFunction={() => {
           navigate.navigate('ConfirmActionPage', {

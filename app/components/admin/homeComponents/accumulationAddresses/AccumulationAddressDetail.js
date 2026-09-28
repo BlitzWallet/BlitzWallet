@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
@@ -279,7 +279,7 @@ export default function AccumulationAddressDetail() {
         }
       />
       <View style={styles.innerContainer}>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
@@ -381,7 +381,7 @@ export default function AccumulationAddressDetail() {
             <ThemeText content={shortAddress} />
             <ThemeIcon iconName="Copy" size={18} />
           </TouchableOpacity>
-        </ScrollView>
+        </CustomScrollView>
         {/* Print button */}
         <CustomButton
           buttonStyles={styles.printBtn}

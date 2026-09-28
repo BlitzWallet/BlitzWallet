@@ -5,7 +5,8 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -101,7 +102,7 @@ export default function CreateCustodyAccountPage() {
         iconNew="Trash2"
       />
 
-      <ScrollView
+      <CustomScrollView
         style={{ width: INSET_WINDOW_WIDTH }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps={'handled'}
@@ -133,7 +134,7 @@ export default function CreateCustodyAccountPage() {
           }}
           content={`${name.length} / ${maxLength}`}
         />
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         useLoading={isCreatingAccount}
         buttonStyles={{

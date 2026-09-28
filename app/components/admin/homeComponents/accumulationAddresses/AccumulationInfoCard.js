@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -75,7 +76,7 @@ export default function AccumulationInfoCard({ isExpanded: initialExpanded }) {
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
-        <ScrollView scrollEnabled={false} showsVerticalScrollIndicator={false}>
+        <CustomScrollView scrollEnabled={false} showsVerticalScrollIndicator={false}>
           <View
             onLayout={e =>
               setContentHeight(Math.round(e.nativeEvent.layout.height))
@@ -103,7 +104,7 @@ export default function AccumulationInfoCard({ isExpanded: initialExpanded }) {
               content={t('screens.accumulationAddresses.info.step3')}
             />
           </View>
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
     </View>
   );

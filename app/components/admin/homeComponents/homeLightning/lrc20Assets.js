@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Animated, {
   Easing,
   useSharedValue,
@@ -235,7 +236,7 @@ export default function LRC20Assets() {
       </TouchableOpacity>
 
       <Animated.View style={[{ width: '100%' }, containerStyle]}>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={true}
           nestedScrollEnabled={true}
           style={styles.scrollView}
@@ -253,7 +254,7 @@ export default function LRC20Assets() {
           ) : (
             tokens
           )}
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
     </>
   );

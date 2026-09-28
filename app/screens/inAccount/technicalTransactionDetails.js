@@ -1,4 +1,5 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { CENTER } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { copyToClipboard } from '../../functions';
@@ -181,7 +182,7 @@ export default function TechnicalTransactionDetails(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar />
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         style={styles.innerContainer}
       >
@@ -254,7 +255,7 @@ export default function TechnicalTransactionDetails(props) {
             </View>
           </>
         )}
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

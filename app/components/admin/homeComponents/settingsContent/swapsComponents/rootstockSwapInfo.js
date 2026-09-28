@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
@@ -114,7 +115,7 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -163,7 +164,7 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
             );
           })}
         </View>
-      </ScrollView>
+      </CustomScrollView>
 
       {canRefund && (
         <CustomButton

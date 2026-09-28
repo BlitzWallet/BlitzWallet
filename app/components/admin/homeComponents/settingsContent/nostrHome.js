@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { CENTER } from '../../../../constants';
@@ -19,7 +20,7 @@ export default function NostrHome() {
   const { t } = useTranslation();
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
@@ -67,7 +68,7 @@ export default function NostrHome() {
           </View>
         </TouchableOpacity>
       </SettingsSection>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

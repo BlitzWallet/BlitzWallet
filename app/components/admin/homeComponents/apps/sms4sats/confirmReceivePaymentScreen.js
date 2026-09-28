@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { getConfirmTxAnimation } from '../../../../../functions/lottieAnimations';
 import LottieView from 'lottie-react-native';
@@ -61,7 +62,7 @@ export default function ConfirmSMSReceivePage(props) {
         <TouchableOpacity style={styles.backBTN} onPress={navigate.goBack}>
           <ThemeIcon iconName={'X'} />
         </TouchableOpacity>
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={{
             flexGrow: 1,
             alignItems: 'center',
@@ -134,7 +135,7 @@ export default function ConfirmSMSReceivePage(props) {
               )}
             </View>
           </View>
-        </ScrollView>
+        </CustomScrollView>
       </View>
     </View>
   );

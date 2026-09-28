@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -38,7 +39,7 @@ export default function AddContactsPage({ selectedContact }) {
       <View
         style={[styles.bioContainer, { backgroundColor: textInputBackground }]}
       >
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={{
             alignItems: 'center',
             flexGrow: 1,
@@ -50,7 +51,7 @@ export default function AddContactsPage({ selectedContact }) {
             styles={[styles.bioText, { color: textInputColor }]}
             content={bio}
           />
-        </ScrollView>
+        </CustomScrollView>
       </View>
       <CustomButton
         actionFunction={() => {

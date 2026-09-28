@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import {
@@ -213,7 +214,7 @@ export default function ShareInvoicePayLinkModal({
         />
       </View>
 
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.howItWorksContainer}
       >
@@ -236,7 +237,7 @@ export default function ShareInvoicePayLinkModal({
             </View>
           </View>
         ))}
-      </ScrollView>
+      </CustomScrollView>
 
       <View
         style={[styles.buttonContainer, { marginTop: CONTENT_KEYBOARD_OFFSET }]}

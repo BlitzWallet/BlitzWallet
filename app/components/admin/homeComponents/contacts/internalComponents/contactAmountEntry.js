@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 
 import { CENTER } from '../../../../../constants';
 import {
@@ -39,7 +40,7 @@ export default function ContactAmountEntry({
 }) {
   return (
     <View style={styles.container}>
-      <ScrollView
+      <CustomScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
@@ -78,7 +79,7 @@ export default function ContactAmountEntry({
             customTextInputContainerStyles={styles.amountInputContainer}
           />
         </View>
-      </ScrollView>
+      </CustomScrollView>
 
       <View style={{ width: INSET_WINDOW_WIDTH, maxWidth: 400 }}>
         <ThemeText

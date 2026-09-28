@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -71,7 +72,7 @@ export default function ChildMatchCode() {
         rightContent={<PairingExpiryClock />}
         customBackFunction={handleNoMatch}
       />
-      <ScrollView style={styles.content}>
+      <CustomScrollView style={styles.content}>
         <ThemeText
           styles={styles.title}
           content={t('settings.childAccounts.pairing.sasTitle')}
@@ -88,7 +89,7 @@ export default function ChildMatchCode() {
           styles={styles.hint}
           content={t('settings.childAccounts.pairing.sasHint')}
         />
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={styles.button}
         useLoading={status === 'granting'}

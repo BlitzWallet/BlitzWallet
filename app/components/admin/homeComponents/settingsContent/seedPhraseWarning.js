@@ -3,7 +3,8 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -75,7 +76,7 @@ export default function SeedPhraseWarning(props) {
   const WarningContent = useCallback(() => {
     return (
       <View style={{ flex: 1 }}>
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
@@ -125,7 +126,7 @@ export default function SeedPhraseWarning(props) {
               ))}
             </View>
           </View>
-        </ScrollView>
+        </CustomScrollView>
 
         {/* Checkbox */}
         <TouchableOpacity

@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -78,7 +79,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
         <>
           <CustomSettingsTopBar />
           <View style={styles.globalContainer}>
-            <ScrollView
+            <CustomScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
@@ -89,7 +90,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
 
               <View style={styles.featuresContainer}>{featureElements}</View>
               <QuestionDiscoveryGrid />
-            </ScrollView>
+            </CustomScrollView>
           </View>
 
           <CustomButton

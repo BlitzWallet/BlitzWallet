@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../functions/CustomElements';
@@ -100,7 +101,7 @@ export default function BTCMapFilterContent({
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <CustomScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
@@ -171,7 +172,7 @@ export default function BTCMapFilterContent({
         </View>
 
         <View style={{ height: 20 }} />
-      </ScrollView>
+      </CustomScrollView>
 
       <View
         style={[

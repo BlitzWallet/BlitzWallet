@@ -1861,9 +1861,9 @@
       "contactUs": "Contate-nos"
     },
     "notifications": {
-      "mainToggle_enabled": "Notificações",
-      "mainToggle_disabled": "Notificações",
-      "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo",
+      "mainToggle": "Permitir notificações",
+      "disabledTitle": "As notificações estão desativadas",
+      "disabledSubtitle": "Ative as notificações acima para escolher sobre quais pagamentos e eventos você quer ser alertado.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "contactDesc": "Pagamentos recebidos dos seus contatos salvos",
@@ -2090,7 +2090,8 @@
         "viewActivityLabel": "Histórico da conta",
         "loadError": "Não foi possível carregar a conta",
         "loadErrorDesc": "Tente novamente. Se o problema continuar, entre em contato com o suporte.",
-        "stillConnectingInfo": "Seu saldo pode estar desatualizado enquanto terminamos de conectar sua conta."
+        "stillConnectingInfo": "Seu saldo pode estar desatualizado enquanto terminamos de conectar sua conta.",
+        "manageConnectionsLabel": "Gerenciar conexões"
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",

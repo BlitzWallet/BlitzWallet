@@ -1,11 +1,11 @@
 import {
-  ScrollView,
   Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { CENTER, COLORS } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
@@ -67,7 +67,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar containerStyles={{ marginBottom: 0 }} />
 
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
@@ -147,7 +147,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
             <ThemeIcon size={18} iconName={'ChevronRight'} />
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </CustomScrollView>
 
       {/* ── Acknowledgment checkbox — risk + T&C ── */}
       <TouchableOpacity

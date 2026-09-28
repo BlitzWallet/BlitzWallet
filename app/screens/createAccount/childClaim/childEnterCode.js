@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { KeyboardController } from 'react-native-keyboard-controller';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -183,7 +184,7 @@ export default function ChildEnterCode() {
         </View>
       ) : (
         <>
-          <ScrollView
+          <CustomScrollView
             style={styles.codeScroll}
             contentContainerStyle={styles.codeScrollContent}
             showsVerticalScrollIndicator={false}
@@ -210,7 +211,7 @@ export default function ChildEnterCode() {
                 onBlurFunction={() => setIsKeyboardActive(false)}
               />
             </View>
-          </ScrollView>
+          </CustomScrollView>
           <CustomButton
             buttonStyles={styles.button}
             textContent={t('settings.childAccounts.claim.next')}

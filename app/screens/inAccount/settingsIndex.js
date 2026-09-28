@@ -1,4 +1,5 @@
-import { Platform, ScrollView, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -198,7 +199,7 @@ export default function SettingsIndex() {
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar label={t('settings.index.settingsHead')} />
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
@@ -236,7 +237,7 @@ export default function SettingsIndex() {
 
         {renderSection([DELETE_ROW])}
         <BlitzSocialOptions />
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

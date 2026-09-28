@@ -110,6 +110,7 @@ export default function ReclaimGift() {
         label={t('screens.inAccount.giftPages.claimPage.reclaimButton')}
       />
       <KeyboardAwareScrollView
+        alwaysBounceVertical={false}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

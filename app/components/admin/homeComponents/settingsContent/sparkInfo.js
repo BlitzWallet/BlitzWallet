@@ -1,10 +1,10 @@
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -94,7 +94,7 @@ export default function SparkInfo() {
   const isBitcoinToken = selectedToken?.toLowerCase() === 'bitcoin';
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
@@ -239,7 +239,7 @@ export default function SparkInfo() {
           />
         </View>
       </SettingsSection>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

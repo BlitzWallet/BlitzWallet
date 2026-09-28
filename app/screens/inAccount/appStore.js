@@ -1,11 +1,11 @@
 import React, { useCallback, useRef } from 'react';
 import {
   View,
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
   Platform,
 } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
@@ -68,7 +68,7 @@ export default function AppStore({ navigation }) {
         />
         <ProfileImageSettingsNavigator />
       </View>
-      <ScrollView
+      <CustomScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -134,7 +134,7 @@ export default function AppStore({ navigation }) {
             </View>
           )}
         </View>
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

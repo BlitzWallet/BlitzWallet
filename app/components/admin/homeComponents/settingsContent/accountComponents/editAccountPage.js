@@ -4,7 +4,8 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
@@ -543,7 +544,7 @@ function EditAccountPageContent(props) {
           isConnecting ? handleSlowConnectInfo : handleDeleteAccount
         }
       />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={{
           paddingTop: 10,
           flexGrow: 1,
@@ -689,7 +690,7 @@ function EditAccountPageContent(props) {
             account type, rows filtered per type via detailRows / manageRows. */}
         {renderCard(detailRows)}
         {renderCard(manageRows)}
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

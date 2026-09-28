@@ -4,10 +4,10 @@ import {
   TouchableOpacity,
   View,
   TextInput,
-  ScrollView,
   StyleSheet,
   Alert,
 } from 'react-native';
+import CustomScrollView from '../functions/CustomElements/scrollView';
 import {
   connect,
   defaultConfig,
@@ -240,7 +240,7 @@ export default function BreezSpark() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <CustomScrollView style={styles.scrollView}>
         {/* Connection Section */}
         <View style={styles.section}>
           <TouchableOpacity
@@ -361,7 +361,7 @@ export default function BreezSpark() {
             ))}
           </View>
         )}
-      </ScrollView>
+      </CustomScrollView>
     </SafeAreaView>
   );
 }

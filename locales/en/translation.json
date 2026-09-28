@@ -2022,9 +2022,9 @@
       "contactUs": "Contact us"
     },
     "notifications": {
-      "mainToggle_enabled": "Enabled notifications",
-      "mainToggle_disabled": "Disabled notifications",
-      "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
+      "mainToggle": "Allow notifications",
+      "disabledTitle": "Notifications are off",
+      "disabledSubtitle": "Turn on notifications above to choose which payments and events you get alerted about.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
       "contactDesc": "Payments received from your added contacts",

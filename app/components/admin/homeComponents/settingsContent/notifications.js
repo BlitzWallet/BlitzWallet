@@ -1,7 +1,7 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import { usePushNotification } from '../../../../../context-store/notificationMa
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const NOTIFICATION_SERVICES = [
   'contactPayments',
@@ -167,7 +168,7 @@ export default function NotificationPreferances() {
   );
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
@@ -179,9 +180,7 @@ export default function NotificationPreferances() {
           <SettingsItem
             isLast
             dividerColor={backgroundColor}
-            label={t('settings.notifications.mainToggle', {
-              context: !effectivePushStatus ? 'disabled' : 'enabled',
-            })}
+            label={t('settings.notifications.mainToggle')}
           >
             <View style={styles.rightContainer}>
               {isUpdating && (
@@ -191,17 +190,6 @@ export default function NotificationPreferances() {
                   showText={false}
                 />
               )}
-              <TouchableOpacity
-                style={styles.infoButton}
-                onPress={() =>
-                  navigate.navigate('InformationPopup', {
-                    textContent: t('settings.notifications.mainToggleDesc'),
-                    buttonText: t('constants.continue'),
-                  })
-                }
-              >
-                <ThemeIcon size={20} iconName="Info" />
-              </TouchableOpacity>
               <CustomToggleSwitch
                 page="settingsNotifications"
                 toggleSwitchFunction={() =>
@@ -214,7 +202,7 @@ export default function NotificationPreferances() {
         </View>
       </SettingsSection>
 
-      {effectivePushStatus && (
+      {effectivePushStatus ? (
         <SettingsSection
           title={t('settings.notifications.optionsTitle')}
           style={styles.lastSection}
@@ -322,8 +310,15 @@ export default function NotificationPreferances() {
             </SettingsItem>
           </View>
         </SettingsSection>
+      ) : (
+        <NoContentSceen
+          iconName="BellOff"
+          titleText={t('settings.notifications.disabledTitle')}
+          subTitleText={t('settings.notifications.disabledSubtitle')}
+          containerStyles={styles.noContent}
+        />
       )}
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 
@@ -333,6 +328,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingTop: 24,
     paddingBottom: 40,
   },
@@ -384,8 +380,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  infoButton: {
-    marginRight: 8,
+  noContent: {
+    width: '100%',
   },
   loadingContainer: {
     flex: 0,

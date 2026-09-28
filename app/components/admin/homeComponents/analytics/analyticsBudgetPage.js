@@ -1,11 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Svg, { Circle } from 'react-native-svg';
 import {
   COLORS,
@@ -110,7 +110,7 @@ export default function AnalyticsBudgetPage() {
         leftImageFunction={navigateToRemoveBudget}
       />
 
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: bottomPadding + 20 },
@@ -261,7 +261,7 @@ export default function AnalyticsBudgetPage() {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -726,7 +727,7 @@ export default function StablecoinSendScreen() {
           }
         />
 
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -805,7 +806,7 @@ export default function StablecoinSendScreen() {
               /> */}
             </TouchableOpacity>
           )}
-        </ScrollView>
+        </CustomScrollView>
 
         {/* Source method picker: shown in edit mode only */}
         {!isConfirmMode && (

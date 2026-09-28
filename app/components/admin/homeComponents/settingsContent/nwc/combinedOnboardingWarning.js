@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -24,7 +25,7 @@ export default function CombinedOnboardingWarning() {
 
   return (
     <View style={styles.content}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <CustomScrollView showsVerticalScrollIndicator={false}>
         <ThemeText
           styles={styles.title}
           content={t('settings.nwc.combinedOnboarding.infoTitle')}
@@ -73,7 +74,7 @@ export default function CombinedOnboardingWarning() {
           ))}
         </View>
 
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={styles.button}
         textContent={t('settings.nwc.combinedOnboarding.continueButton')}

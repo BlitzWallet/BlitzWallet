@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { CENTER, ICONS } from '../../../../constants';
@@ -48,7 +49,7 @@ export default function SelectReceiveAsset({
         content={t('screens.inAccount.receiveBtcPage.selectReceiveAssetHead')}
       />
 
-      <ScrollView
+      <CustomScrollView
         style={{ marginVertical: 10 }}
         showsVerticalScrollIndicator={false}
       >
@@ -132,7 +133,7 @@ export default function SelectReceiveAsset({
             content={t('screens.inAccount.receiveBtcPage.usd_convert_warning')}
           />
         )}
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         actionFunction={selectSendingBalance}
         buttonStyles={{ marginTop: 'auto' }}

@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
@@ -157,7 +158,7 @@ export default function AddPOSItemsPage() {
         shouldDismissKeyboard={true}
         label={t('settings.posPath.items.addPOSItemsPage.title')}
       />
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[0]}
         contentContainerStyle={styles.scrollContent}
@@ -184,7 +185,7 @@ export default function AddPOSItemsPage() {
             />
           </View>
         )}
-      </ScrollView>
+      </CustomScrollView>
 
       <CustomButton
         buttonStyles={styles.addItemButton}

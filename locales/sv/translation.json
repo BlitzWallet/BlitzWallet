@@ -1861,9 +1861,9 @@
       "contactUs": "Kontakta oss"
     },
     "notifications": {
-      "mainToggle_enabled": "Aktiverade meddelanden",
-      "mainToggle_disabled": "Avaktiverade meddelanden",
-      "mainToggleDesc": "Med aviseringar kan du hålla dig informerad om viktiga händelser och uppdateringar som sker i appen.",
+      "mainToggle": "Tillåt aviseringar",
+      "disabledTitle": "Aviseringar är avstängda",
+      "disabledSubtitle": "Slå på aviseringar ovan för att välja vilka betalningar och händelser du vill bli meddelad om.",
       "optionsTitle": "Alternativ för avisering",
       "contact": "Kontakt",
       "contactDesc": "Betalningar mottagna från dina sparade kontakter",
@@ -2090,7 +2090,8 @@
         "viewActivityLabel": "Visa kontohistorik",
         "loadError": "Det gick inte att ladda kontot",
         "loadErrorDesc": "Försök igen. Om problemet kvarstår, kontakta supporten.",
-        "stillConnectingInfo": "Ditt saldo kanske inte är uppdaterat medan vi slutför anslutningen av ditt konto."
+        "stillConnectingInfo": "Ditt saldo kanske inte är uppdaterat medan vi slutför anslutningen av ditt konto.",
+        "manageConnectionsLabel": "Hantera anslutningar"
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",

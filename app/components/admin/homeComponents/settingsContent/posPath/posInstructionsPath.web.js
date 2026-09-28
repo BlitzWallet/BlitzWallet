@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
@@ -183,7 +184,7 @@ export default function POSInstructionsPath() {
         showLeftImage={true}
         iconNew="Share"
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <CustomScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.viewShotPadding} ref={cardRef}>
           {brandLogoSource && (
             <Image
@@ -224,7 +225,7 @@ export default function POSInstructionsPath() {
             </View>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={{
           backgroundColor: COLORS.lightModeText,

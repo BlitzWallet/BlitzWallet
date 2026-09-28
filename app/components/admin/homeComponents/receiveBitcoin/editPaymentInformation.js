@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, MIN_BTC_USD_AMOUNT_RECEIVEPAGE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useMemo, useState } from 'react';
@@ -263,7 +264,7 @@ export default function EditReceivePaymentInformation(props) {
           }
         />
 
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.amountScrollContainer,
@@ -278,7 +279,7 @@ export default function EditReceivePaymentInformation(props) {
             forceCurrency={primaryDisplay.forceCurrency}
             forceFiatStats={primaryDisplay.forceFiatStats}
           />
-        </ScrollView>
+        </CustomScrollView>
 
         <CustomSearchInput
           setInputText={setPaymentDescription}

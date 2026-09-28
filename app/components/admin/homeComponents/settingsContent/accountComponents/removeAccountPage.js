@@ -3,7 +3,8 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
@@ -52,7 +53,7 @@ export default function RemoveAccountPage(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -79,7 +80,7 @@ export default function RemoveAccountPage(props) {
             )}
           />
         </View>
-      </ScrollView>
+      </CustomScrollView>
 
       {/* Buttons */}
       <View style={styles.buttonsContainer}>

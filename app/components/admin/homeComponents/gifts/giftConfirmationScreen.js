@@ -1,6 +1,7 @@
 import LottieView from 'lottie-react-native';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
@@ -114,7 +115,7 @@ export default function GiftConfirmation(props) {
         leftImageFunction={handleShare}
         customBackFunction={handleGoHome}
       />
-      <ScrollView
+      <CustomScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -283,7 +284,7 @@ export default function GiftConfirmation(props) {
             </View>
           </>
         )}
-      </ScrollView>
+      </CustomScrollView>
 
       {/* Fixed Bottom Buttons */}
       <View style={styles.bottomButtons}>

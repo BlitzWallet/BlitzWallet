@@ -2,10 +2,10 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  ScrollView,
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import {
   APPROXIMATE_SYMBOL,
   CENTER,
@@ -568,6 +568,7 @@ export default function ExpandedTx(props) {
         />
 
         <KeyboardAwareScrollView
+          alwaysBounceVertical={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
@@ -971,12 +972,12 @@ const MemoSection = ({ initialDescription, onSave, t }) => {
               onBlurFunction={runSaveFunction}
             />
           ) : (
-            <ScrollView
+            <CustomScrollView
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={false}
             >
               <ThemeText content={memoText} />
-            </ScrollView>
+            </CustomScrollView>
           )}
         </View>
       )}

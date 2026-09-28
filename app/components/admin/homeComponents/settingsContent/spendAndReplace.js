@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { CENTER, SPEND_AND_REPLACE_STORAGE_KEY } from '../../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
@@ -47,7 +48,7 @@ export default function SpendAndReplace() {
   }, [toggleMasterInfoObject, isEnabled]);
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.container}
       contentContainerStyle={styles.scrollContent}
@@ -107,7 +108,7 @@ export default function SpendAndReplace() {
           })}
         />
       </View>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

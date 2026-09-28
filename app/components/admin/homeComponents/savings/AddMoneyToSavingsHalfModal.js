@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import {
   useSavings,
@@ -355,7 +356,7 @@ export default function AddMoneyToSavingsHalfModal({
           styles={styles.title}
           content={t('savings.addMoney.chooseGoalTitle')}
         />
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={{
             flexGrow: 1,
             gap: 15,
@@ -462,7 +463,7 @@ export default function AddMoneyToSavingsHalfModal({
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
+        </CustomScrollView>
       </View>
     );
   }
@@ -636,7 +637,7 @@ export default function AddMoneyToSavingsHalfModal({
       localSatAmount !== 0;
     return (
       <View style={styles.amountContainer}>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.amountScrollContainer}
         >
@@ -680,7 +681,7 @@ export default function AddMoneyToSavingsHalfModal({
               })}
             />
           )}
-        </ScrollView>
+        </CustomScrollView>
 
         <CustomNumberKeyboard
           showDot={primaryDisplay.denomination === 'fiat'}

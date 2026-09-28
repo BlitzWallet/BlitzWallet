@@ -1,4 +1,5 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {shuffleArray} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -35,12 +36,12 @@ export default function ExampleGPTSearchCard({submitChaMessage}) {
     });
   return (
     <View style={styles.container}>
-      <ScrollView
+      <CustomScrollView
         keyboardShouldPersistTaps={'always'}
         horizontal
         showsHorizontalScrollIndicator={false}>
         {cardElements}
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 }

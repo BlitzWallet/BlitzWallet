@@ -1,10 +1,10 @@
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -59,7 +59,7 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <CustomScrollView showsVerticalScrollIndicator={false}>
         {CHAINS.map(chain => (
           <ReceiveOptionRow
             key={chain.id}
@@ -101,7 +101,7 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
             />
           );
         })}
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 }

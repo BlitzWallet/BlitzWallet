@@ -1,7 +1,8 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useSavings } from '../../../../../context-store/savingsContext';
 import {
   GlobalThemeView,
@@ -81,7 +82,7 @@ export default function SavingsHome() {
         }
       />
 
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -239,7 +240,7 @@ export default function SavingsHome() {
           styles={styles.disclaimer}
           content={t('savings.home.disclaimer')}
         />
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

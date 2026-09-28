@@ -1,10 +1,10 @@
 import {
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { COLORS, SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 
@@ -53,12 +53,12 @@ export default function ErrorScreen(props) {
             ]}
           >
             {/* Message */}
-            <ScrollView>
+            <CustomScrollView>
               <ThemeText
                 styles={styles.headerText}
                 content={useTranslationString ? t(errorMessage) : errorMessage}
               />
-            </ScrollView>
+            </CustomScrollView>
 
             {/* Divider */}
             <View

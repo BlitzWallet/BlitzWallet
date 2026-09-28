@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -220,7 +221,7 @@ export default function CreateAccumulationAddressModal({
           styles={styles.stepTitle}
           content={t('screens.accumulationAddresses.create.pickChain')}
         />
-        <ScrollView
+        <CustomScrollView
           ref={scrollViewRef}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
           showsVerticalScrollIndicator={false}
@@ -264,7 +265,7 @@ export default function CreateAccumulationAddressModal({
               />
             </View>
           ))}
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
 
       {mountedSteps.has('destination') && (

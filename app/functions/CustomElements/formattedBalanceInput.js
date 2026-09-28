@@ -1,11 +1,11 @@
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import CustomScrollView from './scrollView';
 import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
@@ -100,7 +100,7 @@ export default function FormattedBalanceInput({
         ]}
       >
         <View style={[styles.inputWrapper, { width: availableInputWidth }]}>
-          <ScrollView
+          <CustomScrollView
             onTouchStart={() => setIsScrolling(false)}
             onTouchMove={() => setIsScrolling(true)}
             onTouchEnd={() => setIsScrolling(false)}
@@ -123,7 +123,7 @@ export default function FormattedBalanceInput({
               scrollEnabled
               multiline={false}
             />
-          </ScrollView>
+          </CustomScrollView>
         </View>
         <View
           onLayout={e => {
@@ -184,7 +184,7 @@ export default function FormattedBalanceInput({
         <ThemeText styles={styles.satText} content={BITCOIN_SATS_ICON} />
       )}
       <View style={[styles.inputWrapper, { width: inputWidth }]}>
-        <ScrollView
+        <CustomScrollView
           onTouchStart={() => setIsScrolling(false)}
           onTouchMove={() => setIsScrolling(true)}
           onTouchEnd={() => setIsScrolling(false)}
@@ -207,7 +207,7 @@ export default function FormattedBalanceInput({
             scrollEnabled
             multiline={false}
           />
-        </ScrollView>
+        </CustomScrollView>
       </View>
       {!isSymbolInFront && !showSats && showSymbol && (
         <ThemeText styles={styles.satText} content={currencySymbol} />

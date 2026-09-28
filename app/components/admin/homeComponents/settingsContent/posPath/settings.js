@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -327,7 +328,7 @@ export default function PosSettingsPage() {
           </>
         }
       />
-      <ScrollView
+      <CustomScrollView
         style={[styles.scrollView, CENTER]}
         contentContainerStyle={[
           styles.scrollContent,
@@ -369,7 +370,7 @@ export default function PosSettingsPage() {
           onNavigate={() => navigate.navigate('AddPOSItemsPage')}
           onInfo={handleItemsInfo}
         />
-      </ScrollView>
+      </CustomScrollView>
 
       {!isKeyboardActive && (
         <CustomButton

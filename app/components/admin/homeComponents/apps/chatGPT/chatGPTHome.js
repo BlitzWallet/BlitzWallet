@@ -6,8 +6,8 @@ import {
   StyleSheet,
   TextInput,
   Platform,
-  ScrollView,
 } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -485,7 +485,7 @@ export default function ChatGPTHome(props) {
           </View>
         ) : (
           <View style={styles.flasListContianer}>
-            <ScrollView
+            <CustomScrollView
               style={styles.invertedScroll}
               horizontal={false}
               onScroll={handleScroll}
@@ -493,7 +493,7 @@ export default function ChatGPTHome(props) {
               scrollEventThrottle={16}
             >
               <View style={styles.invertedContainer}>{userChatHistory}</View>
-            </ScrollView>
+            </CustomScrollView>
             {showScrollBottomIndicator && (
               <TouchableOpacity
                 activeOpacity={1}

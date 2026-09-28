@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -940,7 +941,7 @@ export default function WithdrawFromSavingsHalfModal({
           styles={styles.title}
           content={t('savings.withdraw.chooseGoalTitle')}
         />
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={{
             flexGrow: 1,
             gap: 15,
@@ -1116,7 +1117,7 @@ export default function WithdrawFromSavingsHalfModal({
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
+        </CustomScrollView>
         <CustomButton
           buttonStyles={{ ...CENTER, marginTop: CONTENT_KEYBOARD_OFFSET }}
           actionFunction={() => {
@@ -1165,7 +1166,7 @@ export default function WithdrawFromSavingsHalfModal({
 
     return (
       <View style={styles.amountContainer}>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.amountScrollContainer}
         >
@@ -1183,7 +1184,7 @@ export default function WithdrawFromSavingsHalfModal({
               amount: availableHintAmount,
             })}
           />
-        </ScrollView>
+        </CustomScrollView>
         <TouchableOpacity
           style={styles.sendMaxButton}
           onPress={() => {

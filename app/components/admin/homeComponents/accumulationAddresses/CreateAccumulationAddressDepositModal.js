@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import GetThemeColors from '../../../../hooks/themeColors';
 
 import {
@@ -30,7 +31,7 @@ export default function CreateAccumulationAddressDepositModal({
 
   const chainElements = useMemo(() => {
     return (
-      <ScrollView
+      <CustomScrollView
         ref={scrollViewRef}
         contentContainerStyle={{ paddingBottom: bottomPadding }}
         showsVerticalScrollIndicator={false}
@@ -79,7 +80,7 @@ export default function CreateAccumulationAddressDepositModal({
             />
           </View>
         ))}
-      </ScrollView>
+      </CustomScrollView>
     );
   }, [
     expandedChain,

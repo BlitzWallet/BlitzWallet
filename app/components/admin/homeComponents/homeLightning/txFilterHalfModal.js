@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -102,7 +103,7 @@ export default function TxFilterHalfModal({
     <View style={styles.container}>
       <ThemeText styles={styles.title} content={t(`${ns}.filterModalTitle`)} />
 
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
       >
@@ -252,7 +253,7 @@ export default function TxFilterHalfModal({
         </View>
 
         <View style={{ height: 20 }} />
-      </ScrollView>
+      </CustomScrollView>
 
       {/* --- Sticky bottom bar --- */}
       <View style={[styles.bottomBar, { borderTopColor: inactiveBorderColor }]}>
