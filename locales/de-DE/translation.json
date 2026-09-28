@@ -256,10 +256,10 @@
         "seedPrivacyMessage": "Achten Sie darauf, dass niemand Ihren Bildschirm sehen kann.",
         "showIt": "Anzeigen",
         "invalidSeedError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden.",
-        "webHeader": "Sichere deine Wiederherstellungsphrase",
-        "webStorageWarning": "Deine Wiederherstellungsphrase ist der einzige Weg, deine Wallet wiederherzustellen. Browser-Daten können gelöscht oder entfernt werden, was deine Wallet auf diesem Gerät löschen kann.",
-        "webSubHeader": "Bewahre deine Wiederherstellungsphrase an einem privaten Ort auf. Speichere keinen Screenshot und teile sie mit niemandem.",
-        "revealTitle": "Tippe, um deine Wiederherstellungsphrase anzuzeigen"
+        "webHeader": "Sichern Sie Ihre Wiederherstellungsphrase",
+        "webStorageWarning": "Ihre Wiederherstellungsphrase ist die einzige Möglichkeit, Ihre Wallet wiederherzustellen. Browserdaten können gelöscht werden. Dadurch kann die Wallet von diesem Gerät entfernt werden.",
+        "webSubHeader": "Bewahren Sie Ihre Wiederherstellungsphrase an einem sicheren, privaten Ort auf. Erstellen Sie keinen Screenshot und geben Sie die Phrase nicht weiter.",
+        "revealTitle": "Tippen Sie, um Ihre Wiederherstellungsphrase anzuzeigen"
       },
       "pin": {
         "savePinError": "PIN konnte nicht gespeichert werden.",
@@ -272,23 +272,23 @@
       },
       "password": {
         "createHeader": "Passwort erstellen",
-        "createSubtitle": "Dein Passwort schützt den Zugang zu deiner Wallet. Deine Wiederherstellungsphrase stellt sie wieder her, also bewahre sie sicher auf. Du kannst sie jederzeit in den Einstellungen ansehen.",
+        "createSubtitle": "Ihr Passwort schützt den Zugriff auf Ihre Wallet. Mit Ihrer Wiederherstellungsphrase können Sie die Wallet wiederherstellen. Bewahren Sie die Phrase daher sicher auf. Sie können sie jederzeit in den Einstellungen anzeigen.",
         "createButton": "Wallet erstellen",
         "newPasswordPlaceholder": "Passwort eingeben",
         "confirmPasswordPlaceholder": "Passwort bestätigen",
         "mismatchError": "Passwörter stimmen nicht überein",
         "tooShortError": "Das Passwort muss mindestens {{count}} Zeichen lang sein",
-        "commonWarning": "Häufiges Passwort",
-        "whatMakesStrongPassword": "Was macht ein starkes Passwort aus?",
+        "commonWarning": "Häufig verwendetes Passwort",
+        "whatMakesStrongPassword": "Was zeichnet ein starkes Passwort aus?",
         "showPassword": "Passwort anzeigen",
         "hidePassword": "Passwort verbergen"
       },
       "passkey": {
         "offerHeader": "Passkey erstellen",
-        "offerSubtitle": "Dein Passkey schützt den Zugang zu deiner Wallet. Deine Wiederherstellungsphrase stellt sie wieder her, also bewahre sie sicher auf. Du kannst sie jederzeit in den Einstellungen ansehen.",
+        "offerSubtitle": "Ihr Passkey schützt den Zugriff auf Ihre Wallet. Mit Ihrer Wiederherstellungsphrase können Sie die Wallet wiederherstellen. Bewahren Sie die Phrase daher sicher auf. Sie können sie jederzeit in den Einstellungen anzeigen.",
         "createButton": "Passkey erstellen",
         "usePassword": "Stattdessen ein Passwort verwenden",
-        "unsupported": "Dein Passwort-Manager kann eine Wallet noch nicht mit einem Passkey schützen. Lege stattdessen ein Passwort fest.",
+        "unsupported": "Ihr Passwortmanager kann eine Wallet noch nicht mit einem Passkey schützen. Legen Sie stattdessen ein Passwort fest.",
         "confirmFailed": "Passkey konnte nicht bestätigt werden",
         "tryAgain": "Erneut versuchen"
       }
@@ -325,15 +325,15 @@
       "restoreDesc": "Sie haben bereits eine Wallet? Übernehmen Sie sie."
     },
     "legacyWebMigration": {
-      "title": "Blitz has been updated",
-      "description": "Log in once with your existing password to move your wallet over. Your balance, accounts and history stay the same.",
-      "passwordPlaceholder": "Password",
-      "button": "Log in & update",
-      "useRecoveryPhrase": "Stattdessen meine Wiederherstellungsphrase verwenden",
-      "recoveryConfirm": "Dadurch wird die alte, in diesem Browser gespeicherte Wallet entfernt und die Einrichtung geöffnet. Dort kannst du eine Wallet wiederherstellen oder erstellen. Du brauchst deine Wiederherstellungsphrase, um auf dein vorhandenes Guthaben zuzugreifen.",
-      "recoveryError": "Die alte Wallet konnte nicht entfernt werden. Bitte versuche es erneut.",
-      "wrongPassword": "Wrong password, try again",
-      "error": "Update failed. Your wallet has not been changed — reload the page and try again."
+      "title": "Blitz wurde aktualisiert",
+      "description": "Melden Sie sich einmal mit Ihrem bisherigen Passwort an, um Ihre Wallet zu übertragen. Guthaben, Konten und Verlauf bleiben erhalten.",
+      "passwordPlaceholder": "Passwort",
+      "button": "Anmelden und aktualisieren",
+      "useRecoveryPhrase": "Stattdessen Wiederherstellungsphrase verwenden",
+      "recoveryConfirm": "Dadurch wird die alte, in diesem Browser gespeicherte Wallet entfernt und die Einrichtung geöffnet. Dort können Sie eine Wallet wiederherstellen oder erstellen. Sie benötigen Ihre Wiederherstellungsphrase, um auf Ihr vorhandenes Guthaben zuzugreifen.",
+      "recoveryError": "Die alte Wallet konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
+      "wrongPassword": "Falsches Passwort. Bitte versuchen Sie es erneut.",
+      "error": "Das Update ist fehlgeschlagen. Ihre Wallet wurde nicht verändert. Laden Sie die Seite neu und versuchen Sie es erneut."
     }
   },
   "adminLogin": {
@@ -351,15 +351,15 @@
       "attemptsText": "Noch {{attempts}} Versuche",
       "passwordPlaceholder": "Passwort",
       "forgotPassword": "Passwort vergessen?",
-      "forgotPasswordConfirm": "Passwort vergessen? Der einzige Weg zur Wiederherstellung ist das Zurücksetzen und Wiederherstellen mit deiner Wiederherstellungsphrase.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Wiederherstellungsphrase sicher gesichert ist.",
+      "forgotPasswordConfirm": "Passwort vergessen? Sie können Ihre Wallet nur zurücksetzen und mit Ihrer Wiederherstellungsphrase wiederherstellen.\n\nMöchten Sie alle Wallet-Daten löschen? Fahren Sie nur fort, wenn Ihre Wiederherstellungsphrase sicher gesichert ist.",
       "loginButton": "Anmelden",
-      "storageError": "Wallet-Speicher konnte nicht gelesen werden. Bitte versuche es erneut."
+      "storageError": "Der Wallet-Speicher konnte nicht gelesen werden. Bitte versuchen Sie es erneut."
     },
     "passkeyPage": {
       "unlockButton": "Mit Passkey entsperren",
       "unlockError": "Entsperren mit Passkey fehlgeschlagen",
       "lostPasskey": "Passkey verloren?",
-      "lostPasskeyConfirm": "Passkey verloren? Der einzige Weg zurück ist das Zurücksetzen und Wiederherstellen mit deiner Wiederherstellungsphrase.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Wiederherstellungsphrase sicher gesichert ist."
+      "lostPasskeyConfirm": "Passkey verloren? Sie können Ihre Wallet nur zurücksetzen und mit Ihrer Wiederherstellungsphrase wiederherstellen.\n\nMöchten Sie alle Wallet-Daten löschen? Fahren Sie nur fort, wenn Ihre Wiederherstellungsphrase sicher gesichert ist."
     }
   },
   "apps": {
@@ -1087,7 +1087,7 @@
       "depositFeePopup_liquid": "Liquid Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, die in Ihrer Wallet verwendet werden können. Für die Umwandlung fällt eine geringe Gebühr an, die vom empfangenen Betrag abgezogen wird.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, die in Ihrer Wallet verwendet werden können. Für die Umwandlung fällt eine geringe Gebühr an, die vom empfangenen Betrag abgezogen wird.",
       "depositFeePopup_stablecoins": "Stablecoins, die an diese Adresse gesendet werden, werden in Ihrer Wallet in Dollar umgewandelt. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen.",
-      "depositFeePopup_accumulation_bitcoin": "Bitcoin, das an diese Adresse gesendet wird, wird in Bitcoin umgewandelt, das in Ihrer Wallet verwendet werden kann. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
+      "depositFeePopup_accumulation_bitcoin": "An diese Adresse gesendete Bitcoin werden umgewandelt, damit sie in Ihrer Wallet verwendet werden können. Eine Umwandlungsgebühr von etwa 1 % wird vom empfangenen Betrag abgezogen."
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -1185,10 +1185,10 @@
     "cameraModal": {
       "noCamera": "Kein Zugriff auf die Kamera.",
       "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf die Kamera zu erlauben.",
-      "permissionDismissed": "Der Kamerazugriff wurde nicht erteilt. Tippen Sie unten, um es erneut zu versuchen.",
-      "allowCamera": "Kamera erlauben",
+      "permissionDismissed": "Der Kamerazugriff wurde nicht erteilt. Tippen Sie unten, um den Zugriff erneut anzufordern.",
+      "allowCamera": "Kamerazugriff erlauben",
       "cameraBusy": "Kamera nicht verfügbar",
-      "cameraBusySub": "Eine andere App oder ein anderer Tab verwendet die Kamera. Schließen Sie sie und versuchen Sie es erneut.",
+      "cameraBusySub": "Eine andere App oder ein anderer Tab verwendet die Kamera. Schließen Sie die andere App beziehungsweise den anderen Tab und versuchen Sie es erneut.",
       "noCameraDevice": "Kein Kameragerät",
       "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
       "scanningResponse": "Es werden nur QR-Codes akzeptiert.",
@@ -1702,26 +1702,26 @@
       "biometricsHead": "Biometrie",
       "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Wenn sich diese ändern, kann Blitz Wallet nicht mehr auf Ihre Wiederherstellungsphrase zugreifen und Ihre Wallet wird gesperrt.",
       "changePasswordTitle": "Passwort ändern",
-      "currentPasswordSubtitle": "Gib dein aktuelles Passwort ein, um es zu ändern.",
+      "currentPasswordSubtitle": "Geben Sie Ihr aktuelles Passwort ein, um es zu ändern.",
       "currentPasswordPlaceholder": "Aktuelles Passwort",
       "wrongCurrentPassword": "Falsches Passwort",
       "newPasswordHeader": "Neues Passwort",
-      "newPasswordSubtitle": "Wähle ein neues Passwort.",
+      "newPasswordSubtitle": "Wählen Sie ein neues Passwort.",
       "changePasswordButton": "Passwort ändern",
       "passwordChanged": "Passwort aktualisiert",
       "passwordChangeFailed": "Passwort konnte nicht aktualisiert werden",
-      "loadError": "Deine Wallet-Sicherheitseinstellungen konnten nicht gelesen werden. Bitte versuche es erneut.",
+      "loadError": "Ihre Wallet-Sicherheitseinstellungen konnten nicht gelesen werden. Bitte versuchen Sie es erneut.",
       "passkeyCardTitle": "Stattdessen einen Passkey verwenden",
-      "passkeyCardBody": "Entsperre mit deinem Gesicht, Fingerabdruck oder Geräte-PIN. Dein Passkey ersetzt dein Passwort.",
-      "passkeyPasswordSubtitle": "Gib dein aktuelles Passwort ein, um zu einem Passkey zu wechseln.",
+      "passkeyCardBody": "Entsperren Sie Ihre Wallet mit Ihrem Gesicht, Fingerabdruck oder Ihrer Geräte-PIN. Der Passkey ersetzt Ihr Passwort.",
+      "passkeyPasswordSubtitle": "Geben Sie Ihr aktuelles Passwort ein, um zu einem Passkey zu wechseln.",
       "passkeyCreated": "Passkey erstellt",
       "passkeySetupFailed": "Passkey-Einrichtung fehlgeschlagen",
       "passkeyTitle": "Passkey",
       "passkeyCreatedOn": "Erstellt am {{date}}",
-      "passkeySavedAs": "In deinem Passwort-Manager gespeichert als {{name}}",
+      "passkeySavedAs": "In Ihrem Passwortmanager gespeichert als {{name}}",
       "switchToPassword": "Zu Passwort wechseln",
-      "switchToPasswordSubtitle": "Wähle ein Passwort. Es ersetzt deinen Passkey.",
-      "switchedToPassword": "Zu Passwort gewechselt"
+      "switchToPasswordSubtitle": "Wählen Sie ein Passwort. Es ersetzt Ihren Passkey.",
+      "switchedToPassword": "Zum Passwort gewechselt"
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",
@@ -1857,7 +1857,7 @@
       "autoClaimLabel": "Automatisch einlösen",
       "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist.",
       "unsupportedTitle": "Wir unterstützen {{type}} nicht mehr",
-      "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie Ihre Blitz-Wiederherstellungsphrase in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
+      "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie die Wiederherstellungsphrase Ihrer Blitz Wallet in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
       "contactUs": "Kontaktieren Sie uns"
     },
     "notifications": {
@@ -3458,17 +3458,17 @@
   },
   "tabInUse": {
     "title": "Blitz ist in einem anderen Tab geöffnet",
-    "description": "Ihre Wallet kann nur in einem Tab gleichzeitig geöffnet sein. Verwenden Sie sie hier, um sie im anderen Tab zu schließen.",
+    "description": "Ihre Wallet kann nur in einem Tab gleichzeitig geöffnet sein. Verwenden Sie die Wallet hier. Dadurch wird sie im anderen Tab geschlossen.",
     "button": "Hier verwenden"
   },
   "webUpdate": {
     "title": "Update verfügbar",
     "description": "Blitz {{version}} ist bereit zur Installation.",
     "requiredTitle": "Update erforderlich",
-    "requiredDescription": "Blitz {{version}} ist erforderlich, um deine Wallet weiterhin nutzen zu können.",
+    "requiredDescription": "Blitz {{version}} ist erforderlich, damit Sie Ihre Wallet weiterhin verwenden können.",
     "button": "Jetzt aktualisieren",
-    "progress": "Aktualisierung… {{percent}}%",
+    "progress": "Aktualisierung läuft … {{percent}} %",
     "later": "Später",
-    "error": "Update fehlgeschlagen. Überprüfe deine Verbindung und versuche es erneut."
+    "error": "Update fehlgeschlagen. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
   }
 }
