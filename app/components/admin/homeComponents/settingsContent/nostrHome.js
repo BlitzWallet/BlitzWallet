@@ -57,19 +57,6 @@ export default function NostrHome() {
                   styles={styles.settingsItemLabel}
                   content={t('settings.nostrHome.nwcTitle')}
                 />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={[
-                    styles.experimentalBadge,
-                    {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                    },
-                  ]}
-                  content={t('constants.experimentalLower')}
-                />
               </View>
               <ThemeText
                 styles={styles.settingsItemDescription}

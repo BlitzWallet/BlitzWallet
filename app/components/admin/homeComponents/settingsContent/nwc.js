@@ -1,13 +1,7 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  NWC_SECURE_STORE_MNEMOINC,
-} from '../../../../constants';
-import { useCallback, useState } from 'react';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { usePushNotification } from '../../../../../context-store/notificationManager';
 import NostrWalletConnectNoNotifications from './nwc/noNotifications';
 import {
   GlobalThemeView,
@@ -16,46 +10,24 @@ import {
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { retrieveData } from '../../../../functions';
 import CombinedOnboardingWarning from './nwc/combinedOnboardingWarning';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
+import useNWCNotificationsEnabled from '../../../../hooks/useNWCNotificationsEnabled';
 
-export default function NosterWalletConnect() {
+export default function NosterWalletConnect({ route }) {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
-
-  const { getCurrentPushNotifiicationPermissions } = usePushNotification();
-  const [currnetPushState, setCurrentPushState] = useState(null);
-  const [hasSeenMnemoinc, setHasSeenMnemoinc] = useState('');
+  const hasEnabledPushNotifications = useNWCNotificationsEnabled();
   const { backgroundOffset } = GetThemeColors();
   const savedNWCAccounts = masterInfoObject.NWC;
-  const notificationData = masterInfoObject.pushNotifications;
   const didViewWarningMessage = masterInfoObject.didViewNWCMessage;
-  const hasEnabledPushNotifications =
-    notificationData.isEnabled &&
-    notificationData.enabledServices.NWC &&
-    currnetPushState;
+  // Opened from the NWC account page: the user already knows it's a separate wallet.
+  const fromAccounts = route?.params?.fromAccounts;
 
   const { t } = useTranslation();
-
-  const loadCurrentNotificationPermission = async () => {
-    const [resposne, NWCMnemoinc] = await Promise.all([
-      getCurrentPushNotifiicationPermissions(),
-      retrieveData(NWC_SECURE_STORE_MNEMOINC).then(data => data.value),
-    ]);
-
-    setHasSeenMnemoinc(!!NWCMnemoinc);
-    setCurrentPushState(resposne === 'granted');
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      loadCurrentNotificationPermission();
-    }, []),
-  );
 
   // Step 1, enable push notifications
   if (!hasEnabledPushNotifications) {
@@ -65,11 +37,11 @@ export default function NosterWalletConnect() {
       </CustomPageWrapper>
     );
   }
-  // Step 2, combined onboarding (accounts + seed initialization)
-  if (!didViewWarningMessage || !hasSeenMnemoinc) {
+  // Step 2, intro (Settings path only)
+  if (!didViewWarningMessage && !fromAccounts) {
     return (
       <CustomPageWrapper>
-        <CombinedOnboardingWarning setHasSeenMnemoinc={setHasSeenMnemoinc} />
+        <CombinedOnboardingWarning />
       </CustomPageWrapper>
     );
   }

@@ -1,0 +1,40 @@
+# NWC account is visible on a fresh wallet and gated on notifications.
+# Run with `yarn e2e:ios` or `yarn e2e:android`. Never point at a funded wallet.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: deny
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# PIN: Create PIN, then Confirm Pin
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- extendedWaitUntil:
+    notVisible: Confirm Pin
+    timeout: 60000
+# Home nav bar profile icon (top-right) -> SettingsHub. It has no text or
+# testID, so this taps the top-right corner. Confirm with `maestro hierarchy`
+# on the home screen and replace with a text/id selector if one exists.
+- tapOn:
+    point: 90%,8%
+- tapOn: Accounts
+- assertVisible: NWC Account
+- tapOn: NWC Account
+- assertVisible: Notifications required
+- assertNotVisible: Before you get started
+- takeScreenshot: nwc-account-gate

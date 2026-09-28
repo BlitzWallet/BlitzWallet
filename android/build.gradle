@@ -42,5 +42,12 @@ buildscript {
 //         }
 //     }
 // }
+allprojects {
+    repositories {
+        // Breez Spark SDK for the native NWC handler.
+        maven { url "https://mvn.breez.technology/releases" }
+    }
+}
+
 apply plugin: "com.facebook.react.rootproject"
 apply plugin: "expo-root-project"

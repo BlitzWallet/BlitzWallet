@@ -29,6 +29,7 @@ import { deleteLeavesTable } from './spark/leavesStorage';
 import { deleteRootstockSwapTable } from './boltz/rootstock/swapDb';
 import { NWCInvoiceManager } from './nwc/cachedNWCTxs';
 import { nwcEventLedger } from './nwc/eventLedger';
+import { clearNativeNWCState } from './nwc/sharedStorage';
 import {
   initializeAllDatabases,
   resetDatabaseInitialization,
@@ -81,6 +82,7 @@ const tableDeletes = [
   deleteRootstockSwapTable,
   () => NWCInvoiceManager.resetDatabase(),
   () => nwcEventLedger.resetDatabase(),
+  () => clearNativeNWCState(),
 ];
 
 export async function deleteAllLocalWalletTables() {

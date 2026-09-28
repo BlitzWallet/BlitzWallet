@@ -2016,10 +2016,7 @@
         "row2Description": "Dieses Konto ist aus Sicherheitsgründen von Ihrem Hauptkonto getrennt.",
         "row3Label": "App-Zugriff",
         "row3Description": "Verbundene Apps können dieses Konto verwenden, um Zahlungen auszuführen.",
-        "continueButton": "Loslegen",
-        "initializingMessage": "Ihr NWC-Konto wird eingerichtet...",
-        "errorTitle": "Einrichtung fehlgeschlagen",
-        "errorRetry": "Einrichtung erneut versuchen"
+        "continueButton": "Loslegen"
       },
       "accountCreated": {
         "title": "Verbindung erstellt",
@@ -3147,12 +3144,13 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet."
     },
     "nwc": {
-      "get_info": "NWC-Info-Event",
-      "get_balance": "NWC-Guthaben-Event",
-      "list_transactions": "NWC-Transaktionen abgerufen",
-      "make_invoice": "NWC-Rechnung erstellt",
-      "lookup_invoice": "NWC-Rechnungsabfrage",
-      "pay_invoice": "NWC-Zahlung gesendet"
+      "get_info": "Wallet-Infos angefragt",
+      "get_balance": "Guthaben abgefragt",
+      "list_transactions": "Transaktionen angesehen",
+      "make_invoice": "Rechnung erstellt",
+      "lookup_invoice": "Rechnung geprüft",
+      "pay_invoice": "Zahlung gesendet",
+      "openApp": "Blitz öffnen, um Anfrage abzuschließen"
     }
   },
   "accountCard": {

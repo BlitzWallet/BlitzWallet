@@ -1,4 +1,5 @@
 import { openDatabaseAsync } from 'expo-sqlite';
+import { getNWCDatabaseDirectory, migrateNWCDatabase } from './sharedStorage';
 
 // Database configuration
 const DB_NAME = 'nwc_invoices.db';
@@ -13,7 +14,14 @@ class InvoiceDatabase {
   // Initialize database connection
   async initialize() {
     try {
-      this.db = await openDatabaseAsync(DB_NAME);
+      // Shared with the native NWC handlers — see sharedStorage.js.
+      migrateNWCDatabase(DB_NAME);
+      this.db = await openDatabaseAsync(
+        DB_NAME,
+        undefined,
+        getNWCDatabaseDirectory(),
+      );
+      await this.db.execAsync('PRAGMA busy_timeout = 5000;');
       await this.createTables();
       this.isInitialized = true;
       console.log('Invoice database initialized successfully');
@@ -117,6 +125,37 @@ class InvoiceDatabase {
       console.error('Failed to store invoice:', error);
       throw error;
     }
+  }
+
+  // Takes the right to pay `paymentHash`: a new pending OUTGOING marker, or a
+  // failed one flipped back to pending. JS and the native handlers pay from
+  // separate processes, so only the attempt whose statement changed the row
+  // may send. Same SQL as NwcInvoices.claimPayment (NwcStorage.kt/.swift).
+  async claimOutgoingPayment(paymentHash, invoice, amount) {
+    await this.ensureInitialized();
+
+    const now = Date.now();
+    const inserted = await this.db.runAsync(
+      `INSERT OR IGNORE INTO invoices (payment_hash, invoice, amount, description, created_at, updated_at,
+         expires_at, settled_at, metadata, sparkID, type, status, fee, preimage)
+       VALUES (?, ?, ?, '', ?, ?, NULL, NULL, ?, '', 'OUTGOING', 'pending', 0, '')`,
+      [
+        paymentHash,
+        invoice,
+        amount,
+        now,
+        now,
+        JSON.stringify({ created_via: 'nwc_create_invoice' }),
+      ],
+    );
+    if (inserted.changes > 0) return true;
+
+    const retried = await this.db.runAsync(
+      `UPDATE invoices SET status = 'pending', updated_at = ?, settled_at = NULL, preimage = ''
+       WHERE payment_hash = ? AND type = 'OUTGOING' AND status = 'failed'`,
+      [now, paymentHash],
+    );
+    return retried.changes > 0;
   }
 
   // Lookup invoice by invoice string
@@ -341,6 +380,11 @@ export const NWCInvoiceManager = {
       fee,
       preimage,
     });
+  },
+
+  // true = this attempt owns the payment and may send (see claimOutgoingPayment).
+  async claimOutgoingPayment({ payment_hash, invoice, amount }) {
+    return await invoiceDB.claimOutgoingPayment(payment_hash, invoice, amount);
   },
 
   // Handle lookup_invoice request

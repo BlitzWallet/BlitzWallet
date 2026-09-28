@@ -18,7 +18,10 @@ import {
   MAX_DERIVED_ACCOUNTS,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
+  NWC_IDENTITY_PUB_KEY,
 } from '../app/constants';
+import { Platform } from 'react-native';
+import { ensureNWCSeed } from '../app/functions/nwc/ensureNWCSeed';
 import { useKeysContext } from './keys';
 import {
   loadCustodyAccounts,
@@ -145,17 +148,20 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   );
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
-  const enabledNWC = masterInfoObject.didViewNWCMessage;
+  // NWC does not exist on web; on native the account is always listed.
+  const enabledNWC = Platform.OS !== 'web';
+  // Written at login after ensureNWCSeed stores the seed, so it signals "seed ready".
+  const nwcIdentityPubKey = masterInfoObject[NWC_IDENTITY_PUB_KEY];
 
   useEffect(() => {
-    if (nostrSeed.length || !enabledNWC) return;
+    if (nostrSeed.length || !nwcIdentityPubKey) return;
     async function getNostrSeed() {
       const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
       if (!NWCMnemoinc) return;
       setNostrSeed(NWCMnemoinc);
     }
     getNostrSeed();
-  }, [nostrSeed, enabledNWC]);
+  }, [nostrSeed, nwcIdentityPubKey]);
 
   const toggleIsUsingNostr = useCallback(value => {
     setIsUsingNostr(value);
@@ -520,6 +526,16 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     async account => {
       try {
         if (!account) throw new Error('No account provided');
+        // NWC seed is normally created at login; if that failed, create it now,
+        // the same way derived and child accounts are derived when opened.
+        if (account.uuid === NWC_ACCOUNT_UUID && !account.mnemoinc) {
+          const pubKey = await ensureNWCSeed(accountMnemoinc, undefined);
+          const seed = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
+          if (!seed) throw new Error('NWC seed unavailable');
+          setNostrSeed(seed);
+          if (pubKey) toggleMasterInfoObject({ [NWC_IDENTITY_PUB_KEY]: pubKey });
+          return seed;
+        }
         // Linked (child) accounts derive from the parent seed via childIndex.
         if (account.childIndex !== undefined) {
           return await deriveChildMnemonic(accountMnemoinc, account.childIndex);
@@ -539,7 +555,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         throw err;
       }
     },
-    [accountMnemoinc],
+    [accountMnemoinc, toggleMasterInfoObject],
   );
 
   const restoreDerivedAccountsFromCloud = useCallback(async () => {

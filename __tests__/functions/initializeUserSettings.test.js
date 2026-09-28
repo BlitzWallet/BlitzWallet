@@ -44,9 +44,9 @@ jest.mock('../../app/functions/nwc', () => ({
   getNWCData: mockGetNWCData,
 }));
 
-jest.mock('../../app/functions/nwc/wallet', () => ({
-  initializeNWCWallet: jest.fn(async () => ({ isConnected: false })),
-  getNWCSparkIdentityPubKey: jest.fn(async () => ''),
+const mockEnsureNWCSeed = jest.fn(async () => null);
+jest.mock('../../app/functions/nwc/ensureNWCSeed', () => ({
+  ensureNWCSeed: (...a) => mockEnsureNWCSeed(...a),
 }));
 
 jest.mock('../../app/functions/localStorage', () => ({
@@ -108,7 +108,7 @@ async function runInit(blitzStoredData, localStoredData = baseLocalData()) {
     setMasterInfoObject: mockSetMasterInfoObject,
     toggleGlobalContactsInformation: mockToggleGlobalContactsInformation,
     toggleGlobalAppDataInformation: mockToggleGlobalAppDataInformation,
-    toggleMasterInfoObject: jest.fn(),
+    accountMnemoinc: 'parent mnemonic',
     preloadedData: null,
     setPreLoadedUserData: jest.fn(),
     privateKey: 'priv',
@@ -195,4 +195,38 @@ test('a migrated web wallet with no backup flag keeps the backup reminder', asyn
   } finally {
     Platform.OS = originalPlatform;
   }
+});
+
+describe('NWC seed setup at login', () => {
+  const { NWC_IDENTITY_PUB_KEY } = require('../../app/constants');
+
+  test('passes the main mnemonic and stored key to ensureNWCSeed', async () => {
+    await runInit(baseStoredData());
+    expect(mockEnsureNWCSeed).toHaveBeenCalledWith('parent mnemonic', 'nwc-key');
+  });
+
+  test('a newly derived key is persisted locally and lands in masterInfoObject', async () => {
+    mockEnsureNWCSeed.mockResolvedValueOnce('fresh-nwc-key');
+    await runInit(baseStoredData());
+    expect(mockSetLocalStorageItem).toHaveBeenCalledWith(
+      NWC_IDENTITY_PUB_KEY,
+      JSON.stringify('fresh-nwc-key'),
+    );
+    expect(mockSetMasterInfoObject.mock.calls[0][0][NWC_IDENTITY_PUB_KEY]).toBe(
+      'fresh-nwc-key',
+    );
+  });
+
+  test('an existing key is carried into masterInfoObject unchanged', async () => {
+    await runInit(baseStoredData());
+    expect(mockSetMasterInfoObject.mock.calls[0][0][NWC_IDENTITY_PUB_KEY]).toBe(
+      'nwc-key',
+    );
+  });
+
+  test('NWC setup failure never fails login', async () => {
+    mockEnsureNWCSeed.mockRejectedValueOnce(new Error('boom'));
+    const result = await runInit(baseStoredData());
+    expect(result.didWork).toBe(true);
+  });
 });

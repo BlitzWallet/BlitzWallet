@@ -10,6 +10,12 @@ jest.mock('../../app/functions/secureStore', () => ({
   retrieveData: jest.fn(),
   storeData: jest.fn(async () => true),
 }));
+jest.mock('../../app/functions/nwc/sharedStorage', () => ({
+  writeNativeNWCConfig: jest.fn(() => true),
+}));
+jest.mock('../../app/functions/nwc/eventLedger', () => ({
+  nwcEventLedger: { getSpendState: jest.fn(async () => null) },
+}));
 
 const { splitAndStoreNWCData, getNWCData } = require('../../app/functions/nwc');
 const {

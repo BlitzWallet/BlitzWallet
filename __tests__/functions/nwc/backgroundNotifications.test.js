@@ -1,6 +1,7 @@
 jest.mock('../../../app/functions/nwc', () => ({
   getNWCData: jest.fn(),
   getSupportedMethods: jest.fn(() => ['get_info']),
+  getSupportedNotifications: jest.fn(() => []),
   isWithinNWCBalanceTimeFrame: jest.fn(() => true),
   splitAndStoreNWCData: jest.fn(),
 }));
@@ -11,6 +12,9 @@ jest.mock('../../../app/functions/nwc/publishResponse', () => ({
     failed: 0,
   })),
 }));
+jest.mock('../../../app/functions/nwc/sharedStorage', () => ({
+  writeNativeNWCConfig: jest.fn(() => true),
+}));
 jest.mock('../../../app/functions/nwc/eventLedger', () => ({
   nwcEventLedger: {
     claimEvent: jest.fn(async () => 'claimed'),
@@ -18,7 +22,8 @@ jest.mock('../../../app/functions/nwc/eventLedger', () => ({
     markFailed: jest.fn(),
     setMethod: jest.fn(),
     getSpendState: jest.fn(),
-    setSpendState: jest.fn(),
+    reserveSpend: jest.fn(),
+    adjustSpend: jest.fn(),
   },
 }));
 jest.mock('../../../app/functions/nwc/cachedNWCTxs', () => ({

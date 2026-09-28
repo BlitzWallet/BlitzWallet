@@ -93,6 +93,13 @@ jest.mock('../../app/constants', () => ({
   MAX_DERIVED_ACCOUNTS: 1000,
   MAIN_ACCOUNT_UUID: 'MW09xd09d8f0a9sf2n332',
   NWC_ACCOUNT_UUID: 'NWC038rsd0f8234ajsf',
+  NWC_IDENTITY_PUB_KEY: 'NWC_WALLET_PUB_KEY',
+}));
+
+const mockEnsureNWCSeed = jest.fn(async () => null);
+jest.mock('../../app/functions/nwc/ensureNWCSeed', () => ({
+  __esModule: true,
+  ensureNWCSeed: (...a) => mockEnsureNWCSeed(...a),
 }));
 
 const mockLoadCustodyAccounts = jest.fn();

@@ -51,6 +51,15 @@ pre_install do |installer|
   end
 end
 
+# NWC Notification Service Extension (see docs/plans/2026-09-25-native-nwc-handler.md).
+# Deliberately no React Native: only libsecp256k1 and the Breez Spark SDK.
+target 'NotificationService' do
+  use_frameworks! :linkage => :static
+  pod 'BlitzSecp256k1', :podspec => 'NotificationService/Podspecs/BlitzSecp256k1.podspec'
+  pod 'breez_sdk_sparkFFI', :podspec => 'NotificationService/Podspecs/breez_sdk_sparkFFI.podspec'
+  pod 'BreezSdkSpark', :podspec => 'NotificationService/Podspecs/BreezSdkSpark.podspec'
+end
+
 target 'BlitzWallet' do
   use_expo_modules!
 
@@ -70,6 +79,10 @@ target 'BlitzWallet' do
   end
 
   config = use_native_modules!(config_command)
+
+  # The NotificationService extension loads this dynamic framework from the
+  # app's Frameworks folder; CocoaPods only embeds it when the host declares it.
+  pod 'breez_sdk_sparkFFI', :podspec => 'NotificationService/Podspecs/breez_sdk_sparkFFI.podspec'
 
   use_frameworks! :linkage => :static
   $RNFirebaseAsStaticFramework = true

@@ -2016,10 +2016,7 @@
         "row2Description": "Questo account è separato dal tuo account principale per maggiore sicurezza.",
         "row3Label": "Accesso all'app",
         "row3Description": "Le app connesse possono usare questo account per effettuare pagamenti.",
-        "continueButton": "Inizia",
-        "initializingMessage": "Configurazione del tuo wallet NWC...",
-        "errorTitle": "Configurazione non riuscita",
-        "errorRetry": "Riprova configurazione"
+        "continueButton": "Inizia"
       },
       "accountCreated": {
         "title": "Connessione creata",
@@ -3147,12 +3144,13 @@
       "giftCard": "{{name}} ti ha inviato una carta regalo {{giftCardName}}"
     },
     "nwc": {
-      "get_info": "Evento info NWC",
-      "get_balance": "Evento saldo NWC",
-      "list_transactions": "Ricevute transazioni NWC",
-      "make_invoice": "Fattura NWC creata",
-      "lookup_invoice": "Ricerca fattura NWC",
-      "pay_invoice": "Pagamento NWC inviato"
+      "get_info": "Info wallet richieste",
+      "get_balance": "Saldo controllato",
+      "list_transactions": "Transazioni visualizzate",
+      "make_invoice": "Fattura creata",
+      "lookup_invoice": "Fattura controllata",
+      "pay_invoice": "Pagamento inviato",
+      "openApp": "Apri Blitz per completare la richiesta"
     }
   },
   "accountCard": {

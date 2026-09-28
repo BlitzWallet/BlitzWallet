@@ -67,6 +67,21 @@ jest.mock('expo-web-browser', () => ({
   openBrowserAsync: jest.fn(async () => ({ type: 'opened' })),
 }));
 
+// expo-file-system's (non-legacy) API needs its native module at import time.
+// app/functions/nwc/sharedStorage.js (imported by the NWC ledger, invoice cache
+// and index) only needs files that "don't exist" and writes that succeed.
+jest.mock('expo-file-system', () => {
+  class Entry {
+    exists = false;
+    uri = 'file:///mock';
+    create() {}
+    move() {}
+    write() {}
+    delete() {}
+  }
+  return { Directory: Entry, File: Entry, Paths: { appleSharedContainers: {} } };
+});
+
 // waitForForground() resolves only when AppState.currentState === 'active', which
 // is undefined under Jest, so it would hang forever. Tests run "in foreground";
 // resolve immediately for every caller (receive/send screens).
