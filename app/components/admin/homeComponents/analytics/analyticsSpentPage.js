@@ -1,10 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, View } from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  LinearTransition,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { COLORS, SIZES } from '../../../../constants';
 import {
   GlobalThemeView,
@@ -192,7 +188,6 @@ export default function AnalyticsSpentPage(props) {
             <Animated.View
               entering={FadeIn.duration(150)}
               exiting={FadeOut.duration(150)}
-              layout={LinearTransition.duration(300)}
             >
               {item?.item}
             </Animated.View>
