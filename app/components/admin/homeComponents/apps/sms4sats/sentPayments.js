@@ -5,7 +5,8 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
@@ -358,12 +359,12 @@ export default function HistoricalSMSMessagingPage({ route }) {
       />
 
       <View style={styles.homepage}>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}
         >
           {messageElements}
-        </ScrollView>
+        </CustomScrollView>
 
         <TouchableOpacity
           onPress={handleSupportContact}

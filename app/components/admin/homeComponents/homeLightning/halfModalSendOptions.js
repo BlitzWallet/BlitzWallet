@@ -1,12 +1,12 @@
 import {
   FlatList,
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -743,7 +743,7 @@ export default function HalfModalSendOptions({
               style={[styles.page, noInputPageStyle]}
               pointerEvents={isInputMode ? 'none' : 'auto'}
             >
-              <ScrollView
+              <CustomScrollView
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={{
@@ -901,7 +901,7 @@ export default function HalfModalSendOptions({
                     />
                   </View>
                 )}
-              </ScrollView>
+              </CustomScrollView>
             </Animated.View>
           )}
 

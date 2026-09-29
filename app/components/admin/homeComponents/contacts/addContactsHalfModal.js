@@ -1,11 +1,11 @@
 import {
   ActivityIndicator,
   FlatList,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { CENTER } from '../../../../constants/styles';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
@@ -489,7 +489,7 @@ export function AddContactContent({
       />
 
       {isUsingLNURL || isPhoneNumber ? (
-        <ScrollView
+        <CustomScrollView
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
@@ -512,7 +512,7 @@ export function AddContactContent({
             actionFunction={handleAddPress}
             textContent={t('constants.continue')}
           />
-        </ScrollView>
+        </CustomScrollView>
       ) : (
         <>
           {users.length ? (

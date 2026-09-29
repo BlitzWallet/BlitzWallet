@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../login';
 import { useState } from 'react';
 import { COLORS, FONT, SIZES, CENTER } from '../../../../constants';
@@ -48,7 +49,7 @@ export default function SeedPhrasePage({ extraData, route }) {
 
   return (
     <View style={styles.globalContainer}>
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewStyles}
       >
@@ -117,7 +118,7 @@ export default function SeedPhrasePage({ extraData, route }) {
           }
           containerStyle={{ marginTop: 'auto' }}
         />
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 }

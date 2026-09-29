@@ -1,10 +1,10 @@
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -132,7 +132,7 @@ function NewPasswordStep({
 }) {
   const { t } = useTranslation();
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={[
@@ -161,7 +161,7 @@ function NewPasswordStep({
           styles={{ textAlign: 'center' }}
         />
       </TouchableOpacity>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 
@@ -344,7 +344,7 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
   }
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
@@ -481,7 +481,7 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
           </View>
         </SettingsSection>
       )}
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 
@@ -586,7 +586,7 @@ function WebPasskeySettings({ passkeyInfo, onChanged }) {
   }
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
@@ -633,7 +633,7 @@ function WebPasskeySettings({ passkeyInfo, onChanged }) {
           />
         </View>
       </SettingsSection>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 
@@ -833,7 +833,7 @@ function LoginSecurityNative({ extraData }) {
   }
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
@@ -996,7 +996,7 @@ function LoginSecurityNative({ extraData }) {
           )}
         </>
       )}
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

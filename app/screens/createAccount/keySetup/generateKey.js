@@ -1,4 +1,5 @@
-import { Platform, StyleSheet, View, ScrollView } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../components/login';
 import { CENTER, COLORS, SIZES } from '../../../constants';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +48,7 @@ export default function GenerateKey() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <LoginNavbar />
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
@@ -116,7 +117,7 @@ export default function GenerateKey() {
             )}
           </View>
         )}
-      </ScrollView>
+      </CustomScrollView>
 
       <View style={styles.footer}>
         <ThemeText

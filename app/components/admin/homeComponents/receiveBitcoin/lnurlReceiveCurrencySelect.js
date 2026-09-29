@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../../../constants';
@@ -82,7 +83,7 @@ export default function LnurlReceiveCurrencySelect({
 
   return (
     <View style={styles.innerContainer}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <CustomScrollView showsVerticalScrollIndicator={false}>
         <ThemeText
           styles={styles.title}
           content={t('contacts.remotePaymentCurrencySelect.title')}
@@ -204,7 +205,7 @@ export default function LnurlReceiveCurrencySelect({
             })}
           />
         )}
-      </ScrollView>
+      </CustomScrollView>
 
       <CustomButton
         buttonStyles={[styles.confirmButton, { opacity: hasChanged ? 1 : 0.5 }]}

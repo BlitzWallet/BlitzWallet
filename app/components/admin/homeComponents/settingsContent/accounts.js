@@ -10,7 +10,8 @@ import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -110,7 +111,7 @@ export default function CreateCustodyAccounts() {
           containerStyle={styles.toggle}
         />
       )}
-      <ScrollView
+      <CustomScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -143,7 +144,7 @@ export default function CreateCustodyAccounts() {
             containerStyles={styles.emptyContainer}
           />
         )}
-      </ScrollView>
+      </CustomScrollView>
 
       {!masterInfoObject.isChildAccount && (
         <CustomButton

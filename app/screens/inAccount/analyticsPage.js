@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -100,7 +101,7 @@ export default function AnalyticsPage() {
         }
       />
 
-      <ScrollView
+      <CustomScrollView
         style={{ flex: 1 }}
         contentContainerStyle={[
           styles.scrollContent,
@@ -308,7 +309,7 @@ export default function AnalyticsPage() {
             </View>
           </TouchableOpacity>
         )}
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

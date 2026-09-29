@@ -2022,9 +2022,9 @@
       "contactUs": "Contact us"
     },
     "notifications": {
-      "mainToggle_enabled": "Enabled notifications",
-      "mainToggle_disabled": "Disabled notifications",
-      "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
+      "mainToggle": "Allow notifications",
+      "disabledTitle": "Notifications are off",
+      "disabledSubtitle": "Turn on notifications above to choose which payments and events you get alerted about.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
       "contactDesc": "Payments received from your added contacts",
@@ -2182,10 +2182,7 @@
         "row2Description": "This account is separate from your main account for added security.",
         "row3Label": "App access",
         "row3Description": "Connected apps can use this account to make payments.",
-        "continueButton": "Get Started",
-        "initializingMessage": "Setting up your NWC account...",
-        "errorTitle": "Setup Failed",
-        "errorRetry": "Retry Setup"
+        "continueButton": "Get Started"
       }
     },
     "accountComponents": {
@@ -2252,6 +2249,7 @@
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw",
         "viewActivityLabel": "Account History",
+        "manageConnectionsLabel": "Manage Connections",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",
         "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."
@@ -3147,12 +3145,13 @@
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     },
     "nwc": {
-      "get_info": "NWC info event",
-      "get_balance": "NWC balance event",
-      "list_transactions": "Got NWC transactions",
-      "make_invoice": "Created NWC invoice",
-      "lookup_invoice": "NWC invoice lookup",
-      "pay_invoice": "Sent NWC payment"
+      "get_info": "Wallet info requested",
+      "get_balance": "Balance checked",
+      "list_transactions": "Transactions viewed",
+      "make_invoice": "Invoice created",
+      "lookup_invoice": "Invoice checked",
+      "pay_invoice": "Payment sent",
+      "openApp": "Open Blitz to finish request"
     }
   },
   "accountCard": {

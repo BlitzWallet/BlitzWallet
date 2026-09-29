@@ -3,8 +3,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -419,7 +419,7 @@ export default function DepositQRView({
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: bottomPadding },
@@ -492,7 +492,7 @@ export default function DepositQRView({
         />
 
         <ThemeText styles={styles.instruction} content={instruction} />
-      </ScrollView>
+      </CustomScrollView>
       {minimumDepositWarning ? (
         <ThemeText
           styles={styles.warningDescription}

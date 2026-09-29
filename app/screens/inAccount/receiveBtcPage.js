@@ -1,4 +1,5 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import {
   CENTER,
   SIZES,
@@ -314,7 +315,7 @@ export default function ReceivePaymentHome(props) {
           />
         </View>
 
-        <ScrollView
+        <CustomScrollView
           style={{ width: '100%' }}
           contentContainerStyle={{
             justifyContent: 'center',
@@ -378,7 +379,7 @@ export default function ReceivePaymentHome(props) {
               }),
             })}
           />
-        </ScrollView>
+        </CustomScrollView>
         <TouchableOpacity
           activeOpacity={0.8}
           style={[

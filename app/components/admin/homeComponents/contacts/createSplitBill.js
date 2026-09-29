@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Animated, {
   useSharedValue,
@@ -484,7 +485,7 @@ export default function CreateSplitBill(props) {
       useStandardWidth={true}
     >
       <CustomSettingsTopBar label={t('contacts.splitBill.createBillTitle')} />
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
@@ -570,7 +571,7 @@ export default function CreateSplitBill(props) {
             content={`${memo.length}/100`}
           />
         </View>
-      </ScrollView>
+      </CustomScrollView>
 
       {/* Confirm button */}
       <CustomButton

@@ -6,7 +6,8 @@ import {
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import {
   COLORS,
@@ -100,7 +101,7 @@ export default function CreateNWCName(props) {
         />
       ) : (
         <>
-          <ScrollView
+          <CustomScrollView
             showsVerticalScrollIndicator={false}
             style={styles.innerContainer}
             contentContainerStyle={styles.scrollContent}
@@ -139,7 +140,7 @@ export default function CreateNWCName(props) {
               }}
               content={`${accountName.length} / ${maxLength}`}
             />
-          </ScrollView>
+          </CustomScrollView>
 
           <CustomButton
             actionFunction={isEditing ? handleSave : handleContinue}

@@ -4,8 +4,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Share,
-  ScrollView,
 } from 'react-native';
+import CustomScrollView from './scrollView';
 import QRCode from './StyledQRCode';
 import copyToClipboard from '../copyToClipboard';
 import { useToast } from '../../../context-store/toastManager';
@@ -159,7 +159,7 @@ export default function ShowProfileQr() {
         leftImageFunction={handleShare}
       />
 
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: 1,
@@ -292,7 +292,7 @@ export default function ShowProfileQr() {
             />
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

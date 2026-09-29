@@ -2,9 +2,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  ScrollView,
   Animated,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { ThemeText } from '../../../../functions/CustomElements';
 
@@ -209,6 +209,7 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
 
   return (
     <Animated.ScrollView
+      alwaysBounceVertical={false}
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
@@ -442,7 +443,7 @@ export default function ViewAllTokensHalfModal({
               />
             </View>
           ) : (
-            <ScrollView
+            <CustomScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.tokenList}
             >
@@ -457,7 +458,7 @@ export default function ViewAllTokensHalfModal({
                   />
                 </View>
               ))}
-            </ScrollView>
+            </CustomScrollView>
           )}
         </>
       )}

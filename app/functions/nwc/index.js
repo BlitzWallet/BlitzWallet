@@ -11,6 +11,8 @@ import sha256Hash from '../hash';
 import { createAccountMnemonic } from '../seed';
 import { privateKeyFromSeedWords } from '../nostrCompatability';
 import { publishToSingleRelay } from './publishResponse';
+import { writeNativeNWCConfig } from './sharedStorage';
+import { nwcEventLedger } from './eventLedger';
 
 export async function getNWCAccountInformation() {
   try {
@@ -50,6 +52,13 @@ export function getSupportedMethods(accountPermissions) {
   return supportedCommands;
 }
 
+// NWC-02 notification types this connection can receive.
+export function getSupportedNotifications(accountPermissions) {
+  const notifications = [];
+  if (accountPermissions.sendPayments) notifications.push('payment_sent');
+  return notifications;
+}
+
 const SENSITIVE_KEYS = ['privateKey', 'secret'];
 
 export async function splitAndStoreNWCData(obj) {
@@ -74,6 +83,8 @@ export async function splitAndStoreNWCData(obj) {
     NWC_LOACAL_STORE_KEY,
     JSON.stringify(nonSensitiveData),
   );
+
+  writeNativeNWCConfig(nonSensitiveData);
 }
 
 export async function getNWCData() {
@@ -102,6 +113,25 @@ export async function getNWCData() {
       if (!mergedAccount.hasOwnProperty('totalSent')) {
         mergedAccount.totalSent = 0;
         didUpdate = true;
+      }
+      // The native handlers only record spend in the ledger, so it wins over
+      // the stored display value whenever they differ.
+      try {
+        const spend = await nwcEventLedger.getSpendState(accountId);
+        if (spend) {
+          const totalSent =
+            (spend.budgetSentMsat - (spend.budgetSentMsat % 1000)) / 1000;
+          if (
+            mergedAccount.totalSent !== totalSent ||
+            mergedAccount.lastRotated !== spend.windowStart
+          ) {
+            mergedAccount.totalSent = totalSent;
+            mergedAccount.lastRotated = spend.windowStart;
+            didUpdate = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error reading NWC spend state', err);
       }
       if (!mergedAccount.hasOwnProperty('clientPubkey') && mergedAccount.secret) {
         try {
@@ -147,7 +177,10 @@ export async function saveNWCAccount({
     kind: 13194,
     created_at: Math.floor(Date.now() / 1000),
     content: getSupportedMethods(permissions).join(' '),
-    tags: [],
+    tags: [
+      ['encryption', 'nip44_v2 nip04'],
+      ['notifications', getSupportedNotifications(permissions).join(' ')],
+    ],
   };
 
   const signedEvent = finalizeEvent(

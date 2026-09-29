@@ -1,4 +1,5 @@
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
@@ -34,7 +35,7 @@ export default function AboutPage() {
   }
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
@@ -263,7 +264,7 @@ export default function AboutPage() {
           </View>
         )}
       </SectionCard>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

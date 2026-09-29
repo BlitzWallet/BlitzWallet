@@ -27,7 +27,7 @@ export default function NWCAccountCreated(props) {
   const connectionString = props.route.params?.connectionString;
 
   const handleDone = useCallback(() => {
-    navigate.popTo('NosterWalletConnect');
+    navigate.popTo('NosterWalletConnect', undefined, { merge: true });
     return true;
   }, []);
 

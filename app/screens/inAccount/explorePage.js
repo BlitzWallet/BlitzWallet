@@ -1,12 +1,12 @@
 import { ThemeText } from '../../functions/CustomElements';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import GetThemeColors from '../../hooks/themeColors';
 import { BLITZ_GOAL_USER_COUNT, CENTER, COLORS, SIZES } from '../../constants';
 import DateCountdown from '../../components/admin/homeComponents/explore/dateCountdown';
@@ -209,7 +209,7 @@ export default function ExploreUsers() {
   }
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollView}
     >
@@ -337,7 +337,7 @@ export default function ExploreUsers() {
 
       {/* Time Frame Buttons */}
       <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

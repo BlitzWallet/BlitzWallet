@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -112,7 +113,7 @@ export default function Nip5VerificationPage() {
             shouldDismissKeyboard={true}
             label={t('settings.nip5.title')}
           />
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <CustomScrollView showsVerticalScrollIndicator={false}>
             <ThemeText
               styles={styles.explainerText}
               content={t('settings.nip5.desc')}
@@ -160,7 +161,7 @@ export default function Nip5VerificationPage() {
                 }@blitzwalletapp.com`}
               />
             </TouchableOpacity>
-          </ScrollView>
+          </CustomScrollView>
           <CustomButton
             useLoading={isLoading}
             actionFunction={saveNip5Information}

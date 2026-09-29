@@ -1,4 +1,5 @@
-import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { SIZES } from '../../constants';
 import { useRef } from 'react';
 import { copyToClipboard } from '../../functions';
@@ -43,7 +44,7 @@ export default function SparkReceivePage() {
         label={t('screens.inAccount.sparkReceivePage.header')}
         containerStyles={{ marginBottom: 0 }}
       />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={{
           justifyContent: 'center',
           alignItems: 'center',
@@ -66,7 +67,7 @@ export default function SparkReceivePage() {
               : ''
           }
         />
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

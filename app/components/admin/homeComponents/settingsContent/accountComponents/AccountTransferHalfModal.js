@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -753,7 +754,7 @@ export default function AccountTransferHalfModal({
           )}
         />
 
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           style={styles.accountList}
           contentContainerStyle={styles.accountListContent}
@@ -806,7 +807,7 @@ export default function AccountTransferHalfModal({
               />
             );
           })}
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
 
       {/* Amount entry */}

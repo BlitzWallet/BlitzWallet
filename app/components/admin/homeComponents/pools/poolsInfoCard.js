@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -65,7 +66,7 @@ export default function PoolsInfoCard() {
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
-        <ScrollView scrollEnabled={false} showsVerticalScrollIndicator={false}>
+        <CustomScrollView scrollEnabled={false} showsVerticalScrollIndicator={false}>
           <View
             onLayout={e => {
               console.log(e.nativeEvent.layout.height, 'content height,dd');
@@ -103,7 +104,7 @@ export default function PoolsInfoCard() {
               content={t('wallet.pools.info.howStep4')}
             />
           </View>
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
     </View>
   );

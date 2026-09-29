@@ -38,6 +38,8 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    // The native NWC handler process (nwc/NwcNativeService) never runs React Native.
+    if (getProcessName().endsWith(":nwc")) return
     loadReactNative(this)
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
   }

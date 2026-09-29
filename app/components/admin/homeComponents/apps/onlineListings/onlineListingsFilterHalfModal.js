@@ -1,10 +1,10 @@
 import {
   FlatList,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CountryCodeList } from 'react-native-country-picker-modal';
 import { getCountryInfoAsync } from 'react-native-country-picker-modal/lib/CountryService';
@@ -336,7 +336,7 @@ export default function OnlineListingsFilterHalfModal({
           { paddingBottom: bottomPadding },
         ]}
       >
-        <ScrollView
+        <CustomScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
         >
@@ -484,7 +484,7 @@ export default function OnlineListingsFilterHalfModal({
           </TouchableOpacity>
 
           <View style={{ height: 20 }} />
-        </ScrollView>
+        </CustomScrollView>
 
         <View
           style={[styles.bottomBar, { borderTopColor: inactiveBorderColor }]}

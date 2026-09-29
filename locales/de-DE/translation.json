@@ -1861,9 +1861,9 @@
       "contactUs": "Kontaktieren Sie uns"
     },
     "notifications": {
-      "mainToggle_enabled": "Benachrichtigungen aktiviert",
-      "mainToggle_disabled": "Benachrichtigungen deaktiviert",
-      "mainToggleDesc": "Benachrichtigungen informieren Sie über wichtige Ereignisse und Updates in der App",
+      "mainToggle": "Benachrichtigungen zulassen",
+      "disabledTitle": "Benachrichtigungen sind ausgeschaltet",
+      "disabledSubtitle": "Aktivieren Sie oben die Benachrichtigungen, um zu wählen, über welche Zahlungen und Ereignisse Sie informiert werden möchten.",
       "optionsTitle": "Benachrichtigungsoptionen",
       "contact": "Kontakte",
       "contactDesc": "Zahlungen von Ihren gespeicherten Kontakten",
@@ -2016,10 +2016,7 @@
         "row2Description": "Dieses Konto ist aus Sicherheitsgründen von Ihrem Hauptkonto getrennt.",
         "row3Label": "App-Zugriff",
         "row3Description": "Verbundene Apps können dieses Konto verwenden, um Zahlungen auszuführen.",
-        "continueButton": "Loslegen",
-        "initializingMessage": "Ihr NWC-Konto wird eingerichtet...",
-        "errorTitle": "Einrichtung fehlgeschlagen",
-        "errorRetry": "Einrichtung erneut versuchen"
+        "continueButton": "Loslegen"
       },
       "accountCreated": {
         "title": "Verbindung erstellt",
@@ -2093,7 +2090,8 @@
         "viewActivityLabel": "Kontoverlauf anzeigen",
         "loadError": "Konto konnte nicht geladen werden",
         "loadErrorDesc": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.",
-        "stillConnectingInfo": "Ihr Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu Ihrem Konto herstellen."
+        "stillConnectingInfo": "Ihr Kontostand ist möglicherweise nicht aktuell, während wir die Verbindung zu Ihrem Konto herstellen.",
+        "manageConnectionsLabel": "Verbindungen verwalten"
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
@@ -3147,12 +3145,13 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet."
     },
     "nwc": {
-      "get_info": "NWC-Info-Event",
-      "get_balance": "NWC-Guthaben-Event",
-      "list_transactions": "NWC-Transaktionen abgerufen",
-      "make_invoice": "NWC-Rechnung erstellt",
-      "lookup_invoice": "NWC-Rechnungsabfrage",
-      "pay_invoice": "NWC-Zahlung gesendet"
+      "get_info": "Wallet-Infos angefragt",
+      "get_balance": "Guthaben abgefragt",
+      "list_transactions": "Transaktionen angesehen",
+      "make_invoice": "Rechnung erstellt",
+      "lookup_invoice": "Rechnung geprüft",
+      "pay_invoice": "Zahlung gesendet",
+      "openApp": "Blitz öffnen, um Anfrage abzuschließen"
     }
   },
   "accountCard": {

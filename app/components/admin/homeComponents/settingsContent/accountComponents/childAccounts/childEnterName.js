@@ -3,7 +3,8 @@ import {
   ThemeText,
 } from '../../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   COLORS,
@@ -219,7 +220,7 @@ export default function ChildEnterName(props) {
         label={t('settings.accountComponents.editAccountName.title')}
       />
 
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps={'handled'}
@@ -256,7 +257,7 @@ export default function ChildEnterName(props) {
           }}
           content={`${accountName.length} / ${maxLength}`}
         />
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={{
           ...CENTER,

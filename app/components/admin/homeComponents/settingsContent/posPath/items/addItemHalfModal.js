@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { CENTER, COLORS, SIZES } from '../../../../../../constants';
@@ -115,7 +116,7 @@ export default function AddPOSItemHalfModal({
 
   return (
     <View style={styles.halfModalContainer}>
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={{ paddingBottom: 10 }}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="none"
@@ -184,7 +185,7 @@ export default function AddPOSItemHalfModal({
             onBlurFunction={checkIfKeyboardShouldBeShown}
           />
         </View>
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={{
           opacity:

@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -45,7 +46,7 @@ export default function ChildVerifyCode() {
         customBackFunction={handleNoMatch}
       />
 
-      <ScrollView style={styles.content}>
+      <CustomScrollView style={styles.content}>
         <ThemeText
           styles={styles.title}
           content={t('settings.childAccounts.claim.sasTitle')}
@@ -55,14 +56,17 @@ export default function ChildVerifyCode() {
           content={t('settings.childAccounts.claim.sasSubtitle')}
         />
         <SasPatternGrid
-          cellSize={Math.round((screenDimensions?.width * 0.75) / 3) - 15}
+          cellSize={Math.min(
+            Math.round((screenDimensions?.width * 0.75) / 3) - 15,
+            150,
+          )}
           sas={sas}
         />
         <ThemeText
           styles={styles.hint}
           content={t('settings.childAccounts.claim.sasHint')}
         />
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={styles.button}
         useLoading={status === 'awaiting'}

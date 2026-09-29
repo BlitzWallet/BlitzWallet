@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import LottieView from 'lottie-react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
@@ -40,12 +41,12 @@ export default function ErrorWithPayment({ reason }) {
           styles={styles.title}
           content={t('wallet.sendPages.errorScreen.title')}
         />
-        <ScrollView
+        <CustomScrollView
           style={styles.errorScroll}
           contentContainerStyle={styles.errorScrollContent}
         >
           <ThemeText styles={styles.errorText} content={String(reason)} />
-        </ScrollView>
+        </CustomScrollView>
       </View>
       <CustomButton
         buttonStyles={styles.buttonStyle}

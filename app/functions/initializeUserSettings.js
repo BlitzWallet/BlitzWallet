@@ -17,7 +17,7 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 import { setLocalStorageItem } from './localStorage';
 import { getNWCData } from './nwc';
 import { Platform } from 'react-native';
-import { getNWCSparkIdentityPubKey, initializeNWCWallet } from './nwc/wallet';
+import { ensureNWCSeed } from './nwc/ensureNWCSeed';
 import { claimUniqueName } from '../../db';
 import { normalizePairingName } from './accounts/childPairing';
 import {
@@ -29,7 +29,7 @@ export default async function initializeUserSettingsFromHistory({
   setMasterInfoObject,
   toggleGlobalContactsInformation,
   toggleGlobalAppDataInformation,
-  toggleMasterInfoObject,
+  accountMnemoinc,
   preloadedData,
   setPreLoadedUserData,
   privateKey,
@@ -367,19 +367,23 @@ export default async function initializeUserSettingsFromHistory({
     //   };
     // }
 
-    if (!nwc_identity_pub_key) {
-      // Deliberately not awaited. This backfills nwc_identity_pub_key, which
-      // nothing below reads, but it runs a full SparkWallet.initialize() network
-      // handshake with no timeout — and because the key is only persisted on
-      // success, it re-runs on every cold start for anyone whose NWC wallet has
-      // never initialized. Awaiting it made an optional side quest a hard gate on
-      // login. Let it settle on its own.
-      (async () => {
-        const didInit = await initializeNWCWallet();
-        if (!didInit.isConnected) return;
-        const pubkey = await getNWCSparkIdentityPubKey();
-        toggleMasterInfoObject({ [NWC_IDENTITY_PUB_KEY]: pubkey });
-      })().catch(err => console.log('NWC identity backfill error', err));
+    // Local derivation only (no wallet init), so it's fast enough to await —
+    // activeAccount needs the seed stored before it reads it.
+    try {
+      const nwcPubKey = await ensureNWCSeed(
+        accountMnemoinc,
+        nwc_identity_pub_key,
+      );
+      if (nwcPubKey) {
+        nwc_identity_pub_key = nwcPubKey;
+        await setLocalStorageItem(
+          NWC_IDENTITY_PUB_KEY,
+          JSON.stringify(nwcPubKey),
+        );
+      }
+    } catch (err) {
+      // Never block login on NWC; the next cold start retries.
+      console.log('NWC seed setup error', err.message);
     }
 
     if (!userBalanceDenomination) {
@@ -481,6 +485,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['crashReportingSettings'] = crashReportingSettings;
     tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
     tempObject['didViewNWCMessage'] = didViewNWCMessage;
+    tempObject[NWC_IDENTITY_PUB_KEY] = nwc_identity_pub_key;
     tempObject['accountsLnurl'] = blitzStoredData.accountsLnurl || {};
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {

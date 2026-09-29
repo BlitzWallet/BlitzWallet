@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -19,7 +20,7 @@ export default function BlitzFeeInformation() {
   const { t } = useTranslation();
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.feeContainer}
     >
@@ -81,7 +82,7 @@ export default function BlitzFeeInformation() {
         </View>
         <ThemeIcon iconName={'ChevronRight'} />
       </TouchableOpacity>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

@@ -6,7 +6,8 @@ import { CENTER, SATSPERBITCOIN } from '../../constants';
 import FormattedBalanceInput from './formattedBalanceInput';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import CustomScrollView from './scrollView';
 import ThemeText from './textTheme';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../context-store/flashnetContext';
@@ -159,7 +160,7 @@ export default function CustomInputHalfModal(props) {
   ]);
 
   return (
-    <ScrollView
+    <CustomScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
@@ -196,7 +197,7 @@ export default function CustomInputHalfModal(props) {
         actionFunction={handleSubmit}
         textContent={t('constants.save')}
       />
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

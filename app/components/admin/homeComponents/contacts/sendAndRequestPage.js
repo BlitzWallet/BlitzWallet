@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -232,7 +232,7 @@ export default function SendAndRequestPage(props) {
               styles.focusedAmountContainer,
           ]}
         >
-          <ScrollView
+          <CustomScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
               styles.scrollViewContainer,
@@ -252,7 +252,7 @@ export default function SendAndRequestPage(props) {
               forceCurrency={payment.primaryDisplay.forceCurrency}
               forceFiatStats={payment.primaryDisplay.forceFiatStats}
             />
-          </ScrollView>
+          </CustomScrollView>
         </View>
         <View style={styles.inputAndGiftContainer}>
           <ThemeText

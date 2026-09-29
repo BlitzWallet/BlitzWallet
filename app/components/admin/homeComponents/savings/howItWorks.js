@@ -1,9 +1,9 @@
 import {
-  ScrollView,
   StyleSheet,
   View,
   useWindowDimensions,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback } from 'react';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -206,7 +206,7 @@ export default function HowSavingsWorks() {
     theme && darkModeType ? backgroundColor : backgroundOffset;
 
   return (
-    <ScrollView
+    <CustomScrollView
       style={styles.root}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
@@ -325,7 +325,7 @@ export default function HowSavingsWorks() {
           }
         />
       </View>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

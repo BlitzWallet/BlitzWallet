@@ -1,11 +1,11 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   BackHandler,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -307,7 +307,7 @@ export default function ContactsPage({ navigation }) {
         </View>
       )}
       {hasContacts && didEditProfile ? (
-        <ScrollView
+        <CustomScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={scrollContentStyle}
@@ -317,13 +317,13 @@ export default function ContactsPage({ navigation }) {
         >
           {pinnedContacts.length !== 0 && (
             <View style={memoizedStyles.pinnedContactsScrollviewContainer}>
-              <ScrollView
+              <CustomScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
                 contentContainerStyle={memoizedStyles.pinnedContactsContainer}
               >
                 {pinnedContacts}
-              </ScrollView>
+              </CustomScrollView>
             </View>
           )}
           <CustomSearchInput
@@ -362,7 +362,7 @@ export default function ContactsPage({ navigation }) {
               />
             </View>
           ) : null}
-        </ScrollView>
+        </CustomScrollView>
       ) : (
         <NoContentSceen
           iconName={didEditProfile ? 'UsersRound' : 'UserRoundPen'}

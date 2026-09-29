@@ -3,13 +3,13 @@ import {
   ActivityIndicator,
   Alert,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../functions/CustomElements/scrollView';
 import * as Clipboard from 'expo-clipboard';
 import * as Crypto from 'expo-crypto';
 import { sha256 } from '@noble/hashes/sha2';
@@ -378,7 +378,7 @@ export default function SparkHodlInvoiceTest() {
   return (
     <SafeAreaView style={styles.container}>
       <CustomSettingsTopBar />
-      <ScrollView
+      <CustomScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
       >
@@ -630,7 +630,7 @@ export default function SparkHodlInvoiceTest() {
             ))
           )}
         </View>
-      </ScrollView>
+      </CustomScrollView>
     </SafeAreaView>
   );
 }

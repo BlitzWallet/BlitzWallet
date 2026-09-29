@@ -3,8 +3,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
@@ -402,7 +402,7 @@ export default function SMSMessagingReceivedPage(props) {
         useStandardWidth={true}
         styles={styles.confirmedContainer}
       >
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={styles.confirmedScroll}
           showsVerticalScrollIndicator={false}
         >
@@ -487,7 +487,7 @@ export default function SMSMessagingReceivedPage(props) {
               </View>
             </>
           )}
-        </ScrollView>
+        </CustomScrollView>
         <CustomButton
           buttonStyles={{
             width: '100%',

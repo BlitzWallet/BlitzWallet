@@ -1,4 +1,5 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -281,7 +282,7 @@ export default function HalfModalDepositFunds({
           styles={styles.stepTitle}
           content={t('wallet.halfModal.selectMethodTitle')}
         />
-        <ScrollView
+        <CustomScrollView
           contentContainerStyle={{ flexGrow: 1, paddingBottom: bottomPadding }}
         >
           {/* On-Chain Bitcoin */}
@@ -392,7 +393,7 @@ export default function HalfModalDepositFunds({
               <ThemeIcon iconName={'ChevronRight'} size={18} />
             </TouchableOpacity>
           )}
-        </ScrollView>
+        </CustomScrollView>
       </Animated.View>
 
       {/* Stablecoins subview */}

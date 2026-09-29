@@ -3,9 +3,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-  ScrollView,
   Share,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -262,7 +262,7 @@ export default function ExpandedContactsPage(props) {
               },
             ]}
           >
-            <ScrollView
+            <CustomScrollView
               contentContainerStyle={{
                 alignItems: 'center',
                 flexGrow: 1,
@@ -274,7 +274,7 @@ export default function ExpandedContactsPage(props) {
                 styles={{ ...styles.bioText, color: textInputColor }}
                 content={selectedContact?.bio}
               />
-            </ScrollView>
+            </CustomScrollView>
           </View>
         )}
       </>

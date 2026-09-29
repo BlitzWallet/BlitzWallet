@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -50,7 +51,7 @@ export default function CreateGiftDescription(props) {
         shouldDismissKeyboard={true}
         label={t('screens.inAccount.giftPages.createGift.header')}
       />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
@@ -89,7 +90,7 @@ export default function CreateGiftDescription(props) {
             content={`${description.length} / 150`}
           />
         </View>
-      </ScrollView>
+      </CustomScrollView>
       <CustomButton
         buttonStyles={styles.button}
         actionFunction={() => {

@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   CENTER,
@@ -137,7 +138,7 @@ export default function FastPay() {
 
   return (
     <View style={styles.outerContainer}>
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         style={styles.innerContainer}
         contentContainerStyle={styles.scrollContent}
@@ -209,7 +210,7 @@ export default function FastPay() {
             )}
           </View>
         </View>
-      </ScrollView>
+      </CustomScrollView>
 
       {isEditing && (
         <CustomNumberKeyboard

@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useState, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -102,7 +103,7 @@ export default function SelectStablecoinParamsScreen() {
         </View>
       )}
       <View style={styles.innerContainer}>
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
@@ -162,7 +163,7 @@ export default function SelectStablecoinParamsScreen() {
                   })}
             </View>
           </View>
-        </ScrollView>
+        </CustomScrollView>
 
         {!isTron && !isSolana && (
           <CustomButton

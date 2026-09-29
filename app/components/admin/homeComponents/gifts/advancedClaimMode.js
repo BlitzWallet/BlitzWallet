@@ -74,6 +74,7 @@ export default function AdvancedGiftClaim() {
       />
 
       <KeyboardAwareScrollView
+        alwaysBounceVertical={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         bottomOffset={100}

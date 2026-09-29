@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { COLORS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -24,7 +25,7 @@ export default function ProfileImageRow({
         containerStyles,
       ]}
     >
-      <ScrollView
+      <CustomScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.avatarStack}
@@ -52,7 +53,7 @@ export default function ProfileImageRow({
             />
           </View>
         ))}
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 }

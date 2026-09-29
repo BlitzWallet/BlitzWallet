@@ -210,7 +210,11 @@ async function registerForPushNotificationsAsync() {
     return { didWork: true, token: pushToken.data };
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);
-    return { didWork: false, error: err.message };
+    const isTranslationKey = err.message?.startsWith('errormessages.');
+    return {
+      didWork: false,
+      error: isTranslationKey ? err.message : 'errormessages.genericError',
+    };
   }
 }
 

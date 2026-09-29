@@ -4,7 +4,8 @@ import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CENTER, COLORS } from '../../../../constants';
 import ContactProfileImage from './internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -195,7 +196,7 @@ export default function ExpandedAddContactsPage(props) {
         handleSettings={handleSettings}
       />
 
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={{
           paddingBottom: isContactAdded ? bottomPadding : 0,
           flexGrow: 1,
@@ -222,7 +223,7 @@ export default function ExpandedAddContactsPage(props) {
         ) : (
           <AddContactsPage selectedContact={newContact} />
         )}
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

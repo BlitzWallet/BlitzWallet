@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { CENTER } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -155,7 +156,7 @@ export default function PayLinkAmountInput({
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.amountScrollContainer}
       >
@@ -166,7 +167,7 @@ export default function PayLinkAmountInput({
           forceCurrency={primaryDisplay.forceCurrency}
           forceFiatStats={primaryDisplay.forceFiatStats}
         />
-      </ScrollView>
+      </CustomScrollView>
 
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}

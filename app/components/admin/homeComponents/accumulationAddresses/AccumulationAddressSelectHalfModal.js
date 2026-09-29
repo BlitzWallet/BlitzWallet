@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -34,7 +35,7 @@ export default function AccumulationAddressSelectHalfModal({
         styles={styles.title}
         content={t('screens.accumulationAddresses.detail.selectAddress')}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <CustomScrollView showsVerticalScrollIndicator={false}>
         {(addresses || []).map(addr => {
           const depositAddress = addr.depositAddress ?? '';
           const shortAddress = `${depositAddress.slice(
@@ -69,7 +70,7 @@ export default function AccumulationAddressSelectHalfModal({
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 }

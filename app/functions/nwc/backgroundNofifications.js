@@ -1,6 +1,7 @@
 import {
   getNWCData,
   getSupportedMethods,
+  getSupportedNotifications,
   isWithinNWCBalanceTimeFrame,
   splitAndStoreNWCData,
 } from '.';
@@ -18,6 +19,7 @@ import {
   encriptMessage,
 } from '../messaging/encodingAndDecodingMessages';
 import { getLocalStorageItem } from '../localStorage';
+import { writeNativeNWCConfig } from './sharedStorage';
 
 let walletInitializationPromise = null;
 let viewerInitializationPromise = null;
@@ -31,6 +33,10 @@ let processingLock = Promise.resolve();
 
 const RELAY_URL = NOSTR_RELAY_URL;
 const MAX_EVENT_AGE_SECONDS = 300;
+// A handed-off pay_invoice runs only when the user opens the app, by which
+// point the client has likely timed out and may have retried elsewhere. Past
+// this age (and without a client-set expiration) it is answered, not paid.
+const MAX_HANDOFF_PAYMENT_AGE_SECONDS = 60;
 const DEFAULT_INVOICE_EXPIRY_SECONDS = 60 * 60 * 12;
 // Bounds per-push work from authorized clients: NIP-47 clients page with small
 // limits, so these caps never reject legitimate traffic.
@@ -43,6 +49,7 @@ const ERROR_CODES = {
   RESTRICTED: 'RESTRICTED',
   QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
   NOT_FOUND: 'NOT_FOUND',
+  OTHER: 'OTHER',
 };
 
 // User-facing push fired only after an event was successfully handled and its
@@ -194,6 +201,7 @@ const handleGetInfo = selectedNWCAccount => ({
     block_height: 1,
     block_hash: 'N/A',
     methods: getSupportedMethods(selectedNWCAccount.permissions),
+    notifications: getSupportedNotifications(selectedNWCAccount.permissions),
   },
 });
 
@@ -469,6 +477,45 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
     const wallet = getWalletModule();
     const spark = getSparkModule();
 
+    // Invoices created or paid by the native handler carry no Spark request
+    // id; resolve them from the wallet's recent transfers instead.
+    if (!sparkID) {
+      const transfers =
+        (await wallet.getNWCSparkTransactions(50, 0))?.transfers || [];
+      const match = transfers.find(tx => {
+        const request = tx.userRequest;
+        const encoded =
+          request?.typename === 'LightningSendRequest'
+            ? request.encodedInvoice
+            : request?.invoice?.encodedInvoice;
+        return encoded === invoiceWithoutSparkID.invoice;
+      });
+      const matchStatus = match
+        ? spark.getSparkPaymentStatus(match.status)
+        : 'pending';
+      if (matchStatus === 'pending') {
+        return {
+          result_type: 'lookup_invoice',
+          result: toNip47Transaction(invoiceWithoutSparkID),
+        };
+      }
+      const preimage = match.userRequest?.paymentPreimage || '';
+      await NWCInvoiceManager.markInvoiceAsNotPending(
+        invoiceWithoutSparkID.payment_hash,
+        matchStatus,
+        preimage,
+      );
+      return {
+        result_type: 'lookup_invoice',
+        result: toNip47Transaction({
+          ...invoiceWithoutSparkID,
+          status: matchStatus,
+          preimage,
+          settled_at: Date.now(),
+        }),
+      };
+    }
+
     let sparkPaymentResponse;
     if (invoiceWithoutSparkID.type === 'INCOMING') {
       sparkPaymentResponse = await wallet.getNWCLightningReceiveRequest(
@@ -543,59 +590,45 @@ const handlePayInvoice = async (
   const paymentHash = (decoded.tags || []).find(
     tag => tag.tagName === 'payment_hash',
   )?.data;
-  if (paymentHash) {
-    let existing = null;
-    try {
-      existing = await NWCInvoiceManager.handleLookupInvoice({
-        payment_hash: paymentHash,
-      });
-    } catch (err) {
-      console.error('Idempotency lookup failed', err);
+  // Every valid BOLT11 has one; without it the payment can't be claimed below.
+  if (!paymentHash) {
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Invalid invoice',
+    );
+  }
+  let existing = null;
+  try {
+    existing = await NWCInvoiceManager.handleLookupInvoice({
+      payment_hash: paymentHash,
+    });
+  } catch (err) {
+    console.error('Idempotency lookup failed', err);
+  }
+  if (
+    existing &&
+    existing.type === 'OUTGOING' &&
+    existing.status !== 'failed'
+  ) {
+    // 'completed' → return the known preimage; 'pending' → an earlier send is
+    // still in flight, so refuse rather than risk a second send. A 'failed'
+    // record falls through and is allowed to retry.
+    if (existing.status === 'completed') {
+      return {
+        result_type: 'pay_invoice',
+        result: { preimage: existing.preimage || '' },
+      };
     }
-    if (
-      existing &&
-      existing.type === 'OUTGOING' &&
-      existing.status !== 'failed'
-    ) {
-      // 'completed' → return the known preimage; 'pending' → an earlier send is
-      // still in flight, so refuse rather than risk a second send. A 'failed'
-      // record falls through and is allowed to retry.
-      if (existing.status === 'completed') {
-        return {
-          result_type: 'pay_invoice',
-          result: { preimage: existing.preimage || '' },
-        };
-      }
-      return createErrorResponse(
-        'pay_invoice',
-        ERROR_CODES.INTERNAL,
-        'Payment already in progress',
-      );
-    }
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Payment already in progress',
+    );
   }
 
   const renewalSettings = selectedNWCAccount.budgetRenewalSettings || {};
   const now = Date.now();
-
-  let spendState = null;
-  try {
-    spendState = await nwcEventLedger.getSpendState(
-      selectedNWCAccount.publicKey,
-    );
-  } catch (err) {
-    console.error('Error reading spend state', err);
-  }
-
-  let windowStart =
-    spendState?.windowStart ?? selectedNWCAccount.lastRotated ?? now;
-  let budgetSentMsat =
-    spendState?.budgetSentMsat ?? (selectedNWCAccount.totalSent || 0) * 1000;
-
-  if (!isWithinNWCBalanceTimeFrame(renewalSettings.option, windowStart)) {
-    windowStart = now;
-    budgetSentMsat = 0;
-  }
-
   const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
 
   const connectResponse = await ensureWalletConnection();
@@ -613,10 +646,32 @@ const handlePayInvoice = async (
     renewalSettings.amount === 'Unlimited'
       ? null
       : (renewalSettings.amount || 0) * 1000;
-  if (
-    budgetLimitMsat !== null &&
-    budgetLimitMsat < budgetSentMsat + amountMsat
-  ) {
+
+  // Reserve BEFORE sending, in the ledger the native handlers (Android :nwc
+  // process, iOS extension) also pay from. Check and increment are one SQL
+  // statement, so a concurrent payer can never pass on a stale total, and a
+  // crash mid-payment cannot under-count the budget.
+  let windowStart;
+  try {
+    windowStart = await nwcEventLedger.reserveSpend({
+      accountPubkey: selectedNWCAccount.publicKey,
+      amountMsat,
+      limitMsat: budgetLimitMsat,
+      fallbackSentMsat: (selectedNWCAccount.totalSent || 0) * 1000,
+      fallbackWindowStart: selectedNWCAccount.lastRotated ?? now,
+      now,
+      isWindowCurrent: start =>
+        isWithinNWCBalanceTimeFrame(renewalSettings.option, start),
+    });
+  } catch (err) {
+    console.error('Error reserving spend', err);
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to reserve budget',
+    );
+  }
+  if (windowStart === null) {
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.QUOTA_EXCEEDED,
@@ -624,51 +679,69 @@ const handlePayInvoice = async (
     );
   }
 
-  const persistBudget = async finalMsat => {
+  // Mirrors the ledger (the source of truth) into the stored account for display.
+  const syncDisplayedSpend = async () => {
     try {
-      await nwcEventLedger.setSpendState(
+      const spend = await nwcEventLedger.getSpendState(
         selectedNWCAccount.publicKey,
-        finalMsat,
-        windowStart,
       );
+      if (!spend) return;
       await splitAndStoreNWCData({
         ...fullStorageObject,
         accounts: {
           ...fullStorageObject.accounts,
           [selectedNWCAccount.publicKey]: {
             ...selectedNWCAccount,
-            totalSent: (finalMsat - (finalMsat % 1000)) / 1000,
-            lastRotated: windowStart,
+            totalSent:
+              (spend.budgetSentMsat - (spend.budgetSentMsat % 1000)) / 1000,
+            lastRotated: spend.windowStart,
           },
         },
       });
     } catch (err) {
-      console.error('Failed to persist spend state', err);
+      console.error('Failed to store spend state', err);
     }
   };
 
-  // Reserve the worst-case spend and drop a pending idempotency marker BEFORE
-  // sending. A crash mid-payment then cannot be replayed into a second send and
-  // cannot under-count the budget (the reservation is only reconciled down on a
-  // confirmed result). Concurrent invocations are serialized by the module lock.
-  await persistBudget(budgetSentMsat + amountMsat);
-  if (paymentHash) {
+  // Relative change to this payment's reservation only, so it never erases
+  // spend a concurrent payer added in the meantime.
+  const adjustBudget = async deltaMsat => {
     try {
-      await NWCInvoiceManager.storeCreatedInvoice({
-        payment_hash: paymentHash,
-        invoice: requestParams.invoice,
-        amount: amountSats,
-        fee: 0,
-        description: '',
-        created_at: now,
-        sparkID: '',
-        type: 'OUTGOING',
-        preimage: '',
-      });
+      await nwcEventLedger.adjustSpend(
+        selectedNWCAccount.publicKey,
+        windowStart,
+        deltaMsat,
+      );
     } catch (err) {
-      console.error('Failed to store pending outgoing marker', err);
+      console.error('Failed to adjust spend state', err);
     }
+    await syncDisplayedSpend();
+  };
+
+  // The lookup above only filters. The native handlers pay from their own
+  // processes, so a marker can appear after it; only the attempt that takes the
+  // payment_hash here may send.
+  let claimed;
+  try {
+    claimed = await NWCInvoiceManager.claimOutgoingPayment({
+      payment_hash: paymentHash,
+      invoice: requestParams.invoice,
+      amount: amountSats,
+    });
+  } catch (err) {
+    console.error('Failed to claim outgoing payment', err);
   }
+  if (!claimed) {
+    await adjustBudget(-amountMsat);
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      claimed === false
+        ? 'Payment already in progress'
+        : 'Unable to send payment',
+    );
+  }
+  await syncDisplayedSpend();
 
   const invoice = await wallet.sendNWCSparkLightningPayment({
     invoice: requestParams.invoice,
@@ -677,17 +750,15 @@ const handlePayInvoice = async (
   console.log(invoice);
   if (!invoice.didWork) {
     // Payment never left — release the reservation and mark the attempt failed.
-    await persistBudget(budgetSentMsat);
-    if (paymentHash) {
-      try {
-        await NWCInvoiceManager.markInvoiceAsNotPending(
-          paymentHash,
-          'failed',
-          '',
-        );
-      } catch (err) {
-        console.error('Failed to mark outgoing marker failed', err);
-      }
+    await adjustBudget(-amountMsat);
+    try {
+      await NWCInvoiceManager.markInvoiceAsNotPending(
+        paymentHash,
+        'failed',
+        '',
+      );
+    } catch (err) {
+      console.error('Failed to mark outgoing marker failed', err);
     }
     return createErrorResponse(
       'pay_invoice',
@@ -711,23 +782,17 @@ const handlePayInvoice = async (
 
   // Reconcile the reservation: release it entirely if the send failed,
   // otherwise settle it to the actual amount + fee.
-  await persistBudget(
-    paymentStatus === 'failed'
-      ? budgetSentMsat
-      : budgetSentMsat + amountMsat + feeMsat,
-  );
+  await adjustBudget(paymentStatus === 'failed' ? -amountMsat : feeMsat);
 
-  if (paymentHash) {
-    try {
-      await NWCInvoiceManager.markInvoiceAsNotPending(
-        paymentHash,
-        paymentStatus,
-        paymentPreimage,
-        (feeMsat - (feeMsat % 1000)) / 1000,
-      );
-    } catch (err) {
-      console.error('Failed to update outgoing marker', err);
-    }
+  try {
+    await NWCInvoiceManager.markInvoiceAsNotPending(
+      paymentHash,
+      paymentStatus,
+      paymentPreimage,
+      (feeMsat - (feeMsat % 1000)) / 1000,
+    );
+  } catch (err) {
+    console.error('Failed to update outgoing marker', err);
   }
 
   if (!status.didWork) {
@@ -1044,7 +1109,70 @@ function normalizeAccountForEvent(rawEvent, accounts) {
   };
 }
 
-export default async function handleNWCBackgroundEvent(notificationData) {
+// Opens (and on iOS migrates into the App Group) both shared NWC databases
+// before the native handlers get a config, so an extension can never create a
+// fresh ledger ahead of the migration and strand the old one. Returns whether
+// the config snapshot was written.
+export async function prepareNativeNWCHandler(nwcData) {
+  try {
+    await Promise.all([
+      nwcEventLedger.ensureInitialized(),
+      NWCInvoiceManager.getDatabase().ensureInitialized(),
+    ]);
+    return writeNativeNWCConfig(nwcData);
+  } catch (err) {
+    console.error('Error preparing native NWC handler', err);
+    return false;
+  }
+}
+
+// Runs events a native handler (iOS NSE / Android :nwc service) handed off or
+// abandoned through the normal JS path. The ledger claim makes this safe to call
+// from every app start / foreground: each event is processed at most once.
+export async function drainNativeNWCHandoffs() {
+  try {
+    const now = Date.now();
+    const handoffs = await nwcEventLedger.getNativeHandoffs(now);
+    const events = handoffs
+      .map(row => {
+        try {
+          return JSON.parse(row.payload);
+        } catch (err) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+    if (events.length) {
+      console.log('Draining native NWC handoffs', events.length);
+      await handleNWCBackgroundEvent(
+        { data: { body: JSON.stringify({ events }) } },
+        { fromHandoff: true },
+      );
+    }
+    await nwcEventLedger.pruneNativeHandoffs(
+      Date.now(),
+      MAX_EVENT_AGE_SECONDS * 1000,
+    );
+  } catch (err) {
+    console.error('Error draining native NWC handoffs', err);
+  }
+}
+
+function isStaleHandoffPayment(event) {
+  if (event.requestMethod !== 'pay_invoice') return false;
+  // An unexpired client expiration (checked during validation) is the
+  // client's own deadline, so honor it instead of the default.
+  if (event.tags.some(tag => tag[0] === 'expiration')) return false;
+  return (
+    Math.floor(Date.now() / 1000) - event.created_at >
+    MAX_HANDOFF_PAYMENT_AGE_SECONDS
+  );
+}
+
+export default async function handleNWCBackgroundEvent(
+  notificationData,
+  { fromHandoff = false } = {},
+) {
   try {
     let {
       data: { body: nwcEvent },
@@ -1145,11 +1273,18 @@ export default async function handleNWCBackgroundEvent(notificationData) {
           event.requestParams = parsedData.params;
           await nwcEventLedger.setMethod(event.id, parsedData.method);
 
-          const returnObject = await processEvent(
-            event,
-            selectedNWCAccount,
-            fullStorageObject,
-          );
+          const returnObject =
+            fromHandoff && isStaleHandoffPayment(event)
+              ? createErrorResponse(
+                  event.requestMethod,
+                  ERROR_CODES.OTHER,
+                  'Request expired',
+                )
+              : await processEvent(
+                  event,
+                  selectedNWCAccount,
+                  fullStorageObject,
+                );
           if (!returnObject) {
             await nwcEventLedger.markDone(event.id, Date.now());
             continue;

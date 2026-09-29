@@ -1,10 +1,10 @@
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -138,7 +138,7 @@ export default function DisplayOptions() {
   const containerBackground = backgroundOffset;
 
   return (
-    <ScrollView
+    <CustomScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
       style={styles.innerContainer}
@@ -366,7 +366,7 @@ export default function DisplayOptions() {
           </SettingsItem>
         </View>
       </SettingsSection>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

@@ -55,7 +55,6 @@ export default function ConnectingToNodeLoadingScreen() {
   // gate in the connect effect below.
   const expectedMnemonicHash = route.params?.expectedMnemonicHash;
   const {
-    toggleMasterInfoObject,
     masterInfoObject,
     setMasterInfoObject,
     preloadedUserData,
@@ -179,7 +178,7 @@ export default function ConnectingToNodeLoadingScreen() {
                   setMasterInfoObject,
                   toggleGlobalContactsInformation,
                   toggleGlobalAppDataInformation,
-                  toggleMasterInfoObject,
+                  accountMnemoinc,
                   preloadedData: preloadedUserData.data,
                   setPreLoadedUserData,
                   privateKey,

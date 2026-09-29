@@ -43,6 +43,26 @@
           </intent-filter>
       </service>
 
+      <!-- NWC pushes are handled natively (com.blitzwallet.nwc); this receiver
+           replaces RNFirebase's and delegates everything else to it. -->
+      <receiver
+        android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingReceiver"
+        tools:node="remove" />
+      <receiver
+        android:name=".nwc.NwcMessagingReceiver"
+        android:exported="true"
+        android:permission="com.google.android.c2dm.permission.SEND">
+        <intent-filter>
+          <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        </intent-filter>
+      </receiver>
+      <!-- Own process: no React Native, and its system SQLite never shares a
+           process with expo-sqlite's bundled SQLite. -->
+      <service
+        android:name=".nwc.NwcNativeService"
+        android:process=":nwc"
+        android:exported="false" />
+
       <meta-data
         android:name="com.google.firebase.messaging.default_notification_icon"
         android:resource="@mipmap/ic_stat_transparenticon" />

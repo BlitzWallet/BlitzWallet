@@ -4,9 +4,9 @@ import {
   Image,
   StyleSheet,
   Linking,
-  ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useEffect, useState } from 'react';
 import { useKeysContext } from '../../../../../context-store/keys';
@@ -114,7 +114,7 @@ export default function ViewGiftCardCodePage({
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <CustomScrollView style={styles.container}>
       {/* Main Gift Card Display */}
       <View
         style={[
@@ -442,7 +442,7 @@ export default function ViewGiftCardCodePage({
           </View>
         )}
       </View>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 

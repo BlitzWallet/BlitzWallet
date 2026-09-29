@@ -1858,9 +1858,9 @@
       "contactUs": "Contáctanos"
     },
     "notifications": {
-      "mainToggle_enabled": "Notificaciones activadas",
-      "mainToggle_disabled": "Notificaciones desactivadas",
-      "mainToggleDesc": "Las notificaciones te mantienen informado sobre eventos importantes y actualizaciones en la aplicación.",
+      "mainToggle": "Permitir notificaciones",
+      "disabledTitle": "Las notificaciones están desactivadas",
+      "disabledSubtitle": "Activa las notificaciones arriba para elegir sobre qué pagos y eventos quieres recibir alertas.",
       "optionsTitle": "Opciones de notificación",
       "contact": "Contacto",
       "contactDesc": "Pagos recibidos de tus contactos guardados",
@@ -2013,10 +2013,7 @@
         "row2Description": "Esta cuenta está separada de tu cuenta principal para mayor seguridad.",
         "row3Label": "Acceso de la aplicación",
         "row3Description": "Las aplicaciones conectadas pueden usar esta cuenta para realizar pagos.",
-        "continueButton": "Comenzar",
-        "initializingMessage": "Configurando tu wallet NWC...",
-        "errorTitle": "Error en la configuración",
-        "errorRetry": "Reintentar configuración"
+        "continueButton": "Comenzar"
       },
       "accountCreated": {
         "title": "Conexión creada",
@@ -2090,7 +2087,8 @@
         "viewActivityLabel": "Ver el historial de la cuenta",
         "loadError": "No se pudo cargar la cuenta",
         "loadErrorDesc": "Inténtalo de nuevo. Si el problema continúa, contacta con el soporte.",
-        "stillConnectingInfo": "Es posible que tu saldo no esté actualizado mientras terminamos de conectar tu cuenta."
+        "stillConnectingInfo": "Es posible que tu saldo no esté actualizado mientras terminamos de conectar tu cuenta.",
+        "manageConnectionsLabel": "Gestionar conexiones"
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",
@@ -3147,12 +3145,13 @@
       "giftCard": "{{name}} te envió una tarjeta regalo de {{giftCardName}}."
     },
     "nwc": {
-      "get_info": "Evento de información NWC",
-      "get_balance": "Evento de saldo NWC",
-      "list_transactions": "Se obtuvieron transacciones NWC",
-      "make_invoice": "Factura NWC creada",
-      "lookup_invoice": "Consulta de factura NWC",
-      "pay_invoice": "Pago NWC enviado"
+      "get_info": "Información solicitada",
+      "get_balance": "Saldo consultado",
+      "list_transactions": "Transacciones vistas",
+      "make_invoice": "Factura creada",
+      "lookup_invoice": "Factura consultada",
+      "pay_invoice": "Pago enviado",
+      "openApp": "Abre Blitz para completar la solicitud"
     }
   },
   "accountCard": {

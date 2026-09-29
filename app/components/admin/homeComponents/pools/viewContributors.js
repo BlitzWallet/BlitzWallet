@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { ScrollView, Share, StyleSheet, View } from 'react-native';
+import { Share, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
@@ -48,7 +49,7 @@ export default function ViewContibutors(props) {
         })}
       />
 
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -121,7 +122,7 @@ export default function ViewContibutors(props) {
             );
           })}
         </SectionCard>
-      </ScrollView>
+      </CustomScrollView>
 
       <CustomButton
         actionFunction={handleShare}

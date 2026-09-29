@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -129,7 +129,7 @@ export default function WalletLeaves() {
           time: lastSyncedLabel,
         })}
       />
-      <ScrollView
+      <CustomScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -230,7 +230,7 @@ export default function WalletLeaves() {
           </View>
           <ThemeIcon iconName="ChevronRight" size={20} />
         </TouchableOpacity>
-      </ScrollView>
+      </CustomScrollView>
       <ExportLeaves onExported={loadFromStore} />
     </GlobalThemeView>
   );

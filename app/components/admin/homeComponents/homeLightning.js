@@ -388,6 +388,7 @@ export default function HomeLightning({ navigation }) {
       useStandardWidth={Platform.OS === 'web'}
     >
       <Animated.ScrollView
+        alwaysBounceVertical={false}
         ref={scrollViewRef}
         // refreshControl={refreshControl}
         onScroll={onScroll}

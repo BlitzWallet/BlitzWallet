@@ -5,8 +5,8 @@ import {
   Linking,
   Platform,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { CENTER, COLORS, ICONS, SIZES } from '../../constants';
@@ -88,7 +88,7 @@ export default function BTCMapMerchantContent({
 
   return (
     <View style={styles.content}>
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
@@ -171,7 +171,7 @@ export default function BTCMapMerchantContent({
               ))}
           </View>
         )}
-      </ScrollView>
+      </CustomScrollView>
       <AdaptiveButtonRow
         labels={[directionsBTN, payBTN]}
         containerStyle={styles.actionRow}

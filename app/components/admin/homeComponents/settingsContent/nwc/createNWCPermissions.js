@@ -5,7 +5,8 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import {
   HIDDEN_OPACITY,
@@ -147,7 +148,7 @@ export default function CreateNWCPermissions(props) {
         />
       ) : (
         <>
-          <ScrollView
+          <CustomScrollView
             showsVerticalScrollIndicator={false}
             style={styles.innerContainer}
             contentContainerStyle={styles.scrollContent}
@@ -199,7 +200,7 @@ export default function CreateNWCPermissions(props) {
                 ))}
               </View>
             </SettingsSection>
-          </ScrollView>
+          </CustomScrollView>
           <CustomButton
             actionFunction={isEditing ? handleSave : handleContinue}
             buttonStyles={{

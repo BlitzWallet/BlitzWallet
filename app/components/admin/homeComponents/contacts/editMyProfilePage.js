@@ -1,4 +1,5 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   COLORS,
@@ -533,7 +534,7 @@ function InnerContent({
           fromSettings && { maxWidth: MAX_WEB_CONTENT_WIDTH, width: '100%' },
         ]}
       >
-        <ScrollView
+        <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexGrow: 1,
@@ -628,7 +629,7 @@ function InnerContent({
               hasChangedInfo ? t('constants.save') : t('constants.back')
             }
           />
-        </ScrollView>
+        </CustomScrollView>
       </View>
     );
   }
@@ -641,7 +642,7 @@ function InnerContent({
         fromSettings && { maxWidth: MAX_WEB_CONTENT_WIDTH, width: '100%' },
       ]}
     >
-      <ScrollView
+      <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: 1,
@@ -748,7 +749,7 @@ function InnerContent({
               : t('constants.back')
           }
         />
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 

@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useCallback, useMemo } from 'react';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
@@ -76,7 +77,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
 
   return (
     <View style={styles.qrViewContainer}>
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={styles.qrViewScrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -108,7 +109,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
             </View>
           </View>
         </TouchableOpacity>
-      </ScrollView>
+      </CustomScrollView>
 
       <CustomButton
         buttonStyles={styles.mainButton}

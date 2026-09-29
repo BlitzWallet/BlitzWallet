@@ -95,7 +95,7 @@ android {
         applicationId "com.blitzwallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 133
+        versionCode 134
         versionName "0.7.16"
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'// Exclude riscv64
@@ -173,6 +173,15 @@ dependencies {
     // Adding firebase implementations
     implementation platform('com.google.firebase:firebase-bom:34.3.0')
     implementation('com.google.firebase:firebase-messaging')
+
+    // Native NWC handler (src/main/java/com/blitzwallet/nwc)
+    implementation("breez_sdk_spark:bindings-android:0.26.0")
+    // 0.22.x: newer releases need Kotlin 2.3 metadata (this app compiles with 2.1).
+    implementation("fr.acinq.secp256k1:secp256k1-kmp:0.22.0")
+    implementation("fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.22.0")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
+    testImplementation("fr.acinq.secp256k1:secp256k1-kmp-jni-jvm:0.22.0")
 }
 
 // // Fixing 16kb package bug with JNA

@@ -1,9 +1,9 @@
 import {
-  ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { CENTER, COLORS, SIZES } from '../../../../../constants';
@@ -154,7 +154,7 @@ export default function ConfirmPinForLoginMode() {
             maxHeight: screenDimensions.height * 0.7,
           }}
         >
-          <ScrollView
+          <CustomScrollView
             contentContainerStyle={{ marginBottom: 80 }}
             showsVerticalScrollIndicator={true}
           >
@@ -176,7 +176,7 @@ export default function ConfirmPinForLoginMode() {
               <PinDot pin={pinSettings.enteredPin} dotNum={2} />
               <PinDot pin={pinSettings.enteredPin} dotNum={3} />
             </View>
-          </ScrollView>
+          </CustomScrollView>
 
           <View style={styles.keyboardContainer}>
             <View style={styles.keyboard_row}>

@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import CustomScrollView from './scrollView';
 import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeText from './textTheme';
@@ -617,7 +618,7 @@ const EmojiQuickBar = ({
 
   return (
     <View style={[styles.emojiBar, { backgroundColor: backgroundOffset }]}>
-      <ScrollView
+      <CustomScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.emojiScrollContent}
@@ -632,7 +633,7 @@ const EmojiQuickBar = ({
             <ThemeText styles={styles.emoji} content={emoji.emoji} />
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </CustomScrollView>
     </View>
   );
 };

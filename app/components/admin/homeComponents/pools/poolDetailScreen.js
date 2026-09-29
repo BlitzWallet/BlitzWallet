@@ -2,12 +2,12 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   RefreshControl,
-  ScrollView,
   Share,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
@@ -320,7 +320,7 @@ export default function PoolDetailScreen(props) {
         }
       />
 
-      <ScrollView
+      <CustomScrollView
         refreshControl={refreshControl}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -513,7 +513,7 @@ export default function PoolDetailScreen(props) {
             </SectionCard>
           </View>
         )}
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

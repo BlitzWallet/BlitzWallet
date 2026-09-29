@@ -4,7 +4,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
-import { SIZES } from '../../../constants';
+import { SIZES, TOPBAR_HEIGHT } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
 import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
@@ -32,9 +32,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import CustomSettingsTopBar, {
-  TOPBAR_HEIGHT,
-} from '../../../functions/CustomElements/settingsTopBar';
+import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import SectionCard from './components/SectionCard';
 import SettingsRow from './components/SettingsRow';
 import { useGlobalThemeContext } from '../../../../context-store/theme';

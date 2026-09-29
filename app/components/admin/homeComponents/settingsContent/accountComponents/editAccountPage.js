@@ -4,7 +4,8 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
@@ -55,6 +56,8 @@ import { useAppStatus } from '../../../../../../context-store/appStatus';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import NostrWalletConnectNoNotifications from '../nwc/noNotifications';
+import useNWCNotificationsEnabled from '../../../../../hooks/useNWCNotificationsEnabled';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -77,6 +80,31 @@ function usePagerScrollHandler(handlers, dependencies) {
 }
 
 export default function EditAccountPage(props) {
+  if (props?.route?.params?.accountId === NWC_ACCOUNT_UUID)
+    return <NWCAccountGate {...props} />;
+  return <EditAccountPageContent {...props} />;
+}
+
+// NWC can't answer requests without push, so nothing on the NWC account page
+// (including its connections) is reachable until notifications are enabled.
+function NWCAccountGate(props) {
+  const notificationsEnabled = useNWCNotificationsEnabled();
+  const { t } = useTranslation();
+
+  if (notificationsEnabled) return <EditAccountPageContent {...props} />;
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar label={t('settings.accounts.nwcWalletPlace')} />
+      {notificationsEnabled === null ? (
+        <FullLoadingScreen showText={false} />
+      ) : (
+        <NostrWalletConnectNoNotifications />
+      )}
+    </GlobalThemeView>
+  );
+}
+
+function EditAccountPageContent(props) {
   const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
   const { getAccountMnemonic, activeAccount, custodyAccountsList } =
@@ -412,6 +440,14 @@ export default function EditAccountPage(props) {
   ].filter(Boolean);
 
   const manageRows = [
+    isNWC && {
+      key: 'connections',
+      label: t(
+        'settings.accountComponents.editAccountPage.manageConnectionsLabel',
+      ),
+      onPress: () =>
+        navigate.navigate('NosterWalletConnect', { fromAccounts: true }),
+    },
     isChild && {
       key: 'pair',
       label: t('settings.childAccounts.page.shareLink'),
@@ -508,7 +544,7 @@ export default function EditAccountPage(props) {
           isConnecting ? handleSlowConnectInfo : handleDeleteAccount
         }
       />
-      <ScrollView
+      <CustomScrollView
         contentContainerStyle={{
           paddingTop: 10,
           flexGrow: 1,
@@ -654,7 +690,7 @@ export default function EditAccountPage(props) {
             account type, rows filtered per type via detailRows / manageRows. */}
         {renderCard(detailRows)}
         {renderCard(manageRows)}
-      </ScrollView>
+      </CustomScrollView>
     </GlobalThemeView>
   );
 }

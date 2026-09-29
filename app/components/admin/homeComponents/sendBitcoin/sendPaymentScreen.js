@@ -1,4 +1,5 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -1546,7 +1547,7 @@ export default function SendPaymentScreen(props) {
             ) : null
           }
         />
-        <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
+        <CustomScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
             <View>
@@ -1633,7 +1634,7 @@ export default function SendPaymentScreen(props) {
 
           {/* SWAP_RATES_CHANGED — rate drifted and broke swap viability */}
           {uiState === 'SWAP_RATES_CHANGED' && <SwapRatesChangedState />}
-        </ScrollView>
+        </CustomScrollView>
 
         {/* EDIT_AMOUNT State - Show input controls */}
         {uiState === 'EDIT_AMOUNT' && (
