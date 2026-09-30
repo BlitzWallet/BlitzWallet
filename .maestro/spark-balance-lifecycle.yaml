@@ -1,0 +1,51 @@
+# Spark balance lifecycle on a brand-new wallet (0 sats — never a funded one):
+# onboarding → home, then two background → foreground cycles. After each
+# step the wallet must be connected (no Spark error screen) and the home
+# balance must render. Exercises connect (cached paint + one read after the
+# listeners attach), the foreground re-attach + read, and the re-check
+# timers surviving background. Run with `yarn e2e:android` / `yarn e2e:ios`.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: deny
+- extendedWaitUntil:
+    visible: Get Started
+    timeout: 60000
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# Create PIN, then Confirm Pin.
+- repeat:
+    times: 8
+    commands:
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: '(?i)total balance'
+    timeout: 90000
+- assertNotVisible: '.*couldn.t load your wallet.*'
+- assertNotVisible: '.*trouble connecting to your wallet.*'
+- takeScreenshot: balance-lifecycle-home
+- repeat:
+    times: 2
+    commands:
+      - pressKey: Home
+      # Longer than the engine's first re-check (1.5 s) so timers fire while
+      # backgrounded.
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - launchApp:
+          stopApp: false
+      - extendedWaitUntil:
+          visible: '(?i)total balance'
+          timeout: 30000
+      - assertNotVisible: '.*couldn.t load your wallet.*'
+      - assertNotVisible: '.*trouble connecting to your wallet.*'
+- takeScreenshot: balance-lifecycle-foreground

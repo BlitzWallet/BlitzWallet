@@ -456,7 +456,25 @@ async function processTransactionChunk(
   return chunkPaymentObjects;
 }
 let isRestoringState = false;
-export async function fullRestoreSparkState({
+// Latest restore requested while one was running: run it once afterwards so a
+// balance commit that lands mid-restore (e.g. a spend from another device)
+// still gets a pass that can see its transfer.
+let queuedRestore = null;
+export async function fullRestoreSparkState(options) {
+  if (isRestoringState) {
+    queuedRestore = options;
+    return;
+  }
+  try {
+    return await runFullRestoreSparkState(options);
+  } finally {
+    const next = queuedRestore;
+    queuedRestore = null;
+    if (next) fullRestoreSparkState(next);
+  }
+}
+
+async function runFullRestoreSparkState({
   sparkAddress,
   batchSize = DEFAULT_BATCH_SIZE,
   chunkSize = 100,
@@ -468,12 +486,8 @@ export async function fullRestoreSparkState({
   identityPubKey,
   isInitialRestore,
 }) {
+  isRestoringState = true;
   try {
-    if (isRestoringState) {
-      console.log('already restoring state');
-      return;
-    }
-    isRestoringState = true;
     console.log('running');
 
     const handleProgressSave = async txBatch => {
