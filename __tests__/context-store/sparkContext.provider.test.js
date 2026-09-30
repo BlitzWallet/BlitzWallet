@@ -93,6 +93,7 @@ jest.mock('../../app/functions/spark', () => {
   return {
     __esModule: true,
     sparkWallet,
+    getOptimizationLockedSats: () => mockWorld.leaves.swapPending,
     selectSparkRuntime: async mnemonic => {
       if (mockWorld.runtime === 'native') {
         sparkWallet[sha(mnemonic)] = mockWorld.nativeWallet;
@@ -141,7 +142,11 @@ jest.mock('../../app/functions/spark', () => {
         ? plan.result()
         : {
             didWork: true,
-            balance: BigInt(mockWorld.leaves.available + mockWorld.staleHigh),
+            balance: BigInt(
+              mockWorld.leaves.available +
+                mockWorld.leaves.swapPending +
+                mockWorld.staleHigh,
+            ),
             tokensObj: { ...mockWorld.tokens },
           };
       await wait(plan.delay ?? mockWorld.readDelay);
@@ -500,6 +505,7 @@ function emitBalance({ walletId = WALLET_ID } = {}) {
     available: mockWorld.leaves.available,
     owned: mockOwned(),
     incoming: 0,
+    optimizationLocked: mockWorld.leaves.swapPending,
   };
   act(() => {
     if (mockWorld.runtime === 'native') {
@@ -511,6 +517,7 @@ function emitBalance({ walletId = WALLET_ID } = {}) {
           available: String(snapshot.available),
           owned: String(snapshot.owned),
           incoming: '0',
+          optimizationLocked: String(snapshot.optimizationLocked),
         },
         walletId,
       );
@@ -1096,11 +1103,9 @@ describe('reads and lifecycle', () => {
       'fullUpdate-waitBalance',
     );
     await watch(1300);
-    // SDK transient: the swapped leaves leave `owned` before replacements land.
-    setLeaves({ swapPending: 0 });
-    emitBalance();
-    await watch(2000);
-    setLeaves({ available: 53640 });
+    // The SDK completes a swap atomically (swapped leaves SPENT + unlocked and
+    // replacements AVAILABLE under one mutex, one event).
+    setLeaves({ available: 53640, swapPending: 0 });
     mockWorld.optimizing = false;
     emitBalance();
     await watch(60000);
@@ -1482,6 +1487,10 @@ describe('send-convergence matrix', () => {
   for (const route of ['spark', 'swap']) {
     for (const runtime of ['webview', 'native']) {
       for (const firstRead of ['staleHigh', 'dip', 'timeout', 'lostRace']) {
+        // A native read reports the SDK's in-memory state (getSpendableSats),
+        // the same state events carry, so it cannot disagree with them.
+        if (runtime === 'native' && ['staleHigh', 'dip'].includes(firstRead))
+          continue;
         variations.push([
           route,
           runtime,

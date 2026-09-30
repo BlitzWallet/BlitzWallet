@@ -464,6 +464,23 @@ export const getSparkIdentityPubKey = async mnemonic => {
   }
 };
 
+// Available plus leaves locked for optimization (a swap returns the same amount), without
+// the leaves being spent. getBalance()'s own `balance` is the operators' sum,
+// which leaves out claims the server has not confirmed yet.
+// ponytail: leafManager is SDK-internal (private in TS only); after an upgrade
+// renames it these fall back to the SDK's plain available. A failed/aborted
+// optimization emits once while its restored leaves are both AVAILABLE and
+// still locked (double count); the corrected event follows synchronously, so
+// the engine's coalescing never commits it.
+export const getOptimizationLockedSats = wallet =>
+  wallet?.leafManager?.getOptimizationLockedBalance?.() ?? 0;
+
+export const getSpendableSats = wallet => {
+  const lm = wallet?.leafManager;
+  if (typeof lm?.getAvailableBalance !== 'function') return null;
+  return lm.getAvailableBalance() + getOptimizationLockedSats(wallet);
+};
+
 export const getSparkBalance = async mnemonic => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -535,7 +552,9 @@ export const getSparkBalance = async mnemonic => {
 
       return {
         tokensObj: allTokens[hash],
-        balance: balance.balance,
+        // Read last: getBalance() synced the leaves, and events since then
+        // are already in the in-memory state.
+        balance: BigInt(getSpendableSats(wallet) ?? balance.balance),
         didWork: true,
       };
     }
