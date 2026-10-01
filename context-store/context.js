@@ -43,7 +43,10 @@ const GlobalContextProvider = ({ children }) => {
           hash: masterInfoObject.pushNotifications.hash,
           platform: masterInfoObject.pushNotifications.platform,
           key: masterInfoObject.pushNotifications.key,
-          isEnabled: masterInfoObject.pushNotifications.enabledServices?.NWC,
+          isEnabled: !!(
+            masterInfoObject.pushNotifications.isEnabled &&
+            masterInfoObject.pushNotifications.enabledServices?.NWC
+          ),
         };
       }
 

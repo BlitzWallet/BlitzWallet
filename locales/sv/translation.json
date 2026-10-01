@@ -1862,8 +1862,12 @@
     },
     "notifications": {
       "mainToggle": "Tillåt aviseringar",
+      "allowPush": "Tillåt pushaviseringar",
+      "disablePush": "Stäng av pushaviseringar",
+      "updateInSettings": "Uppdatera i appinställningarna",
+      "open": "Öppna",
       "disabledTitle": "Aviseringar är avstängda",
-      "disabledSubtitle": "Slå på aviseringar ovan för att välja vilka betalningar och händelser du vill bli meddelad om.",
+      "disabledSubtitle": "Tillåt pushaviseringar ovan för att välja vilka betalningar och händelser du vill bli meddelad om.",
       "optionsTitle": "Alternativ för avisering",
       "contact": "Kontakt",
       "contactDesc": "Betalningar mottagna från dina sparade kontakter",

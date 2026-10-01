@@ -1862,8 +1862,12 @@
     },
     "notifications": {
       "mainToggle": "Consenti le notifiche",
+      "allowPush": "Consenti le notifiche push",
+      "disablePush": "Disattiva le notifiche push",
+      "updateInSettings": "Aggiorna nelle impostazioni dell’app",
+      "open": "Apri",
       "disabledTitle": "Le notifiche sono disattivate",
-      "disabledSubtitle": "Attiva le notifiche qui sopra per scegliere per quali pagamenti ed eventi vuoi ricevere avvisi.",
+      "disabledSubtitle": "Consenti le notifiche push qui sopra per scegliere per quali pagamenti ed eventi vuoi ricevere avvisi.",
       "optionsTitle": "Opzioni notifiche",
       "contact": "Contatto",
       "contactDesc": "Pagamenti ricevuti dai tuoi contatti salvati",
