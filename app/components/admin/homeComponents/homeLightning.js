@@ -37,7 +37,6 @@ import Animated, {
   interpolate,
   useHandler,
   useEvent,
-  LinearTransition,
   FadeIn,
   FadeOut,
 } from 'react-native-reanimated';
@@ -374,7 +373,6 @@ export default function HomeLightning({ navigation }) {
           key={tx.key}
           entering={FadeIn.duration(150)}
           exiting={FadeOut.duration(150)}
-          layout={LinearTransition.duration(300)}
         >
           {tx.item}
         </Animated.View>

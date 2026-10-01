@@ -1,3 +1,4 @@
+import { AppState } from 'react-native';
 import sha256Hash from '../hash';
 import {
   sparkBalanceUpdateEmitter,
@@ -48,6 +49,7 @@ export const subscribeToSparkBalance = ({
   let reading = false;
   let pendingReRead = false;
   let nativeWallet = null;
+  let appStateSub = null;
 
   // Stabilize-only state. lastPainted tracks the last value handed to onUpdate
   // so the flush can tell an increase from a decrease; flushGen invalidates a
@@ -196,6 +198,21 @@ export const subscribeToSparkBalance = ({
       nativeWallet.on('balance:update', nativeBalanceCb);
       nativeWallet.on('token-balance:update', nativeTokenCb);
     }
+
+    // Events are missed while backgrounded (and the WebView attach refuses to
+    // run then), so on foreground re-attach (idempotent) and re-read.
+    appStateSub = AppState.addEventListener('change', async state => {
+      if (cancelled || state !== 'active') return;
+      if (runtime === 'webview') {
+        await attachWalletListeners(mnemonic, () => cancelled);
+      }
+      readBalance();
+    });
+
+    // The first read ran before any listener existed, so an event in between
+    // (e.g. the post-init claim of pending incoming transfers) was lost.
+    // Re-read now that listeners are live.
+    readBalance();
   };
 
   const ready = setup();
@@ -204,6 +221,7 @@ export const subscribeToSparkBalance = ({
     if (cancelled) return;
     cancelled = true;
     clearFlushTimers();
+    appStateSub?.remove();
     sparkBalanceUpdateEmitter.removeListener(
       BALANCE_UPDATE_EVENT_NAME,
       onBalanceEvent,

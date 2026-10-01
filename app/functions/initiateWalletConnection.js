@@ -70,10 +70,11 @@ export async function initializeSparkSession({
     // Fire immediately — never blocks the critical path
     cleanStalePendingSparkLightningTransactions();
 
-    // Always fetch a live balance on connect. The cached snapshot is already
-    // painted by the loading screen for instant first-paint, but returning
-    // users must still get an authoritative read so a stale snapshot can never
-    // persist until a manual pull-to-refresh.
+    // Returning users (a cached snapshot exists): the loading screen already
+    // painted it, and sparkContext reads the live balance once its listeners
+    // are attached, so nothing between that read and the listeners can be
+    // missed. Reading here too would only delay the connect. First logins
+    // (no snapshot) read now so the homepage opens on a real balance.
     let skipBalanceFetch = false;
     let balanceSnapshot = {};
     if (cachedIdentityPubKey) {
@@ -88,7 +89,7 @@ export async function initializeSparkSession({
         : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      getBalanceWithTimeout(mnemonic, 10000),
+      skipBalanceFetch ? null : getBalanceWithTimeout(mnemonic, 10000),
       getSparkAddress(mnemonic, cachedIdentityPubKey),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
@@ -109,11 +110,12 @@ export async function initializeSparkSession({
 
     const identityPubKey = freshIdentityPubKey;
 
-    if (!balance.didWork) {
+    if (!balance?.didWork) {
       const storageObject = {
         identityPubKey,
         sparkAddress: sparkAddress.response,
-        ...(balanceSnapshot ?? {}),
+        // The loading screen owns the snapshot paint when it exists.
+        ...(skipBalanceFetch ? {} : balanceSnapshot ?? {}),
         didConnect: true,
       };
       setSparkInformation(prev => ({
@@ -123,8 +125,8 @@ export async function initializeSparkSession({
       const txToUse = transactions ?? [];
       if (txToUse.length && filterAndSetTransactions)
         filterAndSetTransactions(txToUse);
-      // Signal the timeout so the caller can retry the balance out-of-band. Not
-      // spread into state — only the clean storageObject above is.
+      // Signal a skipped/timed-out read so the caller knows the balance is
+      // not fresh. Not spread into state — only the clean storageObject is.
       return { ...storageObject, balanceTimedOut: true };
     }
 

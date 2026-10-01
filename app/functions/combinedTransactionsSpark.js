@@ -284,14 +284,14 @@ export default function getFormattedHomepageTxsForSpark(props) {
       : homepageTxPreferance;
 
   // Early return with loading skeleton
-  if (
-    (!sparkInformation.didConnect ||
-      !sparkInformation.identityPubKey ||
-      !didGetToHomepage) &&
-    sparkTransactionsLength
-  ) {
-    formattedTxs.push(createLoadingSkeleton(1, frompage, theme, darkModeType));
-  }
+  // if (
+  //   (!sparkInformation.didConnect ||
+  //     !sparkInformation.identityPubKey ||
+  //     !didGetToHomepage) &&
+  //   sparkTransactionsLength
+  // ) {
+  //   formattedTxs.push(createLoadingSkeleton(1, frompage, theme, darkModeType));
+  // }
 
   // Pre-calculate text objects to avoid recreation
   const bannerTexts = {

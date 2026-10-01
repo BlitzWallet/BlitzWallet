@@ -58,7 +58,8 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     // setup read = 200 (settled), flush read during optimization = 120 (dip),
     // second flush read = 200 (settled again).
     mockGetSparkBalance
-      .mockResolvedValueOnce(bal(200))
+      .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(200)) // post-attach re-read
       .mockResolvedValueOnce(bal(120))
       .mockResolvedValueOnce(bal(200));
     mockIsOptimizationInProgress.mockResolvedValue({
@@ -79,7 +80,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     await jest.advanceTimersByTimeAsync(3000); // debounce flush -> reads 120
 
     const painted = onUpdate.mock.calls.map(c => c[0].balance);
-    expect(painted).toEqual([200]); // 120 held, never painted
+    expect(painted).toEqual([200, 200]); // 120 held, never painted
     expect(mockIsOptimizationInProgress).toHaveBeenCalledTimes(1);
 
     sub.unsubscribe();
@@ -87,7 +88,8 @@ describe('subscribeToSparkBalance stabilize mode', () => {
 
   it('commits a real decrease when optimization is not in progress', async () => {
     mockGetSparkBalance
-      .mockResolvedValueOnce(bal(200))
+      .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(200)) // post-attach re-read
       .mockResolvedValueOnce(bal(100));
     mockIsOptimizationInProgress.mockResolvedValue({
       didWork: true,
@@ -107,7 +109,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     await jest.advanceTimersByTimeAsync(3000);
 
     const painted = onUpdate.mock.calls.map(c => c[0].balance);
-    expect(painted).toEqual([200, 100]);
+    expect(painted).toEqual([200, 200, 100]);
     sub.unsubscribe();
   });
 
@@ -117,6 +119,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     // succeeds (not optimizing) so the real decrease finally paints.
     mockGetSparkBalance
       .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(200)) // post-attach re-read
       .mockResolvedValueOnce(bal(100)) // flush #1 (dip)
       .mockResolvedValueOnce(bal(100)); // retry flush (still dip)
     mockIsOptimizationInProgress
@@ -134,10 +137,10 @@ describe('subscribeToSparkBalance stabilize mode', () => {
 
     emitBalance();
     await jest.advanceTimersByTimeAsync(3000);
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]); // held
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 200]); // held
 
     await jest.advanceTimersByTimeAsync(10000); // retry fires
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 100]);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 200, 100]);
     sub.unsubscribe();
   });
 
@@ -147,6 +150,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     // dip is dropped without ever painting.
     mockGetSparkBalance
       .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(200)) // post-attach re-read
       .mockResolvedValueOnce(bal(120)) // flush #1 (dip)
       .mockResolvedValueOnce(bal(200)); // retry flush (settled)
     mockIsOptimizationInProgress.mockResolvedValue({
@@ -167,7 +171,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     await jest.advanceTimersByTimeAsync(3000); // flush -> 120 -> optimizing -> hold
     await jest.advanceTimersByTimeAsync(10000); // retry -> 200 (equal, dropped)
 
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 200]);
     expect(mockIsOptimizationInProgress).toHaveBeenCalledTimes(1); // retry read equal, no re-check
     sub.unsubscribe();
   });
@@ -178,6 +182,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     // optimization cleared and paints the true lower balance — no event needed.
     mockGetSparkBalance
       .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(200)) // post-attach re-read
       .mockResolvedValueOnce(bal(100)) // flush #1 (dip)
       .mockResolvedValueOnce(bal(100)); // retry flush (still 100 — real spend)
     mockIsOptimizationInProgress
@@ -195,10 +200,10 @@ describe('subscribeToSparkBalance stabilize mode', () => {
 
     emitBalance();
     await jest.advanceTimersByTimeAsync(3000); // held
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 200]);
 
     await jest.advanceTimersByTimeAsync(10000); // retry paints the real spend
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 100]);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 200, 100]);
     sub.unsubscribe();
   });
 
@@ -214,13 +219,13 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     await sub.ready;
     await flushSetup();
 
-    expect(mockGetSparkBalance).toHaveBeenCalledTimes(1); // setup read only
+    expect(mockGetSparkBalance).toHaveBeenCalledTimes(2); // setup + post-attach reads only
     emitBalance();
     sub.unsubscribe(); // tear down mid-debounce
     await jest.advanceTimersByTimeAsync(11000);
 
-    expect(mockGetSparkBalance).toHaveBeenCalledTimes(1); // no flush read
-    expect(onUpdate).toHaveBeenCalledTimes(1); // setup paint only
+    expect(mockGetSparkBalance).toHaveBeenCalledTimes(2); // no flush read
+    expect(onUpdate).toHaveBeenCalledTimes(2); // setup paints only
   });
 
   it('drops a stale optimization-check result superseded by a newer flush', async () => {
@@ -230,6 +235,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     let resolveCheck;
     mockGetSparkBalance
       .mockResolvedValueOnce(bal(200)) // setup
+      .mockResolvedValueOnce(bal(200)) // post-attach re-read
       .mockResolvedValueOnce(bal(120)) // flush #1 (dip)
       .mockResolvedValueOnce(bal(200)); // flush #2 (settled)
     mockIsOptimizationInProgress.mockImplementationOnce(
@@ -253,7 +259,7 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     resolveCheck({ didWork: true, isOptimizing: false }); // stale resolves late
     await flushSetup();
 
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200]);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([200, 200]);
     sub.unsubscribe();
   });
 
@@ -268,8 +274,38 @@ describe('subscribeToSparkBalance stabilize mode', () => {
     emitBalance();
     await flushSetup(); // no timers involved
 
-    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([150, 150]);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([150, 150, 150]);
     expect(mockIsOptimizationInProgress).not.toHaveBeenCalled();
     sub.unsubscribe();
+  });
+  it('re-attaches and re-reads when the app returns to the foreground', async () => {
+    const { AppState } = require('react-native');
+    const { attachWalletListeners } = require('../../../app/functions/spark');
+    let onAppState;
+    const spy = jest
+      .spyOn(AppState, 'addEventListener')
+      .mockImplementation((_e, cb) => {
+        onAppState = cb;
+        return { remove: jest.fn() };
+      });
+    mockGetSparkBalance
+      .mockResolvedValueOnce(bal(100)) // setup
+      .mockResolvedValueOnce(bal(100)) // post-attach re-read
+      .mockResolvedValueOnce(bal(300)); // foreground read (claim while away)
+
+    const onUpdate = jest.fn();
+    const sub = subscribeToSparkBalance({ mnemonic: 'seed', onUpdate });
+    await sub.ready;
+    await flushSetup();
+    attachWalletListeners.mockClear();
+
+    onAppState('background'); // no read
+    onAppState('active');
+    await flushSetup();
+
+    expect(attachWalletListeners).toHaveBeenCalledTimes(1);
+    expect(onUpdate.mock.calls.map(c => c[0].balance)).toEqual([100, 100, 300]);
+    sub.unsubscribe();
+    spy.mockRestore();
   });
 });

@@ -35,7 +35,11 @@ import {
 } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import {
+  isSendingPayingEventEmiiter,
+  SENDING_PAYMENT_EVENT_NAME,
+  useSparkWallet,
+} from '../../../../../context-store/sparkContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -1012,6 +1016,9 @@ export default function SwapFlowHalfModal({
     isSwappingRef.current = true;
     setIsSwapping(true);
     setError(null);
+    // A swap moves funds like a send: hold the sats side until the swap's own
+    // tx write lands sats and USD together (no half-swapped total).
+    isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
 
     try {
       const isBtcToUsdb = fromAsset === 'BTC';
@@ -1180,7 +1187,7 @@ export default function SwapFlowHalfModal({
         }
 
         if (incomingTransfer) {
-          bulkUpdateSparkTransactions(
+          await bulkUpdateSparkTransactions(
             [incomingTransfer, outgoingTransfer],
             'fullUpdate',
           );
@@ -1201,6 +1208,7 @@ export default function SwapFlowHalfModal({
         errorMessage: t('screens.inAccount.swapsPage.fullSwapError'),
       });
     } finally {
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
       isSwappingRef.current = false;
       setIsSwapping(false);
     }
