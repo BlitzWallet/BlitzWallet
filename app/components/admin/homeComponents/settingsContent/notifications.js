@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   rowLabel: {
-    fontFamily: FONT.Title_Medium,
+    fontWeight: 500,
     includeFontPadding: false,
   },
   rowDescription: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   openButtonText: {
-    fontFamily: FONT.Title_Medium,
+    fontWeight: 500,
     includeFontPadding: false,
     marginLeft: 6,
   },
