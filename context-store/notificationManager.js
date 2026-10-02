@@ -4,8 +4,11 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
+  useState,
 } from 'react';
-import { Platform, View } from 'react-native';
+import { Linking, Platform, View } from 'react-native';
+import { getBundleId } from 'react-native-device-info';
 import {
   getAPNSToken,
   getMessaging,
@@ -15,6 +18,7 @@ import {
 import { encriptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
 import { useGlobalContextProvider } from './context';
 import { useKeysContext } from './keys';
+import { useAppStatus } from './appStatus';
 import { checkGooglePlayServices } from '../app/functions/checkGoogleServices';
 import {
   addNotificationReceivedListener,
@@ -32,13 +36,36 @@ import displayCorrectDenomination from '../app/functions/displayCorrectDenominat
 
 const firebaseMessaging = getMessaging();
 
+export const NOTIFICATION_SERVICES = [
+  'contactPayments',
+  'lnurlPayments',
+  'nostrPayments',
+  'NWC',
+  'pointOfSale',
+];
+
+const REGISTER_TIMEOUT_MS = 15000;
+
+const PERMISSION_REQUEST = {
+  ios: {
+    allowAlert: true,
+    allowBadge: true,
+    allowSound: true,
+    allowCriticalAlerts: true, // iOS 12+
+  },
+};
+
 // Create the context
 const PushNotificationContext = createContext({});
 
 // Provider component
 export const PushNotificationProvider = ({ children }) => {
-  const { masterInfoObject } = useGlobalContextProvider();
+  const { masterInfoObject, toggleMasterInfoObject, toggleNWCInformation } =
+    useGlobalContextProvider();
   const { contactsPrivateKey } = useKeysContext();
+  const { appState, didGetToHomepage } = useAppStatus();
+  const isSyncingRef = useRef(false);
+  const [isRegisteringPush, setIsRegisteringPush] = useState(false);
   const pushNotificationData = masterInfoObject?.pushNotifications;
 
   const getCurrentPushNotifiicationPermissions = useCallback(async () => {
@@ -136,18 +163,190 @@ export const PushNotificationProvider = ({ children }) => {
     // registerNotificationHandlers
   ]);
 
+  // Saves push settings and mirrors the copy the NWC backend gates on.
+  const savePushNotificationSettings = useCallback(
+    newObject => {
+      toggleMasterInfoObject({ pushNotifications: newObject });
+
+      const nwcPushEnabled = !!(
+        newObject.isEnabled && newObject.enabledServices?.NWC
+      );
+      const nwcPush = masterInfoObject.NWC?.pushNotifications;
+      if (
+        newObject.hash !== nwcPush?.hash ||
+        nwcPushEnabled !== nwcPush?.isEnabled
+      ) {
+        toggleNWCInformation({
+          pushNotifications: {
+            hash: newObject.hash,
+            platform: newObject.platform,
+            key: newObject.key,
+            isEnabled: nwcPushEnabled,
+          },
+        });
+      }
+    },
+    [masterInfoObject.NWC, toggleMasterInfoObject, toggleNWCInformation],
+  );
+
+  // The OS notification permission is the master switch: isEnabled mirrors
+  // it so backends stop sending when the user turns notifications off.
+  const syncPushNotificationPermission = useCallback(async () => {
+    if (Platform.OS === 'web' || !pushNotificationData || !contactsPrivateKey)
+      return { didWork: true };
+    if (isSyncingRef.current) return { didWork: true };
+    isSyncingRef.current = true;
+    try {
+      // Read directly so a failed read throws instead of turning push off.
+      const granted = (await getPermissionsAsync()).status === 'granted';
+      const newObject = {
+        ...pushNotificationData,
+        isEnabled: granted,
+        permissionSynced: true,
+      };
+
+      if (
+        granted &&
+        (!pushNotificationData.isEnabled || !pushNotificationData.hash)
+      ) {
+        // Usually ~1s (APNs/FCM token + one POST to Expo). Expo's fetch has no
+        // timeout, so cap it: a hung request would keep the screen loading and
+        // block every later sync behind isSyncingRef.
+        setIsRegisteringPush(true);
+        let timer;
+        const response = await Promise.race([
+          registerForPushNotificationsAsync(),
+          new Promise(resolve => {
+            timer = setTimeout(
+              () =>
+                resolve({
+                  didWork: false,
+                  error: 'errormessages.genericError',
+                }),
+              REGISTER_TIMEOUT_MS,
+            );
+          }),
+        ]).finally(() => clearTimeout(timer));
+        if (!response.didWork) return response;
+        const checkResponse = await checkAndSavePushNotificationToDatabase(
+          response.token,
+        );
+        if (!checkResponse.didWork) return checkResponse;
+        if (checkResponse.shouldUpdate) {
+          const { hash, key, platform } = checkResponse.data;
+          Object.assign(newObject, { hash, key, platform });
+        }
+
+        // Before the OS permission was the master switch, users could turn
+        // notifications off in-app while the OS allowed them. Keep that
+        // choice by starting them with every service off.
+        const wasOptedOutInApp =
+          !pushNotificationData.permissionSynced &&
+          pushNotificationData.isEnabled === false &&
+          !!pushNotificationData.hash;
+        newObject.enabledServices = { ...newObject.enabledServices };
+        NOTIFICATION_SERVICES.forEach(service => {
+          newObject.enabledServices[service] = wasOptedOutInApp
+            ? false
+            : newObject.enabledServices[service] ?? true;
+        });
+      }
+
+      if (JSON.stringify(newObject) !== JSON.stringify(pushNotificationData))
+        savePushNotificationSettings(newObject);
+      return { didWork: true };
+    } catch (err) {
+      console.log('Error syncing push notification permission', err);
+      return { didWork: false, error: 'errormessages.genericError' };
+    } finally {
+      isSyncingRef.current = false;
+      setIsRegisteringPush(false);
+    }
+  }, [
+    pushNotificationData,
+    contactsPrivateKey,
+    checkAndSavePushNotificationToDatabase,
+    savePushNotificationSettings,
+  ]);
+
+  // Re-sync on every foreground; covers returning from the OS settings app.
+  const syncRef = useRef(syncPushNotificationPermission);
+  syncRef.current = syncPushNotificationPermission;
+  useEffect(() => {
+    if (!didGetToHomepage || appState !== 'active') return;
+    syncRef.current();
+  }, [didGetToHomepage, appState]);
+
+  // Opens the OS notification settings for this app, to turn push on or
+  // off. While off, two exceptions: already granted (just sync), and iOS
+  // never asked, where Settings has no Notifications row until the app
+  // requests permission once.
+  const openPushNotificationSettings = useCallback(async () => {
+    try {
+      if (!pushNotificationData?.isEnabled) {
+        const { status } = await getPermissionsAsync();
+        if (status === 'granted') return await syncPushNotificationPermission();
+        if (Platform.OS === 'ios' && status === 'undetermined') {
+          const requestResult = await requestPermissionsAsync(
+            PERMISSION_REQUEST,
+          );
+          if (requestResult.status !== 'granted') return { didWork: true };
+          return await syncPushNotificationPermission();
+        }
+      }
+
+      if (Platform.OS === 'android') {
+        try {
+          await Linking.sendIntent(
+            'android.settings.APP_NOTIFICATION_SETTINGS',
+            [
+              {
+                key: 'android.provider.extra.APP_PACKAGE',
+                value: getBundleId(),
+              },
+            ],
+          );
+          return { didWork: true };
+        } catch (err) {
+          console.log('Error opening notification settings', err);
+        }
+      }
+      if (Platform.OS === 'ios') {
+        try {
+          // Value of UIApplication.openNotificationSettingsURLString (iOS
+          // 15.4+; app min is 17.4): lands on this app's Notifications page.
+          await Linking.openURL('app-settings:notifications');
+          return { didWork: true };
+        } catch (err) {
+          console.log('Error opening notification settings', err);
+        }
+      }
+      await Linking.openSettings();
+      return { didWork: true };
+    } catch (err) {
+      console.log('Error enabling push notifications', err);
+      return { didWork: false, error: 'errormessages.genericError' };
+    }
+  }, [pushNotificationData?.isEnabled, syncPushNotificationPermission]);
+
   const contextValue = useMemo(
     () => ({
       checkAndSavePushNotificationToDatabase,
       // registerNotificationHandlers,
       registerForPushNotificationsAsync,
       getCurrentPushNotifiicationPermissions,
+      savePushNotificationSettings,
+      openPushNotificationSettings,
+      isRegisteringPush,
     }),
     [
       checkAndSavePushNotificationToDatabase,
       // registerNotificationHandlers,
       registerForPushNotificationsAsync,
       getCurrentPushNotifiicationPermissions,
+      savePushNotificationSettings,
+      openPushNotificationSettings,
+      isRegisteringPush,
     ],
   );
 
@@ -183,14 +382,7 @@ async function registerForPushNotificationsAsync() {
     let finalStatus = permissionsResult.status;
 
     if (finalStatus !== 'granted' && permissionsResult.canAskAgain) {
-      const requestResult = await requestPermissionsAsync({
-        ios: {
-          allowAlert: true,
-          allowBadge: true,
-          allowSound: true,
-          allowCriticalAlerts: true, // iOS 12+
-        },
-      });
+      const requestResult = await requestPermissionsAsync(PERMISSION_REQUEST);
       finalStatus = requestResult.status;
     }
 

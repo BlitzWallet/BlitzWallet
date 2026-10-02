@@ -1862,8 +1862,12 @@
     },
     "notifications": {
       "mainToggle": "Permitir notificações",
+      "allowPush": "Permitir notificações push",
+      "disablePush": "Desativar notificações push",
+      "updateInSettings": "Atualizar nas configurações do app",
+      "open": "Abrir",
       "disabledTitle": "As notificações estão desativadas",
-      "disabledSubtitle": "Ative as notificações acima para escolher sobre quais pagamentos e eventos você quer ser alertado.",
+      "disabledSubtitle": "Ative as notificações push acima para escolher sobre quais pagamentos e eventos você quer ser alertado.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "contactDesc": "Pagamentos recebidos dos seus contatos salvos",

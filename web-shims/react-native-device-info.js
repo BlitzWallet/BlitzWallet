@@ -22,6 +22,9 @@ export async function isEmulator() {
 export function getUniqueIdSync() {
   return 'web';
 }
+export function getBundleId() {
+  return 'web';
+}
 
 const DeviceInfo = {
   getVersion,
@@ -31,5 +34,6 @@ const DeviceInfo = {
   isEmulatorSync,
   isEmulator,
   getUniqueIdSync,
+  getBundleId,
 };
 export default DeviceInfo;
