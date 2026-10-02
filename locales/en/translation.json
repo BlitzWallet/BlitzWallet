@@ -2042,7 +2042,7 @@
       "posDesc": "Payments received at your point-of-sale"
     },
     "nostrHome": {
-      "nip5Title": "Nip5 Verification",
+      "nip5Title": "Nostr address",
       "nip5Desc": "Quickly verify your Nostr identity using Blitz.",
       "nwcTitle": "Wallet Connect",
       "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
@@ -2087,9 +2087,9 @@
       "nameLengthError": "Name must be less than 60 characters",
       "regexError": "Name can only include letters or numbers.",
       "takenNameError": "Name already taken",
-      "nameConfirmationMessage": "NIP-05 added successfully! Please note that it may take up to 24 hours to appear, as the list is updated once per day.",
-      "title": "NIP-05 Verification",
-      "desc": "NIP-05 turns your long Npub into a small, email-like address, similar to a Lightning address.",
+      "nameConfirmationMessage": "Nostr address added successfully! Please note that it may take up to 24 hours to appear, as the list is updated once per day.",
+      "title": "Nostr address",
+      "desc": "Nostr address turns your long Npub into a small, email-like address, similar to a Lightning address.",
       "dataIsInvalid": "Something went wrong. Please try again.",
       "usernameInputLabel": "Username",
       "usernameInputPlaceholder": "username",
@@ -2103,7 +2103,7 @@
       },
       "saveAddress": "Save address",
       "addressSaved": "Saved address",
-      "infoText": "NIP-05 links a short address like name@blitzwalletapp.com to your Nostr public key (npub), so Nostr apps can verify your identity.\n\nAfter saving, add this address to the NIP-05 field of your Nostr profile. The list updates once per day, so it may take up to 24 hours to verify."
+      "infoText": "Nostr address links a short address like name@blitzwalletapp.com to your Nostr public key (npub), so Nostr apps can verify your identity.\n\nAfter saving, add this address to the Nostr address field of your Nostr profile. The list updates once per day, so it may take up to 24 hours to verify."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

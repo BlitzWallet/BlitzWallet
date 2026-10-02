@@ -1878,7 +1878,7 @@
       "posDesc": "Pagos recibidos en tu punto de venta"
     },
     "nostrHome": {
-      "nip5Title": "Verificación Nip5",
+      "nip5Title": "Dirección Nostr",
       "nip5Desc": "Verifica rápidamente tu identidad Nostr usando Blitz.",
       "nwcTitle": "Wallet Connect",
       "nwcDesc": "Conecta tu Blitz Wallet a apps usando Nostr."
@@ -1923,9 +1923,9 @@
       "nameLengthError": "El nombre debe tener menos de 60 caracteres",
       "regexError": "El nombre solo puede incluir letras o números.",
       "takenNameError": "El nombre ya está en uso",
-      "nameConfirmationMessage": "¡NIP-05 añadido exitosamente! Ten en cuenta que puede tardar hasta 24 horas en aparecer, ya que la lista se actualiza una vez al día.",
-      "title": "Verificación Nip5",
-      "desc": "Nip5 convierte tu Npub largo en una dirección pequeña tipo correo, similar a una dirección Lightning.",
+      "nameConfirmationMessage": "¡Dirección Nostr añadida exitosamente! Ten en cuenta que puede tardar hasta 24 horas en aparecer, ya que la lista se actualiza una vez al día.",
+      "title": "Dirección Nostr",
+      "desc": "La dirección Nostr convierte tu Npub largo en una dirección pequeña tipo correo, similar a una dirección Lightning.",
       "dataIsInvalid": "Algo salió mal, por favor intenta de nuevo.",
       "usernameInputLabel": "Nombre de usuario",
       "usernameInputPlaceholder": "usuario",
@@ -1939,7 +1939,7 @@
       },
       "saveAddress": "Guardar dirección",
       "addressSaved": "Dirección guardada",
-      "infoText": "NIP-05 vincula una dirección corta como nombre@blitzwalletapp.com a tu clave pública de Nostr (npub), para que las apps de Nostr puedan verificar tu identidad.\n\nDespués de guardarla, añade esta dirección al campo NIP-05 de tu perfil de Nostr. La lista se actualiza una vez al día, por lo que la verificación puede tardar hasta 24 horas."
+      "infoText": "La dirección Nostr vincula una dirección corta como nombre@blitzwalletapp.com a tu clave pública de Nostr (npub), para que las apps de Nostr puedan verificar tu identidad.\n\nDespués de guardarla, añade esta dirección al campo de dirección Nostr de tu perfil de Nostr. La lista se actualiza una vez al día, por lo que la verificación puede tardar hasta 24 horas."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

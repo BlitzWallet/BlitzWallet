@@ -1881,7 +1881,7 @@
       "posDesc": "Paiements reçus à votre point de vente"
     },
     "nostrHome": {
-      "nip5Title": "Vérification du Nip5",
+      "nip5Title": "Adresse Nostr",
       "nip5Desc": "Vérifiez rapidement votre identité Nostr à l'aide de Blitz.",
       "nwcTitle": "Wallet Connect",
       "nwcDesc": "Connectez votre Blitz Wallet aux applications utilisant Nostr."
@@ -1926,9 +1926,9 @@
       "nameLengthError": "Le nom doit comporter moins de 60 caractères",
       "regexError": "Le nom ne peut comporter que des lettres ou des chiffres.",
       "takenNameError": "Nom déjà pris",
-      "nameConfirmationMessage": "NIP-05 ajouté avec succès ! Veuillez noter qu'il peut s'écouler jusqu'à 24 heures avant que la liste n'apparaisse, car elle est mise à jour une fois par jour.",
-      "title": "Vérification du Nip5",
-      "desc": "Nip5 transforme votre long Npub en une petite adresse électronique, semblable à une adresse éclair.",
+      "nameConfirmationMessage": "Adresse Nostr ajoutée avec succès ! Veuillez noter qu'il peut s'écouler jusqu'à 24 heures avant que la liste n'apparaisse, car elle est mise à jour une fois par jour.",
+      "title": "Adresse Nostr",
+      "desc": "L'adresse Nostr transforme votre long Npub en une petite adresse électronique, semblable à une adresse éclair.",
       "dataIsInvalid": "Un problème s'est produit, veuillez réessayer,",
       "usernameInputLabel": "Nom d'utilisateur",
       "usernameInputPlaceholder": "nom d'utilisateur",
@@ -1942,7 +1942,7 @@
       },
       "saveAddress": "Enregistrer l'adresse",
       "addressSaved": "Adresse enregistrée",
-      "infoText": "NIP-05 associe une adresse courte comme nom@blitzwalletapp.com à votre clé publique Nostr (npub), afin que les applications Nostr puissent vérifier votre identité.\n\nAprès l'enregistrement, ajoutez cette adresse dans le champ NIP-05 de votre profil Nostr. La liste est mise à jour une fois par jour, la vérification peut donc prendre jusqu'à 24 heures."
+      "infoText": "L'adresse Nostr associe une adresse courte comme nom@blitzwalletapp.com à votre clé publique Nostr (npub), afin que les applications Nostr puissent vérifier votre identité.\n\nAprès l'enregistrement, ajoutez cette adresse dans le champ d'adresse Nostr de votre profil Nostr. La liste est mise à jour une fois par jour, la vérification peut donc prendre jusqu'à 24 heures."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

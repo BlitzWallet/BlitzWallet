@@ -1881,7 +1881,7 @@
       "posDesc": "Pagamenti ricevuti al tuo punto vendita"
     },
     "nostrHome": {
-      "nip5Title": "Verifica Nip5",
+      "nip5Title": "Indirizzo Nostr",
       "nip5Desc": "Verifica rapidamente la tua identità Nostr usando Blitz.",
       "nwcTitle": "Wallet Connect",
       "nwcDesc": "Connetti il Blitz Wallet ad app che usano il protocollo Nostr."
@@ -1926,9 +1926,9 @@
       "nameLengthError": "Il nome deve essere inferiore a 60 caratteri",
       "regexError": "Il nome può includere solo lettere o numeri.",
       "takenNameError": "Nome già preso",
-      "nameConfirmationMessage": "NIP-05 aggiunto con successo! Tieni presente che potrebbe volerci fino a 24 ore per apparire, poiché l'elenco viene aggiornato una volta al giorno.",
-      "title": "Verifica Nip5",
-      "desc": "Nip5 trasforma il tuo lungo Npub in un piccolo indirizzo simile a un indirizzo email, simile a un indirizzo Lightning.",
+      "nameConfirmationMessage": "Indirizzo Nostr aggiunto con successo! Tieni presente che potrebbe volerci fino a 24 ore per apparire, poiché l'elenco viene aggiornato una volta al giorno.",
+      "title": "Indirizzo Nostr",
+      "desc": "L'indirizzo Nostr trasforma il tuo lungo Npub in un piccolo indirizzo simile a un indirizzo email, simile a un indirizzo Lightning.",
       "dataIsInvalid": "Qualcosa è andato storto, riprova,",
       "usernameInputLabel": "Username",
       "usernameInputPlaceholder": "nomeutente",
@@ -1942,7 +1942,7 @@
       },
       "saveAddress": "Salva indirizzo",
       "addressSaved": "Indirizzo salvato",
-      "infoText": "NIP-05 collega un indirizzo breve come nome@blitzwalletapp.com alla tua chiave pubblica Nostr (npub), così le app Nostr possono verificare la tua identità.\n\nDopo il salvataggio, aggiungi questo indirizzo al campo NIP-05 del tuo profilo Nostr. L'elenco viene aggiornato una volta al giorno, quindi la verifica può richiedere fino a 24 ore."
+      "infoText": "L'indirizzo Nostr collega un indirizzo breve come nome@blitzwalletapp.com alla tua chiave pubblica Nostr (npub), così le app Nostr possono verificare la tua identità.\n\nDopo il salvataggio, aggiungi questo indirizzo al campo indirizzo Nostr del tuo profilo Nostr. L'elenco viene aggiornato una volta al giorno, quindi la verifica può richiedere fino a 24 ore."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

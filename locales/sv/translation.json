@@ -1881,7 +1881,7 @@
       "posDesc": "Betalningar mottagna vid ditt försäljningsställe"
     },
     "nostrHome": {
-      "nip5Title": "Nip5 Verifiering",
+      "nip5Title": "Nostr-adress",
       "nip5Desc": "Verifiera snabbt din Nostr-identitet med hjälp av Blitz.",
       "nwcTitle": "Wallet Connect",
       "nwcDesc": "Anslut din Blitz Wallet till appar som använder Nostr."
@@ -1926,9 +1926,9 @@
       "nameLengthError": "Namnet måste innehålla mindre än 60 tecken",
       "regexError": "Namnet kan endast innehålla bokstäver eller siffror.",
       "takenNameError": "Namnet är redan taget",
-      "nameConfirmationMessage": "NIP-05 har lagts till framgångsrikt! Observera att det kan ta upp till 24 timmar innan den visas, eftersom listan uppdateras en gång per dag.",
-      "title": "Nip5 Verifiering",
-      "desc": "Nip5 förvandlar din långa Npub till en liten e-postliknande adress, liknande en blixtadress.",
+      "nameConfirmationMessage": "Nostr-adressen har lagts till framgångsrikt! Observera att det kan ta upp till 24 timmar innan den visas, eftersom listan uppdateras en gång per dag.",
+      "title": "Nostr-adress",
+      "desc": "Nostr-adressen förvandlar din långa Npub till en liten e-postliknande adress, liknande en blixtadress.",
       "dataIsInvalid": "Något gick fel, vänligen försök igen,",
       "usernameInputLabel": "Användarnamn",
       "usernameInputPlaceholder": "användarnamn",
@@ -1942,7 +1942,7 @@
       },
       "saveAddress": "Spara adress",
       "addressSaved": "Sparad adress",
-      "infoText": "NIP-05 kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i NIP-05-fältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar."
+      "infoText": "Nostr-adressen kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i Nostr-adressfältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
