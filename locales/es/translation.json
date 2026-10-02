@@ -1928,15 +1928,18 @@
       "desc": "Nip5 convierte tu Npub largo en una dirección pequeña tipo correo, similar a una dirección Lightning.",
       "dataIsInvalid": "Algo salió mal, por favor intenta de nuevo.",
       "usernameInputLabel": "Nombre de usuario",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Nombre de usuario",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "usuario",
+      "publicKeyLabel": "Npub",
+      "publicKeyPlaceholder": "npub1...",
       "errors": {
         "invalidPubKey": "Clave pública inválida: debe ser una cadena no vacía",
         "invalidNpub": "Formato de npub inválido",
         "decodeNpubError": "Error al decodificar npub",
         "invalidFormat": "Formato de clave pública inválido: debe ser una cadena hex de 64 caracteres o npub"
-      }
+      },
+      "saveAddress": "Guardar dirección",
+      "addressSaved": "Dirección guardada",
+      "infoText": "NIP-05 vincula una dirección corta como nombre@blitzwalletapp.com a tu clave pública de Nostr (npub), para que las apps de Nostr puedan verificar tu identidad.\n\nDespués de guardarla, añade esta dirección al campo NIP-05 de tu perfil de Nostr. La lista se actualiza una vez al día, por lo que la verificación puede tardar hasta 24 horas."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

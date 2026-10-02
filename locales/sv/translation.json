@@ -1931,15 +1931,18 @@
       "desc": "Nip5 förvandlar din långa Npub till en liten e-postliknande adress, liknande en blixtadress.",
       "dataIsInvalid": "Något gick fel, vänligen försök igen,",
       "usernameInputLabel": "Användarnamn",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Användarnamn",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "användarnamn",
+      "publicKeyLabel": "Npub",
+      "publicKeyPlaceholder": "npub1...",
       "errors": {
         "invalidPubKey": "Ogiltig pubnyckel: måste vara en icke-tom sträng",
         "invalidNpub": "Ogiltigt npub-format",
         "decodeNpubError": "Misslyckades med att avkoda npub",
         "invalidFormat": "Ogiltigt pubkey-format: måste vara antingen en hexadecimal sträng med 64 tecken eller npub"
-      }
+      },
+      "saveAddress": "Spara adress",
+      "addressSaved": "Sparad adress",
+      "infoText": "NIP-05 kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i NIP-05-fältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

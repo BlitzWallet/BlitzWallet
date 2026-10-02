@@ -1931,15 +1931,18 @@
       "desc": "NIP-05 verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
       "dataIsInvalid": "Etwas ist schiefgelaufen, bitte versuchen Sie es erneut.",
       "usernameInputLabel": "Benutzername",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Öffentlicher Schlüssel",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "benutzername",
+      "publicKeyLabel": "Npub",
+      "publicKeyPlaceholder": "npub1...",
       "errors": {
         "invalidPubKey": "Ungültiger öffentlicher Schlüssel: muss ein nicht-leerer Text sein.",
         "invalidNpub": "Ungültiges Npub-Format",
         "decodeNpubError": "Npub konnte nicht dekodiert werden.",
         "invalidFormat": "Ungültiges Format des öffentlichen Schlüssels: muss entweder eine 64-Zeichen-Hex-Text oder Npub sein."
-      }
+      },
+      "saveAddress": "Adresse speichern",
+      "addressSaved": "Gespeicherte Adresse",
+      "infoText": "NIP-05 verknüpft eine kurze Adresse wie name@blitzwalletapp.com mit deinem öffentlichen Nostr-Schlüssel (npub), damit Nostr-Apps deine Identität verifizieren können.\n\nFüge diese Adresse nach dem Speichern in das NIP-05-Feld deines Nostr-Profils ein. Die Liste wird einmal täglich aktualisiert, daher kann die Verifizierung bis zu 24 Stunden dauern."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

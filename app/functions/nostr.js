@@ -17,13 +17,21 @@ export function npubToHex(pubkey) {
       throw new Error('settings.nip5.errors.invalidPubKey');
     }
 
-    const cleanPubkey = pubkey.trim();
+    // Accept nostr: URIs and uppercase bech32 (valid per BIP-173).
+    const cleanPubkey = pubkey.trim().replace(/^nostr:/i, '');
+    const lowerPubkey = cleanPubkey.toLowerCase();
 
-    if (cleanPubkey.startsWith('npub1')) {
+    if (
+      lowerPubkey.startsWith('npub1') ||
+      lowerPubkey.startsWith('nprofile1')
+    ) {
       try {
-        const decoded = nip19.decode(cleanPubkey);
+        const decoded = nip19.decode(lowerPubkey);
         if (decoded.type === 'npub' && typeof decoded.data === 'string') {
           return {didWork: true, data: decoded.data};
+        }
+        if (decoded.type === 'nprofile' && decoded.data?.pubkey) {
+          return {didWork: true, data: decoded.data.pubkey};
         }
         throw new Error('settings.nip5.errors.invalidNpub');
       } catch (error) {
