@@ -1931,7 +1931,7 @@
       "desc": "O endereço Nostr transforma sua longa chave Npub em um pequeno endereço com estrutura de e-mail, parecido com um endereço Blitz.",
       "dataIsInvalid": "Algo deu errado, tente novamente,",
       "usernameInputLabel": "Perfil",
-      "usernameInputPlaceholder": "usuario",
+      "usernameInputPlaceholder": "usuário",
       "publicKeyLabel": "Npub",
       "publicKeyPlaceholder": "npub1...",
       "errors": {
