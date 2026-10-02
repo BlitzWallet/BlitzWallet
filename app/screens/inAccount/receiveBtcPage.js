@@ -305,7 +305,13 @@ export default function ReceivePaymentHome(props) {
         leftImageFunction={handleShowEditPage}
       />
 
-      <View style={{ flex: 1, ...CENTER, width: INSET_WINDOW_WIDTH }}>
+      <View
+        style={{
+          flex: 1,
+          ...CENTER,
+          width: INSET_WINDOW_WIDTH,
+        }}
+      >
         <View style={styles.toggleContainer}>
           <BtcUsdToggle
             endReceiveType={endReceiveType}
@@ -321,7 +327,6 @@ export default function ReceivePaymentHome(props) {
             justifyContent: 'center',
             alignItems: 'center',
             flexGrow: 1,
-            paddingBottom: bottomPadding,
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -356,29 +361,34 @@ export default function ReceivePaymentHome(props) {
             handleShowEditPage={handleShowEditPage}
           />
 
-          <ThemeText
-            styles={[
-              styles.swapMinNotice,
-              {
-                opacity:
-                  endReceiveType === 'USD' && !displayedReceiveAmount
-                    ? HIDDEN_OPACITY
-                    : 0,
-              },
-            ]}
-            CustomNumberOfLines={2}
-            content={t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
-              amount: displayCorrectDenomination({
-                amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'fiat',
+          {!displayedReceiveAmount && (
+            <ThemeText
+              styles={[
+                styles.swapMinNotice,
+                {
+                  opacity:
+                    endReceiveType === 'USD' && !displayedReceiveAmount
+                      ? HIDDEN_OPACITY
+                      : 0,
                 },
-                fiatStats: resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-                forceCurrency: 'USD',
-              }),
-            })}
-          />
+              ]}
+              CustomNumberOfLines={2}
+              content={t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
+                amount: displayCorrectDenomination({
+                  amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'fiat',
+                  },
+                  fiatStats: resolveUsdFiatStats(
+                    fiatStats,
+                    swapUSDPriceDollars,
+                  ),
+                  forceCurrency: 'USD',
+                }),
+              })}
+            />
+          )}
         </CustomScrollView>
         <TouchableOpacity
           activeOpacity={0.8}

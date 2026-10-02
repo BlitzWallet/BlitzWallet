@@ -1,11 +1,16 @@
-import { StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useCallback, useEffect, useState } from 'react';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { useCallback, useState } from 'react';
+import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { CENTER } from '../../../../constants';
 import { usePushNotification } from '../../../../../context-store/notificationManager';
 import { useNavigation } from '@react-navigation/native';
@@ -13,158 +18,50 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
-const NOTIFICATION_SERVICES = [
-  'contactPayments',
-  'lnurlPayments',
-  'nostrPayments',
-  'NWC',
-  'pointOfSale',
+const SERVICE_ROWS = [
+  { service: 'contactPayments', key: 'contact' },
+  { service: 'lnurlPayments', key: 'lnurl' },
+  { service: 'nostrPayments', key: 'nostrZaps' },
+  { service: 'NWC', key: 'nwc' },
+  { service: 'pointOfSale', key: 'pos' },
 ];
-
-const SettingsSection = ({ title, children, style }) => (
-  <View style={[styles.section, style]}>
-    {title ? <ThemeText styles={styles.sectionTitle} content={title} /> : null}
-    {children}
-  </View>
-);
-
-const SettingsItem = ({
-  label,
-  description,
-  children,
-  isLast,
-  dividerColor,
-}) => (
-  <>
-    <View style={styles.settingsItem}>
-      <View style={styles.settingsItemText}>
-        <ThemeText styles={styles.settingsItemLabel} content={label} />
-        {description && (
-          <ThemeText
-            styles={styles.settingsItemDescription}
-            content={description}
-          />
-        )}
-      </View>
-      {children}
-    </View>
-    {!isLast && (
-      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
-    )}
-  </>
-);
 
 export default function NotificationPreferances() {
   const navigate = useNavigation();
-  const { masterInfoObject, toggleMasterInfoObject, toggleNWCInformation } =
-    useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
   const [isUpdating, setIsUpdating] = useState(false);
   const {
-    registerForPushNotificationsAsync,
-    checkAndSavePushNotificationToDatabase,
-    getCurrentPushNotifiicationPermissions,
+    savePushNotificationSettings,
+    openPushNotificationSettings,
+    isRegisteringPush,
   } = usePushNotification();
-  const [currnetPushState, setCurrentPushState] = useState(null);
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const notificationData = masterInfoObject.pushNotifications;
 
-  const userWantsNotifications = notificationData.isEnabled;
-  const systemHasPermissions = currnetPushState;
-  const effectivePushStatus = userWantsNotifications && systemHasPermissions;
+  // isEnabled mirrors the OS permission (synced by PushNotificationProvider
+  // on every foreground), so it is the only switch this screen needs.
+  const isEnabled = notificationData.isEnabled;
 
-  const loadCurrentNotificationPermission = async () => {
-    const response = await getCurrentPushNotifiicationPermissions();
-    setCurrentPushState(response === 'granted');
-  };
-  useEffect(() => {
-    loadCurrentNotificationPermission();
-  }, []);
+  const handleOpen = useCallback(async () => {
+    setIsUpdating(true);
+    const response = await openPushNotificationSettings();
+    setIsUpdating(false);
+    if (!response.didWork)
+      navigate.navigate('ErrorScreen', { errorMessage: t(response.error) });
+  }, [openPushNotificationSettings, navigate, t]);
 
   const toggleNotificationPreferance = useCallback(
-    async toggleType => {
-      setIsUpdating(true);
-      try {
-        let newObject = { ...masterInfoObject.pushNotifications };
-
-        if (toggleType === 'isEnabled') {
-          const wantsToEnable = !effectivePushStatus;
-
-          if (wantsToEnable) {
-            // User wants to enable notifications
-            // Must re-register with system
-            const response = await registerForPushNotificationsAsync();
-            if (!response.didWork) throw new Error(t(response.error));
-            const checkResponse = await checkAndSavePushNotificationToDatabase(
-              response.token,
-            );
-            if (!checkResponse.didWork) throw new Error(checkResponse.error);
-
-            if (checkResponse.shouldUpdate) {
-              const { hash, key, platform } = checkResponse.data;
-              Object.assign(newObject, { hash, key, platform });
-            }
-
-            if (!systemHasPermissions) {
-              await loadCurrentNotificationPermission(); // refresh system state
-            }
-
-            newObject.enabledServices = { ...newObject.enabledServices };
-            NOTIFICATION_SERVICES.forEach(
-              service =>
-                (newObject.enabledServices[service] =
-                  newObject.enabledServices[service] ?? true),
-            );
-
-            newObject.isEnabled = true; // always set preference
-          } else {
-            // User wants to disable
-            newObject.isEnabled = false;
-          }
-        } else {
-          // Toggle a specific service
-          newObject.enabledServices = { ...newObject.enabledServices };
-          newObject.enabledServices[toggleType] =
-            !newObject.enabledServices?.[toggleType];
-        }
-
-        // Save updated preferences globally
-        toggleMasterInfoObject({ pushNotifications: newObject });
-
-        if (
-          newObject.hash !== masterInfoObject.NWC?.pushNotifications?.hash ||
-          newObject.enabledServices?.NWC !==
-            masterInfoObject.NWC?.pushNotifications?.enabledServices?.NWC
-        ) {
-          toggleNWCInformation({
-            pushNotifications: {
-              hash: newObject.hash,
-              platform: newObject.platform,
-              key: newObject.key,
-              isEnabled: newObject.enabledServices?.NWC,
-            },
-          });
-        }
-
-        console.log('RUNNING', toggleType);
-      } catch (err) {
-        console.log('Error updating notification state', err);
-        navigate.navigate('ErrorScreen', { errorMessage: err.message });
-      } finally {
-        setIsUpdating(false);
-      }
+    service => {
+      savePushNotificationSettings({
+        ...notificationData,
+        enabledServices: {
+          ...notificationData.enabledServices,
+          [service]: !notificationData.enabledServices?.[service],
+        },
+      });
     },
-    [
-      masterInfoObject?.pushNotifications,
-      systemHasPermissions,
-      masterInfoObject?.NWC,
-      navigate,
-      effectivePushStatus,
-      checkAndSavePushNotificationToDatabase,
-      loadCurrentNotificationPermission,
-      toggleNWCInformation,
-      t,
-    ],
+    [notificationData, savePushNotificationSettings],
   );
 
   return (
@@ -173,144 +70,81 @@ export default function NotificationPreferances() {
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <SettingsSection>
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+      <View style={styles.row}>
+        <View style={styles.rowText}>
+          <ThemeText
+            styles={styles.rowLabel}
+            content={t(
+              isEnabled
+                ? 'settings.notifications.disablePush'
+                : 'settings.notifications.allowPush',
+            )}
+          />
+          <ThemeText
+            styles={styles.rowDescription}
+            content={t('settings.notifications.updateInSettings')}
+          />
+        </View>
+        <TouchableOpacity
+          disabled={isUpdating || isRegisteringPush}
+          onPress={handleOpen}
+          style={[styles.openButton, { backgroundColor: backgroundOffset }]}
         >
-          <SettingsItem
-            isLast
-            dividerColor={backgroundColor}
-            label={t('settings.notifications.mainToggle')}
-          >
-            <View style={styles.rightContainer}>
-              {isUpdating && (
-                <FullLoadingScreen
-                  containerStyles={styles.loadingContainer}
-                  size="small"
-                  showText={false}
+          {isRegisteringPush ? (
+            // Push token registering after the user allowed notifications
+            // (usually about a second).
+            <ActivityIndicator size="small" color={textColor} />
+          ) : (
+            <ThemeIcon
+              iconName="ExternalLink"
+              size={18}
+              colorOverride={textColor}
+            />
+          )}
+          <ThemeText
+            styles={styles.openButtonText}
+            content={t('settings.notifications.open')}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <View style={[styles.divider, { backgroundColor: backgroundOffset }]} />
+
+      {isEnabled ? (
+        <>
+          <ThemeText
+            styles={styles.sectionTitle}
+            content={t('settings.notifications.optionsTitle')}
+          />
+          {SERVICE_ROWS.map(({ service, key }) => (
+            <View
+              key={service}
+              style={[
+                styles.serviceCard,
+                { backgroundColor: backgroundOffset },
+              ]}
+            >
+              <View style={styles.rowText}>
+                <ThemeText
+                  styles={styles.serviceLabel}
+                  content={t(`settings.notifications.${key}`)}
                 />
-              )}
+                <ThemeText
+                  styles={styles.rowDescription}
+                  content={t(`settings.notifications.${key}Desc`)}
+                />
+              </View>
               <CustomToggleSwitch
                 page="settingsNotifications"
                 toggleSwitchFunction={() =>
-                  toggleNotificationPreferance('isEnabled')
+                  toggleNotificationPreferance(service)
                 }
-                stateValue={effectivePushStatus}
+                stateValue={notificationData.enabledServices?.[service]}
               />
             </View>
-          </SettingsItem>
-        </View>
-      </SettingsSection>
-
-      {effectivePushStatus ? (
-        <SettingsSection
-          title={t('settings.notifications.optionsTitle')}
-          style={styles.lastSection}
-        >
-          <View
-            style={[
-              styles.sectionContent,
-              styles.cardGap,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <SettingsItem
-              isLast
-              label={t('settings.notifications.contact')}
-              description={t('settings.notifications.contactDesc')}
-            >
-              <CustomToggleSwitch
-                page="settingsNotifications"
-                toggleSwitchFunction={() =>
-                  toggleNotificationPreferance('contactPayments')
-                }
-                stateValue={notificationData.enabledServices.contactPayments}
-              />
-            </SettingsItem>
-          </View>
-          <View
-            style={[
-              styles.sectionContent,
-              styles.cardGap,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <SettingsItem
-              isLast
-              label={t('settings.notifications.lnurl')}
-              description={t('settings.notifications.lnurlDesc')}
-            >
-              <CustomToggleSwitch
-                page="settingsNotifications"
-                toggleSwitchFunction={() =>
-                  toggleNotificationPreferance('lnurlPayments')
-                }
-                stateValue={notificationData.enabledServices.lnurlPayments}
-              />
-            </SettingsItem>
-          </View>
-          <View
-            style={[
-              styles.sectionContent,
-              styles.cardGap,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <SettingsItem
-              isLast
-              label={t('settings.notifications.nostrZaps')}
-              description={t('settings.notifications.nostrZapsDesc')}
-            >
-              <CustomToggleSwitch
-                page="settingsNotifications"
-                toggleSwitchFunction={() =>
-                  toggleNotificationPreferance('nostrPayments')
-                }
-                stateValue={notificationData.enabledServices.nostrPayments}
-              />
-            </SettingsItem>
-          </View>
-          <View
-            style={[
-              styles.sectionContent,
-              styles.cardGap,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <SettingsItem
-              isLast
-              label={t('settings.notifications.nwc')}
-              description={t('settings.notifications.nwcDesc')}
-            >
-              <CustomToggleSwitch
-                page="settingsNotifications"
-                toggleSwitchFunction={() => toggleNotificationPreferance('NWC')}
-                stateValue={notificationData.enabledServices.NWC}
-              />
-            </SettingsItem>
-          </View>
-          <View
-            style={[
-              styles.sectionContent,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <SettingsItem
-              isLast
-              label={t('settings.notifications.pos')}
-              description={t('settings.notifications.posDesc')}
-            >
-              <CustomToggleSwitch
-                page="settingsNotifications"
-                toggleSwitchFunction={() =>
-                  toggleNotificationPreferance('pointOfSale')
-                }
-                stateValue={notificationData.enabledServices.pointOfSale}
-              />
-            </SettingsItem>
-          </View>
-        </SettingsSection>
-      ) : (
+          ))}
+        </>
+      ) : isRegisteringPush ? null : (
         <NoContentSceen
           iconName="BellOff"
           titleText={t('settings.notifications.disabledTitle')}
@@ -332,59 +166,62 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 40,
   },
-  section: {
-    marginBottom: 24,
-    width: '100%',
-  },
-  lastSection: {
-    marginBottom: 0,
-  },
-  sectionTitle: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    marginBottom: 16,
-    includeFontPadding: false,
-  },
-  sectionContent: {
-    width: '100%',
-    borderRadius: 8,
-    padding: 16,
-  },
-  cardGap: {
-    marginBottom: 8,
-  },
-  settingsItem: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 14,
   },
-  settingsItemText: {
+  rowText: {
     flex: 1,
     flexShrink: 1,
-    marginRight: 8,
+    marginRight: 12,
   },
-  settingsItemLabel: {
+  rowLabel: {
+    fontWeight: 500,
     includeFontPadding: false,
   },
-  settingsItemDescription: {
+  rowDescription: {
     fontSize: SIZES.small,
     opacity: 0.7,
     includeFontPadding: false,
     marginTop: 4,
   },
-  divider: {
-    height: 1,
-    marginVertical: 8,
-  },
-  rightContainer: {
+  openButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  openButtonText: {
+    fontWeight: 500,
+    includeFontPadding: false,
+    marginLeft: 6,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 16,
+  },
+  sectionTitle: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    marginTop: 8,
+    marginBottom: 16,
+    includeFontPadding: false,
+  },
+  serviceCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 8,
+  },
+  serviceLabel: {
+    includeFontPadding: false,
   },
   noContent: {
     width: '100%',
-  },
-  loadingContainer: {
-    flex: 0,
-    marginRight: 8,
   },
 });

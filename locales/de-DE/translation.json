@@ -1862,8 +1862,12 @@
     },
     "notifications": {
       "mainToggle": "Benachrichtigungen zulassen",
+      "allowPush": "Push-Benachrichtigungen zulassen",
+      "disablePush": "Push-Benachrichtigungen ausschalten",
+      "updateInSettings": "In den App-Einstellungen aktualisieren",
+      "open": "Öffnen",
       "disabledTitle": "Benachrichtigungen sind ausgeschaltet",
-      "disabledSubtitle": "Aktivieren Sie oben die Benachrichtigungen, um zu wählen, über welche Zahlungen und Ereignisse Sie informiert werden möchten.",
+      "disabledSubtitle": "Aktivieren Sie oben die Push-Benachrichtigungen, um zu wählen, über welche Zahlungen und Ereignisse Sie informiert werden möchten.",
       "optionsTitle": "Benachrichtigungsoptionen",
       "contact": "Kontakte",
       "contactDesc": "Von Ihren gespeicherten Kontakten empfangene Zahlungen",

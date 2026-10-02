@@ -2023,8 +2023,12 @@
     },
     "notifications": {
       "mainToggle": "Allow notifications",
+      "allowPush": "Allow push notifications",
+      "disablePush": "Turn off push notifications",
+      "updateInSettings": "Update in app settings",
+      "open": "Open",
       "disabledTitle": "Notifications are off",
-      "disabledSubtitle": "Turn on notifications above to choose which payments and events you get alerted about.",
+      "disabledSubtitle": "Allow push notifications above to choose which payments and events you get alerted about.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
       "contactDesc": "Payments received from your added contacts",

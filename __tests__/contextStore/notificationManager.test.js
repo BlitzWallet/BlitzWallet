@@ -18,6 +18,10 @@ jest.mock('../../context-store/keys', () => ({
   useKeysContext: () => ({ contactsPrivateKey: mockContactsPrivateKey }),
 }));
 
+jest.mock('../../context-store/appStatus', () => ({
+  useAppStatus: () => ({ appState: 'active', didGetToHomepage: false }),
+}));
+
 const mockAddReceivedListener = jest.fn(() => ({ remove: jest.fn() }));
 const mockAddResponseListener = jest.fn(() => ({ remove: jest.fn() }));
 const mockSetBadgeCountAsync = jest.fn(async () => {});
