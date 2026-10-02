@@ -53,7 +53,7 @@ export default function NosterWalletConnect({ route }) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={'NWC'} />
+      <CustomSettingsTopBar label={t('settings.nwc.pageTitle')} />
       <CustomScrollView
         showsVerticalScrollIndicator={false}
         style={styles.innerContainer}
@@ -103,9 +103,11 @@ export default function NosterWalletConnect({ route }) {
 }
 
 function CustomPageWrapper({ children }) {
+  const { t } = useTranslation();
+
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={'NWC'} />
+      <CustomSettingsTopBar label={t('settings.nwc.pageTitle')} />
       {children}
     </GlobalThemeView>
   );

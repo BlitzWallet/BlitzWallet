@@ -1339,7 +1339,7 @@ export default async function handleNWCBackgroundEvent(
               }
               pushInstantNotification(
                 i18next.t(successMessage),
-                'Nostr Connect',
+                i18next.t('pushNotifications.nwc.title'),
               );
             }
           }

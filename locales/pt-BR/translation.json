@@ -1752,7 +1752,7 @@
       "inputPlaceholder": "Buscar conta existente",
       "mainWalletPlace": "Conta principal",
       "managedWalletPlace": "Conta parental",
-      "nwcWalletPlace": "Conta NWC",
+      "nwcWalletPlace": "Wallet Connect",
       "tabs": {
         "personal": "Pessoal",
         "linked": "Parental"
@@ -1875,15 +1875,15 @@
       "lnurlDesc": "Pagamentos recebidos pelo seu endereço Blitz",
       "nostrZaps": "Nostr Zaps",
       "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
-      "nwc": "Conexão Nostr",
-      "nwcDesc": "Pagamentos autorizados pela conta NWC",
+      "nwc": "Wallet Connect",
+      "nwcDesc": "Pagamentos autorizados pela conta Wallet Connect",
       "pos": "Ponto de venda",
       "posDesc": "Pagamentos recebidos no seu ponto de venda (PDV)"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
       "nip5Desc": "Verifique rapidamente sua identidade Nostr usando a Blitz Wallet.",
-      "nwcTitle": "Conexão Nostr",
+      "nwcTitle": "Wallet Connect",
       "nwcDesc": "Conecte sua conta aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
@@ -1942,11 +1942,12 @@
       }
     },
     "nwc": {
+      "pageTitle": "Wallet Connect",
       "confirmDelete": "Tem certeza de que deseja excluir esta conexão?",
       "addAccount": "Nova conexão",
       "empty": {
         "title": "Nenhuma conexão ainda",
-        "subtitle": "Crie uma conexão para usar a conta NWC com seus aplicativos favoritos."
+        "subtitle": "Use sua conta Wallet Connect com seus aplicativos favoritos."
       },
       "createNWCName": {
         "navTitle": "Nome",
@@ -1990,7 +1991,7 @@
         "noBudgetAmountError": "Selecione um valor de orçamento.",
         "loadingMessage": "Criando conexão",
         "updatingMessage": "Atualizando conexão...",
-        "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
+        "nameInputPlaceholder": "Digite um nome para essa conexão",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
         "sendPayments": "Enviar pagamentos",
@@ -2000,20 +2001,20 @@
         "budgetRenewalHeader": "Renovação do limite de gastos"
       },
       "hasNoAccounts": {
-        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta NWC em Configurações/Contas."
+        "warningMessage": "Para enviar dinheiro da sua conta Connect, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta Wallet Connect em Configurações/Contas."
       },
       "noNotifications": {
         "title": "Notificações necessárias",
-        "subtitle": "Contas NWC requerem notificações push. Ative-as nas Configurações e tente novamente."
+        "subtitle": "Wallet Connect requer notificações push. Ative-as nas Configurações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
-        "warningMessage": "Para manter sua conta principal segura, a conta com conexão Nostr (NWC) possui uma frase de recuperação diferente da sua conta principal.\n\nVocê pode acessar essa frase de recuperação nas configurações da Blitz, em Contas.",
+        "warningMessage": "Para manter sua conta principal segura, a conta Wallet Connect possui uma frase de recuperação diferente da sua conta principal.\n\nVocê pode acessar essa frase de recuperação nas configurações da Blitz, em Contas.",
         "viewSeed": "Ver frase de recuperação"
       },
       "combinedOnboarding": {
         "infoTitle": "Antes de começar",
-        "infoSubtitle": "Algumas coisas que você precisa saber sobre sua conta NWC.",
+        "infoSubtitle": "Algumas coisas que você precisa saber sobre sua conta Wallet Connect.",
         "row1Label": "Adicionar fundos",
         "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
         "row2Label": "Conta separada",
@@ -2082,10 +2083,10 @@
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
         "accountType_main": "Principal",
-        "accountType_nwc": "NWC",
+        "accountType_nwc": "Wallet Connect",
         "accountTypeDerivedInfo": "Esta conta é criada a partir da sua frase de recuperação da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
         "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança.",
-        "accountTypeNwcInfo": "Esta é a sua conta Nostr Wallet Connect (NWC). Ela é usada pelos aplicativos conectados à Blitz e sempre pode ser restaurada a partir da sua frase de recuperação principal da Blitz.",
+        "accountTypeNwcInfo": "Esta é a sua conta Wallet Connect. Ela é usada pelos aplicativos conectados à Blitz e sempre pode ser restaurada a partir da sua frase de recuperação principal da Blitz.",
         "balanceLabel": "Saldo",
         "activeLabel": "Conta selecionada",
         "activateButton": "Selecionar conta",
@@ -3155,7 +3156,8 @@
       "make_invoice": "Fatura criada",
       "lookup_invoice": "Fatura consultada",
       "pay_invoice": "Pagamento enviado",
-      "openApp": "Abra a Blitz para concluir a solicitação"
+      "openApp": "Abra a Blitz para concluir a solicitação",
+      "title": "Wallet Connect"
     }
   },
   "accountCard": {
