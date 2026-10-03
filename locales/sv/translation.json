@@ -1941,8 +1941,9 @@
         "invalidFormat": "Ogiltigt pubkey-format: måste vara antingen en hexadecimal sträng med 64 tecken eller npub"
       },
       "saveAddress": "Spara adress",
-      "addressSaved": "Sparad adress",
-      "infoText": "Nostr-adressen kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i Nostr-adressfältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar."
+      "infoText": "Nostr-adressen kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i Nostr-adressfältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar.",
+      "removeAddress": "Ta bort adress",
+      "removeWarning": "Ta bort {{address}}?\n\nAnvändarnamnet frigörs, så vem som helst kan ta det och du kanske inte kan få tillbaka det. Nostr-appar kan fortsätta visa det i upp till 24 timmar."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

@@ -23,7 +23,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
-import { addNip5toCollection, isValidNip5Name } from '../../../../../../db';
+import {
+  addNip5toCollection,
+  deleteNip5FromCollection,
+  isValidNip5Name,
+} from '../../../../../../db';
 import { npubToHex } from '../../../../../functions/nostr';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
@@ -66,6 +70,7 @@ export default function Nip5VerificationPage() {
   const isSaved =
     !!name && !!pubkey && parsedName === name && parsedPubkey.data === pubkey;
   const canSave = nameStatus === 'available' && parsedPubkey.didWork;
+  const isEditing = !isSaved && !!(parsedName || inputs.pubkey.trim());
 
   useEffect(() => {
     if (!parsedName) return setNameStatus('');
@@ -127,7 +132,7 @@ export default function Nip5VerificationPage() {
     try {
       setIsLoading(true);
 
-      if (isSaved) {
+      if (!isEditing) {
         keyboardGoBack(navigate);
         return;
       }
@@ -145,12 +150,6 @@ export default function Nip5VerificationPage() {
         if (!isNameFree) throw new Error(t('settings.nip5.takenNameError'));
       }
 
-      toggleMasterInfoObject({
-        nip5Settings: {
-          name: parsedName,
-          pubkey: parsedPubkey.data,
-        },
-      });
       await addNip5toCollection(
         {
           name: parsedName,
@@ -160,6 +159,12 @@ export default function Nip5VerificationPage() {
         },
         masterInfoObject.uuid,
       );
+      toggleMasterInfoObject({
+        nip5Settings: {
+          name: parsedName,
+          pubkey: parsedPubkey.data,
+        },
+      });
       navigate.navigate('ErrorScreen', {
         errorMessage: t('settings.nip5.nameConfirmationMessage'),
       });
@@ -171,12 +176,29 @@ export default function Nip5VerificationPage() {
     }
   };
 
+  const removeNip5Information = () => {
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: t('settings.nip5.removeWarning', {
+        address: `${name}${NIP5_DOMAIN}`,
+      }),
+      confirmFunction: async () => {
+        setIsLoading(true);
+        const didDelete = await deleteNip5FromCollection(masterInfoObject.uuid);
+        setIsLoading(false);
+        if (!didDelete) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('settings.nip5.dataIsInvalid'),
+          });
+          return;
+        }
+        toggleMasterInfoObject({ nip5Settings: { name: '', pubkey: '' } });
+        setInputs({ name: '', pubkey: '' });
+      },
+    });
+  };
+
   const errorColor = theme && darkModeType ? textColor : COLORS.cancelRed;
   const accentColor = theme && darkModeType ? textColor : COLORS.primary;
-  const buttonBackground =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-  const buttonTextColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
 
   const nameStatusText = {
     taken: { text: t('settings.nip5.takenNameError'), color: errorColor },
@@ -184,7 +206,7 @@ export default function Nip5VerificationPage() {
   }[nameStatus];
 
   const showPubkeyError = !!inputs.pubkey.trim() && !parsedPubkey.didWork;
-  const isButtonDisabled = !isSaved && !canSave;
+  const isButtonDisabled = isEditing && !canSave;
 
   return (
     <CustomKeyboardAvoidingView
@@ -322,24 +344,32 @@ export default function Nip5VerificationPage() {
           />
         )}
       </CustomScrollView>
-      <CustomButton
-        useLoading={isLoading}
-        disabled={isButtonDisabled}
-        loadingColor={buttonTextColor}
-        actionFunction={saveNip5Information}
-        buttonStyles={{
-          ...CENTER,
-          width: INSET_WINDOW_WIDTH,
-          backgroundColor: buttonBackground,
-          opacity: isButtonDisabled ? HIDDEN_OPACITY : 1,
-        }}
-        textStyles={{ color: buttonTextColor }}
-        textContent={
-          isSaved
-            ? t('settings.nip5.addressSaved')
-            : t('settings.nip5.saveAddress')
-        }
-      />
+      {!focusedInput && (
+        <>
+          <CustomButton
+            useLoading={isLoading}
+            disabled={isButtonDisabled}
+            actionFunction={saveNip5Information}
+            buttonStyles={{
+              ...CENTER,
+              width: INSET_WINDOW_WIDTH,
+              opacity: isButtonDisabled ? HIDDEN_OPACITY : 1,
+            }}
+            textContent={
+              isEditing ? t('settings.nip5.saveAddress') : t('constants.back')
+            }
+          />
+          {!!name && (
+            <CustomButton
+              disabled={isLoading}
+              actionFunction={removeNip5Information}
+              buttonStyles={styles.removeButton}
+              textStyles={[styles.removeText, { color: textColor }]}
+              textContent={t('settings.nip5.removeAddress')}
+            />
+          )}
+        </>
+      )}
     </CustomKeyboardAvoidingView>
   );
 }
@@ -416,6 +446,14 @@ const styles = StyleSheet.create({
   },
   pasteText: {
     fontSize: SIZES.small,
+    includeFontPadding: false,
+  },
+  removeButton: {
+    width: INSET_WINDOW_WIDTH,
+    backgroundColor: 'transparent',
+    // paddingVertical: 12,
+  },
+  removeText: {
     includeFontPadding: false,
   },
   statusText: {

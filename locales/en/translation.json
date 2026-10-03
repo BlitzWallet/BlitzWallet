@@ -2102,8 +2102,9 @@
         "invalidFormat": "Invalid pubkey format: must be either a 64-character hex string or npub"
       },
       "saveAddress": "Save address",
-      "addressSaved": "Saved address",
-      "infoText": "Nostr address links a short address like name@blitzwalletapp.com to your Nostr public key (npub), so Nostr apps can verify your identity.\n\nAfter saving, add this address to the Nostr address field of your Nostr profile. The list updates once per day, so it may take up to 24 hours to verify."
+      "infoText": "Nostr address links a short address like name@blitzwalletapp.com to your Nostr public key (npub), so Nostr apps can verify your identity.\n\nAfter saving, add this address to the Nostr address field of your Nostr profile. The list updates once per day, so it may take up to 24 hours to verify.",
+      "removeAddress": "Remove address",
+      "removeWarning": "Remove {{address}}?\n\nThis frees up the username, so anyone can claim it and you may not be able to get it back. Nostr apps may keep showing it for up to 24 hours."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

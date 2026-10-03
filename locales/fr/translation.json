@@ -1941,8 +1941,9 @@
         "invalidFormat": "Format de clé publique non valide : doit être une chaîne hexagonale de 64 caractères ou npub."
       },
       "saveAddress": "Enregistrer l'adresse",
-      "addressSaved": "Adresse enregistrée",
-      "infoText": "L'adresse Nostr associe une adresse courte comme nom@blitzwalletapp.com à votre clé publique Nostr (npub), afin que les applications Nostr puissent vérifier votre identité.\n\nAprès l'enregistrement, ajoutez cette adresse dans le champ d'adresse Nostr de votre profil Nostr. La liste est mise à jour une fois par jour, la vérification peut donc prendre jusqu'à 24 heures."
+      "infoText": "L'adresse Nostr associe une adresse courte comme nom@blitzwalletapp.com à votre clé publique Nostr (npub), afin que les applications Nostr puissent vérifier votre identité.\n\nAprès l'enregistrement, ajoutez cette adresse dans le champ d'adresse Nostr de votre profil Nostr. La liste est mise à jour une fois par jour, la vérification peut donc prendre jusqu'à 24 heures.",
+      "removeAddress": "Supprimer l'adresse",
+      "removeWarning": "Supprimer {{address}} ?\n\nCela libère le nom d'utilisateur : n'importe qui pourra le réclamer et vous ne pourrez peut-être pas le récupérer. Les applications Nostr peuvent continuer à l'afficher jusqu'à 24 heures."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
