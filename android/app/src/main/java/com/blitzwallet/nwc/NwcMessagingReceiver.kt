@@ -20,7 +20,9 @@ class NwcMessagingReceiver : ReactNativeFirebaseMessagingReceiver() {
         context.startService(Intent(context, NwcNativeService::class.java).putExtras(extras))
         Log.i(NWC_TAG, "NWC push routed to native handler")
         return
-      } catch (e: IllegalStateException) {
+      } catch (e: RuntimeException) {
+        // IllegalStateException: background start refused. SecurityException:
+        // ":nwc" is "bad" (crashed twice in a minute while in the background).
         Log.w(NWC_TAG, "native handler start refused, using JS path", e)
       }
     }

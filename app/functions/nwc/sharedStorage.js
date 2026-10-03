@@ -79,7 +79,7 @@ export function writeNativeNWCConfig(nwcData) {
       'lookup_invoice',
       'pay_invoice',
     ];
-    const strings = { title: 'Nostr Connect' };
+    const strings = { title: i18next.t('pushNotifications.nwc.title') };
     for (const method of methods) {
       strings[method] = i18next.t(`pushNotifications.nwc.${method}`);
     }

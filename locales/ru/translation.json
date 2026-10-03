@@ -1752,7 +1752,7 @@
       "inputPlaceholder": "Поиск счета",
       "mainWalletPlace": "Основной кошелек",
       "managedWalletPlace": "Управляемый аккаунт",
-      "nwcWalletPlace": "NWC",
+      "nwcWalletPlace": "Wallet Connect",
       "tabs": {
         "personal": "Личные",
         "linked": "Управляемые"
@@ -1875,15 +1875,15 @@
       "lnurlDesc": "Платежи, полученные на ваш Lightning-адрес",
       "nostrZaps": "Nostr zaps",
       "nostrZapsDesc": "Zap-платежи, отправленные на ваш профиль Nostr",
-      "nwc": "Nostr Wallet Connect",
-      "nwcDesc": "Платежи, авторизованные через Nostr Wallet Connect",
+      "nwc": "Wallet Connect",
+      "nwcDesc": "Платежи, авторизованные через Wallet Connect",
       "pos": "Терминал (POS)",
       "posDesc": "Платежи, полученные на вашем терминале"
     },
     "nostrHome": {
-      "nip5Title": "Верификация NIP-05",
+      "nip5Title": "Nostr-адрес",
       "nip5Desc": "Быстро подтвердите личность Nostr через Blitz.",
-      "nwcTitle": "Nostr Wallet Connect",
+      "nwcTitle": "Wallet Connect",
       "nwcDesc": "Подключите Blitz к приложениям на Nostr."
     },
     "fiatCurrency": {
@@ -1926,27 +1926,31 @@
       "nameLengthError": "Имя до 60 символов",
       "regexError": "Только буквы и цифры.",
       "takenNameError": "Имя занято",
-      "nameConfirmationMessage": "NIP-05 добавлен! Обновление списка может занять до 24 часов.",
-      "title": "Верификация NIP-05",
-      "desc": "NIP-05 превращает длинный Npub в красивый адрес (как email).",
+      "nameConfirmationMessage": "Nostr-адрес добавлен! Обновление списка может занять до 24 часов.",
+      "title": "Nostr-адрес",
+      "desc": "Nostr-адрес превращает длинный Npub в красивый адрес (как email).",
       "dataIsInvalid": "Что-то пошло не так.",
       "usernameInputLabel": "Юзернейм",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Юзернейм",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "имя",
+      "publicKeyLabel": "Npub",
+      "publicKeyPlaceholder": "npub1...",
       "errors": {
         "invalidPubKey": "Неверный pubkey",
         "invalidNpub": "Неверный формат npub",
         "decodeNpubError": "Ошибка декодирования npub",
         "invalidFormat": "Неверный формат pubkey (64 hex или npub)"
-      }
+      },
+      "saveAddress": "Сохранить адрес",
+      "addressSaved": "Сохранённый адрес",
+      "infoText": "Nostr-адрес связывает короткий адрес вида name@blitzwalletapp.com с вашим публичным ключом Nostr (npub), чтобы приложения Nostr могли подтвердить вашу личность.\n\nПосле сохранения добавьте этот адрес в поле Nostr-адреса вашего профиля Nostr. Список обновляется раз в день, поэтому подтверждение может занять до 24 часов."
     },
     "nwc": {
+      "pageTitle": "Wallet Connect",
       "confirmDelete": "Вы уверены, что хотите удалить это подключение?",
       "addAccount": "Добавить подключение",
       "empty": {
         "title": "Пока нет подключений",
-        "subtitle": "Создайте подключение, чтобы использовать Nostr Wallet Connect с вашими любимыми приложениями."
+        "subtitle": "Используйте ваш счёт Wallet Connect с любимыми приложениями."
       },
       "createNWCName": {
         "navTitle": "Название",
@@ -1992,7 +1996,7 @@
         "noBudgetAmountError": "Выберите сумму бюджета.",
         "loadingMessage": "Создание подключения...",
         "updatingMessage": "Обновление подключения...",
-        "nameInputPlaceholder": "Название подключения NWC",
+        "nameInputPlaceholder": "Название подключения",
         "permissionsHeader": "Разрешения",
         "receivePayments": "Принимать платежи",
         "sendPayments": "Отправлять платежи",
@@ -2002,20 +2006,20 @@
         "budgetRenewalHeader": "Обновление бюджета"
       },
       "hasNoAccounts": {
-        "warningMessage": "Для отправки через NWC нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
+        "warningMessage": "Для отправки через Wallet Connect нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
       },
       "noNotifications": {
         "title": "Требуются уведомления",
-        "subtitle": "Для Nostr Wallet Connect нужны push-уведомления. Включите их в настройках и попробуйте снова."
+        "subtitle": "Для Wallet Connect нужны push-уведомления. Включите их в настройках и попробуйте снова."
       },
       "showSeedPage": {
         "loadingMessage": "Создание фразы восстановления",
-        "warningMessage": "Для обеспечения безопасности вашего кошелька Nostr Wallet Connect создаёт отдельную фразу восстановления, отличную от фразы восстановления вашего основного кошелька.\n\nВы можете просмотреть эту фразу восстановления в настройках Blitz в разделе «Аккаунты».",
+        "warningMessage": "Для обеспечения безопасности вашего кошелька Wallet Connect создаёт отдельную фразу восстановления, отличную от фразы восстановления вашего основного кошелька.\n\nВы можете просмотреть эту фразу восстановления в настройках Blitz в разделе «Аккаунты».",
         "viewSeed": "Просмотреть фразу восстановления"
       },
       "combinedOnboarding": {
         "infoTitle": "Прежде чем начать",
-        "infoSubtitle": "Несколько вещей, которые стоит знать о Nostr Wallet Connect.",
+        "infoSubtitle": "Несколько вещей, которые стоит знать о Wallet Connect.",
         "row1Label": "Пополнить счет",
         "row1Description": "Пополните счет, получая деньги или переводя их с основного аккаунта.",
         "row2Label": "Отдельный аккаунт",
@@ -2084,10 +2088,10 @@
         "accountType_derived": "Производный",
         "accountType_imported": "Импортированный",
         "accountType_main": "Основной",
-        "accountType_nwc": "NWC",
+        "accountType_nwc": "Wallet Connect",
         "accountTypeDerivedInfo": "Этот аккаунт создается на основе вашей фразы восстановления Blitz и будет восстановлен при восстановлении вашего кошелька Blitz.",
         "accountTypeImportedInfo": "Этот аккаунт имеет собственную сид-фразу и не будет восстановлен при восстановлении вашего кошелька Blitz. Обязательно сохраните её в безопасном месте.",
-        "accountTypeNwcInfo": "Это ваш аккаунт Nostr Wallet Connect (NWC). Он используется приложениями, подключенными к Blitz, и его всегда можно восстановить с помощью основной фразы восстановления Blitz.",
+        "accountTypeNwcInfo": "Это ваш аккаунт Wallet Connect. Он используется приложениями, подключенными к Blitz, и его всегда можно восстановить с помощью основной фразы восстановления Blitz.",
         "balanceLabel": "Баланс",
         "activeLabel": "Активный аккаунт",
         "activateButton": "Активировать аккаунт",
@@ -3163,7 +3167,8 @@
       "make_invoice": "Счёт создан",
       "lookup_invoice": "Счёт проверен",
       "pay_invoice": "Платёж отправлен",
-      "openApp": "Откройте Blitz, чтобы завершить запрос"
+      "openApp": "Откройте Blitz, чтобы завершить запрос",
+      "title": "Wallet Connect"
     }
   },
   "accountCard": {

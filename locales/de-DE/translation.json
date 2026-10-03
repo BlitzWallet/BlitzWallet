@@ -1752,7 +1752,7 @@
       "inputPlaceholder": "Kontoname",
       "mainWalletPlace": "Hauptkonto",
       "managedWalletPlace": "Verwaltetes Konto",
-      "nwcWalletPlace": "NWC-Konto",
+      "nwcWalletPlace": "Wallet Connect",
       "tabs": {
         "personal": "Persönlich",
         "linked": "Verwaltet"
@@ -1877,13 +1877,15 @@
       "nostrZapsDesc": "Zap-Zahlungen an Ihr Nostr-Profil",
       "nwc": "Nostr Wallet Connect",
       "nwcDesc": "Über Nostr Wallet Connect empfangene Ereignisse",
+      "nwc": "Wallet Connect",
+      "nwcDesc": "Über Wallet Connect autorisierte Zahlungen",
       "pos": "Zahlungsterminal (POS)",
       "posDesc": "Zahlungen an Ihr Zahlungsterminal (POS)"
     },
     "nostrHome": {
-      "nip5Title": "NIP-05-Verifizierung",
+      "nip5Title": "Nostr-Adresse",
       "nip5Desc": "Verifizieren Sie Ihre Nostr-Identität schnell mit Blitz",
-      "nwcTitle": "Nostr Wallet Connect",
+      "nwcTitle": "Wallet Connect",
       "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die auf Nostr basieren."
     },
     "fiatCurrency": {
@@ -1926,27 +1928,31 @@
       "nameLengthError": "Name muss weniger als 60 Zeichen haben.",
       "regexError": "Name darf nur Buchstaben oder Zahlen enthalten.",
       "takenNameError": "Name bereits vergeben",
-      "nameConfirmationMessage": "NIP-05 erfolgreich hinzugefügt! Bitte beachten Sie, dass es bis zu 24 Stunden dauern kann, bis es angezeigt wird, da die Liste einmal täglich aktualisiert wird.",
-      "title": "NIP-05-Verifizierung",
-      "desc": "NIP-05 verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
+      "nameConfirmationMessage": "Nostr-Adresse erfolgreich hinzugefügt! Bitte beachten Sie, dass es bis zu 24 Stunden dauern kann, bis sie angezeigt wird, da die Liste einmal täglich aktualisiert wird.",
+      "title": "Nostr-Adresse",
+      "desc": "Nostr-Adresse verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
       "dataIsInvalid": "Etwas ist schiefgelaufen, bitte versuchen Sie es erneut.",
       "usernameInputLabel": "Benutzername",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Öffentlicher Schlüssel",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "benutzername",
+      "publicKeyLabel": "Npub",
+      "publicKeyPlaceholder": "npub1...",
       "errors": {
         "invalidPubKey": "Ungültiger öffentlicher Schlüssel: muss ein nicht-leerer Text sein.",
         "invalidNpub": "Ungültiges Npub-Format",
         "decodeNpubError": "Npub konnte nicht dekodiert werden.",
         "invalidFormat": "Ungültiges Format des öffentlichen Schlüssels: muss entweder eine 64-Zeichen-Hex-Text oder Npub sein."
-      }
+      },
+      "saveAddress": "Adresse speichern",
+      "addressSaved": "Gespeicherte Adresse",
+      "infoText": "Nostr-Adresse verknüpft eine kurze Adresse wie name@blitzwalletapp.com mit Ihrem öffentlichen Nostr-Schlüssel (npub), damit Nostr-Apps Ihre Identität verifizieren können.\n\nFügen Sie diese Adresse nach dem Speichern in das Nostr-Adressfeld Ihres Nostr-Profils ein. Die Liste wird einmal täglich aktualisiert, daher kann die Verifizierung bis zu 24 Stunden dauern."
     },
     "nwc": {
+      "pageTitle": "Wallet Connect",
       "confirmDelete": "Sind Sie sicher, dass Sie diese Verbindung löschen möchten?",
       "addAccount": "Verbindung hinzufügen",
       "empty": {
         "title": "Noch keine Verbindungen",
-        "subtitle": "Erstellen Sie eine Verbindung, um Nostr Wallet Connect mit Ihren bevorzugten Apps zu nutzen."
+        "subtitle": "Nutzen Sie Ihr Wallet-Connect-Konto mit Ihren bevorzugten Apps."
       },
       "createNWCName": {
         "navTitle": "Name",
@@ -1990,7 +1996,7 @@
         "noBudgetAmountError": "Bitte wählen Sie einen Budgetbetrag.",
         "loadingMessage": "Verbindung wird erstellt...",
         "updatingMessage": "Verbindung wird aktualisiert...",
-        "nameInputPlaceholder": "NWC-Verbindungsnamen eingeben",
+        "nameInputPlaceholder": "Verbindungsnamen eingeben",
         "permissionsHeader": "Wallet-Berechtigungen",
         "receivePayments": "Zahlungen empfangen",
         "sendPayments": "Zahlungen senden",
@@ -2000,20 +2006,20 @@
         "budgetRenewalHeader": "Budgetverlängerung"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrem NWC-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder indem Sie Geld empfangen oder es von Ihrem Hauptkonto übertragen.\n\nÜbertragen Sie dazu auf der Kontoseite Guthaben von Ihrem Hauptkonto auf Ihr NWC-Konto."
+        "warningMessage": "Um Geld von Ihrem Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder indem Sie Geld empfangen oder es von Ihrem Hauptkonto übertragen.\n\nÜbertragen Sie dazu auf der Kontoseite Guthaben von Ihrem Hauptkonto auf Ihr Wallet-Connect-Konto."
       },
       "noNotifications": {
         "title": "Benachrichtigungen erforderlich",
-        "subtitle": "Nostr Wallet Connect benötigt Push-Benachrichtigungen. Bitte aktivieren Sie sie in den Einstellungen und versuchen Sie es erneut."
+        "subtitle": "Wallet Connect benötigt Push-Benachrichtigungen. Bitte aktivieren Sie sie in den Einstellungen und versuchen Sie es erneut."
       },
       "showSeedPage": {
         "loadingMessage": "Wiederherstellungsphrase wird generiert",
-        "warningMessage": "Um Ihr Konto sicher zu halten, erstellt Nostr Wallet Connect eine separate Wiederherstellungsphrase von der Wiederherstellungsphrase Ihres Hauptkontos.\n\nSie können diese Wiederherstellungsphrase in den Blitz-Einstellungen unter „Konten“ einsehen.",
+        "warningMessage": "Um Ihr Konto sicher zu halten, erstellt Wallet Connect eine separate Wiederherstellungsphrase von der Wiederherstellungsphrase Ihres Hauptkontos.\n\nSie können diese Wiederherstellungsphrase in den Blitz-Einstellungen unter „Konten“ einsehen.",
         "viewSeed": "Wiederherstellungsphrase anzeigen"
       },
       "combinedOnboarding": {
         "infoTitle": "Bevor Sie loslegen",
-        "infoSubtitle": "Ein paar Dinge, die Sie über Nostr Wallet Connect wissen sollten.",
+        "infoSubtitle": "Ein paar Dinge, die Sie über Wallet Connect wissen sollten.",
         "row1Label": "Guthaben hinzufügen",
         "row1Description": "Fügen Sie Geld hinzu, indem Sie es empfangen oder von Ihrem Hauptkonto überweisen.",
         "row2Label": "Separates Konto",
@@ -2082,10 +2088,10 @@
         "accountType_derived": "Abgeleitet",
         "accountType_imported": "Importiert",
         "accountType_main": "Hauptkonto",
-        "accountType_nwc": "NWC",
+        "accountType_nwc": "Wallet Connect",
         "accountTypeDerivedInfo": "Dieses Konto basiert auf Ihrer Blitz-Wiederherstellungsphrase und wird zusammen mit Ihrer Blitz-Wallet wiederhergestellt.",
         "accountTypeImportedInfo": "Dieses Konto hat eine eigene Seed-Phrase und wird nicht wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen. Bewahren Sie die Wiederherstellungsphrase sicher auf.",
-        "accountTypeNwcInfo": "Dies ist Ihr NWC-Konto (Nostr Wallet Connect). Es wird von Apps verwendet, die mit Blitz verbunden sind, und kann jederzeit mithilfe der Wiederherstellungsphrase Ihres Blitz-Hauptkontos wiederhergestellt werden.",
+        "accountTypeNwcInfo": "Dies ist Ihr Wallet-Connect-Konto. Es wird von Apps verwendet, die mit Blitz verbunden sind, und kann jederzeit mithilfe der Wiederherstellungsphrase Ihres Blitz-Hauptkontos wiederhergestellt werden.",
         "balanceLabel": "Saldo",
         "activeLabel": "Aktives Konto",
         "activateButton": "Konto aktivieren",
@@ -3155,7 +3161,8 @@
       "make_invoice": "Rechnung erstellt",
       "lookup_invoice": "Rechnung geprüft",
       "pay_invoice": "Zahlung gesendet",
-      "openApp": "Blitz öffnen, um Anfrage abzuschließen"
+      "openApp": "Blitz öffnen, um Anfrage abzuschließen",
+      "title": "Wallet Connect"
     }
   },
   "accountCard": {

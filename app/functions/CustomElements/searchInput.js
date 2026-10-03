@@ -78,6 +78,7 @@ export default function CustomSearchInput({
   secureTextEntry,
   autoComplete,
   textContentType,
+  submitBehavior,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
@@ -496,7 +497,9 @@ export default function CustomSearchInput({
         value={inputText}
         ref={inputRef}
         onChangeText={setInputText}
-        submitBehavior={blurOnSubmitValue ? 'blurAndSubmit' : undefined}
+        submitBehavior={
+          submitBehavior ?? (blurOnSubmitValue ? 'blurAndSubmit' : undefined)
+        }
         keyboardType={keyboardType}
         onSubmitEditing={submitEditingFunction}
         onFocus={focusFunction}

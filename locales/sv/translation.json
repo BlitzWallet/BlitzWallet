@@ -1752,7 +1752,7 @@
       "inputPlaceholder": "Sök befintligt konto",
       "mainWalletPlace": "Huvudplånbok",
       "managedWalletPlace": "Hanterat konto",
-      "nwcWalletPlace": "NWC",
+      "nwcWalletPlace": "Wallet Connect",
       "tabs": {
         "personal": "Personliga",
         "linked": "Hanterade"
@@ -1875,15 +1875,15 @@
       "lnurlDesc": "Betalningar mottagna via din Lightning-adress",
       "nostrZaps": "Nostr zappar",
       "nostrZapsDesc": "Zap-betalningar skickade till din Nostr-profil",
-      "nwc": "Nostr Plånbok Connect",
-      "nwcDesc": "Betalningar godkända via Nostr Wallet Connect",
+      "nwc": "Wallet Connect",
+      "nwcDesc": "Betalningar godkända via Wallet Connect",
       "pos": "Försäljningsställen",
       "posDesc": "Betalningar mottagna vid ditt försäljningsställe"
     },
     "nostrHome": {
-      "nip5Title": "Nip5 Verifiering",
+      "nip5Title": "Nostr-adress",
       "nip5Desc": "Verifiera snabbt din Nostr-identitet med hjälp av Blitz.",
-      "nwcTitle": "Nostr Plånbok Connect",
+      "nwcTitle": "Wallet Connect",
       "nwcDesc": "Anslut din Blitz Wallet till appar som använder Nostr."
     },
     "fiatCurrency": {
@@ -1926,27 +1926,31 @@
       "nameLengthError": "Namnet måste innehålla mindre än 60 tecken",
       "regexError": "Namnet kan endast innehålla bokstäver eller siffror.",
       "takenNameError": "Namnet är redan taget",
-      "nameConfirmationMessage": "NIP-05 har lagts till framgångsrikt! Observera att det kan ta upp till 24 timmar innan den visas, eftersom listan uppdateras en gång per dag.",
-      "title": "Nip5 Verifiering",
-      "desc": "Nip5 förvandlar din långa Npub till en liten e-postliknande adress, liknande en blixtadress.",
+      "nameConfirmationMessage": "Nostr-adressen har lagts till framgångsrikt! Observera att det kan ta upp till 24 timmar innan den visas, eftersom listan uppdateras en gång per dag.",
+      "title": "Nostr-adress",
+      "desc": "Nostr-adressen förvandlar din långa Npub till en liten e-postliknande adress, liknande en blixtadress.",
       "dataIsInvalid": "Något gick fel, vänligen försök igen,",
       "usernameInputLabel": "Användarnamn",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Användarnamn",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "användarnamn",
+      "publicKeyLabel": "Npub",
+      "publicKeyPlaceholder": "npub1...",
       "errors": {
         "invalidPubKey": "Ogiltig pubnyckel: måste vara en icke-tom sträng",
         "invalidNpub": "Ogiltigt npub-format",
         "decodeNpubError": "Misslyckades med att avkoda npub",
         "invalidFormat": "Ogiltigt pubkey-format: måste vara antingen en hexadecimal sträng med 64 tecken eller npub"
-      }
+      },
+      "saveAddress": "Spara adress",
+      "addressSaved": "Sparad adress",
+      "infoText": "Nostr-adressen kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i Nostr-adressfältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar."
     },
     "nwc": {
+      "pageTitle": "Wallet Connect",
       "confirmDelete": "Är du säker på att du vill ta bort den här anslutningen?",
       "addAccount": "Lägg till anslutning",
       "empty": {
         "title": "Inga anslutningar ännu",
-        "subtitle": "Skapa en anslutning för att använda Nostr Wallet Connect med dina favoritappar."
+        "subtitle": "Använd ditt Wallet Connect-konto med dina favoritappar."
       },
       "createNWCName": {
         "navTitle": "Namn",
@@ -1990,7 +1994,7 @@
         "noBudgetAmountError": "Vänligen välj ett budgetbelopp.",
         "loadingMessage": "Skapar anslutning...",
         "updatingMessage": "Uppdaterar anslutning...",
-        "nameInputPlaceholder": "Ange NWC-anslutningsnamn",
+        "nameInputPlaceholder": "Ange anslutningsnamn",
         "permissionsHeader": "Behörighet för plånbok",
         "receivePayments": "Ta emot betalningar",
         "sendPayments": "Skicka betalningar",
@@ -2000,20 +2004,20 @@
         "budgetRenewalHeader": "Förnyelse av budgeten"
       },
       "hasNoAccounts": {
-        "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på kontosidan."
+        "warningMessage": "För att skicka pengar från ditt Connect-konto måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till Wallet Connect på kontosidan."
       },
       "noNotifications": {
         "title": "Aviseringar krävs",
-        "subtitle": "Nostr Wallet Connect kräver push-aviseringar. Aktivera dem i Inställningar och försök igen."
+        "subtitle": "Wallet Connect kräver push-aviseringar. Aktivera dem i Inställningar och försök igen."
       },
       "showSeedPage": {
         "loadingMessage": "Genererar återställningsfras",
-        "warningMessage": "För att hålla din wallet säker skapar Nostr Wallet Connect en separat återställningsfras från din huvudwallets återställningsfras.\n\nDu kan komma åt denna återställningsfras i Blitz-inställningarna under Konton.",
+        "warningMessage": "För att hålla din wallet säker skapar Wallet Connect en separat återställningsfras från din huvudwallets återställningsfras.\n\nDu kan komma åt denna återställningsfras i Blitz-inställningarna under Konton.",
         "viewSeed": "Visa återställningsfras"
       },
       "combinedOnboarding": {
         "infoTitle": "Innan du börjar",
-        "infoSubtitle": "Några saker att veta om Nostr Wallet Connect.",
+        "infoSubtitle": "Några saker att veta om Wallet Connect.",
         "row1Label": "Lägg till pengar",
         "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
         "row2Label": "Separat konto",
@@ -2082,10 +2086,10 @@
         "accountType_derived": "Härledd",
         "accountType_imported": "Importerad",
         "accountType_main": "Huvud",
-        "accountType_nwc": "NWC",
+        "accountType_nwc": "Wallet Connect",
         "accountTypeDerivedInfo": "Detta konto skapas från din Blitz-återställningsfras och återställs när du återställer din Blitz-plånbok.",
         "accountTypeImportedInfo": "Detta konto har en egen seed phrase och återställs inte när du återställer din Blitz-plånbok. Se till att säkerhetskopiera återställningsfrasen.",
-        "accountTypeNwcInfo": "Det här är ditt Nostr Wallet Connect (NWC)-konto. Det används av appar som är anslutna till Blitz och kan alltid återställas från din huvudsakliga Blitz-återställningsfras.",
+        "accountTypeNwcInfo": "Det här är ditt Wallet Connect-konto. Det används av appar som är anslutna till Blitz och kan alltid återställas från din huvudsakliga Blitz-återställningsfras.",
         "balanceLabel": "Saldo",
         "activeLabel": "Aktivt konto",
         "activateButton": "Aktivera konto",
@@ -3155,7 +3159,8 @@
       "make_invoice": "Faktura skapad",
       "lookup_invoice": "Faktura kontrollerad",
       "pay_invoice": "Betalning skickad",
-      "openApp": "Öppna Blitz för att slutföra begäran"
+      "openApp": "Öppna Blitz för att slutföra begäran",
+      "title": "Wallet Connect"
     }
   },
   "accountCard": {
