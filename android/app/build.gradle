@@ -159,6 +159,11 @@ android {
 
 }
 
+// @react-native-firebase/crashlytics pulls this in unconditionally (its crashlytics_ndk_enabled option is unused).
+configurations.all {
+    exclude group: 'com.google.firebase', module: 'firebase-crashlytics-ndk'
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
