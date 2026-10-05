@@ -21,8 +21,9 @@ class NwcMessagingReceiver : ReactNativeFirebaseMessagingReceiver() {
         Log.i(NWC_TAG, "NWC push routed to native handler")
         return
       } catch (e: RuntimeException) {
-        // IllegalStateException: background start refused. SecurityException:
-        // ":nwc" is "bad" (crashed twice in a minute while in the background).
+        // IllegalStateException: background start refused. SecurityException
+        // "process is bad": the OS refused to launch ":nwc" (an OEM process
+        // start block, e.g. MIUI autostart; stock Android can't hit this here).
         Log.w(NWC_TAG, "native handler start refused, using JS path", e)
       }
     }

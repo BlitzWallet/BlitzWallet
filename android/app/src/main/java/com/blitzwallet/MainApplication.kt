@@ -12,7 +12,12 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import android.os.Process
+import android.util.Log
 import com.blitzwallet.deeplink.DeepLinkIntentModulePackage
+import com.blitzwallet.nwc.NWC_TAG
+import com.google.firebase.FirebaseApp
+import kotlin.system.exitProcess
 
 class MainApplication : Application(), ReactApplication {
 
@@ -39,7 +44,22 @@ class MainApplication : Application(), ReactApplication {
   override fun onCreate() {
     super.onCreate()
     // The native NWC handler process (nwc/NwcNativeService) never runs React Native.
-    if (getProcessName().endsWith(":nwc")) return
+    // FirebaseInitProvider only runs in the main process; without this, Java
+    // crashes in :nwc never reach Crashlytics.
+    if (getProcessName().endsWith(":nwc")) {
+      // Set before Firebase: Crashlytics wraps this handler, records the crash,
+      // then calls it. Exiting here instead of through Android's handler skips
+      // the "keeps stopping" dialog a repeat crash would show for the whole app.
+      // Native crashes (signals) still go through the system and aren't reported
+      // (crashlytics-ndk is excluded in app/build.gradle).
+      Thread.setDefaultUncaughtExceptionHandler { _, e ->
+        Log.e(NWC_TAG, ":nwc crashed", e)
+        Process.killProcess(Process.myPid())
+        exitProcess(10)
+      }
+      FirebaseApp.initializeApp(this)
+      return
+    }
     loadReactNative(this)
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
   }

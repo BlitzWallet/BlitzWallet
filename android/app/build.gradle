@@ -95,7 +95,7 @@ android {
         applicationId "com.blitzwallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 134
+        versionCode 135
         versionName "0.7.16"
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'// Exclude riscv64
@@ -157,6 +157,11 @@ android {
         }
     }
 
+}
+
+// @react-native-firebase/crashlytics pulls this in unconditionally (its crashlytics_ndk_enabled option is unused).
+configurations.all {
+    exclude group: 'com.google.firebase', module: 'firebase-crashlytics-ndk'
 }
 
 dependencies {
