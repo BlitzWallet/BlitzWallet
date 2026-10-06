@@ -439,7 +439,9 @@ export default function NWCAuthApproval({
                 strokeWidth={page === 'error' ? 2.2 : 2.6}
                 colorOverride={
                   page === 'error'
-                    ? COLORS.cancelRed
+                    ? theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.cancelRed
                     : theme
                     ? COLORS.lightModeText
                     : COLORS.darkModeText
