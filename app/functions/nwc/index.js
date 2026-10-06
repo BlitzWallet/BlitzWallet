@@ -133,7 +133,10 @@ export async function getNWCData() {
       } catch (err) {
         console.error('Error reading NWC spend state', err);
       }
-      if (!mergedAccount.hasOwnProperty('clientPubkey') && mergedAccount.secret) {
+      if (
+        !mergedAccount.hasOwnProperty('clientPubkey') &&
+        mergedAccount.secret
+      ) {
         try {
           mergedAccount.clientPubkey = getPublicKey(mergedAccount.secret);
           didUpdate = true;
@@ -159,36 +162,53 @@ export async function saveNWCAccount({
   permissions,
   budgetRenewalSettings,
   existingAccounts = {},
+  // NWC-08: the app's own public key and its { state, relays }. No secret is
+  // generated for these connections; it never exists outside the app.
+  clientPubkey: requestedClientPubkey,
+  authRequest,
 }) {
   let privateKey, publicKey, secret;
   if (!savedData?.publicKey) {
     const mnemonic = await createAccountMnemonic();
     privateKey = await privateKeyFromSeedWords(mnemonic);
     publicKey = getPublicKey(privateKey);
-    secret = sha256Hash(randomBytes(32));
+    if (!requestedClientPubkey) secret = sha256Hash(randomBytes(32));
   } else {
     privateKey = savedData.privateKey;
     publicKey = savedData.publicKey;
     secret = savedData.secret;
   }
-  const clientPubkey = getPublicKey(secret);
+  const clientPubkey =
+    requestedClientPubkey || savedData?.clientPubkey || getPublicKey(secret);
 
-  const infoEvent = {
-    kind: 13194,
-    created_at: Math.floor(Date.now() / 1000),
-    content: getSupportedMethods(permissions).join(' '),
-    tags: [
-      ['encryption', 'nip44_v2 nip04'],
-      ['notifications', getSupportedNotifications(permissions).join(' ')],
-    ],
-  };
+  const tags = [
+    ['encryption', 'nip44_v2 nip04'],
+    ['notifications', getSupportedNotifications(permissions).join(' ')],
+  ];
+  // NWC-08: the client finds this event by its `p` tag, trusts it by `state`,
+  // and must switch to the relay Blitz actually listens on.
+  if (authRequest) {
+    tags.push(
+      ['p', clientPubkey],
+      ['state', authRequest.state],
+      ['relay', NOSTR_RELAY_URL],
+    );
+  }
 
   const signedEvent = finalizeEvent(
-    infoEvent,
+    {
+      kind: 13194,
+      created_at: Math.floor(Date.now() / 1000),
+      content: getSupportedMethods(permissions).join(' '),
+      tags,
+    },
     Buffer.from(privateKey, 'hex'),
   );
 
-  await publishToSingleRelay([signedEvent], NOSTR_RELAY_URL);
+  const relays = new Set([NOSTR_RELAY_URL, ...(authRequest?.relays || [])]);
+  await Promise.all(
+    [...relays].map(relay => publishToSingleRelay([signedEvent], relay)),
+  );
 
   return {
     accounts: {
@@ -199,7 +219,7 @@ export async function saveNWCAccount({
         budgetRenewalSettings,
         privateKey,
         publicKey,
-        secret,
+        ...(secret ? { secret } : {}),
         clientPubkey,
       },
     },

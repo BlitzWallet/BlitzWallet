@@ -114,23 +114,26 @@ export default function NWCAccountPage(props) {
           ))}
         </View>
 
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          <TouchableOpacity
-            style={styles.row}
-            onPress={() => {
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'customQrCode',
-                data: connectionString,
-              });
-            }}
-          >
-            <ThemeText
-              styles={styles.rowLabel}
-              content={t('settings.nwc.accountPage.viewSecretLabel')}
-            />
-            <ThemeIcon iconName="ChevronRight" size={18} />
-          </TouchableOpacity>
-        </View>
+        {/* Connections an app created itself (NWC-08) have no secret to show. */}
+        {!!savedData.secret && (
+          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() => {
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'customQrCode',
+                  data: connectionString,
+                });
+              }}
+            >
+              <ThemeText
+                styles={styles.rowLabel}
+                content={t('settings.nwc.accountPage.viewSecretLabel')}
+              />
+              <ThemeIcon iconName="ChevronRight" size={18} />
+            </TouchableOpacity>
+          </View>
+        )}
       </CustomScrollView>
       <CustomButton
         actionFunction={() => {
