@@ -2042,8 +2042,8 @@
         "errorTitle": "Não foi possível conectar",
         "errors": {
           "invalid": "Este pedido de conexão não é válido.",
-          "unsupportedMethod": "Este app pede uma permissão que o Blitz não suporta.",
-          "unsupportedBudget": "Este app pede um limite de gastos que o Blitz não consegue aplicar.",
+          "unsupportedMethod": "Este app pede uma permissão que a Blitz não suporta.",
+          "unsupportedBudget": "Este app pede um limite de gastos que a Blitz não consegue aplicar.",
           "alreadyConnected": "Este app já está conectado.",
           "expired": "Este link expirou. Peça um novo no app.",
           "saveFailed": "Não foi possível criar a conexão. Tente novamente."
