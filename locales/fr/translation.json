@@ -2016,6 +2016,39 @@
         "warningMessage": "Pour sécuriser votre wallet, Wallet Connect crée une phrase de récupération distincte de celle de votre wallet principal.\n\nVous pouvez accéder à cette phrase de récupération dans les paramètres de Blitz, sous Comptes.",
         "viewSeed": "Voir la phrase de récupération"
       },
+      "authRequest": {
+        "wantsToConnect": "souhaite se connecter",
+        "unnamedApp": "Une app",
+        "approve": "Connecter",
+        "decline": "Annuler",
+        "canDoHeader": "Elle pourra effectuer les actions suivantes",
+        "permissions": {
+          "getBalance": "Voir votre solde",
+          "receivePayments": "Créer des demandes de paiement",
+          "transactionHistory": "Voir votre activité",
+          "lookupInvoice": "Consulter les paiements",
+          "sendPayments": "Envoyer des paiements"
+        },
+        "limitTitle": "Limite de dépenses",
+        "connectedTitle": "Connectée",
+        "connectedWithLimit": "{{name}} peut envoyer jusqu'à {{amount}} {{period}}.",
+        "period": {
+          "daily": "par jour",
+          "weekly": "par semaine",
+          "monthly": "par mois",
+          "yearly": "par an"
+        },
+        "createdSubtitle": "L'app est connectée. Vous pouvez y retourner maintenant.",
+        "errorTitle": "Connexion impossible",
+        "errors": {
+          "invalid": "Cette demande de connexion n'est pas valide.",
+          "unsupportedMethod": "Cette app demande une autorisation que Blitz ne prend pas en charge.",
+          "unsupportedBudget": "Cette app demande une limite de dépenses que Blitz ne peut pas appliquer.",
+          "alreadyConnected": "Cette app est déjà connectée.",
+          "expired": "Ce lien a expiré. Demandez-en un nouveau depuis l'app.",
+          "saveFailed": "Impossible de créer la connexion. Veuillez réessayer."
+        }
+      },
       "combinedOnboarding": {
         "infoTitle": "Avant de commencer",
         "infoSubtitle": "Quelques choses à savoir sur Wallet Connect.",

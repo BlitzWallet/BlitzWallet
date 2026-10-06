@@ -46,22 +46,16 @@ export default function CreateNWCPermissions(props) {
   const isEditing = passedParams?.mode === 'edit' || !!passedParams?.accountID;
   const savedData =
     masterInfoObject?.NWC?.accounts?.[passedParams?.accountID] || {};
+
+  const initialPermissions = isEditing
+    ? savedData?.permissions
+    : passedParams?.permissions;
   const [accountPermissions, setAccountPermissions] = useState({
-    receivePayments: isEditing
-      ? savedData?.permissions?.receivePayments
-      : passedParams?.permissions?.receivePayments || false,
-    sendPayments: isEditing
-      ? savedData?.permissions?.sendPayments
-      : passedParams?.permissions?.sendPayments || false,
-    getBalance: isEditing
-      ? savedData?.permissions?.getBalance
-      : passedParams?.permissions?.getBalance || false,
-    transactionHistory: isEditing
-      ? savedData?.permissions?.transactionHistory
-      : passedParams?.permissions?.transactionHistory || false,
-    lookupInvoice: isEditing
-      ? savedData?.permissions?.lookupInvoice
-      : passedParams?.permissions?.lookupInvoice || false,
+    receivePayments: !!initialPermissions?.receivePayments,
+    sendPayments: !!initialPermissions?.sendPayments,
+    getBalance: !!initialPermissions?.getBalance,
+    transactionHistory: !!initialPermissions?.transactionHistory,
+    lookupInvoice: !!initialPermissions?.lookupInvoice,
   });
   const [isSaving, setIsSaving] = useState(false);
   const hasAnyPermission = Object.values(accountPermissions).some(Boolean);

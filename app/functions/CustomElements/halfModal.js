@@ -69,6 +69,7 @@ import {
 } from '../../components/admin/homeComponents/contacts';
 import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/closePoolConfirmation';
 import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
+import NWCAuthApproval from '../../components/admin/homeComponents/settingsContent/nwc/nwcAuthApproval';
 import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
 import { SavingsProvider } from '../../../context-store/savingsContext';
@@ -533,6 +534,15 @@ export default function CustomHalfModal(props) {
           <ContributeToPoolHalfModal
             pool={props?.route?.params?.pool}
             poolId={props?.route?.params?.poolId}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
+          />
+        );
+      case 'nwcAuthApproval':
+        return (
+          <NWCAuthApproval
+            url={props?.route?.params?.url}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
             setBackNav={setBackNav}

@@ -2016,6 +2016,39 @@
         "warningMessage": "Per mantenere il tuo wallet sicuro, Wallet Connect crea una frase di recupero separata da quella del tuo wallet principale.\n\nPuoi accedere a questa frase di recupero nelle impostazioni di Blitz, nella sezione Account.",
         "viewSeed": "Visualizza frase di recupero"
       },
+      "authRequest": {
+        "wantsToConnect": "vuole connettersi",
+        "unnamedApp": "Un'app",
+        "approve": "Connetti",
+        "decline": "Annulla",
+        "canDoHeader": "Potrà fare quanto segue",
+        "permissions": {
+          "getBalance": "Visualizzare il tuo saldo",
+          "receivePayments": "Creare richieste di pagamento",
+          "transactionHistory": "Vedere la tua attività",
+          "lookupInvoice": "Cercare pagamenti",
+          "sendPayments": "Inviare pagamenti"
+        },
+        "limitTitle": "Limite di spesa",
+        "connectedTitle": "Connessa",
+        "connectedWithLimit": "{{name}} può inviare fino a {{amount}} {{period}}.",
+        "period": {
+          "daily": "al giorno",
+          "weekly": "alla settimana",
+          "monthly": "al mese",
+          "yearly": "all'anno"
+        },
+        "createdSubtitle": "L'app è connessa. Ora puoi tornare ad essa.",
+        "errorTitle": "Connessione non riuscita",
+        "errors": {
+          "invalid": "Questa richiesta di connessione non è valida.",
+          "unsupportedMethod": "Questa app richiede un permesso che Blitz non supporta.",
+          "unsupportedBudget": "Questa app richiede un limite di spesa che Blitz non può applicare.",
+          "alreadyConnected": "Questa app è già connessa.",
+          "expired": "Questo link è scaduto. Richiedine uno nuovo dall'app.",
+          "saveFailed": "Impossibile creare la connessione. Riprova."
+        }
+      },
       "combinedOnboarding": {
         "infoTitle": "Prima di iniziare",
         "infoSubtitle": "Alcune cose da sapere su Wallet Connect.",

@@ -2016,6 +2016,39 @@
         "warningMessage": "För att hålla din wallet säker skapar Wallet Connect en separat återställningsfras från din huvudwallets återställningsfras.\n\nDu kan komma åt denna återställningsfras i Blitz-inställningarna under Konton.",
         "viewSeed": "Visa återställningsfras"
       },
+      "authRequest": {
+        "wantsToConnect": "vill ansluta",
+        "unnamedApp": "En app",
+        "approve": "Anslut",
+        "decline": "Avbryt",
+        "canDoHeader": "Den kommer att kunna göra följande",
+        "permissions": {
+          "getBalance": "Visa ditt saldo",
+          "receivePayments": "Skapa betalningsförfrågningar",
+          "transactionHistory": "Se din aktivitet",
+          "lookupInvoice": "Slå upp betalningar",
+          "sendPayments": "Skicka betalningar"
+        },
+        "limitTitle": "Utgiftsgräns",
+        "connectedTitle": "Ansluten",
+        "connectedWithLimit": "{{name}} kan skicka upp till {{amount}} {{period}}.",
+        "period": {
+          "daily": "per dag",
+          "weekly": "per vecka",
+          "monthly": "per månad",
+          "yearly": "per år"
+        },
+        "createdSubtitle": "Appen är ansluten. Du kan gå tillbaka till den nu.",
+        "errorTitle": "Kunde inte ansluta",
+        "errors": {
+          "invalid": "Den här anslutningsförfrågan är ogiltig.",
+          "unsupportedMethod": "Den här appen begär en behörighet som Blitz inte stöder.",
+          "unsupportedBudget": "Den här appen begär en utgiftsgräns som Blitz inte kan upprätthålla.",
+          "alreadyConnected": "Den här appen är redan ansluten.",
+          "expired": "Den här länken har gått ut. Be om en ny från appen.",
+          "saveFailed": "Kunde inte skapa anslutningen. Försök igen."
+        }
+      },
       "combinedOnboarding": {
         "infoTitle": "Innan du börjar",
         "infoSubtitle": "Några saker att veta om Wallet Connect.",

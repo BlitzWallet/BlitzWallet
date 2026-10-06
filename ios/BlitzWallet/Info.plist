@@ -49,6 +49,15 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
+			<string>nwc.auth.link</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nostr+walletauth</string>
+				<string>nostr+walletauth+blitz</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
 			<string>blitz.link</string>
 			<key>CFBundleURLSchemes</key>
 			<array>

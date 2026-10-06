@@ -134,10 +134,36 @@
           
           <!-- KeyAuth Schemes -->
           <data android:scheme="keyauth"/>
+
+          <!-- Wallet Connect app pairing (NWC-08) -->
+          <data android:scheme="nostr+walletauth"/>
+          <data android:scheme="nostr+walletauth+blitz"/>
         </intent-filter>
 
 
         <!-- 4. App Links (HTTP/HTTPS Deep Links) -->
+        <!-- Wallet Connect app pairing (NWC-08), e.g. from the Telegram bot -->
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+          <data android:scheme="https" android:host="blitzwallet.app" android:pathPrefix="/nwc/auth"/>
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+          <data android:scheme="https" android:host="blitz-wallet.com" android:pathPrefix="/nwc/auth"/>
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+          <data android:scheme="https" android:host="blitzwalletapp.com" android:pathPrefix="/nwc/auth"/>
+        </intent-filter>
+
         <intent-filter android:autoVerify="true">
           <action android:name="android.intent.action.VIEW"/>
           <category android:name="android.intent.category.DEFAULT"/>
