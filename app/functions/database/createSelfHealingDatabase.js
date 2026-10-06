@@ -19,7 +19,18 @@ import { openDatabaseAsync } from 'expo-sqlite';
 //   export const ensureFooReady = () => conn.ensureReady();
 //   export const initFooDb = async () => { try { await conn.reinitialize(); return true; } catch { return false; } };
 
-const RELEASED_ERROR_RE = /already released|has been rejected/i;
+// Dead-handle signatures only. Don't match "has been rejected": on Android every
+// native failure is wrapped as "Call to function '…' has been rejected", so an
+// ordinary SQLite error (database is locked, no transaction is active…) would
+// trigger a reopen. That reopen re-wraps the same cached native database; once
+// the orphaned wrapper is GC'd, Android's sharedObjectDidRelease kills the
+// native binding the new wrapper shares, so every query on this database fails
+// (NullPointerException) until the process restarts (expo/expo#48999).
+const RELEASED_ERROR_RE = /already released|NullPointerException/i;
+
+// A plain open of a path that's already open returns the cached (dead) native
+// database on Android; only a new connection actually recovers.
+const reopen = name => openDatabaseAsync(name, { useNewConnection: true });
 
 // Methods routed through the self-heal retry. A released-handle error is thrown
 // before the statement runs, so retrying after reopening is safe: the failed
@@ -60,7 +71,7 @@ export function createSelfHealingDatabase({ name, setup }) {
             // handle, reopen once, and re-run setup — same recovery runHealing
             // gives queries.
             if (!RELEASED_ERROR_RE.test(String(error?.message))) throw error;
-            rawDB = await openDatabaseAsync(name);
+            rawDB = await reopen(name);
             await setup(rawDB);
           }
         }
@@ -98,8 +109,9 @@ export function createSelfHealingDatabase({ name, setup }) {
       return await rawDB[method](...args);
     } catch (error) {
       if (!RELEASED_ERROR_RE.test(String(error?.message))) throw error;
-      // Native handle was released. Drop it, reopen (re-running setup), retry.
-      rawDB = null;
+      // Native handle was released. Replace it with a new connection (re-running
+      // setup), retry.
+      rawDB = await reopen(name);
       readyPromise = null;
       isReady = false;
       await ensureReady();
