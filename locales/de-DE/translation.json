@@ -1875,10 +1875,8 @@
       "lnurlDesc": "Zahlungen über Ihre Lightning-Adresse",
       "nostrZaps": "Nostr-Zaps",
       "nostrZapsDesc": "Zap-Zahlungen an Ihr Nostr-Profil",
-      "nwc": "Nostr Wallet Connect",
-      "nwcDesc": "Über Nostr Wallet Connect empfangene Ereignisse",
       "nwc": "Wallet Connect",
-      "nwcDesc": "Über Wallet Connect autorisierte Zahlungen",
+      "nwcDesc": "Über Wallet Connect empfangene Ereignisse",
       "pos": "Zahlungsterminal (POS)",
       "posDesc": "Zahlungen an Ihr Zahlungsterminal (POS)"
     },
@@ -1925,27 +1923,27 @@
     "nip5": {
       "noNameError": "Name darf nicht leer sein.",
       "noPubKey": "Öffentlicher Schlüssel darf nicht leer sein.",
-      "nameLengthError": "Name muss weniger als 60 Zeichen haben.",
-      "regexError": "Name darf nur Buchstaben oder Zahlen enthalten.",
+      "nameLengthError": "Der Name muss kürzer als 60 Zeichen sein.",
+      "regexError": "Der Name darf nur Buchstaben und Zahlen enthalten.",
       "takenNameError": "Name bereits vergeben",
       "nameConfirmationMessage": "Nostr-Adresse erfolgreich hinzugefügt! Bitte beachten Sie, dass es bis zu 24 Stunden dauern kann, bis sie angezeigt wird, da die Liste einmal täglich aktualisiert wird.",
       "title": "Nostr-Adresse",
-      "desc": "Nostr-Adresse verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
-      "dataIsInvalid": "Etwas ist schiefgelaufen, bitte versuchen Sie es erneut.",
+      "desc": "Eine Nostr-Adresse verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
+      "dataIsInvalid": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
       "usernameInputLabel": "Benutzername",
-      "usernameInputPlaceholder": "benutzername",
+      "usernameInputPlaceholder": "Benutzername",
       "publicKeyLabel": "Npub",
-      "publicKeyPlaceholder": "npub1...",
+      "publicKeyPlaceholder": "npub1…",
       "errors": {
-        "invalidPubKey": "Ungültiger öffentlicher Schlüssel: muss ein nicht-leerer Text sein.",
+        "invalidPubKey": "Ungültiger öffentlicher Schlüssel: Der Wert darf nicht leer sein.",
         "invalidNpub": "Ungültiges Npub-Format",
         "decodeNpubError": "Npub konnte nicht dekodiert werden.",
-        "invalidFormat": "Ungültiges Format des öffentlichen Schlüssels: muss entweder eine 64-Zeichen-Hex-Text oder Npub sein."
+        "invalidFormat": "Ungültiges Format des öffentlichen Schlüssels: Es muss sich entweder um eine 64 Zeichen lange Hex-Zeichenfolge oder einen Npub handeln."
       },
       "saveAddress": "Adresse speichern",
-      "infoText": "Nostr-Adresse verknüpft eine kurze Adresse wie name@blitzwalletapp.com mit Ihrem öffentlichen Nostr-Schlüssel (npub), damit Nostr-Apps Ihre Identität verifizieren können.\n\nFügen Sie diese Adresse nach dem Speichern in das Nostr-Adressfeld Ihres Nostr-Profils ein. Die Liste wird einmal täglich aktualisiert, daher kann die Verifizierung bis zu 24 Stunden dauern.",
+      "infoText": "Eine Nostr-Adresse verknüpft eine kurze Adresse wie name@blitzwalletapp.com mit Ihrem öffentlichen Nostr-Schlüssel (npub), damit Nostr-Apps Ihre Identität verifizieren können.\n\nFügen Sie diese Adresse nach dem Speichern in das Nostr-Adressfeld Ihres Nostr-Profils ein. Die Liste wird einmal täglich aktualisiert, daher kann die Verifizierung bis zu 24 Stunden dauern.",
       "removeAddress": "Adresse entfernen",
-      "removeWarning": "{{address}} entfernen?\n\nDadurch wird der Benutzername freigegeben. Jeder kann ihn dann beanspruchen, und du bekommst ihn möglicherweise nicht zurück. Nostr-Apps zeigen ihn eventuell noch bis zu 24 Stunden an."
+      "removeWarning": "{{address}} entfernen?\n\nDadurch wird der Benutzername freigegeben. Anschließend kann ihn jeder beanspruchen, und Sie können ihn möglicherweise nicht zurückerhalten. Nostr-Apps zeigen ihn eventuell noch bis zu 24 Stunden an."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
@@ -2007,7 +2005,7 @@
         "budgetRenewalHeader": "Budgetverlängerung"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrem Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder indem Sie Geld empfangen oder es von Ihrem Hauptkonto übertragen.\n\nÜbertragen Sie dazu auf der Kontoseite Guthaben von Ihrem Hauptkonto auf Ihr Wallet-Connect-Konto."
+        "warningMessage": "Um Geld von Ihrem Wallet-Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder indem Sie Geld empfangen oder es von Ihrem Hauptkonto übertragen.\n\nÜbertragen Sie dazu auf der Kontoseite Guthaben von Ihrem Hauptkonto auf Ihr Wallet-Connect-Konto."
       },
       "noNotifications": {
         "title": "Benachrichtigungen erforderlich",
@@ -2015,7 +2013,7 @@
       },
       "showSeedPage": {
         "loadingMessage": "Wiederherstellungsphrase wird generiert",
-        "warningMessage": "Um Ihr Konto sicher zu halten, erstellt Wallet Connect eine separate Wiederherstellungsphrase von der Wiederherstellungsphrase Ihres Hauptkontos.\n\nSie können diese Wiederherstellungsphrase in den Blitz-Einstellungen unter „Konten“ einsehen.",
+        "warningMessage": "Um Ihr Konto zu schützen, verwendet Wallet Connect eine eigene Wiederherstellungsphrase, die von der Wiederherstellungsphrase Ihres Hauptkontos getrennt ist.\n\nSie können diese Wiederherstellungsphrase in den Blitz-Einstellungen unter „Konten“ einsehen.",
         "viewSeed": "Wiederherstellungsphrase anzeigen"
       },
       "authRequest": {
