@@ -1,0 +1,67 @@
+# NWC-08 app pairing: a nostr+walletauth link opens the approval screen, and
+# approving creates a connection without any connection string.
+# Run with `yarn e2e:ios` or `yarn e2e:android`. Never point at a funded wallet.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# PIN: Create PIN, then Confirm Pin
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- extendedWaitUntil:
+    notVisible: Confirm Pin
+    timeout: 60000
+
+# An invalid request (state too short to be unguessable) is refused.
+- openLink: "nostr+walletauth://b889ff5b1513b641e2a139f661a661364979c5beee91842f8f0ef42ab558e9d4?relay=wss%3A%2F%2Frelay.getalbypro.com%2Fblitz&state=abcd&request_methods=get_balance"
+- extendedWaitUntil:
+    visible: "This connection request isn't valid."
+    timeout: 15000
+- takeScreenshot: nwc-auth-invalid
+- tapOn: Done
+
+# A valid request shows what the app asked for.
+- openLink: "nostr+walletauth://b889ff5b1513b641e2a139f661a661364979c5beee91842f8f0ef42ab558e9d4?relay=wss%3A%2F%2Frelay.getalbypro.com%2Fblitz&state=9f2c4a00112233445566778899aabbcc&name=Maestro%20Test&request_methods=get_info%20get_balance%20make_invoice&optional_request_methods=pay_invoice&max_amount=1000000&renewal_period=daily"
+- runFlow:
+    when:
+      visible: Notifications required
+    commands:
+      # Wallet Connect needs NWC push enabled; nothing is created behind the gate.
+      - takeScreenshot: nwc-auth-notifications-gate
+- runFlow:
+    when:
+      visible: Maestro Test wants to connect
+    commands:
+      - assertVisible: View your balance
+      - assertVisible: Create payment requests
+      - tapOn: Send payments
+      # The requested daily budget can be lowered with the in-app keyboard.
+      - tapOn: Limit
+      - assertVisible: Spending limit
+      - tapOn: Weekly
+      - tapOn: Done
+      - tapOn: Connect
+      - extendedWaitUntil:
+          visible: Connected
+          timeout: 30000
+      - assertNotVisible: Copy connection string
+      - takeScreenshot: nwc-auth-approved
+      - tapOn: Done
+      - assertNotVisible: Maestro Test wants to connect

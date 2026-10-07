@@ -55,8 +55,15 @@ test('re-runs setup on the reopened connection (per-connection pragmas)', async 
 });
 
 test('does not reopen on an unrelated error', async () => {
+  // Android wraps every native failure as "… has been rejected".
   const handle = makeHandle({
-    getAllAsync: jest.fn().mockRejectedValue(new Error('no such table')),
+    getAllAsync: jest
+      .fn()
+      .mockRejectedValue(
+        new Error(
+          "Call to function 'NativeStatement.getAllAsync' has been rejected.\n→ Caused by: Error code 1: no such table",
+        ),
+      ),
   });
   openDatabaseAsync.mockResolvedValueOnce(handle);
 

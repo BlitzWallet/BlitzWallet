@@ -2182,6 +2182,39 @@
         "warningMessage": "To keep your account safe, Wallet Connect creates a separate recovery phrase from your main account's recovery phrase.\n\nYou can access this recovery phrase in the accounts settings page.",
         "viewSeed": "View recovery phrase"
       },
+      "authRequest": {
+        "wantsToConnect": "wants to connect",
+        "unnamedApp": "An app",
+        "approve": "Connect",
+        "decline": "Cancel",
+        "canDoHeader": "It will be able to",
+        "permissions": {
+          "getBalance": "View your balance",
+          "receivePayments": "Create payment requests",
+          "transactionHistory": "See your activity",
+          "lookupInvoice": "Look up payments",
+          "sendPayments": "Send payments"
+        },
+        "limitTitle": "Spending limit",
+        "connectedTitle": "Connected",
+        "connectedWithLimit": "{{name}} can send up to {{amount}} {{period}}.",
+        "period": {
+          "daily": "a day",
+          "weekly": "a week",
+          "monthly": "a month",
+          "yearly": "a year"
+        },
+        "createdSubtitle": "The app is connected. You can go back to it now.",
+        "errorTitle": "Couldn't connect",
+        "errors": {
+          "invalid": "This connection request isn't valid.",
+          "unsupportedMethod": "This app asks for a permission Blitz doesn't support.",
+          "unsupportedBudget": "This app asks for a spending limit Blitz can't enforce.",
+          "alreadyConnected": "This app is already connected.",
+          "expired": "This link has expired. Get a new one from the app.",
+          "saveFailed": "Couldn't create the connection. Please try again."
+        }
+      },
       "combinedOnboarding": {
         "infoTitle": "Before you get started",
         "infoSubtitle": "A few things to know about Wallet Connect.",

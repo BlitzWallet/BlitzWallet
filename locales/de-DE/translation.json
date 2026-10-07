@@ -2018,6 +2018,39 @@
         "warningMessage": "Um Ihr Konto sicher zu halten, erstellt Wallet Connect eine separate Wiederherstellungsphrase von der Wiederherstellungsphrase Ihres Hauptkontos.\n\nSie können diese Wiederherstellungsphrase in den Blitz-Einstellungen unter „Konten“ einsehen.",
         "viewSeed": "Wiederherstellungsphrase anzeigen"
       },
+      "authRequest": {
+        "wantsToConnect": "möchte sich verbinden",
+        "unnamedApp": "Eine App",
+        "approve": "Verbinden",
+        "decline": "Abbrechen",
+        "canDoHeader": "Sie kann Folgendes tun",
+        "permissions": {
+          "getBalance": "Ihr Guthaben ansehen",
+          "receivePayments": "Zahlungsanforderungen erstellen",
+          "transactionHistory": "Ihre Aktivitäten ansehen",
+          "lookupInvoice": "Zahlungen nachschlagen",
+          "sendPayments": "Zahlungen senden"
+        },
+        "limitTitle": "Ausgabenlimit",
+        "connectedTitle": "Verbunden",
+        "connectedWithLimit": "{{name}} kann bis zu {{amount}} {{period}} senden.",
+        "period": {
+          "daily": "pro Tag",
+          "weekly": "pro Woche",
+          "monthly": "pro Monat",
+          "yearly": "pro Jahr"
+        },
+        "createdSubtitle": "Die App ist verbunden. Sie können jetzt zu ihr zurückkehren.",
+        "errorTitle": "Verbindung fehlgeschlagen",
+        "errors": {
+          "invalid": "Diese Verbindungsanfrage ist ungültig.",
+          "unsupportedMethod": "Diese App fordert eine Berechtigung an, die Blitz nicht unterstützt.",
+          "unsupportedBudget": "Diese App fordert ein Ausgabenlimit an, das Blitz nicht durchsetzen kann.",
+          "alreadyConnected": "Diese App ist bereits verbunden.",
+          "expired": "Dieser Link ist abgelaufen. Fordern Sie einen neuen in der App an.",
+          "saveFailed": "Die Verbindung konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
+        }
+      },
       "combinedOnboarding": {
         "infoTitle": "Bevor Sie loslegen",
         "infoSubtitle": "Ein paar Dinge, die Sie über Wallet Connect wissen sollten.",

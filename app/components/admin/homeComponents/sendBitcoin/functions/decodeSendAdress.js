@@ -22,6 +22,7 @@ import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
 import { receiveSparkLightningPayment } from '../../../../../functions/spark';
 import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
+import { isNWCAuthRequestURL } from '../../../../../functions/nwc/walletAuth';
 import { handleBrantaVerification } from '../../../../../functions/branta/index';
 import { Image as ExpoImage } from 'expo-image';
 import getPhonePaymentAddress, {
@@ -82,6 +83,15 @@ export default async function decodeSendAddress(props) {
         t('wallet.sendPages.handlingAddressErrors.invalidFormat'),
       );
     btcAdress = btcAdress.replace(/^mailto:/i, '');
+
+    // A Wallet Connect pairing request (NWC-08), not a payment.
+    if (isNWCAuthRequestURL(btcAdress)) {
+      navigate.replace('CustomHalfModal', {
+        wantedContent: 'nwcAuthApproval',
+        url: btcAdress.trim(),
+      });
+      return;
+    }
 
     if (btcAdress.toLowerCase().startsWith('paylink://')) {
       const payLinkId = btcAdress.slice('paylink://'.length);

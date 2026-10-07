@@ -2,6 +2,7 @@ import i18next from 'i18next';
 import { IS_BLITZ_URL_REGEX, WEBSITE_REGEX } from '../../constants';
 import testURLForInvoice from '../testURLForInvoice';
 import { convertMerchantQRToLightningAddress } from './getMerchantAddress';
+import { isNWCAuthRequestURL } from '../nwc/walletAuth';
 
 const EVM_REGEX = /^0x[0-9a-fA-F]{40}$/;
 const TRON_REGEX = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
@@ -109,6 +110,10 @@ export default function handlePreSendPageParsing(data) {
     if (!data) throw new Error(i18next.t('errormessages.invalidData'));
 
     const trimmed = data.trim();
+
+    if (isNWCAuthRequestURL(trimmed)) {
+      return { didWork: true, error: null, btcAdress: trimmed };
+    }
 
     if (EVM_REGEX.test(trimmed)) {
       return {

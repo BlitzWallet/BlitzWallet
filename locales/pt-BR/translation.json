@@ -2016,6 +2016,39 @@
         "warningMessage": "Para manter sua conta principal segura, a conta NWC possui uma frase de recuperação diferente da sua conta principal.\n\nVocê pode acessar essa frase de recuperação nas configurações da Blitz, em Contas.",
         "viewSeed": "Ver frase de recuperação"
       },
+      "authRequest": {
+        "wantsToConnect": "quer se conectar",
+        "unnamedApp": "Um app",
+        "approve": "Conectar",
+        "decline": "Cancelar",
+        "canDoHeader": "Ele poderá fazer o seguinte",
+        "permissions": {
+          "getBalance": "Ver seu saldo",
+          "receivePayments": "Criar solicitações de pagamento",
+          "transactionHistory": "Ver sua atividade",
+          "lookupInvoice": "Consultar pagamentos",
+          "sendPayments": "Enviar pagamentos"
+        },
+        "limitTitle": "Limite de gastos",
+        "connectedTitle": "Conectada",
+        "connectedWithLimit": "{{name}} pode enviar até {{amount}} {{period}}.",
+        "period": {
+          "daily": "por dia",
+          "weekly": "por semana",
+          "monthly": "por mês",
+          "yearly": "por ano"
+        },
+        "createdSubtitle": "O app está conectado. Você já pode voltar para ele.",
+        "errorTitle": "Não foi possível conectar",
+        "errors": {
+          "invalid": "Este pedido de conexão não é válido.",
+          "unsupportedMethod": "Este app pede uma permissão que a Blitz não suporta.",
+          "unsupportedBudget": "Este app pede um limite de gastos que a Blitz não consegue aplicar.",
+          "alreadyConnected": "Este app já está conectado.",
+          "expired": "Este link expirou. Peça um novo no app.",
+          "saveFailed": "Não foi possível criar a conexão. Tente novamente."
+        }
+      },
       "combinedOnboarding": {
         "infoTitle": "Antes de começar",
         "infoSubtitle": "Algumas coisas que você precisa saber sobre sua conta NWC.",

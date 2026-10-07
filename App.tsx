@@ -51,6 +51,7 @@ import {
   getPendingWebUpdate,
 } from './app/functions/pwaRelease';
 import { acquireWebDatabaseOwnership } from './app/functions/webDatabaseOwnership';
+import { isNWCAuthRequestURL } from './app/functions/nwc/walletAuth';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -405,7 +406,21 @@ function ResetStack(): JSX.Element | null {
         if (!blockSoftReset) {
           let isContactLink = false;
 
-          if (PAYLINK_DEEPLINK_REGEX.test(url)) {
+          if (isNWCAuthRequestURL(url)) {
+            navigationRef.current.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeAdmin',
+                  params: { screen: 'Home' },
+                },
+                {
+                  name: 'CustomHalfModal',
+                  params: { wantedContent: 'nwcAuthApproval', url },
+                },
+              ],
+            });
+          } else if (PAYLINK_DEEPLINK_REGEX.test(url)) {
             const match = url.match(/paylink\/([A-Za-z0-9]{9})/i);
             if (match) {
               navigationRef.current.reset({
