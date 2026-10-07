@@ -2019,7 +2019,9 @@
       "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached.",
       "unsupportedTitle": "We no longer support {{type}}",
       "unsupportedDesc": "If you still have funds on {{type}}, restore your Blitz recovery phrase in a compatible wallet to access them. Need help? Contact us below.",
-      "contactUs": "Contact us"
+      "contactUs": "Contact us",
+      "refundInProgress": "Refund in progress. Keep the app open until it completes.",
+      "refundComplete": "Refund complete. Your funds are back in your Liquid wallet."
     },
     "notifications": {
       "mainToggle": "Allow notifications",

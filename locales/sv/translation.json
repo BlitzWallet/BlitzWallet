@@ -1858,7 +1858,9 @@
       "autoClaimHelper": "Växlar automatiskt Liquid-medel till Lightning när minimitröskeln uppnås.",
       "unsupportedTitle": "Vi stöder inte längre {{type}}",
       "unsupportedDesc": "Om du fortfarande har medel på {{type}}, återställ din Blitz-återställningsfras i en kompatibel plånbok för att komma åt dem. Behöver du hjälp? Kontakta oss nedan.",
-      "contactUs": "Kontakta oss"
+      "contactUs": "Kontakta oss",
+      "refundInProgress": "Återbetalning pågår. Håll appen öppen tills den är klar.",
+      "refundComplete": "Återbetalning slutförd. Dina medel är tillbaka i din Liquid-plånbok."
     },
     "notifications": {
       "mainToggle": "Tillåt aviseringar",

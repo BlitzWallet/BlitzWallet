@@ -1858,7 +1858,9 @@
       "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist.",
       "unsupportedTitle": "Wir unterstützen {{type}} nicht mehr",
       "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie die Wiederherstellungsphrase Ihrer Blitz Wallet in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
-      "contactUs": "Kontaktieren Sie uns"
+      "contactUs": "Kontaktieren Sie uns",
+      "refundInProgress": "Rückerstattung läuft. Halten Sie die App geöffnet, bis sie abgeschlossen ist.",
+      "refundComplete": "Rückerstattung abgeschlossen. Ihre Gelder sind zurück in Ihrer Liquid-Wallet."
     },
     "notifications": {
       "mainToggle": "Benachrichtigungen zulassen",

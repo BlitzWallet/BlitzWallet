@@ -19,51 +19,29 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 //     console.log(`[${logEntry.level}]: ${logEntry.line}`);
 //   }
 // };
+// Lazy require so the native module is only loaded when the Liquid page opens.
 export default async function connectToLiquidNode(accountMnemoinc) {
-  return {
-    isConnected: false,
-    reason: new Error('Breez Liquid disabled'),
-  };
-  // crashlyticsLogReport('Starting connect to liquid function');
-  // // Create the default config
-  // // const {connect, defaultConfig, LiquidNetwork} = getBreezLiquidSDK();
-  // // setLogger(logHandler);
-  // try {
-  //   crashlyticsLogReport('Getting config and mnemoinc');
-  //   // Create the default config, providing your Breez API key
-  //   const [config, mnemonic] = await Promise.all([
-  //     defaultConfig(
-  //       LiquidNetwork[
-  //         process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 'TESTNET' : 'MAINNET'
-  //       ],
-  //       process.env.LIQUID_BREEZ_KEY,
-  //     ),
-  //     Promise.resolve(accountMnemoinc),
-  //   ]);
-  //   crashlyticsLogReport('Creating directory');
-  //   const directoryPath = await getOrCreateDirectory(
-  //     'liquidFilesystemUUID',
-  //     config.workingDir,
-  //   );
-  //   config.workingDir = directoryPath;
-  //   // By default in React Native the workingDir is set to:
-  //   // `/<APPLICATION_SANDBOX_DIRECTORY>/breezSdkLiquid`
-  //   // You can change this to another writable directory or a
-  //   // subdirectory of the workingDir if managing multiple mnemonics.
-  //   // console.log(`Working directory: ${config.workingDir}`);
-  //   // config.workingDir = "path to writable directory"
-  //   crashlyticsLogReport('Running connect request');
-  //   await connect({ mnemonic, config });
-  //   // addEventListener(breezLiquidEvent);
-  //   return {
-  //     isConnected: true,
-  //     reason: null,
-  //   };
-  // } catch (err) {
-  //   console.log(err, 'connect to node err LIQUID');
-  //   return {
-  //     isConnected: false,
-  //     reason: err,
-  //   };
-  // }
+  crashlyticsLogReport('Starting connect to liquid function');
+  try {
+    const {
+      connect,
+      defaultConfig,
+      LiquidNetwork,
+    } = require('@breeztech/react-native-breez-sdk-liquid');
+    const config = await defaultConfig(
+      LiquidNetwork[
+        process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 'TESTNET' : 'MAINNET'
+      ],
+      process.env.LIQUID_BREEZ_KEY,
+    );
+    config.workingDir = await getOrCreateDirectory(
+      'liquidFilesystemUUID',
+      config.workingDir,
+    );
+    await connect({ mnemonic: accountMnemoinc, config });
+    return { isConnected: true, reason: null };
+  } catch (err) {
+    console.log(err, 'connect to node err LIQUID');
+    return { isConnected: false, reason: err };
+  }
 }

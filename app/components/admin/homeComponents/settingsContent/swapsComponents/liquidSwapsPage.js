@@ -29,7 +29,10 @@
 // import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 // import { useKeysContext } from '../../../../../../context-store/keys';
 // import liquidToSparkSwap from '../../../../../functions/spark/liquidToSparkSwap';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { ensureLiquidConnection } from '../../../../../functions/breezLiquid/liquidNodeManager';
 // import GetThemeColors from '../../../../../hooks/themeColors';
 // import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
 // import {
@@ -40,7 +43,56 @@ import SupportMessage from './supportMessage';
 
 export default function LiquidSwapsPage() {
   const { t } = useTranslation();
-  return <SupportMessage type={t('settings.viewSwapsHome.liquid')} />;
+  const { accountMnemoinc } = useKeysContext();
+  // null = nothing to show, 'pending' = refund running, 'complete' = it finished while open
+  const [refundStatus, setRefundStatus] = useState(null);
+
+  // Connecting lets the Breez SDK run any pending swap refunds in the background.
+  useEffect(() => {
+    let cancelled = false;
+    let listenerId = null;
+    let sdk = null;
+
+    const checkRefunds = async () => {
+      const refunds = await sdk.listPayments({
+        states: [sdk.PaymentState.REFUND_PENDING],
+      });
+      if (cancelled) return;
+      setRefundStatus(prev =>
+        refunds.length ? 'pending' : prev === 'pending' ? 'complete' : prev,
+      );
+    };
+
+    (async () => {
+      try {
+        if (!(await ensureLiquidConnection(accountMnemoinc))) return;
+        sdk = require('@breeztech/react-native-breez-sdk-liquid');
+        // Any SDK event (refunded, synced, ...) can change refund state, so re-check.
+        listenerId = await sdk.addEventListener(() =>
+          checkRefunds().catch(err => console.log('liquid refund check', err)),
+        );
+        if (cancelled) return sdk.removeEventListener(listenerId);
+        await checkRefunds();
+      } catch (err) {
+        console.log('liquid refund check error', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (listenerId) sdk.removeEventListener(listenerId).catch(() => {});
+    };
+  }, [accountMnemoinc]);
+
+  return (
+    <SupportMessage
+      type={t('settings.viewSwapsHome.liquid')}
+      statusText={
+        refundStatus === 'pending'
+          ? t('settings.viewAllLiquidSwaps.refundInProgress')
+          : ''
+      }
+    />
+  );
   // const { minMaxLiquidSwapAmounts } = useAppStatus();
   // const { sparkInformation } = useSparkWallet();
   // const { accountMnemoinc } = useKeysContext();

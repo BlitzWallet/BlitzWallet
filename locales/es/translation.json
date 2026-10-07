@@ -1855,7 +1855,9 @@
       "autoClaimHelper": "Convierte automáticamente fondos de Liquid a Lightning cuando se alcanza el umbral mínimo.",
       "unsupportedTitle": "Ya no admitimos {{type}}",
       "unsupportedDesc": "Si aún tienes fondos en {{type}}, restaura tu frase de recuperación de Blitz en una billetera compatible para acceder a ellos. ¿Necesitas ayuda? Contáctanos abajo.",
-      "contactUs": "Contáctanos"
+      "contactUs": "Contáctanos",
+      "refundInProgress": "Reembolso en curso. Mantén la app abierta hasta que se complete.",
+      "refundComplete": "Reembolso completado. Tus fondos están de vuelta en tu billetera Liquid."
     },
     "notifications": {
       "mainToggle": "Permitir notificaciones",

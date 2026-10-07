@@ -1858,7 +1858,9 @@
       "autoClaimHelper": "Convertit automatiquement les fonds Liquid en Lightning lorsque le seuil minimum est atteint.",
       "unsupportedTitle": "Nous ne prenons plus en charge {{type}}",
       "unsupportedDesc": "Si vous avez encore des fonds sur {{type}}, restaurez votre phrase de récupération Blitz dans un portefeuille compatible pour y accéder. Besoin d'aide ? Contactez-nous ci-dessous.",
-      "contactUs": "Contactez nous"
+      "contactUs": "Contactez nous",
+      "refundInProgress": "Remboursement en cours. Gardez l'application ouverte jusqu'à ce qu'il soit terminé.",
+      "refundComplete": "Remboursement terminé. Vos fonds sont de retour dans votre portefeuille Liquid."
     },
     "notifications": {
       "mainToggle": "Autoriser les notifications",
