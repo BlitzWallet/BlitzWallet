@@ -1,4 +1,5 @@
-# NWC account is visible on a fresh wallet and gated on notifications.
+# With notifications denied, the NWC account page still shows its balance and
+# Add / Withdraw actions; only Manage Connections is gated on notifications.
 # Run with `yarn e2e:ios` or `yarn e2e:android`. Never point at a funded wallet.
 appId: ${APP_ID}
 ---
@@ -35,6 +36,12 @@ appId: ${APP_ID}
 - tapOn: Accounts
 - assertVisible: NWC Account
 - tapOn: NWC Account
+- extendedWaitUntil:
+    visible: Withdraw
+    timeout: 60000
+- assertVisible: Add
+- assertNotVisible: Notifications required
+- tapOn: Manage Connections
 - assertVisible: Notifications required
 - assertNotVisible: Before you get started
 - takeScreenshot: nwc-account-gate

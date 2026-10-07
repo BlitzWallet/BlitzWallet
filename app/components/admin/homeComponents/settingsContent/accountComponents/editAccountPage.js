@@ -56,8 +56,6 @@ import { useAppStatus } from '../../../../../../context-store/appStatus';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import NostrWalletConnectNoNotifications from '../nwc/noNotifications';
-import useNWCNotificationsEnabled from '../../../../../hooks/useNWCNotificationsEnabled';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -79,32 +77,10 @@ function usePagerScrollHandler(handlers, dependencies) {
   );
 }
 
+// The NWC account page is never gated: its balance and Add / Withdraw must stay
+// reachable without push. The notifications gate lives on the connections page
+// (NosterWalletConnect) and the NWC-08 approval sheet instead.
 export default function EditAccountPage(props) {
-  if (props?.route?.params?.accountId === NWC_ACCOUNT_UUID)
-    return <NWCAccountGate {...props} />;
-  return <EditAccountPageContent {...props} />;
-}
-
-// NWC can't answer requests without push, so nothing on the NWC account page
-// (including its connections) is reachable until notifications are enabled.
-function NWCAccountGate(props) {
-  const notificationsEnabled = useNWCNotificationsEnabled();
-  const { t } = useTranslation();
-
-  if (notificationsEnabled) return <EditAccountPageContent {...props} />;
-  return (
-    <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('settings.accounts.nwcWalletPlace')} />
-      {notificationsEnabled === null ? (
-        <FullLoadingScreen showText={false} />
-      ) : (
-        <NostrWalletConnectNoNotifications />
-      )}
-    </GlobalThemeView>
-  );
-}
-
-function EditAccountPageContent(props) {
   const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
   const { getAccountMnemonic, activeAccount, custodyAccountsList } =
