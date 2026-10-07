@@ -12,6 +12,14 @@
 //  5. An invoice this wallet created (INCOMING) turns into a payment marker.
 //  6. A payer that loses the claim keeps its budget reservation.
 //  7. A retry of a failed invoice sends while its marker still says 'failed'.
+//  8. A send that is still pending (or failed) is answered as a success with an
+//     empty preimage, so the client believes it was paid.
+//  9. A send that settles a few seconds later is answered as not paid, so the
+//     user pays again elsewhere.
+// 10. A retry of a pending invoice never learns its outcome: it refuses
+//     forever, or pays a second time.
+// 11. A handed-off pay_invoice older than the handoff cap is answered
+//     "Request expired" although it was already paid, or is paid late.
 
 jest.mock('expo-sqlite', () => {
   const { DatabaseSync: DB } = require('node:sqlite');
@@ -74,6 +82,7 @@ const mockWallet = {
   initializeNWCWallet: jest.fn(),
   sendNWCSparkLightningPayment: jest.fn(),
   NWCSparkLightningPaymentStatus: jest.fn(),
+  getNWCSparkTransactions: jest.fn(),
 };
 jest.mock('../../../app/functions/nwc/wallet', () => ({
   __esModule: true,
@@ -83,9 +92,16 @@ jest.mock('../../../app/functions/nwc/wallet', () => ({
     mockWallet.sendNWCSparkLightningPayment(...a),
   NWCSparkLightningPaymentStatus: (...a) =>
     mockWallet.NWCSparkLightningPaymentStatus(...a),
+  getNWCSparkTransactions: (...a) => mockWallet.getNWCSparkTransactions(...a),
 }));
 jest.mock('../../../app/functions/spark', () => ({
-  getSparkPaymentStatus: jest.fn(() => 'completed'),
+  getSparkPaymentStatus: jest.fn(status =>
+    status === 'SUCCEEDED'
+      ? 'completed'
+      : status === 'FAILED'
+      ? 'failed'
+      : 'pending',
+  ),
 }));
 
 const { nwcEventLedger } = require('../../../app/functions/nwc/eventLedger');
@@ -140,10 +156,25 @@ const marker = paymentHash =>
   invoicesDb()
     .prepare('SELECT type, status FROM invoices WHERE payment_hash = ?')
     .get(paymentHash);
-const setMarker = (paymentHash, status) =>
+const setMarker = (paymentHash, status, preimage = '') =>
   invoicesDb()
-    .prepare('UPDATE invoices SET status = ? WHERE payment_hash = ?')
-    .run(status, paymentHash);
+    .prepare(
+      'UPDATE invoices SET status = ?, preimage = ? WHERE payment_hash = ?',
+    )
+    .run(status, preimage, paymentHash);
+// What getNWCSparkTransactions returns for the native send of 'lnbc-native'.
+const nativeTransfer = status => ({
+  transfers: [
+    {
+      status,
+      userRequest: {
+        typename: 'LightningSendRequest',
+        encodedInvoice: 'lnbc-native',
+        paymentPreimage: status === 'SUCCEEDED' ? 'native-preimage' : '',
+      },
+    },
+  ],
+});
 
 const accountPrivateKey = '02'.repeat(32);
 const servicePubkey = getPublicKey(accountPrivateKey);
@@ -152,11 +183,11 @@ const clientPubkey = getPublicKey(clientSecret);
 const conversationKey = () =>
   nip44.getConversationKey(Buffer.from(clientSecret, 'hex'), servicePubkey);
 
-const payPush = () => {
+const payPush = (ageSeconds = 0) => {
   const signed = finalizeEvent(
     {
       kind: 23194,
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: Math.floor(Date.now() / 1000) - ageSeconds,
       tags: [['p', servicePubkey]],
       content: nip44.encrypt(
         JSON.stringify({
@@ -292,5 +323,149 @@ describe('JS pay_invoice against a racing native payer', () => {
     expect(lastResponse().result.preimage).toBe('preimage');
     expect(marker(HASH).status).toBe('completed');
     expect(sentMsat()).toBe(5000);
+  });
+});
+
+describe('pay_invoice outcome reporting', () => {
+  afterEach(() => jest.useRealTimers());
+
+  // Drives the handler's status polling without waiting in real time.
+  const runWithFakeTimers = async push => {
+    jest.useFakeTimers({
+      doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'],
+    });
+    let done = false;
+    const run = handleNWCBackgroundEvent(push).then(() => (done = true));
+    while (!done) await jest.advanceTimersByTimeAsync(1000);
+    await run;
+  };
+
+  test('a send that settles after a few seconds returns its preimage (9)', async () => {
+    mockWallet.NWCSparkLightningPaymentStatus.mockResolvedValueOnce({
+      didWork: true,
+      paymentResponse: { status: 'PENDING' },
+    }).mockResolvedValueOnce({
+      didWork: true,
+      paymentResponse: { status: 'PENDING' },
+    });
+
+    await runWithFakeTimers(payPush());
+
+    expect(lastResponse()).toEqual({
+      result_type: 'pay_invoice',
+      result: { preimage: 'preimage' },
+    });
+    expect(marker(HASH).status).toBe('completed');
+  });
+
+  test('a send still pending is an error, not a success, and keeps its reservation and marker (8)', async () => {
+    mockWallet.NWCSparkLightningPaymentStatus.mockResolvedValue({
+      didWork: true,
+      paymentResponse: { status: 'PENDING' },
+    });
+
+    await runWithFakeTimers(payPush());
+
+    expect(lastResponse().result).toBeUndefined();
+    expect(lastResponse().error.message).toBe('Payment pending');
+    expect(marker(HASH).status).toBe('pending');
+    expect(sentMsat()).toBe(5000);
+  });
+
+  test('a send that failed is an error, not a success (8)', async () => {
+    mockWallet.NWCSparkLightningPaymentStatus.mockResolvedValue({
+      didWork: true,
+      paymentResponse: { status: 'FAILED' },
+    });
+
+    await runWithFakeTimers(payPush());
+
+    expect(lastResponse().result).toBeUndefined();
+    expect(lastResponse().error.message).toBe('Unable to send payment');
+    expect(marker(HASH).status).toBe('failed');
+  });
+});
+
+describe('pay_invoice retry of a pending marker (10)', () => {
+  beforeEach(() => {
+    expect(nativeClaimPayment(HASH)).toBe(true);
+  });
+
+  test('returns the preimage once the wallet shows it completed, without sending', async () => {
+    mockWallet.getNWCSparkTransactions.mockResolvedValue(
+      nativeTransfer('SUCCEEDED'),
+    );
+
+    await handleNWCBackgroundEvent(payPush());
+
+    expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
+    expect(lastResponse().result.preimage).toBe('native-preimage');
+    expect(marker(HASH).status).toBe('completed');
+  });
+
+  test('refuses while the wallet still shows it pending, without sending', async () => {
+    mockWallet.getNWCSparkTransactions.mockResolvedValue(
+      nativeTransfer('PENDING'),
+    );
+
+    await handleNWCBackgroundEvent(payPush());
+
+    expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
+    expect(lastResponse().error.message).toBe('Payment already in progress');
+    expect(marker(HASH).status).toBe('pending');
+  });
+
+  test('sends again once the wallet shows it failed', async () => {
+    mockWallet.getNWCSparkTransactions.mockResolvedValue(
+      nativeTransfer('FAILED'),
+    );
+
+    await handleNWCBackgroundEvent(payPush());
+
+    expect(mockWallet.sendNWCSparkLightningPayment).toHaveBeenCalledTimes(1);
+    expect(lastResponse().result.preimage).toBe('preimage');
+    expect(marker(HASH).status).toBe('completed');
+  });
+});
+
+describe('stale handed-off pay_invoice (11)', () => {
+  const STALE_AGE = 120;
+
+  test('returns the preimage of a payment that already completed', async () => {
+    expect(nativeClaimPayment(HASH)).toBe(true);
+    setMarker(HASH, 'completed', 'native-preimage');
+
+    await handleNWCBackgroundEvent(payPush(STALE_AGE), { fromHandoff: true });
+
+    expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
+    expect(lastResponse()).toEqual({
+      result_type: 'pay_invoice',
+      result: { preimage: 'native-preimage' },
+    });
+  });
+
+  test('reconciles a payment a killed native run left pending', async () => {
+    expect(nativeClaimPayment(HASH)).toBe(true);
+    mockWallet.getNWCSparkTransactions.mockResolvedValue(
+      nativeTransfer('SUCCEEDED'),
+    );
+
+    await handleNWCBackgroundEvent(payPush(STALE_AGE), { fromHandoff: true });
+
+    expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
+    expect(lastResponse().result.preimage).toBe('native-preimage');
+  });
+
+  test('never pays late when there is no marker, or only a failed one', async () => {
+    await handleNWCBackgroundEvent(payPush(STALE_AGE), { fromHandoff: true });
+    expect(lastResponse().error.message).toBe('Request expired');
+
+    expect(nativeClaimPayment(HASH)).toBe(true);
+    setMarker(HASH, 'failed');
+    await handleNWCBackgroundEvent(payPush(STALE_AGE), { fromHandoff: true });
+    expect(lastResponse().error.message).toBe('Request expired');
+
+    expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
+    expect(sentMsat() ?? 0).toBe(0);
   });
 });

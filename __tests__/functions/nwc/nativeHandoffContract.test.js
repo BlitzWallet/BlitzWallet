@@ -66,6 +66,15 @@ jest.mock('i18next', () => ({
 jest.mock('../../../app/constants', () => ({
   NOSTR_RELAY_URL: 'wss://relay.example.com',
 }));
+jest.mock('../../../app/functions/decodeBolt11', () => ({
+  __esModule: true,
+  default: {
+    decode: jest.fn(() => ({
+      millisatoshis: '5000',
+      tags: [{ tagName: 'payment_hash', data: 'ab'.repeat(32) }],
+    })),
+  },
+}));
 
 const { nwcEventLedger } = require('../../../app/functions/nwc/eventLedger');
 const {

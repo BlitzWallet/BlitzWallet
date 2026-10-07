@@ -387,6 +387,9 @@ class NwcHandler(
     val preimage = payment.lightning?.htlcDetails?.preimage ?: ""
     val status = if (payment.status == PaymentStatus.COMPLETED) "completed" else "pending"
     runCatching { invoices.updateStatus(paymentHash, status, preimage, payment.feeSats) }
+    // Only a completed payment is a success. A pending one keeps its marker and
+    // reservation; a retry or lookup_invoice resolves it later.
+    if (status != "completed") return errorResponse(method, "INTERNAL", "Payment pending")
 
     val createdAt = details.timestamp.toLong()
     publishNotification(

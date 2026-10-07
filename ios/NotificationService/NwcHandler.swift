@@ -427,7 +427,13 @@ final class NwcHandler: @unchecked Sendable {
       try? ledger.adjustSpend(account.publicKey, windowStart: windowStart, deltaMsat: -reservedMsat)
       return errorResponse(method, "INTERNAL", "Payment already in progress")
     }
-    guard setCurrent((event.id, true)) else { throw NwcError.handOff("expired") }
+    guard setCurrent((event.id, true)) else {
+      // Expired before sending: nothing left the wallet, so free the budget and
+      // the payment_hash for a later attempt.
+      try? ledger.adjustSpend(account.publicKey, windowStart: windowStart, deltaMsat: -reservedMsat)
+      try? invoices.updateStatus(paymentHash: paymentHash, status: "failed", preimage: "")
+      throw NwcError.handOff("expired")
+    }
 
     var payment: Payment?
     var neverLeft = false
@@ -460,6 +466,9 @@ final class NwcHandler: @unchecked Sendable {
     let status = payment.status == .completed ? "completed" : "pending"
     try? invoices.updateStatus(
       paymentHash: paymentHash, status: status, preimage: preimage, feeSats: payment.feeSats)
+    // Only a completed payment is a success. A pending one keeps its marker and
+    // reservation; a retry or lookup_invoice resolves it later.
+    guard status == "completed" else { return errorResponse(method, "INTERNAL", "Payment pending") }
 
     let createdAt = Int64(details.timestamp)
     await publishNotification(
