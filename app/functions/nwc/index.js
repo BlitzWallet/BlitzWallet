@@ -61,7 +61,21 @@ export function getSupportedNotifications(accountPermissions) {
 
 const SENSITIVE_KEYS = ['privateKey', 'secret'];
 
-export async function splitAndStoreNWCData(obj) {
+// Writes of the stored NWC data run one at a time, so a write-back can never
+// land over a connection deleted or edited after it was read. Reads never wait
+// on them: login and request handling must not depend on an NWC write.
+let storageLock = Promise.resolve();
+function withStorageLock(task) {
+  const run = storageLock.then(task);
+  storageLock = run.catch(() => {});
+  return run;
+}
+
+export function splitAndStoreNWCData(obj) {
+  return withStorageLock(() => storeNWCData(obj));
+}
+
+async function storeNWCData(obj) {
   let sensitiveData = {};
   const nonSensitiveData = JSON.parse(JSON.stringify(obj));
 
@@ -88,12 +102,24 @@ export async function splitAndStoreNWCData(obj) {
 }
 
 export async function getNWCData() {
+  const { data, didUpdate } = await readNWCData();
+  // Re-read under the lock, so the write-back reflects every write before it.
+  if (didUpdate) {
+    withStorageLock(async () => {
+      const fresh = await readNWCData();
+      if (fresh.didUpdate) await storeNWCData(fresh.data);
+    }).catch(err => console.error('Error storing NWC data', err));
+  }
+  return data;
+}
+
+async function readNWCData() {
   const [sensitiveJson, nonSensitiveJson] = await Promise.all([
     retrieveData(NWC_SECURE_STORE_KEY).then(data => data.value),
     getLocalStorageItem(NWC_LOACAL_STORE_KEY),
   ]);
 
-  if (!nonSensitiveJson) return {};
+  if (!nonSensitiveJson) return { data: {}, didUpdate: false };
 
   const nonSensitiveData = JSON.parse(nonSensitiveJson);
   const sensitiveData = sensitiveJson ? JSON.parse(sensitiveJson) : {};
@@ -149,11 +175,7 @@ export async function getNWCData() {
     }
   }
 
-  if (didUpdate) {
-    splitAndStoreNWCData(nonSensitiveData);
-  }
-
-  return nonSensitiveData;
+  return { data: nonSensitiveData, didUpdate };
 }
 
 export async function saveNWCAccount({

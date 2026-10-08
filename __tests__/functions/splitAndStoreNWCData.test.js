@@ -89,6 +89,8 @@ describe('splitAndStoreNWCData', () => {
     const data = await getNWCData();
 
     expect(data.accounts.abc.clientPubkey).toBe(getPublicKey(secret));
+    // The write-back is queued behind other writes, not awaited by the read.
+    await new Promise(resolve => setTimeout(resolve, 0));
     expect(setLocalStorageItem).toHaveBeenCalledWith(
       'NWC_LOACAL_STORE_KEY',
       expect.stringContaining(getPublicKey(secret)),

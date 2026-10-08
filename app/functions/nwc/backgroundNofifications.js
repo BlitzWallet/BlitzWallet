@@ -3,7 +3,6 @@ import {
   getSupportedMethods,
   getSupportedNotifications,
   isWithinNWCBalanceTimeFrame,
-  splitAndStoreNWCData,
 } from '.';
 import i18next from 'i18next';
 import { publishToSingleRelay } from './publishResponse';
@@ -569,7 +568,6 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
 const handlePayInvoice = async (
   requestParams,
   selectedNWCAccount,
-  fullStorageObject,
   clientPubKey,
   { stale = false } = {},
 ) => {
@@ -702,25 +700,12 @@ const handlePayInvoice = async (
     );
   }
 
-  // Mirrors the ledger (the source of truth) into the stored account for display.
+  // Mirrors the ledger (the source of truth) into the stored accounts for
+  // display. getNWCData re-reads storage: writing back the accounts read when
+  // this request started would undo a connection deleted or edited since.
   const syncDisplayedSpend = async () => {
     try {
-      const spend = await nwcEventLedger.getSpendState(
-        selectedNWCAccount.publicKey,
-      );
-      if (!spend) return;
-      await splitAndStoreNWCData({
-        ...fullStorageObject,
-        accounts: {
-          ...fullStorageObject.accounts,
-          [selectedNWCAccount.publicKey]: {
-            ...selectedNWCAccount,
-            totalSent:
-              (spend.budgetSentMsat - (spend.budgetSentMsat % 1000)) / 1000,
-            lastRotated: spend.windowStart,
-          },
-        },
-      });
+      await getNWCData();
     } catch (err) {
       console.error('Failed to store spend state', err);
     }
@@ -805,7 +790,9 @@ const handlePayInvoice = async (
   }
   const paymentPreimage = status?.paymentResponse?.paymentPreimage || '';
 
-  const feeMsat = response.fee?.originalValue || 0;
+  const feeMsat =
+    (response.fee?.originalValue || 0) *
+    (response.fee?.originalUnit === 'MILLISATOSHI' ? 1 : 1000);
 
   // Reconcile the reservation: release it entirely if the send failed,
   // otherwise settle it to the actual amount + fee.
@@ -923,7 +910,6 @@ const handleGetBalance = async selectedNWCAccount => {
 const processEvent = async (
   event,
   selectedNWCAccount,
-  fullStorageObject,
   { stale = false } = {},
 ) => {
   const { requestMethod, requestParams } = event;
@@ -986,7 +972,6 @@ const processEvent = async (
       returnObject = await handlePayInvoice(
         requestParams,
         selectedNWCAccount,
-        fullStorageObject,
         event.clientPubKey,
         { stale },
       );
@@ -1318,12 +1303,9 @@ export default async function handleNWCBackgroundEvent(
 
           // A stale handoff still runs the payment_hash lookup first: a
           // native run may have paid it before being killed.
-          const returnObject = await processEvent(
-            event,
-            selectedNWCAccount,
-            fullStorageObject,
-            { stale: fromHandoff && isStaleHandoffPayment(event) },
-          );
+          const returnObject = await processEvent(event, selectedNWCAccount, {
+            stale: fromHandoff && isStaleHandoffPayment(event),
+          });
           if (!returnObject) {
             await nwcEventLedger.markDone(event.id, Date.now());
             continue;

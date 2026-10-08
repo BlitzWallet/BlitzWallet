@@ -20,6 +20,8 @@
 //     forever, or pays a second time.
 // 11. A handed-off pay_invoice older than the handoff cap is answered
 //     "Request expired" although it was already paid, or is paid late.
+// 12. A fee Spark reports in sats is charged to the budget as if it were msat
+//     (1000x too low), and recorded as a 0-sat fee.
 
 jest.mock('expo-sqlite', () => {
   const { DatabaseSync: DB } = require('node:sqlite');
@@ -468,4 +470,30 @@ describe('stale handed-off pay_invoice (11)', () => {
     expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
     expect(sentMsat() ?? 0).toBe(0);
   });
+});
+
+describe('pay_invoice fee accounting', () => {
+  const storedFee = paymentHash =>
+    invoicesDb()
+      .prepare('SELECT fee FROM invoices WHERE payment_hash = ?')
+      .get(paymentHash).fee;
+
+  test.each([
+    ['SATOSHI', 5],
+    ['MILLISATOSHI', 5000],
+  ])(
+    'a 5-sat fee reported in %s is charged once, in msat (12)',
+    async (originalUnit, originalValue) => {
+      mockWallet.sendNWCSparkLightningPayment.mockResolvedValueOnce({
+        didWork: true,
+        paymentResponse: { id: 'send-1', fee: { originalValue, originalUnit } },
+      });
+
+      await handleNWCBackgroundEvent(payPush());
+
+      expect(lastResponse().result.preimage).toBe('preimage');
+      expect(sentMsat()).toBe(5000 + 5000); // invoice + fee
+      expect(storedFee(HASH)).toBe(5);
+    },
+  );
 });

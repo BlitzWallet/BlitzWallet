@@ -100,6 +100,15 @@ export function writeNativeNWCConfig(nwcData) {
     return true;
   } catch (err) {
     console.log('Error writing native NWC config', err);
+    // The previous snapshot may still list a connection that was just deleted.
+    // Without one, the native handlers hand every request to JS, which reads
+    // fresh storage.
+    try {
+      const config = new File(getSharedDirectory(), CONFIG_FILE);
+      if (config.exists) config.delete();
+    } catch (deleteErr) {
+      console.log('Error removing native NWC config', deleteErr);
+    }
     return false;
   }
 }
