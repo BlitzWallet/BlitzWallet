@@ -172,6 +172,8 @@ export const PushNotificationProvider = ({ children }) => {
         newObject.isEnabled && newObject.enabledServices?.NWC
       );
       const nwcPush = masterInfoObject.NWC?.pushNotifications;
+      // No token yet (new account, permission not granted): nothing to mirror.
+      if (!newObject.hash) return;
       if (
         newObject.hash !== nwcPush?.hash ||
         nwcPushEnabled !== nwcPush?.isEnabled
