@@ -191,7 +191,12 @@ export default function NWCAuthApproval({
   }, [currentPage, canSend, listedPermissions.length]);
 
   if (notificationsEnabled === false && currentPage !== 'error') {
-    return <NostrWalletConnectNoNotifications />;
+    return (
+      <NostrWalletConnectNoNotifications
+        fromModal={true}
+        backFunction={handleBackPressFunction}
+      />
+    );
   }
   if (notificationsEnabled === null && currentPage !== 'error') {
     return <FullLoadingScreen />;

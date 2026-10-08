@@ -6,7 +6,10 @@ import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { CENTER } from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 
-export default function NostrWalletConnectNoNotifications() {
+export default function NostrWalletConnectNoNotifications({
+  fromModal = false,
+  backFunction,
+}) {
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -20,6 +23,15 @@ export default function NostrWalletConnectNoNotifications() {
       <CustomButton
         textContent={t('constants.enable')}
         actionFunction={() => {
+          if (fromModal) {
+            backFunction(() => {
+              navigate.goBack();
+              navigate.navigate('SettingsContentHome', {
+                for: 'Notifications',
+              });
+            });
+            return;
+          }
           navigate.navigate('SettingsContentHome', {
             for: 'Notifications',
           });
