@@ -621,7 +621,9 @@ async function login({ snapshot = null, startBalance = 5000 } = {}) {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  process.env.SPARK_IDENTITY_PUBKEY = 'spark-refund-pubkey';
+  Object.assign(process.env, {
+    SPARK_IDENTITY_PUBKEY: 'spark-refund-pubkey',
+  });
   mockResetWorld();
   AppState.currentState = 'active';
   ctx = null;
