@@ -383,6 +383,12 @@ export default function NWCAuthApproval({
             textContent={t('settings.nwc.authRequest.approve')}
             actionFunction={handleApprove}
           />
+          <CustomButton
+            buttonStyles={{ backgroundColor: 'transparent' }}
+            textStyles={{ color: textColor }}
+            textContent={t('constants.cancel')}
+            actionFunction={handleBackPressFunction}
+          />
         </AnimatedStep>
       )}
 
