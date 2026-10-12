@@ -27,29 +27,67 @@ class AppDelegate: ExpoAppDelegate {
     reactNativeFactory = factory
     bindReactNativeFactory(factory)
     
-    window = UIWindow(frame: UIScreen.main.bounds)
+    // The window and React Native are started in SceneDelegate (iOS 27 requires the UIScene lifecycle).
     
-    factory.startReactNative(
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  var window: UIWindow?
+
+  func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    guard let windowScene = scene as? UIWindowScene,
+          let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+
+    let window = UIWindow(windowScene: windowScene)
+    self.window = window
+
+    // iOS can disconnect a background scene while the process (and React Native) stays alive.
+    // On reconnect, reuse the running app and deliver any link as a normal 'url' event,
+    // because launchOptions are only read when React Native first starts.
+    if let rootViewController = appDelegate.window?.rootViewController {
+      appDelegate.window?.rootViewController = nil
+      window.rootViewController = rootViewController
+      window.makeKeyAndVisible()
+      appDelegate.window = window
+      self.scene(scene, openURLContexts: connectionOptions.urlContexts)
+      if let activity = connectionOptions.userActivities.first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb }) {
+        self.scene(scene, continue: activity)
+      }
+      return
+    }
+    appDelegate.window = window
+
+    // With scenes, launch URLs arrive here instead of in didFinishLaunching's launchOptions.
+    // Rebuild them so Linking.getInitialURL() keeps working on cold start.
+    var launchOptions: [UIApplication.LaunchOptionsKey: Any] = [:]
+    if let url = connectionOptions.urlContexts.first?.url {
+      launchOptions[.url] = url
+    }
+    if let activity = connectionOptions.userActivities.first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb }) {
+      // RCTLinkingManager.getInitialURL checks the type key before reading the activity.
+      launchOptions[.userActivityDictionary] = [
+        UIApplication.LaunchOptionsKey.userActivityType.rawValue: activity.activityType,
+        "UIApplicationLaunchOptionsUserActivityKey": activity,
+      ]
+    }
+
+    appDelegate.reactNativeFactory?.startReactNative(
       withModuleName: "BlitzWallet",
       in: window,
       launchOptions: launchOptions
     )
-    
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-  
-  // Add for handling URL scheme links
-  override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    return RCTLinkingManager.application(app, open: url, options: options)
+
+  // With scenes, UIKit no longer calls the AppDelegate open-url / continue-activity methods.
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = URLContexts.first?.url else { return }
+    _ = RCTLinkingManager.application(UIApplication.shared, open: url, options: [:])
   }
-  
-  override func application(_ application: UIApplication,
-                            continue userActivity: NSUserActivity,
-                            restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-    
-    return RCTLinkingManager.application(application,
-                                         continue: userActivity,
-                                         restorationHandler: restorationHandler)
+
+  func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+    _ = RCTLinkingManager.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
   }
 }
 
