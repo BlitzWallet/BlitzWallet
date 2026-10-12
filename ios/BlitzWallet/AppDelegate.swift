@@ -28,7 +28,21 @@ class AppDelegate: ExpoAppDelegate {
     bindReactNativeFactory(factory)
     
     // The window and React Native are started in SceneDelegate (iOS 27 requires the UIScene lifecycle).
-    
+
+    // A silent push that relaunches a terminated app connects no scene, so start React Native
+    // in an offscreen window here so BACKGROUND-NOTIFICATION-TASK can run. SceneDelegate adopts
+    // this root view controller if the user opens the app. applicationState can't be used as the
+    // gate: under scenes it reads .background here even for normal launches.
+    if launchOptions?[.remoteNotification] != nil {
+      let window = UIWindow(frame: UIScreen.main.bounds)
+      self.window = window
+      factory.startReactNative(
+        withModuleName: "BlitzWallet",
+        in: window,
+        launchOptions: launchOptions
+      )
+    }
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
