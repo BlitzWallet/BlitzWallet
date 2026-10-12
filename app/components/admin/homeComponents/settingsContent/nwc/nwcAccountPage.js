@@ -7,8 +7,12 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
-import { CENTER, NOSTR_RELAY_URL } from '../../../../../constants';
+import { CENTER } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
+import createNWCConnectionString, {
+  getNWCLud16,
+} from '../../../../../functions/nwc/createConnectionString';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
@@ -19,6 +23,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 export default function NWCAccountPage(props) {
   const navigate = useNavigation();
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const accountID = props?.route?.params?.accountID;
   const savedData = masterInfoObject?.NWC?.accounts?.[accountID] || {};
   const { fiatStats } = useNodeContext();
@@ -49,9 +54,14 @@ export default function NWCAccountPage(props) {
         })}${renewalPeriod ? ` / ${renewalPeriod}` : ''}`
       : t('constants.unlimited');
 
-  const connectionString = `nostr+walletconnect://${
-    savedData.publicKey
-  }?relay=${encodeURIComponent(NOSTR_RELAY_URL)}&secret=${savedData.secret}`;
+  const connectionString = createNWCConnectionString({
+    publicKey: savedData.publicKey,
+    connectionSecret: savedData.secret,
+    lud16: getNWCLud16(
+      masterInfoObject,
+      globalContactsInformation?.myProfile?.uniqueName,
+    ),
+  });
 
   const editableItems = [
     {

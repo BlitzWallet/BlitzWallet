@@ -8,7 +8,6 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  NOSTR_RELAY_URL,
   SIZES,
 } from '../../../../../constants';
 import {
@@ -34,6 +33,10 @@ import {
   resolveUsdFiatStats,
 } from '../../../../../functions/displayCurrency';
 import { saveNWCAccount } from '../../../../../functions/nwc';
+import createNWCConnectionString, {
+  getNWCLud16,
+} from '../../../../../functions/nwc/createConnectionString';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -50,6 +53,7 @@ export default function CreateNWCAmount(props) {
   const { swapUSDPriceDollars } = useFlashnet();
   const { theme } = useGlobalThemeContext();
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { fiatStats } = useNodeContext();
   const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
@@ -201,11 +205,14 @@ export default function CreateNWCAmount(props) {
               key => !masterInfoObject?.NWC?.accounts?.[key],
             )
           ];
-        const connectionString = `nostr+walletconnect://${
-          newAccount.publicKey
-        }?relay=${encodeURIComponent(NOSTR_RELAY_URL)}&secret=${
-          newAccount.secret
-        }`;
+        const connectionString = createNWCConnectionString({
+          publicKey: newAccount.publicKey,
+          connectionSecret: newAccount.secret,
+          lud16: getNWCLud16(
+            masterInfoObject,
+            globalContactsInformation?.myProfile?.uniqueName,
+          ),
+        });
         setTimeout(() => {
           navigate.navigate('NWCAccountCreated', { connectionString });
         }, 50);
