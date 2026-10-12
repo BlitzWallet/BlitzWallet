@@ -583,7 +583,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BlitzWallet/BlitzWallet.entitlements;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 83;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BlitzWallet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Blitz Wallet";
@@ -593,7 +593,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.1.5;
+				MARKETING_VERSION = 4.1.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -621,7 +621,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BlitzWallet/BlitzWallet.entitlements;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 83;
 				INFOPLIST_FILE = BlitzWallet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Blitz Wallet";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -630,7 +630,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.1.5;
+				MARKETING_VERSION = 4.1.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -656,7 +656,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 83;
 				DEVELOPMENT_TEAM = 38WX44YTA6;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NotificationService/Info.plist;
@@ -666,7 +666,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.1.5;
+				MARKETING_VERSION = 4.1.6;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.BlitzWallet.NotificationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -869,7 +869,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 83;
 				DEVELOPMENT_TEAM = 38WX44YTA6;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NotificationService/Info.plist;
@@ -879,7 +879,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.1.5;
+				MARKETING_VERSION = 4.1.6;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.BlitzWallet.NotificationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
