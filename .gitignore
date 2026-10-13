@@ -103,3 +103,6 @@ plans
 skills-lock.json
 # Maestro E2E output
 e2e-artifacts/
+
+# design-sync (local only; Claude Design sync inputs + build output)
+.design-sync/
