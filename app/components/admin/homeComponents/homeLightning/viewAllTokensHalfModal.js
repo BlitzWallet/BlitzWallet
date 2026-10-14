@@ -4,8 +4,9 @@ import {
   View,
   Animated,
 } from 'react-native';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ThemeText } from '../../../../functions/CustomElements';
 
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -131,25 +132,15 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { showToast } = useToast();
   const { t } = useTranslation();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
+  const fadeAnim = useSharedValue(0);
+  const slideAnim = useSharedValue(20);
 
   const imageUri = tokensImageCache[tokenIdentifier];
   const { balance, tokenMetadata } = token;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 220,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 220,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    fadeAnim.value = withTiming(1, { duration: 220 });
+    slideAnim.value = withTiming(0, { duration: 220 });
   }, []);
 
   const cardBg = theme

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolateColor,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { COLORS, SIZES } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import GetThemeColors from '../../hooks/themeColors';
@@ -38,36 +39,30 @@ const CustomToggleSwitch = ({
 
   const [sliderText, setSliderText] = useState(localIsOn ? 'ON' : 'OFF');
 
-  const animatedValue = useRef(new Animated.Value(localIsOn ? 1 : 0)).current;
-  const opacityTextValue = useRef(
-    new Animated.Value(localIsOn ? 1 : 0),
-  ).current;
+  const animatedValue = useSharedValue(localIsOn ? 1 : 0);
+  const opacityTextValue = useSharedValue(localIsOn ? 1 : 0);
   const isInitialRender = useRef(true);
 
   useEffect(() => {
-    Animated.timing(animatedValue, {
-      toValue: localIsOn ? 1 : 0,
-      duration: 300, // Duration of the animation
-      useNativeDriver: true, // Enable if animating style properties
-    }).start();
+    animatedValue.value = withTiming(localIsOn ? 1 : 0, { duration: 300 });
 
-    Animated.timing(opacityTextValue, {
-      toValue: isInitialRender.current ? 1 : 0,
-      duration: 150,
-      useNativeDriver: true,
-    }).start(() => {
+    const onTextFadeOut = () => {
       if (isInitialRender.current) {
         isInitialRender.current = false;
       } else setSliderText(prev => (prev === 'ON' ? 'OFF' : 'ON'));
       // Change text after fade out
 
       // Fade in animation
-      Animated.timing(opacityTextValue, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }).start();
-    });
+      opacityTextValue.value = withTiming(1, { duration: 150 });
+    };
+
+    opacityTextValue.value = withTiming(
+      isInitialRender.current ? 1 : 0,
+      { duration: 150 },
+      () => {
+        scheduleOnRN(onTextFadeOut);
+      },
+    );
   }, [localIsOn]);
 
   const toggleSwitch = () => {
@@ -100,49 +95,44 @@ const CustomToggleSwitch = ({
     page === 'pinAccount' ||
     page === 'spendAndReplace';
 
-  const circleColor = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [
-      useAltStyle
-        ? theme
-          ? COLORS.darkModeText
-          : COLORS.primary
-        : COLORS.darkModeText,
-      useAltStyle
-        ? theme
-          ? backgroundColor
-          : COLORS.darkModeText
-        : darkModeType && theme
-        ? COLORS.lightsOutBackground
-        : COLORS.darkModeText,
-    ], // From inactive to active color
-  });
-  const switchColor = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [
-      useAltStyle
-        ? theme
-          ? backgroundColor
-          : COLORS.darkModeText
-        : backgroundOffset,
-      darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-    ], // From inactive to active color
-  });
-  const animatedTextColor = opacityTextValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1], // From inactive to active color
-  });
+  const circleColors = [
+    useAltStyle
+      ? theme
+        ? COLORS.darkModeText
+        : COLORS.primary
+      : COLORS.darkModeText,
+    useAltStyle
+      ? theme
+        ? backgroundColor
+        : COLORS.darkModeText
+      : darkModeType && theme
+      ? COLORS.lightsOutBackground
+      : COLORS.darkModeText,
+  ]; // From inactive to active color
+  const switchColors = [
+    useAltStyle
+      ? theme
+        ? backgroundColor
+        : COLORS.darkModeText
+      : backgroundOffset,
+    darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+  ]; // From inactive to active color
 
-  const circlePosition = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [5, 40], // From left to right position
-  });
-  // Text position animation (now properly initialized)
-  const textPosition = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [70 - textWidth - 10, 10], // Adjusted these values for better positioning
-    extrapolate: 'clamp',
-  });
+  const switchStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      animatedValue.value,
+      [0, 1],
+      switchColors,
+    ),
+  }));
+  const circleStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      animatedValue.value,
+      [0, 1],
+      circleColors,
+    ),
+    transform: [{ translateX: 5 + animatedValue.value * 35 }], // From left to right position
+  }));
 
   const sliderTextLength = t(
     `constants.${sliderText.toLowerCase()}Lower`,
@@ -160,16 +150,8 @@ const CustomToggleSwitch = ({
       style={containerStyles}
       activeOpacity={0.7}
     >
-      <Animated.View style={[styles.switch, { backgroundColor: switchColor }]}>
-        <Animated.View
-          style={[
-            styles.circle,
-            {
-              transform: [{ translateX: circlePosition }],
-              backgroundColor: circleColor,
-            },
-          ]}
-        />
+      <Animated.View style={[styles.switch, switchStyle]}>
+        <Animated.View style={[styles.circle, circleStyle]} />
         {/* <Animated.Text
           onLayout={event => {
             console.log(event.nativeEvent.layout.width);
