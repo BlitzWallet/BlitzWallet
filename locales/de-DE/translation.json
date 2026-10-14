@@ -943,11 +943,13 @@
         "noAvailableServices": "Dieser Standort hat keine verfügbaren Dienste.",
         "orderDetailsLoading": "Bestelldetails werden abgerufen…",
         "countryStepTitle": "Land wählen",
-        "countrySearchPlaceholder": "Länder suchen"
+        "countrySearchPlaceholder": "Länder suchen",
+        "fetchServicesError": "Verfügbare SMS-Dienste konnten nicht geladen werden"
       },
       "confirmCodePage": {
         "header": "Ihre Bestellung wurde erfolgreich gestartet",
         "phoneNumberLabel": "Ihre Nummer:",
+        "step1": "Klicken Sie auf das Beleg-Symbol oben rechts, um Ihren Bestellverlauf anzuzeigen",
         "step2": "Verwenden Sie die Schaltfläche „Code abrufen“ auf der Startseite, um Ihren Bestätigungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben",
         "step3": "Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet",
         "automaticRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder wurden bereits zurückerstattet.",

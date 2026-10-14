@@ -311,7 +311,7 @@ export default function PosSettingsPage() {
                 keyboardNavigate(() => {
                   if (!isConnectedToTheInternet) {
                     navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessges.nointernet'),
+                      errorMessage: t('errormessages.nointernet'),
                     });
                     return;
                   }

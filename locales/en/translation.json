@@ -943,11 +943,13 @@
         "noAvailableServices": "This location has no services",
         "orderDetailsLoading": "Getting order details",
         "countryStepTitle": "Choose a country",
-        "countrySearchPlaceholder": "Search countries"
+        "countrySearchPlaceholder": "Search countries",
+        "fetchServicesError": "Unable to load available SMS services"
       },
       "confirmCodePage": {
         "header": "Your order has been successfully initiated",
         "phoneNumberLabel": "Your Number:",
+        "step1": "Click the receipt icon in the top right to view your order history",
         "step2": "Use the 'Get Code' button on the homepage to retrieve your verification code, after adding the number to the service",
         "step3": "If no code is received, your payment will be automatically refunded in 21 minutes",
         "automaticRefund": "No number was available for this service. Your funds have already been refunded.",

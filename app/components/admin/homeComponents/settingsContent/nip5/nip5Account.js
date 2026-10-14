@@ -150,7 +150,7 @@ export default function Nip5VerificationPage() {
         if (!isNameFree) throw new Error(t('settings.nip5.takenNameError'));
       }
 
-      await addNip5toCollection(
+      const didSave = await addNip5toCollection(
         {
           name: parsedName,
           nameLower: parsedName.toLowerCase(),
@@ -159,6 +159,7 @@ export default function Nip5VerificationPage() {
         },
         masterInfoObject.uuid,
       );
+      if (!didSave) throw new Error(t('settings.nip5.dataIsInvalid'));
       toggleMasterInfoObject({
         nip5Settings: {
           name: parsedName,

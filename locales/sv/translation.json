@@ -943,11 +943,13 @@
         "noAvailableServices": "Denna plats har inga tjänster",
         "orderDetailsLoading": "Hämta orderinformation",
         "countryStepTitle": "Välj ett land",
-        "countrySearchPlaceholder": "Sök länder"
+        "countrySearchPlaceholder": "Sök länder",
+        "fetchServicesError": "Kunde inte ladda tillgängliga SMS-tjänster"
       },
       "confirmCodePage": {
         "header": "Din beställning har startats framgångsrikt",
         "phoneNumberLabel": "Ditt nummer:",
+        "step1": "Klicka på kvittoikonen uppe till höger för att visa din orderhistorik",
         "step2": "Använd knappen ”Hämta kod” på startsidan för att få din verifieringskod efter att du har lagt till numret i tjänsten",
         "step3": "Om ingen kod tas emot återbetalas din betalning automatiskt inom 21 minuter",
         "automaticRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel har redan återbetalats.",
