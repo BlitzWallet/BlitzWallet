@@ -143,6 +143,57 @@ function getTimeoutDuration(action) {
   return 10000;
 }
 
+// --- Unknown-outcome / keep-alive semantics (parity with native webViewContext.js) ---
+//
+// Native runs the SDK in a separate page process: on a watchdog timeout it
+// re-posts the SAME request id (resume-by-id — the backend id→outcome cache
+// returns the real outcome, never a re-execution) and only settles
+// `{didWork:false, kind:'unknown'}` at a bounded final deadline. A bare
+// Promise.race here did neither: the timeout won, the in-flight handler kept
+// running discarded, and the caller got a bare `{error}` — indistinguishable
+// from "definitely failed". A timed-out send could then be retried by the UI
+// while the original still executed.
+//
+// In-process port: the handler promise IS the single execution, so "resume"
+// means keep awaiting it (never re-dispatch — re-calling the handler would
+// re-execute a payment) up to the same bounded final deadline, then settle
+// unknown. Op sets mirror the native FUNDS_OPS / KEEP_ALIVE_OPS
+// (payLightningWithToken is web-only but moves funds, so it is kept alive and
+// settles unknown like the other sends).
+const FUNDS_OPS = new Set([
+  OPERATION_TYPES.sendSparkPayment,
+  OPERATION_TYPES.sendTokenPayment,
+  OPERATION_TYPES.sendBitcoinPayment,
+  OPERATION_TYPES.claimStaticDepositAddress,
+  OPERATION_TYPES.fufillSparkInvoices,
+  OPERATION_TYPES.batchTransferTokens,
+  OPERATION_TYPES.executeSwap,
+  OPERATION_TYPES.swapBitcoinToToken,
+  OPERATION_TYPES.swapTokenToBitcoin,
+  OPERATION_TYPES.payLightningWithToken,
+  OPERATION_TYPES.requestClawback,
+  OPERATION_TYPES.requestBatchClawback,
+]);
+
+const KEEP_ALIVE_OPS = new Set([
+  ...FUNDS_OPS,
+  OPERATION_TYPES.sendLightningPayment,
+  OPERATION_TYPES.getBitcoinPaymentRequest,
+  OPERATION_TYPES.getBitcoinPaymentFee,
+  OPERATION_TYPES.receiveLightningPayment,
+  OPERATION_TYPES.getLightningFee,
+  OPERATION_TYPES.getSparkPaymentFee,
+  OPERATION_TYPES.initWallet,
+]);
+
+// initWallet is keep-alive but never resumed: a hung init settles at its own
+// timeout (native handleTimeout special-case), so the caller runs the bounded
+// re-init path instead of delaying failure another 30s. It is not in
+// FUNDS_OPS, so the immediate-settle branch below gives it kind 'timeout',
+// exactly like native.
+const NO_RESUME_OPS = new Set([OPERATION_TYPES.initWallet]);
+const KEEP_ALIVE_FINAL_DEADLINE_MS = 30 * 1000;
+
 // --- Event emitters (same names/signatures the app subscribes to) ---
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
@@ -232,13 +283,8 @@ const fakeBridge = {
 
 const sparkAPI = SparkAPI({ sharedKey, ReactNativeWebView: fakeBridge });
 
-function timeout(ms, action) {
-  return new Promise(resolve =>
-    setTimeout(
-      () => resolve({ error: `Call unresponsive (timeout after ${ms}ms)` }),
-      ms,
-    ),
-  );
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export const sendWebViewRequestGlobal = async (action, args = {}) => {
@@ -246,13 +292,52 @@ export const sendWebViewRequestGlobal = async (action, args = {}) => {
   if (typeof handler !== 'function') {
     throw new Error(`Unknown Spark action: ${action}`);
   }
-  const result = await Promise.race([
-    Promise.resolve(handler(args)),
-    timeout(getTimeoutDuration(action), action),
-  ]);
   // Parity with the native bridge's JSON.stringify/parse round-trip (drops
   // undefined, normalizes bigint-toString shapes already applied by spark.js).
-  return JSON.parse(JSON.stringify(result ?? null));
+  const normalize = result => JSON.parse(JSON.stringify(result ?? null));
+
+  // Single dispatch: this promise is the ONLY execution of the op. It is
+  // never re-created or re-run — the in-process equivalent of the native
+  // resume-by-id guarantee (same id, never a re-execution). The races below
+  // stay subscribed to it, so a late settlement after a timeout is absorbed
+  // rather than surfacing as an unhandled rejection.
+  const attempt = Promise.resolve(handler(args));
+  const timeoutDuration = getTimeoutDuration(action);
+
+  if (!KEEP_ALIVE_OPS.has(action) || NO_RESUME_OPS.has(action)) {
+    const result = await Promise.race([
+      attempt,
+      delay(timeoutDuration).then(() => ({
+        didWork: false,
+        error: `Call unresponsive (timeout after ${timeoutDuration}ms)`,
+        // A timed-out funds op may have executed — never fabricate a plain
+        // failure (native: kind 'unknown'); anything else is a real timeout.
+        kind: FUNDS_OPS.has(action) ? 'unknown' : 'timeout',
+      })),
+    ]);
+    return normalize(result);
+  }
+
+  // Keep-alive ops (sends): the true outcome is still unknown at the first
+  // timeout, so the caller's promise stays live — keep awaiting the SAME
+  // attempt (resume) instead of discarding it. The bounded final deadline is
+  // the sole negative settle, and only as a last resort. Rejection semantics
+  // are unchanged: a rejected attempt still rejects the caller, exactly as
+  // the old bare race did.
+  const firstWindow = await Promise.race([
+    attempt.then(value => ({ resumed: true, value })),
+    delay(timeoutDuration).then(() => ({ resumed: false })),
+  ]);
+  if (firstWindow.resumed) return normalize(firstWindow.value);
+  const finalOutcome = await Promise.race([
+    attempt,
+    delay(KEEP_ALIVE_FINAL_DEADLINE_MS).then(() => ({
+      didWork: false,
+      error: `Call unresponsive (final deadline after ${KEEP_ALIVE_FINAL_DEADLINE_MS}ms)`,
+      kind: 'unknown',
+    })),
+  ]);
+  return normalize(finalOutcome);
 };
 
 // The whole point of the WebView bridge is a crashy external process; there is
