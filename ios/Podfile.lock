@@ -1249,14 +1249,14 @@ PODS:
   - DoubleConversion (1.1.6)
   - EXApplication (7.0.7):
     - ExpoModulesCore
-  - EXConstants (18.0.9):
+  - EXConstants (18.0.14):
     - ExpoModulesCore
   - EXImageLoader (6.0.0):
     - ExpoModulesCore
     - React-Core
   - EXNotifications (0.32.12):
     - ExpoModulesCore
-  - Expo (54.0.12):
+  - Expo (54.0.37):
     - boost
     - DoubleConversion
     - ExpoModulesCore
@@ -1287,7 +1287,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - ExpoAsset (12.0.9):
+  - ExpoAsset (12.0.13):
     - ExpoModulesCore
   - ExpoBackgroundTask (1.0.8):
     - ExpoModulesCore
@@ -1295,9 +1295,9 @@ PODS:
     - ExpoModulesCore
   - ExpoCrypto (15.0.7):
     - ExpoModulesCore
-  - ExpoFileSystem (19.0.16):
+  - ExpoFileSystem (19.0.24):
     - ExpoModulesCore
-  - ExpoFont (14.0.8):
+  - ExpoFont (14.0.12):
     - ExpoModulesCore
   - ExpoImage (3.0.11):
     - ExpoModulesCore
@@ -1312,7 +1312,7 @@ PODS:
     - SDWebImageWebPCoder
   - ExpoImagePicker (17.0.8):
     - ExpoModulesCore
-  - ExpoKeepAwake (15.0.7):
+  - ExpoKeepAwake (15.0.8):
     - ExpoModulesCore
   - ExpoLinearGradient (15.0.7):
     - ExpoModulesCore
@@ -1320,7 +1320,7 @@ PODS:
     - ExpoModulesCore
   - ExpoLocation (19.0.8):
     - ExpoModulesCore
-  - ExpoModulesCore (3.0.20):
+  - ExpoModulesCore (3.0.30):
     - boost
     - DoubleConversion
     - fast_float
@@ -5729,24 +5729,24 @@ SPEC CHECKSUMS:
   CNIOWindows: 3047f2d8165848a3936a0a755fee27c6b5ee479b
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EXApplication: 296622817d459f46b6c5fe8691f4aac44d2b79e7
-  EXConstants: a95804601ee4a6aa7800645f9b070d753b1142b3
+  EXConstants: 18ac927605517285307ea8f7ffe6fe7ca538eb5d
   EXImageLoader: 189e3476581efe3ad4d1d3fb4735b7179eb26f05
   EXNotifications: 7cff475adb5d7a255a9ea46bbd2589cb3b454506
-  Expo: 59df4497c1db30b7824f49e5724b90aaffec04d9
-  ExpoAsset: 9ba6fbd677fb8e241a3899ac00fa735bc911eadf
+  Expo: c3473549eabe0d0dbe3a4ed23610147bd6301c72
+  ExpoAsset: 9e5a7c9c0a9fb83ad5b2bb365141f2bd7f289b66
   ExpoBackgroundTask: e0d201d38539c571efc5f9cb661fae8ab36ed61b
   ExpoClipboard: af650d14765f19c60ce2a1eaf9dfe6445eff7365
   ExpoCrypto: c1fbce112d1b6b79652bbe380b4fd4cc91676595
-  ExpoFileSystem: f4bf6bac4ede3b6671c22777f01102a02a028412
-  ExpoFont: 86ceec09ffed1c99cfee36ceb79ba149074901b5
+  ExpoFileSystem: 8e87545aef1d8d31f244edbfdd0780df4e5bac2e
+  ExpoFont: dfb7c572372b610da45b41e3b436321fd6a97215
   ExpoImage: 686f972bff29525733aa13357f6691dc90aa03d8
   ExpoImageManipulator: ead6e7cca441603bfaecc898a69a093adef8b4ef
   ExpoImagePicker: d251aab45a1b1857e4156fed88511b278b4eee1c
-  ExpoKeepAwake: 1a2e820692e933c94a565ec3fbbe38ac31658ffe
+  ExpoKeepAwake: 55f75eca6499bb9e4231ebad6f3e9cb8f99c0296
   ExpoLinearGradient: a464898cb95153125e3b81894fd479bcb1c7dd27
   ExpoLocalAuthentication: ea7b9878fefac9ae38dc5766af00b52cac55c51b
   ExpoLocation: d5b61cb4970fa982e39ca94246a206a0c3b812ca
-  ExpoModulesCore: 110490095f5bf1c110673078832c6792c08ca8cd
+  ExpoModulesCore: 6294d9712874e86423c9f899c04ac1de9d468e1b
   ExpoNetwork: b87392dcc24d49a595f186ca25cdcf7293d30275
   ExpoSecureStore: 9c6571fe3fcb045a671c4011c451546eaaab98fd
   ExpoSharing: 0d983394ed4a80334bab5a0d5384f75710feb7e8
