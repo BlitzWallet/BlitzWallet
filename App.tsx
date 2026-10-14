@@ -222,6 +222,7 @@ function ResetStack(): JSX.Element | null {
   const { didGetToHomepage, appState } = useAppStatus();
   const { publicKey, setAccountMnemonic } = useKeysContext();
   const didInitializeSettings = useRef(false);
+  const lastBarKeyRef = useRef<string | null>(null);
   const { backgroundColor } = GetThemeColors();
 
   const handleDeepLink = useCallback(
@@ -308,6 +309,13 @@ function ResetStack(): JSX.Element | null {
 
   const setNavigationBar = useCallback(async () => {
     if (appState === 'active') {
+      // Bar colors survive backgrounding, so only re-apply on a real change.
+      // On Android each status/nav bar color set is a synchronous Binder call
+      // (Activity.setTaskDescription) on the main thread; re-sending it on
+      // every foreground ANR'd slow devices (itel A6610L, Android 14).
+      const barKey = `${backgroundColor}|${theme}`;
+      if (lastBarKeyRef.current === barKey) return;
+      lastBarKeyRef.current = barKey;
       try {
         if (Platform.OS === 'android') {
           await NavigationBar.setBackgroundColorAsync(backgroundColor);
