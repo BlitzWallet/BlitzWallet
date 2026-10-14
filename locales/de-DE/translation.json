@@ -4,7 +4,7 @@
     "next": "Weiter",
     "skip_all": "Alle überspringen",
     "copy": "Kopieren",
-    "validating": "Wird überprüft...",
+    "validating": "Wird überprüft…",
     "paste": "Einfügen",
     "skip": "Überspringen",
     "verify": "Verifizieren",
@@ -42,7 +42,7 @@
     "no": "Nein",
     "confirm": "Bestätigen",
     "balance": "Guthaben",
-    "loading": "Wird geladen...",
+    "loading": "Wird geladen…",
     "error": "Fehler",
     "success": "Erfolg",
     "cancel": "Abbrechen",
@@ -59,7 +59,7 @@
     "download": "Herunterladen",
     "contactUs": "Kontaktieren Sie uns",
     "pay": "Bezahlen",
-    "processing": "Wird verarbeitet...",
+    "processing": "Wird verarbeitet…",
     "support": "Support",
     "change": "Ändern",
     "unpin": "Lösen",
@@ -95,7 +95,7 @@
     "enabled": "Aktiviert",
     "disabled": "Deaktiviert",
     "unlimited": "Unbegrenzt",
-    "custom...": "Benutzerdefiniert...",
+    "custom...": "Benutzerdefiniert…",
     "enable": "Aktivieren",
     "disable": "Deaktivieren",
     "paidLower": "bezahlt",
@@ -381,11 +381,11 @@
     },
     "VPN": {
       "VPNPlanPage": {
-        "backupLoadingMessage": "Rechnung wird abgerufen...",
-        "countrySearchPlaceholder": "Nach Land suchen...",
+        "backupLoadingMessage": "Rechnung wird abgerufen…",
+        "countrySearchPlaceholder": "Nach Land suchen…",
         "createVPNBTN": "VPN kaufen",
         "noLocationError": "Bitte wählen Sie ein Land für den VPN-Standort aus.",
-        "payingInvoiceLoadingMessage": "Rechnung wird bezahlt...",
+        "payingInvoiceLoadingMessage": "Rechnung wird bezahlt…",
         "backupPaymentError": "Fehler beim Bezahlen der Rechnung.",
         "createInvoiceError": "Fehler beim Erstellen der Rechnung.",
         "payingInvoiceError": "Fehler beim Bezahlen der Rechnung.",
@@ -441,7 +441,7 @@
     },
     "chatGPT": {
       "newChat": "Neuer Chat",
-      "loadingMessage": "Vorherige Chats werden geladen...",
+      "loadingMessage": "Vorherige Chats werden geladen…",
       "addCreditsPage": {
         "title": "Guthaben aufladen",
         "description": "Um die neuesten KI-Modelle nutzen zu können, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option aus.",
@@ -463,7 +463,7 @@
         "feature5": "Einfache Einmalkäufe"
       },
       "countrySearch": {
-        "inputPlaceholder": "Nach einem Land suchen..."
+        "inputPlaceholder": "Nach einem Land suchen…"
       },
       "chatGPTHome": {
         "availableCredits": "Verfügbares Guthaben: {{credits}}",
@@ -890,14 +890,14 @@
         "receiveTitle": "Empfang bestätigen"
       },
       "sendPage": {
-        "startingSendingMessage": "Sendeauftrag wird erstellt...",
+        "startingSendingMessage": "Sendeauftrag wird erstellt…",
         "phoneNumberInputDescription": "Telefonnummer eingeben",
         "phoneNumberCountryDescription": "Ländervorwahl",
         "messageInputDescription": "Nachricht eingeben",
         "sendBTN": "Nachricht senden",
         "invalidInputError": "Muss ein {{errorTyoe}} enthalten",
         "invalidCountryError": "Kein gültiges Land",
-        "payingMessage": "Bezahlung wird durchgeführt...",
+        "payingMessage": "Bezahlung wird durchgeführt…",
         "runningTries": "Versuch {{runCount}} von {{maxTries}}",
         "notAbleToSettleInvoice": "Rechnung konnte nicht beglichen werden.",
         "paymentMemo": "Shop – SMS senden",
@@ -938,10 +938,10 @@
         "selectCountry": "Land auswählen",
         "autoSelectInfoMessage": "Wir empfehlen, die Einstellung auf „Automatische Auswahl“ zu belassen, damit das System die zuverlässigste Option auswählt.",
         "autoSelect": "Automatische Auswahl",
-        "inputPlaceholder": "Nach einem Dienst suchen...",
-        "locationLoadingMessage": "Standortbasierte Dienste werden abgerufen...",
+        "inputPlaceholder": "Nach einem Dienst suchen…",
+        "locationLoadingMessage": "Standortbasierte Dienste werden abgerufen…",
         "noAvailableServices": "Dieser Standort hat keine verfügbaren Dienste.",
-        "orderDetailsLoading": "Bestelldetails werden abgerufen...",
+        "orderDetailsLoading": "Bestelldetails werden abgerufen…",
         "countryStepTitle": "Land wählen",
         "countrySearchPlaceholder": "Länder suchen"
       },
@@ -978,13 +978,13 @@
       "filterCountryTitle": "Land",
       "filterAllCategories": "Alle Kategorien",
       "filterWorldwide": "Weltweit",
-      "filterCountrySearchPlaceholder": "Länder suchen...",
+      "filterCountrySearchPlaceholder": "Länder suchen…",
       "filterClear": "Zurücksetzen",
       "filterApply": "Anwenden",
       "selectCategoryPlaceholder": "Kategorie auswählen",
       "topBarLabel": "Shops",
-      "loadingShopMessage": "Online-Shops werden geladen...",
-      "inputPlaceHolder": "Unternehmen suchen...",
+      "loadingShopMessage": "Online-Shops werden geladen…",
+      "inputPlaceHolder": "Unternehmen suchen…",
       "noBuisMessage": "Wir konnten keine passenden Ergebnisse finden.",
       "visitWebsite": "Besuchen Sie die Webseite",
       "addListing": "Shop hinzufügen"
@@ -1095,10 +1095,10 @@
       "share": "Teilen",
       "createPayLink": "Zahlungslink erstellen",
       "showQR": "QR-Code anzeigen",
-      "creating": "Wird erstellt...",
+      "creating": "Wird erstellt…",
       "descriptionPlaceholder": "Wofür ist das? (optional)",
       "descriptionTitle": "Beschreibung hinzufügen",
-      "preparingPayment": "Zahlung wird vorbereitet...",
+      "preparingPayment": "Zahlung wird vorbereitet…",
       "alreadyPaid": "Dieser Zahlungslink wurde bereits bezahlt.",
       "notFound": "Zahlungslink nicht gefunden.",
       "invoiceError": "Rechnung konnte nicht erstellt werden.",
@@ -1123,18 +1123,18 @@
       "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln.",
       "whatIsPoolFor": "Wofür ist dieser Sparpool?",
       "examplePlaceholder": "z. B. Urlaubsreise, Restaurantbesuch",
-      "creating": "Wird erstellt...",
-      "creatingPool": "Sparpool wird erstellt...",
-      "gettingBalance": "Sparpool-Guthaben wird abgerufen...",
-      "preparingTransfer": "Übertragung wird vorbereitet...",
-      "connectingToPool": "Verbindung zum Sparpool wird hergestellt...",
+      "creating": "Wird erstellt…",
+      "creatingPool": "Sparpool wird erstellt…",
+      "gettingBalance": "Sparpool-Guthaben wird abgerufen…",
+      "preparingTransfer": "Übertragung wird vorbereitet…",
+      "connectingToPool": "Verbindung zum Sparpool wird hergestellt…",
       "unableToConnect": "Verbindung zum Sparpool nicht möglich. Bitte versuchen Sie es erneut.",
       "unableToGetBalance": "Sparpool-Guthaben konnte nicht abgerufen werden.",
       "noFundsFound": "Keine Gelder in diesem Sparpool gefunden.",
-      "closingPool": "Sparpool wird geschlossen...",
-      "gettingAddress": "Ihre Wallet-Adresse wird abgerufen...",
+      "closingPool": "Sparpool wird geschlossen…",
+      "gettingAddress": "Ihre Wallet-Adresse wird abgerufen…",
       "unableToGetAddress": "Die Adresse Ihrer Haupt-Wallet konnte nicht abgerufen werden.",
-      "transferringFunds": "Gelder werden übertragen...",
+      "transferringFunds": "Gelder werden übertragen…",
       "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
@@ -1155,7 +1155,7 @@
       "noActivePools": "Kein aktiver Sparpool",
       "closedSection": "Geschlossene Sparpools",
       "noClosedPools": "Kein geschlossener Sparpool",
-      "sendingContribution": "Beitrag wird gesendet...",
+      "sendingContribution": "Beitrag wird gesendet…",
       "contributionSent": "Beitrag gesendet!",
       "contributeTo": "Beitragen zu: ",
       "contributionWarning": "Diese Zahlung ist endgültig. Beiträge können nicht erstattet werden, auch wenn das Ziel nicht erreicht wird.",
@@ -1204,7 +1204,7 @@
     "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit diese hier angezeigt wird.",
     "contactsPage": {
       "header": "Empfänger auswählen",
-      "inputTextPlaceholder": "Benutzernamen suchen...",
+      "inputTextPlaceholder": "Benutzernamen suchen…",
       "subHeader": "Alle Kontakte",
       "giftsText": "Geschenke von Kontakten"
     },
@@ -1219,7 +1219,7 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "Empfangsbetrag",
-        "descriptionInputPlaceholder": "Beschreibung...",
+        "descriptionInputPlaceholder": "Beschreibung…",
         "editAmount": "Rechnung bearbeiten",
         "minUSDSwap": "Für Zahlungen, die als Dollar empfangen werden, gilt folgender Mindestbetrag:\n{{amount}}."
       },
@@ -1244,13 +1244,13 @@
     },
     "sendPages": {
       "sendPaymentScreen": {
-        "initialLoadingMessage": "Rechnungsdetails werden vorbereitet...",
+        "initialLoadingMessage": "Rechnungsdetails werden vorbereitet…",
         "alreadyPaidInvoiceError": "Diese Rechnung wurde bereits bezahlt.",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung.",
-        "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt...",
+        "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt…",
         "switchTokenText": "Bitte verwenden Sie einen anderen Token.",
         "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null können nicht mit USD bezahlt werden. Bitte verwenden Sie BTC.",
-        "decodingPayment": "Zahlungsinformationen werden dekodiert...",
+        "decodingPayment": "Zahlungsinformationen werden dekodiert…",
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren.",
         "swapRatesChangedTitle": "Wechselkurs aktualisiert",
         "swapRatesChangedBody": "Der Wechselkurs für diesen Swap hat sich während Ihrer Prüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
@@ -1273,17 +1273,17 @@
         "unkonwDecodeError": "Ein unbekannter Dekodierungsfehler ist aufgetreten.",
         "invalidInputType": "Kein gültiger Adresstyp.",
         "expiredLightningInvoice": "Diese Rechnung ist abgelaufen.",
-        "lnurlAuthStartMeessage": "Anmeldevorgang wird gestartet...",
+        "lnurlAuthStartMeessage": "Anmeldevorgang wird gestartet…",
         "lnurlFailedAuthMessage": "Authentifizierung fehlgeschlagen",
         "lnurlConfirmMessage": "LNURL-Authentifizierung erfolgreich",
         "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für diese Zahlung. Bitte versuchen Sie es erneut.",
         "lnurlPayNoInvoiceError": "Der Zahlungsdienst ist derzeit nicht erreichbar. Falls das Problem weiterhin besteht, kontaktieren Sie bitte den Anbieter.",
         "lnurlPayInvalidFormat": "Der Zahlungsdienst hat ungültige Daten zurückgegeben. Falls das Problem weiterhin besteht, kontaktieren Sie bitte den Anbieter.",
-        "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert...",
+        "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert…",
         "lnurlWithdrawlInvoiceError": "Rechnung für diese Auszahlung konnte nicht erstellt werden.",
-        "waitingForLnurlWithdrawl": "Warten auf Zahlung...",
+        "waitingForLnurlWithdrawl": "Warten auf Zahlung…",
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
-        "invoiceDetails": "Details werden geladen...",
+        "invoiceDetails": "Details werden geladen…",
         "timeoutError": "Der Vorgang hat zu lange gedauert. Bitte versuchen Sie es erneut.",
         "payingToSameAddress": "Sie können keine {{addressType}}-Zahlung an sich selbst senden.",
         "blitzUserNotFound": "Blitz-Benutzer nicht gefunden"
@@ -1299,7 +1299,7 @@
       },
       "selectLRC20Token": {
         "title": "Token auswählen",
-        "searchPlaceholder": "Token-Name...",
+        "searchPlaceholder": "Token-Name…",
         "noTokensFoundText": "Keine Token gefunden"
       },
       "sendMaxComponent": {
@@ -1339,7 +1339,7 @@
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",
-        "tokensSearchPlaceholder": "Token suchen...",
+        "tokensSearchPlaceholder": "Token suchen…",
         "noTokensText": "Sie haben keine Token",
         "noTokensFoundText": "Keine Token gefunden"
       },
@@ -1364,7 +1364,7 @@
       "title": "Exportieren Sie Ihren Zahlungsverlauf im CSV-Format (kommagetrennte Werte).",
       "paymentsCounter": "{{number}} Zahlungen",
       "paymentsCounterTracker": "{{number}} von {{total}}",
-      "loadingMessage": "Gespeicherte Transaktionen werden geladen..."
+      "loadingMessage": "Gespeicherte Transaktionen werden geladen…"
     },
     "stablecoinSend": {
       "sendStablecoins": "Stablecoins senden",
@@ -1416,12 +1416,12 @@
     "addContactsHalfModal": {
       "noContactsMessage": "Der Kontakt konnte nicht gefunden werden.",
       "title": "Kontakte hinzufügen",
-      "searchPlaceholder": "Kontakte suchen...",
+      "searchPlaceholder": "Kontakte suchen…",
       "lnurlAddMessage": "Sie sind dabei, diesen Kontakt hinzuzufügen.",
       "noProfilesFound": "Kein Profil entspricht dieser Suche.",
       "startTypingMessage": "Suchen Sie nach einer Lightning-Adresse (z. B. name@service.com) oder einem Blitz-Benutzernamen.",
-      "loadingMessage": "Kontakt wird gesucht...",
-      "profileImage": "Profilbild wird geladen..."
+      "loadingMessage": "Kontakt wird gesucht…",
+      "profileImage": "Profilbild wird geladen…"
     },
     "expandedContactPage": {
       "loadingContactError": "Die Kontakte konnten nicht geladen werden, bitte versuchen Sie es erneut.",
@@ -1483,19 +1483,19 @@
       "giftCardText": "{{giftName}} Geschenkkarte",
       "giftMessage": "Geschenk-Nachricht",
       "recipientReceives": "{{contactName}} erhält",
-      "giftMessagePlaceholder": "Schreiben Sie hier Ihre Geschenknachricht...",
+      "giftMessagePlaceholder": "Schreiben Sie hier Ihre Geschenknachricht…",
       "paymentSourceHeader": "Zahlungsquelle",
       "sendBitcoin": "Bitcoin senden",
       "sendDollars": "Dollar senden",
       "sendGift": "Geschenk senden",
       "requestBitcoin": "Bitcoin anfordern",
       "requestDollars": "Dollar anfordern",
-      "fiatRateLoading": "Wechselkurs wird geladen...",
+      "fiatRateLoading": "Wechselkurs wird geladen…",
       "fiatRateLoadFailed": "Der Wechselkurs konnte nicht geladen werden"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Ihre Geschenkkarte konnte derzeit nicht geladen werden. Bitte versuchen Sie es erneut.",
-      "loadingMessage": "Geschenkkarteninformationen werden geladen...",
+      "loadingMessage": "Geschenkkarteninformationen werden geladen…",
       "valueHeader": "Geschenkkartenwert",
       "redeemHeader": "Wie einlösen",
       "openClaimText": "Geschenkkarte öffnen",
@@ -1809,7 +1809,7 @@
       "pageTitle": "{{type}}-Übertragungen"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Gespeicherte Rootstock-Übertragungen werden geladen...",
+      "loadingMessage": "Gespeicherte Rootstock-Übertragungen werden geladen…",
       "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen.",
       "swap.created": "Vorbereitung",
       "invoice.set": "Finanzierung",
@@ -1844,7 +1844,7 @@
       "rescanComplete": "Neu scannen abgeschlossen",
       "swapStartedMessage": "Die Übertragung wurde gestartet. Es kann 10–20 Sekunden dauern, bis die Zahlung angezeigt wird.",
       "balanceError": "Der aktuelle Liquid-Saldo beträgt {{balance}}, aber der Mindestbetrag für eine Übertragung ist {{swapAmount}}.",
-      "loadingMessage": "Liquid-Informationen werden abgerufen...",
+      "loadingMessage": "Liquid-Informationen werden abgerufen…",
       "breakdownHead": "Guthabenaufschlüsselung",
       "incoming": "{{amount}} ausstehende eingehende",
       "outgoing": "{{amount}} ausstehende ausgehende",
@@ -1853,14 +1853,14 @@
       "totalBalance": "Gesamtguthaben",
       "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu übertragen, tippen Sie unten auf den Button „Übertragen“.",
       "swap": "Übertragen",
-      "rescanning": "Scannen...",
+      "rescanning": "Scannen…",
       "autoClaimLabel": "Automatisch einlösen",
       "autoClaimHelper": "Liquid-Guthaben automatisch an Ihre Wallet übertragen, sobald der Mindestbetrag erreicht ist.",
       "unsupportedTitle": "Wir unterstützen {{type}} nicht mehr",
       "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie die Wiederherstellungsphrase Ihrer Blitz Wallet in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
       "contactUs": "Kontaktieren Sie uns",
-      "refundInProgress": "Rückerstattung läuft. Halten Sie die App geöffnet, bis sie abgeschlossen ist.",
-      "refundComplete": "Rückerstattung abgeschlossen. Ihre Gelder sind zurück in Ihrer Liquid-Wallet."
+      "refundInProgress": "Rückerstattung wird durchgeführt. Lassen Sie die App geöffnet, bis der Vorgang abgeschlossen ist.",
+      "refundComplete": "Rückerstattung abgeschlossen. Ihr Guthaben ist wieder in Ihrer Liquid-Wallet verfügbar."
     },
     "notifications": {
       "mainToggle": "Benachrichtigungen zulassen",
@@ -1891,7 +1891,7 @@
     "fiatCurrency": {
       "title": "Währungen",
       "halfModalTitle": "Wählen Sie die Währung aus, die angezeigt werden soll",
-      "placeholderText": "Standardwährung suchen...",
+      "placeholderText": "Standardwährung suchen…",
       "yourCurrencies": "Ihre Währungen",
       "moreCurrencies": "Weitere Währungen",
       "currencyCount": "{{count}}+ unterstützte Währungen",
@@ -1995,8 +1995,8 @@
         "noPermissionsError": "Bitte aktivieren Sie mindestens eine Berechtigung.",
         "noBudgetError": "Bitte wählen Sie einen Budgetverlängerungszeitraum.",
         "noBudgetAmountError": "Bitte wählen Sie einen Budgetbetrag.",
-        "loadingMessage": "Verbindung wird erstellt...",
-        "updatingMessage": "Verbindung wird aktualisiert...",
+        "loadingMessage": "Verbindung wird erstellt…",
+        "updatingMessage": "Verbindung wird aktualisiert…",
         "nameInputPlaceholder": "Verbindungsnamen eingeben",
         "permissionsHeader": "Wallet-Berechtigungen",
         "receivePayments": "Zahlungen empfangen",
@@ -2150,7 +2150,7 @@
       },
       "selectProfileImage": {
         "title": "Avatar auswählen",
-        "searchPlaceholder": "Emojis suchen...",
+        "searchPlaceholder": "Emojis suchen…",
         "saveButton": "Avatar speichern"
       },
       "restoreDerivedAccount": {
@@ -2246,8 +2246,8 @@
       "totalTipsScreen": {
         "noTipBalanceError": "Der Benutzer hat kein Trinkgeldguthaben.",
         "updateContactMessage": "Der Empfänger muss seine Blitz-App aktualisieren, um bezahlt zu werden.",
-        "payingMessage": "Zahlung wird durchgeführt...",
-        "notifyngMessage": "Benachrichtigung wird gesendet...",
+        "payingMessage": "Zahlung wird durchgeführt…",
+        "notifyngMessage": "Benachrichtigung wird gesendet…",
         "errorPaying": "Der Kontakt konnte nicht bezahlt werden. Bitte versuchen Sie es später erneut.",
         "invalidName": "Der Name ist kein LNURL oder ein Blitz-Benutzer.",
         "removeEmployeeWarning": "Sind Sie sicher, dass Sie diesen Mitarbeiter entfernen möchten?",
@@ -2285,7 +2285,7 @@
           "denominationError": "Der Preis ist in {{currency1}}, aber die Zahlungsterminal (POS)-Währung ist {{currency2}}.",
           "deleteItemMessage": "Sind Sie sicher, dass Sie diesen Zahlungsterminal (POS)-Artikel löschen möchten?",
           "title": "POS-Artikel",
-          "itemSearchPlaceholder": "Artikelname...",
+          "itemSearchPlaceholder": "Artikelname…",
           "noItemsSearch": "Keine Artikel entsprechen Ihrer Suche.",
           "noItemsAdded": "Fügen Sie einen Artikel hinzu, damit er hier angezeigt wird.",
           "ctaBTN": "Artikel hinzufügen",
@@ -2357,7 +2357,7 @@
         "create": "Konto erstellen"
       },
       "creating": {
-        "loadingText": "Konto wird erstellt...",
+        "loadingText": "Konto wird erstellt…",
         "errorTitle": "Das Konto konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
       },
       "confirmation": {
@@ -2413,7 +2413,7 @@
         "transactionsLabel": "Letzte Aktivität",
         "noTransactions": "Noch keine Aktivität",
         "spendingLimitLabel": "Ausgabenlimit",
-        "loadingBalance": "Saldo wird geladen...",
+        "loadingBalance": "Saldo wird geladen…",
         "shareLink": "Mit einer Person koppeln"
       },
       "claim": {
@@ -2543,7 +2543,7 @@
         "rootstockFeeMessage": "Für den Empfang einer Rootstock-Zahlung fallen eine Lockup-Gebühr von etwa {{fee}} und eine Boltz-Servicegebühr von 0,1 % an.",
         "lightningConvertMessage": "Für den Empfang von Dollar muss Bitcoin in USD umgewandelt werden. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
         "stablecoinsFeeMessage": "Für den Empfang über Stablecoin-Adressen fallen eine Blitz-Gebühr von 0,5 % und eine Flashnet-Gebühr von 0,05 % an.",
-        "generatingInvoice": "Rechnung wird generiert...",
+        "generatingInvoice": "Rechnung wird generiert…",
         "amountPlaceholder": "Beliebigen Betrag",
         "usdSwapMinNotice": "Nur Zahlungen über {{amount}} werden in Dollar umgewandelt",
         "shareInvoice": "Rechnung teilen",
@@ -2724,7 +2724,7 @@
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
-        "searchPlaceholder": "Token-Name...",
+        "searchPlaceholder": "Token-Name…",
         "noTokens": "Keine Token gefunden"
       },
       "lrc20TokenDataHalfModal": {
@@ -2746,8 +2746,8 @@
           "minutes_other": "{{count}} Minuten übrig"
         },
         "shareMessage": "Sie haben ein Geschenk von {{amount}} erhalten! Hier bitte einlösen:\n{{link}}.",
-        "fundGiftMessage": "Geschenk wird erstellt...",
-        "reclaimGiftMessage": "Geschenk wird zurückgeholt...",
+        "fundGiftMessage": "Geschenk wird erstellt…",
+        "reclaimGiftMessage": "Geschenk wird zurückgeholt…",
         "giftsHome": {
           "title": "Blitz-Geschenke",
           "desc": "Teilen Sie Bitcoin oder Dollar mit Freunden und Familie."
@@ -2769,11 +2769,11 @@
           "addressError": "Die Adresse Ihrer Geschenk-Wallet konnte nicht abgerufen werden.",
           "saveError": "Wir konnten Ihr Geschenk nicht speichern.",
           "fundError": "Wir konnten keine Mittel hinzufügen.",
-          "startProcess1": "Ihr Geschenk wird vorbereitet...",
-          "startProcess2": "Einrichten...",
-          "startProcess3": "Guthaben wird hinzugefügt...",
+          "startProcess1": "Ihr Geschenk wird vorbereitet…",
+          "startProcess2": "Einrichten…",
+          "startProcess3": "Guthaben wird hinzugefügt…",
           "header": "Geschenk erstellen",
-          "inputPlaceholder": "Nachricht hinzufügen...",
+          "inputPlaceholder": "Nachricht hinzufügen…",
           "button": "Geschenk erstellen",
           "disclaimer": "Das Geschenk kann {{numDays}} Tage lang eingelöst werden. Andernfalls können Sie Ihr Geld zurückerhalten.",
           "durationText": "{{numDays}} Tage",
@@ -2848,8 +2848,8 @@
           "paymentError": "Geschenk konnte nicht eingelöst werden.",
           "claimHead": "Geschenk annehmen",
           "reclaimHead": "Geschenk zurückholen",
-          "claimLoading": "Geschenk wird eingelöst ... Bitte bleiben Sie in der App.",
-          "reclaimLoading": "Guthaben wird zurückgebucht ... Bitte bleiben Sie in der App.",
+          "claimLoading": "Geschenk wird eingelöst… Bitte bleiben Sie in der App.",
+          "reclaimLoading": "Guthaben wird zurückgebucht… Bitte bleiben Sie in der App.",
           "claimAmountHead": "Erhaltener Betrag",
           "reclaimAmountHead": "Erstatteter Betrag",
           "reclaimAmountHeadExpert": "Geschenknummer wiederhergestellt",
@@ -2860,9 +2860,9 @@
           "claimButton": "Geschenk annehmen",
           "confirmMessage": "Ihr Geschenk wurde eingelöst; Sie erhalten Ihre Gelder in Kürze.",
           "defaultDesc": "Blitz-Geschenk",
-          "claimingGiftMessage1": "Geschenk wird vorbereitet...",
-          "giftBalanceMessage": "Geschenk-Guthaben wird bestätigt...",
-          "claimingGiftMessage4": "Geschenk wird eingelöst..."
+          "claimingGiftMessage1": "Geschenk wird vorbereitet…",
+          "giftBalanceMessage": "Geschenk-Guthaben wird bestätigt…",
+          "claimingGiftMessage4": "Geschenk wird eingelöst…"
         }
       },
       "swapsPage": {
@@ -2893,15 +2893,15 @@
         "youSent": "Sie haben gesendet",
         "youReceived": "Sie haben erhalten",
         "newSwap": "Neuer Swap",
-        "loadingPool": "Swap-Informationen werden geladen...",
+        "loadingPool": "Swap-Informationen werden geladen…",
         "fromBalance": "Sie haben {{amount}}",
         "fromBalanceHidden": "Sie haben",
         "toBalance": "Sie möchten",
         "min": "MIN",
         "half": "HALB",
         "max": "MAX",
-        "swappingMessageButton": "Wird getauscht...",
-        "loadingMessageButton": "Lädt...",
+        "swappingMessageButton": "Wird getauscht…",
+        "loadingMessageButton": "Lädt…",
         "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Swap-Dienste werden über Drittanbieter-APIs bereitgestellt.",
         "serviceUnavailableHead": "Dienst nicht verfügbar",
@@ -3028,8 +3028,8 @@
       },
       "map": {
         "title": "Mit Bitcoin bezahlen",
-        "loadingMap": "Karte wird geladen...",
-        "loadingMerchants": "Händler werden geladen...",
+        "loadingMap": "Karte wird geladen…",
+        "loadingMerchants": "Händler werden geladen…",
         "zoomIn": "Hineinzoomen, um alle Händler zu sehen",
         "findAPlace": "Ort finden",
         "placesHere": "{{count}} Orte hier",
@@ -3343,11 +3343,11 @@
       "fromBalance_dollar": "von Ihrem Dollar-Guthaben",
       "fromBalance_bitcoin": "von Ihrem Bitcoin-Guthaben",
       "confirmButton": "Bestätigen",
-      "processing": "Wird verarbeitet...",
+      "processing": "Wird verarbeitet…",
       "steps": {
-        "processing": "Wird verarbeitet...",
-        "swapping": "Guthaben wird in Dollar getauscht...",
-        "adding": "Wird dem Sparkonto hinzugefügt...",
+        "processing": "Wird verarbeitet…",
+        "swapping": "Guthaben wird in Dollar getauscht…",
+        "adding": "Wird dem Sparkonto hinzugefügt…",
         "complete": "Abgeschlossen."
       },
       "successTitle": "Geld eingezahlt",
@@ -3369,10 +3369,10 @@
       "interestZeroHint": "Keine Zinsen vorhanden",
       "savingsZeroHint": "Noch nichts gespart",
       "interestBelowMinHint": "Ihr Bitcoin-Guthaben liegt unter dem Mindestbetrag für einen Swap. Bitte zahlen Sie auf Ihr Bitcoin-Guthaben aus.",
-      "loadingBalances": "Guthaben werden geladen...",
+      "loadingBalances": "Guthaben werden geladen…",
       "loadingSteps": {
-        "connecting": "Verbindung zur Spar-Wallet wird hergestellt...",
-        "loadingBalance": "Kontostand wird geladen..."
+        "connecting": "Verbindung zur Spar-Wallet wird hergestellt…",
+        "loadingBalance": "Kontostand wird geladen…"
       },
       "empty": {
         "title": "Nichts zum Auszahlen",
@@ -3395,12 +3395,12 @@
       "confirmSubtitle_general": "Zahlen Sie den Zielsaldo auf Ihr {{destination}} aus",
       "estimatedSats": "≈ {{sats}} nach dem Swap",
       "confirmButton": "Bestätigen",
-      "processing": "Auszahlung wird verarbeitet...",
+      "processing": "Auszahlung wird verarbeitet…",
       "steps": {
-        "processing": "Auszahlung wird verarbeitet...",
-        "withdrawing_savings": "Aus dem Sparkonto wird ausgezahlt...",
-        "withdrawing_rewards": "Wird vom Bitcoin-Ertragskonto ausgezahlt...",
-        "swapping": "Wird in Bitcoin getauscht...",
+        "processing": "Auszahlung wird verarbeitet…",
+        "withdrawing_savings": "Aus dem Sparkonto wird ausgezahlt…",
+        "withdrawing_rewards": "Wird vom Bitcoin-Ertragskonto ausgezahlt…",
+        "swapping": "Wird in Bitcoin getauscht…",
         "complete": "Abgeschlossen."
       },
       "successTitle": "Auszahlung abgeschlossen",
@@ -3513,7 +3513,7 @@
     "requiredTitle": "Update erforderlich",
     "requiredDescription": "Blitz {{version}} ist erforderlich, damit Sie Ihre Wallet weiterhin verwenden können.",
     "button": "Jetzt aktualisieren",
-    "progress": "Aktualisierung läuft … {{percent}} %",
+    "progress": "Aktualisierung läuft… {{percent}} %",
     "later": "Später",
     "error": "Update fehlgeschlagen. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
   }
