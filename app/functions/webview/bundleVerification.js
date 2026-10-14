@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
+import { File } from 'expo-file-system';
 import { Asset } from 'expo-asset';
 import { Platform } from 'react-native';
 import {
@@ -17,89 +18,103 @@ const ED25519_SPKI_PREFIX = '302a300506032b6570032100';
 const tamperError = message =>
   Object.assign(new Error(message), { isTamper: true });
 
+// The bundled HTML is immutable for the life of the process, so its signature
+// is verified once and the verified text is reused on every reload. Re-reading
+// the 5.3MB file churned ~30MB of Android Java heap per reload, and the GC it
+// forced stalled WebView construction on the main thread (ANR).
+let verifiedSource = null; // { bundleSource, html }
+
+async function loadVerifiedHtml(bundleSource) {
+  if (verifiedSource?.bundleSource === bundleSource) return verifiedSource.html;
+
+  let html;
+
+  // Load the HTML asset
+  if (Platform.OS === 'ios') {
+    const htmlAsset = Asset.fromModule(bundleSource);
+    await htmlAsset.downloadAsync();
+    html = await FileSystem.readAsStringAsync(htmlAsset.localUri, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
+  } else {
+    html = await FileSystem.readAsStringAsync(
+      FileSystem.bundleDirectory + 'sparkContext.html',
+      {
+        encoding: FileSystem.EncodingType.UTF8,
+      },
+    );
+  }
+
+  // Verify the bundle's Ed25519 signature against the pinned public key. The
+  // signature is computed offline over sha256(canonical HTML) with the
+  // signature slot holding the __SIGNATURE__ placeholder, so reconstruct those
+  // exact bytes before hashing. The 5.3MB digest runs via JSI (quick-crypto)
+  // so it never crosses the bridge as a string; Ed25519 then verifies just the
+  // 32-byte digest. Runs before nonce injection, so the shipped bytes (with
+  // __INJECT_NONCE__ intact) match what was signed.
+  const SIG_META = /<meta name="blitz-webview-sig" content="([0-9a-f]{128})"/;
+  const SIG_META_ANY =
+    /<meta name="blitz-webview-sig" content="[0-9a-f]{128}"/g;
+  const sigMatch = html.match(SIG_META);
+
+  if (!sigMatch) throw tamperError('WebView bundle missing signature meta.');
+
+  // Anchor verification to document structure: the signed slot must sit in
+  // the head region at the top of the file so a valid signature can only
+  // vouch for a document whose signing meta is where the signer put it,
+  // never a variant with the meta relocated into the payload.
+  const MAX_SIG_META_OFFSET = 1024;
+  if (sigMatch.index > MAX_SIG_META_OFFSET) {
+    throw tamperError('Signature meta outside head region of WebView bundle.');
+  }
+
+  const canonicalHtml = html.replace(
+    /(<meta name="blitz-webview-sig" content=")[0-9a-f]{128}(")/,
+    '$1__SIGNATURE__$2',
+  );
+
+  // Canonicalization must be lossless and unique: exactly one signature slot
+  // (a planted literal would mean the signed bytes are ambiguous) and no
+  // additional signature metas may survive substitution.
+  const sigSlotCount = canonicalHtml.split('__SIGNATURE__').length - 1;
+  const remainingSigMetas = (canonicalHtml.match(SIG_META_ANY) || []).length;
+  if (sigSlotCount !== 1 || remainingSigMetas !== 0) {
+    throw tamperError('WebView bundle has malformed signature slots.');
+  }
+
+  const digestHex = createHash('sha256')
+    .update(canonicalHtml, 'utf8')
+    .digest('hex');
+
+  // sha256 must yield exactly 32 bytes; fail closed rather than trusting the
+  // crypto library to reject a wrong-length buffer.
+  const digest = Buffer.from(digestHex, 'hex');
+  if (digest.length !== 32) {
+    throw tamperError('Unexpected digest length for signature verification.');
+  }
+
+  const pubKey = createPublicKey({
+    key: Buffer.concat([
+      Buffer.from(ED25519_SPKI_PREFIX, 'hex'),
+      Buffer.from(process.env.SPARK_WEBVIEW_SIGNING_PUBKEY, 'hex'),
+    ]),
+    format: 'der',
+    type: 'spki',
+  });
+  if (!verify(null, digest, pubKey, Buffer.from(sigMatch[1], 'hex'))) {
+    throw tamperError('WebView bundle signature invalid — aborting.');
+  }
+
+  verifiedSource = { bundleSource, html };
+  return html;
+}
+
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.
  */
 export async function verifyAndPrepareWebView(bundleSource) {
   try {
-    let html;
-    let fileUri;
-
-    // Load the HTML asset
-    if (Platform.OS === 'ios') {
-      const htmlAsset = Asset.fromModule(bundleSource);
-      await htmlAsset.downloadAsync();
-      html = await FileSystem.readAsStringAsync(htmlAsset.localUri, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-      fileUri = htmlAsset.localUri;
-    } else {
-      fileUri = FileSystem.bundleDirectory + 'sparkContext.html';
-      html = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-    }
-
-    // Verify the bundle's Ed25519 signature against the pinned public key. The
-    // signature is computed offline over sha256(canonical HTML) with the
-    // signature slot holding the __SIGNATURE__ placeholder, so reconstruct those
-    // exact bytes before hashing. The 5.3MB digest runs via JSI (quick-crypto)
-    // so it never crosses the bridge as a string; Ed25519 then verifies just the
-    // 32-byte digest. Runs before nonce injection, so the shipped bytes (with
-    // __INJECT_NONCE__ intact) match what was signed.
-    const SIG_META = /<meta name="blitz-webview-sig" content="([0-9a-f]{128})"/;
-    const SIG_META_ANY = /<meta name="blitz-webview-sig" content="[0-9a-f]{128}"/g;
-    const sigMatch = html.match(SIG_META);
-
-    if (!sigMatch) throw tamperError('WebView bundle missing signature meta.');
-
-    // Anchor verification to document structure: the signed slot must sit in
-    // the head region at the top of the file so a valid signature can only
-    // vouch for a document whose signing meta is where the signer put it,
-    // never a variant with the meta relocated into the payload.
-    const MAX_SIG_META_OFFSET = 1024;
-    if (sigMatch.index > MAX_SIG_META_OFFSET) {
-      throw tamperError(
-        'Signature meta outside head region of WebView bundle.',
-      );
-    }
-
-    const canonicalHtml = html.replace(
-      /(<meta name="blitz-webview-sig" content=")[0-9a-f]{128}(")/,
-      '$1__SIGNATURE__$2',
-    );
-
-    // Canonicalization must be lossless and unique: exactly one signature slot
-    // (a planted literal would mean the signed bytes are ambiguous) and no
-    // additional signature metas may survive substitution.
-    const sigSlotCount = canonicalHtml.split('__SIGNATURE__').length - 1;
-    const remainingSigMetas = (canonicalHtml.match(SIG_META_ANY) || []).length;
-    if (sigSlotCount !== 1 || remainingSigMetas !== 0) {
-      throw tamperError('WebView bundle has malformed signature slots.');
-    }
-
-    const digestHex = createHash('sha256')
-      .update(canonicalHtml, 'utf8')
-      .digest('hex');
-
-    // sha256 must yield exactly 32 bytes; fail closed rather than trusting the
-    // crypto library to reject a wrong-length buffer.
-    const digest = Buffer.from(digestHex, 'hex');
-    if (digest.length !== 32) {
-      throw tamperError('Unexpected digest length for signature verification.');
-    }
-
-    const pubKey = createPublicKey({
-      key: Buffer.concat([
-        Buffer.from(ED25519_SPKI_PREFIX, 'hex'),
-        Buffer.from(process.env.SPARK_WEBVIEW_SIGNING_PUBKEY, 'hex'),
-      ]),
-      format: 'der',
-      type: 'spki',
-    });
-    if (!verify(null, digest, pubKey, Buffer.from(sigMatch[1], 'hex'))) {
-      throw tamperError('WebView bundle signature invalid — aborting.');
-    }
+    const html = await loadVerifiedHtml(bundleSource);
 
     // Generate fresh nonce per load
     const nonceBytes = randomBytes(16);
@@ -158,9 +173,8 @@ export async function verifyAndPrepareWebView(bundleSource) {
 
     // Write verified + nonce-injected HTML to cache
     const verifiedPath = `${FileSystem.cacheDirectory}verified_webview.html`;
-    await FileSystem.writeAsStringAsync(verifiedPath, injectedHtml, {
-      encoding: FileSystem.EncodingType.UTF8,
-    });
+    // Written as bytes through a direct buffer: no 10MB Java String copy.
+    new File(verifiedPath).write(new TextEncoder().encode(injectedHtml));
 
     return { htmlPath: verifiedPath, nonceHex };
   } catch (error) {

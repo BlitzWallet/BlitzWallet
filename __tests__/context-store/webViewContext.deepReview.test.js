@@ -817,6 +817,7 @@ describe('deep review — silent page reload wedge (DR-4)', () => {
     const verifyCallsBefore = mockVerify.mock.calls.length;
     await background();
     await foreground();
+    await advance(1000); // past the deferred foreground remount
     await advance(100);
     expect(mockVerify.mock.calls.length).toBe(verifyCallsBefore + 1);
     wvLoadStart();

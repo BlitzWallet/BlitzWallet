@@ -237,6 +237,11 @@ const HANDSHAKE_START_TIMEOUT_MS = 5 * 1000;
 // a caller's promise with nothing to settle it.
 const BACKGROUND_RECHECK_MS = 5 * 1000;
 
+// Resume-path resets remount the native WebView only after this delay. Building
+// a WebView on the main thread while the window is regaining focus (and the
+// resume burst is running) ANRs low-end Android: "No focused window".
+const FOREGROUND_REMOUNT_DELAY_MS = 1000;
+
 // ---------------------------------------------------------------------------
 // Intent store (plan §3.1 — the only surviving bespoke funds-safety machinery).
 // Module-level: it must survive WebView remounts (the bundle's duplicate-id Set
@@ -1078,6 +1083,36 @@ export const WebViewProvider = ({ children, transport = null }) => {
     resetWebViewState(false);
     reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
   }, [resetWebViewState, reloadWebViewSecurely]);
+
+  // Foreground variant: reset the session now (JS-only; new requests hold in the
+  // ready window as before), but defer the native remount off the resume path.
+  const scheduleRemount = useCallback(
+    resetEpoch => {
+      setTimeout(() => {
+        // A newer reset already owns the reload.
+        if (epochRef.current !== resetEpoch) return;
+        if (AppState.currentState !== 'active') {
+          // Backgrounded again: never create a WebView without a window.
+          const sub = AppState.addEventListener('change', next => {
+            if (next !== 'active') return;
+            sub.remove();
+            scheduleRemount(resetEpoch);
+          });
+          return;
+        }
+        reloadWebViewSecurely();
+      }, FOREGROUND_REMOUNT_DELAY_MS);
+    },
+    [reloadWebViewSecurely],
+  );
+
+  const blockAndResetWebviewOnForeground = useCallback(() => {
+    resetWebViewState(false);
+    // Unmount the old page now (destroy is cheap; construction is what ANRs):
+    // it must not run, or self-reload into the new epoch, during the delay.
+    setVerifiedPath('');
+    scheduleRemount(epochRef.current);
+  }, [resetWebViewState, scheduleRemount]);
 
   useEffect(() => {
     appStateRef.current = appState;
@@ -2196,7 +2231,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
       if (fallbackState === FALLBACK_STATE.PENDING) {
         console.log('WebView recovery attempt on session start');
         fallbackState = FALLBACK_STATE.WEBVIEW;
-        blockAndResetWebview();
+        blockAndResetWebviewOnForeground();
         previousAppState.current = appState;
         prevConnectionStatus.current = isConnectedToTheInternet;
         return;
@@ -2231,13 +2266,13 @@ export const WebViewProvider = ({ children, transport = null }) => {
             console.log(
               'App became active and webview is not verified - reloading WebView',
             );
-            blockAndResetWebview();
+            blockAndResetWebviewOnForeground();
           } else if (wvState.current === WV_STATES.ERROR) {
             // A load failure during boot (before homepage) left the WebView in
             // ERROR; it will never self-recover. Reload to re-arm verification
             // + handshake.
             console.log('Foreground - WebView in ERROR during boot, reloading');
-            blockAndResetWebview();
+            blockAndResetWebviewOnForeground();
           } else if (connectionJustRestored && didRunHandshakeRef.current) {
             // Boot handshake was deferred while offline (didRunInit latched);
             // didRunHandshakeRef latched because the handshake RAN and settled
@@ -2248,7 +2283,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
             console.log(
               'Connection restored during boot - reloading to re-arm handshake',
             );
-            blockAndResetWebview();
+            blockAndResetWebviewOnForeground();
           }
           // Boot phase: the handshake runs when the WebView is ready; do not
           // reload before the user reaches the homepage (double-init risk).
@@ -2280,7 +2315,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
             console.log(
               'Connection restored - reloading WebView to avoid stale state',
             );
-            blockAndResetWebview();
+            blockAndResetWebviewOnForeground();
           } else {
             reconcileUnknownIntents();
           }
@@ -2299,7 +2334,7 @@ export const WebViewProvider = ({ children, transport = null }) => {
   }, [
     appState,
     isConnectedToTheInternet,
-    blockAndResetWebview,
+    blockAndResetWebviewOnForeground,
     finalizeRequest,
     reconcileUnknownIntents,
     resumeKeepAliveRequest,

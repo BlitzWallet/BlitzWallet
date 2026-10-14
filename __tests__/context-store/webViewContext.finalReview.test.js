@@ -921,6 +921,7 @@ describe('final — C-11 load failure & watchdog recovery', () => {
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     expect(mockVerify.mock.calls.length).toBeGreaterThan(verifyCalls);
   });
 });

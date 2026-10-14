@@ -607,6 +607,7 @@ describe('adversarial — background crash & foreground recovery (N2/D3)', () =>
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(100);
     wvLoadStart();
     wvLoadEnd();
@@ -650,6 +651,7 @@ describe('adversarial — background crash & foreground recovery (N2/D3)', () =>
 
     // Foreground sees !nonceVerified + wvState ERROR during boot → the bridge
     // reloads (re-verifies) instead of staying dead (C-11 ERROR branch).
+    await advance(1000); // past the deferred foreground remount
     await advance(500);
     expect(mockVerify.mock.calls.length).toBeGreaterThan(verifyCallsBefore);
 
@@ -869,6 +871,7 @@ describe('adversarial — in-flight handshake interrupted (N4, N8)', () => {
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(300);
     expect(postedCount('handshake:init', null)).toBe(2);
     const wv = makeWebviewCrypto();
@@ -911,6 +914,7 @@ describe('adversarial — in-flight handshake interrupted (N4, N8)', () => {
     mockAppStatus.isConnectedToTheInternet = true;
     rerender(React.createElement(Probe, null));
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(400);
     const wv = makeWebviewCrypto();
     expect(postedCount('handshake:init', null)).toBe(1);
@@ -1523,6 +1527,7 @@ describe('adversarial — message handling (E3, N10, N13, streamStatus)', () => 
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(400);
     wv = makeWebviewCrypto();
     wv.answerHandshake();
@@ -1738,6 +1743,7 @@ describe('adversarial — requests held while fallback-pending', () => {
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(400);
     const wv = makeWebviewCrypto();
     wv.answerHandshake();
@@ -1784,6 +1790,7 @@ describe('adversarial — boot-offline deadlock (F-1)', () => {
     mockAppStatus.isConnectedToTheInternet = true;
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(400);
 
     // A correct bridge re-arms the handshake here (the page is loaded and

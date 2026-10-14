@@ -819,6 +819,7 @@ describe('fail-closed — N8 backgrounded handshake is deferred, not failed', ()
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(300);
     expect(postedCount('handshake:init')).toBe(2);
 

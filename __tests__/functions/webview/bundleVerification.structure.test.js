@@ -20,6 +20,17 @@ jest.mock('expo-file-system/legacy', () => ({
   cacheDirectory: 'file:///cache/',
   EncodingType: { UTF8: 'utf8' },
 }));
+// The verified file is written as bytes through the new File API.
+jest.mock('expo-file-system', () => ({
+  File: class {
+    constructor(path) {
+      this.path = path;
+    }
+    write(bytes) {
+      written = { path: this.path, html: Buffer.from(bytes).toString('utf8') };
+    }
+  },
+}));
 jest.mock('expo-asset', () => ({ Asset: { fromModule: jest.fn() } }));
 jest.mock('react-native', () => ({ Platform: { OS: 'android' } }));
 jest.mock('react-native-quick-crypto', () => ({
@@ -43,9 +54,9 @@ jest.mock('react-native-quick-crypto', () => ({
 
 Object.assign(process.env, { SPARK_WEBVIEW_SIGNING_PUBKEY: 'cd'.repeat(32) });
 
-const {
-  verifyAndPrepareWebView,
-} = require('../../../app/functions/webview/bundleVerification');
+// Re-required per test: the module caches the verified source for the
+// process, and each test feeds a different document.
+let verifyAndPrepareWebView;
 
 const SIG = 'ab'.repeat(64);
 const NONCE_HEX = '07'.repeat(16);
@@ -66,6 +77,10 @@ describe('verifyAndPrepareWebView structural hardening', () => {
     mockVerifyArgs = undefined;
     mockVerifyResult = true;
     mockRead = async () => validHtml;
+    jest.resetModules();
+    ({
+      verifyAndPrepareWebView,
+    } = require('../../../app/functions/webview/bundleVerification'));
   });
 
   test('well-formed bundle passes and injects the nonce exactly once per slot', async () => {

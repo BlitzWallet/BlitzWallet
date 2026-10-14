@@ -1195,6 +1195,7 @@ describe('webViewContext — no zombie promises (TDD §4)', () => {
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(300);
     const wv2 = makeWebviewCrypto();
     wv2.answerHandshake();
@@ -1613,6 +1614,7 @@ describe('webViewContext — fallback machine (D-9)', () => {
     await flush();
 
     // The recovery path reloads (re-verifies) and re-handshakes; answer it.
+    await advance(1000); // past the deferred foreground remount
     await advance(400);
     const wv = makeWebviewCrypto();
     const handshakePosted = lastPosted('handshake:init');
@@ -1642,6 +1644,7 @@ describe('webViewContext — fallback machine (D-9)', () => {
     AppState.currentState = 'active';
     rerender();
     await flush();
+    await advance(1000); // past the deferred foreground remount
     await advance(400);
     await advance(4000);
     await flush();
