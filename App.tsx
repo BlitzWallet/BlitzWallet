@@ -315,7 +315,6 @@ function ResetStack(): JSX.Element | null {
       // every foreground ANR'd slow devices (itel A6610L, Android 14).
       const barKey = `${backgroundColor}|${theme}`;
       if (lastBarKeyRef.current === barKey) return;
-      lastBarKeyRef.current = barKey;
       try {
         if (Platform.OS === 'android') {
           await NavigationBar.setBackgroundColorAsync(backgroundColor);
@@ -329,6 +328,7 @@ function ResetStack(): JSX.Element | null {
             ?.setAttribute('content', backgroundColor);
         }
         await SystemUI.setBackgroundColorAsync(backgroundColor);
+        lastBarKeyRef.current = barKey;
       } catch (error) {
         console.warn('Failed to set navigation bar:', error);
       }
