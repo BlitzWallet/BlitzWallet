@@ -7,19 +7,14 @@ import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopB
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../functions/CustomElements/button';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../constants';
-import {
-  COLORS,
-  FONT,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 
 export default function ChildClaimInfo() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const openTermsAndConditions = () => {
@@ -76,7 +71,7 @@ export default function ChildClaimInfo() {
                 styles.infoRow,
                 index > 0 && {
                   borderTopWidth: 1,
-                  borderTopColor: backgroundColor,
+                  borderTopColor: tokens.divider,
                 },
               ]}
             >
@@ -99,7 +94,7 @@ export default function ChildClaimInfo() {
             activeOpacity={0.7}
             style={[
               styles.termsRow,
-              { borderTopWidth: 1, borderTopColor: backgroundColor },
+              { borderTopWidth: 1, borderTopColor: tokens.divider },
             ]}
           >
             <View style={{ width: 38, alignItems: 'center' }}>
@@ -120,21 +115,31 @@ export default function ChildClaimInfo() {
           activeOpacity={0.7}
         >
           <View
-            style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}
+            style={[
+              styles.checkbox,
+              { borderColor: tokens.ink },
+              termsAccepted && {
+                backgroundColor: tokens.accent,
+                borderColor: tokens.accent,
+              },
+            ]}
           >
             {termsAccepted && (
               <ThemeIcon
                 size={15}
-                colorOverride={COLORS.darkModeText}
+                colorOverride={tokens.onAccent}
                 iconName={'Check'}
               />
             )}
           </View>
 
           <View style={styles.termsTextContainer}>
-            <Text style={styles.checkboxText}>
+            <Text style={[styles.checkboxText, { color: tokens.ink }]}>
               {t('createAccount.disclaimerPage.acceptPrefixManaged')}{' '}
-              <Text style={styles.termsLink} onPress={openTermsAndConditions}>
+              <Text
+                style={[styles.termsLink, { color: tokens.link }]}
+                onPress={openTermsAndConditions}
+              >
                 {t('createAccount.disclaimerPage.terms&Conditions')}
               </Text>
               {t('createAccount.disclaimerPage.acceptSuffix')}
@@ -241,17 +246,12 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderWidth: 2,
-    borderColor: COLORS.lightModeText,
     borderRadius: 8,
     marginRight: 12,
     marginTop: 1,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-  },
-  checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
   },
   termsTextContainer: {
     flexDirection: 'row',
@@ -268,7 +268,6 @@ const styles = StyleSheet.create({
   termsLink: {
     fontFamily: FONT.Title_Regular,
     fontSize: SIZES.small,
-    color: COLORS.primary,
     textDecorationLine: 'underline',
     includeFontPadding: false,
     lineHeight: 20,

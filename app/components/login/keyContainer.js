@@ -1,12 +1,12 @@
 import { View, StyleSheet } from 'react-native';
-import { COLORS, FONT, SIZES } from '../../constants';
+import { FONT, SIZES } from '../../constants';
 import { ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 
 export function KeyContainer({ keys }) {
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
 
   const groupedKeys = [];
   let tempArr = [];
@@ -30,16 +30,13 @@ export function KeyContainer({ keys }) {
           style={[
             styles.seedItem,
             {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              backgroundColor: backgroundOffset,
             },
           ]}
         >
           <ThemeText styles={styles.numberText} content={`${number}.`} />
           <ThemeText
-            styles={[
-              styles.wordText,
-              { color: theme ? COLORS.darkModeText : COLORS.lightModeText },
-            ]}
+            styles={[styles.wordText, { color: tokens.ink }]}
             content={word}
           />
         </View>

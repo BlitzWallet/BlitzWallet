@@ -56,12 +56,20 @@ jest.mock('../app/functions/CustomElements/button', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('@react-navigation/native', () => ({

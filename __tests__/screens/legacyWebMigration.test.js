@@ -24,9 +24,18 @@ jest.mock('../../context-store/keys', () => ({
   useKeysContext: () => ({ setAccountMnemonic: jest.fn() }),
 }));
 jest.mock('../../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
-jest.mock('../../app/hooks/themeColors', () => () => ({}));
+jest.mock('../../app/hooks/themeColors', () => () => ({
+  tokens: require('../../app/constants/themes').MODES.light,
+}));
 jest.mock('../../app/functions/crashlyticsLogs', () => ({
   crashlyticsLogReport: jest.fn(),
 }));

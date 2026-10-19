@@ -33,7 +33,7 @@ import GetThemeColors from '../../../hooks/themeColors';
 function WebCreatePassword(props) {
   const { accountMnemoinc } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -254,16 +254,14 @@ function WebCreatePassword(props) {
           />
           {step === 'confirm-failed' && (
             <ThemeText
-              styles={styles.passkeyError}
+              styles={[styles.passkeyError, { color: tokens.danger }]}
               content={t('createAccount.keySetup.passkey.confirmFailed')}
             />
           )}
         </View>
         <View style={styles.keyIconContainer}>
           <IconActionCircle
-            customBackgroundColor={
-              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
-            }
+            customBackgroundColor={backgroundOffset}
             icon={'Key'}
             size={130}
           />
@@ -573,7 +571,6 @@ const styles = StyleSheet.create({
   },
   passkeyError: {
     fontSize: SIZES.small,
-    color: '#e74c3c',
     textAlign: 'center',
     marginTop: 12,
   },

@@ -55,7 +55,11 @@ jest.mock('../app/functions/CustomElements/actionCircleContainer', () => ({
 
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    backgroundColor: '#222',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('../app/functions/CustomElements/key', () => ({
@@ -88,7 +92,12 @@ jest.mock('../context-store/appStatus', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../app/functions', () => ({

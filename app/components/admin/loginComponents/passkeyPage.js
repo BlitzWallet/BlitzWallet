@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../constants';
+import { CENTER, ICONS, SIZES } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
@@ -19,7 +19,7 @@ import { Image } from 'expo-image';
 // authenticator enforces its own lockout), and a glitchy password manager
 // must never be able to wipe a wallet.
 export default function PasskeyLoginPage() {
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const [error, setError] = useState('');
   const [isUnlocking, setIsUnlocking] = useState(false);
   const { setAccountMnemonic } = useKeysContext();
@@ -98,14 +98,16 @@ export default function PasskeyLoginPage() {
 
   return (
     <View style={styles.contentContainer}>
-      {!!error && <ThemeText styles={styles.errorText} content={error} />}
+      {!!error && (
+        <ThemeText
+          styles={[styles.errorText, { color: tokens.danger }]}
+          content={error}
+        />
+      )}
       <View style={styles.centerContent}>
         <Image
           source={ICONS.logoIcon}
-          style={[
-            styles.logo,
-            tintStyle(theme ? COLORS.darkModeText : undefined),
-          ]}
+          style={[styles.logo, tintStyle(theme ? tokens.ink : undefined)]}
         />
       </View>
       <View style={styles.buttonContainer}>
@@ -152,7 +154,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: SIZES.small,
-    color: COLORS.cancelRed,
     textAlign: 'center',
     marginTop: 20,
   },

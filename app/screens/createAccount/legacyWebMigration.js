@@ -26,7 +26,8 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function LegacyWebMigration() {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, textInputBackground } = GetThemeColors();
+  const { backgroundOffset, textColor, textInputBackground, tokens } =
+    GetThemeColors();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -166,12 +167,15 @@ export default function LegacyWebMigration() {
             onSubmitEditingFunction={handleSubmit}
           />
         </View>
-        {!!error && <ThemeText styles={styles.errorText} content={error} />}
+        {!!error && (
+          <ThemeText
+            styles={[styles.errorText, { color: tokens.danger }]}
+            content={error}
+          />
+        )}
         <View style={styles.keyIconContainer}>
           <IconActionCircle
-            customBackgroundColor={
-              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
-            }
+            customBackgroundColor={backgroundOffset}
             icon={'Key'}
             size={130}
           />
@@ -237,7 +241,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: SIZES.small,
-    color: COLORS.cancelRed,
     marginTop: 10,
     textAlign: 'center',
   },

@@ -9,10 +9,12 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { removeLocalStorageItem } from '../../functions';
+import { useTheme } from '../../../context-store/theme';
 
 export default function WalletSetupFork() {
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { tokens } = useTheme();
 
   const options = [
     {
@@ -61,7 +63,7 @@ export default function WalletSetupFork() {
           content={t('createAccount.walletSetup.subtitle')}
         />
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: tokens.surface }]}>
           {options.map((option, index) => (
             <TouchableOpacity
               key={option.icon}
@@ -71,7 +73,7 @@ export default function WalletSetupFork() {
                 styles.row,
                 index > 0 && {
                   borderTopWidth: 1,
-                  borderTopColor: COLORS.lightModeBackground,
+                  borderTopColor: tokens.divider,
                 },
               ]}
             >
@@ -79,17 +81,20 @@ export default function WalletSetupFork() {
                 <ThemeIcon
                   iconName={option.icon}
                   size={20}
-                  colorOverride={COLORS.primary}
+                  colorOverride={tokens.accent}
                 />
               </View>
               <View style={styles.rowText}>
-                <ThemeText styles={styles.rowTitle} content={option.title} />
+                <ThemeText
+                  styles={[styles.rowTitle, { color: tokens.ink }]}
+                  content={option.title}
+                />
                 <ThemeText styles={styles.rowDesc} content={option.desc} />
               </View>
               <ThemeIcon
                 iconName={'ChevronRight'}
                 size={20}
-                colorOverride={COLORS.primary}
+                colorOverride={tokens.accent}
               />
             </TouchableOpacity>
           ))}
@@ -122,7 +127,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 24,
     borderRadius: 24,
-    backgroundColor: COLORS.lightModeBackgroundOffset,
     overflow: 'hidden',
   },
   row: {
@@ -139,7 +143,6 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: SIZES.smedium,
     fontWeight: '500',
-    color: COLORS.lightModeText,
     includeFontPadding: false,
   },
   rowDesc: {

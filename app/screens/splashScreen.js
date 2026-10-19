@@ -9,7 +9,6 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { COLORS } from '../constants';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { tintStyle } from '../functions/webTintColor';
@@ -22,7 +21,7 @@ const SplashLogo = require('../assets/adaptive-icon.png');
 const SplashScreen = () => {
   const navigate = useNavigation();
   const opacity = useSharedValue(1);
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   useEffect(() => {
     // Fire database initialization in the background. The login page needs no
@@ -90,11 +89,7 @@ const SplashScreen = () => {
       onLayout={hideNativeSplash}
       style={{
         flex: 1,
-        backgroundColor: theme
-          ? darkModeType
-            ? COLORS.lightsOutBackground
-            : COLORS.darkModeBackground
-          : COLORS.lightModeBackground,
+        backgroundColor: tokens.ground,
       }}
     >
       <Animated.View style={[styles.container, animatedStyle]}>
@@ -102,7 +97,7 @@ const SplashScreen = () => {
           source={SplashLogo}
           style={[
             styles.logo,
-            tintStyle(theme && darkModeType ? COLORS.darkModeText : COLORS.primary),
+            tintStyle(theme && darkModeType ? tokens.ink : tokens.accent),
           ]}
           contentFit="contain"
         />

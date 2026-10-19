@@ -52,7 +52,13 @@ jest.mock('../../context-store/keys', () => ({
   }),
 }));
 jest.mock('../../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 jest.mock('../../context-store/globalContacts', () => ({
   useGlobalContactsInfo: () => ({ toggleGlobalContactsInformation: jest.fn() }),

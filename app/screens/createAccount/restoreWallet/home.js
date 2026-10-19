@@ -7,7 +7,6 @@ import {
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
   SIZES,
@@ -47,7 +46,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
@@ -177,10 +176,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
     }
   };
 
-  const seedItemBackgroundColor = useMemo(
-    () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
-    [theme],
-  );
+  const seedItemBackgroundColor = useMemo(() => tokens.surface, [tokens]);
 
   const inputKeys = useMemo(() => {
     const rows = [];
@@ -220,8 +216,8 @@ export default function RestoreWallet({ navigation: { reset } }) {
               onSubmitEditing={() => handleSubmit(item1)}
               onChangeText={e => handleInputElement(e, item1)}
               blurOnSubmit={false}
-              cursorColor={COLORS.lightModeText}
-              style={styles.textInputStyle}
+              cursorColor={tokens.ink}
+              style={[styles.textInputStyle, { color: tokens.ink }]}
             />
           </View>
 
@@ -250,8 +246,8 @@ export default function RestoreWallet({ navigation: { reset } }) {
               onSubmitEditing={() => handleSubmit(item2)}
               onChangeText={e => handleInputElement(e, item2)}
               blurOnSubmit={false}
-              cursorColor={COLORS.lightModeText}
-              style={styles.textInputStyle}
+              cursorColor={tokens.ink}
+              style={[styles.textInputStyle, { color: tokens.ink }]}
             />
           </View>
         </View>,
@@ -348,8 +344,11 @@ export default function RestoreWallet({ navigation: { reset } }) {
 
               {/* Restore — full width */}
               <CustomButton
-                buttonStyles={styles.restoreButton}
-                textStyles={{ color: COLORS.darkModeText }}
+                buttonStyles={[
+                  styles.restoreButton,
+                  { backgroundColor: tokens.accent },
+                ]}
+                textStyles={{ color: tokens.onAccent }}
                 textContent={t('constants.restore')}
                 actionFunction={keyValidation}
               />
@@ -448,7 +447,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    color: COLORS.lightModeText,
   },
   secondaryButtonRow: {
     width: '100%',
@@ -460,6 +458,5 @@ const styles = StyleSheet.create({
   },
   restoreButton: {
     width: '100%',
-    backgroundColor: COLORS.primary,
   },
 });

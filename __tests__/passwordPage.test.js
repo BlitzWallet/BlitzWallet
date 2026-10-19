@@ -49,6 +49,9 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: key => key }),
 }));
 
+jest.mock('../context-store/theme', () => ({
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
+}));
 jest.mock('../context-store/keys', () => ({
   useKeysContext: () => ({ setAccountMnemonic: jest.fn() }),
 }));

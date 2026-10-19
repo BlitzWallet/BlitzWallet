@@ -1,7 +1,7 @@
 import { Platform, StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../components/login';
-import { CENTER, COLORS, SIZES } from '../../../constants';
+import { CENTER, SIZES } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import LoginNavbar from '../../../components/login/navBar';
@@ -24,7 +24,7 @@ export default function GenerateKey() {
 
   const { t } = useTranslation();
   const hookNavigate = useNavigation();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const { theme } = useGlobalThemeContext();
   const isWeb = Platform.OS === 'web';
 
@@ -85,9 +85,7 @@ export default function GenerateKey() {
                 style={[
                   styles.overlay,
                   {
-                    borderColor: theme
-                      ? 'rgba(255,255,255,0.22)'
-                      : 'rgba(255,255,255,0.95)',
+                    borderColor: theme ? tokens.divider : tokens.surface,
                   },
                 ]}
               >
@@ -107,8 +105,11 @@ export default function GenerateKey() {
                     )}
                   />
                   <CustomButton
-                    buttonStyles={styles.revealButton}
-                    textStyles={{ color: COLORS.darkModeText }}
+                    buttonStyles={[
+                      styles.revealButton,
+                      { backgroundColor: tokens.accent },
+                    ]}
+                    textStyles={{ color: tokens.onAccent }}
                     actionFunction={() => setShowSeed(true)}
                     textContent={t('createAccount.keySetup.generateKey.showIt')}
                   />
@@ -201,7 +202,6 @@ const styles = StyleSheet.create({
   },
   revealButton: {
     width: '100%',
-    backgroundColor: COLORS.primary,
   },
   notice: {
     width: '100%',

@@ -24,7 +24,7 @@ export default function PasswordCreateForm({
   onSubmit,
   isSubmitting,
 }) {
-  const { textInputBackground, backgroundColor } = GetThemeColors();
+  const { textInputBackground, tokens } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
@@ -124,7 +124,7 @@ export default function PasswordCreateForm({
             </TouchableOpacity>
           }
         />
-        <View style={[styles.divider, { backgroundColor }]} />
+        <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
         <CustomSearchInput
           inputText={confirm}
           setInputText={setConfirm}

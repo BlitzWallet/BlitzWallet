@@ -19,6 +19,7 @@ import { decryptMnemonicWithPin } from '../../../functions/handleMnemonic';
 import { getStoredPasskeyInfo } from '../../../functions/passkeyMnemonic';
 import RNRestart from 'react-native-restart-newarch';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
+import { useTheme } from '../../../../context-store/theme';
 
 export default function PasswordPage() {
   const [password, setPassword] = useState('');
@@ -30,6 +31,7 @@ export default function PasswordPage() {
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const isCheckingRef = useRef(false);
+  const { tokens } = useTheme();
 
   useEffect(() => {
     async function loadPageInformation() {
@@ -155,7 +157,12 @@ export default function PasswordPage() {
           })}
         />
       )}
-      {!!error && <ThemeText styles={styles.errorText} content={error} />}
+      {!!error && (
+        <ThemeText
+          styles={[styles.errorText, { color: tokens.danger }]}
+          content={error}
+        />
+      )}
       <View style={styles.inputWrapper}>
         <CustomSearchInput
           inputText={password}
@@ -174,7 +181,7 @@ export default function PasswordPage() {
           onPress={handleForgotPassword}
         >
           <ThemeText
-            styles={styles.forgotText}
+            styles={[styles.forgotText, { color: tokens.muted }]}
             content={t(
               'adminLogin.passwordPage.forgotPassword',
               'Forgot password?',
@@ -222,11 +229,9 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     fontSize: SIZES.smedium,
-    color: COLORS.gray,
   },
   errorText: {
     fontSize: SIZES.small,
-    color: COLORS.cancelRed,
     marginTop: 10,
   },
   buttonContainer: {
