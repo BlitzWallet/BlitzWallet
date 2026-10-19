@@ -48,7 +48,7 @@ function TokenListItem({
   darkModeType,
 }) {
   const { tokensImageCache } = useSparkWallet();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const imageUri = tokensImageCache[tokenIdentifier];
   const { tokenMetadata } = token;
 
@@ -70,7 +70,7 @@ function TokenListItem({
           styles.tokenIcon,
           {
             backgroundColor:
-              theme && darkModeType ? backgroundOffset : COLORS.primary,
+              theme && darkModeType ? backgroundOffset : tokens.accent,
           },
         ]}
       >
@@ -84,7 +84,7 @@ function TokenListItem({
           />
         ) : (
           <ThemeIcon
-            colorOverride={COLORS.darkModeText}
+            colorOverride={tokens.onAccent}
             size={20}
             iconName="Coins"
           />
@@ -113,7 +113,7 @@ function TokenListItem({
       <View style={styles.tokenListRight}>
         <ThemeIcon
           colorOverride={
-            theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            theme && darkModeType ? COLORS.lightModeText : tokens.accent
           }
           size={16}
           iconName="ChevronRight"
@@ -129,7 +129,7 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
   const navigate = useNavigation();
   const { tokensImageCache } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { showToast } = useToast();
   const { t } = useTranslation();
   const fadeAnim = useSharedValue(0);
@@ -143,17 +143,9 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
     slideAnim.value = withTiming(0, { duration: 220 });
   }, []);
 
-  const cardBg = theme
-    ? darkModeType
-      ? backgroundColor
-      : backgroundOffset
-    : COLORS.darkModeText;
+  const cardBg = theme && darkModeType ? backgroundColor : backgroundOffset;
 
-  const dividerColor = theme
-    ? darkModeType
-      ? backgroundOffset
-      : backgroundColor
-    : backgroundColor;
+  const dividerColor = tokens.divider;
 
   const rows = [
     {
@@ -211,7 +203,7 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
             styles.detailIconLarge,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : COLORS.primary,
+                theme && darkModeType ? backgroundColor : tokens.accent,
             },
           ]}
         >
@@ -225,7 +217,7 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
             />
           ) : (
             <ThemeIcon
-              colorOverride={COLORS.darkModeText}
+              colorOverride={tokens.onAccent}
               size={28}
               iconName="Coins"
             />
@@ -241,7 +233,7 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
             styles.detailTickerBadge,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : COLORS.primary + '22',
+                theme && darkModeType ? backgroundColor : tokens.accent + '22',
             },
           ]}
         >
@@ -249,7 +241,7 @@ function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
             styles={[
               styles.detailTickerText,
               {
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                color: tokens.ink,
               },
             ]}
             content={(tokenMetadata?.tokenTicker || '')
@@ -364,7 +356,7 @@ export default function ViewAllTokensHalfModal({
   handleBackPressFunction,
   setBackNav,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens: themeTokens } = useGlobalThemeContext();
   const { sparkInformation } = useSparkWallet();
   const { t } = useTranslation();
 
@@ -424,7 +416,7 @@ export default function ViewAllTokensHalfModal({
           {tokenEntries.length === 0 ? (
             <View style={styles.emptyState}>
               <ThemeIcon
-                colorOverride={COLORS.primary}
+                colorOverride={themeTokens.accent}
                 size={32}
                 iconName="Coins"
               />

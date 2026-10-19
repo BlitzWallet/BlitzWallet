@@ -5,12 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  COLORS,
-  FONT,
-  SIZES,
-  SKELETON_ANIMATION_SPEED,
-} from '../../../../constants';
+import { FONT, SIZES, SKELETON_ANIMATION_SPEED } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -38,7 +33,7 @@ export const UserSatAmount = memo(function UserSatAmount({
 
   const { masterInfoObject, toggleMasterInfoObject, setMasterInfoObject } =
     useGlobalContextProvider();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
 
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
@@ -185,7 +180,7 @@ export const UserSatAmount = memo(function UserSatAmount({
       >
         <SkeletonTextPlaceholder
           highlightColor={backgroundColor}
-          backgroundColor={COLORS.opaicityGray}
+          backgroundColor={tokens.skel}
           speed={SKELETON_ANIMATION_SPEED}
           enabled={!sparkInformation.identityPubKey}
           layout={layout}

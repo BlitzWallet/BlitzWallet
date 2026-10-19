@@ -121,7 +121,8 @@ export default function SwapFlowHalfModal({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const { t } = useTranslation();
 
   // Step state
@@ -1858,7 +1859,7 @@ export default function SwapFlowHalfModal({
                   style={[
                     styles.amountRowText,
                     {
-                      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                      color: tokens.ink,
                     },
                     fromAmountAnimatedStyle,
                   ]}
@@ -1948,9 +1949,7 @@ export default function SwapFlowHalfModal({
                     style={[
                       styles.amountRowText,
                       {
-                        color: theme
-                          ? COLORS.darkModeText
-                          : COLORS.lightModeText,
+                        color: tokens.ink,
                       },
                       toAmountAnimatedStyle,
                     ]}
@@ -1991,8 +1990,8 @@ export default function SwapFlowHalfModal({
                       backgroundColor:
                         activePercentage === btn.value
                           ? theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary
+                            ? tokens.ink
+                            : tokens.accent
                           : theme && darkModeType
                           ? backgroundColor
                           : backgroundOffset,
@@ -2014,7 +2013,7 @@ export default function SwapFlowHalfModal({
                           activePercentage === btn.value
                             ? theme && darkModeType
                               ? COLORS.lightModeText
-                              : COLORS.darkModeText
+                              : tokens.onAccent
                             : textColor,
                       },
                     ]}
@@ -2231,11 +2230,11 @@ export default function SwapFlowHalfModal({
             <CustomButton
               buttonStyles={{
                 width: INSET_WINDOW_WIDTH,
-                backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+                backgroundColor: theme ? tokens.ink : tokens.accent,
                 ...CENTER,
               }}
               textStyles={{
-                color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+                color: theme ? COLORS.lightModeText : tokens.onAccent,
               }}
               actionFunction={handleBackPressFunction}
               textContent={t('constants.done')}

@@ -6,7 +6,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { COLORS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -18,8 +18,13 @@ export default function BackupSeedWarning() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor, transparentOveraly } =
-    GetThemeColors();
+  const {
+    backgroundOffset,
+    backgroundColor,
+    textColor,
+    transparentOveraly,
+    tokens,
+  } = GetThemeColors();
 
   const navigateToSettings = () => {
     navigate.reset({
@@ -43,12 +48,7 @@ export default function BackupSeedWarning() {
   };
   return (
     <View style={[styles.overlay, { backgroundColor: transparentOveraly }]}>
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-        ]}
-      >
+      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
         <View style={styles.iconContainer}>
           <ThemeIcon size={45} iconName={'AlertTriangle'} />
         </View>
@@ -67,9 +67,9 @@ export default function BackupSeedWarning() {
           actionFunction={navigateToSettings}
           buttonStyles={{
             ...styles.button,
-            backgroundColor: theme ? backgroundColor : COLORS.primary,
+            backgroundColor: theme ? backgroundColor : tokens.accent,
           }}
-          textStyles={{ color: theme ? textColor : COLORS.darkModeText }}
+          textStyles={{ color: theme ? textColor : tokens.onAccent }}
           textContent={t('wallet.homeLightning.backupSeedWarning.backupBTN')}
         />
 
