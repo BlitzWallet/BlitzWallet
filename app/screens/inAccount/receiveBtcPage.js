@@ -72,7 +72,7 @@ export default function ReceivePaymentHome(props) {
   // const { signer } = useRootstockProvider();
   const signer = null;
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { isUsingAltAccount, currentWalletMnemoinc } =
     useActiveCustodyAccount();
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
@@ -246,9 +246,9 @@ export default function ReceivePaymentHome(props) {
   const displayAddress = address;
   const amountCardValue = displayedReceiveAmount;
   const actionTextColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+    theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
   const primaryButtonBackground =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+    theme && darkModeType ? tokens.ink : tokens.accent;
 
   const handleShareInvoice = () => {
     const amount = displayedReceiveAmount;
@@ -437,7 +437,8 @@ export default function ReceivePaymentHome(props) {
 }
 
 function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const { t } = useTranslation();
   const [pillWidth, setPillWidth] = useState(0);
 
@@ -475,7 +476,7 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
             {
               width: pillWidth / 2 - 4,
               backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                theme && darkModeType ? tokens.ink : tokens.accent,
             },
             thumbAnimStyle,
           ]}
@@ -497,7 +498,7 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
                 tintColor: active
                   ? theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText
+                    : tokens.onAccent
                   : textColor,
                 opacity: active ? 1 : 0.4,
               }}
@@ -514,7 +515,7 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
                   color: active
                     ? theme && darkModeType
                       ? COLORS.lightModeText
-                      : COLORS.darkModeText
+                      : tokens.onAccent
                     : textColor,
                 },
               ]}
