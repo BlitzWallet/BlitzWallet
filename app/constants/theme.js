@@ -1,3 +1,5 @@
+import { MODES } from './themes';
+
 const COLORS = {
   primary: '#0375F6',
   secondary: '#21374F',
@@ -14,22 +16,22 @@ const COLORS = {
 
   background: '#F8F8F8',
 
-  lightModeBackground: '#EBEBEB',
-  darkModeBackground: '#00254E',
-  lightsOutBackground: '#000000',
+  lightModeBackground: MODES.light.ground,
+  darkModeBackground: MODES.dim.ground,
+  lightsOutBackground: MODES.lightsOut.ground,
 
-  lightModeText: '#262626',
-  darkModeText: 'white',
+  lightModeText: MODES.light.ink,
+  darkModeText: MODES.dim.ink,
 
   lightsOutModeOpacityInput: '#3C3C3C',
 
   offsetBackground: '#cbcbcb',
-  lightModeBackgroundOffset: '#E3E3E3',
-  darkModeBackgroundOffset: '#013167',
-  lightsOutBackgroundOffset: '#1B1B1B',
+  lightModeBackgroundOffset: MODES.light.surface,
+  darkModeBackgroundOffset: MODES.dim.surface,
+  lightsOutBackgroundOffset: MODES.lightsOut.surface,
 
-  halfModalBackgroundColor: 'rgba(0, 0, 0, 0.3)',
-  halfModalBackgroundColorLightsout: 'rgba(0, 0, 0, 0.6)',
+  halfModalBackgroundColor: MODES.light.scrim,
+  halfModalBackgroundColorLightsout: MODES.lightsOut.scrim,
   opaicityGray: '#767676b8',
   cameraOverlay: '#0000002e',
   cancelRed: '#e20000',
@@ -38,15 +40,15 @@ const COLORS = {
   notConnectedNodeColor: '#ff0000',
 
   darkModePlaceholder: '#FFFFFFA6',
-  lightModePlaceholder: '#9CA3AF',
+  lightModePlaceholder: MODES.light.muted,
 
   nostrGreen: '#29C467',
 
   failedTransaction: '#FF0000',
 
   expandedTXLightModePending: '#00000080', //50%,
-  expandedTXLightModeFailed: '#D4393940', //25%
-  expandedTXLightModeConfirmd: '#0078FF40', // 25%
+  expandedTXLightModeFailed: MODES.light.dangerBg,
+  expandedTXLightModeConfirmd: MODES.light.disc,
 
   expandedTXDarkModeConfirmd: '#FFFFFF40',
 
@@ -65,16 +67,16 @@ const COLORS = {
   giftcardlightsout3: '#676767',
 
   lightBlueForGiftCards: '#a7d1ff',
-  walletHomeLightModeOffset: '#E4E4E4',
-  walletHomeDarkModeOffset: '#002146',
-  walletHomeLightsOutOffset: '#0d0d0d',
+  walletHomeLightModeOffset: MODES.light.surface,
+  walletHomeDarkModeOffset: MODES.dim.surface,
+  walletHomeLightsOutOffset: MODES.lightsOut.surface,
 
   bitcoinOrange: '#FFAC30',
   dollarGreen: '#60D263',
 
-  tabsBorderLightsout: 'rgba(255,255,255,0.2)',
-  tabsBorderDim: 'rgba(255,255,255,0.1)',
-  tabsBorderLight: '#e5e7eb',
+  tabsBorderLightsout: MODES.lightsOut.divider,
+  tabsBorderDim: MODES.dim.divider,
+  tabsBorderLight: MODES.light.divider,
 };
 
 const FONT = {
