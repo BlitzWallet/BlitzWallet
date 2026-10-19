@@ -23,7 +23,6 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
@@ -191,24 +190,16 @@ export default function HalfModalSendOptions({
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const isContactInputMode = inputText.startsWith('@');
   const pasteLabel = t('constants.paste');
   const scanLabel = t('constants.scan');
   // Shared surface/accent tokens for the redesigned input card + action row so
   // the light-only mockup maps onto the app's light/dark/lights-out themes.
-  const raisedSurface = theme
-    ? darkModeType
-      ? backgroundColor
-      : backgroundOffset
-    : COLORS.darkModeText;
-  const textColor = theme
-    ? darkModeType
-      ? COLORS.darkModeText
-      : COLORS.darkModeText
-    : COLORS.lightModeText;
-  const accentColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const raisedSurface =
+    theme && darkModeType ? backgroundColor : backgroundOffset;
+  const textColor = tokens.ink;
+  const accentColor = theme && darkModeType ? tokens.ink : tokens.accent;
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
@@ -826,11 +817,7 @@ export default function HalfModalSendOptions({
                     ]}
                   >
                     <ThemeIcon
-                      colorOverride={
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
-                      }
+                      colorOverride={accentColor}
                       size={24}
                       iconName={'Smartphone'}
                     />
@@ -852,10 +839,7 @@ export default function HalfModalSendOptions({
                   style={[
                     styles.divider,
                     {
-                      borderColor:
-                        theme && darkModeType
-                          ? 'rgba(255, 255, 255, 0.1)'
-                          : 'rgba(0, 0, 0, 0.05)',
+                      borderColor: tokens.divider,
                     },
                   ]}
                 />

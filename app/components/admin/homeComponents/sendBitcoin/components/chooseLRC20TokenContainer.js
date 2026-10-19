@@ -35,7 +35,7 @@ export default function ChooseLRC20TokenContainer({
   containerStyles = {},
 }) {
   const { tokensImageCache } = useSparkWallet();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
 
   const imageUri = tokensImageCache[selectedLRC20Asset];
   const balance =
@@ -78,7 +78,7 @@ export default function ChooseLRC20TokenContainer({
                   ? backgroundColor
                   : selectedLRC20Asset === 'Bitcoin'
                   ? COLORS.bitcoinOrange
-                  : COLORS.primary,
+                  : tokens.accent,
             },
           ]}
         >
@@ -103,7 +103,7 @@ export default function ChooseLRC20TokenContainer({
             />
           ) : (
             <ThemeIcon
-              colorOverride={COLORS.darkModeText}
+              colorOverride={tokens.onAccent}
               size={20}
               iconName={'Coins'}
             />
@@ -124,7 +124,7 @@ export default function ChooseLRC20TokenContainer({
         </View>
         <ThemeIcon
           colorOverride={
-            theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            theme && darkModeType ? COLORS.lightModeText : tokens.accent
           }
           size={20}
           iconName={'ChevronDown'}

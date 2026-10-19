@@ -34,7 +34,7 @@ import GetThemeColors from '../../hooks/themeColors';
 export default function SendPaymentHome({ pageViewPage, from }) {
   const navigate = useNavigation();
   const isFocused = useIsFocused();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const isPhotoeLibraryOpen = useRef(false);
   const {
@@ -309,8 +309,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
           style={[
             styles.qrBoxOutline,
             {
-              borderColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              borderColor: theme && darkModeType ? tokens.ink : tokens.accent,
             },
           ]}
         />

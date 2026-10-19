@@ -36,7 +36,7 @@ export default function SelectLRC20Token({
     ? Object.entries(sparkInformation.tokens)
     : [];
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
 
@@ -121,11 +121,8 @@ export default function SelectLRC20Token({
           key={tokenIdentifier}
           style={{
             ...styles.assetContainer,
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
           }}
         >
           <View
@@ -134,10 +131,10 @@ export default function SelectLRC20Token({
               backgroundColor: imageUri
                 ? 'transparent'
                 : theme && darkModeType
-                ? COLORS.darkModeText
+                ? tokens.ink
                 : tokenIdentifier === 'Bitcoin'
                 ? COLORS.bitcoinOrange
-                : COLORS.primary,
+                : tokens.accent,
             }}
           >
             {tokenIdentifier === 'Bitcoin' ? (
@@ -149,7 +146,7 @@ export default function SelectLRC20Token({
                     tintColor:
                       theme && darkModeType
                         ? COLORS.lightModeText
-                        : COLORS.darkModeText,
+                        : tokens.onAccent,
                   }}
                   source={ICONS.bitcoinIcon}
                   disableTint={true}
@@ -166,9 +163,7 @@ export default function SelectLRC20Token({
             ) : (
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText
+                  theme && darkModeType ? COLORS.lightModeText : tokens.onAccent
                 }
                 size={25}
                 iconName={'Coins'}

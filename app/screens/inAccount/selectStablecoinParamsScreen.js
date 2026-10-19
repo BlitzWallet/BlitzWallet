@@ -9,7 +9,6 @@ import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar'
 import GetThemeColors from '../../hooks/themeColors';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
   ICONS,
@@ -40,7 +39,7 @@ export default function SelectStablecoinParamsScreen() {
   const route = useRoute();
   const { address, chainFamily, unsupportedTokenMessage } = route.params;
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
 
@@ -145,8 +144,8 @@ export default function SelectStablecoinParamsScreen() {
                           isSelected && {
                             borderColor:
                               theme && darkModeType
-                                ? COLORS.darkModeText
-                                : COLORS.primary,
+                                ? tokens.ink
+                                : tokens.accent,
                           },
                         ]}
                         onPress={() => setSelectedChain(chain)}

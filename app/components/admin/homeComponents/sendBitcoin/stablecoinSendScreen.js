@@ -20,7 +20,6 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {
   APPROXIMATE_SYMBOL,
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SIZES,
@@ -91,7 +90,7 @@ export default function StablecoinSendScreen() {
   const { t } = useTranslation();
 
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
@@ -706,10 +705,7 @@ export default function StablecoinSendScreen() {
                     styles.countdownText,
                     { backgroundColor: backgroundOffset },
                     countdown < 30000 && {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.cancelRed,
+                      color: theme && darkModeType ? tokens.ink : tokens.danger,
                     },
                   ]}
                   content={formatCountdown(countdown)}
@@ -875,9 +871,9 @@ export default function StablecoinSendScreen() {
               <SliderProgressAnimation
                 ref={progressAnimationRef}
                 isVisible={true}
-                textColor={COLORS.darkModeText}
+                textColor={tokens.onAccent}
                 backgroundColor={
-                  theme && darkModeType ? backgroundOffset : COLORS.primary
+                  theme && darkModeType ? backgroundOffset : tokens.accent
                 }
                 width={0.95}
               />

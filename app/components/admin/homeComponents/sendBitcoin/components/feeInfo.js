@@ -4,7 +4,7 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import { useState } from 'react';
 import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { COLORS, SKELETON_ANIMATION_SPEED } from '../../../../../constants';
+import { SKELETON_ANIMATION_SPEED } from '../../../../../constants';
 import { View } from 'react-native';
 
 export default function SendTransactionFeeInfo({
@@ -17,7 +17,7 @@ export default function SendTransactionFeeInfo({
   display = null, // { denomination, forceCurrency, forceFiatStats }
 }) {
   const [layout, setlayout] = useState({ height: 45, width: 87 });
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   return (
@@ -28,7 +28,7 @@ export default function SendTransactionFeeInfo({
       />
       <SkeletonTextPlaceholder
         highlightColor={backgroundColor}
-        backgroundColor={COLORS.opaicityGray}
+        backgroundColor={tokens.skel}
         speed={SKELETON_ANIMATION_SPEED}
         enabled={isDecoding}
         layout={layout}
