@@ -7,6 +7,7 @@ import {
   useCallback,
 } from 'react';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+import {MODES, SKINS, ACTIVE_SKIN} from '../app/constants/themes';
 
 // Initiate context
 const ThemeContextManager = createContext(null);
@@ -42,14 +43,23 @@ const GlobalThemeProvider = ({children}) => {
     })();
   }, []);
 
+  // Same mapping as GetThemeColors: theme=true is dark, darkModeType=true is Lights out.
+  const mode = theme ? (darkModeType ? 'lightsOut' : 'dim') : 'light';
+  const tokens = useMemo(
+    () => ({...MODES[mode], ...SKINS[ACTIVE_SKIN]?.overrides?.[mode]}),
+    [mode],
+  );
+
   const contextValue = useMemo(
     () => ({
       theme,
       toggleTheme,
       darkModeType,
       toggleDarkModeType,
+      mode,
+      tokens,
     }),
-    [theme, toggleTheme, darkModeType, toggleDarkModeType],
+    [theme, toggleTheme, darkModeType, toggleDarkModeType, mode, tokens],
   );
 
   return (
@@ -69,4 +79,14 @@ function useGlobalThemeContext() {
   return context;
 }
 
-export {ThemeContextManager, GlobalThemeProvider, useGlobalThemeContext};
+function useTheme() {
+  const {tokens, mode} = useGlobalThemeContext();
+  return {tokens, mode, scheme: tokens.scheme};
+}
+
+export {
+  ThemeContextManager,
+  GlobalThemeProvider,
+  useGlobalThemeContext,
+  useTheme,
+};
