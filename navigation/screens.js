@@ -269,6 +269,20 @@ const BITREFILL_SCREEN = {
 const MODAL_CARD_SCREENS = Platform.OS === 'web' ? [] : [BITREFILL_SCREEN];
 if (Platform.OS === 'web') SLIDE_FROM_RIGHT_SCREENS.push(BITREFILL_SCREEN);
 
+// Dev-only primitives gallery (audit/IMPLEMENTATION_PLAN.md §10 T9).
+if (__DEV__) {
+  const PrimitivesGallery =
+    require('../app/screens/dev/primitivesGallery').default;
+  SLIDE_FROM_RIGHT_SCREENS.push({
+    name: 'PrimitivesGallery',
+    component: PrimitivesGallery,
+  });
+  // Open it from the dev menu (Cmd+D in the simulator; no dev menu on web).
+  require('react-native').DevSettings?.addMenuItem('Primitives gallery', () =>
+    require('./navigationService').navigationRef.navigate('PrimitivesGallery'),
+  );
+}
+
 export {
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,

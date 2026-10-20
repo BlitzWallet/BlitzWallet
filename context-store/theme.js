@@ -15,6 +15,8 @@ const ThemeContextManager = createContext(null);
 const GlobalThemeProvider = ({children}) => {
   const [theme, setTheme] = useState(null);
   const [darkModeType, setDarkModeType] = useState(null);
+  // Dev-only skin (gallery switcher). Release builds always use ACTIVE_SKIN.
+  const [devSkin, setDevSkin] = useState(ACTIVE_SKIN);
 
   const toggleDarkModeType = useCallback(param => {
     const mode = param ? 'dim' : 'lights-out';
@@ -45,9 +47,10 @@ const GlobalThemeProvider = ({children}) => {
 
   // Same mapping as GetThemeColors: theme=true is dark, darkModeType=true is Lights out.
   const mode = theme ? (darkModeType ? 'lightsOut' : 'dim') : 'light';
+  const activeSkin = __DEV__ ? devSkin : ACTIVE_SKIN;
   const tokens = useMemo(
-    () => ({...MODES[mode], ...SKINS[ACTIVE_SKIN]?.overrides?.[mode]}),
-    [mode],
+    () => ({...MODES[mode], ...SKINS[activeSkin]?.overrides?.[mode]}),
+    [mode, activeSkin],
   );
 
   const contextValue = useMemo(
@@ -57,9 +60,19 @@ const GlobalThemeProvider = ({children}) => {
       darkModeType,
       toggleDarkModeType,
       mode,
+      skin: activeSkin,
+      setSkin: __DEV__ ? setDevSkin : undefined,
       tokens,
     }),
-    [theme, toggleTheme, darkModeType, toggleDarkModeType, mode, tokens],
+    [
+      theme,
+      toggleTheme,
+      darkModeType,
+      toggleDarkModeType,
+      mode,
+      activeSkin,
+      tokens,
+    ],
   );
 
   return (
