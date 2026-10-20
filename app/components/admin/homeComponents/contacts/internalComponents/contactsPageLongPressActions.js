@@ -24,7 +24,7 @@ export default function ContactsPageLongPressActions({
   const navigate = useNavigation();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, transparentOveraly } =
+  const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const {
     decodedAddedContacts,
@@ -73,10 +73,7 @@ export default function ContactsPageLongPressActions({
                   style={[
                     styles.divider,
                     {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundColor
-                          : backgroundOffset,
+                      backgroundColor: tokens.divider,
                     },
                   ]}
                 />

@@ -166,6 +166,7 @@ function ProfileInputFields({
   textInputColor,
   textInputBackground,
   textColor,
+  tokens,
   navigate,
   t,
 }) {
@@ -194,6 +195,7 @@ function ProfileInputFields({
         textInputColor={textInputColor}
         textInputBackground={textInputBackground}
         textColor={textColor}
+        tokens={tokens}
         showDivider={true}
       />
 
@@ -214,6 +216,7 @@ function ProfileInputFields({
           textInputColor={textInputColor}
           textInputBackground={textInputBackground}
           textColor={textColor}
+          tokens={tokens}
           showDivider={true}
         />
       )}
@@ -235,6 +238,7 @@ function ProfileInputFields({
         textInputColor={textInputColor}
         textInputBackground={textInputBackground}
         textColor={textColor}
+        tokens={tokens}
         showDivider={!bioIsLast}
       />
     </>
@@ -369,8 +373,13 @@ function InnerContent({
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { cache, refreshCacheObject } = useImageCache();
-  const { backgroundOffset, textInputColor, textInputBackground, textColor } =
-    GetThemeColors();
+  const {
+    backgroundOffset,
+    textInputColor,
+    textInputBackground,
+    textColor,
+    tokens,
+  } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const {
     decodedAddedContacts,
@@ -490,6 +499,7 @@ function InnerContent({
     textInputColor,
     textInputBackground,
     textColor,
+    tokens,
     navigate,
     t,
   };

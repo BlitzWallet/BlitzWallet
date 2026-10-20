@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { COLORS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import ContactProfileImage from './profileImage';
@@ -12,7 +11,7 @@ export default function ProfileImageRow({
   containerStyles = {},
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { cache } = useImageCache();
 
   return (
@@ -20,7 +19,7 @@ export default function ProfileImageRow({
       style={[
         styles.selectedSection,
         {
-          borderColor: theme ? backgroundOffset : COLORS.offsetBackground,
+          borderColor: tokens.divider,
         },
         containerStyles,
       ]}

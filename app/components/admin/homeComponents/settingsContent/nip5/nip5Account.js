@@ -48,7 +48,7 @@ export default function Nip5VerificationPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, textInputColor, textInputBackground, backgroundColor } =
+  const { textColor, textInputColor, textInputBackground, tokens } =
     GetThemeColors();
   const pubkeyInputRef = useRef(null);
   const { t } = useTranslation();
@@ -198,8 +198,8 @@ export default function Nip5VerificationPage() {
     });
   };
 
-  const errorColor = theme && darkModeType ? textColor : COLORS.cancelRed;
-  const accentColor = theme && darkModeType ? textColor : COLORS.primary;
+  const errorColor = theme && darkModeType ? textColor : tokens.danger;
+  const accentColor = theme && darkModeType ? textColor : tokens.accent;
 
   const nameStatusText = {
     taken: { text: t('settings.nip5.takenNameError'), color: errorColor },
@@ -287,9 +287,7 @@ export default function Nip5VerificationPage() {
                       iconName="CircleAlert"
                       size={20}
                       colorOverride={
-                        theme && darkModeType
-                          ? textInputColor
-                          : COLORS.cancelRed
+                        theme && darkModeType ? textInputColor : tokens.danger
                       }
                     />
                   </View>
@@ -297,7 +295,7 @@ export default function Nip5VerificationPage() {
               </>
             }
           />
-          <View style={[styles.divider, { backgroundColor }]} />
+          <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
           <ThemeText
             styles={[styles.inputDescriptor, { color: textInputColor }]}
             content={t('settings.nip5.publicKeyLabel')}
@@ -319,8 +317,8 @@ export default function Nip5VerificationPage() {
                   {
                     backgroundColor:
                       theme && darkModeType
-                        ? COLORS.lightsOutBackground
-                        : COLORS.primary + '22',
+                        ? tokens.ground
+                        : tokens.accent + '22',
                   },
                 ]}
               >

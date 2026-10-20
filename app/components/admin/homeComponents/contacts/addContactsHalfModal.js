@@ -67,7 +67,7 @@ export function AddContactContent({
   isScreenActive,
 }) {
   const { contactsPrivateKey } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const [searchInput, setSearchInput] = useState(startingSearchValue || '');
   const [users, setUsers] = useState([]);
@@ -442,7 +442,7 @@ export function AddContactContent({
         {isSearching && (
           <ActivityIndicator
             size={'small'}
-            color={theme && darkModeType ? COLORS.darkModeText : COLORS.primary}
+            color={theme && darkModeType ? tokens.ink : tokens.accent}
           />
         )}
       </View>
@@ -478,7 +478,7 @@ export function AddContactContent({
           >
             <ThemeIcon
               colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                theme && darkModeType ? COLORS.lightModeText : tokens.accent
               }
               iconName={'ScanLine'}
             />

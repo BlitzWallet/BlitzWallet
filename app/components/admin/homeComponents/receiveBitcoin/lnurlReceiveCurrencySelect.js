@@ -24,7 +24,7 @@ export default function LnurlReceiveCurrencySelect({
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -78,8 +78,7 @@ export default function LnurlReceiveCurrencySelect({
 
   const cardBackground =
     theme && darkModeType ? backgroundColor : backgroundOffset;
-  const cardHighlightColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const cardHighlightColor = theme && darkModeType ? tokens.ink : tokens.accent;
 
   return (
     <View style={styles.innerContainer}>

@@ -36,7 +36,8 @@ export default function ViewGiftCardCodePage({
   const [codeInformation, setCodeInformation] = useState(null);
   const isUserMarkedClaimed = codeInformation?.userMarkedClaimed;
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor, tokens } =
+    GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -154,17 +155,12 @@ export default function ViewGiftCardCodePage({
               style={{
                 ...styles.claimedToggle,
                 backgroundColor: isUserMarkedClaimed
-                  ? theme
-                    ? darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary
-                    : COLORS.primary
+                  ? theme && darkModeType
+                    ? tokens.ink
+                    : tokens.accent
                   : 'transparent',
-                borderColor: theme
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : backgroundOffset,
+                borderColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
               }}
             >
               <View style={styles.claimedToggleContent}>
@@ -172,11 +168,9 @@ export default function ViewGiftCardCodePage({
                   styles={{
                     ...styles.claimedToggleText,
                     color: isUserMarkedClaimed
-                      ? theme
-                        ? darkModeType
-                          ? COLORS.lightModeText
-                          : COLORS.darkModeText
-                        : COLORS.darkModeText
+                      ? theme && darkModeType
+                        ? COLORS.lightModeText
+                        : tokens.onAccent
                       : textColor,
                   }}
                   content={
@@ -206,11 +200,8 @@ export default function ViewGiftCardCodePage({
             style={[
               styles.amountSection,
               {
-                backgroundColor: theme
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.darkModeText,
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
               },
             ]}
           >
@@ -234,7 +225,9 @@ export default function ViewGiftCardCodePage({
             />
 
             {/* UUID integrated into amount section */}
-            <View style={styles.uuidContainer}>
+            <View
+              style={[styles.uuidContainer, { borderTopColor: tokens.divider }]}
+            >
               <ThemeText
                 styles={styles.uuidLabel}
                 content={t('contacts.viewGiftCardCode.cardUUID')}
@@ -260,11 +253,8 @@ export default function ViewGiftCardCodePage({
             style={[
               styles.outgoingUuidContainer,
               {
-                borderColor: theme
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : backgroundOffset,
+                borderColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
               },
             ]}
           >
@@ -289,11 +279,8 @@ export default function ViewGiftCardCodePage({
             style={[
               styles.messageSection,
               {
-                backgroundColor: theme
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.darkModeText,
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
               },
             ]}
           >
@@ -336,11 +323,10 @@ export default function ViewGiftCardCodePage({
                       style={[
                         styles.codesContainer,
                         {
-                          backgroundColor: theme
-                            ? darkModeType
+                          backgroundColor:
+                            theme && darkModeType
                               ? backgroundColor
-                              : backgroundOffset
-                            : COLORS.darkModeText,
+                              : backgroundOffset,
                         },
                       ]}
                     >
@@ -368,16 +354,10 @@ export default function ViewGiftCardCodePage({
           style={[
             styles.helpSection,
             {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundOffset
-                  : backgroundColor
-                : backgroundColor,
-              borderColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : backgroundOffset,
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
+              borderColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
             },
           ]}
         >
@@ -406,8 +386,7 @@ export default function ViewGiftCardCodePage({
             <ThemeText
               styles={{
                 ...styles.emailText,
-                color:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                color: theme && darkModeType ? tokens.ink : tokens.accent,
               }}
               content="support@thebitcoincompany.com"
             />

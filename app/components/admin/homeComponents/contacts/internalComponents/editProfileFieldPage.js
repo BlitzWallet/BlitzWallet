@@ -68,7 +68,7 @@ export default function EditProfileFieldPage(props) {
 
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textInputColor, textColor } = GetThemeColors();
+  const { textInputColor, textColor, tokens } = GetThemeColors();
   const { globalContactsInformation, toggleGlobalContactsInformation } =
     useGlobalContactsInfo();
   const { publicKey } = useKeysContext();
@@ -276,11 +276,11 @@ export default function EditProfileFieldPage(props) {
         ? textColor
         : theme && darkModeType
         ? textColor
-        : COLORS.cancelRed
+        : tokens.danger
       : !isValidContent
       ? theme && darkModeType
         ? textColor
-        : COLORS.cancelRed
+        : tokens.danger
       : textColor;
 
   return (
@@ -346,7 +346,7 @@ export default function EditProfileFieldPage(props) {
                     iconName="CircleAlert"
                     size={20}
                     colorOverride={
-                      theme && darkModeType ? textInputColor : COLORS.cancelRed
+                      theme && darkModeType ? textInputColor : tokens.danger
                     }
                   />
                 ) : null}

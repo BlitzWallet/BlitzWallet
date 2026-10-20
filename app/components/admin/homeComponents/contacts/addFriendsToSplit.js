@@ -14,7 +14,6 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import {
-  COLORS,
   FONT,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
@@ -36,7 +35,7 @@ export default function AddFriendsToSplit(props) {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { decodedAddedContacts } = useGlobalContacts();
   const { cache } = useImageCache();
 
@@ -184,7 +183,7 @@ export default function AddFriendsToSplit(props) {
         style={[
           styles.selectedSection,
           {
-            borderColor: theme ? backgroundOffset : COLORS.offsetBackground,
+            borderColor: tokens.divider,
           },
         ]}
       >
@@ -221,7 +220,7 @@ export default function AddFriendsToSplit(props) {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <ThemeText
-            styles={[styles.emptyText, { color: COLORS.opaicityGray }]}
+            styles={[styles.emptyText, { color: tokens.muted }]}
             content={
               decodedAddedContacts.length > 1
                 ? t('contacts.splitBill.noContactsSearch')

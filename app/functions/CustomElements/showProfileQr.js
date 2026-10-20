@@ -33,7 +33,8 @@ export default function ShowProfileQr() {
   const { cache } = useImageCache();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const [activeType, setActiveType] = useState('blitz');
@@ -51,7 +52,7 @@ export default function ShowProfileQr() {
       ? t('contacts.showProfileQr.lnAddress')
       : t('contacts.showProfileQr.blitzContact');
 
-  const activeToggleColor = theme ? backgroundColor : COLORS.darkModeText;
+  const activeToggleColor = theme ? backgroundColor : tokens.surface;
 
   const handleCopy = () => {
     copyToClipboard(currentValue, showToast);
@@ -195,7 +196,7 @@ export default function ShowProfileQr() {
         <View
           style={[
             styles.toggleContainer,
-            { backgroundColor: backgroundOffset },
+            { backgroundColor: theme ? backgroundOffset : tokens.disc },
           ]}
         >
           <TouchableOpacity
@@ -257,14 +258,14 @@ export default function ShowProfileQr() {
               styles.copyButton,
               {
                 backgroundColor:
-                  theme && darkModeType ? backgroundOffset : COLORS.primary,
+                  theme && darkModeType ? backgroundOffset : tokens.accent,
                 marginTop: 'auto',
               },
             ]}
             onPress={handleCopy}
           >
             <ThemeText
-              styles={styles.copyText}
+              styles={[styles.copyText, { color: tokens.onAccent }]}
               content={t(
                 `contacts.showProfileQr.${
                   activeType === 'lnurl' ? 'lnurlCopy' : 'blitzCopy'
