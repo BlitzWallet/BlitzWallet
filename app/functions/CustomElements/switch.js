@@ -23,7 +23,8 @@ const CustomToggleSwitch = ({
     useGlobalContextProvider();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor, tokens } =
+    GetThemeColors();
   const [textWidth, setTextWidth] = useState(0);
   const isOn =
     page === 'cameraSlider'
@@ -96,17 +97,13 @@ const CustomToggleSwitch = ({
     page === 'spendAndReplace';
 
   const circleColors = [
-    useAltStyle
-      ? theme
-        ? COLORS.darkModeText
-        : COLORS.primary
-      : COLORS.darkModeText,
+    useAltStyle ? (theme ? tokens.ink : tokens.accent) : COLORS.darkModeText,
     useAltStyle
       ? theme
         ? backgroundColor
         : COLORS.darkModeText
       : darkModeType && theme
-      ? COLORS.lightsOutBackground
+      ? tokens.ground
       : COLORS.darkModeText,
   ]; // From inactive to active color
   const switchColors = [
@@ -114,8 +111,10 @@ const CustomToggleSwitch = ({
       ? theme
         ? backgroundColor
         : COLORS.darkModeText
-      : backgroundOffset,
-    darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+      : theme
+      ? backgroundOffset
+      : tokens.disc,
+    darkModeType && theme ? tokens.ink : tokens.accent,
   ]; // From inactive to active color
 
   const switchStyle = useAnimatedStyle(() => ({
@@ -165,7 +164,7 @@ const CustomToggleSwitch = ({
               flexShrink: 1,
               color: localIsOn
                 ? darkModeType && theme
-                  ? COLORS.lightsOutBackground
+                  ? tokens.ground
                   : COLORS.white
                 : textColor, // From inactive to active color
               opacity: animatedTextColor,

@@ -18,7 +18,7 @@ export default function CustomButton({
   onTextLayout,
   enableElipsis = true,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   const memorizedContainerStyles = useMemo(() => {
     // Base styles with theme color
@@ -51,11 +51,7 @@ export default function CustomButton({
     // Base styles with theme color
     const baseStyles = {
       ...styles.text,
-      color: theme
-        ? darkModeType
-          ? COLORS.lightsOutBackground
-          : COLORS.darkModeBackground
-        : COLORS.lightModeText,
+      color: theme ? tokens.ground : tokens.ink,
     };
 
     if (!textStyles) {
@@ -76,7 +72,7 @@ export default function CustomButton({
       ...baseStyles,
       ...textStyles,
     };
-  }, [theme, darkModeType, textStyles]);
+  }, [theme, darkModeType, tokens, textStyles]);
 
   return (
     <TouchableOpacity
@@ -98,7 +94,7 @@ export default function CustomButton({
           colorOverride={
             theme && darkModeType
               ? buttonStyles?.backgroundColor
-                ? COLORS.darkModeText
+                ? tokens.ink
                 : COLORS.lightModeText
               : undefined
           }

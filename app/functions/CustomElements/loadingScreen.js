@@ -13,7 +13,7 @@ export default function FullLoadingScreen({
   loadingColor,
   showText = true,
 }) {
-  const {theme} = useGlobalThemeContext();
+  const {theme, tokens} = useGlobalThemeContext();
   return (
     <View style={{...styles.container, ...containerStyles}}>
       {showLoadingIcon && (
@@ -21,13 +21,11 @@ export default function FullLoadingScreen({
           color={
             loadingColor
               ? loadingColor
-              : theme
-              ? reversed
+              : reversed
+              ? theme
                 ? COLORS.lightModeText
                 : COLORS.darkModeText
-              : reversed
-              ? COLORS.darkModeText
-              : COLORS.lightModeText
+              : tokens.ink
           }
           size={size}
         />

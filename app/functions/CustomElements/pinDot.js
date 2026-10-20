@@ -1,7 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {useEffect, useMemo, useRef} from 'react';
 import GetThemeColors from '../../hooks/themeColors';
-import {COLORS} from '../../constants';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import Animated, {
   useSharedValue,
@@ -14,7 +13,7 @@ export default function PinDot({dotNum, pin}) {
   const {theme} = useGlobalThemeContext();
   const isInitialLoad = useRef(true);
 
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const {textColor, tokens} = GetThemeColors();
   const dotScale = useSharedValue(1);
 
   useEffect(() => {
@@ -32,14 +31,15 @@ export default function PinDot({dotNum, pin}) {
   const memorizedStyles = useMemo(() => {
     if (typeof pin[dotNum] === 'number') {
       return {
-        backgroundColor: theme ? textColor : COLORS.primary,
+        backgroundColor: theme ? textColor : tokens.accent,
       };
     } else {
       return {
-        backgroundColor: backgroundOffset,
+        borderWidth: 2,
+        borderColor: tokens.muted,
       };
     }
-  }, [pin, dotNum, theme]);
+  }, [pin, dotNum, theme, tokens]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{scale: dotScale.value}],

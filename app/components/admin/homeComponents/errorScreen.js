@@ -5,7 +5,7 @@ import {
   View,
 } from 'react-native';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
-import { COLORS, SIZES } from '../../../constants';
+import { SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 
 import GetThemeColors from '../../../hooks/themeColors';
@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 
 export default function ErrorScreen(props) {
-  const { backgroundColor, backgroundOffset, transparentOveraly } =
+  const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const { t } = useTranslation();
   const errorMessage = props.route.params.errorMessage;
@@ -65,8 +65,7 @@ export default function ErrorScreen(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -81,10 +80,7 @@ export default function ErrorScreen(props) {
                 styles={[
                   styles.btnText,
                   {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                    color: theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                 ]}
                 content={t('wallet.sendPages.errorScreen.ok')}

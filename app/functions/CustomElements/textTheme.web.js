@@ -168,19 +168,17 @@ export default function ThemeText({
   minimumFontScale = 0.5,
   allowFontScaling = true,
 }) {
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
 
   const memorizedStyles = useMemo(() => {
     // Base styles with theme color
     const baseStyles = {
       ...textStyles.localTextStyles,
-      color: theme
-        ? reversed
+      color: reversed
+        ? theme
           ? COLORS.lightModeText
           : COLORS.darkModeText
-        : reversed
-        ? COLORS.darkModeText
-        : COLORS.lightModeText,
+        : tokens.ink,
     };
 
     if (!styles) {
@@ -201,7 +199,7 @@ export default function ThemeText({
       ...baseStyles,
       ...styles,
     };
-  }, [theme, reversed, styles]);
+  }, [theme, tokens, reversed, styles]);
 
   const layoutCallback = useCallback(
     e => {

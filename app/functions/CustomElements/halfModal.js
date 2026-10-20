@@ -138,7 +138,7 @@ export default function CustomHalfModal(props) {
   const navigation = useNavigation();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
-  const { backgroundColor, backgroundOffset, transparentOveraly } =
+  const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   // { onPress, title } when the active content registers a back step, else null
@@ -933,9 +933,7 @@ export default function CustomHalfModal(props) {
                     styles.topBar,
                     {
                       backgroundColor:
-                        theme && darkModeType
-                          ? backgroundColor
-                          : backgroundOffset,
+                        theme && darkModeType ? backgroundColor : tokens.grab,
                     },
                   ]}
                 />

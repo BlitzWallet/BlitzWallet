@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Platform, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { COLORS } from '../../constants';
 import lucideIconFile from './lucideIconFile';
 import lucideIcon from './lucideIcons';
 
@@ -28,7 +27,7 @@ export default function ThemeIcon({
   fill = null,
   strokeWidth = 2,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   // Determine which icon to render based on theme
   const IconComponent = useMemo(() => {
@@ -39,10 +38,10 @@ export default function ThemeIcon({
   const iconColor = useMemo(() => {
     if (colorOverride) return colorOverride;
     if (theme) {
-      return darkModeType ? COLORS.darkModeText : COLORS.primary;
+      return darkModeType ? tokens.ink : tokens.accent;
     }
-    return COLORS.primary;
-  }, [theme, darkModeType, colorOverride]);
+    return tokens.accent;
+  }, [theme, darkModeType, tokens, colorOverride]);
 
   // Merge styles
   const iconStyles = useMemo(() => {
