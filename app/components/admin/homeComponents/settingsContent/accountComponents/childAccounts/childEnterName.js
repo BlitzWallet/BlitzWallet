@@ -7,7 +7,6 @@ import { StyleSheet } from 'react-native';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -46,7 +45,7 @@ export default function ChildEnterName(props) {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
   const { accountMnemoinc, publicKey } = useKeysContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [accountName, setAccountName] = useState(editChild?.name || '');
@@ -206,7 +205,7 @@ export default function ChildEnterName(props) {
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   return (

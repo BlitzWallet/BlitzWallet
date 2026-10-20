@@ -1,6 +1,6 @@
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import DeviceInfo from 'react-native-device-info';
@@ -19,7 +19,7 @@ export default function AboutPage() {
   const { fileHash } = useWebView();
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const deviceVersion = DeviceInfo.getVersion();
 
   const isVerified = fileHash === process.env.SPARK_WEBVIEW_SIGNING_PUBKEY;
@@ -218,7 +218,7 @@ export default function AboutPage() {
         <View style={styles.infoRow}>
           <ThemeText styles={styles.infoRowText} content={deviceVersion} />
         </View>
-        <View style={[styles.divider, { backgroundColor }]} />
+        <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
 
         {/* Row 2 — toggle technical details */}
         <TouchableOpacity
@@ -229,8 +229,7 @@ export default function AboutPage() {
             styles={[
               styles.infoRowText,
               {
-                color:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                color: theme && darkModeType ? tokens.ink : tokens.accent,
               },
             ]}
             content={

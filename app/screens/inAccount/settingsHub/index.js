@@ -6,7 +6,7 @@ import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
 import { SIZES, TOPBAR_HEIGHT } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
@@ -75,7 +75,7 @@ export default function SettingsHub(props) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const [poolsArray, setPoolsArray] = useState([]);
   const [activePoolsArray, setActivePoolsArray] = useState([]);
@@ -302,14 +302,13 @@ export default function SettingsHub(props) {
             }}
             style={{
               ...styles.posContainer,
-              borderColor:
-                theme && darkModeType ? COLORS.white : COLORS.primary,
+              borderColor: theme && darkModeType ? tokens.ink : tokens.accent,
               marginTop: 30,
             }}
           >
             <ThemeText
               styles={{
-                color: theme && darkModeType ? COLORS.white : COLORS.primary,
+                color: theme && darkModeType ? tokens.ink : tokens.accent,
                 fontSize: SIZES.xLarge,
                 marginLeft: 10,
                 includeFontPadding: false,

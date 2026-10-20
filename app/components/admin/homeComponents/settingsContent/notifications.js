@@ -36,7 +36,7 @@ export default function NotificationPreferances() {
     isRegisteringPush,
   } = usePushNotification();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const notificationData = masterInfoObject.pushNotifications;
 
   // isEnabled mirrors the OS permission (synced by PushNotificationProvider
@@ -108,7 +108,7 @@ export default function NotificationPreferances() {
         </TouchableOpacity>
       </View>
 
-      <View style={[styles.divider, { backgroundColor: backgroundOffset }]} />
+      <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
 
       {isEnabled ? (
         <>

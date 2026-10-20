@@ -6,7 +6,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import { CENTER, SIZES } from '../../../../../constants';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   HIDDEN_OPACITY,
@@ -67,10 +67,7 @@ export default function RoostockSwapsPage() {
               swap: item,
             })
           }
-          style={[
-            styles.swapContainer,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-          ]}
+          style={[styles.swapContainer, { backgroundColor: backgroundOffset }]}
         >
           <View style={styles.textContainer}>
             <ThemeText

@@ -24,7 +24,7 @@ export default function RemoveAccountPage(props) {
     () => custodyAccountsList?.find(item => item.uuid === accountId) || {},
     [custodyAccountsList, accountId],
   );
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -96,14 +96,12 @@ export default function RemoveAccountPage(props) {
             styles.button,
             {
               backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                theme && darkModeType ? tokens.ink : tokens.accent,
             },
           ]}
           textStyles={{
             color:
-              theme && darkModeType
-                ? COLORS.lightModeText
-                : COLORS.darkModeText,
+              theme && darkModeType ? COLORS.lightModeText : tokens.onAccent,
           }}
           textContent={t(
             'settings.accountComponents.removeAccountPage.removeButton',

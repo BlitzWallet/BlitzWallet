@@ -7,7 +7,6 @@ import {
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
-  COLORS,
   LOGIN_SECUITY_MODE_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
 } from '../../../../constants';
@@ -649,7 +648,7 @@ function LoginSecurityNative({ extraData }) {
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
 
   const updateSecuritySettings = async newSettings => {
     setSecurityLoginSettings(newSettings);
@@ -848,7 +847,7 @@ function LoginSecurityNative({ extraData }) {
           >
             <SettingsItem
               isLast
-              dividerColor={backgroundColor}
+              dividerColor={tokens.divider}
               label={t('settings.loginSecurity.text1')}
             >
               <CustomToggleSwitch
@@ -883,7 +882,9 @@ function LoginSecurityNative({ extraData }) {
                 switchDarkMode={true}
               />
             </TouchableOpacity>
-            <View style={[styles.divider, { backgroundColor }]} />
+            <View
+              style={[styles.divider, { backgroundColor: tokens.divider }]}
+            />
             <TouchableOpacity
               onPress={() => handleInitialSecurityChoice('biometric')}
               style={styles.securityMethodRow}
@@ -925,7 +926,9 @@ function LoginSecurityNative({ extraData }) {
                   switchDarkMode={true}
                 />
               </TouchableOpacity>
-              <View style={[styles.divider, { backgroundColor }]} />
+              <View
+                style={[styles.divider, { backgroundColor: tokens.divider }]}
+              />
               <TouchableOpacity
                 onPress={() => toggleLoginSecurity('biometric')}
                 style={styles.securityMethodRow}
@@ -967,7 +970,7 @@ function LoginSecurityNative({ extraData }) {
               >
                 <SettingsItem
                   isLast
-                  dividerColor={backgroundColor}
+                  dividerColor={tokens.divider}
                   label={t('settings.loginSecurity.randomPinKeyboardToggle')}
                 >
                   <View style={styles.rightContainer}>

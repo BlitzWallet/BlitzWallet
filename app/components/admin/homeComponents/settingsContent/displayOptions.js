@@ -93,7 +93,7 @@ export default function DisplayOptions() {
   const { theme, darkModeType, toggleDarkModeType, toggleTheme } =
     useGlobalThemeContext();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
@@ -227,7 +227,9 @@ export default function DisplayOptions() {
             label={t('settings.displayOptions.hidden')}
           />
 
-          <View style={[styles.divider, { backgroundColor }]} />
+          <View
+            style={[styles.divider, { backgroundColor: tokens.divider }]}
+          />
 
           {/* Display Format */}
           <ThemeText
@@ -245,7 +247,9 @@ export default function DisplayOptions() {
             label={t('settings.displayOptions.word')}
           />
 
-          <View style={[styles.divider, { backgroundColor }]} />
+          <View
+            style={[styles.divider, { backgroundColor: tokens.divider }]}
+          />
           {/* Seperator Format */}
           <ThemeText
             styles={styles.subsectionTitle}
@@ -289,7 +293,7 @@ export default function DisplayOptions() {
               updateHomepageTxPreferance(item.value);
             }}
             customButtonStyles={{
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor: theme ? backgroundColor : tokens.disc,
             }}
             options={dropdownOptions}
             showClearIcon={false}
@@ -299,7 +303,9 @@ export default function DisplayOptions() {
             textStyles={{ paddingRight: 20 }}
           />
 
-          <View style={[styles.divider, { backgroundColor }]} />
+          <View
+            style={[styles.divider, { backgroundColor: tokens.divider }]}
+          />
 
           <SettingsItem
             isLast={true}
@@ -351,7 +357,7 @@ export default function DisplayOptions() {
             <SettingsItem
               label={t('settings.displayOptions.cameraSwipe')}
               description={t('settings.displayOptions.cameraSwipeDesc')}
-              backgroundColor={backgroundColor}
+              backgroundColor={tokens.divider}
             >
               <CustomToggleSwitch page={'cameraSlider'} />
             </SettingsItem>
@@ -360,7 +366,7 @@ export default function DisplayOptions() {
             label={t('settings.displayOptions.unkownSenders')}
             description={t('settings.displayOptions.unknownSenderDesc')}
             isLast
-            backgroundColor={backgroundColor}
+            backgroundColor={tokens.divider}
           >
             <CustomToggleSwitch page={'hideUnknownContacts'} />
           </SettingsItem>

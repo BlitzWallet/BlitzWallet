@@ -8,7 +8,7 @@ import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { CENTER, COLORS } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import { copyToClipboard } from '../../../../functions';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
@@ -53,7 +53,11 @@ export default function SparkInfo() {
     useGlobalContextProvider();
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const {
+    backgroundOffset,
+    backgroundColor,
+    tokens: themeTokens,
+  } = GetThemeColors();
   const { sparkAddress = '', identityPubKey = '', tokens } = sparkInformation;
   const { t } = useTranslation();
   const selectedToken = masterInfoObject.defaultSpendToken;
@@ -165,7 +169,7 @@ export default function SparkInfo() {
         >
           <SettingsItem
             isLast
-            dividerColor={backgroundColor}
+            dividerColor={themeTokens.divider}
             label={t('settings.sparkLrc20.sliderTitle', {
               context: showTokensInformation ? 'enabled' : 'disabled',
             })}
@@ -226,7 +230,7 @@ export default function SparkInfo() {
             showVerticalArrowsAbsolute={true}
             showVerticalArrows={!!dropdownOptions.length}
             customButtonStyles={{
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor: theme ? backgroundColor : themeTokens.disc,
             }}
             textStyles={
               isBitcoinToken

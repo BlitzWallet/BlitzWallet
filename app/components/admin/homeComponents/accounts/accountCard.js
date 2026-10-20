@@ -2,7 +2,6 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import {
   SIZES,
-  COLORS,
   BASIC_ACCOUNT_NAME_REGEX,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
@@ -33,7 +32,7 @@ export default function AccountCard({
   lastUpdated,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -62,7 +61,7 @@ export default function AccountCard({
               ? useAltBackground
                 ? backgroundOffset
                 : backgroundColor
-              : COLORS.opaicityGray
+              : tokens.skel
           }
           highlightColor={useAltBackground ? backgroundColor : backgroundOffset}
         >

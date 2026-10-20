@@ -45,7 +45,8 @@ export default function ExploreUsers() {
   const [isLoading, setIsLoading] = useState(true);
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor, tokens } =
+    GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const { screenDimensions } = useAppStatus();
@@ -92,11 +93,11 @@ export default function ExploreUsers() {
             backgroundColor:
               item === timeFrame
                 ? theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary
+                  ? tokens.ink
+                  : tokens.accent
                 : 'transparent',
             borderColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              theme && darkModeType ? tokens.ink : tokens.accent,
             ...styles.timeFrameElement,
           }}
         >
@@ -106,7 +107,7 @@ export default function ExploreUsers() {
                 item === timeFrame
                   ? theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText
+                    : tokens.onAccent
                   : textColor,
               ...styles.timeFrameElementText,
             }}
@@ -259,7 +260,7 @@ export default function ExploreUsers() {
             style={{
               width: `${(max / BLITZ_GOAL_USER_COUNT) * 100}%`,
               backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                theme && darkModeType ? tokens.ink : tokens.accent,
               ...styles.progressBarFill,
             }}
           />
@@ -299,16 +300,16 @@ export default function ExploreUsers() {
       >
         <LineChart height={200} width={screenDimensions.width * 0.85}>
           <LineChart.Path
-            color={theme && darkModeType ? COLORS.darkModeText : COLORS.primary}
+            color={theme && darkModeType ? tokens.ink : tokens.accent}
           >
             <LineChart.Gradient
               color={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                theme && darkModeType ? tokens.ink : tokens.accent
               }
             />
           </LineChart.Path>
           <LineChart.CursorCrosshair
-            color={theme && darkModeType ? COLORS.darkModeText : COLORS.primary}
+            color={theme && darkModeType ? tokens.ink : tokens.accent}
           >
             <LineChart.Tooltip
               textStyle={{

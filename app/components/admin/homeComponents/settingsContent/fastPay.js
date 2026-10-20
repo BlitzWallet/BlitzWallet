@@ -58,7 +58,7 @@ export default function FastPay() {
     masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats;
   const isOn = masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled;
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
 
   const [thresholdInput, setThresholdInput] = useState('0');
   const [isEditing, setIsEditing] = useState(false);
@@ -152,7 +152,7 @@ export default function FastPay() {
           >
             <SettingsItem
               isLast
-              dividerColor={backgroundColor}
+              dividerColor={tokens.divider}
               label={t('settings.fastPay.text3')}
             >
               <CustomToggleSwitch
@@ -194,7 +194,9 @@ export default function FastPay() {
                   styles={styles.thresholdDisplay}
                   content={savedThresholdDisplay}
                 />
-                <View style={[styles.divider, { backgroundColor }]} />
+                <View
+                  style={[styles.divider, { backgroundColor: tokens.divider }]}
+                />
                 <ThemeText
                   styles={styles.thresholdDescription}
                   content={t('settings.fastPay.text5')}
@@ -240,9 +242,7 @@ export default function FastPay() {
                     flex: 1,
                     opacity: canSubmit ? 1 : HIDDEN_OPACITY,
                     backgroundColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                   buttonStyle,
                 ]}
@@ -250,7 +250,7 @@ export default function FastPay() {
                   color:
                     theme && darkModeType
                       ? COLORS.lightModeText
-                      : COLORS.darkModeText,
+                      : tokens.onAccent,
                 }}
                 enableElipsis={false}
                 textContent={t('constants.save')}

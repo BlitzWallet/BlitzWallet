@@ -19,15 +19,15 @@ import IconActionCircle from '../../../../functions/CustomElements/actionCircleC
 export default function ResetPage(props) {
   const [wantsToReset, setWantsToReset] = useState(false);
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
   const checkBackground = useMemo(() => {
-    return theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+    return theme && darkModeType ? tokens.ink : tokens.accent;
   }, [theme, backgroundOffset]);
   const checkColor = useMemo(() => {
-    return theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+    return theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
   }, [theme, backgroundOffset]);
 
   const handleSelectedItems = useCallback(() => {

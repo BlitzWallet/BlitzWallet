@@ -16,7 +16,6 @@ import {
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { CENTER } from '../../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -110,7 +109,7 @@ export default function WalletLeaves() {
   const isReady = stats.exitEligible > 0;
   const belowCount = Math.max(stats.totalLeaves - stats.exitEligible, 0);
   const belowValue = Math.max(stats.totalValue - stats.exitEligibleValue, 0);
-  const pillBackgroundColor = theme ? backgroundOffset : COLORS.darkModeText;
+  const pillBackgroundColor = backgroundOffset;
 
   const lastSyncedLabel =
     stats.lastSyncedAt > 0

@@ -96,7 +96,11 @@ jest.mock('../app/functions/handleMnemonic', () => ({
 
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    backgroundColor: '#222',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 // Web-only components and passkey storage are not loaded by native tests.

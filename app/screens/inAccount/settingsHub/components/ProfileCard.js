@@ -6,7 +6,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import ContactRingAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactsRingAvatar';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -22,7 +22,7 @@ export default function ProfileCard({
   onCopyUsername,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const editProfileLabel = t('settings.index.editProfile');
@@ -46,7 +46,7 @@ export default function ProfileCard({
 
   return (
     <View
-      style={[styles.profileContainer, { borderBottomColor: backgroundOffset }]}
+      style={[styles.profileContainer, { borderBottomColor: tokens.divider }]}
     >
       {/* Hidden text to make sure content doesn't reformat */}
       <ThemeText
@@ -129,14 +129,12 @@ export default function ProfileCard({
             <CustomButton
               buttonStyles={[
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                 },
                 buttonStyle,
               ]}
               textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                color: tokens.ink,
               }}
               enableElipsis={false}
               textContent={editProfileLabel}
@@ -146,14 +144,12 @@ export default function ProfileCard({
             <CustomButton
               buttonStyles={[
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                 },
                 buttonStyle,
               ]}
               textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                color: tokens.ink,
               }}
               enableElipsis={false}
               textContent={showQrLabel}

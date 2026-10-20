@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CircularProgress from '../../../../components/admin/homeComponents/pools/circularProgress';
-import { COLORS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import WidgetCard from './WidgetCard';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -14,7 +14,7 @@ export default function PoolsPreview({
   onViewAll,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const displayedPools = activePoolsArray.slice(0, 2);
@@ -47,16 +47,12 @@ export default function PoolsPreview({
               styles.iconWrap,
               {
                 backgroundColor:
-                  theme && darkModeType
-                    ? darkModeType
-                      ? backgroundColor
-                      : backgroundOffset
-                    : COLORS.primary,
+                  theme && darkModeType ? backgroundColor : tokens.accent,
               },
             ]}
           >
             <ThemeIcon
-              colorOverride={COLORS.darkModeText}
+              colorOverride={tokens.onAccent}
               iconName={'PiggyBank'}
               size={22}
             />

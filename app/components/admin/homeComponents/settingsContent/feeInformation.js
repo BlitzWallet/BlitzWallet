@@ -3,7 +3,7 @@ import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import { CENTER, ICONS, SIZES } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,8 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 export default function BlitzFeeInformation() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor, tokens } =
+    GetThemeColors();
 
   const { t } = useTranslation();
 
@@ -51,7 +52,7 @@ export default function BlitzFeeInformation() {
               styles.pillIconContianer,
               {
                 backgroundColor:
-                  theme && darkModeType ? backgroundColor : COLORS.primary,
+                  theme && darkModeType ? backgroundColor : tokens.accent,
               },
             ]}
           >
@@ -87,7 +88,7 @@ export default function BlitzFeeInformation() {
 }
 
 function FeeTable({ masterInfoObject }) {
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const feeData = [
@@ -130,16 +131,14 @@ function FeeTable({ masterInfoObject }) {
         />
         <ThemeText styles={styles.headerCell} content={t('constants.fee')} />
       </View>
-      <View
-        style={[styles.dataRowContainer, { borderColor: backgroundOffset }]}
-      >
+      <View style={[styles.dataRowContainer, { borderColor: tokens.divider }]}>
         {/* Data Rows */}
         {feeData.map((row, index) => (
           <View
             key={index}
             style={[
               styles.dataRow,
-              { borderColor: backgroundOffset },
+              { borderColor: tokens.divider },
               index === feeData.length - 1 && styles.lastRow,
             ]}
           >

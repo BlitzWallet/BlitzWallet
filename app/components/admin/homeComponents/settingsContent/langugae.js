@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { CENTER, COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
@@ -16,7 +16,7 @@ export default function ChooseLangugae() {
     useGlobalContextProvider();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
   const selectedLanguage = masterInfoObject?.userSelectedLanguage;
 
@@ -54,12 +54,12 @@ export default function ChooseLangugae() {
             color: theme
               ? item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
                 ? darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary
-                : COLORS.darkModeText
+                  ? tokens.ink
+                  : tokens.accent
+                : tokens.ink
               : item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
-              ? COLORS.primary
-              : COLORS.lightModeText,
+              ? tokens.accent
+              : tokens.ink,
             marginLeft: 10,
             includeFontPadding: false,
           }}

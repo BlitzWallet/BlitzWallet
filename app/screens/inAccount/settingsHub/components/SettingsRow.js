@@ -14,7 +14,7 @@ export default function SettingsRow({
   onPress,
   isLast,
 }) {
-  const { backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
 
   return (
     <TouchableOpacity
@@ -24,7 +24,7 @@ export default function SettingsRow({
         styles.row,
         !isLast && {
           borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: backgroundColor,
+          borderBottomColor: tokens.divider,
         },
       ]}
     >

@@ -4,7 +4,6 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import AccountProfileImage from '../../../../components/admin/homeComponents/accounts/accountProfileImage';
 import {
   BASIC_ACCOUNT_NAME_REGEX,
-  COLORS,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
   SIZES,
@@ -19,7 +18,7 @@ import WidgetCard from './WidgetCard';
 export default function AccountsPreview({ onViewAll }) {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const accountList = [
@@ -52,16 +51,12 @@ export default function AccountsPreview({ onViewAll }) {
               styles.iconWrap,
               {
                 backgroundColor:
-                  theme && darkModeType
-                    ? darkModeType
-                      ? backgroundColor
-                      : backgroundOffset
-                    : COLORS.primary,
+                  theme && darkModeType ? backgroundColor : tokens.accent,
               },
             ]}
           >
             <ThemeIcon
-              colorOverride={COLORS.darkModeText}
+              colorOverride={tokens.onAccent}
               iconName={'Users'}
               size={22}
             />

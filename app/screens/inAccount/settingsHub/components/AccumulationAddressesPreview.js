@@ -4,15 +4,15 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import WidgetCard from './WidgetCard';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { COLORS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function AccumulationAddressesPreview({ onPress, onLongPress }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens, backgroundColor } = GetThemeColors();
 
-  const accentColor = theme && darkModeType ? COLORS.white : COLORS.primary;
+  const accentColor = theme && darkModeType ? tokens.ink : tokens.accent;
 
   return (
     <WidgetCard onPress={onPress} onLongPress={onLongPress}>
@@ -32,16 +32,12 @@ export default function AccumulationAddressesPreview({ onPress, onLongPress }) {
             styles.iconWrap,
             {
               backgroundColor:
-                theme && darkModeType
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.primary,
+                theme && darkModeType ? backgroundColor : tokens.accent,
             },
           ]}
         >
           <ThemeIcon
-            colorOverride={COLORS.darkModeText}
+            colorOverride={tokens.onAccent}
             iconName="ArrowDownToLine"
             size={22}
           />

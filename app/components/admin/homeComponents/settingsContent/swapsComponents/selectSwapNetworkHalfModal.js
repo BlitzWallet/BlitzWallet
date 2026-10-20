@@ -7,11 +7,7 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { CENTER, ICONS } from '../../../../../constants';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
 
 const SWAP_OPTIONS = [
   {
@@ -32,7 +28,7 @@ export default function SelectSwapNetworkHalfModal({
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
 
   const selectNetwork = swapType => {
     handleBackPressFunction(() =>
@@ -61,7 +57,7 @@ export default function SelectSwapNetworkHalfModal({
               styles.iconContainer,
               {
                 backgroundColor:
-                  theme && darkModeType ? backgroundColor : COLORS.primary,
+                  theme && darkModeType ? backgroundColor : tokens.accent,
               },
             ]}
           >

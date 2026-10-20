@@ -83,7 +83,11 @@ jest.mock('../../../context-store/theme', () => ({
 
 jest.mock('../../../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#eee', backgroundColor: '#fff' }),
+  default: () => ({
+    backgroundOffset: '#eee',
+    backgroundColor: '#fff',
+    tokens: require('../../../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('../../../app/functions/CustomElements/textTheme', () => {

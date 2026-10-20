@@ -24,7 +24,8 @@ export default function SeedPhraseWarning(props) {
 
   const { t } = useTranslation();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor, tokens } =
+    GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { toggleMasterInfoObject } = useGlobalContextProvider();
@@ -108,14 +109,14 @@ export default function SeedPhraseWarning(props) {
                       {
                         backgroundColor: theme
                           ? backgroundColor
-                          : COLORS.primary,
+                          : tokens.accent,
                       },
                     ]}
                   >
                     <ThemeIcon
                       iconName={point.icon}
                       size={15}
-                      colorOverride={COLORS.darkModeText}
+                      colorOverride={tokens.onAccent}
                     />
                   </View>
                   <ThemeText
@@ -139,9 +140,8 @@ export default function SeedPhraseWarning(props) {
               { borderColor: textColor },
               termsAccepted && {
                 backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-                borderColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                  theme && darkModeType ? tokens.ink : tokens.accent,
+                borderColor: theme && darkModeType ? tokens.ink : tokens.accent,
               },
             ]}
           >
@@ -149,9 +149,7 @@ export default function SeedPhraseWarning(props) {
               <ThemeIcon
                 size={12}
                 colorOverride={
-                  theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText
+                  theme && darkModeType ? COLORS.lightModeText : tokens.onAccent
                 }
                 iconName={'Check'}
               />

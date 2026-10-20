@@ -25,7 +25,7 @@ export default function SeedPhrasePage({ extraData, route }) {
 
   const mnemonic = mnemonicString?.split(' ') || [];
   const navigate = useNavigation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
@@ -33,10 +33,8 @@ export default function SeedPhrasePage({ extraData, route }) {
   const canViewQrCode = extraData?.canViewQrCode || false;
   const qrValue = mnemonicString ? calculateSeedQR(mnemonicString) : '';
 
-  const warningBorderColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
-  const warningAccentColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
+  const warningBorderColor = theme && darkModeType ? tokens.ink : tokens.danger;
+  const warningAccentColor = theme && darkModeType ? tokens.ink : tokens.danger;
 
   if (!mnemonicString) {
     return (

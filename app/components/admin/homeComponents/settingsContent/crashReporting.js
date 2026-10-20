@@ -35,7 +35,7 @@ export default function CrashReportingSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const isInitialLoad = useRef(true);
   const {t} = useTranslation();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {backgroundOffset, tokens} = GetThemeColors();
 
   const isCrashReportingEnabled =
     masterInfoObject.crashReportingSettings.isCrashReportingEnabled;
@@ -57,7 +57,7 @@ export default function CrashReportingSettingsPage() {
         <View style={[styles.sectionContent, {backgroundColor: backgroundOffset}]}>
           <SettingsItem
             isLast
-            dividerColor={backgroundColor}
+            dividerColor={tokens.divider}
             label={t('settings.crashReporting.crashreporting', {
               context: isCrashReportingEnabled ? 'enabled' : 'disabled',
             })}>

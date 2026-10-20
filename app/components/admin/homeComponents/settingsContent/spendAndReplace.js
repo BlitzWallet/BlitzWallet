@@ -36,7 +36,7 @@ export default function SpendAndReplace() {
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { dollarBalanceToken } = useUserBalanceContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
 
   const isEnabled =
     masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled ?? false;
@@ -62,7 +62,7 @@ export default function SpendAndReplace() {
               state: isEnabled ? t('constants.disable') : t('constants.enable'),
             })}
             isLast
-            dividerColor={backgroundColor}
+            dividerColor={tokens.divider}
           >
             <CustomToggleSwitch
               page="spendAndReplace"
@@ -91,7 +91,7 @@ export default function SpendAndReplace() {
             }),
           })}
         />
-        <View style={[styles.divider, { backgroundColor }]} />
+        <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
         <ThemeText
           styles={styles.description}
           content={t('screens.inAccount.sendAndReplace.explainer', {

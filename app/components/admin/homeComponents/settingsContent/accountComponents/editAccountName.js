@@ -7,7 +7,6 @@ import { StyleSheet } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import {
-  COLORS,
   INSET_WINDOW_WIDTH,
   SIZES,
   WINDOWWIDTH,
@@ -34,7 +33,7 @@ export default function EditAccountName(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [accountName, setAccountName] = useState(selectedAccount.name || '');
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
 
   const navigate = useNavigation();
 
@@ -60,7 +59,7 @@ export default function EditAccountName(props) {
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   return (
