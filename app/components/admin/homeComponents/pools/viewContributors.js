@@ -27,7 +27,7 @@ export default function ViewContibutors(props) {
 
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
   const contributers = [pool, ...contributions];
 
@@ -114,7 +114,7 @@ export default function ViewContibutors(props) {
                   <View
                     style={[
                       styles.separator,
-                      { borderBottomColor: backgroundColor },
+                      { borderBottomColor: tokens.divider },
                     ]}
                   />
                 )}

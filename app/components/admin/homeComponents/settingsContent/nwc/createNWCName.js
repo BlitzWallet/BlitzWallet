@@ -28,7 +28,7 @@ export default function CreateNWCName(props) {
   const navigate = useNavigation();
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
   const maxLength = 60;
   const passedParams = props?.route?.params || {};
   const isEditing = passedParams?.mode === 'edit' || !!passedParams?.accountID;
@@ -82,7 +82,7 @@ export default function CreateNWCName(props) {
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   return (

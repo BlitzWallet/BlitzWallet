@@ -13,15 +13,14 @@ export default function SavingsActionButtons({
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
 
   const addLabel = t('savings.actionButtons.addMoney'); // e.g. "Add funds"
   const withdrawLabel = t('savings.actionButtons.withdraw'); // e.g. "Withdraw"
 
-  const depositBg =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-  const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
+  const depositBg = theme && darkModeType ? COLORS.darkModeText : tokens.accent;
+  const buttonBg = backgroundOffset;
 
   return (
     <AdaptiveButtonRow
@@ -47,7 +46,7 @@ export default function SavingsActionButtons({
                 color:
                   theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText,
+                    : tokens.onAccent,
               }}
               content={addLabel}
             />

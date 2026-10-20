@@ -24,6 +24,7 @@ function StatsRow({
   textColor,
   theme,
   darkModeType,
+  tokens,
 }) {
   const { width: windowWidth } = useWindowDimensions();
   const containerWidth = windowWidth - H_PADDING * 2;
@@ -82,6 +83,7 @@ function StatsRow({
               textColor={textColor}
               theme={theme}
               darkModeType={darkModeType}
+              tokens={tokens}
             />
           ))}
         </View>
@@ -94,7 +96,10 @@ function StatsRow({
             style={[
               styles.statsRow,
               isTriangle && rowIndex === 1 && styles.statsRowCentered,
-              rowIndex < rows.length - 1 && styles.statsRowBorderBottom,
+              rowIndex < rows.length - 1 && [
+                styles.statsRowBorderBottom,
+                { borderBottomColor: tokens.divider },
+              ],
             ]}
           >
             {row.map((item, colIndex) => (
@@ -105,6 +110,7 @@ function StatsRow({
                 textColor={textColor}
                 theme={theme}
                 darkModeType={darkModeType}
+                tokens={tokens}
                 style={
                   isTriangle && rowIndex === 1 ? styles.statCellAuto : undefined
                 }
@@ -124,6 +130,7 @@ function StatCell({
   textColor,
   theme,
   darkModeType,
+  tokens,
   style,
 }) {
   return (
@@ -131,7 +138,11 @@ function StatCell({
       onLayout={onLayout}
       style={[
         styles.statCell,
-        !measuring && showRightBorder && styles.statCellBorderRight,
+        !measuring &&
+          showRightBorder && [
+            styles.statCellBorderRight,
+            { borderRightColor: tokens.divider },
+          ],
         measuring && styles.statCellMeasuring,
         style,
       ]}
@@ -139,7 +150,7 @@ function StatCell({
       <ThemeText
         styles={[
           styles.statValue,
-          { color: theme && darkModeType ? textColor : COLORS.primary },
+          { color: theme && darkModeType ? textColor : tokens.accent },
         ]}
         content={stat.value}
       />
@@ -201,7 +212,8 @@ export default function HowSavingsWorks() {
     },
   ];
 
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor, tokens } =
+    GetThemeColors();
   const correctBackground =
     theme && darkModeType ? backgroundColor : backgroundOffset;
 
@@ -232,6 +244,7 @@ export default function HowSavingsWorks() {
         textColor={textColor}
         theme={theme}
         darkModeType={darkModeType}
+        tokens={tokens}
       />
 
       <View style={styles.featureList}>
@@ -247,7 +260,7 @@ export default function HowSavingsWorks() {
                 iconName={feat.icon}
                 size={18}
                 colorOverride={
-                  theme && darkModeType ? textColor : COLORS.primary
+                  theme && darkModeType ? textColor : tokens.accent
                 }
               />
             </View>
@@ -270,7 +283,7 @@ export default function HowSavingsWorks() {
           <ThemeIcon
             iconName="BadgeCheck"
             size={18}
-            colorOverride={theme && darkModeType ? textColor : COLORS.primary}
+            colorOverride={theme && darkModeType ? textColor : tokens.accent}
           />
           <ThemeText
             styles={styles.transparencyTitle}
@@ -289,14 +302,19 @@ export default function HowSavingsWorks() {
         />
 
         {/* Divider */}
-        <View style={styles.transparencyDivider} />
+        <View
+          style={[
+            styles.transparencyDivider,
+            { backgroundColor: tokens.divider },
+          ]}
+        />
 
         {/* Issuer row */}
         <View style={styles.transparencyMetaRow}>
           <ThemeIcon
             iconName="Building2"
             size={13}
-            colorOverride={theme && darkModeType ? textColor : COLORS.primary}
+            colorOverride={theme && darkModeType ? textColor : tokens.accent}
           />
           <ThemeText
             styles={styles.transparencyMeta}

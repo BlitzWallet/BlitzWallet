@@ -47,7 +47,6 @@ import {
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
@@ -873,7 +872,7 @@ export default function CreateGiftDuration(props) {
         />
         <DropdownMenu
           customButtonStyles={{
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            backgroundColor: backgroundOffset,
           }}
           selectedValue={t(
             'screens.inAccount.giftPages.createGift.durationText',

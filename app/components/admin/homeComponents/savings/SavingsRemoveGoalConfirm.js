@@ -22,7 +22,7 @@ export default function SavingsRemoveGoalConfirm(props) {
   const goalId = props?.route?.params?.goalId;
   const { savingsGoals, removeSavingsGoal } = useSavings();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
 
   const selectedGoal = useMemo(() => {
     return savingsGoals.find(goal => goal.id === goalId) || null;
@@ -68,18 +68,14 @@ export default function SavingsRemoveGoalConfirm(props) {
                   style={[
                     styles.warningIconContainer,
                     {
-                      backgroundColor: theme ? backgroundColor : COLORS.primary,
+                      backgroundColor: theme ? backgroundColor : tokens.accent,
                     },
                   ]}
                 >
                   <ThemeIcon
                     iconName={point.icon}
                     size={15}
-                    colorOverride={
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.darkModeText
-                    }
+                    colorOverride={theme ? tokens.ink : tokens.onAccent}
                   />
                 </View>
                 <ThemeText styles={styles.warningText} content={point.text} />
@@ -110,13 +106,11 @@ export default function SavingsRemoveGoalConfirm(props) {
             textContent={t('savings.removeGoalConfirm.removeButton')}
             buttonStyles={{
               backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
+                theme && darkModeType ? COLORS.darkModeText : tokens.danger,
             }}
             textStyles={{
               color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText,
+                theme && darkModeType ? COLORS.lightModeText : tokens.onAccent,
             }}
           />
         </View>

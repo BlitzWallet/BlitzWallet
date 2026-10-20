@@ -10,7 +10,6 @@ import {
   SIZES,
 } from '../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
@@ -213,11 +212,8 @@ export default function AddGiftQuantityHalfModal({
           style={[
             styles.presetButton,
             {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.darkModeText,
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
               borderColor: 'transparent',
             },
           ]}
@@ -235,11 +231,8 @@ export default function AddGiftQuantityHalfModal({
         style={[
           styles.presetButton,
           {
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
             borderColor: 'transparent',
           },
         ]}

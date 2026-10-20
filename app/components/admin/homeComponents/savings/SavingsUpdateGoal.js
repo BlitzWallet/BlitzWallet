@@ -21,7 +21,7 @@ export default function SavingsUpdateGoal(props) {
   const goalId = props?.route?.params?.goalId;
   const selectedGoal = savingsGoals.find(goal => goal.id === goalId) || null;
 
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -53,13 +53,11 @@ export default function SavingsUpdateGoal(props) {
           <CustomButton
             buttonStyles={{
               backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                theme && darkModeType ? COLORS.darkModeText : tokens.accent,
             }}
             textStyles={{
               color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText,
+                theme && darkModeType ? COLORS.lightModeText : tokens.onAccent,
             }}
             actionFunction={() => {
               navigate.navigate('SavingsGoalAmount', {

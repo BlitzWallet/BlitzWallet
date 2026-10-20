@@ -29,13 +29,13 @@ export default function SavingsGoalDescribe(props) {
 
   const [goalName, setGoalName] = useState('');
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
 
   const isOverLimit = goalName.length >= 50;
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   const handleSave = useCallback(async () => {

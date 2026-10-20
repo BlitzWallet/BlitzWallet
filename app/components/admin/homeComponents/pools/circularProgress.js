@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { SIZES } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import Animated, {
@@ -44,7 +43,7 @@ export default function CircularProgress({
   showConfirmed = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const animatedPercentage = useSharedValue(0);
   const isInitialLoadRef = useRef(true);
 
@@ -67,8 +66,7 @@ export default function CircularProgress({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  const progressColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const progressColor = theme && darkModeType ? tokens.ink : tokens.accent;
   const trackColor = useAltBackground ? backgroundColor : backgroundOffset;
 
   useEffect(() => {

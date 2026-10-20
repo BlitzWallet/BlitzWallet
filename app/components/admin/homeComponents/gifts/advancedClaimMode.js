@@ -30,7 +30,8 @@ export default function AdvancedGiftClaim() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const [giftNumber, setGiftNumber] = useState('');
   const currentGiftIndex = masterInfoObject?.currentDerivedGiftIndex || 1;
   const { t } = useTranslation();
@@ -86,7 +87,7 @@ export default function AdvancedGiftClaim() {
             styles.indexCard,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundOffset : COLORS.primary,
+                theme && darkModeType ? backgroundOffset : tokens.accent,
             },
           ]}
         >
@@ -105,7 +106,7 @@ export default function AdvancedGiftClaim() {
           <View style={[styles.indexIcon]}>
             <ThemeIcon
               colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                theme && darkModeType ? COLORS.lightModeText : tokens.accent
               }
               iconName={'Gift'}
             />
@@ -144,7 +145,7 @@ export default function AdvancedGiftClaim() {
             placeholderText={`1 - ${currentGiftIndex}`}
             keyboardType="number-pad"
             textInputStyles={{
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor: theme ? backgroundColor : tokens.disc,
               color: textColor,
             }}
             maxLength={String(currentGiftIndex).length}
@@ -156,12 +157,12 @@ export default function AdvancedGiftClaim() {
                 styles.errorContainer,
                 {
                   backgroundColor:
-                    theme && darkModeType ? backgroundColor : COLORS.primary,
+                    theme && darkModeType ? backgroundColor : tokens.accent,
                 },
               ]}
             >
               <ThemeIcon
-                colorOverride={COLORS.darkModeText}
+                colorOverride={tokens.onAccent}
                 size={22}
                 iconName={'TriangleAlert'}
               />
@@ -180,7 +181,7 @@ export default function AdvancedGiftClaim() {
           <CustomButton
             buttonStyles={[
               styles.button,
-              { backgroundColor: theme ? backgroundColor : COLORS.primary },
+              { backgroundColor: theme ? backgroundColor : tokens.accent },
               !isValid && styles.buttonDisabled,
             ]}
             textStyles={styles.buttonText}

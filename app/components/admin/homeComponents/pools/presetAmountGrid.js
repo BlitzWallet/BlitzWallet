@@ -1,7 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { SIZES, SATSPERBITCOIN } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -26,7 +25,7 @@ export default function PresetAmountGrid({
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
 
   const fiatPrice = fiatStats?.value || 0;
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
@@ -88,15 +87,12 @@ export default function PresetAmountGrid({
           style={[
             styles.presetButton,
             {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.darkModeText,
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
               borderColor: isCustomSelected()
                 ? theme
-                  ? COLORS.darkModeText
-                  : COLORS.primary
+                  ? tokens.ink
+                  : tokens.accent
                 : 'transparent',
             },
           ]}
@@ -114,15 +110,12 @@ export default function PresetAmountGrid({
         style={[
           styles.presetButton,
           {
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
             borderColor: isPresetSelected(item)
               ? theme
-                ? COLORS.darkModeText
-                : COLORS.primary
+                ? tokens.ink
+                : tokens.accent
               : 'transparent',
           },
         ]}

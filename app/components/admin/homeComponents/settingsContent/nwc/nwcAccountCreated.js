@@ -22,7 +22,7 @@ export default function NWCAccountCreated(props) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
   const animationRef = useRef(null);
   const connectionString = props.route.params?.connectionString;
 
@@ -61,13 +61,13 @@ export default function NWCAccountCreated(props) {
       <CustomButton
         buttonStyles={{
           width: INSET_WINDOW_WIDTH,
-          backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+          backgroundColor: !theme ? tokens.accent : COLORS.darkModeText,
           marginTop: 'auto',
           paddingHorizontal: 15,
         }}
         textStyles={{
           ...styles.buttonText,
-          color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
+          color: !theme ? tokens.onAccent : COLORS.lightModeText,
         }}
         actionFunction={handleDone}
         textContent={t('constants.done')}

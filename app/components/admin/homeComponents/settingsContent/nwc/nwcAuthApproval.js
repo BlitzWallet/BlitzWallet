@@ -119,7 +119,8 @@ export default function NWCAuthApproval({
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const notificationsEnabled = useNWCNotificationsEnabled();
 
   const existingAccounts = masterInfoObject?.NWC?.accounts || {};
@@ -203,19 +204,15 @@ export default function NWCAuthApproval({
   }
 
   const appName = request?.name || t('settings.nwc.authRequest.unnamedApp');
-  const cardColor = theme
-    ? darkModeType
-      ? backgroundColor
-      : backgroundOffset
-    : COLORS.darkModeText;
+  const cardColor = theme && darkModeType ? backgroundColor : backgroundOffset;
   const sheetColor = theme && darkModeType ? backgroundOffset : backgroundColor;
   const stepStyle = [styles.step, { backgroundColor: sheetColor }];
   const primaryButtonStyles = {
     ...styles.primaryButton,
-    backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+    backgroundColor: theme ? COLORS.darkModeText : tokens.accent,
   };
   const primaryTextStyles = {
-    color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+    color: theme ? COLORS.lightModeText : tokens.onAccent,
   };
 
   const formatAmount = amount =>
@@ -440,7 +437,7 @@ export default function NWCAuthApproval({
                       ? cardColor
                       : theme
                       ? COLORS.darkModeText
-                      : COLORS.primary,
+                      : tokens.accent,
                 },
               ]}
             >
@@ -451,11 +448,11 @@ export default function NWCAuthApproval({
                 colorOverride={
                   page === 'error'
                     ? theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.cancelRed
+                      ? tokens.ink
+                      : tokens.danger
                     : theme
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText
+                    : tokens.onAccent
                 }
               />
             </View>
@@ -502,11 +499,8 @@ function LimitStep({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   // Same as the request step's cards, so it stands off the sheet.
-  const dropdownColor = theme
-    ? darkModeType
-      ? backgroundColor
-      : backgroundOffset
-    : COLORS.darkModeText;
+  const dropdownColor =
+    theme && darkModeType ? backgroundColor : backgroundOffset;
   const [amountValue, setAmountValue] = useState('');
   const [renewalOption, setRenewalOption] = useState(NO_LIMIT);
 

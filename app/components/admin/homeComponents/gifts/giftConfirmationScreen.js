@@ -8,7 +8,7 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -41,7 +41,8 @@ export default function GiftConfirmation(props) {
   const { fiatStats } = useNodeContext();
   const animationRef = useRef(null);
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor, tokens } =
+    GetThemeColors();
   const { t } = useTranslation();
 
   const gifts = isBulk
@@ -147,7 +148,7 @@ export default function GiftConfirmation(props) {
               <ThemeIcon
                 size={18}
                 colorOverride={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  theme && darkModeType ? tokens.ink : tokens.accent
                 }
                 iconName={'Copy'}
               />
@@ -155,10 +156,7 @@ export default function GiftConfirmation(props) {
                 styles={[
                   styles.copyAllText,
                   {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                    color: theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                 ]}
                 content={t(
@@ -178,7 +176,7 @@ export default function GiftConfirmation(props) {
                       { backgroundColor: backgroundOffset },
                       index < gifts.length - 1 && styles.bulkGiftRowBorder,
                       index < gifts.length - 1 && {
-                        borderBottomColor: backgroundColor,
+                        borderBottomColor: tokens.divider,
                       },
                     ]}
                   >
@@ -188,7 +186,7 @@ export default function GiftConfirmation(props) {
                         {
                           backgroundColor: theme
                             ? backgroundColor
-                            : COLORS.darkModeText,
+                            : tokens.disc,
                           borderColor: backgroundColor,
                         },
                       ]}
@@ -207,9 +205,7 @@ export default function GiftConfirmation(props) {
                       <ThemeIcon
                         size={18}
                         colorOverride={
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary
+                          theme && darkModeType ? tokens.ink : tokens.accent
                         }
                         iconName={'Copy'}
                       />
@@ -253,9 +249,7 @@ export default function GiftConfirmation(props) {
                     styles.linkContainer,
                     {
                       borderColor: backgroundColor,
-                      backgroundColor: theme
-                        ? backgroundColor
-                        : COLORS.darkModeText,
+                      backgroundColor: theme ? backgroundColor : tokens.disc,
                     },
                   ]}
                 >
@@ -273,9 +267,7 @@ export default function GiftConfirmation(props) {
                   <ThemeIcon
                     size={20}
                     colorOverride={
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary
+                      theme && darkModeType ? tokens.ink : tokens.accent
                     }
                     iconName={'Copy'}
                   />

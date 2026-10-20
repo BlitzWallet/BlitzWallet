@@ -287,7 +287,7 @@ export default function CreateNWCAmount(props) {
         <DropdownMenu
           customButtonStyles={{
             minHeight: 50,
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            backgroundColor: backgroundOffset,
           }}
           selectedValue={selectedRenewalLabel}
           placeholder={t('settings.nwc.createNWCAmount.renewalPlaceholder')}

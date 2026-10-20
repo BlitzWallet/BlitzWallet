@@ -5,7 +5,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useCallback, useEffect, useState } from 'react';
-import { COLORS } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +19,7 @@ export default function DenominationToggle({
   giftDenomination,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const sliderAnimation = useSharedValue(3);
@@ -76,9 +75,11 @@ export default function DenominationToggle({
     handleSlide('USD');
   }, [handleSlide, setGiftDenomination]);
 
+  // Plain string so the worklet does not capture the tokens object.
+  const accent = tokens.accent;
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: sliderAnimation.value }, { translateY: 3 }],
-    backgroundColor: theme && darkModeType ? backgroundOffset : COLORS.primary,
+    backgroundColor: theme && darkModeType ? backgroundOffset : accent,
     width: buttonWidth,
   }));
 
@@ -87,7 +88,7 @@ export default function DenominationToggle({
       style={[
         styles.sliderContainer,
         {
-          backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+          backgroundColor: theme ? backgroundColor : backgroundOffset,
           alignItems: 'center',
           width: containerWidth,
         },
@@ -103,12 +104,7 @@ export default function DenominationToggle({
             CustomNumberOfLines={1}
             styles={{
               ...styles.colorSchemeText,
-              color:
-                giftDenomination === 'BTC'
-                  ? COLORS.darkModeText
-                  : theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeText,
+              color: giftDenomination === 'BTC' ? tokens.onAccent : tokens.ink,
             }}
             content={t('constants.bitcoin_upper')}
           />
@@ -122,12 +118,7 @@ export default function DenominationToggle({
             CustomNumberOfLines={1}
             styles={{
               ...styles.colorSchemeText,
-              color:
-                giftDenomination === 'USD'
-                  ? COLORS.darkModeText
-                  : theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeText,
+              color: giftDenomination === 'USD' ? tokens.onAccent : tokens.ink,
             }}
             content={t('constants.dollars_upper')}
           />

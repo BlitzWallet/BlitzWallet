@@ -62,7 +62,7 @@ export default function PoolDetailScreen(props) {
     updatePoolList,
   } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const [refreshing, setRefreshing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -216,8 +216,8 @@ export default function PoolDetailScreen(props) {
   const colors = useMemo(
     () =>
       Platform.select({
-        ios: darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-        android: darkModeType && theme ? COLORS.lightModeText : COLORS.primary,
+        ios: darkModeType && theme ? tokens.ink : tokens.accent,
+        android: darkModeType && theme ? COLORS.lightModeText : tokens.accent,
       }),
     [darkModeType, theme],
   );
@@ -226,7 +226,7 @@ export default function PoolDetailScreen(props) {
     () => (
       <RefreshControl
         colors={[colors]}
-        tintColor={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
+        tintColor={darkModeType && theme ? tokens.ink : tokens.accent}
         refreshing={refreshing}
         onRefresh={handleRefresh}
       />
@@ -416,12 +416,12 @@ export default function PoolDetailScreen(props) {
                           backgroundColor:
                             theme && darkModeType
                               ? COLORS.lightModeText
-                              : COLORS.primary,
+                              : tokens.accent,
                         },
                         buttonStyle,
                       ]}
                       enableElipsis={false}
-                      textStyles={{ color: COLORS.darkModeText }}
+                      textStyles={{ color: tokens.onAccent }}
                       textContent={t('wallet.pools.share')}
                       actionFunction={handleShare}
                     />
