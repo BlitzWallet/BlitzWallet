@@ -46,7 +46,7 @@ export default function ViewAllTxPage() {
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const [txs, setTxs] = useState([]);
   const searchUUIDRef = useRef('');
   const isInitialLoad = useRef(true);
@@ -251,7 +251,7 @@ export default function ViewAllTxPage() {
         <View style={styles.paddingContainer}>
           <ThemeIcon
             colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              theme && darkModeType ? COLORS.lightModeText : tokens.accent
             }
             iconName="Share"
             size={18}

@@ -48,7 +48,7 @@ export default function AnalyticsBudgetPage() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { spentTotal, spentTxCountBTC, spentTxCountUSD } = useAnalytics();
   const { t } = useTranslation();
@@ -64,7 +64,7 @@ export default function AnalyticsBudgetPage() {
     if (spentPercent >= OVER_BUDGET_LIMIT)
       return {
         label: t('analytics.overBudget'),
-        color: theme && darkModeType ? textColor : COLORS.cancelRed,
+        color: theme && darkModeType ? textColor : tokens.danger,
       };
     if (spentPercent >= NEAR_BUDGET_LIMIT)
       return {
@@ -73,7 +73,7 @@ export default function AnalyticsBudgetPage() {
       };
     return {
       label: t('analytics.onTrack'),
-      color: theme && darkModeType ? textColor : COLORS.primary,
+      color: theme && darkModeType ? textColor : tokens.accent,
     };
   }, [spentPercent]);
 
@@ -211,7 +211,7 @@ export default function AnalyticsBudgetPage() {
             </View>
           </View>
 
-          <View style={[styles.divider, { backgroundColor }]} />
+          <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
 
           {/* Spent this month */}
           <View style={styles.statsRow}>
@@ -238,7 +238,7 @@ export default function AnalyticsBudgetPage() {
             />
           </View>
 
-          <View style={[styles.divider, { backgroundColor }]} />
+          <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
 
           {/* Left to spend */}
           <View style={styles.statsRow}>
