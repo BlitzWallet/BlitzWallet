@@ -11,7 +11,7 @@ import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { CENTER } from '../../constants';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
   CATEGORY_META,
@@ -37,7 +37,8 @@ export default function BTCMapListContent({
   const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
   const { getPlacesInViewport } = useBTCMap();
 
   const [places, setPlaces] = useState(null);
@@ -92,7 +93,7 @@ export default function BTCMapListContent({
 
   const iconShellColor =
     theme && darkModeType ? backgroundColor : backgroundOffset;
-  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+  const iconColor = theme && darkModeType ? textColor : tokens.accent;
   const hasMoreRows = data?.length < placeCount;
 
   const renderItem = ({ item }) => {

@@ -10,7 +10,6 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { CENTER } from '../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -32,7 +31,8 @@ export default function BTCMapFilterContent({
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
 
   const [draft, setDraft] = useState({
     categories: currentFilter?.categories ?? DEFAULT_FILTER.categories,
@@ -45,7 +45,7 @@ export default function BTCMapFilterContent({
 
   const inactiveBorderColor =
     theme && darkModeType ? backgroundColor : backgroundOffset;
-  const activeColor = theme && darkModeType ? backgroundColor : COLORS.primary;
+  const activeColor = theme && darkModeType ? backgroundColor : tokens.accent;
 
   const hasActiveSelections =
     draft.categories.length > 0 || draft.distanceUnit !== 'auto';
@@ -93,7 +93,10 @@ export default function BTCMapFilterContent({
       ]}
     >
       <ThemeText
-        styles={[styles.pillText, { color: isActive ? '#fff' : textColor }]}
+        styles={[
+          styles.pillText,
+          { color: isActive ? tokens.onAccent : textColor },
+        ]}
         content={label}
       />
     </TouchableOpacity>
@@ -137,12 +140,12 @@ export default function BTCMapFilterContent({
                 <ThemeIcon
                   iconName={CATEGORY_META[category].icon}
                   size={16}
-                  colorOverride={isActive ? '#fff' : textColor}
+                  colorOverride={isActive ? tokens.onAccent : textColor}
                 />
                 <ThemeText
                   styles={[
                     styles.pillText,
-                    { color: isActive ? '#fff' : textColor },
+                    { color: isActive ? tokens.onAccent : textColor },
                   ]}
                   content={t(CATEGORY_META[category].labelKey)}
                 />
@@ -151,9 +154,7 @@ export default function BTCMapFilterContent({
           })}
         </View>
 
-        <View
-          style={[styles.divider, { borderTopColor: inactiveBorderColor }]}
-        />
+        <View style={[styles.divider, { borderTopColor: tokens.divider }]} />
 
         <ThemeText
           styles={styles.sectionLabel}
@@ -177,7 +178,7 @@ export default function BTCMapFilterContent({
       <View
         style={[
           styles.bottomBar,
-          { borderTopColor: inactiveBorderColor, paddingBottom: bottomPadding },
+          { borderTopColor: tokens.divider, paddingBottom: bottomPadding },
         ]}
       >
         <TouchableOpacity

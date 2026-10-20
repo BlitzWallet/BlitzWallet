@@ -32,7 +32,7 @@ export default function AddPOSItemHalfModal({
     price: initialSettings?.price || '',
   });
   const navigate = useNavigation();
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
 
   const nameInputRef = useRef(null);
   const priceInputRef = useRef(null);
@@ -147,7 +147,7 @@ export default function AddPOSItemHalfModal({
                 theme && darkModeType
                   ? COLORS.lightModeText
                   : itemInformation.name.length > 60
-                  ? COLORS.cancelRed
+                  ? tokens.danger
                   : textColor,
             }}
             inputText={itemInformation.name}
@@ -165,7 +165,7 @@ export default function AddPOSItemHalfModal({
                 theme && darkModeType
                   ? textColor
                   : itemInformation.name.length > 60
-                  ? COLORS.cancelRed
+                  ? tokens.danger
                   : textColor,
             }}
             content={`${itemInformation.name.length}/60`}

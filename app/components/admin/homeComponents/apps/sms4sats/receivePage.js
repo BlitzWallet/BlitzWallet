@@ -17,7 +17,6 @@ import {
 } from '../../../../../constants';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
@@ -86,7 +85,7 @@ export default function SMSMessagingReceivedPage(props) {
   const { bottomPadding } = useGlobalInsets();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const [isPurchasing, setIsPurchasing] = useState({
     isLoading: false,
     message: t('apps.sms4sats.sendPage.payingMessage'),
@@ -464,14 +463,14 @@ export default function SMSMessagingReceivedPage(props) {
                   style={[
                     styles.instructionIconWrap,
                     {
-                      backgroundColor: theme ? backgroundColor : COLORS.primary,
+                      backgroundColor: theme ? backgroundColor : tokens.accent,
                     },
                   ]}
                 >
                   <ThemeIcon
                     iconName={'Info'}
                     size={15}
-                    colorOverride={COLORS.darkModeText}
+                    colorOverride={theme ? tokens.ink : tokens.onAccent}
                   />
                 </View>
                 <View style={styles.instructionTexts}>

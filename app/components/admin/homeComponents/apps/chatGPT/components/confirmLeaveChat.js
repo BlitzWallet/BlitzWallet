@@ -14,7 +14,7 @@ import { useGlobalThemeContext } from '../../../../../../../context-store/theme'
 
 export default function ConfirmLeaveChatGPT(props) {
   const navigate = useNavigation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
@@ -54,7 +54,7 @@ export default function ConfirmLeaveChatGPT(props) {
             >
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={20}
                 iconName={'MessageSquare'}
@@ -70,8 +70,7 @@ export default function ConfirmLeaveChatGPT(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -86,10 +85,7 @@ export default function ConfirmLeaveChatGPT(props) {
                   styles={[
                     styles.saveText,
                     {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
+                      color: theme && darkModeType ? tokens.ink : tokens.accent,
                     },
                   ]}
                   content={t('constants.yes')}
@@ -100,10 +96,7 @@ export default function ConfirmLeaveChatGPT(props) {
                 style={[
                   styles.btnDivider,
                   {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
+                    backgroundColor: tokens.divider,
                   },
                 ]}
               />

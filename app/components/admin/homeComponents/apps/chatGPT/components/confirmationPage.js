@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { CENTER, SIZES } from '../../../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../../constants/theme';
@@ -40,7 +39,8 @@ export default function ConfirmChatGPTPage(props) {
   const { fiatStats } = useNodeContext();
   const { sparkInformation } = useSparkWallet();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor, tokens } =
+    GetThemeColors();
   const { t } = useTranslation();
 
   const [step, setStep] = useState(['select']);
@@ -198,15 +198,12 @@ export default function ConfirmChatGPTPage(props) {
           style={[
             styles.presetButton,
             {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.darkModeText,
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
               borderColor: isCustomSelected()
                 ? theme
-                  ? COLORS.darkModeText
-                  : COLORS.primary
+                  ? tokens.ink
+                  : tokens.accent
                 : 'transparent',
             },
           ]}
@@ -224,15 +221,12 @@ export default function ConfirmChatGPTPage(props) {
         style={[
           styles.presetButton,
           {
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
             borderColor: isPresetSelected(item)
               ? theme
-                ? COLORS.darkModeText
-                : COLORS.primary
+                ? tokens.ink
+                : tokens.accent
               : 'transparent',
           },
         ]}

@@ -17,7 +17,6 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
   SIZES,
@@ -117,7 +116,8 @@ true;
 export default function BitrefillShopModal() {
   const naivgate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor, tokens } =
+    GetThemeColors();
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -605,9 +605,7 @@ export default function BitrefillShopModal() {
                         styles.statusText,
                         {
                           color:
-                            theme && darkModeType
-                              ? COLORS.darkModeText
-                              : COLORS.cancelRed,
+                            theme && darkModeType ? tokens.ink : tokens.danger,
                         },
                       ]}
                       content={t('screens.bitrefill.emailError')}

@@ -26,7 +26,6 @@ import { useGlobalInsets } from '../../../../../../context-store/insetsProvider'
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
 } from '../../../../../constants';
 import {
@@ -53,7 +52,8 @@ export default function OnlineListingsFilterHalfModal({
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
   const [draft, setDraft] = useState({
     categories: currentFilter?.categories ?? DEFAULT_FILTER.categories,
     countryCode: currentFilter?.countryCode ?? DEFAULT_FILTER.countryCode,
@@ -264,8 +264,8 @@ export default function OnlineListingsFilterHalfModal({
                 theme && darkModeType ? backgroundColor : backgroundOffset,
               borderColor: isSelected
                 ? theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary
+                  ? tokens.ink
+                  : tokens.accent
                 : inactiveBorderColor,
             },
           ]}
@@ -359,13 +359,13 @@ export default function OnlineListingsFilterHalfModal({
                     draft.categories.length === 0
                       ? theme && darkModeType
                         ? backgroundColor
-                        : COLORS.primary
+                        : tokens.accent
                       : 'transparent',
                   borderColor:
                     draft.categories.length === 0
                       ? theme && darkModeType
                         ? backgroundColor
-                        : COLORS.primary
+                        : tokens.accent
                       : inactiveBorderColor,
                 },
               ]}
@@ -374,7 +374,10 @@ export default function OnlineListingsFilterHalfModal({
                 styles={[
                   styles.pillText,
                   {
-                    color: draft.categories.length === 0 ? '#fff' : textColor,
+                    color:
+                      draft.categories.length === 0
+                        ? tokens.onAccent
+                        : textColor,
                   },
                 ]}
                 content={t('apps.onlineListings.filterAllCategories')}
@@ -396,12 +399,12 @@ export default function OnlineListingsFilterHalfModal({
                       backgroundColor: isActive
                         ? theme && darkModeType
                           ? backgroundColor
-                          : COLORS.primary
+                          : tokens.accent
                         : 'transparent',
                       borderColor: isActive
                         ? theme && darkModeType
                           ? backgroundColor
-                          : COLORS.primary
+                          : tokens.accent
                         : inactiveBorderColor,
                     },
                   ]}
@@ -409,7 +412,7 @@ export default function OnlineListingsFilterHalfModal({
                   <ThemeText
                     styles={[
                       styles.pillText,
-                      { color: isActive ? '#fff' : textColor },
+                      { color: isActive ? tokens.onAccent : textColor },
                     ]}
                     content={t(`apps.onlineListings.${category}`)}
                   />
@@ -419,7 +422,7 @@ export default function OnlineListingsFilterHalfModal({
           </View>
 
           <View
-            style={[styles.divider, { borderTopColor: inactiveBorderColor }]}
+            style={[styles.divider, { borderTopColor: tokens.divider }]}
           />
 
           <ThemeText

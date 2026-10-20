@@ -20,7 +20,7 @@ import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
@@ -45,11 +45,10 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
     globalAppDataInformation,
   } = useGlobalAppData();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const [isPaying, setIsPaying] = useState(false);
-  const offseColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const offseColor = theme && darkModeType ? tokens.ink : tokens.accent;
   const navigate = useNavigation();
   const { t } = useTranslation();
 

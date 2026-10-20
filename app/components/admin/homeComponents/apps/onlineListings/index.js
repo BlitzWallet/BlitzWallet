@@ -15,9 +15,11 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import {
-  COLORS,
+  useGlobalThemeContext,
+  useTheme,
+} from '../../../../../../context-store/theme';
+import {
   CONTENT_KEYBOARD_OFFSET,
   SHOPS_DIRECTORY_KEY,
 } from '../../../../../constants';
@@ -320,6 +322,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
 const BusinessCard = React.memo(
   ({ item, theme, darkModeType, backgroundColor, backgroundOffset, t }) => {
     const navigate = useNavigation();
+    const { tokens } = useTheme();
 
     const websiteUrl = useMemo(
       () => getNormalizedWebsiteUrl(item.website),
@@ -336,7 +339,7 @@ const BusinessCard = React.memo(
       }
     }, [websiteUrl, navigate, t]);
 
-    const cardBackgroundColor = theme ? backgroundOffset : COLORS.darkModeText;
+    const cardBackgroundColor = backgroundOffset;
     const countryName =
       item.country.code == 'WW'
         ? t('apps.onlineListings.filterWorldwide')
@@ -380,11 +383,7 @@ const BusinessCard = React.memo(
           hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
         >
           <View style={styles.buttonCopy}>
-            <ThemeIcon
-              size={16}
-              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              iconName="Globe"
-            />
+            <ThemeIcon size={16} colorOverride={tokens.ink} iconName="Globe" />
             <ThemeText
               content={t('apps.onlineListings.visitWebsite')}
               styles={styles.buttonText}

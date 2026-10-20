@@ -30,7 +30,7 @@ export default function BTCMapMerchantContent({
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { getPlaceDetail } = useBTCMap();
   const { t } = useTranslation();
@@ -188,7 +188,7 @@ export default function BTCMapMerchantContent({
                 buttonStyle,
               ]}
               textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                color: tokens.ink,
               }}
               enableElipsis={false}
               textContent={directionsBTN}
@@ -199,9 +199,7 @@ export default function BTCMapMerchantContent({
                 styles.actionBtn,
                 {
                   backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
+                    theme && darkModeType ? tokens.ink : tokens.accent,
                 },
                 buttonStyle,
               ]}
@@ -209,7 +207,7 @@ export default function BTCMapMerchantContent({
                 color:
                   theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText,
+                    : tokens.onAccent,
               }}
               enableElipsis={false}
               textContent={payBTN}
