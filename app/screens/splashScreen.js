@@ -77,7 +77,7 @@ const SplashScreen = () => {
   }));
 
   // Primary native-splash hide: fire as soon as this themed View has been laid
-  // out/painted, so the gray (#EBEBEB) JS background is already on screen before
+  // out/painted, so the ground-colour JS background is already on screen before
   // the native splash is torn down — otherwise the window flashes black during
   // the handoff. The effect above retries in case this never fires.
   const hideNativeSplash = () => {
