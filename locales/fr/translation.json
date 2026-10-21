@@ -1681,7 +1681,8 @@
       "text4": "Seuil de rémunération rapide (SAT)",
       "text5": "Le paiement rapide vous permet de payer instantanément les factures inférieures à un seuil spécifié, sans avoir à les glisser dans le lecteur pour obtenir une confirmation.",
       "text6": "Actuel",
-      "text7": "Nouveau"
+      "text7": "Nouveau",
+      "editThresholdA11y": "Modifier le seuil"
     },
     "loginSecurity": {
       "text1": "Activer la sécurité de connexion",
@@ -1748,6 +1749,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Activation des rapports d'accident",
       "crashreporting_disabled": "Rapport d'accident désactivé",
+      "switchLabel": "Rapports de plantage",
       "descriptionText": "Les données relatives aux accidents nous aident à améliorer la stabilité et les performances de notre application.\n\nLorsqu'une panne se produit, les informations relatives à l'appareil qui sont automatiquement enregistrées sont les suivantes :\n\n- Système d'exploitation : Version du système d'exploitation, orientation de l'appareil et état de jailbreak.\n- Détails de l'appareil : Modèle, orientation et mémoire vive disponible\n- Informations sur le crash : Date de la panne et version de l'application"
     },
     "accounts": {
@@ -1790,14 +1792,18 @@
     },
     "sparkInfo": {
       "title": "Informations sur le portefeuille",
-      "sparkAddress": "Adresse de l'étincelle",
-      "pubKey": "Clé publique"
+      "sparkAddress": "Adresse Spark",
+      "pubKey": "Clé publique",
+      "copyA11y": "Copier {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Le solde actuel de votre portefeuille est de {{balance}}. Blitz ajoute des frais de {{fee}} à tous les paiements BTKN. Assurez-vous d'avoir des bitcoins dans votre portefeuille pour envoyer des jetons.",
       "title": "Réglages de l'étincelle",
       "sliderTitle_enabled": "Activé BTKN",
       "sliderTitle_disabled": "Désactivé BTKN",
+      "switchLabel": "Jetons BTKN",
+      "switchSub": "Envoyez et recevez des jetons sur le réseau Spark.",
+      "disclaimer": "Blitz est un portefeuille Bitcoin et ne fait pas la promotion des jetons. Cette option est là pour que vous puissiez utiliser la technologie de votre choix.",
       "sliderDesc": "BTKN est le token natif de Spark. L'activation de BTKN permet d'envoyer et de recevoir des jetons sur le réseau Spark.\n\nBlitz est un portefeuille axé sur Bitcoin. Nous ne promouvons ni n'approuvons l'utilisation de jetons. Cette fonctionnalité existe parce que nous pensons que les utilisateurs devraient avoir la liberté d'utiliser la technologie qu'ils veulent utiliser.",
       "selectTokenHeader": "Jeton par défaut",
       "selectTokenInformationPopup": "Choisissez le jeton que vous souhaitez utiliser en premier lors de l'envoi de paiements. Ne vous inquiétez pas, vous pouvez toujours le modifier sur la page de paiement."
@@ -1870,6 +1876,7 @@
       "disablePush": "Désactiver les notifications push",
       "updateInSettings": "Modifier dans les réglages de l’app",
       "open": "Ouvrir",
+      "openA11y": "Ouvrir les réglages du téléphone",
       "disabledTitle": "Les notifications sont désactivées",
       "disabledSubtitle": "Autorisez les notifications push ci-dessus pour choisir les paiements et événements pour lesquels vous souhaitez être alerté.",
       "optionsTitle": "Options de notification",
@@ -1911,17 +1918,18 @@
       "swapsType": "Échanges BTC <> USD",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % de frais de pool + {{blitzFee}} % de frais Blitz",
-      "sparkSwapType": "Échanges BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "sparkSwapType": "Échanges BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC ou USDB ↔︎ Stablecoin (cross-chain)",
       "chainSwapFee": "0,5 % de frais Blitz + 0,1 %+ de frais de plateforme",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % de frais Blitz + frais de réseau",
       "rootstockFee": "0,1 % de frais Boltz + frais de réseau",
       "accumulationType": "Adresses d'accumulation",
       "accumulationFee": "0,5 % de frais Blitz + 0,5 % de frais de plateforme",
-      "othersType": "Autres",
-      "othersFee": "Frais de réseau",
+      "othersType": "Tout le reste",
+      "othersFee": "Frais de réseau uniquement",
       "networkFeeLinkDesc": "Appuyez pour voir le détail des frais du réseau Spark",
+      "networkFeeLink": "Voir les frais du réseau Spark",
       "rootstock": "Rootstock <> BTC"
     },
     "nip5": {
@@ -2522,9 +2530,10 @@
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
         "title": "Téléchargements Blitz",
-        "goalUserCount": "sur {{goalUserCount}} utilisateurs.",
+        "goalUserCount": "sur {{goalUserCount}} utilisateurs",
         "percentOfGoal": "{{goalPercent}}% de l’objectif",
         "numAddedUsers": "+{{numNewUsers}} utilisateurs aujourd’hui",
+        "chartA11y": "Téléchargements sur la période {{period}}",
         "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
@@ -2624,13 +2633,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Synchronisé : {{time}}",
+        "lastSynced": "Synchronisé {{time}}",
         "never": "Jamais",
         "treeLabel": "Arbre {{id}}",
         "treeSubtitle": "{{count}} feuilles",
         "showMore": "Afficher plus",
         "exportButton": "Exporter la sauvegarde",
         "noLeavesToExport": "Il n’y a pas encore de feuilles à exporter.",
+        "noExitReadyLeaves": "Aucune de vos feuilles n’est encore assez grande pour sortir (chacune doit contenir au moins {{min}} sats).",
         "exportError": "Impossible d’exporter vos feuilles. Veuillez réessayer.",
         "notReadyTitle": "Pas prêt à sortir",
         "readyTitle": "Prêt à sortir",
@@ -2662,11 +2672,12 @@
         },
         "progress": {
           "title": "Exportation de la sauvegarde",
-          "gathering": "Collecte des feuilles de votre portefeuille…",
-          "saving": "Enregistrement d'une sauvegarde locale…",
-          "exit": "Récupération des données de sortie…",
-          "building": "Création du fichier de sauvegarde…",
-          "sharing": "Ouverture de la feuille de partage…"
+          "keepOpen": "Gardez l’application ouverte jusqu’à la fin.",
+          "gathering": "Collecte des feuilles de votre portefeuille",
+          "saving": "Enregistrement d'une sauvegarde locale",
+          "exit": "Récupération des données de sortie",
+          "building": "Création du fichier de sauvegarde",
+          "sharing": "Ouverture de la feuille de partage"
         }
       },
       "remotePayments": {
@@ -2958,6 +2969,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Dépenser et remplacer",
         "userDollarAmount": "Solde en dollars disponible : {{dollarAmount}}",
+        "userDollarAmountLabel": "Solde en dollars disponible",
         "explainer": "Lorsqu’il est activé, chaque paiement Bitcoin sortant est automatiquement remplacé en échangeant un montant équivalent depuis votre solde en dollars. Si votre solde en dollars est inférieur au montant dépensé, l’intégralité du solde sera échangée. Aucun échange n’est effectué si le montant de remplacement est inférieur à {{minAmount}}.",
         "fundingDescription": "Achat Spend & Replace",
         "acceptingDescription": "Recharge Spend & Replace",

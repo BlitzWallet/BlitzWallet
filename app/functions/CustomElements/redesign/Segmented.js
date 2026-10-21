@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   label: {
+    textTransform: 'capitalize',
     fontSize: 14,
     lineHeight: 19,
     textAlign: 'center',

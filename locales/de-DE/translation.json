@@ -1681,7 +1681,8 @@
       "text4": "Schnellzahlungsschwelle (Sats)",
       "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen.",
       "text6": "Aktuell",
-      "text7": "Neu"
+      "text7": "Neu",
+      "editThresholdA11y": "Schwellenwert bearbeiten"
     },
     "loginSecurity": {
       "text1": "Anmeldesicherheit aktivieren",
@@ -1748,6 +1749,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Absturzberichte aktiviert",
       "crashreporting_disabled": "Absturzberichte deaktiviert",
+      "switchLabel": "Absturzberichte",
       "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version."
     },
     "accounts": {
@@ -1791,13 +1793,17 @@
     "sparkInfo": {
       "title": "Wallet-Informationen",
       "sparkAddress": "Spark-Adresse",
-      "pubKey": "Öffentlicher Schlüssel"
+      "pubKey": "Öffentlicher Schlüssel",
+      "copyA11y": "{{label}} kopieren"
     },
     "sparkLrc20": {
       "balanceError": "Ihr aktuelles Wallet-Guthaben beträgt {{balance}}. Blitz fügt allen BTKN-Zahlungen eine Gebühr von {{fee}} hinzu. Stellen Sie sicher, dass sich etwas Bitcoin in Ihrer Wallet befindet, um Token zu senden.",
       "title": "Spark-Einstellungen",
       "sliderTitle_enabled": "BTKN aktiviert",
       "sliderTitle_disabled": "BTKN deaktiviert",
+      "switchLabel": "BTKN-Token",
+      "switchSub": "Token im Spark-Netzwerk senden und empfangen.",
+      "disclaimer": "Blitz ist eine Bitcoin-Wallet und bewirbt keine Token. Diese Funktion ist da, damit Sie die Technologie nutzen können, die Sie bevorzugen.",
       "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin ausgerichtete Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.",
       "selectTokenHeader": "Standard-Token",
       "selectTokenInformationPopup": "Bitte wählen Sie aus, welchen Token Sie zuerst für Zahlungen verwenden möchten. Keine Sorge – Sie können dies jederzeit auf der Zahlungsseite ändern."
@@ -1870,6 +1876,7 @@
       "disablePush": "Push-Benachrichtigungen ausschalten",
       "updateInSettings": "In den App-Einstellungen ändern",
       "open": "Öffnen",
+      "openA11y": "Telefon-Einstellungen öffnen",
       "disabledTitle": "Benachrichtigungen sind ausgeschaltet",
       "disabledSubtitle": "Aktivieren Sie oben die Push-Benachrichtigungen, um zu wählen, über welche Zahlungen und Ereignisse Sie informiert werden möchten.",
       "optionsTitle": "Benachrichtigungsoptionen",
@@ -1911,8 +1918,8 @@
       "swapsType": "BTC <> USD-Swaps",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
-      "sparkSwapType": "BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (kettenübergreifend)",
+      "sparkSwapType": "BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC oder USDB ↔︎ Stablecoin (kettenübergreifend)",
       "chainSwapFee": "0,5 % Blitz-Gebühr + mindestens 0,1 % Flashnet-Gebühr",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-Gebühr + Netzwerkgebühren",
@@ -1920,9 +1927,10 @@
       "rootstockFee": "0,1 % Boltz-Gebühr + Netzwerkgebühren",
       "accumulationType": "Akkumulationsadressen",
       "accumulationFee": "0,5 % Blitz-Gebühr + 0,5 % Flashnet-Gebühr",
-      "othersType": "Alle anderen",
-      "othersFee": "Netzwerkgebühren",
-      "networkFeeLinkDesc": "Tippen Sie hier, um eine Aufschlüsselung der Spark-Netzwerkgebühren anzuzeigen."
+      "othersType": "Alles andere",
+      "othersFee": "Nur Netzwerkgebühren",
+      "networkFeeLinkDesc": "Tippen Sie hier, um eine Aufschlüsselung der Spark-Netzwerkgebühren anzuzeigen.",
+      "networkFeeLink": "Spark-Netzwerkgebühren anzeigen"
     },
     "nip5": {
       "noNameError": "Name darf nicht leer sein.",
@@ -2525,6 +2533,7 @@
         "goalUserCount": "von {{goalUserCount}} Nutzern",
         "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
         "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute",
+        "chartA11y": "Downloads im Zeitraum {{period}}",
         "COMMENT": "Der vollständige Satz unten zeigt die Anzahl aller Nutzer an."
       },
       "loadingScreen": {
@@ -2624,13 +2633,14 @@
       },
       "walletLeaves": {
         "sats": "Sats",
-        "lastSynced": "Synchronisiert: {{time}}",
+        "lastSynced": "Synchronisiert {{time}}",
         "never": "Nie",
         "treeLabel": "Baum {{id}}",
         "treeSubtitle": "{{count}} Blätter",
         "showMore": "Mehr anzeigen",
         "exportButton": "Backup exportieren",
         "noLeavesToExport": "Es gibt noch keine Blätter zum Exportieren.",
+        "noExitReadyLeaves": "Keines Ihrer Blätter ist groß genug, um bereits auszusteigen (jedes benötigt {{min}} Sats).",
         "exportError": "Ihre Blätter konnten nicht exportiert werden. Bitte versuchen Sie es erneut.",
         "notReadyTitle": "Nicht bereit zum Ausstieg",
         "readyTitle": "Bereit zum Ausstieg",
@@ -2662,11 +2672,12 @@
         },
         "progress": {
           "title": "Backup wird exportiert",
-          "gathering": "Wallet-Blätter werden gesammelt…",
-          "saving": "Lokales Backup wird gespeichert…",
-          "exit": "Ausstiegsdaten werden abgerufen…",
-          "building": "Backup-Datei wird erstellt…",
-          "sharing": "Freigabemenü wird geöffnet…"
+          "keepOpen": "Lassen Sie die App geöffnet, bis der Vorgang abgeschlossen ist.",
+          "gathering": "Wallet-Blätter werden gesammelt",
+          "saving": "Lokales Backup wird gespeichert",
+          "exit": "Ausstiegsdaten werden abgerufen",
+          "building": "Backup-Datei wird erstellt",
+          "sharing": "Freigabemenü wird geöffnet"
         }
       },
       "remotePayments": {
@@ -2955,6 +2966,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Ausgeben und ersetzen",
         "userDollarAmount": "Verfügbares Dollar-Guthaben: {{dollarAmount}}",
+        "userDollarAmountLabel": "Verfügbares Dollar-Guthaben",
         "explainer": "Wenn diese Option aktiviert ist, wird jede ausgehende Bitcoin-Zahlung automatisch ausgeglichen, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben per Swap umgewandelt wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben per Swap umgewandelt. Kein Swap erfolgt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
         "fundingDescription": "Spend & Replace-Kauf",
         "acceptingDescription": "Spend & Replace-Aufladung",

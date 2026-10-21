@@ -93,6 +93,7 @@ import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/rece
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
+import DefaultTokenPicker from '../../components/admin/homeComponents/settingsContent/defaultTokenPicker';
 import AccountTransferHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal';
 import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
 import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
@@ -786,6 +787,14 @@ export default function CustomHalfModal(props) {
         return (
           <ExportLeavesProgress
             onExported={props?.route?.params?.onExported}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'defaultTokenPicker':
+        return (
+          <DefaultTokenPicker
+            options={props?.route?.params?.options}
+            selected={props?.route?.params?.selected}
             handleBackPressFunction={handleBackPressFunction}
           />
         );

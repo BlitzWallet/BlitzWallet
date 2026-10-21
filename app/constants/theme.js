@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { MODES } from './themes';
 
 const COLORS = {
@@ -96,6 +97,11 @@ const FONT = {
   Other_Regular: 'Poppins-Regular',
   Other_Bold: 'Poppins-Bold',
   Asterisk: 'Blitzicons1',
+  mono: Platform.select({
+    ios: 'Menlo',
+    android: 'monospace',
+    default: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+  }),
 };
 
 const SIZES = {

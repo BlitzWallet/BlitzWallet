@@ -1,15 +1,11 @@
-import { ThemeText } from '../../functions/CustomElements';
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { Stop } from 'react-native-svg';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import GetThemeColors from '../../hooks/themeColors';
-import { BLITZ_GOAL_USER_COUNT, CENTER, COLORS, SIZES } from '../../constants';
-import DateCountdown from '../../components/admin/homeComponents/explore/dateCountdown';
+import { BLITZ_GOAL_USER_COUNT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { FONT, SIZES } from '../../constants/theme';
 import {
   DAY_IN_MILLS,
   MONTH_GROUPING,
@@ -19,57 +15,48 @@ import {
   YEAR_IN_MILLS,
 } from '../../components/admin/homeComponents/explore/constants';
 import {
+  formatLocalTimeNumericMonthDay,
+  getNoonChicagoUtcMs,
+} from '../../functions/timeFormatter';
+import {
   formatBalanceAmount,
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../functions';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import NoDataView from '../../components/admin/homeComponents/explore/noDataView';
-import { FONT, INSET_WINDOW_WIDTH } from '../../constants/theme';
-import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useTheme } from '../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { LineChart } from 'react-native-wagmi-charts';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import fetchBackend from '../../../db/handleBackend';
 import { useKeysContext } from '../../../context-store/keys';
 import { useServerTimeOnly } from '../../../context-store/serverTime';
-import {
-  formatLocalTimeNumericMonthDay,
-  getNoonChicagoUtcMs,
-} from '../../functions/timeFormatter';
-import { useAppStatus } from '../../../context-store/appStatus';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../functions/CustomElements/redesign/AmountHero';
+import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
+import Segmented from '../../functions/CustomElements/redesign/Segmented';
+import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
+
+const TIME_FRAMES = ['day', 'week', 'month', 'year'];
 
 export default function ExploreUsers() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const [timeFrame, setTimeFrame] = useState('day');
   const [isLoading, setIsLoading] = useState(true);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [chartWidth, setChartWidth] = useState(0);
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { backgroundOffset, textColor, backgroundColor, tokens } =
-    GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
-  const { screenDimensions } = useAppStatus();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const dataObject = masterInfoObject.exploreData
     ? JSON.parse(JSON.stringify(masterInfoObject.exploreData))
     : false;
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
-  // const currentTimeZoneOffsetInHours = -6;
-
-  const formattedCurrentTime = useMemo(() => {
-    // const targetTimezoneMs =
-    //   currentTime + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
-    // const targetDate = new Date(targetTimezoneMs);
-    // targetDate.setUTCHours(12, 0, 0, 0); // Set to 12pm of the current day
-
-    // return targetDate.getTime();
-    // Real UTC ms of 12:00 PM America/Chicago today — used as the chart
-    // date reference. DST-aware: CDT (UTC-5) and CST (UTC-6) are handled
-    // automatically by getNoonChicagoUtcMs via the IANA tz database.
-    return getNoonChicagoUtcMs(currentTime);
-  }, [currentTime]);
 
   const min = data.reduce((prev, current) => {
     if (current?.value < prev) return current.value;
@@ -83,77 +70,15 @@ export default function ExploreUsers() {
 
   const totalYesterday = masterInfoObject.exploreData?.['day']?.[1]?.value || 0;
 
-  const timeFrameElements = useMemo(() => {
-    return ['day', 'week', 'month', 'year'].map(item => {
-      return (
-        <TouchableOpacity
-          key={item}
-          onPress={() => setTimeFrame(item)}
-          style={{
-            backgroundColor:
-              item === timeFrame
-                ? theme && darkModeType
-                  ? tokens.ink
-                  : tokens.accent
-                : 'transparent',
-            borderColor:
-              theme && darkModeType ? tokens.ink : tokens.accent,
-            ...styles.timeFrameElement,
-          }}
-        >
-          <ThemeText
-            styles={{
-              color:
-                item === timeFrame
-                  ? theme && darkModeType
-                    ? COLORS.lightModeText
-                    : tokens.onAccent
-                  : textColor,
-              ...styles.timeFrameElementText,
-            }}
-            content={t(`constants.${item}`)}
-          />
-        </TouchableOpacity>
-      );
-    });
-  }, [timeFrame, textColor, theme, darkModeType]);
-
-  const xLabels = useMemo(() => {
-    return [0, 1, 2, 3, 4, 5, 6].map((_, index) => {
-      if (timeFrame === 'year') {
-        const now = formattedCurrentTime;
-        return `${new Date(
-          now - YEAR_IN_MILLS * Math.abs(6 - index),
-        ).getFullYear()}`;
-      } else if (timeFrame === 'month') {
-        const now = formattedCurrentTime;
-        const dateIndex = new Date(
-          now - MONTH_IN_MILLS * Math.abs(6 - index),
-        ).getMonth();
-        return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
-      } else if (timeFrame === 'day') {
-        const now = formattedCurrentTime - DAY_IN_MILLS;
-        const dateIndex = new Date(
-          now - DAY_IN_MILLS * Math.abs(7 - index),
-        ).getDay();
-        return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
-      } else {
-        const now = new Date(formattedCurrentTime);
-        const todayDay = now.getDay();
-        const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
-        const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
-        const dateIndex = new Date(
-          endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index),
-        );
-        return formatLocalTimeNumericMonthDay(dateIndex);
-      }
-    });
-  }, [timeFrame, t, formattedCurrentTime]);
-
   const chartData = data.map((d, i) => ({
     timestamp: i * 1000,
     value: d.value,
   }));
+
+  const yRange = {
+    min: Math.round(min * 0.95),
+    max: Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05)),
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -167,8 +92,8 @@ export default function ExploreUsers() {
             contactsPrivateKey,
             publicKey,
           ),
-          getLocalStorageItem('savedExploreData').then(data =>
-            JSON.parse(data),
+          getLocalStorageItem('savedExploreData').then(stored =>
+            JSON.parse(stored),
           ),
         ]);
 
@@ -198,247 +123,262 @@ export default function ExploreUsers() {
     };
   }, []);
 
-  if (isLoading) {
-    return <FullLoadingScreen />;
-  }
+  const handleRetry = useCallback(async () => {
+    if (isRetrying) return;
+    setIsRetrying(true);
+    try {
+      const response = await fetchBackend(
+        'getTotalUserCount',
+        { data: publicKey },
+        contactsPrivateKey,
+        publicKey,
+      );
 
-  if (
-    !masterInfoObject.exploreData ||
-    !Object.keys(masterInfoObject.exploreData).length
-  ) {
-    return <NoDataView />;
-  }
+      toggleMasterInfoObject({ exploreData: response });
+
+      setLocalStorageItem(
+        'savedExploreData',
+        JSON.stringify({ lastUpdated: new Date().getTime(), data: response }),
+      );
+    } catch (err) {
+      console.log('handling explore users search err', err);
+    } finally {
+      setIsRetrying(false);
+    }
+  }, [contactsPrivateKey, isRetrying, publicKey, toggleMasterInfoObject]);
+
+  const xLabels = useMemo(() => {
+    // Real UTC ms of noon America/Chicago today (DST-aware) as the chart's date reference.
+    const noon = getNoonChicagoUtcMs(currentTime);
+    return [0, 1, 2, 3, 4, 5, 6].map(index => {
+      if (timeFrame === 'year') {
+        return `${new Date(
+          noon - YEAR_IN_MILLS * Math.abs(6 - index),
+        ).getFullYear()}`;
+      }
+      if (timeFrame === 'month') {
+        const dateIndex = new Date(
+          noon - MONTH_IN_MILLS * Math.abs(6 - index),
+        ).getMonth();
+        return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
+      }
+      if (timeFrame === 'day') {
+        const dateIndex = new Date(
+          noon - DAY_IN_MILLS - DAY_IN_MILLS * Math.abs(7 - index),
+        ).getDay();
+        return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
+      }
+      const now = new Date(noon);
+      const todayDay = now.getDay();
+      const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
+      const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
+      return formatLocalTimeNumericMonthDay(
+        new Date(endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index)),
+      );
+    });
+  }, [timeFrame, t, currentTime]);
+
+  const timeFrameOptions = useMemo(
+    () =>
+      TIME_FRAMES.map(value => ({
+        value,
+        label: t(`constants.${value}`),
+      })),
+    [t],
+  );
+
+  const rawGoalPercent = (max / BLITZ_GOAL_USER_COUNT) * 100;
+  const goalPercent =
+    rawGoalPercent < 10
+      ? rawGoalPercent.toFixed(1)
+      : String(Math.floor(rawGoalPercent));
+
+  const hasData =
+    !!masterInfoObject.exploreData &&
+    !!Object.keys(masterInfoObject.exploreData).length;
 
   return (
-    <CustomScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollView}
-    >
-      <ThemeText
-        styles={styles.statsCardHeader}
-        content={t('screens.inAccount.explorePage.title')}
-      />
-
-      {/* Today's Stats Card */}
-      <View style={{ ...styles.todayCard, backgroundColor: backgroundOffset }}>
-        <View style={styles.cardHeader}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{ ...styles.cardLabel, color: textColor }}
-            content={t('constants.today')}
-          />
-          <DateCountdown
-            // currentTimeZoneOffsetInHours={currentTimeZoneOffsetInHours}
-            getServerTime={getServerTime}
-          />
-        </View>
-
-        <ThemeText
-          styles={{ ...styles.mainNumber, color: textColor }}
-          content={formatBalanceAmount(max, undefined, masterInfoObject)}
-        />
-
-        <ThemeText
-          styles={{ ...styles.subText, color: textColor }}
-          content={t('screens.inAccount.explorePage.goalUserCount', {
-            goalUserCount: formatBalanceAmount(
-              BLITZ_GOAL_USER_COUNT,
-              undefined,
-              masterInfoObject,
-            ),
-          })}
-        />
-
-        {/* Progress Bar */}
-        <View
-          style={{
-            backgroundColor: backgroundColor,
-            ...styles.progressBarContainer,
-          }}
-        >
-          <View
-            style={{
-              width: `${(max / BLITZ_GOAL_USER_COUNT) * 100}%`,
-              backgroundColor:
-                theme && darkModeType ? tokens.ink : tokens.accent,
-              ...styles.progressBarFill,
-            }}
-          />
-        </View>
-
-        <ThemeText
-          styles={{ ...styles.percentageText, color: textColor }}
-          content={t('screens.inAccount.explorePage.percentOfGoal', {
-            goalPercent: ((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(2),
-          })}
-        />
-      </View>
-
-      {/* Growth Indicator */}
-      <View style={styles.growthIndicator}>
-        <ThemeText
-          styles={{ ...styles.growthText, color: textColor }}
-          content={t('screens.inAccount.explorePage.numAddedUsers', {
-            numNewUsers: formatBalanceAmount(
-              max - totalYesterday,
-              false,
-              masterInfoObject,
-            ),
-          })}
-        />
-      </View>
-
-      {/* Chart */}
-      <LineChart.Provider
-        yGutter={0}
-        style={{ marginBottom: -20 }}
-        data={chartData}
-        yRange={{
-          min: Math.round(min * 0.95),
-          max: Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05)),
-        }}
-      >
-        <LineChart height={200} width={screenDimensions.width * 0.85}>
-          <LineChart.Path
-            color={theme && darkModeType ? tokens.ink : tokens.accent}
-          >
-            <LineChart.Gradient
-              color={
-                theme && darkModeType ? tokens.ink : tokens.accent
-              }
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar title={t('screens.inAccount.settingsContent.blitz stats')} />
+        {isLoading ? (
+          <FullLoadingScreen />
+        ) : !hasData ? (
+          <View style={styles.empty}>
+            <EmptyState
+              icon="ChartArea"
+              title={t('errormessages.explorePagenoDataError')}
+              onRetry={handleRetry}
             />
-          </LineChart.Path>
-          <LineChart.CursorCrosshair
-            color={theme && darkModeType ? tokens.ink : tokens.accent}
+          </View>
+        ) : (
+          <CustomScrollView
+            style={styles.scroll}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
           >
-            <LineChart.Tooltip
-              textStyle={{
-                color: textColor,
-                fontFamily: FONT.Title_Regular,
-                fontSize: SIZES.medium,
-              }}
-              format={({ value }) => {
-                'worklet';
-                const formattedPrice = Math.round(value);
-                return String(formattedPrice);
-              }}
+            <ThemeText
+              content={t('screens.inAccount.explorePage.title')}
+              styles={[styles.label, { color: tokens.muted }]}
             />
-          </LineChart.CursorCrosshair>
-        </LineChart>
-      </LineChart.Provider>
+            <AmountHero
+              value={formatBalanceAmount(max, undefined, masterInfoObject)}
+              amountSize={48}
+              unitSize={24}
+              lineHeight={52}
+            />
+            <ThemeText
+              content={`${t('screens.inAccount.explorePage.goalUserCount', {
+                goalUserCount: formatBalanceAmount(
+                  BLITZ_GOAL_USER_COUNT,
+                  undefined,
+                  masterInfoObject,
+                ),
+              })} · ${t('screens.inAccount.explorePage.percentOfGoal', {
+                goalPercent,
+              })}`}
+              styles={[styles.goal, { color: tokens.muted }]}
+            />
+            <ProgressBar
+              value={max / BLITZ_GOAL_USER_COUNT}
+              style={styles.progress}
+            />
+            <ThemeText
+              content={t('screens.inAccount.explorePage.numAddedUsers', {
+                numNewUsers: formatBalanceAmount(
+                  max - totalYesterday,
+                  false,
+                  masterInfoObject,
+                ),
+              })}
+              styles={styles.today}
+            />
 
-      {/* X-axis labels */}
-      <View style={styles.xLabelsRow}>
-        {xLabels.map((label, i) => (
-          <Text key={i} style={[styles.xLabel, { color: textColor }]}>
-            {label}
-          </Text>
-        ))}
+            <View
+              style={[styles.chartCard, { backgroundColor: tokens.surface }]}
+              onLayout={event => setChartWidth(event.nativeEvent.layout.width)}
+              accessible
+              accessibilityRole="image"
+              accessibilityLabel={t('screens.inAccount.explorePage.chartA11y', {
+                period: t(`constants.${timeFrame}`),
+              })}
+            >
+              {chartWidth > 0 && (
+                <Animated.View key={timeFrame} entering={FadeIn.duration(200)}>
+                  <LineChart.Provider
+                    yGutter={0}
+                    data={chartData}
+                    yRange={yRange}
+                  >
+                    {/* wagmi reserves 40 pt for x-axis labels inside `height`;
+                        draw 178 + 40 and pull the empty strip back out. */}
+                    <LineChart
+                      height={178 + 40}
+                      width={chartWidth}
+                      style={{ marginBottom: -40 }}
+                    >
+                      <LineChart.Path color={tokens.accent}>
+                        <LineChart.Gradient color={tokens.accent}>
+                          <Stop
+                            offset="0%"
+                            stopColor={tokens.accent}
+                            stopOpacity={0.1}
+                          />
+                          <Stop
+                            offset="100%"
+                            stopColor={tokens.accent}
+                            stopOpacity={0.1}
+                          />
+                        </LineChart.Gradient>
+                      </LineChart.Path>
+                      <LineChart.CursorCrosshair color={tokens.accent}>
+                        <LineChart.Tooltip
+                          textStyle={{
+                            color: tokens.ink,
+                            fontFamily: FONT.Title_Regular,
+                            fontSize: SIZES.medium,
+                          }}
+                          format={({ value }) => {
+                            'worklet';
+                            return String(Math.round(value));
+                          }}
+                        />
+                      </LineChart.CursorCrosshair>
+                    </LineChart>
+                  </LineChart.Provider>
+                </Animated.View>
+              )}
+            </View>
+
+            <View style={styles.xLabelsRow}>
+              {xLabels.map((label, i) => (
+                <Text key={i} style={[styles.xLabel, { color: tokens.muted }]}>
+                  {label}
+                </Text>
+              ))}
+            </View>
+
+            <View style={styles.segmented}>
+              <Segmented
+                options={timeFrameOptions}
+                value={timeFrame}
+                onChange={setTimeFrame}
+                accessibilityLabel={t('screens.inAccount.explorePage.title')}
+              />
+            </View>
+          </CustomScrollView>
+        )}
       </View>
-
-      {/* Time Frame Buttons */}
-      <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View>
-    </CustomScrollView>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    width: INSET_WINDOW_WIDTH,
-    paddingTop: 20,
-    ...CENTER,
+  content: {
+    alignSelf: 'center',
+    flex: 1,
   },
-  statsCardHeader: {
-    marginBottom: 12,
+  scroll: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
-  },
-  todayCard: {
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  cardLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    textTransform: 'uppercase',
     includeFontPadding: false,
+    marginTop: 16,
+    marginBottom: 5,
   },
-  mainNumber: {
-    fontSize: SIZES.xxLarge,
-    // fontWeight: '500',
-    // marginBottom: 12,
-    includeFontPadding: false,
-  },
-  subText: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 16,
-    includeFontPadding: false,
-  },
-  progressBarContainer: {
-    height: 25,
-    borderRadius: 15,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 15,
-  },
-  percentageText: {
-    fontSize: SIZES.smedium,
+  goal: {
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
     includeFontPadding: false,
   },
-  growthIndicator: {
-    alignItems: 'center',
-    // paddingVertical: 8,
-  },
-  growthText: {
-    fontSize: SIZES.smedium,
-    // fontWeight: '500',
-    opacity: 0.7,
+  progress: { marginTop: 12, marginHorizontal: 24 },
+  today: {
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
     includeFontPadding: false,
+    marginTop: 10,
   },
-
+  segmented: { marginTop: 12 },
   xLabelsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginTop: 8,
+    paddingHorizontal: 8,
   },
   xLabel: {
     fontSize: SIZES.small,
-    opacity: 0.6,
     fontFamily: FONT.Title_Regular,
-  },
-  timeFrameElementsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    width: '100%',
-    rowGap: 10,
-    columnGap: 10,
-    flexWrap: 'wrap',
-    ...CENTER,
-  },
-  timeFrameElement: {
-    flexGrow: 1,
-    borderRadius: 8,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timeFrameElementText: {
-    textTransform: 'capitalize',
     includeFontPadding: false,
-    padding: 10,
+  },
+  chartCard: {
+    marginTop: 20,
+    borderRadius: 20,
+    paddingTop: 16,
+    overflow: 'hidden',
   },
 });

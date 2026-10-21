@@ -1681,7 +1681,8 @@
       "text4": "Tröskelvärde för snabb utbetalning (SAT)",
       "text5": "Med Fast pay kan du omedelbart betala fakturor under en viss gräns utan att behöva swisha för att få en bekräftelse.",
       "text6": "Nuvarande",
-      "text7": "Nytt"
+      "text7": "Nytt",
+      "editThresholdA11y": "Redigera tröskel"
     },
     "loginSecurity": {
       "text1": "Aktivera inloggningssäkerhet",
@@ -1748,6 +1749,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Aktiverad kraschrapportering",
       "crashreporting_disabled": "Avaktiverad kraschrapportering",
+      "switchLabel": "Kraschrapportering",
       "descriptionText": "Kraschdata hjälper oss att förbättra stabiliteten och prestandan i vår applikation.\n\nNär en krasch inträffar registreras automatiskt följande enhetsinformation:\n\n- Operativsystem: OS-version, enhetens orientering och jailbreak-status\n- Detaljer om enheten: Modell, orientering och tillgängligt RAM-minne\n- Information om krasch: Datum för kraschen och appens version"
     },
     "accounts": {
@@ -1790,14 +1792,18 @@
     },
     "sparkInfo": {
       "title": "Information om plånboken",
-      "sparkAddress": "Spark Adress",
-      "pubKey": "Allmän nyckel"
+      "sparkAddress": "Spark-adress",
+      "pubKey": "Publik nyckel",
+      "copyA11y": "Kopiera {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Ditt nuvarande plånboksaldo är {{balance}}. Blitz lägger till en avgift på {{fee}} för alla BTKN-betalningar. Se till att du har lite Bitcoin i din plånbok för att skicka tokens.",
       "title": "Inställningar för gnista",
       "sliderTitle_enabled": "Aktiverad BTKN",
       "sliderTitle_disabled": "Avaktiverad BTKN",
+      "switchLabel": "BTKN-token",
+      "switchSub": "Skicka och ta emot token på Spark-nätverket.",
+      "disclaimer": "Blitz är en Bitcoin-plånbok och främjar inte tokens. Funktionen finns här så att du kan använda den teknik du själv väljer.",
       "sliderDesc": "BTKN är Spark's inbyggda token. Om du aktiverar BTKN kan du skicka och ta emot tokens i Spark-nätverket.\n\nBlitz är en Bitcoin-fokuserad plånbok. Vi främjar inte eller stödjer användningen av tokens. Den här funktionen finns eftersom vi anser att användare ska ha friheten att använda den teknik de vill använda.",
       "selectTokenHeader": "Standard Token",
       "selectTokenInformationPopup": "Välj vilken token du vill använda först när du skickar betalningar. Oroa dig inte - du kan fortfarande ändra det på betalningssidan när som helst."
@@ -1870,6 +1876,7 @@
       "disablePush": "Stäng av pushaviseringar",
       "updateInSettings": "Uppdatera i appinställningarna",
       "open": "Öppna",
+      "openA11y": "Öppna telefoninställningar",
       "disabledTitle": "Aviseringar är avstängda",
       "disabledSubtitle": "Tillåt pushaviseringar ovan för att välja vilka betalningar och händelser du vill bli meddelad om.",
       "optionsTitle": "Alternativ för avisering",
@@ -1911,16 +1918,17 @@
       "swapsType": "BTC <> USD-växlingar",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
-      "sparkSwapType": "BTC <> USDB-växlingar (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "sparkSwapType": "BTC ↔︎ USDB-växlingar (Spark)",
+      "chainSwapType": "BTC eller USDB ↔︎ Stablecoin (cross-chain)",
       "chainSwapFee": "0,5 % Blitz-avgift + 0,1 %+ plattformsavgift",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-avgift + nätverksavgifter",
       "accumulationType": "Ackumuleringsadresser",
       "accumulationFee": "0,5 % Blitz-avgift + 0,5 % plattformsavgift",
-      "othersType": "Övrigt",
-      "othersFee": "Nätverksavgifter",
+      "othersType": "Allt annat",
+      "othersFee": "Endast nätverksavgifter",
       "networkFeeLinkDesc": "Tryck för att se en uppdelning av Spark-nätverksavgifter",
+      "networkFeeLink": "Visa Spark-nätverksavgifter",
       "rootstock": "Rootstock <> BTC",
       "rootstockFee": "0,1 % Boltz-avgift + nätverksavgifter"
     },
@@ -2522,9 +2530,10 @@
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
         "title": "Blitz-nedladdningar",
-        "goalUserCount": "av {{goalUserCount}} användare.",
+        "goalUserCount": "av {{goalUserCount}} användare",
         "percentOfGoal": "{{goalPercent}} av målet",
         "numAddedUsers": "+{{numNewUsers}} användare idag",
+        "chartA11y": "Nedladdningar under perioden {{period}}",
         "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
@@ -2624,13 +2633,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Synkroniserad: {{time}}",
+        "lastSynced": "Synkroniserad {{time}}",
         "never": "Aldrig",
         "treeLabel": "Träd {{id}}",
         "treeSubtitle": "{{count}} blad",
         "showMore": "Visa fler",
         "exportButton": "Exportera säkerhetskopia",
         "noLeavesToExport": "Det finns inga blad att exportera ännu.",
+        "noExitReadyLeaves": "Inga av dina blad är ännu stora nog att gå ut (varje blad kräver {{min}} sats).",
         "exportError": "Det gick inte att exportera dina blad. Försök igen.",
         "notReadyTitle": "Inte redo att lämna",
         "readyTitle": "Redo att lämna",
@@ -2662,11 +2672,12 @@
         },
         "progress": {
           "title": "Exporterar säkerhetskopia",
-          "gathering": "Samlar in dina plånboksblad…",
-          "saving": "Sparar en lokal säkerhetskopia…",
-          "exit": "Hämtar utträdesdata…",
-          "building": "Skapar din säkerhetskopia…",
-          "sharing": "Öppnar delningsmenyn…"
+          "keepOpen": "Håll appen öppen tills det är klart.",
+          "gathering": "Samlar in dina plånboksblad",
+          "saving": "Sparar en lokal säkerhetskopia",
+          "exit": "Hämtar utträdesdata",
+          "building": "Skapar din säkerhetskopia",
+          "sharing": "Öppnar delningsmenyn"
         }
       },
       "remotePayments": {
@@ -2958,6 +2969,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Spendera och ersätt",
         "userDollarAmount": "Tillgängligt dollarsaldo: {{dollarAmount}}",
+        "userDollarAmountLabel": "Tillgängligt dollarsaldo",
         "explainer": "När funktionen är aktiverad ersätts varje utgående Bitcoin-betalning automatiskt genom att ett motsvarande belopp växlas från ditt dollarsaldo. Om ditt dollarsaldo är lägre än det spenderade beloppet växlas hela dollarsaldot istället. Ingen växling görs om ersättningsbeloppet är mindre än {{minAmount}}.",
         "fundingDescription": "Spend & Replace-köp",
         "acceptingDescription": "Spend & Replace-påfyllning",

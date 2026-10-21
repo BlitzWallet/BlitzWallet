@@ -62,6 +62,25 @@ export default function SettingsContentIndex(props) {
     );
   }
 
+  const isChunk21Page =
+    page === 'spark info' ||
+    page === 'crash reports' ||
+    page === 'about' ||
+    page === 'blitz fee details' ||
+    page === 'blitz stats';
+
+  if (isChunk21Page) {
+    return (
+      <>
+        {page === 'spark info' && <SparkInfo />}
+        {page === 'crash reports' && <CrashReportingSettingsPage />}
+        {page === 'about' && <AboutPage />}
+        {page === 'blitz fee details' && <BlitzFeeInformation />}
+        {page === 'blitz stats' && <ExploreUsers />}
+      </>
+    );
+  }
+
   return (
     <>
       {selectedPage?.toLowerCase() === 'display currency' ||
@@ -99,9 +118,6 @@ export default function SettingsContentIndex(props) {
             )}
           />
           <View style={styles.largeDeviceWrapper}>
-            {selectedPage?.toLowerCase() === 'about' && (
-              <AboutPage theme={theme} />
-            )}
             {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />
             )} */}
@@ -113,13 +129,6 @@ export default function SettingsContentIndex(props) {
               <WalletInformation theme={theme} />
             )} */}
 
-            {selectedPage?.toLowerCase() === 'blitz fee details' && (
-              <BlitzFeeInformation />
-            )}
-            {selectedPage?.toLowerCase() === 'crash reports' && (
-              <CrashReportingSettingsPage />
-            )}
-            {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
             {selectedPage?.toLowerCase() === 'nostr' && (
               <NostrHome theme={theme} />
@@ -137,9 +146,6 @@ export default function SettingsContentIndex(props) {
             )}
             {selectedPage?.toLowerCase() === 'show seed phrase' && (
               <SeedPhrasePage extraData={extraData} theme={theme} />
-            )}
-            {selectedPage?.toLowerCase() === 'spark info' && (
-              <SparkInfo theme={theme} />
             )}
 
             {/* {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />} */}

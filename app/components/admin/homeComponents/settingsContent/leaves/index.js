@@ -3,47 +3,45 @@ import {
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
-  TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
-import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { CENTER } from '../../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import { useTheme } from '../../../../../../context-store/theme';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import {
   getGlobalLeafStats,
   EXIT_MIN_SATS,
 } from '../../../../../functions/spark/leavesStorage';
-import ExportLeaves from './exportLeaves';
+import formatBalanceAmount from '../../../../../functions/formatNumber';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { createFormattedDate } from '../../contacts/contactsPageComponents/utilityFunctions';
+import openWebBrowser from '../../../../../functions/openWebBrowser';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import { createFormattedDate } from '../../contacts/contactsPageComponents/utilityFunctions';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import openWebBrowser from '../../../../../functions/openWebBrowser';
-import CustomButton from '../../../../../functions/CustomElements/button';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
 export default function WalletLeaves() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { reconcileLeaves, sparkInformation } = useSparkWallet();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-  const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const { tokens } = useTheme();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -84,266 +82,223 @@ export default function WalletLeaves() {
     }
   }, [reconcileLeaves, loadFromStore]);
 
-  const fmtSats = useCallback(
-    amount =>
-      displayCorrectDenomination({
-        amount,
-        masterInfoObject: {
-          ...masterInfoObject,
-          userBalanceDenomination: 'sats',
-        },
-        fiatStats,
-      }),
-    [masterInfoObject, fiatStats],
-  );
-
   if (loading || !stats) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={textColor} />
-      </View>
+      <GlobalThemeView useStandardWidth={true}>
+        <View style={[styles.content, { width: contentWidth }]}>
+          <TopBar
+            title={t('screens.inAccount.settingsContent.wallet leaves')}
+          />
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color={tokens.ink} />
+          </View>
+        </View>
+      </GlobalThemeView>
     );
   }
 
   const minLabel = EXIT_MIN_SATS.toLocaleString();
-  const isReady = stats.exitEligible > 0;
   const belowCount = Math.max(stats.totalLeaves - stats.exitEligible, 0);
   const belowValue = Math.max(stats.totalValue - stats.exitEligibleValue, 0);
-  const pillBackgroundColor = backgroundOffset;
 
-  const lastSyncedLabel =
-    stats.lastSyncedAt > 0
-      ? createFormattedDate(stats.lastSyncedAt, Date.now(), t)
-      : t('screens.inAccount.walletLeaves.never');
+  const openExport = () =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'exportLeavesProgress',
+      onExported: loadFromStore,
+      sliderHight: 0.66,
+    });
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('screens.inAccount.settingsContent.wallet leaves')}
-        containerStyles={{ marginBottom: 0 }}
-      />
-      <ThemeText
-        styles={styles.lastSynced}
-        content={t('screens.inAccount.walletLeaves.lastSynced', {
-          time: lastSyncedLabel,
-        })}
-      />
-      <CustomScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={textColor}
-          />
-        }
-      >
-        <View style={styles.balanceWrap}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar title={t('screens.inAccount.settingsContent.wallet leaves')} />
+        <ThemeText
+          content={t('screens.inAccount.walletLeaves.lastSynced', {
+            time:
+              stats.lastSyncedAt > 0
+                ? createFormattedDate(stats.lastSyncedAt, Date.now(), t)
+                : t('screens.inAccount.walletLeaves.never'),
+          })}
+          styles={[styles.lastSynced, { color: tokens.muted }]}
+        />
+        <CustomScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={tokens.ink}
+            />
+          }
+        >
+          <View style={styles.hero}>
+            <AmountHero
+              value={displayCorrectDenomination({
+                amount: stats.totalValue ?? 0,
+                masterInfoObject,
+                fiatStats,
+              })}
+              amountSize={44}
+              unitSize={22}
+              lineHeight={48}
+            />
+          </View>
           <ThemeText
-            styles={styles.balanceValue}
-            content={fmtSats(stats.totalValue ?? 0)}
-          />
-          <ThemeText
-            styles={styles.balanceCaption}
             content={t('screens.inAccount.walletLeaves.guide.balanceCaption', {
               leaves: stats?.totalLeaves ?? 0,
               trees: stats?.treeCount ?? 0,
             })}
+            styles={[styles.caption, { color: tokens.muted }]}
           />
-        </View>
 
-        {/* Buckets */}
-        <BucketRow
-          backgroundOffset={pillBackgroundColor}
-          chipColor={backgroundColor}
-          iconName="Check"
-          title={t('screens.inAccount.walletLeaves.bucketReadyTitle')}
-          subtitle={t('screens.inAccount.walletLeaves.bucketReadySub', {
-            min: minLabel,
-          })}
-          count={stats.exitEligible}
-          valueLabel={fmtSats(stats.exitEligibleValue)}
-        />
-        <BucketRow
-          backgroundOffset={pillBackgroundColor}
-          chipColor={backgroundColor}
-          iconName="ArrowDown"
-          title={t('screens.inAccount.walletLeaves.bucketBelowTitle')}
-          subtitle={t('screens.inAccount.walletLeaves.bucketBelowSub')}
-          count={belowCount}
-          valueLabel={fmtSats(belowValue)}
-        />
+          <ListCard dividerInset={68} style={styles.bucketsCard}>
+            <ListRow
+              title={t('screens.inAccount.walletLeaves.bucketReadyTitle')}
+              sub={t('screens.inAccount.walletLeaves.bucketReadySub', {
+                min: minLabel,
+              })}
+              minHeight={68}
+              titleStyle={styles.rowTitle}
+              subStyle={styles.rowSub}
+              lead={<Disc icon="Check" size={40} tone="primary" />}
+              trailing={
+                <View style={styles.trailing}>
+                  <ThemeText
+                    content={String(stats.exitEligible)}
+                    styles={styles.trailingCount}
+                  />
+                  <ThemeText
+                    content={displayCorrectDenomination({
+                      amount: stats.exitEligibleValue,
+                      masterInfoObject,
+                      fiatStats,
+                    })}
+                    styles={[styles.trailingValue, { color: tokens.muted }]}
+                  />
+                </View>
+              }
+            />
+            <ListRow
+              title={t('screens.inAccount.walletLeaves.bucketBelowTitle')}
+              sub={t('screens.inAccount.walletLeaves.bucketBelowSub')}
+              minHeight={68}
+              titleStyle={styles.rowTitle}
+              subStyle={styles.rowSub}
+              lead={<Disc icon="Layers" size={40} />}
+              trailing={
+                <View style={styles.trailing}>
+                  <ThemeText
+                    content={String(belowCount)}
+                    styles={styles.trailingCount}
+                  />
+                  <ThemeText
+                    content={displayCorrectDenomination({
+                      amount: belowValue,
+                      masterInfoObject,
+                      fiatStats,
+                    })}
+                    styles={[styles.trailingValue, { color: tokens.muted }]}
+                  />
+                </View>
+              }
+            />
+          </ListCard>
 
-        {/* Learn strip */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() =>
-            openWebBrowser({
-              navigate,
-              link: 'https://github.com/blinkbitcoin/spark-unilateral-exit',
-            })
-          }
-          style={[styles.row, { backgroundColor: pillBackgroundColor }]}
-        >
-          <View style={[styles.chip, { backgroundColor: backgroundColor }]}>
-            <ThemeIcon iconName="Globe" size={20} />
-          </View>
-          <View style={styles.rowText}>
-            <ThemeText
-              styles={styles.rowTitle}
-              content={t('screens.inAccount.walletLeaves.exportTitle')}
+          <ListCard dividerInset={64} style={styles.actionsCard}>
+            <ListRow
+              title={t('screens.inAccount.walletLeaves.exportButton')}
+              minHeight={64}
+              titleStyle={styles.rowTitle}
+              subStyle={styles.rowSub}
+              lead={<Disc icon="HardDriveDownload" size={36} />}
+              trailing="chevron"
+              chevronSize={18}
+              onPress={openExport}
             />
-            <ThemeText
-              styles={styles.rowSubtitle}
-              content={t('screens.inAccount.walletLeaves.exportSubTitle')}
+            <ListRow
+              title={t('screens.inAccount.walletLeaves.learnTitle')}
+              sub={t('screens.inAccount.walletLeaves.learnSubtitle')}
+              minHeight={64}
+              titleStyle={styles.rowTitle}
+              subStyle={styles.rowSub}
+              lead={<Disc icon="BookOpen" size={36} />}
+              trailing="chevron"
+              chevronSize={18}
+              onPress={() =>
+                openWebBrowser({
+                  navigate,
+                  link: 'https://docs.spark.money/wallets/unilateral-exit',
+                })
+              }
             />
-          </View>
-          <ThemeIcon iconName="ChevronRight" size={20} />
-        </TouchableOpacity>
-
-        {/* Learn strip */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() =>
-            openWebBrowser({
-              navigate,
-              link: 'https://docs.spark.money/wallets/unilateral-exit',
-            })
-          }
-          style={[styles.row, { backgroundColor: pillBackgroundColor }]}
-        >
-          <View style={[styles.chip, { backgroundColor: backgroundColor }]}>
-            <ThemeIcon iconName="CircleHelp" size={20} />
-          </View>
-          <View style={styles.rowText}>
-            <ThemeText
-              styles={styles.rowTitle}
-              content={t('screens.inAccount.walletLeaves.learnTitle')}
+            <ListRow
+              title={t('screens.inAccount.walletLeaves.guide.openBlink')}
+              sub={t('screens.inAccount.walletLeaves.exportSubTitle')}
+              minHeight={64}
+              titleStyle={styles.rowTitle}
+              lead={<Disc icon="ExternalLink" size={36} />}
+              trailing="chevron"
+              chevronSize={18}
+              onPress={() =>
+                openWebBrowser({
+                  navigate,
+                  link: 'https://github.com/blinkbitcoin/spark-unilateral-exit',
+                })
+              }
             />
-            <ThemeText
-              styles={styles.rowSubtitle}
-              content={t('screens.inAccount.walletLeaves.learnSubtitle')}
-            />
-          </View>
-          <ThemeIcon iconName="ChevronRight" size={20} />
-        </TouchableOpacity>
-      </CustomScrollView>
-      <ExportLeaves onExported={loadFromStore} />
+          </ListCard>
+        </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
 
-function BucketRow({
-  backgroundOffset,
-  chipColor,
-  iconName,
-  iconColor,
-  title,
-  subtitle,
-  count,
-  valueLabel,
-}) {
-  return (
-    <View style={[styles.row, { backgroundColor: backgroundOffset }]}>
-      <View style={[styles.chip, { backgroundColor: chipColor }]}>
-        <ThemeIcon iconName={iconName} size={20} colorOverride={iconColor} />
-      </View>
-      <View style={styles.rowText}>
-        <ThemeText styles={styles.rowTitle} content={title} />
-        <ThemeText styles={styles.rowSubtitle} content={subtitle} />
-      </View>
-      <View style={styles.rowRight}>
-        <ThemeText styles={styles.rowCount} content={String(count)} />
-        <ThemeText styles={styles.rowValue} content={valueLabel} />
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  container: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  balanceWrap: { marginBottom: 20 },
-  balanceValue: {
-    fontSize: SIZES.huge,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  balanceCaption: {
-    opacity: HIDDEN_OPACITY,
-    marginTop: 4,
-    marginBottom: 20,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  content: {
-    paddingTop: 30,
-    paddingBottom: 50,
-  },
-  heroCard: {
-    width: '100%',
-    borderRadius: 28,
-    padding: 24,
-    marginBottom: 12,
-  },
-  row: {
-    width: '100%',
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  chip: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 13,
-  },
-  rowText: {
-    flex: 1,
-  },
-  rowTitle: {
-    fontWeight: '500',
-    includeFontPadding: false,
-  },
-  rowSubtitle: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    marginTop: 2,
-    includeFontPadding: false,
-  },
-  rowRight: {
-    alignItems: 'flex-end',
-    marginLeft: 8,
-  },
-  rowCount: {
-    includeFontPadding: false,
-  },
-  rowValue: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    marginTop: 2,
-    includeFontPadding: false,
-  },
+  content: { alignSelf: 'center', flex: 1 },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  scroll: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  hero: { marginTop: 20 },
   lastSynced: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    includeFontPadding: false,
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
+    includeFontPadding: false,
+    marginTop: 2,
+  },
+  caption: {
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginTop: 2,
+  },
+  bucketsCard: { marginTop: 24 },
+  actionsCard: { marginTop: 12 },
+  rowTitle: {
+    fontSize: 15,
+    lineHeight: 21,
+    includeFontPadding: false,
+  },
+  rowSub: {
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
+    marginTop: 0,
+  },
+  trailing: { alignItems: 'flex-end' },
+  trailingCount: {
+    fontSize: 15,
+    lineHeight: 21,
+    includeFontPadding: false,
+    fontVariant: ['tabular-nums'],
+  },
+  trailingValue: {
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
+    fontVariant: ['tabular-nums'],
   },
 });

@@ -1678,7 +1678,8 @@
       "text4": "Umbral de Fast Pay (SAT)",
       "text5": "Fast Pay te permite pagar al instante facturas por debajo de un umbral especificado sin necesidad de deslizar para confirmar.",
       "text6": "Actual",
-      "text7": "Nuevo"
+      "text7": "Nuevo",
+      "editThresholdA11y": "Editar umbral"
     },
     "loginSecurity": {
       "text1": "Habilitar seguridad de inicio de sesión",
@@ -1745,6 +1746,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Informes de fallos activados",
       "crashreporting_disabled": "Informes de fallos desactivados",
+      "switchLabel": "Informes de fallos",
       "descriptionText": "Los datos de fallos nos ayudan a mejorar la estabilidad y el rendimiento de nuestra aplicación.\n\nCuando ocurre un fallo, la información del dispositivo registrada automáticamente incluye:\n\n• Sistema operativo: versión del SO, orientación del dispositivo y estado de jailbreak\n• Detalles del dispositivo: modelo, orientación y RAM disponible\n• Información del fallo: fecha del fallo y versión de la aplicación"
     },
     "accounts": {
@@ -1788,13 +1790,17 @@
     "sparkInfo": {
       "title": "Información de billetera",
       "sparkAddress": "Dirección Spark",
-      "pubKey": "Clave pública"
+      "pubKey": "Clave pública",
+      "copyA11y": "Copiar {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "El saldo actual de tu billetera es {{balance}}. Blitz añade una tarifa de {{fee}} a todos los pagos BTKN. Asegúrate de tener algo de Bitcoin en tu billetera para enviar tokens.",
       "title": "Configuración Spark",
       "sliderTitle_enabled": "BTKN activado",
       "sliderTitle_disabled": "BTKN desactivado",
+      "switchLabel": "Tokens BTKN",
+      "switchSub": "Envía y recibe tokens en la red Spark.",
+      "disclaimer": "Blitz es una billetera de Bitcoin y no promueve tokens. Esta opción está aquí para que puedas usar la tecnología que elijas.",
       "sliderDesc": "BTKN es el token nativo de Spark. Al habilitar BTKN, puedes enviar y recibir tokens en la red Spark.\n\nBlitz es una billetera enfocada en Bitcoin. No promovemos ni respaldamos el uso de tokens. Esta función existe porque creemos que los usuarios deben tener la libertad de usar la tecnología que deseen.",
       "selectTokenHeader": "Token predeterminado",
       "selectTokenInformationPopup": "Elige qué token deseas usar primero al enviar pagos. No te preocupes, aún puedes cambiarlo en la página de pago en cualquier momento."
@@ -1867,6 +1873,7 @@
       "disablePush": "Desactivar notificaciones push",
       "updateInSettings": "Actualizar en los ajustes de la app",
       "open": "Abrir",
+      "openA11y": "Abrir ajustes del teléfono",
       "disabledTitle": "Las notificaciones están desactivadas",
       "disabledSubtitle": "Activa las notificaciones push arriba para elegir sobre qué pagos y eventos quieres recibir alertas.",
       "optionsTitle": "Opciones de notificación",
@@ -1908,16 +1915,17 @@
       "swapsType": "Intercambios BTC <> USD",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % de comisión del pool + {{blitzFee}} % de comisión de Blitz",
-      "sparkSwapType": "Intercambios BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (entre cadenas)",
+      "sparkSwapType": "Intercambios BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC o USDB ↔︎ Stablecoin (entre cadenas)",
       "chainSwapFee": "0,5 % de comisión de Blitz + 0,1 %+ de comisión de plataforma",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % de comisión de Blitz + comisiones de red",
       "accumulationType": "Direcciones de acumulación",
       "accumulationFee": "0,5 % de comisión de Blitz + 0,5 % de comisión de plataforma",
-      "othersType": "Otros",
-      "othersFee": "Comisiones de red",
+      "othersType": "Todo lo demás",
+      "othersFee": "Solo comisiones de red",
       "networkFeeLinkDesc": "Toca para ver un desglose de las comisiones de la red Spark",
+      "networkFeeLink": "Ver comisiones de la red Spark",
       "rootstock": "Rootstock <> BTC",
       "rootstockFee": "Comisión de Boltz del 0,1 % + comisiones de la red"
     },
@@ -2522,9 +2530,10 @@
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
         "title": "Descargas de Blitz",
-        "goalUserCount": "de {{goalUserCount}} usuarios.",
+        "goalUserCount": "de {{goalUserCount}} usuarios",
         "percentOfGoal": "{{goalPercent}}% del objetivo",
         "numAddedUsers": "+{{numNewUsers}} usuarios hoy",
+        "chartA11y": "Descargas en el periodo {{period}}",
         "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
@@ -2624,13 +2633,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Sincronizado: {{time}}",
+        "lastSynced": "Sincronizado {{time}}",
         "never": "Nunca",
         "treeLabel": "Árbol {{id}}",
         "treeSubtitle": "{{count}} hojas",
         "showMore": "Mostrar más",
         "exportButton": "Exportar respaldo",
         "noLeavesToExport": "Todavía no hay hojas para exportar.",
+        "noExitReadyLeaves": "Ninguna de tus hojas es lo suficientemente grande para salir todavía (cada una necesita {{min}} sats).",
         "exportError": "No se pudieron exportar tus hojas. Inténtalo de nuevo.",
         "notReadyTitle": "Aún no listo para salir",
         "readyTitle": "Listo para salir",
@@ -2662,11 +2672,12 @@
         },
         "progress": {
           "title": "Exportando respaldo",
-          "gathering": "Recopilando las hojas de tu billetera…",
-          "saving": "Guardando un respaldo local…",
-          "exit": "Obteniendo datos de salida…",
-          "building": "Creando el archivo de respaldo…",
-          "sharing": "Abriendo el menú para compartir…"
+          "keepOpen": "Mantén la app abierta hasta que termine.",
+          "gathering": "Recopilando las hojas de tu billetera",
+          "saving": "Guardando un respaldo local",
+          "exit": "Obteniendo datos de salida",
+          "building": "Creando el archivo de respaldo",
+          "sharing": "Abriendo el menú para compartir"
         }
       },
       "remotePayments": {
@@ -2958,6 +2969,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Gastar y reemplazar",
         "userDollarAmount": "Saldo disponible en dólares: {{dollarAmount}}",
+        "userDollarAmountLabel": "Saldo disponible en dólares",
         "explainer": "Cuando está activado, cada pago saliente en Bitcoin se reemplaza automáticamente intercambiando un monto equivalente desde tu saldo en dólares. Si tu saldo en dólares es menor al monto gastado, se intercambiará el saldo total disponible. No se realizará ningún intercambio si el monto de reemplazo es inferior a {{minAmount}}.",
         "fundingDescription": "Compra de Spend & Replace",
         "acceptingDescription": "Recarga de Spend & Replace",

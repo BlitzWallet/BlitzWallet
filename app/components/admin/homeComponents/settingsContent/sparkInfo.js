@@ -1,340 +1,161 @@
-import {
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../functions/CustomElements';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { CENTER } from '../../../../constants';
-import { copyToClipboard } from '../../../../functions';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import { useToast } from '../../../../../context-store/toastManager';
-import { useTranslation } from 'react-i18next';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useMemo } from 'react';
-import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import Animated, { LinearTransition } from 'react-native-reanimated';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { useTheme } from '../../../../../context-store/theme';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-
-const SettingsSection = ({ title, children, style, titleRow }) => (
-  <View style={[styles.section, style]}>
-    {titleRow ? (
-      titleRow
-    ) : title ? (
-      <ThemeText styles={styles.sectionTitle} content={title} />
-    ) : null}
-    {children}
-  </View>
-);
-
-const SettingsItem = ({ label, children, isLast, dividerColor }) => (
-  <>
-    <View style={styles.settingsItem}>
-      <View style={styles.settingsItemText}>
-        <ThemeText styles={styles.settingsItemLabel} content={label} />
-      </View>
-      {children}
-    </View>
-    {!isLast && (
-      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
-    )}
-  </>
-);
 
 export default function SparkInfo() {
-  const { showToast } = useToast();
   const navigate = useNavigation();
   const { toggleMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
   const { sparkInformation, showTokensInformation } = useSparkWallet();
-  const { theme } = useGlobalThemeContext();
-  const {
-    backgroundOffset,
-    backgroundColor,
-    tokens: themeTokens,
-  } = GetThemeColors();
-  const { sparkAddress = '', identityPubKey = '', tokens } = sparkInformation;
+  const { tokens: themeTokens } = useTheme();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+
+  const { sparkAddress = '', identityPubKey = '', tokens } = sparkInformation;
   const selectedToken = masterInfoObject.defaultSpendToken;
   const selectedTokenName =
     selectedToken?.toLowerCase() === 'bitcoin'
       ? 'Bitcoin'
-      : tokens[selectedToken]?.tokenMetadata?.tokenName || '';
+      : tokens?.[selectedToken]?.tokenMetadata?.tokenName;
+  // R21-1: a stored token that is no longer held falls back to Bitcoin.
+  const defaultTokenName = selectedTokenName || 'Bitcoin';
 
   const bktnTokens = useCallback(
     () =>
       toggleMasterInfoObject({
         enabledBTKNTokens: !showTokensInformation,
       }),
-    [showTokensInformation],
+    [showTokensInformation, toggleMasterInfoObject],
   );
 
-  const handleDefaultTokenSelection = useCallback(item => {
-    toggleMasterInfoObject({
-      defaultSpendToken: item.value,
-    });
-  }, []);
-
-  const dropdownOptions = useMemo(() => {
-    if (!Object.entries(tokens || {}).length) return [];
-    const fommattedTokens = Object.entries(tokens || {}).map(item => {
-      const [tokenIdentifier, tokenDetails] = item;
-      return {
+  const tokenOptions = useMemo(() => {
+    const heldTokens = Object.entries(tokens || {}).map(
+      ([tokenIdentifier, tokenDetails]) => ({
         label: tokenDetails?.tokenMetadata?.tokenName,
         value: tokenIdentifier,
-      };
-    });
-
-    return [{ label: 'Bitcoin', value: 'Bitcoin' }, ...fommattedTokens].filter(
-      item => item?.value?.toLowerCase() !== selectedToken?.toLowerCase(),
+      }),
     );
-  }, [Object.keys(tokens || {}).length, selectedToken]);
+    return [{ label: 'Bitcoin', value: 'Bitcoin' }, ...heldTokens];
+  }, [tokens]);
 
-  const isBitcoinToken = selectedToken?.toLowerCase() === 'bitcoin';
+  const openTokenPicker = useCallback(() => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'defaultTokenPicker',
+      options: tokenOptions,
+      selected: selectedToken || 'Bitcoin',
+    });
+  }, [navigate, selectedToken, tokenOptions]);
 
   return (
-    <CustomScrollView
-      showsVerticalScrollIndicator={false}
-      style={styles.innerContainer}
-      contentContainerStyle={styles.scrollContent}
-    >
-      {/* <View
-        style={{
-          ...styles.container,
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}
-      >
-        <ThemeText
-          styles={styles.title}
-          content={t('settings.sparkInfo.title')}
-        />
-        <View style={{ ...styles.infoContainer, marginBottom: 20 }}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{ flexGrow: 1 }}
-            content={t('settings.sparkInfo.sparkAddress')}
-        />
-          <TouchableOpacity
-            style={styles.buttonContainer}
-            onPress={() => {
-              copyToClipboard(sparkAddress, showToast);
-            }}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
-              content={
-                sparkAddress.slice(0, 6) +
-                '....' +
-                sparkAddress.slice(sparkAddress.length - 4)
-              }
-            />
-            <ThemeIcon styles={{ marginLeft: 5 }} size={20} iconName={'Copy'} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.infoContainer}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{ flexGrow: 1 }}
-            content={t('settings.sparkInfo.pubKey')}
-          />
-          <TouchableOpacity
-            style={styles.buttonContainer}
-            onPress={() => {
-              copyToClipboard(identityPubKey, showToast);
-            }}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
-              content={
-                identityPubKey.slice(0, 6) +
-                '....' +
-                identityPubKey.slice(identityPubKey.length - 4)
-              }
-            />
-            <ThemeIcon styles={{ marginLeft: 5 }} size={20} iconName={'Copy'} />
-          </TouchableOpacity>
-        </View>
-      </View> */}
-
-      <SettingsSection>
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar title={t('screens.inAccount.settingsContent.spark info')} />
+        <CustomScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
-          <SettingsItem
-            isLast
-            dividerColor={themeTokens.divider}
-            label={t('settings.sparkLrc20.sliderTitle', {
-              context: showTokensInformation ? 'enabled' : 'disabled',
-            })}
-          >
-            <CustomToggleSwitch
-              page="lrc20Settings"
-              toggleSwitchFunction={bktnTokens}
-              stateValue={showTokensInformation}
+          <SectionHeader first title={t('settings.sparkInfo.title')} />
+          <ListCard dividerInset={0} style={styles.infoCard}>
+            <KeyValueRow
+              label={t('settings.sparkInfo.sparkAddress')}
+              value={sparkAddress || '—'}
+              copyValue={sparkAddress || undefined}
+              copyLabel={t('settings.sparkInfo.copyA11y', {
+                label: t('settings.sparkInfo.sparkAddress'),
+              })}
+              truncate="middle"
             />
-          </SettingsItem>
-        </View>
-        <ThemeText
-          styles={styles.rowDescription}
-          content={t('settings.sparkLrc20.sliderDesc')}
-        />
-      </SettingsSection>
+            <KeyValueRow
+              label={t('settings.sparkInfo.pubKey')}
+              value={identityPubKey || '—'}
+              copyValue={identityPubKey || undefined}
+              copyLabel={t('settings.sparkInfo.copyA11y', {
+                label: t('settings.sparkInfo.pubKey'),
+              })}
+              truncate="middle"
+            />
+          </ListCard>
 
-      <SettingsSection
-        style={styles.lastSection}
-        titleRow={
-          <Pressable
-            onPress={() =>
-              navigate.navigate('InformationPopup', {
-                textContent: t(
-                  'settings.sparkLrc20.selectTokenInformationPopup',
-                ),
-                buttonText: t('constants.understandText'),
-              })
-            }
-            style={styles.sectionTitleRow}
-          >
-            <ThemeText
-              styles={styles.sectionTitle}
-              content={t('settings.sparkLrc20.selectTokenHeader')}
+          <SectionHeader title={t('constants.tokens')} />
+          <ListCard dividerInset={0}>
+            <ListRow
+              title={t('settings.sparkLrc20.switchLabel')}
+              sub={t('settings.sparkLrc20.switchSub')}
+              minHeight={60}
+              paddingVertical={8}
+              titleStyle={styles.rowTitle}
+              trailing="switch"
+              value={showTokensInformation}
+              onPress={bktnTokens}
             />
-            <TouchableOpacity
-              style={styles.sectionTitleInfo}
-              onPress={() =>
-                navigate.navigate('InformationPopup', {
-                  textContent: t(
-                    'settings.sparkLrc20.selectTokenInformationPopup',
-                  ),
-                  buttonText: t('constants.understandText'),
-                })
-              }
-            >
-              <ThemeIcon size={16} iconName="Info" />
-            </TouchableOpacity>
-          </Pressable>
-        }
-      >
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          <DropdownMenu
-            selectedValue={selectedTokenName}
-            onSelect={handleDefaultTokenSelection}
-            showVerticalArrowsAbsolute={true}
-            showVerticalArrows={!!dropdownOptions.length}
-            customButtonStyles={{
-              backgroundColor: theme ? backgroundColor : themeTokens.disc,
-            }}
-            textStyles={
-              isBitcoinToken
-                ? styles.dropdownTextBitcoin
-                : styles.dropdownTextToken
-            }
-            options={dropdownOptions}
-            disableDropdownPress={!dropdownOptions.length}
-            showClearIcon={false}
+            {showTokensInformation && (
+              <Animated.View
+                key="default-token"
+                layout={LinearTransition.duration(200)}
+              >
+                <ListRow
+                  title={t('settings.sparkLrc20.selectTokenHeader')}
+                  minHeight={56}
+                  titleStyle={styles.rowTitle}
+                  onPress={openTokenPicker}
+                  trailing={
+                    <View style={styles.valueRow}>
+                      <ThemeText
+                        content={defaultTokenName}
+                        styles={[
+                          styles.valueText,
+                          { color: themeTokens.muted },
+                        ]}
+                      />
+                      <ThemeIcon
+                        redesign
+                        iconName="ChevronRight"
+                        size={18}
+                        colorOverride={themeTokens.muted}
+                      />
+                    </View>
+                  }
+                />
+              </Animated.View>
+            )}
+          </ListCard>
+          <ThemeText
+            variant="hint"
+            content={t('settings.sparkLrc20.disclaimer')}
+            styles={[styles.note, { color: themeTokens.muted }]}
           />
-        </View>
-      </SettingsSection>
-    </CustomScrollView>
+        </CustomScrollView>
+      </View>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  scrollContent: {
-    paddingTop: 24,
-    paddingBottom: 40,
-  },
-  section: {
-    marginBottom: 24,
-    width: '100%',
-  },
-  lastSection: {
-    marginBottom: 0,
-  },
-  sectionTitle: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingBottom: 16,
-  },
-  sectionTitleInfo: {
-    marginLeft: 8,
-  },
-  sectionContent: {
-    width: '100%',
-    borderRadius: 8,
-    padding: 16,
-  },
-  settingsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemText: {
-    flex: 1,
-    flexShrink: 1,
-    marginRight: 8,
-  },
-  settingsItemLabel: {
-    includeFontPadding: false,
-  },
-  rowDescription: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-    marginTop: 8,
-    paddingHorizontal: 8,
-  },
-  divider: {
-    height: 1,
-    marginVertical: 8,
-  },
-  dropdownTextBitcoin: {
-    textAlign: 'center',
-    textTransform: 'capitalize',
-    paddingRight: 20,
-  },
-  dropdownTextToken: {
-    textAlign: 'center',
-    paddingRight: 20,
-  },
-  // Styles referenced in commented block
-  container: {
-    width: '100%',
-    marginTop: 8,
-    padding: 16,
-    borderRadius: 8,
-  },
-  title: {
-    width: '100%',
-    fontWeight: '500',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  infoContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  buttonContainer: {
-    width: '100%',
-    flexShrink: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  content: { alignSelf: 'center', flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  infoCard: { marginVertical: 6 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
+  valueRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  valueText: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
+  note: { marginTop: 8, marginHorizontal: 4 },
 });

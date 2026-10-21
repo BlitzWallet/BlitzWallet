@@ -1601,20 +1601,20 @@
       "poweredBySpark": "Spark",
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
-      "sparkHeader": "Good to Know",
+      "sparkHeader": "Good to know",
       "sparkDescription": "Blitz is powered by the Spark protocol. Spark is an off-chain protocol where Spark Operators update the state of Bitcoin ownership off-chain, allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
-      "learnMore": "Learn More",
+      "learnMore": "Learn more",
       "creatorHeader": "Creator",
       "uiUxHeader": "UX / UI",
       "olliRole": "Engineering",
       "versionLabel": "Version",
-      "bundleVerified": "Bundle Verified",
-      "bundleUnverified": "Bundle Unverified",
-      "showTechnicals": "Show Technical Details",
-      "hideTechnicals": "Hide Technical Details",
-      "backendHash": "Backend Signature",
-      "expectedHash": "Expected Signature",
-      "exchangeRatesHeader": "Exchange Rates",
+      "bundleVerified": "Bundle verified",
+      "bundleUnverified": "Bundle unverified",
+      "showTechnicals": "Show technical details",
+      "hideTechnicals": "Hide technical details",
+      "backendHash": "Backend signature",
+      "expectedHash": "Expected signature",
+      "exchangeRatesHeader": "Exchange rates",
       "exchangeRatesDescription": "Bitcoin/fiat exchange rates are retrieved from third-party APIs. Rates may not be perfectly accurate, always verify the Bitcoin amount before sending a payment.",
       "exchangeRatesSourcesLabel": "Data sources",
       "exchangeRateCoinbase": "Coinbase",
@@ -1749,6 +1749,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Enabled crash reporting",
       "crashreporting_disabled": "Disabled crash reporting",
+      "switchLabel": "Crash reporting",
       "descriptionText": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
     },
     "accounts": {
@@ -1951,17 +1952,21 @@
       "warningText": "I understand that I can only recover my funds with my recovery phrase, and if I lose it, my funds cannot be recovered."
     },
     "sparkInfo": {
-      "title": "Wallet Info",
-      "sparkAddress": "Spark Address",
-      "pubKey": "Public Key"
+      "title": "Wallet info",
+      "sparkAddress": "Spark address",
+      "pubKey": "Public key",
+      "copyA11y": "Copy {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Your current wallet balance is {{balance}}. Blitz adds a {{fee}} fee to all BTKN payments. Make sure you have some Bitcoin in your wallet to send tokens.",
       "title": "Spark Settings",
       "sliderTitle_enabled": "Enabled BTKN",
       "sliderTitle_disabled": "Disabled BTKN",
+      "switchLabel": "BTKN tokens",
+      "switchSub": "Send and receive tokens on the Spark network.",
+      "disclaimer": "Blitz is a Bitcoin wallet and doesn’t promote tokens. This is here so you can use the technology you choose.",
       "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you to send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin-focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.",
-      "selectTokenHeader": "Default Token",
+      "selectTokenHeader": "Default token",
       "selectTokenInformationPopup": "Choose which token you’d like to use first when sending payments. Don’t worry—you can still change it on the payment page anytime."
     },
     "viewSwapsHome": {
@@ -2074,8 +2079,8 @@
       "swapsType": "BTC <> USD Swaps",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
-      "sparkSwapType": "BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "sparkSwapType": "BTC ↔\uFE0E USDB (Spark)",
+      "chainSwapType": "BTC or USDB ↔\uFE0E stablecoin (cross-chain)",
       "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
@@ -2083,9 +2088,10 @@
       "rootstockFee": "0.1% Boltz fee + network fees",
       "accumulationType": "Accumulation addresses",
       "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
-      "othersType": "All other",
-      "othersFee": "Network Fees",
-      "networkFeeLinkDesc": "Tap to see a breakdown of Spark network fees"
+      "othersType": "Everything else",
+      "othersFee": "Network fees only",
+      "networkFeeLinkDesc": "Tap to see a breakdown of Spark network fees",
+      "networkFeeLink": "See Spark network fees"
     },
     "nip5": {
       "noNameError": "Name cannot be empty.",
@@ -2523,11 +2529,12 @@
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
-        "title": "Blitz Downloads",
+        "title": "Blitz downloads",
         "COMMENT": "Full sentence below = Number of totalUser users",
-        "goalUserCount": "of {{goalUserCount}} users.",
+        "goalUserCount": "of {{goalUserCount}} users",
         "percentOfGoal": "{{goalPercent}}% of goal",
-        "numAddedUsers": "+{{numNewUsers}} users today"
+        "numAddedUsers": "+{{numNewUsers}} users today",
+        "chartA11y": "Downloads over the last {{period}}"
       },
       "loadingScreen": {
         "loadingMessage1": "Please don't close the app",
@@ -2626,13 +2633,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Synced: {{time}}",
+        "lastSynced": "Synced {{time}}",
         "never": "Never",
         "treeLabel": "Tree {{id}}",
         "treeSubtitle": "{{count}} leaves",
         "showMore": "Show more",
         "exportButton": "Export backup",
         "noLeavesToExport": "There are no leaves to export yet.",
+        "noExitReadyLeaves": "None of your leaves are large enough to exit yet (each needs {{min}} sats).",
         "exportError": "Could not export your leaves. Please try again.",
         "notReadyTitle": "Not ready to exit",
         "readyTitle": "Ready to exit",
@@ -2664,11 +2672,12 @@
         },
         "progress": {
           "title": "Exporting backup",
-          "gathering": "Gathering your wallet leaves…",
-          "saving": "Saving a local backup…",
-          "exit": "Fetching exit data…",
-          "building": "Building your backup file…",
-          "sharing": "Opening the share sheet…"
+          "keepOpen": "Keep the app open until it finishes.",
+          "gathering": "Gathering your wallet leaves",
+          "saving": "Saving a local backup",
+          "exit": "Fetching exit data",
+          "building": "Building your backup file",
+          "sharing": "Opening the share sheet"
         }
       },
       "remotePayments": {
