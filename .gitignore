@@ -90,6 +90,8 @@ android/secrets.properties
 CVE_AUDIT_REPORT.md
 app/assets/social_logos/normalize.py
 docs/security-audit-2026-08.md
+docs/ui
+audit/
 opencode.json
 .opencodeignore
 firestore.rules
