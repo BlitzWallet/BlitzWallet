@@ -6,11 +6,9 @@ import { ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
-import { CENTER } from '../../constants';
+import { CENTER, FONT } from '../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
@@ -24,6 +22,13 @@ import {
 
 const MAX_ROWS = 60;
 
+function BTCMapListSeparator() {
+  const { tokens } = GetThemeColors();
+  return (
+    <View style={[styles.rowSeparator, { backgroundColor: tokens.divider }]} />
+  );
+}
+
 export default function BTCMapListContent({
   bbox,
   categories = [],
@@ -34,11 +39,8 @@ export default function BTCMapListContent({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor, backgroundOffset, tokens } =
-    GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { getPlacesInViewport } = useBTCMap();
 
   const [places, setPlaces] = useState(null);
@@ -91,9 +93,6 @@ export default function BTCMapListContent({
     return rows.slice(0, MAX_ROWS);
   }, [places, categories, userLocation]);
 
-  const iconShellColor =
-    theme && darkModeType ? backgroundColor : backgroundOffset;
-  const iconColor = theme && darkModeType ? textColor : tokens.accent;
   const hasMoreRows = data?.length < placeCount;
 
   const renderItem = ({ item }) => {
@@ -101,7 +100,7 @@ export default function BTCMapListContent({
     return (
       <TouchableOpacity
         activeOpacity={0.6}
-        style={[styles.row, { borderBottomColor: backgroundOffset }]}
+        style={styles.row}
         onPress={() =>
           navigate.push('CustomHalfModal', {
             wantedContent: 'btcMapMerchant',
@@ -110,11 +109,12 @@ export default function BTCMapListContent({
           })
         }
       >
-        <View style={[styles.iconShell, { backgroundColor: iconShellColor }]}>
+        <View style={[styles.iconShell, { backgroundColor: tokens.disc }]}>
           <ThemeIcon
             iconName={getBtcMapIcon(item.icon)}
             size={20}
-            colorOverride={iconColor}
+            colorOverride={tokens.ink}
+            redesign
           />
         </View>
 
@@ -126,14 +126,14 @@ export default function BTCMapListContent({
           />
           <ThemeText
             CustomNumberOfLines={1}
-            styles={styles.rowCategory}
+            styles={[styles.rowCategory, { color: tokens.muted }]}
             content={t(CATEGORY_META[category].labelKey)}
           />
         </View>
 
         {item.distance != null && (
           <ThemeText
-            styles={styles.rowDistance}
+            styles={[styles.rowDistance, { color: tokens.muted }]}
             content={formatDistance(item.distance, distanceUnit)}
           />
         )}
@@ -152,30 +152,31 @@ export default function BTCMapListContent({
         content={t('screens.btcMap.map.placesHere', { count: placeCount })}
       />
 
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => `${item.source}-${item.id}`}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: bottomPadding }}
-        ListEmptyComponent={
-          <ThemeText
-            styles={styles.empty}
-            content={t('screens.btcMap.map.noPlaces')}
-          />
-        }
-        ListFooterComponent={
-          hasMoreRows && (
+      <View style={[styles.listCard, { backgroundColor: tokens.ground }]}>
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => `${item.source}-${item.id}`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listContent,
+            !data.length && styles.emptyList,
+          ]}
+          ItemSeparatorComponent={BTCMapListSeparator}
+          ListEmptyComponent={
             <ThemeText
-              styles={[
-                styles.hasMoreMessage,
-                { marginTop: bottomPadding - 10 },
-              ]}
-              content={t('screens.btcMap.map.hasMorePlaces', { num: MAX_ROWS })}
+              styles={[styles.empty, { color: tokens.muted }]}
+              content={t('screens.btcMap.map.noPlaces')}
             />
-          )
-        }
-      />
+          }
+        />
+      </View>
+      {hasMoreRows && (
+        <ThemeText
+          styles={[styles.hasMoreMessage, { color: tokens.muted }]}
+          content={t('screens.btcMap.map.hasMorePlaces', { num: MAX_ROWS })}
+        />
+      )}
     </View>
   );
 }
@@ -188,21 +189,36 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: SIZES.large,
-    fontFamily: 'Poppins-Medium',
-    marginBottom: 16,
+    lineHeight: 26,
+    fontFamily: FONT.Title_Regular,
+    marginTop: 20,
+    marginBottom: 12,
     includeFontPadding: false,
+  },
+  listCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  listContent: {
+    paddingHorizontal: 16,
+  },
+  emptyList: {
+    flexGrow: 1,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    gap: 14,
-    borderBottomWidth: 1,
+    minHeight: 64,
+    gap: 12,
+  },
+  rowSeparator: {
+    height: 1,
+    marginLeft: 56,
   },
   iconShell: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -210,30 +226,39 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rowName: {
-    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
   },
   rowCategory: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
     includeFontPadding: false,
-    marginTop: 2,
   },
   rowDistance: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
     marginLeft: 8,
   },
   empty: {
     textAlign: 'center',
     marginTop: 40,
-    opacity: 0.7,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
+    includeFontPadding: false,
   },
   hasMoreMessage: {
-    fontSize: SIZES.smedium,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: 'center',
-    marginTop: 40,
-    opacity: 0.7,
+    marginTop: 16,
+    includeFontPadding: false,
   },
 });

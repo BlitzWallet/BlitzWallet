@@ -3052,8 +3052,17 @@
         "zoomIn": "Zoom in to see all merchants",
         "findAPlace": "Find a place",
         "placesHere": "{{count}} places here",
+        "placesHere_one": "{{count}} place here",
         "noPlaces": "No places found",
-        "hasMorePlaces": "Showing the nearest {{num}}. Zoom in for more."
+        "hasMorePlaces": "Showing the nearest {{num}}. Zoom in for more.",
+        "a11y": {
+          "filter": "Filter",
+          "filterOn": "Filter, on",
+          "myLocation": "My location",
+          "zoomIn": "Zoom in",
+          "zoomOut": "Zoom out",
+          "place": "Place"
+        }
       },
       "merchant": {
         "noName": "Unknown Merchant",
@@ -3062,6 +3071,7 @@
         "dataMessage": "Data from {{source}}"
       },
       "filter": {
+        "title": "Filter places",
         "categoriesTitle": "Categories",
         "distanceTitle": "Distance",
         "all": "All",

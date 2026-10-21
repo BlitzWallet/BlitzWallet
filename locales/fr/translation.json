@@ -3062,6 +3062,7 @@
         "dataMessage": "Données de {{source}}"
       },
       "filter": {
+        "title": "Filtrer les lieux",
         "categoriesTitle": "Catégories",
         "distanceTitle": "Distance",
         "all": "Tout",

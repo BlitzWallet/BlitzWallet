@@ -145,7 +145,10 @@ export default function CustomHalfModal(props) {
     contentType === 'selectSwapNetwork' ||
     contentType === 'rootstockSwapInfo' ||
     contentType === 'contactUs' ||
-    contentType === 'exportLeavesProgress';
+    contentType === 'exportLeavesProgress' ||
+    contentType === 'btcMapFilter' ||
+    contentType === 'btcMapList' ||
+    contentType === 'btcMapMerchant';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);

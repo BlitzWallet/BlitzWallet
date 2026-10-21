@@ -6,9 +6,7 @@ import { ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { CENTER } from '../../constants';
+import { CENTER, FONT } from '../../constants';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
@@ -29,10 +27,7 @@ export default function BTCMapFilterContent({
   setContentHeight,
 }) {
   const { t } = useTranslation();
-  const { bottomPadding } = useGlobalInsets();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor, backgroundOffset, tokens } =
-    GetThemeColors();
+  const { tokens } = GetThemeColors();
 
   const [draft, setDraft] = useState({
     categories: currentFilter?.categories ?? DEFAULT_FILTER.categories,
@@ -40,12 +35,8 @@ export default function BTCMapFilterContent({
   });
 
   useEffect(() => {
-    setContentHeight(520);
+    setContentHeight(560);
   }, [setContentHeight]);
-
-  const inactiveBorderColor =
-    theme && darkModeType ? backgroundColor : backgroundOffset;
-  const activeColor = theme && darkModeType ? backgroundColor : tokens.accent;
 
   const hasActiveSelections =
     draft.categories.length > 0 || draft.distanceUnit !== 'auto';
@@ -79,7 +70,13 @@ export default function BTCMapFilterContent({
     handleBackPressFunction();
   }, [draft, handleBackPressFunction, onSelectFilter]);
 
-  const renderPill = (isActive, label, onPress, key) => (
+  const renderPill = (
+    isActive,
+    label,
+    onPress,
+    key,
+    paddingHorizontal = 18,
+  ) => (
     <TouchableOpacity
       key={key}
       activeOpacity={0.75}
@@ -87,15 +84,15 @@ export default function BTCMapFilterContent({
       style={[
         styles.pill,
         {
-          backgroundColor: isActive ? activeColor : 'transparent',
-          borderColor: isActive ? activeColor : inactiveBorderColor,
+          paddingHorizontal,
+          backgroundColor: isActive ? tokens.accent : tokens.ground,
         },
       ]}
     >
       <ThemeText
         styles={[
           styles.pillText,
-          { color: isActive ? tokens.onAccent : textColor },
+          { color: isActive ? tokens.onAccent : tokens.ink },
         ]}
         content={label}
       />
@@ -109,7 +106,12 @@ export default function BTCMapFilterContent({
         showsVerticalScrollIndicator={false}
       >
         <ThemeText
-          styles={styles.sectionLabel}
+          styles={styles.title}
+          content={t('screens.btcMap.filter.title')}
+        />
+
+        <ThemeText
+          styles={[styles.sectionLabel, { color: tokens.muted }]}
           content={t('screens.btcMap.filter.categoriesTitle')}
         />
 
@@ -119,6 +121,7 @@ export default function BTCMapFilterContent({
             t('screens.btcMap.filter.all'),
             handleSelectAllCategories,
             'all',
+            18,
           )}
 
           {BTC_MAP_CATEGORIES.map(category => {
@@ -132,20 +135,21 @@ export default function BTCMapFilterContent({
                   styles.pill,
                   styles.pillWithIcon,
                   {
-                    backgroundColor: isActive ? activeColor : 'transparent',
-                    borderColor: isActive ? activeColor : inactiveBorderColor,
+                    paddingHorizontal: 14,
+                    backgroundColor: isActive ? tokens.accent : tokens.ground,
                   },
                 ]}
               >
                 <ThemeIcon
                   iconName={CATEGORY_META[category].icon}
                   size={16}
-                  colorOverride={isActive ? tokens.onAccent : textColor}
+                  redesign
+                  colorOverride={isActive ? tokens.onAccent : tokens.ink}
                 />
                 <ThemeText
                   styles={[
                     styles.pillText,
-                    { color: isActive ? tokens.onAccent : textColor },
+                    { color: isActive ? tokens.onAccent : tokens.ink },
                   ]}
                   content={t(CATEGORY_META[category].labelKey)}
                 />
@@ -154,10 +158,8 @@ export default function BTCMapFilterContent({
           })}
         </View>
 
-        <View style={[styles.divider, { borderTopColor: tokens.divider }]} />
-
         <ThemeText
-          styles={styles.sectionLabel}
+          styles={[styles.distanceLabel, { color: tokens.muted }]}
           content={t('screens.btcMap.filter.distanceTitle')}
         />
 
@@ -172,27 +174,29 @@ export default function BTCMapFilterContent({
           )}
         </View>
 
-        <View style={{ height: 20 }} />
       </CustomScrollView>
 
-      <View
-        style={[
-          styles.bottomBar,
-          { borderTopColor: tokens.divider, paddingBottom: bottomPadding },
-        ]}
-      >
+      <View style={styles.bottomBar}>
         <TouchableOpacity
-          style={{ opacity: hasActiveSelections ? 1 : HIDDEN_OPACITY }}
+          style={[
+            styles.clearButton,
+            { opacity: hasActiveSelections ? 1 : HIDDEN_OPACITY },
+          ]}
           onPress={handleClear}
           activeOpacity={hasActiveSelections ? 0.2 : HIDDEN_OPACITY}
         >
-          <ThemeText content={t('screens.btcMap.filter.clear')} />
+          <ThemeText
+            styles={[styles.clearText, { color: tokens.link }]}
+            content={t('screens.btcMap.filter.clear')}
+          />
         </TouchableOpacity>
 
         <CustomButton
           buttonStyles={styles.applyButton}
           actionFunction={handleApply}
           textContent={t('screens.btcMap.filter.apply')}
+          size="regular"
+          tone="primary"
         />
       </View>
     </View>
@@ -208,13 +212,30 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  sectionLabel: {
-    fontSize: SIZES.small,
-    marginBottom: 10,
+  title: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 26,
+    marginTop: 20,
     includeFontPadding: false,
-    opacity: 0.5,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
+  },
+  sectionLabel: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: SIZES.smedium,
+    lineHeight: 20,
+    marginTop: 16,
+    marginHorizontal: 4,
+    marginBottom: 8,
+    includeFontPadding: false,
+  },
+  distanceLabel: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: SIZES.smedium,
+    lineHeight: 20,
+    marginTop: 20,
+    marginHorizontal: 4,
+    marginBottom: 8,
+    includeFontPadding: false,
   },
   pillRow: {
     flexDirection: 'row',
@@ -222,10 +243,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pill: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 20,
-    borderWidth: 1.5,
+    minHeight: 44,
+    borderRadius: 999,
+    justifyContent: 'center',
   },
   pillWithIcon: {
     flexDirection: 'row',
@@ -233,21 +253,32 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   pillText: {
+    fontFamily: FONT.Title_Regular,
     fontSize: SIZES.smedium,
+    lineHeight: 20,
     includeFontPadding: false,
-  },
-  divider: {
-    borderTopWidth: 1,
-    marginVertical: 20,
   },
   bottomBar: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 16,
-    borderTopWidth: 1,
+    gap: 12,
+    marginTop: 'auto',
+  },
+  clearButton: {
+    minHeight: 52,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  clearText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: SIZES.medium,
+    lineHeight: 22,
+    includeFontPadding: false,
   },
   applyButton: {
-    minWidth: 135,
+    flex: 1,
+    width: '100%',
+    minHeight: 52,
   },
 });

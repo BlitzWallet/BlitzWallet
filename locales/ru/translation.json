@@ -3070,6 +3070,7 @@
         "dataMessage": "Данные с {{source}}"
       },
       "filter": {
+        "title": "Фильтр мест",
         "categoriesTitle": "Категории",
         "distanceTitle": "Расстояние",
         "all": "Все",

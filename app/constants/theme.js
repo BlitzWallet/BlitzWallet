@@ -137,6 +137,23 @@ const SHADOWS = {
     shadowRadius: 5.84,
     elevation: 5,
   },
+  // Hairline outline for controls floating over the map (design:
+  // 0 0 0 1px rgba(21,22,26,.08)).
+  ring: {
+    borderWidth: 1,
+    borderColor: 'rgba(21,22,26,0.08)',
+  },
+  // Drop shadow under map pins (design: 0 6px 18px -6px rgba(21,22,26,.45)).
+  pin: {
+    shadowColor: '#15161A',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.45,
+    shadowRadius: 9,
+    elevation: 6,
+  },
 };
 const WINDOWWIDTH = '95%';
 const INSET_WINDOW_WIDTH = '90%';

@@ -3062,6 +3062,7 @@
         "dataMessage": "Data från {{source}}"
       },
       "filter": {
+        "title": "Filtrera platser",
         "categoriesTitle": "Kategorier",
         "distanceTitle": "Avstånd",
         "all": "Alla",
