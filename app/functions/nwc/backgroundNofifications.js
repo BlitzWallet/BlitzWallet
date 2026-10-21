@@ -663,6 +663,22 @@ const handlePayInvoice = async (
 
   const wallet = getWalletModule();
 
+  // The routing fee is charged to the same budget as the amount, so estimate it
+  // before reserving. Native handlers reserve amount + estimated fee; without
+  // this a payment at the cap would settle above it by the fee.
+  const feeEstimate = await wallet.getNWCSparkLightningPaymentFeeEstimate(
+    requestParams.invoice,
+    amountSats,
+  );
+  if (!feeEstimate.didWork || !Number.isFinite(feeEstimate.response)) {
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to estimate payment fee',
+    );
+  }
+  const reservedMsat = amountMsat + feeEstimate.response * 1000;
+
   const budgetLimitMsat =
     renewalSettings.amount === 'Unlimited'
       ? null
@@ -676,7 +692,7 @@ const handlePayInvoice = async (
   try {
     windowStart = await nwcEventLedger.reserveSpend({
       accountPubkey: selectedNWCAccount.publicKey,
-      amountMsat,
+      amountMsat: reservedMsat,
       limitMsat: budgetLimitMsat,
       fallbackSentMsat: (selectedNWCAccount.totalSent || 0) * 1000,
       fallbackWindowStart: selectedNWCAccount.lastRotated ?? now,
@@ -740,7 +756,7 @@ const handlePayInvoice = async (
     console.error('Failed to claim outgoing payment', err);
   }
   if (!claimed) {
-    await adjustBudget(-amountMsat);
+    await adjustBudget(-reservedMsat);
     return createErrorResponse(
       'pay_invoice',
       ERROR_CODES.INTERNAL,
@@ -758,7 +774,7 @@ const handlePayInvoice = async (
   console.log(invoice);
   if (!invoice.didWork) {
     // Payment never left — release the reservation and mark the attempt failed.
-    await adjustBudget(-amountMsat);
+    await adjustBudget(-reservedMsat);
     try {
       await NWCInvoiceManager.markInvoiceAsNotPending(
         paymentHash,
@@ -796,7 +812,11 @@ const handlePayInvoice = async (
 
   // Reconcile the reservation: release it entirely if the send failed,
   // otherwise settle it to the actual amount + fee.
-  await adjustBudget(paymentStatus === 'failed' ? -amountMsat : feeMsat);
+  await adjustBudget(
+    paymentStatus === 'failed'
+      ? -reservedMsat
+      : amountMsat + feeMsat - reservedMsat,
+  );
 
   try {
     await NWCInvoiceManager.markInvoiceAsNotPending(
