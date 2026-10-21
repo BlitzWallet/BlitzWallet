@@ -201,10 +201,11 @@ export default function HomeLightning({ navigation }) {
   // const { startRootstockEventListener } = useRootstockProvider();
   // ROOTSTOCK DISABLED: event listener hook commented. See handleRefresh below.
 
-  const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
+  // Q19-1: Settings no longer exposes the Home tx-count / hide-small controls.
+  const homepageTxPreferance = 25;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
-  const hideSmallPaymentsHomepage = masterInfoObject?.hideSmallPaymentsHomepage;
+  const hideSmallPaymentsHomepage = false;
   const hasMoreThanUSDB = useMemo(() => {
     return !!Object.keys(sparkInformation.tokens || {}).filter(
       token => token !== USDB_TOKEN_ID,

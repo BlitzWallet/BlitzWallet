@@ -18,12 +18,23 @@ export default function ListRow({
   value,
   tone = 'default',
   onPress,
+  minHeight = 56,
+  paddingVertical = 12,
+  titleStyle,
+  subStyle,
+  showChevron = false,
+  chevronSize = 20,
+  accessibilityLabel,
 }) {
   const { tokens } = useTheme();
+  const isNode = trailing && typeof trailing !== 'string';
   return (
     <RowShell
       onPress={onPress}
       lead={lead}
+      minHeight={minHeight}
+      paddingVertical={paddingVertical}
+      accessibilityLabel={accessibilityLabel || title}
       accessibilityRole={trailing === 'switch' ? 'switch' : 'button'}
       accessibilityState={
         trailing === 'switch'
@@ -33,43 +44,61 @@ export default function ListRow({
           : undefined
       }
       trailing={
-        trailing === 'chevron' ? (
-          <ThemeIcon
-            redesign
-            iconName="ChevronRight"
-            size={20}
-            colorOverride={tokens.muted}
-          />
-        ) : trailing === 'switch' ? (
-          <CustomToggleSwitch
-            stateValue={!!value}
-            // Never let the switch fall back to its masterInfoObject writes.
-            toggleSwitchFunction={onPress || noop}
-          />
-        ) : trailing === 'check' ? (
-          <ThemeIcon
-            redesign
-            iconName="Check"
-            size={20}
-            colorOverride={tokens.accent}
-          />
-        ) : null
+        <View style={styles.trailing}>
+          {trailing === 'chevron' ? (
+            <ThemeIcon
+              redesign
+              iconName="ChevronRight"
+              size={chevronSize}
+              colorOverride={tokens.muted}
+            />
+          ) : trailing === 'switch' ? (
+            <CustomToggleSwitch
+              stateValue={!!value}
+              accessibilityLabel={accessibilityLabel || title}
+              // Never let the switch fall back to its masterInfoObject writes.
+              toggleSwitchFunction={onPress || noop}
+            />
+          ) : trailing === 'check' ? (
+            <ThemeIcon
+              redesign
+              iconName="Check"
+              size={20}
+              colorOverride={tokens.accent}
+            />
+          ) : isNode ? (
+            trailing
+          ) : trailing === 'value' ? (
+            <ThemeText
+              variant="body"
+              content={value}
+              styles={{ color: tokens.muted, flexShrink: 1 }}
+            />
+          ) : null}
+          {showChevron && (
+            <ThemeIcon
+              redesign
+              iconName="ChevronRight"
+              size={chevronSize}
+              colorOverride={tokens.muted}
+            />
+          )}
+        </View>
       }
     >
       <View style={styles.texts}>
         <ThemeText
           content={title}
-          styles={[styles.title, tone === 'danger' && { color: tokens.danger }]}
+          styles={[
+            styles.title,
+            titleStyle,
+            tone === 'danger' && { color: tokens.danger },
+          ]}
         />
-        {!!sub && <ThemeText variant="hint" content={sub} />}
+        {!!sub && (
+          <ThemeText variant="hint" content={sub} styles={subStyle} />
+        )}
       </View>
-      {trailing === 'value' && (
-        <ThemeText
-          variant="body"
-          content={value}
-          styles={{ color: tokens.muted, flexShrink: 1 }}
-        />
-      )}
     </RowShell>
   );
 }
@@ -79,8 +108,11 @@ export function RowShell({
   onPress,
   lead,
   trailing,
+  minHeight = 56,
+  paddingVertical = 12,
   accessibilityRole,
   accessibilityState,
+  accessibilityLabel,
   children,
 }) {
   return (
@@ -89,7 +121,8 @@ export function RowShell({
       onPress={onPress}
       accessibilityRole={onPress ? accessibilityRole : undefined}
       accessibilityState={accessibilityState}
-      style={styles.row}
+      accessibilityLabel={accessibilityLabel}
+      style={[styles.row, { minHeight, paddingVertical }]}
     >
       {lead}
       <View style={styles.middle}>{children}</View>
@@ -100,8 +133,6 @@ export function RowShell({
 
 const styles = StyleSheet.create({
   row: {
-    minHeight: 56,
-    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -120,4 +151,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     includeFontPadding: false,
   },
+  trailing: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 });

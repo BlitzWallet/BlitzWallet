@@ -6,7 +6,12 @@ import { useInSheet } from './sheetSurface';
 
 // CustomSearchInput (keeps its keyboard/blur handling) in the redesign field
 // look: r16, 52 high, leading glyph, ground fill inside sheets (H8).
-export default function SearchField({ value, onChangeText, placeholder }) {
+export default function SearchField({
+  value,
+  onChangeText,
+  placeholder,
+  pill = false,
+}) {
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   return (
@@ -18,6 +23,7 @@ export default function SearchField({ value, onChangeText, placeholder }) {
       textAlignVertical="center"
       textInputStyles={{
         ...styles.input,
+        ...(pill && styles.pill),
         color: inSheet ? tokens.ink : tokens.onField,
         backgroundColor: inSheet ? tokens.ground : tokens.field,
       }}
@@ -25,7 +31,7 @@ export default function SearchField({ value, onChangeText, placeholder }) {
         <View pointerEvents="none" style={styles.glyph}>
           <ThemeIcon
             iconName="Search"
-            size={20}
+            size={18}
             strokeWidth={1.75}
             colorOverride={tokens.muted}
           />
@@ -46,5 +52,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  glyph: { position: 'absolute', left: 16, top: 16 },
+  pill: { borderRadius: 999 },
+  glyph: { position: 'absolute', left: 16, top: 17 },
 });

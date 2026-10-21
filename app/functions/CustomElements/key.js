@@ -1,14 +1,19 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, SIZES } from '../../constants';
 import { ThemeText } from '.';
 import { useState } from 'react';
-import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 import ThemeIcon from './themeIcon';
 
-export default function KeyForKeyboard({ num, addPin, isDot, frompage }) {
-  const { theme } = useGlobalThemeContext();
-  const { backgroundOffset, textColor } = GetThemeColors();
+export default function KeyForKeyboard({
+  num,
+  addPin,
+  isDot,
+  frompage,
+  redesign = false,
+}) {
+  const { tokens } = useGlobalThemeContext();
+  const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
 
   const handlePress = () => {
@@ -29,22 +34,45 @@ export default function KeyForKeyboard({ num, addPin, isDot, frompage }) {
           : setTimeout(() => setIsPressed(false), 200)
       }
       onPress={handlePress}
-      style={styles.key}
+      accessibilityRole="button"
+      accessibilityLabel={
+        num === 'back' ? t('constants.delete') : isDot ? '.' : `${num}`
+      }
+      style={[
+        styles.key,
+        redesign && [
+          styles.keyRedesign,
+          { backgroundColor: isPressed ? tokens.disc : tokens.surface },
+        ],
+      ]}
     >
       <View
         style={[
           styles.keyDot,
-          { backgroundColor: isPressed ? backgroundOffset : 'transparent' },
+          !redesign && {
+            backgroundColor: isPressed ? tokens.surface : 'transparent',
+          },
         ]}
       >
         {isDot && frompage !== 'sendSMSPage' && (
-          <ThemeIcon colorOverride={textColor} size={60} iconName={'Dot'} />
+          <ThemeIcon
+            colorOverride={redesign ? tokens.ink : tokens.ink}
+            size={redesign ? 8 : 60}
+            iconName={redesign ? 'Dot' : 'Dot'}
+          />
         )}
         {!isDot &&
           (num === 'back' ? (
-            <ThemeIcon colorOverride={textColor} iconName={'ChevronLeft'} />
+            <ThemeIcon
+              colorOverride={tokens.ink}
+              size={redesign ? 22 : 30}
+              iconName={redesign ? 'Delete' : 'ChevronLeft'}
+            />
           ) : (
-            <ThemeText styles={styles.keyText} content={`${num}`} />
+            <ThemeText
+              styles={[styles.keyText, redesign && styles.keyTextRedesign]}
+              content={`${num}`}
+            />
           ))}
       </View>
     </TouchableOpacity>
@@ -58,6 +86,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  keyRedesign: {
+    flex: 1,
+    width: 'auto',
+    height: 'auto',
+    minHeight: 54,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+  },
   keyDot: {
     width: 45,
     height: 45,
@@ -67,7 +103,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   keyText: {
-    fontSize: SIZES.xLarge,
+    fontSize: 24,
+    includeFontPadding: false,
+  },
+  keyTextRedesign: {
+    fontSize: 24,
+    lineHeight: 32,
     includeFontPadding: false,
   },
 });

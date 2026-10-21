@@ -40,6 +40,28 @@ export default function SettingsContentIndex(props) {
 
   const extraData = props?.route?.params?.extraData;
 
+  const page = selectedPage?.toLowerCase();
+  const isChunk19Page =
+    page === 'display currency' ||
+    page === 'language' ||
+    page === 'display options' ||
+    page === 'fast pay' ||
+    page === 'spend and replace' ||
+    page === 'notifications';
+
+  if (isChunk19Page) {
+    return (
+      <>
+        {page === 'display currency' && <FiatCurrencyPage theme={theme} />}
+        {page === 'language' && <ChooseLangugae />}
+        {page === 'display options' && <DisplayOptions theme={theme} />}
+        {page === 'fast pay' && <FastPay />}
+        {page === 'spend and replace' && <SpendAndReplace />}
+        {page === 'notifications' && <NotificationPreferances />}
+      </>
+    );
+  }
+
   return (
     <>
       {selectedPage?.toLowerCase() === 'display currency' ||
@@ -80,14 +102,9 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'about' && (
               <AboutPage theme={theme} />
             )}
-            {selectedPage?.toLowerCase() === 'language' && <ChooseLangugae />}
-
             {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />
             )} */}
-            {selectedPage?.toLowerCase() === 'display options' && (
-              <DisplayOptions theme={theme} />
-            )}
             {/* {selectedPage?.toLowerCase() === 'support our work' && (
               <SupportWorkPage />
             )} */}
@@ -96,18 +113,11 @@ export default function SettingsContentIndex(props) {
               <WalletInformation theme={theme} />
             )} */}
 
-            {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
-            {selectedPage?.toLowerCase() === 'spend and replace' && (
-              <SpendAndReplace />
-            )}
             {selectedPage?.toLowerCase() === 'blitz fee details' && (
               <BlitzFeeInformation />
             )}
             {selectedPage?.toLowerCase() === 'crash reports' && (
               <CrashReportingSettingsPage />
-            )}
-            {selectedPage?.toLowerCase() === 'notifications' && (
-              <NotificationPreferances />
             )}
             {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 

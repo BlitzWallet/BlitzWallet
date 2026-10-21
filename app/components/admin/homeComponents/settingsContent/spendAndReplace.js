@@ -1,34 +1,17 @@
-import { StyleSheet, View } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { CENTER, SPEND_AND_REPLACE_STORAGE_KEY } from '../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { ThemeText } from '../../../../functions/CustomElements';
-import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback } from 'react';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useTranslation } from 'react-i18next';
-
-const SettingsSection = ({ children }) => (
-  <View style={styles.section}>{children}</View>
-);
-
-const SettingsItem = ({ label, children, isLast, dividerColor }) => (
-  <>
-    <View style={styles.settingsItem}>
-      <View style={styles.settingsItemText}>
-        <ThemeText styles={styles.settingsItemLabel} content={label} />
-      </View>
-      {children}
-    </View>
-    {!isLast && (
-      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
-    )}
-  </>
-);
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import { GlobalThemeView, ThemeText } from '../../../../functions/CustomElements';
+import { MAX_WEB_CONTENT_WIDTH, SPEND_AND_REPLACE_STORAGE_KEY } from '../../../../constants';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 
 export default function SpendAndReplace() {
   const { t } = useTranslation();
@@ -36,7 +19,9 @@ export default function SpendAndReplace() {
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { dollarBalanceToken } = useUserBalanceContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const isEnabled =
     masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled ?? false;
@@ -47,113 +32,104 @@ export default function SpendAndReplace() {
     });
   }, [toggleMasterInfoObject, isEnabled]);
 
-  return (
-    <CustomScrollView
-      showsVerticalScrollIndicator={false}
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <SettingsSection>
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          <SettingsItem
-            label={t('screens.inAccount.sendAndReplace.slider', {
-              state: isEnabled ? t('constants.disable') : t('constants.enable'),
-            })}
-            isLast
-            dividerColor={tokens.divider}
-          >
-            <CustomToggleSwitch
-              page="spendAndReplace"
-              toggleSwitchFunction={handleToggle}
-              stateValue={isEnabled}
-            />
-          </SettingsItem>
-        </View>
-      </SettingsSection>
+  const dollarBalance = displayCorrectDenomination({
+    amount: dollarBalanceToken.toFixed(2),
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: 'fiat',
+    },
+    fiatStats,
+    forceCurrency: 'USD',
+    convertAmount: false,
+  });
 
-      <View
-        style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-      >
-        <ThemeText
-          styles={styles.balanceLabel}
-          content={t('screens.inAccount.sendAndReplace.userDollarAmount', {
-            dollarAmount: displayCorrectDenomination({
-              amount: dollarBalanceToken.toFixed(2),
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              fiatStats,
-              forceCurrency: 'USD',
-              convertAmount: false,
-            }),
-          })}
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar
+          title={t('screens.inAccount.settingsContent.spend and replace')}
         />
-        <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
-        <ThemeText
-          styles={styles.description}
-          content={t('screens.inAccount.sendAndReplace.explainer', {
-            minAmount: displayCorrectDenomination({
-              amount: 1,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              fiatStats,
-              forceCurrency: 'USD',
-              convertAmount: false,
-            }),
-          })}
-        />
+        <CustomScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <ListCard style={styles.firstCard}>
+            <ListRow
+              title={t('screens.inAccount.settingsContent.spend and replace')}
+              minHeight={60}
+              titleStyle={styles.rowTitle}
+              trailing="switch"
+              value={isEnabled}
+              onPress={handleToggle}
+            />
+          </ListCard>
+
+          <View style={[styles.balanceCard, { backgroundColor: tokens.surface }]}>
+            <ThemeText
+              content={t(
+                'screens.inAccount.sendAndReplace.userDollarAmountLabel',
+              )}
+              styles={[styles.balanceLabel, { color: tokens.muted }]}
+            />
+            <ThemeText
+              content={dollarBalance}
+              styles={[styles.balanceValue, { color: tokens.ink }]}
+            />
+            <View
+              style={[styles.divider, { backgroundColor: tokens.divider }]}
+            />
+            <ThemeText
+              content={t('screens.inAccount.sendAndReplace.explainer', {
+                minAmount: displayCorrectDenomination({
+                  amount: 1,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'fiat',
+                  },
+                  fiatStats,
+                  forceCurrency: 'USD',
+                  convertAmount: false,
+                }),
+              })}
+              styles={[styles.explainer, { color: tokens.muted }]}
+            />
+          </View>
+        </CustomScrollView>
       </View>
-    </CustomScrollView>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  scrollContent: {
-    paddingTop: 24,
-    paddingBottom: 40,
-  },
-  section: {
-    marginBottom: 24,
-    width: '100%',
-  },
-  sectionContent: {
-    width: '100%',
-    borderRadius: 8,
+  content: { alignSelf: 'center', flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  firstCard: { marginTop: 16 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
+  balanceCard: {
+    marginTop: 12,
+    borderRadius: 20,
     padding: 16,
-    marginBottom: 16,
-  },
-  settingsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemText: {
-    flex: 1,
-    flexShrink: 1,
-    marginRight: 8,
-  },
-  settingsItemLabel: {
-    includeFontPadding: false,
-  },
-  divider: {
-    height: 1,
-    marginVertical: 8,
   },
   balanceLabel: {
+    fontSize: 13,
+    lineHeight: 19,
     includeFontPadding: false,
-    marginBottom: 4,
   },
-  description: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
+  balanceValue: {
+    fontSize: 22,
+    lineHeight: 30,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
+    marginTop: 2,
+    marginBottom: 14,
+  },
+  divider: { height: 1 },
+  explainer: {
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
+    marginTop: 14,
   },
 });

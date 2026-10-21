@@ -1,5 +1,11 @@
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
@@ -32,11 +38,15 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import SectionCard from './components/SectionCard';
 import SettingsRow from './components/SettingsRow';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import openWebBrowser from '../../../functions/openWebBrowser';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../constants';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../functions/CustomElements/redesign/Disc';
 
 const INITIAL_WIDGET_ORDER = [
   { id: 'accounts', type: 'accounts' },
@@ -63,6 +73,7 @@ const DOOMSDAY_ROW = [
     name: 'Delete Wallet',
     displayName: 'screens.inAccount.settingsContent.delete wallet',
     iconName: 'Trash2',
+    isDestructive: true,
   },
 ];
 const SCROLL_THRESHOLD = 100;
@@ -75,8 +86,10 @@ export default function SettingsHub(props) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [poolsArray, setPoolsArray] = useState([]);
   const [activePoolsArray, setActivePoolsArray] = useState([]);
 
@@ -289,33 +302,58 @@ export default function SettingsHub(props) {
   if (isDoomsday) {
     return (
       <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-        <CustomSettingsTopBar label={t('settings.index.settingsHead')} />
-        <View style={styles.doomedayContianer}>
-          {renderSection(DOOMSDAY_ROW)}
-
-          <TouchableOpacity
-            onPress={() => {
-              openWebBrowser({
-                navigate,
-                link: 'https://recover.blitzwalletapp.com/',
-              });
-            }}
-            style={{
-              ...styles.posContainer,
-              borderColor: theme && darkModeType ? tokens.ink : tokens.accent,
-              marginTop: 30,
-            }}
-          >
-            <ThemeText
-              styles={{
-                color: theme && darkModeType ? tokens.ink : tokens.accent,
-                fontSize: SIZES.xLarge,
-                marginLeft: 10,
-                includeFontPadding: false,
-              }}
-              content={t('screens.inAccount.settingsContent.blitzRestore')}
-            />
-          </TouchableOpacity>
+        <View style={[styles.doomedayContianer, { width: contentWidth }]}>
+          <TopBar title={t('settings.index.settingsHead')} />
+          <View style={styles.doomedayCard}>
+            <ListCard dividerInset={48}>
+              {DOOMSDAY_ROW.map(row => (
+                <ListRow
+                  key={row.name}
+                  title={t(row.displayName)}
+                  minHeight={52}
+                  titleStyle={styles.doomedayRowTitle}
+                  tone={row.isDestructive ? 'danger' : 'default'}
+                  lead={
+                    <Disc
+                      icon={row.iconName}
+                      size={36}
+                      tone={row.isDestructive ? 'danger' : 'default'}
+                    />
+                  }
+                  trailing={
+                    row.isDestructive ? undefined : (
+                      <ThemeIcon
+                        redesign
+                        iconName="ChevronRight"
+                        size={18}
+                        colorOverride={tokens.muted}
+                      />
+                    )
+                  }
+                  onPress={() => handleSettingsRowPress(row)}
+                />
+              ))}
+              <ListRow
+                title={t('screens.inAccount.settingsContent.blitzRestore')}
+                minHeight={52}
+                titleStyle={styles.doomedayRowTitle}
+                onPress={() => {
+                  openWebBrowser({
+                    navigate,
+                    link: 'https://recover.blitzwalletapp.com/',
+                  });
+                }}
+                trailing={
+                  <ThemeIcon
+                    redesign
+                    iconName="ExternalLink"
+                    size={18}
+                    colorOverride={tokens.muted}
+                  />
+                }
+              />
+            </ListCard>
+          </View>
         </View>
       </GlobalThemeView>
     );
@@ -448,8 +486,8 @@ const styles = StyleSheet.create({
   },
   doomedayContianer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: 20,
+    alignSelf: 'center',
   },
+  doomedayCard: { marginTop: 16 },
+  doomedayRowTitle: { fontSize: 15, lineHeight: 21 },
 });

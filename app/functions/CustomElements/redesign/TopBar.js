@@ -2,13 +2,15 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useRef } from 'react';
 import { FONT } from '../../../constants';
+import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import IconButton from './IconButton';
 import { useInSheet } from './sheetSurface';
 
 // Back (44) · centred title 17/500, wraps to 2 lines · right slot.
-export default function TopBar({ title, onBack, right }) {
+export default function TopBar({ title, onBack, right, scrolled = false }) {
   const navigation = useNavigation();
+  const { tokens } = useTheme();
   const inSheet = useInSheet();
   const lastBackPressRef = useRef(0);
 
@@ -21,7 +23,12 @@ export default function TopBar({ title, onBack, right }) {
   }, [onBack, navigation]);
 
   return (
-    <View style={styles.bar}>
+    <View
+      style={[
+        styles.bar,
+        scrolled && [styles.scrolled, { borderBottomColor: tokens.divider }],
+      ]}
+    >
       <View style={styles.side}>
         <IconButton
           icon="ArrowLeft"
@@ -58,10 +65,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   right: { justifyContent: 'flex-end' },
+  scrolled: { borderBottomWidth: 1 },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 17,
-    lineHeight: 24,
+    lineHeight: 20,
     textAlign: 'center',
     flexShrink: 1,
     minWidth: 0,

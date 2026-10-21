@@ -3,20 +3,23 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../functions/CustomElements';
-import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useState } from 'react';
-import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { CENTER } from '../../../../constants';
-import { usePushNotification } from '../../../../../context-store/notificationManager';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import GetThemeColors from '../../../../hooks/themeColors';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import { GlobalThemeView, ThemeText } from '../../../../functions/CustomElements';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { usePushNotification } from '../../../../../context-store/notificationManager';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 
 const SERVICE_ROWS = [
   { service: 'contactPayments', key: 'contact' },
@@ -36,20 +39,21 @@ export default function NotificationPreferances() {
     isRegisteringPush,
   } = usePushNotification();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor, tokens } = GetThemeColors();
+  const { tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const notificationData = masterInfoObject.pushNotifications;
 
-  // isEnabled mirrors the OS permission (synced by PushNotificationProvider
-  // on every foreground), so it is the only switch this screen needs.
   const isEnabled = notificationData.isEnabled;
 
   const handleOpen = useCallback(async () => {
+    if (isUpdating || isRegisteringPush) return;
     setIsUpdating(true);
     const response = await openPushNotificationSettings();
     setIsUpdating(false);
     if (!response.didWork)
       navigate.navigate('ErrorScreen', { errorMessage: t(response.error) });
-  }, [openPushNotificationSettings, navigate, t]);
+  }, [openPushNotificationSettings, navigate, t, isUpdating, isRegisteringPush]);
 
   const toggleNotificationPreferance = useCallback(
     service => {
@@ -64,164 +68,111 @@ export default function NotificationPreferances() {
     [notificationData, savePushNotificationSettings],
   );
 
-  return (
-    <CustomScrollView
-      showsVerticalScrollIndicator={false}
-      style={styles.innerContainer}
-      contentContainerStyle={styles.scrollContent}
+  const openPill = (
+    <TouchableOpacity
+      disabled={isUpdating || isRegisteringPush}
+      onPress={handleOpen}
+      accessibilityRole="button"
+      accessibilityLabel={t('settings.notifications.openA11y')}
+      accessibilityState={{ busy: isUpdating || isRegisteringPush }}
+      style={[styles.openButton, { backgroundColor: tokens.ground }]}
     >
-      <View style={styles.row}>
-        <View style={styles.rowText}>
-          <ThemeText
-            styles={styles.rowLabel}
-            content={t(
-              isEnabled
-                ? 'settings.notifications.disablePush'
-                : 'settings.notifications.allowPush',
-            )}
-          />
-          <ThemeText
-            styles={styles.rowDescription}
-            content={t('settings.notifications.updateInSettings')}
-          />
-        </View>
-        <TouchableOpacity
-          disabled={isUpdating || isRegisteringPush}
-          onPress={handleOpen}
-          style={[styles.openButton, { backgroundColor: backgroundOffset }]}
-        >
-          {isRegisteringPush ? (
-            // Push token registering after the user allowed notifications
-            // (usually about a second).
-            <ActivityIndicator size="small" color={textColor} />
-          ) : (
-            <ThemeIcon
-              iconName="ExternalLink"
-              size={18}
-              colorOverride={textColor}
-            />
-          )}
-          <ThemeText
-            styles={styles.openButtonText}
-            content={t('settings.notifications.open')}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <View style={[styles.divider, { backgroundColor: tokens.divider }]} />
-
-      {isEnabled ? (
-        <>
-          <ThemeText
-            styles={styles.sectionTitle}
-            content={t('settings.notifications.optionsTitle')}
-          />
-          {SERVICE_ROWS.map(({ service, key }) => (
-            <View
-              key={service}
-              style={[
-                styles.serviceCard,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
-              <View style={styles.rowText}>
-                <ThemeText
-                  styles={styles.serviceLabel}
-                  content={t(`settings.notifications.${key}`)}
-                />
-                <ThemeText
-                  styles={styles.rowDescription}
-                  content={t(`settings.notifications.${key}Desc`)}
-                />
-              </View>
-              <CustomToggleSwitch
-                page="settingsNotifications"
-                toggleSwitchFunction={() =>
-                  toggleNotificationPreferance(service)
-                }
-                stateValue={notificationData.enabledServices?.[service]}
-              />
-            </View>
-          ))}
-        </>
-      ) : isRegisteringPush ? null : (
-        <NoContentSceen
-          iconName="BellOff"
-          titleText={t('settings.notifications.disabledTitle')}
-          subTitleText={t('settings.notifications.disabledSubtitle')}
-          containerStyles={styles.noContent}
+      {isRegisteringPush || isUpdating ? (
+        <ActivityIndicator size="small" color={tokens.ink} />
+      ) : (
+        <ThemeIcon
+          redesign
+          iconName="ExternalLink"
+          size={16}
+          colorOverride={tokens.ink}
         />
       )}
-    </CustomScrollView>
+      <ThemeText
+        content={t('settings.notifications.open')}
+        styles={[styles.openButtonText, { color: tokens.ink }]}
+      />
+    </TouchableOpacity>
+  );
+
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar
+          title={t('screens.inAccount.settingsContent.notifications')}
+        />
+        <CustomScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <ListCard style={styles.firstCard}>
+            <ListRow
+              title={t(
+                isEnabled
+                  ? 'settings.notifications.disablePush'
+                  : 'settings.notifications.allowPush',
+              )}
+              sub={t('settings.notifications.updateInSettings')}
+              minHeight={76}
+              titleStyle={styles.rowTitle}
+              onPress={handleOpen}
+              trailing={openPill}
+            />
+          </ListCard>
+
+          {isEnabled ? (
+            <>
+              <SectionHeader
+                title={t('settings.notifications.optionsTitle')}
+              />
+              <ListCard dividerInset={0}>
+                {SERVICE_ROWS.map(({ service, key }) => (
+                  <ListRow
+                    key={service}
+                    title={t(`settings.notifications.${key}`)}
+                    sub={t(`settings.notifications.${key}Desc`)}
+                    minHeight={72}
+                    titleStyle={styles.rowTitle}
+                    trailing="switch"
+                    value={notificationData.enabledServices?.[service]}
+                    onPress={() => toggleNotificationPreferance(service)}
+                  />
+                ))}
+              </ListCard>
+            </>
+          ) : isRegisteringPush ? null : (
+            <View style={styles.empty}>
+              <EmptyState
+                icon="BellOff"
+                title={t('settings.notifications.disabledTitle')}
+                sub={t('settings.notifications.disabledSubtitle')}
+              />
+            </View>
+          )}
+        </CustomScrollView>
+      </View>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingTop: 24,
-    paddingBottom: 40,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-  },
-  rowText: {
-    flex: 1,
-    flexShrink: 1,
-    marginRight: 12,
-  },
-  rowLabel: {
-    fontWeight: 500,
-    includeFontPadding: false,
-  },
-  rowDescription: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-    marginTop: 4,
-  },
+  content: { alignSelf: 'center', flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  firstCard: { marginTop: 16 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
   openButton: {
+    minHeight: 44,
+    paddingHorizontal: 16,
+    borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 999,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    gap: 6,
   },
   openButtonText: {
-    fontWeight: 500,
-    includeFontPadding: false,
-    marginLeft: 6,
-  },
-  divider: {
-    height: 1,
-    marginVertical: 16,
-  },
-  sectionTitle: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    marginTop: 8,
-    marginBottom: 16,
+    fontSize: 14,
+    lineHeight: 19,
     includeFontPadding: false,
   },
-  serviceCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 8,
-  },
-  serviceLabel: {
-    includeFontPadding: false,
-  },
-  noContent: {
-    width: '100%',
-  },
+  empty: { marginTop: 96 },
 });

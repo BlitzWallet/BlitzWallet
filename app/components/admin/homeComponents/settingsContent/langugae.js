@@ -1,112 +1,92 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import { supportedLanguagesList } from '../../../../../locales/localeslist';
+import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { supportedLanguagesList } from '../../../../../locales/localeslist';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
+import ListCard, {
+  ListDivider,
+} from '../../../../functions/CustomElements/redesign/ListCard';
+import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 
 export default function ChooseLangugae() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, tokens } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
+  const { width, height } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedLanguage = masterInfoObject?.userSelectedLanguage;
 
-  const filteredList = supportedLanguagesList.filter(item =>
-    t(item.translatedName).toLowerCase().startsWith(searchInput.toLowerCase()),
-  );
+  const filteredList = useMemo(() => {
+    const search = searchInput.toLowerCase();
+    return supportedLanguagesList.filter(item =>
+      t(item.translatedName).toLowerCase().startsWith(search),
+    );
+  }, [searchInput, t]);
 
   const selectedLanguageText = useMemo(() => {
     return supportedLanguagesList.find(item => item.id === selectedLanguage);
-  }, [selectedLanguage, supportedLanguagesList]);
+  }, [selectedLanguage]);
 
-  const updateLanguageSetting = useCallback(item => {
-    toggleMasterInfoObject({ userSelectedLanguage: item.id });
-  }, []);
-
-  const languageItem = ({ item, index }) => {
-    return (
-      <TouchableOpacity
-        style={[
-          styles.currencyContainer,
-          {
-            marginTop: index === 0 ? 10 : 0,
-          },
-        ]}
-        onPress={() => {
-          updateLanguageSetting(item);
-        }}
-      >
-        <CheckMarkCircle
-          isActive={item.id?.toLowerCase() === selectedLanguage?.toLowerCase()}
-          containerSize={25}
-        />
-        <ThemeText
-          styles={{
-            color: theme
-              ? item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
-                ? darkModeType
-                  ? tokens.ink
-                  : tokens.accent
-                : tokens.ink
-              : item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
-              ? tokens.accent
-              : tokens.ink,
-            marginLeft: 10,
-            includeFontPadding: false,
-          }}
-          content={t(item.translatedName)}
-        />
-      </TouchableOpacity>
-    );
-  };
+  const updateLanguageSetting = useCallback(
+    item => {
+      if (item.id === selectedLanguage) return;
+      toggleMasterInfoObject({ userSelectedLanguage: item.id });
+    },
+    [selectedLanguage, toggleMasterInfoObject],
+  );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={filteredList}
-        renderItem={languageItem}
-        keyExtractor={(item, index) => item.id || index.toString()}
-        ListHeaderComponent={
-          <View style={[styles.searchContainer, { backgroundColor }]}>
-            <CustomSearchInput
-              inputText={searchInput}
-              setInputText={setSearchInput}
-              placeholderText={t(selectedLanguageText?.languageName)}
-            />
-          </View>
-        }
-        stickyHeaderIndices={[0]} // makes the search input sticky
-      />
-    </View>
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar title={t('screens.inAccount.settingsContent.language')} />
+        <View style={styles.search}>
+          <SearchField
+            pill
+            value={searchInput}
+            onChangeText={setSearchInput}
+            placeholder={t(selectedLanguageText?.languageName)}
+          />
+        </View>
+        <ListCard dividerInset={0} style={styles.card}>
+          <FlatList
+            data={filteredList}
+            keyExtractor={keyExtractor}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="always"
+            style={{ maxHeight: height - 240 }}
+            ItemSeparatorComponent={LanguageSeparator}
+            renderItem={({ item }) => (
+              <PickRow
+                title={t(item.translatedName)}
+                minHeight={52}
+                titleStyle={styles.rowTitle}
+                selected={
+                  item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
+                }
+                onPress={() => updateLanguageSetting(item)}
+              />
+            )}
+          />
+        </ListCard>
+      </View>
+    </GlobalThemeView>
   );
 }
 
+const keyExtractor = item => item.id;
+
+function LanguageSeparator() {
+  return <ListDivider inset={0} />;
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  searchContainer: {
-    paddingTop: 8,
-    paddingBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  currencyContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 'auto',
-    marginLeft: 'auto',
-    marginTop: 10,
-    paddingVertical: 10,
-  },
+  content: { alignSelf: 'center', flex: 1 },
+  search: { marginTop: 16 },
+  card: { marginTop: 16 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
 });

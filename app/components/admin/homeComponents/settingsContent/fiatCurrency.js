@@ -1,34 +1,25 @@
-import { FlatList, StyleSheet } from 'react-native';
-import {
-  CONTENT_KEYBOARD_OFFSET,
-  MAX_WEB_CONTENT_WIDTH,
-  SIZES,
-} from '../../../../constants';
+import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useTranslation } from 'react-i18next';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import {
-  CustomKeyboardAvoidingView,
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import { useTranslation } from 'react-i18next';
+import { useKeysContext } from '../../../../../context-store/keys';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
-import { useKeysContext } from '../../../../../context-store/keys';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { keyboardGoBack } from '../../../../functions/customNavigation';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { keyboardGoBack } from '../../../../functions/customNavigation';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
+import ListCard, {
+  ListDivider,
+} from '../../../../functions/CustomElements/redesign/ListCard';
 import CurrencyRow from '../currencyPicker/currencyRow';
 
 export default function FiatCurrencyPage() {
@@ -36,21 +27,27 @@ export default function FiatCurrencyPage() {
     useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { toggleFiatStats, fiatStats } = useNodeContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const currencies = useMemo(() => {
-    return [...fiatCurrencies].sort((a, b) => a.id.localeCompare(b.id));
-  }, []);
+  const { tokens } = useGlobalThemeContext();
   const isGoingBackRef = useRef(false);
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [textInput, setTextInput] = useState('');
-  const currentCurrency = masterInfoObject?.fiatCurrency;
+  const [savingCurrency, setSavingCurrency] = useState(null);
   const { t } = useTranslation();
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const { bottomPadding } = useGlobalInsets();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const currentCurrency = masterInfoObject?.fiatCurrency;
+
+  const currencies = useMemo(() => {
+    const sorted = [...fiatCurrencies].sort((a, b) => a.id.localeCompare(b.id));
+    const current = sorted.find(
+      currency => currency.id.toLowerCase() === currentCurrency?.toLowerCase(),
+    );
+    return current
+      ? [current, ...sorted.filter(currency => currency !== current)]
+      : sorted;
+  }, [currentCurrency]);
 
   const filteredList = useMemo(() => {
     const search = textInput.toLowerCase();
@@ -61,11 +58,17 @@ export default function FiatCurrencyPage() {
     );
   }, [textInput, currencies]);
 
+  const handleBack = useCallback(() => {
+    if (isGoingBackRef.current || savingCurrency) return;
+    isGoingBackRef.current = true;
+    keyboardGoBack(navigate);
+  }, [navigate, savingCurrency]);
+
   const saveCurrencySettings = useCallback(
     async selectedCurrency => {
+      if (savingCurrency) return;
+      setSavingCurrency(selectedCurrency);
       try {
-        setIsLoading(true);
-
         const response = await loadNewFiatData(
           selectedCurrency,
           contactsPrivateKey,
@@ -81,8 +84,8 @@ export default function FiatCurrencyPage() {
         isGoingBackRef.current = true;
         keyboardGoBack(navigate);
       } catch (err) {
-        setIsLoading(false);
         console.log(err);
+        setSavingCurrency(null);
         navigate.navigate('ErrorScreen', {
           errorMessage: t('settings.fiatCurrency.saveCurrencyError'),
         });
@@ -95,6 +98,7 @@ export default function FiatCurrencyPage() {
       toggleMasterInfoObject,
       navigate,
       t,
+      savingCurrency,
     ],
   );
 
@@ -102,39 +106,16 @@ export default function FiatCurrencyPage() {
     ({ item }) => (
       <CurrencyRow
         currency={item}
-        isSelected={item.id?.toLowerCase() === currentCurrency?.toLowerCase()}
+        isSelected={
+          item.id?.toLowerCase() === currentCurrency?.toLowerCase() ||
+          savingCurrency === item.id
+        }
         onSelect={saveCurrencySettings}
-        theme={theme}
-        darkModeType={darkModeType}
-        backgroundOffset={backgroundOffset}
-        iconBackground={backgroundColor}
+        saving={savingCurrency === item.id}
+        disabled={!!savingCurrency}
       />
     ),
-    [
-      currentCurrency,
-      saveCurrencySettings,
-      theme,
-      darkModeType,
-      backgroundOffset,
-      backgroundColor,
-    ],
-  );
-
-  const contentContainerStyle = useMemo(
-    () => ({
-      ...styles.listContent,
-      paddingBottom: bottomPadding,
-    }),
-    [bottomPadding],
-  );
-
-  const searchContainerStyle = useMemo(
-    () => ({
-      backgroundColor,
-      width: INSET_WINDOW_WIDTH,
-      paddingBottom: CONTENT_KEYBOARD_OFFSET,
-    }),
-    [backgroundColor],
+    [currentCurrency, saveCurrencySettings, savingCurrency],
   );
 
   const rateSubtitle = fiatStats?.value
@@ -150,77 +131,59 @@ export default function FiatCurrencyPage() {
       })}`
     : undefined;
 
-  if (isLoading) {
-    return (
-      <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          shouldDismissKeyboard={true}
-          label={t('settings.fiatCurrency.title')}
-        />
-        <FullLoadingScreen />
-      </GlobalThemeView>
-    );
-  }
-
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      useStandardWidth={true}
-    >
-      <CustomSettingsTopBar
-        customBackFunction={() => {
-          if (isGoingBackRef.current) return;
-          isGoingBackRef.current = true;
-          keyboardGoBack(navigate);
-        }}
-        label={t('settings.fiatCurrency.title')}
-        containerStyles={{ marginBottom: 0 }}
-      />
-      <ThemeText content={rateSubtitle} styles={styles.subtitleText} />
-
-      <FlatList
-        style={styles.list}
-        keyboardShouldPersistTaps="always"
-        contentContainerStyle={contentContainerStyle}
-        stickyHeaderIndices={[0]}
-        ListHeaderComponent={
-          <CustomSearchInput
-            setInputText={setTextInput}
-            inputText={textInput}
-            placeholderText={t('settings.fiatCurrency.placeholderText')}
-            containerStyles={searchContainerStyle}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar title={t('settings.fiatCurrency.title')} onBack={handleBack} />
+        {!!rateSubtitle && (
+          <ThemeText
+            content={rateSubtitle}
+            styles={[styles.rate, { color: tokens.muted }]}
           />
-        }
-        data={filteredList}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        initialNumToRender={15}
-        maxToRenderPerBatch={15}
-        windowSize={5}
-        showsVerticalScrollIndicator={false}
-      />
-    </CustomKeyboardAvoidingView>
+        )}
+        <View style={styles.search}>
+          <SearchField
+            pill
+            value={textInput}
+            onChangeText={setTextInput}
+            placeholder={t('settings.fiatCurrency.placeholderText')}
+          />
+        </View>
+        <ListCard dividerInset={52} style={styles.card}>
+          <FlatList
+            data={filteredList}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            keyboardShouldPersistTaps="always"
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={15}
+            maxToRenderPerBatch={15}
+            windowSize={5}
+            ItemSeparatorComponent={CurrencySeparator}
+            contentContainerStyle={styles.listContent}
+          />
+        </ListCard>
+      </View>
+    </GlobalThemeView>
   );
 }
 
 const keyExtractor = currency => currency.id;
 
+function CurrencySeparator() {
+  return <ListDivider inset={52} />;
+}
+
 const styles = StyleSheet.create({
-  list: {
-    width: '100%',
-    maxWidth: MAX_WEB_CONTENT_WIDTH,
-    alignSelf: 'center',
-  },
-  listContent: {
-    flexGrow: 1,
-    paddingTop: 20,
-  },
-  subtitleText: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
+  content: { alignSelf: 'center', flex: 1 },
+  rate: {
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
+    marginTop: 2,
     includeFontPadding: false,
-    marginBottom: 10,
-    marginTop: 5,
   },
+  search: { marginTop: 16 },
+  card: { flex: 1, marginTop: 16 },
+  listContent: { paddingBottom: 24 },
 });

@@ -4,11 +4,17 @@ import ThemeText from '../textTheme';
 
 // Controlled. White track, selected pill accent + white text in every mode
 // (rule 5). Labels wrap, never truncate.
-export default function Segmented({ options, value, onChange }) {
+export default function Segmented({
+  options,
+  value,
+  onChange,
+  accessibilityLabel,
+}) {
   const { tokens } = useTheme();
   return (
     <View
       accessibilityRole="radiogroup"
+      accessibilityLabel={accessibilityLabel}
       style={[styles.track, { backgroundColor: tokens.surface }]}
     >
       {options.map(option => {
@@ -28,7 +34,7 @@ export default function Segmented({ options, value, onChange }) {
               content={option.label}
               styles={[
                 styles.label,
-                { color: selected ? tokens.onAccent : tokens.ink },
+                { color: selected ? tokens.onAccent : tokens.tabIdle },
               ]}
             />
           </TouchableOpacity>
@@ -42,16 +48,16 @@ const styles = StyleSheet.create({
   track: { flexDirection: 'row', borderRadius: 999, padding: 4 },
   segment: {
     flex: 1,
-    minHeight: 36,
+    minHeight: 44,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 19,
     textAlign: 'center',
     includeFontPadding: false,
   },

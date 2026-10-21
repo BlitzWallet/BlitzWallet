@@ -94,7 +94,9 @@ export default function AdminHomeIndex() {
     [],
   );
 
-  if (!masterInfoObject.enabledSlidingCamera) {
+  // Q19-1 (E1): the swipe-for-camera control is gone; ignore the stored value.
+  const enabledSlidingCamera = false;
+  if (!enabledSlidingCamera) {
     return (
       <View style={styles.container}>
         <MainContent />
