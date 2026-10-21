@@ -82,6 +82,7 @@ jest.mock('../../../app/functions/decodeBolt11', () => ({
 }));
 const mockWallet = {
   initializeNWCWallet: jest.fn(),
+  getNWCSparkLightningPaymentFeeEstimate: jest.fn(),
   sendNWCSparkLightningPayment: jest.fn(),
   NWCSparkLightningPaymentStatus: jest.fn(),
   getNWCSparkTransactions: jest.fn(),
@@ -90,6 +91,8 @@ jest.mock('../../../app/functions/nwc/wallet', () => ({
   __esModule: true,
   nwcWallet: null,
   initializeNWCWallet: (...a) => mockWallet.initializeNWCWallet(...a),
+  getNWCSparkLightningPaymentFeeEstimate: (...a) =>
+    mockWallet.getNWCSparkLightningPaymentFeeEstimate(...a),
   sendNWCSparkLightningPayment: (...a) =>
     mockWallet.sendNWCSparkLightningPayment(...a),
   NWCSparkLightningPaymentStatus: (...a) =>
@@ -240,6 +243,10 @@ beforeEach(async () => {
     },
   });
   mockWallet.initializeNWCWallet.mockResolvedValue({ isConnected: true });
+  mockWallet.getNWCSparkLightningPaymentFeeEstimate.mockResolvedValue({
+    didWork: true,
+    response: 0,
+  });
   mockWallet.sendNWCSparkLightningPayment.mockResolvedValue({
     didWork: true,
     paymentResponse: { id: 'send-1', fee: { originalValue: 0 } },
