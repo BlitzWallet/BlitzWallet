@@ -25,7 +25,7 @@ export default function DefaultTokenPicker({
     // Sheet shell is still today's ground until the P2 halfModal restyle, so no
     // white body and no SheetSurface (cards stay white on the ground shell).
     <View style={styles.container}>
-      <View style={styles.titleRow}>
+      {/* <View style={styles.titleRow}>
         <ThemeText
           content={t('settings.sparkLrc20.selectTokenHeader')}
           styles={styles.title}
@@ -50,7 +50,7 @@ export default function DefaultTokenPicker({
             colorOverride={tokens.muted}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
       <ListCard dividerInset={0} style={styles.card}>
         {options.map(option => (
           <PickRow
