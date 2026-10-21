@@ -8,7 +8,6 @@ import ThemeText from '../../../../functions/CustomElements/textTheme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
-import { SheetSurface } from '../../../../functions/CustomElements/redesign/sheetSurface';
 
 // D294 menu (Q21-2): "Default token" radios, Bitcoin first, then held tokens.
 // Q21-3 keeps the explainer popup reachable from the sheet header.
@@ -23,53 +22,51 @@ export default function DefaultTokenPicker({
   const navigate = useNavigation();
 
   return (
-    <SheetSurface>
-      <View style={[styles.container, { backgroundColor: tokens.surface }]}>
-        <View style={styles.titleRow}>
-          <ThemeText
-            content={t('settings.sparkLrc20.selectTokenHeader')}
-            styles={styles.title}
+    // Sheet shell is still today's ground until the P2 halfModal restyle, so no
+    // white body and no SheetSurface (cards stay white on the ground shell).
+    <View style={styles.container}>
+      <View style={styles.titleRow}>
+        <ThemeText
+          content={t('settings.sparkLrc20.selectTokenHeader')}
+          styles={styles.title}
+        />
+        <TouchableOpacity
+          onPress={() =>
+            navigate.navigate('InformationPopup', {
+              textContent: t('settings.sparkLrc20.selectTokenInformationPopup'),
+              buttonText: t('constants.understandText'),
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            'settings.sparkLrc20.selectTokenInformationPopup',
+          )}
+          style={styles.infoButton}
+        >
+          <ThemeIcon
+            redesign
+            iconName="Info"
+            size={18}
+            colorOverride={tokens.muted}
           />
-          <TouchableOpacity
-            onPress={() =>
-              navigate.navigate('InformationPopup', {
-                textContent: t(
-                  'settings.sparkLrc20.selectTokenInformationPopup',
-                ),
-                buttonText: t('constants.understandText'),
-              })
-            }
-            accessibilityRole="button"
-            accessibilityLabel={t(
-              'settings.sparkLrc20.selectTokenInformationPopup',
-            )}
-            style={styles.infoButton}
-          >
-            <ThemeIcon
-              redesign
-              iconName="Info"
-              size={18}
-              colorOverride={tokens.muted}
-            />
-          </TouchableOpacity>
-        </View>
-        <ListCard dividerInset={0} style={styles.card}>
-          {options.map(option => (
-            <PickRow
-              key={option.value}
-              title={option.label}
-              minHeight={52}
-              titleStyle={styles.rowTitle}
-              selected={option.value?.toLowerCase() === selected?.toLowerCase()}
-              onPress={() => {
-                toggleMasterInfoObject({ defaultSpendToken: option.value });
-                handleBackPressFunction?.();
-              }}
-            />
-          ))}
-        </ListCard>
+        </TouchableOpacity>
       </View>
-    </SheetSurface>
+      <ListCard dividerInset={0} style={styles.card}>
+        {options.map(option => (
+          <PickRow
+            key={option.value}
+            title={option.label}
+            minHeight={52}
+            titleStyle={styles.rowTitle}
+            selected={option.value?.toLowerCase() === selected?.toLowerCase()}
+            onPress={() => {
+              toggleMasterInfoObject({ defaultSpendToken: option.value });
+              handleBackPressFunction?.();
+            }}
+          />
+        ))}
+      </ListCard>
+    </View>
   );
 }
 
