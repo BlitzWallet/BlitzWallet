@@ -8,9 +8,19 @@ export default function Segmented({
   options,
   value,
   onChange,
+  onBeforeChange,
   accessibilityLabel,
+  minHeight = 44,
+  capitalizeLabels = true,
 }) {
   const { tokens } = useTheme();
+
+  const select = nextValue => {
+    if (nextValue === value) return;
+    if (onBeforeChange && onBeforeChange(nextValue) === false) return;
+    onChange(nextValue);
+  };
+
   return (
     <View
       accessibilityRole="radiogroup"
@@ -22,11 +32,12 @@ export default function Segmented({
         return (
           <TouchableOpacity
             key={option.value}
-            onPress={() => onChange(option.value)}
+            onPress={() => select(option.value)}
             accessibilityRole="radio"
             accessibilityState={{ checked: selected }}
             style={[
               styles.segment,
+              { minHeight },
               selected && { backgroundColor: tokens.accent },
             ]}
           >
@@ -34,6 +45,7 @@ export default function Segmented({
               content={option.label}
               styles={[
                 styles.label,
+                !capitalizeLabels && styles.noCapitalize,
                 { color: selected ? tokens.onAccent : tokens.tabIdle },
               ]}
             />
@@ -61,5 +73,8 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+  noCapitalize: {
+    textTransform: 'none',
   },
 });

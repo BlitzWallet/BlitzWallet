@@ -22,6 +22,7 @@ export default function KeyValueRow({
   copyLabel,
   layout = 'inline',
   truncate,
+  mono = true,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
@@ -56,7 +57,11 @@ export default function KeyValueRow({
       <ThemeText
         content={displayValue}
         CustomNumberOfLines={1}
-        styles={[styles.value, { color: tokens.ink }]}
+        styles={[
+          styles.value,
+          !mono && styles.valueText,
+          { color: tokens.ink },
+        ]}
       />
       {copyValue != null && (
         <TouchableOpacity
@@ -95,6 +100,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
     includeFontPadding: false,
+  },
+  valueText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
   },
   copyButton: {
     width: 44,

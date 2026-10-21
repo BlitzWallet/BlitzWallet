@@ -58,6 +58,8 @@
     "retry": "Försök igen",
     "download": "Nedladdningar",
     "contactUs": "Kontakta oss",
+    "copyEmail": "Kopiera e-post",
+    "openInbox": "Öppna inkorgen",
     "pay": "Betala",
     "processing": "Bearbetning",
     "support": "Stöd",
@@ -1686,9 +1688,10 @@
     },
     "loginSecurity": {
       "text1": "Aktivera inloggningssäkerhet",
-      "text2": "Typ av säkerhet",
-      "text3": "Stift",
-      "text4": "Biometrisk",
+      "text2": "Lås upp med",
+      "text3": "PIN",
+      "text4": "Biometri",
+      "passwordMethod": "Lösenord",
       "text5": "Enheten har inte någon biometrisk profil. Skapa en i inställningarna för att fortsätta.",
       "text6": "Fel vid inloggning med biometri",
       "text7": "Enheten stöder inte biometrisk inloggning",
@@ -1700,7 +1703,8 @@
       "migratingStorageMessage": "Migrering av lagring till ny säkerhet.",
       "createPinPageHeader": "{{type}} din Blitz PIN-kod",
       "invalidPinconfirmation": "PIN-koderna stämmer inte överens. Försök igen!",
-      "randomPinKeyboardToggle": "Knappsats för shuffle",
+      "randomPinKeyboardToggle": "Blanda knappsats",
+      "randomPinKeyboardSubtitle": "Ändrar ordningen på PIN-siffrorna varje gång du låser upp.",
       "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster.",
       "biometricsHead": "Om biometri",
       "biometricsSubHead": "Din återställningsfras skyddas av din enhets nuvarande biometriska data. Om du ändrar dem kommer Blitz Wallet inte längre att kunna komma åt din återställningsfras och du låses ute från din plånbok.",
@@ -1833,6 +1837,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Byte av ubåt",
+      "subtitle": "Rootstock-överföring",
       "id": "ID",
       "swapDetails": "Överför detaljer",
       "claimAddress": "Adress för anspråk",
@@ -1867,8 +1872,8 @@
       "unsupportedTitle": "Vi stöder inte längre {{type}}",
       "unsupportedDesc": "Om du fortfarande har medel på {{type}}, återställ din Blitz-återställningsfras i en kompatibel plånbok för att komma åt dem. Behöver du hjälp? Kontakta oss nedan.",
       "contactUs": "Kontakta oss",
-      "refundInProgress": "Återbetalning pågår. Håll appen öppen tills den är klar.",
-      "refundComplete": "Återbetalning slutförd. Dina medel är tillbaka i din Liquid-plånbok."
+      "refundInProgress": "Återbetalning pågår. Håll appen öppen.",
+      "refundComplete": "Återbetalning slutförd."
     },
     "notifications": {
       "mainToggle": "Tillåt aviseringar",

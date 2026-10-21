@@ -6,10 +6,19 @@ import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 import CustomButton from '../button';
 
-// 64 surface disc · title 17/24 · line · optional Retry (OQ-56).
-export default function EmptyState({ icon, title, sub, onRetry }) {
+// 64 surface disc · title 17/24 (or 20/26 with size="large") · line · optional
+// Retry (OQ-56). `iconTone="ink"` matches the D305/D306 empty states.
+export default function EmptyState({
+  icon,
+  title,
+  sub,
+  onRetry,
+  size = 'default',
+  iconTone = 'muted',
+}) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
+  const large = size === 'large';
   return (
     <View style={styles.container}>
       <View style={[styles.disc, { backgroundColor: tokens.surface }]}>
@@ -17,10 +26,17 @@ export default function EmptyState({ icon, title, sub, onRetry }) {
           redesign
           iconName={icon}
           size={26}
-          colorOverride={tokens.muted}
+          colorOverride={iconTone === 'ink' ? tokens.ink : tokens.muted}
         />
       </View>
-      <ThemeText content={title} styles={styles.title} />
+      <ThemeText
+        content={title}
+        styles={[
+          styles.title,
+          large && styles.titleLarge,
+          { color: tokens.ink },
+        ]}
+      />
       {!!sub && (
         <ThemeText
           variant="body"
@@ -56,6 +72,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 16,
+  },
+  titleLarge: {
+    fontSize: 20,
+    lineHeight: 26,
   },
   sub: { textAlign: 'center', marginTop: 6 },
   retry: { marginTop: 16 },

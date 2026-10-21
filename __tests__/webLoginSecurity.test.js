@@ -28,13 +28,36 @@ const mockForgetPasskey = jest.fn();
 jest.mock('../app/constants', () => ({
   CENTER: {},
   COLORS: { darkModeText: '#fff', primary: '#00f' },
+  FONT: {
+    Title_light: 'Poppins-Light',
+    Title_Medium: 'Poppins-Medium',
+    Title_Regular: 'Poppins-Regular',
+    Title_Bold: 'Poppins-Bold',
+    Title_SemiBold: 'Poppins-SemiBold',
+    Descriptoin_light: 'Poppins-Light',
+    Descriptoin_Medium: 'Poppins-Medium',
+    Descriptoin_Regular: 'Poppins-Regular',
+    Descriptoin_Bold: 'Poppins-Bold',
+    Other_light: 'Poppins-Light',
+    Other_Medium: 'Poppins-Medium',
+    Other_Regular: 'Poppins-Regular',
+    Other_Bold: 'Poppins-Bold',
+    Asterisk: 'Blitzicons1',
+    mono: 'monospace',
+  },
   LOGIN_SECUITY_MODE_KEY: 'LOGIN_SECURITY_MODE',
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY: 'RANDOM_LOGIN_KEYBOARD_LAYOUT',
+  RANDOM_LOGIN_KEYBOARD_INFO_SEEN_KEY: 'RANDOM_LOGIN_KEYBOARD_INFO_SEEN',
   SIZES: { small: 12, large: 20, smedium: 16 },
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../context-store/keys', () => ({
@@ -96,7 +119,11 @@ for (const path of [
 
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    backgroundColor: '#222',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('../app/functions/handleMnemonic', () => ({
@@ -150,15 +177,33 @@ async function press(renderer, textContent) {
   await flush();
 }
 
+function methodRow(renderer, label) {
+  return renderer.root.findAll(
+    n =>
+      n.props?.accessibilityLabel === label &&
+      typeof n.props?.onPress === 'function',
+  )[0];
+}
+
+const hasRow = (renderer, label) =>
+  renderer.root.findAll(n => n.props?.accessibilityLabel === label).length > 0;
+
+async function pressRow(renderer, label) {
+  await act(async () => {
+    methodRow(renderer, label).props.onPress();
+  });
+  await flush();
+}
+
 async function typeCurrentPassword(renderer, value) {
   await act(async () => {
     renderer.root.findByType('MockInput').props.setInputText(value);
   });
 }
 
-// Password wallet: pick "Use a passkey instead", confirm the current password.
+// Password wallet: pick "Biometrics", then confirm the current password.
 async function switchToPasskey(renderer) {
-  await press(renderer, 'createAccount.keySetup.passkey.createButton');
+  await pressRow(renderer, 'settings.loginSecurity.text4');
   await typeCurrentPassword(renderer, 'current password');
   await press(renderer, 'constants.continue');
 }
@@ -184,12 +229,14 @@ afterEach(() => {
 describe('password wallet', () => {
   test('offers a passkey only when the browser reports PRF', async () => {
     const withPrf = await mount();
-    expect(texts(withPrf)).toContain('settings.loginSecurity.passkeyCardTitle');
+    expect(hasRow(withPrf, 'settings.loginSecurity.text4')).toBe(true);
+    expect(hasRow(withPrf, 'settings.loginSecurity.passwordMethod')).toBe(true);
 
     mockIsPasskeySupported.mockResolvedValue(false);
     const withoutPrf = await mount();
-    expect(texts(withoutPrf)).not.toContain(
-      'settings.loginSecurity.passkeyCardTitle',
+    expect(hasRow(withoutPrf, 'settings.loginSecurity.text4')).toBe(false);
+    expect(hasRow(withoutPrf, 'settings.loginSecurity.passwordMethod')).toBe(
+      true,
     );
     expect(texts(withoutPrf)).toContain(
       'settings.loginSecurity.currentPasswordSubtitle',
@@ -283,7 +330,7 @@ describe('password wallet', () => {
       () => new Promise(resolve => (resolveCreate = resolve)),
     );
     const renderer = await mount();
-    await press(renderer, 'createAccount.keySetup.passkey.createButton');
+    await pressRow(renderer, 'settings.loginSecurity.text4');
     await typeCurrentPassword(renderer, 'current password');
 
     const { actionFunction } = button(renderer, 'constants.continue').props;
@@ -331,7 +378,7 @@ describe('passkey wallet', () => {
       ]),
     );
     expect(
-      button(renderer, 'settings.loginSecurity.switchToPassword'),
+      methodRow(renderer, 'settings.loginSecurity.passwordMethod'),
     ).toBeDefined();
     expect(texts(renderer)).not.toContain(
       'settings.loginSecurity.currentPasswordSubtitle',
@@ -340,7 +387,7 @@ describe('passkey wallet', () => {
 
   test('switch to password: passkey unlock -> new password -> forget the old passkey after the write', async () => {
     const renderer = await mount();
-    await press(renderer, 'settings.loginSecurity.switchToPassword');
+    await pressRow(renderer, 'settings.loginSecurity.passwordMethod');
 
     mockGetStoredPasskeyInfo.mockResolvedValue(null);
     await act(async () => {
@@ -368,7 +415,7 @@ describe('passkey wallet', () => {
   test('a failed password write never forgets the passkey', async () => {
     mockStoreWithPin.mockResolvedValue(false);
     const renderer = await mount();
-    await press(renderer, 'settings.loginSecurity.switchToPassword');
+    await pressRow(renderer, 'settings.loginSecurity.passwordMethod');
 
     await act(async () => {
       await renderer.root
@@ -387,7 +434,7 @@ describe('passkey wallet', () => {
     mockDecryptWithPasskey.mockResolvedValue(null);
     const renderer = await mount();
 
-    await press(renderer, 'settings.loginSecurity.switchToPassword');
+    await pressRow(renderer, 'settings.loginSecurity.passwordMethod');
 
     expect(renderer.root.findAllByType('MockPasswordForm')).toHaveLength(0);
     expect(texts(renderer)).not.toContain('adminLogin.passkeyPage.unlockError');
@@ -405,7 +452,7 @@ describe('passkey wallet', () => {
       mockDecryptWithPasskey.mockResolvedValue(result);
       const renderer = await mount();
 
-      await press(renderer, 'settings.loginSecurity.switchToPassword');
+      await pressRow(renderer, 'settings.loginSecurity.passwordMethod');
 
       expect(renderer.root.findAllByType('MockPasswordForm')).toHaveLength(0);
       expect(texts(renderer)).toContain('adminLogin.passkeyPage.unlockError');
@@ -433,8 +480,8 @@ test('double tapping passkey verification opens one prompt', async () => {
       }),
   );
   const renderer = await mount();
-  const action = button(renderer, 'settings.loginSecurity.switchToPassword')
-    .props.actionFunction;
+  const action = methodRow(renderer, 'settings.loginSecurity.passwordMethod')
+    .props.onPress;
   await act(async () => {
     action();
     action();
@@ -448,7 +495,7 @@ test('double tapping passkey verification opens one prompt', async () => {
 test('a password write cannot run twice or be abandoned while pending', async () => {
   mockGetStoredPasskeyInfo.mockResolvedValue(PASSKEY_INFO);
   const renderer = await mount();
-  await press(renderer, 'settings.loginSecurity.switchToPassword');
+  await pressRow(renderer, 'settings.loginSecurity.passwordMethod');
   let resolveWrite;
   mockStoreWithPin.mockImplementationOnce(
     () =>

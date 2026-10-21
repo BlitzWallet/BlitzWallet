@@ -58,6 +58,8 @@
     "retry": "Reintentar",
     "download": "Descargar",
     "contactUs": "Contáctanos",
+    "copyEmail": "Copiar correo",
+    "openInbox": "Abrir bandeja de entrada",
     "pay": "Pagar",
     "processing": "Procesando",
     "support": "Soporte",
@@ -1683,9 +1685,10 @@
     },
     "loginSecurity": {
       "text1": "Habilitar seguridad de inicio de sesión",
-      "text2": "Tipo de seguridad",
+      "text2": "Desbloquear con",
       "text3": "PIN",
-      "text4": "Biométrico",
+      "text4": "Biometría",
+      "passwordMethod": "Contraseña",
       "text5": "El dispositivo no tiene un perfil biométrico. Crea uno en configuración para continuar.",
       "text6": "Error al iniciar sesión con biometría",
       "text7": "El dispositivo no admite inicio de sesión biométrico",
@@ -1698,6 +1701,7 @@
       "createPinPageHeader": "{{type}} tu PIN de Blitz",
       "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!",
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
+      "randomPinKeyboardSubtitle": "Cambia el orden de los números del PIN cada vez que desbloquees.",
       "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
       "biometricsHead": "Sobre la biometría",
       "biometricsSubHead": "Tu frase de recuperación está protegida por los datos biométricos actuales de tu dispositivo. Cambiarlos impedirá que Blitz Wallet acceda a tu frase de recuperación y bloqueará el acceso a tu billetera.",
@@ -1830,6 +1834,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Intercambio Submarino",
+      "subtitle": "Transferencia de Rootstock",
       "id": "ID",
       "swapDetails": "Detalles de la transferencia",
       "claimAddress": "Dirección de cobro",
@@ -1864,8 +1869,8 @@
       "unsupportedTitle": "Ya no admitimos {{type}}",
       "unsupportedDesc": "Si aún tienes fondos en {{type}}, restaura tu frase de recuperación de Blitz en una billetera compatible para acceder a ellos. ¿Necesitas ayuda? Contáctanos abajo.",
       "contactUs": "Contáctanos",
-      "refundInProgress": "Reembolso en curso. Mantén la app abierta hasta que se complete.",
-      "refundComplete": "Reembolso completado. Tus fondos están de vuelta en tu billetera Liquid."
+      "refundInProgress": "Reembolso en curso. Mantén la app abierta.",
+      "refundComplete": "Reembolso completado."
     },
     "notifications": {
       "mainToggle": "Permitir notificaciones",

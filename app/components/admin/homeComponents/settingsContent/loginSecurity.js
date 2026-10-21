@@ -1,14 +1,10 @@
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
-  CENTER,
+  FONT,
   LOGIN_SECUITY_MODE_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
+  RANDOM_LOGIN_KEYBOARD_INFO_SEEN_KEY,
 } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -20,15 +16,8 @@ import {
 } from '../../../../functions';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
+import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
-import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import {
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
@@ -36,11 +25,16 @@ import {
 } from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import PasswordField from '../../../admin/loginComponents/passwordField';
+import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 import CustomButton from '../../../../functions/CustomElements/button';
 import PasswordCreateForm from '../../../admin/loginComponents/passwordCreateForm';
 import { useToast } from '../../../../../context-store/toastManager';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
 import PasskeyIcon from '../../../admin/loginComponents/passkeyIcon';
 import {
@@ -53,26 +47,42 @@ import {
   storeMnemonicWithPasskey,
 } from '../../../../functions/passkeyMnemonic';
 
-const SettingsSection = ({ title, children, style }) => (
-  <View style={[styles.section, style]}>
-    {title ? <ThemeText styles={styles.sectionTitle} content={title} /> : null}
-    {children}
-  </View>
-);
-
-const SettingsItem = ({ label, children, isLast, dividerColor }) => (
-  <>
-    <View style={styles.settingsItem}>
-      <View style={styles.settingsItemText}>
-        <ThemeText styles={styles.settingsItemLabel} content={label} />
-      </View>
-      {children}
-    </View>
-    {!isLast && (
-      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
-    )}
-  </>
-);
+// Web counterpart of the native "Unlock with" picker: PIN is the password and
+// biometrics is the passkey. Selecting the other method starts its switch flow.
+function WebUnlockMethodRows({
+  isPasskey = false,
+  canUsePasskey = false,
+  onChoosePassword,
+  onChoosePasskey,
+  disabled = false,
+}) {
+  const { t } = useTranslation();
+  return (
+    <>
+      <SectionHeader title={t('settings.loginSecurity.text2')} first />
+      <ListCard dividerInset={48}>
+        <PickRow
+          title={t('settings.loginSecurity.passwordMethod', 'Password')}
+          lead={<Disc icon="Lock" />}
+          selected={!isPasskey}
+          minHeight={52}
+          titleStyle={styles.rowTitle}
+          onPress={isPasskey && !disabled ? onChoosePassword : undefined}
+        />
+        {canUsePasskey && (
+          <PickRow
+            title={t('settings.loginSecurity.text4')}
+            lead={<Disc icon="FingerprintPattern" />}
+            selected={isPasskey}
+            minHeight={52}
+            titleStyle={styles.rowTitle}
+            onPress={!isPasskey && !disabled ? onChoosePasskey : undefined}
+          />
+        )}
+      </ListCard>
+    </>
+  );
+}
 
 // Web login security, read from the stored envelope: a password wallet
 // (change password, or switch to a passkey) or a passkey wallet (switch back
@@ -106,6 +116,8 @@ function WebLoginSecurity() {
       <View style={styles.innerContainer}>
         <ThemeText content={t('settings.loginSecurity.loadError')} />
         <CustomButton
+          size="regular"
+          tone="primary"
           textContent={t('createAccount.keySetup.passkey.tryAgain')}
           actionFunction={refresh}
         />
@@ -130,6 +142,7 @@ function NewPasswordStep({
   onBack,
 }) {
   const { t } = useTranslation();
+  const { tokens } = GetThemeColors();
   return (
     <CustomScrollView
       showsVerticalScrollIndicator={false}
@@ -149,17 +162,20 @@ function NewPasswordStep({
         onSubmit={onSubmit}
         isSubmitting={isSubmitting}
       />
-      {!!error && <ThemeText styles={styles.webErrorText} content={error} />}
-      <TouchableOpacity
-        style={{ marginTop: 15 }}
-        onPress={onBack}
-        disabled={isSubmitting}
-      >
+      {!!error && (
         <ThemeText
-          content={t('constants.back', 'Back')}
-          styles={{ textAlign: 'center' }}
+          variant="body"
+          styles={[styles.webErrorText, { color: tokens.danger }]}
+          content={error}
         />
-      </TouchableOpacity>
+      )}
+      <TextButton
+        text={t('constants.back', 'Back')}
+        align="center"
+        textStyle={styles.backText}
+        disabled={isSubmitting}
+        onPress={onBack}
+      />
     </CustomScrollView>
   );
 }
@@ -167,7 +183,7 @@ function NewPasswordStep({
 function WebChangePassword({ canUsePasskey, onChanged }) {
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState('');
   const [step, setStep] = useState(1);
@@ -348,138 +364,106 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <SettingsSection>
-        <View
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          {pendingCredentialId ? (
-            <>
-              <ThemeText
-                styles={{ marginBottom: 15 }}
-                content={t(
-                  'createAccount.keySetup.passkey.confirmFailed',
-                  "Couldn't confirm your passkey",
-                )}
-              />
-              <CustomButton
-                textContent={t(
-                  'createAccount.keySetup.passkey.tryAgain',
-                  'Try again',
-                )}
-                actionFunction={() => setUpPasskey(pendingCredentialId)}
-                disabled={isSubmitting}
-                useLoading={isSubmitting}
-              />
-              <TouchableOpacity
-                testID="use-password-instead"
-                style={{ marginTop: 15 }}
-                onPress={abandonPasskey}
-                disabled={isSubmitting}
-              >
-                <ThemeText
-                  styles={{ textAlign: 'center' }}
-                  content={t(
-                    'createAccount.keySetup.passkey.usePassword',
-                    'Use a password instead',
-                  )}
-                />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <ThemeText
-                styles={{ marginBottom: 10 }}
-                content={
-                  isSwitchingToPasskey
-                    ? t(
-                        'settings.loginSecurity.passkeyPasswordSubtitle',
-                        'Enter your current password to switch to a passkey.',
-                      )
-                    : t('settings.loginSecurity.currentPasswordSubtitle')
-                }
-              />
-              <CustomSearchInput
-                inputText={currentPassword}
-                setInputText={setCurrentPassword}
-                placeholderText={t(
-                  'settings.loginSecurity.currentPasswordPlaceholder',
-                )}
-                secureTextEntry={true}
-                autoComplete="current-password"
-                textContentType="password"
-              />
-              {!!error && (
-                <ThemeText styles={styles.webErrorText} content={error} />
-              )}
-              <View style={{ marginTop: 15 }}>
-                <CustomButton
-                  textContent={t('constants.continue')}
-                  actionFunction={verifyCurrent}
-                  disabled={!currentPassword || isVerifying || isSubmitting}
-                  useLoading={isVerifying || isSubmitting}
-                />
-              </View>
-              {isSwitchingToPasskey && (
-                <TouchableOpacity
-                  style={{ marginTop: 15 }}
-                  disabled={isVerifying || isSubmitting}
-                  onPress={() => {
-                    if (isVerifyingRef.current || isPasskeyBusyRef.current)
-                      return;
-                    setIsSwitchingToPasskey(false);
-                    setError('');
-                  }}
-                >
-                  <ThemeText
-                    content={t('constants.back', 'Back')}
-                    styles={{ textAlign: 'center' }}
-                  />
-                </TouchableOpacity>
-              )}
-            </>
-          )}
-        </View>
-      </SettingsSection>
-      {canUsePasskey && !isSwitchingToPasskey && (
-        <SettingsSection>
-          <View
-            style={[
-              styles.sectionContent,
-              styles.passkeyCard,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <PasskeyIcon size={40} />
+      <WebUnlockMethodRows
+        canUsePasskey={canUsePasskey}
+        onChoosePasskey={() => {
+          if (isVerifyingRef.current || isWritingRef.current) return;
+          setIsSwitchingToPasskey(true);
+          setError('');
+        }}
+        disabled={isVerifying || isSubmitting || !!pendingCredentialId}
+      />
+      <View style={styles.stepBlock}>
+        {pendingCredentialId ? (
+          <>
             <ThemeText
-              styles={styles.passkeyTitle}
+              variant="body"
+              styles={styles.stepText}
               content={t(
-                'settings.loginSecurity.passkeyCardTitle',
-                'Use a passkey instead',
-              )}
-            />
-            <ThemeText
-              styles={styles.passkeyText}
-              content={t(
-                'settings.loginSecurity.passkeyCardBody',
-                'Unlock with your face, fingerprint, or device PIN. Your passkey replaces your password.',
+                'createAccount.keySetup.passkey.confirmFailed',
+                "Couldn't confirm your passkey",
               )}
             />
             <CustomButton
-              buttonStyles={{ marginTop: 15 }}
+              size="regular"
+              tone="primary"
               textContent={t(
-                'createAccount.keySetup.passkey.createButton',
-                'Create a passkey',
+                'createAccount.keySetup.passkey.tryAgain',
+                'Try again',
               )}
-              disabled={isVerifying || isSubmitting}
-              actionFunction={() => {
-                if (isVerifyingRef.current || isWritingRef.current) return;
-                setIsSwitchingToPasskey(true);
-                setError('');
-              }}
+              actionFunction={() => setUpPasskey(pendingCredentialId)}
+              disabled={isSubmitting}
+              useLoading={isSubmitting}
             />
-          </View>
-        </SettingsSection>
-      )}
+            <TextButton
+              testID="use-password-instead"
+              text={t(
+                'createAccount.keySetup.passkey.usePassword',
+                'Use a password instead',
+              )}
+              align="center"
+              textStyle={styles.backText}
+              disabled={isSubmitting}
+              onPress={abandonPasskey}
+            />
+          </>
+        ) : (
+          <>
+            <ThemeText
+              variant="body"
+              styles={[styles.stepText, { color: tokens.muted }]}
+              content={
+                isSwitchingToPasskey
+                  ? t(
+                      'settings.loginSecurity.passkeyPasswordSubtitle',
+                      'Enter your current password to switch to a passkey.',
+                    )
+                  : t('settings.loginSecurity.currentPasswordSubtitle')
+              }
+            />
+            <PasswordField
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder={t(
+                'settings.loginSecurity.currentPasswordPlaceholder',
+              )}
+              autoComplete="current-password"
+              textContentType="password"
+            />
+            {!!error && (
+              <ThemeText
+                variant="body"
+                styles={[styles.webErrorText, { color: tokens.danger }]}
+                content={error}
+              />
+            )}
+            <View style={styles.stepButton}>
+              <CustomButton
+                size="regular"
+                tone="primary"
+                textContent={t('constants.continue')}
+                actionFunction={verifyCurrent}
+                disabled={!currentPassword || isVerifying || isSubmitting}
+                useLoading={isVerifying || isSubmitting}
+              />
+            </View>
+            {isSwitchingToPasskey && (
+              <TextButton
+                text={t('constants.back', 'Back')}
+                align="center"
+                textStyle={styles.backText}
+                disabled={isVerifying || isSubmitting}
+                onPress={() => {
+                  if (isVerifyingRef.current || isPasskeyBusyRef.current)
+                    return;
+                  setIsSwitchingToPasskey(false);
+                  setError('');
+                }}
+              />
+            )}
+          </>
+        )}
+      </View>
     </CustomScrollView>
   );
 }
@@ -487,7 +471,7 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
 function WebPasskeySettings({ passkeyInfo, onChanged }) {
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { showToast } = useToast();
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
@@ -590,48 +574,19 @@ function WebPasskeySettings({ passkeyInfo, onChanged }) {
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <SettingsSection>
-        <View
-          style={[
-            styles.sectionContent,
-            styles.passkeyCard,
-            { backgroundColor: backgroundOffset },
-          ]}
-        >
-          <PasskeyIcon size={40} />
-          <ThemeText
-            styles={styles.passkeyTitle}
-            content={t('settings.loginSecurity.passkeyTitle', 'Passkey')}
-          />
-          <ThemeText
-            styles={styles.passkeyText}
-            content={t('settings.loginSecurity.passkeyCreatedOn', {
-              defaultValue: 'Created {{date}}',
-              date: new Date(passkeyInfo.createdAt).toLocaleDateString(),
-            })}
-          />
-          <ThemeText
-            styles={styles.passkeyText}
-            content={t('settings.loginSecurity.passkeySavedAs', {
-              defaultValue: 'Saved in your password manager as {{name}}',
-              name: passkeyName(passkeyInfo.createdAt),
-            })}
-          />
-          {!!error && (
-            <ThemeText styles={styles.webErrorText} content={error} />
-          )}
-          <CustomButton
-            buttonStyles={{ marginTop: 15 }}
-            textContent={t(
-              'settings.loginSecurity.switchToPassword',
-              'Switch to password',
-            )}
-            actionFunction={verifyPasskey}
-            disabled={isVerifying}
-            useLoading={isVerifying}
-          />
-        </View>
-      </SettingsSection>
+      <WebUnlockMethodRows
+        isPasskey
+        canUsePasskey
+        onChoosePassword={verifyPasskey}
+        disabled={isVerifying || isSubmitting}
+      />
+      {!!error && (
+        <ThemeText
+          variant="body"
+          styles={[styles.webErrorText, { color: tokens.danger }]}
+          content={error}
+        />
+      )}
     </CustomScrollView>
   );
 }
@@ -643,12 +598,13 @@ function LoginSecurityNative({ extraData }) {
     isBiometricEnabled: null,
   });
   const [useRandomPinLayout, setUseRandomPinLayout] = useState(false);
+  const [hasSeenRandomPinInfo, setHasSeenRandomPinInfo] = useState(true);
   const [isSwitching, setIsSwitching] = useState(false);
   const [showSecurityChoice, setShowSecurityChoice] = useState(false);
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
 
   const updateSecuritySettings = async newSettings => {
     setSecurityLoginSettings(newSettings);
@@ -660,9 +616,10 @@ function LoginSecurityNative({ extraData }) {
 
   useEffect(() => {
     (async () => {
-      const [saved, currentLayoutSetting] = await Promise.all([
+      const [saved, currentLayoutSetting, infoSeen] = await Promise.all([
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(JSON.parse),
         getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(JSON.parse),
+        getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_INFO_SEEN_KEY),
       ]);
 
       if (saved) {
@@ -677,6 +634,7 @@ function LoginSecurityNative({ extraData }) {
         await updateSecuritySettings(defaultConfig);
       }
       setUseRandomPinLayout(currentLayoutSetting);
+      setHasSeenRandomPinInfo(!!infoSeen);
     })();
   }, []);
 
@@ -715,17 +673,26 @@ function LoginSecurityNative({ extraData }) {
 
   const toggleUseRandomPinLayout = useCallback(async () => {
     try {
+      const nextValue = !useRandomPinLayout;
       setLocalStorageItem(
         RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
-        JSON.stringify(!useRandomPinLayout),
+        JSON.stringify(nextValue),
       );
-      setUseRandomPinLayout(!useRandomPinLayout);
+      setUseRandomPinLayout(nextValue);
+
+      if (nextValue && !hasSeenRandomPinInfo) {
+        setLocalStorageItem(RANDOM_LOGIN_KEYBOARD_INFO_SEEN_KEY, 'true');
+        setHasSeenRandomPinInfo(true);
+        navigate.navigate('InformationPopup', {
+          textContent: t('settings.loginSecurity.randomPinKeyboardInfo'),
+          buttonText: t('constants.iunderstand'),
+        });
+      }
     } catch (err) {
       console.log('Toggle switch error:', err);
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
-    } finally {
     }
-  }, [useRandomPinLayout]);
+  }, [useRandomPinLayout, hasSeenRandomPinInfo, navigate, t]);
 
   const handleInitialSecurityChoice = useCallback(
     async type => {
@@ -831,6 +798,16 @@ function LoginSecurityNative({ extraData }) {
     );
   }
 
+  const selectMethod = (onSelect, type) => {
+    if (
+      (type === 'pin' && securityLoginSettings.isPinEnabled) ||
+      (type === 'biometric' && securityLoginSettings.isBiometricEnabled)
+    ) {
+      return;
+    }
+    onSelect(type);
+  };
+
   return (
     <CustomScrollView
       showsVerticalScrollIndicator={false}
@@ -838,164 +815,98 @@ function LoginSecurityNative({ extraData }) {
       contentContainerStyle={styles.scrollContent}
     >
       {securityLoginSettings.isSecurityEnabled === false && (
-        <SettingsSection>
-          <View
-            style={[
-              styles.sectionContent,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <SettingsItem
-              isLast
-              dividerColor={tokens.divider}
-              label={t('settings.loginSecurity.text1')}
-            >
-              <CustomToggleSwitch
-                page="LoginSecurityMode"
-                toggleSwitchFunction={toggleSecurityEnabled}
-                stateValue={securityLoginSettings.isSecurityEnabled}
-              />
-            </SettingsItem>
-          </View>
-        </SettingsSection>
+        <ListCard style={styles.firstCard}>
+          <ListRow
+            title={t('settings.loginSecurity.text1')}
+            minHeight={52}
+            titleStyle={styles.rowTitle}
+            trailing="switch"
+            value={securityLoginSettings.isSecurityEnabled}
+            onPress={toggleSecurityEnabled}
+          />
+        </ListCard>
       )}
 
       {showSecurityChoice && (
-        <SettingsSection title={t('settings.loginSecurity.text2')}>
-          <View
-            style={[
-              styles.sectionContent,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <TouchableOpacity
+        <>
+          <SectionHeader
+            title={t('settings.loginSecurity.text2')}
+            first={securityLoginSettings.isSecurityEnabled === false}
+          />
+          <ListCard dividerInset={48}>
+            <PickRow
+              title={t('settings.loginSecurity.text3')}
+              lead={<Disc icon="Lock" />}
+              selected={false}
+              minHeight={52}
+              titleStyle={styles.rowTitle}
               onPress={() => handleInitialSecurityChoice('pin')}
-              style={styles.securityMethodRow}
-            >
-              <ThemeText
-                styles={styles.settingsItemLabel}
-                content={t('settings.loginSecurity.text3')}
-              />
-              <CheckMarkCircle
-                containerSize={25}
-                isActive={false}
-                switchDarkMode={true}
-              />
-            </TouchableOpacity>
-            <View
-              style={[styles.divider, { backgroundColor: tokens.divider }]}
             />
-            <TouchableOpacity
+            <PickRow
+              title={t('settings.loginSecurity.text4')}
+              lead={<Disc icon="FingerprintPattern" />}
+              selected={false}
+              minHeight={52}
+              titleStyle={styles.rowTitle}
               onPress={() => handleInitialSecurityChoice('biometric')}
-              style={styles.securityMethodRow}
-            >
-              <ThemeText
-                styles={styles.settingsItemLabel}
-                content={t('settings.loginSecurity.text4')}
-              />
-              <CheckMarkCircle
-                containerSize={25}
-                isActive={false}
-                switchDarkMode={true}
-              />
-            </TouchableOpacity>
-          </View>
-        </SettingsSection>
+            />
+          </ListCard>
+        </>
       )}
 
       {securityLoginSettings.isSecurityEnabled && (
         <>
-          <SettingsSection title={t('settings.loginSecurity.text2')}>
-            <View
-              style={[
-                styles.sectionContent,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
-              <TouchableOpacity
-                onPress={() => toggleLoginSecurity('pin')}
-                style={styles.securityMethodRow}
-              >
-                <ThemeText
-                  styles={styles.settingsItemLabel}
-                  content={t('settings.loginSecurity.text3')}
-                />
-                <CheckMarkCircle
-                  containerSize={25}
-                  isActive={securityLoginSettings.isPinEnabled}
-                  switchDarkMode={true}
-                />
-              </TouchableOpacity>
-              <View
-                style={[styles.divider, { backgroundColor: tokens.divider }]}
-              />
-              <TouchableOpacity
-                onPress={() => toggleLoginSecurity('biometric')}
-                style={styles.securityMethodRow}
-              >
-                <ThemeText
-                  styles={styles.settingsItemLabel}
-                  content={t('settings.loginSecurity.text4')}
-                />
-                <CheckMarkCircle
-                  containerSize={25}
-                  isActive={securityLoginSettings.isBiometricEnabled}
-                  switchDarkMode={true}
-                />
-              </TouchableOpacity>
-            </View>
-          </SettingsSection>
+          <SectionHeader title={t('settings.loginSecurity.text2')} first />
+          <ListCard dividerInset={48}>
+            <PickRow
+              title={t('settings.loginSecurity.text3')}
+              lead={<Disc icon="Lock" />}
+              selected={securityLoginSettings.isPinEnabled}
+              minHeight={52}
+              titleStyle={styles.rowTitle}
+              onPress={() => selectMethod(toggleLoginSecurity, 'pin')}
+            />
+            <PickRow
+              title={t('settings.loginSecurity.text4')}
+              lead={<Disc icon="FingerprintPattern" />}
+              selected={securityLoginSettings.isBiometricEnabled}
+              minHeight={52}
+              titleStyle={styles.rowTitle}
+              onPress={() => selectMethod(toggleLoginSecurity, 'biometric')}
+            />
+          </ListCard>
 
           {securityLoginSettings.isBiometricEnabled && (
-            <View style={styles.biometricsWarningContainer}>
-              <ThemeIcon iconName={'TriangleAlert'} />
+            <View
+              style={[styles.noteCard, { backgroundColor: tokens.surface }]}
+            >
               <ThemeText
-                styles={styles.emptyTitle}
+                styles={styles.noteTitle}
                 content={t('settings.loginSecurity.biometricsHead')}
               />
               <ThemeText
-                styles={styles.emptySubtext}
+                styles={[styles.noteBody, { color: tokens.muted }]}
                 content={t('settings.loginSecurity.biometricsSubHead')}
               />
             </View>
           )}
 
           {securityLoginSettings.isPinEnabled && (
-            <SettingsSection style={styles.lastSection}>
-              <View
-                style={[
-                  styles.sectionContent,
-                  { backgroundColor: backgroundOffset },
-                ]}
-              >
-                <SettingsItem
-                  isLast
-                  dividerColor={tokens.divider}
-                  label={t('settings.loginSecurity.randomPinKeyboardToggle')}
-                >
-                  <View style={styles.rightContainer}>
-                    <TouchableOpacity
-                      style={styles.infoButton}
-                      onPress={() =>
-                        navigate.navigate('InformationPopup', {
-                          textContent: t(
-                            'settings.loginSecurity.randomPinKeyboardInfo',
-                          ),
-                          buttonText: t('constants.iunderstand'),
-                        })
-                      }
-                    >
-                      <ThemeIcon size={20} iconName="Info" />
-                    </TouchableOpacity>
-                    <CustomToggleSwitch
-                      page="useRanomPinLayout"
-                      toggleSwitchFunction={toggleUseRandomPinLayout}
-                      stateValue={useRandomPinLayout}
-                    />
-                  </View>
-                </SettingsItem>
-              </View>
-            </SettingsSection>
+            <View style={styles.cardSpacing}>
+              <ListCard>
+                <ListRow
+                  title={t('settings.loginSecurity.randomPinKeyboardToggle')}
+                  sub={t('settings.loginSecurity.randomPinKeyboardSubtitle')}
+                  minHeight={60}
+                  paddingVertical={8}
+                  titleStyle={styles.rowTitle}
+                  subStyle={styles.rowSub}
+                  trailing="switch"
+                  value={useRandomPinLayout}
+                  onPress={toggleUseRandomPinLayout}
+                />
+              </ListCard>
+            </View>
           )}
         </>
       )}
@@ -1005,81 +916,68 @@ function LoginSecurityNative({ extraData }) {
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    flex: 1,
   },
   scrollContent: {
-    paddingTop: 24,
+    paddingTop: 0,
     paddingBottom: 40,
   },
-  section: {
-    marginBottom: 24,
-    width: '100%',
+  firstCard: {
+    marginTop: 16,
   },
-  lastSection: {
-    marginBottom: 0,
-  },
-  sectionTitle: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    marginBottom: 16,
+  rowTitle: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
   },
-  sectionContent: {
-    width: '100%',
-    borderRadius: 8,
+  rowSub: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  noteCard: {
+    marginTop: 16,
+    borderRadius: 20,
     padding: 16,
   },
-  settingsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemText: {
-    flex: 1,
-    flexShrink: 1,
-    marginRight: 8,
-  },
-  settingsItemLabel: {
+  noteTitle: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
-  divider: {
-    height: 1,
-    marginVertical: 8,
+  noteBody: {
+    marginTop: 6,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 21,
+    includeFontPadding: false,
   },
-  securityMethodRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  infoButton: {
-    marginRight: 8,
-  },
-  biometricsWarningContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...CENTER,
-  },
-  emptyTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+  cardSpacing: {
     marginTop: 16,
-    marginBottom: 8,
-    textAlign: 'center',
   },
-  emptySubtext: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
+  detailCard: {
+    width: '100%',
+    marginTop: 16,
+    borderRadius: 20,
+    padding: 16,
+  },
+  stepBlock: {
+    width: '100%',
+    marginTop: 16,
+  },
+  stepText: {
+    marginBottom: 12,
+  },
+  stepButton: {
+    marginTop: 16,
+  },
+  backText: {
+    fontSize: 15,
+    lineHeight: 22,
   },
   webErrorText: {
-    fontSize: SIZES.small,
-    color: '#e74c3c',
     marginTop: 8,
   },
   passkeyCard: {

@@ -18,6 +18,7 @@ const mockFactoryReset = jest.fn();
 jest.mock('../app/constants', () => ({
   CENTER: {},
   COLORS: { gray: '#888', cancelRed: '#f00' },
+  FONT: {},
   ICONS: { logoIcon: 'logo' },
   SIZES: { xxLarge: 30, smedium: 16, small: 12 },
 }));

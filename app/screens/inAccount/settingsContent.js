@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   AboutPage,
   LoginSecurity,
@@ -29,12 +29,15 @@ import NostrHome from '../../components/admin/homeComponents/settingsContent/nos
 import { useTranslation } from 'react-i18next';
 import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
 
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
 
@@ -112,12 +115,17 @@ export default function SettingsContentIndex(props) {
         </>
       ) : (
         <GlobalThemeView useStandardWidth={true}>
-          <CustomSettingsTopBar
-            label={t(
-              `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
-            )}
-          />
-          <View style={styles.largeDeviceWrapper}>
+          <View style={[styles.largeDeviceWrapper, { width: contentWidth }]}>
+            <TopBar
+              title={
+                selectedPage?.toLowerCase() === 'backup wallet'
+                  ? ''
+                  : t(
+                      `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
+                    )
+              }
+            />
+
             {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />
             )} */}
@@ -128,7 +136,6 @@ export default function SettingsContentIndex(props) {
             {/* {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )} */}
-
 
             {selectedPage?.toLowerCase() === 'nostr' && (
               <NostrHome theme={theme} />

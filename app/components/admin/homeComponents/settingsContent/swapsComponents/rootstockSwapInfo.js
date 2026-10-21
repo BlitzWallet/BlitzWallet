@@ -1,35 +1,20 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { ThemeText } from '../../../../../functions/CustomElements';
-import { useNavigation } from '@react-navigation/native';
-import CustomButton from '../../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useToast } from '../../../../../../context-store/toastManager';
-import { copyToClipboard } from '../../../../../functions';
 import { useTranslation } from 'react-i18next';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useTheme } from '../../../../../../context-store/theme';
 import { getRootstockSwapStatusLabel } from '../../../../../functions/boltz/rootstock/swapProgress';
-import {
-  isRootstockSwapPendingRefund,
-  isRootstockSwapTerminalFailureStatus,
-} from '../../../../../functions/boltz/rootstock/swapStatus';
+import { canRefundRootstockSwap } from '../../../../../functions/boltz/rootstock/swapStatus';
+import { loadSwaps } from '../../../../../functions/boltz/rootstock/swapDb';
+import { FONT } from '../../../../../constants';
+import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import ThemeText from '../../../../../functions/CustomElements/textTheme';
+import KeyValueRow from '../../../../../functions/CustomElements/redesign/KeyValueRow';
 
 const EMPTY_VALUE = '--';
-
-function truncateMiddle(value) {
-  if (!value) return EMPTY_VALUE;
-  const str = String(value);
-  if (str.length <= 16) return str;
-  return `${str.slice(0, 8)}…${str.slice(-6)}`;
-}
 
 function formatDate(value) {
   if (!value) return null;
@@ -38,14 +23,20 @@ function formatDate(value) {
   return new Date(num).toLocaleString();
 }
 
+function formatBlockHeight(value) {
+  if (!value) return null;
+  const num = Number(value);
+  if (!num) return null;
+  return num.toLocaleString();
+}
+
 export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const navigate = useNavigation();
   const { accountMnemoinc } = useKeysContext();
   const [isRefunding, setIsRefunding] = useState(false);
+  const [currentSwap, setCurrentSwap] = useState(swap);
   const { showToast } = useToast();
   const { t } = useTranslation();
+  const { tokens } = useTheme();
 
   const showRefundError = () =>
     showToast({
@@ -53,26 +44,25 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
       title: t('settings.rootstockSwapInfo.refundError'),
     });
 
-  const data = swap?.data || {};
+  const data = currentSwap?.data || {};
   const status = data?.status;
+  const canRefund = canRefundRootstockSwap(currentSwap);
+  const statusLabel = data?.refundTxHash
+    ? t('settings.rootstockSwapInfo.refunded')
+    : canRefund
+    ? t('settings.viewRoostockSwaps.transaction.lockupFailed')
+    : getRootstockSwapStatusLabel(status) || EMPTY_VALUE;
 
   const rows = [
     {
       label: t('settings.rootstockSwapInfo.date'),
       value: formatDate(data?.createdAt),
-    },
-    {
-      label: t('settings.rootstockSwapInfo.completed'),
-      value: formatDate(data?.completedAt),
-    },
-    {
-      label: t('settings.rootstockSwapInfo.refunded'),
-      value: formatDate(data?.refundedAt),
+      mono: false,
     },
     {
       label: t('settings.rootstockSwapInfo.id'),
-      value: swap?.id,
-      copy: swap?.id,
+      value: currentSwap?.id,
+      copy: currentSwap?.id,
     },
     {
       label: t('settings.rootstockSwapInfo.claimAddress'),
@@ -80,19 +70,14 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
       copy: data?.swap?.claimAddress,
     },
     {
-      label: t('settings.rootstockSwapInfo.invoice'),
-      value: data?.invoice,
-      copy: data?.invoice,
-    },
-    {
-      label: t('settings.rootstockSwapInfo.rootstockTx'),
-      value: data?.rootstockPaymentTxId,
-      copy: data?.rootstockPaymentTxId,
-    },
-    {
       label: t('settings.rootstockSwapInfo.lockTx'),
       value: data?.lockTxHash,
       copy: data?.lockTxHash,
+    },
+    {
+      label: t('settings.rootstockSwapInfo.timeoutBHeight'),
+      value: formatBlockHeight(data?.swap?.timeoutBlockHeight),
+      mono: false,
     },
     {
       label: t('settings.rootstockSwapInfo.refundTx'),
@@ -101,176 +86,165 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
     },
   ].filter(row => row.value);
 
-  const cardBackground =
-    theme && darkModeType ? backgroundColor : backgroundOffset;
-
-  // Also cover swaps the disabled retry loop used to re-drive: a failed refund
-  // leaves refundState 'retryable_error' without didSwapFail, and a swap that
-  // never reached the lifecycle handler has neither.
-  const canRefund =
-    !data?.refundTxHash &&
-    (data?.didSwapFail ||
-      isRootstockSwapPendingRefund(swap) ||
-      isRootstockSwapTerminalFailureStatus(status));
+  const refund = async () => {
+    if (isRefunding) return;
+    setIsRefunding(true);
+    let provider;
+    try {
+      // Load Rootstock only for a user-requested refund.
+      const { FallbackProvider, JsonRpcProvider, Wallet } = require('ethers');
+      const {
+        getRoostockProviderEndpoints,
+        getRoostockProviderNetwork,
+        rootstockEnvironment,
+      } = require('../../../../../functions/boltz/rootstock');
+      const {
+        refundRootstockSubmarineSwap,
+      } = require('../../../../../functions/boltz/rootstock/claims');
+      const network = getRoostockProviderNetwork(rootstockEnvironment);
+      const providers = getRoostockProviderEndpoints(rootstockEnvironment).map(
+        (endpoint, index) => ({
+          provider: new JsonRpcProvider(endpoint, network, {
+            staticNetwork: true,
+          }),
+          priority: index + 1,
+          weight: 1,
+          stallTimeout: 2000,
+        }),
+      );
+      provider =
+        providers.length === 1
+          ? providers[0].provider
+          : new FallbackProvider(providers, network, { quorum: 1 });
+      const signer = Wallet.fromPhrase(accountMnemoinc).connect(provider);
+      const response = await refundRootstockSubmarineSwap(currentSwap, signer);
+      if (response) {
+        const swaps = await loadSwaps();
+        const updatedSwap = swaps.find(item => item.id === currentSwap?.id);
+        if (updatedSwap) setCurrentSwap(updatedSwap);
+        AccessibilityInfo.announceForAccessibility(
+          t('settings.rootstockSwapInfo.refunded'),
+        );
+      } else {
+        showRefundError();
+      }
+    } catch (err) {
+      console.log('Error preparing rootstock refund', err);
+      showRefundError();
+    } finally {
+      provider?.destroy();
+      setIsRefunding(false);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.hero}>
-          <FormattedSatText
-            balance={data?.amountSat || 0}
-            styles={styles.amount}
-          />
+    <CustomScrollView
+      style={styles.scroll}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <View style={styles.hero}>
+        <View
+          style={[
+            styles.pill,
+            {
+              backgroundColor: canRefund ? tokens.dangerBg : tokens.disc,
+            },
+          ]}
+        >
           <ThemeText
-            styles={styles.status}
-            content={getRootstockSwapStatusLabel(status) || EMPTY_VALUE}
+            styles={[
+              styles.pillText,
+              { color: canRefund ? tokens.danger : tokens.ink },
+            ]}
+            content={statusLabel}
           />
         </View>
+        <FormattedSatText
+          balance={data?.amountSat || 0}
+          styles={{ ...styles.amount, color: tokens.ink }}
+        />
+        <ThemeText
+          styles={[styles.subtitle, { color: tokens.muted }]}
+          content={t('settings.rootstockSwapInfo.subtitle')}
+        />
+      </View>
 
-        <View style={[styles.card, { backgroundColor: cardBackground }]}>
-          {rows.map((row, index) => {
-            const isCopyable = !!row.copy;
-            const RowWrapper = isCopyable ? TouchableOpacity : View;
-            return (
-              <RowWrapper
-                key={row.label}
-                activeOpacity={0.6}
-                onPress={
-                  isCopyable
-                    ? () => copyToClipboard(String(row.copy), showToast)
-                    : undefined
-                }
-                style={[
-                  styles.row,
-                  index !== rows.length - 1 && {
-                    borderBottomWidth: StyleSheet.hairlineWidth,
-                    borderBottomColor:
-                      theme && darkModeType
-                        ? backgroundOffset
-                        : backgroundColor,
-                  },
-                ]}
-              >
-                <ThemeText styles={styles.rowLabel} content={row.label} />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.rowValue}
-                  content={isCopyable ? truncateMiddle(row.value) : row.value}
-                />
-              </RowWrapper>
-            );
-          })}
-        </View>
-      </CustomScrollView>
+      <View style={[styles.details, { backgroundColor: tokens.ground }]}>
+        {rows.map(row => (
+          <KeyValueRow
+            key={row.label}
+            label={row.label}
+            value={row.value}
+            copyValue={row.copy}
+            copyLabel={
+              row.copy ? `${t('constants.copy')} ${row.label}` : undefined
+            }
+            truncate={row.copy ? 'middle' : undefined}
+            mono={row.mono !== false}
+          />
+        ))}
+      </View>
 
       {canRefund && (
         <CustomButton
-          actionFunction={async () => {
-            if (isRefunding) return;
-            setIsRefunding(true);
-            let provider;
-            try {
-              // Load Rootstock only for a user-requested refund.
-              const {
-                FallbackProvider,
-                JsonRpcProvider,
-                Wallet,
-              } = require('ethers');
-              const {
-                getRoostockProviderEndpoints,
-                getRoostockProviderNetwork,
-                rootstockEnvironment,
-              } = require('../../../../../functions/boltz/rootstock');
-              const {
-                refundRootstockSubmarineSwap,
-              } = require('../../../../../functions/boltz/rootstock/claims');
-              const network = getRoostockProviderNetwork(rootstockEnvironment);
-              const providers = getRoostockProviderEndpoints(
-                rootstockEnvironment,
-              ).map((endpoint, index) => ({
-                provider: new JsonRpcProvider(endpoint, network, {
-                  staticNetwork: true,
-                }),
-                priority: index + 1,
-                weight: 1,
-                stallTimeout: 2000,
-              }));
-              provider =
-                providers.length === 1
-                  ? providers[0].provider
-                  : new FallbackProvider(providers, network, { quorum: 1 });
-              const signer =
-                Wallet.fromPhrase(accountMnemoinc).connect(provider);
-              const response = await refundRootstockSubmarineSwap(swap, signer);
-              if (response) handleBackPressFunction();
-              else showRefundError();
-            } catch (err) {
-              console.log('Error preparing rootstock refund', err);
-              showRefundError();
-            } finally {
-              provider?.destroy();
-              setIsRefunding(false);
-            }
-          }}
+          size="regular"
+          tone="primary"
           buttonStyles={styles.refundButton}
+          actionFunction={refund}
           textContent={t('settings.rootstockSwapInfo.refundSwap')}
           useLoading={isRefunding}
         />
       )}
-    </View>
+    </CustomScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-  },
+  scroll: { flex: 1 },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 10,
+    paddingHorizontal: 20,
+    paddingTop: 18,
   },
   hero: {
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  pill: {
+    minHeight: 28,
+    paddingHorizontal: 10,
+    borderRadius: 999,
     alignItems: 'center',
-    marginBottom: 24,
+    justifyContent: 'center',
+  },
+  pillText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 18,
+    includeFontPadding: false,
   },
   amount: {
-    fontSize: 36,
+    fontFamily: FONT.Title_Medium,
+    fontSize: 34,
+    lineHeight: 42,
+    letterSpacing: -0.68,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
-  status: {
-    fontSize: SIZES.smedium,
-    marginTop: 6,
+  subtitle: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
   },
-  card: {
-    borderRadius: 16,
+  details: {
+    marginTop: 12,
+    borderRadius: 20,
+    paddingVertical: 6,
     paddingHorizontal: 16,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-  },
-  rowLabel: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    marginRight: 16,
-  },
-  rowValue: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    flexShrink: 1,
-    textAlign: 'right',
-    opacity: HIDDEN_OPACITY,
-  },
   refundButton: {
-    alignSelf: 'center',
-    marginTop: 10,
+    width: '100%',
+    marginTop: 20,
   },
 });

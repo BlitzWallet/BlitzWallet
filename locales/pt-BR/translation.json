@@ -58,6 +58,8 @@
     "retry": "Tentar novamente",
     "download": "Download",
     "contactUs": "Contate-nos",
+    "copyEmail": "Copiar e-mail",
+    "openInbox": "Abrir caixa de entrada",
     "pay": "Pagar",
     "processing": "Processando",
     "support": "Suporte",
@@ -1685,10 +1687,11 @@
       "editThresholdA11y": "Editar limite"
     },
     "loginSecurity": {
-      "text1": "Segurança de acesso",
-      "text2": "Tipo de segurança",
+      "text1": "Ativar segurança de login",
+      "text2": "Desbloquear com",
       "text3": "PIN",
       "text4": "Biometria",
+      "passwordMethod": "Senha",
       "text5": "O dispositivo não possui um perfil biométrico. Crie um nas configurações para continuar.",
       "text6": "Erro ao acessar usando biometria",
       "text7": "O dispositivo não suporta acesso usando biometria",
@@ -1701,6 +1704,7 @@
       "createPinPageHeader": "{{type}} seu PIN Blitz",
       "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!",
       "randomPinKeyboardToggle": "Embaralhar teclado",
+      "randomPinKeyboardSubtitle": "Altera a ordem dos números do PIN sempre que você desbloquear.",
       "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN.",
       "biometricsHead": "Sobre biometria",
       "biometricsSubHead": "Sua frase de recuperação é protegida pelos dados biométricos atuais do seu dispositivo. Alterá-los impedirá que a Blitz Wallet acesse sua frase de recuperação e bloqueará o acesso à sua carteira.",
@@ -1739,8 +1743,8 @@
         "point2_accounts": "Se alguém acessar essa frase, poderá roubar os fundos dessa conta. Não há como recuperar fundos perdidos.",
         "point3_accounts": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "title_settings": "Mantenha sua frase de recuperação em segredo",
-        "point1_settings": "Essa frase secreta de recuperação permite recuperar fundos de todas suas contas na carteira Blitz.",
-        "point2_settings": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não há como recuperar fundos perdidos.",
+        "point1_settings": "Sua frase de recuperação é a chave mestra da sua carteira.",
+        "point2_settings": "Quem obtiver a frase pode levar seu dinheiro, e fundos perdidos não podem ser recuperados.",
         "point3_settings": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
         "continueButton": "Continuar"
@@ -1833,6 +1837,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Trocas",
+      "subtitle": "Transferência Rootstock",
       "id": "ID",
       "swapDetails": "Detalhes da transferência",
       "claimAddress": "Endereço de resgate",
@@ -1867,8 +1872,8 @@
       "unsupportedTitle": "Não oferecemos mais suporte para {{type}}",
       "unsupportedDesc": "Se você ainda tem fundos na {{type}}, restaure sua frase de recuperação da Blitz em uma carteira compatível para acessá-los. Precisa de ajuda? Fale conosco abaixo.",
       "contactUs": "Contate-nos",
-      "refundInProgress": "Reembolso em andamento. Mantenha o app aberto até a conclusão.",
-      "refundComplete": "Reembolso concluído. Seus fundos estão de volta na sua carteira Liquid."
+      "refundInProgress": "Reembolso em andamento. Mantenha o app aberto.",
+      "refundComplete": "Reembolso concluído."
     },
     "notifications": {
       "mainToggle": "Permitir notificações",

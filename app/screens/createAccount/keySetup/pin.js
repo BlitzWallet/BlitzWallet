@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
-import { CENTER, SIZES } from '../../../constants';
+import { FONT, SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -23,17 +23,16 @@ import {
   isPasskeySupported,
   storeMnemonicWithPasskey,
 } from '../../../functions/passkeyMnemonic';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import TextButton from '../../../functions/CustomElements/redesign/TextButton';
+import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
-import IconActionCircle from '../../../functions/CustomElements/actionCircleContainer';
-import { useGlobalThemeContext } from '../../../../context-store/theme';
-import GetThemeColors from '../../../hooks/themeColors';
+import { useTheme } from '../../../../context-store/theme';
 
 function WebCreatePassword(props) {
   const { accountMnemoinc } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = useTheme();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -208,7 +207,7 @@ function WebCreatePassword(props) {
   if (step === 'password') {
     return (
       <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
-        <CustomSettingsTopBar customBackFunction={handleGoBack} />
+        <TopBar title="" onBack={handleGoBack} />
         <PasswordCreateForm
           headerText={t(
             'createAccount.keySetup.password.createHeader',
@@ -238,7 +237,7 @@ function WebCreatePassword(props) {
 
   return (
     <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
-      <CustomSettingsTopBar customBackFunction={handleGoBack} />
+      <TopBar title="" onBack={handleGoBack} />
       <View style={styles.container}>
         <View style={styles.passkeyContent}>
           <ThemeText
@@ -246,7 +245,8 @@ function WebCreatePassword(props) {
             content={t('createAccount.keySetup.passkey.offerHeader')}
           />
           <ThemeText
-            styles={styles.passkeySubtitle}
+            variant="body"
+            styles={[styles.passkeySubtitle, { color: tokens.muted }]}
             content={t(
               'createAccount.keySetup.passkey.offerSubtitle',
               'Unlock with your face, fingerprint, or device PIN instead of a password. If you ever lose your passkey, you can restore your wallet with your recovery phrase.',
@@ -260,14 +260,19 @@ function WebCreatePassword(props) {
           )}
         </View>
         <View style={styles.keyIconContainer}>
-          <IconActionCircle
-            customBackgroundColor={backgroundOffset}
-            icon={'Key'}
-            size={130}
-          />
+          <View style={[styles.keyDisc, { backgroundColor: tokens.surface }]}>
+            <ThemeIcon
+              redesign
+              iconName="Key"
+              size={44}
+              colorOverride={tokens.accent}
+            />
+          </View>
         </View>
         <View style={styles.passkeyButtons}>
           <CustomButton
+            size="regular"
+            tone="primary"
             textContent={
               step === 'confirm-failed'
                 ? t('createAccount.keySetup.passkey.tryAgain')
@@ -277,18 +282,16 @@ function WebCreatePassword(props) {
             disabled={isSubmitting}
             useLoading={isSubmitting}
           />
-          <TouchableOpacity
+          <TextButton
             testID="use-password-instead"
-            style={styles.usePasswordButton}
+            text={t('createAccount.keySetup.passkey.usePassword')}
+            align="center"
+            textStyle={styles.usePasswordText}
+            disabled={isSubmitting}
             onPress={() => {
               if (!isPasskeyBusyRef.current) showPasswordForm(false);
             }}
-            disabled={isSubmitting}
-          >
-            <ThemeText
-              content={t('createAccount.keySetup.passkey.usePassword')}
-            />
-          </TouchableOpacity>
+          />
         </View>
       </View>
     </GlobalThemeView>
@@ -507,7 +510,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
   },
   header: {
     fontSize: SIZES.xLarge,
@@ -559,19 +562,19 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   passkeyHeader: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+    fontFamily: FONT.Title_Medium,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.56,
+    includeFontPadding: false,
     marginTop: 28,
-    marginBottom: 8,
   },
   passkeySubtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
+    marginTop: 8,
   },
   passkeyError: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
+    fontSize: 15,
+    lineHeight: 22,
     marginTop: 12,
   },
   keyIconContainer: {
@@ -579,12 +582,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  keyDisc: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   passkeyButtons: {
     width: '100%',
+    gap: 12,
   },
-  usePasswordButton: {
-    marginTop: 15,
-    padding: 5,
-    ...CENTER,
+  usePasswordText: {
+    fontSize: 15,
+    lineHeight: 22,
   },
 });

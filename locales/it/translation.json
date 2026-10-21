@@ -58,6 +58,8 @@
     "retry": "Riprova",
     "download": "Scarica",
     "contactUs": "Contattaci",
+    "copyEmail": "Copia email",
+    "openInbox": "Apri la posta in arrivo",
     "pay": "Paga",
     "processing": "Elaborazione",
     "support": "Assistenza",
@@ -1686,9 +1688,10 @@
     },
     "loginSecurity": {
       "text1": "Abilita Sicurezza Login",
-      "text2": "Tipo di Sicurezza",
+      "text2": "Sblocca con",
       "text3": "PIN",
-      "text4": "Biometrico",
+      "text4": "Biometria",
+      "passwordMethod": "Password",
       "text5": "Il dispositivo non ha un profilo Biometrico. Creane uno nelle impostazioni per continuare.",
       "text6": "Errore nel login con Biometrici",
       "text7": "Il dispositivo non supporta il login Biometrico",
@@ -1701,6 +1704,7 @@
       "createPinPageHeader": "{{type}} il tuo PIN Blitz",
       "invalidPinconfirmation": "I PIN non corrispondono. Riprova!",
       "randomPinKeyboardToggle": "Mescola tastierino numerico",
+      "randomPinKeyboardSubtitle": "Cambia l’ordine delle cifre del PIN a ogni sblocco.",
       "randomPinKeyboardInfo": "Abilita questa funzione per mescolare i numeri del tastierino ogni volta che accedi. Aggiunge un ulteriore livello di sicurezza rendendo più difficile per chi ti sta vicino scoprire il tuo schema PIN.",
       "biometricsHead": "Informazioni sulla biometria",
       "biometricsSubHead": "La tua frase di recupero è protetta dai dati biometrici attuali del dispositivo. Modificarli impedirà a Blitz Wallet di accedere alla tua frase di recupero e bloccherà l’accesso al tuo wallet.",
@@ -1833,6 +1837,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
+      "subtitle": "Trasferimento Rootstock",
       "id": "ID",
       "swapDetails": "Dettagli del trasferimento",
       "claimAddress": "Indirizzo di riscossione",
@@ -1867,8 +1872,8 @@
       "unsupportedTitle": "Non supportiamo più {{type}}",
       "unsupportedDesc": "Se hai ancora fondi su {{type}}, ripristina la tua frase di recupero Blitz in un portafoglio compatibile per accedervi. Hai bisogno di aiuto? Contattaci qui sotto.",
       "contactUs": "Contattaci",
-      "refundInProgress": "Rimborso in corso. Tieni l'app aperta fino al completamento.",
-      "refundComplete": "Rimborso completato. I tuoi fondi sono di nuovo nel tuo wallet Liquid."
+      "refundInProgress": "Rimborso in corso. Tieni l’app aperta.",
+      "refundComplete": "Rimborso completato."
     },
     "notifications": {
       "mainToggle": "Consenti le notifiche",

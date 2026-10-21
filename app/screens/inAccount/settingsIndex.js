@@ -1,4 +1,10 @@
-import { Platform, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
@@ -131,7 +137,7 @@ export default function SettingsIndex() {
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { tokens } = useTheme();
+  const { tokens, mode } = useTheme();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [scrolled, setScrolled] = useState(false);
@@ -180,14 +186,17 @@ export default function SettingsIndex() {
   const renderRow = useCallback(
     row => {
       const value = getInlineValue(row);
-      const danger = !!row.isDestructive;
+      const danger = !!row.isDestructive && mode !== 'dim';
+
       return (
         <ListRow
           key={row.name}
           title={t(row.displayName)}
           minHeight={52}
           titleStyle={styles.rowTitle}
-          accessibilityLabel={value ? `${t(row.displayName)}, ${value}` : undefined}
+          accessibilityLabel={
+            value ? `${t(row.displayName)}, ${value}` : undefined
+          }
           lead={
             <Disc
               icon={row.iconName}
@@ -218,7 +227,7 @@ export default function SettingsIndex() {
         />
       );
     },
-    [getInlineValue, handleSettingsRowPress, t, tokens.muted],
+    [getInlineValue, handleSettingsRowPress, t, tokens.muted, mode],
   );
 
   const renderSection = useCallback(
@@ -241,25 +250,19 @@ export default function SettingsIndex() {
   const technicalRows =
     Platform.OS === 'web'
       ? TECHNICAL_ROWS.filter(
-          row =>
-            row.name !== 'Crash Reports' && row.name !== 'ViewAllSwaps',
+          row => row.name !== 'Crash Reports' && row.name !== 'ViewAllSwaps',
         )
       : TECHNICAL_ROWS;
 
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      styles={styles.globalContainer}
-    >
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar title={t('settings.index.settingsHead')} scrolled={scrolled} />
         <CustomScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
-          onScroll={event =>
-            setScrolled(event.nativeEvent.contentOffset.y > 0)
-          }
+          onScroll={event => setScrolled(event.nativeEvent.contentOffset.y > 0)}
           contentContainerStyle={styles.scrollContent}
         >
           {renderSection(

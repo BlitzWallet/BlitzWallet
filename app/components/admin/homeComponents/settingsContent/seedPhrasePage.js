@@ -1,20 +1,17 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../login';
-import { useState } from 'react';
-import { COLORS, FONT, SIZES, CENTER } from '../../../../constants';
+import { useEffect, useState } from 'react';
+import { FONT } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../../../../context-store/keys';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import calculateSeedQR from './seedQR';
-import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import Segmented from '../../../../functions/CustomElements/redesign/Segmented';
 
 export default function SeedPhrasePage({ extraData, route }) {
   const { accountMnemoinc: contextMnemonic } = useKeysContext();
@@ -25,16 +22,19 @@ export default function SeedPhrasePage({ extraData, route }) {
 
   const mnemonic = mnemonicString?.split(' ') || [];
   const navigate = useNavigation();
-  const { backgroundOffset, tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens, mode } = useGlobalThemeContext();
   const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
-  const canViewQrCode = extraData?.canViewQrCode || false;
+  const canViewQrCode =
+    extraData?.canViewQrCode ||
+    route?.params?.extraData?.canViewQrCode ||
+    false;
   const qrValue = mnemonicString ? calculateSeedQR(mnemonicString) : '';
 
-  const warningBorderColor = theme && darkModeType ? tokens.ink : tokens.danger;
-  const warningAccentColor = theme && darkModeType ? tokens.ink : tokens.danger;
+  useEffect(() => {
+    if (canViewQrCode) setSelectedDisplayOption('qrcode');
+  }, [canViewQrCode]);
 
   if (!mnemonicString) {
     return (
@@ -45,128 +45,119 @@ export default function SeedPhrasePage({ extraData, route }) {
     );
   }
 
+  const handleDisplayChange = value => {
+    if (value === 'qrcode' && !canViewQrCode) {
+      navigate.navigate('InformationPopup', {
+        textContent: t('settings.seedPhrase.qrWarning'),
+        buttonText: t('constants.understandText'),
+        customNavigation: () =>
+          navigate.popTo('SettingsContentHome', {
+            for: 'show seed phrase',
+            extraData: { ...extraData, canViewQrCode: true },
+          }),
+      });
+      return;
+    }
+    setSelectedDisplayOption(value);
+  };
+
   return (
-    <View style={styles.globalContainer}>
+    <View style={styles.container}>
       <CustomScrollView
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewStyles}
+        contentContainerStyle={styles.scrollContent}
       >
-        {/* Warning Banner */}
-        <View
-          style={[
-            styles.warningContainer,
-            {
-              backgroundColor: backgroundOffset,
-              borderColor: warningBorderColor,
-            },
-          ]}
-        >
-          <View style={styles.warningHeader}>
-            <ThemeIcon
-              iconName="ShieldAlert"
-              size={20}
-              colorOverride={warningAccentColor}
-            />
-            <ThemeText
-              styles={[styles.warningTitle, { color: warningAccentColor }]}
-              content={t('settings.seedPhrase.header')}
-            />
-          </View>
-          <ThemeText
-            styles={[styles.warningDescription]}
-            content={t('settings.seedPhrase.headerDesc')}
+        <ThemeText
+          styles={[styles.title, { color: tokens.ink }]}
+          content={t('settings.seedPhrase.header')}
+        />
+        <ThemeText
+          variant="body"
+          styles={[styles.sub, { color: tokens.muted }]}
+          content={t('settings.seedPhrase.headerDesc')}
+        />
+
+        <View style={styles.toggle}>
+          <Segmented
+            accessibilityLabel={t('settings.seedPhrase.wordsText')}
+            value={selectedDisplayOption}
+            onChange={handleDisplayChange}
+            minHeight={40}
+            capitalizeLabels={false}
+            options={[
+              {
+                label: t('settings.seedPhrase.wordsText'),
+                value: 'words',
+              },
+              {
+                label: t('settings.seedPhrase.qrText'),
+                value: 'qrcode',
+              },
+            ]}
           />
         </View>
 
-        {/* Phrase Grid or QR Code */}
         {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
           <View
-            style={[styles.contentContainer, { height: seedContainerHeight }]}
+            style={[
+              styles.qrCard,
+              {
+                height: seedContainerHeight,
+              },
+            ]}
           >
             <QrCodeWrapper
-              outerContainerStyle={{ backgroundColor: COLORS.darkModeText }}
+              qrSize={230}
+              outerContainerStyle={{
+                backgroundColor: 'transparent',
+                width: '100%',
+                height: '100%',
+                borderRadius: 20,
+              }}
+              innerContainerStyle={{
+                width: 230,
+                height: 230,
+              }}
               QRData={qrValue}
             />
           </View>
         ) : (
           <View
+            style={styles.words}
             onLayout={event => {
               setSeedContainerHeight(event.nativeEvent.layout.height);
             }}
-            style={styles.seedContainer}
           >
-            <KeyContainer keys={mnemonic} />
+            <KeyContainer keys={mnemonic} variant="card" />
           </View>
         )}
-
-        {/* Words/QR Toggle */}
-        <WordsQrToggle
-          option1Text={t('settings.seedPhrase.wordsText')}
-          option2Text={t('settings.seedPhrase.qrText')}
-          option1Value="words"
-          option2Value="qrcode"
-          setSelectedDisplayOption={setSelectedDisplayOption}
-          selectedDisplayOption={selectedDisplayOption}
-          canViewOption2={canViewQrCode}
-          option2BlockedNavFunc={() =>
-            navigate.popTo('SettingsContentHome', {
-              for: 'show seed phrase',
-              extraData: { ...extraData, canViewQrCode: true },
-            })
-          }
-          containerStyle={{ marginTop: 'auto' }}
-        />
       </CustomScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-  },
-  scrollViewStyles: {
-    width: INSET_WINDOW_WIDTH,
-    flexGrow: 1,
-    ...CENTER,
-    alignItems: 'center',
-    paddingTop: 20,
-  },
-
-  // Warning banner
-  warningContainer: {
-    width: '100%',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 24,
-    marginTop: 10,
-  },
-  warningHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  warningTitle: {
-    fontSize: SIZES.medium,
+  container: { flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingTop: 16, paddingBottom: 24 },
+  title: {
     fontFamily: FONT.Title_Medium,
-    flexShrink: 1,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.56,
     includeFontPadding: false,
   },
-  warningDescription: {
-    fontSize: SIZES.smedium,
-    marginTop: 8,
-    paddingLeft: 28,
+  sub: {
+    marginTop: 4,
   },
-
-  // Seed / QR containers
-  seedContainer: {
-    marginBottom: 24,
-    width: '100%',
-  },
-  contentContainer: {
+  toggle: { marginTop: 32 },
+  words: { marginTop: 12 },
+  qrCard: {
+    marginTop: 12,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    overflow: 'hidden',
   },
 });

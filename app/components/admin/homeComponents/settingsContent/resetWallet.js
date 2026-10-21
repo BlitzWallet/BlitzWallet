@@ -1,46 +1,29 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
-import { useCallback, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
 import RNRestart from 'react-native-restart-newarch';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import { FONT } from '../../../../constants';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
 
-export default function ResetPage(props) {
+export default function ResetPage() {
   const [wantsToReset, setWantsToReset] = useState(false);
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, tokens } = GetThemeColors();
+  const [isWiping, setIsWiping] = useState(false);
+  const isWipingRef = useRef(false);
+  const { tokens, mode } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
-  const checkBackground = useMemo(() => {
-    return theme && darkModeType ? tokens.ink : tokens.accent;
-  }, [theme, backgroundOffset]);
-  const checkColor = useMemo(() => {
-    return theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
-  }, [theme, backgroundOffset]);
-
-  const handleSelectedItems = useCallback(() => {
-    setWantsToReset(prev => !prev);
-  }, []);
-
-  const resetWallet = useCallback(async () => {
-    if (!wantsToReset) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('settings.resetWallet.boxNotChecked'),
-      });
-      return;
-    }
+  const resetWallet = async () => {
+    if (!wantsToReset || isWipingRef.current) return;
+    isWipingRef.current = true;
+    setIsWiping(true);
 
     try {
       const resetResponse = await factoryResetWallet();
@@ -50,117 +33,72 @@ export default function ResetPage(props) {
 
       RNRestart.restart();
     } catch (err) {
-      const errorMessage = err.message;
-      navigate.navigate('ErrorScreen', { errorMessage: errorMessage });
+      isWipingRef.current = false;
+      setIsWiping(false);
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
-  }, [wantsToReset]);
+  };
 
   return (
-    <View style={styles.resetContainer}>
-      <View style={styles.iconContainer}>
-        <IconActionCircle bottomOffset={32} icon={'ShieldAlert'} />
-      </View>
+    <View style={styles.container}>
+      <CustomScrollView
+        style={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <Disc
+          icon="Trash2"
+          size={56}
+          iconSize={24}
+          tone={mode !== 'dim' ? 'danger' : 'default'}
+        />
+        <ThemeText
+          styles={[styles.title, { color: tokens.ink }]}
+          content={t('settings.resetWallet.title')}
+        />
+        <ThemeText
+          variant="body"
+          styles={[styles.description, { color: tokens.muted }]}
+          content={t('settings.resetWallet.dataDeleteDesc')}
+        />
+      </CustomScrollView>
 
-      <ThemeText
-        styles={styles.title}
-        content={t('settings.resetWallet.title')}
-      />
-      <ThemeText
-        styles={styles.descriptionText}
-        content={t('settings.resetWallet.dataDeleteDesc')}
-      />
-      <View style={styles.optionsContainer}>
-        <TouchableOpacity
-          onPress={handleSelectedItems}
-          style={styles.optionRow}
-          activeOpacity={0.7}
-        >
-          <View
-            style={[
-              styles.checkbox,
-              {
-                backgroundColor: wantsToReset ? checkBackground : 'transparent',
-                borderColor: wantsToReset ? checkBackground : textColor,
-              },
-            ]}
-          >
-            {wantsToReset && (
-              <ThemeIcon
-                colorOverride={checkColor}
-                size={15}
-                iconName={'Check'}
-              />
-            )}
-          </View>
-          <ThemeText
-            styles={styles.checkboxText}
-            content={t('settings.resetWallet.warningText')}
-          />
-        </TouchableOpacity>
+      <View style={styles.footer}>
+        <ConsentRow
+          checked={wantsToReset}
+          onPress={() => setWantsToReset(value => !value)}
+          text={t('settings.resetWallet.warningText')}
+        />
+        <CustomButton
+          size="regular"
+          tone="danger"
+          disabled={!wantsToReset || isWiping}
+          useLoading={isWiping}
+          textContent={t('settings.resetWallet.title')}
+          actionFunction={resetWallet}
+        />
       </View>
-
-      <CustomButton
-        buttonStyles={[
-          {
-            width: '100%',
-            opacity: wantsToReset ? 1 : HIDDEN_OPACITY,
-          },
-        ]}
-        textContent={t('constants.delete')}
-        actionFunction={resetWallet}
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  resetContainer: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    alignItems: 'center',
-  },
-  iconContainer: {
-    marginTop: 'auto',
-  },
+  container: { flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingTop: 24, paddingBottom: 24 },
   title: {
-    fontSize: SIZES.xLarge,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  descriptionText: {
-    opacity: 0.7,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  optionsContainer: {
-    width: '100%',
-    marginTop: 'auto',
-    marginBottom: 5,
-    paddingBottom: 15,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderRadius: 3,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxText: {
-    fontSize: SIZES.small,
-    flex: 1,
+    fontFamily: FONT.Title_Medium,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.56,
     includeFontPadding: false,
+    marginTop: 16,
   },
-  buttonsContainer: {
-    paddingHorizontal: 20,
+  description: {
+    marginTop: 8,
+  },
+  footer: {
     gap: 12,
+    paddingTop: 12,
   },
-  button: {},
 });

@@ -16,10 +16,14 @@ export default function TextButton({
   textStyle,
   accessibilityLabel,
   paddingHorizontal = 4,
+  disabled,
+  testID,
 }) {
   const { tokens } = useTheme();
   return (
     <TouchableOpacity
+      testID={testID}
+      disabled={disabled}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || text}

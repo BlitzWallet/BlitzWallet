@@ -92,11 +92,13 @@ import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLig
 import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
+import ContactUsHalfModal from '../../components/admin/homeComponents/contactUsHalfModal';
 import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
 import DefaultTokenPicker from '../../components/admin/homeComponents/settingsContent/defaultTokenPicker';
 import AccountTransferHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal';
 import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
 import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
+import { SheetSurface } from './redesign/sheetSurface';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -139,6 +141,11 @@ export default function CustomHalfModal(props) {
   const navigation = useNavigation();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
+  const isRedesignSheet =
+    contentType === 'selectSwapNetwork' ||
+    contentType === 'rootstockSwapInfo' ||
+    contentType === 'contactUs' ||
+    contentType === 'exportLeavesProgress';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -783,6 +790,13 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+      case 'contactUs':
+        return (
+          <ContactUsHalfModal
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
       case 'exportLeavesProgress':
         return (
           <ExportLeavesProgress
@@ -862,6 +876,7 @@ export default function CustomHalfModal(props) {
         style={[
           styles.contentContainer,
           animatedStyle,
+          isRedesignSheet && styles.redesignContentContainer,
           {
             backgroundColor: 'black',
             marginTop: topPadding,
@@ -872,41 +887,45 @@ export default function CustomHalfModal(props) {
         <View
           style={{
             flex: 1,
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
+            backgroundColor: isRedesignSheet
+              ? tokens.surface
+              : theme && darkModeType
+              ? backgroundOffset
+              : backgroundColor,
             ...(Platform.OS === 'web' && {
               paddingLeft: leftPadding,
               paddingRight: rightPadding,
             }),
-            paddingBottom:
-              contentType === 'switchGenerativeAiModel' ||
-              contentType === 'addPOSItemsHalfModal' ||
-              // contentType === 'editLNURLOnReceive' ||
-              contentType === 'addContacts' ||
-              contentType === 'SelectLRC20Token' ||
-              contentType === 'sendOptions' ||
-              contentType === 'receiveOptions' ||
-              contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal' ||
-              contentType === 'btcMapList'
-                ? isKeyboardActive
-                  ? CONTENT_KEYBOARD_OFFSET
-                  : contentType === 'switchGenerativeAiModel' ||
-                    contentType === 'addContacts' ||
-                    contentType === 'sendOptions' ||
-                    contentType === 'createPoolFlow' ||
-                    contentType === 'SelectLRC20Token' ||
-                    contentType === 'btcMapList'
-                  ? 0
-                  : contentType === 'receiveOptions'
-                  ? 0
-                  : bottomPadding
-                : contentType === 'onlineListingsFilter' ||
-                  contentType === 'depositFunds' ||
-                  contentType === 'receiveMethodOptions' ||
-                  contentType === 'createAccumulationAddress'
+            paddingBottom: isRedesignSheet
+              ? 34
+              : contentType === 'switchGenerativeAiModel' ||
+                contentType === 'addPOSItemsHalfModal' ||
+                // contentType === 'editLNURLOnReceive' ||
+                contentType === 'addContacts' ||
+                contentType === 'SelectLRC20Token' ||
+                contentType === 'sendOptions' ||
+                contentType === 'receiveOptions' ||
+                contentType === 'createPoolFlow' ||
+                contentType === 'ClaimGiftHomeHalfModal' ||
+                contentType === 'btcMapList'
+              ? isKeyboardActive
+                ? CONTENT_KEYBOARD_OFFSET
+                : contentType === 'switchGenerativeAiModel' ||
+                  contentType === 'addContacts' ||
+                  contentType === 'sendOptions' ||
+                  contentType === 'createPoolFlow' ||
+                  contentType === 'SelectLRC20Token' ||
+                  contentType === 'btcMapList'
                 ? 0
-                : bottomPadding,
+                : contentType === 'receiveOptions'
+                ? 0
+                : bottomPadding
+              : contentType === 'onlineListingsFilter' ||
+                contentType === 'depositFunds' ||
+                contentType === 'receiveMethodOptions' ||
+                contentType === 'createAccumulationAddress'
+              ? 0
+              : bottomPadding,
           }}
         >
           <GestureDetector gesture={panGesture}>
@@ -940,6 +959,7 @@ export default function CustomHalfModal(props) {
                 <View
                   style={[
                     styles.topBar,
+                    isRedesignSheet && styles.redesignGrab,
                     {
                       backgroundColor:
                         theme && darkModeType ? backgroundColor : tokens.grab,
@@ -949,7 +969,11 @@ export default function CustomHalfModal(props) {
               )}
             </View>
           </GestureDetector>
-          {renderContent()}
+          {isRedesignSheet ? (
+            <SheetSurface>{renderContent()}</SheetSurface>
+          ) : (
+            renderContent()
+          )}
         </View>
       </Animated.View>
     </KeyboardAvoidingView>
@@ -973,6 +997,13 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  redesignGrab: {
+    width: 36,
+    height: 5,
+    borderRadius: 999,
+    marginTop: 0,
+    marginBottom: 0,
   },
   topBar: {
     width: 120,
@@ -1023,6 +1054,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     flexShrink: 1,
     overflow: 'hidden',
+  },
+  redesignContentContainer: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
   },
   webContentConteiner: {
     width: '100%',
