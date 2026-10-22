@@ -11,11 +11,15 @@ export default function SearchField({
   onChangeText,
   placeholder,
   pill = false,
+  onFocus,
+  onBlur,
 }) {
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   return (
     <CustomSearchInput
+      onFocusFunction={onFocus}
+      onBlurFunction={onBlur}
       inputText={value}
       setInputText={onChangeText}
       placeholderText={placeholder}

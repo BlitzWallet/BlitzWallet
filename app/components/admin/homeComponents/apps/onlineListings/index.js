@@ -11,40 +11,50 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import { getNormalizedWebsiteUrl } from '../../../../../functions/getNormalizedWebsiteUrl';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   useGlobalThemeContext,
   useTheme,
 } from '../../../../../../context-store/theme';
-import {
-  CONTENT_KEYBOARD_OFFSET,
-  SHOPS_DIRECTORY_KEY,
-} from '../../../../../constants';
+import { SHOPS_DIRECTORY_KEY } from '../../../../../constants';
 import {
   INSET_WINDOW_WIDTH,
-  SIZES,
   WINDOWWIDTH,
 } from '../../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
-import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../../functions';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 
 const DEFAULT_FILTER = {
   categories: [],
   countryCode: 'WW',
 };
+const FEATURED_CATEGORY_ORDER = [
+  'food & beverages',
+  'services',
+  'apparel',
+  'travel',
+  'e-commerce',
+  'health',
+  'tech',
+  'education',
+  'media',
+  'charity',
+];
 
 function useDebouncedValue(value, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -74,11 +84,11 @@ export default function ViewOnlineListings({ removeUserLocal }) {
   const [search, setSearch] = useState('');
   const [currentFilter, setCurrentFilter] = useState(DEFAULT_FILTER);
   const [loading, setLoading] = useState(true);
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const reTryCounter = useRef(0);
+  const { bottomPadding } = useGlobalInsets();
   const debouncedSearch = useDebouncedValue(search, 300);
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { tokens } = useGlobalThemeContext();
+  const { backgroundColor, textInputBackground } = GetThemeColors();
   const { t } = useTranslation();
   const navigate = useNavigation();
 
@@ -160,6 +170,13 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     );
 
     return uniqueItems.sort((a, b) => {
+      const aIndex = FEATURED_CATEGORY_ORDER.indexOf(a);
+      const bIndex = FEATURED_CATEGORY_ORDER.indexOf(b);
+      if (aIndex !== -1 || bIndex !== -1) {
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      }
       if (a === 'other' && b === 'other') return 0;
       if (a === 'other') return 1;
       if (b === 'other') return -1;
@@ -206,57 +223,43 @@ export default function ViewOnlineListings({ removeUserLocal }) {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }) => (
-      <BusinessCard
-        item={item}
-        theme={theme}
-        darkModeType={darkModeType}
-        backgroundColor={backgroundColor}
-        backgroundOffset={backgroundOffset}
-        t={t}
-      />
-    ),
-    [backgroundColor, backgroundOffset, darkModeType, t, theme],
+    ({ item }) => <BusinessCard item={item} t={t} />,
+    [t],
   );
 
   const renderListHeader = useMemo(
     () => (
       <View style={[styles.stickySearchHeader, { backgroundColor }]}>
-        <CustomSearchInput
-          inputText={search}
-          setInputText={setSearch}
-          placeholderText={t('apps.onlineListings.inputPlaceHolder')}
-          onBlurFunction={() => setIsKeyboardActive(false)}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          containerStyles={styles.textInputContainer}
+        <SearchField
+          value={search}
+          onChangeText={setSearch}
+          placeholder={t('apps.onlineListings.inputPlaceHolder')}
+          pill={true}
         />
       </View>
     ),
-    [backgroundColor, search, t],
+    [backgroundColor, search, t, textInputBackground, tokens],
   );
 
   const emptyComponent = useMemo(
     () => (
-      <NoContentSceen
-        iconName="SearchX"
-        titleText={t('apps.onlineListings.noBuisMessage')}
+      <EmptyState
+        icon="SearchX"
+        title={t('apps.onlineListings.noBuisMessage')}
       />
     ),
-    [backgroundColor, backgroundOffset, darkModeType, t, theme],
+    [t],
   );
 
   if (loading) {
     return (
       <CustomKeyboardAvoidingView
-        isKeyboardActive={isKeyboardActive}
         useLocalPadding={true}
         useStandardWidth={true}
       >
-        <CustomSettingsTopBar
-          label={t('apps.onlineListings.topBarLabel')}
-          customBackFunction={() =>
-            keyboardNavigate(() => navigate.popTo('HomeAdmin'))
-          }
+        <TopBar
+          title={t('apps.onlineListings.topBarLabel')}
+          onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
         />
         <FullLoadingScreen text={t('apps.onlineListings.loadingShopMessage')} />
       </CustomKeyboardAvoidingView>
@@ -265,29 +268,59 @@ export default function ViewOnlineListings({ removeUserLocal }) {
 
   return (
     <CustomKeyboardAvoidingView
-      isKeyboardActive={isKeyboardActive}
-      useLocalPadding={true}
+      useTouchableWithoutFeedback={true}
       useStandardWidth={true}
-      globalThemeViewStyles={styles.container}
     >
-      <CustomSettingsTopBar
-        label={t('apps.onlineListings.topBarLabel')}
-        customBackFunction={() =>
-          keyboardNavigate(() => navigate.popTo('HomeAdmin'))
-        }
-        showLeftImage={true}
-        iconNew="SlidersHorizontal"
-        badgeCount={activeFilterCount}
-        leftImageFunction={() =>
-          keyboardNavigate(() =>
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'onlineListingsFilter',
-              sliderHight: 0.72,
-              currentFilter,
-              categoryOptions,
-              onSelectFilter: filters => handleFilterApply(filters),
-            }),
-          )
+      <TopBar
+        title={t('apps.onlineListings.topBarLabel')}
+        onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
+        right={
+          <>
+            <View style={styles.filterButton}>
+              <IconButton
+                icon="SlidersHorizontal"
+                label="apps.onlineListings.filterTitle"
+                onPress={() =>
+                  keyboardNavigate(() =>
+                    navigate.navigate('CustomHalfModal', {
+                      wantedContent: 'onlineListingsFilter',
+                      sliderHight: 0.72,
+                      currentFilter,
+                      categoryOptions,
+                      onSelectFilter: filters => handleFilterApply(filters),
+                    }),
+                  )
+                }
+              />
+              {activeFilterCount > 0 && (
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.filterBadge,
+                    { backgroundColor: tokens.accent },
+                  ]}
+                >
+                  <ThemeText
+                    content={activeFilterCount}
+                    styles={[
+                      styles.filterBadgeText,
+                      { color: tokens.onAccent },
+                    ]}
+                  />
+                </View>
+              )}
+            </View>
+            <IconButton
+              icon="Plus"
+              label="apps.onlineListings.filterTitle"
+              onPress={() =>
+                openWebBrowser({
+                  navigate,
+                  link: 'https://bitcoinlistings.org/submit',
+                })
+              }
+            />
+          </>
         }
       />
 
@@ -296,189 +329,147 @@ export default function ViewOnlineListings({ removeUserLocal }) {
         showsVerticalScrollIndicator={false}
         keyExtractor={keyExtractor}
         style={styles.flatList}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: bottomPadding },
+        ]}
         stickyHeaderIndices={[0]}
         ListHeaderComponent={renderListHeader}
         ListEmptyComponent={emptyComponent}
         renderItem={renderItem}
       />
-
-      {!isKeyboardActive && (
-        <CustomButton
-          actionFunction={() =>
-            openWebBrowser({
-              navigate,
-              link: 'https://bitcoinlistings.org/submit',
-            })
-          }
-          buttonStyles={styles.submitListingBTN}
-          textContent={t('apps.onlineListings.addListing')}
-        />
-      )}
     </CustomKeyboardAvoidingView>
   );
 }
 
-const BusinessCard = React.memo(
-  ({ item, theme, darkModeType, backgroundColor, backgroundOffset, t }) => {
-    const navigate = useNavigation();
-    const { tokens } = useTheme();
+const BusinessCard = React.memo(({ item, t }) => {
+  const navigate = useNavigation();
+  const { tokens } = useTheme();
 
-    const websiteUrl = useMemo(
-      () => getNormalizedWebsiteUrl(item.website),
-      [item.website],
-    );
+  const websiteUrl = useMemo(
+    () => getNormalizedWebsiteUrl(item.website),
+    [item.website],
+  );
 
-    const handleWebsitePress = useCallback(() => {
-      try {
-        openWebBrowser({ navigate, link: websiteUrl });
-      } catch (err) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.genericError'),
-        });
-      }
-    }, [websiteUrl, navigate, t]);
+  const handleWebsitePress = useCallback(() => {
+    try {
+      openWebBrowser({ navigate, link: websiteUrl });
+    } catch (err) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('errormessages.genericError'),
+      });
+    }
+  }, [websiteUrl, navigate, t]);
 
-    const cardBackgroundColor = backgroundOffset;
-    const countryName =
-      item.country.code == 'WW'
-        ? t('apps.onlineListings.filterWorldwide')
-        : item.country.name;
+  const countryName =
+    item.country.code === 'WW'
+      ? t('apps.onlineListings.filterWorldwide')
+      : item.country.name;
 
-    return (
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor: cardBackgroundColor,
-          },
-        ]}
+  return (
+    <ListCard style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.businessCopy}>
+          <ThemeText content={item.name?.trim()} styles={styles.title} />
+          {!!item.description && (
+            <ThemeText
+              content={item.description}
+              styles={[styles.desc, { color: tokens.muted }]}
+            />
+          )}
+        </View>
+        <View
+          style={[styles.categoryContainer, { backgroundColor: tokens.disc }]}
+        >
+          <ThemeText content={countryName} styles={styles.countryLocation} />
+        </View>
+      </View>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleWebsitePress}
+        activeOpacity={0.8}
+        accessibilityRole="link"
       >
-        <View style={styles.cardHeaderMain}>
-          <View style={styles.nameContainer}>
-            <View style={{ flex: 1 }}>
-              <ThemeText content={item.name?.trim()} styles={styles.title} />
-              <ThemeText content={item.description} styles={styles.desc} />
-            </View>
-            <View style={[styles.categoryContainer, { backgroundColor }]}>
-              <ThemeText
-                content={countryName}
-                styles={styles.countryLocation}
-              />
-            </View>
-          </View>
+        <View style={styles.buttonCopy}>
+          <ThemeIcon
+            redesign
+            size={16}
+            colorOverride={tokens.link}
+            iconName="Globe"
+          />
+          <ThemeText
+            content={t('apps.onlineListings.visitWebsite').replace(
+              /^Visit Website$/,
+              'Visit website',
+            )}
+            styles={[styles.buttonText, { color: tokens.link }]}
+          />
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            {
-              marginTop: item?.description ? 24 : 0,
-              borderTopColor: backgroundColor,
-              borderTopWidth: StyleSheet.hairlineWidth,
-            },
-          ]}
-          onPress={handleWebsitePress}
-          activeOpacity={0.8}
-          hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
-        >
-          <View style={styles.buttonCopy}>
-            <ThemeIcon size={16} colorOverride={tokens.ink} iconName="Globe" />
-            <ThemeText
-              content={t('apps.onlineListings.visitWebsite')}
-              styles={styles.buttonText}
-            />
-          </View>
-
-          <ThemeIcon size={16} iconName="ArrowUpRight" />
-        </TouchableOpacity>
-      </View>
-    );
-  },
-);
+        <ThemeIcon
+          redesign
+          size={16}
+          colorOverride={tokens.link}
+          iconName="ArrowUpRight"
+        />
+      </TouchableOpacity>
+    </ListCard>
+  );
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   stickySearchHeader: {
     width: '100%',
     alignSelf: 'center',
-    paddingBottom: CONTENT_KEYBOARD_OFFSET,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
   flatList: { flex: 1, width: WINDOWWIDTH, alignSelf: 'center' },
   listContent: {
-    paddingTop: 10,
-    paddingBottom: 24,
+    paddingTop: 0,
+    paddingBottom: 0,
     flexGrow: 1,
   },
   card: {
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 12,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
-  cardHeaderMain: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  businessCopy: {
     flex: 1,
-    gap: 12,
-  },
-  flagShell: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  nameContainer: {
-    flex: 1,
-    gap: 10,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    minWidth: 0,
   },
   title: {
-    fontSize: SIZES.medium,
+    fontSize: 16,
+    lineHeight: 22,
     includeFontPadding: false,
   },
   countryLocation: {
-    marginTop: 2,
     includeFontPadding: false,
-    opacity: 0.7,
-    fontSize: SIZES.small,
+    fontSize: 12,
   },
   categoryContainer: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingHorizontal: 10,
+    minHeight: 28,
+    paddingVertical: 2,
     borderRadius: 999,
-  },
-  categoryText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  domainChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 999,
-  },
-  domainChipText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.7,
+    justifyContent: 'center',
   },
   desc: {
-    fontSize: SIZES.small,
-    marginTop: 8,
-
-    lineHeight: 22,
-    opacity: 0.85,
+    fontSize: 14,
+    marginTop: 2,
+    lineHeight: 20,
   },
   button: {
-    paddingTop: 16,
+    minHeight: 48,
+    paddingVertical: 0,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -491,41 +482,48 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   buttonText: {
+    fontSize: 14,
     includeFontPadding: false,
   },
   textInputContainer: {
     overflow: 'hidden',
+    borderRadius: 999,
   },
-  emptyStateCard: {
-    marginTop: 24,
-    borderRadius: 24,
-    borderWidth: 1,
-    paddingVertical: 32,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  emptyStateIcon: {
-    width: 52,
+  searchInput: {
     height: 52,
-    borderRadius: 18,
+    paddingLeft: 48,
+    paddingRight: 16,
+    paddingVertical: 0,
+    borderRadius: 999,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 16,
+    top: 17,
+  },
+  filterButton: {
+    position: 'relative',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
   },
-  emptyStateTitle: {
-    textAlign: 'center',
-    fontSize: SIZES.medium,
+  filterBadgeText: {
+    fontSize: 11,
     includeFontPadding: false,
-  },
-  emptyStateSubtitle: {
-    marginTop: 6,
     textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-    includeFontPadding: false,
   },
   submitListingBTN: {
-    marginTop: CONTENT_KEYBOARD_OFFSET,
+    marginTop: 8,
+    marginBottom: 12,
     alignSelf: 'center',
     width: INSET_WINDOW_WIDTH,
   },

@@ -148,7 +148,8 @@ export default function CustomHalfModal(props) {
     contentType === 'exportLeavesProgress' ||
     contentType === 'btcMapFilter' ||
     contentType === 'btcMapList' ||
-    contentType === 'btcMapMerchant';
+    contentType === 'btcMapMerchant' ||
+    contentType === 'onlineListingsFilter';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -645,7 +646,6 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             setIsKeyboardActive={setIsKeyboardActive}
-            setBackNav={setBackNav}
           />
         );
       case 'payLinkCurrencySelect':
