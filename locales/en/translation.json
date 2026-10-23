@@ -2082,7 +2082,9 @@
       "nip5Title": "Nostr address",
       "nip5Desc": "Quickly verify your Nostr identity using Blitz.",
       "nwcTitle": "Wallet Connect",
-      "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
+      "nwcDesc": "Connect your Blitz Wallet to apps using Nostr.",
+      "nwcCount_one": "{{count}} connection",
+      "nwcCount_other": "{{count}} connections"
     },
     "fiatCurrency": {
       "title": "Currency",
@@ -2140,9 +2142,13 @@
         "invalidFormat": "Invalid pubkey format: must be either a 64-character hex string or npub"
       },
       "saveAddress": "Save address",
+      "available": "Available",
+      "copyAddress": "Copy Nostr address",
       "infoText": "Nostr address links a short address like name@blitzwalletapp.com to your Nostr public key (npub), so Nostr apps can verify your identity.\n\nAfter saving, add this address to the Nostr address field of your Nostr profile. The list updates once per day, so it may take up to 24 hours to verify.",
       "removeAddress": "Remove address",
-      "removeWarning": "Remove {{address}}?\n\nThis frees up the username, so anyone can claim it and you may not be able to get it back. Nostr apps may keep showing it for up to 24 hours."
+      "removeWarning": "Remove {{address}}?\n\nThis frees up the username, so anyone can claim it and you may not be able to get it back. Nostr apps may keep showing it for up to 24 hours.",
+      "removeTitle": "Remove {{address}}?",
+      "removeSub": "Anyone can claim this name after, and you may not get it back. Nostr apps may show it for up to 24 hours."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",

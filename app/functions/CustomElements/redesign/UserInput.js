@@ -53,7 +53,6 @@ export default function UserInput({
           ...(pill && styles.pill),
           color: inSheet ? tokens.ink : tokens.onField,
           backgroundColor: inSheet ? tokens.ground : tokens.field,
-          borderColor: isFocused ? tokens.accent : 'transparent',
         }}
       />
       {showTextCount && (
@@ -77,8 +76,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingTop: 0,
     paddingBottom: 0,
-    // 2px ring sits inside the box; 14 + 2 keeps text at the 16 inset.
-    borderWidth: 2,
     paddingLeft: 14,
     paddingRight: 14,
     fontSize: 15,

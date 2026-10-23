@@ -63,10 +63,6 @@ jest.mock('../app/functions', () => ({
   copyToClipboard: jest.fn(),
 }));
 
-jest.mock('../app/functions/customNavigation', () => ({
-  keyboardGoBack: jest.fn(),
-}));
-
 jest.mock('../app/functions/getClipboardText', () => ({
   __esModule: true,
   default: jest.fn(async () => ({ didWork: true, data: '' })),
@@ -94,9 +90,20 @@ jest.mock('../app/functions/CustomElements', () => {
 });
 
 jest.mock(
-  '../app/functions/CustomElements/settingsTopBar',
+  '../app/functions/CustomElements/redesign/TopBar',
   () =>
-    function MockCustomSettingsTopBar() {
+    function MockTopBar() {
+      const MockReact = require('react');
+      const RN = require('react-native');
+
+      return MockReact.createElement(RN.View, null);
+    },
+);
+
+jest.mock(
+  '../app/functions/CustomElements/redesign/IconButton',
+  () =>
+    function MockIconButton() {
       const MockReact = require('react');
       const RN = require('react-native');
 
