@@ -20,6 +20,7 @@ import CustomNumberKeyboard from '../../../../../functions/CustomElements/custom
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../../context-store/theme';
@@ -337,37 +338,6 @@ export default function CreateNWCAmount(props) {
         />
       </View>
     </GlobalThemeView>
-  );
-}
-
-function BudgetCurrencyButton({
-  label,
-  onPress,
-  disabled,
-  accessibilityLabel,
-}) {
-  const { tokens } = useTheme();
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      style={[styles.currencyButton, { backgroundColor: tokens.surface }]}
-    >
-      <ThemeText content={label} styles={styles.currencyLabel} />
-      {disabled ? (
-        <ActivityIndicator size="small" color={tokens.ink} />
-      ) : (
-        <ThemeIcon
-          redesign
-          iconName="ChevronDown"
-          size={16}
-          colorOverride={tokens.ink}
-        />
-      )}
-    </TouchableOpacity>
   );
 }
 

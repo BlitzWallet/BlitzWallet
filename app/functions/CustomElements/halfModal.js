@@ -153,7 +153,8 @@ export default function CustomHalfModal(props) {
     contentType === 'btcMapMerchant' ||
     contentType === 'onlineListingsFilter' ||
     contentType === 'nwcBudgetPeriod' ||
-    contentType === 'nwcConnectionString';
+    contentType === 'nwcConnectionString' ||
+    contentType === 'nwcAuthApproval';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);

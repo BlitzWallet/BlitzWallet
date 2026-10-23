@@ -20,6 +20,7 @@ export default function CustomNumberKeyboard({
   bottomLeftEmpty = false,
 }) {
   const navigate = useNavigation();
+
   const addPin = useCallback(
     id => {
       if (disabled) {
@@ -125,7 +126,10 @@ export default function CustomNumberKeyboard({
         return (
           <View
             key={rowIndex}
-            style={[styles.keyboard_row, redesign && styles.keyboardRowRedesign]}
+            style={[
+              styles.keyboard_row,
+              redesign && styles.keyboardRowRedesign,
+            ]}
           >
             {row.map(num => {
               if (num === undefined || num === null) return null;
@@ -187,12 +191,7 @@ export default function CustomNumberKeyboard({
       ) : (
         <View style={styles.keyboard_row}>
           {(showDot || showDot === undefined) && (
-            <KeyForKeyboard
-              frompage={frompage}
-              isDot
-              num="."
-              addPin={addPin}
-            />
+            <KeyForKeyboard frompage={frompage} isDot num="." addPin={addPin} />
           )}
           {!showDot &&
             (bottomLeftEmpty ? (

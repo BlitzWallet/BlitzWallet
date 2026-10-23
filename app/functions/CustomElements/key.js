@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from './themeIcon';
+import { useInSheet } from './redesign/sheetSurface';
 
 export default function KeyForKeyboard({
   num,
@@ -14,6 +15,7 @@ export default function KeyForKeyboard({
   fillCell = false,
 }) {
   const { tokens } = useGlobalThemeContext();
+  const inSheet = useInSheet();
   const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
 
@@ -43,7 +45,15 @@ export default function KeyForKeyboard({
         styles.key,
         redesign && [
           styles.keyRedesign,
-          { backgroundColor: isPressed ? tokens.disc : tokens.surface },
+          {
+            backgroundColor: isPressed
+              ? inSheet
+                ? tokens.surface
+                : tokens.disc
+              : inSheet
+              ? tokens.disc
+              : tokens.surface,
+          },
         ],
         fillCell && styles.keyFillCell,
       ]}
