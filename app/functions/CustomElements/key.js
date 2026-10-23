@@ -11,6 +11,7 @@ export default function KeyForKeyboard({
   isDot,
   frompage,
   redesign = false,
+  fillCell = false,
 }) {
   const { tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
@@ -44,6 +45,7 @@ export default function KeyForKeyboard({
           styles.keyRedesign,
           { backgroundColor: isPressed ? tokens.disc : tokens.surface },
         ],
+        fillCell && styles.keyFillCell,
       ]}
     >
       <View
@@ -94,6 +96,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 16,
   },
+  keyFillCell: { width: '100%', flex: 0, minHeight: 54 },
   keyDot: {
     width: 45,
     height: 45,

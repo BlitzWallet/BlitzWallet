@@ -25,6 +25,7 @@ export default function ListRow({
   showChevron = false,
   chevronSize = 20,
   accessibilityLabel,
+  subLines,
 }) {
   const { tokens } = useTheme();
   const isNode = trailing && typeof trailing !== 'string';
@@ -96,7 +97,12 @@ export default function ListRow({
           ]}
         />
         {!!sub && (
-          <ThemeText variant="hint" content={sub} styles={subStyle} />
+          <ThemeText
+            variant="hint"
+            CustomNumberOfLines={subLines}
+            content={sub}
+            styles={subStyle}
+          />
         )}
       </View>
     </RowShell>

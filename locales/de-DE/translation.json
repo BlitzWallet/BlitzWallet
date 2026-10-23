@@ -1964,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Sind Sie sicher, dass Sie diese Verbindung löschen möchten?",
+      "deleteDialog": {
+        "title": "Diese Verbindung löschen?",
+        "message": "{{name}} funktioniert dann nicht mehr mit Ihrer Wallet. Das Geld auf Ihrem Wallet-Connect-Konto bleibt dort."
+      },
+      "connectionString": {
+        "subtitle": "Scannen Sie sie in {{name}} oder kopieren Sie sie und fügen Sie sie ein.",
+        "warning": "Wer diese Verbindungszeichenfolge hat, kann alle Berechtigungen nutzen, die Sie ihr gegeben haben."
+      },
       "addAccount": "Verbindung hinzufügen",
+      "accountBalance": {
+        "title": "Kontostand",
+        "subtitle": "Was Apps ausgeben können"
+      },
+      "connectionsHeader": "Verbindungen",
+      "connectionSummary": {
+        "noBudget": "Kein Budget",
+        "canSend": "Kann {{amount}} {{period}} senden",
+        "cantSend": "Kann nicht senden"
+      },
       "empty": {
         "title": "Noch keine Verbindungen",
         "subtitle": "Nutzen Sie Ihr Wallet-Connect-Konto mit Ihren bevorzugten Apps."
@@ -1980,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Berechtigungen",
-        "pageTitle": "Verbindungsberechtigungen hinzufügen",
-        "pageSubtitle": "Wählen Sie aus, welche Aktionen {{name}} ausführen darf.",
+        "pageTitle": "Was kann {{name}} tun?",
+        "pageSubtitle": "Aktivieren Sie nur, was die App benötigt.",
         "editTitle": "Verbindungsberechtigungen bearbeiten",
         "editSubtitle": "Ändern Sie, welche Aktionen {{name}} ausführen darf."
       },
@@ -1992,7 +2009,15 @@
         "editTitle": "Ausgabenbudget bearbeiten",
         "editSubtitle": "Ändern Sie das Ausgabenlimit und dessen Zurücksetzung. Für kein Limit leer lassen.",
         "renewalPlaceholder": "Verlängerungszeitraum auswählen",
-        "createButton": "Verbindung erstellen"
+        "createButton": "Verbindung erstellen",
+        "resetTitle": "Wie oft wird das Limit zurückgesetzt?",
+        "noLimit": "Kein Limit",
+        "resetsDaily": "Tägliche Zurücksetzung",
+        "resetsWeekly": "Wöchentliche Zurücksetzung",
+        "resetsMonthly": "Monatliche Zurücksetzung",
+        "resetsYearly": "Jährliche Zurücksetzung",
+        "resetHint": "Öffnet die Optionen für den Zurücksetzungszeitraum.",
+        "changeCurrency": "Währung ändern"
       },
       "accountPage": {
         "title": "Verbindung verwalten",
@@ -2001,7 +2026,7 @@
         "permissionsCount_one": "{{count}} Berechtigung",
         "permissionsCount_other": "{{count}} Berechtigungen",
         "renewalLabel": "Verlängerungszeitraum",
-        "amountLabel": "Budgetbetrag",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Verbindungszeichenfolge",
         "deleteAccount": "Verbindung löschen"
       },
@@ -2026,7 +2051,8 @@
       },
       "noNotifications": {
         "title": "Benachrichtigungen erforderlich",
-        "subtitle": "Wallet Connect benötigt Push-Benachrichtigungen. Bitte aktivieren Sie sie in den Einstellungen und versuchen Sie es erneut."
+        "subtitle": "Wallet Connect benötigt Push-Benachrichtigungen, um Apps zu antworten. Aktivieren Sie sie und kommen Sie dann zurück.",
+        "button": "Benachrichtigungen einschalten"
       },
       "showSeedPage": {
         "loadingMessage": "Wiederherstellungsphrase wird generiert",
@@ -2072,15 +2098,16 @@
         "row1Label": "Guthaben hinzufügen",
         "row1Description": "Fügen Sie Geld hinzu, indem Sie es empfangen oder von Ihrem Hauptkonto überweisen.",
         "row2Label": "Separates Konto",
-        "row2Description": "Dieses Konto ist aus Sicherheitsgründen von Ihrem Hauptkonto getrennt.",
+        "row2Description": "Getrennt von Ihrem Hauptkonto, sodass Apps nur ausgeben können, was Sie hier einzahlen.",
         "row3Label": "App-Zugriff",
         "row3Description": "Verbundene Apps können dieses Konto verwenden, um Zahlungen auszuführen.",
         "continueButton": "Loslegen"
       },
       "accountCreated": {
         "title": "Verbindung erstellt",
-        "subtitle": "Ihre Verbindung wurde erstellt. Kopieren Sie die Verbindungszeichenfolge, um sie zu verwenden.",
-        "copyConnection": "Verbindungszeichenfolge kopieren"
+        "subtitle": "Kopieren Sie die Verbindungszeichenfolge und fügen Sie sie in {{connection}} ein.",
+        "copyConnection": "Verbindungszeichenfolge kopieren",
+        "connectionStringLabel": "Verbindungszeichenfolge"
       }
     },
     "accountComponents": {

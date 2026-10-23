@@ -142,27 +142,68 @@ export default function CustomNumberKeyboard({
           </View>
         );
       })}
-      <View
-        style={[styles.keyboard_row, redesign && styles.keyboardRowRedesign]}
-      >
-        {(showDot || showDot === undefined) && (
-          <KeyForKeyboard
-            frompage={frompage}
-            isDot
-            num="."
-            addPin={addPin}
-            redesign={redesign}
-          />
-        )}
-        {!showDot &&
-          (bottomLeftEmpty ? (
-            <View style={styles.emptyKey} />
-          ) : (
-            <KeyForKeyboard num="C" addPin={addPin} redesign={redesign} />
-          ))}
-        <KeyForKeyboard num={0} addPin={addPin} redesign={redesign} />
-        <KeyForKeyboard num="back" addPin={addPin} redesign={redesign} />
-      </View>
+      {redesign ? (
+        <View style={[styles.keyboard_row, styles.keyboardRowRedesign]}>
+          <View style={styles.keyCell}>
+            {(showDot || showDot === undefined) && (
+              <KeyForKeyboard
+                frompage={frompage}
+                isDot
+                num="."
+                addPin={addPin}
+                redesign={redesign}
+                fillCell={true}
+              />
+            )}
+            {!showDot &&
+              (bottomLeftEmpty ? (
+                <View style={styles.emptyKey} />
+              ) : (
+                <KeyForKeyboard
+                  num="C"
+                  addPin={addPin}
+                  redesign={redesign}
+                  fillCell={true}
+                />
+              ))}
+          </View>
+          <View style={styles.keyCell}>
+            <KeyForKeyboard
+              num={0}
+              addPin={addPin}
+              redesign={redesign}
+              fillCell={true}
+            />
+          </View>
+          <View style={styles.keyCell}>
+            <KeyForKeyboard
+              num="back"
+              addPin={addPin}
+              redesign={redesign}
+              fillCell={true}
+            />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.keyboard_row}>
+          {(showDot || showDot === undefined) && (
+            <KeyForKeyboard
+              frompage={frompage}
+              isDot
+              num="."
+              addPin={addPin}
+            />
+          )}
+          {!showDot &&
+            (bottomLeftEmpty ? (
+              <View style={styles.emptyKey} />
+            ) : (
+              <KeyForKeyboard num="C" addPin={addPin} />
+            ))}
+          <KeyForKeyboard num={0} addPin={addPin} />
+          <KeyForKeyboard num="back" addPin={addPin} />
+        </View>
+      )}
     </View>
   );
 }
@@ -172,7 +213,12 @@ const styles = StyleSheet.create({
   keyboardContainerRedesign: { gap: 8 },
   keyboardRowRedesign: { gap: 8 },
   disabledKeyboard: { opacity: HIDDEN_OPACITY },
-  emptyKey: { flex: 1, minHeight: 54 },
+  keyCell: { flex: 1, flexBasis: 0 },
+  emptyKey: {
+    flex: 1,
+    flexBasis: 0,
+    minHeight: 54,
+  },
   keyboard_row: {
     width: '100%',
     flexDirection: 'row',

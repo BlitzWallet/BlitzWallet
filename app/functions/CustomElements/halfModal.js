@@ -70,6 +70,8 @@ import {
 import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/closePoolConfirmation';
 import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
 import NWCAuthApproval from '../../components/admin/homeComponents/settingsContent/nwc/nwcAuthApproval';
+import NWCBudgetPeriodHalfModal from '../../components/admin/homeComponents/settingsContent/nwc/nwcBudgetPeriodHalfModal';
+import NWCConnectionStringHalfModal from '../../components/admin/homeComponents/settingsContent/nwc/nwcConnectionStringHalfModal';
 import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
 import { SavingsProvider } from '../../../context-store/savingsContext';
@@ -149,7 +151,9 @@ export default function CustomHalfModal(props) {
     contentType === 'btcMapFilter' ||
     contentType === 'btcMapList' ||
     contentType === 'btcMapMerchant' ||
-    contentType === 'onlineListingsFilter';
+    contentType === 'onlineListingsFilter' ||
+    contentType === 'nwcBudgetPeriod' ||
+    contentType === 'nwcConnectionString';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -558,6 +562,22 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
             setBackNav={setBackNav}
+          />
+        );
+      case 'nwcBudgetPeriod':
+        return (
+          <NWCBudgetPeriodHalfModal
+            selectedOption={props?.route?.params?.selectedOption}
+            onSelectOption={props?.route?.params?.onSelectOption}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'nwcConnectionString':
+        return (
+          <NWCConnectionStringHalfModal
+            data={props?.route?.params?.data}
+            accountName={props?.route?.params?.accountName}
+            setContentHeight={setContentHeight}
           />
         );
       case 'addGiftQuantity':

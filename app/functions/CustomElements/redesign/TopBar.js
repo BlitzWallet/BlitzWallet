@@ -6,21 +6,29 @@ import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import IconButton from './IconButton';
 import { useInSheet } from './sheetSurface';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 // Back (44) · centred title 17/500, wraps to 2 lines · right slot.
-export default function TopBar({ title, onBack, right, scrolled = false }) {
+export default function TopBar({
+  title,
+  onBack,
+  right,
+  scrolled = false,
+  shouldDismissKeyboard = false,
+}) {
   const navigation = useNavigation();
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   const lastBackPressRef = useRef(0);
 
   // Same double-tap guard as CustomSettingsTopBar.
-  const handleBack = useCallback(() => {
+  const handleBack = useCallback(async () => {
     if (Date.now() - lastBackPressRef.current < 500) return;
     lastBackPressRef.current = Date.now();
+    if (shouldDismissKeyboard) await KeyboardController.dismiss();
     if (onBack) onBack();
     else navigation.goBack();
-  }, [onBack, navigation]);
+  }, [onBack, navigation, shouldDismissKeyboard]);
 
   return (
     <View

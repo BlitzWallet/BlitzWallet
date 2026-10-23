@@ -1,34 +1,26 @@
 import { useNavigation } from '@react-navigation/native';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import { CustomKeyboardAvoidingView } from '../../../../../functions/CustomElements';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import { saveNWCAccount } from '../../../../../functions/nwc';
 import { useTranslation } from 'react-i18next';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
 
 export default function CreateNWCName(props) {
   const navigate = useNavigation();
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, tokens } = GetThemeColors();
   const maxLength = 60;
   const passedParams = props?.route?.params || {};
   const isEditing = passedParams?.mode === 'edit' || !!passedParams?.accountID;
@@ -40,6 +32,8 @@ export default function CreateNWCName(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const handleSave = async () => {
     if (!accountName) {
@@ -78,102 +72,78 @@ export default function CreateNWCName(props) {
     });
   };
 
-  const isOverLimit = accountName.length >= maxLength;
-  const characterCountColor = isOverLimit
-    ? theme && darkModeType
-      ? textColor
-      : tokens.danger
-    : textColor;
-
   return (
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       useStandardWidth={true}
       isKeyboardActive={isKeyboardActive}
     >
-      <CustomSettingsTopBar
-        label={t('settings.nwc.createNWCName.navTitle')}
-        shouldDismissKeyboard={true}
-      />
-      {isSaving ? (
-        <FullLoadingScreen
-          text={t('settings.nwc.createNWCAccount.updatingMessage')}
+      <View style={[styles.innerContainer, { width: contentWidth }]}>
+        <TopBar
+          shouldDismissKeyboard={true}
+          title={t(
+            isEditing
+              ? 'settings.nwc.createNWCName.navTitle'
+              : 'settings.nwc.addAccount',
+          )}
         />
-      ) : (
-        <>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.innerContainer}
-            contentContainerStyle={styles.scrollContent}
-          >
-            <ThemeText
-              styles={styles.title}
-              content={t(
-                isEditing
-                  ? 'settings.nwc.createNWCName.editTitle'
-                  : 'settings.nwc.createNWCName.title',
-              )}
-            />
-            <ThemeText
-              styles={styles.subtitle}
-              content={t(
-                isEditing
-                  ? 'settings.nwc.createNWCName.editSubtitle'
-                  : 'settings.nwc.createNWCName.subtitle',
-              )}
-            />
-
-            <CustomSearchInput
-              inputText={accountName}
-              setInputText={setAccountName}
-              placeholderText={t('settings.nwc.createNWCName.placeholder')}
-              autoFocus={true}
-              onBlurFunction={() => setIsKeyboardActive(false)}
-              onFocusFunction={() => setIsKeyboardActive(true)}
-              maxLength={maxLength}
-            />
-            <ThemeText
-              styles={{
-                textAlign: 'right',
-                color: characterCountColor,
-                marginTop: 5,
-              }}
-              content={`${accountName.length} / ${maxLength}`}
-            />
-          </CustomScrollView>
-
-          <CustomButton
-            actionFunction={isEditing ? handleSave : handleContinue}
-            buttonStyles={{
-              ...CENTER,
-              width: INSET_WINDOW_WIDTH,
-              marginTop: CONTENT_KEYBOARD_OFFSET,
-              opacity: accountName ? 1 : HIDDEN_OPACITY,
-            }}
-            textContent={t(isEditing ? 'constants.save' : 'constants.continue')}
+        {isSaving ? (
+          <FullLoadingScreen
+            text={t('settings.nwc.createNWCAccount.updatingMessage')}
           />
-        </>
-      )}
+        ) : (
+          <>
+            <CustomScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              <PageHeader
+                title={t(
+                  isEditing
+                    ? 'settings.nwc.createNWCName.editTitle'
+                    : 'settings.nwc.createNWCName.title',
+                )}
+                sub={t(
+                  isEditing
+                    ? 'settings.nwc.createNWCName.editSubtitle'
+                    : 'settings.nwc.createNWCName.subtitle',
+                )}
+              />
+
+              <UserInput
+                value={accountName}
+                onChangeText={setAccountName}
+                placeholder={t('settings.nwc.createNWCName.placeholder')}
+                autoFocus={true}
+                onBlur={() => setIsKeyboardActive(false)}
+                onFocus={() => setIsKeyboardActive(true)}
+                maxLength={maxLength}
+                showTextCount={true}
+              />
+            </CustomScrollView>
+
+            <CustomButton
+              disabled={!accountName}
+              actionFunction={isEditing ? handleSave : handleContinue}
+              buttonStyles={{
+                ...CENTER,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
+              }}
+              textContent={t(
+                isEditing ? 'constants.save' : 'constants.continue',
+              )}
+              size={'regular'}
+            />
+          </>
+        )}
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: INSET_WINDOW_WIDTH,
+    flex: 1,
     ...CENTER,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
   },
 });

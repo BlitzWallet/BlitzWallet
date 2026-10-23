@@ -4,7 +4,7 @@ import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 
 // 32 disc + muted 13/19 text, no tinted box (rule 3). warn = amber disc.
-export default function Note({ text, tone = 'info' }) {
+export default function Note({ text, tone = 'info', textStyle }) {
   const { tokens } = useTheme();
   const warn = tone === 'warn';
   return (
@@ -22,7 +22,11 @@ export default function Note({ text, tone = 'info' }) {
           colorOverride={warn ? tokens.warn : tokens.ink}
         />
       </View>
-      <ThemeText variant="hint" content={text} styles={styles.text} />
+      <ThemeText
+        variant="hint"
+        content={text}
+        styles={[styles.text, textStyle]}
+      />
     </View>
   );
 }

@@ -32,7 +32,6 @@ import fetchBackend from '../../../db/handleBackend';
 import { useKeysContext } from '../../../context-store/keys';
 import { useServerTimeOnly } from '../../../context-store/serverTime';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
-import AmountHero from '../../functions/CustomElements/redesign/AmountHero';
 import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
 import Segmented from '../../functions/CustomElements/redesign/Segmented';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
@@ -221,11 +220,12 @@ export default function ExploreUsers() {
               content={t('screens.inAccount.explorePage.title')}
               styles={[styles.label, { color: tokens.muted }]}
             />
-            <AmountHero
-              value={formatBalanceAmount(max, undefined, masterInfoObject)}
-              amountSize={48}
-              unitSize={24}
-              lineHeight={52}
+            <ThemeText
+              content={formatBalanceAmount(max, undefined, masterInfoObject)}
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.5}
+              styles={[styles.heroAmount, { color: tokens.ink }]}
             />
             <ThemeText
               content={`${t('screens.inAccount.explorePage.goalUserCount', {
@@ -347,7 +347,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 16,
-    marginBottom: 5,
+  },
+  heroAmount: {
+    fontFamily: FONT.Title_Medium,
+    fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
+    fontSize: 48,
+    letterSpacing: -(48 * 0.035),
+    textAlign: 'center',
+    flexShrink: 1,
   },
   goal: {
     fontSize: 14,

@@ -4,7 +4,8 @@ import ThemeIcon from '../themeIcon';
 
 // Settings row lead disc: 36/40 grey disc with an 18 ink glyph (D279).
 // `tone="danger"` = dangerBg + danger glyph (Delete wallet);
-// `tone="primary"` = accent fill + onAccent glyph (D296 Ready to exit).
+// `tone="primary"` = accent fill + onAccent glyph (D296 Ready to exit);
+// `tone="accent"` = grey disc + accent glyph (alert dialog icon).
 export default function Disc({
   icon,
   size = 36,
@@ -22,7 +23,13 @@ export default function Disc({
     : white
     ? tokens.surface
     : tokens.disc;
-  const color = danger ? tokens.danger : primary ? tokens.onAccent : tokens.ink;
+  const color = danger
+    ? tokens.danger
+    : primary
+    ? tokens.onAccent
+    : tone === 'accent'
+    ? tokens.accent
+    : tokens.ink;
   return (
     <View
       style={[

@@ -98,6 +98,7 @@ import AnalyticsStack from './analyticsStack';
 import BTCMapScreen from '../app/screens/inAccount/btcMap';
 import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
 import SparkHodlInvoiceTest from '../app/screens/sparkHodlInvoiceTest';
+import ConfirmDialog from '../app/functions/CustomElements/redesign/ConfirmDialog';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -223,6 +224,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
 const FADE_SCREENS = [
   { name: 'CustomHalfModal', component: CustomHalfModal },
   { name: 'ConfirmActionPage', component: ConfirmActionPage },
+  { name: 'ConfirmDialog', component: ConfirmDialog },
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
   { name: 'ErrorScreen', component: ErrorScreen },
   { name: 'SparkErrorScreen', component: SparkErrorScreen },

@@ -2084,8 +2084,8 @@
       "swapsType": "BTC <> USD Swaps",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
-      "sparkSwapType": "BTC ↔\uFE0E USDB (Spark)",
-      "chainSwapType": "BTC or USDB ↔\uFE0E stablecoin (cross-chain)",
+      "sparkSwapType": "BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC or USDB ↔︎ stablecoin (cross-chain)",
       "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
@@ -2125,7 +2125,24 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Are you sure you want to delete this connection?",
+      "accountBalance": {
+        "title": "Account balance",
+        "subtitle": "What apps can spend"
+      },
+      "connectionsHeader": "Connections",
+      "connectionSummary": {
+        "noBudget": "No budget",
+        "canSend": "Can send {{amount}} {{period}}",
+        "cantSend": "Can’t send"
+      },
+      "deleteDialog": {
+        "title": "Delete this connection?",
+        "message": "{{name}} will stop working with your wallet. Money in your Wallet Connect account stays there."
+      },
+      "connectionString": {
+        "subtitle": "Scan it from {{name}}, or copy and paste it.",
+        "warning": "Whoever has this connection string can access whatever permissions you gave it."
+      },
       "addAccount": "Add connection",
       "empty": {
         "title": "No connections yet",
@@ -2135,14 +2152,14 @@
         "navTitle": "Name",
         "title": "Name this connection",
         "editTitle": "Edit connection name",
-        "subtitle": "Give the connection a name so you can recognize it later.",
+        "subtitle": "Give it a name so you can recognize it later.",
         "editSubtitle": "Choose a new name so you can recognize this connection later.",
         "placeholder": "Connection name"
       },
       "createNWCPermissions": {
         "title": "Permissions",
-        "pageTitle": "Add connection permissions",
-        "pageSubtitle": "Choose what actions {{name}} can perform.",
+        "pageTitle": "What can {{name}} do?",
+        "pageSubtitle": "Turn on only what the app needs.",
         "editTitle": "Edit connection permissions",
         "editSubtitle": "Edit what actions {{name}} can perform."
       },
@@ -2153,12 +2170,21 @@
         "editTitle": "Edit spending budget",
         "editSubtitle": "Change the spending limit and when it resets. Leave blank for no limit.",
         "renewalPlaceholder": "Select renewal period",
-        "createButton": "Create connection"
+        "createButton": "Create connection",
+        "resetTitle": "How often does it reset?",
+        "noLimit": "No limit",
+        "resetsDaily": "Resets daily",
+        "resetsWeekly": "Resets weekly",
+        "resetsMonthly": "Resets monthly",
+        "resetsYearly": "Resets yearly",
+        "resetHint": "Opens reset period options.",
+        "changeCurrency": "Change currency"
       },
       "accountCreated": {
         "title": "Connection created",
-        "subtitle": "Your connection has been created, copy the connection string to start using it.",
-        "copyConnection": "Copy connection string"
+        "subtitle": "Copy the connection string and paste it into {{connection}}.",
+        "copyConnection": "Copy connection string",
+        "connectionStringLabel": "Connection string"
       },
       "accountPage": {
         "title": "Manage Connection",
@@ -2167,7 +2193,7 @@
         "permissionsCount_one": "{{count}} permission",
         "permissionsCount_other": "{{count}} permissions",
         "renewalLabel": "Renewal period",
-        "amountLabel": "Budget amount",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Connection string",
         "deleteAccount": "Delete connection"
       },
@@ -2192,7 +2218,8 @@
       },
       "noNotifications": {
         "title": "Notifications required",
-        "subtitle": "Wallet Connect requires push notifications. Please enable them in Settings and try again."
+        "subtitle": "Wallet Connect needs push notifications to answer apps. Turn them on, then come back.",
+        "button": "Turn on notifications"
       },
       "showSeedPage": {
         "loadingMessage": "Generating recovery phrase",
@@ -2238,10 +2265,10 @@
         "row1Label": "Add funds",
         "row1Description": "Add money by receiving it or moving it from your main account.",
         "row2Label": "Separate account",
-        "row2Description": "This account is separate from your main account for added security.",
+        "row2Description": "Kept apart from your main account, so apps can only spend what you put here.",
         "row3Label": "App access",
         "row3Description": "Connected apps can use this account to make payments.",
-        "continueButton": "Get Started"
+        "continueButton": "Get started"
       }
     },
     "accountComponents": {

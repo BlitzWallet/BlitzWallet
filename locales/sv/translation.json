@@ -1964,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Är du säker på att du vill ta bort den här anslutningen?",
+      "deleteDialog": {
+        "title": "Ta bort den här anslutningen?",
+        "message": "{{name}} slutar fungera med din plånbok. Pengarna på ditt Wallet Connect-konto stannar kvar där."
+      },
+      "connectionString": {
+        "subtitle": "Skanna den i {{name}}, eller kopiera och klistra in den.",
+        "warning": "Den som har den här anslutningssträngen kan använda alla behörigheter du gav den."
+      },
       "addAccount": "Lägg till anslutning",
+      "accountBalance": {
+        "title": "Kontosaldo",
+        "subtitle": "Vad appar kan spendera"
+      },
+      "connectionsHeader": "Anslutningar",
+      "connectionSummary": {
+        "noBudget": "Ingen budget",
+        "canSend": "Kan skicka {{amount}} {{period}}",
+        "cantSend": "Kan inte skicka"
+      },
       "empty": {
         "title": "Inga anslutningar ännu",
         "subtitle": "Använd ditt Wallet Connect-konto med dina favoritappar."
@@ -1980,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Behörigheter",
-        "pageTitle": "Lägg till anslutningsbehörigheter",
-        "pageSubtitle": "Välj vilka åtgärder {{name}} kan utföra.",
+        "pageTitle": "Vad kan {{name}} göra?",
+        "pageSubtitle": "Slå bara på det appen behöver.",
         "editTitle": "Redigera anslutningsbehörigheter",
         "editSubtitle": "Redigera vilka åtgärder {{name}} kan utföra."
       },
@@ -1992,7 +2009,15 @@
         "editTitle": "Redigera utgiftsbudget",
         "editSubtitle": "Ändra utgiftsgränsen och när den återställs. Lämna tomt för ingen gräns.",
         "renewalPlaceholder": "Välj förnyelseperiod",
-        "createButton": "Skapa anslutning"
+        "createButton": "Skapa anslutning",
+        "resetTitle": "Hur ofta återställs gränsen?",
+        "noLimit": "Ingen gräns",
+        "resetsDaily": "Återställs dagligen",
+        "resetsWeekly": "Återställs veckovis",
+        "resetsMonthly": "Återställs månadsvis",
+        "resetsYearly": "Återställs årligen",
+        "resetHint": "Öppnar alternativen för återställningsperiod.",
+        "changeCurrency": "Ändra valuta"
       },
       "accountPage": {
         "title": "Hantera anslutning",
@@ -2001,7 +2026,7 @@
         "permissionsCount_one": "{{count}} behörighet",
         "permissionsCount_other": "{{count}} behörigheter",
         "renewalLabel": "Förnyelseperiod",
-        "amountLabel": "Budgetbelopp",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Anslutningssträng",
         "deleteAccount": "Ta bort anslutning"
       },
@@ -2026,7 +2051,8 @@
       },
       "noNotifications": {
         "title": "Aviseringar krävs",
-        "subtitle": "Wallet Connect kräver push-aviseringar. Aktivera dem i Inställningar och försök igen."
+        "subtitle": "Wallet Connect behöver push-aviseringar för att svara appar. Slå på dem och kom tillbaka.",
+        "button": "Slå på aviseringar"
       },
       "showSeedPage": {
         "loadingMessage": "Genererar återställningsfras",
@@ -2072,15 +2098,16 @@
         "row1Label": "Lägg till pengar",
         "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
         "row2Label": "Separat konto",
-        "row2Description": "Det här kontot är åtskilt från ditt huvudkonto för ökad säkerhet.",
+        "row2Description": "Åtskilt från ditt huvudkonto, så appar bara kan spendera det du lägger här.",
         "row3Label": "Appåtkomst",
         "row3Description": "Anslutna appar kan använda det här kontot för att göra betalningar.",
         "continueButton": "Kom igång"
       },
       "accountCreated": {
         "title": "Anslutning skapad",
-        "subtitle": "Din anslutning har skapats. Kopiera anslutningssträngen för att börja använda den.",
-        "copyConnection": "Kopiera anslutningssträng"
+        "subtitle": "Kopiera anslutningssträngen och klistra in den i {{connection}}.",
+        "copyConnection": "Kopiera anslutningssträng",
+        "connectionStringLabel": "Anslutningssträng"
       }
     },
     "accountComponents": {

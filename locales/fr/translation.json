@@ -1964,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette connexion ?",
+      "deleteDialog": {
+        "title": "Supprimer cette connexion ?",
+        "message": "{{name}} ne fonctionnera plus avec votre portefeuille. L’argent de votre compte Wallet Connect y reste."
+      },
+      "connectionString": {
+        "subtitle": "Scannez-la depuis {{name}}, ou copiez-collez-la.",
+        "warning": "Quiconque possède cette chaîne de connexion peut utiliser toutes les autorisations que vous lui avez accordées."
+      },
       "addAccount": "Ajouter une connexion",
+      "accountBalance": {
+        "title": "Solde du compte",
+        "subtitle": "Ce que les apps peuvent dépenser"
+      },
+      "connectionsHeader": "Connexions",
+      "connectionSummary": {
+        "noBudget": "Aucun budget",
+        "canSend": "Peut envoyer {{amount}} {{period}}",
+        "cantSend": "Ne peut pas envoyer"
+      },
       "empty": {
         "title": "Aucune connexion pour le moment",
         "subtitle": "Utilisez votre compte Wallet Connect avec vos applications préférées."
@@ -1980,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Autorisations",
-        "pageTitle": "Ajouter des autorisations de connexion",
-        "pageSubtitle": "Choisissez les actions que {{name}} peut effectuer.",
+        "pageTitle": "Que peut faire {{name}} ?",
+        "pageSubtitle": "Activez uniquement ce dont l'app a besoin.",
         "editTitle": "Modifier les autorisations de la connexion",
         "editSubtitle": "Modifiez les actions que {{name}} peut effectuer."
       },
@@ -1992,7 +2009,15 @@
         "editTitle": "Modifier le budget de dépenses",
         "editSubtitle": "Modifiez la limite de dépenses et sa période de réinitialisation. Laissez vide pour aucune limite.",
         "renewalPlaceholder": "Sélectionner la période de renouvellement",
-        "createButton": "Créer une connexion"
+        "createButton": "Créer une connexion",
+        "resetTitle": "À quelle fréquence la limite se réinitialise-t-elle ?",
+        "noLimit": "Sans limite",
+        "resetsDaily": "Réinitialisation quotidienne",
+        "resetsWeekly": "Réinitialisation hebdomadaire",
+        "resetsMonthly": "Réinitialisation mensuelle",
+        "resetsYearly": "Réinitialisation annuelle",
+        "resetHint": "Ouvre les options de période de réinitialisation.",
+        "changeCurrency": "Changer de devise"
       },
       "accountPage": {
         "title": "Gérer la connexion",
@@ -2001,7 +2026,7 @@
         "permissionsCount_one": "{{count}} autorisation",
         "permissionsCount_other": "{{count}} autorisations",
         "renewalLabel": "Période de renouvellement",
-        "amountLabel": "Montant du budget",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Chaîne de connexion",
         "deleteAccount": "Supprimer la connexion"
       },
@@ -2026,7 +2051,8 @@
       },
       "noNotifications": {
         "title": "Notifications requises",
-        "subtitle": "Wallet Connect nécessite les notifications push. Veuillez les activer dans les paramètres et réessayer."
+        "subtitle": "Wallet Connect a besoin des notifications push pour répondre aux apps. Activez-les, puis revenez.",
+        "button": "Activer les notifications"
       },
       "showSeedPage": {
         "loadingMessage": "Génération de la phrase de récupération",
@@ -2072,15 +2098,16 @@
         "row1Label": "Ajouter des fonds",
         "row1Description": "Ajoutez de l'argent en le recevant ou en le transférant depuis votre compte principal.",
         "row2Label": "Compte séparé",
-        "row2Description": "Ce compte est séparé de votre compte principal pour plus de sécurité.",
+        "row2Description": "Séparé de votre compte principal, pour que les apps ne puissent dépenser que ce que vous y mettez.",
         "row3Label": "Accès à l'application",
         "row3Description": "Les applications connectées peuvent utiliser ce compte pour effectuer des paiements.",
         "continueButton": "Commencer"
       },
       "accountCreated": {
         "title": "Connexion créée",
-        "subtitle": "Votre connexion a été créée. Copiez la chaîne de connexion pour commencer à l'utiliser.",
-        "copyConnection": "Copier la chaîne de connexion"
+        "subtitle": "Copiez la chaîne de connexion et collez-la dans {{connection}}.",
+        "copyConnection": "Copier la chaîne de connexion",
+        "connectionStringLabel": "Chaîne de connexion"
       }
     },
     "accountComponents": {

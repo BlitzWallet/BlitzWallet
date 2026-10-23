@@ -1964,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Conexão Nostr",
-      "confirmDelete": "Tem certeza de que deseja excluir esta conexão?",
+      "deleteDialog": {
+        "title": "Excluir esta conexão?",
+        "message": "{{name}} vai parar de funcionar com sua carteira. O dinheiro na sua conta Wallet Connect continua lá."
+      },
+      "connectionString": {
+        "subtitle": "Escaneie no {{name}} ou copie e cole.",
+        "warning": "Quem tiver este código de conexão pode usar todas as permissões que você deu a ele."
+      },
       "addAccount": "Nova conexão",
+      "accountBalance": {
+        "title": "Saldo da conta",
+        "subtitle": "O que os apps podem gastar"
+      },
+      "connectionsHeader": "Conexões",
+      "connectionSummary": {
+        "noBudget": "Sem orçamento",
+        "canSend": "Pode enviar {{amount}} {{period}}",
+        "cantSend": "Não pode enviar"
+      },
       "empty": {
         "title": "Nenhuma conexão ainda",
         "subtitle": "Use sua conta NWC com seus aplicativos favoritos."
@@ -1980,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Permissões",
-        "pageTitle": "Adicionar permissões da conexão",
-        "pageSubtitle": "Escolha quais ações {{name}} pode realizar.",
+        "pageTitle": "O que {{name}} pode fazer?",
+        "pageSubtitle": "Ative apenas o que o app precisa.",
         "editTitle": "Editar permissões da conexão",
         "editSubtitle": "Edite quais ações {{name}} pode realizar."
       },
@@ -1992,7 +2009,15 @@
         "editTitle": "Editar orçamento de gastos",
         "editSubtitle": "Altere o limite de gastos e quando ele é redefinido. Deixe em branco para não ter limite.",
         "renewalPlaceholder": "Selecione o período de renovação",
-        "createButton": "Criar conexão"
+        "createButton": "Criar conexão",
+        "resetTitle": "Com que frequência o limite é redefinido?",
+        "noLimit": "Sem limite",
+        "resetsDaily": "Redefine diariamente",
+        "resetsWeekly": "Redefine semanalmente",
+        "resetsMonthly": "Redefine mensalmente",
+        "resetsYearly": "Redefine anualmente",
+        "resetHint": "Abre as opções de período de redefinição.",
+        "changeCurrency": "Alterar moeda"
       },
       "accountPage": {
         "title": "Gerenciar conexão",
@@ -2001,7 +2026,7 @@
         "permissionsCount_one": "{{count}} permissão",
         "permissionsCount_other": "{{count}} permissões",
         "renewalLabel": "Período de renovação",
-        "amountLabel": "Valor do orçamento",
+        "amountLabel": "Orçamento",
         "viewSecretLabel": "String de conexão",
         "deleteAccount": "Excluir conexão"
       },
@@ -2026,7 +2051,8 @@
       },
       "noNotifications": {
         "title": "Notificações necessárias",
-        "subtitle": "Contas NWC requerem notificações push. Ative-as nas Configurações e tente novamente."
+        "subtitle": "O Wallet Connect precisa de notificações push para responder aos apps. Ative-as e volte.",
+        "button": "Ativar notificações"
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
@@ -2072,15 +2098,16 @@
         "row1Label": "Adicionar fundos",
         "row1Description": "Adicione dinheiro recebendo-o ou transferindo-o da sua conta principal.",
         "row2Label": "Conta separada",
-        "row2Description": "Esta conta é separada da sua conta principal para maior segurança.",
+        "row2Description": "Separada da sua conta principal, assim os apps só podem gastar o que você colocar aqui.",
         "row3Label": "Acesso ao aplicativo",
         "row3Description": "Aplicativos conectados podem usar esta conta para fazer pagamentos.",
         "continueButton": "Começar"
       },
       "accountCreated": {
         "title": "Conexão criada",
-        "subtitle": "Sua conexão foi criada. Copie o codigo de conexão para começar a usá-la.",
-        "copyConnection": "Copiar código de conexão"
+        "subtitle": "Copie o código de conexão e cole em {{connection}}.",
+        "copyConnection": "Copiar código de conexão",
+        "connectionStringLabel": "Código de conexão"
       }
     },
     "accountComponents": {

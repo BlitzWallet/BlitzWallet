@@ -24,6 +24,7 @@ export const MODES = {
     success: '#0375F6',
     tabPill: '#E6E6EA',
     tabIdle: '#75767D',
+    accentPastel: '#D6E4F5',
     scheme: 'light',
   },
   dim: {
@@ -48,6 +49,7 @@ export const MODES = {
     success: '#0375F6',
     tabPill: '#1F4A79',
     tabIdle: '#99A8B8',
+    accentPastel: '#D6E4F5',
     scheme: 'dark',
   },
   lightsOut: {
@@ -72,17 +74,18 @@ export const MODES = {
     success: '#0375F6',
     tabPill: '#363636',
     tabIdle: '#999999',
+    accentPastel: '#D6E4F5',
     scheme: 'dark',
   },
 };
 
-const CANARY = {ground: '#FF00FF', ink: '#00FF00'};
+const CANARY = { ground: '#FF00FF', ink: '#00FF00' };
 
 export const SKINS = {
   canary: {
     id: 'canary',
     name: 'Canary',
-    overrides: {light: CANARY, dim: CANARY, lightsOut: CANARY},
+    overrides: { light: CANARY, dim: CANARY, lightsOut: CANARY },
   },
 };
 

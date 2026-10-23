@@ -20,7 +20,6 @@ import {
   getGlobalLeafStats,
   EXIT_MIN_SATS,
 } from '../../../../../functions/spark/leavesStorage';
-import formatBalanceAmount from '../../../../../functions/formatNumber';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { createFormattedDate } from '../../contacts/contactsPageComponents/utilityFunctions';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
@@ -29,7 +28,6 @@ import ListCard from '../../../../../functions/CustomElements/redesign/ListCard'
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 
@@ -135,13 +133,9 @@ export default function WalletLeaves() {
         >
           <View style={styles.hero}>
             <AmountHero
-              value={displayCorrectDenomination({
-                amount: stats.totalValue ?? 0,
-                masterInfoObject,
-                fiatStats,
-              })}
+              amount={stats.totalValue ?? 0}
+              fiatStats={fiatStats}
               amountSize={44}
-              unitSize={22}
               lineHeight={48}
             />
           </View>

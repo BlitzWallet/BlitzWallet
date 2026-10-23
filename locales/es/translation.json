@@ -1961,8 +1961,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "¿Estás seguro de que quieres eliminar esta conexión?",
+      "deleteDialog": {
+        "title": "¿Eliminar esta conexión?",
+        "message": "{{name}} dejará de funcionar con tu billetera. El dinero de tu cuenta de Wallet Connect se queda allí."
+      },
+      "connectionString": {
+        "subtitle": "Escanéala desde {{name}} o cópiala y pégala.",
+        "warning": "Quien tenga esta cadena de conexión puede usar todos los permisos que le diste."
+      },
       "addAccount": "Añadir conexión",
+      "accountBalance": {
+        "title": "Saldo de la cuenta",
+        "subtitle": "Lo que las apps pueden gastar"
+      },
+      "connectionsHeader": "Conexiones",
+      "connectionSummary": {
+        "noBudget": "Sin presupuesto",
+        "canSend": "Puede enviar {{amount}} {{period}}",
+        "cantSend": "No puede enviar"
+      },
       "empty": {
         "title": "Aún no hay conexiones",
         "subtitle": "Usa tu cuenta de Wallet Connect con tus aplicaciones favoritas."
@@ -1977,8 +1994,8 @@
       },
       "createNWCPermissions": {
         "title": "Permisos",
-        "pageTitle": "Añadir permisos de la conexión",
-        "pageSubtitle": "Elige qué acciones puede realizar {{name}}.",
+        "pageTitle": "¿Qué puede hacer {{name}}?",
+        "pageSubtitle": "Activa solo lo que la app necesita.",
         "editTitle": "Editar permisos de la conexión",
         "editSubtitle": "Edita qué acciones puede realizar {{name}}."
       },
@@ -1989,7 +2006,15 @@
         "editTitle": "Editar presupuesto de gastos",
         "editSubtitle": "Cambia el límite de gastos y cuándo se restablece. Déjalo en blanco para no tener límite.",
         "renewalPlaceholder": "Selecciona el período de renovación",
-        "createButton": "Crear conexión"
+        "createButton": "Crear conexión",
+        "resetTitle": "¿Cada cuánto se reinicia?",
+        "noLimit": "Sin límite",
+        "resetsDaily": "Se reinicia a diario",
+        "resetsWeekly": "Se reinicia semanalmente",
+        "resetsMonthly": "Se reinicia mensualmente",
+        "resetsYearly": "Se reinicia anualmente",
+        "resetHint": "Abre las opciones del período de reinicio.",
+        "changeCurrency": "Cambiar moneda"
       },
       "accountPage": {
         "title": "Gestionar conexión",
@@ -1998,7 +2023,7 @@
         "permissionsCount_one": "{{count}} permiso",
         "permissionsCount_other": "{{count}} permisos",
         "renewalLabel": "Período de renovación",
-        "amountLabel": "Monto del presupuesto",
+        "amountLabel": "Presupuesto",
         "viewSecretLabel": "Cadena de conexión",
         "deleteAccount": "Eliminar conexión"
       },
@@ -2023,7 +2048,8 @@
       },
       "noNotifications": {
         "title": "Notificaciones requeridas",
-        "subtitle": "Wallet Connect requiere notificaciones push. Actívalas en Configuración e inténtalo de nuevo."
+        "subtitle": "Wallet Connect necesita notificaciones push para responder a las apps. Actívalas y vuelve.",
+        "button": "Activar notificaciones"
       },
       "showSeedPage": {
         "loadingMessage": "Generando frase de recuperación",
@@ -2069,15 +2095,16 @@
         "row1Label": "Añadir fondos",
         "row1Description": "Añade dinero recibiéndolo o transfiriéndolo desde tu cuenta principal.",
         "row2Label": "Cuenta separada",
-        "row2Description": "Esta cuenta está separada de tu cuenta principal para mayor seguridad.",
+        "row2Description": "Separada de tu cuenta principal, para que las apps solo puedan gastar lo que pongas aquí.",
         "row3Label": "Acceso de la aplicación",
         "row3Description": "Las aplicaciones conectadas pueden usar esta cuenta para realizar pagos.",
         "continueButton": "Comenzar"
       },
       "accountCreated": {
         "title": "Conexión creada",
-        "subtitle": "Tu conexión ha sido creada. Copia la cadena de conexión para empezar a usarla.",
-        "copyConnection": "Copiar cadena de conexión"
+        "subtitle": "Copia la cadena de conexión y pégala en {{connection}}.",
+        "copyConnection": "Copiar cadena de conexión",
+        "connectionStringLabel": "Cadena de conexión"
       }
     },
     "accountComponents": {

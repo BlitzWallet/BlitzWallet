@@ -1,19 +1,28 @@
 import { StyleSheet, View } from 'react-native';
 import { FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
+import { useGlobalContextProvider } from '../../../../context-store/context';
+import displayCorrectDenomination from '../../displayCorrectDenomination';
 import ThemeText from '../textTheme';
 
-// Centred amount + muted unit, baseline aligned (D296 44/22, D301 48/24).
-// Amounts shrink to fit (OQ-17); the unit never shrinks.
+// Centred denomination-aware amount. Amounts shrink to fit (OQ-17).
 export default function AmountHero({
-  value,
-  unit,
+  amount,
+  fiatStats,
+  masterInfoObject: masterInfoOverride,
   amountSize = 44,
-  unitSize = 22,
-  lineHeight = amountSize + 4,
   accessibilityLabel,
+  mutedValue = false,
 }) {
   const { tokens } = useTheme();
+  const { masterInfoObject: contextMasterInfoObject } =
+    useGlobalContextProvider();
+  const displayValue = displayCorrectDenomination({
+    amount,
+    masterInfoObject: masterInfoOverride || contextMasterInfoObject,
+    fiatStats,
+  });
+
   return (
     <View
       style={styles.row}
@@ -21,7 +30,7 @@ export default function AmountHero({
       accessibilityRole="text"
     >
       <ThemeText
-        content={String(value ?? '')}
+        content={displayValue}
         CustomNumberOfLines={1}
         adjustsFontSizeToFit
         minimumFontScale={0.5}
@@ -29,20 +38,12 @@ export default function AmountHero({
           styles.amount,
           {
             fontSize: amountSize,
-            lineHeight,
+            // lineHeight,
             letterSpacing: -(amountSize * 0.035),
+            color: mutedValue ? tokens.muted : tokens.ink,
           },
         ]}
       />
-      {!!unit && (
-        <ThemeText
-          content={`\u00A0${unit}`}
-          styles={[
-            styles.unit,
-            { fontSize: unitSize, color: tokens.muted, lineHeight },
-          ]}
-        />
-      )}
     </View>
   );
 }
@@ -59,9 +60,5 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
     flexShrink: 1,
-  },
-  unit: {
-    fontFamily: FONT.Title_Regular,
-    includeFontPadding: false,
   },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
-import { SIZES } from '../../../constants';
+import { COLORS, SIZES } from '../../../constants';
 
 // Settings row lead disc: 36/40 grey disc with an 18 ink glyph (D279).
 // `tone="danger"` = dangerBg + danger glyph (Delete wallet);
@@ -15,6 +15,7 @@ export default function DiscText({
   const { tokens } = useTheme();
   const danger = tone === 'danger';
   const primary = tone === 'primary';
+  const primaryLight = tone === 'primaryLight';
   const white = tone === 'white';
   const background = danger
     ? tokens.dangerBg
@@ -22,8 +23,17 @@ export default function DiscText({
     ? tokens.accent
     : white
     ? tokens.surface
+    : primaryLight
+    ? tokens.accentPastel
     : tokens.disc;
-  const color = danger ? tokens.danger : primary ? tokens.onAccent : tokens.ink;
+  // accentPastel is the same in every mode, so its letter stays dark ink.
+  const color = danger
+    ? tokens.danger
+    : primary
+    ? tokens.onAccent
+    : primaryLight
+    ? COLORS.lightModeText
+    : tokens.ink;
   return (
     <View
       style={[
@@ -36,7 +46,7 @@ export default function DiscText({
         },
       ]}
     >
-      <ThemeText styles={{ fontSize }} content={text} />
+      <ThemeText styles={{ fontSize, color }} content={text} />
     </View>
   );
 }

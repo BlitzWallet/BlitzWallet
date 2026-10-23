@@ -421,7 +421,10 @@ export default function EditAccountPage(props) {
         'settings.accountComponents.editAccountPage.manageConnectionsLabel',
       ),
       onPress: () =>
-        navigate.navigate('NosterWalletConnect', { fromAccounts: true }),
+        navigate.navigate('NosterWalletConnect', {
+          fromAccounts: true,
+          from: fromPage,
+        }),
     },
     isChild && {
       key: 'pair',
