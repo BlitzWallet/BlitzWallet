@@ -62,6 +62,7 @@ import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
+import ProfilePrintPage from '../app/functions/CustomElements/profilePrintPage';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
 import PoolsStack from './PoolsStack';
 import GiftsStack from './GiftsStack';
@@ -102,6 +103,7 @@ import ConfirmDialog from '../app/functions/CustomElements/redesign/ConfirmDialo
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
+  { name: 'ProfilePrintPage', component: ProfilePrintPage },
   { name: 'SendBTC', component: SendPaymentHome },
 
   { name: 'ExpandedTx', component: ExpandedTx },

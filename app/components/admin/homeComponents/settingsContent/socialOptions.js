@@ -3,6 +3,11 @@ import { useNavigation } from '@react-navigation/native';
 import openWebBrowser from '../../../../functions/openWebBrowser';
 import { useTheme } from '../../../../../context-store/theme';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import { useTranslation } from 'react-i18next';
+import { FONT } from '../../../../constants';
 
 // D280 footer (Q19-4): three muted text buttons, same URLs and openers.
 export const NAVITEMS = [
@@ -68,4 +73,65 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   linkText: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
+  sheet: { paddingHorizontal: 20 },
+  sheetTitle: {
+    marginTop: 18,
+    marginBottom: 14,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 26,
+    includeFontPadding: false,
+  },
+  sheetRowTitle: { fontSize: 16, lineHeight: 22 },
 });
+
+// Profile › Social sheet (Q12-5): the same three links as rows.
+export function SocialLinksSheet({
+  setContentHeight,
+  handleBackPressFunction,
+}) {
+  const navigate = useNavigation();
+  const { t } = useTranslation();
+  const { tokens } = useTheme();
+
+  const openLink = item =>
+    handleBackPressFunction(() => {
+      navigate.goBack();
+      if (!item.inApp) openWebBrowser({ navigate, link: item.link });
+      else navigate.navigate('CustomWebView', { webViewURL: item.link });
+    });
+
+  return (
+    <View
+      style={styles.sheet}
+      onLayout={e =>
+        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+      }
+    >
+      <ThemeText
+        styles={styles.sheetTitle}
+        content={t('settings.index.social')}
+      />
+      <ListCard>
+        {NAVITEMS.map(item => (
+          <ListRow
+            key={item.name}
+            title={item.name}
+            minHeight={56}
+            titleStyle={styles.sheetRowTitle}
+            trailing={
+              <ThemeIcon
+                redesign
+                iconName="ExternalLink"
+                size={18}
+                colorOverride={tokens.muted}
+              />
+            }
+            onPress={() => openLink(item)}
+          />
+        ))}
+      </ListCard>
+    </View>
+  );
+}

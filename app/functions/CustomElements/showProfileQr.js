@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Share,
-} from 'react-native';
-import CustomScrollView from './scrollView';
-import QRCode from './StyledQRCode';
+import { useRef } from 'react';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import ViewShot from 'react-native-view-shot';
+import QrCard from './redesign/QrCard';
 import copyToClipboard from '../copyToClipboard';
 import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';
-import CustomSettingsTopBar from './settingsTopBar';
-import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, EMAIL_REGEX, SIZES, VALID_URL_REGEX } from '../../constants';
+import {
+  CENTER,
+  EMAIL_REGEX,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  VALID_URL_REGEX,
+} from '../../constants';
 import ThemeText from './textTheme';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
@@ -20,50 +19,83 @@ import ContactProfileImage from '../../components/admin/homeComponents/contacts/
 import { useImageCache } from '../../../context-store/imageCache';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { MODES } from '../../constants/themes';
 import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { useNavigation } from '@react-navigation/native';
 import { getCachedProfileImage } from '../cachedImage';
-import ThemeIcon from './themeIcon';
-import { shareMessage } from '../handleShare';
+import { shareFile, shareMessage } from '../handleShare';
+import TopBar from './redesign/TopBar';
+import IconButton from './redesign/IconButton';
+import CustomButton from './button';
 
-export default function ShowProfileQr() {
+// Photo disc in the middle of the profile QR (Show QR + Print).
+export function ProfileQrBadge({ size }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const myProfileImage = cache[masterInfoObject?.uuid];
+  return (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: tokens.disc,
+      }}
+    >
+      <ContactProfileImage
+        updated={myProfileImage?.updated}
+        uri={myProfileImage?.localUri}
+        darkModeType={darkModeType}
+        theme={theme}
+      />
+    </View>
+  );
+}
+
+// D158: one code (your Lightning address, OQ-40) on a white card with your
+// name. Tap copies; Print + Share sit in the top bar.
+export default function ShowProfileQr() {
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { backgroundOffset, backgroundColor, textColor, tokens } =
-    GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
-  const [activeType, setActiveType] = useState('blitz');
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const qrSize = Math.min(280, contentWidth - 48);
+  const viewShotRef = useRef(null);
 
   const name = globalContactsInformation.myProfile.name;
   const uniqueName = globalContactsInformation.myProfile.uniqueName;
-  const myProfileImage = cache[masterInfoObject?.uuid];
 
   const lnurl = `${uniqueName}@blitzwalletapp.com`;
-  const deeplink = `https://blitzwalletapp.com/u/${uniqueName}`;
-
-  const currentValue = activeType === 'lnurl' ? lnurl : deeplink;
-  const currentLabel =
-    activeType === 'lnurl'
-      ? t('contacts.showProfileQr.lnAddress')
-      : t('contacts.showProfileQr.blitzContact');
-
-  const activeToggleColor = theme ? backgroundColor : tokens.surface;
+  const shareText = t('contacts.showProfileQr.shareMessage', {
+    address: lnurl,
+  });
 
   const handleCopy = () => {
-    copyToClipboard(currentValue, showToast);
+    copyToClipboard(lnurl, showToast);
   };
 
-  const handleShare = () => {
-    if (activeType === 'lnurl') {
-      shareMessage({ message: currentValue });
-    } else {
-      shareMessage({ message: t('share.contact') + '\n' + currentValue });
+  // Q12-11: the card as an image on native, plain text otherwise.
+  const handleShare = async () => {
+    if (Platform.OS !== 'web') {
+      try {
+        const uri = await viewShotRef.current.capture();
+        const result = await shareFile(uri, {
+          mimeType: 'image/png',
+          UTI: 'public.png',
+          dialogTitle: shareText,
+        });
+        if (result.success) return;
+      } catch (err) {
+        console.log('profile QR image share error', err);
+      }
     }
+    shareMessage({ message: shareText });
   };
 
   const handleProfileScan = async data => {
@@ -152,148 +184,69 @@ export default function ShowProfileQr() {
   };
 
   return (
-    <GlobalThemeView useStandardWidth={true} style={styles.container}>
-      <CustomSettingsTopBar
-        label={t('settings.index.showQR')}
-        showLeftImage={true}
-        iconNew="Share"
-        leftImageFunction={handleShare}
-      />
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.index.showQR')}
+          right={
+            <>
+              <IconButton
+                icon="Printer"
+                label="constants.print"
+                onPress={() => navigate.navigate('ProfilePrintPage')}
+              />
+              <IconButton
+                icon="Share2"
+                label="contacts.editMyProfilePage.share"
+                onPress={handleShare}
+              />
+            </>
+          }
+        />
 
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          flexGrow: 1,
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-        }}
-      >
-        {/* Profile */}
-        <View style={styles.profileContainer}>
-          <View
-            style={[
-              styles.avatar,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
+        <View style={styles.cardWrapper}>
+          <ViewShot
+            ref={viewShotRef}
+            options={{ format: 'png', quality: 1 }}
+            style={styles.viewShot}
           >
-            <ContactProfileImage
-              updated={myProfileImage?.updated}
-              uri={myProfileImage?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-          <ThemeText
-            styles={{ opacity: name ? 0.5 : 0.8 }}
-            content={name || t('constants.annonName')}
-          />
-          <ThemeText content={`@${uniqueName}`} />
+            <QrCard
+              value={lnurl}
+              size={qrSize}
+              badge={<ProfileQrBadge size={48} />}
+              badgeSize={48}
+              onPress={handleCopy}
+              accessibilityLabel={t('contacts.showProfileQr.copyAddress')}
+              style={styles.card}
+            >
+              <View style={styles.cardHeader}>
+                <ThemeText
+                  CustomNumberOfLines={2}
+                  styles={styles.name}
+                  content={name || t('constants.annonName')}
+                />
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.uniqueName}
+                  content={`@${uniqueName}`}
+                />
+              </View>
+            </QrCard>
+          </ViewShot>
         </View>
 
-        {/* Toggle */}
-        <View
-          style={[
-            styles.toggleContainer,
-            { backgroundColor: theme ? backgroundOffset : tokens.disc },
-          ]}
-        >
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              activeType === 'lnurl' && {
-                ...styles.toggleActive,
-                backgroundColor: activeToggleColor,
-              },
-            ]}
-            onPress={() => setActiveType('lnurl')}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={
-                activeType === 'lnurl'
-                  ? styles.toggleActiveText
-                  : styles.toggleText
-              }
-              content={t('contacts.showProfileQr.lnAddress')}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              activeType === 'blitz' && {
-                ...styles.toggleActive,
-                backgroundColor: activeToggleColor,
-              },
-            ]}
-            onPress={() => setActiveType('blitz')}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={
-                activeType === 'blitz'
-                  ? styles.toggleActiveText
-                  : styles.toggleText
-              }
-              content={t('contacts.showProfileQr.blitzContact')}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* QR */}
-        <View style={styles.qrWrapper}>
-          <TouchableOpacity
-            onPress={handleCopy}
-            style={[styles.qrCard, { borderColor: backgroundOffset }]}
-          >
-            <QRCode value={currentValue} size={240} />
-          </TouchableOpacity>
-
-          {/* <ThemeText styles={styles.label} content={currentLabel} /> */}
-
-          <TouchableOpacity
-            style={[
-              styles.copyButton,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : tokens.accent,
-                marginTop: 'auto',
-              },
-            ]}
-            onPress={handleCopy}
-          >
-            <ThemeText
-              styles={[styles.copyText, { color: tokens.onAccent }]}
-              content={t(
-                `contacts.showProfileQr.${
-                  activeType === 'lnurl' ? 'lnurlCopy' : 'blitzCopy'
-                }`,
-              )}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.copyButton,
-              {
-                marginTop: 0,
-              },
-            ]}
-            onPress={() => {
-              navigate.navigate('CameraModal', {
-                updateBitcoinAdressFunc: handleProfileScan,
-                fromPage: 'ShowProfileQr',
-              });
-            }}
-          >
-            <ThemeText
-              styles={{ includeFontPadding: false }}
-              content={t('contacts.showProfileQr.scanProfile')}
-            />
-          </TouchableOpacity>
-        </View>
-      </CustomScrollView>
+        <CustomButton
+          size="regular"
+          icon="ScanLine"
+          textContent={t('contacts.showProfileQr.scanProfile')}
+          actionFunction={() =>
+            navigate.navigate('CameraModal', {
+              updateBitcoinAdressFunc: handleProfileScan,
+              fromPage: 'ShowProfileQr',
+            })
+          }
+        />
+      </View>
     </GlobalThemeView>
   );
 }
@@ -301,75 +254,39 @@ export default function ShowProfileQr() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    ...CENTER,
   },
-  profileContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  avatar: {
-    position: 'relative',
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    alignItems: 'center',
+  cardWrapper: {
+    flex: 1,
     justifyContent: 'center',
-    marginBottom: 10,
-    overflow: 'hidden',
+    paddingVertical: 20,
   },
-
-  toggleContainer: {
-    flexDirection: 'row',
-    borderRadius: 10,
-    padding: 5,
-    marginTop: 25,
-  },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  toggleActive: {
-    backgroundColor: '#fff',
-  },
-  toggleText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  toggleActiveText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  qrWrapper: {
-    flex: 1,
-    alignItems: 'center',
-    marginTop: 30,
-  },
-  qrCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 20,
-  },
-  label: {
-    opacity: 0.6,
-    marginTop: 20,
-    marginBottom: 'auto',
-  },
-  copyButton: {
+  viewShot: { borderRadius: 28, overflow: 'hidden' },
+  // QrCard renders children under the code; column-reverse puts the name
+  // block on top as drawn.
+  card: {
     width: '100%',
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    flexDirection: 'row',
+    padding: 24,
+    paddingTop: 24,
+    paddingBottom: 24,
+    paddingHorizontal: 24,
+    borderWidth: 0,
+    flexDirection: 'column-reverse',
+    gap: 20,
   },
-  copyText: {
-    color: COLORS.darkModeText,
+  cardHeader: { alignSelf: 'stretch' },
+  name: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 28,
+    color: MODES.light.ink,
+    includeFontPadding: false,
+  },
+  // The card stays white in every mode, so its text uses the Light palette.
+  uniqueName: {
+    color: MODES.light.muted,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
 });

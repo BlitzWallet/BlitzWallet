@@ -1,10 +1,15 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
   FONT,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
   VALID_USERNAME_REGEX,
   VALID_NAME_BIO_REGEX,
 } from '../../../../../constants';
@@ -13,7 +18,7 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -30,7 +35,6 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 const FIELD_CONFIG = {
   name: {
@@ -68,11 +72,13 @@ export default function EditProfileFieldPage(props) {
 
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textInputColor, textColor, tokens } = GetThemeColors();
+  const { textInputColor, tokens } = GetThemeColors();
   const { globalContactsInformation, toggleGlobalContactsInformation } =
     useGlobalContactsInfo();
   const { publicKey } = useKeysContext();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const myContact = globalContactsInformation.myProfile;
   const hasEdited = myContact?.didEditProfile || false;
@@ -268,20 +274,14 @@ export default function EditProfileFieldPage(props) {
       ? t('contacts.editMyProfilePage.invalidCharactersError')
       : `${value.length} / ${config.maxLength}`;
 
-  const statusColor =
+  const isError =
     fieldKey === 'uniquename'
-      ? usernameState === USERNAME_STATE.AVAILABLE ||
-        usernameState === USERNAME_STATE.CHECKING ||
-        usernameState === USERNAME_STATE.IDLE
-        ? textColor
-        : theme && darkModeType
-        ? textColor
-        : tokens.danger
-      : !isValidContent
-      ? theme && darkModeType
-        ? textColor
-        : tokens.danger
-      : textColor;
+      ? usernameState === USERNAME_STATE.TAKEN ||
+        usernameState === USERNAME_STATE.INVALID
+      : !isValidContent;
+
+  const statusColor =
+    isError && !(theme && darkModeType) ? tokens.danger : tokens.muted;
 
   return (
     <CustomKeyboardAvoidingView
@@ -290,26 +290,31 @@ export default function EditProfileFieldPage(props) {
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
     >
-      <CustomSettingsTopBar
-        customBackFunction={() => {
-          if (isGoingBackRef.current) return;
-          isGoingBackRef.current = true;
-          keyboardGoBack(navigate);
-        }}
-      />
-
-      <View style={styles.content}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar
+          onBack={() => {
+            if (isGoingBackRef.current) return;
+            isGoingBackRef.current = true;
+            keyboardGoBack(navigate);
+          }}
+        />
         <View style={styles.topSection}>
-          <ThemeText styles={styles.title} content={t(config.title)} />
+          <ThemeText
+            styles={[styles.title, { color: tokens.ink }]}
+            content={t(config.title)}
+          />
 
           {config.description && (
             <ThemeText
-              styles={styles.description}
+              styles={[styles.description, { color: tokens.muted }]}
               content={t(config.description)}
             />
           )}
 
-          <ThemeText styles={styles.inputLabel} content={fieldLabel} />
+          <ThemeText
+            styles={[styles.inputLabel, { color: tokens.muted }]}
+            content={fieldLabel}
+          />
 
           <View style={styles.inputCard}>
             <CustomSearchInput
@@ -321,7 +326,11 @@ export default function EditProfileFieldPage(props) {
               textAlignVertical={config.multiline ? 'top' : 'center'}
               onBlurFunction={handleHardwareBack}
               onFocusFunction={() => setIsKeyboardActive(true)}
-              textInputStyles={{ paddingRight: 20 }}
+              textInputStyles={{
+                ...(config.multiline ? styles.multilineInput : styles.input),
+                color: tokens.onField,
+                backgroundColor: tokens.field,
+              }}
               placeholderText={
                 fieldKey === 'uniquename' && !hasEdited
                   ? myContact?.uniqueName || ''
@@ -331,9 +340,10 @@ export default function EditProfileFieldPage(props) {
             {fieldKey === 'uniquename' && (
               <View style={styles.usernameIcon}>
                 {usernameState === USERNAME_STATE.CHECKING ? (
-                  <ActivityIndicator size="small" color={textInputColor} />
+                  <ActivityIndicator size="small" color={tokens.muted} />
                 ) : usernameState === USERNAME_STATE.AVAILABLE ? (
                   <ThemeIcon
+                    redesign
                     iconName="CircleCheck"
                     size={20}
                     colorOverride={
@@ -343,6 +353,7 @@ export default function EditProfileFieldPage(props) {
                 ) : usernameState === USERNAME_STATE.INVALID ||
                   usernameState === USERNAME_STATE.TAKEN ? (
                   <ThemeIcon
+                    redesign
                     iconName="CircleAlert"
                     size={20}
                     colorOverride={
@@ -356,28 +367,15 @@ export default function EditProfileFieldPage(props) {
 
           {statusText && (
             <ThemeText
-              styles={[
-                styles.statusText,
-                {
-                  color: statusColor,
-                  opacity:
-                    usernameState === USERNAME_STATE.TAKEN ||
-                    usernameState === USERNAME_STATE.INVALID ||
-                    !isValidContent
-                      ? 1
-                      : 0.55,
-                },
-              ]}
+              styles={[styles.statusText, { color: statusColor }]}
               content={statusText}
             />
           )}
         </View>
 
         <CustomButton
-          buttonStyles={{
-            width: '100%',
-            ...CENTER,
-          }}
+          size="regular"
+          tone={didEdit && canSave ? undefined : 'secondary'}
           actionFunction={handleSave}
           useLoading={isSaving}
           textContent={
@@ -391,7 +389,6 @@ export default function EditProfileFieldPage(props) {
 
 const styles = StyleSheet.create({
   content: {
-    width: INSET_WINDOW_WIDTH,
     flex: 1,
     justifyContent: 'space-between',
     ...CENTER,
@@ -400,58 +397,62 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+    fontFamily: FONT.Title_Medium,
+    fontSize: 22,
+    lineHeight: 30,
     includeFontPadding: false,
-    marginTop: 10,
+    marginTop: 16,
     marginBottom: 8,
   },
   description: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-    opacity: 0.6,
+    fontSize: 15,
     lineHeight: 22,
-    marginBottom: 16,
+    includeFontPadding: false,
   },
   inputCard: {
-    borderRadius: 12,
-    marginTop: 8,
     justifyContent: 'center',
   },
   inputLabel: {
-    width: '100%',
-    fontSize: SIZES.small,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.48,
     includeFontPadding: false,
-    opacity: 0.55,
-    marginBottom: 4,
     textTransform: 'uppercase',
-    marginTop: 16,
+    marginTop: 20,
+    marginBottom: 8,
+    marginHorizontal: 4,
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  textInput: {
-    flex: 1,
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Regular,
-    includeFontPadding: false,
-    padding: 0,
+  input: {
+    height: 52,
+    borderRadius: 12,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 16,
+    paddingRight: 48,
+    fontSize: 16,
   },
   multilineInput: {
-    minHeight: 60,
-    maxHeight: 120,
+    height: 120,
+    borderRadius: 12,
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingLeft: 16,
+    paddingRight: 16,
+    fontSize: 16,
+    lineHeight: 24,
   },
   usernameIcon: {
     width: 24,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    right: 10,
+    right: 14,
   },
   statusText: {
-    fontSize: SIZES.small,
+    fontSize: 13,
+    lineHeight: 19,
     includeFontPadding: false,
     marginTop: 8,
+    marginHorizontal: 4,
   },
 });

@@ -9,12 +9,14 @@ import { useInSheet } from './sheetSurface';
 import { KeyboardController } from 'react-native-keyboard-controller';
 
 // Back (44) · centred title 17/500, wraps to 2 lines · right slot.
+// `showBack={false}` keeps the slot (title stays centred) but hides the button.
 export default function TopBar({
   title,
   onBack,
   right,
   scrolled = false,
   shouldDismissKeyboard = false,
+  showBack = true,
 }) {
   const navigation = useNavigation();
   const { tokens } = useTheme();
@@ -37,7 +39,12 @@ export default function TopBar({
         scrolled && [styles.scrolled, { borderBottomColor: tokens.divider }],
       ]}
     >
-      <View style={styles.side}>
+      <View
+        style={[styles.side, !showBack && styles.hidden]}
+        pointerEvents={showBack ? 'auto' : 'none'}
+        importantForAccessibility={showBack ? 'auto' : 'no-hide-descendants'}
+        accessibilityElementsHidden={!showBack}
+      >
         <IconButton
           icon="ArrowLeft"
           label="constants.back"
@@ -73,6 +80,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   right: { justifyContent: 'flex-end' },
+  hidden: { opacity: 0 },
   scrolled: { borderBottomWidth: 1 },
   title: {
     fontFamily: FONT.Title_Medium,

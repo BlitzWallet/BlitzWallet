@@ -1,41 +1,34 @@
 import { useCallback, useState } from 'react';
 import {
   FlatList,
+  Platform,
   StyleSheet,
-  TouchableOpacity,
   View,
   useWindowDimensions,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
+import { GlobalThemeView } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
-import { SIZES, TOPBAR_HEIGHT } from '../../../constants';
+import { SIZES } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
-import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import { useToast } from '../../../../context-store/toastManager';
 import { getAllLocalPools } from '../../../functions/pools/poolsStorage';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import { copyToClipboard } from '../../../functions';
 
 import ProfileCard from './components/ProfileCard';
 import AccountsPreview from './components/AccountsPreview';
 import PoolsPreview from './components/PoolsPreview';
 import SavingsPreview from './components/SavingsPreview';
-import PointOfSaleBanner from './components/PointOfSaleBanner';
 import GiftsPreview from './components/GiftsPreview';
 import AccumulationAddressesPreview from './components/AccumulationAddressesPreview';
 import AnalyticsPreview from './components/AnalyticsPreview';
 
-import Animated, {
-  Extrapolation,
-  interpolate,
+import {
   useAnimatedScrollHandler,
-  useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
 import SectionCard from './components/SectionCard';
@@ -47,15 +40,16 @@ import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../functions/CustomElements/redesign/Disc';
+import IconButton from '../../../functions/CustomElements/redesign/IconButton';
 
+// Accounts + Point of sale live in the Profile header now (D156). The money
+// widgets stay below the list until the Money tab (Chunk 13) takes them.
 const INITIAL_WIDGET_ORDER = [
-  { id: 'accounts', type: 'accounts' },
   { id: 'savings', type: 'savings' },
   { id: 'pools', type: 'pools' },
   { id: 'gifts', type: 'gifts' },
   { id: 'accumulation', type: 'accumulation' },
   { id: 'analytics', type: 'analytics' },
-  { id: 'point-of-sale', type: 'point-of-sale' },
 ];
 
 const DOOMSDAY_ROW = [
@@ -76,12 +70,10 @@ const DOOMSDAY_ROW = [
     isDestructive: true,
   },
 ];
-const SCROLL_THRESHOLD = 100;
 
 export default function SettingsHub(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { showToast } = useToast();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
@@ -122,49 +114,6 @@ export default function SettingsHub(props) {
     },
   });
 
-  const profileTextStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [1, 0],
-      Extrapolation.CLAMP,
-    );
-
-    const translateY = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [0, -10],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      opacity,
-      transform: [{ translateY }],
-      position: 'absolute',
-    };
-  });
-
-  const settingsTextStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [0, 1],
-      Extrapolation.CLAMP,
-    );
-
-    const translateY = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [10, 0],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      opacity,
-      transform: [{ translateY }],
-      position: 'absolute',
-    };
-  });
   const widgetOrder = INITIAL_WIDGET_ORDER;
 
   const handleEditProfile = useCallback(() => {
@@ -184,10 +133,6 @@ export default function SettingsHub(props) {
   const handleShowQR = useCallback(() => {
     navigate.navigate('ShowProfileQr');
   }, [navigate]);
-
-  const handleCopyUsername = useCallback(() => {
-    copyToClipboard(myContact?.uniqueName, showToast);
-  }, [myContact?.uniqueName, showToast]);
 
   const handleSavingsPress = useCallback(() => {
     navigate.navigate('SavingsStack');
@@ -230,8 +175,6 @@ export default function SettingsHub(props) {
     ({ item }) => {
       // Ordering is driven by INITIAL_WIDGET_ORDER and rendered as-is in FlashList.
       switch (item.type) {
-        case 'accounts':
-          return <AccountsPreview onViewAll={handleViewAllAccounts} />;
         case 'pools':
           return (
             <PoolsPreview
@@ -242,8 +185,6 @@ export default function SettingsHub(props) {
           );
         case 'savings':
           return <SavingsPreview onPress={handleSavingsPress} />;
-        case 'point-of-sale':
-          return <PointOfSaleBanner onPress={handlePOS} />;
         case 'gifts':
           return <GiftsPreview onPress={handleOpenGifts} />;
         case 'accumulation':
@@ -260,8 +201,6 @@ export default function SettingsHub(props) {
       activePoolsArray,
       handleAnalyticsPress,
       handleOpenGifts,
-      handlePOS,
-      handleViewAllAccounts,
       handleViewAllPools,
       handleSavingsPress,
       poolsArray,
@@ -359,41 +298,56 @@ export default function SettingsHub(props) {
     );
   }
 
+  const profileRows = [
+    {
+      key: 'settings',
+      icon: 'Settings',
+      label: t('settings.index.settingsHead'),
+      onPress: () => navigate.navigate('SettingsIndex'),
+    },
+    !masterInfoObject?.isChildAccount && {
+      key: 'backup',
+      icon: 'KeyRound',
+      label: t('settings.index.backup'),
+      onPress: () => handleSettingsRowPress({ name: 'Backup wallet' }),
+    },
+    {
+      key: 'social',
+      icon: 'Share2',
+      label: t('settings.index.social'),
+      onPress: () =>
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'socialLinks',
+        }),
+    },
+    {
+      key: 'pos',
+      icon: 'Store',
+      label: t('settings.index.pointOfSale'),
+      onPress: handlePOS,
+    },
+    // Nostr stays native only (WM-18).
+    Platform.OS !== 'web' && {
+      key: 'nostr',
+      icon: 'AtSign',
+      label: t('settings.index.nostr'),
+      onPress: () => handleSettingsRowPress({ name: 'Nostr' }),
+    },
+  ].filter(Boolean);
+
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <View style={styles.topBar}>
-        <TouchableOpacity style={styles.goBackTopbar} onPress={navigate.goBack}>
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-
-        <View style={styles.headerTextContainer}>
-          <Animated.View style={profileTextStyle}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.topBarLabel}
-              content={
-                !isDoomsday
-                  ? t('settings.index.profileHead')
-                  : t('settings.index.settingsHead')
-              }
+      <View style={{ width: contentWidth, ...CENTER }}>
+        <TopBar
+          title={t('settings.index.profileHead')}
+          right={
+            <IconButton
+              icon="Settings"
+              label="settings.index.settingsHead"
+              onPress={() => navigate.navigate('SettingsIndex')}
             />
-          </Animated.View>
-
-          <Animated.View style={settingsTextStyle}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.topBarLabel}
-              content={t('settings.index.settingsHead')}
-            />
-          </Animated.View>
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            navigate.navigate('SettingsIndex');
-          }}
-        >
-          <ThemeIcon iconName={'Settings'} />
-        </TouchableOpacity>
+          }
+        />
       </View>
 
       <FlatList
@@ -406,7 +360,7 @@ export default function SettingsHub(props) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.listContent,
-          { paddingBottom: bottomPadding },
+          { width: contentWidth, paddingBottom: bottomPadding },
         ]}
         ListHeaderComponent={
           <>
@@ -416,8 +370,24 @@ export default function SettingsHub(props) {
               uniqueName={myContact?.uniqueName}
               onEditPress={handleEditProfile}
               onShowQRPress={handleShowQR}
-              onCopyUsername={handleCopyUsername}
             />
+            <AccountsPreview onViewAll={handleViewAllAccounts} />
+            <View style={styles.rowsCard}>
+              <ListCard dividerInset={64}>
+                {profileRows.map(row => (
+                  <ListRow
+                    key={row.key}
+                    title={row.label}
+                    minHeight={52}
+                    paddingVertical={8}
+                    titleStyle={styles.rowTitle}
+                    lead={<Disc icon={row.icon} size={36} />}
+                    trailing="chevron"
+                    onPress={row.onPress}
+                  />
+                ))}
+              </ListCard>
+            </View>
           </>
         }
       />
@@ -429,26 +399,11 @@ const styles = StyleSheet.create({
   globalContainer: {
     paddingBottom: 0,
   },
-  topBar: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    height: TOPBAR_HEIGHT,
-  },
-  goBackTopbar: {
-    marginRight: 'auto',
-  },
-  topBarLabel: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-  },
   listContent: {
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    paddingTop: 8,
   },
+  rowsCard: { marginTop: 12, marginBottom: 20 },
+  rowTitle: { fontSize: 15, lineHeight: 22 },
   widgetsHeader: {
     width: '100%',
     marginTop: 12,
@@ -457,13 +412,6 @@ const styles = StyleSheet.create({
   widgetsTitle: {
     fontSize: SIZES.large,
     includeFontPadding: false,
-  },
-  headerTextContainer: {
-    width: '100%',
-    paddingHorizontal: 35,
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   widgetsSubtitle: {
     marginTop: 2,

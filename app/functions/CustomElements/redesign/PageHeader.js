@@ -3,14 +3,22 @@ import PageTitle from './PageTitle';
 import ThemeText from '../textTheme';
 import { FONT, SIZES } from '../../../constants';
 
-export default function PageHeader({ title, titleStyles, sub, subStyles }) {
+export default function PageHeader({
+  title,
+  titleStyles,
+  sub,
+  subStyles,
+  showSub = true,
+}) {
   return (
     <View>
       <PageTitle
         text={title}
         titleStyles={{ ...styles.title, ...titleStyles }}
       />
-      <ThemeText content={sub} styles={[styles.subtitle, subStyles]} />
+      {showSub && (
+        <ThemeText content={sub} styles={[styles.subtitle, subStyles]} />
+      )}
     </View>
   );
 }

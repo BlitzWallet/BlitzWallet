@@ -100,6 +100,8 @@ import DefaultTokenPicker from '../../components/admin/homeComponents/settingsCo
 import AccountTransferHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal';
 import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
 import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
+import ProfilePhotoModal from '../../components/admin/homeComponents/contacts/profilePhotoModal';
+import { SocialLinksSheet } from '../../components/admin/homeComponents/settingsContent/socialOptions';
 import { SheetSurface } from './redesign/sheetSurface';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -154,7 +156,10 @@ export default function CustomHalfModal(props) {
     contentType === 'onlineListingsFilter' ||
     contentType === 'nwcBudgetPeriod' ||
     contentType === 'nwcConnectionString' ||
-    contentType === 'nwcAuthApproval';
+    contentType === 'nwcAuthApproval' ||
+    contentType === 'lnurlReceiveCurrencySelect' ||
+    contentType === 'ProfilePhotoModal' ||
+    contentType === 'socialLinks';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -859,6 +864,23 @@ export default function CustomHalfModal(props) {
           <LNURLAccountMangement
             account={props?.route?.params?.account}
             lnurlAddress={props?.route?.params?.lnurlAddress}
+          />
+        );
+      case 'ProfilePhotoModal':
+        return (
+          <ProfilePhotoModal
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+            addPhoto={props.route.params?.addPhoto}
+            deletePhoto={props.route.params?.deletePhoto}
+            hasImage={props.route.params?.hasImage}
+          />
+        );
+      case 'socialLinks':
+        return (
+          <SocialLinksSheet
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
 

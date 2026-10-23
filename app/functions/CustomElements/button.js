@@ -20,6 +20,7 @@ export default function CustomButton({
   size,
   tone,
   progress,
+  icon,
 }) {
   const { theme, darkModeType, tokens } = useGlobalThemeContext();
   // Redesign pill is opt-in: without size/tone the button renders as today.
@@ -45,6 +46,7 @@ export default function CustomButton({
           ...PILL_SIZES[size || 'regular'],
           backgroundColor: fill,
           opacity: disabled ? 0.5 : 1,
+          ...(icon && styles.withIcon),
         }
       : {
           ...styles.buttonLocalStyles,
@@ -70,7 +72,7 @@ export default function CustomButton({
       ...baseStyles,
       ...buttonStyles,
     };
-  }, [buttonStyles, redesign, size, fill, disabled, progress]);
+  }, [buttonStyles, redesign, size, fill, disabled, progress, icon]);
 
   const memorizedTextStyles = useMemo(() => {
     // Base styles with theme color
@@ -147,12 +149,22 @@ export default function CustomButton({
           iconName={'ChevronRight'}
         />
       ) : (
-        <ThemeText
-          onTextLayout={onTextLayout}
-          CustomNumberOfLines={enableElipsis ? 1 : undefined}
-          content={textContent}
-          styles={memorizedTextStyles}
-        />
+        <>
+          {redesign && !!icon && (
+            <ThemeIcon
+              redesign
+              iconName={icon}
+              size={20}
+              colorOverride={label}
+            />
+          )}
+          <ThemeText
+            onTextLayout={onTextLayout}
+            CustomNumberOfLines={enableElipsis ? 1 : undefined}
+            content={textContent}
+            styles={memorizedTextStyles}
+          />
+        </>
       )}
     </TouchableOpacity>
   );
@@ -183,6 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     cursor: 'pointer',
   },
+  withIcon: { flexDirection: 'row', gap: 8 },
   pillText: {
     fontSize: 16,
     lineHeight: 22,

@@ -1,24 +1,24 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import AccountProfileImage from '../../../../components/admin/homeComponents/accounts/accountProfileImage';
 import {
   BASIC_ACCOUNT_NAME_REGEX,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
-  SIZES,
 } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import WidgetCard from './WidgetCard';
 
+// D156 Accounts card: title + View all, up to four 52 discs with a 12/18
+// label. A disc opens that account (Q12-3); one account still shows Main
+// + View all (Q12-4).
 export default function AccountsPreview({ onViewAll }) {
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, tokens } = GetThemeColors();
+  const navigate = useNavigation();
+  const { tokens } = useGlobalThemeContext();
   const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const accountList = [
@@ -27,61 +27,31 @@ export default function AccountsPreview({ onViewAll }) {
   ];
   const displayAccounts = accountList.slice(0, 4);
 
-  const hasMoreAccounts = accountList.length > displayAccounts.length;
-
-  if (accountList.length === 1) {
-    return (
-      <WidgetCard onPress={onViewAll}>
-        <View style={styles.row}>
-          <View style={styles.left}>
-            <View style={[styles.header, { marginBottom: 0 }]}>
-              <ThemeText
-                styles={styles.headerTitle}
-                content={t('settings.hub.accounts')}
-              />
-            </View>
-
-            <ThemeText
-              styles={styles.rateText}
-              content={t('settings.hub.accountsEmptyDesc')}
-            />
-          </View>
-          <View
-            style={[
-              styles.iconWrap,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : tokens.accent,
-              },
-            ]}
-          >
-            <ThemeIcon
-              colorOverride={tokens.onAccent}
-              iconName={'Users'}
-              size={22}
-            />
-          </View>
-        </View>
-      </WidgetCard>
-    );
-  }
-
   return (
-    <WidgetCard onPress={onViewAll}>
+    <View style={[styles.card, { backgroundColor: tokens.surface }]}>
       <View style={styles.header}>
         <ThemeText
           styles={styles.headerTitle}
           content={t('settings.hub.accounts')}
         />
-        {hasMoreAccounts && (
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={onViewAll}
+          style={styles.viewAllButton}
+        >
           <ThemeText
-            styles={styles.viewAll}
+            styles={[styles.viewAll, { color: tokens.link }]}
             content={t('settings.hub.viewAll')}
           />
-        )}
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.gridContainer}>
+      <View
+        style={[
+          styles.gridContainer,
+          displayAccounts.length < 4 && styles.gridStart,
+        ]}
+      >
         {displayAccounts.map((account, index) => {
           const accountIndex =
             account.uuid === MAIN_ACCOUNT_UUID
@@ -94,96 +64,92 @@ export default function AccountsPreview({ onViewAll }) {
             : t('accountCard.fallbackAccountName', { index: accountIndex });
 
           return (
-            <View
+            <TouchableOpacity
               key={account.uuid || `account-${index}`}
+              accessibilityRole="button"
+              accessibilityLabel={displayName}
+              onPress={() =>
+                navigate.navigate('EditAccountPage', {
+                  accountId: account.uuid,
+                  from: 'SettingsHome',
+                })
+              }
               style={styles.avatarWrapper}
             >
-              <View style={styles.avatarContainer}>
-                <View style={[styles.avatar, { backgroundColor }]}>
-                  <AccountProfileImage imageSize={52} account={account} />
-                </View>
+              <View style={[styles.avatar, { backgroundColor: tokens.disc }]}>
+                <AccountProfileImage imageSize={52} account={account} />
               </View>
               <ThemeText
                 CustomNumberOfLines={1}
                 CustomEllipsizeMode="tail"
-                styles={styles.avatarName}
+                styles={[styles.avatarName, { color: tokens.muted }]}
                 content={displayName}
               />
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
-    </WidgetCard>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  card: {
+    width: '100%',
+    borderRadius: 20,
+    paddingTop: 6,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    marginTop: 20,
+  },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    rowGap: 2,
   },
   headerTitle: {
-    fontSize: SIZES.smedium,
-    fontWeight: '500',
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
+  viewAllButton: {
+    minHeight: 44,
+    paddingLeft: 12,
+    justifyContent: 'center',
+  },
   viewAll: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
   },
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 2,
+    marginTop: 2,
   },
+  gridStart: { justifyContent: 'flex-start', columnGap: 20 },
   avatarWrapper: {
-    width: '25%',
+    width: 64,
     alignItems: 'center',
-  },
-  avatarContainer: {
-    width: '100%',
-    maxWidth: 150,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
   },
   avatar: {
-    width: '70%',
-    // height: 52,
-    aspectRatio: 1,
-    borderRadius: 999,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarName: {
-    width: '85%',
-    fontSize: SIZES.small,
+    maxWidth: 64,
+    fontSize: 12,
+    lineHeight: 18,
     textAlign: 'center',
-    flexShrink: 1,
-    marginTop: 6,
     includeFontPadding: false,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  left: {
-    flexShrink: 1,
-  },
-  rateText: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-  iconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

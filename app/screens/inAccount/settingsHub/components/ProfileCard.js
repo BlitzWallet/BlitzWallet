@@ -4,26 +4,26 @@ import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { CENTER, SIZES } from '../../../../constants';
+import { FONT } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import ContactRingAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactsRingAvatar';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../../../functions/CustomElements/button';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
+// D156 header: 96 avatar (ID-image swap kept, OQ-39) with a photo badge that
+// opens Edit profile, name 22/30, @username 15/22 muted, two white pills.
 export default function ProfileCard({
   profileImage,
   name,
   uniqueName,
   onEditPress,
   onShowQRPress,
-  onCopyUsername,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset, tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
   const editProfileLabel = t('settings.index.editProfile');
   const showQrLabel = t('settings.index.showQR');
@@ -42,18 +42,13 @@ export default function ProfileCard({
 
   const [infoMessageHeight, setInfoMessageHeight] = useState(0);
 
-  console.log(infoMessageHeight, 'info message height');
-
   return (
-    <View
-      style={[styles.profileContainer, { borderBottomColor: tokens.divider }]}
-    >
+    <View style={styles.profileContainer}>
       {/* Hidden text to make sure content doesn't reformat */}
       <ThemeText
         onLayout={e => {
-          console.log(e.nativeEvent.layout.height, 'testing');
           if (e.nativeEvent.layout.height)
-            setInfoMessageHeight(e.nativeEvent.layout.height + 25);
+            setInfoMessageHeight(e.nativeEvent.layout.height);
         }}
         styles={[
           styles.identiconMessage,
@@ -66,20 +61,14 @@ export default function ProfileCard({
         ]}
         content={t('settings.index.identiconMessage')}
       />
+
       <ContactRingAvatar
         contactUUID={masterInfoObject.uuid}
-        size={125}
+        size={96}
         theme={theme}
         onToggle={handleToggle}
       >
-        <View
-          style={[
-            styles.profileImage,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
-        >
+        <View style={[styles.profileImage, { backgroundColor: tokens.disc }]}>
           <ContactProfileImage
             updated={profileImage?.updated}
             uri={profileImage?.localUri}
@@ -90,67 +79,52 @@ export default function ProfileCard({
       </ContactRingAvatar>
 
       <Animated.View
-        style={{
-          marginTop: 10,
-          alignItems: 'center',
-          opacity: fadeAnim,
-          minHeight: infoMessageHeight,
-        }}
+        style={[
+          styles.nameBlock,
+          { opacity: fadeAnim, minHeight: infoMessageHeight },
+        ]}
       >
         {isIdenticonShown ? (
           <ThemeText
-            styles={styles.identiconMessage}
+            styles={[styles.identiconMessage, { color: tokens.muted }]}
             content={t('settings.index.identiconMessage')}
           />
         ) : (
           <>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={{ opacity: name ? 0.5 : 0.8 }}
+              styles={styles.name}
               content={name || t('constants.annonName')}
             />
-            <TouchableOpacity onPress={onCopyUsername}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.profileUniqueName}
-                content={`@${uniqueName}`}
-              />
-            </TouchableOpacity>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={[styles.uniqueName, { color: tokens.muted }]}
+              content={`@${uniqueName}`}
+            />
           </>
         )}
       </Animated.View>
 
       <AdaptiveButtonRow
+        pill
         labels={[editProfileLabel, showQrLabel]}
         containerStyle={styles.buttonContainer}
+        textStyle={styles.buttonText}
       >
         {({ buttonStyle }) => (
           <>
             <CustomButton
-              buttonStyles={[
-                {
-                  backgroundColor: backgroundOffset,
-                },
-                buttonStyle,
-              ]}
-              textStyles={{
-                color: tokens.ink,
-              }}
+              tone="secondary"
+              buttonStyles={[styles.button, buttonStyle]}
+              textStyles={styles.buttonText}
               enableElipsis={false}
               textContent={editProfileLabel}
               actionFunction={onEditPress}
             />
-
             <CustomButton
-              buttonStyles={[
-                {
-                  backgroundColor: backgroundOffset,
-                },
-                buttonStyle,
-              ]}
-              textStyles={{
-                color: tokens.ink,
-              }}
+              tone="secondary"
+              buttonStyles={[styles.button, buttonStyle]}
+              textStyles={styles.buttonText}
               enableElipsis={false}
               textContent={showQrLabel}
               actionFunction={onShowQRPress}
@@ -163,34 +137,59 @@ export default function ProfileCard({
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
+  profileContainer: {
     width: '100%',
-    marginBottom: 15,
+    alignItems: 'center',
+    marginTop: 4,
   },
   profileImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 125,
-    backgroundColor: 'red',
-    ...CENTER,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    // marginBottom: 15,
-    // marginTop: 20,
     overflow: 'hidden',
   },
-  profileContainer: {
-    width: '100%',
-    flexDirection: 'column',
+  // 44 white disc with a 3 px ground ring, hanging off the avatar corner.
+  photoBadge: {
+    position: 'absolute',
+    right: -9,
+    bottom: -9,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 3,
     alignItems: 'center',
-    paddingBottom: 30,
-    // borderBottomWidth: 2,
+    justifyContent: 'center',
   },
-  profileUniqueName: { marginBottom: 20 },
+  nameBlock: {
+    width: '100%',
+    marginTop: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  name: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 22,
+    lineHeight: 30,
+    letterSpacing: -0.22,
+    includeFontPadding: false,
+  },
+  uniqueName: {
+    fontSize: 15,
+    lineHeight: 22,
+    includeFontPadding: false,
+  },
   identiconMessage: {
     textAlign: 'center',
-    opacity: 0.7,
-    marginBottom: 20,
-    fontSize: SIZES.smedium,
+    fontSize: 15,
+    lineHeight: 22,
+    includeFontPadding: false,
   },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 16,
+  },
+  button: { minHeight: 48 },
+  buttonText: { fontSize: 15, lineHeight: 22 },
 });
