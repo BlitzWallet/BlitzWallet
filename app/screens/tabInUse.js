@@ -35,9 +35,7 @@ export default function TabInUse() {
         />
         <View style={styles.iconContainer}>
           <IconActionCircle
-            customBackgroundColor={
-              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
-            }
+            customBackgroundColor={backgroundOffset}
             icon={'AppWindow'}
             size={130}
           />

@@ -73,7 +73,7 @@ export default function ExpandedTx(props) {
   const { sparkInformation } = useSparkWallet();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
   const { fiatStats } = useNodeContext();
@@ -339,39 +339,27 @@ export default function ExpandedTx(props) {
   const getStatusColors = () => {
     if (isPending) {
       return {
-        outer: theme
-          ? COLORS.expandedTxDarkModePendingOuter
-          : COLORS.expandedTXLightModePendingOuter,
-        inner: theme
-          ? COLORS.expandedTxDarkModePendingInner
-          : COLORS.expandedTXLightModePendingInner,
-        text: theme
-          ? COLORS.darkModeText
-          : COLORS.expandedTXLightModePendingInner,
-        bg: theme
-          ? COLORS.expandedTxDarkModePendingInner
-          : COLORS.expandedTXLightModePendingOuter,
+        outer: theme ? COLORS.expandedTxDarkModePendingOuter : tokens.disc,
+        inner: theme ? COLORS.expandedTxDarkModePendingInner : tokens.muted,
+        text: theme ? tokens.ink : tokens.muted,
+        bg: theme ? COLORS.expandedTxDarkModePendingInner : tokens.disc,
       };
     }
 
     if (isFailedPayment) {
       return {
-        outer: !theme ? COLORS.expandedTXLightModeFailed : backgroundOffset,
-        inner: !theme ? COLORS.cancelRed : COLORS.white,
-        text: !theme ? COLORS.cancelRed : COLORS.white,
-        bg: !theme ? COLORS.expandedTXLightModeFailed : backgroundColor,
+        outer: !theme ? tokens.dangerBg : backgroundOffset,
+        inner: !theme ? tokens.danger : COLORS.white,
+        text: !theme ? tokens.danger : COLORS.white,
+        bg: !theme ? tokens.dangerBg : backgroundColor,
       };
     }
 
     return {
-      outer: theme
-        ? COLORS.expandedTXDarkModeConfirmd
-        : COLORS.expandedTXLightModeConfirmd,
-      inner: theme ? COLORS.darkModeText : COLORS.primary,
-      text: theme ? COLORS.darkModeText : COLORS.primary,
-      bg: theme
-        ? COLORS.expandedTXDarkModeConfirmd
-        : COLORS.expandedTXLightModeConfirmd,
+      outer: theme ? COLORS.expandedTXDarkModeConfirmd : tokens.disc,
+      inner: theme ? COLORS.darkModeText : tokens.accent,
+      text: theme ? tokens.ink : tokens.accent,
+      bg: theme ? COLORS.expandedTXDarkModeConfirmd : tokens.disc,
     };
   };
 
@@ -380,7 +368,7 @@ export default function ExpandedTx(props) {
   const renderStatusIcon = () => {
     const iconColor = isPending
       ? theme
-        ? COLORS.darkModeText
+        ? tokens.ink
         : backgroundColor
       : backgroundColor;
 
@@ -580,7 +568,7 @@ export default function ExpandedTx(props) {
           <View
             style={[
               styles.receiptContainer,
-              { backgroundColor: theme ? backgroundOffset : COLORS.white },
+              { backgroundColor: backgroundOffset },
             ]}
           >
             {/* Status Circle */}
@@ -767,7 +755,7 @@ export default function ExpandedTx(props) {
                       {
                         backgroundColor: theme
                           ? COLORS.darkModeText
-                          : COLORS.primary,
+                          : tokens.accent,
                       },
                       buttonStyle,
                     ]}
@@ -775,9 +763,7 @@ export default function ExpandedTx(props) {
                     <ThemeText
                       styles={{
                         includeFontPadding: false,
-                        color: theme
-                          ? COLORS.lightModeText
-                          : COLORS.darkModeText,
+                        color: theme ? COLORS.lightModeText : tokens.onAccent,
                       }}
                       content={techicalDetailsLabel}
                     />
@@ -790,7 +776,7 @@ export default function ExpandedTx(props) {
                         {
                           backgroundColor: theme
                             ? COLORS.darkModeText
-                            : COLORS.primary,
+                            : tokens.accent,
                         },
                         buttonStyle,
                       ]}
@@ -798,9 +784,7 @@ export default function ExpandedTx(props) {
                       <ThemeText
                         styles={{
                           includeFontPadding: false,
-                          color: theme
-                            ? COLORS.lightModeText
-                            : COLORS.darkModeText,
+                          color: theme ? COLORS.lightModeText : tokens.onAccent,
                         }}
                         content={contactSupportLabel}
                       />
@@ -819,7 +803,7 @@ export default function ExpandedTx(props) {
                         {
                           backgroundColor: theme
                             ? COLORS.darkModeText
-                            : COLORS.primary,
+                            : tokens.accent,
                         },
                         buttonStyle,
                       ]}
@@ -827,9 +811,7 @@ export default function ExpandedTx(props) {
                       <ThemeText
                         styles={{
                           includeFontPadding: false,
-                          color: theme
-                            ? COLORS.lightModeText
-                            : COLORS.darkModeText,
+                          color: theme ? COLORS.lightModeText : tokens.onAccent,
                         }}
                         content={viewProgressLabel}
                       />
@@ -849,7 +831,7 @@ export default function ExpandedTx(props) {
 }
 
 function Border({ screenDimensions }) {
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const dotsWidth = screenDimensions.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
@@ -859,9 +841,7 @@ function Border({ screenDimensions }) {
       style={[
         styles.borderDot,
         {
-          backgroundColor: theme
-            ? COLORS.darkModeText
-            : COLORS.lightModeBackground,
+          backgroundColor: tokens.divider,
         },
       ]}
     />
@@ -884,7 +864,7 @@ function ReceiptDots({ screenDimensions }) {
 
 const MemoSection = ({ initialDescription, onSave, t }) => {
   const { theme } = useGlobalThemeContext();
-  const { backgroundColor, textColor } = GetThemeColors();
+  const { backgroundColor, textColor, tokens } = GetThemeColors();
   const [isEditing, setIsEditing] = useState(false);
   const [memoText, setMemoText] = useState(initialDescription || '');
   const textInputRef = useRef(null);
@@ -942,7 +922,7 @@ const MemoSection = ({ initialDescription, onSave, t }) => {
         >
           <ThemeIcon
             size={20}
-            colorOverride={theme ? COLORS.darkModeText : COLORS.primary}
+            colorOverride={theme ? tokens.ink : tokens.accent}
             iconName={'SquarePen'}
           />
         </TouchableOpacity>
@@ -1001,11 +981,11 @@ const MemoSection = ({ initialDescription, onSave, t }) => {
           <CustomButton
             buttonStyles={{
               ...styles.actionButton,
-              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+              backgroundColor: theme ? COLORS.darkModeText : tokens.accent,
             }}
             textStyles={{
               ...styles.actionButtonText,
-              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+              color: theme ? COLORS.lightModeText : tokens.onAccent,
             }}
             actionFunction={runSaveFunction}
             textContent={t('constants.save')}

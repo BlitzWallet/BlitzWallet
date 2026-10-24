@@ -25,7 +25,6 @@ import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -115,7 +114,8 @@ export default function ConfirmSplitPayment(props) {
   // the provider's ref (not a consumer mirror) keeps it valid even after this
   // screen is unmounted by the reset's navigation.
   const { authResetkeyRef } = useAuthContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor, tokens } =
+    GetThemeColors();
 
   const isSendingPayment = useRef(null);
   const rateAtConfirmEntryRef = useRef(null);
@@ -852,9 +852,9 @@ export default function ConfirmSplitPayment(props) {
               <SliderProgressAnimation
                 ref={progressAnimationRef}
                 isVisible={showProgressAnimation}
-                textColor={COLORS.darkModeText}
+                textColor={tokens.onAccent}
                 backgroundColor={
-                  theme && darkModeType ? backgroundOffset : COLORS.primary
+                  theme && darkModeType ? backgroundOffset : tokens.accent
                 }
                 width={0.95}
               />

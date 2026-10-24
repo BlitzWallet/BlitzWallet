@@ -45,7 +45,8 @@ export default function TxFilterHalfModal({
   setContentHeight,
 }) {
   const { t } = useTranslation();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
 
   const [draft, setDraft] = useState({
@@ -125,11 +126,11 @@ export default function TxFilterHalfModal({
                         backgroundColor:
                           theme && darkModeType
                             ? backgroundColor
-                            : COLORS.primary,
+                            : tokens.accent,
                         borderColor:
                           theme && darkModeType
                             ? backgroundColor
-                            : COLORS.primary,
+                            : tokens.accent,
                       }
                     : [
                         styles.cardInactive,
@@ -142,12 +143,12 @@ export default function TxFilterHalfModal({
                 <ThemeIcon
                   iconName={icon}
                   size={20}
-                  colorOverride={isActive ? '#fff' : textColor}
+                  colorOverride={isActive ? tokens.onAccent : textColor}
                 />
                 <ThemeText
                   styles={[
                     styles.directionLabel,
-                    { color: isActive ? '#fff' : textColor },
+                    { color: isActive ? tokens.onAccent : textColor },
                   ]}
                   content={t(`${ns}.${labelKey}`)}
                 />
@@ -156,9 +157,7 @@ export default function TxFilterHalfModal({
           })}
         </View>
 
-        <View
-          style={[styles.divider, { borderTopColor: inactiveBorderColor }]}
-        />
+        <View style={[styles.divider, { borderTopColor: tokens.divider }]} />
 
         {/* --- Date Range --- */}
         <ThemeText
@@ -178,11 +177,11 @@ export default function TxFilterHalfModal({
                         backgroundColor:
                           theme && darkModeType
                             ? backgroundColor
-                            : COLORS.primary,
+                            : tokens.accent,
                         borderColor:
                           theme && darkModeType
                             ? backgroundColor
-                            : COLORS.primary,
+                            : tokens.accent,
                       }
                     : [
                         styles.pillInactive,
@@ -195,7 +194,7 @@ export default function TxFilterHalfModal({
                 <ThemeText
                   styles={[
                     styles.pillText,
-                    { color: isActive ? '#fff' : textColor },
+                    { color: isActive ? tokens.onAccent : textColor },
                   ]}
                   content={t(`${ns}.${labelKey}`)}
                 />
@@ -204,9 +203,7 @@ export default function TxFilterHalfModal({
           })}
         </View>
 
-        <View
-          style={[styles.divider, { borderTopColor: inactiveBorderColor }]}
-        />
+        <View style={[styles.divider, { borderTopColor: tokens.divider }]} />
 
         {/* --- Transaction Type --- */}
         <ThemeText
@@ -226,11 +223,11 @@ export default function TxFilterHalfModal({
                         backgroundColor:
                           theme && darkModeType
                             ? backgroundColor
-                            : COLORS.primary,
+                            : tokens.accent,
                         borderColor:
                           theme && darkModeType
                             ? backgroundColor
-                            : COLORS.primary,
+                            : tokens.accent,
                       }
                     : [
                         styles.pillInactive,
@@ -243,7 +240,7 @@ export default function TxFilterHalfModal({
                 <ThemeText
                   styles={[
                     styles.pillText,
-                    { color: isActive ? '#fff' : textColor },
+                    { color: isActive ? tokens.onAccent : textColor },
                   ]}
                   content={t(`${ns}.filter${type}`)}
                 />
@@ -256,7 +253,7 @@ export default function TxFilterHalfModal({
       </CustomScrollView>
 
       {/* --- Sticky bottom bar --- */}
-      <View style={[styles.bottomBar, { borderTopColor: inactiveBorderColor }]}>
+      <View style={[styles.bottomBar, { borderTopColor: tokens.divider }]}>
         <TouchableOpacity
           style={{
             opacity: hasItemsSeleceted ? 1 : HIDDEN_OPACITY,

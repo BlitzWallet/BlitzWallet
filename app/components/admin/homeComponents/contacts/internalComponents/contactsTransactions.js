@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { CENTER, COLORS, FONT, SIZES } from '../../../../../constants';
+import { CENTER, FONT, SIZES } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
@@ -42,7 +42,7 @@ const ConfirmedOrSentTransaction = React.memo(
   }) => {
     const { t } = useTranslation();
     const { theme, darkModeType } = useGlobalThemeContext();
-    const { textColor, backgroundOffset } = GetThemeColors();
+    const { textColor, backgroundOffset, tokens } = GetThemeColors();
 
     const didDeclinePayment =
       txParsed.isRedeemed != null && !txParsed.isRedeemed;
@@ -98,7 +98,7 @@ const ConfirmedOrSentTransaction = React.memo(
         didDeclinePayment
           ? theme && darkModeType
             ? textColor
-            : COLORS.cancelRed
+            : tokens.danger
           : textColor,
       [didDeclinePayment, theme, darkModeType, textColor],
     );
@@ -139,8 +139,8 @@ const ConfirmedOrSentTransaction = React.memo(
           colorOverride={
             didDeclinePayment
               ? theme && darkModeType
-                ? COLORS.darkModeText
-                : COLORS.cancelRed
+                ? tokens.ink
+                : tokens.danger
               : undefined
           }
           styles={styles.icons}
@@ -214,7 +214,7 @@ export default function ContactsTransactionItem(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundColor, tokens } = GetThemeColors();
   const navigate = useNavigation();
   const getServerTime = useServerTimeOnly();
   const { globalContactsInformation } = useGlobalContactsInfo();
@@ -490,7 +490,7 @@ export default function ContactsTransactionItem(props) {
   const buttonStyle = useMemo(
     () => ({
       ...styles.acceptOrPayBTN,
-      backgroundColor: theme ? textColor : COLORS.primary,
+      backgroundColor: theme ? textColor : tokens.accent,
     }),
     [theme, textColor],
   );
@@ -499,7 +499,7 @@ export default function ContactsTransactionItem(props) {
     () => ({
       ...styles.acceptOrPayBTN,
       borderWidth: 1,
-      borderColor: theme ? textColor : COLORS.primary,
+      borderColor: theme ? textColor : tokens.accent,
       backgroundColor: 'transparent',
     }),
     [theme, textColor],
@@ -570,13 +570,13 @@ export default function ContactsTransactionItem(props) {
 
             <CustomButton
               useLoading={isLoading.declineBTN}
-              loadingColor={theme ? textColor : COLORS.primary}
+              loadingColor={theme ? textColor : tokens.accent}
               actionFunction={() =>
                 updatePaymentStatus(transaction, true, false)
               }
               buttonStyles={declineButtonStyle}
               textStyles={{
-                color: theme ? textColor : COLORS.primary,
+                color: theme ? textColor : tokens.accent,
                 includeFontPadding: false,
               }}
               textContent={t('constants.decline')}

@@ -58,6 +58,8 @@
     "retry": "Reintentar",
     "download": "Descargar",
     "contactUs": "Contáctanos",
+    "copyEmail": "Copiar correo",
+    "openInbox": "Abrir bandeja de entrada",
     "pay": "Pagar",
     "processing": "Procesando",
     "support": "Soporte",
@@ -142,7 +144,7 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française",
+    "french": "Français",
     "swedish": "Svenska",
     "russian": "Русский"
   },
@@ -1678,13 +1680,15 @@
       "text4": "Umbral de Fast Pay (SAT)",
       "text5": "Fast Pay te permite pagar al instante facturas por debajo de un umbral especificado sin necesidad de deslizar para confirmar.",
       "text6": "Actual",
-      "text7": "Nuevo"
+      "text7": "Nuevo",
+      "editThresholdA11y": "Editar umbral"
     },
     "loginSecurity": {
       "text1": "Habilitar seguridad de inicio de sesión",
-      "text2": "Tipo de seguridad",
+      "text2": "Desbloquear con",
       "text3": "PIN",
-      "text4": "Biométrico",
+      "text4": "Biometría",
+      "passwordMethod": "Contraseña",
       "text5": "El dispositivo no tiene un perfil biométrico. Crea uno en configuración para continuar.",
       "text6": "Error al iniciar sesión con biometría",
       "text7": "El dispositivo no admite inicio de sesión biométrico",
@@ -1697,6 +1701,7 @@
       "createPinPageHeader": "{{type}} tu PIN de Blitz",
       "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!",
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
+      "randomPinKeyboardSubtitle": "Cambia el orden de los números del PIN cada vez que desbloquees.",
       "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
       "biometricsHead": "Sobre la biometría",
       "biometricsSubHead": "Tu frase de recuperación está protegida por los datos biométricos actuales de tu dispositivo. Cambiarlos impedirá que Blitz Wallet acceda a tu frase de recuperación y bloqueará el acceso a tu billetera.",
@@ -1745,6 +1750,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Informes de fallos activados",
       "crashreporting_disabled": "Informes de fallos desactivados",
+      "switchLabel": "Informes de fallos",
       "descriptionText": "Los datos de fallos nos ayudan a mejorar la estabilidad y el rendimiento de nuestra aplicación.\n\nCuando ocurre un fallo, la información del dispositivo registrada automáticamente incluye:\n\n• Sistema operativo: versión del SO, orientación del dispositivo y estado de jailbreak\n• Detalles del dispositivo: modelo, orientación y RAM disponible\n• Información del fallo: fecha del fallo y versión de la aplicación"
     },
     "accounts": {
@@ -1788,13 +1794,17 @@
     "sparkInfo": {
       "title": "Información de billetera",
       "sparkAddress": "Dirección Spark",
-      "pubKey": "Clave pública"
+      "pubKey": "Clave pública",
+      "copyA11y": "Copiar {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "El saldo actual de tu billetera es {{balance}}. Blitz añade una tarifa de {{fee}} a todos los pagos BTKN. Asegúrate de tener algo de Bitcoin en tu billetera para enviar tokens.",
       "title": "Configuración Spark",
       "sliderTitle_enabled": "BTKN activado",
       "sliderTitle_disabled": "BTKN desactivado",
+      "switchLabel": "Tokens BTKN",
+      "switchSub": "Envía y recibe tokens en la red Spark.",
+      "disclaimer": "Blitz es una billetera de Bitcoin y no promueve tokens. Esta opción está aquí para que puedas usar la tecnología que elijas.",
       "sliderDesc": "BTKN es el token nativo de Spark. Al habilitar BTKN, puedes enviar y recibir tokens en la red Spark.\n\nBlitz es una billetera enfocada en Bitcoin. No promovemos ni respaldamos el uso de tokens. Esta función existe porque creemos que los usuarios deben tener la libertad de usar la tecnología que deseen.",
       "selectTokenHeader": "Token predeterminado",
       "selectTokenInformationPopup": "Elige qué token deseas usar primero al enviar pagos. No te preocupes, aún puedes cambiarlo en la página de pago en cualquier momento."
@@ -1824,6 +1834,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Intercambio Submarino",
+      "subtitle": "Transferencia de Rootstock",
       "id": "ID",
       "swapDetails": "Detalles de la transferencia",
       "claimAddress": "Dirección de cobro",
@@ -1858,8 +1869,8 @@
       "unsupportedTitle": "Ya no admitimos {{type}}",
       "unsupportedDesc": "Si aún tienes fondos en {{type}}, restaura tu frase de recuperación de Blitz en una billetera compatible para acceder a ellos. ¿Necesitas ayuda? Contáctanos abajo.",
       "contactUs": "Contáctanos",
-      "refundInProgress": "Reembolso en curso. Mantén la app abierta hasta que se complete.",
-      "refundComplete": "Reembolso completado. Tus fondos están de vuelta en tu billetera Liquid."
+      "refundInProgress": "Reembolso en curso. Mantén la app abierta.",
+      "refundComplete": "Reembolso completado."
     },
     "notifications": {
       "mainToggle": "Permitir notificaciones",
@@ -1867,6 +1878,7 @@
       "disablePush": "Desactivar notificaciones push",
       "updateInSettings": "Actualizar en los ajustes de la app",
       "open": "Abrir",
+      "openA11y": "Abrir ajustes del teléfono",
       "disabledTitle": "Las notificaciones están desactivadas",
       "disabledSubtitle": "Activa las notificaciones push arriba para elegir sobre qué pagos y eventos quieres recibir alertas.",
       "optionsTitle": "Opciones de notificación",
@@ -1908,16 +1920,17 @@
       "swapsType": "Intercambios BTC <> USD",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % de comisión del pool + {{blitzFee}} % de comisión de Blitz",
-      "sparkSwapType": "Intercambios BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (entre cadenas)",
+      "sparkSwapType": "Intercambios BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC o USDB ↔︎ Stablecoin (entre cadenas)",
       "chainSwapFee": "0,5 % de comisión de Blitz + 0,1 %+ de comisión de plataforma",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % de comisión de Blitz + comisiones de red",
       "accumulationType": "Direcciones de acumulación",
       "accumulationFee": "0,5 % de comisión de Blitz + 0,5 % de comisión de plataforma",
-      "othersType": "Otros",
-      "othersFee": "Comisiones de red",
+      "othersType": "Todo lo demás",
+      "othersFee": "Solo comisiones de red",
       "networkFeeLinkDesc": "Toca para ver un desglose de las comisiones de la red Spark",
+      "networkFeeLink": "Ver comisiones de la red Spark",
       "rootstock": "Rootstock <> BTC",
       "rootstockFee": "Comisión de Boltz del 0,1 % + comisiones de la red"
     },
@@ -1948,8 +1961,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "¿Estás seguro de que quieres eliminar esta conexión?",
+      "deleteDialog": {
+        "title": "¿Eliminar esta conexión?",
+        "message": "{{name}} dejará de funcionar con tu billetera. El dinero de tu cuenta de Wallet Connect se queda allí."
+      },
+      "connectionString": {
+        "subtitle": "Escanéala desde {{name}} o cópiala y pégala.",
+        "warning": "Quien tenga esta cadena de conexión puede usar todos los permisos que le diste."
+      },
       "addAccount": "Añadir conexión",
+      "accountBalance": {
+        "title": "Saldo de la cuenta",
+        "subtitle": "Lo que las apps pueden gastar"
+      },
+      "connectionsHeader": "Conexiones",
+      "connectionSummary": {
+        "noBudget": "Sin presupuesto",
+        "canSend": "Puede enviar {{amount}} {{period}}",
+        "cantSend": "No puede enviar"
+      },
       "empty": {
         "title": "Aún no hay conexiones",
         "subtitle": "Usa tu cuenta de Wallet Connect con tus aplicaciones favoritas."
@@ -1964,8 +1994,8 @@
       },
       "createNWCPermissions": {
         "title": "Permisos",
-        "pageTitle": "Añadir permisos de la conexión",
-        "pageSubtitle": "Elige qué acciones puede realizar {{name}}.",
+        "pageTitle": "¿Qué puede hacer {{name}}?",
+        "pageSubtitle": "Activa solo lo que la app necesita.",
         "editTitle": "Editar permisos de la conexión",
         "editSubtitle": "Edita qué acciones puede realizar {{name}}."
       },
@@ -1976,7 +2006,15 @@
         "editTitle": "Editar presupuesto de gastos",
         "editSubtitle": "Cambia el límite de gastos y cuándo se restablece. Déjalo en blanco para no tener límite.",
         "renewalPlaceholder": "Selecciona el período de renovación",
-        "createButton": "Crear conexión"
+        "createButton": "Crear conexión",
+        "resetTitle": "¿Cada cuánto se reinicia?",
+        "noLimit": "Sin límite",
+        "resetsDaily": "Se reinicia a diario",
+        "resetsWeekly": "Se reinicia semanalmente",
+        "resetsMonthly": "Se reinicia mensualmente",
+        "resetsYearly": "Se reinicia anualmente",
+        "resetHint": "Abre las opciones del período de reinicio.",
+        "changeCurrency": "Cambiar moneda"
       },
       "accountPage": {
         "title": "Gestionar conexión",
@@ -1985,7 +2023,7 @@
         "permissionsCount_one": "{{count}} permiso",
         "permissionsCount_other": "{{count}} permisos",
         "renewalLabel": "Período de renovación",
-        "amountLabel": "Monto del presupuesto",
+        "amountLabel": "Presupuesto",
         "viewSecretLabel": "Cadena de conexión",
         "deleteAccount": "Eliminar conexión"
       },
@@ -2010,7 +2048,8 @@
       },
       "noNotifications": {
         "title": "Notificaciones requeridas",
-        "subtitle": "Wallet Connect requiere notificaciones push. Actívalas en Configuración e inténtalo de nuevo."
+        "subtitle": "Wallet Connect necesita notificaciones push para responder a las apps. Actívalas y vuelve.",
+        "button": "Activar notificaciones"
       },
       "showSeedPage": {
         "loadingMessage": "Generando frase de recuperación",
@@ -2056,15 +2095,16 @@
         "row1Label": "Añadir fondos",
         "row1Description": "Añade dinero recibiéndolo o transfiriéndolo desde tu cuenta principal.",
         "row2Label": "Cuenta separada",
-        "row2Description": "Esta cuenta está separada de tu cuenta principal para mayor seguridad.",
+        "row2Description": "Separada de tu cuenta principal, para que las apps solo puedan gastar lo que pongas aquí.",
         "row3Label": "Acceso de la aplicación",
         "row3Description": "Las aplicaciones conectadas pueden usar esta cuenta para realizar pagos.",
         "continueButton": "Comenzar"
       },
       "accountCreated": {
         "title": "Conexión creada",
-        "subtitle": "Tu conexión ha sido creada. Copia la cadena de conexión para empezar a usarla.",
-        "copyConnection": "Copiar cadena de conexión"
+        "subtitle": "Copia la cadena de conexión y pégala en {{connection}}.",
+        "copyConnection": "Copiar cadena de conexión",
+        "connectionStringLabel": "Cadena de conexión"
       }
     },
     "accountComponents": {
@@ -2522,9 +2562,10 @@
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
         "title": "Descargas de Blitz",
-        "goalUserCount": "de {{goalUserCount}} usuarios.",
+        "goalUserCount": "de {{goalUserCount}} usuarios",
         "percentOfGoal": "{{goalPercent}}% del objetivo",
         "numAddedUsers": "+{{numNewUsers}} usuarios hoy",
+        "chartA11y": "Descargas en el periodo {{period}}",
         "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
@@ -2624,13 +2665,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Sincronizado: {{time}}",
+        "lastSynced": "Sincronizado {{time}}",
         "never": "Nunca",
         "treeLabel": "Árbol {{id}}",
         "treeSubtitle": "{{count}} hojas",
         "showMore": "Mostrar más",
         "exportButton": "Exportar respaldo",
         "noLeavesToExport": "Todavía no hay hojas para exportar.",
+        "noExitReadyLeaves": "Ninguna de tus hojas es lo suficientemente grande para salir todavía (cada una necesita {{min}} sats).",
         "exportError": "No se pudieron exportar tus hojas. Inténtalo de nuevo.",
         "notReadyTitle": "Aún no listo para salir",
         "readyTitle": "Listo para salir",
@@ -2662,11 +2704,12 @@
         },
         "progress": {
           "title": "Exportando respaldo",
-          "gathering": "Recopilando las hojas de tu billetera…",
-          "saving": "Guardando un respaldo local…",
-          "exit": "Obteniendo datos de salida…",
-          "building": "Creando el archivo de respaldo…",
-          "sharing": "Abriendo el menú para compartir…"
+          "keepOpen": "Mantén la app abierta hasta que termine.",
+          "gathering": "Recopilando las hojas de tu billetera",
+          "saving": "Guardando un respaldo local",
+          "exit": "Obteniendo datos de salida",
+          "building": "Creando el archivo de respaldo",
+          "sharing": "Abriendo el menú para compartir"
         }
       },
       "remotePayments": {
@@ -2958,6 +3001,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Gastar y reemplazar",
         "userDollarAmount": "Saldo disponible en dólares: {{dollarAmount}}",
+        "userDollarAmountLabel": "Saldo disponible en dólares",
         "explainer": "Cuando está activado, cada pago saliente en Bitcoin se reemplaza automáticamente intercambiando un monto equivalente desde tu saldo en dólares. Si tu saldo en dólares es menor al monto gastado, se intercambiará el saldo total disponible. No se realizará ningún intercambio si el monto de reemplazo es inferior a {{minAmount}}.",
         "fundingDescription": "Compra de Spend & Replace",
         "acceptingDescription": "Recarga de Spend & Replace",
@@ -3045,6 +3089,7 @@
         "dataMessage": "Datos de {{source}}"
       },
       "filter": {
+        "title": "Filtrar lugares",
         "categoriesTitle": "Categorías",
         "distanceTitle": "Distancia",
         "all": "Todos",

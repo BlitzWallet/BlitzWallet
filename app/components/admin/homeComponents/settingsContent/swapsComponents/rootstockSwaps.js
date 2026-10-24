@@ -1,28 +1,26 @@
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { loadSwaps } from '../../../../../functions/boltz/rootstock/swapDb';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { getRootstockSwapStatusLabel } from '../../../../../functions/boltz/rootstock/swapProgress';
+import { canRefundRootstockSwap } from '../../../../../functions/boltz/rootstock/swapStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useTheme } from '../../../../../../context-store/theme';
+import { FONT } from '../../../../../constants';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import SupportMessage from './supportMessage';
 
 export default function RoostockSwapsPage() {
   const [swapList, setSwapList] = useState(null);
-  const { theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = useTheme();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
@@ -54,58 +52,10 @@ export default function RoostockSwapsPage() {
     }, []),
   );
 
-  const roostockElement = useCallback(
-    ({ item }) => {
-      const status = item?.data?.status;
-      return (
-        <TouchableOpacity
-          activeOpacity={0.6}
-          onPress={() =>
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'rootstockSwapInfo',
-              sliderHight: 0.8,
-              swap: item,
-            })
-          }
-          style={[
-            styles.swapContainer,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-          ]}
-        >
-          <View style={styles.textContainer}>
-            <ThemeText
-              content={displayCorrectDenomination({
-                amount: item?.data?.amountSat,
-                masterInfoObject,
-                fiatStats,
-              })}
-              styles={styles.amount}
-            />
-
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.swapId}
-              content={`${item.id}`}
-            />
-          </View>
-          <View style={styles.statusContainer}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.swapStatus}
-              content={getRootstockSwapStatusLabel(status) || '--'}
-            />
-            <ThemeIcon iconName={'ChevronRight'} size={18} />
-          </View>
-        </TouchableOpacity>
-      );
-    },
-    [theme, backgroundOffset, navigate, masterInfoObject, fiatStats],
-  );
-
   if (swapList === null) {
     return (
       <FullLoadingScreen
-        textStyles={styles.textStyles}
+        textStyles={styles.loadingText}
         text={t('settings.viewRoostockSwaps.loadingMessage')}
       />
     );
@@ -113,58 +63,99 @@ export default function RoostockSwapsPage() {
   if (!swapList?.length) {
     return <SupportMessage type={t('settings.viewSwapsHome.rootstock')} />;
   }
+
   return (
-    <FlatList
+    <CustomScrollView
+      style={styles.container}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.swapElementsContainer}
-      renderItem={roostockElement}
-      data={swapList}
-      keyExtractor={item => item.id}
-    />
+      contentContainerStyle={styles.scrollContent}
+    >
+      <ListCard dividerInset={0} style={styles.card}>
+        {swapList.map(item => {
+          const status = item?.data?.status;
+          const needsRefund = canRefundRootstockSwap(item);
+          const label = needsRefund
+            ? t('settings.viewRoostockSwaps.transaction.lockupFailed')
+            : getRootstockSwapStatusLabel(status) || '--';
+          const amount = displayCorrectDenomination({
+            amount: item?.data?.amountSat,
+            masterInfoObject,
+            fiatStats,
+          });
+
+          return (
+            <ListRow
+              key={item.id}
+              title={amount}
+              sub={`${item.id}`}
+              minHeight={64}
+              titleStyle={styles.amount}
+              subStyle={styles.swapId}
+              accessibilityLabel={`${amount}, ${label}`}
+              onPress={() =>
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'rootstockSwapInfo',
+                  swap: item,
+                })
+              }
+              trailing={
+                <View style={styles.statusContainer}>
+                  <ThemeText
+                    CustomNumberOfLines={2}
+                    styles={[
+                      styles.status,
+                      { color: needsRefund ? tokens.danger : tokens.muted },
+                    ]}
+                    content={label}
+                  />
+                  <ThemeIcon
+                    redesign
+                    iconName="ChevronRight"
+                    size={18}
+                    colorOverride={tokens.muted}
+                  />
+                </View>
+              }
+            />
+          );
+        })}
+      </ListCard>
+    </CustomScrollView>
   );
 }
+
 const styles = StyleSheet.create({
-  swapContainer: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  textContainer: {
-    flexShrink: 1,
-    flexGrow: 1,
-    marginRight: 10,
-  },
+  container: { flex: 1 },
+  scrollContent: { paddingBottom: 24 },
+  card: { marginTop: 16 },
   amount: {
-    fontSize: SIZES.large,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 21,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   swapId: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    marginTop: 2,
+    fontFamily: FONT.mono,
+    fontSize: 13,
+    lineHeight: 19,
     includeFontPadding: false,
   },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
     flexShrink: 1,
   },
-  swapStatus: {
-    fontSize: SIZES.small,
-    marginRight: 4,
+  status: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
     flexShrink: 1,
+    textAlign: 'right',
   },
-  swapElementsContainer: {
-    paddingTop: 20,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    flexGrow: 1,
-  },
-  textStyles: {
+  loadingText: {
     textAlign: 'center',
   },
 });

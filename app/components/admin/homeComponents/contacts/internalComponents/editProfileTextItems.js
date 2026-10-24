@@ -45,6 +45,7 @@ export default function EditProfileTextInput({
   textInputColor,
   textInputBackground,
   textColor,
+  tokens,
   showInfoIcon = false,
   onInfoPress,
   containerStyle,
@@ -54,13 +55,13 @@ export default function EditProfileTextInput({
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   const inputTextColor = isOverLimit
     ? theme && darkModeType
       ? textInputColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   return (

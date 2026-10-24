@@ -16,7 +16,6 @@ import InlineQrScanner from '../../../functions/CustomElements/camera/inlineQrSc
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   VALID_USERNAME_REGEX,
 } from '../../../constants';
@@ -41,7 +40,7 @@ export default function ChildEnterCode() {
   const navigate = useNavigation();
   const isFocused = useIsFocused();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { status, errorMessage, submitPairing, resetSession, sessionRef } =
     useChildClaim();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
@@ -179,7 +178,10 @@ export default function ChildEnterCode() {
             {status === 'awaiting' && <ChildQRWaiting />}
           </View>
           {!!errorMessage && (
-            <ThemeText styles={styles.error} content={errorMessage} />
+            <ThemeText
+              styles={[styles.error, { color: tokens.danger }]}
+              content={errorMessage}
+            />
           )}
         </View>
       ) : (
@@ -273,7 +275,6 @@ const styles = StyleSheet.create({
   },
   error: {
     fontSize: SIZES.smedium,
-    color: COLORS.cancelRed,
     textAlign: 'center',
     marginTop: 16,
   },

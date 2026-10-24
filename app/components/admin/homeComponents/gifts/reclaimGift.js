@@ -2,12 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { CENTER } from '../../../../constants';
-import {
-  COLORS,
-  FONT,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
@@ -42,7 +37,7 @@ export default function ReclaimGift() {
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [enteredLink, setEnteredLink] = useState('');
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const handleClaimGift = () => {
@@ -152,10 +147,8 @@ export default function ReclaimGift() {
                 inputText={enteredLink}
                 setInputText={setEnteredLink}
                 textInputStyles={{
-                  backgroundColor: theme
-                    ? backgroundColor
-                    : COLORS.darkModeText,
-                  color: theme ? textColor : COLORS.lightModeText,
+                  backgroundColor: theme ? backgroundColor : tokens.disc,
+                  color: textColor,
                 }}
                 placeholderText={t(
                   'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
@@ -174,9 +167,7 @@ export default function ReclaimGift() {
                     'screens.inAccount.giftPages.reclaimPage.dropdownPlaceHolder',
                   )}
                   customButtonStyles={{
-                    backgroundColor: theme
-                      ? backgroundColor
-                      : COLORS.darkModeText,
+                    backgroundColor: theme ? backgroundColor : tokens.disc,
                   }}
                   dropdownItemCustomStyles={{
                     justifyContent: 'flex-start',

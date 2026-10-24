@@ -62,7 +62,10 @@ jest.mock('../../app/functions/accounts/childPairing', () => ({
 
 jest.mock('../../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#000000' }),
+  default: () => ({
+    backgroundOffset: '#000000',
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 
 // Every ThemeText's content lands here so assertions can check which copy is
@@ -122,7 +125,14 @@ jest.mock('../../app/functions/CustomElements/loadingScreen', () => ({
 
 // childQRWaiting (imported, only rendered while awaiting) pulls these in.
 jest.mock('../../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: null }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: null,
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 jest.mock('lottie-react-native', () => 'LottieView');
 jest.mock('../../app/functions/lottieAnimations', () => ({

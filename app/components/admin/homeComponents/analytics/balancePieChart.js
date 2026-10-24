@@ -30,7 +30,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
     useUserBalanceContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const btcValue = bitcoinBalance;
@@ -101,8 +101,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
         btcValue > 0 && {
           key: 'btc',
           label: t('constants.bitcoin_upper'),
-          color:
-            theme && darkModeType ? COLORS.darkModeText : COLORS.bitcoinOrange,
+          color: theme && darkModeType ? tokens.ink : COLORS.bitcoinOrange,
           value: btcValue,
           percent: btcPercent,
         },
@@ -143,11 +142,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={radius}
-              stroke={
-                theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.bitcoinOrange
-              }
+              stroke={theme && darkModeType ? tokens.ink : COLORS.bitcoinOrange}
               strokeWidth={STROKE_WIDTH}
               fill="none"
               strokeDasharray={circumference}
@@ -211,7 +206,9 @@ export default function BalancePieChart({ isBalanceHidden }) {
                 />
               </View>
               {idx < visibleSegments.length - 1 && (
-                <View style={[styles.divider, { backgroundColor }]} />
+                <View
+                  style={[styles.divider, { backgroundColor: tokens.divider }]}
+                />
               )}
             </View>
           ))}

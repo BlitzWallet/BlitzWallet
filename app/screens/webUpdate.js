@@ -70,9 +70,7 @@ export default function WebUpdate() {
         />
         <View style={styles.iconContainer}>
           <IconActionCircle
-            customBackgroundColor={
-              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
-            }
+            customBackgroundColor={backgroundOffset}
             icon={'Download'}
             size={130}
           />

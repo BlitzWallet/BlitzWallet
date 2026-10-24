@@ -1,6 +1,6 @@
 import {StyleSheet, TextInput, View} from 'react-native';
 import GetThemeColors from '../../../hooks/themeColors';
-import {COLORS, FONT, SIZES} from '../../../constants';
+import {FONT, SIZES} from '../../../constants';
 import ThemeText from '../textTheme';
 import {useCallback, useState} from 'react';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
@@ -14,7 +14,8 @@ export default function TextInputSettingsItem({
 }) {
   const {theme} = useGlobalThemeContext();
   const [inputValue, setInputValue] = useState(undefined);
-  const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
+  const {backgroundOffset, backgroundColor, textColor, tokens} =
+    GetThemeColors();
   const resetInputValue = useCallback(() => {
     setInputValue(String(defaultTextInputValue));
   }, [defaultTextInputValue]);
@@ -24,11 +25,11 @@ export default function TextInputSettingsItem({
       style={[
         styles.contentContainer,
         {
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          backgroundColor: backgroundOffset,
         },
       ]}>
       <View
-        style={[styles.sliderContianer, {borderBottomColor: backgroundColor}]}>
+        style={[styles.sliderContianer, {borderBottomColor: tokens.divider}]}>
         <ThemeText
           CustomNumberOfLines={1}
           styles={{includeFontPadding: false, flex: 1}}

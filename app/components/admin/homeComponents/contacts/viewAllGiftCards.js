@@ -21,7 +21,8 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 export default function ViewAllGiftCards() {
   const { giftCardsList } = useGlobalContactsMessages();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor, tokens } =
+    GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [allCardsWithInfo, setAllCardsWithInfo] = useState([]);
@@ -105,11 +106,8 @@ export default function ViewAllGiftCards() {
         style={[
           styles.giftCardItem,
           {
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
           },
         ]}
         onPress={() => handleGiftCardPress(item)}
@@ -122,11 +120,9 @@ export default function ViewAllGiftCards() {
               styles.claimedPill,
               {
                 backgroundColor: true
-                  ? theme
-                    ? darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary
-                    : COLORS.primary
+                  ? theme && darkModeType
+                    ? tokens.ink
+                    : tokens.accent
                   : 'transparent',
               },
             ]}
@@ -135,11 +131,9 @@ export default function ViewAllGiftCards() {
               styles={{
                 ...styles.claimedPillText,
                 color: true
-                  ? theme
-                    ? darkModeType
-                      ? COLORS.lightModeText
-                      : COLORS.darkModeText
-                    : COLORS.darkModeText
+                  ? theme && darkModeType
+                    ? COLORS.lightModeText
+                    : tokens.onAccent
                   : textColor,
               }}
               content={t('contacts.viewGiftCardCode.claimed')}

@@ -62,6 +62,7 @@ import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
+import ProfilePrintPage from '../app/functions/CustomElements/profilePrintPage';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
 import PoolsStack from './PoolsStack';
 import GiftsStack from './GiftsStack';
@@ -98,9 +99,11 @@ import AnalyticsStack from './analyticsStack';
 import BTCMapScreen from '../app/screens/inAccount/btcMap';
 import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
 import SparkHodlInvoiceTest from '../app/screens/sparkHodlInvoiceTest';
+import ConfirmDialog from '../app/functions/CustomElements/redesign/ConfirmDialog';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
+  { name: 'ProfilePrintPage', component: ProfilePrintPage },
   { name: 'SendBTC', component: SendPaymentHome },
 
   { name: 'ExpandedTx', component: ExpandedTx },
@@ -223,6 +226,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
 const FADE_SCREENS = [
   { name: 'CustomHalfModal', component: CustomHalfModal },
   { name: 'ConfirmActionPage', component: ConfirmActionPage },
+  { name: 'ConfirmDialog', component: ConfirmDialog },
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
   { name: 'ErrorScreen', component: ErrorScreen },
   { name: 'SparkErrorScreen', component: SparkErrorScreen },
@@ -268,6 +272,20 @@ const BITREFILL_SCREEN = {
 // Web: Bitrefill is a normal page (like online listings / SMS), not a modal.
 const MODAL_CARD_SCREENS = Platform.OS === 'web' ? [] : [BITREFILL_SCREEN];
 if (Platform.OS === 'web') SLIDE_FROM_RIGHT_SCREENS.push(BITREFILL_SCREEN);
+
+// Dev-only primitives gallery (audit/IMPLEMENTATION_PLAN.md §10 T9).
+if (__DEV__) {
+  const PrimitivesGallery =
+    require('../app/screens/dev/primitivesGallery').default;
+  SLIDE_FROM_RIGHT_SCREENS.push({
+    name: 'PrimitivesGallery',
+    component: PrimitivesGallery,
+  });
+  // Open it from the dev menu (Cmd+D in the simulator; no dev menu on web).
+  require('react-native').DevSettings?.addMenuItem('Primitives gallery', () =>
+    require('./navigationService').navigationRef.navigate('PrimitivesGallery'),
+  );
+}
 
 export {
   SLIDE_FROM_BOTTOM_SCREENS,

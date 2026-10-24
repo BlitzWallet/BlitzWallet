@@ -13,7 +13,6 @@ import NoContentSceen from '../../../../../functions/CustomElements/noContentScr
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
 } from '../../../../../constants';
@@ -47,7 +46,7 @@ export default function SMSMessagingHome() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { decodedMessages, toggleGlobalAppDataInformation } =
     useGlobalAppData();
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -385,14 +384,12 @@ export default function SMSMessagingHome() {
               buttonStyles={[
                 styles.actionButton,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                 },
                 buttonStyle,
               ]}
               textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                color: tokens.ink,
               }}
               enableElipsis={false}
               textContent={sendLabel}
@@ -403,14 +400,12 @@ export default function SMSMessagingHome() {
               buttonStyles={[
                 styles.actionButton,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                 },
                 buttonStyle,
               ]}
               textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                color: tokens.ink,
               }}
               enableElipsis={false}
               textContent={receiveLabel}

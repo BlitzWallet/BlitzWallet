@@ -21,7 +21,7 @@ export default function TipsTXItem({
   borderColor,
   isLastIndex,
 }) {
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleTogglePayment = async () => {
@@ -63,8 +63,8 @@ export default function TipsTXItem({
                 backgroundColor: !item?.didPay
                   ? backgroundColor
                   : theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary,
+                  ? tokens.ink
+                  : tokens.accent,
               },
             ]}
           >
@@ -74,7 +74,7 @@ export default function TipsTXItem({
                   ? textColor
                   : theme && darkModeType
                   ? COLORS.lightModeText
-                  : COLORS.darkModeText,
+                  : tokens.onAccent,
                 includeFontPadding: false,
                 fontSize: SIZES.smedium,
                 textTransform: 'capitalize',

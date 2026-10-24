@@ -2,22 +2,20 @@ import {
   ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { CENTER, NOSTR_NAME_REGEX } from '../../../../../constants';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  NOSTR_NAME_REGEX,
+} from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {
-  COLORS,
-  FONT,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
+import { FONT } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
@@ -32,12 +30,14 @@ import { npubToHex } from '../../../../../functions/nostr';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
-import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import getClipboardText from '../../../../../functions/getClipboardText';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { nip19 } from 'nostr-tools';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
 
 const NIP5_DOMAIN = '@blitzwalletapp.com';
 const MAX_NAME_LENGTH = 60;
@@ -47,9 +47,10 @@ export default function Nip5VerificationPage() {
   const navigate = useNavigation();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, textInputColor, textInputBackground, backgroundColor } =
-    GetThemeColors();
+  const { mode } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const pubkeyInputRef = useRef(null);
   const { t } = useTranslation();
   const { name, pubkey } = masterInfoObject?.nip5Settings;
@@ -132,10 +133,6 @@ export default function Nip5VerificationPage() {
     try {
       setIsLoading(true);
 
-      if (!isEditing) {
-        keyboardGoBack(navigate);
-        return;
-      }
       if (!parsedName) throw new Error(t('settings.nip5.noNameError'));
       if (!inputs.pubkey) throw new Error(t('settings.nip5.noPubKey'));
       if (parsedName.length > MAX_NAME_LENGTH)
@@ -178,11 +175,14 @@ export default function Nip5VerificationPage() {
   };
 
   const removeNip5Information = () => {
-    navigate.navigate('ConfirmActionPage', {
-      confirmMessage: t('settings.nip5.removeWarning', {
+    navigate.navigate('ConfirmDialog', {
+      title: t('settings.nip5.removeTitle', {
         address: `${name}${NIP5_DOMAIN}`,
       }),
-      confirmFunction: async () => {
+      message: t('settings.nip5.removeSub'),
+      confirmLabel: t('constants.remove'),
+      cancelLabel: t('constants.cancel'),
+      onConfirm: async () => {
         setIsLoading(true);
         const didDelete = await deleteNip5FromCollection(masterInfoObject.uuid);
         setIsLoading(false);
@@ -198,16 +198,18 @@ export default function Nip5VerificationPage() {
     });
   };
 
-  const errorColor = theme && darkModeType ? textColor : COLORS.cancelRed;
-  const accentColor = theme && darkModeType ? textColor : COLORS.primary;
-
   const nameStatusText = {
-    taken: { text: t('settings.nip5.takenNameError'), color: errorColor },
-    invalid: { text: t('settings.nip5.regexError'), color: errorColor },
+    available: !isOwnName && {
+      text: t('settings.nip5.available'),
+      color: tokens.link,
+    },
+    taken: { text: t('settings.nip5.takenNameError'), color: tokens.danger },
+    invalid: { text: t('settings.nip5.regexError'), color: tokens.danger },
   }[nameStatus];
 
   const showPubkeyError = !!inputs.pubkey.trim() && !parsedPubkey.didWork;
-  const isButtonDisabled = isEditing && !canSave;
+  // Saved and unchanged: no main button, the header has back.
+  const showSaveButton = isEditing || !name;
 
   return (
     <CustomKeyboardAvoidingView
@@ -216,161 +218,156 @@ export default function Nip5VerificationPage() {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('settings.nip5.title')}
-        showLeftImage={true}
-        iconNew="Info"
-        leftImageStyles={{ height: 25 }}
-        leftImageFunction={openInfo}
-      />
-      <CustomScrollView
-        style={{ width: INSET_WINDOW_WIDTH }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps={'handled'}
-      >
-        <TouchableOpacity
-          activeOpacity={isSaved ? 0.2 : 1}
-          onPress={() => {
-            if (!isSaved) return;
-            copyToClipboard(`${name}${NIP5_DOMAIN}`, showToast);
-          }}
+      <View style={{ flex: 1, width: contentWidth, ...CENTER }}>
+        <TopBar
+          title={t('settings.nip5.title')}
+          shouldDismissKeyboard={true}
+          right={<IconButton icon={'Info'} onPress={openInfo} />}
+        />
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps={'handled'}
         >
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={[styles.addressName, !parsedName && styles.placeholder]}
-            content={parsedName || t('settings.nip5.usernameInputPlaceholder')}
-          />
-          <ThemeText styles={styles.addressDomain} content={NIP5_DOMAIN} />
-        </TouchableOpacity>
-        <View
-          style={[styles.inputCard, { backgroundColor: textInputBackground }]}
-        >
-          <ThemeText
-            styles={[styles.inputDescriptor, { color: textInputColor }]}
-            content={t('settings.nip5.usernameInputLabel')}
-          />
-          <CustomSearchInput
-            inputText={inputs.name}
-            setInputText={e => handleInputText(e, 'name')}
-            placeholderText={t('settings.nip5.usernameInputPlaceholder')}
-            maxLength={MAX_NAME_LENGTH}
-            containerStyles={styles.inputContainer}
-            textInputStyles={styles.textInput}
-            returnKeyType="next"
-            submitBehavior="submit"
-            onSubmitEditingFunction={() => pubkeyInputRef.current?.focus()}
-            {...focusHandlers('name')}
-            buttonComponent={
-              <>
-                {nameStatus === 'checking' ? (
-                  <ActivityIndicator
-                    style={styles.statusIcon}
-                    size="small"
-                    color={textInputColor}
-                  />
-                ) : nameStatus === 'available' ? (
-                  <View style={styles.statusIcon}>
-                    <ThemeIcon
-                      iconName="CircleCheck"
-                      size={20}
-                      colorOverride={
-                        theme && darkModeType
-                          ? textInputColor
-                          : COLORS.nostrGreen
-                      }
-                    />
-                  </View>
-                ) : nameStatus === 'taken' || nameStatus === 'invalid' ? (
-                  <View style={styles.statusIcon}>
-                    <ThemeIcon
-                      iconName="CircleAlert"
-                      size={20}
-                      colorOverride={
-                        theme && darkModeType
-                          ? textInputColor
-                          : COLORS.cancelRed
-                      }
-                    />
-                  </View>
-                ) : null}
-              </>
-            }
-          />
-          <View style={[styles.divider, { backgroundColor }]} />
-          <ThemeText
-            styles={[styles.inputDescriptor, { color: textInputColor }]}
-            content={t('settings.nip5.publicKeyLabel')}
-          />
-          <CustomSearchInput
-            textInputRef={pubkeyInputRef}
-            inputText={inputs.pubkey}
-            setInputText={e => handleInputText(e, 'pubkey')}
-            placeholderText={t('settings.nip5.publicKeyPlaceholder')}
-            containerStyles={styles.inputContainer}
-            textInputStyles={styles.textInput}
-            returnKeyType="done"
-            {...focusHandlers('pubkey')}
-            buttonComponent={
+          <View style={styles.preview}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={[
+                styles.addressName,
+                !parsedName && { color: tokens.muted },
+              ]}
+              content={
+                parsedName || t('settings.nip5.usernameInputPlaceholder')
+              }
+            />
+            <ThemeText
+              styles={[styles.addressDomain, { color: tokens.muted }]}
+              content={NIP5_DOMAIN}
+            />
+            {isSaved && (
+              <CustomButton
+                size="small"
+                tone="secondary"
+                icon="Copy"
+                textContent={t('constants.copy')}
+                actionFunction={() =>
+                  copyToClipboard(`${name}${NIP5_DOMAIN}`, showToast)
+                }
+                buttonStyles={styles.copyButton}
+                textStyles={styles.copyText}
+              />
+            )}
+          </View>
+          <View
+            style={[
+              styles.inputCard,
+              { backgroundColor: tokens.surface, marginTop: isSaved ? 24 : 28 },
+            ]}
+          >
+            <View style={styles.fieldRow}>
+              <View style={styles.field}>
+                <ThemeText
+                  styles={[styles.fieldLabel, { color: tokens.muted }]}
+                  content={t('settings.nip5.usernameInputLabel')}
+                />
+                <CustomSearchInput
+                  inputText={inputs.name}
+                  setInputText={e => handleInputText(e, 'name')}
+                  placeholderText={t('settings.nip5.usernameInputPlaceholder')}
+                  placeholderTextColor={tokens.muted}
+                  maxLength={MAX_NAME_LENGTH}
+                  textInputStyles={{ ...styles.textInput, color: tokens.ink }}
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditingFunction={() =>
+                    pubkeyInputRef.current?.focus()
+                  }
+                  {...focusHandlers('name')}
+                />
+              </View>
+              {nameStatus === 'checking' ? (
+                <ActivityIndicator size="small" color={tokens.muted} />
+              ) : nameStatus === 'available' && !isOwnName ? (
+                <ThemeIcon
+                  redesign
+                  iconName="Check"
+                  size={20}
+                  colorOverride={tokens.link}
+                />
+              ) : null}
+            </View>
+            <View
+              style={[styles.divider, { backgroundColor: tokens.divider }]}
+            />
+            <View style={styles.fieldRow}>
+              <View style={styles.field}>
+                <ThemeText
+                  styles={[styles.fieldLabel, { color: tokens.muted }]}
+                  content={t('settings.nip5.publicKeyLabel')}
+                />
+                <CustomSearchInput
+                  textInputRef={pubkeyInputRef}
+                  inputText={inputs.pubkey}
+                  setInputText={e => handleInputText(e, 'pubkey')}
+                  placeholderText={t('settings.nip5.publicKeyPlaceholder')}
+                  placeholderTextColor={tokens.muted}
+                  textInputStyles={{ ...styles.textInput, color: tokens.ink }}
+                  returnKeyType="done"
+                  {...focusHandlers('pubkey')}
+                />
+              </View>
               <TouchableOpacity
                 onPress={handlePaste}
-                style={[
-                  styles.pasteButton,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? COLORS.lightsOutBackground
-                        : COLORS.primary + '22',
-                  },
-                ]}
+                style={[styles.pasteButton, { backgroundColor: tokens.disc }]}
               >
                 <ThemeText
-                  styles={[styles.pasteText, { color: accentColor }]}
+                  styles={[styles.pasteText, { color: tokens.link }]}
                   content={t('constants.paste')}
                 />
               </TouchableOpacity>
-            }
-          />
-        </View>
-        {!!nameStatusText && (
-          <ThemeText
-            styles={[styles.statusText, { color: nameStatusText.color }]}
-            content={nameStatusText.text}
-          />
-        )}
-        {showPubkeyError && (
-          <ThemeText
-            styles={[styles.statusText, { color: errorColor }]}
-            content={t(parsedPubkey.error)}
-          />
-        )}
-      </CustomScrollView>
-      {!focusedInput && (
-        <>
-          <CustomButton
-            useLoading={isLoading}
-            disabled={isButtonDisabled}
-            actionFunction={saveNip5Information}
-            buttonStyles={{
-              ...CENTER,
-              width: INSET_WINDOW_WIDTH,
-              opacity: isButtonDisabled ? HIDDEN_OPACITY : 1,
-            }}
-            textContent={
-              isEditing ? t('settings.nip5.saveAddress') : t('constants.back')
-            }
-          />
-          {!!name && (
-            <CustomButton
-              disabled={isLoading}
-              actionFunction={removeNip5Information}
-              buttonStyles={styles.removeButton}
-              textStyles={[styles.removeText, { color: textColor }]}
-              textContent={t('settings.nip5.removeAddress')}
+            </View>
+          </View>
+          {!!nameStatusText && (
+            <ThemeText
+              styles={[styles.statusText, { color: nameStatusText.color }]}
+              content={nameStatusText.text}
             />
           )}
-        </>
-      )}
+          {showPubkeyError && (
+            <ThemeText
+              styles={[
+                styles.statusText,
+                { color: mode !== 'dim' ? tokens.danger : tokens.ink },
+              ]}
+              content={t(parsedPubkey.error)}
+            />
+          )}
+        </CustomScrollView>
+        {!focusedInput && (
+          <View style={styles.bottomButtons}>
+            {showSaveButton && (
+              <CustomButton
+                size="regular"
+                useLoading={isLoading}
+                disabled={!canSave}
+                actionFunction={saveNip5Information}
+                textContent={t('settings.nip5.saveAddress')}
+              />
+            )}
+            {!!name && (
+              <TextButton
+                textStyle={{
+                  color: mode !== 'dim' ? tokens.danger : tokens.ink,
+                }}
+                disabled={isLoading}
+                onPress={removeNip5Information}
+                text={t('settings.nip5.removeAddress')}
+                align="center"
+                accessibilityLabel={t('settings.nip5.removeAddress')}
+              />
+            )}
+          </View>
+        )}
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
@@ -379,88 +376,92 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  addressName: {
-    fontSize: SIZES.huge,
-    fontFamily: FONT.Title_Medium,
-    includeFontPadding: false,
+  preview: {
     marginTop: 28,
-    textAlign: 'center',
+    alignItems: 'center',
   },
-  placeholder: {
-    opacity: 0.3,
+  addressName: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 32,
+    lineHeight: 40,
+    letterSpacing: -0.64,
+    includeFontPadding: false,
+    textAlign: 'center',
   },
   addressDomain: {
-    fontSize: SIZES.large,
-    opacity: 0.5,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
     textAlign: 'center',
-    marginBottom: 40,
   },
-  explainerText: {
-    fontSize: SIZES.smedium,
-    opacity: 0.7,
-    lineHeight: 22,
-    marginTop: 24,
-    marginBottom: 24,
+  copyButton: {
+    marginTop: 8,
+  },
+  copyText: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   inputCard: {
-    borderRadius: 12,
-    overflow: 'hidden',
+    borderRadius: 20,
+    paddingHorizontal: 16,
   },
-  inputDescriptor: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    paddingHorizontal: 10,
-    paddingTop: 12,
-    includeFontPadding: false,
-  },
-  inputContainer: {
+  fieldRow: {
+    minHeight: 64,
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  field: {
+    flex: 1,
+    minWidth: 0,
+  },
+  fieldLabel: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 18,
+    includeFontPadding: false,
   },
   divider: {
-    height: 2,
-    marginLeft: 10,
+    height: 1,
   },
   textInput: {
-    flex: 1,
-    paddingTop: 6,
-    width: undefined,
-    minWidth: 0,
+    width: '100%',
+    padding: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    borderRadius: 0,
+    fontSize: 16,
+    height: 24,
     backgroundColor: 'transparent',
-  },
-  inputSuffix: {
-    opacity: 0.5,
-    paddingRight: 10,
-    includeFontPadding: false,
-  },
-  statusIcon: {
-    width: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
   },
   pasteButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginRight: 8,
+    minHeight: 44,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pasteText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  removeButton: {
-    width: INSET_WINDOW_WIDTH,
-    backgroundColor: 'transparent',
-    // paddingVertical: 12,
-  },
-  removeText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
   },
   statusText: {
-    fontSize: SIZES.small,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 18,
     marginTop: 8,
-    marginHorizontal: 10,
+    marginHorizontal: 4,
     includeFontPadding: false,
+  },
+  bottomButtons: {
+    gap: 12,
+  },
+  removeButton: {
+    backgroundColor: 'transparent',
   },
 });

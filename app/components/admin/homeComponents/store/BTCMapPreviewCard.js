@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { COLORS, FONT, ICONS, SIZES } from '../../../../constants';
+import { FONT, ICONS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,7 @@ function MapPreview({ cardBackground, isDarkMode }) {
   const leftFade = [cardBackground, withAlpha(cardBackground, 0)];
   const topFade = [
     cardBackground,
-    withAlpha(cardBackground, 0.65),
+    withAlpha(cardBackground, 1),
     withAlpha(cardBackground, 0),
   ];
   // const rightFade = [
@@ -53,13 +53,13 @@ function MapPreview({ cardBackground, isDarkMode }) {
         style={{ width: '100%', height: '100%' }}
         source={ICONS[`${platform}_maps_${isDarkMode ? 'dark' : 'light'}`]}
       />
-      <LinearGradient
+      {/* <LinearGradient
         colors={leftFade}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={styles.leftFade}
         pointerEvents="none"
-      />
+      /> */}
 
       <LinearGradient
         colors={topFade}
@@ -90,18 +90,12 @@ function MapPreview({ cardBackground, isDarkMode }) {
 
 export default function BTCMapPreviewCard() {
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const isDarkMode = theme;
   const cardBackground = backgroundColor;
-  const borderColor =
-    theme && darkModeType
-      ? COLORS.tabsBorderLightsout
-      : isDarkMode
-      ? COLORS.tabsBorderDim
-      : 'rgba(17,17,17,0.08)';
   const shadowOpacity = isDarkMode ? 0.18 : 0.08;
 
   return (
@@ -112,12 +106,11 @@ export default function BTCMapPreviewCard() {
         styles.container,
         {
           backgroundColor: cardBackground,
-          borderColor,
           shadowOpacity,
         },
       ]}
     >
-      <MapPreview cardBackground={cardBackground} isDarkMode={isDarkMode} />
+      <MapPreview cardBackground={tokens.surface} isDarkMode={isDarkMode} />
 
       <View style={styles.textOverlay} pointerEvents="none">
         <ThemeText
@@ -140,7 +133,6 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     marginBottom: 16,
-    borderWidth: 1,
   },
   mapArea: {
     height: 320,
@@ -158,16 +150,14 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   overlayLabel: {
-    fontSize: SIZES.medium,
+    fontSize: 14,
     lineHeight: 20,
-    marginBottom: 8,
-    fontFamily: FONT.Title_SemiBold,
     opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
   },
   overlayTitle: {
-    fontSize: 34,
-    lineHeight: 38,
+    fontSize: 28,
+    lineHeight: 34,
     includeFontPadding: false,
   },
   leftFade: {
@@ -182,7 +172,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: '100%',
+    height: '60%',
   },
   rightFade: {
     position: 'absolute',

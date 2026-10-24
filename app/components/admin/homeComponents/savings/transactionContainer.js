@@ -16,7 +16,7 @@ const ICON_BY_TYPE = {
 };
 
 export default function SavingsTransactionComponenet({ item, isLastIndex }) {
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const amount =
@@ -31,7 +31,10 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
     <View
       style={[
         styles.activityRow,
-        { borderBottomWidth: isLastIndex ? 0 : StyleSheet.hairlineWidth },
+        {
+          borderBottomWidth: isLastIndex ? 0 : StyleSheet.hairlineWidth,
+          borderBottomColor: tokens.divider,
+        },
       ]}
     >
       <View style={styles.activityLeft}>

@@ -97,6 +97,7 @@ jest.mock('../app/functions/sendBitcoin/getPhonePaymentAddress', () => ({
 jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../context-store/theme', () => ({

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import ThemeText from '../textTheme';
 import CustomToggleSwitch from '../switch';
 import FullLoadingScreen from '../loadingScreen';
@@ -24,7 +24,7 @@ export default function SettingsItemWithSlider({
   CustomNumberOfLines = 1,
 }) {
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const navigate = useNavigation();
 
   return (
@@ -32,7 +32,7 @@ export default function SettingsItemWithSlider({
       style={[
         styles.contentContainer,
         {
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          backgroundColor: backgroundOffset,
           ...containerStyles,
         },
       ]}
@@ -40,7 +40,7 @@ export default function SettingsItemWithSlider({
       <View
         style={{
           ...styles.sliderContianer,
-          borderBottomColor: backgroundColor,
+          borderBottomColor: tokens.divider,
           borderBottomWidth: showDescription ? 1 : 0,
           marginBottom: showDescription ? 20 : 0,
           paddingBottom: showDescription ? 10 : 0,
@@ -61,7 +61,7 @@ export default function SettingsItemWithSlider({
               }}
               size="small"
               showText={false}
-              loadingColor={theme ? textColor : COLORS.primary}
+              loadingColor={theme ? textColor : tokens.accent}
             />
           )}
           {showInformationPopup && (

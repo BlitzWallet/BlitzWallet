@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { COLORS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import WidgetCard from './WidgetCard';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -14,7 +14,7 @@ import GiftCardItem from '../../../../components/admin/homeComponents/gifts/gift
 export default function GiftsPreview({ onPress }) {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens, backgroundColor } = GetThemeColors();
   const [giftsArray, setGiftsArray] = useState([]);
 
   useFocusEffect(
@@ -57,16 +57,12 @@ export default function GiftsPreview({ onPress }) {
               styles.iconWrap,
               {
                 backgroundColor:
-                  theme && darkModeType
-                    ? darkModeType
-                      ? backgroundColor
-                      : backgroundOffset
-                    : COLORS.primary,
+                  theme && darkModeType ? backgroundColor : tokens.accent,
               },
             ]}
           >
             <ThemeIcon
-              colorOverride={COLORS.darkModeText}
+              colorOverride={tokens.onAccent}
               iconName={'Gift'}
               size={22}
             />

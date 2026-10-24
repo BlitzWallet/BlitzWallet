@@ -116,7 +116,7 @@ export default function WithdrawFromSavingsHalfModal({
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
@@ -787,14 +787,14 @@ export default function WithdrawFromSavingsHalfModal({
                         backgroundColor:
                           theme && darkModeType
                             ? backgroundOffset
-                            : COLORS.primary,
+                            : tokens.accent,
                       },
                     ]}
                   >
                     <ThemeIcon
                       iconName="TrendingUp"
                       size={22}
-                      colorOverride={COLORS.white}
+                      colorOverride={tokens.onAccent}
                     />
                   </View>
                   <View style={{ flexShrink: 1 }}>
@@ -830,14 +830,8 @@ export default function WithdrawFromSavingsHalfModal({
               ) : (
                 <SkeletonPlaceholder
                   enabled={true}
-                  backgroundColor={COLORS.opaicityGray}
-                  highlightColor={
-                    theme
-                      ? darkModeType
-                        ? COLORS.lightsOutBackground
-                        : COLORS.darkModeBackground
-                      : COLORS.lightModeBackground
-                  }
+                  backgroundColor={tokens.skel}
+                  highlightColor={tokens.ground}
                 >
                   <View
                     style={{
@@ -974,14 +968,14 @@ export default function WithdrawFromSavingsHalfModal({
                       backgroundColor:
                         theme && darkModeType
                           ? backgroundOffset
-                          : COLORS.primary,
+                          : tokens.accent,
                     },
                   ]}
                 >
                   <ThemeIcon
                     iconName="ArrowDownToLine"
                     size={22}
-                    colorOverride={COLORS.white}
+                    colorOverride={tokens.onAccent}
                   />
                 </View>
                 <View style={{ flexShrink: 1 }}>

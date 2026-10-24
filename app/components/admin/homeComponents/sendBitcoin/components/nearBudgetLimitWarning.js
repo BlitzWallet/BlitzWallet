@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useAnalyticsNumbers } from '../../../../../../context-store/analyticsContext';
-import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import { CENTER, SIZES } from '../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
@@ -20,7 +20,7 @@ export default function BudgetWarningModal({
   const { masterInfoObject } = useGlobalContextProvider();
   const { spentTotal } = useAnalyticsNumbers();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const budget = masterInfoObject?.monthlyBudget ?? null;
@@ -34,11 +34,7 @@ export default function BudgetWarningModal({
   const isRed = isOverBudget || willExceedBudget;
 
   const accentColor =
-    theme && darkModeType
-      ? COLORS.darkModeText
-      : isRed
-      ? COLORS.cancelRed
-      : COLORS.primary;
+    theme && darkModeType ? tokens.ink : isRed ? tokens.danger : tokens.accent;
 
   const subheader = isOverBudget
     ? t('analytics.budget.overBudgetWarning')

@@ -67,7 +67,8 @@ export default function ContactsPage({ navigation }) {
   const scrollViewRef = useRef(null);
   const { serverTimeOffset } = useServerTime();
   const getServerTime = useServerTimeOnly();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
@@ -146,6 +147,7 @@ export default function ContactsPage({ navigation }) {
           darkModeType={darkModeType}
           theme={theme}
           backgroundOffset={backgroundOffset}
+          tokens={tokens}
           navigateToExpandedContact={navigateToExpandedContact}
           // dimensions={dimensions}
           navigate={navigate}
@@ -176,6 +178,7 @@ export default function ContactsPage({ navigation }) {
         darkModeType={darkModeType}
         theme={theme}
         backgroundOffset={backgroundOffset}
+        tokens={tokens}
         navigateToExpandedContact={navigateToExpandedContact}
         isConnectedToTheInternet={isConnectedToTheInternet}
         navigate={navigate}
@@ -192,6 +195,7 @@ export default function ContactsPage({ navigation }) {
           theme={theme}
           darkModeType={darkModeType}
           backgroundOffset={backgroundOffset}
+          tokens={tokens}
           isConnectedToTheInternet={isConnectedToTheInternet}
           navigate={navigate}
           numberOfContacts={filteredContacts?.length}
@@ -276,8 +280,8 @@ export default function ContactsPage({ navigation }) {
                   backgroundColor: !showHighlightedGifts
                     ? backgroundOffset
                     : theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.primary,
+                    ? tokens.ink
+                    : tokens.accent,
                   zIndex: 99,
                 },
               ]}
@@ -290,7 +294,7 @@ export default function ContactsPage({ navigation }) {
                     ? textColor
                     : theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText,
+                    : tokens.onAccent,
                 }}
                 lightModeIcon={ICONS.giftCardIcon}
                 darkModeIcon={ICONS.giftCardIcon}
@@ -396,6 +400,7 @@ const PinnedContactElement = memo(
     darkModeType,
     theme,
     backgroundOffset,
+    tokens,
     navigateToExpandedContact,
     // dimensions,
     navigate,
@@ -444,8 +449,7 @@ const PinnedContactElement = memo(
     const notificationStyle = useMemo(
       () => ({
         ...memoizedStyles.hasNotification,
-        backgroundColor:
-          darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+        backgroundColor: darkModeType && theme ? tokens.ink : tokens.accent,
         position: 'absolute',
         transform: [{ translateX: -(textWidth / 2 + 5 + 2) }],
       }),
@@ -512,6 +516,7 @@ const ContactElement = memo(
     darkModeType,
     theme,
     backgroundOffset,
+    tokens,
     navigateToExpandedContact,
     isConnectedToTheInternet,
     navigate,
@@ -534,8 +539,7 @@ const ContactElement = memo(
       () => ({
         ...memoizedStyles.hasNotification,
         marginRight: 5,
-        backgroundColor:
-          darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+        backgroundColor: darkModeType && theme ? tokens.ink : tokens.accent,
       }),
       [darkModeType, theme],
     );
@@ -621,10 +625,7 @@ const ContactElement = memo(
                   styles={{
                     flexShrink: 1,
                     fontSize: SIZES.small,
-                    color:
-                      darkModeType && theme
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                    color: darkModeType && theme ? tokens.ink : tokens.accent,
                     includeFontPadding: false,
                   }}
                   content={t('contacts.contactsPage.unknownSender')}
@@ -664,6 +665,7 @@ const AddContactRowItem = memo(
     darkModeType,
     theme,
     backgroundOffset,
+    tokens,
     t,
     isConnectedToTheInternet,
     navigate,
@@ -688,7 +690,7 @@ const AddContactRowItem = memo(
       () => ({
         ...memoizedStyles.contactImageContainer,
         backgroundColor:
-          theme && darkModeType ? backgroundOffset : COLORS.primary,
+          theme && darkModeType ? backgroundOffset : tokens.accent,
       }),
       [backgroundOffset, theme, darkModeType],
     );
@@ -699,7 +701,7 @@ const AddContactRowItem = memo(
           memoizedStyles.contactRowContainer,
           numberOfContacts && {
             borderBottomWidth: 1,
-            borderBottomColor: backgroundOffset,
+            borderBottomColor: tokens.divider,
           },
         ]}
         onPress={goToAddContact}
@@ -707,7 +709,7 @@ const AddContactRowItem = memo(
       >
         <View style={imageContainerStyle}>
           <ThemeIcon
-            colorOverride={COLORS.darkModeText}
+            colorOverride={tokens.onAccent}
             size={25}
             iconName={'Plus'}
           />
@@ -717,7 +719,7 @@ const AddContactRowItem = memo(
             CustomEllipsizeMode="tail"
             CustomNumberOfLines={1}
             styles={{
-              color: theme ? COLORS.darkModeText : COLORS.primary,
+              color: theme ? tokens.ink : tokens.accent,
               includeFontPadding: false,
             }}
             content={t('contacts.contactsPage.addContactsText')}

@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native';
-import { COLORS, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
@@ -43,8 +42,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   symbol: {
-    fontSize: SIZES.medium,
-    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: 19,
     includeFontPadding: false,
   },
 });

@@ -58,6 +58,7 @@ const ChatMessage = ({
   blitzLogoFilter,
   screenDimensions,
   t,
+  tokens,
 }) => (
   <ContextMenu
     onPress={e => {
@@ -76,9 +77,7 @@ const ChatMessage = ({
         <View
           style={{
             ...chatObjectStyles.profileIcon,
-            backgroundColor: theme
-              ? COLORS.darkModeText
-              : COLORS.lightModeBackgroundOffset,
+            backgroundColor: theme ? COLORS.darkModeText : backgroundOffset,
           }}
         >
           {item.role === 'user' ? (
@@ -112,7 +111,7 @@ const ChatMessage = ({
                 t('errormessages.requestError').toLowerCase()
                   ? theme && darkModeType
                     ? textColor
-                    : COLORS.cancelRed
+                    : tokens.danger
                   : textColor,
               includeFontPadding: false,
             }}
@@ -134,7 +133,7 @@ export default function ChatGPTHome(props) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundOffset, tokens } = GetThemeColors();
   const { screenDimensions } = useAppStatus();
   const { t } = useTranslation();
 
@@ -184,7 +183,7 @@ export default function ChatGPTHome(props) {
   }, [chatHistoryFromProps]);
 
   const blitzLogoFilter = useMemo(() => {
-    return theme && darkModeType ? COLORS.lightModeText : COLORS.primary;
+    return theme && darkModeType ? COLORS.lightModeText : tokens.accent;
   }, [theme, darkModeType]);
 
   const handleCopy = useCallback(
@@ -403,6 +402,7 @@ export default function ChatGPTHome(props) {
         blitzLogoFilter={blitzLogoFilter}
         screenDimensions={screenDimensions}
         t={t}
+        tokens={tokens}
       />
     ));
   }, [
@@ -444,7 +444,7 @@ export default function ChatGPTHome(props) {
               content={model}
             />
             <ThemeIcon
-              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              colorOverride={tokens.ink}
               iconName={'ChevronUp'}
               size={20}
             />
@@ -473,7 +473,7 @@ export default function ChatGPTHome(props) {
                 {
                   backgroundColor: theme
                     ? COLORS.darkModeText
-                    : COLORS.lightModeBackgroundOffset,
+                    : backgroundOffset,
                 },
               ]}
             >
@@ -539,22 +539,11 @@ export default function ChatGPTHome(props) {
             styles.sendButton,
             {
               opacity: !userChatText.length ? HIDDEN_OPACITY : 1,
-              backgroundColor: theme
-                ? COLORS.lightModeBackground
-                : COLORS.lightModeText,
+              backgroundColor: theme ? COLORS.lightModeBackground : tokens.ink,
             },
           ]}
         >
-          <ThemeIcon
-            colorOverride={
-              theme
-                ? darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.darkModeBackground
-                : COLORS.lightModeBackground
-            }
-            iconName={'ArrowUp'}
-          />
+          <ThemeIcon colorOverride={tokens.ground} iconName={'ArrowUp'} />
         </TouchableOpacity>
       </View>
     </CustomKeyboardAvoidingView>

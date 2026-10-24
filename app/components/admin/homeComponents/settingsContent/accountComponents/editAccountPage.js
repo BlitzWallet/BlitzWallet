@@ -89,7 +89,7 @@ export default function EditAccountPage(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { accountMnemoinc } = useKeysContext();
   const { globalContactsInformation } = useGlobalContacts();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
@@ -379,11 +379,10 @@ export default function EditAccountPage(props) {
   const withdrawLabel = t(
     'settings.accountComponents.editAccountPage.withdrawMoneyButton',
   );
-  const depositBg =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-  const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
+  const depositBg = theme && darkModeType ? tokens.ink : tokens.accent;
+  const buttonBg = backgroundOffset;
   const addTextColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+    theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
 
   const isNWC = accountInformation.uuid === NWC_ACCOUNT_UUID;
 
@@ -422,7 +421,10 @@ export default function EditAccountPage(props) {
         'settings.accountComponents.editAccountPage.manageConnectionsLabel',
       ),
       onPress: () =>
-        navigate.navigate('NosterWalletConnect', { fromAccounts: true }),
+        navigate.navigate('NosterWalletConnect', {
+          fromAccounts: true,
+          from: fromPage,
+        }),
     },
     isChild && {
       key: 'pair',
@@ -450,7 +452,9 @@ export default function EditAccountPage(props) {
         {rows.map((row, index) => (
           <View key={row.key}>
             {index > 0 && (
-              <View style={[styles.divider, { backgroundColor }]} />
+              <View
+                style={[styles.divider, { backgroundColor: tokens.divider }]}
+              />
             )}
             <TouchableOpacity style={styles.row} onPress={row.onPress}>
               <ThemeText styles={styles.rowLabel} content={row.label} />

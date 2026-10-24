@@ -1,17 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, SIZES } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -21,17 +13,22 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { addContributionWithTransaction } from '../../../../../db';
 import { v4 as uuidv4 } from 'uuid';
 import PresetAmountGrid from './presetAmountGrid';
+import PoolAmountKeypad from './components/poolAmountKeypad';
 import CustomButton from '../../../../functions/CustomElements/button';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import Note from '../../../../functions/CustomElements/redesign/Note';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import StepProgress from '../../../../functions/CustomElements/redesign/StepProgress';
+import AnimatedStep, {
+  growThenStep,
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import LottieView from 'lottie-react-native';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { Timestamp } from '@react-native-firebase/firestore';
 import { saveContributionLocal } from '../../../../functions/pools/poolsStorage';
@@ -45,20 +42,34 @@ import {
   satsToDollars,
   USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/swapAmountUtils';
-import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
-import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { simulateSwap } from '../../../../functions/spark/flashnet';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
-const STEP_ORDER = ['select', 'custom', 'confirm', 'loading', 'success'];
+const STEP_HEIGHTS = {
+  select: 400,
+  custom: 700,
+  confirm: 470,
+  loading: 470,
+  success: 520,
+};
+
+function SlideThumbIcon() {
+  const { tokens } = GetThemeColors();
+  return (
+    <ThemeIcon
+      redesign
+      iconName="ArrowRight"
+      size={22}
+      colorOverride={tokens.onAccent}
+    />
+  );
+}
 
 export default function ContributeToPoolHalfModal({
   pool,
   poolId,
   setContentHeight,
   handleBackPressFunction,
-  setBackNav,
+  setDismissLocked,
 }) {
   const navigate = useNavigation();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -69,285 +80,83 @@ export default function ContributeToPoolHalfModal({
   const { fiatStats } = useNodeContext();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { poolInfoRef, swapUSDPriceDollars, swapLimits } = useFlashnet();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { poolInfoRef, swapLimits } = useFlashnet();
+  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
 
-  // Step can be 'select', 'custom', 'confirm', 'loading', 'success'
+  // Page history; back pops to where the user came from.
   const [step, setStep] = useState(['select']);
+  const [direction, setDirection] = useState(1);
   const [selectedAmountSats, setSelectedAmountSats] = useState(0);
-  const [amountValue, setAmountValue] = useState('');
-  // extract current page for easier handling
   const currentPage = step[step.length - 1];
-  const previousPageRef = useRef(currentPage);
 
-  const selectOpacity = useSharedValue(1);
-  const selectTranslateX = useSharedValue(0);
-  const customOpacity = useSharedValue(0);
-  const customTranslateX = useSharedValue(30);
-  const confirmOpacity = useSharedValue(0);
-  const confirmTranslateX = useSharedValue(30);
-  const loadingOpacity = useSharedValue(0);
-  const loadingTranslateX = useSharedValue(30);
-  const successOpacity = useSharedValue(0);
-  const successTranslateX = useSharedValue(30);
+  useStepSheetHeight(setContentHeight, STEP_HEIGHTS[currentPage]);
 
-  const getStepAnimation = useCallback(
-    page => {
-      switch (page) {
-        case 'custom':
-          return { opacity: customOpacity, translateX: customTranslateX };
-        case 'confirm':
-          return { opacity: confirmOpacity, translateX: confirmTranslateX };
-        case 'loading':
-          return { opacity: loadingOpacity, translateX: loadingTranslateX };
-        case 'success':
-          return { opacity: successOpacity, translateX: successTranslateX };
-        case 'select':
-        default:
-          return { opacity: selectOpacity, translateX: selectTranslateX };
-      }
-    },
-    [
-      confirmOpacity,
-      confirmTranslateX,
-      customOpacity,
-      customTranslateX,
-      loadingOpacity,
-      loadingTranslateX,
-      selectOpacity,
-      selectTranslateX,
-      successOpacity,
-      successTranslateX,
-    ],
-  );
-
+  // The sheet can't be swiped or tapped away while the payment is in flight.
   useEffect(() => {
-    const previousPage = previousPageRef.current;
-    if (previousPage === currentPage) return;
+    setDismissLocked?.(currentPage === 'loading');
+  }, [currentPage, setDismissLocked]);
 
-    const previousIndex = STEP_ORDER.indexOf(previousPage);
-    const currentIndex = STEP_ORDER.indexOf(currentPage);
-    const isForward = currentIndex > previousIndex;
-    const previousAnimation = getStepAnimation(previousPage);
-    const currentAnimation = getStepAnimation(currentPage);
-
-    previousAnimation.opacity.value = withTiming(0, { duration: 250 });
-    previousAnimation.translateX.value = withTiming(isForward ? -30 : 30, {
-      duration: 250,
-    });
-
-    currentAnimation.opacity.value = 0;
-    currentAnimation.translateX.value = isForward ? 30 : -30;
-    currentAnimation.opacity.value = withTiming(1, { duration: 250 });
-    currentAnimation.translateX.value = withTiming(0, { duration: 250 });
-
-    previousPageRef.current = currentPage;
-  }, [currentPage, getStepAnimation]);
-
-  const selectAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: selectOpacity.value,
-    transform: [{ translateX: selectTranslateX.value }],
-  }));
-
-  const customAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: customOpacity.value,
-    transform: [{ translateX: customTranslateX.value }],
-  }));
-
-  const confirmAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: confirmOpacity.value,
-    transform: [{ translateX: confirmTranslateX.value }],
-  }));
-
-  const loadingAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: loadingOpacity.value,
-    transform: [{ translateX: loadingTranslateX.value }],
-  }));
-
-  const successAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: successOpacity.value,
-    transform: [{ translateX: successTranslateX.value }],
-  }));
-
-  const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+  // A step's exit side is read from its last render while still active, so
+  // the direction has to land one render before the step changes.
+  const moveStep = useCallback(
+    (nextDirection, nextPage, update) => {
+      setDirection(nextDirection);
+      growThenStep(
+        setContentHeight,
+        STEP_HEIGHTS[currentPage],
+        STEP_HEIGHTS[nextPage],
+        () => setTimeout(() => setStep(update), 0),
+      );
+    },
+    [currentPage, setContentHeight],
   );
-  const initialDisplayCurrency = useMemo(
-    () =>
-      getDefaultDisplayCurrency({
-        paymentMode: 'BTC',
-        masterInfoObject,
-        fiatStats,
-      }),
-    [masterInfoObject, fiatStats],
+
+  const pushStep = useCallback(
+    page => moveStep(1, page, prev => [...prev, page]),
+    [moveStep],
   );
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
 
-  const {
-    primaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    convertSatsToDisplay,
-  } = useCurrencyDisplay({
-    displayCurrency,
-    fiatStats,
-    usdFiatStats,
-    currencyRates,
-    masterInfoObject,
-  });
-
-  // clear page specific states when going back
-  const clearPageStates = useCallback(() => {
-    setSelectedAmountSats(0);
-    setAmountValue('');
-  }, []);
+  const goBack = useCallback(() => {
+    const previous = step[step.length - 2];
+    if (previous === 'select') setSelectedAmountSats(0);
+    moveStep(-1, previous, prev => prev.slice(0, -1));
+  }, [step, moveStep]);
 
   // Handle Android back button with multi-step logic
   const handleBackPress = useCallback(() => {
-    if (currentPage === 'success') {
-      // On success page, allow default back behavior to close the modal
-      return false;
-    } else if (currentPage === 'loading') {
-      // block actions on loading screen
-      return true;
-    } else if (step.length > 1) {
-      // On select or custom page, go back to the previous step
-      setStep(step.slice(0, -1));
-      clearPageStates();
-      return true;
-    } else {
-      // If select page, allow default back behavior to close the modal
-      return false;
-    }
-  }, [step, currentPage, setStep, clearPageStates]);
+    if (currentPage === 'loading') return true;
+    if (currentPage === 'success' || step.length === 1) return false;
+    goBack();
+    return true;
+  }, [currentPage, step, goBack]);
 
   useHandleBackPressNew(handleBackPress);
 
-  // Register the chrome's back arrow whenever a previous step exists, and the
-  // currency switch button while the custom amount step is active.
-  useEffect(() => {
-    if (
-      step.length > 1 &&
-      currentPage !== 'loading' &&
-      currentPage !== 'success'
-    ) {
-      setBackNav?.({
-        onPress: handleBackPress,
-        title: '',
-        rightElement:
-          currentPage === 'custom' ? (
-            <CurrencySwitchButton
-              displayCurrency={displayCurrency}
-              onPress={openPicker}
-              disabled={isLoadingRate}
-            />
-          ) : null,
-      });
-    } else {
-      setBackNav?.(null);
-    }
-    return () => setBackNav?.(null);
-  }, [
-    step,
-    currentPage,
-    handleBackPress,
-    setBackNav,
-    displayCurrency,
-    openPicker,
-    isLoadingRate,
-  ]);
+  const formatAmount = amount =>
+    displayCorrectDenomination({ amount, masterInfoObject, fiatStats });
 
-  const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
-
-  // Convert current keyboard input to sats (used only in custom step)
-  const localSatAmount = convertDisplayToSats(amountValue);
-  const effectiveSats =
-    currentPage === 'custom' ? localSatAmount : selectedAmountSats;
-
-  const effectiveUSD = satsToDollars(
-    effectiveSats,
-    poolInfoRef.currentPriceAInB,
-  );
-
-  const openPicker = useCallback(
-    () =>
-      navigate.push('CustomHalfModal', {
-        wantedContent: 'displayCurrencySelect',
-        sliderHight: 0.6,
-        currentCurrency: displayCurrency,
-        onSelectCurrency: async code => {
-          const response = await selectCurrency(code);
-          if (response?.didWork) setAmountValue('');
-          return response;
-        },
-      }),
-    [displayCurrency, navigate, selectCurrency],
-  );
-
-  useEffect(() => {
-    setContentHeight(550);
-  }, []);
-
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
-
-  const handleCustomPress = useCallback(() => {
-    setStep([...step, 'custom']);
-    setSelectedAmountSats(0);
-  }, [step]);
-
-  const paymentMethod = useMemo(() => {
-    if (bitcoinBalance >= effectiveSats) {
-      return 'BTC';
-    }
-    if (dollarBalanceToken >= effectiveUSD && effectiveUSD >= swapLimits.usd) {
-      return 'USD';
-    }
-    return null;
-  }, [bitcoinBalance, dollarBalanceToken, effectiveSats, effectiveUSD]);
-
-  const handleContinue = useCallback(() => {
-    if (currentPage === 'custom') {
-      if (effectiveSats <= 0) {
-        setStep(['select']);
-        clearPageStates();
-        return;
-      }
-      setSelectedAmountSats(effectiveSats);
-    }
-    if (currentPage === 'select' && !selectedAmountSats) return;
-
-    const validation = validatePoolPayment({
+  const validate = sats =>
+    validatePoolPayment({
       bitcoinBalance,
       dollarBalanceToken,
-      paymentAmountSats: effectiveSats,
-      paymentAmountUSD: effectiveUSD,
+      paymentAmountSats: sats,
+      paymentAmountUSD: satsToDollars(sats, poolInfoRef.currentPriceAInB),
       swapLimits,
     });
+
+  const swapMinimumSats =
+    dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB) + 10;
+
+  const handleContinue = sats => {
+    if (!sats) return;
+    const validation = validate(sats);
 
     if (!validation.isValid) {
       const errorMessage =
         validation.errorReason === 'BELOW_USD_SWAP_MINIMUM'
           ? t('wallet.sendPages.acceptButton.swapMinimumError', {
-              amount: displayCorrectDenomination({
-                amount:
-                  dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB) +
-                  10,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: primaryDisplay.denomination,
-                },
-                fiatStats: conversionFiatStats,
-                forceCurrency: primaryDisplay.forceCurrency,
-              }),
+              amount: formatAmount(swapMinimumSats),
               currency1: t('constants.dollars_upper'),
               currency2: t('constants.bitcoin_upper'),
             })
@@ -356,25 +165,19 @@ export default function ContributeToPoolHalfModal({
       return;
     }
 
-    setStep([...step, 'confirm']);
-  }, [
-    currentPage,
-    effectiveSats,
-    effectiveUSD,
-    selectedAmountSats,
-    bitcoinBalance,
-    dollarBalanceToken,
-    step,
-    clearPageStates,
-    t,
-    swapLimits,
-  ]);
+    setSelectedAmountSats(sats);
+    pushStep('confirm');
+  };
 
-  const handleConfirmPayment = useCallback(async () => {
+  const handleConfirmPayment = async () => {
     try {
-      setStep([...step, 'loading']);
-      const paymentAmountSats = effectiveSats;
-      const paymentAmountUSD = effectiveUSD;
+      pushStep('loading');
+      const paymentAmountSats = selectedAmountSats;
+      const paymentAmountUSD = satsToDollars(
+        paymentAmountSats,
+        poolInfoRef.currentPriceAInB,
+      );
+      const paymentMethod = validate(paymentAmountSats).paymentMethod;
 
       let swapPaymentQuote = {};
 
@@ -393,7 +196,9 @@ export default function ContributeToPoolHalfModal({
         });
 
         if (!simResult.didWork) {
-          throw new Error(simResult.error || 'Swap simulation failed');
+          throw new Error(
+            simResult.error || t('wallet.pools.swapSimulationFailed'),
+          );
         }
 
         const satFee = dollarsToSats(
@@ -431,7 +236,9 @@ export default function ContributeToPoolHalfModal({
       });
 
       if (!paymentResponse.didWork) {
-        throw new Error(paymentResponse.error || 'Payment failed');
+        throw new Error(
+          paymentResponse.error || t('wallet.pools.paymentFailed'),
+        );
       }
 
       const actualAmountSats = paymentResponse.response.details.amount;
@@ -441,7 +248,9 @@ export default function ContributeToPoolHalfModal({
         contributionId: uuidv4(),
         poolId,
         contributorName:
-          creatorProfile.name || creatorProfile.uniqueName || 'Blitz User',
+          creatorProfile.name ||
+          creatorProfile.uniqueName ||
+          t('wallet.pools.blitzUser'),
         contributorMessage: '',
         amount: paymentResponse.amountOutSats ?? actualAmountSats,
         isBlitzUser: true,
@@ -457,49 +266,23 @@ export default function ContributeToPoolHalfModal({
 
       await saveContributionLocal(contribution);
 
-      setStep([...step, 'success']);
+      pushStep('success');
     } catch (err) {
       console.log('Error contributing to pool:', err);
       handleBackPressFunction(() => {
         navigate.replace('ErrorScreen', { errorMessage: err.message });
       });
     }
-  }, [
-    effectiveSats,
-    effectiveUSD,
-    pool,
-    poolId,
-    masterInfoObject,
-    sparkInformation,
-    currentWalletMnemoinc,
-    navigate,
-    poolInfoRef,
-    handleBackPressFunction,
-    dollarBalanceToken,
-  ]);
-
-  const displayAmount = isFiatMode
-    ? convertSatsToDisplay(effectiveSats)
-    : effectiveSats;
-  const stepBackgroundStyle = {
-    backgroundColor: theme && darkModeType ? backgroundOffset : backgroundColor,
   };
-  const layerChrome = page => ({
-    zIndex: currentPage === page ? 2 : 1,
-  });
-  const layerPointerEvents = page => (currentPage === page ? 'auto' : 'none');
+
+  const toPoolText = `${t('wallet.pools.contributeTo')}${pool.poolTitle}`;
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.stepContainer,
-          stepBackgroundStyle,
-          selectAnimatedStyle,
-          layerChrome('select'),
-        ]}
-        pointerEvents={layerPointerEvents('select')}
+      <AnimatedStep
+        active={currentPage === 'select'}
+        direction={direction}
+        exitsBack={direction === -1}
       >
         <ThemeText
           styles={styles.selectTitle}
@@ -510,138 +293,131 @@ export default function ContributeToPoolHalfModal({
           onSelectPreset={setSelectedAmountSats}
           selectedAmountSats={selectedAmountSats}
           fiatStats={fiatStats}
-          onCustomPress={handleCustomPress}
+          onCustomPress={() => {
+            setSelectedAmountSats(0);
+            pushStep('custom');
+          }}
         />
 
         <CustomButton
-          buttonStyles={[
-            styles.continueButton,
-            { opacity: !selectedAmountSats ? HIDDEN_OPACITY : 1 },
-          ]}
+          buttonStyles={styles.bottomButton}
           textContent={t('constants.continue')}
-          actionFunction={handleContinue}
+          actionFunction={() => handleContinue(selectedAmountSats)}
+          disabled={!selectedAmountSats}
+          size="regular"
         />
-      </Animated.View>
+      </AnimatedStep>
 
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.stepContainer,
-          stepBackgroundStyle,
-          customAnimatedStyle,
-          layerChrome('custom'),
-        ]}
-        pointerEvents={layerPointerEvents('custom')}
+      <AnimatedStep
+        active={currentPage === 'custom'}
+        direction={direction}
+        exitsBack={direction === -1}
       >
-        <View style={{ marginTop: 10 }}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
-            forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
+        <PoolAmountKeypad
+          onBack={goBack}
+          subText={(sats, format) => {
+            const validation = sats ? validate(sats) : null;
+            return validation?.errorReason === 'BELOW_USD_SWAP_MINIMUM'
+              ? t('wallet.pools.minimum', { amount: format(swapMinimumSats) })
+              : t('wallet.pools.available', {
+                  amount: format(Math.max(bitcoinBalance, dollarBalanceSat)),
+                });
+          }}
+          buttonText={sats =>
+            sats ? t('constants.continue') : t('constants.back')
+          }
+          onContinue={sats => (sats ? handleContinue(sats) : goBack())}
+        />
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'confirm'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        <TopBar onBack={goBack} />
+        <View style={styles.confirmAmount}>
+          <AmountHero
+            amount={selectedAmountSats}
+            fiatStats={fiatStats}
+            amountSize={52}
+          />
+          <ThemeText
+            styles={[styles.muted, { color: tokens.muted }]}
+            content={toPoolText}
           />
         </View>
-        <CustomNumberKeyboard
-          showDot={primaryDisplay.denomination === 'fiat'}
-          setInputValue={setAmountValue}
-          usingForBalance={true}
-          fiatStats={conversionFiatStats}
-        />
-        <CustomButton
-          buttonStyles={{ ...CENTER, marginTop: 10 }}
-          actionFunction={handleContinue}
-          textContent={
-            Number(amountValue) ? t('constants.continue') : t('constants.back')
-          }
-        />
-      </Animated.View>
 
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.stepContainer,
-          stepBackgroundStyle,
-          confirmAnimatedStyle,
-          layerChrome('confirm'),
-        ]}
-        pointerEvents={layerPointerEvents('confirm')}
-      >
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={displayAmount}
-          inputDenomination={isFiatMode ? 'fiat' : 'sats'}
-        />
-        <ThemeText
-          styles={styles.confirmPoolTitle}
-          content={`${t('wallet.pools.contributeTo')}${pool.poolTitle}`}
-        />
-
-        <ThemeText
-          styles={styles.infoItem}
-          content={t('wallet.pools.contributionWarning')}
-        />
-
-        <SwipeButtonNew
-          onSwipeSuccess={handleConfirmPayment}
-          width={0.9}
-          containerStyles={{ marginBottom: 12 }}
-          thumbIconStyles={{
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-            borderColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-          railStyles={{
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-            borderColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-        />
-      </Animated.View>
-
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.stepContainer,
-          stepBackgroundStyle,
-          loadingAnimatedStyle,
-          layerChrome('loading'),
-        ]}
-        pointerEvents={layerPointerEvents('loading')}
-      >
-        <FullLoadingScreen text={t('wallet.pools.sendingContribution')} />
-      </Animated.View>
-
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.stepContainer,
-          styles.successContainer,
-          stepBackgroundStyle,
-          successAnimatedStyle,
-          layerChrome('success'),
-        ]}
-        pointerEvents={layerPointerEvents('success')}
-      >
-        {currentPage === 'success' && (
-          <LottieView
-            source={confirmAnimation}
-            loop={false}
-            style={styles.lottieView}
-            autoPlay={true}
+        <View style={styles.confirmBottom}>
+          <Note tone="warn" text={t('wallet.pools.contributionWarning')} />
+          <SwipeButtonNew
+            onSwipeSuccess={handleConfirmPayment}
+            title={t('wallet.pools.slideToContribute')}
+            width={0.9}
+            height={59}
+            containerStyles={{
+              backgroundColor: tokens.disc,
+              borderColor: tokens.disc,
+            }}
+            railStyles={{
+              backgroundColor: tokens.accent,
+              borderColor: tokens.accent,
+            }}
+            thumbIconStyles={{
+              backgroundColor: tokens.accent,
+              borderColor: tokens.accent,
+            }}
+            thumbIconComponent={SlideThumbIcon}
+            titleStyles={{ color: tokens.muted }}
           />
-        )}
-        <ThemeText
-          styles={styles.successText}
-          content={t('wallet.pools.contributionSent')}
-        />
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'loading'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        <View style={styles.loading}>
+          <StepProgress
+            title={t('wallet.pools.sendingContribution')}
+            subtitle={`${formatAmount(selectedAmountSats)} ${toPoolText}`}
+          />
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'success'}
+        direction={direction}
+        fadeOnly={true}
+      >
+        <View style={styles.success}>
+          <Disc icon="Check" size={88} iconSize={40} tone="primary" />
+          <ThemeText
+            styles={[
+              styles.muted,
+              styles.successLabel,
+              { color: tokens.muted },
+            ]}
+            content={t('wallet.pools.contributionSent')}
+          />
+          <AmountHero
+            amount={selectedAmountSats}
+            fiatStats={fiatStats}
+            amountSize={48}
+          />
+          <ThemeText
+            styles={[styles.muted, styles.successTo, { color: tokens.muted }]}
+            content={t('wallet.pools.sentTo', { name: pool.poolTitle })}
+          />
+        </View>
         <CustomButton
+          buttonStyles={styles.bottomButton}
           actionFunction={handleBackPressFunction}
-          textContent={t('constants.back')}
+          textContent={t('constants.done')}
+          size="regular"
         />
-      </Animated.View>
+      </AnimatedStep>
     </View>
   );
 }
@@ -651,63 +427,46 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-  },
-  stepContainer: {
-    flex: 1,
-    width: '100%',
+    overflow: 'hidden',
   },
   selectTitle: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: 24,
+    fontSize: 20,
+    lineHeight: 26,
+    marginTop: 12,
+    marginBottom: 16,
+    includeFontPadding: false,
   },
-  continueButton: {
-    ...CENTER,
+  bottomButton: {
+    width: '100%',
     marginTop: 'auto',
   },
   confirmAmount: {
-    fontSize: SIZES.huge,
-    textAlign: 'center',
-    marginTop: 10,
-    includeFontPadding: false,
-  },
-  lottieView: {
-    width: 125,
-    height: 125,
-  },
-  confirmPoolTitle: {
-    opacity: 0.6,
-    textAlign: 'center',
-    marginBottom: 24,
-    includeFontPadding: false,
-  },
-
-  infoItem: {
-    marginTop: 'auto',
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    textAlign: 'center',
-    includeFontPadding: false,
-    marginBottom: 15,
-  },
-  successContainer: {
+    marginTop: 28,
     alignItems: 'center',
   },
-  successEmoji: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  successText: {
-    fontSize: SIZES.xLarge,
-    includeFontPadding: false,
-    marginBottom: 'auto',
-  },
-  successAmount: {
-    fontSize: SIZES.large,
-    opacity: 0.7,
-  },
-  satValue: {
+  muted: {
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'center',
-    marginBottom: 50,
+    marginTop: 4,
+    includeFontPadding: false,
+  },
+  confirmBottom: {
+    marginTop: 'auto',
+    gap: 16,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  success: {
+    marginTop: 40,
+    alignItems: 'center',
+  },
+  successLabel: {
+    marginTop: 28,
+  },
+  successTo: {
+    marginTop: 10,
   },
 });

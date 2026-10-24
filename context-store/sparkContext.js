@@ -265,8 +265,11 @@ const SparkWalletProvider = ({ children }) => {
   // stream:connected is recognized as a *re*connect (which warrants one
   // reconcile read) rather than the benign initial connect.
   const streamWasDisconnectedRef = useRef(false);
-  const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
-  const hideSmallPaymentsHomepage = masterInfoObject.hideSmallPaymentsHomepage;
+  // Q19-1: the Settings controls are gone. Keep the stored values untouched,
+  // but read today's defaults so a stored 15-40 limit or hide-small flag has
+  // no effect on Home.
+  const homepageTxPreferance = 25;
+  const hideSmallPaymentsHomepage = false;
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null

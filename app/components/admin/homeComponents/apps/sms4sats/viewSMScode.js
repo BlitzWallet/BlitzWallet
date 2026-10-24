@@ -22,7 +22,7 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 export default function ViewSmsReceiveCode(props) {
   const { showToast } = useToast();
-  const { backgroundOffset, transparentOveraly, backgroundColor } =
+  const { backgroundOffset, transparentOveraly, backgroundColor, tokens } =
     GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -56,7 +56,7 @@ export default function ViewSmsReceiveCode(props) {
             >
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={20}
                 iconName={'Info'}
@@ -80,8 +80,7 @@ export default function ViewSmsReceiveCode(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -94,10 +93,7 @@ export default function ViewSmsReceiveCode(props) {
                 styles={[
                   styles.btnText,
                   {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                    color: theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                 ]}
                 content={t('constants.iunderstand')}

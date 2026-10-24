@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { COLORS } from '../../constants';
 import ThemeIcon from './themeIcon';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -19,7 +18,7 @@ export default function CurrencySwitchButton({
   onPress,
   disabled,
 }) {
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const isFiat =
     normalizeDisplayCurrency(displayCurrency) !== SATS_DISPLAY_CURRENCY;
@@ -38,7 +37,7 @@ export default function CurrencySwitchButton({
         {disabled ? (
           <FullLoadingScreen
             loadingColor={
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+              theme && darkModeType ? tokens.ink : tokens.accent
             }
             showText={false}
             size="small"

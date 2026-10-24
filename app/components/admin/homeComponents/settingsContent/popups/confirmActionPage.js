@@ -17,7 +17,8 @@ export default function ConfirmActionPage(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, textColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, textColor, backgroundOffset, tokens } =
+    GetThemeColors();
 
   const confirmMessage = props.route.params?.confirmMessage
     ? props.route.params.confirmMessage
@@ -69,7 +70,7 @@ export default function ConfirmActionPage(props) {
             >
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={20}
                 iconName={'Info'}
@@ -84,8 +85,7 @@ export default function ConfirmActionPage(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -101,10 +101,7 @@ export default function ConfirmActionPage(props) {
                   styles={[
                     styles.confirmText,
                     {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
+                      color: theme && darkModeType ? tokens.ink : tokens.accent,
                     },
                   ]}
                   content={t('constants.yes')}
@@ -115,10 +112,7 @@ export default function ConfirmActionPage(props) {
                 style={[
                   styles.btnDivider,
                   {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
+                    backgroundColor: tokens.divider,
                   },
                 ]}
               />

@@ -45,6 +45,7 @@ export default function ExpandedContactsPage(props) {
     backgroundColor,
     textInputColor,
     textInputBackground,
+    tokens,
   } = GetThemeColors();
   const { decodedAddedContacts, globalContactsInformation, contactsMessags } =
     useGlobalContacts();
@@ -202,13 +203,7 @@ export default function ExpandedContactsPage(props) {
                 endReceiveType: 'BTC',
               });
             }}
-            arrowColor={
-              theme
-                ? darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.darkModeBackground
-                : COLORS.primary
-            }
+            arrowColor={theme ? tokens.ground : tokens.accent}
             containerBackgroundColor={COLORS.darkModeText}
             containerStyles={{ marginRight: 30 }}
           />
@@ -237,13 +232,7 @@ export default function ExpandedContactsPage(props) {
                 imageData,
               });
             }}
-            arrowColor={
-              theme
-                ? darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.darkModeBackground
-                : COLORS.primary
-            }
+            arrowColor={theme ? tokens.ground : tokens.accent}
             containerBackgroundColor={COLORS.darkModeText}
             containerStyles={{
               opacity: selectedContact.isLNURL ? HIDDEN_OPACITY : 1,
@@ -344,13 +333,13 @@ export default function ExpandedContactsPage(props) {
               >
                 <ThemeIcon
                   colorOverride={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                    theme && darkModeType ? tokens.ink : tokens.accent
                   }
                   fill={
                     selectedContact.isFavorite
                       ? theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary
+                        ? tokens.ink
+                        : tokens.accent
                       : backgroundColor
                   }
                   iconName={'Star'}

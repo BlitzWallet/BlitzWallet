@@ -38,7 +38,7 @@ export default function SavingsGoalEmoji() {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [selectedEmoji, setSelectedEmoji] = useState('💵');
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -72,9 +72,7 @@ export default function SavingsGoalEmoji() {
                   selected && {
                     ...styles.emojiSelected,
                     borderColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                 ]}
               >

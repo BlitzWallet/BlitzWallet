@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { COLORS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -34,7 +34,7 @@ export default function AnalyticsSpentPage(props) {
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const currentTime = useUpdateHomepageTransactions();
@@ -59,8 +59,7 @@ export default function AnalyticsSpentPage(props) {
 
   const displayAmount = selectedDay ? selectedDay.value : totalSpent;
 
-  const chartColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const chartColor = theme && darkModeType ? tokens.ink : tokens.accent;
 
   const formattedTxs = useMemo(() => {
     if (!txs.length) return [];

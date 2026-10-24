@@ -16,7 +16,7 @@ import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 export default function InformationPopup(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, transparentOveraly } =
+  const { backgroundOffset, backgroundColor, transparentOveraly, tokens } =
     GetThemeColors();
   const {
     route: {
@@ -63,7 +63,7 @@ export default function InformationPopup(props) {
             >
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={20}
                 iconName={'Info'}
@@ -81,8 +81,7 @@ export default function InformationPopup(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -98,9 +97,7 @@ export default function InformationPopup(props) {
                   styles.btnText,
                   {
                     color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                 ]}
                 content={buttonText}

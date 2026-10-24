@@ -26,7 +26,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 export default function SavingsHome() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const { darkModeType, theme } = useGlobalThemeContext();
   const { fiatStats } = useNodeContext();
@@ -153,7 +153,10 @@ export default function SavingsHome() {
                     activeOpacity={0.7}
                     style={[
                       styles.goalCardRow,
-                      index > 0 && styles.goalCardRowBorder,
+                      index > 0 && [
+                        styles.goalCardRowBorder,
+                        { borderTopColor: tokens.divider },
+                      ],
                     ]}
                     onPress={() => {
                       navigate.navigate('SavingsGoalDetails', {
@@ -221,7 +224,10 @@ export default function SavingsHome() {
 
               <TouchableOpacity
                 activeOpacity={0.7}
-                style={styles.updateGoalRow}
+                style={[
+                  styles.updateGoalRow,
+                  { borderTopColor: tokens.divider },
+                ]}
                 onPress={() => navigate.navigate('SavingsGoalEmoji')}
               >
                 <ThemeText

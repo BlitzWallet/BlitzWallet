@@ -1,43 +1,24 @@
 import { useNavigation } from '@react-navigation/native';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import { CustomKeyboardAvoidingView } from '../../../../../functions/CustomElements';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
-import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../../constants';
+import { SIZES } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import { saveNWCAccount } from '../../../../../functions/nwc';
 import { useTranslation } from 'react-i18next';
-
-const SettingsSection = ({ title, children, style }) => (
-  <View style={[styles.section, style]}>{children}</View>
-);
-
-const SettingsItem = ({ label, children, isLast, dividerColor }) => (
-  <>
-    <View style={styles.settingsItem}>
-      <View style={styles.settingsItemText}>
-        <ThemeText styles={styles.settingsItemLabel} content={label} />
-      </View>
-      {children}
-    </View>
-    {!isLast && (
-      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
-    )}
-  </>
-);
+import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 
 export default function CreateNWCPermissions(props) {
   const navigate = useNavigation();
@@ -59,7 +40,8 @@ export default function CreateNWCPermissions(props) {
   });
   const [isSaving, setIsSaving] = useState(false);
   const hasAnyPermission = Object.values(accountPermissions).some(Boolean);
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
 
   const handleSave = async () => {
@@ -110,158 +92,116 @@ export default function CreateNWCPermissions(props) {
     {
       labelKey: 'receivePayments',
       stateKey: 'receivePayments',
+      icon: 'ArrowDown',
     },
     {
       labelKey: 'sendPayments',
       stateKey: 'sendPayments',
+      icon: 'ArrowUp',
     },
     {
       labelKey: 'getBalance',
       stateKey: 'getBalance',
+      icon: 'Wallet',
     },
     {
-      labelKey: 'transactions',
+      labelKey: 'transactionHistory',
       stateKey: 'transactionHistory',
+      icon: 'Clock',
     },
     {
       labelKey: 'lookupInvoice',
       stateKey: 'lookupInvoice',
       isLast: true,
+      icon: 'Search',
     },
   ];
 
   return (
     <CustomKeyboardAvoidingView useLocalPadding={true} useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('settings.nwc.createNWCPermissions.title')}
-        shouldDismissKeyboard={true}
-      />
-      {isSaving ? (
-        <FullLoadingScreen
-          text={t('settings.nwc.createNWCAccount.updatingMessage')}
+      <View style={[styles.innerContainer, { width: contentWidth }]}>
+        <TopBar
+          title={t(
+            isEditing
+              ? 'settings.nwc.createNWCPermissions.title'
+              : 'settings.nwc.addAccount',
+          )}
+          shouldDismissKeyboard={true}
         />
-      ) : (
-        <>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.innerContainer}
-            contentContainerStyle={styles.scrollContent}
-          >
-            <ThemeText
-              styles={styles.title}
-              content={t(
-                isEditing
-                  ? 'settings.nwc.createNWCPermissions.editTitle'
-                  : 'settings.nwc.createNWCPermissions.pageTitle',
-              )}
-            />
-            <ThemeText
-              styles={styles.subtitle}
-              content={t(
-                isEditing
-                  ? 'settings.nwc.createNWCPermissions.editSubtitle'
-                  : 'settings.nwc.createNWCPermissions.pageSubtitle',
-                { name: passedParams?.accountName },
-              )}
-            />
-            <SettingsSection
-              title={t('settings.nwc.createNWCAccount.permissionsHeader')}
-            >
-              <View
-                style={[
-                  styles.sectionContent,
-                  { backgroundColor: backgroundOffset },
-                ]}
-              >
-                {permissionItems.map(item => (
-                  <SettingsItem
-                    key={item.stateKey}
-                    isLast={item.isLast}
-                    dividerColor={backgroundColor}
-                    label={t(`settings.nwc.createNWCAccount.${item.labelKey}`)}
-                  >
-                    <CustomToggleSwitch
-                      page="nwcAccount"
-                      toggleSwitchFunction={() =>
-                        setAccountPermissions(prev => ({
-                          ...prev,
-                          [item.stateKey]: !prev[item.stateKey],
-                        }))
-                      }
-                      stateValue={accountPermissions[item.stateKey]}
-                    />
-                  </SettingsItem>
-                ))}
-              </View>
-            </SettingsSection>
-          </CustomScrollView>
-          <CustomButton
-            actionFunction={isEditing ? handleSave : handleContinue}
-            buttonStyles={{
-              ...CENTER,
-              width: INSET_WINDOW_WIDTH,
-              marginTop: CONTENT_KEYBOARD_OFFSET,
-              opacity: hasAnyPermission ? 1 : HIDDEN_OPACITY,
-            }}
-            textContent={t(isEditing ? 'constants.save' : 'constants.continue')}
+        {isSaving ? (
+          <FullLoadingScreen
+            text={t('settings.nwc.createNWCAccount.updatingMessage')}
           />
-        </>
-      )}
+        ) : (
+          <>
+            <CustomScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              <PageHeader
+                title={t(
+                  isEditing
+                    ? 'settings.nwc.createNWCPermissions.editTitle'
+                    : 'settings.nwc.createNWCPermissions.pageTitle',
+                  { name: passedParams?.accountName },
+                )}
+                sub={t(
+                  isEditing
+                    ? 'settings.nwc.createNWCPermissions.editSubtitle'
+                    : 'settings.nwc.createNWCPermissions.pageSubtitle',
+                  { name: passedParams?.accountName },
+                )}
+              />
+              <ListCard>
+                {permissionItems.map(item => (
+                  <ListRow
+                    key={item.labelKey}
+                    lead={<Disc icon={item.icon} />}
+                    title={t(
+                      `settings.nwc.authRequest.permissions.${item.labelKey}`,
+                    )}
+                    titleStyle={styles.settingsItemLabel}
+                    trailing={'switch'}
+                    minHeight={60}
+                    paddingVertical={8}
+                    value={accountPermissions[item.stateKey]}
+                    onPress={() =>
+                      setAccountPermissions(prev => ({
+                        ...prev,
+                        [item.stateKey]: !prev[item.stateKey],
+                      }))
+                    }
+                  />
+                ))}
+              </ListCard>
+            </CustomScrollView>
+            <CustomButton
+              disabled={!hasAnyPermission}
+              actionFunction={isEditing ? handleSave : handleContinue}
+              buttonStyles={{
+                ...CENTER,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
+              }}
+              textContent={t(
+                isEditing ? 'constants.save' : 'constants.continue',
+              )}
+              size={'regular'}
+            />
+          </>
+        )}
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: INSET_WINDOW_WIDTH,
+    flex: 1,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  scrollContent: {},
-  section: {
-    marginBottom: 24,
-    width: '100%',
-  },
-  sectionTitle: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    marginBottom: 16,
-    includeFontPadding: false,
-  },
-  sectionContent: {
-    width: '100%',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  settingsItem: {
-    minHeight: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemText: {
-    flex: 1,
-    flexShrink: 1,
-    marginRight: 8,
-  },
+  scrollContent: { flexGrow: 1 },
   settingsItemLabel: {
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
-  },
-  divider: {
-    height: 1,
-    marginVertical: 8,
   },
 });

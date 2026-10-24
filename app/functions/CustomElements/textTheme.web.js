@@ -167,20 +167,22 @@ export default function ThemeText({
   adjustsFontSizeToFit = false,
   minimumFontScale = 0.5,
   allowFontScaling = true,
+  variant,
 }) {
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
 
   const memorizedStyles = useMemo(() => {
     // Base styles with theme color
     const baseStyles = {
       ...textStyles.localTextStyles,
-      color: theme
-        ? reversed
+      ...(variant ? VARIANT_STYLES[variant] : null),
+      color: reversed
+        ? theme
           ? COLORS.lightModeText
           : COLORS.darkModeText
-        : reversed
-        ? COLORS.darkModeText
-        : COLORS.lightModeText,
+        : variant === 'hint'
+        ? tokens.muted
+        : tokens.ink,
     };
 
     if (!styles) {
@@ -201,7 +203,7 @@ export default function ThemeText({
       ...baseStyles,
       ...styles,
     };
-  }, [theme, reversed, styles]);
+  }, [theme, tokens, reversed, styles, variant]);
 
   const layoutCallback = useCallback(
     e => {
@@ -260,6 +262,41 @@ export default function ThemeText({
     </Text>
   );
 }
+
+// Redesign type scale (audit/SHARED.md §1.2). Opt-in: no variant = today's
+// style. Weight 500 only via fontFamily, never fontWeight (N-1).
+const VARIANT_STYLES = {
+  title: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 22,
+    lineHeight: 28,
+    includeFontPadding: false,
+  },
+  body: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
+    includeFontPadding: false,
+  },
+  hint: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
+  },
+  note: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
+  },
+  amount: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 48,
+    lineHeight: 56,
+    includeFontPadding: false,
+  },
+};
 
 const textStyles = StyleSheet.create({
   localTextStyles: {

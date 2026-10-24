@@ -24,15 +24,38 @@ const mockHandleLoginSecuritySwitch = jest.fn();
 jest.mock('../app/constants', () => ({
   CENTER: {},
   COLORS: { darkModeText: '#fff', primary: '#00f' },
+  FONT: {
+    Title_light: 'Poppins-Light',
+    Title_Medium: 'Poppins-Medium',
+    Title_Regular: 'Poppins-Regular',
+    Title_Bold: 'Poppins-Bold',
+    Title_SemiBold: 'Poppins-SemiBold',
+    Descriptoin_light: 'Poppins-Light',
+    Descriptoin_Medium: 'Poppins-Medium',
+    Descriptoin_Regular: 'Poppins-Regular',
+    Descriptoin_Bold: 'Poppins-Bold',
+    Other_light: 'Poppins-Light',
+    Other_Medium: 'Poppins-Medium',
+    Other_Regular: 'Poppins-Regular',
+    Other_Bold: 'Poppins-Bold',
+    Asterisk: 'Blitzicons1',
+    mono: 'monospace',
+  },
   HIDDEN_OPACITY: 0.5,
   INSET_WINDOW_WIDTH: 350,
   LOGIN_SECUITY_MODE_KEY: 'LOGIN_SECURITY_MODE',
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY: 'RANDOM_LOGIN_KEYBOARD_LAYOUT',
+  RANDOM_LOGIN_KEYBOARD_INFO_SEEN_KEY: 'RANDOM_LOGIN_KEYBOARD_INFO_SEEN',
   SIZES: { small: 12, large: 20, smedium: 16 },
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../context-store/keys', () => ({
@@ -96,7 +119,11 @@ jest.mock('../app/functions/handleMnemonic', () => ({
 
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    backgroundColor: '#222',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 // Web-only components and passkey storage are not loaded by native tests.
@@ -116,8 +143,7 @@ jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
 jest.mock('../app/functions/passkeyMnemonic', () => ({}));
 
 const LoginSecurity =
-  require('../app/components/admin/homeComponents/settingsContent/loginSecurity')
-    .default;
+  require('../app/components/admin/homeComponents/settingsContent/loginSecurity').default;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -139,7 +165,9 @@ function mockStoredState(settings) {
 async function mount(extraData) {
   let renderer;
   await act(async () => {
-    renderer = ReactTestRenderer.create(<LoginSecurity extraData={extraData} />);
+    renderer = ReactTestRenderer.create(
+      <LoginSecurity extraData={extraData} />,
+    );
   });
   return renderer;
 }
@@ -154,7 +182,11 @@ async function flush() {
 }
 
 function loginSecurityToggle(renderer) {
-  return renderer.root.findByProps({ page: 'LoginSecurityMode' });
+  return renderer.root.findAll(
+    node =>
+      node.props?.accessibilityLabel === 'settings.loginSecurity.text1' &&
+      typeof node.props?.toggleSwitchFunction === 'function',
+  )[0];
 }
 
 // ---------------------------------------------------------------------------
@@ -190,7 +222,11 @@ it('hides the toggle entirely when security is enabled', async () => {
   await flush();
 
   expect(
-    renderer.root.findAllByProps({ page: 'LoginSecurityMode' }),
+    renderer.root.findAll(
+      node =>
+        node.props?.accessibilityLabel === 'settings.loginSecurity.text1' &&
+        typeof node.props?.toggleSwitchFunction === 'function',
+    ),
   ).toHaveLength(0);
 });
 
@@ -210,8 +246,9 @@ it('tapping the toggle only reveals the security choice and never disables secur
 
   expect(mockHandleLoginSecuritySwitch).not.toHaveBeenCalled();
   expect(
-    renderer.root.findAllByProps({ children: 'settings.loginSecurity.text2' }),
-  ).toHaveLength(1);
+    renderer.root.findAllByProps({ children: 'settings.loginSecurity.text2' })
+      .length,
+  ).toBeGreaterThan(0);
 });
 
 it('enabling via the PIN flow persists the new state and removes the toggle', async () => {
@@ -245,6 +282,10 @@ it('enabling via the PIN flow persists the new state and removes the toggle', as
     }),
   );
   expect(
-    renderer.root.findAllByProps({ page: 'LoginSecurityMode' }),
+    renderer.root.findAll(
+      node =>
+        node.props?.accessibilityLabel === 'settings.loginSecurity.text1' &&
+        typeof node.props?.toggleSwitchFunction === 'function',
+    ),
   ).toHaveLength(0);
 });

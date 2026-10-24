@@ -1,34 +1,30 @@
 import { useCallback } from 'react';
-import { Share, StyleSheet, View } from 'react-native';
+import { Share, StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContributorAvatar from './contributorAvatar';
-import CustomButton from '../../../../functions/CustomElements/button';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useTranslation } from 'react-i18next';
-import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
-import GetThemeColors from '../../../../hooks/themeColors';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 
 export default function ViewContibutors(props) {
   const pool = props.route?.params?.pool;
   const contributions = props.route?.params?.contributions;
-
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const contributers = [pool, ...contributions];
 
   const handleShare = useCallback(async () => {
@@ -43,63 +39,62 @@ export default function ViewContibutors(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('wallet.pools.contributorCount', {
-          count: contributions?.length || 0,
-        })}
-      />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('wallet.pools.viewActivityTitle')}
+          right={
+            <IconButton
+              icon={'Share2'}
+              label="wallet.pools.share"
+              onPress={handleShare}
+            />
+          }
+        />
 
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <SectionCard>
-          {contributers.map((item, index) => {
-            if (!item) return null;
+        <SectionHeader
+          first={true}
+          title={t('wallet.pools.activityInfoHeader', {
+            numPeople: contributers.length,
+            contributionAmount: displayCorrectDenomination({
+              amount: pool.currentAmount,
+              masterInfoObject,
+              fiatStats,
+            }),
+            totalAmount: displayCorrectDenomination({
+              amount: pool.goalAmount,
+              masterInfoObject,
+              fiatStats,
+            }),
+          })}
+        />
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <ListCard>
+            {contributers.map((item, index) => {
+              if (!item) return null;
 
-            let name = item?.creatorName || item?.contributorName;
+              let name = item?.creatorName || item?.contributorName;
 
-            if (typeof name !== 'string' || !name) {
-              name = 'Unknown';
-            }
+              if (typeof name !== 'string' || !name) {
+                name = t('wallet.pools.unknown');
+              }
 
-            const isOrganizer = index === 0;
-            const isLast = index === contributers.length - 1;
+              const isOrganizer = index === 0;
 
-            const contributedDate = formatDate(item?.createdAt, t);
+              const contributedDate = formatDate(item?.createdAt, t);
 
-            return (
-              <View key={index}>
-                <View style={styles.row}>
-                  <ContributorAvatar avatarSize={40} contributorName={name} />
-                  <View
-                    style={{
-                      flex: 1,
-                    }}
-                  >
-                    <ThemeText
-                      styles={styles.name}
-                      CustomNumberOfLines={1}
-                      CustomEllipsizeMode={'tail'}
-                      content={
-                        name === 'Anonymous' ? t('constants.annonName') : name
-                      }
-                    />
-                    {!isOrganizer && (
-                      <ThemeText
-                        styles={styles.dateLabel}
-                        CustomNumberOfLines={1}
-                        CustomEllipsizeMode={'tail'}
-                        content={contributedDate}
-                      />
-                    )}
-                  </View>
-                  {isOrganizer ? (
-                    <ThemeText
-                      styles={styles.roleLabel}
-                      content={t('wallet.pools.organizer')}
-                    />
-                  ) : (
+              return (
+                <ListRow
+                  lead={
+                    <ContributorAvatar avatarSize={40} contributorName={name} />
+                  }
+                  title={name === 'Anonymous' ? t('constants.annonName') : name}
+                  sub={
+                    isOrganizer ? t('wallet.pools.organizer') : contributedDate
+                  }
+                  trailing={
                     <ThemeText
                       styles={styles.amountLabel}
                       content={displayCorrectDenomination({
@@ -108,27 +103,13 @@ export default function ViewContibutors(props) {
                         fiatStats,
                       })}
                     />
-                  )}
-                </View>
-                {!isLast && (
-                  <View
-                    style={[
-                      styles.separator,
-                      { borderBottomColor: backgroundColor },
-                    ]}
-                  />
-                )}
-              </View>
-            );
-          })}
-        </SectionCard>
-      </CustomScrollView>
-
-      <CustomButton
-        actionFunction={handleShare}
-        buttonStyles={styles.button}
-        textContent={t('wallet.pools.share')}
-      />
+                  }
+                />
+              );
+            })}
+          </ListCard>
+        </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
@@ -168,45 +149,13 @@ const formatDate = (createdAt, t) => {
 };
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
   scrollContent: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     flexGrow: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  name: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  dateLabel: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-  },
-  roleLabel: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-    flexShrink: 0,
+    paddingTop: 10,
   },
   amountLabel: {
-    fontSize: SIZES.smedium,
     includeFontPadding: false,
     flexShrink: 0,
-  },
-  separator: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    marginLeft: 16 + 40 + 12, // paddingHorizontal + avatarSize + gap
-  },
-  button: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

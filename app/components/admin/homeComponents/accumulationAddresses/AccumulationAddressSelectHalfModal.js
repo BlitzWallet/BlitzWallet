@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { CENTER, SIZES } from '../../../../constants';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 
@@ -17,7 +17,7 @@ export default function AccumulationAddressSelectHalfModal({
   setContentHeight,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -58,9 +58,7 @@ export default function AccumulationAddressSelectHalfModal({
                     : 'transparent',
                   borderWidth: isSelected ? 1 : 0,
                   borderColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
+                    theme && darkModeType ? tokens.ink : tokens.accent,
                 },
               ]}
               onPress={() => handleSelect(addr)}

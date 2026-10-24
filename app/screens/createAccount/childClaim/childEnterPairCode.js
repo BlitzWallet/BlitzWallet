@@ -7,8 +7,9 @@ import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopB
 import CustomButton from '../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../functions/CustomElements/customNumberKeyboard';
 import SegmentedCodeInput from '../../../functions/CustomElements/segmentedCodeInput';
-import { CENTER, COLORS } from '../../../constants';
+import { CENTER } from '../../../constants';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
+import { useTheme } from '../../../../context-store/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
 import {
   keyboardGoBack,
@@ -23,6 +24,7 @@ export default function ChildEnterPairCode() {
   const { status, errorMessage, submitPairing, resetSession } = useChildClaim();
   const name = route?.params?.name ?? '';
   const [code, setCode] = useState('');
+  const { tokens } = useTheme();
 
   // Parent joined and the SAS is ready -> move to the verify screen.
   useEffect(() => {
@@ -70,7 +72,10 @@ export default function ChildEnterPairCode() {
           <SegmentedCodeInput value={code} length={6} />
         </View>
         {!!errorMessage && (
-          <ThemeText styles={styles.error} content={errorMessage} />
+          <ThemeText
+            styles={[styles.error, { color: tokens.danger }]}
+            content={errorMessage}
+          />
         )}
       </View>
       <CustomNumberKeyboard showDot={false} customFunction={handleKey} />
@@ -103,7 +108,6 @@ const styles = StyleSheet.create({
   inputWrap: { marginTop: 20 },
   error: {
     fontSize: SIZES.smedium,
-    color: COLORS.cancelRed,
     textAlign: 'center',
     marginTop: 16,
   },

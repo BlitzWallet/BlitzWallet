@@ -16,7 +16,6 @@ import {
   SIZES,
 } from '../../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
@@ -30,7 +29,7 @@ export default function SMSMessagingSendPage() {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
@@ -109,9 +108,7 @@ export default function SMSMessagingSendPage() {
                   isActive ? styles.countryRowActive : null,
                   {
                     borderColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                     backgroundColor: backgroundOffset,
                   },
                 ]}

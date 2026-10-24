@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { CENTER, ICONS } from '../../../../constants';
-import { COLORS, HIDDEN_OPACITY } from '../../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
   CHAIN_ASSET_ROW_HEIGHT,
   CHAIN_EXPAND_PADDING,
@@ -14,6 +14,7 @@ import {
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useEffect } from 'react';
+import { useTheme } from '../../../../../context-store/theme';
 
 export default function ChainRow({
   chain,
@@ -46,6 +47,7 @@ export default function ChainRow({
   const chevronStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
   }));
+  const { tokens } = useTheme();
 
   const isSpark = chain.id === 'spark';
 
@@ -65,7 +67,7 @@ export default function ChainRow({
             },
             isSpark && {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : COLORS.primary,
+                theme && darkModeType ? backgroundColor : tokens.accent,
             },
           ]}
         >

@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
+import { StyleSheet, View, Platform, useWindowDimensions } from 'react-native';
 import { getLocalStorageItem, setLocalStorageItem } from '../../../functions';
 import {
   CENTER,
-  COLORS,
+  ICONS,
+  MAX_WEB_CONTENT_WIDTH,
   PERSISTED_LOGIN_COUNT_KEY,
-  SIZES,
 } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
-import CustomSearchInput from '../../../functions/CustomElements/searchInput';
+import TextButton from '../../../functions/CustomElements/redesign/TextButton';
+import PasswordField from './passwordField';
 import CustomButton from '../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
@@ -18,7 +19,10 @@ import { useKeysContext } from '../../../../context-store/keys';
 import { decryptMnemonicWithPin } from '../../../functions/handleMnemonic';
 import { getStoredPasskeyInfo } from '../../../functions/passkeyMnemonic';
 import RNRestart from 'react-native-restart-newarch';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
+import { WINDOWWIDTH } from '../../../constants/theme';
+import { tintStyle } from '../../../functions/webTintColor';
+import { Image } from 'expo-image';
+import { useTheme } from '../../../../context-store/theme';
 
 export default function PasswordPage() {
   const [password, setPassword] = useState('');
@@ -30,6 +34,9 @@ export default function PasswordPage() {
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const isCheckingRef = useRef(false);
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   useEffect(() => {
     async function loadPageInformation() {
@@ -142,52 +149,67 @@ export default function PasswordPage() {
   }, [navigate, t]);
 
   return (
-    <View style={styles.contentContainer}>
-      <ThemeText
-        styles={styles.header}
-        content={t('adminLogin.passwordPage.welcomeBackTitle', 'Welcome back!')}
-      />
-      {!!attemptCount && (
-        <ThemeText
-          styles={styles.attemptsText}
-          content={t('adminLogin.passwordPage.attemptsText', {
-            attempts: 8 - attemptCount,
-          })}
+    <View style={[styles.contentContainer, { width: contentWidth }]}>
+      <View style={styles.hero}>
+        <Image
+          source={ICONS.logoIcon}
+          style={[
+            styles.logo,
+            tintStyle(tokens.scheme === 'light' ? undefined : tokens.ink),
+          ]}
         />
-      )}
-      {!!error && <ThemeText styles={styles.errorText} content={error} />}
+        <ThemeText
+          variant="title"
+          styles={styles.header}
+          content={t(
+            'adminLogin.passwordPage.welcomeBackTitle',
+            'Welcome back!',
+          )}
+        />
+        {!!attemptCount && (
+          <ThemeText
+            variant="body"
+            styles={[styles.attemptsText, { color: tokens.danger }]}
+            content={t('adminLogin.passwordPage.attemptsText', {
+              attempts: 8 - attemptCount,
+            })}
+          />
+        )}
+      </View>
       <View style={styles.inputWrapper}>
-        <CustomSearchInput
-          inputText={password}
-          setInputText={setPassword}
-          placeholderText={t(
+        <PasswordField
+          value={password}
+          onChangeText={setPassword}
+          placeholder={t(
             'adminLogin.passwordPage.passwordPlaceholder',
             'Password',
           )}
-          secureTextEntry={true}
           autoComplete="current-password"
           textContentType="password"
-          onSubmitEditingFunction={submit}
+          onSubmitEditing={submit}
         />
-        <TouchableOpacity
-          style={styles.forgotButton}
-          onPress={handleForgotPassword}
-        >
+        {!!error && (
           <ThemeText
-            styles={styles.forgotText}
-            content={t(
-              'adminLogin.passwordPage.forgotPassword',
-              'Forgot password?',
-            )}
+            variant="body"
+            styles={[styles.errorText, { color: tokens.danger }]}
+            content={error}
           />
-        </TouchableOpacity>
+        )}
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
+          size="regular"
+          tone="primary"
           textContent={t('adminLogin.passwordPage.loginButton', 'Log In')}
           actionFunction={submit}
           disabled={!password || isSubmitting}
           useLoading={isSubmitting}
+        />
+        <TextButton
+          text={t('adminLogin.passwordPage.forgotPassword', 'Forgot password?')}
+          align="center"
+          textStyle={styles.forgotText}
+          onPress={handleForgotPassword}
         />
       </View>
     </View>
@@ -201,36 +223,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...CENTER,
   },
-  header: {
-    fontSize: SIZES.xxLarge,
-    fontWeight: '600',
-    textAlign: 'center',
+  hero: {
+    alignItems: 'center',
     marginTop: 50,
   },
+  logo: {
+    width: 64,
+    height: 64,
+  },
+  header: {
+    textAlign: 'center',
+    marginTop: 24,
+  },
   attemptsText: {
-    marginTop: 6,
-    opacity: HIDDEN_OPACITY,
+    marginTop: 8,
+    textAlign: 'center',
   },
   inputWrapper: {
     width: '100%',
     maxWidth: 400,
     marginTop: 40,
   },
-  forgotButton: {
-    alignSelf: 'flex-end',
+  errorText: {
     marginTop: 8,
   },
   forgotText: {
-    fontSize: SIZES.smedium,
-    color: COLORS.gray,
-  },
-  errorText: {
-    fontSize: SIZES.small,
-    color: COLORS.cancelRed,
-    marginTop: 10,
+    fontSize: 15,
+    lineHeight: 22,
   },
   buttonContainer: {
     marginTop: 'auto',
     width: '100%',
+    gap: 12,
   },
 });

@@ -40,7 +40,7 @@ export default function GiftsOverview() {
     }, [updateGiftList, checkForRefunds]),
   );
 
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
 
   const handleRefresh = async () => {
     const giftList = await updateGiftList();
@@ -51,8 +51,8 @@ export default function GiftsOverview() {
   const colors = useMemo(
     () =>
       Platform.select({
-        ios: darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-        android: darkModeType && theme ? COLORS.lightModeText : COLORS.primary,
+        ios: darkModeType && theme ? tokens.ink : tokens.accent,
+        android: darkModeType && theme ? COLORS.lightModeText : tokens.accent,
       }),
     [darkModeType, theme],
   );
@@ -61,7 +61,7 @@ export default function GiftsOverview() {
     () => (
       <RefreshControl
         colors={[colors]}
-        tintColor={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
+        tintColor={darkModeType && theme ? tokens.ink : tokens.accent}
         refreshing={refreshing}
         onRefresh={handleRefresh}
       />
@@ -105,10 +105,10 @@ export default function GiftsOverview() {
         <CustomButton
           buttonStyles={{
             backgroundColor:
-              theme && darkModeType ? backgroundOffset : COLORS.primary,
+              theme && darkModeType ? backgroundOffset : tokens.accent,
           }}
           textStyles={{
-            color: COLORS.darkModeText,
+            color: tokens.onAccent,
           }}
           actionFunction={() =>
             navigate.navigate('CustomHalfModal', {

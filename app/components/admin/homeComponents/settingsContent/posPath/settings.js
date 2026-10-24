@@ -122,7 +122,7 @@ const CurrencySelector = ({
 const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
 
   return (
     <View style={styles.inputSection}>
@@ -146,9 +146,7 @@ const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
           {showErrorIcon ? (
             <ThemeIcon
               size={20}
-              colorOverride={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
-              }
+              colorOverride={theme && darkModeType ? tokens.ink : tokens.danger}
               iconName={'CircleAlert'}
             />
           ) : (
@@ -160,7 +158,7 @@ const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
           onPress={onNavigate}
           style={[
             styles.chevronButton,
-            { backgroundColor: theme ? backgroundColor : COLORS.darkModeText },
+            { backgroundColor: theme ? backgroundColor : tokens.disc },
           ]}
         >
           <ThemeIcon size={20} iconName={'ChevronRight'} />
@@ -176,7 +174,7 @@ export default function PosSettingsPage() {
   const { isConnectedToTheInternet } = useAppStatus();
   const { cache } = useImageCache();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
   const navigate = useNavigation();
   const [storeNameInput, setStoreNameInput] = useState(
@@ -377,12 +375,12 @@ export default function PosSettingsPage() {
           buttonStyles={[
             styles.mainButton,
             {
-              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+              backgroundColor: theme ? tokens.ink : tokens.accent,
               marginBottom: bottomPadding,
             },
           ]}
           textStyles={{
-            color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+            color: theme ? COLORS.lightModeText : tokens.onAccent,
           }}
           actionFunction={handleSaveOrOpen}
           textContent={

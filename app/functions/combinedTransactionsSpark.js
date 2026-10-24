@@ -597,7 +597,8 @@ export const UserTransaction = memo(function UserTransaction({
   swapLimits,
 }) {
   const { t } = useTranslation();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
 
   // Row-local relative-time refresh: one shared 10s ticker updates the "x ago"
   // label without the parent rebuilding the animated list every 10s.
@@ -654,9 +655,9 @@ export const UserTransaction = memo(function UserTransaction({
     ? textColor
     : isFailedPayment
     ? !theme
-      ? COLORS.cancelRed
-      : COLORS.primary
-    : COLORS.primary;
+      ? tokens.danger
+      : tokens.accent
+    : tokens.accent;
 
   const amountColor = textColor;
   const paymentDescription = transaction.details?.description?.trim();
@@ -666,7 +667,7 @@ export const UserTransaction = memo(function UserTransaction({
   const descriptionTextStyle = useMemo(
     () => ({
       ...styles.descriptionText,
-      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+      color: tokens.ink,
     }),
     [theme, darkModeType],
   );
@@ -674,7 +675,7 @@ export const UserTransaction = memo(function UserTransaction({
   const dateTextStyle = useMemo(
     () => ({
       ...styles.dateText,
-      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+      color: tokens.ink,
     }),
     [theme, darkModeType],
   );

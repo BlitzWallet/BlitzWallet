@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS } from '../../constants';
 import ThemeText from './textTheme';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -85,7 +84,7 @@ const DropdownMenu = ({
           activeOpacity={disableDropdownPress ? 1 : 0.2}
           style={{
             ...styles.dropdownButton,
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            backgroundColor: backgroundOffset,
             ...customButtonStyles,
           }}
           onPress={handleDropdownToggle}

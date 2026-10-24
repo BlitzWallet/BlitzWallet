@@ -82,7 +82,7 @@ function TabButton({
 function MyTabBar({ state, descriptors, navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { bottomPadding, leftPadding, rightPadding } = useGlobalInsets();
 
   const tabCount = state.routes.length || 1;
@@ -101,13 +101,11 @@ function MyTabBar({ state, descriptors, navigation }) {
   );
 
   const activeColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+    theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
 
-  const inactiveColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const inactiveColor = theme && darkModeType ? tokens.ink : tokens.accent;
 
-  const pillColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const pillColor = theme && darkModeType ? tokens.ink : tokens.accent;
 
   return (
     <View style={containerStyle}>
@@ -116,17 +114,10 @@ function MyTabBar({ state, descriptors, navigation }) {
           styles.tabsInnerContainer,
           {
             width: containerWidth,
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
             borderWidth: 1,
-            borderColor: theme
-              ? darkModeType
-                ? COLORS.tabsBorderLightsout
-                : COLORS.tabsBorderDim
-              : COLORS.tabsBorderLight,
+            borderColor: tokens.divider,
           },
         ]}
       >

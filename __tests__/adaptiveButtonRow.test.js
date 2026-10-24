@@ -4,7 +4,11 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 import AdaptiveButtonRow from '../app/functions/CustomElements/adaptiveButtonRow';
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 function setup(labels, props = {}) {

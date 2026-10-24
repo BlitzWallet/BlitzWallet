@@ -27,7 +27,7 @@ import GetThemeColors from '../../../hooks/themeColors';
 export default function CameraModal(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const {
     status,
     hasPermission,
@@ -258,8 +258,7 @@ export default function CameraModal(props) {
           style={[
             styles.qrBoxOutline,
             {
-              borderColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              borderColor: theme && darkModeType ? tokens.ink : tokens.accent,
             },
           ]}
         />

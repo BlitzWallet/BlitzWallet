@@ -18,6 +18,7 @@ const mockFactoryReset = jest.fn();
 jest.mock('../app/constants', () => ({
   CENTER: {},
   COLORS: { gray: '#888', cancelRed: '#f00' },
+  FONT: {},
   ICONS: { logoIcon: 'logo' },
   SIZES: { xxLarge: 30, smedium: 16, small: 12 },
 }));
@@ -46,7 +47,12 @@ jest.mock('../context-store/keys', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 // The theme context only needs storage access; mocking the barrel keeps the

@@ -90,6 +90,7 @@ const MemoizedNavBar = memo(
     darkModeType,
     selectedContact,
     backgroundColor,
+    tokens,
     isContactAdded,
     handleFavortie,
     handleSettings,
@@ -108,13 +109,13 @@ const MemoizedNavBar = memo(
               >
                 <ThemeIcon
                   colorOverride={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                    theme && darkModeType ? tokens.ink : tokens.accent
                   }
                   fill={
                     selectedContact.isFavorite
                       ? theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary
+                        ? tokens.ink
+                        : tokens.accent
                       : backgroundColor
                   }
                   iconName={'Star'}
@@ -140,7 +141,7 @@ export default function ExpandedAddContactsPage(props) {
     useGlobalContacts();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { cache, refreshCacheObject } = useImageCache();
   const { handleFavortie, handleSettings } = useExpandedNavbar();
   const { bottomPadding } = useGlobalInsets();
@@ -191,6 +192,7 @@ export default function ExpandedAddContactsPage(props) {
         onBack={handleBack}
         selectedContact={selectedContact}
         backgroundColor={backgroundColor}
+        tokens={tokens}
         isContactAdded={isContactAdded}
         handleFavortie={handleFavortie}
         handleSettings={handleSettings}

@@ -7,7 +7,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { COLORS, FONT, SIZES } from '../../constants';
+import { FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeText from './textTheme';
 
@@ -30,7 +30,7 @@ if (__DEV__) {
 // Blitz keyboard writes straight into `value`. The box at the next fill position
 // shows the blinking caret.
 export default function SegmentedCodeInput({ value, length = 6 }) {
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const isFocused = useIsFocused();
   const caret = useSharedValue(1);
 
@@ -59,7 +59,7 @@ export default function SegmentedCodeInput({ value, length = 6 }) {
             style={[
               styles.box,
               { backgroundColor: backgroundOffset },
-              isActive && { borderColor: COLORS.primary, borderWidth: 2 },
+              isActive && { borderColor: tokens.accent, borderWidth: 2 },
             ]}
           >
             {chars[index] ? (
@@ -68,7 +68,7 @@ export default function SegmentedCodeInput({ value, length = 6 }) {
               <Animated.View
                 style={[
                   styles.caret,
-                  { backgroundColor: COLORS.primary },
+                  { backgroundColor: tokens.accent },
                   caretStyle,
                 ]}
               />

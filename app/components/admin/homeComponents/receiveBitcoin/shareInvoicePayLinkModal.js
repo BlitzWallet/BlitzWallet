@@ -56,7 +56,7 @@ export default function ShareInvoicePayLinkModal({
   const { sparkInformation } = useSparkWallet();
   const { poolInfoRef } = useFlashnet();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { showToast } = useToast();
   const { t } = useTranslation();
   const hasCreated = useRef(false);
@@ -168,9 +168,9 @@ export default function ShareInvoicePayLinkModal({
   const payLink = `https://blitzwalletapp.com/paylink/${payLinkId}`;
 
   const actionTextColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+    theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
   const primaryButtonBackground =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+    theme && darkModeType ? tokens.ink : tokens.accent;
 
   const handleCopy = () => {
     copyToClipboard(payLink, showToast);

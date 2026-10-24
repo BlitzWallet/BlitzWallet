@@ -41,7 +41,8 @@ export default function ConfirmTxPage(props) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const { showToast } = useToast();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
   const { t } = useTranslation();
@@ -180,13 +181,13 @@ export default function ConfirmTxPage(props) {
         <CustomButton
           buttonStyles={{
             width: INSET_WINDOW_WIDTH,
-            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+            backgroundColor: !theme ? tokens.accent : COLORS.darkModeText,
             marginTop: 'auto',
             paddingHorizontal: 15,
           }}
           textStyles={{
             ...styles.buttonText,
-            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
+            color: !theme ? tokens.onAccent : COLORS.lightModeText,
           }}
           actionFunction={() => {
             requestAnimationFrame(() => {
@@ -329,14 +330,14 @@ export default function ConfirmTxPage(props) {
         buttonStyles={{
           width: INSET_WINDOW_WIDTH,
           backgroundColor:
-            didSucceed && !theme ? COLORS.primary : COLORS.darkModeText,
+            didSucceed && !theme ? tokens.accent : COLORS.darkModeText,
           marginTop: 'auto',
           paddingHorizontal: 15,
         }}
         textStyles={{
           ...styles.buttonText,
           color:
-            didSucceed && !theme ? COLORS.darkModeText : COLORS.lightModeText,
+            didSucceed && !theme ? tokens.onAccent : COLORS.lightModeText,
         }}
         actionFunction={() => {
           // This will go to whatever the base homsecreen is set to

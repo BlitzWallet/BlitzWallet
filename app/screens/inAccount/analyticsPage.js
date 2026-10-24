@@ -31,7 +31,8 @@ export default function AnalyticsPage() {
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, tokens } =
+    GetThemeColors();
   const {
     spentTotal,
     incomeTotalBTC,
@@ -58,7 +59,7 @@ export default function AnalyticsPage() {
     spentPercent >= OVER_BUDGET_LIMIT
       ? {
           label: t('analytics.overBudget'),
-          color: theme && darkModeType ? textColor : COLORS.cancelRed,
+          color: theme && darkModeType ? textColor : tokens.danger,
         }
       : spentPercent >= NEAR_BUDGET_LIMIT
       ? {
@@ -67,7 +68,7 @@ export default function AnalyticsPage() {
         }
       : {
           label: t('analytics.onTrack'),
-          color: theme && darkModeType ? textColor : COLORS.primary,
+          color: theme && darkModeType ? textColor : tokens.accent,
         };
 
   const [localDenomination, setLocalDenomination] = useState('sats');
@@ -284,9 +285,7 @@ export default function AnalyticsPage() {
                   {
                     width: `${Math.min(spentPercent * 100, 100)}%`,
                     backgroundColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : budgetStatus.color,
+                      theme && darkModeType ? tokens.ink : budgetStatus.color,
                   },
                 ]}
               />

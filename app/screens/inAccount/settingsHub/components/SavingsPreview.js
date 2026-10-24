@@ -16,7 +16,7 @@ import { fromMicros } from '../../../../components/admin/homeComponents/savings/
 
 export default function SavingsPreview({ onPress }) {
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundColor } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -79,11 +79,7 @@ export default function SavingsPreview({ onPress }) {
             styles.iconWrap,
             {
               backgroundColor:
-                theme && darkModeType
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.dollarGreen,
+                theme && darkModeType ? backgroundColor : COLORS.dollarGreen,
             },
           ]}
         >

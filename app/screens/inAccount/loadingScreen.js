@@ -63,7 +63,7 @@ export default function ConnectingToNodeLoadingScreen() {
   const { didRunHandshakeRef } = useWebView();
   const { connectToSparkWallet, setSparkInformation } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const { screenDimensions, toggleDidGetToHomepage } = useAppStatus();
@@ -368,6 +368,9 @@ export default function ConnectingToNodeLoadingScreen() {
         ) : (
           <LottieView
             source={transformedAnimation}
+            colorFilters={[
+              { keypath: '**', color: theme ? tokens.ink : tokens.accent },
+            ]}
             autoPlay
             loop={true}
             style={{

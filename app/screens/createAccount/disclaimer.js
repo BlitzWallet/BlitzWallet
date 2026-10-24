@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { CENTER, COLORS } from '../../constants';
+import { CENTER } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
@@ -23,7 +23,7 @@ import IconActionCircle from '../../functions/CustomElements/actionCircleContain
 export default function DisclaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
   const nextPageName = route?.params?.nextPage;
 
@@ -115,7 +115,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
                 styles.infoRow,
                 index > 0 && {
                   borderTopWidth: 1,
-                  borderTopColor: backgroundColor,
+                  borderTopColor: tokens.divider,
                 },
               ]}
             >
@@ -134,7 +134,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
             activeOpacity={0.7}
             style={[
               styles.termsRow,
-              { borderTopWidth: 1, borderTopColor: backgroundColor },
+              { borderTopWidth: 1, borderTopColor: tokens.divider },
             ]}
           >
             <View style={{ width: 38, alignItems: 'center' }}>
@@ -156,21 +156,31 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
         activeOpacity={0.7}
       >
         <View
-          style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}
+          style={[
+            styles.checkbox,
+            { borderColor: tokens.ink },
+            termsAccepted && {
+              backgroundColor: tokens.accent,
+              borderColor: tokens.accent,
+            },
+          ]}
         >
           {termsAccepted && (
             <ThemeIcon
               size={15}
-              colorOverride={COLORS.darkModeText}
+              colorOverride={tokens.onAccent}
               iconName={'Check'}
             />
           )}
         </View>
 
         <View style={styles.termsTextContainer}>
-          <Text style={styles.checkboxText}>
+          <Text style={[styles.checkboxText, { color: tokens.ink }]}>
             {t('createAccount.disclaimerPage.acceptPrefix')}{' '}
-            <Text style={styles.termsLink} onPress={openTermsAndConditions}>
+            <Text
+              style={[styles.termsLink, { color: tokens.link }]}
+              onPress={openTermsAndConditions}
+            >
               {t('createAccount.disclaimerPage.terms&Conditions')}
             </Text>
             {t('createAccount.disclaimerPage.acceptSuffix')}
@@ -278,17 +288,12 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderWidth: 2,
-    borderColor: COLORS.lightModeText,
     borderRadius: 8,
     marginRight: 12,
     marginTop: 1,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-  },
-  checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
   },
   termsTextContainer: {
     width: '100%',
@@ -306,7 +311,6 @@ const styles = StyleSheet.create({
   termsLink: {
     fontFamily: FONT.Title_Regular,
     fontSize: SIZES.small,
-    color: COLORS.primary,
     textDecorationLine: 'underline',
     includeFontPadding: false,
     lineHeight: 20,

@@ -14,7 +14,6 @@ import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
 } from '../../../../../../constants';
@@ -33,7 +32,7 @@ export default function AddPOSItemsPage() {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const posItems = masterInfoObject.posSettings.items || [];
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { t } = useTranslation();
   const currentCurrency = masterInfoObject.posSettings?.storeCurrency;
 
@@ -77,10 +76,7 @@ export default function AddPOSItemsPage() {
                   styles={[
                     styles.posItemError,
                     {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.cancelRed,
+                      color: theme && darkModeType ? tokens.ink : tokens.danger,
                     },
                   ]}
                   content={t(

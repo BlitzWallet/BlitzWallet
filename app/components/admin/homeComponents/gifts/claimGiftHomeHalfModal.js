@@ -6,7 +6,6 @@ import {
   WEBSITE_REGEX,
 } from '../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -31,7 +30,7 @@ export default function ClaimGiftHomeHalfModal({
 }) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textInputColor } = GetThemeColors();
+  const { textInputColor, tokens } = GetThemeColors();
   const [showPasteButton, setShowPasteButton] = useState(true);
 
   const [enteredLink, setEnteredLink] = useState('');
@@ -147,7 +146,7 @@ export default function ClaimGiftHomeHalfModal({
           >
             <ThemeIcon
               colorOverride={
-                theme && darkModeType ? textInputColor : COLORS.primary
+                theme && darkModeType ? textInputColor : tokens.accent
               }
               iconName={enteredLink ? 'X' : 'ScanLine'}
             />

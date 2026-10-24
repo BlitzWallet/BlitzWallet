@@ -66,7 +66,8 @@ export default function AccumulationAddressDetail() {
   const { showToast } = useToast();
   const { contactsPrivateKey, publicKey } = useKeysContext();
 
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { addresses, addressesForOption, deleteAddress } =
     useAccumulationAddresses();
@@ -264,9 +265,7 @@ export default function AccumulationAddressDetail() {
                   {isPrinting ? (
                     <FullLoadingScreen
                       loadingColor={
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
+                        theme && darkModeType ? tokens.ink : tokens.accent
                       }
                       size="small"
                       showText={false}

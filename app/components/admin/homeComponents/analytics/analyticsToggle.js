@@ -19,7 +19,7 @@ const THUMB_PADDING = 2;
 
 export default function AnalyticsToggle({ denomination, onToggle }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
 
   // 0 = left (sats/₿), 1 = right (fiat/$)
   const isFiat = denomination === 'fiat';
@@ -42,10 +42,10 @@ export default function AnalyticsToggle({ denomination, onToggle }) {
   }));
 
   const pillBg = theme && darkModeType ? backgroundOffset : backgroundOffset;
-  const thumbBg = theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const thumbBg = theme && darkModeType ? tokens.ink : tokens.accent;
   const thubSelected = textColor;
   const thubColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+    theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
   return (
     <TouchableOpacity
       activeOpacity={0.85}

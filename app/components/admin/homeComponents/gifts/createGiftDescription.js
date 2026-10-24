@@ -14,7 +14,7 @@ import {
 } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +26,7 @@ export default function CreateGiftDescription(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { textColor, tokens } = GetThemeColors();
 
   const { amount, amountValue, dollarAmount, giftDenomination, giftQuantity } =
     props.route.params || {};
@@ -37,7 +37,7 @@ export default function CreateGiftDescription(props) {
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   return (

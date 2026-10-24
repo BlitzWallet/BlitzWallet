@@ -1,14 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { COLORS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import WidgetCard from './WidgetCard';
 import { useTranslation } from 'react-i18next';
 
 export default function AnalyticsPreview({ onPress }) {
-  const { backgroundColor, textColor } = GetThemeColors();
+  const { backgroundColor, textColor, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
@@ -31,14 +31,14 @@ export default function AnalyticsPreview({ onPress }) {
             styles.iconWrap,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : COLORS.primary,
+                theme && darkModeType ? backgroundColor : tokens.accent,
             },
           ]}
         >
           <ThemeIcon
             iconName="ChartPie"
             size={20}
-            colorOverride={COLORS.white}
+            colorOverride={tokens.onAccent}
           />
         </View>
       </View>

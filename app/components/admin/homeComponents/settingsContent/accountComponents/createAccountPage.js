@@ -16,7 +16,6 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
@@ -38,7 +37,7 @@ export default function CreateCustodyAccountPage() {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [name, setName] = useState('');
 
-  const { textInputColor, textColor } = GetThemeColors();
+  const { textInputColor, textColor, tokens } = GetThemeColors();
 
   const navigate = useNavigation();
 
@@ -86,7 +85,7 @@ export default function CreateCustodyAccountPage() {
   const characterCountColor = isOverLimit
     ? theme && darkModeType
       ? textColor
-      : COLORS.cancelRed
+      : tokens.danger
     : textColor;
 
   return (

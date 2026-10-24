@@ -15,7 +15,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
 } from '../../../../../constants';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { countrymap } from './receiveCountryCodes';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -42,7 +42,7 @@ export default function SMSMessagingReceiveCountryPage() {
   };
   const [searchInput, setSearchInput] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(AUTO_SELECT);
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
@@ -110,9 +110,7 @@ export default function SMSMessagingReceiveCountryPage() {
                   isActive ? styles.countryRowActive : null,
                   {
                     borderColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                     backgroundColor: backgroundOffset,
                   },
                 ]}

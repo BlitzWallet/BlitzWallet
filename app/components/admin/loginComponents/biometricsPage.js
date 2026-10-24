@@ -28,7 +28,7 @@ export default function BiometricsLogin() {
   const { appState, isAppFocused } = useAppStatus();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
   const didNavigate = useRef(null);
@@ -237,10 +237,7 @@ export default function BiometricsLogin() {
       <View style={styles.centerContent}>
         <Image
           source={ICONS.logoIcon}
-          style={[
-            styles.logo,
-            tintStyle(theme ? COLORS.darkModeText : undefined),
-          ]}
+          style={[styles.logo, tintStyle(theme ? tokens.ink : undefined)]}
         />
       </View>
 
@@ -251,11 +248,11 @@ export default function BiometricsLogin() {
             styles.faceIdButton,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundOffset : COLORS.primary,
+                theme && darkModeType ? backgroundOffset : tokens.accent,
               opacity: isAuthenticating ? 0.6 : 1,
             },
           ]}
-          textStyles={{ color: COLORS.darkModeText }}
+          textStyles={{ color: tokens.onAccent }}
           textContent={t('adminLogin.pinPage.biometricsHeader')}
           disabled={isAuthenticating}
         />

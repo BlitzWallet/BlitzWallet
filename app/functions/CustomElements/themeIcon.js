@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Platform, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { COLORS } from '../../constants';
 import lucideIconFile from './lucideIconFile';
 import lucideIcon from './lucideIcons';
 
@@ -26,9 +25,13 @@ export default function ThemeIcon({
   styles,
   colorOverride,
   fill = null,
-  strokeWidth = 2,
+  strokeWidth: strokeWidthProp,
+  redesign = false,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  // Redesign icons (opt-in): stroke 1.75, ink (audit/SHARED.md icon row).
+  const strokeWidth =
+    strokeWidthProp !== undefined ? strokeWidthProp : redesign ? 1.75 : 2;
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   // Determine which icon to render based on theme
   const IconComponent = useMemo(() => {
@@ -38,11 +41,12 @@ export default function ThemeIcon({
   // Determine the color tint
   const iconColor = useMemo(() => {
     if (colorOverride) return colorOverride;
+    if (redesign) return tokens.ink;
     if (theme) {
-      return darkModeType ? COLORS.darkModeText : COLORS.primary;
+      return darkModeType ? tokens.ink : tokens.accent;
     }
-    return COLORS.primary;
-  }, [theme, darkModeType, colorOverride]);
+    return tokens.accent;
+  }, [theme, darkModeType, tokens, colorOverride, redesign]);
 
   // Merge styles
   const iconStyles = useMemo(() => {
