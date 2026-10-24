@@ -62,6 +62,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   width = 0.95,
   maxWidth = 375,
   shouldDisplaySuccessState = false,
+  titleStyles,
 }) {
   console.log('RUNNIG SLIDER BUTTON WEB');
   const { screenDimensions } = useAppStatus();
@@ -359,6 +360,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
               { left: height + 10, right: height + 10 },
               { fontSize: titleFontSize },
               titleDynamicStyles,
+              titleStyles,
             ]}
           >
             {titleText}

@@ -66,13 +66,16 @@ export default function KeyForKeyboard({
           },
         ]}
       >
-        {isDot && frompage !== 'sendSMSPage' && (
-          <ThemeIcon
-            colorOverride={redesign ? tokens.ink : tokens.ink}
-            size={redesign ? 8 : 60}
-            iconName={redesign ? 'Dot' : 'Dot'}
-          />
-        )}
+        {isDot &&
+          frompage !== 'sendSMSPage' &&
+          (redesign ? (
+            <ThemeText
+              styles={[styles.keyText, styles.keyTextRedesign]}
+              content="."
+            />
+          ) : (
+            <ThemeIcon colorOverride={tokens.ink} size={60} iconName="Dot" />
+          ))}
         {!isDot &&
           (num === 'back' ? (
             <ThemeIcon

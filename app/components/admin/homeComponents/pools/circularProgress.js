@@ -13,6 +13,7 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { useTranslation } from 'react-i18next';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -41,8 +42,10 @@ export default function CircularProgress({
   useAltBackground = false,
   useFillAnimation = false,
   showConfirmed = false,
+  trackColor: trackColorOverride,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { t } = useTranslation();
   const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const animatedPercentage = useSharedValue(0);
   const isInitialLoadRef = useRef(true);
@@ -67,7 +70,9 @@ export default function CircularProgress({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const progressColor = theme && darkModeType ? tokens.ink : tokens.accent;
-  const trackColor = useAltBackground ? backgroundColor : backgroundOffset;
+  const trackColor =
+    trackColorOverride ||
+    (useAltBackground ? backgroundColor : backgroundOffset);
 
   useEffect(() => {
     let timer;
@@ -150,7 +155,7 @@ export default function CircularProgress({
             adjustsFontSizeToFit={true}
             minimumFontScale={0.6}
             styles={styles.goalAmount}
-            content={`of ${goalAmount}`}
+            content={t('wallet.pools.ofAmount', { amount: goalAmount })}
           />
         </View>
       ) : (

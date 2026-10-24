@@ -19,14 +19,23 @@ export default function EmptyState({
   const { tokens } = useTheme();
   const { t } = useTranslation();
   const large = size === 'large';
+  const isMuted = iconTone === 'muted';
+  const isDanger = iconTone === 'danger';
+  const iconColor = isMuted
+    ? tokens.muted
+    : isDanger
+    ? tokens.danger
+    : tokens.ink;
+
+  const background = isDanger ? tokens.dangerBg : tokens.surface;
   return (
     <View style={styles.container}>
-      <View style={[styles.disc, { backgroundColor: tokens.surface }]}>
+      <View style={[styles.disc, { backgroundColor: background }]}>
         <ThemeIcon
           redesign
           iconName={icon}
           size={26}
-          colorOverride={iconTone === 'ink' ? tokens.ink : tokens.muted}
+          colorOverride={iconColor}
         />
       </View>
       <ThemeText

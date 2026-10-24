@@ -5,14 +5,6 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInLeft,
-  SlideInRight,
-  SlideOutLeft,
-  SlideOutRight,
-} from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../functions/CustomElements';
@@ -48,9 +40,11 @@ import TextButton from '../../../../../functions/CustomElements/redesign/TextBut
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
+import AnimatedStep, {
+  PAGE_DURATION,
+} from '../../../../../functions/CustomElements/redesign/AnimatedStep';
 
 const STEP_ORDER = ['request', 'limit', 'loading', 'success', 'error'];
-const PAGE_DURATION = 250;
 const LIMIT_HEIGHT = 640;
 const RESULT_HEIGHT = 420;
 const PERMISSION_ICONS = {
@@ -60,47 +54,6 @@ const PERMISSION_ICONS = {
   transactionHistory: 'History',
   sendPayments: 'ArrowUp',
 };
-
-// Slides a step in or out when it becomes (in)active, like the online
-// listings filter sheet. `direction` is 1 when moving forward through
-// STEP_ORDER and -1 when going back. Reanimated keeps the exiting props from
-// the last render while active, so the exit side can't come from `direction`
-// (it is updated in the same render that unmounts the step): `exitsBack` fixes
-// it per step instead.
-function AnimatedStep({ active, direction, exitsBack = false, children }) {
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    isFirstRender.current = false;
-  }, []);
-
-  if (!active) return null;
-
-  const enteringSlide = direction === 1 ? SlideInRight : SlideInLeft;
-  const exitingSlide = exitsBack ? SlideOutRight : SlideOutLeft;
-
-  return (
-    <Animated.View
-      entering={
-        isFirstRender.current ? undefined : FadeIn.duration(PAGE_DURATION)
-      }
-      exiting={FadeOut.duration(PAGE_DURATION)}
-      style={styles.page}
-    >
-      <Animated.View
-        entering={
-          isFirstRender.current
-            ? undefined
-            : enteringSlide.duration(PAGE_DURATION)
-        }
-        exiting={exitingSlide.duration(PAGE_DURATION)}
-        style={styles.page}
-      >
-        {children}
-      </Animated.View>
-    </Animated.View>
-  );
-}
 
 // NWC-08 approval: an app asked to connect with its own key. The user sees
 // what it wants (name is unverified), and nothing is created unless approved.
@@ -604,9 +557,6 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     overflow: 'hidden',
-  },
-  page: {
-    ...StyleSheet.absoluteFillObject,
   },
   scrollContent: {
     paddingBottom: 10,

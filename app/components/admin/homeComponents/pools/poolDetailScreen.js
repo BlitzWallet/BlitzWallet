@@ -5,6 +5,7 @@ import {
   Share,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
@@ -12,18 +13,13 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {
   CENTER,
+  MAX_WEB_CONTENT_WIDTH,
   SIZES,
   STARTING_INDEX_FOR_POOLS_DERIVE,
 } from '../../../../constants';
-import {
-  COLORS,
-  FONT,
-  HIDDEN_OPACITY,
-  WINDOWWIDTH,
-} from '../../../../constants/theme';
+import { COLORS } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../../../context-store/poolContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -36,12 +32,16 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import { getErrorTxAnimation } from '../../../../functions/lottieAnimations';
-import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
-import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 
 const MAX_VISIBLE_ACTIVITY = 3;
 
@@ -69,6 +69,8 @@ export default function PoolDetailScreen(props) {
   const [noPool, setNoPool] = useState(false);
   const didHandleSave = useRef(false);
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   // Read pool from context (cache-first)
   const pool = pools[poolId] || passedPool || null;
@@ -241,39 +243,33 @@ export default function PoolDetailScreen(props) {
       })
     : '';
 
-  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
-
   // ---------- Error / Loading states (unchanged) ----------
 
   if (noPool) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar label={t('wallet.pools.pool')} />
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <LottieView
-            autoPlay={true}
-            source={errorAnimation}
-            loop={false}
-            style={{
-              width: 250,
-              height: 250,
-            }}
-          />
-          <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              textAlign: 'center',
-            }}
-            content={
-              shouldSave
-                ? t('wallet.pools.savingPoolError')
-                : t('wallet.pools.couldNotFind')
-            }
-          />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('wallet.pools.pool')} />
+          <View style={styles.centerComponenet}>
+            <EmptyState
+              icon={'CircleAlert'}
+              iconTone="danger"
+              title={
+                shouldSave
+                  ? t('wallet.pools.savingPoolErrorTitle')
+                  : t('wallet.pools.couldNotFindTitle')
+              }
+              sub={
+                shouldSave
+                  ? t('wallet.pools.savingPoolErrorSub')
+                  : t('wallet.pools.couldNotFindSub')
+              }
+            />
+          </View>
           <CustomButton
-            buttonStyles={{ marginTop: 'auto' }}
             actionFunction={navigate.goBack}
             textContent={t('constants.back')}
+            size={'regular'}
           />
         </View>
       </GlobalThemeView>
@@ -283,8 +279,11 @@ export default function PoolDetailScreen(props) {
   if (isSaving) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar label={t('wallet.pools.pool')} />
-        <FullLoadingScreen text={t('wallet.pools.creatingPool')} />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('wallet.pools.pool')} />
+
+          <FullLoadingScreen text={t('wallet.pools.creatingPool')} />
+        </View>
       </GlobalThemeView>
     );
   }
@@ -292,187 +291,193 @@ export default function PoolDetailScreen(props) {
   if (!pool) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar label={t('wallet.pools.pool')} />
-        <FullLoadingScreen />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('wallet.pools.pool')} />
+          <FullLoadingScreen />
+        </View>
       </GlobalThemeView>
     );
   }
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={pool?.poolTitle || t('wallet.pools.pool')}
-        showLeftImage={isCreator}
-        leftImageStyles={{ height: 25 }}
-        iconNew={
-          isActive
-            ? isCreator && goalReached
-              ? 'Share'
-              : 'ArchiveX'
-            : 'RefreshCcw'
-        }
-        leftImageFunction={
-          isActive
-            ? isCreator && goalReached
-              ? handleShare
-              : handleClosePool
-            : handleReCheck
-        }
-      />
-
-      <CustomScrollView
-        refreshControl={refreshControl}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* ── Section 1: Hero — Progress Ring ── */}
-        <View style={styles.heroContainer}>
-          <CircularProgress
-            current={pool.currentAmount}
-            goal={pool.goalAmount}
-            size={250}
-            strokeWidth={10}
-            fundedAmount={formatAmount(pool.currentAmount)}
-            goalAmount={formatAmount(pool.goalAmount)}
-            useFillAnimation={true}
-          />
-
-          {/* Creator text */}
-          <ThemeText
-            styles={styles.creatorText}
-            CustomNumberOfLines={1}
-            CustomEllipsizeMode={'tail'}
-            content={`${t('wallet.pools.createdBy')}${
-              pool.creatorName || 'Unknown'
-            }`}
-          />
-
-          {/* Overlapping avatar stack + contributor count */}
-          {!hideContributorsForClosedPools && (
-            <TouchableOpacity
-              style={styles.avatarRow}
-              onPress={handleContributorClick}
-              activeOpacity={0.7}
-            >
-              <AvatarStack
-                contributors={[...contributions]}
-                maxVisible={4}
-                avatarSize={32}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={pool?.poolTitle || t('wallet.pools.pool')}
+          right={
+            isCreator && (
+              <IconButton
+                onPress={
+                  isActive
+                    ? isCreator && goalReached
+                      ? handleShare
+                      : handleClosePool
+                    : handleReCheck
+                }
+                icon={
+                  isActive
+                    ? isCreator && goalReached
+                      ? 'Share'
+                      : 'ArchiveX'
+                    : 'RefreshCcw'
+                }
+                label={
+                  isActive
+                    ? isCreator && goalReached
+                      ? 'wallet.pools.share'
+                      : 'wallet.pools.closePool'
+                    : 'constants.refresh'
+                }
               />
-              <ThemeText
-                styles={styles.contributorCountText}
-                content={t('wallet.pools.contributorCount', {
-                  count: contributions.length,
-                })}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
+            )
+          }
+        />
+        <CustomScrollView
+          refreshControl={refreshControl}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* ── Section 1: Hero — Progress Ring ── */}
+          <View style={styles.heroContainer}>
+            <CircularProgress
+              current={pool.currentAmount}
+              goal={pool.goalAmount}
+              size={200}
+              strokeWidth={10}
+              fundedAmount={formatAmount(pool.currentAmount)}
+              goalAmount={formatAmount(pool.goalAmount)}
+              useFillAnimation={true}
+              trackColor={tokens.divider}
+            />
 
-        {/* ── Section 2: Actions or Closed Banner ── */}
-        {!isActive ? (
-          <View
-            style={[styles.closedBanner, { backgroundColor: backgroundOffset }]}
-          >
-            <ThemeIcon iconName={'Lock'} size={20} />
-            <View style={styles.closedTextContainer}>
-              <ThemeText
-                styles={{ includeFontPadding: false }}
-                CustomNumberOfLines={2}
-                content={`${t('wallet.pools.closed')}${closedDate}`}
-              />
-              {isCreator && (
-                <ThemeText
-                  styles={styles.closedSubtext}
-                  content={t('wallet.pools.moneyTransferred')}
-                />
-              )}
-            </View>
-          </View>
-        ) : (
-          <View style={styles.buttonsContainer}>
-            {isCreator && pool.currentAmount >= pool.goalAmount ? (
-              <CustomButton
-                textContent={t('wallet.pools.closePool')}
-                actionFunction={handleClosePool}
-              />
-            ) : (
-              <AdaptiveButtonRow
-                labels={[contributeLabel, shareLabel]}
-                containerStyle={styles.actionsRow}
+            {/* Creator text */}
+            <ThemeText
+              styles={[styles.creatorText, { color: tokens.muted }]}
+              CustomNumberOfLines={1}
+              CustomEllipsizeMode={'tail'}
+              content={`${t('wallet.pools.createdBy')}${
+                pool.creatorName || t('wallet.pools.unknown')
+              }`}
+            />
+
+            {/* Overlapping avatar stack + contributor count */}
+            {!hideContributorsForClosedPools && (
+              <TouchableOpacity
+                style={styles.avatarRow}
+                onPress={handleContributorClick}
+                activeOpacity={0.7}
               >
-                {({ buttonStyle }) => (
-                  <>
-                    <CustomButton
-                      buttonStyles={[styles.actionButton, buttonStyle]}
-                      enableElipsis={false}
-                      textContent={t('wallet.pools.contribute')}
-                      actionFunction={handleContribute}
-                    />
-                    <CustomButton
-                      buttonStyles={[
-                        styles.actionButton,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? COLORS.lightModeText
-                              : tokens.accent,
-                        },
-                        buttonStyle,
-                      ]}
-                      enableElipsis={false}
-                      textStyles={{ color: tokens.onAccent }}
-                      textContent={t('wallet.pools.share')}
-                      actionFunction={handleShare}
-                    />
-                  </>
-                )}
-              </AdaptiveButtonRow>
+                <AvatarStack
+                  contributors={[...contributions]}
+                  maxVisible={4}
+                  avatarSize={32}
+                />
+                <ThemeText
+                  styles={styles.contributorCountText}
+                  content={t('wallet.pools.contributorCount', {
+                    count: contributions.length,
+                  })}
+                />
+                <ThemeIcon
+                  iconName={'ChevronRight'}
+                  colorOverride={tokens.muted}
+                  size={15}
+                />
+              </TouchableOpacity>
             )}
           </View>
-        )}
 
-        {/* ── Section 3: Recent Activity ── */}
-        {!hideContributorsForClosedPools && (
-          <View style={styles.activitySection}>
-            <SectionCard title={t('wallet.pools.activitySection')}>
+          {/* ── Section 2: Actions or Closed Banner ── */}
+          {!isActive ? (
+            <ListCard style={styles.closedBanner}>
+              <ListRow
+                lead={<Disc icon={'Lock'} />}
+                title={`${t('wallet.pools.closed')}${closedDate}`}
+                sub={t('wallet.pools.moneyTransferred')}
+              />
+            </ListCard>
+          ) : (
+            <View style={styles.buttonsContainer}>
+              {isCreator && pool.currentAmount >= pool.goalAmount ? (
+                <CustomButton
+                  textContent={t('wallet.pools.closePool')}
+                  actionFunction={handleClosePool}
+                  size={'regular'}
+                />
+              ) : (
+                <AdaptiveButtonRow
+                  labels={[contributeLabel, shareLabel]}
+                  containerStyle={styles.actionsRow}
+                >
+                  {({ buttonStyle }) => (
+                    <>
+                      <CustomButton
+                        buttonStyles={[styles.actionButton, buttonStyle]}
+                        enableElipsis={false}
+                        textContent={t('wallet.pools.contribute')}
+                        actionFunction={handleContribute}
+                        size={'regular'}
+                      />
+                      <CustomButton
+                        buttonStyles={[styles.actionButton, buttonStyle]}
+                        enableElipsis={false}
+                        textContent={t('wallet.pools.share')}
+                        actionFunction={handleShare}
+                        size={'regular'}
+                        tone="secondary"
+                      />
+                    </>
+                  )}
+                </AdaptiveButtonRow>
+              )}
+            </View>
+          )}
+
+          {/* ── Section 3: Recent Activity ── */}
+          {!hideContributorsForClosedPools && (
+            <View style={styles.activitySection}>
+              <SectionHeader
+                title={t('wallet.pools.activitySection')}
+                first={true}
+              />
+
               {recentActivity.length <= 1 && contributions.length === 0 ? (
                 <View style={styles.emptyActivity}>
-                  <ThemeText
-                    styles={styles.emptyActivityText}
-                    content={t('wallet.pools.noActivity')}
+                  <EmptyState
+                    icon={'UsersRound'}
+                    title={t('wallet.pools.noActivity')}
                   />
                 </View>
               ) : (
-                <>
+                <ListCard>
                   {recentActivity.map((item, index) => {
                     if (!item) return null;
                     const name =
-                      item?.creatorName || item?.contributorName || 'Unknown';
+                      item?.creatorName ||
+                      item?.contributorName ||
+                      t('wallet.pools.unknown');
                     const isLast = index === recentActivity.length - 1;
                     const showSeparator =
                       !isLast || contributions.length > MAX_VISIBLE_ACTIVITY;
 
                     return (
-                      <View key={index}>
-                        <View style={styles.activityRow}>
+                      <ListRow
+                        lead={
                           <ContributorAvatar
                             avatarSize={36}
                             contributorName={name}
                           />
-                          <ThemeText
-                            styles={styles.activityName}
-                            CustomNumberOfLines={3}
-                            CustomEllipsizeMode={'tail'}
-                            content={
-                              name === 'Anonymous'
-                                ? t('constants.annonName')
-                                : name
-                            }
-                          />
-                          {item.isOrganizer ? (
+                        }
+                        title={
+                          name === 'Anonymous' ? t('constants.annonName') : name
+                        }
+                        trailing={
+                          item.isOrganizer ? (
                             <ThemeText
-                              styles={styles.activityRoleLabel}
+                              styles={[
+                                styles.activityRoleLabel,
+                                { color: tokens.muted },
+                              ]}
                               content={t('wallet.pools.organizer')}
                             />
                           ) : (
@@ -480,51 +485,41 @@ export default function PoolDetailScreen(props) {
                               styles={styles.activityAmount}
                               content={formatAmount(item.amount)}
                             />
-                          )}
-                        </View>
-                        {showSeparator && (
-                          <View
-                            style={[
-                              styles.activitySeparator,
-                              { borderBottomColor: backgroundColor },
-                            ]}
-                          />
-                        )}
-                      </View>
+                          )
+                        }
+                        titleStyle={styles.activityName}
+                      />
                     );
                   })}
 
                   {/* View All row */}
                   {contributions.length > MAX_VISIBLE_ACTIVITY && (
-                    <TouchableOpacity
-                      style={styles.viewAllRow}
+                    <ListRow
+                      titleStyle={{
+                        color: tokens.link,
+                        fontSize: SIZES.smedium,
+                      }}
+                      title={t('settings.hub.viewAll')}
+                      showChevron={true}
                       onPress={handleContributorClick}
-                      activeOpacity={0.7}
-                    >
-                      <ThemeText
-                        styles={styles.viewAllText}
-                        content={t('settings.hub.viewAll')}
-                      />
-                      <ThemeIcon iconName={'ChevronRight'} size={20} />
-                    </TouchableOpacity>
+                    />
                   )}
-                </>
+                </ListCard>
               )}
-            </SectionCard>
-          </View>
-        )}
-      </CustomScrollView>
+            </View>
+          )}
+        </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
   scrollContent: {
-    width: WINDOWWIDTH,
-    ...CENTER,
     flexGrow: 1,
-    paddingBottom: 20,
   },
+  centerComponenet: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   // ── Hero ──
   heroContainer: {
@@ -533,8 +528,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   creatorText: {
-    fontSize: SIZES.medium,
-    opacity: 0.6,
+    fontSize: SIZES.small,
     marginTop: 16,
     includeFontPadding: false,
   },
@@ -546,7 +540,6 @@ const styles = StyleSheet.create({
   },
   contributorCountText: {
     fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
   },
 
@@ -564,23 +557,7 @@ const styles = StyleSheet.create({
 
   // ── Closed Banner ──
   closedBanner: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 16,
     marginTop: 20,
-  },
-  closedTextContainer: {
-    flex: 1,
-  },
-  closedSubtext: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    marginTop: 2,
-    includeFontPadding: false,
   },
 
   // ── Activity Section ──
@@ -588,21 +565,13 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 24,
   },
-  activityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
+
   activityName: {
-    flex: 1,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   activityRoleLabel: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
     flexShrink: 0,
   },
@@ -611,33 +580,10 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     flexShrink: 0,
   },
-  activitySeparator: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    marginLeft: 16 + 36 + 10, // paddingHorizontal + avatarSize + gap
-  },
-
-  // ── View All ──
-  viewAllRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  viewAllText: {
-    flex: 1,
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
 
   // ── Empty Activity ──
   emptyActivity: {
     paddingVertical: 24,
     alignItems: 'center',
-  },
-  emptyActivityText: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    includeFontPadding: false,
   },
 });

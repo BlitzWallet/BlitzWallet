@@ -5,6 +5,7 @@ import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useMemo } from 'react';
 import ThemeIcon from './themeIcon';
+import { useInSheet } from './redesign/sheetSurface';
 
 export default function CustomButton({
   buttonStyles,
@@ -23,11 +24,14 @@ export default function CustomButton({
   icon,
 }) {
   const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const isSheet = useInSheet();
   // Redesign pill is opt-in: without size/tone the button renders as today.
   const redesign = !!(size || tone);
   const fill = redesign
     ? tone === 'secondary'
-      ? tokens.surface
+      ? isSheet
+        ? tokens.ground
+        : tokens.surface
       : tone === 'danger'
       ? tokens.danger
       : tokens.accent

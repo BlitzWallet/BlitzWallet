@@ -60,6 +60,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   width = 0.95,
   maxWidth = 375,
   shouldDisplaySuccessState = false,
+  titleStyles,
 }) {
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -240,6 +241,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
               { left: height + 10, right: height + 10 },
               textStyle,
               titleDynamicStyles,
+              titleStyles,
             ]}
           >
             {titleText}

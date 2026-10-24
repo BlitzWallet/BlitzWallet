@@ -1,20 +1,27 @@
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+} from '../../../../constants';
+import { FONT } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../../../context-store/poolContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import PoolCard from './poolCard';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
-import PoolsInfoCard from './poolsInfoCard';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import InfoDropdown from '../../../../functions/CustomElements/redesign/InfoDropdown';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 
 export default function PoolManagementScreen() {
   const navigate = useNavigation();
@@ -24,7 +31,10 @@ export default function PoolManagementScreen() {
     syncActivePoolsFromServer,
     updatePoolList,
   } = usePools();
+
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [isRefreshing, setIsRefreshing] = useState(true);
 
@@ -41,91 +51,81 @@ export default function PoolManagementScreen() {
 
   const handlePoolPress = useCallback(
     pool => {
-      navigate.navigate('PoolDetailScreen', { poolId: pool.poolId, pool });
+      navigate.navigate('PoolDetailScreen', {
+        poolId: pool.poolId,
+        pool,
+      });
     },
     [navigate],
   );
 
-  const renderPoolItem = useCallback(
-    ({ item }) => {
-      if (item.isHeader) {
-        return <ThemeText styles={styles.sectionHeader} content={item.title} />;
-      }
-
-      if (item.isEmpty) {
-        return (
-          <ThemeText styles={styles.emptySection} content={item.message} />
-        );
-      }
-
-      return <PoolCard pool={item} onPress={() => handlePoolPress(item)} />;
-    },
-    [handlePoolPress],
-  );
-
   useFocusEffect(
     useCallback(() => {
+      let isMounted = true;
+
       async function loadPools() {
-        const pools = await updatePoolList();
-        await syncActivePoolsFromServer(pools);
-        setIsRefreshing(false);
+        try {
+          const pools = await updatePoolList();
+          await syncActivePoolsFromServer(pools);
+        } finally {
+          if (isMounted) {
+            setIsRefreshing(false);
+          }
+        }
       }
+
       loadPools();
+
+      return () => {
+        isMounted = false;
+      };
     }, [updatePoolList, syncActivePoolsFromServer]),
   );
 
-  const renderEmptyState = () => (
-    <NoContentSceen
-      iconName="PiggyBank"
-      titleText={t('wallet.pools.noPoolsTitle')}
-      subTitleText={t('wallet.pools.noPoolsSubTitle')}
-    />
-  );
-
-  // Build data array based on what exists
-  const buildPoolsData = () => {
-    if (!hasAnyPools) {
-      return [];
-    }
-
-    const data = [];
-
-    // Active section
-    data.push({
+  const sections = [
+    {
+      poolId: 'active',
       title: t('wallet.pools.active'),
-      isHeader: true,
-      poolId: 'header-active',
-    });
-    if (hasActivePools) {
-      data.push(...activePoolsArray);
-    } else {
-      data.push({
-        isEmpty: true,
-        message: t('wallet.pools.noActivePools'),
-        poolId: 'empty-active',
-      });
-    }
-
-    // Closed section
-    data.push({
+      pools: activePoolsArray,
+      emptyMessage: t('wallet.pools.noActivePools'),
+    },
+    {
+      poolId: 'closed',
       title: t('wallet.pools.closedSection'),
-      isHeader: true,
-      poolId: 'header-closed',
-    });
-    if (hasClosedPools) {
-      data.push(...closedPoolsArray);
-    } else {
-      data.push({
-        isEmpty: true,
-        message: t('wallet.pools.noClosedPools'),
-        poolId: 'empty-closed',
-      });
-    }
+      pools: closedPoolsArray,
+      emptyMessage: t('wallet.pools.noClosedPools'),
+    },
+  ];
 
-    return data;
-  };
+  const renderPoolSection = useCallback(
+    ({ item }) => {
+      const hasPools = item.pools.length > 0;
 
-  const pools = buildPoolsData();
+      return (
+        <View style={styles.section}>
+          <SectionHeader title={item.title} />
+
+          {hasPools ? (
+            <ListCard>
+              {item.pools.map(pool => (
+                <PoolCard
+                  key={pool.poolId}
+                  pool={pool}
+                  onPress={() => handlePoolPress(pool)}
+                />
+              ))}
+            </ListCard>
+          ) : (
+            <ThemeText
+              styles={styles.emptySection}
+              content={item.emptyMessage}
+            />
+          )}
+        </View>
+      );
+    },
+    [handlePoolPress],
+  );
 
   if (isRefreshing) {
     return (
@@ -137,43 +137,96 @@ export default function PoolManagementScreen() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t(`screens.inAccount.settingsContent.pools`)}
-      />
-      <FlatList
-        data={pools}
-        renderItem={renderPoolItem}
-        keyExtractor={item => item.poolId}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={renderEmptyState}
-        ListHeaderComponent={<PoolsInfoCard />}
-      />
+      <View style={[styles.innerContainer, { width: contentWidth }]}>
+        <TopBar title={t('screens.inAccount.settingsContent.pools')} />
 
-      <CustomButton
-        buttonStyles={styles.createButton}
-        textContent={t('wallet.pools.createPool')}
-        actionFunction={handleCreatePool}
-      />
+        <FlatList
+          data={hasAnyPools ? sections : []}
+          renderItem={renderPoolSection}
+          keyExtractor={item => item.poolId}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <EmptyState
+                icon="PiggyBank"
+                title={t('wallet.pools.noPoolsTitle')}
+                sub={t('wallet.pools.noPoolsSubTitle')}
+              />
+            </View>
+          }
+          ListHeaderComponent={
+            <InfoDropdown
+              icon="Info"
+              title={t('wallet.pools.info.title')}
+              infoComponenet={
+                <>
+                  <ThemeText
+                    styles={styles.sectionTitle}
+                    content={t('wallet.pools.info.whatArePools')}
+                  />
+
+                  <ThemeText
+                    styles={styles.bodyText}
+                    content={t('wallet.pools.info.whatArePoolsBody')}
+                  />
+
+                  <ThemeText
+                    styles={styles.sectionTitle}
+                    content={t('wallet.pools.info.howItWorks')}
+                  />
+
+                  <ThemeText
+                    styles={styles.bulletText}
+                    content={t('wallet.pools.info.howStep1')}
+                  />
+
+                  <ThemeText
+                    styles={styles.bulletText}
+                    content={t('wallet.pools.info.howStep2')}
+                  />
+
+                  <ThemeText
+                    styles={styles.bulletText}
+                    content={t('wallet.pools.info.howStep3')}
+                  />
+
+                  <ThemeText
+                    styles={styles.bulletText}
+                    content={t('wallet.pools.info.howStep4')}
+                  />
+                </>
+              }
+            />
+          }
+        />
+
+        <CustomButton
+          buttonStyles={styles.createButton}
+          textContent={t('wallet.pools.createPool')}
+          actionFunction={handleCreatePool}
+          size="regular"
+        />
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  innerContainer: {
+    flex: 1,
+    ...CENTER,
+  },
   listContent: {
     flexGrow: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    paddingBottom: 20,
+  },
+  section: {
+    marginBottom: 12,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 60,
-  },
-  emptyText: {
-    textAlign: 'center',
   },
   emptySection: {
     fontSize: SIZES.medium,
@@ -181,14 +234,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 20,
   },
-  sectionHeader: {
-    fontSize: SIZES.large,
-    marginTop: 20,
-    marginBottom: 12,
-  },
   createButton: {
-    ...CENTER,
-    width: INSET_WINDOW_WIDTH,
     marginTop: CONTENT_KEYBOARD_OFFSET,
+  },
+  sectionTitle: {
+    fontSize: SIZES.smedium,
+    fontFamily: FONT.Title_Medium,
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  bodyText: {
+    fontSize: SIZES.small,
+    opacity: 0.8,
+    lineHeight: 18,
+  },
+  bulletText: {
+    fontSize: SIZES.small,
+    opacity: 0.8,
+    lineHeight: 18,
+    paddingLeft: 8,
+    marginBottom: 2,
   },
 });

@@ -159,12 +159,18 @@ export default function CustomHalfModal(props) {
     contentType === 'nwcAuthApproval' ||
     contentType === 'lnurlReceiveCurrencySelect' ||
     contentType === 'ProfilePhotoModal' ||
-    contentType === 'socialLinks';
+    contentType === 'socialLinks' ||
+    contentType === 'closePoolConfirmation' ||
+    contentType === 'createPoolFlow' ||
+    contentType === 'contributeToPool';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   // { onPress, title } when the active content registers a back step, else null
   const [backNav, setBackNav] = useState(null);
+  // Content sets this while it must not be swiped or tapped away (a payment
+  // in flight). Its own buttons can still close the sheet.
+  const [dismissLocked, setDismissLocked] = useState(false);
   const [isKeyboardActive, setIsKeyboardActive] = useState(
     contentType === 'AddMessageReceivePage' ? true : false,
   );
@@ -535,11 +541,9 @@ export default function CustomHalfModal(props) {
       case 'createPoolFlow':
         return (
           <CreatePoolFlow
-            route={props?.route}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
             navigate={navigation}
-            setBackNav={setBackNav}
           />
         );
       case 'closePoolConfirmation':
@@ -558,7 +562,7 @@ export default function CustomHalfModal(props) {
             poolId={props?.route?.params?.poolId}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
-            setBackNav={setBackNav}
+            setDismissLocked={setDismissLocked}
           />
         );
       case 'nwcAuthApproval':
@@ -890,6 +894,7 @@ export default function CustomHalfModal(props) {
   };
 
   const panGesture = Gesture.Pan()
+    .enabled(!dismissLocked)
     .onUpdate(e => {
       if (e.translationY > 0) {
         translateY.value = e.translationY;
@@ -916,6 +921,7 @@ export default function CustomHalfModal(props) {
       <TouchableOpacity
         style={[styles.backdrop, { backgroundColor: transparentOveraly }]}
         activeOpacity={1}
+        disabled={dismissLocked}
         onPress={handleBackPressFunction}
       />
       <Animated.View
@@ -951,7 +957,6 @@ export default function CustomHalfModal(props) {
                 contentType === 'SelectLRC20Token' ||
                 contentType === 'sendOptions' ||
                 contentType === 'receiveOptions' ||
-                contentType === 'createPoolFlow' ||
                 contentType === 'ClaimGiftHomeHalfModal' ||
                 contentType === 'btcMapList'
               ? isKeyboardActive
@@ -959,7 +964,6 @@ export default function CustomHalfModal(props) {
                 : contentType === 'switchGenerativeAiModel' ||
                   contentType === 'addContacts' ||
                   contentType === 'sendOptions' ||
-                  contentType === 'createPoolFlow' ||
                   contentType === 'SelectLRC20Token' ||
                   contentType === 'btcMapList'
                 ? 0
@@ -1008,7 +1012,9 @@ export default function CustomHalfModal(props) {
                     isRedesignSheet && styles.redesignGrab,
                     {
                       backgroundColor:
-                        theme && darkModeType ? backgroundColor : tokens.grab,
+                        isRedesignSheet || !(theme && darkModeType)
+                          ? tokens.grab
+                          : backgroundColor,
                     },
                   ]}
                 />
