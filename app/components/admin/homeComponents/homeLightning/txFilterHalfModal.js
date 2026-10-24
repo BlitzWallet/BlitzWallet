@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import {
-  COLORS,
+  FONT,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -12,8 +12,8 @@ import {
 import { CENTER } from '../../../../constants';
 import { useEffect, useState } from 'react';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 
 const TYPE_KEYS = [
   'Lightning',
@@ -43,11 +43,10 @@ export default function TxFilterHalfModal({
   onSelectFilter,
   handleBackPressFunction,
   setContentHeight,
+  onBack,
 }) {
   const { t } = useTranslation();
-  const { textColor, backgroundColor, backgroundOffset, tokens } =
-    GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
 
   const [draft, setDraft] = useState({
     directions: currentFilter?.directions ?? [],
@@ -55,9 +54,10 @@ export default function TxFilterHalfModal({
     types: currentFilter?.types ?? [],
   });
 
+  // Embedded as a step (onBack), the host sheet owns the height.
   useEffect(() => {
-    setContentHeight(680);
-  }, [setContentHeight]);
+    if (!onBack) setContentHeight(640);
+  }, [setContentHeight, onBack]);
 
   const toggleDirection = dir => {
     setDraft(prev => ({
@@ -94,178 +94,118 @@ export default function TxFilterHalfModal({
   };
 
   const ns = 'screens.inAccount.viewAllTxPage';
-  const inactiveBorderColor =
-    theme && darkModeType ? backgroundColor : backgroundOffset;
 
   const hasItemsSeleceted =
     draft.directions.length || draft.dateRange || draft.types.length;
 
+  const renderPill = (isActive, label, onPress, key, icon, isLarge) => (
+    <TouchableOpacity
+      key={key}
+      style={[
+        styles.pill,
+        isLarge && styles.directionPill,
+        { backgroundColor: isActive ? tokens.accent : tokens.ground },
+      ]}
+      onPress={onPress}
+      activeOpacity={0.75}
+    >
+      {icon && (
+        <ThemeIcon
+          redesign
+          iconName={icon}
+          size={18}
+          colorOverride={isActive ? tokens.onAccent : tokens.ink}
+        />
+      )}
+      <ThemeText
+        styles={[
+          styles.pillText,
+          isLarge && styles.directionText,
+          { color: isActive ? tokens.onAccent : tokens.ink },
+        ]}
+        content={label}
+      />
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <ThemeText styles={styles.title} content={t(`${ns}.filterModalTitle`)} />
-
       <CustomScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
       >
-        {/* --- Direction --- */}
+        {onBack && (
+          <IconButton
+            icon="ArrowLeft"
+            label="constants.back"
+            tone="disc"
+            onPress={onBack}
+          />
+        )}
         <ThemeText
-          styles={styles.sectionLabel}
+          styles={[styles.title, onBack && styles.titleAfterBack]}
+          content={t(`${ns}.filterModalTitle`)}
+        />
+
+        <ThemeText
+          styles={[styles.sectionLabel, { color: tokens.muted }]}
           content={t(`${ns}.filterDirectionTitle`)}
         />
         <View style={styles.directionRow}>
-          {DIRECTION_OPTIONS.map(({ dir, icon, labelKey }) => {
-            const isActive = draft.directions.includes(dir);
-            return (
-              <TouchableOpacity
-                key={dir}
-                style={[
-                  styles.directionCard,
-                  isActive
-                    ? {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : tokens.accent,
-                        borderColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : tokens.accent,
-                      }
-                    : [
-                        styles.cardInactive,
-                        { borderColor: inactiveBorderColor },
-                      ],
-                ]}
-                onPress={() => toggleDirection(dir)}
-                activeOpacity={0.7}
-              >
-                <ThemeIcon
-                  iconName={icon}
-                  size={20}
-                  colorOverride={isActive ? tokens.onAccent : textColor}
-                />
-                <ThemeText
-                  styles={[
-                    styles.directionLabel,
-                    { color: isActive ? tokens.onAccent : textColor },
-                  ]}
-                  content={t(`${ns}.${labelKey}`)}
-                />
-              </TouchableOpacity>
-            );
-          })}
+          {DIRECTION_OPTIONS.map(({ dir, icon, labelKey }) =>
+            renderPill(
+              draft.directions.includes(dir),
+              t(`${ns}.${labelKey}`),
+              () => toggleDirection(dir),
+              dir,
+              icon,
+              true,
+            ),
+          )}
         </View>
 
-        <View style={[styles.divider, { borderTopColor: tokens.divider }]} />
-
-        {/* --- Date Range --- */}
         <ThemeText
-          styles={styles.sectionLabel}
+          styles={[styles.sectionLabel, { color: tokens.muted }]}
           content={t(`${ns}.filterDateTitle`)}
         />
         <View style={styles.pillRow}>
-          {DATE_OPTIONS.map(({ key, labelKey }) => {
-            const isActive = draft.dateRange === key;
-            return (
-              <TouchableOpacity
-                key={key}
-                style={[
-                  styles.pill,
-                  isActive
-                    ? {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : tokens.accent,
-                        borderColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : tokens.accent,
-                      }
-                    : [
-                        styles.pillInactive,
-                        { borderColor: inactiveBorderColor },
-                      ],
-                ]}
-                onPress={() => toggleDate(key)}
-                activeOpacity={0.7}
-              >
-                <ThemeText
-                  styles={[
-                    styles.pillText,
-                    { color: isActive ? tokens.onAccent : textColor },
-                  ]}
-                  content={t(`${ns}.${labelKey}`)}
-                />
-              </TouchableOpacity>
-            );
-          })}
+          {DATE_OPTIONS.map(({ key, labelKey }) =>
+            renderPill(
+              draft.dateRange === key,
+              t(`${ns}.${labelKey}`),
+              () => toggleDate(key),
+              key,
+            ),
+          )}
         </View>
 
-        <View style={[styles.divider, { borderTopColor: tokens.divider }]} />
-
-        {/* --- Transaction Type --- */}
         <ThemeText
-          styles={styles.sectionLabel}
+          styles={[styles.sectionLabel, { color: tokens.muted }]}
           content={t(`${ns}.filterTypeTitle`)}
         />
         <View style={styles.pillRow}>
-          {TYPE_KEYS.map(type => {
-            const isActive = draft.types.includes(type);
-            return (
-              <TouchableOpacity
-                key={type}
-                style={[
-                  styles.pill,
-                  isActive
-                    ? {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : tokens.accent,
-                        borderColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : tokens.accent,
-                      }
-                    : [
-                        styles.pillInactive,
-                        { borderColor: inactiveBorderColor },
-                      ],
-                ]}
-                onPress={() => toggleType(type)}
-                activeOpacity={0.7}
-              >
-                <ThemeText
-                  styles={[
-                    styles.pillText,
-                    { color: isActive ? tokens.onAccent : textColor },
-                  ]}
-                  content={t(`${ns}.filter${type}`)}
-                />
-              </TouchableOpacity>
-            );
-          })}
+          {TYPE_KEYS.map(type =>
+            renderPill(
+              draft.types.includes(type),
+              t(`${ns}.filter${type}`),
+              () => toggleType(type),
+              type,
+            ),
+          )}
         </View>
-
-        <View style={{ height: 20 }} />
       </CustomScrollView>
 
-      {/* --- Sticky bottom bar --- */}
       <View style={[styles.bottomBar, { borderTopColor: tokens.divider }]}>
         <TouchableOpacity
-          style={{
-            opacity: hasItemsSeleceted ? 1 : HIDDEN_OPACITY,
-            flexShrink: 1,
-          }}
+          style={[
+            styles.clearButton,
+            { opacity: hasItemsSeleceted ? 1 : HIDDEN_OPACITY },
+          ]}
           onPress={handleClear}
           activeOpacity={hasItemsSeleceted ? 0.2 : HIDDEN_OPACITY}
         >
           <ThemeText
-            CustomNumberOfLines={2}
-            adjustsFontSizeToFit={true}
-            allowFontScaling={true}
+            styles={styles.clearText}
             content={t(`${ns}.filterClearAll`)}
           />
         </TouchableOpacity>
@@ -273,6 +213,8 @@ export default function TxFilterHalfModal({
           buttonStyles={styles.applyButton}
           actionFunction={handleApply}
           textContent={t(`${ns}.filterApply`)}
+          size="regular"
+          tone="primary"
         />
       </View>
     </View>
@@ -289,89 +231,76 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-    marginBottom: 20,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 28,
+    marginTop: 18,
     includeFontPadding: false,
   },
+  titleAfterBack: {
+    marginTop: 12,
+  },
   sectionLabel: {
-    fontSize: SIZES.small,
+    fontFamily: FONT.Title_Regular,
+    fontSize: SIZES.smedium,
+    lineHeight: 20,
+    marginTop: 20,
     marginBottom: 10,
     includeFontPadding: false,
-    opacity: 0.5,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
   },
   directionRow: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 16,
-  },
-  directionCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 18,
-    borderRadius: 12,
-    borderWidth: 1.5,
-  },
-  cardActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  cardInactive: {},
-  directionLabel: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-    fontWeight: '500',
-  },
-  divider: {
-    borderTopWidth: 1,
-    marginVertical: 16,
   },
   pillRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
   },
   pill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1.5,
+    minHeight: 44,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
-  pillActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+  directionPill: {
+    flex: 1,
+    minHeight: 52,
   },
-  pillInactive: {},
   pillText: {
+    fontFamily: FONT.Title_Regular,
     fontSize: SIZES.smedium,
+    lineHeight: 20,
     includeFontPadding: false,
+    flexShrink: 1,
+  },
+  directionText: {
+    fontSize: 15,
   },
   bottomBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
+    gap: 12,
+    marginTop: 24,
+    paddingTop: 16,
     borderTopWidth: 1,
-    gap: 10,
+  },
+  clearButton: {
+    flex: 1,
+    minHeight: 52,
+    justifyContent: 'center',
   },
   clearText: {
+    fontFamily: FONT.Title_Regular,
     fontSize: SIZES.medium,
+    lineHeight: 22,
     includeFontPadding: false,
   },
   applyButton: {
-    width: '50%',
-    flexShrink: 1,
-  },
-  applyText: {
-    color: '#fff',
-    fontSize: SIZES.medium,
-    fontWeight: '600',
-    includeFontPadding: false,
+    flex: 1,
+    minHeight: 52,
   },
 });

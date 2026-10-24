@@ -14,6 +14,69 @@ import { getAllSparkTransactions } from '../../../../functions/spark/transaction
 import { formatBalanceAmount } from '../../../../functions';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 
+// Builds the CSV of every Spark tx and opens the share sheet. Resolves null
+// when there is nothing to export.
+export async function exportTransactionsCsv({
+  accountId,
+  masterInfoObject,
+  t,
+}) {
+  const allTxs = await getAllSparkTransactions({
+    accountId,
+  });
+  if (!allTxs || !allTxs.length) return null;
+  crashlyticsLogReport('Stating transaction exporting');
+  const headers = [
+    [
+      t('wallet.exportTransactions.paymentType'),
+      t('wallet.exportTransactions.description'),
+      t('wallet.exportTransactions.date'),
+      t('wallet.exportTransactions.txFees'),
+      t('wallet.exportTransactions.amount'),
+      t('wallet.exportTransactions.sent/received'),
+    ],
+  ];
+
+  const conjoinedTxList = allTxs;
+  let formatedData = [];
+
+  for (let index = 0; index < conjoinedTxList.length; index++) {
+    const tx = conjoinedTxList[index];
+
+    try {
+      const txDetails = JSON.parse(tx.details);
+      const txDate = new Date(txDetails.time);
+
+      const formattedTx = [
+        tx.paymentType,
+        txDetails.description
+          ? txDetails.description
+          : t('constants.noDescription'),
+        txDate.toLocaleString().replace(/,/g, ' '),
+        formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),
+        formatBalanceAmount(txDetails.amount, undefined, masterInfoObject),
+        txDetails.direction === 'OUTGOING'
+          ? t('constants.sent')
+          : t('constants.received'),
+      ];
+      formatedData.push(formattedTx);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const csvData = headers
+    .concat(formatedData)
+    .map(row =>
+      row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','),
+    )
+    .join('\n');
+
+  const fileName = 'BlitzWallet.csv';
+
+  return writeAndShareFileToFilesystem(csvData, fileName, 'text/csv');
+}
+
 export default function ConfirmExportPayments({
   startExport,
   theme,
@@ -29,70 +92,12 @@ export default function ConfirmExportPayments({
   const onSwipeSuccess = useCallback(() => {
     setTimeout(async () => {
       try {
-        const allTxs = await getAllSparkTransactions({
+        const response = await exportTransactionsCsv({
           accountId: sparkInformation.identityPubKey,
+          masterInfoObject,
+          t,
         });
-        if (!allTxs || !allTxs.length) return;
-        crashlyticsLogReport('Stating transaction exporting');
-        const headers = [
-          [
-            t('wallet.exportTransactions.paymentType'),
-            t('wallet.exportTransactions.description'),
-            t('wallet.exportTransactions.date'),
-            t('wallet.exportTransactions.txFees'),
-            t('wallet.exportTransactions.amount'),
-            t('wallet.exportTransactions.sent/received'),
-          ],
-        ];
-
-        const conjoinedTxList = allTxs;
-        let formatedData = [];
-
-        for (let index = 0; index < conjoinedTxList.length; index++) {
-          const tx = conjoinedTxList[index];
-
-          try {
-            const txDetails = JSON.parse(tx.details);
-            const txDate = new Date(txDetails.time);
-
-            const formattedTx = [
-              tx.paymentType,
-              txDetails.description
-                ? txDetails.description
-                : t('constants.noDescription'),
-              txDate.toLocaleString().replace(/,/g, ' '),
-              formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),
-              formatBalanceAmount(
-                txDetails.amount,
-                undefined,
-                masterInfoObject,
-              ),
-              txDetails.direction === 'OUTGOING'
-                ? t('constants.sent')
-                : t('constants.received'),
-            ];
-            formatedData.push(formattedTx);
-          } catch (err) {
-            console.log(err);
-          }
-        }
-
-        const csvData = headers
-          .concat(formatedData)
-          .map(row =>
-            row
-              .map(field => `"${String(field).replace(/"/g, '""')}"`)
-              .join(','),
-          )
-          .join('\n');
-
-        const fileName = 'BlitzWallet.csv';
-
-        const response = await writeAndShareFileToFilesystem(
-          csvData,
-          fileName,
-          'text/csv',
-        );
+        if (!response) return;
 
         handleBackPressFunction(() => {
           navigate.goBack();

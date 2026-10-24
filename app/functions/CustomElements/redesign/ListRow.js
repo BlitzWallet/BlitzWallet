@@ -26,6 +26,7 @@ export default function ListRow({
   chevronSize = 20,
   accessibilityLabel,
   subLines,
+  titleLines,
 }) {
   const { tokens } = useTheme();
   const isNode = trailing && typeof trailing !== 'string';
@@ -89,6 +90,7 @@ export default function ListRow({
     >
       <View style={styles.texts}>
         <ThemeText
+          CustomNumberOfLines={titleLines}
           content={title}
           styles={[
             styles.title,

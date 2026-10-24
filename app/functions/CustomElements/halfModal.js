@@ -102,6 +102,7 @@ import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/se
 import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
 import ProfilePhotoModal from '../../components/admin/homeComponents/contacts/profilePhotoModal';
 import { SocialLinksSheet } from '../../components/admin/homeComponents/settingsContent/socialOptions';
+import ExportOrFilterHalfModal from '../../components/admin/homeComponents/viewAllComponents/actionsHalfMoal';
 import { SheetSurface } from './redesign/sheetSurface';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -162,7 +163,9 @@ export default function CustomHalfModal(props) {
     contentType === 'socialLinks' ||
     contentType === 'closePoolConfirmation' ||
     contentType === 'createPoolFlow' ||
-    contentType === 'contributeToPool';
+    contentType === 'contributeToPool' ||
+    contentType === 'ExportOrFilterHalfModal' ||
+    contentType === 'txFilter';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -885,6 +888,15 @@ export default function CustomHalfModal(props) {
           <SocialLinksSheet
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'ExportOrFilterHalfModal':
+        return (
+          <ExportOrFilterHalfModal
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+            currentFilter={props?.route?.params?.currentFilter}
+            onSelectFilter={props?.route?.params?.onSelectFilter}
           />
         );
 

@@ -1,305 +1,274 @@
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
 import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../functions/CustomElements';
+  SectionList,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
-import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
-import {
-  getAllSparkTransactions,
-  getFilteredTransactions,
-} from '../../functions/spark/transactions';
-import customUUID from '../../functions/customUUID';
+import { getFilteredTransactions } from '../../functions/spark/transactions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import NoContentSceen from '../../functions/CustomElements/noContentScreen';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../constants/theme';
-import CustomSearchInput from '../../functions/CustomElements/searchInput';
-import { keyboardNavigate } from '../../functions/customNavigation';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
+import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
+import ListCard, {
+  ListDivider,
+} from '../../functions/CustomElements/redesign/ListCard';
+import ActivityRow, {
+  buildActivitySections,
+} from '../../components/admin/homeComponents/viewAllComponents/activityRow';
+import { FONT } from '../../constants/theme';
 
-const FILTER_DEBOUNCE_MS = 500;
+const EMPTY_FILTER = { directions: [], dateRange: null, types: [] };
+const NS = 'screens.inAccount.viewAllTxPage';
+const DIRECTION_LABELS = { sent: 'filterSent', received: 'filterReceived' };
+
+// Rows sit in a per-row ListCard so the SectionList stays virtualised; only
+// the first/last row of a day keeps the card's rounded corners.
+const ActivitySeparator = () => (
+  <ListCard style={styles.middleRow}>
+    <ListDivider inset={68} />
+  </ListCard>
+);
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
-  const [currentFilter, setCurrentFilter] = useState({
-    directions: [],
-    dateRange: null,
-    types: [],
-    searchTerm: '',
-    searchUUID: '',
-  });
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const [isLoadingNewTxs, setIsLoadingNewTxs] = useState(false);
+  const [currentFilter, setCurrentFilter] = useState(EMPTY_FILTER);
+  const [rawTxs, setRawTxs] = useState(null);
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
-  const [txs, setTxs] = useState([]);
-  const searchUUIDRef = useRef('');
-  const isInitialLoad = useRef(true);
+  const { tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const requestIdRef = useRef(0);
   const { t } = useTranslation();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const enabledLRC20 = showTokensInformation;
 
+  // sparkInformation.transactions is only the recent slice, but it changes on
+  // every new or updated payment, so it doubles as the reload signal.
   useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      async function handleLoadTxs() {
-        try {
-          const hasActiveFilters =
-            currentFilter.directions.length > 0 ||
-            currentFilter.dateRange !== null ||
-            currentFilter.types.length > 0 ||
-            currentFilter.searchTerm.trim().length > 0;
-
-          let transactions;
-          if (!hasActiveFilters) {
-            const txs = await getAllSparkTransactions({
-              limit: null,
-              accountId: sparkInformation.identityPubKey,
-            });
-            transactions = txs;
-          } else {
-            transactions = await getFilteredTransactions(
-              {
-                directions: currentFilter.directions,
-                dateRange: currentFilter.dateRange,
-                types: currentFilter.types,
-                searchTerm: currentFilter.searchTerm,
-              },
-              { accountId: sparkInformation.identityPubKey },
-            );
-          }
-
-          const formattedTxs = getFormattedHomepageTxsForSpark({
-            sparkInformation: {
-              ...sparkInformation,
-              transactions,
-            },
-            navigate,
-            frompage: 'viewAllTx',
-            viewAllTxText: t('wallet.see_all_txs'),
-            noTransactionHistoryText: t('wallet.no_transaction_history'),
-            todayText: t('constants.today'),
-            yesterdayText: t('constants.yesterday'),
-            dayText: t('constants.day'),
-            monthText: t('constants.month'),
-            yearText: t('constants.year'),
-            agoText: t('transactionLabelText.ago'),
-            theme,
-            darkModeType,
-            userBalanceDenomination,
-            didGetToHomepage: true,
-            enabledLRC20,
-            poolInfoRef,
-            t,
-            swapLimits,
-            showFailedTransactions: true,
-          });
-
-          if (searchUUIDRef.current === currentFilter.searchUUID) {
-            setTxs(formattedTxs);
-          }
-        } finally {
-          isInitialLoad.current = false;
-          if (searchUUIDRef.current === currentFilter.searchUUID) {
-            setIsLoadingNewTxs(false);
-          }
-        }
-      }
-      handleLoadTxs();
-    }, FILTER_DEBOUNCE_MS);
-
-    return () => clearTimeout(debounceTimer);
+    const requestId = ++requestIdRef.current;
+    getFilteredTransactions(currentFilter, {
+      accountId: sparkInformation.identityPubKey,
+    }).then(result => {
+      if (requestId === requestIdRef.current) setRawTxs(result || []);
+    });
   }, [
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-    sparkInformation.tokens,
-    t,
-    navigate,
-    theme,
-    darkModeType,
-    userBalanceDenomination,
-    enabledLRC20,
     currentFilter,
-    swapLimits.bitcoin,
+    sparkInformation.identityPubKey,
+    sparkInformation.transactions,
   ]);
 
-  const handleFilterApply = useCallback(filters => {
-    searchUUIDRef.current = customUUID();
-    setIsLoadingNewTxs(true);
-    setCurrentFilter(prev => ({
-      ...filters,
-      searchTerm: prev.searchTerm,
-      searchUUID: searchUUIDRef.current,
-    }));
+  const sections = useMemo(
+    () =>
+      rawTxs &&
+      buildActivitySections({
+        transactions: rawTxs,
+        tokens: sparkInformation.tokens,
+        enabledLRC20: showTokensInformation,
+        t,
+      }),
+    [rawTxs, sparkInformation.tokens, showTokensInformation, t],
+  );
+
+  const applyFilter = useCallback(filter => {
+    setRawTxs(null);
+    setCurrentFilter(filter);
   }, []);
-
-  const handleSearchChange = useCallback(text => {
-    searchUUIDRef.current = customUUID();
-    setIsLoadingNewTxs(true);
-    setCurrentFilter(prev => ({
-      ...prev,
-      searchTerm: text,
-      searchUUID: searchUUIDRef.current,
-    }));
-  }, []);
-
-  const doesNotHaveTransactions = txs.length === 1 && txs[0].key === 'noTx';
-
-  const badgeCount =
-    currentFilter.directions.length +
-    (currentFilter.dateRange ? 1 : 0) +
-    currentFilter.types.length;
 
   const hasActiveFilters =
-    badgeCount > 0 || currentFilter.searchTerm.trim().length > 0;
+    currentFilter.directions.length > 0 ||
+    currentFilter.dateRange !== null ||
+    currentFilter.types.length > 0;
+
+  const filterSummary = [
+    ...currentFilter.directions.map(dir => t(`${NS}.${DIRECTION_LABELS[dir]}`)),
+    ...(currentFilter.dateRange
+      ? [t(`${NS}.filterDate${currentFilter.dateRange}`)]
+      : []),
+    ...currentFilter.types.map(type => t(`${NS}.filter${type}`)),
+  ].join(' · ');
+
+  const renderItem = useCallback(
+    ({ item, index, section }) => (
+      <ListCard
+        style={[
+          index > 0 && styles.squareTop,
+          index < section.data.length - 1 && styles.squareBottom,
+        ]}
+      >
+        <ActivityRow
+          item={item}
+          navigate={navigate}
+          userBalanceDenomination={userBalanceDenomination}
+          tokens={sparkInformation.tokens}
+          poolInfoRef={poolInfoRef}
+          swapLimits={swapLimits}
+        />
+      </ListCard>
+    ),
+    [
+      navigate,
+      userBalanceDenomination,
+      sparkInformation.tokens,
+      poolInfoRef,
+      swapLimits,
+    ],
+  );
+
+  const renderSectionHeader = useCallback(
+    ({ section }) => (
+      <SectionHeader
+        title={section.title}
+        style={
+          section === sections[0] &&
+          (hasActiveFilters ? styles.firstFiltered : styles.first)
+        }
+      />
+    ),
+    [sections, hasActiveFilters],
+  );
 
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      useStandardWidth={true}
-      styles={styles.globalContainer}
-      isKeyboardActive={isKeyboardActive}
-      useLocalPadding={true}
-    >
-      <CustomSettingsTopBar
-        showLeftImage={true}
-        iconNew="SlidersHorizontal"
-        badgeCount={badgeCount}
-        label={t('screens.inAccount.viewAllTxPage.title')}
-        leftImageFunction={() => {
-          navigate.navigate('CustomHalfModal', {
-            wantedContent: 'txFilter',
-            sliderHight: 0.65,
-            currentFilter: {
-              directions: currentFilter.directions,
-              dateRange: currentFilter.dateRange,
-              types: currentFilter.types,
-            },
-            onSelectFilter: filters => handleFilterApply(filters),
-          });
-        }}
-        shouldDismissKeyboard={true}
-      />
-      <View style={styles.contentContainer}>
-        <View style={styles.searchContainer}>
-          <CustomSearchInput
-            inputText={currentFilter.searchTerm}
-            setInputText={handleSearchChange}
-            placeholderText={t(
-              'screens.inAccount.viewAllTxPage.searchPlaceholder',
-            )}
-            onFocusFunction={() => setIsKeyboardActive(true)}
-            onBlurFunction={() => setIsKeyboardActive(false)}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t(`${NS}.title`)}
+          right={
+            <>
+              <IconButton
+                icon={'ChartColumn'}
+                label={`${NS}.insightsLabel`}
+                onPress={() => navigate.navigate('AnalyticsStack')}
+              />
+              <IconButton
+                icon={'Ellipsis'}
+                label={`${NS}.moreOptionsLabel`}
+                showActiveDot={hasActiveFilters}
+                onPress={() =>
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'ExportOrFilterHalfModal',
+                    currentFilter,
+                    onSelectFilter: applyFilter,
+                  })
+                }
+              />
+            </>
+          }
+        />
+        {hasActiveFilters && (
+          <View style={styles.filterBar}>
+            <ThemeText
+              styles={[styles.filterText, { color: tokens.muted }]}
+              content={
+                <>
+                  {t(`${NS}.filterShowing`)}{' '}
+                  <ThemeText
+                    styles={[styles.filterText, { color: tokens.ink }]}
+                    content={filterSummary}
+                  />
+                </>
+              }
+            />
+            <TouchableOpacity
+              style={[styles.clearButton, { backgroundColor: tokens.surface }]}
+              onPress={() => applyFilter(EMPTY_FILTER)}
+            >
+              <ThemeText
+                styles={styles.filterText}
+                content={t(`${NS}.filterClear`)}
+              />
+              <ThemeIcon redesign iconName="X" size={16} />
+            </TouchableOpacity>
+          </View>
+        )}
+        {!sections ? (
+          <FullLoadingScreen />
+        ) : !sections.length ? (
+          <View style={styles.emptyContainer}>
+            <EmptyState
+              icon="Clock"
+              title={t(
+                hasActiveFilters
+                  ? `${NS}.noFilterResultsTitle`
+                  : `${NS}.noTxHistoryTitle`,
+              )}
+              sub={t(
+                hasActiveFilters
+                  ? `${NS}.noFilterResultsSub`
+                  : `${NS}.noTxHistorySub`,
+              )}
+            />
+          </View>
+        ) : (
+          <SectionList
+            sections={sections}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
+            ItemSeparatorComponent={ActivitySeparator}
+            stickySectionHeadersEnabled={false}
+            initialNumToRender={12}
+            maxToRenderPerBatch={12}
+            windowSize={11}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
           />
-        </View>
-
-        <View style={{ flex: 1 }}>
-          {!txs.length || isLoadingNewTxs ? (
-            <FullLoadingScreen />
-          ) : doesNotHaveTransactions ? (
-            <NoContentSceen
-              iconName="Clock"
-              titleText={t(
-                hasActiveFilters
-                  ? 'screens.inAccount.viewAllTxPage.noFilterResultsTitle'
-                  : 'screens.inAccount.viewAllTxPage.noTxHistoryTitle',
-              )}
-              subTitleText={t(
-                hasActiveFilters
-                  ? 'screens.inAccount.viewAllTxPage.noFilterResultsSub'
-                  : 'screens.inAccount.viewAllTxPage.noTxHistorySub',
-              )}
-            />
-          ) : (
-            <FlatList
-              initialNumToRender={20}
-              maxToRenderPerBatch={20}
-              windowSize={3}
-              style={{ flex: 1, width: '100%' }}
-              showsVerticalScrollIndicator={false}
-              data={txs}
-              renderItem={({ item }) => item?.item}
-            />
-          )}
-        </View>
+        )}
       </View>
-      <TouchableOpacity
-        style={styles.exportButton}
-        onPress={() => {
-          keyboardNavigate(() => {
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'exportTransactions',
-              sliderHight: 0.5,
-            });
-          });
-        }}
-      >
-        <View style={styles.paddingContainer}>
-          <ThemeIcon
-            colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : tokens.accent
-            }
-            iconName="Share"
-            size={18}
-          />
-          <ThemeText
-            styles={styles.exportButtonText}
-            content={t('screens.inAccount.viewAllTxPage.exportButton')}
-          />
-        </View>
-      </TouchableOpacity>
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
+
 const styles = StyleSheet.create({
-  globalContainer: { width: '100%', height: 100 },
-  contentContainer: {
-    width: WINDOWWIDTH,
+  container: {
     flex: 1,
     ...CENTER,
   },
-  filterName: {
-    textAlign: 'center',
-    opacity: HIDDEN_OPACITY,
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
+  emptyContainer: {
+    flex: 1,
+    paddingTop: 160,
   },
-  searchContainer: {
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  exportButton: {
-    minHeight: 50,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    justifyContent: 'center',
+  listContent: { paddingBottom: 24 },
+  squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
+  squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
+  middleRow: { borderRadius: 0 },
+  first: { marginTop: 22 },
+  firstFiltered: { marginTop: 8 },
+  filterBar: {
+    marginTop: 18,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    borderRadius: 12,
-    backgroundColor: COLORS.darkModeText,
+    justifyContent: 'space-between',
+    rowGap: 2,
+    columnGap: 12,
   },
-  paddingContainer: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+  filterText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
+  clearButton: {
+    minHeight: 44,
+    paddingLeft: 16,
+    paddingRight: 12,
+    borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  exportButtonText: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-    color: COLORS.lightModeText,
+    gap: 6,
   },
 });

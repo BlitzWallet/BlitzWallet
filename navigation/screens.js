@@ -117,7 +117,6 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
     component: EditReceivePaymentInformation,
   },
 
-  { name: 'ViewAllTxPage', component: ViewAllTxPage },
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
   { name: 'ShowProfileQr', component: ShowProfileQr },
@@ -221,6 +220,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SparkReceivePage', component: SparkReceivePage },
   { name: 'SparkHodlInvoiceTest', component: SparkHodlInvoiceTest },
   { name: 'AnalyticsStack', component: AnalyticsStack },
+  { name: 'ViewAllTxPage', component: ViewAllTxPage },
 ];
 
 const FADE_SCREENS = [
