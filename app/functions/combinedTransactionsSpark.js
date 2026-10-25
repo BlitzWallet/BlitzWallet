@@ -626,7 +626,10 @@ export const UserTransaction = memo(function UserTransaction({
     )
       return;
     crashlyticsLogReport('Navigating to expanded tx from user transaction');
-    navigate.navigate('ExpandedTx', { isFailedPayment: {}, transaction });
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'expandedTx',
+      transaction,
+    });
   }, [frompage, navigate, transaction]);
 
   const showPendingTransactionStatusIcon =

@@ -144,7 +144,10 @@ export default memo(function ActivityRow({
 
   const handlePress = useCallback(() => {
     crashlyticsLogReport('Navigating to expanded tx from activity');
-    navigate.navigate('ExpandedTx', { isFailedPayment: {}, transaction: tx });
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'expandedTx',
+      transaction: tx,
+    });
   }, [navigate, tx]);
 
   const showSwapEstimate =

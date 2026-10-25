@@ -136,7 +136,8 @@
     "stablecoinRefundReceived": "Stablecoin refund",
     "payWith": "Pay with",
     "receiveAs": "Receive as",
-    "tokens": "Tokens"
+    "tokens": "Tokens",
+    "emailSupport": "Email support"
   },
   "languages": {
     "english": "English",
@@ -2602,7 +2603,12 @@
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
         "contactSupport": "Support",
-        "viewProgress": "View progress"
+        "viewProgress": "View progress",
+        "status": "Status",
+        "paymentFailed": "Payment failed",
+        "moreDetails": "More details",
+        "showLess": "Show less",
+        "waitingForConfirmations": "Waiting for {{count}} confirmations"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",

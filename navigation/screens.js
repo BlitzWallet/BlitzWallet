@@ -80,12 +80,10 @@ import {
   AdminHomeIndex,
   AppStorePageIndex,
   ConfirmTxPage,
-  ExpandedTx,
   ReceivePaymentHome,
   SendPaymentHome,
   SettingsContentIndex,
   SettingsIndex,
-  TechnicalTransactionDetails,
   ViewAllTxPage,
   ManagedAccountActivityPage,
   SettingsHub,
@@ -106,11 +104,6 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'ProfilePrintPage', component: ProfilePrintPage },
   { name: 'SendBTC', component: SendPaymentHome },
 
-  { name: 'ExpandedTx', component: ExpandedTx },
-  {
-    name: 'TechnicalTransactionDetails',
-    component: TechnicalTransactionDetails,
-  },
   // {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
   {
     name: 'EditReceivePaymentInformation',

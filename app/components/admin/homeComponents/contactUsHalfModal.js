@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { openInbox } from 'react-native-email-link';
+import { openComposer, openInbox } from 'react-native-email-link';
 import { useToast } from '../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../functions';
 import Disc from '../../../functions/CustomElements/redesign/Disc';
@@ -13,6 +13,8 @@ const SHEET_CHROME_HEIGHT = 49;
 export default function ContactUsHalfModal({
   handleBackPressFunction,
   setContentHeight,
+  emailSubject,
+  emailBody,
 }) {
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -22,9 +24,18 @@ export default function ContactUsHalfModal({
     handleBackPressFunction?.();
   };
 
+  // With a body (failed-payment support) the email opens pre-filled.
   const openEmailInbox = async () => {
     try {
-      await openInbox();
+      if (emailBody) {
+        await openComposer({
+          to: SUPPORT_EMAIL,
+          subject: emailSubject,
+          body: emailBody,
+        });
+      } else {
+        await openInbox();
+      }
     } catch (err) {
       copyToClipboard(SUPPORT_EMAIL, showToast);
     }
@@ -49,9 +60,11 @@ export default function ContactUsHalfModal({
           onPress={copyEmail}
         />
         <ListRow
-          title={t('constants.openInbox')}
+          title={t(
+            emailBody ? 'constants.emailSupport' : 'constants.openInbox',
+          )}
           minHeight={64}
-          lead={<Disc icon="Inbox" size={40} />}
+          lead={<Disc icon={emailBody ? 'Mail' : 'Inbox'} size={40} />}
           trailing="chevron"
           onPress={openEmailInbox}
         />

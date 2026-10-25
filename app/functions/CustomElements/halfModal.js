@@ -104,6 +104,7 @@ import ProfilePhotoModal from '../../components/admin/homeComponents/contacts/pr
 import { SocialLinksSheet } from '../../components/admin/homeComponents/settingsContent/socialOptions';
 import ExportOrFilterHalfModal from '../../components/admin/homeComponents/viewAllComponents/actionsHalfMoal';
 import { SheetSurface } from './redesign/sheetSurface';
+import ExpandedTx from '../../screens/inAccount/expandedTxPage';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -165,7 +166,8 @@ export default function CustomHalfModal(props) {
     contentType === 'createPoolFlow' ||
     contentType === 'contributeToPool' ||
     contentType === 'ExportOrFilterHalfModal' ||
-    contentType === 'txFilter';
+    contentType === 'txFilter' ||
+    contentType === 'expandedTx';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -831,6 +833,8 @@ export default function CustomHalfModal(props) {
           <ContactUsHalfModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            emailSubject={props?.route?.params?.emailSubject}
+            emailBody={props?.route?.params?.emailBody}
           />
         );
       case 'exportLeavesProgress':
@@ -897,6 +901,14 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             currentFilter={props?.route?.params?.currentFilter}
             onSelectFilter={props?.route?.params?.onSelectFilter}
+          />
+        );
+      case 'expandedTx':
+        return (
+          <ExpandedTx
+            transaction={props?.route?.params?.transaction}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
 
