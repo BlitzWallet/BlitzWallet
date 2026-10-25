@@ -108,6 +108,7 @@ export default memo(function ActivityRow({
   tokens,
   poolInfoRef,
   swapLimits,
+  sub,
 }) {
   const { t } = useTranslation();
   const { tx, time, isLRC20Payment, isFailed, showSwapConversion } = item;
@@ -166,7 +167,7 @@ export default memo(function ActivityRow({
         <Disc icon={icon} size={40} tone={isFailed ? 'danger' : 'default'} />
       }
       title={title}
-      sub={timeText}
+      sub={sub ?? timeText}
       trailing={
         showSwapEstimate ? (
           <FormattedSatText

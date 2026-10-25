@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 
 // Thin 8 pt progress bar (D301, X21-2): track `disc`, accent fill, r999.
-export default function ProgressBar({ value = 0, height = 8, style }) {
+export default function ProgressBar({ value = 0, height = 8, color, style }) {
   const { tokens } = useTheme();
   const clamped = Math.min(Math.max(Number(value) || 0, 0), 1);
   return (
@@ -24,7 +24,7 @@ export default function ProgressBar({ value = 0, height = 8, style }) {
           width: `${clamped * 100}%`,
           height: '100%',
           borderRadius: height / 2,
-          backgroundColor: tokens.accent,
+          backgroundColor: color || tokens.accent,
         }}
       />
     </View>

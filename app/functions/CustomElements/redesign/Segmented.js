@@ -12,6 +12,7 @@ export default function Segmented({
   accessibilityLabel,
   minHeight = 44,
   capitalizeLabels = true,
+  fit = false,
 }) {
   const { tokens } = useTheme();
 
@@ -38,6 +39,7 @@ export default function Segmented({
             style={[
               styles.segment,
               { minHeight },
+              fit && styles.fitSegment,
               selected && { backgroundColor: tokens.accent },
             ]}
           >
@@ -74,6 +76,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
   },
+  // Content-sized pills for a centred switch (Analytics Bitcoin/Dollars).
+  fitSegment: { flex: 0, paddingHorizontal: 20 },
   noCapitalize: {
     textTransform: 'none',
   },

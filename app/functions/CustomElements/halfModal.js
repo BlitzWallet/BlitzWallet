@@ -167,7 +167,8 @@ export default function CustomHalfModal(props) {
     contentType === 'contributeToPool' ||
     contentType === 'ExportOrFilterHalfModal' ||
     contentType === 'txFilter' ||
-    contentType === 'expandedTx';
+    contentType === 'expandedTx' ||
+    contentType === 'RemoveBudgetHalfModal';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);

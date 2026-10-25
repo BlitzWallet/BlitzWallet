@@ -1,20 +1,18 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import CustomScrollView from '../../functions/CustomElements/scrollView';
 import {
-  CENTER,
-  COLORS,
-  NEAR_BUDGET_LIMIT,
-  OVER_BUDGET_LIMIT,
-  SIZES,
-} from '../../constants';
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import BalancePieChart from '../../components/admin/homeComponents/analytics/balancePieChart';
-import { FONT, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import getBudgetStatus from '../../components/admin/homeComponents/analytics/budgetStatus';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -23,16 +21,20 @@ import { useAnalytics } from '../../../context-store/analyticsContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import AnalyticsToggle from '../../components/admin/homeComponents/analytics/analyticsToggle';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import Segmented from '../../functions/CustomElements/redesign/Segmented';
+import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
+import Disc from '../../functions/CustomElements/redesign/Disc';
+import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
 
 export default function AnalyticsPage() {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor, tokens } =
-    GetThemeColors();
+  const { tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const {
     spentTotal,
     incomeTotalBTC,
@@ -47,6 +49,7 @@ export default function AnalyticsPage() {
     isReloading,
   } = useAnalytics();
   const { t } = useTranslation();
+  const [localDenomination, setLocalDenomination] = useState('sats');
 
   const budget = masterInfoObject?.monthlyBudget;
   const budgetAmount = budget?.amount || 0;
@@ -54,375 +57,306 @@ export default function AnalyticsPage() {
   const spentPercent = budgetAmount > 0 ? spentTotal / budgetAmount : 0;
   const isBalanceHidden =
     masterInfoObject?.userBalanceDenomination === 'hidden';
+  const budgetStatus = getBudgetStatus(spentPercent, t, tokens);
+  const isSats = localDenomination === 'sats';
+  const monthName = new Date().toLocaleDateString(undefined, {
+    month: 'long',
+  });
 
-  const budgetStatus =
-    spentPercent >= OVER_BUDGET_LIMIT
-      ? {
-          label: t('analytics.overBudget'),
-          color: theme && darkModeType ? textColor : tokens.danger,
-        }
-      : spentPercent >= NEAR_BUDGET_LIMIT
-      ? {
-          label: t('analytics.nearLimit'),
-          color: theme && darkModeType ? textColor : COLORS.bitcoinOrange,
-        }
-      : {
-          label: t('analytics.onTrack'),
-          color: theme && darkModeType ? textColor : tokens.accent,
-        };
+  const formatMonthAmount = amount =>
+    displayCorrectDenomination({
+      amount,
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: localDenomination,
+      },
+      fiatStats,
+      convertAmount: isSats,
+      forceCurrency: 'USD',
+    });
 
-  const [localDenomination, setLocalDenomination] = useState('sats');
-
-  const handleToggleDenomination = () =>
-    setLocalDenomination(prev => (prev === 'sats' ? 'fiat' : 'sats'));
-
-  const incomeTxCount =
-    localDenomination === 'sats' ? incomeTxCountBTC : incomeTxCountUSD;
-  const spentTxCount =
-    localDenomination === 'sats' ? spentTxCountBTC : spentTxCountUSD;
-
-  if (isLoading) {
-    return (
-      <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar label={t('analytics.home.title')} />
-        <FullLoadingScreen showText={false} />
-      </GlobalThemeView>
-    );
-  }
+  const metricCards = [
+    {
+      key: 'received',
+      icon: 'ArrowDown',
+      label: t('constants.received'),
+      amount: isSats ? incomeTotalBTC : incomeTotalUSD,
+      count: isSats ? incomeTxCountBTC : incomeTxCountUSD,
+      emptyText: t('analytics.home.noPaymentsReceived'),
+      route: 'AnalyticsIncomePage',
+    },
+    {
+      key: 'sent',
+      icon: 'ArrowUp',
+      label: t('constants.sent'),
+      amount: isSats ? spentTotalBTC : spentTotalUSD,
+      count: isSats ? spentTxCountBTC : spentTxCountUSD,
+      emptyText: t('analytics.home.noPaymentsSent'),
+      route: 'AnalyticsSpentPage',
+    },
+  ];
 
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('analytics.home.title')}
-        rightContent={
-          <AnalyticsToggle
-            denomination={localDenomination}
-            onToggle={handleToggleDenomination}
-          />
-        }
-      />
-
-      <CustomScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[
-          styles.scrollContent,
-          {
-            alignSelf: 'center',
-            paddingBottom: bottomPadding,
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        <BalancePieChart isBalanceHidden={isBalanceHidden} />
-
-        <ThemeText
-          styles={styles.sectionTitle}
-          content={`${t('analytics.home.activityHead')} (${
-            localDenomination === 'sats'
-              ? t('constants.bitcoin_upper')
-              : t('constants.dollars_upper')
-          })`}
-        />
-        {/* Income + Spent row */}
-        <View style={styles.metricsRow}>
-          <TouchableOpacity
-            style={[styles.metricCard, { backgroundColor: backgroundOffset }]}
-            onPress={() =>
-              navigate.navigate('AnalyticsIncomePage', { localDenomination })
-            }
-            activeOpacity={0.8}
-          >
-            <ThemeText
-              styles={styles.metricLabel}
-              content={t('constants.received')}
-            />
-            {isLoading || isReloading ? (
-              <FullLoadingScreen size="small" showText={false} />
-            ) : (
-              <>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  adjustsFontSizeToFit={true}
-                  styles={styles.metricAmount}
-                  content={displayCorrectDenomination({
-                    amount:
-                      localDenomination === 'sats'
-                        ? incomeTotalBTC
-                        : incomeTotalUSD,
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: localDenomination,
-                    },
-                    fiatStats,
-                    convertAmount: localDenomination === 'sats',
-                    forceCurrency: 'USD',
-                  })}
-                />
-                <ThemeText
-                  styles={styles.metricSubText}
-                  content={
-                    incomeTxCount === 0
-                      ? t('analytics.home.noPaymentsReceived')
-                      : t('analytics.numberOfTxs', {
-                          count: incomeTxCount,
-                        })
-                  }
-                />
-              </>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.metricCard, { backgroundColor: backgroundOffset }]}
-            onPress={() =>
-              navigate.navigate('AnalyticsSpentPage', { localDenomination })
-            }
-            activeOpacity={0.8}
-          >
-            <ThemeText
-              styles={styles.metricLabel}
-              content={t('constants.sent')}
-            />
-            {isLoading || isReloading ? (
-              <FullLoadingScreen size="small" showText={false} />
-            ) : (
-              <>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  adjustsFontSizeToFit={true}
-                  styles={styles.metricAmount}
-                  content={displayCorrectDenomination({
-                    amount:
-                      localDenomination === 'sats'
-                        ? spentTotalBTC
-                        : spentTotalUSD,
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: localDenomination,
-                    },
-                    fiatStats,
-                    convertAmount: localDenomination === 'sats',
-                    forceCurrency: 'USD',
-                  })}
-                />
-                <ThemeText
-                  styles={styles.metricSubText}
-                  content={
-                    spentTxCount === 0
-                      ? t('analytics.home.noPaymentsSent')
-                      : t('analytics.numberOfTxs', { count: spentTxCount })
-                  }
-                />
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Budget section */}
-        <ThemeText
-          styles={styles.sectionTitle}
-          content={t('analytics.home.budget')}
-        />
-
-        {!budget ? (
-          <TouchableOpacity
-            style={[
-              styles.budgetEmptyCard,
-              { backgroundColor: backgroundOffset },
-            ]}
-            onPress={() => navigate.navigate('AnalyticsCreateBudgetPage')}
-            activeOpacity={0.8}
-          >
-            <View style={styles.emptyContactsContainer}>
-              <ThemeIcon iconName={'ClipboardClock'} />
-              <ThemeText
-                styles={styles.emptyTitle}
-                content={t('analytics.home.noBudgetTitle')}
-              />
-              <ThemeText
-                styles={styles.emptySubtext}
-                content={t('analytics.home.noBudgetSub')}
-              />
-            </View>
-          </TouchableOpacity>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('analytics.home.title')} />
+        {isLoading ? (
+          <FullLoadingScreen showText={false} />
         ) : (
-          <TouchableOpacity
-            style={[styles.budgetCard, { backgroundColor: backgroundOffset }]}
-            onPress={() => navigate.navigate('AnalyticsBudgetPage')}
-            activeOpacity={0.8}
+          <CustomScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: bottomPadding }}
+            showsVerticalScrollIndicator={false}
           >
-            <ThemeText
-              styles={[styles.budgetLeftAmount, { fontSize: SIZES.large }]}
-              content={t('analytics.home.leftToSpend', {
-                amount: displayCorrectDenomination({
-                  amount: leftToSpend,
-                  masterInfoObject,
-                  fiatStats,
-                }),
-              })}
-            />
-            <View style={styles.budgetStatusRow}>
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: budgetStatus.color },
+            <View style={styles.segmentRow}>
+              <Segmented
+                fit
+                value={localDenomination}
+                onChange={setLocalDenomination}
+                options={[
+                  { value: 'sats', label: t('constants.bitcoin_upper') },
+                  { value: 'fiat', label: t('constants.dollars_upper') },
                 ]}
-              />
-              <ThemeText
-                styles={[
-                  styles.budgetStatusLabel,
-                  { color: budgetStatus.color },
-                ]}
-                content={budgetStatus.label}
               />
             </View>
 
-            {/* Progress bar */}
-            <View style={[styles.progressBarTrack, { backgroundColor }]}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  {
-                    width: `${Math.min(spentPercent * 100, 100)}%`,
-                    backgroundColor:
-                      theme && darkModeType ? tokens.ink : budgetStatus.color,
-                  },
-                ]}
-              />
+            <View style={styles.balanceCard}>
+              <BalancePieChart isBalanceHidden={isBalanceHidden} />
             </View>
-            <View style={styles.progressBarLabels}>
-              <ThemeText
-                styles={styles.progressBarLabelText}
-                content={t('analytics.home.percentRemaining', {
-                  percent: Math.round(Math.min((1 - spentPercent) * 100, 100)),
-                })}
-              />
-              <ThemeText
-                styles={styles.budgetLeftAmount}
-                content={displayCorrectDenomination({
-                  amount: budgetAmount,
-                  masterInfoObject,
-                  fiatStats,
-                })}
-              />
-            </View>
-          </TouchableOpacity>
+
+            <SectionHeader title={monthName} style={styles.sectionHeader} />
+            <Animated.View
+              key={localDenomination}
+              entering={FadeIn.duration(200)}
+              style={styles.metricsRow}
+            >
+              {metricCards.map(card => (
+                <TouchableOpacity
+                  key={card.key}
+                  style={[
+                    styles.metricCard,
+                    { backgroundColor: tokens.surface },
+                  ]}
+                  onPress={() =>
+                    navigate.navigate(card.route, { localDenomination })
+                  }
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.metricTop}>
+                    <Disc icon={card.icon} size={32} iconSize={16} />
+                    <ThemeIcon
+                      redesign
+                      iconName="ChevronRight"
+                      size={18}
+                      colorOverride={tokens.muted}
+                    />
+                  </View>
+                  <ThemeText
+                    styles={[styles.metricLabel, { color: tokens.muted }]}
+                    content={card.label}
+                  />
+                  {isReloading ? (
+                    <FullLoadingScreen size="small" showText={false} />
+                  ) : (
+                    <>
+                      <ThemeText
+                        CustomNumberOfLines={1}
+                        adjustsFontSizeToFit={true}
+                        styles={styles.metricAmount}
+                        content={formatMonthAmount(card.amount)}
+                      />
+                      <ThemeText
+                        styles={[styles.metricSub, { color: tokens.muted }]}
+                        content={
+                          card.count === 0
+                            ? card.emptyText
+                            : t('analytics.numberOfTxs', { count: card.count })
+                        }
+                      />
+                    </>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </Animated.View>
+
+            <SectionHeader
+              title={t('analytics.home.budget')}
+              style={styles.sectionHeader}
+            />
+            {!budget ? (
+              <TouchableOpacity
+                style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
+                onPress={() => navigate.navigate('AnalyticsCreateBudgetPage')}
+                activeOpacity={0.8}
+              >
+                <View style={styles.budgetTitleRow}>
+                  <View style={styles.budgetTitleTexts}>
+                    <ThemeText
+                      styles={styles.budgetTitle}
+                      content={t('analytics.home.noBudgetTitle')}
+                    />
+                    <ThemeText
+                      styles={[styles.metricSub, { color: tokens.muted }]}
+                      content={t('analytics.home.noBudgetSub')}
+                    />
+                  </View>
+                  <ThemeIcon
+                    redesign
+                    iconName="ChevronRight"
+                    size={18}
+                    colorOverride={tokens.muted}
+                  />
+                </View>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
+                onPress={() => navigate.navigate('AnalyticsBudgetPage')}
+                activeOpacity={0.8}
+              >
+                <View style={styles.budgetTitleRow}>
+                  <ThemeText
+                    styles={[styles.budgetTitle, styles.budgetTitleTexts]}
+                    content={t('analytics.home.leftToSpend', {
+                      amount: displayCorrectDenomination({
+                        amount: leftToSpend,
+                        masterInfoObject,
+                        fiatStats,
+                      }),
+                    })}
+                  />
+                  <ThemeIcon
+                    redesign
+                    iconName="ChevronRight"
+                    size={18}
+                    colorOverride={tokens.muted}
+                  />
+                </View>
+                <View
+                  style={[
+                    styles.statusPill,
+                    { backgroundColor: budgetStatus.color },
+                  ]}
+                >
+                  <ThemeText
+                    styles={[styles.statusText, { color: tokens.onAccent }]}
+                    content={budgetStatus.label}
+                  />
+                </View>
+                <ProgressBar
+                  value={spentPercent}
+                  color={budgetStatus.color}
+                  style={styles.progressBar}
+                />
+                <View style={styles.progressLabels}>
+                  <ThemeText
+                    styles={[styles.metricSub, { color: tokens.muted }]}
+                    content={t('analytics.home.percentRemaining', {
+                      percent: Math.round(
+                        Math.min(Math.max(1 - spentPercent, 0) * 100, 100),
+                      ),
+                    })}
+                  />
+                  <ThemeText
+                    styles={[styles.metricSub, { color: tokens.muted }]}
+                    content={t('analytics.home.ofBudget', {
+                      amount: displayCorrectDenomination({
+                        amount: budgetAmount,
+                        masterInfoObject,
+                        fiatStats,
+                      }),
+                    })}
+                  />
+                </View>
+              </TouchableOpacity>
+            )}
+          </CustomScrollView>
         )}
-      </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    width: INSET_WINDOW_WIDTH,
-    paddingTop: 20,
+  container: {
+    flex: 1,
     ...CENTER,
   },
+  segmentRow: {
+    marginTop: 16,
+    alignSelf: 'center',
+  },
+  balanceCard: { marginTop: 16 },
+  sectionHeader: { marginTop: 20 },
   metricsRow: {
     flexDirection: 'row',
-    marginBottom: 24,
-    gap: 12,
+    gap: 10,
   },
   metricCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 24,
     padding: 16,
-    minHeight: 130,
+    gap: 2,
   },
-  metricLabel: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 8,
-  },
-  metricAmount: {
-    fontSize: SIZES.xLarge,
-    marginBottom: 4,
-  },
-  metricSubText: {
-    fontSize: SIZES.small,
-    opacity: 0.4,
-  },
-  miniChart: {
-    marginTop: 8,
-    marginLeft: -16,
-    marginBottom: -20,
-  },
-  sectionTitle: {
-    marginBottom: 12,
-  },
-  budgetEmptyCard: {
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 120,
-  },
-  budgetCard: {
-    borderRadius: 16,
-    padding: 16,
-  },
-  budgetLeftAmount: {
-    marginBottom: 6,
-    includeFontPadding: false,
-  },
-  budgetStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 16,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  budgetStatusLabel: {
-    fontSize: SIZES.smedium,
-    fontWeight: '500',
-    includeFontPadding: false,
-  },
-  progressBarTrack: {
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  progressBarLabels: {
+  metricTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  progressBarLabelText: {
-    fontSize: SIZES.smedium,
-    opacity: 0.4,
+  metricLabel: {
+    marginTop: 10,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
   },
-  emptyContactsContainer: {
-    flex: 1,
-    alignItems: 'center',
+  metricAmount: {
+    fontSize: 22,
+    lineHeight: 28,
+    fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
   },
-  emptyTitle: {
-    // fontSize: SIZES.large,
-    // fontWeight: '500',
-    marginTop: 16,
-    marginBottom: 5,
-    textAlign: 'center',
+  metricSub: {
+    fontSize: 13,
+    lineHeight: 18,
+    includeFontPadding: false,
   },
-  emptySubtext: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    textAlign: 'center',
+  budgetCard: {
+    borderRadius: 24,
+    padding: 20,
   },
-  headerRow: {
+  budgetTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 0,
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  hiddenText: {
-    fontFamily: FONT.Asterisk,
+  budgetTitleTexts: { flexShrink: 1, gap: 2 },
+  budgetTitle: {
+    fontSize: 17,
+    lineHeight: 24,
+    fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
+  },
+  statusPill: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    minHeight: 26,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    justifyContent: 'center',
+  },
+  statusText: {
+    fontSize: 12,
+    lineHeight: 16,
+    includeFontPadding: false,
+  },
+  progressBar: { marginTop: 14 },
+  progressLabels: {
+    marginTop: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 2,
+    columnGap: 12,
   },
 });
