@@ -16,16 +16,26 @@
 import React from 'react';
 import ReactTestRenderer, { act } from 'react-test-renderer';
 
-const ERROR_UI_TEXT = 'NO_CONTENT_SCREEN';
+const ERROR_UI_TEXT = 'ERROR_BUTTON';
 // Mutable route params so tests can simulate onboarding (shouldWipeLocalData).
 // Referenced from the jest.mock factory below, hence the mock* prefix.
 const mockRouteParams = {};
-// Props of the last rendered error screen, so tests can press its button.
-const mockNoContentProps = { current: null };
+// Props of the last rendered error button, so tests can press it.
+const mockErrorButtonProps = { current: null };
 
 // ── Contexts ────────────────────────────────────────────────────────────────
 const didRunHandshakeRef = { current: true };
 
+jest.mock('react-native-reanimated', () => {
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: { View: RN.View },
+    FadeIn: { duration: () => undefined },
+    FadeOut: { duration: () => undefined },
+    useReducedMotion: () => false,
+  };
+});
 jest.mock('../../context-store/context', () => ({
   useGlobalContextProvider: () => ({
     toggleMasterInfoObject: jest.fn(),
@@ -95,16 +105,21 @@ jest.mock('react-i18next', () => ({ useTranslation: () => ({ t: k => k }) }));
 jest.mock('lottie-react-native', () => 'LottieView');
 jest.mock('../../app/functions/CustomElements', () => ({
   GlobalThemeView: ({ children }) => children,
+  ThemeText: () => null,
 }));
-jest.mock('../../app/functions/CustomElements/themeIcon', () => 'ThemeIcon');
-jest.mock('../../app/functions/CustomElements/noContentScreen', () => {
+jest.mock(
+  '../../app/functions/CustomElements/redesign/IconButton',
+  () => 'IconButton',
+);
+jest.mock('../../app/functions/CustomElements/redesign/Disc', () => 'Disc');
+jest.mock('../../app/functions/CustomElements/button', () => {
   const MockReact = require('react');
   const { Text } = require('react-native');
   return {
     __esModule: true,
     default: props => {
-      mockNoContentProps.current = props;
-      return MockReact.createElement(Text, null, 'NO_CONTENT_SCREEN');
+      mockErrorButtonProps.current = props;
+      return MockReact.createElement(Text, null, 'ERROR_BUTTON');
     },
   };
 });
@@ -340,7 +355,7 @@ describe('loading screen database setup errors', () => {
     jest.useFakeTimers();
     jest.clearAllMocks();
     delete mockRouteParams.shouldWipeLocalData;
-    mockNoContentProps.current = null;
+    mockErrorButtonProps.current = null;
     // Earlier suites leave the wipe marker armed; start past the wipe.
     isWipeInProgress.mockResolvedValue(false);
     // Under the react-native Jest preset `window` is `global`.
@@ -362,22 +377,30 @@ describe('loading screen database setup errors', () => {
     return renderer;
   };
 
-  test('a setup timeout offers Retry, which reloads the page', async () => {
+  // Q1-7: web always offers Retry (reload); native always offers Recover.
+  test('on web every setup error offers Retry, which reloads the page', async () => {
+    const { Platform } = require('react-native');
+    const realOS = Platform.OS;
+    Platform.OS = 'web';
+    try {
+      const renderer = await renderWithDatabaseError('dbInitError');
+
+      expect(showsErrorUI(renderer)).toBe(true);
+      expect(mockErrorButtonProps.current.textContent).toBe('constants.retry');
+      mockErrorButtonProps.current.actionFunction();
+      expect(global.location.reload).toHaveBeenCalledTimes(1);
+      expect(openWebBrowser).not.toHaveBeenCalled();
+    } finally {
+      Platform.OS = realOS;
+    }
+  });
+
+  test('on native a setup timeout offers Recover', async () => {
     const renderer = await renderWithDatabaseError('dbInitTimeout');
 
     expect(showsErrorUI(renderer)).toBe(true);
-    expect(mockNoContentProps.current.buttonText).toBe('constants.retry');
-    mockNoContentProps.current.buttonFunction();
-    expect(global.location.reload).toHaveBeenCalledTimes(1);
-    expect(openWebBrowser).not.toHaveBeenCalled();
-  });
-
-  test('a failed database open keeps Recover', async () => {
-    const renderer = await renderWithDatabaseError('dbInitError');
-
-    expect(showsErrorUI(renderer)).toBe(true);
-    expect(mockNoContentProps.current.buttonText).toBe('constants.recover');
-    mockNoContentProps.current.buttonFunction();
+    expect(mockErrorButtonProps.current.textContent).toBe('constants.recover');
+    mockErrorButtonProps.current.actionFunction();
     expect(openWebBrowser).toHaveBeenCalledWith(
       expect.objectContaining({ link: 'https://recover.blitzwalletapp.com/' }),
     );

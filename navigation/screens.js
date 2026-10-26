@@ -241,7 +241,7 @@ const FADE_SCREENS = [
   {
     name: 'HomeAdmin',
     component: AdminHomeIndex,
-    options: { gestureEnabled: false },
+    options: { gestureEnabled: false, animationDuration: 250 },
   },
   // {
   //   name: 'ViewCustodyKey',

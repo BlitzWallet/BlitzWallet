@@ -1,18 +1,27 @@
 /* eslint-env jest */
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNRestart from 'react-native-restart-newarch';
 import LegacyWebMigration from '../../app/screens/createAccount/legacyWebMigration';
 import { migrateLegacyWallet } from '../../app/functions/legacyWebMigration';
-import ConfirmActionPage from '../../app/components/admin/homeComponents/settingsContent/popups/confirmActionPage';
+import WalletResetSheet from '../../app/components/admin/loginComponents/walletResetSheet';
 
 const mockNavigation = {
   navigate: jest.fn(),
   reset: jest.fn(),
   goBack: jest.fn(),
 };
+jest.mock('react-native-reanimated', () => {
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: { View: RN.View },
+    FadeIn: { duration: () => undefined },
+    FadeOut: { duration: () => undefined },
+    useReducedMotion: () => false,
+  };
+});
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => mockNavigation,
 }));
@@ -75,15 +84,17 @@ afterEach(() => {
 });
 
 function recoveryButton() {
-  return renderer.root.findByProps({ textContent: recoveryLabel });
+  return renderer.root.findByProps({ text: recoveryLabel });
 }
 
 function openConfirmation() {
-  act(() => recoveryButton().props.actionFunction());
+  act(() => recoveryButton().props.onPress());
   expect(mockNavigation.navigate).toHaveBeenCalledWith(
-    'ConfirmActionPage',
+    'CustomHalfModal',
     expect.objectContaining({
-      confirmMessage: 'createAccount.legacyWebMigration.recoveryConfirm',
+      wantedContent: 'walletReset',
+      title: recoveryLabel,
+      message: 'createAccount.legacyWebMigration.recoveryConfirm',
       confirmFunction: expect.any(Function),
     }),
   );
@@ -93,16 +104,23 @@ function openConfirmation() {
 test('opening and dismissing confirmation preserves the legacy wallet', async () => {
   expect(recoveryButton().props.disabled).toBe(false);
   const params = openConfirmation();
+  const handleBackPressFunction = jest.fn();
   let confirmation;
   act(() => {
     confirmation = TestRenderer.create(
-      <ConfirmActionPage route={{ params }} />,
+      <WalletResetSheet
+        {...params}
+        handleBackPressFunction={handleBackPressFunction}
+        setContentHeight={jest.fn()}
+      />,
     );
   });
   act(() => {
-    confirmation.root.findAllByType(TouchableOpacity)[1].props.onPress();
+    confirmation.root
+      .findByProps({ textContent: 'constants.cancel' })
+      .props.actionFunction();
   });
-  expect(mockNavigation.goBack).toHaveBeenCalledTimes(1);
+  expect(handleBackPressFunction).toHaveBeenCalledTimes(1);
   act(() => confirmation.unmount());
   expect(await AsyncStorage.getItem('walletKey')).toBe(
     'unreadable legacy value',
@@ -155,7 +173,7 @@ test('migration blocks recovery until a wrong password returns', async () => {
       .props.actionFunction();
   });
   expect(recoveryButton().props.disabled).toBe(true);
-  act(() => recoveryButton().props.actionFunction());
+  act(() => recoveryButton().props.onPress());
   expect(mockNavigation.navigate).not.toHaveBeenCalled();
   await act(async () => {
     jest.advanceTimersByTime(100);
