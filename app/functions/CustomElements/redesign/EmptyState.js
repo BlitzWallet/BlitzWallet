@@ -15,6 +15,7 @@ export default function EmptyState({
   onRetry,
   size = 'default',
   iconTone = 'muted',
+  retryText = '',
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
@@ -56,7 +57,7 @@ export default function EmptyState({
       {onRetry && (
         <CustomButton
           size="fit"
-          textContent={t('constants.retry')}
+          textContent={retryText || t('constants.retry')}
           actionFunction={onRetry}
           buttonStyles={styles.retry}
         />

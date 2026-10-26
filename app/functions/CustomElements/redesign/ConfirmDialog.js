@@ -1,8 +1,15 @@
+import { useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../context-store/theme';
 import { FONT } from '../../../constants';
 import ThemeText from '../textTheme';
+import CustomScrollView from '../scrollView';
 import Disc from './Disc';
 
 // Centred alert dialog (route 'ConfirmDialog'). Params:
@@ -11,7 +18,6 @@ import Disc from './Disc';
 // The message is muted under a title, ink when it stands alone.
 export default function ConfirmDialog(props) {
   const navigate = useNavigation();
-  const { tokens } = useTheme();
   const {
     title,
     message,
@@ -38,18 +44,63 @@ export default function ConfirmDialog(props) {
   };
 
   return (
+    <AlertDialog
+      title={title}
+      message={message}
+      icon={icon}
+      confirmLabel={confirmLabel}
+      cancelLabel={cancelLabel}
+      onConfirm={handleConfirm}
+      onCancel={handleCancel}
+    />
+  );
+}
+
+// The dialog itself, for popup routes that own their navigation
+// (ErrorScreen, ConfirmActionPage, InformationPopup). Card scales 0.96 → 1
+// over 150 ms while the route fades the scrim. A tap outside runs
+// `onCancel`, or `onConfirm` when there is no cancel. Long text scrolls.
+export function AlertDialog({
+  title,
+  message,
+  icon,
+  children,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+  onCancel,
+}) {
+  const { tokens } = useTheme();
+  const scale = useSharedValue(0.96);
+
+  useEffect(() => {
+    scale.value = withTiming(1, { duration: 150 });
+  }, [scale]);
+
+  const dialogStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
     <View style={[styles.overlay, { backgroundColor: tokens.scrim }]}>
       <TouchableOpacity
         style={StyleSheet.absoluteFill}
         activeOpacity={1}
-        onPress={handleCancel}
+        onPress={onCancel || onConfirm}
         accessible={false}
       />
-      <View
+      <Animated.View
         accessibilityRole="alert"
-        style={[styles.dialog, { backgroundColor: tokens.surface }]}
+        style={[
+          styles.dialog,
+          { backgroundColor: tokens.surface },
+          dialogStyle,
+        ]}
       >
-        <View style={styles.body}>
+        <CustomScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.body}
+        >
           {!!icon && (
             <View style={styles.icon}>
               <Disc icon={icon} size={44} iconSize={20} tone="accent" />
@@ -65,13 +116,14 @@ export default function ConfirmDialog(props) {
               content={message}
             />
           )}
-        </View>
+          {children}
+        </CustomScrollView>
         <View style={[styles.buttonRow, { borderTopColor: tokens.divider }]}>
           {!!cancelLabel && (
             <TouchableOpacity
               accessibilityRole="button"
               style={styles.button}
-              onPress={handleCancel}
+              onPress={onCancel}
             >
               <ThemeText
                 styles={[styles.buttonText, { color: tokens.ink }]}
@@ -88,7 +140,7 @@ export default function ConfirmDialog(props) {
                 borderLeftColor: tokens.divider,
               },
             ]}
-            onPress={handleConfirm}
+            onPress={onConfirm}
           >
             <ThemeText
               styles={[styles.buttonText, { color: tokens.link }]}
@@ -96,7 +148,7 @@ export default function ConfirmDialog(props) {
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -111,9 +163,11 @@ const styles = StyleSheet.create({
   dialog: {
     width: '100%',
     maxWidth: 326,
+    maxHeight: '70%',
     borderRadius: 24,
     overflow: 'hidden',
   },
+  scroll: { flexGrow: 0, flexShrink: 1 },
   body: {
     paddingTop: 24,
     paddingHorizontal: 22,

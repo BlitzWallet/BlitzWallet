@@ -48,6 +48,7 @@
     "done": "Done",
     "continue": "Continue",
     "back": "Back",
+    "openInBrowser": "Open in browser",
     "close": "Close",
     "delete": "Delete",
     "add": "Add",
@@ -1216,7 +1217,10 @@
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Only QR codes are accepted.",
       "qrDecodeError": "Error decoding QR code",
-      "scanHint": "Point your camera at the QR code"
+      "scanHint": "Point your camera at the QR code",
+      "chooseImage": "Choose image",
+      "pasteClipboard": "Paste from clipboard",
+      "flash": "Flash"
     },
     "confirmClipboard": {
       "clipboardContent": "Text Copied to Clipboard",

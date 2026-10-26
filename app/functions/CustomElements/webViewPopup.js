@@ -1,10 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import GlobalThemeView from './globalThemeView';
 import { WebView } from 'react-native-webview';
-import { CENTER } from '../../constants';
+import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { SIZES } from '../../constants/theme';
 import { useRef } from 'react';
-import CustomSettingsTopBar from './settingsTopBar';
+import { useTheme } from '../../../context-store/theme';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import openWebBrowser from '../openWebBrowser';
+import TopBar from './redesign/TopBar';
+import IconButton from './redesign/IconButton';
 
 const ALLOWED_SCHEMES = new Set(['https:', 'http:']);
 
@@ -16,7 +21,15 @@ function getAllowedOrigin(url) {
   }
 }
 
+// Grey lines shown while the page loads.
+const SKELETON = [92, 100, 84, 96, 70, null, 92, 100, 84, 96, 70];
+
 export default function CustomWebView(props) {
+  const navigate = useNavigation();
+  const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const webViewRef = useRef(null);
   const isHTML = !!props.route.params?.isHTML;
   const initialURL = props.route.params?.webViewURL;
@@ -77,30 +90,71 @@ export default function CustomWebView(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={{ paddingBottom: 0 }}>
-      <CustomSettingsTopBar
-        containerStyles={styles.topBar}
-        label={props.route.params?.headerText}
-      />
-      {isInitialUrlAllowed && (
-        <WebView
-          style={styles.container}
-          source={isHTML ? { html: htmlSource } : { uri: initialURL }}
-          javaScriptEnabled={!isHTML}
-          onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
-          originWhitelist={originWhitelist}
-          allowFileAccess={false}
-          allowFileAccessFromFileURLs={false}
-          allowUniversalAccessFromFileURLs={false}
-          javaScriptCanOpenWindowsAutomatically={false}
-          setSupportMultipleWindows={false}
-          geolocationEnabled={false}
-          thirdPartyCookiesEnabled={false}
-          sharedCookiesEnabled={false}
-          mediaPlaybackRequiresUserAction={true}
-          allowsInlineMediaPlayback={false}
-          ref={webViewRef}
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar
+          title={props.route.params?.headerText}
+          right={
+            isInitialUrlAllowed && (
+              <IconButton
+                icon="ExternalLink"
+                label="constants.openInBrowser"
+                iconSize={20}
+                onPress={() => openWebBrowser({ navigate, link: initialURL })}
+              />
+            )
+          }
         />
-      )}
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: tokens.surface, marginBottom: bottomPadding },
+          ]}
+        >
+          {isInitialUrlAllowed && (
+            <WebView
+              style={styles.container}
+              startInLoadingState={true}
+              renderLoading={() => (
+                <View
+                  style={[styles.skeleton, { backgroundColor: tokens.surface }]}
+                >
+                  {SKELETON.map((lineWidth, index) =>
+                    lineWidth ? (
+                      <View
+                        key={index}
+                        style={[
+                          styles.line,
+                          {
+                            width: `${lineWidth}%`,
+                            backgroundColor: tokens.skel,
+                          },
+                        ]}
+                      />
+                    ) : (
+                      <View key={index} style={styles.gap} />
+                    ),
+                  )}
+                </View>
+              )}
+              source={isHTML ? { html: htmlSource } : { uri: initialURL }}
+              javaScriptEnabled={!isHTML}
+              onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
+              originWhitelist={originWhitelist}
+              allowFileAccess={false}
+              allowFileAccessFromFileURLs={false}
+              allowUniversalAccessFromFileURLs={false}
+              javaScriptCanOpenWindowsAutomatically={false}
+              setSupportMultipleWindows={false}
+              geolocationEnabled={false}
+              thirdPartyCookiesEnabled={false}
+              sharedCookiesEnabled={false}
+              mediaPlaybackRequiresUserAction={true}
+              allowsInlineMediaPlayback={false}
+              ref={webViewRef}
+            />
+          )}
+        </View>
+      </View>
     </GlobalThemeView>
   );
 }
@@ -110,11 +164,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: SIZES.medium,
   },
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    ...CENTER,
+  content: { flex: 1, alignSelf: 'center' },
+  card: { flex: 1, marginTop: 16, borderRadius: 20, overflow: 'hidden' },
+  skeleton: {
+    ...StyleSheet.absoluteFillObject,
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
+  line: { height: 12, borderRadius: 6, marginTop: 14 },
+  gap: { height: 22 },
 });

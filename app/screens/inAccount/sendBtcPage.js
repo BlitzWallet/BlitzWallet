@@ -1,8 +1,7 @@
-import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { COLORS, SIZES } from '../../constants';
 import {
   useFocusEffect,
   useIsFocused,
@@ -16,26 +15,19 @@ import {
 } from 'react-native-vision-camera';
 import useQrScannerOutput from '../../hooks/useQrScannerOutput';
 import { getQRImage, resolveExternalChainNavigation } from '../../functions';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useTranslation } from 'react-i18next';
-import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPageNavbar';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import getClipboardText from '../../functions/getClipboardText';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import GetThemeColors from '../../hooks/themeColors';
+import CameraUnavailable from '../../functions/CustomElements/camera/cameraUnavailable';
+import ScannerView from '../../functions/CustomElements/camera/scannerView';
 
 export default function SendPaymentHome({ pageViewPage, from }) {
   const navigate = useNavigation();
   const isFocused = useIsFocused();
-  const { backgroundColor, tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const isPhotoeLibraryOpen = useRef(false);
   const {
     status,
@@ -49,7 +41,6 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const didScanRef = useRef(false);
   const { t } = useTranslation();
-  const { topPadding, bottomPadding } = useGlobalInsets();
 
   const isCameraActive = useMemo(() => {
     const baseActive = navigate.canGoBack() ? isFocused : pageViewPage === 0;
@@ -222,59 +213,67 @@ export default function SendPaymentHome({ pageViewPage, from }) {
 
   if (!hasPermission) {
     return (
-      <GlobalThemeView useStandardWidth={true}>
-        {from != 'home' && <CameraPageNavBar />}
-        <NoContentScreen
-          iconName="Camera"
-          titleText={t('wallet.cameraPage.noCameraAccess')}
-          subTitleText={
-            showPermissionRetry
-              ? t('wallet.cameraModal.permissionDismissed')
-              : t('wallet.cameraPage.settingsText')
-          }
-          showButton={showPermissionRetry}
-          buttonText={t('wallet.cameraModal.allowCamera')}
-          buttonFunction={requestPermission}
-        />
-      </GlobalThemeView>
+      <CameraUnavailable
+        showBack={from != 'home'}
+        title={t('wallet.cameraPage.noCameraAccess')}
+        sub={
+          showPermissionRetry
+            ? t('wallet.cameraModal.permissionDismissed')
+            : t('wallet.cameraPage.settingsText')
+        }
+        buttonText={
+          showPermissionRetry ? t('wallet.cameraModal.allowCamera') : ''
+        }
+        onPress={requestPermission}
+      />
     );
   }
+
   // The camera is held by another app or tab. Retrying re-mounts <Camera>,
   // whose getUserMedia asks again.
   if (status === 'busy') {
     return (
-      <GlobalThemeView useStandardWidth={true}>
-        {from != 'home' && <CameraPageNavBar />}
-        <NoContentScreen
-          iconName="Camera"
-          titleText={t('wallet.cameraModal.cameraBusy')}
-          subTitleText={t('wallet.cameraModal.cameraBusySub')}
-          showButton={true}
-          buttonText={t('constants.tryAgain')}
-          buttonFunction={requestPermission}
-        />
-      </GlobalThemeView>
+      <CameraUnavailable
+        showBack={from != 'home'}
+        title={t('wallet.cameraModal.cameraBusy')}
+        sub={t('wallet.cameraModal.cameraBusySub')}
+        buttonText={t('constants.tryAgain')}
+        onPress={requestPermission}
+      />
     );
   }
 
   if (device == null) {
     return (
-      <GlobalThemeView useStandardWidth={true}>
-        {from != 'home' && <CameraPageNavBar />}
-        <NoContentScreen
-          iconName="Camera"
-          titleText={t('wallet.cameraPage.noCameraDevice')}
-          subTitleText={t('wallet.cameraPage.noCameraDeviceSub')}
-        />
-      </GlobalThemeView>
+      <CameraUnavailable
+        showBack={from != 'home'}
+        title={t('wallet.cameraPage.noCameraDevice')}
+        sub={t('wallet.cameraPage.noCameraDeviceSub')}
+      />
     );
   }
 
   return (
-    <View
-      style={[
-        StyleSheet.absoluteFill,
-        { alignItems: 'center', justifyContent: 'center', backgroundColor },
+    <ScannerView
+      onBack={from !== 'home' ? () => navigate.goBack() : undefined}
+      hint={t('wallet.cameraModal.scanHint')}
+      actions={[
+        {
+          icon: 'Image',
+          label: 'wallet.cameraModal.chooseImage',
+          onPress: getPhoto,
+          disabled: isPhotoeLibraryOpen.current,
+        },
+        {
+          icon: 'Clipboard',
+          label: 'wallet.cameraModal.pasteClipboard',
+          onPress: handlePaste,
+        },
+        {
+          icon: isFlashOn ? 'Zap' : 'ZapOff',
+          label: 'wallet.cameraModal.flash',
+          onPress: toggleFlash,
+        },
       ]}
     >
       <Camera
@@ -286,105 +285,6 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         enableSmoothAutoFocus={true}
         torchMode={isFlashOn ? 'on' : 'off'}
       />
-
-      {from !== 'home' && (
-        <TouchableOpacity
-          style={[
-            styles.cornerBtn,
-            styles.cornerBtnLeft,
-            { top: topPadding + 10 },
-          ]}
-          onPress={() => navigate.goBack()}
-        >
-          <ThemeIcon
-            iconName="ArrowLeft"
-            size={22}
-            colorOverride={COLORS.darkModeText}
-          />
-        </TouchableOpacity>
-      )}
-
-      <View style={styles.qrCenter}>
-        <View
-          style={[
-            styles.qrBoxOutline,
-            {
-              borderColor: theme && darkModeType ? tokens.ink : tokens.accent,
-            },
-          ]}
-        />
-        <ThemeText
-          styles={styles.qrHintText}
-          content={t('wallet.cameraModal.scanHint')}
-        />
-      </View>
-
-      <View style={[styles.bottomOverlay, { paddingBottom: bottomPadding }]}>
-        <View style={styles.bottomPill}>
-          <TouchableOpacity
-            disabled={isPhotoeLibraryOpen.current}
-            onPress={getPhoto}
-          >
-            <ThemeIcon iconName="Image" colorOverride={COLORS.darkModeText} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handlePaste}>
-            <ThemeIcon
-              iconName="Clipboard"
-              colorOverride={COLORS.darkModeText}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleFlash}>
-            <ThemeIcon
-              iconName={isFlashOn ? 'Zap' : 'ZapOff'}
-              colorOverride={COLORS.darkModeText}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+    </ScannerView>
   );
 }
-
-const styles = StyleSheet.create({
-  bottomOverlay: {
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    position: 'absolute',
-    bottom: 0,
-  },
-  qrCenter: { alignItems: 'center' },
-  qrBoxOutline: {
-    width: 300,
-    height: 300,
-    borderWidth: 3,
-    borderRadius: 20,
-  },
-  qrHintText: {
-    color: COLORS.darkModeText,
-    marginTop: 14,
-    fontSize: SIZES.smedium,
-    textAlign: 'center',
-    includeFontPadding: false,
-  },
-  bottomPill: {
-    width: 210,
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    gap: 28,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 50,
-  },
-  cornerBtn: {
-    position: 'absolute',
-    zIndex: 2,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cornerBtnLeft: { left: 16 },
-});
