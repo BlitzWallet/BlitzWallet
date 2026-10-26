@@ -1,6 +1,9 @@
-import { BackHandler, StyleSheet, View } from 'react-native';
-import { useCallback, useRef, useState } from 'react';
+import { BackHandler, Platform, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
+import { useImageCache } from '../../../context-store/imageCache';
+import { setLocalStorageItem } from '../../functions';
+import { LOCK_SCREEN_PROFILE_KEY } from '../../constants';
 import PagerView from 'react-native-pager-view';
 import Animated, { useHandler, useEvent } from 'react-native-reanimated';
 import { MyTabs } from '../../../navigation/tabs';
@@ -35,6 +38,7 @@ function usePagerScrollHandler(handlers, dependencies) {
 
 export default function AdminHomeIndex() {
   const { masterInfoObject } = useGlobalContextProvider();
+  const { cache } = useImageCache();
   const [isCameraActive, setIsCameraActive] = useState(false);
   const pagerRef = useRef(null);
   const currentPageRef = useRef(HOME_PAGE);
@@ -58,6 +62,18 @@ export default function AdminHomeIndex() {
   }, []);
 
   useHandleBackPressNew(handleBackPressFunction);
+
+  // E2: copy the profile photo for the PIN lock screen. Lives in AsyncStorage
+  // so the wipe (removeAllLocalData) clears it. Web locks with a
+  // password/passkey screen that shows no photo, so nothing is stored there.
+  const myImageUri = cache[masterInfoObject?.uuid]?.localUri || '';
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    setLocalStorageItem(
+      LOCK_SCREEN_PROFILE_KEY,
+      JSON.stringify({ imageUri: myImageUri }),
+    );
+  }, [myImageUri]);
 
   const handlePageChange = useCallback(e => {
     crashlyticsLogReport('Handling page change with pagerView');

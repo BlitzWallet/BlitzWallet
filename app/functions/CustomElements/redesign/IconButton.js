@@ -16,12 +16,14 @@ export default function IconButton({
   iconSize,
   showActiveDot = false,
   activeOpacity = 0.2,
+  testID,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
   const floating = tone === 'floating';
   return (
     <TouchableOpacity
+      testID={testID}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={t(label)}

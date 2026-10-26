@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Platform, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { getLocalStorageItem, setLocalStorageItem } from '../../../functions';
-import {
-  CENTER,
-  ICONS,
-  MAX_WEB_CONTENT_WIDTH,
-  PERSISTED_LOGIN_COUNT_KEY,
-} from '../../../constants';
+import { ICONS, PERSISTED_LOGIN_COUNT_KEY } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
 import TextButton from '../../../functions/CustomElements/redesign/TextButton';
@@ -19,7 +14,6 @@ import { useKeysContext } from '../../../../context-store/keys';
 import { decryptMnemonicWithPin } from '../../../functions/handleMnemonic';
 import { getStoredPasskeyInfo } from '../../../functions/passkeyMnemonic';
 import RNRestart from 'react-native-restart-newarch';
-import { WINDOWWIDTH } from '../../../constants/theme';
 import { tintStyle } from '../../../functions/webTintColor';
 import { Image } from 'expo-image';
 import { useTheme } from '../../../../context-store/theme';
@@ -35,8 +29,6 @@ export default function PasswordPage() {
   const didNavigate = useRef(null);
   const isCheckingRef = useRef(false);
   const { tokens } = useTheme();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   useEffect(() => {
     async function loadPageInformation() {
@@ -90,12 +82,6 @@ export default function PasswordPage() {
       setLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY, JSON.stringify(next));
       setAttemptCount(next);
       setPassword('');
-      setError(
-        t(
-          'adminLogin.passwordPage.wrongPasswordError',
-          'Wrong password, try again',
-        ),
-      );
     }
   }, [attemptCount, navigate, t]);
 
@@ -130,10 +116,12 @@ export default function PasswordPage() {
     handleSubmit();
   }, [handleSubmit]);
 
-  // Forgot password routes to the confirm page that factory resets the wallet.
+  // Forgot password opens the delete-and-restore confirm sheet.
   const handleForgotPassword = useCallback(() => {
-    navigate.navigate('ConfirmActionPage', {
-      confirmMessage: t('adminLogin.passwordPage.forgotPasswordConfirm'),
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'walletReset',
+      title: t('adminLogin.passwordPage.forgotPasswordTitle'),
+      message: t('adminLogin.passwordPage.forgotPasswordMessage'),
       confirmFunction: async () => {
         const deleted = await factoryResetWallet();
         if (deleted) {
@@ -148,8 +136,16 @@ export default function PasswordPage() {
     });
   }, [navigate, t]);
 
+  // The storage error takes the attempts line's place (owner 2026-10-26).
+  const statusText =
+    error ||
+    (!!attemptCount &&
+      t('adminLogin.passwordPage.attemptsText', {
+        attempts: 8 - attemptCount,
+      }));
+
   return (
-    <View style={[styles.contentContainer, { width: contentWidth }]}>
+    <View style={styles.contentContainer}>
       <View style={styles.hero}>
         <Image
           source={ICONS.logoIcon}
@@ -166,13 +162,11 @@ export default function PasswordPage() {
             'Welcome back!',
           )}
         />
-        {!!attemptCount && (
+        {!!statusText && (
           <ThemeText
             variant="body"
             styles={[styles.attemptsText, { color: tokens.danger }]}
-            content={t('adminLogin.passwordPage.attemptsText', {
-              attempts: 8 - attemptCount,
-            })}
+            content={statusText}
           />
         )}
       </View>
@@ -187,20 +181,14 @@ export default function PasswordPage() {
           autoComplete="current-password"
           textContentType="password"
           onSubmitEditing={submit}
+          focusRing
         />
-        {!!error && (
-          <ThemeText
-            variant="body"
-            styles={[styles.errorText, { color: tokens.danger }]}
-            content={error}
-          />
-        )}
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
           size="regular"
           tone="primary"
-          textContent={t('adminLogin.passwordPage.loginButton', 'Log In')}
+          textContent={t('adminLogin.passwordPage.loginButton', 'Log in')}
           actionFunction={submit}
           disabled={!password || isSubmitting}
           useLoading={isSubmitting}
@@ -216,16 +204,15 @@ export default function PasswordPage() {
   );
 }
 
+// Positions from audit/design LoginWeb, measured below the 54 safe area:
+// logo at 96, field at 276 (fixed, so the attempts line never moves it).
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    width: WINDOWWIDTH,
-    alignItems: 'center',
-    ...CENTER,
   },
   hero: {
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 96,
   },
   logo: {
     width: 64,
@@ -240,12 +227,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   inputWrapper: {
-    width: '100%',
-    maxWidth: 400,
-    marginTop: 40,
-  },
-  errorText: {
-    marginTop: 8,
+    position: 'absolute',
+    top: 276,
+    left: 0,
+    right: 0,
   },
   forgotText: {
     fontSize: 15,

@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, ICONS, SIZES } from '../../../constants';
+import { View, StyleSheet } from 'react-native';
+import { ICONS } from '../../../constants';
 import { Image } from 'expo-image';
-import { ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
-import GetThemeColors from '../../../hooks/themeColors';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { validateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
@@ -22,14 +20,20 @@ import { useTranslation } from 'react-i18next';
 import RNRestart from 'react-native-restart-newarch';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import ThemeIcon from '../../../functions/CustomElements/themeIcon';
+import IconButton from '../../../functions/CustomElements/redesign/IconButton';
+import Animated, {
+  FadeIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { LOGIN_LOGO_TOP } from './loginLayout';
 
 export default function BiometricsLogin() {
   const { appState, isAppFocused } = useAppStatus();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { theme, tokens } = useGlobalThemeContext();
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const numRetriesBiometric = useRef(0);
@@ -49,6 +53,12 @@ export default function BiometricsLogin() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const isFocused = useIsFocused();
+  const logoScale = useSharedValue(1);
+  const logoOpacity = useSharedValue(1);
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ scale: logoScale.value }],
+  }));
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -185,8 +195,10 @@ export default function BiometricsLogin() {
   // system (factory reset). Shared by the migration-failure path and the trash
   // icon that appears after repeated biometric failures.
   const promptBiometricRemoval = () => {
-    navigate.navigate('ConfirmActionPage', {
-      confirmMessage: t('adminLogin.pinPage.isBiometricEnabledConfirmAction'),
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'walletReset',
+      title: t('adminLogin.pinPage.biometricsResetTitle'),
+      message: t('adminLogin.resetSheet.message'),
       confirmFunction: async () => {
         const deleted = await factoryResetWallet();
         if (deleted) {
@@ -217,48 +229,42 @@ export default function BiometricsLogin() {
     if (decryptResponse) {
       setAccountMnemonic(decryptResponse);
       didNavigate.current = true;
-      navigate.replace('ConnectingToNodeLoadingScreen', {
-        expectedMnemonicHash: sha256Hash(decryptResponse),
-      });
+      // Logo scales 1 → 0.9 and fades over 200 ms into the loading screen.
+      logoScale.value = withTiming(0.9, { duration: 200 });
+      logoOpacity.value = withTiming(0, { duration: 200 });
+      setTimeout(() => {
+        navigate.replace('ConnectingToNodeLoadingScreen', {
+          expectedMnemonicHash: sha256Hash(decryptResponse),
+        });
+      }, 200);
     }
   };
 
   return (
     <View style={styles.container}>
-      {showRemoveOption && (
-        <TouchableOpacity
-          testID="remove-biometric-wallet"
-          style={styles.removeButton}
-          onPress={promptBiometricRemoval}
-        >
-          <ThemeIcon iconName={'Trash2'} />
-        </TouchableOpacity>
-      )}
-      <View style={styles.centerContent}>
+      <Animated.View style={[styles.logoContainer, logoStyle]}>
         <Image
           source={ICONS.logoIcon}
           style={[styles.logo, tintStyle(theme ? tokens.ink : undefined)]}
         />
-      </View>
-
-      <View style={styles.bottomSection}>
-        <CustomButton
-          actionFunction={runAuthentication}
-          buttonStyles={[
-            styles.faceIdButton,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : tokens.accent,
-              opacity: isAuthenticating ? 0.6 : 1,
-            },
-          ]}
-          textStyles={{ color: tokens.onAccent }}
-          textContent={t('adminLogin.pinPage.biometricsHeader')}
-          disabled={isAuthenticating}
-        />
-
-        <ThemeText styles={styles.blitzText} content={'Blitz'} />
-      </View>
+      </Animated.View>
+      {showRemoveOption && (
+        <Animated.View entering={FadeIn} style={styles.removeButton}>
+          <IconButton
+            onPress={promptBiometricRemoval}
+            icon={'Trash2'}
+            iconSize={20}
+            label={'adminLogin.pinPage.removeWalletLabel'}
+            testID="remove-biometric-wallet"
+          />
+        </Animated.View>
+      )}
+      <CustomButton
+        actionFunction={runAuthentication}
+        textContent={t('adminLogin.pinPage.biometricsHeader')}
+        disabled={isAuthenticating}
+        size={'regular'}
+      />
     </View>
   );
 }
@@ -266,39 +272,20 @@ export default function BiometricsLogin() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   removeButton: {
     position: 'absolute',
     top: 0,
     right: 0,
-    padding: 10,
-    zIndex: 1,
   },
-  centerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logoContainer: {
+    position: 'absolute',
+    top: LOGIN_LOGO_TOP,
+    alignSelf: 'center',
   },
   logo: {
-    width: 120,
-    height: 120,
-  },
-  bottomSection: {
-    alignItems: 'center',
-  },
-  faceIdButton: {
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  faceIdText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  blitzText: {
-    fontSize: SIZES.xxLarge,
-    opacity: 0.6,
+    width: 88,
+    height: 88,
   },
 });

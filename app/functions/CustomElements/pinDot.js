@@ -9,7 +9,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-// `redesign`: 14 pt dots, ink fill (audit/design Onboarding Create PIN).
+// `redesign`: 14 pt dots, accent fill (owner 2026-10-26; design drew ink).
 export default function PinDot({dotNum, pin, redesign = false}) {
   const {theme} = useGlobalThemeContext();
   const isInitialLoad = useRef(true);
@@ -33,7 +33,7 @@ export default function PinDot({dotNum, pin, redesign = false}) {
     if (typeof pin[dotNum] === 'number') {
       return {
         backgroundColor: redesign
-          ? tokens.ink
+          ? tokens.accent
           : theme
           ? textColor
           : tokens.accent,

@@ -347,7 +347,16 @@
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left",
-      "biometricsHeader": "Open with Biometrics"
+      "biometricsHeader": "Open with biometrics",
+      "goodMorning": "Good morning",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening",
+      "biometricsResetTitle": "We couldn’t verify your biometrics",
+      "removeWalletLabel": "Remove wallet from this device"
+    },
+    "resetSheet": {
+      "deleteWalletData": "Delete wallet data",
+      "message": "Do you want to delete all wallet data? Only continue if your recovery phrase is securely backed up."
     },
     "passwordPage": {
       "enterPasswordMessage": "Enter Password",
@@ -358,12 +367,15 @@
       "forgotPassword": "Forgot password?",
       "forgotPasswordConfirm": "Forgot your password? The only way to recover is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
       "storageError": "Unable to read wallet storage. Please try again.",
-      "loginButton": "Log In"
+      "forgotPasswordTitle": "Forgot your password?",
+      "forgotPasswordMessage": "The only way to recover is to reset and restore with your recovery phrase. Do you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
+      "loginButton": "Log in"
     },
     "passkeyPage": {
-      "unlockButton": "Open with Passkey",
+      "unlockButton": "Open with passkey",
       "unlockError": "Couldn't unlock with your passkey",
       "lostPasskey": "Lost your passkey?",
+      "lostPasskeyMessage": "The only way back in is to reset and restore with your recovery phrase. Do you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
       "lostPasskeyConfirm": "Lost your passkey? The only way back in is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up."
     }
   },

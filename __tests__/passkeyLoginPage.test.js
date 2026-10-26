@@ -29,6 +29,18 @@ jest.mock('../app/functions/CustomElements', () => ({
     require('react').createElement('MockText', { children: props.content }),
 }));
 
+jest.mock('react-native-reanimated', () => {
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: { View: RN.View },
+    FadeIn: { duration: () => undefined },
+    useSharedValue: value => ({ value }),
+    useAnimatedStyle: callback => callback(),
+    withTiming: value => value,
+  };
+});
+
 jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: props => require('react').createElement('MockButton', props),
@@ -237,9 +249,10 @@ describe('PasskeyLoginPage', () => {
       renderer.root.findByProps({ testID: 'lost-passkey' }).props.onPress();
     });
     expect(mockNavigate.navigate).toHaveBeenCalledWith(
-      'ConfirmActionPage',
+      'CustomHalfModal',
       expect.objectContaining({
-        confirmMessage: 'adminLogin.passkeyPage.lostPasskeyConfirm',
+        wantedContent: 'walletReset',
+        message: 'adminLogin.passkeyPage.lostPasskeyMessage',
       }),
     );
 

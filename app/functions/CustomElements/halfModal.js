@@ -105,6 +105,7 @@ import { SocialLinksSheet } from '../../components/admin/homeComponents/settings
 import ExportOrFilterHalfModal from '../../components/admin/homeComponents/viewAllComponents/actionsHalfMoal';
 import { SheetSurface } from './redesign/sheetSurface';
 import ExpandedTx from '../../screens/inAccount/expandedTxPage';
+import WalletResetSheet from '../../components/admin/loginComponents/walletResetSheet';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -168,7 +169,8 @@ export default function CustomHalfModal(props) {
     contentType === 'ExportOrFilterHalfModal' ||
     contentType === 'txFilter' ||
     contentType === 'expandedTx' ||
-    contentType === 'RemoveBudgetHalfModal';
+    contentType === 'RemoveBudgetHalfModal' ||
+    contentType === 'walletReset';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -908,6 +910,16 @@ export default function CustomHalfModal(props) {
         return (
           <ExpandedTx
             transaction={props?.route?.params?.transaction}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'walletReset':
+        return (
+          <WalletResetSheet
+            title={props.route.params?.title}
+            message={props.route.params?.message}
+            confirmFunction={props.route.params?.confirmFunction}
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
           />
