@@ -9,6 +9,9 @@ const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: mockNavigate }),
 }));
+jest.mock('react-native-keyboard-controller', () => ({
+  KeyboardController: { dismiss: jest.fn() },
+}));
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: key => key }),
 }));

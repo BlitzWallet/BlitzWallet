@@ -9,7 +9,8 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-export default function PinDot({dotNum, pin}) {
+// `redesign`: 14 pt dots, ink fill (audit/design Onboarding Create PIN).
+export default function PinDot({dotNum, pin, redesign = false}) {
   const {theme} = useGlobalThemeContext();
   const isInitialLoad = useRef(true);
 
@@ -31,7 +32,11 @@ export default function PinDot({dotNum, pin}) {
   const memorizedStyles = useMemo(() => {
     if (typeof pin[dotNum] === 'number') {
       return {
-        backgroundColor: theme ? textColor : tokens.accent,
+        backgroundColor: redesign
+          ? tokens.ink
+          : theme
+          ? textColor
+          : tokens.accent,
       };
     } else {
       return {
@@ -39,13 +44,21 @@ export default function PinDot({dotNum, pin}) {
         borderColor: tokens.muted,
       };
     }
-  }, [pin, dotNum, theme, tokens]);
+  }, [pin, dotNum, theme, tokens, redesign]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{scale: dotScale.value}],
   }));
 
-  return <Animated.View style={[memorizedStyles, styles.dot, animatedStyle]} />;
+  return (
+    <Animated.View
+      style={[
+        memorizedStyles,
+        redesign ? styles.dotRedesign : styles.dot,
+        animatedStyle,
+      ]}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
@@ -53,6 +66,12 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
+  },
+
+  dotRedesign: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
   },
 
   dot_active: {

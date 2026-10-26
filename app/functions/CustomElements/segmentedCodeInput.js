@@ -29,7 +29,13 @@ if (__DEV__) {
 // Display-only OTP-style boxes: no TextInput and no native keyboard — the custom
 // Blitz keyboard writes straight into `value`. The box at the next fill position
 // shows the blinking caret.
-export default function SegmentedCodeInput({ value, length = 6 }) {
+// `redesign`: equal-width white boxes, 60 high r14, 2 pt accent ring on the
+// next box (audit/design OnboardingMore Pairing code).
+export default function SegmentedCodeInput({
+  value,
+  length = 6,
+  redesign = false,
+}) {
   const { backgroundOffset, tokens } = GetThemeColors();
   const isFocused = useIsFocused();
   const caret = useSharedValue(1);
@@ -50,7 +56,7 @@ export default function SegmentedCodeInput({ value, length = 6 }) {
   const activeIndex = Math.min(value.length, length - 1);
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, redesign && styles.rowRedesign]}>
       {Array.from({ length }).map((_, index) => {
         const isActive = index === activeIndex;
         return (
@@ -58,7 +64,10 @@ export default function SegmentedCodeInput({ value, length = 6 }) {
             key={index}
             style={[
               styles.box,
-              { backgroundColor: backgroundOffset },
+              {
+                backgroundColor: redesign ? tokens.surface : backgroundOffset,
+              },
+              redesign && styles.boxRedesign,
               isActive && { borderColor: tokens.accent, borderWidth: 2 },
             ]}
           >
@@ -94,6 +103,15 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  rowRedesign: { gap: 8 },
+  boxRedesign: {
+    flex: 1,
+    width: 'auto',
+    height: 'auto',
+    minHeight: 60,
+    borderRadius: 14,
+    borderWidth: 0,
   },
   boxText: {
     fontSize: SIZES.xLarge,

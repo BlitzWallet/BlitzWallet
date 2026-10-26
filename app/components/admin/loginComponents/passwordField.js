@@ -14,10 +14,12 @@ export default function PasswordField({
   autoComplete,
   textContentType,
   onSubmitEditing,
+  focusRing = false,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
   const [show, setShow] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   return (
     <CustomSearchInput
       inputText={value}
@@ -28,11 +30,17 @@ export default function PasswordField({
       autoComplete={autoComplete}
       textContentType={textContentType}
       onSubmitEditingFunction={onSubmitEditing}
+      onFocusFunction={() => setIsFocused(true)}
+      onBlurFunction={() => setIsFocused(false)}
       textAlignVertical="center"
       textInputStyles={{
         ...styles.input,
         color: tokens.onField,
         backgroundColor: tokens.field,
+        ...(focusRing && {
+          borderWidth: 2,
+          borderColor: isFocused ? tokens.accent : 'transparent',
+        }),
       }}
       buttonComponent={
         <TouchableOpacity
@@ -47,7 +55,7 @@ export default function PasswordField({
         >
           <ThemeIcon
             redesign
-            iconName={show ? 'Eye' : 'EyeOff'}
+            iconName={show ? 'EyeOff' : 'Eye'}
             size={20}
             colorOverride={tokens.muted}
           />

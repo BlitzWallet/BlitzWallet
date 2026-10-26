@@ -7,7 +7,7 @@
 // switches via resetSession, and the Code branch simply gates it out).
 //
 // Drives the real screen with a mutable mocked claim context and a stubbed
-// WordsQrToggle whose options are clickable host elements.
+// Segmented whose options are clickable host elements.
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -95,22 +95,18 @@ jest.mock('../../app/functions/CustomElements/searchInput', () => ({
 }));
 
 // Clickable toggle stub: two host elements that drive the screen's tab state.
-jest.mock('../../app/functions/CustomElements/wordsQrToggle', () => {
+jest.mock('../../app/functions/CustomElements/redesign/Segmented', () => {
   const React = require('react');
   return {
     __esModule: true,
-    default: ({ option1Value, option2Value, setSelectedDisplayOption }) => [
-      React.createElement('view', {
-        key: 'option1',
-        testID: 'toggle-code',
-        onClick: () => setSelectedDisplayOption(option1Value),
-      }),
-      React.createElement('view', {
-        key: 'option2',
-        testID: 'toggle-scan',
-        onClick: () => setSelectedDisplayOption(option2Value),
-      }),
-    ],
+    default: ({ options, onChange }) =>
+      options.map((option, i) =>
+        React.createElement('view', {
+          key: option.value,
+          testID: i === 0 ? 'toggle-code' : 'toggle-scan',
+          onClick: () => onChange(option.value),
+        }),
+      ),
   };
 });
 

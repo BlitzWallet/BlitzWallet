@@ -18,6 +18,7 @@ export default function CustomNumberKeyboard({
   usingForInput = false,
   redesign = false,
   bottomLeftEmpty = false,
+  pinPad = false,
 }) {
   const navigate = useNavigation();
 
@@ -97,6 +98,7 @@ export default function CustomNumberKeyboard({
     () => [
       styles.keyboardContainer,
       redesign && styles.keyboardContainerRedesign,
+      pinPad && styles.pinPadGap,
       {
         marginTop:
           frompage === 'sendContactsPage' ||
@@ -107,7 +109,7 @@ export default function CustomNumberKeyboard({
       },
       disabled && styles.disabledKeyboard,
     ],
-    [frompage, disabled, redesign],
+    [frompage, disabled, redesign, pinPad],
   );
 
   const numbers = useMemo(
@@ -129,6 +131,7 @@ export default function CustomNumberKeyboard({
             style={[
               styles.keyboard_row,
               redesign && styles.keyboardRowRedesign,
+              pinPad && styles.pinPadGap,
             ]}
           >
             {row.map(num => {
@@ -140,6 +143,7 @@ export default function CustomNumberKeyboard({
                   num={num}
                   addPin={addPin}
                   redesign={redesign}
+                  pinPad={pinPad}
                 />
               );
             })}
@@ -147,7 +151,13 @@ export default function CustomNumberKeyboard({
         );
       })}
       {redesign ? (
-        <View style={[styles.keyboard_row, styles.keyboardRowRedesign]}>
+        <View
+          style={[
+            styles.keyboard_row,
+            styles.keyboardRowRedesign,
+            pinPad && styles.pinPadGap,
+          ]}
+        >
           <View style={styles.keyCell}>
             {(showDot || showDot === undefined) && (
               <KeyForKeyboard
@@ -156,6 +166,7 @@ export default function CustomNumberKeyboard({
                 num="."
                 addPin={addPin}
                 redesign={redesign}
+                pinPad={pinPad}
                 fillCell={true}
               />
             )}
@@ -167,6 +178,7 @@ export default function CustomNumberKeyboard({
                   num="C"
                   addPin={addPin}
                   redesign={redesign}
+                  pinPad={pinPad}
                   fillCell={true}
                 />
               ))}
@@ -176,6 +188,7 @@ export default function CustomNumberKeyboard({
               num={0}
               addPin={addPin}
               redesign={redesign}
+              pinPad={pinPad}
               fillCell={true}
             />
           </View>
@@ -184,6 +197,7 @@ export default function CustomNumberKeyboard({
               num="back"
               addPin={addPin}
               redesign={redesign}
+              pinPad={pinPad}
               fillCell={true}
             />
           </View>
@@ -211,6 +225,7 @@ const styles = StyleSheet.create({
   keyboardContainer: { width: '100%', maxWidth: 400, ...CENTER },
   keyboardContainerRedesign: { gap: 8 },
   keyboardRowRedesign: { gap: 8 },
+  pinPadGap: { gap: 10 },
   disabledKeyboard: { opacity: HIDDEN_OPACITY },
   keyCell: { flex: 1, flexBasis: 0 },
   emptyKey: {

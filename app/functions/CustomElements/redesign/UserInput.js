@@ -20,6 +20,8 @@ export default function UserInput({
   autoFocus,
   maxLength,
   showTextCount = false,
+  onSubmitEditing,
+  focusRing = false,
 }) {
   const { tokens, mode } = useTheme();
   const inSheet = useInSheet();
@@ -48,9 +50,14 @@ export default function UserInput({
         textAlignVertical="center"
         autoFocus={autoFocus}
         maxLength={maxLength}
+        onSubmitEditingFunction={onSubmitEditing}
         textInputStyles={{
           ...styles.input,
           ...(pill && styles.pill),
+          ...(focusRing && {
+            borderWidth: 2,
+            borderColor: isFocused ? tokens.accent : 'transparent',
+          }),
           color: inSheet ? tokens.ink : tokens.onField,
           backgroundColor: inSheet ? tokens.ground : tokens.field,
         }}

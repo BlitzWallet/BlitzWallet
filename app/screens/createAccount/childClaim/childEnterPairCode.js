@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../functions/CustomElements/customNumberKeyboard';
 import SegmentedCodeInput from '../../../functions/CustomElements/segmentedCodeInput';
-import { CENTER } from '../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
+import { SIZES } from '../../../constants/theme';
 import { useTheme } from '../../../../context-store/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
 import {
@@ -16,6 +15,8 @@ import {
   keyboardNavigate,
 } from '../../../functions/customNavigation';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
 
 export default function ChildEnterPairCode() {
   const navigate = useNavigation();
@@ -25,6 +26,8 @@ export default function ChildEnterPairCode() {
   const name = route?.params?.name ?? '';
   const [code, setCode] = useState('');
   const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   // Parent joined and the SAS is ready -> move to the verify screen.
   useEffect(() => {
@@ -55,21 +58,18 @@ export default function ChildEnterPairCode() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        customBackFunction={handleBack}
-        label={t('settings.childAccounts.claim.pairCodeNavTitle')}
-      />
-      <View style={styles.content}>
-        <ThemeText
-          styles={styles.title}
-          content={t('settings.childAccounts.claim.pairCodeTitle')}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          onBack={handleBack}
+          title={t('settings.childAccounts.claim.pairCodeNavTitle')}
         />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('settings.childAccounts.claim.pairCodeSubtitle')}
+        <PageHeader
+          large
+          title={t('settings.childAccounts.claim.pairCodeTitle')}
+          sub={t('settings.childAccounts.claim.pairCodeSubtitle')}
         />
         <View style={styles.inputWrap}>
-          <SegmentedCodeInput value={code} length={6} />
+          <SegmentedCodeInput redesign value={code} length={6} />
         </View>
         {!!errorMessage && (
           <ThemeText
@@ -77,39 +77,32 @@ export default function ChildEnterPairCode() {
             content={errorMessage}
           />
         )}
+        <CustomNumberKeyboard
+          redesign
+          pinPad
+          showDot={false}
+          customFunction={handleKey}
+        />
+        <CustomButton
+          buttonStyles={styles.button}
+          useLoading={status === 'joining'}
+          disabled={!isValid}
+          textContent={t('settings.childAccounts.claim.next')}
+          actionFunction={submit}
+          size={'regular'}
+        />
       </View>
-      <CustomNumberKeyboard showDot={false} customFunction={handleKey} />
-      <CustomButton
-        buttonStyles={styles.button}
-        useLoading={status === 'joining'}
-        disabled={!isValid}
-        textContent={t('settings.childAccounts.claim.next')}
-        actionFunction={submit}
-      />
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  inputWrap: { marginTop: 20 },
+  container: { flex: 1, ...CENTER },
+  inputWrap: { marginTop: 28 },
   error: {
     fontSize: SIZES.smedium,
     textAlign: 'center',
     marginTop: 16,
   },
-  button: { ...CENTER },
+  button: { marginTop: 12 },
 });

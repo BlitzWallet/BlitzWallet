@@ -13,11 +13,15 @@ export default function KeyForKeyboard({
   frompage,
   redesign = false,
   fillCell = false,
+  // PIN / pairing pad: 60 high, 26 digits, bare "Clear" text and delete.
+  pinPad = false,
 }) {
   const { tokens } = useGlobalThemeContext();
   const inSheet = useInSheet();
   const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
+
+  const bare = pinPad && (num === 'C' || num === 'back');
 
   const handlePress = () => {
     if (isDot && frompage === 'sendSMSPage') return;
@@ -39,14 +43,22 @@ export default function KeyForKeyboard({
       onPress={handlePress}
       accessibilityRole="button"
       accessibilityLabel={
-        num === 'back' ? t('constants.delete') : isDot ? '.' : `${num}`
+        num === 'back'
+          ? t('constants.delete')
+          : pinPad && num === 'C'
+          ? t('constants.clear')
+          : isDot
+          ? '.'
+          : `${num}`
       }
       style={[
         styles.key,
         redesign && [
           styles.keyRedesign,
           {
-            backgroundColor: isPressed
+            backgroundColor: bare
+              ? 'transparent'
+              : isPressed
               ? inSheet
                 ? tokens.surface
                 : tokens.disc
@@ -56,6 +68,7 @@ export default function KeyForKeyboard({
           },
         ],
         fillCell && styles.keyFillCell,
+        pinPad && styles.keyPinPad,
       ]}
     >
       <View
@@ -80,12 +93,21 @@ export default function KeyForKeyboard({
           (num === 'back' ? (
             <ThemeIcon
               colorOverride={tokens.ink}
-              size={redesign ? 22 : 30}
+              size={pinPad ? 24 : redesign ? 22 : 30}
               iconName={redesign ? 'Delete' : 'ChevronLeft'}
+            />
+          ) : pinPad && num === 'C' ? (
+            <ThemeText
+              styles={[styles.clearText, { color: tokens.muted }]}
+              content={t('constants.clear')}
             />
           ) : (
             <ThemeText
-              styles={[styles.keyText, redesign && styles.keyTextRedesign]}
+              styles={[
+                styles.keyText,
+                redesign && styles.keyTextRedesign,
+                pinPad && styles.keyTextPinPad,
+              ]}
               content={`${num}`}
             />
           ))}
@@ -110,6 +132,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   keyFillCell: { width: '100%', flex: 0, minHeight: 54 },
+  keyPinPad: { minHeight: 60 },
+  keyTextPinPad: { fontSize: 26, lineHeight: 34 },
+  clearText: { fontSize: 15, lineHeight: 22, includeFontPadding: false },
   keyDot: {
     width: 45,
     height: 45,

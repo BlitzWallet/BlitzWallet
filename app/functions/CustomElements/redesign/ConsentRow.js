@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -9,6 +9,9 @@ export default function ConsentRow({
   checked,
   onPress,
   text,
+  linkText,
+  onLinkPress,
+  suffix = '',
   accessibilityLabel,
 }) {
   const { tokens } = useTheme();
@@ -17,7 +20,9 @@ export default function ConsentRow({
       onPress={onPress}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: !!checked }}
-      accessibilityLabel={accessibilityLabel || text}
+      accessibilityLabel={
+        accessibilityLabel || (linkText ? `${text} ${linkText}${suffix}` : text)
+      }
       style={styles.row}
     >
       <View
@@ -38,7 +43,26 @@ export default function ConsentRow({
           />
         )}
       </View>
-      <ThemeText content={text} styles={[styles.text, { color: tokens.ink }]} />
+      <ThemeText
+        content={
+          linkText
+            ? [
+                text,
+                ' ',
+                <Text
+                  key="link"
+                  onPress={onLinkPress}
+                  accessibilityRole="link"
+                  style={[styles.link, { color: tokens.link }]}
+                >
+                  {linkText}
+                </Text>,
+                suffix,
+              ]
+            : text
+        }
+        styles={[styles.text, { color: tokens.ink }]}
+      />
     </TouchableOpacity>
   );
 }
@@ -64,4 +88,5 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     includeFontPadding: false,
   },
+  link: { textDecorationLine: 'underline' },
 });

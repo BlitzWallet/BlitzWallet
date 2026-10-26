@@ -1,12 +1,10 @@
 import { View, StyleSheet } from 'react-native';
-import { FONT, SIZES } from '../../constants';
+import { FONT } from '../../constants';
 import { ThemeText } from '../../functions/CustomElements';
-import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 
 export function KeyContainer({ keys, variant = 'tiles' }) {
   const { tokens } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
 
   if (variant === 'card') {
     const half = Math.ceil(keys.length / 2);
@@ -67,14 +65,12 @@ export function KeyContainer({ keys, variant = 'tiles' }) {
       {pair.map(([word, number]) => (
         <View
           key={number}
-          style={[
-            styles.seedItem,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
+          style={[styles.seedItem, { backgroundColor: tokens.surface }]}
         >
-          <ThemeText styles={styles.numberText} content={`${number}.`} />
+          <ThemeText
+            styles={[styles.numberText, { color: tokens.muted }]}
+            content={`${number}.`}
+          />
           <ThemeText
             styles={[styles.wordText, { color: tokens.ink }]}
             content={word}
@@ -86,28 +82,36 @@ export function KeyContainer({ keys, variant = 'tiles' }) {
 }
 
 const styles = StyleSheet.create({
+  // Tiles: 2-column grid of white r14 cells (audit/design OnboardingWeb).
   row: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 10,
     marginBottom: 10,
   },
   seedItem: {
-    width: '48%',
+    flex: 1,
+    minWidth: 0,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    gap: 8,
+    paddingHorizontal: 14,
+    borderRadius: 14,
   },
   numberText: {
-    marginRight: 10,
+    width: 22,
+    fontSize: 13,
+    lineHeight: 19,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   wordText: {
     flexShrink: 1,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
-    fontSize: SIZES.smedium,
   },
 
   // D292: one card, numbered down each column (1–6, 7–12).

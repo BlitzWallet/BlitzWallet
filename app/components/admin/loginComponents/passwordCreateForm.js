@@ -5,7 +5,6 @@ const AUTOSAVE_USERNAME = 'blitzwallet';
 // New passwords only. Unlock and legacy migration accept any existing
 // password, so wallets created before this minimum still open.
 export const MIN_PASSWORD_LENGTH = 6;
-import { FONT } from '../../../constants';
 import { ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
 import TextButton from '../../../functions/CustomElements/redesign/TextButton';
@@ -14,6 +13,7 @@ import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useTheme } from '../../../../context-store/theme';
 import { openBrowserAsync } from 'expo-web-browser';
 import PasswordField from './passwordField';
+import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
 
 export default function PasswordCreateForm({
   headerText,
@@ -59,14 +59,7 @@ export default function PasswordCreateForm({
 
   return (
     <View style={styles.container}>
-      <ThemeText styles={styles.header} content={headerText} />
-      {subtitleText ? (
-        <ThemeText
-          variant="body"
-          styles={[styles.subtitle, { color: tokens.muted }]}
-          content={subtitleText}
-        />
-      ) : null}
+      <PageHeader large title={headerText} sub={subtitleText} />
 
       {/* Hidden username field so the browser saves the credential under
           "blitzwallet" instead of guessing. Web only. */}
@@ -98,6 +91,7 @@ export default function PasswordCreateForm({
           )}
           autoComplete="new-password"
           textContentType="newPassword"
+          focusRing
         />
         <PasswordField
           value={confirm}
@@ -107,6 +101,7 @@ export default function PasswordCreateForm({
           )}
           autoComplete="new-password"
           textContentType="newPassword"
+          focusRing
         />
       </View>
       {!!error && (
@@ -117,16 +112,18 @@ export default function PasswordCreateForm({
         />
       )}
 
-      <TextButton
-        text={t('createAccount.keySetup.password.whatMakesStrongPassword')}
-        paddingHorizontal={0}
-        onPress={() =>
-          openBrowserAsync(
-            'https://www.nist.gov/cybersecurity-and-privacy/how-do-i-create-good-password?utm_source=chatgpt.com',
-            { windowFeatures: { noopener: true, noreferrer: true } },
-          )
-        }
-      />
+      <View style={styles.strongLink}>
+        <TextButton
+          text={t('createAccount.keySetup.password.whatMakesStrongPassword')}
+          paddingHorizontal={0}
+          onPress={() =>
+            openBrowserAsync(
+              'https://www.nist.gov/cybersecurity-and-privacy/how-do-i-create-good-password?utm_source=chatgpt.com',
+              { windowFeatures: { noopener: true, noreferrer: true } },
+            )
+          }
+        />
+      </View>
       <View style={styles.buttonContainer}>
         <CustomButton
           size="regular"
@@ -145,17 +142,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
-    letterSpacing: -0.56,
-    includeFontPadding: false,
-    marginTop: 28,
-  },
-  subtitle: {
-    marginTop: 8,
-  },
   fields: {
     marginTop: 28,
     gap: 10,
@@ -163,6 +149,7 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 8,
   },
+  strongLink: { marginTop: 8 },
   buttonContainer: {
     marginTop: 'auto',
     width: '100%',

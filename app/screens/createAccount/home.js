@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSequence,
   withDelay,
   Easing,
 } from 'react-native-reanimated';
@@ -14,11 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
-import {
-  FONT,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../constants/theme';
+import { FONT } from '../../constants/theme';
 import { useAppStatus } from '../../../context-store/appStatus';
 import useAdaptiveFontSize from '../../hooks/useAdaptiveFontSIze';
 import { useTheme } from '../../../context-store/theme';
@@ -83,6 +78,8 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
   const { t } = useTranslation();
   const { screenDimensions } = useAppStatus();
   const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   // Shared values
   const logoOpacity = useSharedValue(0);
@@ -142,7 +139,7 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
     <GlobalThemeView styles={{ maxWidth: 'unset' }}>
       <BoxGrid W={screenDimensions.width} H={screenDimensions.height} />
 
-      <View style={styles.container}>
+      <View style={[styles.container, { width: contentWidth }]}>
         {/* ── Headline ── */}
         <Animated.View style={[styles.heroWrap, headingStyle]}>
           <ThemeText
@@ -187,10 +184,11 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
             textStyles={[styles.primaryBtnText, { color: tokens.onAccent }]}
             textContent={t('createAccount.homePage.buttons.button2')}
             actionFunction={() => go('WalletSetupFork')}
+            size={'regular'}
           />
 
           <ThemeText
-            styles={styles.disclaimer}
+            styles={[styles.disclaimer, { color: tokens.muted }]}
             content={t('createAccount.homePage.subtitle')}
             isLight={true}
           />
@@ -204,8 +202,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    maxWidth: MAX_WEB_CONTENT_WIDTH,
     ...CENTER,
   },
   heroWrap: {
@@ -221,7 +217,7 @@ const styles = StyleSheet.create({
   spacer: { height: 0 },
   ctaSection: {
     width: '100%',
-    gap: 12,
+    gap: 16,
     alignItems: 'center',
   },
   primaryBtn: {
@@ -232,10 +228,10 @@ const styles = StyleSheet.create({
   },
   disclaimer: {
     fontSize: SIZES.xSmall,
-    opacity: HIDDEN_OPACITY,
+    lineHeight: 18,
+    letterSpacing: 0.6,
     textAlign: 'center',
     includeFontPadding: false,
-    marginTop: 8,
     textTransform: 'uppercase',
   },
 });

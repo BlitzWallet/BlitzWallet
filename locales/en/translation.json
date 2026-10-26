@@ -48,6 +48,7 @@
     "done": "Done",
     "continue": "Continue",
     "back": "Back",
+    "clear": "Clear",
     "openInBrowser": "Open in browser",
     "close": "Close",
     "delete": "Delete",
@@ -226,7 +227,7 @@
       "subtitle": "Your wallet. Your money. Open-source.",
       "buttons": {
         "button1": "Restore Account",
-        "button2": "Get Started",
+        "button2": "Get started",
         "joinAccount": "Join shared wallet"
       }
     },
@@ -255,7 +256,7 @@
       "terms&Conditions": "Terms",
       "acceptSuffix": ".",
       "acceptError": "Please accept the Terms & Conditions to continue.",
-      "continueBTN": "Agree & Continue"
+      "continueBTN": "Agree & continue"
     },
     "verifyKeyPage": {
       "header": "Let's confirm your recovery phrase!"
@@ -264,8 +265,8 @@
       "generateKey": {
         "header": "This is your password to your money, if you lose it you lose your money!",
         "webHeader": "Back up your recovery phrase",
-        "webStorageWarning": "Your recovery phrase is the only way to restore your wallet. Browser data can be cleared or removed, which may erase your wallet from this device.",
-        "webSubHeader": "Keep your recovery phrase somewhere private. Do not save a screenshot or share them with anyone.",
+        "webStorageWarning": "Your recovery phrase is the only way to restore your wallet. Browser data can be cleared, which may erase your wallet from this device.",
+        "webSubHeader": "Keep it somewhere private. Don’t screenshot it or share it with anyone.",
         "subHeader": "Write it down with a pen and paper and keep it safe!",
         "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
         "errorText": "Error fetching recovery phrase",
@@ -281,13 +282,13 @@
         "wipeError": "Unable to clear this device's previous wallet data. Your PIN is saved, but please retry before continuing.",
         "wrongPinError": "Try again",
         "enterPinMessage": "Create PIN",
-        "confirmPin": "Confirm Pin",
+        "confirmPin": "Confirm PIN",
         "attemptsText": "{{number}} attempts left"
       },
       "password": {
-        "createHeader": "Create Password",
+        "createHeader": "Create a password",
         "createSubtitle": "Your password protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
-        "createButton": "Create Wallet",
+        "createButton": "Create wallet",
         "newPasswordPlaceholder": "Enter password",
         "confirmPasswordPlaceholder": "Confirm password",
         "mismatchError": "Passwords do not match",
@@ -298,7 +299,7 @@
         "hidePassword": "Hide password"
       },
       "passkey": {
-        "offerHeader": "Create Passkey",
+        "offerHeader": "Create a passkey",
         "offerSubtitle": "Your passkey protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
         "createButton": "Create a passkey",
         "usePassword": "Use a password instead",
@@ -1950,10 +1951,10 @@
           "row3Description": "Only join a wallet from someone you know.",
           "continue": "Continue"
         },
-        "codeNavTitle": "Enter Username",
+        "codeNavTitle": "Enter username",
         "codeTitle": "Enter their username",
         "codeSubtitle": "Enter the username shown on the other person's phone.",
-        "pairCodeNavTitle": "Enter Code",
+        "pairCodeNavTitle": "Enter code",
         "pairCodeTitle": "Enter the pairing code",
         "pairCodeSubtitle": "Enter the 6-digit code shown on the other person's phone.",
         "wrongCode": "That code didn't work. Check the code and the username, then try again.",
@@ -1975,7 +1976,7 @@
         "codePlaceholder": "username",
         "codeOption": "Code",
         "scanOption": "Scan",
-        "scanNavTitle": "Scan Code",
+        "scanNavTitle": "Scan code",
         "scanTitle": "Scan their QR code",
         "scanHint": "Position the QR code in view to activate",
         "scanWaiting": "Waiting for the request to be accepted",
@@ -3193,6 +3194,13 @@
       "emailplaceholder": "you@example.com",
       "emailError": "Please enter a valid email address.",
       "completePayment": "Complete Payment"
+    },
+    "webViewPopup": {
+      "allowedTitle": "External link",
+      "allowedSub": "This link will open in a new browser tab.",
+      "notAllowedTitle": "Link not supported",
+      "notAllowedSub": "Only links that start with http or https can be opened.",
+      "openLink": "Open link"
     }
   },
   "toastmessages": {
