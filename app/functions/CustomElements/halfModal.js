@@ -170,7 +170,9 @@ export default function CustomHalfModal(props) {
     contentType === 'txFilter' ||
     contentType === 'expandedTx' ||
     contentType === 'RemoveBudgetHalfModal' ||
-    contentType === 'walletReset';
+    contentType === 'walletReset' ||
+    contentType === 'addMoneyToSavings' ||
+    contentType === 'withdrawFromSavings';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -615,9 +617,10 @@ export default function CustomHalfModal(props) {
           <SavingsProvider>
             <AddMoneyToSavingsHalfModal
               selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+              hasGoals={props?.route?.params?.hasGoals}
               setContentHeight={setContentHeight}
               handleBackPressFunction={handleBackPressFunction}
-              setBackNav={setBackNav}
+              setDismissLocked={setDismissLocked}
             />
           </SavingsProvider>
         );
@@ -629,7 +632,7 @@ export default function CustomHalfModal(props) {
               selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
               setContentHeight={setContentHeight}
               handleBackPressFunction={handleBackPressFunction}
-              setBackNav={setBackNav}
+              setDismissLocked={setDismissLocked}
             />
           </SavingsProvider>
         );

@@ -1,22 +1,25 @@
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import GetThemeColors from '../../../../hooks/themeColors';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 
 const GOAL_EMOJIS = [
   '💵',
@@ -32,65 +35,69 @@ const GOAL_EMOJIS = [
   '💻',
   '📍',
 ];
+const COLUMNS = 4;
+const GAP = 10;
 
 export default function SavingsGoalEmoji() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const [selectedEmoji, setSelectedEmoji] = useState('💵');
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const tileWidth = (contentWidth - GAP * (COLUMNS - 1)) / COLUMNS;
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('savings.goalEmoji.screenTitle')} />
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('savings.goalEmoji.title')}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('savings.goalEmoji.subtitle')}
-        />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('savings.goalEmoji.screenTitle')} />
 
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={GOAL_EMOJIS}
-          keyExtractor={item => item}
-          numColumns={3}
-          style={styles.grid}
-          columnWrapperStyle={styles.gridRow}
-          renderItem={({ item }) => {
-            const selected = item === selectedEmoji;
-            return (
-              <TouchableOpacity
-                onPress={() => setSelectedEmoji(item)}
-                activeOpacity={0.7}
-                style={[
-                  styles.emojiCell,
-                  { backgroundColor: backgroundOffset },
-                  selected && {
-                    ...styles.emojiSelected,
-                    borderColor:
-                      theme && darkModeType ? tokens.ink : tokens.accent,
-                  },
-                ]}
-              >
-                <ThemeText styles={styles.emojiText} content={item} />
-              </TouchableOpacity>
-            );
-          }}
-        />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <ThemeText
+            variant={'title'}
+            styles={styles.title}
+            content={t('savings.goalEmoji.title')}
+          />
+          <ThemeText
+            variant={'body'}
+            styles={[styles.subtitle, { color: tokens.muted }]}
+            content={t('savings.goalEmoji.subtitle')}
+          />
+
+          <View style={styles.grid}>
+            {GOAL_EMOJIS.map(item => {
+              const selected = item === selectedEmoji;
+              return (
+                <TouchableOpacity
+                  key={item}
+                  onPress={() => setSelectedEmoji(item)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={item}
+                  accessibilityState={{ selected }}
+                  style={[
+                    styles.emojiCell,
+                    {
+                      width: tileWidth,
+                      backgroundColor: tokens.surface,
+                      borderColor: selected ? tokens.accent : 'transparent',
+                    },
+                  ]}
+                >
+                  <ThemeText styles={styles.emojiText} content={item} />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
 
         <CustomButton
-          buttonStyles={{
-            marginTop: CONTENT_KEYBOARD_OFFSET,
-            // alignSelf: 'center',
-          }}
+          buttonStyles={styles.button}
           actionFunction={() =>
             navigate.navigate('SavingsGoalDescribe', { emoji: selectedEmoji })
           }
           textContent={t('savings.goalEmoji.continueButton')}
+          size={'regular'}
         />
       </View>
     </GlobalThemeView>
@@ -100,52 +107,33 @@ export default function SavingsGoalEmoji() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
     ...CENTER,
   },
   title: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-    marginTop: 26,
+    marginTop: 20,
   },
   subtitle: {
-    marginTop: 4,
-    opacity: 0.7,
-    includeFontPadding: false,
+    marginTop: 8,
   },
   grid: {
-    marginTop: 18,
-  },
-  gridRow: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    marginTop: 24,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: GAP,
   },
   emojiCell: {
-    width: '30%',
-    flexShrink: 1,
-    aspectRatio: 1,
-    borderRadius: 999,
-    borderWidth: 0,
+    height: 72,
+    borderRadius: 20,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  emojiSelected: {
-    borderColor: COLORS.black,
-    borderWidth: 4,
   },
   emojiText: {
-    fontSize: 30,
-  },
-  primaryButton: {
-    borderRadius: 22,
-    backgroundColor: COLORS.black,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 13,
-  },
-  primaryButtonText: {
-    color: COLORS.white,
+    fontSize: 32,
+    lineHeight: 40,
     includeFontPadding: false,
+  },
+  button: {
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

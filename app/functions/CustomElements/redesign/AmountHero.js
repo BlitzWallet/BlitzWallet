@@ -6,6 +6,7 @@ import displayCorrectDenomination from '../../displayCorrectDenomination';
 import ThemeText from '../textTheme';
 
 // Centred denomination-aware amount. Amounts shrink to fit (OQ-17).
+// `splitCents` draws the ".00" at half size in muted (Dollar goals heroes).
 export default function AmountHero({
   amount,
   fiatStats,
@@ -13,6 +14,9 @@ export default function AmountHero({
   amountSize = 44,
   accessibilityLabel,
   mutedValue = false,
+  forceCurrency,
+  convertAmount,
+  splitCents = false,
 }) {
   const { tokens } = useTheme();
   const { masterInfoObject: contextMasterInfoObject } =
@@ -21,7 +25,12 @@ export default function AmountHero({
     amount,
     masterInfoObject: masterInfoOverride || contextMasterInfoObject,
     fiatStats,
+    forceCurrency,
+    convertAmount,
   });
+  const centsMatch = splitCents
+    ? String(displayValue).match(/^(.*\d)([.,]\d{2})(\D*)$/)
+    : null;
 
   return (
     <View
@@ -30,7 +39,21 @@ export default function AmountHero({
       accessibilityRole="text"
     >
       <ThemeText
-        content={displayValue}
+        content={
+          centsMatch
+            ? [
+                centsMatch[1],
+                <ThemeText
+                  key="cents"
+                  content={centsMatch[2] + centsMatch[3]}
+                  styles={[
+                    styles.cents,
+                    { fontSize: amountSize / 2, color: tokens.muted },
+                  ]}
+                />,
+              ]
+            : displayValue
+        }
         CustomNumberOfLines={1}
         adjustsFontSizeToFit
         minimumFontScale={0.5}
@@ -60,5 +83,10 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
     flexShrink: 1,
+  },
+  cents: {
+    fontFamily: FONT.Title_Regular,
+    letterSpacing: 0,
+    includeFontPadding: false,
   },
 });

@@ -1,46 +1,36 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { useCallback, useMemo } from 'react';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import LottieView from 'lottie-react-native';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { useCallback } from 'react';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
 export default function SavingsGoalRemovedSuccess() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const handleGoHome = useCallback(() => {
     navigate.popTo('SavingsHome');
     return true;
   }, []);
 
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
-
   useHandleBackPressNew(handleGoHome);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar customBackFunction={handleGoHome} />
-      <View style={styles.container}>
+      <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.content}>
-          <LottieView
-            source={confirmAnimation}
-            loop={false}
-            autoPlay={true}
-            style={styles.animation}
-          />
+          <Disc icon={'Check'} size={88} iconSize={40} tone="primary" />
           <ThemeText
+            variant={'title'}
             styles={styles.title}
             content={t('savings.goalRemovedSuccess.title')}
           />
@@ -49,6 +39,7 @@ export default function SavingsGoalRemovedSuccess() {
         <CustomButton
           actionFunction={handleGoHome}
           textContent={t('constants.done')}
+          size={'regular'}
         />
       </View>
     </GlobalThemeView>
@@ -58,33 +49,15 @@ export default function SavingsGoalRemovedSuccess() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
     ...CENTER,
   },
   content: {
-    marginTop: 60,
+    flex: 1,
     alignItems: 'center',
-    gap: 12,
-  },
-  animation: {
-    width: 150,
-    height: 150,
+    paddingTop: 196,
   },
   title: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
+    marginTop: 28,
     textAlign: 'center',
-  },
-  button: {
-    borderRadius: 22,
-    backgroundColor: COLORS.black,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 13,
-  },
-  buttonText: {
-    color: COLORS.white,
-    includeFontPadding: false,
   },
 });

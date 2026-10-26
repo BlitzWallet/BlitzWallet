@@ -1,12 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { formatTxDate, fromMicros } from './utils';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { COLORS, SIZES } from '../../../../constants';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
 const ICON_BY_TYPE = {
   interest: 'Sparkles',
@@ -15,8 +14,7 @@ const ICON_BY_TYPE = {
   bitcoinWithdrawal: 'ArrowUp',
 };
 
-export default function SavingsTransactionComponenet({ item, isLastIndex }) {
-  const { backgroundOffset, tokens } = GetThemeColors();
+export default function SavingsTransactionComponenet({ item }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const amount =
@@ -28,88 +26,41 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
     item.type === 'interest' || item.type === 'bitcoinWithdrawal';
 
   return (
-    <View
-      style={[
-        styles.activityRow,
-        {
-          borderBottomWidth: isLastIndex ? 0 : StyleSheet.hairlineWidth,
-          borderBottomColor: tokens.divider,
-        },
-      ]}
-    >
-      <View style={styles.activityLeft}>
-        <View
-          style={[
-            styles.activityIconCircle,
-            { backgroundColor: backgroundOffset },
-          ]}
-        >
-          <ThemeIcon iconName={ICON_BY_TYPE[item.type]} size={16} />
-        </View>
-        <View style={{ flexShrink: 1 }}>
-          <ThemeText
-            CustomNumberOfLines={2}
-            styles={styles.activityTitle}
-            content={item.description}
-          />
-          <ThemeText
-            styles={styles.activityDate}
-            content={formatTxDate(item.createdAt)}
-          />
-        </View>
-      </View>
-      <ThemeText
-        styles={[styles.activityAmount]}
-        content={`${isPositive ? '+' : '-'}${displayCorrectDenomination({
-          amount: Math.abs(amount),
-          masterInfoObject: {
-            ...masterInfoObject,
-            userBalanceDenomination: showSats ? 'sats' : 'fiat',
-          },
-          fiatStats,
-          forceCurrency: showSats ? null : 'USD',
-          convertAmount: showSats ? true : false,
-        })}`}
-      />
-    </View>
+    <ListRow
+      lead={<Disc icon={ICON_BY_TYPE[item.type]} size={40} />}
+      title={item.description}
+      titleStyle={styles.title}
+      sub={formatTxDate(item.createdAt)}
+      subLines={1}
+      minHeight={64}
+      trailing={
+        <ThemeText
+          styles={[styles.activityAmount]}
+          content={`${isPositive ? '+' : '−'}${displayCorrectDenomination({
+            amount: showSats ? Math.abs(amount) : Math.abs(amount).toFixed(2),
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: showSats ? 'sats' : 'fiat',
+            },
+            fiatStats,
+            forceCurrency: showSats ? null : 'USD',
+            convertAmount: showSats ? true : false,
+          })}`}
+        />
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  activityRow: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomColor: COLORS.gray2,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 5,
-  },
-  activityLeft: {
-    flexShrink: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  activityIconCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activityTitle: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  activityDate: {
-    fontSize: SIZES.xSmall,
-    opacity: 0.6,
-    includeFontPadding: false,
+  title: {
+    fontSize: 15,
+    lineHeight: 21,
   },
   activityAmount: {
-    fontSize: SIZES.smedium,
+    fontSize: 15,
+    lineHeight: 21,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
 });

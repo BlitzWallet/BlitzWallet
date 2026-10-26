@@ -8,15 +8,9 @@ import {
   UNALLOCATED_GOAL_ID,
 } from '../../../../../context-store/savingsContext';
 import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   CENTER,
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-  SIZES,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -24,7 +18,6 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
@@ -37,16 +30,9 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {
-  FONT,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
+import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
-import LottieView from 'lottie-react-native';
 import {
   initializeSparkWallet,
   disposeSparkWallet,
@@ -57,31 +43,23 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../functions/localStorage';
-import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
-import { useAppStatus } from '../../../../../context-store/appStatus';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
-
-const SKELETON_STYLES = {
-  icon: {
-    height: 48,
-    width: 48,
-    borderRadius: 100,
-  },
-  content: {
-    flex: 1,
-    height: 30,
-  },
-  line: {
-    flex: 1,
-    marginBottom: 10,
-    borderRadius: 100,
-  },
-  lastLine: {
-    flex: 1,
-    borderRadius: 100,
-  },
-};
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import StepProgress from '../../../../functions/CustomElements/redesign/StepProgress';
+import AnimatedStep, {
+  growThenStep,
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import {
+  AssetDisc,
+  EmojiDisc,
+  SheetEmpty,
+  SheetResult,
+  SheetTitle,
+} from './savingsSheetParts';
 
 // Persists { pollTimestamp: number, balance: number } so the balance poller
 // can be skipped when no new interest payment has arrived since the last poll.
@@ -96,13 +74,14 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const BALANCE_STABILIZE_MS = 3000;
 const BALANCE_STABILIZE_MAX_MS = 30000;
 
-const HEIGHT_FOR_PAGE = {
-  balanceType: 500,
-  chooseGoal: 500,
-  amount: 600,
-  confirm: 500,
-  loading: 500,
-  success: 500,
+const GENERAL_GOAL_EMOJI = '🏦';
+const MAX_SHEET_HEIGHT = 700;
+const STEP_HEIGHTS = {
+  balanceType: 400,
+  amount: 740,
+  confirm: 440,
+  loading: 440,
+  success: 520,
 };
 
 export default function WithdrawFromSavingsHalfModal({
@@ -110,17 +89,15 @@ export default function WithdrawFromSavingsHalfModal({
   setContentHeight,
   handleBackPressFunction,
   selectedGoalUUID,
-  setBackNav,
+  setDismissLocked,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
-  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
-  const { screenDimensions } = useAppStatus();
   const {
     withdrawMoney,
     withdrawlFromRewards,
@@ -136,10 +113,10 @@ export default function WithdrawFromSavingsHalfModal({
     walletBitcoinBalanceSats,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
-  console.log(screenDimensions);
   const [step, setStep] = useState([
     selectedGoalUUID ? 'amount' : 'balanceType',
   ]);
+  const [direction, setDirection] = useState(1);
   const [walletBTCBalance, setWalletBTCBalance] = useState(null);
   const [cachedBalance, setCachedBalance] = useState(0);
   // Destination is derived from the balance type: interest → main wallet's
@@ -155,6 +132,8 @@ export default function WithdrawFromSavingsHalfModal({
   // When true the user chose "Send Max" on the amount page — uses the exact
   // availableBalanceMicros so sub-cent balances can still be swept.
   const [isSendMax, setIsSendMax] = useState(false);
+  // Display amount captured at Confirm (see shownWithdrawAmount).
+  const [sentWithdrawAmount, setSentWithdrawAmount] = useState(null);
   // Which asset type the user wants to withdraw ('savings' | 'interest' | null)
   const [selectedBalanceType, setSelectedBalanceType] = useState(
     selectedGoalUUID || !savingsGoals.length ? 'savings' : null,
@@ -174,6 +153,7 @@ export default function WithdrawFromSavingsHalfModal({
   });
 
   const didInitSparkRef = useRef(false);
+  const confirmingRef = useRef(false);
   const balanceSubscriptionRef = useRef(null);
 
   // Cached savings wallet mnemonic — derived lazily on first use
@@ -419,62 +399,69 @@ export default function WithdrawFromSavingsHalfModal({
     };
   }, [getSavingsWalletMnemonic]);
 
-  // Adjust modal height on step change
+  const chooseGoalHeight = Math.min(
+    MAX_SHEET_HEIGHT,
+    Math.max(460, 200 + (savingsGoals.length + 2) * 65),
+  );
+  const heightFor = page =>
+    page === 'chooseGoal' ? chooseGoalHeight : STEP_HEIGHTS[page];
+
+  useStepSheetHeight(setContentHeight, heightFor(currentPage));
+
+  // The sheet can't be swiped or tapped away while the withdrawal is in flight.
   useEffect(() => {
-    if (setContentHeight && HEIGHT_FOR_PAGE[currentPage]) {
-      setContentHeight(HEIGHT_FOR_PAGE[currentPage]);
+    setDismissLocked?.(currentPage === 'loading');
+  }, [currentPage, setDismissLocked]);
+
+  // A step's exit side is read from its last render while still active, so
+  // the direction has to land one render before the step changes.
+  const moveStep = useCallback(
+    (nextDirection, nextPage, update) => {
+      setDirection(nextDirection);
+      growThenStep(
+        setContentHeight,
+        heightFor(currentPage),
+        heightFor(nextPage),
+        () => setTimeout(() => setStep(update), 0),
+      );
+    },
+    [currentPage, setContentHeight, chooseGoalHeight],
+  );
+
+  const pushStep = useCallback(
+    page => moveStep(1, page, prev => [...prev, page]),
+    [moveStep],
+  );
+
+  const goBack = useCallback(() => {
+    if (currentPage === 'confirm') {
+      // Leaving confirm drops the max/all choice so a later goal pick
+      // withdraws only what is typed.
+      setIsSendMax(false);
+      setIsWithdrawAll(false);
     }
-  }, [currentPage, setContentHeight]);
+    moveStep(-1, step[step.length - 2], prev => prev.slice(0, -1));
+  }, [currentPage, step, moveStep]);
 
   const handleBackPress = useCallback(() => {
     if (currentPage === 'loading') return true; // block
     // balanceType is the first step (amount when entered from a goal); success
     // still closes.
-    if (
-      currentPage === 'balanceType' ||
-      (currentPage === 'amount' && step.length === 1) ||
-      currentPage === 'success'
-    )
-      return false; // let parent close
-    if (currentPage === 'confirm') {
-      setIsSendMax(false);
-    }
-    setStep(prev => prev.slice(0, -1));
+    if (step.length === 1 || currentPage === 'success') return false; // let parent close
+    goBack();
     return true;
-  }, [currentPage, step]);
-
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
+  }, [currentPage, step, goBack]);
 
   useHandleBackPressNew(handleBackPress);
-
-  // Register the chrome's back arrow whenever a previous step exists, and the
-  // currency switch button while the amount step is active.
-  useEffect(() => {
-    const showBack =
-      step.length > 1 && currentPage !== 'loading' && currentPage !== 'success';
-    const showCurrency = currentPage === 'amount';
-    if (showBack || showCurrency) {
-      setBackNav?.({
-        onPress: showBack ? handleBackPress : null,
-        title: '',
-      });
-    } else {
-      setBackNav?.(null);
-    }
-    return () => setBackNav?.(null);
-  }, [
-    step,
-    currentPage,
-    handleBackPress,
-    setBackNav,
-    displayCurrency,
-    isLoadingRate,
-  ]);
 
   const parsedAmount = Number(amountValue || 0);
 
   const handleConfirm = async () => {
-    setStep(prev => [...prev, 'loading']);
+    // The confirm step stays tappable while it animates out.
+    if (confirmingRef.current) return;
+    confirmingRef.current = true;
+    setSentWithdrawAmount(liveWithdrawAmount);
+    pushStep('loading');
     setLoadingStep('processing');
     try {
       // Step 1: Processing — mnemonic derivation, validation, spark init
@@ -570,7 +557,7 @@ export default function WithdrawFromSavingsHalfModal({
         const elapsed2 = Date.now() - step2Start;
         if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
 
-        setStep(prev => [...prev, 'success']);
+        pushStep('success');
         return;
       }
 
@@ -693,7 +680,7 @@ export default function WithdrawFromSavingsHalfModal({
         });
       }
 
-      setStep(prev => [...prev, 'success']);
+      pushStep('success');
     } catch (err) {
       setLoadingStep('processing');
       handleBackPressFunction(() =>
@@ -712,418 +699,285 @@ export default function WithdrawFromSavingsHalfModal({
     handleBackPressFunction();
   };
 
-  // Choose between Interest or Savings balance
-  if (currentPage === 'balanceType') {
+  const formatUsd = amount =>
+    displayCorrectDenomination({
+      amount: Number(amount || 0).toFixed(2),
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'fiat',
+      },
+      fiatStats,
+      forceCurrency: 'USD',
+      convertAmount: false,
+    });
+  const formatSats = amount =>
+    displayCorrectDenomination({
+      amount,
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'sats',
+      },
+      fiatStats,
+    });
+
+  const isInterest = selectedBalanceType === 'interest';
+  const selectedGoal = savingsGoals.find(item => item.id === selectedGoalId);
+  const sourceLabel = isInterest
+    ? t('savings.withdraw.interestOption')
+    : isWithdrawAll
+    ? t('savings.home.title')
+    : selectedGoal
+    ? `${selectedGoal.emoji} ${selectedGoal.name}`
+    : `${GENERAL_GOAL_EMOJI} ${t('savings.withdraw.generalSavings')}`;
+  // Other locales still read `destination` as the old balance name.
+  const destination =
+    selectedDestination === 'bitcoin'
+      ? t('constants.sat_balance')
+      : t('constants.usd_balance');
+  const destinationLabel =
+    selectedDestination === 'bitcoin'
+      ? t('savings.bitcoinBalance')
+      : t('savings.dollarBalance');
+
+  // Withdraw All uses the full wallet balance; Send Max uses the exact goal
+  // balance; normal path uses the user-entered amount.
+  const confirmMicros = isWithdrawAll
+    ? totalWithdrawMicros
+    : isSendMax
+    ? availableBalanceMicros
+    : fiatMicros;
+  const liveWithdrawAmount = isInterest
+    ? isSendMax
+      ? interestSats
+      : localSatAmount
+    : (confirmMicros / 1_000_000).toFixed(2);
+  // Max/all amounts read the balance, which drops to 0 once the withdrawal
+  // lands, so loading and success show the amount frozen at Confirm.
+  const shownWithdrawAmount = sentWithdrawAmount ?? liveWithdrawAmount;
+  const withdrawAmountProps = isInterest
+    ? {
+        amount: shownWithdrawAmount,
+        fiatStats,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: 'sats',
+        },
+      }
+    : {
+        amount: shownWithdrawAmount,
+        fiatStats,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: 'fiat',
+        },
+        forceCurrency: 'USD',
+        convertAmount: false,
+      };
+  const withdrawAmountText = isInterest
+    ? formatSats(withdrawAmountProps.amount)
+    : formatUsd(withdrawAmountProps.amount);
+
+  const closeOrBack =
+    step.length > 1 ? goBack : () => handleBackPressFunction();
+  const backBar = (
+    <View style={styles.backBar}>
+      <TopBar onBack={closeOrBack} />
+    </View>
+  );
+
+  // ─── balanceType: Bitcoin rewards or goal money ───────────────────────────
+  const renderBalanceType = () => {
     // While the wallet connects and the first balance event settles, show a
-    // full-screen loader with state-driven status copy.
+    // loader with state-driven status copy.
     if (isLoadingBalances) {
-      return <FullLoadingScreen text={loadingBalancesMessage} />;
+      return (
+        <View style={styles.loading}>
+          <StepProgress title={loadingBalancesMessage} />
+        </View>
+      );
     }
 
     // Wallet failed to initialise — prompt the user to retry.
     if (sparkInitStatus === 'error') {
       return (
-        <View style={styles.container}>
-          <ThemeText
-            styles={styles.title}
-            content={t('savings.withdraw.balanceTypeTitle')}
-          />
-          <ThemeText
-            styles={styles.balanceLoadErrorText}
-            content={t('savings.withdraw.balanceLoadError')}
-          />
-        </View>
+        <SheetEmpty
+          icon="CircleAlert"
+          title={t('savings.withdraw.balanceTypeTitle')}
+          sub={t('savings.withdraw.balanceLoadError')}
+          buttonText={t('constants.back')}
+          onPress={() => handleBackPressFunction()}
+        />
       );
     }
 
     // Balances settled but there is nothing to withdraw — show an empty state.
     if (isInterestDisabled && isSavingsDisabled) {
       return (
-        <NoContentSceen
-          iconName="PiggyBank"
-          titleText={t('savings.withdraw.empty.title')}
-          subTitleText={t('savings.withdraw.empty.subtitle')}
+        <SheetEmpty
+          icon="Wallet"
+          title={t('savings.withdraw.empty.title')}
+          sub={t('savings.withdraw.empty.subtitle')}
+          buttonText={t('constants.back')}
+          onPress={() => handleBackPressFunction()}
         />
       );
     }
 
     return (
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('savings.withdraw.balanceTypeTitle')}
+      <>
+        <SheetTitle
+          title={t('savings.withdraw.balanceTypeTitle')}
+          first={true}
         />
-
-        <View style={styles.optionsList}>
-          {/* Interest option — BTC sats from savings payouts */}
-          <View>
-            <TouchableOpacity
-              activeOpacity={
-                isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 0.7
-              }
-              style={[
-                styles.optionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                  opacity:
-                    isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 1,
-                },
-              ]}
-              onPress={() => {
-                if (isInterestDisabled || !balanceReady) return;
-                setSelectedBalanceType('interest');
-                setSelectedDestination('bitcoin');
-                setAmountValue('');
-                setStep(prev => [...prev, 'amount']);
-              }}
+        <View style={styles.list}>
+          <ListCard tone="flush">
+            {/* Interest option — BTC sats from savings payouts */}
+            <View
+              key="interest"
+              style={isInterestDisabled && styles.disabledRow}
             >
-              {balanceReady ? (
-                <View style={styles.optionLeft}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundOffset
-                            : tokens.accent,
-                      },
-                    ]}
-                  >
-                    <ThemeIcon
-                      iconName="TrendingUp"
-                      size={22}
-                      colorOverride={tokens.onAccent}
-                    />
-                  </View>
-                  <View style={{ flexShrink: 1 }}>
-                    <ThemeText
-                      styles={styles.optionTitle}
-                      content={t('savings.withdraw.interestOption')}
-                    />
-
-                    {isInterestDisabled ? (
-                      <ThemeText
-                        styles={styles.optionSubtitle}
-                        content={t('savings.withdraw.interestZeroHint')}
-                      />
-                    ) : (
-                      <ThemeText
-                        styles={styles.optionSubtitle}
-                        content={
-                          isInterestDisabled
-                            ? t('savings.withdraw.interestZeroHint')
-                            : displayCorrectDenomination({
-                                amount: interestSats,
-                                masterInfoObject: {
-                                  ...masterInfoObject,
-                                  userBalanceDenomination: 'sats',
-                                },
-                                fiatStats,
-                              })
-                        }
-                      />
-                    )}
-                  </View>
-                </View>
-              ) : (
-                <SkeletonPlaceholder
-                  enabled={true}
-                  backgroundColor={tokens.skel}
-                  highlightColor={tokens.ground}
-                >
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      width: screenDimensions.width * 0.9 - 48,
-                      gap: 10,
-                    }}
-                  >
-                    <View style={SKELETON_STYLES.icon} />
-                    <View style={SKELETON_STYLES.content}>
-                      <View style={SKELETON_STYLES.line} />
-                      <View style={SKELETON_STYLES.lastLine} />
-                    </View>
-                  </View>
-                </SkeletonPlaceholder>
-              )}
-              {!isInterestDisabled && balanceReady && (
-                <ThemeIcon iconName="ChevronRight" size={16} />
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Savings option — USDB tokens from user deposits */}
-          <TouchableOpacity
-            activeOpacity={isSavingsDisabled ? HIDDEN_OPACITY : 0.7}
-            style={[
-              styles.optionRow,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-                opacity: isSavingsDisabled ? HIDDEN_OPACITY : 1,
-              },
-            ]}
-            onPress={() => {
-              if (isSavingsDisabled) return;
-              setSelectedBalanceType('savings');
-              setSelectedDestination('dollar');
-              setAmountValue('');
-              if (selectedGoalUUID && !savingsGoals.length) {
-                setStep(prev => [...prev, 'amount']);
-              } else {
-                setStep(prev => [...prev, 'chooseGoal']);
-              }
-            }}
-          >
-            <View style={styles.optionLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundOffset
-                        : backgroundColor,
-                  },
-                ]}
-              >
-                <ThemeText styles={styles.emojiText} content="🏦" />
-              </View>
-              <View style={{ flexShrink: 1 }}>
-                <ThemeText
-                  styles={styles.optionTitle}
-                  content={t('savings.withdraw.savingsOption')}
-                />
-                <ThemeText
-                  styles={styles.optionSubtitle}
-                  content={
-                    isSavingsDisabled
-                      ? t('savings.withdraw.savingsZeroHint')
-                      : displayCorrectDenomination({
-                          amount: savingsBalanceUsd,
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination: 'fiat',
-                          },
+              <ListRow
+                lead={<AssetDisc asset="bitcoin" />}
+                title={t('savings.withdraw.interestOption')}
+                titleStyle={styles.rowTitle}
+                sub={
+                  isInterestDisabled
+                    ? t('savings.withdraw.interestZeroHint')
+                    : t('savings.withdraw.interestEarned', {
+                        amount: displayCorrectDenomination({
+                          amount: interestSats,
+                          masterInfoObject,
                           fiatStats,
-                          forceCurrency: 'USD',
-                          convertAmount: false,
-                        })
-                  }
-                />
-              </View>
+                        }),
+                      })
+                }
+                subLines={1}
+                minHeight={64}
+                showChevron={!isInterestDisabled}
+                onPress={() => {
+                  if (isInterestDisabled || !balanceReady) return;
+                  setSelectedBalanceType('interest');
+                  setSelectedDestination('bitcoin');
+                  setAmountValue('');
+                  pushStep('amount');
+                }}
+              />
             </View>
-            {!isSavingsDisabled && (
-              <ThemeIcon iconName="ChevronRight" size={16} />
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
-  if (currentPage === 'chooseGoal') {
+            {/* Savings option — USDB tokens from user deposits */}
+            <View key="savings" style={isSavingsDisabled && styles.disabledRow}>
+              <ListRow
+                lead={<EmojiDisc emoji={GENERAL_GOAL_EMOJI} />}
+                title={t('savings.withdraw.savingsOption')}
+                titleStyle={styles.rowTitle}
+                sub={
+                  isSavingsDisabled
+                    ? t('savings.withdraw.savingsZeroHint')
+                    : formatUsd(savingsBalanceUsd)
+                }
+                subLines={1}
+                minHeight={64}
+                showChevron={!isSavingsDisabled}
+                onPress={() => {
+                  if (isSavingsDisabled) return;
+                  setSelectedBalanceType('savings');
+                  setSelectedDestination('dollar');
+                  setAmountValue('');
+                  if (selectedGoalUUID && !savingsGoals.length) {
+                    pushStep('amount');
+                  } else {
+                    pushStep('chooseGoal');
+                  }
+                }}
+              />
+            </View>
+          </ListCard>
+        </View>
+      </>
+    );
+  };
+
+  // ─── chooseGoal: which goal to withdraw from ──────────────────────────────
+  const renderChooseGoal = () => {
     const shouldShowWithdrawlAll =
       fromMicros(totalWithdrawMicros) !== savingsBalance - totalGoalsBalance;
 
+    const goalRow = ({ key, emoji, title, amount, onPress }) => (
+      <ListRow
+        key={key}
+        lead={<EmojiDisc emoji={emoji} />}
+        title={title}
+        titleStyle={styles.rowTitle}
+        trailing={
+          <ThemeText
+            styles={[styles.rowValue, { color: tokens.muted }]}
+            content={amount}
+          />
+        }
+        minHeight={64}
+        showChevron={true}
+        onPress={onPress}
+      />
+    );
+
     return (
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('savings.withdraw.chooseGoalTitle')}
-        />
+      <>
+        {backBar}
+        <SheetTitle title={t('savings.withdraw.chooseGoalTitle')} />
         <CustomScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            gap: 15,
-          }}
+          style={styles.list}
           showsVerticalScrollIndicator={false}
         >
-          {/* Withdraw All — drains the entire savings wallet in one action */}
-          {shouldShowWithdrawlAll && (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={[
-                styles.optionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+          <ListCard tone="flush">
+            {/* Withdraw All — drains the entire savings wallet in one action */}
+            {shouldShowWithdrawlAll &&
+              goalRow({
+                key: 'withdrawAll',
+                emoji: '💸',
+                title: t('savings.withdraw.withdrawAll'),
+                amount: formatUsd(fromMicros(totalWithdrawMicros)),
+                onPress: () => {
+                  setIsWithdrawAll(true);
+                  setSelectedGoalId(UNALLOCATED_GOAL_ID);
+                  // Withdraw All drains the whole wallet — skip amount entry.
+                  pushStep('confirm');
                 },
-              ]}
-              onPress={() => {
-                setIsWithdrawAll(true);
+              })}
+
+            {/* General savings — always shown */}
+            {goalRow({
+              key: UNALLOCATED_GOAL_ID,
+              emoji: GENERAL_GOAL_EMOJI,
+              title: t('savings.withdraw.generalSavings'),
+              amount: formatUsd(
+                (savingsBalance - totalGoalsBalance).toFixed(2),
+              ),
+              onPress: () => {
                 setSelectedGoalId(UNALLOCATED_GOAL_ID);
-                // Withdraw All drains the whole wallet — skip amount entry.
-                setStep(prev => [...prev, 'confirm']);
-              }}
-            >
-              <View style={styles.optionLeft}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundOffset
-                          : tokens.accent,
-                    },
-                  ]}
-                >
-                  <ThemeIcon
-                    iconName="ArrowDownToLine"
-                    size={22}
-                    colorOverride={tokens.onAccent}
-                  />
-                </View>
-                <View style={{ flexShrink: 1 }}>
-                  <ThemeText
-                    styles={styles.optionTitle}
-                    content={t('savings.withdraw.withdrawAll')}
-                  />
-                  <ThemeText
-                    styles={styles.optionSubtitle}
-                    content={displayCorrectDenomination({
-                      amount: fromMicros(totalWithdrawMicros),
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'fiat',
-                      },
-                      fiatStats,
-                      forceCurrency: 'USD',
-                      convertAmount: false,
-                    })}
-                  />
-                </View>
-              </View>
-              <ThemeIcon iconName="ChevronRight" size={16} />
-            </TouchableOpacity>
-          )}
-
-          {/* General savings — always shown */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[
-              styles.optionRow,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
+                pushStep('amount');
               },
-            ]}
-            onPress={() => {
-              setSelectedGoalId(UNALLOCATED_GOAL_ID);
-              setStep(prev => [...prev, 'amount']);
-            }}
-          >
-            <View style={styles.optionLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundOffset
-                        : backgroundColor,
-                  },
-                ]}
-              >
-                <ThemeText styles={styles.emojiText} content="🏦" />
-              </View>
-              <View style={{ flexShrink: 1 }}>
-                <ThemeText
-                  styles={styles.optionTitle}
-                  content={t('savings.withdraw.generalSavings')}
-                />
-                <ThemeText
-                  styles={styles.optionSubtitle}
-                  content={displayCorrectDenomination({
-                    amount: (savingsBalance - totalGoalsBalance).toFixed(2),
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'fiat',
-                    },
-                    fiatStats,
-                    forceCurrency: 'USD',
-                    convertAmount: false,
-                  })}
-                />
-              </View>
-            </View>
-            <ThemeIcon iconName="ChevronRight" size={16} />
-          </TouchableOpacity>
+            })}
 
-          {savingsGoals.map(goal => {
-            return (
-              <TouchableOpacity
-                key={goal.id}
-                activeOpacity={0.7}
-                style={[
-                  styles.optionRow,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                  },
-                ]}
-                onPress={() => {
+            {savingsGoals.map(goal =>
+              goalRow({
+                key: goal.id,
+                emoji: goal.emoji,
+                title: goal.name,
+                amount: formatUsd(fromMicros(goal.currentAmountMicros)),
+                onPress: () => {
                   setSelectedGoalId(goal.id);
-                  setStep(prev => [...prev, 'amount']);
-                }}
-              >
-                <View style={styles.optionLeft}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundOffset
-                            : backgroundColor,
-                      },
-                    ]}
-                  >
-                    <ThemeText styles={styles.emojiText} content={goal.emoji} />
-                  </View>
-                  <View style={{ flexShrink: 1 }}>
-                    <ThemeText
-                      styles={styles.optionTitle}
-                      content={goal.name}
-                    />
-                    <ThemeText
-                      styles={styles.optionSubtitle}
-                      content={displayCorrectDenomination({
-                        amount: fromMicros(goal.currentAmountMicros),
-                        masterInfoObject: {
-                          ...masterInfoObject,
-                          userBalanceDenomination: 'fiat',
-                        },
-                        fiatStats,
-                        forceCurrency: 'USD',
-                        convertAmount: false,
-                      })}
-                    />
-                  </View>
-                </View>
-                <ThemeIcon iconName="ChevronRight" size={16} />
-              </TouchableOpacity>
-            );
-          })}
+                  pushStep('amount');
+                },
+              }),
+            )}
+          </ListCard>
         </CustomScrollView>
-        <CustomButton
-          buttonStyles={{ ...CENTER, marginTop: CONTENT_KEYBOARD_OFFSET }}
-          actionFunction={() => {
-            setStep(prev => prev.slice(0, -1));
-          }}
-          textContent={t('constants.back')}
-        />
-      </View>
+      </>
     );
-  }
+  };
 
-  if (currentPage === 'amount') {
+  // ─── amount ───────────────────────────────────────────────────────────────
+  const renderAmount = () => {
     // Interest → direct BTC send (validate sats); savings → direct USDB send
     // (validate USD micros). Neither path swaps, so there's no swap minimum.
     const canContinue = (() => {
@@ -1139,230 +993,232 @@ export default function WithdrawFromSavingsHalfModal({
     // available hint — show sats for interest, USD for savings
     const availableHintAmount =
       selectedBalanceType === 'interest'
-        ? displayCorrectDenomination({
-            amount: interestSats,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'sats',
-            },
-            fiatStats,
-          })
-        : displayCorrectDenomination({
-            amount: balanceUsd,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'fiat',
-            },
-            fiatStats,
-            forceCurrency: 'USD',
-            convertAmount: false,
-          });
+        ? formatSats(interestSats)
+        : formatUsd(balanceUsd);
 
     return (
-      <View style={styles.amountContainer}>
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.amountScrollContainer}
-        >
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
+      <>
+        {backBar}
+        <View style={styles.amountBlock}>
+          <AmountHero
+            amount={
+              primaryDisplay.denomination === 'fiat'
+                ? Number(amountValue || 0).toFixed(2)
+                : amountValue || 0
+            }
+            fiatStats={primaryDisplay.forceFiatStats}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: primaryDisplay.denomination,
+            }}
             forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
+            convertAmount={false}
+            amountSize={52}
           />
-
           <ThemeText
-            styles={styles.availableHintText}
-            content={t('savings.withdraw.availableHint', {
+            styles={[styles.hint, { color: tokens.muted }]}
+            content={t('savings.withdraw.availableFrom', {
               amount: availableHintAmount,
+              source: sourceLabel,
             })}
           />
-        </CustomScrollView>
-        <TouchableOpacity
-          style={styles.sendMaxButton}
-          onPress={() => {
-            setIsSendMax(true);
-            setStep(prev => [...prev, 'confirm']);
-          }}
-        >
-          <ThemeText
-            styles={styles.sendMaxText}
-            content={t('savings.withdraw.withdrawlAll')}
+          <TouchableOpacity
+            style={[styles.maxPill, { backgroundColor: tokens.disc }]}
+            accessibilityRole="button"
+            onPress={() => {
+              setIsSendMax(true);
+              pushStep('confirm');
+            }}
+          >
+            <ThemeText
+              styles={styles.maxPillText}
+              content={t('savings.withdraw.withdrawAll')}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.keypad}>
+          <CustomNumberKeyboard
+            showDot={primaryDisplay.denomination === 'fiat'}
+            setInputValue={setAmountValue}
+            usingForBalance={true}
+            fiatStats={conversionFiatStats}
+            redesign={true}
           />
-        </TouchableOpacity>
-        <CustomNumberKeyboard
-          showDot={primaryDisplay.denomination === 'fiat'}
-          setInputValue={setAmountValue}
-          usingForBalance={true}
-          fiatStats={conversionFiatStats}
-        />
 
-        <CustomButton
-          buttonStyles={{
-            ...CENTER,
-            opacity: !canContinue && localSatAmount !== 0 ? HIDDEN_OPACITY : 1,
-          }}
-          actionFunction={() => {
-            if (!amountValue) {
-              setStep(prev => prev.slice(0, -1));
-              return;
-            }
-
-            if (selectedBalanceType === 'interest') {
-              // balance is in Bitcoin
-              if (localSatAmount > interestSats) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t(
-                    'screens.inAccount.swapsPage.insufficientBalance',
-                  ),
-                });
+          <CustomButton
+            buttonStyles={[
+              styles.keypadButton,
+              !canContinue && localSatAmount !== 0 && styles.dim,
+            ]}
+            actionFunction={() => {
+              if (!amountValue) {
+                closeOrBack();
                 return;
               }
-            } else {
-              // balance is in dollars
-              if (fiatMicros > availableBalanceMicros) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t(
-                    'screens.inAccount.swapsPage.insufficientBalance',
-                  ),
-                });
-                return;
-              }
-            }
 
-            setStep(prev => [...prev, 'confirm']);
-          }}
-          textContent={
-            !amountValue ? t('constants.back') : t('constants.continue')
-          }
-        />
-      </View>
+              if (selectedBalanceType === 'interest') {
+                // balance is in Bitcoin
+                if (localSatAmount > interestSats) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: t(
+                      'screens.inAccount.swapsPage.insufficientBalance',
+                    ),
+                  });
+                  return;
+                }
+              } else {
+                // balance is in dollars
+                if (fiatMicros > availableBalanceMicros) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: t(
+                      'screens.inAccount.swapsPage.insufficientBalance',
+                    ),
+                  });
+                  return;
+                }
+              }
+
+              pushStep('confirm');
+            }}
+            textContent={
+              !amountValue ? t('constants.back') : t('constants.continue')
+            }
+            size={'regular'}
+          />
+        </View>
+      </>
     );
-  }
+  };
 
-  if (currentPage === 'confirm') {
-    // Withdraw All uses the full wallet balance; Send Max uses the exact goal
-    // balance; normal path uses the user-entered amount.
-    const confirmMicros = isWithdrawAll
-      ? totalWithdrawMicros
-      : isSendMax
-      ? availableBalanceMicros
-      : fiatMicros;
-
-    // MODIFIED: for interest, display the sats amount directly (no USD micros)
-    const withdrawAmountDisplay =
-      selectedBalanceType === 'interest'
-        ? displayCorrectDenomination({
-            amount: isSendMax ? interestSats : localSatAmount,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'sats',
-            },
-            fiatStats,
-          })
-        : displayCorrectDenomination({
-            amount: (confirmMicros / 1_000_000).toFixed(2),
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'fiat',
-            },
-            fiatStats,
-            forceCurrency: 'USD',
-            convertAmount: false,
-          });
-
-    const destinationLabel =
-      selectedDestination === 'bitcoin'
-        ? t('constants.sat_balance')
-        : t('constants.usd_balance');
-
-    const selectedGoal = savingsGoals.find(item => item.id === selectedGoalId);
+  // ─── confirm ──────────────────────────────────────────────────────────────
+  const renderConfirm = () => {
     const isMaxOrAll = isWithdrawAll || isSendMax;
     const confirmDescription = (() => {
-      const dest = destinationLabel;
       if (selectedBalanceType === 'interest') {
         return isMaxOrAll
           ? t('savings.withdraw.confirmSubtitle_interestAll', {
-              destination: dest,
+              destination,
+              destinationLabel,
             })
           : t('savings.withdraw.confirmSubtitle_interest', {
-              destination: dest,
+              destination,
+              destinationLabel,
             });
       }
       if (selectedGoal) {
         return isMaxOrAll
           ? t('savings.withdraw.confirmSubtitle_goalAll', {
               goalName: selectedGoal.name,
-              destination: dest,
+              destination,
+              destinationLabel,
             })
           : t('savings.withdraw.confirmSubtitle_goal', {
               goalName: selectedGoal.name,
-              destination: dest,
+              destination,
+              destinationLabel,
             });
       }
       return isMaxOrAll
         ? t('savings.withdraw.confirmSubtitle_generalAll', {
-            destination: dest,
+            destination,
+            destinationLabel,
           })
         : t('savings.withdraw.confirmSubtitle_general', {
-            destination: dest,
+            destination,
+            destinationLabel,
           });
     })();
 
     return (
-      <View style={styles.confirmContainer}>
-        <ThemeText
-          styles={[styles.title, { marginBottom: 8 }]}
-          content={t('savings.withdraw.confirmTitle')}
+      <>
+        {backBar}
+        <SheetTitle
+          title={t('savings.withdraw.confirmTitle')}
+          sub={confirmDescription}
         />
-        <ThemeText
-          styles={styles.confirmDescription}
-          content={confirmDescription}
-        />
-        <ThemeText
-          styles={[
-            styles.summaryAmount,
-            { textAlign: 'center', marginBottom: 'auto' },
-          ]}
-          content={withdrawAmountDisplay}
-        />
+        <View style={styles.confirmAmount}>
+          <AmountHero {...withdrawAmountProps} amountSize={52} />
+        </View>
         <CustomButton
-          buttonStyles={styles.primaryButton}
+          buttonStyles={styles.bottomButton}
           actionFunction={handleConfirm}
           textContent={t('savings.withdraw.confirmButton')}
+          size={'regular'}
         />
-      </View>
+      </>
     );
-  }
+  };
 
-  if (currentPage === 'loading') {
-    return (
-      <FullLoadingScreen
-        containerStyles={{ width: INSET_WINDOW_WIDTH, ...CENTER }}
-        textStyles={{ textAlign: 'center' }}
-        text={t(`savings.withdraw.steps.${loadingStep}`)}
-      />
-    );
-  }
-
-  // success
   return (
-    <View style={styles.successContainer}>
-      <LottieView
-        source={confirmAnimation}
-        loop={false}
-        autoPlay={true}
-        style={styles.animation}
-      />
-      <ThemeText
-        styles={styles.successText}
-        content={t('savings.withdraw.successTitle')}
-      />
-      <CustomButton
-        actionFunction={handleDone}
-        textContent={t('constants.done')}
-      />
+    <View style={styles.container}>
+      <AnimatedStep
+        active={currentPage === 'balanceType'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        {renderBalanceType()}
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'chooseGoal'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        {renderChooseGoal()}
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'amount'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        {renderAmount()}
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'confirm'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        {renderConfirm()}
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'loading'}
+        direction={direction}
+        fadeOnly={true}
+      >
+        <View style={styles.loading}>
+          <StepProgress
+            title={t(
+              `savings.withdraw.steps.${
+                isInterest ? 'withdrawing_rewards' : 'withdrawing_savings'
+              }`,
+            )}
+            subtitle={t('savings.withdraw.loadingSubtitle', {
+              amount: withdrawAmountText,
+              source: sourceLabel,
+            })}
+          />
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'success'}
+        direction={direction}
+        fadeOnly={true}
+      >
+        <SheetResult
+          label={t('savings.withdraw.successTitle')}
+          amountProps={withdrawAmountProps}
+          line={t('savings.withdraw.successTo', {
+            destinationLabel,
+          })}
+          buttonText={t('constants.done')}
+          onDone={handleDone}
+        />
+      </AnimatedStep>
     </View>
   );
 }
@@ -1372,172 +1228,73 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    justifyContent: 'space-between',
+    overflow: 'hidden',
   },
-  confirmContainer: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+  backBar: {
+    marginTop: 8,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    includeFontPadding: false,
-    marginBottom: 16,
-  },
-  optionsList: {
-    gap: 10,
-    flex: 1,
-  },
-  goalSection: {
-    marginBottom: 14,
-    gap: 8,
-  },
-  goalSectionTitle: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-  goalChipsWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  goalChip: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  goalChipSelected: {
-    borderColor: COLORS.primary,
-  },
-  goalChipText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  optionRow: {
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  optionLeft: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    flexShrink: 1,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emojiText: {
-    fontSize: 24,
-    includeFontPadding: false,
-  },
-  optionTitle: {
-    fontWeight: 500,
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  optionSubtitle: {
-    width: '100%',
-    opacity: 0.7,
-    includeFontPadding: false,
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Regular,
-    flexShrink: 1,
-  },
-  amountContainer: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  amountScrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  availableHintText: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-    marginTop: 10,
-    includeFontPadding: false,
-  },
-  minHintText: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-    marginTop: 2,
-    includeFontPadding: false,
-  },
-  sendMaxButton: {
-    alignSelf: 'center',
+  list: {
     marginTop: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    flexGrow: 0,
   },
-  sendMaxText: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
+  rowTitle: {
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  rowValue: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
-  confirmDescription: {
-    opacity: 0.7,
-    includeFontPadding: false,
-    fontSize: SIZES.smedium,
-    marginBottom: 45,
-  },
-  summaryLabel: {
-    opacity: 0.7,
-    includeFontPadding: false,
-    fontSize: SIZES.smedium,
-    textAlign: 'center',
-  },
-  summaryAmount: {
-    fontSize: 40,
-    includeFontPadding: false,
-  },
-  primaryButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  disabledButton: {
+  disabledRow: {
     opacity: 0.45,
   },
-  primaryButtonText: {
-    color: COLORS.white,
-    includeFontPadding: false,
-  },
-  successContainer: {
-    flex: 1,
-    paddingHorizontal: 16,
+  amountBlock: {
+    marginTop: 24,
     alignItems: 'center',
   },
-  animation: {
-    width: 125,
-    height: 125,
-  },
-  successText: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-    marginBottom: 'auto',
-  },
-  // NEW: error message displayed on the balanceType page when Spark init fails
-  balanceLoadErrorText: {
+  hint: {
+    marginTop: 4,
+    fontSize: 14,
+    lineHeight: 21,
     textAlign: 'center',
-    opacity: 0.7,
-    fontSize: SIZES.smedium,
     includeFontPadding: false,
-    paddingHorizontal: 16,
+  },
+  maxPill: {
+    marginTop: 14,
+    minHeight: 44,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  maxPillText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
+  },
+  keypad: {
+    marginTop: 'auto',
+  },
+  keypadButton: {
+    width: '100%',
+    marginTop: 12,
+  },
+  dim: {
+    opacity: 0.45,
+  },
+  confirmAmount: {
+    marginTop: 36,
+    alignItems: 'center',
+  },
+  bottomButton: {
+    width: '100%',
+    marginTop: 'auto',
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });
