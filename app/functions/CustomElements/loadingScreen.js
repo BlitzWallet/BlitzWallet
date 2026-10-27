@@ -1,13 +1,4 @@
-import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
-import Svg, { Circle } from 'react-native-svg';
 import { COLORS, FONT } from '../../constants';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -35,23 +26,20 @@ export default function FullLoadingScreen({
         ...containerStyles,
       }}
     >
-      {showLoadingIcon &&
-        (inSheet ? (
-          <SheetSpinner tokens={tokens} />
-        ) : (
-          <ActivityIndicator
-            color={
-              loadingColor
-                ? loadingColor
-                : reversed
-                ? theme
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText
-                : tokens.ink
-            }
-            size={size}
-          />
-        ))}
+      {showLoadingIcon && (
+        <ActivityIndicator
+          color={
+            loadingColor
+              ? loadingColor
+              : reversed
+              ? theme
+                ? COLORS.lightModeText
+                : COLORS.darkModeText
+              : tokens.ink
+          }
+          size={size}
+        />
+      )}
       {showText && (
         <ThemeText
           styles={{
@@ -63,51 +51,6 @@ export default function FullLoadingScreen({
         />
       )}
     </View>
-  );
-}
-
-function SheetSpinner({ tokens }) {
-  const spin = useSharedValue(0);
-
-  useEffect(() => {
-    spin.value = withRepeat(
-      withTiming(1, { duration: 900, easing: Easing.linear }),
-      -1,
-      false,
-    );
-  }, [spin]);
-
-  const spinnerStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${spin.value * 360}deg` }],
-  }));
-
-  return (
-    <Animated.View
-      accessibilityRole="progressbar"
-      style={[{ width: 56, height: 56 }, spinnerStyle]}
-    >
-      <Svg width={56} height={56}>
-        <Circle
-          cx={28}
-          cy={28}
-          r={25.5}
-          fill="none"
-          stroke={tokens.divider}
-          strokeWidth={5}
-        />
-        <Circle
-          cx={28}
-          cy={28}
-          r={25.5}
-          fill="none"
-          stroke={tokens.accent}
-          strokeWidth={5}
-          strokeLinecap="round"
-          strokeDasharray="160.2"
-          strokeDashoffset={112.2}
-        />
-      </Svg>
-    </Animated.View>
   );
 }
 

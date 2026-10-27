@@ -36,20 +36,23 @@ export function EmojiDisc({ emoji }) {
   );
 }
 
-export function AssetDisc({ asset }) {
+export function AssetDisc({ asset, size = 40 }) {
   const icon = asset === 'dollar' ? ICONS.dollarIcon : ICONS.bitcoinIcon;
   return (
     <View
       style={[
         styles.disc,
         {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
           backgroundColor:
             asset === 'dollar' ? COLORS.dollarGreen : COLORS.bitcoinOrange,
         },
       ]}
     >
       <ThemeImage
-        styles={styles.assetIcon}
+        styles={{ width: size * 0.55, height: size * 0.55 }}
         lightModeIcon={icon}
         darkModeIcon={icon}
         lightsOutIcon={icon}
@@ -144,7 +147,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     includeFontPadding: false,
   },
-  assetIcon: { width: 22, height: 22 },
   empty: {
     marginTop: 40,
     alignItems: 'center',

@@ -1,29 +1,72 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import { Image } from 'expo-image';
-import { ICONS, SIZES } from '../../../../constants';
+import { ICONS } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import GetThemeColors from '../../../../hooks/themeColors';
+
+// Coin logo with the chain as a small badge (list rows, select sheet, confirm).
+export function CoinChainLogo({
+  asset,
+  chainLabel,
+  size = 40,
+  badgeSize = 18,
+}) {
+  const { tokens } = GetThemeColors();
+  return (
+    <View style={{ width: size, height: size }}>
+      <Image
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        source={ICONS[`${asset?.toLowerCase()}Logo`]}
+        contentFit="contain"
+      />
+      <View
+        style={[
+          styles.badge,
+          {
+            width: badgeSize + 4,
+            height: badgeSize + 4,
+            borderRadius: (badgeSize + 4) / 2,
+            backgroundColor: tokens.surface,
+          },
+        ]}
+      >
+        <Image
+          style={{
+            width: badgeSize,
+            height: badgeSize,
+            borderRadius: badgeSize / 2,
+          }}
+          source={ICONS[`chain_${chainLabel?.toLowerCase()}`]}
+          contentFit="contain"
+        />
+      </View>
+    </View>
+  );
+}
+
+export function destinationLabel(destinationAsset, t) {
+  return destinationAsset === 'BTC'
+    ? t('constants.bitcoin_upper')
+    : t('constants.dollars_upper');
+}
+
+export function shortenAddress(address = '') {
+  return `${address.slice(0, 6)}…${address.slice(-6)}`;
+}
 
 export default function AccumulationAddressCard({ group }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const chainMeta = ACCUMULATION_CHAINS.find(c => c.id === group.sourceChain);
   const chainLabel = chainMeta?.label ?? group.sourceChain ?? '';
-  const label = `${group.sourceAsset} → ${
-    group.destinationAsset === 'BTC'
-      ? t('constants.bitcoin_upper')
-      : t('constants.dollars_upper')
-  }`;
 
   if (!chainLabel) return null;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      style={styles.card}
+    <ListRow
       onPress={() =>
         navigate.navigate('AccumulationAddressDetail', {
           sourceChain: group.sourceChain,
@@ -31,61 +74,33 @@ export default function AccumulationAddressCard({ group }) {
           destinationAsset: group.destinationAsset,
         })
       }
-    >
-      <View style={styles.leftSection}>
-        <Image
-          style={styles.assetIcon}
-          source={ICONS[`chain_${chainLabel.toLocaleLowerCase()}`]}
-          contentFit="contain"
-        />
-      </View>
-      <View style={styles.middleSection}>
-        <ThemeText styles={styles.label} content={chainLabel} />
-        <ThemeText styles={styles.swapMeta} content={label} />
-        {group.count > 1 && (
-          <ThemeText
-            styles={styles.swapMeta}
-            content={t('screens.accumulationAddresses.addressCount', {
+      lead={<CoinChainLogo asset={group.sourceAsset} chainLabel={chainLabel} />}
+      title={`${group.sourceAsset} → ${destinationLabel(
+        group.destinationAsset,
+        t,
+      )}`}
+      titleStyle={styles.title}
+      sub={`${chainLabel}${
+        group.count > 1
+          ? ` · ${t('screens.accumulationAddresses.addressCount', {
               count: group.count,
-            })}
-          />
-        )}
-      </View>
-      <ThemeIcon iconName={'ChevronRight'} size={20} />
-    </TouchableOpacity>
+            })}`
+          : ''
+      }`}
+      subLines={1}
+      minHeight={64}
+      trailing="chevron"
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
+  badge: {
+    position: 'absolute',
+    right: -4,
+    bottom: -4,
     alignItems: 'center',
-    minHeight: 45,
-    borderRadius: 16,
-    paddingVertical: 10,
+    justifyContent: 'center',
   },
-  assetIcon: {
-    width: 45,
-    height: 45,
-    borderRadius: 30,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  label: {
-    fontWeight: 500,
-    includeFontPadding: false,
-  },
-  swapMeta: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    includeFontPadding: false,
-  },
-  middleSection: {
-    flex: 1,
-    gap: 2,
-    marginLeft: 8,
-    marginRight: 5,
-  },
+  title: { fontSize: 15, lineHeight: 21 },
 });

@@ -3125,15 +3125,15 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Accumulation Addresses",
+      "title": "Accumulation addresses",
       "subtitle": "Auto-convert stablecoins to BTC or Dollars",
       "navTitle": "Addresses",
-      "sectionTitle": "Active Addresses",
+      "sectionTitle": "Active addresses",
       "empty": {
-        "title": "No Accumulation Addresses",
+        "title": "No accumulation addresses",
         "subtitle": "Create an address to auto-convert deposits into Bitcoin or Dollars"
       },
-      "createButton": "Create Address",
+      "createButton": "Create address",
       "addressCount": "{{count}} addresses",
       "info": {
         "title": "What are they?",
@@ -3152,31 +3152,36 @@
         "reindexNoFunds": "No new funds found for this address.",
         "reindexError": "Couldn't check this address. Please try again later.",
         "printQR": "Print QR",
-        "deleteButton": "Delete Address",
-        "deleteConfirmTitle": "Delete Address?",
+        "deleteButton": "Delete address",
+        "deleteConfirmTitle": "Delete this address?",
         "deleteConfirmBody": "Deleting this address stops future payments from being redirected and may result in lost funds. Make sure everyone knows it’s no longer active before removing it.",
         "chain": "Chain",
         "source": "Source",
         "Destination": "Destination",
         "selectAnotherOption": "Select Another Option",
-        "selectAddress": "Select Address",
-        "viewAll": "View All Addresses"
+        "selectAddress": "Select address",
+        "viewAll": "View All Addresses",
+        "selectAddressSub": "You have {{count}} {{asset}} on {{chain}} addresses.",
+        "created": "Created {{date}}"
       },
       "create": {
         "pickAsset": "Select Payment Currency",
-        "pickChain": "Select Chain",
-        "pickDestination": "Select Destination",
-        "confirm": "Confirm Address",
+        "pickChain": "Select chain",
+        "pickDestination": "Select destination",
+        "confirm": "Confirm address",
         "alreadyExists": "You already have an address for this combination",
-        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}",
+        "convertDesc": "Your {{asset}} on {{chain}} will be converted into {{receiveCurrency}}.",
         "createNewAddress": "Create New Address",
-        "limitReached": "You've reached the maximum number of addresses for this option."
+        "limitReached": "You've reached the maximum number of addresses for this option.",
+        "pickChainSub": "Where will the money come from?",
+        "pickDestinationSub": "{{asset}} on {{chain}} converts into…",
+        "arrivesIn": "Arrives in your {{currency}} balance"
       },
       "summary": {
         "chain": "Chain",
         "paymentCurrency": "Payment Currency",
         "destination": "Destination",
-        "create": "Create Address"
+        "create": "Create address"
       },
       "errors": {
         "createFailed": "Failed to create address. Please try again.",

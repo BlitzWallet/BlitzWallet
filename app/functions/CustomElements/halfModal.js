@@ -178,7 +178,9 @@ export default function CustomHalfModal(props) {
     contentType === 'addGiftQuantity' ||
     contentType === 'ClaimGiftScreen' ||
     contentType === 'ClaimGiftHomeHalfModal' ||
-    contentType === 'giftQrCode';
+    contentType === 'giftQrCode' ||
+    contentType === 'createAccumulationAddress' ||
+    contentType === 'accumulationAddressSelect';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -744,7 +746,7 @@ export default function CustomHalfModal(props) {
           <CreateAccumulationAddressModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
-            setBackNav={setBackNav}
+            setDismissLocked={setDismissLocked}
           />
         );
       case 'accumulationAddressSelect':

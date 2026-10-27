@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { CENTER, ICONS } from '../../../../constants';
+import { ICONS } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
   CHAIN_ASSET_ROW_HEIGHT,
@@ -16,6 +16,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useEffect } from 'react';
 import { useTheme } from '../../../../../context-store/theme';
 
+// Flush chain row (52, 32 logo, chevron-down) that opens its coins in place.
 export default function ChainRow({
   chain,
   expanded,
@@ -24,10 +25,6 @@ export default function ChainRow({
   onSelectAsset,
   isAssetTaken,
   onDisabledAssetPress,
-  theme,
-  darkModeType,
-  backgroundColor,
-  backgroundOffset,
 }) {
   const expandHeight = useSharedValue(0);
   const chevronRotation = useSharedValue(0);
@@ -57,28 +54,17 @@ export default function ChainRow({
         activeOpacity={0.7}
         style={styles.chainRow}
         onPress={() => onToggleExpand(chain.id)}
+        accessibilityRole="button"
+        accessibilityState={disableExpand ? undefined : { expanded }}
       >
         <View
           style={[
             styles.chainIconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-            isSpark && {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : tokens.accent,
-            },
+            isSpark && { backgroundColor: tokens.accent },
           ]}
         >
           <Image
-            style={[
-              styles.assetIcon,
-              isSpark && {
-                width: '100%',
-                height: '100%',
-              },
-            ]}
+            style={styles.chainIcon}
             source={
               ICONS[
                 isSpark
@@ -89,12 +75,14 @@ export default function ChainRow({
             contentFit="contain"
           />
         </View>
-        <ThemeText styles={styles.optionLabel} content={chain.label} />
+        <ThemeText styles={styles.label} content={chain.label} />
 
         <Animated.View style={[chevronStyle]}>
           <ThemeIcon
+            redesign
             iconName={disableExpand ? 'ChevronRight' : 'ChevronDown'}
             size={18}
+            colorOverride={tokens.muted}
           />
         </Animated.View>
       </TouchableOpacity>
@@ -109,26 +97,29 @@ export default function ChainRow({
             <TouchableOpacity
               key={asset}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`${asset} ${chain.label}`}
+              accessibilityState={{ disabled }}
               style={[
                 styles.assetOptionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                  opacity: disabled ? HIDDEN_OPACITY : 1,
-                },
+                { opacity: disabled ? HIDDEN_OPACITY : 1 },
               ]}
               onPress={() =>
                 disabled ? onDisabledAssetPress() : onSelectAsset(chain, asset)
               }
             >
-              <View style={styles.assetOptionIconContainer}>
-                <Image
-                  style={styles.assetOptionIcon}
-                  source={ICONS[`${asset.toLowerCase()}Logo`]}
-                  contentFit="contain"
-                />
-              </View>
-              <ThemeText styles={styles.optionLabel} content={asset} />
+              <Image
+                style={styles.assetOptionIcon}
+                source={ICONS[`${asset.toLowerCase()}Logo`]}
+                contentFit="contain"
+              />
+              <ThemeText styles={styles.label} content={asset} />
+              <ThemeIcon
+                redesign
+                iconName="ChevronRight"
+                size={18}
+                colorOverride={tokens.muted}
+              />
             </TouchableOpacity>
           );
         })}
@@ -140,51 +131,45 @@ export default function ChainRow({
 const styles = StyleSheet.create({
   chainRow: {
     width: '100%',
+    minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingVertical: 8,
+    gap: 12,
   },
   chainIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 25,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 15,
   },
-  optionLabel: {
+  chainIcon: {
+    width: '100%',
+    height: '100%',
+  },
+  label: {
     flex: 1,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
-  },
-  assetIcon: {
-    width: 48,
-    height: 48,
   },
   assetOptionsContainer: {
     overflow: 'hidden',
-    gap: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: CHAIN_EXPAND_PADDING / 2,
+    paddingBottom: CHAIN_EXPAND_PADDING / 2,
   },
+  // 32 spacer + 12 gap, then the 28 coin logo (design D224).
   assetOptionRow: {
+    height: CHAIN_ASSET_ROW_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingLeft: 44,
     gap: 12,
   },
-  assetOptionIconContainer: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   assetOptionIcon: {
-    width: 35,
-    height: 35,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
   },
 });

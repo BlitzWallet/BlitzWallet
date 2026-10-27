@@ -1,22 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   Platform,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { Image } from 'expo-image';
 import ViewShot from 'react-native-view-shot';
 import * as FileSystem from 'expo-file-system/legacy';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useToast } from '../../../../../context-store/toastManager';
@@ -25,7 +24,6 @@ import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddre
 import {
   ACCUMULATION_CHAINS,
   classifyReindexResponse,
-  getPairKey,
   getReindexThrottle,
   REINDEX_TIMES_KEY,
 } from '../../../../constants/accumulationAddresses';
@@ -37,21 +35,23 @@ import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import fetchBackend from '../../../../../db/handleBackend';
 import { useKeysContext } from '../../../../../context-store/keys';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
+import Note from '../../../../functions/CustomElements/redesign/Note';
+import {
+  CoinChainLogo,
+  destinationLabel,
+  shortenAddress,
+} from './AccumulationAddressCard';
 
 function normalizeFileUri(uri) {
   return uri.startsWith('file://') ? uri : `file://${uri}`;
@@ -65,17 +65,17 @@ export default function AccumulationAddressDetail() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { contactsPrivateKey, publicKey } = useKeysContext();
-
-  const { textColor, backgroundColor, backgroundOffset, tokens } =
-    GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { addresses, addressesForOption, deleteAddress } =
-    useAccumulationAddresses();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const { tokens } = GetThemeColors();
+  const { addressesForOption, deleteAddress } = useAccumulationAddresses();
   const viewShotRef = useRef(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, setSelectedId] = useState(
+    route.params?.selectedId ?? null,
+  );
 
   const groupAddresses = addressesForOption(triple);
   const selected =
@@ -95,9 +95,7 @@ export default function AccumulationAddressDetail() {
     ACCUMULATION_CHAINS.find(c => c.id === selected?.sourceChain)?.label ??
     selected?.sourceChain;
   const depositAddress = selected?.depositAddress ?? '';
-  const shortAddress = `${depositAddress.slice(0, 8)}...${depositAddress.slice(
-    -8,
-  )}`;
+  const hasSeveral = groupAddresses.length > 1;
 
   const disclaimer =
     selected?.destinationAsset === 'BTC'
@@ -199,7 +197,7 @@ export default function AccumulationAddressDetail() {
       map[depositAddress] = now;
       await setLocalStorageItem(REINDEX_TIMES_KEY, JSON.stringify(map));
       showToast({
-        type: 'error',
+        type: outcome === 'funds' ? 'success' : 'error',
         title: t(
           outcome === 'funds'
             ? 'screens.accumulationAddresses.detail.reindexFundsFound'
@@ -215,11 +213,12 @@ export default function AccumulationAddressDetail() {
   }, [depositAddress, t, contactsPrivateKey, publicKey, showToast, navigate]);
 
   const handleDelete = useCallback(() => {
-    navigate.navigate('ConfirmActionPage', {
-      confirmMessage: t(
-        'screens.accumulationAddresses.detail.deleteConfirmBody',
-      ),
-      confirmFunction: async () => {
+    navigate.navigate('ConfirmDialog', {
+      title: t('screens.accumulationAddresses.detail.deleteConfirmTitle'),
+      message: t('screens.accumulationAddresses.detail.deleteConfirmBody'),
+      cancelLabel: t('constants.cancel'),
+      confirmLabel: t('constants.delete'),
+      onConfirm: async () => {
         setIsDeleting(true);
         const ok = await deleteAddress(selected.accumulationAddressId);
         setIsDeleting(false);
@@ -247,242 +246,137 @@ export default function AccumulationAddressDetail() {
 
   return (
     <GlobalThemeView useStandardWidth>
-      <CustomSettingsTopBar
-        label={`${chainLabel}`}
-        showLeftImage={true}
-        leftImageStyles={{ height: 25 }}
-        iconNew="Trash2"
-        leftImageFunction={handleDelete}
-        textStyles={{ textTransform: 'capitalize' }}
-        rightContent={
-          Platform.OS === 'web'
-            ? null
-            : groupAddresses.length >= 1 ? (
-                <TouchableOpacity
-                  style={{ width: 22, height: 22 }}
-                  onPress={handlePrint}
-                >
-                  {isPrinting ? (
-                    <FullLoadingScreen
-                      loadingColor={
-                        theme && darkModeType ? tokens.ink : tokens.accent
-                      }
-                      size="small"
-                      showText={false}
-                    />
-                  ) : (
-                    <ThemeIcon iconName="Printer" size={22} />
-                  )}
-                </TouchableOpacity>
-          ) : null
-        }
-      />
-      <View style={styles.innerContainer}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={`${selected.sourceAsset} → ${destinationLabel(
+            selected.destinationAsset,
+            t,
+          )}`}
+          right={
+            <IconButton
+              icon="Trash2"
+              label="screens.accumulationAddresses.detail.deleteButton"
+              onPress={handleDelete}
+            />
+          }
+        />
         <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Asset flow */}
-          <View style={styles.assetRow}>
-            <View style={styles.confirmIconWrapper}>
-              <View
-                style={[
-                  styles.confirmChainCircle,
-                  { backgroundColor: backgroundOffset },
-                ]}
-              >
-                <Image
-                  style={styles.confirmChainIcon}
-                  source={ICONS[`chain_${chainLabel.toLowerCase()}`]}
-                  contentFit="contain"
-                />
-              </View>
-              <View
-                style={[
-                  styles.confirmCurrencyBadge,
-                  { borderColor: backgroundColor },
-                ]}
-              >
-                {selected.sourceAsset?.toLowerCase()?.includes('btc') ? (
-                  <View
-                    style={[
-                      styles.confirmCurrencyIcon,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundOffset
-                            : COLORS.bitcoinOrange,
-                      },
-                    ]}
-                  >
-                    <Image
-                      style={styles.tokenIconImg}
-                      source={ICONS['bitcoinIcon']}
-                      contentFit="contain"
-                    />
-                  </View>
-                ) : (
-                  <Image
-                    style={styles.confirmCurrencyIcon}
-                    source={ICONS[`${selected.sourceAsset.toLowerCase()}Logo`]}
-                    contentFit="contain"
+          {/* 200 ms cross-fade when another address in the group is picked */}
+          <Animated.View
+            key={selected.accumulationAddressId}
+            entering={FadeIn.duration(200)}
+          >
+            <ViewShot
+              ref={viewShotRef}
+              options={{ format: 'jpg', quality: 0.9 }}
+            >
+              <QrCard
+                value={depositAddress}
+                badge={
+                  <CoinChainLogo
+                    asset={selected.sourceAsset}
+                    chainLabel={chainLabel}
                   />
-                )}
-              </View>
-            </View>
-            <ThemeIcon styles={{ opacity: 0.7 }} iconName={'ArrowRight'} />
-            <View style={styles.confirmIconWrapper}>
-              <View
-                style={[
-                  styles.confirmChainCircle,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundOffset
-                        : selected.destinationAsset === 'BTC'
-                        ? COLORS.bitcoinOrange
-                        : COLORS.dollarGreen,
-                  },
-                ]}
+                }
               >
-                <Image
-                  style={[styles.confirmChainIcon, { width: 30, height: 30 }]}
-                  source={
-                    ICONS[
-                      selected.destinationAsset === 'BTC'
-                        ? 'bitcoinIcon'
-                        : 'dollarIcon'
-                    ]
-                  }
-                  contentFit="contain"
-                />
-              </View>
-            </View>
+                <TouchableOpacity
+                  disabled={!hasSeveral}
+                  onPress={handleSelectAddress}
+                  accessibilityRole={hasSeveral ? 'button' : undefined}
+                  style={styles.addressRow}
+                >
+                  <ThemeText
+                    styles={[styles.address, { color: tokens.muted }]}
+                    content={shortenAddress(depositAddress)}
+                  />
+                  {hasSeveral && (
+                    <ThemeIcon
+                      redesign
+                      iconName="ChevronDown"
+                      size={16}
+                      colorOverride={tokens.muted}
+                    />
+                  )}
+                </TouchableOpacity>
+              </QrCard>
+            </ViewShot>
+          </Animated.View>
+
+          <View style={styles.note}>
+            <Note tone="warn" text={disclaimer} />
           </View>
 
-          {/* QR Code */}
-          <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }}>
-            <QrCodeWrapper
-              QRData={depositAddress}
-              outerContainerStyle={{
-                backgroundColor: COLORS.darkModeText,
-                marginTop: 20,
-              }}
+          <View style={styles.pillRow}>
+            <CustomButton
+              buttonStyles={styles.pill}
+              size="regular"
+              tone="secondary"
+              icon="Copy"
+              textContent={t('constants.copy')}
+              actionFunction={handleCopy}
             />
-          </ViewShot>
-
-          {/* Address display */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[styles.addressRow, { backgroundColor: backgroundOffset }]}
-            onPress={handleCopy}
-          >
-            <ThemeText content={shortAddress} />
-            <ThemeIcon iconName="Copy" size={18} />
-          </TouchableOpacity>
+            {Platform.OS !== 'web' && (
+              <CustomButton
+                buttonStyles={styles.pill}
+                size="regular"
+                tone="secondary"
+                icon="Printer"
+                textContent={t('constants.print')}
+                actionFunction={handlePrint}
+                useLoading={isPrinting}
+              />
+            )}
+          </View>
         </CustomScrollView>
-        {/* Print button */}
         <CustomButton
-          buttonStyles={styles.printBtn}
+          buttonStyles={styles.bottomButton}
+          size="regular"
           textContent={t('screens.accumulationAddresses.detail.reindex')}
           actionFunction={handleAddressReindex}
           useLoading={isCheckingBalance}
         />
-        {/* View all address button*/}
-        {groupAddresses.length > 1 && (
-          <CustomButton
-            buttonStyles={styles.viewAllBtn}
-            textStyles={{ color: textColor }}
-            textContent={t('screens.accumulationAddresses.detail.viewAll')}
-            actionFunction={handleSelectAddress}
-          />
-        )}
-        {/* Disclaimer */}
-        <ThemeText styles={styles.disclaimer} content={disclaimer} />
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
+  container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   scrollContent: {
-    paddingBottom: 40,
-    alignItems: 'center',
+    paddingTop: 20,
+    paddingBottom: 24,
   },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 12,
+  },
+  address: {
+    fontSize: 14,
+    lineHeight: 21,
+    includeFontPadding: false,
+  },
+  note: { marginTop: 16 },
+  pillRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  pill: { flex: 1, width: 'auto' },
+  bottomButton: { marginTop: CONTENT_KEYBOARD_OFFSET },
   qrContainer: {
     padding: 16,
     borderRadius: 16,
     backgroundColor: COLORS.white,
     marginVertical: 20,
   },
-  addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-  },
-  disclaimer: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginTop: 12,
-    includeFontPadding: false,
-  },
-  assetRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginVertical: 10,
-  },
-  confirmIconWrapper: {
-    position: 'relative',
-  },
-  confirmChainCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  confirmChainIcon: {
-    width: 50,
-    height: 50,
-  },
-  confirmCurrencyBadge: {
-    position: 'absolute',
-    width: 25,
-    height: 25,
-    borderRadius: 15,
-    bottom: -4,
-    right: -4,
-    borderWidth: 2,
-    overflow: 'hidden',
-  },
-  confirmCurrencyIcon: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  printBtn: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
-  viewAllBtn: { backgroundColor: 'transparent' },
   optionBtn: { width: '100%', marginBottom: 10 },
   deleteBtn: {
     width: '100%',
     backgroundColor: COLORS.cancelRed,
   },
   deleteText: { color: COLORS.white },
-  tokenIconImg: {
-    width: 15,
-    height: 15,
-  },
 });
