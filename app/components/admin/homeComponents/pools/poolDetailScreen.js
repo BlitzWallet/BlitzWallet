@@ -317,7 +317,7 @@ export default function PoolDetailScreen(props) {
                 icon={
                   isActive
                     ? isCreator && goalReached
-                      ? 'Share'
+                      ? 'Share2'
                       : 'ArchiveX'
                     : 'RefreshCcw'
                 }

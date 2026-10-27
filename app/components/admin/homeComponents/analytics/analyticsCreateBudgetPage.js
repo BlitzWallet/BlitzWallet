@@ -113,10 +113,15 @@ export default function AnalyticsCreateBudgetPage() {
         <TopBar title={t('analytics.budget.monthlyBudget')} />
         {/* Amount input */}
         <View style={styles.container}>
+          {/* AmountHero formats sats, so pass the converted amount, not the
+              typed value (a fiat entry was being read as sats). */}
           <AmountHero
-            amount={amountValue}
-            fiatStats={primaryDisplay.forceFiatStats}
-            masterInfoObject={masterInfoObject}
+            amount={localSatAmount}
+            fiatStats={conversionFiatStats}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: primaryDisplay.denomination,
+            }}
             amountSize={60}
           />
           <ThemeText

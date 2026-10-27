@@ -1,29 +1,71 @@
-import LottieView from 'lottie-react-native';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
-import GetThemeColors from '../../../../hooks/themeColors';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
+import { useTheme } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useNavigation } from '@react-navigation/native';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
+import { shareMessage } from '../../../../functions/handleShare';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../functions/CustomElements/button';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 import { useGifts } from '../../../../../context-store/giftContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import { formatGiftAmount } from './giftDisplay';
+
+const K = 'screens.inAccount.giftPages.giftConfirmation.';
+
+function GiftRow({ title, sub, copied, onCopy, onPress }) {
+  const { tokens } = useTheme();
+  return (
+    <TouchableOpacity
+      activeOpacity={onPress ? 0.7 : 1}
+      onPress={onPress}
+      style={styles.row}
+    >
+      <Disc icon="Gift" size={40} />
+      <View style={styles.rowText}>
+        <ThemeText styles={styles.rowTitle} content={title} />
+        <ThemeText
+          CustomNumberOfLines={1}
+          CustomEllipsizeMode="middle"
+          styles={[styles.rowSub, { color: tokens.muted }]}
+          content={sub?.replace(/^https?:\/\//, '')}
+        />
+      </View>
+      <IconButton
+        icon={copied ? 'Check' : 'Copy'}
+        label="constants.copy"
+        size={36}
+        iconSize={18}
+        tone="disc"
+        onPress={onCopy}
+      />
+    </TouchableOpacity>
+  );
+}
 
 export default function GiftConfirmation(props) {
   const {
@@ -39,11 +81,14 @@ export default function GiftConfirmation(props) {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const animationRef = useRef(null);
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, backgroundColor, tokens } =
-    GetThemeColors();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const [copiedKey, setCopiedKey] = useState(null);
+  const copiedTimer = useRef(null);
+
+  useEffect(() => () => clearTimeout(copiedTimer.current), []);
 
   const gifts = isBulk
     ? giftsArray.filter(gift => {
@@ -51,8 +96,14 @@ export default function GiftConfirmation(props) {
       })
     : giftsArray.find(gift => gift?.uuid === giftId);
 
-  const handleCopy = data => {
+  const amountOf = gift =>
+    formatGiftAmount({ gift, masterInfoObject, fiatStats });
+
+  const handleCopy = (data, key) => {
     copyToClipboard(data, showToast);
+    setCopiedKey(key);
+    clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopiedKey(null), 1500);
   };
 
   const handleCopyAllLinks = () => {
@@ -62,44 +113,27 @@ export default function GiftConfirmation(props) {
 
   const handleShare = async () => {
     try {
-      const targetStorageObject = isBulk ? gifts : gifts;
-      const targetLink = isBulk ? gifts?.claimURL : gifts.claimURL;
-      const targetAmount = isBulk ? gifts?.amount : gifts?.amount;
-
+      if (isBulk) {
+        await shareMessage({ message: gifts.map(g => g.claimURL).join('\n') });
+        return;
+      }
       await handleGiftCardShare({
-        amount: displayCorrectDenomination({
-          amount:
-            targetStorageObject?.denomination === 'BTC'
-              ? targetAmount
-              : targetStorageObject?.dollarAmount,
-          masterInfoObject: {
-            ...masterInfoObject,
-            userBalanceDenomination:
-              targetStorageObject?.denomination === 'USD' ? 'fiat' : 'sats',
-          },
-          fiatStats,
-          convertAmount: targetStorageObject?.denomination !== 'USD',
-          forceCurrency:
-            targetStorageObject?.denomination === 'USD' ? 'USD' : false,
-        }),
-        giftLink: targetLink,
+        amount: amountOf(gifts),
+        giftLink: gifts?.claimURL,
       });
     } catch (error) {
       console.log('Share cancelled or error:', error);
     }
   };
 
-  useEffect(() => {
-    animationRef.current?.play();
-  }, []);
-
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
-
-  const headerTitle = isBulk
-    ? t('screens.inAccount.giftPages.giftConfirmation.bulkHeader', {
-        count: gifts.length,
-      })
-    : t('screens.inAccount.giftPages.giftConfirmation.header');
+  const openQr = gift =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'giftQrCode',
+      claimURL: gift?.claimURL,
+      title: gift?.description
+        ? `${gift.description} · ${amountOf(gift)}`
+        : amountOf(gift),
+    });
 
   const handleGoHome = useCallback(() => {
     navigate.popTo('GiftsPageHome');
@@ -110,344 +144,150 @@ export default function GiftConfirmation(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        iconNew="Share"
-        showLeftImage={!isBulk}
-        leftImageFunction={handleShare}
-        customBackFunction={handleGoHome}
-      />
-      <CustomScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Success Animation */}
-        <View style={styles.header}>
-          <LottieView
-            ref={animationRef}
-            source={confirmAnimation}
-            loop={false}
-            style={styles.lottieAnimation}
-          />
-          <ThemeText styles={styles.title} content={headerTitle} />
-          <ThemeText
-            styles={styles.subtitle}
-            content={t('screens.inAccount.giftPages.giftConfirmation.whatToDo')}
-          />
-        </View>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          onBack={handleGoHome}
+          right={
+            <IconButton
+              icon="Share2"
+              label="screens.inAccount.giftPages.giftConfirmation.shareGift"
+              onPress={handleShare}
+            />
+          }
+        />
+        <CustomScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Animated.View entering={ZoomIn.duration(300)}>
+              <Disc icon="Check" tone="primary" size={72} iconSize={32} />
+            </Animated.View>
+            <ThemeText
+              styles={styles.title}
+              content={
+                isBulk
+                  ? t(K + 'bulkHeader', { count: gifts.length })
+                  : t(K + 'header')
+              }
+            />
+            <ThemeText
+              styles={[styles.subtitle, { color: tokens.muted }]}
+              content={t(isBulk ? K + 'bulkDesc' : K + 'whatToDo')}
+            />
+          </View>
 
-        {isBulk ? (
-          // ── Bulk Layout ────────────────────────────────────────────────────
-          <>
-            {/* Copy All button */}
-            <TouchableOpacity
-              onPress={handleCopyAllLinks}
-              style={[styles.copyAllRow, { backgroundColor: backgroundOffset }]}
-              activeOpacity={0.7}
-            >
-              <ThemeIcon
-                size={18}
-                colorOverride={
-                  theme && darkModeType ? tokens.ink : tokens.accent
-                }
-                iconName={'Copy'}
-              />
-              <ThemeText
-                styles={[
-                  styles.copyAllText,
-                  {
-                    color: theme && darkModeType ? tokens.ink : tokens.accent,
-                  },
-                ]}
-                content={t(
-                  'screens.inAccount.giftPages.giftConfirmation.copyAllLinks',
-                )}
-              />
-            </TouchableOpacity>
-
-            {/* Gift list */}
-            <View style={styles.bulkListContainer}>
-              {gifts.map((gift, index) => {
-                return (
-                  <View
-                    key={gift?.uuid || index}
-                    style={[
-                      styles.bulkGiftRow,
-                      { backgroundColor: backgroundOffset },
-                      index < gifts.length - 1 && styles.bulkGiftRowBorder,
-                      index < gifts.length - 1 && {
-                        borderBottomColor: tokens.divider,
-                      },
-                    ]}
-                  >
+          <View style={[styles.card, { backgroundColor: tokens.surface }]}>
+            {isBulk ? (
+              gifts.map((gift, index) => (
+                <View key={gift?.uuid || index}>
+                  {index > 0 && (
                     <View
                       style={[
-                        styles.bulkLinkBox,
-                        {
-                          backgroundColor: theme
-                            ? backgroundColor
-                            : tokens.disc,
-                          borderColor: backgroundColor,
-                        },
+                        styles.divider,
+                        { backgroundColor: tokens.divider },
                       ]}
-                    >
-                      <ThemeText
-                        CustomNumberOfLines={1}
-                        styles={styles.bulkLinkText}
-                        content={gift.claimURL}
-                      />
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => handleCopy(gift.claimURL)}
-                      style={styles.bulkCopyBtn}
-                      activeOpacity={0.7}
-                    >
-                      <ThemeIcon
-                        size={18}
-                        colorOverride={
-                          theme && darkModeType ? tokens.ink : tokens.accent
-                        }
-                        iconName={'Copy'}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-            </View>
-          </>
-        ) : (
-          // ── Single Gift Layout ─────────────────────────────────────────────
-          <>
-            {/* Show QR Code button */}
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'customQrCode',
-                  data: gifts?.claimURL,
-                })
-              }
-              style={[
-                styles.showQrButton,
-                { backgroundColor: backgroundOffset },
-              ]}
-              activeOpacity={0.7}
-            >
-              <ThemeIcon size={20} iconName={'QrCode'} />
-              <ThemeText
-                styles={styles.showQrButtonText}
-                content={t(
-                  'screens.inAccount.giftPages.giftConfirmation.showQr',
-                )}
-              />
-            </TouchableOpacity>
-
-            {/* Gift Link */}
-            <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-              <View style={styles.inputRow}>
-                <View
-                  style={[
-                    styles.linkContainer,
-                    {
-                      borderColor: backgroundColor,
-                      backgroundColor: theme ? backgroundColor : tokens.disc,
-                    },
-                  ]}
-                >
-                  <ThemeText
-                    CustomNumberOfLines={1}
-                    styles={styles.linkText}
-                    content={gifts?.claimURL}
+                    />
+                  )}
+                  <GiftRow
+                    title={t(K + 'bulkRowTitle', {
+                      number: index + 1,
+                      amount: amountOf(gift),
+                    })}
+                    sub={gift.claimURL}
+                    copied={copiedKey === index}
+                    onCopy={() => handleCopy(gift.claimURL, index)}
+                    onPress={() => openQr(gift)}
                   />
                 </View>
-                <TouchableOpacity
-                  onPress={() => handleCopy(gifts?.claimURL)}
-                  style={styles.copyButton}
-                  activeOpacity={0.7}
-                >
-                  <ThemeIcon
-                    size={20}
-                    colorOverride={
-                      theme && darkModeType ? tokens.ink : tokens.accent
-                    }
-                    iconName={'Copy'}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </>
-        )}
-      </CustomScrollView>
+              ))
+            ) : (
+              <GiftRow
+                title={
+                  gifts?.description
+                    ? `${gifts.description} · ${amountOf(gifts)}`
+                    : amountOf(gifts)
+                }
+                sub={gifts?.claimURL}
+                copied={copiedKey === 'single'}
+                onCopy={() => handleCopy(gifts?.claimURL, 'single')}
+              />
+            )}
+          </View>
 
-      {/* Fixed Bottom Buttons */}
-      <View style={styles.bottomButtons}>
-        <CustomButton
-          actionFunction={handleGoHome}
-          textContent={t('screens.inAccount.giftPages.giftConfirmation.done')}
-        />
-        <CustomButton
-          buttonStyles={{ backgroundColor: 'unset' }}
-          textStyles={{ color: textColor }}
-          actionFunction={() => navigate.popTo('CreateGift')}
-          textContent={t(
-            'screens.inAccount.giftPages.giftConfirmation.createAnother',
+          {!isBulk && (
+            <TextButton
+              text={t(K + 'showQr')}
+              align="center"
+              onPress={() => openQr(gifts)}
+            />
           )}
-        />
+        </CustomScrollView>
+
+        <View style={styles.bottomButtons}>
+          <CustomButton
+            size="regular"
+            actionFunction={handleGoHome}
+            textContent={t('constants.done')}
+          />
+          <CustomButton
+            size="regular"
+            tone="secondary"
+            icon={isBulk ? 'Copy' : undefined}
+            actionFunction={
+              isBulk ? handleCopyAllLinks : () => navigate.popTo('CreateGift')
+            }
+            textContent={t(isBulk ? K + 'copyAllLinks' : K + 'createAnother')}
+          />
+        </View>
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    width: INSET_WINDOW_WIDTH,
-    paddingBottom: 24,
-    ...CENTER,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  lottieAnimation: {
-    width: 160,
-    height: 160,
-  },
+  container: { flex: 1, ...CENTER },
+  scrollView: { flex: 1 },
+  header: { alignItems: 'center', marginTop: 16, marginBottom: 28 },
   title: {
-    fontSize: SIZES.xLarge,
-    fontWeight: '500',
-    marginBottom: 10,
+    marginTop: 16,
+    fontFamily: FONT.Title_Medium,
+    fontSize: 22,
+    lineHeight: 28,
     textAlign: 'center',
+    includeFontPadding: false,
   },
   subtitle: {
-    opacity: 0.7,
+    marginTop: 6,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
-    maxWidth: 320,
-  },
-  // Single gift: Show QR button
-  showQrButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    borderRadius: 16,
-    paddingVertical: 16,
-    marginBottom: 16,
-    width: '100%',
-  },
-  showQrButtonText: {
     includeFontPadding: false,
   },
-  card: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  cardHeader: {
+  card: { borderRadius: 20, paddingHorizontal: 16, marginBottom: 8 },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
-  cardHeaderText: {
-    includeFontPadding: false,
-    fontWeight: '500',
-  },
-  detailsContent: {
     gap: 12,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  detailLabel: {},
-  detailValue: {},
-  detailValueSecondary: {},
-  detailDescription: {
-    flexShrink: 1,
-    maxWidth: '60%',
-    textAlign: 'right',
-  },
-  inputLabel: {
-    marginBottom: 12,
-    fontWeight: '500',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  linkContainer: {
-    flex: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-  },
-  linkText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  copyButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // Bulk layout
-  copyAllRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    borderRadius: 16,
-    paddingVertical: 16,
-    marginBottom: 12,
-    width: '100%',
-  },
-  copyAllText: {
-    includeFontPadding: false,
-  },
-  bulkListContainer: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 16,
-    width: '100%',
-  },
-  bulkGiftRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  bulkGiftRowBorder: {
-    borderBottomWidth: 1,
-  },
-  bulkLinkBox: {
-    flex: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 1,
-  },
-  bulkLinkText: {
-    fontSize: SIZES.small,
+  rowText: { flex: 1, minWidth: 0 },
+  rowTitle: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
   },
-  bulkCopyBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
+  rowSub: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
   },
+  divider: { height: StyleSheet.hairlineWidth },
   bottomButtons: {
-    width: INSET_WINDOW_WIDTH,
+    gap: 10,
     paddingTop: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
   },
 });

@@ -78,6 +78,7 @@ import { SavingsProvider } from '../../../context-store/savingsContext';
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
+import GiftQrHalfModal from '../../components/admin/homeComponents/gifts/giftQrHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
@@ -172,7 +173,12 @@ export default function CustomHalfModal(props) {
     contentType === 'RemoveBudgetHalfModal' ||
     contentType === 'walletReset' ||
     contentType === 'addMoneyToSavings' ||
-    contentType === 'withdrawFromSavings';
+    contentType === 'withdrawFromSavings' ||
+    contentType === 'SelectPaymentMethod' ||
+    contentType === 'addGiftQuantity' ||
+    contentType === 'ClaimGiftScreen' ||
+    contentType === 'ClaimGiftHomeHalfModal' ||
+    contentType === 'giftQrCode';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -524,8 +530,16 @@ export default function CustomHalfModal(props) {
             expertMode={props?.route?.params?.expertMode}
             customGiftIndex={props?.route?.params?.customGiftIndex}
             handleBackPressFunction={handleBackPressFunction}
-            theme={theme}
-            darkModeType={darkModeType}
+            setContentHeight={setContentHeight}
+            setDismissLocked={setDismissLocked}
+          />
+        );
+      case 'giftQrCode':
+        return (
+          <GiftQrHalfModal
+            claimURL={props?.route?.params?.claimURL}
+            title={props?.route?.params?.title}
+            setContentHeight={setContentHeight}
           />
         );
       case 'SelectReceiveAsset':
@@ -659,6 +673,7 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             setIsKeyboardActive={setIsKeyboardActive}
+            setDismissLocked={setDismissLocked}
           />
         );
       case 'swapFlow':

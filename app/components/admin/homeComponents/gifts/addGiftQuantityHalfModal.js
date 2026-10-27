@@ -1,20 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { useCallback, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import {
   CENTER,
+  FONT,
   GIFTS_QUANTITY_PRESETS,
   MAX_GIFT_QUANTITY,
   MAX_GIFTS,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useTheme } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -24,11 +24,17 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import useHalfModalStepTransition from '../../../../hooks/useHalfModalStepTransition';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import AnimatedStep, {
+  growThenStep,
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import { formatGiftAmount } from './giftDisplay';
 
-const STEP_ORDER = ['select', 'custom'];
+const SELECT_HEIGHT = 450;
+const CUSTOM_HEIGHT = 560;
 
 export default function AddGiftQuantityHalfModal({
   amount,
@@ -37,33 +43,38 @@ export default function AddGiftQuantityHalfModal({
   giftDenomination,
   setContentHeight,
   handleBackPressFunction,
-  setBackNav,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { fiatStats } = useNodeContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = useTheme();
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { swapLimits, poolInfoRef } = useFlashnet();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [step, setStep] = useState('select');
   const [customValue, setCustomValue] = useState('');
 
-  const { renderedPage, pageAnimatedStyle } = useHalfModalStepTransition(
-    step,
-    STEP_ORDER,
+  const [direction, setDirection] = useState(1);
+
+  useStepSheetHeight(
+    setContentHeight,
+    step === 'custom' ? CUSTOM_HEIGHT : SELECT_HEIGHT,
   );
+
+  const perGiftAmount = formatGiftAmount({
+    gift: { denomination: giftDenomination, dollarAmount, amount },
+    masterInfoObject,
+    fiatStats,
+  });
 
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
 
-  useEffect(() => {
-    setContentHeight(step === 'custom' ? 560 : 450);
-  }, [step]);
-
   const handleBackPress = useCallback(() => {
     if (step === 'custom') {
+      setDirection(-1);
       setStep('select');
       setCustomValue('');
       return true;
@@ -72,16 +83,6 @@ export default function AddGiftQuantityHalfModal({
   }, [step]);
 
   useHandleBackPressNew(handleBackPress);
-
-  // Register the chrome's back arrow while on the custom-quantity step.
-  useEffect(() => {
-    if (step === 'custom') {
-      setBackNav?.({ onPress: handleBackPress, title: '' });
-    } else {
-      setBackNav?.(null);
-    }
-    return () => setBackNav?.(null);
-  }, [step, handleBackPress, setBackNav]);
 
   const validateAndProceed = quantity => {
     if (!quantity || quantity <= 0) return;
@@ -117,8 +118,6 @@ export default function AddGiftQuantityHalfModal({
 
     const meetsUSDMinimum = totalNeededUSD >= swapLimits.usd;
     const meetsBTCMinimum = totalNeeded >= swapLimits.bitcoin;
-
-    console.log(hasBTCBalance, hasUSDBalance, meetsBTCMinimum, meetsUSDMinimum);
 
     if (giftDenomination === 'BTC') {
       const canPayBTCtoBTC = hasBTCBalance;
@@ -182,88 +181,83 @@ export default function AddGiftQuantityHalfModal({
   };
 
   const handleCustomContinue = () => {
-    if (!customValue) {
-      setStep('select');
-      setCustomValue('');
-      return;
-    }
     const qty = parseInt(customValue, 10);
     if (!qty || qty <= 0) return;
     validateAndProceed(qty);
   };
 
-  const allItems = [
-    ...GIFTS_QUANTITY_PRESETS.map(n => ({ value: n })),
-    { isCustomButton: true },
-  ];
-  const rows = [
-    allItems.slice(0, 2),
-    allItems.slice(2, 4),
-    allItems.slice(4, 6),
-  ];
-
-  const renderButton = item => {
-    if (item.isCustomButton) {
-      return (
-        <TouchableOpacity
-          key="custom"
-          activeOpacity={0.7}
-          onPress={() => setStep('custom')}
-          style={[
-            styles.presetButton,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-              borderColor: 'transparent',
-            },
-          ]}
-        >
-          <ThemeText styles={styles.presetText} content={'...'} />
-        </TouchableOpacity>
-      );
-    }
-
-    return (
-      <TouchableOpacity
-        key={item.value}
-        activeOpacity={0.7}
-        onPress={() => validateAndProceed(item.value)}
-        style={[
-          styles.presetButton,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-            borderColor: 'transparent',
-          },
-        ]}
-      >
-        <ThemeText styles={styles.presetText} content={String(item.value)} />
-      </TouchableOpacity>
+  const openCustom = () => {
+    setDirection(1);
+    growThenStep(setContentHeight, SELECT_HEIGHT, CUSTOM_HEIGHT, () =>
+      setStep('custom'),
     );
   };
 
-  if (renderedPage === 'custom') {
-    const customQty = parseInt(customValue, 10) || 0;
-    const isValid = customQty >= 1 && customQty <= MAX_GIFT_QUANTITY;
+  const items = [...GIFTS_QUANTITY_PRESETS, null];
+  const customQty = parseInt(customValue, 10) || 0;
+  const isValid = customQty >= 1 && customQty <= MAX_GIFT_QUANTITY;
 
-    return (
-      <Animated.View style={[styles.container, pageAnimatedStyle]}>
+  return (
+    <View style={[styles.container, { width: contentWidth }]}>
+      <AnimatedStep active={step === 'select'} direction={direction}>
+        <ThemeText
+          styles={styles.title}
+          content={t('screens.inAccount.giftPages.createGift.quantityHeader')}
+        />
+        <ThemeText
+          styles={[styles.sub, { color: tokens.muted }]}
+          content={t('screens.inAccount.giftPages.createGift.quantitySub', {
+            amount: perGiftAmount,
+            max: MAX_GIFT_QUANTITY,
+          })}
+        />
+        <View style={styles.grid}>
+          {items.map(value => (
+            <TouchableOpacity
+              key={value ?? 'other'}
+              activeOpacity={0.7}
+              onPress={() => (value ? validateAndProceed(value) : openCustom())}
+              style={[styles.preset, { backgroundColor: tokens.ground }]}
+            >
+              <ThemeText
+                styles={styles.presetText}
+                content={
+                  value
+                    ? String(value)
+                    : t('screens.inAccount.giftPages.createGift.quantityOther')
+                }
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep active={step === 'custom'} direction={direction} exitsBack>
+        <TopBar onBack={handleBackPress} />
         <View style={styles.inputContainer}>
           <ThemeText
-            styles={styles.quantityDisplay}
-            content={customValue || '0'}
+            styles={[
+              styles.quantityDisplay,
+              customValue ? null : { color: tokens.muted },
+            ]}
+            content={t('screens.inAccount.giftPages.createGift.quantityCount', {
+              count: customQty,
+            })}
           />
         </View>
         <ThemeText
-          styles={styles.maxGiftHint}
-          content={t('screens.inAccount.giftPages.createGift.maxQuantityHint')}
+          styles={[styles.maxGiftHint, { color: tokens.muted }]}
+          content={t('screens.inAccount.giftPages.createGift.quantityMaxHint', {
+            amount: perGiftAmount,
+            max: MAX_GIFT_QUANTITY,
+          })}
         />
         <CustomNumberKeyboard
           showDot={false}
+          redesign
           customFunction={val => {
             const num = parseInt(val, 10);
             if (!num && num !== 0) {
-              console.log('t');
               if (val === 'C') {
                 setCustomValue('');
               } else {
@@ -284,67 +278,54 @@ export default function AddGiftQuantityHalfModal({
         />
         <CustomButton
           buttonStyles={styles.button}
-          textContent={isValid ? t('constants.continue') : t('constants.back')}
+          disabled={!isValid}
+          size="regular"
+          textContent={t('constants.continue')}
           actionFunction={handleCustomContinue}
         />
-      </Animated.View>
-    );
-  }
-
-  return (
-    <Animated.View style={[styles.container, pageAnimatedStyle]}>
-      <ThemeText
-        styles={styles.header}
-        content={t('screens.inAccount.giftPages.createGift.quantityHeader')}
-      />
-      <View style={styles.grid}>
-        {rows.map((row, rowIndex) => (
-          <View key={`row-${rowIndex}`} style={styles.row}>
-            {row.map(item => renderButton(item))}
-          </View>
-        ))}
-      </View>
-    </Animated.View>
+      </AnimatedStep>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  header: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+  title: {
+    marginTop: 20,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 26,
     includeFontPadding: false,
-    marginBottom: 20,
+  },
+  sub: {
+    marginTop: 4,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
   grid: {
-    gap: 12,
-    flex: 1,
-  },
-  row: {
+    marginTop: 20,
     flexDirection: 'row',
-    gap: 12,
+    flexWrap: 'wrap',
+    gap: 10,
   },
-  maxGiftHint: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-    marginTop: 10,
-    includeFontPadding: false,
-  },
-  presetButton: {
-    flex: 1,
-    minHeight: 50,
-    borderRadius: 12,
+  preset: {
+    width: '48.5%',
+    flexGrow: 1,
+    minHeight: 52,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
     paddingHorizontal: 8,
   },
   presetText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 16,
+    lineHeight: 22,
     includeFontPadding: false,
   },
   inputContainer: {
@@ -352,14 +333,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quantityDisplay: {
+    fontFamily: FONT.Title_Medium,
     fontSize: 40,
+    lineHeight: 48,
     includeFontPadding: false,
     pointerEvents: 'none',
-    paddingVertical: 0,
+    textAlign: 'center',
+  },
+  maxGiftHint: {
+    textAlign: 'center',
+    fontFamily: FONT.Title_Regular,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 4,
+    includeFontPadding: false,
   },
   button: {
-    width: 'auto',
     marginTop: 12,
-    ...CENTER,
   },
 });

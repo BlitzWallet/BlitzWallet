@@ -5,17 +5,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { View, StyleSheet } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
+  FONT,
   IS_SPARK_ID,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -46,14 +51,9 @@ import {
 } from '../../../../functions/spark/index';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
-import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import {
   BTC_ASSET_ADDRESS,
   calculateFlashnetAmountIn,
@@ -68,11 +68,16 @@ import {
 } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
-import GetThemeColors from '../../../../hooks/themeColors';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import { useTheme } from '../../../../../context-store/theme';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
 import customUUID from '../../../../functions/customUUID';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import Note from '../../../../functions/CustomElements/redesign/Note';
+
+// Three equal columns (Gifts.dc.html "Gift length").
+const PILL_GAP = 10;
 
 export default function CreateGiftDuration(props) {
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -85,7 +90,6 @@ export default function CreateGiftDuration(props) {
     bulkDeleteGiftsFromCloudAndLocal,
   } = useGifts();
   const [duration, setDuration] = useState({ label: '7 Days', value: '7' });
-  const { theme } = useGlobalThemeContext();
   const { sparkInformation, sparkInfoRef } = useSparkWallet();
   const navigate = useNavigation();
   const { accountMnemoinc } = useKeysContext();
@@ -93,8 +97,10 @@ export default function CreateGiftDuration(props) {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const simulationPromiseRef = useRef(null);
   const [simulationResult, setSimulationResult] = useState(null);
@@ -858,60 +864,67 @@ export default function CreateGiftDuration(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('screens.inAccount.giftPages.createGift.header')}
-      />
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('screens.inAccount.giftPages.createGift.durationTitle')}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('screens.inAccount.giftPages.createGift.durationSubtitle')}
-        />
-        <DropdownMenu
-          customButtonStyles={{
-            backgroundColor: backgroundOffset,
-          }}
-          selectedValue={t(
-            'screens.inAccount.giftPages.createGift.durationText',
-            { numDays: duration.value },
-          )}
-          translateLabelText={true}
-          onSelect={handleSelectProcess}
-          options={GIFT_DURATIONS}
-          showClearIcon={false}
-          showVerticalArrowsAbsolute={true}
-        />
-        <NoContentSceen
-          iconName="AlertTriangle"
-          titleText={t('screens.inAccount.giftPages.createGift.warningTitle')}
-          subTitleText={t(
-            'screens.inAccount.giftPages.createGift.warningSubtitle',
-            {
+      <View style={[styles.container, { width: contentWidth }]}>
+        <View style={styles.container}>
+          <TopBar title={t('screens.inAccount.giftPages.createGift.header')} />
+          <PageHeader
+            title={t('screens.inAccount.giftPages.createGift.durationTitle')}
+            sub={t('screens.inAccount.giftPages.createGift.durationSubtitle')}
+          />
+          <View style={styles.pills}>
+            {GIFT_DURATIONS.map(option => {
+              const selected = option.value === duration.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  activeOpacity={0.7}
+                  onPress={() => handleSelectProcess(option)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  style={[
+                    styles.pill,
+                    { width: (contentWidth - PILL_GAP * 2) / 3 },
+                    {
+                      backgroundColor: selected
+                        ? tokens.accent
+                        : tokens.surface,
+                    },
+                  ]}
+                >
+                  <ThemeText
+                    content={option.label}
+                    styles={[
+                      styles.pillText,
+                      { color: selected ? tokens.onAccent : tokens.ink },
+                    ]}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Note
+            text={t('screens.inAccount.giftPages.createGift.warningText', {
               numDays: duration.value,
-            },
-          )}
+            })}
+          />
+        </View>
+        <CustomButton
+          disabled={!isGiftValid}
+          buttonStyles={{
+            opacity: !isGiftValid ? HIDDEN_OPACITY : 1,
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+          }}
+          textContent={
+            giftQuantity > 1
+              ? t('screens.inAccount.giftPages.createGift.bulkButton', {
+                  count: giftQuantity,
+                })
+              : t('screens.inAccount.giftPages.createGift.button')
+          }
+          actionFunction={createGift}
+          size={'regular'}
         />
       </View>
-      <CustomButton
-        disabled={!isGiftValid}
-        buttonStyles={{
-          opacity: !isGiftValid ? HIDDEN_OPACITY : 1,
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-        }}
-        textContent={
-          giftQuantity > 1
-            ? t('screens.inAccount.giftPages.createGift.bulkButton', {
-                count: giftQuantity,
-              })
-            : t('screens.inAccount.giftPages.createGift.button')
-        }
-        actionFunction={createGift}
-      />
     </GlobalThemeView>
   );
 }
@@ -919,28 +932,25 @@ export default function CreateGiftDuration(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
-    paddingBottom: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+  pills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: PILL_GAP,
+    marginBottom: 24,
+  },
+  pill: {
+    minHeight: 44,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  disclaimer: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-    marginTop: 16,
   },
 });

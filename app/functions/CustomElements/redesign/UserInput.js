@@ -22,6 +22,7 @@ export default function UserInput({
   showTextCount = false,
   onSubmitEditing,
   focusRing = false,
+  keyboardType,
 }) {
   const { tokens, mode } = useTheme();
   const inSheet = useInSheet();
@@ -56,11 +57,16 @@ export default function UserInput({
           ...(pill && styles.pill),
           ...(focusRing && {
             borderWidth: 2,
-            borderColor: isFocused ? tokens.accent : 'transparent',
+            borderColor: isFocused
+              ? isOverLimit
+                ? characterCountColor
+                : tokens.accent
+              : 'transparent',
           }),
           color: inSheet ? tokens.ink : tokens.onField,
           backgroundColor: inSheet ? tokens.ground : tokens.field,
         }}
+        keyboardType={keyboardType}
       />
       {showTextCount && (
         <ThemeText
@@ -86,7 +92,6 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
     paddingRight: 14,
     fontSize: 15,
-    lineHeight: 22,
   },
   pill: { borderRadius: 999 },
   glyph: { position: 'absolute', left: 16, top: 17 },
