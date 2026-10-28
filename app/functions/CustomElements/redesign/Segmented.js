@@ -71,6 +71,8 @@ const styles = StyleSheet.create({
   },
   label: {
     textTransform: 'capitalize',
+    // 1pt inset: iOS clips glyph ink past the advance width ("QR" → "QF").
+    paddingHorizontal: 1,
     fontSize: 14,
     lineHeight: 19,
     textAlign: 'center',

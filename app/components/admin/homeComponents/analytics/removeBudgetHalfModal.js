@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
 import {
   CENTER,
   FONT,
@@ -8,7 +7,6 @@ import {
   SIZES,
 } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';

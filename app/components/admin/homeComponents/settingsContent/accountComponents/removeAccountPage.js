@@ -1,31 +1,26 @@
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import { StyleSheet, View } from 'react-native';
+import { GlobalThemeView } from '../../../../../functions/CustomElements';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES } from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import { CENTER } from '../../../../../constants';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import IconActionCircle from '../../../../../functions/CustomElements/actionCircleContainer';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
 
 export default function RemoveAccountPage(props) {
   const accountId = props?.route?.params?.accountId;
   const fromPage = props?.route?.params?.from;
   const { removeAccount, custodyAccountsList } = useActiveCustodyAccount();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedAccount = useMemo(
     () => custodyAccountsList?.find(item => item.uuid === accountId) || {},
     [custodyAccountsList, accountId],
   );
-  const { backgroundOffset, textColor, tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const navigate = useNavigation();
 
@@ -52,97 +47,54 @@ export default function RemoveAccountPage(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar />
-      <CustomScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.contentContainer}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar />
+        <CustomScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Icon */}
-          <IconActionCircle bottomOffset={32} icon={'Trash2'} />
+          <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
 
-          {/* Title */}
-          <ThemeText
-            styles={styles.title}
-            content={`${t(
+          <PageHeader
+            title={`${t(
               'settings.accountComponents.removeAccountPage.title',
             )} ${selectedAccount.name}`}
+            sub={t('settings.accountComponents.removeAccountPage.explanation', {
+              context: selectedAccount?.accountType || 'imported',
+            })}
           />
+        </CustomScrollView>
 
-          {/* Explanation */}
-          <ThemeText
-            styles={[styles.explanation, { color: textColor }]}
-            content={t(
-              'settings.accountComponents.removeAccountPage.explanation',
-              {
-                context: selectedAccount?.accountType || 'imported',
-              },
+        {/* Buttons */}
+        <View style={styles.buttonsContainer}>
+          <CustomButton
+            textContent={t(
+              'settings.accountComponents.removeAccountPage.cancelButton',
             )}
+            actionFunction={handleCancel}
+            tone={'secondary'}
+          />
+          <CustomButton
+            textContent={t(
+              'settings.accountComponents.removeAccountPage.removeButton',
+            )}
+            actionFunction={handleRemove}
+            tone={'danger'}
           />
         </View>
-      </CustomScrollView>
-
-      {/* Buttons */}
-      <View style={styles.buttonsContainer}>
-        <CustomButton
-          buttonStyles={[styles.button, styles.cancelButton]}
-          textContent={t(
-            'settings.accountComponents.removeAccountPage.cancelButton',
-          )}
-          actionFunction={handleCancel}
-        />
-        <CustomButton
-          buttonStyles={[
-            styles.button,
-            {
-              backgroundColor:
-                theme && darkModeType ? tokens.ink : tokens.accent,
-            },
-          ]}
-          textStyles={{
-            color:
-              theme && darkModeType ? COLORS.lightModeText : tokens.onAccent,
-          }}
-          textContent={t(
-            'settings.accountComponents.removeAccountPage.removeButton',
-          )}
-          actionFunction={handleRemove}
-        />
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
   scrollContainer: {
+    paddingTop: 20,
     flexGrow: 1,
-    ...CENTER,
-    paddingTop: 40,
-  },
-  contentContainer: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  explanation: {
-    fontSize: SIZES.medium,
-    textAlign: 'center',
-    lineHeight: 22,
-    opacity: 0.8,
   },
   buttonsContainer: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  button: {
-    width: '100%',
-  },
-  cancelButton: {
-    // Additional styling if needed
+    gap: 10,
   },
 });

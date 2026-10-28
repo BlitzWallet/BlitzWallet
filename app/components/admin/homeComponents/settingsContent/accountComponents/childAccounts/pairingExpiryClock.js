@@ -1,16 +1,16 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { formatCountdown } from '../../../../../../functions/timeFormatter';
 import { useAccountsExpiryTimeTick } from '../../../../../../functions/accounts/expiryTimeTick';
-import GetThemeColors from '../../../../../../hooks/themeColors';
-import { SIZES } from '../../../../../../constants';
+import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
+import { useTheme } from '../../../../../../../context-store/theme';
 
 const PAIRING_STATE_TTL_MS = 180000; // 3 min per state, the rules' server deadline.
 
 export default function PairingExpiryClock() {
   const { pairingExpiryClock } = useChildPairing();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = useTheme();
   const tick = useAccountsExpiryTimeTick(); // 1s re-render heartbeat only
 
   // Countdown = the 3 min server window (firestore start + TTL) counted down
@@ -26,20 +26,31 @@ export default function PairingExpiryClock() {
     PAIRING_STATE_TTL_MS,
   );
 
+  // Countdown pill (D266): white, clock glyph + m:ss.
   return (
-    <ThemeText
-      styles={[styles.countdownText, { backgroundColor: backgroundOffset }]}
-      content={formatCountdown(timeLeft)}
-    />
+    <View style={[styles.pill, { backgroundColor: tokens.surface }]}>
+      <ThemeIcon redesign iconName="Clock" size={14} />
+      <ThemeText
+        styles={styles.countdownText}
+        content={formatCountdown(timeLeft)}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  pill: {
+    minHeight: 36,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   countdownText: {
-    fontSize: SIZES.medium,
+    fontSize: 14,
+    lineHeight: 18,
     includeFontPadding: false,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 20,
+    fontVariant: ['tabular-nums'],
   },
 });

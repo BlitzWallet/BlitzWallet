@@ -26,6 +26,7 @@ export default function PaymentMethod({
   containerStyles = {},
   hideBalance = false,
   isSend = true,
+  title,
 }) {
   const { mode } = useGlobalThemeContext();
   const { tokens } = GetThemeColors();
@@ -98,7 +99,9 @@ export default function PaymentMethod({
             />
           </View>
         }
-        title={isSend ? t('constants.payWith') : t('constants.receiveAs')}
+        title={
+          title ?? (isSend ? t('constants.payWith') : t('constants.receiveAs'))
+        }
         titleStyle={{ ...styles.titeStyle, color: tokens.muted }}
         sub={`${t(
           uiState === 'CONTACT_REQUEST' || hideBalance

@@ -109,6 +109,7 @@ export default memo(function ActivityRow({
   poolInfoRef,
   swapLimits,
   sub,
+  canEditMemo,
 }) {
   const { t } = useTranslation();
   const { tx, time, isLRC20Payment, isFailed, showSwapConversion } = item;
@@ -148,8 +149,9 @@ export default memo(function ActivityRow({
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'expandedTx',
       transaction: tx,
+      canEditMemo,
     });
-  }, [navigate, tx]);
+  }, [navigate, tx, canEditMemo]);
 
   const showSwapEstimate =
     showSwapConversion &&

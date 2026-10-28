@@ -186,7 +186,10 @@ export default function CustomHalfModal(props) {
     contentType === 'addPOSItemsHalfModal' ||
     contentType === 'posCurrencySelect' ||
     contentType === 'posTipsDetail' ||
-    contentType === 'swapFlow';
+    contentType === 'swapFlow' ||
+    contentType === 'accountTransfer' ||
+    contentType === 'LNURLAccountMangement' ||
+    contentType === 'childMatchCodeConfirmation';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -906,8 +909,8 @@ export default function CustomHalfModal(props) {
             mode={props?.route?.params?.mode}
             account={props?.route?.params?.account}
             handleBackPressFunction={handleBackPressFunction}
-            setBackNav={setBackNav}
             setContentHeight={setContentHeight}
+            setDismissLocked={setDismissLocked}
           />
         );
       case 'childMatchCodeConfirmation':
@@ -915,6 +918,7 @@ export default function CustomHalfModal(props) {
           <ChildMatchCodeConfirmation
             confirmMatch={props?.route?.params?.confirmMatch}
             handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
 
@@ -957,6 +961,7 @@ export default function CustomHalfModal(props) {
             transaction={props?.route?.params?.transaction}
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            canEditMemo={props?.route?.params?.canEditMemo}
           />
         );
       case 'walletReset':

@@ -169,6 +169,7 @@ export default function ExpandedTx({
   transaction: initialTransaction,
   handleBackPressFunction,
   setContentHeight,
+  canEditMemo = true,
 }) {
   const { decodedAddedContacts } = useGlobalContactsInfo();
   const { cache } = useImageCache();
@@ -858,7 +859,7 @@ export default function ExpandedTx({
               onBlur={runMemoSave}
             />
           </View>
-        ) : (
+        ) : canEditMemo ? (
           <DetailRow
             label={t('transactionLabelText.memo')}
             lines={2}
@@ -866,6 +867,14 @@ export default function ExpandedTx({
             icon="Pencil"
             onIconPress={handleEditMemo}
           />
+        ) : (
+          !!description && (
+            <DetailRow
+              label={t('transactionLabelText.memo')}
+              lines={2}
+              value={description}
+            />
+          )
         )}
 
         {renderSuccessAction()}

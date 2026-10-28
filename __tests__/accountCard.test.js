@@ -16,6 +16,7 @@ jest.mock('../app/constants', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
+  useTheme: () => ({ tokens: {} }),
   useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
 }));
 
@@ -37,6 +38,24 @@ jest.mock('../app/functions/CustomElements', () => {
   const RN = require('react-native');
   return {
     ThemeText: ({ content }) => MockReact.createElement(RN.Text, null, content),
+  };
+});
+
+// The row frame is ListRow; render its text slots so the card's own
+// title / last-updated / balance logic stays under test.
+jest.mock('../app/functions/CustomElements/redesign/ListRow', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ title, sub, trailing }) =>
+      MockReact.createElement(
+        RN.View,
+        null,
+        MockReact.createElement(RN.Text, null, title),
+        sub ? MockReact.createElement(RN.Text, null, sub) : null,
+        trailing || null,
+      ),
   };
 });
 

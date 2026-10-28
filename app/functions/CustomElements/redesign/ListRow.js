@@ -4,6 +4,7 @@ import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 import CustomToggleSwitch from '../switch';
+import { HIDDEN_OPACITY } from '../../../constants/theme';
 
 // Row: lead · title/sub (wrap) · trailing. The trailing value drops under
 // the title when both don't fit (rule 2). Self-contained, so it can be a
@@ -45,6 +46,7 @@ export default function ListRow({
           ? { selected: true }
           : undefined
       }
+      isHidden={tone === 'hidden'}
       trailing={
         <View style={styles.trailing}>
           {trailing === 'chevron' ? (
@@ -122,6 +124,7 @@ export function RowShell({
   accessibilityState,
   accessibilityLabel,
   children,
+  isHidden,
 }) {
   return (
     <TouchableOpacity
@@ -130,7 +133,11 @@ export function RowShell({
       accessibilityRole={onPress ? accessibilityRole : undefined}
       accessibilityState={accessibilityState}
       accessibilityLabel={accessibilityLabel}
-      style={[styles.row, { minHeight, paddingVertical }]}
+      style={[
+        styles.row,
+        { minHeight, paddingVertical },
+        isHidden && { opacity: HIDDEN_OPACITY },
+      ]}
     >
       {lead}
       <View style={styles.middle}>{children}</View>

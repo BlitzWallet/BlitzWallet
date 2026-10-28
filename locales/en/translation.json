@@ -1900,9 +1900,9 @@
         "title": "Share",
         "usernameTitle": "Share your username",
         "usernameSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
-        "generateCode": "Generate Code",
+        "generateCode": "Generate code",
         "usernameLabel": "Your username: {{name}}",
-        "codeNavTitle": "Share Code",
+        "codeNavTitle": "Share code",
         "codeTitle": "Share this pairing code",
         "codeSubtitle": "Share this code so they can join your shared wallet.",
         "waiting": "Waiting for them to enter the code…",
@@ -1938,7 +1938,7 @@
       },
       "transactions": {
         "title": "Activity",
-        "noTxHistorySub": "The accounts transactions will appear here once they send or receive one."
+        "noTxHistorySub": "{{name}}’s payments will show here once they send or receive one."
       },
       "page": {
         "title": "Children account",
@@ -2371,15 +2371,16 @@
         "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
       },
       "editAccountName": {
-        "title": "Account Name",
+        "title": "Account name",
         "namePlaceholder": "Name"
       },
       "editAccountPage": {
         "title": "Account",
-        "accountNameLabel": "Account Name",
-        "showRecoveryPhraseLabel": "Show Recovery Phrase",
-        "lightningAddressLabel": "Account Address",
+        "accountNameLabel": "Account name",
+        "showRecoveryPhraseLabel": "Show recovery phrase",
+        "lightningAddressLabel": "Account address",
         "removeAccountLabel": "Remove Account",
+        "stillConnectingLabel": "Connection info",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
         "account_unpin": "Unpin Account",
@@ -2397,10 +2398,13 @@
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw",
-        "viewActivityLabel": "Account History",
-        "manageConnectionsLabel": "Manage Connections",
+        "viewActivityLabel": "Account history",
+        "manageConnectionsLabel": "Manage connections",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",
+        "bitcoinBalanceLabel": "Bitcoin balance",
+        "dollarBalanceLabel": "Dollar balance",
+        "editAvatarLabel": "Choose avatar",
         "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."
       },
       "removeAccountPage": {
@@ -2411,28 +2415,30 @@
         "removeButton": "Remove"
       },
       "selectCreateAccountType": {
-        "title": "Add Account",
+        "title": "Add account",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
         "importRecoveryPhraseDescription": "Import personal accounts from another wallet",
-        "recoverRecoveryPhraseTitle": "Recover Personal Account",
+        "recoverRecoveryPhraseTitle": "Recover personal account",
         "recoverRecoveryPhraseDescription": "Restore a personal account",
-        "createNewAccountTitle": "Create Personal Account",
+        "createNewAccountTitle": "Create personal account",
         "createNewAccountDescription": "Create a wallet for yourself",
         "createChildAccountTitle": "Create Managed Account",
         "createChildAccountDescription": "Create a wallet for someone else"
       },
       "selectProfileImage": {
-        "title": "Choose Avatar",
-        "searchPlaceholder": "Search emojis...",
-        "saveButton": "Save Avatar"
+        "title": "Choose avatar",
+        "searchPlaceholder": "Search emojis…",
+        "saveButton": "Save avatar"
       },
       "restoreDerivedAccount": {
-        "title": "Restore Account",
-        "emptyStateTitle": "No Accounts to Restore",
+        "title": "Restore account",
+        "emptyStateTitle": "No accounts to restore",
         "emptyStateMessage": "All accounts are currently restored. No missing accounts found.",
         "accountCardTitle": "Account {{index}}",
         "accountCardSubtitle": "Derivation Index: {{index}}",
         "restoreButton": "Restore",
+        "restoringLabel": "Restoring…",
+        "subtitle": "Accounts you removed that your recovery phrase can bring back.",
         "nameInputTitle": "Name This Account",
         "nameInputPlaceholder": "Account {{index}}",
         "nameInputConfirm": "Restore Account",
@@ -2460,6 +2466,11 @@
         "selfTransfer": "You cannot transfer to yourself",
         "addFunds": "{{name}} added money",
         "withdrawFunds": "{{name}} withdrew money",
+        "sending": "Sending…",
+        "sendingSubtitle": "{{amount}} from {{from}} to {{to}}",
+        "sentSuccessfully": "Sent successfully",
+        "fromTo": "From {{from}} to {{to}}",
+        "failedSubtitle": "Something went wrong while sending. Please try again.",
         "balanceLoadError": "Couldn't load this account's balance. Please try again."
       }
     },
