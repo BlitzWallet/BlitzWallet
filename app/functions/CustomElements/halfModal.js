@@ -81,6 +81,8 @@ import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gift
 import GiftQrHalfModal from '../../components/admin/homeComponents/gifts/giftQrHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
+import POSCurrencySelect from '../../components/admin/homeComponents/settingsContent/posPath/internalComponents/posCurrencySelect';
+import TotalTipsScreen from '../../components/admin/homeComponents/settingsContent/posPath/totalTipsScreen';
 import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
 import DisplayCurrencySelect from '../../components/admin/homeComponents/currencyPicker/displayCurrencySelect';
@@ -180,7 +182,10 @@ export default function CustomHalfModal(props) {
     contentType === 'ClaimGiftHomeHalfModal' ||
     contentType === 'giftQrCode' ||
     contentType === 'createAccumulationAddress' ||
-    contentType === 'accumulationAddressSelect';
+    contentType === 'accumulationAddressSelect' ||
+    contentType === 'addPOSItemsHalfModal' ||
+    contentType === 'posCurrencySelect' ||
+    contentType === 'posTipsDetail';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -400,6 +405,26 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
             initialSettings={props.route.params?.initialSettings}
             handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'posCurrencySelect':
+        return (
+          <POSCurrencySelect
+            currentCurrency={props.route.params?.currentCurrency}
+            onSelectCurrency={props.route.params?.onSelectCurrency}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            setIsKeyboardActive={setIsKeyboardActive}
+          />
+        );
+      case 'posTipsDetail':
+        return (
+          <TotalTipsScreen
+            name={props.route.params?.name}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            setDismissLocked={setDismissLocked}
           />
         );
       // case 'editLNURLOnReceive':

@@ -1,38 +1,39 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
-import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import { useMemo, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
-import GetThemeColors from '../../../../../../hooks/themeColors';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  SIZES,
-} from '../../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
 import { formatCurrency } from '../../../../../../functions/formatCurrency';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
+import {
+  useGlobalThemeContext,
+  useTheme,
+} from '../../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
-import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
-import NoContentSceen from '../../../../../../functions/CustomElements/noContentScreen';
+import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import SearchField from '../../../../../../functions/CustomElements/redesign/SearchField';
+import EmptyState from '../../../../../../functions/CustomElements/redesign/EmptyState';
+import ListCard from '../../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../../functions/CustomElements/redesign/ListRow';
+import IconButton from '../../../../../../functions/CustomElements/redesign/IconButton';
 
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { mode } = useGlobalThemeContext();
+  const { tokens } = useTheme();
   const [posItemSearch, setPosItemSearch] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const posItems = masterInfoObject.posSettings.items || [];
-  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
   const currentCurrency = masterInfoObject.posSettings?.storeCurrency;
 
@@ -52,94 +53,109 @@ export default function AddPOSItemsPage() {
       .map(item => {
         if (!item.name?.toLowerCase()?.startsWith(posItemSearch.toLowerCase()))
           return false;
+
+        const otherCurrency = currentCurrency !== item.initialCurrency;
+        const price = formatCurrency({
+          amount: item.price.toFixed(2),
+          code: otherCurrency ? item.initialCurrency : currentCurrency,
+        })[0];
+
         return (
-          <View
-            style={[
-              styles.posItemContainer,
-              { backgroundColor: backgroundOffset },
-            ]}
+          <ListRow
             key={item.uuid}
-          >
-            <View style={styles.posItemInfo}>
-              <ThemeText styles={styles.posItemName} content={item.name} />
-              <ThemeText
-                styles={styles.posItemPrice}
-                content={
-                  formatCurrency({
-                    amount: item.price.toFixed(2),
-                    code: masterInfoObject.posSettings?.storeCurrency,
-                  })[0]
-                }
-              />
-              {currentCurrency !== item.initialCurrency && (
-                <ThemeText
-                  styles={[
-                    styles.posItemError,
-                    {
-                      color: theme && darkModeType ? tokens.ink : tokens.danger,
-                    },
-                  ]}
-                  content={t(
+            title={otherCurrency ? `${item.name} · ${price}` : item.name}
+            sub={
+              otherCurrency
+                ? t(
                     'settings.posPath.items.addPOSItemsPage.denominationError',
                     {
                       currency1: item.initialCurrency,
                       currency2: currentCurrency,
                     },
-                  )}
+                  )
+                : price
+            }
+            minHeight={64}
+            titleStyle={styles.title}
+            subStyle={[
+              styles.sub,
+              otherCurrency && {
+                color: mode === 'dim' ? tokens.ink : tokens.danger,
+              },
+            ]}
+            trailing={
+              <View style={styles.buttons}>
+                <IconButton
+                  icon={'Pencil'}
+                  iconSize={18}
+                  iconColor={tokens.muted}
+                  label={t('settings.posPath.items.addPOSItemsPage.editItem', {
+                    name: item.name,
+                  })}
+                  onPress={() =>
+                    navigate.navigate('CustomHalfModal', {
+                      wantedContent: 'addPOSItemsHalfModal',
+                      initialSettings: item,
+                    })
+                  }
                 />
-              )}
-            </View>
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'addPOSItemsHalfModal',
-                    initialSettings: item,
-                  })
-                }
-              >
-                <ThemeIcon iconName={'SquarePen'} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  navigate.navigate('ConfirmActionPage', {
-                    confirmFunction: () => removePOSItem(item.uuid),
-                    confirmMessage: t(
-                      'settings.posPath.items.addPOSItemsPage.deleteItemMessage',
-                    ),
-                  });
-                }}
-              >
-                <ThemeIcon iconName={'Trash2'} />
-              </TouchableOpacity>
-            </View>
-          </View>
+                <IconButton
+                  icon={'Trash2'}
+                  iconSize={18}
+                  iconColor={tokens.muted}
+                  label={t(
+                    'settings.posPath.items.addPOSItemsPage.deleteItem',
+                    { name: item.name },
+                  )}
+                  onPress={() => {
+                    navigate.navigate('ConfirmDialog', {
+                      title: t(
+                        'settings.posPath.items.addPOSItemsPage.deleteItemTitle',
+                        { name: item.name },
+                      ),
+                      message: t(
+                        'settings.posPath.items.addPOSItemsPage.deleteItemMessage',
+                      ),
+                      cancelLabel: t('constants.cancel'),
+                      confirmLabel: t('constants.delete'),
+                      onConfirm: () => removePOSItem(item.uuid),
+                    });
+                  }}
+                />
+              </View>
+            }
+          />
         );
       })
       .filter(Boolean);
-  }, [posItemSearch, posItems, currentCurrency, backgroundOffset]);
+  }, [posItemSearch, posItems, currentCurrency, tokens, t]);
 
   if (!posItems.length) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          shouldDismissKeyboard={true}
-          label={t('settings.posPath.items.addPOSItemsPage.title')}
-        />
-        <NoContentSceen
-          iconName="ShoppingCart"
-          titleText={t('settings.posPath.items.addPOSItemsPage.noPosTitle')}
-          subTitleText={t('settings.posPath.items.addPOSItemsPage.noPosSub')}
-        />
-        <CustomButton
-          buttonStyles={styles.addItemButton}
-          actionFunction={() =>
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'addPOSItemsHalfModal',
-            })
-          }
-          textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
-        />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar
+            title={t('settings.posPath.items.addPOSItemsPage.title')}
+            shouldDismissKeyboard={true}
+          />
+          <View style={styles.empty}>
+            <EmptyState
+              icon={'Tag'}
+              iconTone="ink"
+              title={t('settings.posPath.items.addPOSItemsPage.noPosTitle')}
+              sub={t('settings.posPath.items.addPOSItemsPage.noPosSub')}
+            />
+          </View>
+          <CustomButton
+            actionFunction={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'addPOSItemsHalfModal',
+              })
+            }
+            textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
+            size={'regular'}
+          />
+        </View>
       </GlobalThemeView>
     );
   }
@@ -150,99 +166,70 @@ export default function AddPOSItemsPage() {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('settings.posPath.items.addPOSItemsPage.title')}
-      />
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[0]}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <CustomSearchInput
-          inputText={posItemSearch}
-          setInputText={setPosItemSearch}
-          containerStyles={[styles.searchInput, { backgroundColor }]}
-          placeholderText={t(
-            'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
-          )}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          onBlurFunction={() => setIsKeyboardActive(false)}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.posPath.items.addPOSItemsPage.title')}
+          shouldDismissKeyboard={true}
         />
-        {formattedElements.length ? (
-          formattedElements
-        ) : (
-          <View style={styles.emptyState}>
-            <ThemeText
-              styles={styles.emptyStateText}
-              content={t(
-                'settings.posPath.items.addPOSItemsPage.noItemsSearch',
-              )}
-            />
-          </View>
-        )}
-      </CustomScrollView>
+        <View style={styles.search}>
+          <SearchField
+            value={posItemSearch}
+            onChangeText={setPosItemSearch}
+            placeholder={t(
+              'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
+            )}
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
+            pill
+          />
+        </View>
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {formattedElements.length ? (
+            <ListCard>{formattedElements}</ListCard>
+          ) : (
+            <View>
+              <ThemeText
+                styles={styles.emptyStateText}
+                content={t(
+                  'settings.posPath.items.addPOSItemsPage.noItemsSearch',
+                )}
+              />
+            </View>
+          )}
+        </CustomScrollView>
 
-      <CustomButton
-        buttonStyles={styles.addItemButton}
-        actionFunction={() =>
-          navigate.navigate('CustomHalfModal', {
-            wantedContent: 'addPOSItemsHalfModal',
-          })
-        }
-        textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
-      />
+        <CustomButton
+          actionFunction={() =>
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'addPOSItemsHalfModal',
+            })
+          }
+          textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
+          size={'regular'}
+        />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
+  search: { marginTop: 16 },
   scrollContent: {
-    width: INSET_WINDOW_WIDTH,
-    paddingTop: 8,
-    gap: 16,
-    ...CENTER,
+    flexGrow: 1,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
-  posItemContainer: {
-    width: '100%',
-    borderRadius: 8,
-    ...CENTER,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  posItemInfo: {
+  title: { fontSize: 15, lineHeight: 21 },
+  sub: { fontSize: 13, lineHeight: 19 },
+  buttons: { flexDirection: 'row' },
+  empty: {
     flex: 1,
-    marginRight: 8,
-  },
-  posItemName: {
-    textTransform: 'capitalize',
-    includeFontPadding: false,
-  },
-  posItemPrice: {
-    includeFontPadding: false,
-  },
-  posItemError: {
-    includeFontPadding: false,
-    fontSize: SIZES.small,
-  },
-  buttonsContainer: {
-    width: 64,
-    marginLeft: 'auto',
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  addItemButton: {
-    width: INSET_WINDOW_WIDTH,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
-  },
-  searchInput: {
-    paddingBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  emptyState: {
-    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyStateText: {
     width: '100%',

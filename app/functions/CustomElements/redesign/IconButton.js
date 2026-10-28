@@ -14,6 +14,7 @@ export default function IconButton({
   tone = 'white',
   onPress,
   iconSize,
+  iconColor,
   showActiveDot = false,
   activeOpacity = 0.2,
   testID,
@@ -43,6 +44,7 @@ export default function IconButton({
         redesign
         iconName={icon}
         size={iconSize ?? (size === 64 ? 26 : 22)}
+        colorOverride={iconColor}
       />
       {showActiveDot && (
         <View

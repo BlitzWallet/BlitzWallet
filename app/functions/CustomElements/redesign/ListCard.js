@@ -16,13 +16,13 @@ export default function ListCard({ tone = 'grouped', dividerInset, children, sty
   return (
     <ListToneContext.Provider value={{ tone, dividerInset }}>
       <View
-        style={
+        style={[
           tone === 'grouped' && [
             styles.grouped,
             { backgroundColor: inSheet ? tokens.ground : tokens.surface },
-            style,
-          ]
-        }
+          ],
+          style,
+        ]}
       >
         {items.map((child, index) => (
           <Fragment key={child.key}>

@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { POSTransactionsProvider } from '../context-store/pos';
 import ViewPOSTransactions from '../app/components/admin/homeComponents/settingsContent/posPath/transactions';
-import TotalTipsScreen from '../app/components/admin/homeComponents/settingsContent/posPath/totalTipsScreen';
+import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,8 +15,10 @@ export default function POSStack() {
           options={{ animation: 'none' }}
         />
         <Stack.Screen
+          // Someone's tips: the shared sheet, mounted here so it stays inside
+          // POSTransactionsProvider and sees tips update live.
           name="TotalTipsScreen"
-          component={TotalTipsScreen}
+          component={CustomHalfModal}
           options={{ animation: 'fade', presentation: 'transparentModal' }}
         />
       </Stack.Navigator>

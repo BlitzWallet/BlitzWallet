@@ -1,25 +1,19 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
+import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
 import { CENTER } from '../../../../../constants/styles';
-import QRCode from '../../../../../functions/CustomElements/StyledQRCode';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import { CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
+import StaffSignCard, {
+  signCardStyle,
+} from './internalComponents/staffSignCard';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import { useMemo, useRef } from 'react';
-import { Image } from 'expo-image';
 import ViewShot from 'react-native-view-shot';
 import { createPdf } from 'react-native-pdf-from-image';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -40,6 +34,8 @@ export default function POSInstructionsPath() {
   const { cache } = useImageCache();
   const { showToast } = useToast();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const posURL = `https://pay.blitzwalletapp.com/${masterInfoObject.posSettings.storeName}`;
   const viewShotRef = useRef(null);
 
@@ -97,140 +93,47 @@ export default function POSInstructionsPath() {
   };
 
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      globalContainerStyles={{ backgroundColor: COLORS.white }}
-    >
-      <CustomSettingsTopBar
-        label={t('settings.posPath.posInstructionsPath.title')}
-        customBackColor={COLORS.lightModeText}
-        leftImageFunction={() => {
-          shareMessage({ url: posURL });
-        }}
-        iconNewColor={COLORS.lightModeText}
-        showLeftImage={true}
-        iconNew="Share"
-      />
-      <CustomScrollView showsVerticalScrollIndicator={false}>
-        <ViewShot
-          style={styles.viewShotPadding}
-          ref={viewShotRef}
-          options={{ format: 'jpg', quality: 0.9 }}
-        >
-          {brandLogoSource && (
-            <Image
-              source={{ uri: brandLogoSource }}
-              style={styles.logoImage}
-              contentFit="contain"
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.posPath.posInstructionsPath.title')}
+          right={
+            <IconButton
+              icon="Share2"
+              iconSize={20}
+              label={t('settings.posPath.posInstructionsPath.share')}
+              onPress={() => shareMessage({ url: posURL })}
             />
-          )}
-
-          <ThemeText
-            styles={[styles.headingText, { marginTop: 'auto' }]}
-            content={t('settings.posPath.posInstructionsPath.head1')}
-          />
-          <ThemeText
-            styles={styles.headingText}
-            content={t('settings.posPath.posInstructionsPath.head2')}
-          />
-
-          <ThemeText
-            styles={styles.instructionsText}
-            content={t('settings.posPath.posInstructionsPath.step1')}
-          />
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              copyToClipboard(posURL, showToast);
-            }}
-            style={styles.qrCodeContainer}
+          }
+        />
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <ViewShot
+            style={signCardStyle}
+            ref={viewShotRef}
+            // png keeps the rounded corners transparent; jpg fills them black
+            options={{ format: 'png' }}
           >
-            <View style={styles.qrCodeBorder}>
-              <QRCode
-                size={275}
-                quietZone={15}
-                value={posURL}
-                color={COLORS.white}
-                backgroundColor={COLORS.lightModeText}
-              />
-            </View>
-          </TouchableOpacity>
-          {/* <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              copyToClipboard(posURL, showToast);
-            }}
-          >
-            <ThemeText styles={styles.posURLText} content={posURL} />
-          </TouchableOpacity> */}
-        </ViewShot>
-      </CustomScrollView>
-      <CustomButton
-        buttonStyles={{
-          backgroundColor: COLORS.lightModeText,
-          ...CENTER,
-          width: INSET_WINDOW_WIDTH,
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-        }}
-        textStyles={{ color: COLORS.darkModeText }}
-        actionFunction={generatePDFFromView}
-        textContent={t('constants.print')}
-      />
+            <StaffSignCard
+              posURL={posURL}
+              logoSource={brandLogoSource}
+              onCopyLink={() => copyToClipboard(posURL, showToast)}
+            />
+          </ViewShot>
+        </CustomScrollView>
+        <CustomButton
+          actionFunction={generatePDFFromView}
+          textContent={t('constants.print')}
+          size={'regular'}
+        />
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  headingText: {
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-    includeFontPadding: false,
-    color: COLORS.lightModeText,
-  },
-  viewShotPadding: {
-    paddingVertical: 20,
-    backgroundColor: COLORS.darkModeText,
-  },
-  qrCodeContainer: {
-    width: 300,
-    height: 300,
-    borderRadius: 20,
-    ...CENTER,
-    marginVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qrCodeBorder: {
-    width: 275,
-    height: 275,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  instructionsText: {
-    width: '100%',
-    textAlign: 'center',
-    maxWidth: 275,
-    ...CENTER,
-    marginTop: 45,
-    color: COLORS.lightModeText,
-  },
-  lineItem: {
-    marginVertical: 5,
-    paddingLeft: 10,
-    color: COLORS.lightModeText,
-  },
-  logoImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    ...CENTER,
-    marginBottom: 15,
-  },
-  posURLText: {
-    width: 250,
-    textAlign: 'center',
-    color: COLORS.lightModeText,
-    fontSize: SIZES.smedium,
-    ...CENTER,
-  },
+  container: { flex: 1, ...CENTER },
+  scrollContent: { paddingBottom: 16 },
 });

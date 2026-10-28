@@ -1,38 +1,38 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
-import { CENTER, COLORS, SIZES } from '../../../../../../constants';
-import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
-import { useRef, useState } from 'react';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import { useEffect, useRef, useState } from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import customUUID from '../../../../../../functions/customUUID';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../../constants/theme';
 import { normalizeNumber } from '../../../../../../functions';
+import PageTitle from '../../../../../../functions/CustomElements/redesign/PageTitle';
+import { SheetSurface } from '../../../../../../functions/CustomElements/redesign/sheetSurface';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { useTheme } from '../../../../../../../context-store/theme';
+import UserInput from '../../../../../../functions/CustomElements/redesign/UserInput';
+import Note from '../../../../../../functions/CustomElements/redesign/Note';
 
 export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
   isKeyboardActive,
   initialSettings,
   handleBackPressFunction,
+  setContentHeight,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { t } = useTranslation();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [itemInformation, setItemInformation] = useState({
     name: initialSettings?.name || '',
     price: initialSettings?.price || '',
   });
   const navigate = useNavigation();
-  const { textColor, tokens } = GetThemeColors();
 
   const nameInputRef = useRef(null);
   const priceInputRef = useRef(null);
@@ -114,116 +114,126 @@ export default function AddPOSItemHalfModal({
     }
   };
 
+  const storeCurrency = masterInfoObject?.posSettings?.storeCurrency;
+
+  useEffect(() => {
+    setContentHeight?.(
+      needsToUpdateCurrency ? 450 : initialSettings ? 380 : 400,
+    );
+  }, [needsToUpdateCurrency, initialSettings, setContentHeight]);
+
   return (
-    <View style={styles.halfModalContainer}>
-      <CustomScrollView
-        contentContainerStyle={{ paddingBottom: 10 }}
-        showsVerticalScrollIndicator={false}
-        keyboardDismissMode="none"
-      >
-        <ThemeText
-          styles={{ fontSize: SIZES.large }}
-          content={
+    <SheetSurface>
+      <View style={[styles.halfModalContainer, { width: contentWidth }]}>
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardDismissMode="none"
+          keyboardShouldPersistTaps="handled"
+        >
+          <PageTitle
+            text={
+              initialSettings
+                ? t('settings.posPath.items.addItemHalfModal.editItem')
+                : t('settings.posPath.items.addItemHalfModal.addItem')
+            }
+            titleStyles={styles.title}
+          />
+          {!initialSettings && (
+            <ThemeText
+              styles={[styles.sub, { color: tokens.muted }]}
+              content={t(
+                'settings.posPath.items.addItemHalfModal.pricesLabel',
+                {
+                  currency: storeCurrency,
+                },
+              )}
+            />
+          )}
+          <View style={styles.fields}>
+            <UserInput
+              value={itemInformation.name}
+              onChangeText={event => handleInput(event, 'name')}
+              placeholder={t(
+                'settings.posPath.items.addItemHalfModal.itemNamePlaceholder',
+              )}
+              onFocus={checkIfKeyboardShouldBeShown}
+              onBlur={checkIfKeyboardShouldBeShown}
+              showTextCount={true}
+              maxLength={60}
+              focusRing={true}
+            />
+            <UserInput
+              value={String(itemInformation.price)}
+              onChangeText={event => handleInput(event, 'price')}
+              placeholder={t(
+                'settings.posPath.items.addItemHalfModal.pricePlaceholder',
+                { number: storeCurrency },
+              )}
+              onFocus={checkIfKeyboardShouldBeShown}
+              onBlur={checkIfKeyboardShouldBeShown}
+              keyboardType={'decimal-pad'}
+              focusRing={true}
+            />
+          </View>
+          {needsToUpdateCurrency && (
+            <View style={styles.note}>
+              <Note
+                tone="warn"
+                text={t(
+                  'settings.posPath.items.addItemHalfModal.currencyChangeNote',
+                  {
+                    from: initialSettings.initialCurrency,
+                    amount: Number(
+                      normalizeNumber(itemInformation.price) || 0,
+                    ).toFixed(2),
+                    to: storeCurrency,
+                  },
+                )}
+              />
+            </View>
+          )}
+        </CustomScrollView>
+        <CustomButton
+          buttonStyles={styles.button}
+          disabled={!itemInformation.name || !itemInformation.price}
+          actionFunction={addNewItem}
+          textContent={
             initialSettings
-              ? t('settings.posPath.items.addItemHalfModal.editItem')
-              : t('settings.posPath.items.addItemHalfModal.addItem')
+              ? shouldShowCancel
+                ? t('constants.cancel')
+                : needsToUpdateCurrency
+                ? t('settings.posPath.items.addItemHalfModal.updateCurrency', {
+                    currency: storeCurrency,
+                  })
+                : t('constants.save')
+              : t('settings.posPath.items.addItemHalfModal.addItemBTN')
           }
+          size={'regular'}
         />
-        <ThemeText
-          styles={{ marginBottom: 10 }}
-          content={t('settings.posPath.items.addItemHalfModal.pricesLabel', {
-            currency: masterInfoObject?.posSettings?.storeCurrency,
-          })}
-        />
-        <ThemeText
-          styles={{ fontSize: SIZES.small }}
-          content={t('settings.posPath.items.addItemHalfModal.editMessage')}
-        />
-        <View style={styles.textInputContainer}>
-          <CustomSearchInput
-            textInputRef={nameInputRef}
-            textInputStyles={{
-              color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : itemInformation.name.length > 60
-                  ? tokens.danger
-                  : textColor,
-            }}
-            inputText={itemInformation.name}
-            setInputText={event => handleInput(event, 'name')}
-            placeholderText={t(
-              'settings.posPath.items.addItemHalfModal.itemNamePlaceholder',
-            )}
-            onFocusFunction={checkIfKeyboardShouldBeShown}
-            onBlurFunction={checkIfKeyboardShouldBeShown}
-          />
-          <ThemeText
-            styles={{
-              ...styles.inputCountText,
-              color:
-                theme && darkModeType
-                  ? textColor
-                  : itemInformation.name.length > 60
-                  ? tokens.danger
-                  : textColor,
-            }}
-            content={`${itemInformation.name.length}/60`}
-          />
-        </View>
-        <View style={styles.textInputContainer}>
-          <CustomSearchInput
-            textInputRef={priceInputRef}
-            inputText={String(itemInformation.price)}
-            setInputText={event => handleInput(event, 'price')}
-            keyboardType={'decimal-pad'}
-            placeholderText={t(
-              'settings.posPath.items.addItemHalfModal.pricePlaceholder',
-              { number: masterInfoObject?.posSettings?.storeCurrency },
-            )}
-            onFocusFunction={checkIfKeyboardShouldBeShown}
-            onBlurFunction={checkIfKeyboardShouldBeShown}
-          />
-        </View>
-      </CustomScrollView>
-      <CustomButton
-        buttonStyles={{
-          opacity:
-            !itemInformation.name || !itemInformation.price
-              ? HIDDEN_OPACITY
-              : 1,
-          ...CENTER,
-        }}
-        actionFunction={addNewItem}
-        textContent={
-          initialSettings
-            ? shouldShowCancel
-              ? t('constants.cancel')
-              : needsToUpdateCurrency
-              ? t('settings.posPath.items.addItemHalfModal.updateCurrency')
-              : t('constants.save')
-            : t('settings.posPath.items.addItemHalfModal.addItemBTN')
-        }
-      />
-    </View>
+      </View>
+    </SheetSurface>
   );
 }
 
 const styles = StyleSheet.create({
   halfModalContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  textInputContainer: {
-    marginTop: 20,
-    justifyContent: 'center',
-
-    position: 'relative',
-  },
-  inputCountText: {
-    marginTop: 5,
-    alignSelf: 'flex-end',
+  title: {
+    fontSize: 20,
+    lineHeight: 26,
+    marginTop: 8,
+    marginBottom: 0,
     includeFontPadding: false,
   },
+  sub: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
+    includeFontPadding: false,
+  },
+  fields: { marginTop: 16, gap: 10 },
+  note: { marginTop: 16 },
+  button: { width: '100%', marginTop: 12 },
 });
