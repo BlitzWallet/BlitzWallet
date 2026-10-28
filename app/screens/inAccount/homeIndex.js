@@ -12,6 +12,7 @@ import SendPaymentHome from './sendBtcPage';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { ContactsPage, HomeLightning } from '../../components/admin';
 import GiftsPageHome from './giftsHome';
+import MoneyTab from './moneyTab';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
@@ -104,6 +105,7 @@ export default function AdminHomeIndex() {
         adminHome={HomeLightning}
         ContactsPage={ContactsPage}
         appStore={AppStore}
+        money={MoneyTab}
         giftsPageHome={GiftsPageHome}
       />
     ),

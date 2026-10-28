@@ -1,165 +1,160 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BlurView } from 'expo-blur';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { CENTER, COLORS } from '../../app/constants';
-import GetThemeColors from '../../app/hooks/themeColors';
+import { MAX_WEB_CONTENT_WIDTH } from '../../app/constants';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContactsMessages } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import ThemeIcon from '../../app/functions/CustomElements/themeIcon';
+import IconButton from '../../app/functions/CustomElements/redesign/IconButton';
 
 const Tab = createBottomTabNavigator();
 
-export const TAB_ITEM_HEIGHT = 60;
-const TAB_ITEM_WIDTH = 70;
-const OVERLAY_HEIGHT = 50;
-const ICON_SIZE = 26;
+export const TAB_ITEM_HEIGHT = 64;
+const ICON_SIZE = 22;
+// Extra blur above the bar so content fades out before it reaches the pill.
+const BLUR_FADE_HEIGHT = 32;
 
-function renderIcon(label, focused, color) {
-  const props = {
-    size: ICON_SIZE,
-    colorOverride: color,
-    strokeWidth: focused ? 2.4 : 2,
-  };
+// Home · People · Money · Explore, plus the floating Activity button
+// (Money.dc.html). Label = a11y en key.
+const TABS = {
+  Home: { icon: 'Home', label: 'tabs.home' },
+  ContactsPageInit: { icon: 'Users', label: 'tabs.contacts' },
+  Money: { icon: 'Wallet', label: 'tabs.money' },
+  'App Store': { icon: 'Compass', label: 'tabs.appStore' },
+};
 
-  switch (label) {
-    case 'Contacts':
-      return <ThemeIcon iconName={'Users2'} {...props} />;
-    case 'Home':
-      return <ThemeIcon iconName={'Home'} {...props} />;
-    case 'App Store':
-      return <ThemeIcon iconName={'Store'} {...props} />;
-    default:
-      return <ThemeIcon iconName={'Gift'} {...props} />;
-  }
-}
-
-// Each tab owns its OWN selection pill, rendered as a background layer inside
-// this tab's subtree (declared before the icon). Because the icon is always
-// drawn above its own pill within the same parent, the pill can never cover
-// the icon — which is what made icons "disappear" on Android, where the old
-// single global pill's sibling `zIndex` was unreliable and let it draw on top.
-//
-// No animation: the pill/active-icon are simply shown when `focused` and hidden
-// otherwise, driven directly by state.index. Exactly one tab is ever focused, so
-// two tabs can never appear active at once.
-function TabButton({
-  label,
-  focused,
-  activeColor,
-  inactiveColor,
-  pillColor,
-  showUnread,
-  onPress,
-}) {
+// Each tab owns its own selection pill, drawn before the icon in the same
+// parent so the pill can never cover the icon (Android sibling zIndex bug).
+function TabButton({ route, focused, showUnread, onPress, tokens, t }) {
+  const tab = TABS[route.name];
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      style={styles.tabItemContainer}
+      accessibilityRole="button"
+      accessibilityLabel={t(tab.label)}
+      accessibilityState={{ selected: focused }}
+      style={[styles.tabItem, focused && { backgroundColor: tokens.tabPill }]}
     >
-      {focused && (
-        <View
-          pointerEvents="none"
-          style={[styles.tabPill, { backgroundColor: pillColor }]}
-        />
+      <ThemeIcon
+        redesign
+        iconName={tab.icon}
+        size={ICON_SIZE}
+        colorOverride={focused ? tokens.ink : tokens.tabIdle}
+      />
+      {showUnread && (
+        <View style={[styles.unreadDot, { backgroundColor: tokens.accent }]} />
       )}
-
-      <View style={styles.iconWrapper}>
-        {renderIcon(label, focused, focused ? activeColor : inactiveColor)}
-
-        {showUnread && (
-          <View
-            style={[styles.unreadDot, { backgroundColor: inactiveColor }]}
-          />
-        )}
-      </View>
     </TouchableOpacity>
   );
 }
 
-function MyTabBar({ state, descriptors, navigation }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+function MyTabBar({ state, navigation }) {
+  const { tokens, theme } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
-  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
-  const { bottomPadding, leftPadding, rightPadding } = useGlobalInsets();
-
-  const tabCount = state.routes.length || 1;
-  const containerWidth = tabCount * TAB_ITEM_WIDTH;
+  const { bottomPadding } = useGlobalInsets();
+  const { width } = useWindowDimensions();
+  const { t } = useTranslation();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const containerStyle = useMemo(
-    () => ({
-      bottom: bottomPadding,
-      ...styles.tabsContainer,
-      ...(Platform.OS === 'web' && {
-        paddingLeft: leftPadding,
-        paddingRight: rightPadding,
-      }),
-    }),
-    [bottomPadding, leftPadding, rightPadding],
+    () => [
+      styles.tabsContainer,
+      {
+        bottom: bottomPadding,
+        width: contentWidth,
+        left: (width - contentWidth) / 2,
+      },
+    ],
+    [bottomPadding, contentWidth, width],
   );
 
-  const activeColor =
-    theme && darkModeType ? COLORS.lightModeText : tokens.onAccent;
-
-  const inactiveColor = theme && darkModeType ? tokens.ink : tokens.accent;
-
-  const pillColor = theme && darkModeType ? tokens.ink : tokens.accent;
-
   return (
-    <View style={containerStyle}>
-      <View
+    <>
+      <MaskedView
+        pointerEvents="none"
         style={[
-          styles.tabsInnerContainer,
-          {
-            width: containerWidth,
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-            borderWidth: 1,
-            borderColor: tokens.divider,
-          },
+          styles.blurBand,
+          { height: bottomPadding + TAB_ITEM_HEIGHT + BLUR_FADE_HEIGHT },
         ]}
+        maskElement={
+          <LinearGradient
+            colors={['transparent', '#000']}
+            locations={[0, 0.5]}
+            style={StyleSheet.absoluteFill}
+          />
+        }
       >
-        {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
+        <BlurView
+          intensity={20}
+          tint={theme ? 'dark' : 'light'}
+          experimentalBlurMethod="dimezisBlurView"
+          style={StyleSheet.absoluteFill}
+        />
+      </MaskedView>
+      <View style={containerStyle}>
+        <View
+          style={[
+            styles.nav,
+            styles.shadow,
+            { backgroundColor: tokens.surface },
+          ]}
+        >
+          {state.routes.map((route, index) => {
+            const focused = state.index === index;
 
-          const label =
-            options.tabBarLabel ??
-            options.title ??
-            (route.name === 'ContactsPageInit' ? 'Contacts' : route.name);
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
 
-          const focused = state.index === index;
-
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-
-            if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
-            }
-          };
-
-          return (
-            <TabButton
-              key={route.key}
-              label={label}
-              focused={focused}
-              activeColor={activeColor}
-              inactiveColor={inactiveColor}
-              pillColor={pillColor}
-              showUnread={
-                label === 'Contacts' && hasUnlookedTransactions && !focused
+              if (!focused && !event.defaultPrevented) {
+                navigation.navigate(route.name, route.params);
               }
-              onPress={onPress}
-            />
-          );
-        })}
+            };
+
+            return (
+              <TabButton
+                key={route.key}
+                route={route}
+                focused={focused}
+                tokens={tokens}
+                t={t}
+                showUnread={
+                  route.name === 'ContactsPageInit' &&
+                  hasUnlookedTransactions &&
+                  !focused
+                }
+                onPress={onPress}
+              />
+            );
+          })}
+        </View>
+        <View style={[styles.activity, styles.shadow]}>
+          <IconButton
+            icon="Clock"
+            label="tabs.activity"
+            size={TAB_ITEM_HEIGHT}
+            iconSize={ICON_SIZE}
+            onPress={() => navigation.navigate('ViewAllTxPage')}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -173,49 +168,55 @@ export function MyTabs(props) {
       backBehavior="initialRoute"
       tabBar={renderTabBar}
     >
-      <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
-      {/* <Tab.Screen name="Gifts" component={props.giftsPageHome} /> */}
+      <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
+      <Tab.Screen name="Money" component={props.money} />
       <Tab.Screen name="App Store" component={props.appStore} />
     </Tab.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
+  blurBand: { position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 9 },
   tabsContainer: {
-    width: '100%',
     position: 'absolute',
     zIndex: 10,
-  },
-  tabsInnerContainer: {
     flexDirection: 'row',
-    borderRadius: 30,
-    marginHorizontal: 20,
-    overflow: 'hidden',
-    ...CENTER,
+    alignItems: 'center',
+    gap: 12,
   },
-  tabPill: {
-    position: 'absolute',
-    width: '80%',
-    height: OVERLAY_HEIGHT,
-    borderRadius: 25,
-  },
-  tabItemContainer: {
+  nav: {
     flex: 1,
     minHeight: TAB_ITEM_HEIGHT,
+    borderRadius: TAB_ITEM_HEIGHT / 2,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
   },
-  iconWrapper: {
-    width: 44,
-    height: 44,
+  // Design: 0 0 0 1px rgba(21,22,26,.06), 0 10px 30px -12px rgba(21,22,26,.28).
+  shadow: {
+    borderRadius: TAB_ITEM_HEIGHT / 2,
+    borderWidth: Platform.OS === 'android' ? 0 : StyleSheet.hairlineWidth,
+    borderColor: 'rgba(21,22,26,0.06)',
+    shadowColor: '#15161A',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.16,
+    shadowRadius: 15,
+    elevation: 6,
+  },
+  activity: { width: TAB_ITEM_HEIGHT, height: TAB_ITEM_HEIGHT },
+  tabItem: {
+    width: 56,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   unreadDot: {
     position: 'absolute',
-    top: 6,
-    right: 6,
+    top: 10,
+    right: 14,
     width: 8,
     height: 8,
     borderRadius: 4,

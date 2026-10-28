@@ -1,12 +1,6 @@
-import { useCallback, useState } from 'react';
-import {
-  FlatList,
-  Platform,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback } from 'react';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
@@ -16,23 +10,8 @@ import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import { getAllLocalPools } from '../../../functions/pools/poolsStorage';
-import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-
 import ProfileCard from './components/ProfileCard';
 import AccountsPreview from './components/AccountsPreview';
-import PoolsPreview from './components/PoolsPreview';
-import SavingsPreview from './components/SavingsPreview';
-import GiftsPreview from './components/GiftsPreview';
-import AccumulationAddressesPreview from './components/AccumulationAddressesPreview';
-import AnalyticsPreview from './components/AnalyticsPreview';
-
-import {
-  useAnimatedScrollHandler,
-  useSharedValue,
-} from 'react-native-reanimated';
-import SectionCard from './components/SectionCard';
-import SettingsRow from './components/SettingsRow';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import openWebBrowser from '../../../functions/openWebBrowser';
 import { MAX_WEB_CONTENT_WIDTH } from '../../../constants';
@@ -41,16 +20,7 @@ import ListCard from '../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../functions/CustomElements/redesign/Disc';
 import IconButton from '../../../functions/CustomElements/redesign/IconButton';
-
-// Accounts + Point of sale live in the Profile header now (D156). The money
-// widgets stay below the list until the Money tab (Chunk 13) takes them.
-const INITIAL_WIDGET_ORDER = [
-  { id: 'savings', type: 'savings' },
-  { id: 'pools', type: 'pools' },
-  { id: 'gifts', type: 'gifts' },
-  { id: 'accumulation', type: 'accumulation' },
-  { id: 'analytics', type: 'analytics' },
-];
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 
 const DOOMSDAY_ROW = [
   {
@@ -79,42 +49,12 @@ export default function SettingsHub(props) {
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
   const { tokens } = useGlobalThemeContext();
-  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const [poolsArray, setPoolsArray] = useState([]);
-  const [activePoolsArray, setActivePoolsArray] = useState([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      (async () => {
-        const allPools = await getAllLocalPools();
-        const uuid = masterInfoObject?.uuid;
-        const owned = allPools.filter(p => p.creatorUUID === uuid);
-        setPoolsArray(owned.sort((a, b) => b.createdAt - a.createdAt));
-        setActivePoolsArray(
-          owned
-            .filter(p => p.status === 'active')
-            .sort((a, b) => b.createdAt - a.createdAt),
-        );
-      })();
-    }, [masterInfoObject?.uuid]),
-  );
 
   const isDoomsday = props?.route?.params?.isDoomsday;
   const myProfileImage = cache[masterInfoObject?.uuid];
   const myContact = globalContactsInformation?.myProfile;
-
-  const scrollY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
-      console.log(event);
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  const widgetOrder = INITIAL_WIDGET_ORDER;
 
   const handleEditProfile = useCallback(() => {
     if (!isConnectedToTheInternet) {
@@ -134,22 +74,11 @@ export default function SettingsHub(props) {
     navigate.navigate('ShowProfileQr');
   }, [navigate]);
 
-  const handleSavingsPress = useCallback(() => {
-    navigate.navigate('SavingsStack');
-  }, [navigate]);
-  const handleAccumulationPress = useCallback(() => {
-    navigate.navigate('AccumulationAddressesHome');
-  }, [navigate]);
-
   const handleViewAllAccounts = useCallback(() => {
     navigate.navigate('SettingsContentHome', {
       for: 'Accounts',
       initialTab: 'personal',
     });
-  }, [navigate]);
-
-  const handleViewAllPools = useCallback(() => {
-    navigate.navigate('PoolsStack');
   }, [navigate]);
 
   const handlePOS = useCallback(() => {
@@ -163,50 +92,6 @@ export default function SettingsHub(props) {
     navigate.navigate('SettingsContentHome', { for: 'Point-of-sale' });
   }, [isConnectedToTheInternet, navigate, t]);
 
-  const handleOpenGifts = useCallback(() => {
-    navigate.navigate('GiftsStack');
-  }, [navigate]);
-
-  const handleAnalyticsPress = useCallback(() => {
-    navigate.navigate('AnalyticsStack');
-  }, [navigate]);
-
-  const renderWidgetItem = useCallback(
-    ({ item }) => {
-      // Ordering is driven by INITIAL_WIDGET_ORDER and rendered as-is in FlashList.
-      switch (item.type) {
-        case 'pools':
-          return (
-            <PoolsPreview
-              activePoolsArray={activePoolsArray}
-              poolsArray={poolsArray}
-              onViewAll={handleViewAllPools}
-            />
-          );
-        case 'savings':
-          return <SavingsPreview onPress={handleSavingsPress} />;
-        case 'gifts':
-          return <GiftsPreview onPress={handleOpenGifts} />;
-        case 'accumulation':
-          return (
-            <AccumulationAddressesPreview onPress={handleAccumulationPress} />
-          );
-        case 'analytics':
-          return <AnalyticsPreview onPress={handleAnalyticsPress} />;
-        default:
-          return null;
-      }
-    },
-    [
-      activePoolsArray,
-      handleAnalyticsPress,
-      handleOpenGifts,
-      handleViewAllPools,
-      handleSavingsPress,
-      poolsArray,
-    ],
-  );
-
   const handleSettingsRowPress = useCallback(
     row => {
       navigate.navigate('SettingsContentHome', {
@@ -215,27 +100,6 @@ export default function SettingsHub(props) {
       });
     },
     [isConnectedToTheInternet, isDoomsday],
-  );
-  const renderSection = useCallback(
-    (rows, title) => {
-      return (
-        <SectionCard title={title}>
-          {rows.map((row, index) => (
-            <SettingsRow
-              key={row.name}
-              iconName={row.iconName}
-              iconImage={row.iconImage}
-              iconImageWhite={row.iconImageWhite}
-              label={t(row.displayName)}
-              onPress={() => handleSettingsRowPress(row)}
-              isLast={index === rows.length - 1}
-              isDestructive={row.isDestructive}
-            />
-          ))}
-        </SectionCard>
-      );
-    },
-    [t, handleSettingsRowPress],
   );
 
   if (isDoomsday) {
@@ -348,49 +212,34 @@ export default function SettingsHub(props) {
             />
           }
         />
-      </View>
 
-      <FlatList
-        data={widgetOrder}
-        estimatedItemSize={132}
-        keyExtractor={item => item.id}
-        renderItem={renderWidgetItem}
-        // onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.listContent,
-          { width: contentWidth, paddingBottom: bottomPadding },
-        ]}
-        ListHeaderComponent={
-          <>
-            <ProfileCard
-              profileImage={myProfileImage}
-              name={myContact?.name || t('constants.annonName')}
-              uniqueName={myContact?.uniqueName}
-              onEditPress={handleEditProfile}
-              onShowQRPress={handleShowQR}
-            />
-            <AccountsPreview onViewAll={handleViewAllAccounts} />
-            <View style={styles.rowsCard}>
-              <ListCard dividerInset={64}>
-                {profileRows.map(row => (
-                  <ListRow
-                    key={row.key}
-                    title={row.label}
-                    minHeight={52}
-                    paddingVertical={8}
-                    titleStyle={styles.rowTitle}
-                    lead={<Disc icon={row.icon} size={36} />}
-                    trailing="chevron"
-                    onPress={row.onPress}
-                  />
-                ))}
-              </ListCard>
-            </View>
-          </>
-        }
-      />
+        <CustomScrollView showsVerticalScrollIndicator={false}>
+          <ProfileCard
+            profileImage={myProfileImage}
+            name={myContact?.name || t('constants.annonName')}
+            uniqueName={myContact?.uniqueName}
+            onEditPress={handleEditProfile}
+            onShowQRPress={handleShowQR}
+          />
+          <AccountsPreview onViewAll={handleViewAllAccounts} />
+          <View style={styles.rowsCard}>
+            <ListCard dividerInset={64}>
+              {profileRows.map(row => (
+                <ListRow
+                  key={row.key}
+                  title={row.label}
+                  minHeight={52}
+                  paddingVertical={8}
+                  titleStyle={styles.rowTitle}
+                  lead={<Disc icon={row.icon} size={36} />}
+                  trailing="chevron"
+                  onPress={row.onPress}
+                />
+              ))}
+            </ListCard>
+          </View>
+        </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }

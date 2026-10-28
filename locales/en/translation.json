@@ -3425,9 +3425,11 @@
     "liquid": "LBTC <> BTC"
   },
   "tabs": {
-    "home": "Wallet",
-    "appStore": "Store",
-    "contacts": "Contacts"
+    "home": "Home",
+    "contacts": "People",
+    "money": "Money",
+    "appStore": "Explore",
+    "activity": "Activity"
   },
   "pushNotifications": {
     "paymentReceived": {
@@ -3794,5 +3796,17 @@
     "progress": "Updating… {{percent}}%",
     "later": "Later",
     "error": "Update failed. Check your connection and try again."
+  },
+  "money": {
+    "title": "Money",
+    "spentIn": "Spent in {{month}}",
+    "today": "Today",
+    "chartLabel": "Daily spending in {{month}}",
+    "savingsGoals": "Savings goals",
+    "goalProgress": "{{current}} of {{target}}",
+    "poolsCollecting": "{{count}} collecting",
+    "giftsUnclaimed": "{{count}} unclaimed",
+    "connections_one": "{{count}} connection",
+    "connections_other": "{{count}} connections"
   }
 }
