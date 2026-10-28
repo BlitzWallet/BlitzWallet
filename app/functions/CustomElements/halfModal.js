@@ -41,6 +41,7 @@ import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receive
 import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/receiveCodeConfirmation';
+import ViewSmsReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
@@ -191,7 +192,10 @@ export default function CustomHalfModal(props) {
     contentType === 'LNURLAccountMangement' ||
     contentType === 'childMatchCodeConfirmation' ||
     contentType === 'chatGPT' ||
-    contentType === 'switchGenerativeAiModel';
+    contentType === 'switchGenerativeAiModel' ||
+    contentType === 'confirmSMS' ||
+    contentType === 'confirmSMSReceive' ||
+    contentType === 'viewSMSCode';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -322,28 +326,32 @@ export default function CustomHalfModal(props) {
       case 'confirmSMS':
         return (
           <ConfirmSMSPayment
-            theme={theme}
-            darkModeType={darkModeType}
             message={props.route.params?.message}
-            phoneNumber={props.route.params?.phoneNumber}
-            areaCodeNum={props.route.params?.areaCodeNum}
             normalizedPhoneNumber={props.route.params?.normalizedPhoneNumber}
             sendTextMessage={props.route.params?.sendTextMessage}
             handleBackPressFunction={handleBackPressFunction}
-            page={'sendSMS'}
+            setContentHeight={setContentHeight}
           />
         );
       case 'confirmSMSReceive':
         return (
           <ConfirmSMSReceiveCode
-            theme={theme}
-            darkModeType={darkModeType}
             serviceCode={props.route.params?.serviceCode}
             location={props.route.params?.location}
+            countryLabel={props.route.params?.countryLabel}
             title={props.route.params?.title}
-            imgSrc={props.route.params?.imgSrc}
             getReceiveCode={props.route.params?.getReceiveCode}
             handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'viewSMSCode':
+        return (
+          <ViewSmsReceiveCode
+            code={props.route.params?.code}
+            title={props.route.params?.title}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
 

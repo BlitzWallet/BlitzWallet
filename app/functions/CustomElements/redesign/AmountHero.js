@@ -17,6 +17,7 @@ export default function AmountHero({
   forceCurrency,
   convertAmount,
   splitCents = false,
+  formatAmount = true,
 }) {
   const { tokens } = useTheme();
   const { masterInfoObject: contextMasterInfoObject } =
@@ -40,7 +41,9 @@ export default function AmountHero({
     >
       <ThemeText
         content={
-          centsMatch
+          !formatAmount
+            ? amount
+            : centsMatch
             ? [
                 centsMatch[1],
                 <ThemeText

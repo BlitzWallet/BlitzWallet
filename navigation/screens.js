@@ -18,7 +18,6 @@ import SMSMessagingSendPage from '../app/components/admin/homeComponents/apps/sm
 import SMSMessagingSendPhonePage from '../app/components/admin/homeComponents/apps/sms4sats/sendPhonePage';
 import SMSMessagingReceiveCountryPage from '../app/components/admin/homeComponents/apps/sms4sats/receiveCountryPage';
 import SMSMessagingSendDescriptionPage from '../app/components/admin/homeComponents/apps/sms4sats/sendDescriptionPage';
-import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
   AddFriendsToSplit,
   CreateSplitBill,
@@ -248,7 +247,6 @@ const FADE_SCREENS = [
   //   component: ViewCustodyKey,
   // },
   { name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode },
-  { name: 'ViewSMSReceiveCode', component: ViewSmsReceiveCode },
   { name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage },
   { name: 'BackupSeedWarning', component: BackupSeedWarning },
 ];

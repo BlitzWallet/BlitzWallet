@@ -23,6 +23,7 @@ export default function UserInput({
   onSubmitEditing,
   focusRing = false,
   keyboardType,
+  multiline = false,
 }) {
   const { tokens, mode } = useTheme();
   const inSheet = useInSheet();
@@ -48,13 +49,15 @@ export default function UserInput({
         setInputText={onChangeText}
         placeholderText={placeholder}
         placeholderTextColor={tokens.muted}
-        textAlignVertical="center"
+        textAlignVertical={multiline ? 'top' : 'center'}
+        textInputMultiline={multiline}
         autoFocus={autoFocus}
         maxLength={maxLength}
         onSubmitEditingFunction={onSubmitEditing}
         textInputStyles={{
           ...styles.input,
           ...(pill && styles.pill),
+          ...(multiline && styles.multiline),
           ...(focusRing && {
             borderWidth: 2,
             borderColor: isFocused
@@ -94,5 +97,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   pill: { borderRadius: 999 },
+  multiline: { height: 120, paddingTop: 14, paddingBottom: 14 },
   glyph: { position: 'absolute', left: 16, top: 17 },
 });

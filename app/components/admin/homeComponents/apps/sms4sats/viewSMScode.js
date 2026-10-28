@@ -1,161 +1,108 @@
-import {
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../functions/CustomElements';
+import { FONT } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
-import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
-import { useTranslation } from 'react-i18next';
+import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
-export default function ViewSmsReceiveCode(props) {
+// "Your code" sheet (CustomHalfModal 'viewSMSCode').
+export default function ViewSmsReceiveCode({
+  code,
+  title,
+  setContentHeight,
+  handleBackPressFunction,
+}) {
   const { showToast } = useToast();
-  const { backgroundOffset, transparentOveraly, backgroundColor, tokens } =
-    GetThemeColors();
-  const navigate = useNavigation();
+  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
 
-  const code = props.route?.params?.code || 'N/A';
+  useEffect(() => {
+    setContentHeight(400);
+  }, [setContentHeight]);
 
-  const handleCopy = useCallback(() => {
-    copyToClipboard(code, showToast);
-  }, [code]);
   return (
-    <TouchableWithoutFeedback onPress={navigate.goBack}>
-      <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
-        <TouchableWithoutFeedback>
-          <View
-            style={[
-              styles.contentContainer,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <View
-              style={[
-                styles.iconWrap,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.expandedTXLightModeConfirmd,
-                },
-              ]}
-            >
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
-                }
-                size={20}
-                iconName={'Info'}
-              />
-            </View>
-
-            <ThemeText
-              styles={styles.codeHeaderText}
-              content={t('apps.sms4sats.viewSMSReceiveCode.header')}
-            />
-            <TouchableOpacity onPress={handleCopy}>
-              <ThemeText
-                adjustsFontSizeToFit={true}
-                CustomNumberOfLines={1}
-                styles={styles.codeText}
-                content={code}
-              />
-            </TouchableOpacity>
-
-            <View
-              style={[
-                styles.divider,
-                {
-                  backgroundColor: tokens.divider,
-                },
-              ]}
-            />
-            <TouchableOpacity
-              onPress={navigate.goBack}
-              activeOpacity={0.6}
-              style={styles.btn}
-            >
-              <ThemeText
-                styles={[
-                  styles.btnText,
-                  {
-                    color: theme && darkModeType ? tokens.ink : tokens.accent,
-                  },
-                ]}
-                content={t('constants.iunderstand')}
-              />
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
+    <View style={styles.container}>
+      <ThemeText
+        styles={[styles.label, { color: tokens.muted }]}
+        content={
+          title
+            ? t('apps.sms4sats.viewSMSReceiveCode.headerFor', { title })
+            : t('apps.sms4sats.viewSMSReceiveCode.header')
+        }
+      />
+      <ThemeText
+        adjustsFontSizeToFit={true}
+        CustomNumberOfLines={1}
+        styles={styles.code}
+        content={code}
+      />
+      <CustomButton
+        size="small"
+        tone="secondary"
+        icon="Copy"
+        textContent={t('constants.copy')}
+        actionFunction={() => copyToClipboard(code, showToast)}
+      />
+      <View style={styles.warning}>
+        <ThemeIcon
+          redesign
+          iconName="ShieldAlert"
+          size={18}
+          colorOverride={tokens.muted}
+        />
+        <ThemeText
+          styles={[styles.warningText, { color: tokens.muted }]}
+          content={t('apps.sms4sats.viewSMSReceiveCode.dontShare')}
+        />
       </View>
-    </TouchableWithoutFeedback>
+      <CustomButton
+        buttonStyles={styles.done}
+        size="regular"
+        textContent={t('constants.done')}
+        actionFunction={handleBackPressFunction}
+      />
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginHorizontal: 20,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  contentContainer: {
-    width: INSET_WINDOW_WIDTH,
-    maxWidth: 300,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    marginTop: 28,
-    marginBottom: 12,
-  },
-  codeHeaderText: {
-    textAlign: 'center',
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    marginTop: 10,
-  },
-  closeIcon: {
-    position: 'absolute',
-    right: 0,
-  },
-  codeText: {
-    fontSize: SIZES.xxLarge,
-    textAlign: 'center',
+  label: {
+    marginTop: 24,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
-    marginBottom: 30,
-    paddingHorizontal: 12,
   },
-
-  divider: {
-    height: 2,
+  code: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 44,
+    letterSpacing: 4,
+    fontVariant: ['tabular-nums'],
+    marginVertical: 12,
+    includeFontPadding: false,
+  },
+  warning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 20,
+  },
+  warningText: {
+    fontSize: 13,
+    lineHeight: 19,
+    flexShrink: 1,
+    includeFontPadding: false,
+  },
+  done: {
     width: '100%',
-  },
-  btn: {
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnText: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
+    marginTop: 'auto',
   },
 });

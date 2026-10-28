@@ -26,8 +26,7 @@ export default function AppStore({ navigation }) {
   const hasLegacyChatGPT =
     (decodedChatGPT?.credits ?? 0) > 0 ||
     Platform.OS === 'android' ||
-    Platform.OS === 'web' ||
-    true;
+    Platform.OS === 'web';
 
   const hasLegacySMS =
     (decodedMessages?.sent?.length ?? 0) > 0 ||
@@ -40,8 +39,7 @@ export default function AppStore({ navigation }) {
     hasLegacyChatGPT ||
     hasLegacySMS ||
     Platform.OS === 'android' ||
-    Platform.OS === 'web' ||
-    true;
+    Platform.OS === 'web';
 
   useFocusEffect(
     useCallback(() => {
@@ -127,7 +125,7 @@ export default function AppStore({ navigation }) {
                   sub={t('apps.appList.SMSDescription')}
                   onPress={() =>
                     navigate.navigate('AppStorePageIndex', {
-                      page: 'onlinelistings',
+                      page: 'sms4sats',
                     })
                   }
                   titleStyle={styles.rowTitle}

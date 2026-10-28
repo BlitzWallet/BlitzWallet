@@ -910,14 +910,19 @@
       "home": {
         "pageDescription": "Send and receive SMS messages without giving away your personal phone number.",
         "pricingError": "Unable to get SMS pricing",
-        "codeLabel": "Code"
+        "codeLabel": "Code",
+        "viewCode": "View code"
       },
       "confirmationSlideUp": {
-        "title": "Confirm number",
-        "price": "Price: ",
-        "fee": "Fee: ",
+        "title": "Text message to",
+        "price": "Price",
+        "fee": "Fee",
         "invalidNumber": "Not a valid phone number",
-        "receiveTitle": "Confirm Receive"
+        "receiveTitle": "A number for",
+        "country": "Country",
+        "refundNote": "No code in 21 minutes? You’re refunded automatically.",
+        "slideToPay": "Slide to pay",
+        "receivePlanType": "SMS receive code"
       },
       "sendPage": {
         "startingSendingMessage": "Creating send order",
@@ -933,60 +938,68 @@
         "runningTries": "Attempt {{runCount}} of {{maxTries}} attempts",
         "notAbleToSettleInvoice": "Unable to settle invoice.",
         "paymentMemo": "Store - SMS Send",
-        "confirmedMessage": "Your text message is on its way",
+        "confirmedMessage": "Your text is on its way",
         "noCountry": "You must choose a country first.",
         "countryStepTitle": "Choose a country",
-        "countryStepSubtitle": "Select the country code for the number you want to send an SMS to.",
+        "countryStepSubtitle": "Pick the country of the number you’re texting.",
         "countrySearchPlaceholder": "Search countries",
         "phoneStepTitle": "Enter the phone number",
-        "phoneStepSubtitle": "Enter the full number excluding the country code (e.g. 2025551234 for (202) 555-1234).",
+        "phoneStepSubtitle": "Without the country code.",
         "invalidMessageError": "Enter a message before continuing",
         "descriptionStepTitle": "Add your message",
-        "descriptionStepSubtitle": "SMS4Sats requires a message. Keep it short and under 140 characters.",
-        "descriptionInputPlaceholder": "Enter message"
+        "descriptionStepSubtitle": "To {{phone}}. Keep it under 140 characters.",
+        "descriptionInputPlaceholder": "Enter message",
+        "confirmedSubtitle": "To {{phone}} · {{amount}}"
       },
       "sentPayments": {
         "titlesend": "Sent Messages",
         "titlereceive": "Received Codes",
         "noPaymentssend": "You have not sent any messages",
         "noPaymentsreceive": "You have not received any codes",
-        "helpMessage": "For help, reach out to:",
+        "helpMessage": "For help, reach out to",
         "orderId": "Order ID",
         "pending": "Order pending",
         "refunded": "Order refunded",
         "retryClaim": "Get code",
         "fetchOrderError": "Failed to fetch order status",
         "failedUpdate": "Failed to update order status",
-        "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes",
-        "reclaimComplete": "Retry complete. If no code is generated, you will be auto-refunded after 21 minutes.",
-        "noCode": "No code",
+        "refundedOrder": "This order was refunded. The payment returns to your wallet automatically.",
+        "reclaimComplete": "No code yet. If none arrives in 21 minutes, you’re refunded automatically.",
+        "noCode": "No code yet",
         "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again.",
         "noPurchasesTitle": "You haven’t sent or received any SMS messages yet. Once you do, they’ll show up here."
       },
       "receivePage": {
         "paymentMemo": "Store - SMS Receive",
         "selectCountry": "Select Country",
-        "autoSelectInfoMessage": "We recommend keeping it on 'Auto Select' so the system picks the most reliable option.",
-        "autoSelect": "Auto Select",
+        "autoSelectInfoMessage": "Pick the country for your number. Auto select picks the most reliable option.",
+        "autoSelect": "Auto select",
         "inputPlaceholder": "Search for a service",
         "locationLoadingMessage": "Getting location-based services",
         "noAvailableServices": "This location has no services",
         "orderDetailsLoading": "Getting order details",
         "countryStepTitle": "Choose a country",
         "countrySearchPlaceholder": "Search countries",
-        "fetchServicesError": "Unable to load available SMS services"
+        "fetchServicesError": "Unable to load available SMS services",
+        "recommended": "Recommended",
+        "serviceStepTitle": "Which app is the code for?",
+        "serviceStepSubtitle": "You get a number to sign up with, and the code shows here."
       },
       "confirmCodePage": {
-        "header": "Your order has been successfully initiated",
-        "phoneNumberLabel": "Your Number:",
-        "step1": "Click the receipt icon in the top right to view your order history",
-        "step2": "Use the 'Get Code' button on the homepage to retrieve your verification code, after adding the number to the service",
-        "step3": "If no code is received, your payment will be automatically refunded in 21 minutes",
-        "automaticRefund": "No number was available for this service. Your funds have already been refunded.",
-        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes."
+        "header": "Your number is ready",
+        "phoneNumberLabel": "Your number",
+        "step1": "Enter this number in {{title}}.",
+        "step2": "Come back and tap Get code on SMS messages.",
+        "step3": "No code in 21 minutes? You’re refunded automatically.",
+        "automaticRefund": "No number was available for this service. Your payment returns to your wallet automatically.",
+        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes.",
+        "paidSubtitle": "{{title}} · paid {{amount}}",
+        "stillAllocating": "Your number isn’t ready yet. Check SMS messages in a minute. If no number is assigned, you’re refunded automatically."
       },
       "viewSMSReceiveCode": {
-        "header": "Your code"
+        "header": "Your code",
+        "headerFor": "Your {{title}} code",
+        "dontShare": "Don’t share this code with anyone."
       }
     },
     "onlineListings": {
