@@ -547,6 +547,8 @@ export default function CustomHalfModal(props) {
             onSelectMethod={props?.route?.params?.onSelectMethod}
             bitcoinBalance={props?.route?.params?.bitcoinBalance}
             dollarBalanceToken={props?.route?.params?.dollarBalanceToken}
+            sub={props?.route?.params?.sub}
+            confirmText={props?.route?.params?.confirmText}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}

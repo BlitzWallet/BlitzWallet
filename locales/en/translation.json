@@ -15,6 +15,7 @@
     "total_balance": "Total Balance",
     "sat_balance": "Bitcoin Balance",
     "usd_balance": "Dollar Balance",
+    "amountAvailable": "{{amount}} available",
     "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
@@ -3302,7 +3303,9 @@
       "textInputDescriptor": "EMAIL",
       "emailplaceholder": "you@example.com",
       "emailError": "Please enter a valid email address.",
-      "completePayment": "Complete Payment"
+      "completePayment": "Complete payment",
+      "emailHelper": "Bitrefill sends your codes and receipts here.",
+      "orderAmount": "Bitrefill order · {{amount}}"
     },
     "webViewPopup": {
       "allowedTitle": "External link",

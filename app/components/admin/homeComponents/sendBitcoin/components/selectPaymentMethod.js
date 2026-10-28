@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { CENTER, ICONS, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
@@ -14,6 +15,7 @@ import { formatBalanceAmount } from '../../../../../functions';
 import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
+import CustomButton from '../../../../../functions/CustomElements/button';
 
 export default function SelectPaymentMethod({
   selectedPaymentMethod,
@@ -22,6 +24,9 @@ export default function SelectPaymentMethod({
   onSelectMethod,
   bitcoinBalance: btcOverride,
   dollarBalanceToken: usdOverride,
+  // Checkout mode (Bitrefill): rows only pick, the Pay button commits.
+  sub,
+  confirmText,
 }) {
   // Balances default to the active wallet, but a caller moving funds out of
   // another account passes that account's balances in.
@@ -35,8 +40,11 @@ export default function SelectPaymentMethod({
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
+  const [picked, setPicked] = useState(
+    selectedPaymentMethod === 'USD' ? 'USD' : 'BTC',
+  );
 
   const selectSendingBalance = term => {
     if (onSelectMethod) {
@@ -70,7 +78,12 @@ export default function SelectPaymentMethod({
 
   return (
     <View style={[styles.innerContainer, { width: contentWidth }]}>
-      <PageHeader title={headerText} showSub={false} />
+      <PageHeader
+        title={headerText}
+        sub={sub}
+        showSub={!!sub}
+        subStyles={[styles.sub, { color: tokens.muted }]}
+      />
 
       <ListCard>
         <PickRow
@@ -96,20 +109,27 @@ export default function SelectPaymentMethod({
               />
             </View>
           }
-          title={t('constants.sat_balance')}
-          sub={displayCorrectDenomination({
-            amount: bitcoinBalance,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'sats',
-            },
-            fiatStats,
+          minHeight={76}
+          title={t('constants.bitcoin_upper')}
+          sub={t('constants.amountAvailable', {
+            amount: displayCorrectDenomination({
+              amount: bitcoinBalance,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'sats',
+              },
+              fiatStats,
+            }),
           })}
           selected={
-            selectedPaymentMethod === 'BTC' ||
-            selectedPaymentMethod === 'user-choice'
+            confirmText
+              ? picked === 'BTC'
+              : selectedPaymentMethod === 'BTC' ||
+                selectedPaymentMethod === 'user-choice'
           }
-          onPress={() => selectSendingBalance('BTC')}
+          onPress={() =>
+            confirmText ? setPicked('BTC') : selectSendingBalance('BTC')
+          }
         />
         <PickRow
           lead={
@@ -134,25 +154,40 @@ export default function SelectPaymentMethod({
               />
             </View>
           }
-          title={t('constants.usd_balance')}
-          sub={displayCorrectDenomination({
-            amount: formatBalanceAmount(
-              dollarBalanceToken,
-              false,
-              masterInfoObject,
-            ),
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'fiat',
-            },
-            forceCurrency: 'USD',
-            convertAmount: false,
-            fiatStats,
+          minHeight={76}
+          title={t('constants.dollars_upper')}
+          sub={t('constants.amountAvailable', {
+            amount: displayCorrectDenomination({
+              amount: formatBalanceAmount(
+                dollarBalanceToken,
+                false,
+                masterInfoObject,
+              ),
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'fiat',
+              },
+              forceCurrency: 'USD',
+              convertAmount: false,
+              fiatStats,
+            }),
           })}
-          selected={selectedPaymentMethod === 'USD'}
-          onPress={() => selectSendingBalance('USD')}
+          selected={
+            confirmText ? picked === 'USD' : selectedPaymentMethod === 'USD'
+          }
+          onPress={() =>
+            confirmText ? setPicked('USD') : selectSendingBalance('USD')
+          }
         />
       </ListCard>
+      {confirmText && (
+        <CustomButton
+          buttonStyles={styles.confirmButton}
+          size={'regular'}
+          textContent={confirmText}
+          actionFunction={() => selectSendingBalance(picked)}
+        />
+      )}
     </View>
   );
 }
@@ -162,6 +197,8 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
+  sub: { marginTop: -4, marginBottom: 16, opacity: 1 },
+  confirmButton: { marginTop: 'auto' },
   iconContainer: {
     width: 44,
     height: 44,
