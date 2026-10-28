@@ -1,24 +1,35 @@
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../../../constants';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { getAIModels } from '../contants/modelCache';
 import { useTranslation } from 'react-i18next';
-import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
 import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
 import { useCallback, useEffect, useState } from 'react';
-import { useGlobalInsets } from '../../../../../../../context-store/insetsProvider';
+import { useTheme } from '../../../../../../../context-store/theme';
+import SearchField from '../../../../../../functions/CustomElements/redesign/SearchField';
+import ListCard, {
+  ListDivider,
+} from '../../../../../../functions/CustomElements/redesign/ListCard';
+import PickRow from '../../../../../../functions/CustomElements/redesign/PickRow';
+
+const formatPrice = price => Number(price).toFixed(2);
 
 export default function SwitchGenerativeAIModel({
+  currentModel,
   setSelectedRecieveOption,
   setIsKeyboardActive,
+  setContentHeight,
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { tokens } = useTheme();
   const [modelSearch, setModelSearch] = useState('');
   const [models, setModels] = useState([]);
-  const { bottomPadding } = useGlobalInsets();
+
+  useEffect(() => {
+    setContentHeight(560);
+  }, [setContentHeight]);
 
   useEffect(() => {
     getAIModels().then(setModels).catch(console.error);
@@ -39,37 +50,21 @@ export default function SwitchGenerativeAIModel({
   );
 
   const listItem = useCallback(
-    ({ item }) => {
-      return (
-        <TouchableOpacity
-          key={item.id}
-          onPress={() => handleClick(item.shortName)}
-          style={styles.optionItemContainer}
-        >
-          <View style={styles.row}>
-            <ThemeText
-              styles={styles.optionItemTextHeader}
-              content={item.name}
-            />
-            <View style={styles.priceColumn}>
-              <ThemeText
-                styles={styles.optionItemTextCost}
-                content={t('apps.chatGPT.switchModel.inputLabel', {
-                  amount: item.inputPrice,
-                })}
-              />
-              <ThemeText
-                styles={styles.optionItemTextCost}
-                content={t('apps.chatGPT.switchModel.outputLabel', {
-                  amount: item.outputPrice,
-                })}
-              />
-            </View>
-          </View>
-        </TouchableOpacity>
-      );
-    },
-    [handleClick],
+    ({ item }) => (
+      <PickRow
+        title={item.name}
+        sub={`${t('apps.chatGPT.switchModel.inputLabel', {
+          amount: formatPrice(item.inputPrice),
+        })} · ${t('apps.chatGPT.switchModel.outputLabel', {
+          amount: formatPrice(item.outputPrice),
+        })}`}
+        selected={item.id === currentModel}
+        onPress={() => handleClick(item.shortName)}
+        minHeight={64}
+        titleStyle={styles.rowTitle}
+      />
+    ),
+    [handleClick, currentModel, t],
   );
 
   return (
@@ -78,25 +73,31 @@ export default function SwitchGenerativeAIModel({
         styles={styles.chooseModelText}
         content={t('apps.chatGPT.switchModel.chooseModel')}
       />
-      <CustomSearchInput
-        inputText={modelSearch}
-        setInputText={setModelSearch}
-        onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-        placeholderText="OpenAI: o4 Mini"
-        containerStyles={{ marginBottom: CONTENT_KEYBOARD_OFFSET }}
-      />
-      {filteredList.length ? (
-        <FlatList
-          data={filteredList}
-          renderItem={listItem}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="always"
-          contentContainerStyle={{ paddingBottom: bottomPadding }}
+      <View style={styles.search}>
+        <SearchField
+          pill={true}
+          value={modelSearch}
+          onChangeText={setModelSearch}
+          onFocus={() => setIsKeyboardActive(true)}
+          onBlur={() => setIsKeyboardActive(false)}
+          placeholder={t('apps.chatGPT.switchModel.searchPlaceholder')}
         />
+      </View>
+      {filteredList.length ? (
+        <ListCard style={styles.list}>
+          <FlatList
+            data={filteredList}
+            renderItem={listItem}
+            keyExtractor={item => item.id}
+            ItemSeparatorComponent={ListDivider}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="always"
+          />
+        </ListCard>
       ) : (
         <ThemeText
-          styles={styles.noModelsText}
+          variant="body"
+          styles={[styles.noModelsText, { color: tokens.muted }]}
           content={t('apps.chatGPT.switchModel.noModels')}
         />
       )}
@@ -111,38 +112,24 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   chooseModelText: {
-    fontSize: SIZES.large,
-    alignSelf: 'center',
-    marginBottom: 10,
+    fontSize: 20,
+    lineHeight: 26,
+    marginTop: 20,
+    includeFontPadding: false,
   },
-
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  search: {
+    marginTop: 16,
   },
-
-  optionItemContainer: {
-    width: '100%',
-    marginVertical: 10,
-    alignSelf: 'center',
+  list: {
+    marginTop: 12,
+    flexShrink: 1,
   },
-
-  optionItemTextHeader: {
-    flexGrow: 1,
-    maxWidth: '50%',
-  },
-
-  priceColumn: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-
-  optionItemTextCost: {
-    fontSize: SIZES.small,
+  rowTitle: {
+    fontSize: 15,
+    lineHeight: 21,
   },
   noModelsText: {
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 24,
   },
 });

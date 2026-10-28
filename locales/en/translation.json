@@ -458,15 +458,16 @@
       }
     },
     "chatGPT": {
-      "newChat": "New Chat",
+      "newChat": "New chat",
+      "chats": "Chats",
       "loadingMessage": "Loading previous chats",
       "addCreditsPage": {
         "title": "Add Credits",
-        "unlockTitle": "Unlock AI.",
+        "unlockTitle": "Unlock AI",
         "bestValue": "Best Value",
         "feature1": "Access the latest AI models",
-        "feature2": "No subscriptions — pay as you go",
-        "feature3": "Private, fast powered payments",
+        "feature2": "No subscriptions, pay as you go",
+        "feature3": "Private, fast payments",
         "feature4": "Choose your plan size",
         "feature5": "Simple, one-time purchases",
         "description": "In order to use the latest generative AI models, you must purchase credits. Choose an option below to begin.",
@@ -485,12 +486,15 @@
       },
       "chatGPTHome": {
         "availableCredits": "Available credits: {{credits}}",
+        "creditsLeft": "{{credits}} credits left",
         "noAvailableCreditsError": "You have run out of credits.",
         "inputPlaceholder": "Message {{gptName}}",
         "youText": "You"
       },
       "confirmLeaveChat": {
-        "title": "Do you want to save your chat?"
+        "title": "Save this chat?",
+        "message": "Saved chats stay in your chat list so you can pick them up later.",
+        "dontSave": "Don’t save"
       },
       "confirmationPage": {
         "title": "Confirm Purchase",
@@ -498,19 +502,27 @@
         "price": "Price: ",
         "fee": "Fee: ",
         "chooseAmount": "Choose an amount",
+        "chooseAmountSub": "Credits for AI chat. One-time purchase.",
+        "custom": "Custom",
+        "buyCredits": "Buy AI credits",
+        "slideToPay": "Slide to pay",
+        "buying": "Buying {{amount}} of credits.",
+        "errorTitle": "Couldn’t buy credits",
         "minimumAmountError": "Minimum amount is {{amount}}",
         "maximumAmountError": "Maximum amount is {{amount}}",
         "confirmMessage": "You are about to purchase AI credits.",
-        "contributionWarning": "This payment is final. Payments cannot be refunded, even if the credits are not used."
+        "contributionWarning": "This payment is final. It can’t be refunded, even if the credits aren’t used."
       },
       "switchModel": {
         "inputLabel": "Input: {{amount}}/M",
         "outputLabel": "Output: {{amount}}/M",
-        "chooseModel": "Choose Model",
+        "chooseModel": "Choose model",
+        "searchPlaceholder": "Search models",
         "noModels": "No models match that name. Please check the spelling or try a different name."
       },
       "exampleSearchCards": {
         "title": "Example Search Cards",
+        "tryAsking": "Try asking",
         "examples": [
           {
             "topLine": "How do I start learning React Native?",

@@ -1,21 +1,10 @@
-import {
-  View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  StyleSheet,
-} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES } from '../../../../../../constants';
-import GetThemeColors from '../../../../../../hooks/themeColors';
-import { ThemeText } from '../../../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
+import { AlertDialog } from '../../../../../../functions/CustomElements/redesign/ConfirmDialog';
 
+// Tapping outside only closes the dialog; the chat is kept open.
 export default function ConfirmLeaveChatGPT(props) {
   const navigate = useNavigation();
-  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
   const handleSave = () => {
@@ -29,149 +18,14 @@ export default function ConfirmLeaveChatGPT(props) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={navigate.goBack}>
-      <View style={styles.overlay}>
-        <TouchableWithoutFeedback>
-          <View
-            style={[
-              styles.modal,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-              },
-            ]}
-          >
-            <View
-              style={[
-                styles.iconWrap,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.expandedTXLightModeConfirmd,
-                },
-              ]}
-            >
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
-                }
-                size={20}
-                iconName={'MessageSquare'}
-              />
-            </View>
-
-            <ThemeText
-              styles={styles.message}
-              content={t('apps.chatGPT.confirmLeaveChat.title')}
-            />
-
-            <View
-              style={[
-                styles.divider,
-                {
-                  backgroundColor: tokens.divider,
-                },
-              ]}
-            />
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                onPress={handleSave}
-                activeOpacity={0.6}
-                style={styles.btn}
-              >
-                <ThemeText
-                  styles={[
-                    styles.saveText,
-                    {
-                      color: theme && darkModeType ? tokens.ink : tokens.accent,
-                    },
-                  ]}
-                  content={t('constants.yes')}
-                />
-              </TouchableOpacity>
-
-              <View
-                style={[
-                  styles.btnDivider,
-                  {
-                    backgroundColor: tokens.divider,
-                  },
-                ]}
-              />
-
-              <TouchableOpacity
-                onPress={handleDiscard}
-                activeOpacity={0.6}
-                style={styles.btn}
-              >
-                <ThemeText
-                  styles={styles.discardText}
-                  content={t('constants.no')}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    </TouchableWithoutFeedback>
+    <AlertDialog
+      title={t('apps.chatGPT.confirmLeaveChat.title')}
+      message={t('apps.chatGPT.confirmLeaveChat.message')}
+      confirmLabel={t('constants.save')}
+      cancelLabel={t('apps.chatGPT.confirmLeaveChat.dontSave')}
+      onConfirm={handleSave}
+      onCancel={handleDiscard}
+      onDismiss={navigate.goBack}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modal: {
-    width: '90%',
-    maxWidth: 300,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    marginTop: 28,
-    marginBottom: 12,
-  },
-  message: {
-    fontSize: SIZES.medium,
-    textAlign: 'center',
-    lineHeight: 22,
-    paddingHorizontal: 24,
-    paddingBottom: 20,
-  },
-  divider: {
-    height: 2,
-    width: '100%',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    height: 50,
-  },
-  btn: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnDivider: {
-    width: 2,
-    height: '100%',
-  },
-  saveText: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  discardText: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-});

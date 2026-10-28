@@ -189,7 +189,9 @@ export default function CustomHalfModal(props) {
     contentType === 'swapFlow' ||
     contentType === 'accountTransfer' ||
     contentType === 'LNURLAccountMangement' ||
-    contentType === 'childMatchCodeConfirmation';
+    contentType === 'childMatchCodeConfirmation' ||
+    contentType === 'chatGPT' ||
+    contentType === 'switchGenerativeAiModel';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -357,8 +359,8 @@ export default function CustomHalfModal(props) {
       case 'switchGenerativeAiModel':
         return (
           <SwitchGenerativeAIModel
-            theme={theme}
-            darkModeType={darkModeType}
+            setContentHeight={setContentHeight}
+            currentModel={props.route.params?.currentModel}
             setSelectedRecieveOption={props.route.params?.setSelectedModel}
             setIsKeyboardActive={setIsKeyboardActive}
             handleBackPressFunction={handleBackPressFunction}
@@ -368,7 +370,7 @@ export default function CustomHalfModal(props) {
         return (
           <ConfirmChatGPTPage
             setContentHeight={setContentHeight}
-            setBackNav={setBackNav}
+            setDismissLocked={setDismissLocked}
             handleBackPressFunction={handleBackPressFunction}
           />
         );

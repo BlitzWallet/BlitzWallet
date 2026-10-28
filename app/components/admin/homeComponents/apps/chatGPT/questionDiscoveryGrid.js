@@ -1,13 +1,14 @@
 import React, { memo, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { shuffleArray } from '../../../../../functions';
-import GetThemeColors from '../../../../../hooks/themeColors';
+import { useTheme } from '../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
-import { SIZES } from '../../../../../constants';
 
-function QuestionDiscoveryGridComponent() {
-  const { backgroundOffset } = GetThemeColors();
+// "Try asking" 2x2 card grid: Unlock AI (display only) and the empty chat,
+// where `onSelect(text)` sends the example.
+function QuestionDiscoveryGridComponent({ onSelect }) {
+  const { tokens } = useTheme();
   const { t } = useTranslation();
 
   const examples = t('apps.chatGPT.exampleSearchCards.examples', {
@@ -15,119 +16,81 @@ function QuestionDiscoveryGridComponent() {
   });
 
   const items = useMemo(() => {
-    if (!Array.isArray(examples) || examples.length < 6) return [];
-    return shuffleArray([...examples]).slice(0, 6);
+    if (!Array.isArray(examples) || examples.length < 4) return [];
+    return shuffleArray([...examples]).slice(0, 4);
   }, [examples]);
 
-  if (items.length < 6) return null;
+  if (!items.length) return null;
 
   return (
-    <View style={styles.container}>
-      {/* Row group 1: tall-left, two-small-right */}
-      <View style={styles.rowGroup}>
-        <View style={styles.column}>
-          <QuestionCard
-            item={items[0]}
-            tall
-            backgroundColor={backgroundOffset}
-          />
-        </View>
-        <View style={styles.column}>
-          <QuestionCard
-            item={items[1]}
-            backgroundColor={backgroundOffset}
-            style={styles.smallCardGap}
-          />
-          <QuestionCard item={items[2]} backgroundColor={backgroundOffset} />
-        </View>
-      </View>
-
-      {/* Row group 2: two-small-left, tall-right */}
-      <View style={styles.rowGroup}>
-        <View style={styles.column}>
-          <QuestionCard
-            item={items[3]}
-            backgroundColor={backgroundOffset}
-            style={styles.smallCardGap}
-          />
-          <QuestionCard item={items[4]} backgroundColor={backgroundOffset} />
-        </View>
-        <View style={styles.column}>
-          <QuestionCard
-            item={items[5]}
-            tall
-            backgroundColor={backgroundOffset}
-          />
-        </View>
+    <View>
+      <ThemeText
+        styles={[styles.label, { color: tokens.muted }]}
+        content={t('apps.chatGPT.exampleSearchCards.tryAsking')}
+      />
+      <View style={styles.grid}>
+        {items.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            disabled={!onSelect}
+            activeOpacity={0.7}
+            accessibilityRole={onSelect ? 'button' : undefined}
+            onPress={() => onSelect(`${item.topLine} ${item.bottomLine}`)}
+            style={[styles.card, { backgroundColor: tokens.surface }]}
+          >
+            <ThemeText
+              styles={[styles.category, { color: tokens.muted }]}
+              content={item.category}
+            />
+            <ThemeText styles={styles.question} content={item.topLine} />
+            <ThemeText
+              styles={[styles.context, { color: tokens.muted }]}
+              content={item.bottomLine}
+            />
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
 }
 
-const QuestionCard = memo(function QuestionCard({
-  item,
-  tall,
-  backgroundColor,
-  style,
-}) {
-  return (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor },
-        tall ? styles.tallCard : styles.smallCard,
-        style,
-      ]}
-    >
-      <ThemeText styles={styles.categoryLabel} content={item.category} />
-      <ThemeText styles={styles.questionText} content={item.topLine} />
-      {tall && (
-        <ThemeText styles={styles.contextText} content={item.bottomLine} />
-      )}
-    </View>
-  );
-});
-
 export default memo(QuestionDiscoveryGridComponent);
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 8,
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 24,
+    marginHorizontal: 4,
+    marginBottom: 8,
+    includeFontPadding: false,
   },
-  rowGroup: {
+  grid: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  column: {
-    flex: 1,
-  },
-  tallCard: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  smallCard: {
-    flex: 1,
-    justifyContent: 'flex-start',
-  },
-  smallCardGap: {
-    marginBottom: 8,
+    flexWrap: 'wrap',
+    gap: 12,
   },
   card: {
-    borderRadius: 12,
-    padding: 12,
+    width: '47%',
+    flexGrow: 1,
+    minHeight: 112,
+    padding: 14,
+    borderRadius: 20,
+    gap: 4,
   },
-  categoryLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.55,
+  category: {
+    fontSize: 12,
+    lineHeight: 16,
+    includeFontPadding: false,
   },
-  questionText: {
-    fontSize: SIZES.small,
-    fontWeight: '600',
-    marginTop: 4,
+  question: {
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
-  contextText: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
+  context: {
+    fontSize: 13,
+    lineHeight: 18,
+    includeFontPadding: false,
   },
 });

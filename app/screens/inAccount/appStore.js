@@ -26,19 +26,22 @@ export default function AppStore({ navigation }) {
   const hasLegacyChatGPT =
     (decodedChatGPT?.credits ?? 0) > 0 ||
     Platform.OS === 'android' ||
-    Platform.OS === 'web';
+    Platform.OS === 'web' ||
+    true;
 
   const hasLegacySMS =
     (decodedMessages?.sent?.length ?? 0) > 0 ||
     (decodedMessages?.received?.length ?? 0) > 0 ||
     Platform.OS === 'android' ||
-    Platform.OS === 'web';
+    Platform.OS === 'web' ||
+    true;
 
   const showLegacySection =
     hasLegacyChatGPT ||
     hasLegacySMS ||
     Platform.OS === 'android' ||
-    Platform.OS === 'web';
+    Platform.OS === 'web' ||
+    true;
 
   useFocusEffect(
     useCallback(() => {

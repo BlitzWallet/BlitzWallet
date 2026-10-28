@@ -59,7 +59,7 @@ export default function ConfirmDialog(props) {
 // The dialog itself, for popup routes that own their navigation
 // (ErrorScreen, ConfirmActionPage, InformationPopup). Card scales 0.96 → 1
 // over 150 ms while the route fades the scrim. A tap outside runs
-// `onCancel`, or `onConfirm` when there is no cancel. Long text scrolls.
+// `onDismiss`, else `onCancel`, else `onConfirm`. Long text scrolls.
 export function AlertDialog({
   title,
   message,
@@ -69,6 +69,7 @@ export function AlertDialog({
   cancelLabel,
   onConfirm,
   onCancel,
+  onDismiss,
 }) {
   const { tokens } = useTheme();
   const scale = useSharedValue(0.96);
@@ -86,7 +87,7 @@ export function AlertDialog({
       <TouchableOpacity
         style={StyleSheet.absoluteFill}
         activeOpacity={1}
-        onPress={onCancel || onConfirm}
+        onPress={onDismiss || onCancel || onConfirm}
         accessible={false}
       />
       <Animated.View
