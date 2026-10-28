@@ -32,8 +32,7 @@ export default function AppStore({ navigation }) {
     (decodedMessages?.sent?.length ?? 0) > 0 ||
     (decodedMessages?.received?.length ?? 0) > 0 ||
     Platform.OS === 'android' ||
-    Platform.OS === 'web' ||
-    true;
+    Platform.OS === 'web';
 
   const showLegacySection =
     hasLegacyChatGPT ||
