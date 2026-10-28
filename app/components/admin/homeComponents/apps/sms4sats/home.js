@@ -426,7 +426,7 @@ function SMSHistoryRow({ item, onOpenReceive, showToast, t }) {
         ) : hasAction ? (
           <TouchableOpacity
             onPress={() => onOpenReceive(item, setIsLoading)}
-            style={[styles.pill, { backgroundColor: tokens.accentPastel }]}
+            style={[styles.pill, { backgroundColor: tokens.ground }]}
           >
             <ThemeText
               styles={[styles.pillText, { color: tokens.link }]}
