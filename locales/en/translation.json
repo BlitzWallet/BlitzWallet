@@ -3101,8 +3101,8 @@
         "loadingMessageButton": "Loading...",
         "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Swap services are available through third-party API providers.",
-        "serviceUnavailableHead": "Service Unavailable",
-        "serviceUnavailableDesc": "Unable to connect to swap service. Please check your connection and try again.",
+        "serviceUnavailableHead": "Service unavailable",
+        "serviceUnavailableDesc": "Can’t reach the swap service. Check your connection and try again.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
         "paymentDescription_outgoing": "{{swapDirection}}",
@@ -3132,18 +3132,22 @@
         "availableToSwapInto": "Swap up to {{amount}} into {{asset}}.",
         "enterAmountTitle": "Enter the amount to swap.",
         "noContentTitle": "No balance available",
-        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin.",
+        "noContentSubTittle": "Add funds to your wallet to start swapping.",
         "insufficientBTCToSwap": "A Bitcoin balance of at least {{amount}} is required to swap from Bitcoin.",
         "insufficientUSDToSwap": "A Dollar balance of at least {{amount}} is required to swap from Dollars.",
         "belowSwapLimitTitle": "Balance too low to swap",
         "belowSwapLimitBitcoin": "Your Bitcoin balance is below the swap minimum. Add at least {{btcMin}} to start swapping.",
         "belowSwapLimitDollar": "Your Dollar balance is below the swap minimum. Add at least {{usdMin}} to start swapping.",
-        "belowSwapLimitBoth": "Your balances are below the swap minimum. You need at least {{btcMin}} in Bitcoin or {{usdMin}} in Dollars to start swapping."
+        "belowSwapLimitBoth": "You need at least {{btcMin}} in Bitcoin or {{usdMin}} in Dollars to start swapping.",
+        "satsUnit": "sats",
+        "flipA11y": "Swap direction"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
-        "noHistoryTitle": "No Swap History",
-        "noHistoryDesc": "Your swap transactions will appear here",
+        "noHistoryTitle": "No swaps yet",
+        "noHistoryDesc": "Your swaps will appear here.",
+        "bitcoinToDollars": "Bitcoin → Dollars",
+        "dollarsToBitcoin": "Dollars → Bitcoin",
         "pageTitle": "History"
       },
       "sparkReceivePage": {

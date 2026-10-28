@@ -185,7 +185,8 @@ export default function CustomHalfModal(props) {
     contentType === 'accumulationAddressSelect' ||
     contentType === 'addPOSItemsHalfModal' ||
     contentType === 'posCurrencySelect' ||
-    contentType === 'posTipsDetail';
+    contentType === 'posTipsDetail' ||
+    contentType === 'swapFlow';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -708,7 +709,6 @@ export default function CustomHalfModal(props) {
           <SwapFlowHalfModal
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
-            setBackNav={setBackNav}
           />
         );
       case 'txFilter':

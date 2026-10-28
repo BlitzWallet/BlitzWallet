@@ -5,6 +5,7 @@ import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 import CustomButton from '../button';
+import { useInSheet } from './sheetSurface';
 
 // 64 surface disc · title 17/24 (or 20/26 with size="large") · line · optional
 // Retry (OQ-56). `iconTone="ink"` matches the D305/D306 empty states.
@@ -19,6 +20,7 @@ export default function EmptyState({
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
+  const inSheet = useInSheet();
   const large = size === 'large';
   const isMuted = iconTone === 'muted';
   const isDanger = iconTone === 'danger';
@@ -28,7 +30,12 @@ export default function EmptyState({
     ? tokens.danger
     : tokens.ink;
 
-  const background = isDanger ? tokens.dangerBg : tokens.surface;
+  // A surface disc would vanish on the white sheet, so sheets use ground.
+  const background = isDanger
+    ? tokens.dangerBg
+    : inSheet
+    ? tokens.ground
+    : tokens.surface;
   return (
     <View style={styles.container}>
       <View style={[styles.disc, { backgroundColor: background }]}>

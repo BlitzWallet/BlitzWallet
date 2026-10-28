@@ -6,7 +6,8 @@ import ThemeIcon from '../themeIcon';
 
 // Text link button (D300, D299): 14/400 link, min height 44, optional trailing
 // 16 glyph. `align` mirrors the frame's start alignment; `textStyle` overrides
-// size where a frame draws 15 (D299).
+// size where a frame draws 15 (D299). `iconFirst` puts the glyph before the
+// text (Swap History link).
 export default function TextButton({
   text,
   onPress,
@@ -18,8 +19,17 @@ export default function TextButton({
   paddingHorizontal = 4,
   disabled,
   testID,
+  iconFirst = false,
 }) {
   const { tokens } = useTheme();
+  const glyph = !!icon && (
+    <ThemeIcon
+      redesign
+      iconName={icon}
+      size={iconSize}
+      colorOverride={tokens.link}
+    />
+  );
   return (
     <TouchableOpacity
       testID={testID}
@@ -29,18 +39,12 @@ export default function TextButton({
       accessibilityLabel={accessibilityLabel || text}
       style={[styles.button, { alignSelf: align, paddingHorizontal }]}
     >
+      {iconFirst && glyph}
       <ThemeText
         content={text}
         styles={[styles.text, { color: tokens.link }, textStyle]}
       />
-      {!!icon && (
-        <ThemeIcon
-          redesign
-          iconName={icon}
-          size={iconSize}
-          colorOverride={tokens.link}
-        />
-      )}
+      {!iconFirst && glyph}
     </TouchableOpacity>
   );
 }
