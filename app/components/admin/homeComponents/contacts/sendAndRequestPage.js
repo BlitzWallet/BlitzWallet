@@ -400,12 +400,7 @@ export default function SendAndRequestPage(props) {
                 </View>
                 <CustomButton
                   size="fit"
-                  buttonStyles={{
-                    backgroundColor: tokens.ink,
-                    paddingHorizontal: 24,
-                    minHeight: 44,
-                  }}
-                  textStyles={{ color: tokens.ground }}
+                  tone={'primary'}
                   useLoading={payment.isLoading}
                   actionFunction={handleSubmit}
                   textContent={

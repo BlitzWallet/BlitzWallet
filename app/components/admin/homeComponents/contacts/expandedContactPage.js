@@ -5,7 +5,12 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo } from 'react';
 import ContactsTransactionItem, {
@@ -438,7 +443,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     gap: 10,
-    marginTop: 'auto',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   flex: { flex: 1 },
   listContent: { paddingBottom: 16 },
