@@ -1,39 +1,43 @@
-import { useCallback, useMemo, useState } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import GetThemeColors from '../../../../hooks/themeColors';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import AnimatedStep from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import formatBalanceAmount from '../../../../functions/formatNumber';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
-import ContactProfileImage from './internalComponents/profileImage';
 import useContactPayment from './hooks/useContactPayment';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
+import {
+  normalizeDisplayCurrency,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../functions/displayCurrency';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import ContactAvatar from './internalComponents/contactAvatar';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -46,11 +50,16 @@ export default function SendAndRequestPage(props) {
   } = props.route.params || {};
 
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { tokens, mode } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
-  const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  // Two steps in one route, sharing one useContactPayment instance.
+  const [step, setStep] = useState('amount');
+  const [direction, setDirection] = useState(1);
+  const [isNoteFocused, setIsNoteFocused] = useState(false);
 
   const payment = useContactPayment({
     selectedContact,
@@ -62,6 +71,49 @@ export default function SendAndRequestPage(props) {
     lockInitialPaymentMethod: true,
     t,
   });
+
+  const contactName =
+    selectedContact?.name || selectedContact?.uniqueName || '';
+  const title =
+    paymentType === 'Gift'
+      ? t('constants.gift')
+      : paymentType === 'send'
+      ? t('constants.send')
+      : t('constants.request');
+
+  const goToNote = useCallback(() => {
+    if (!payment.canReview) {
+      // Same feedback the old Review button gave (amount, LNURL limits, contact doc).
+      if (!payment.amountValue) return;
+      const validation = payment.getValidationErrorResult();
+      if (!validation.didWork) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: validation.errorMessage,
+        });
+      }
+      return;
+    }
+    setDirection(1);
+    setStep('note');
+  }, [navigate, payment]);
+
+  const goToAmount = useCallback(() => {
+    KeyboardController.dismiss();
+    setDirection(-1);
+    setStep('amount');
+  }, []);
+
+  const handleHardwareBack = useCallback(() => {
+    if (step !== 'note') return false;
+    goToAmount();
+    return true;
+  }, [step, goToAmount]);
+  useHandleBackPressNew(handleHardwareBack);
+
+  // iOS swipe-back would leave the route from the note step.
+  useEffect(() => {
+    navigate.setOptions({ gestureEnabled: step === 'amount' });
+  }, [navigate, step]);
 
   const handleSelectPaymentMethod = useCallback(() => {
     if (paymentType === 'send') {
@@ -79,20 +131,13 @@ export default function SendAndRequestPage(props) {
   }, [navigate, payment.paymentMethod, paymentType]);
 
   const openCurrencyPicker = useCallback(() => {
-    if (isDescriptionFocused) return;
-
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'displayCurrencySelect',
       sliderHight: 0.6,
       currentCurrency: payment.displayCurrency,
       onSelectCurrency: payment.handleDisplayCurrencySelect,
     });
-  }, [
-    isDescriptionFocused,
-    navigate,
-    payment.displayCurrency,
-    payment.handleDisplayCurrencySelect,
-  ]);
+  }, [navigate, payment.displayCurrency, payment.handleDisplayCurrencySelect]);
 
   const handleSubmit = useCallback(async () => {
     const result =
@@ -115,11 +160,40 @@ export default function SendAndRequestPage(props) {
     }
   }, [navigate, payment, paymentType]);
 
+  // Amount as typed, in the denomination the amount step displays.
+  const amountLabel = useMemo(
+    () =>
+      displayCorrectDenomination({
+        amount: formatBalanceAmount(
+          payment.amountValue || 0,
+          false,
+          payment.masterInfoObject,
+        ),
+        masterInfoObject: {
+          ...payment.masterInfoObject,
+          userBalanceDenomination:
+            payment.primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
+        },
+        forceCurrency: payment.primaryDisplay.forceCurrency,
+        fiatStats: payment.conversionFiatStats,
+        convertAmount: false,
+      }),
+    [
+      payment.amountValue,
+      payment.masterInfoObject,
+      payment.primaryDisplay,
+      payment.conversionFiatStats,
+    ],
+  );
+
   const memorizedKeyboardStyle = useMemo(() => {
     return {
-      paddingBottom: !isDescriptionFocused ? bottomPadding : 0,
+      paddingBottom:
+        step === 'note' && isNoteFocused
+          ? CONTENT_KEYBOARD_OFFSET
+          : bottomPadding,
     };
-  }, [bottomPadding, isDescriptionFocused]);
+  }, [bottomPadding, step, isNoteFocused]);
 
   if (payment.isAutoResolvingCurrency) {
     return (
@@ -127,293 +201,329 @@ export default function SendAndRequestPage(props) {
         useStandardWidth={true}
         globalThemeViewStyles={memorizedKeyboardStyle}
       >
-        <View
-          style={[
-            styles.replacementContainer,
-            isDescriptionFocused ? { flexShrink: 1 } : { flexGrow: 1 },
-          ]}
-        >
-          <CustomSettingsTopBar
-            label={
-              paymentType === 'Gift'
-                ? t('constants.gift')
-                : paymentType === 'send'
-                ? t('constants.send')
-                : t('constants.request')
-            }
-            containerStyles={{ marginBottom: 0 }}
-          />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={title} />
           <FullLoadingScreen />
         </View>
       </CustomKeyboardAvoidingView>
     );
   }
 
+  const avatar = size => (
+    <ContactAvatar
+      name={selectedContact?.name}
+      seed={selectedContact?.uuid}
+      updated={imageData?.updated}
+      uri={imageData?.localUri}
+      size={size}
+      fontSize={size / 3}
+    />
+  );
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(
+    payment.displayCurrency,
+  );
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
       globalThemeViewStyles={memorizedKeyboardStyle}
     >
-      <View
-        style={[
-          styles.replacementContainer,
-          isDescriptionFocused ? { flexShrink: 1 } : { flexGrow: 1 },
-          Platform.OS === 'web' && styles.webScrollableContainer,
-        ]}
-      >
-        <CustomSettingsTopBar
-          label={
-            paymentType === 'Gift'
-              ? t('constants.gift')
-              : paymentType === 'send'
-              ? t('constants.send')
-              : t('constants.request')
-          }
-          containerStyles={{ marginBottom: 0 }}
-          rightContent={
-            !payment.isAutoResolvingCurrency && (
-              <CurrencySwitchButton
-                displayCurrency={payment.displayCurrency}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={title}
+          onBack={step === 'note' ? goToAmount : undefined}
+          shouldDismissKeyboard={step === 'note'}
+          right={
+            step === 'amount' ? (
+              <BudgetCurrencyButton
+                label={isSats ? 'SAT' : normalizedDisplayCurrency}
                 onPress={openCurrencyPicker}
                 disabled={payment.isResolvingDisplayCurrency}
+                accessibilityLabel={t(
+                  'settings.nwc.createNWCAmount.changeCurrency',
+                )}
               />
-            )
+            ) : null
           }
         />
 
-        <View style={styles.identityBadge}>
-          <TouchableOpacity
-            activeOpacity={selectedContact?.isLNURL ? 1 : 0.7}
-            style={styles.splitPayContainer}
-            onPress={() => {
-              if (selectedContact?.isLNURL) return;
-              navigate.navigate('AddFriendsToSplit', {
-                paymentType,
-                selectedContact,
-                paymentCurrency: payment.paymentMethod,
-              });
-            }}
-          >
-            <View
-              style={[
-                styles.contactListLetterImage,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
-              <ContactProfileImage
-                updated={imageData?.updated}
-                uri={imageData?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
+        <View style={styles.steps}>
+          <AnimatedStep active={step === 'amount'} direction={direction}>
+            <View style={styles.step}>
+              <CustomScrollView
+                style={styles.hero}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.heroContent}
+              >
+                <View style={styles.avatarRow}>
+                  <View style={styles.splitSlot} />
+                  {avatar(56)}
+                  <View style={styles.splitSlot}>
+                    {!selectedContact?.isLNURL && (
+                      <IconButton
+                        icon="Plus"
+                        label="contacts.sendAndRequestPage.splitWithMore"
+                        size={36}
+                        iconSize={18}
+                        iconColor={
+                          mode !== 'lightsOut' ? tokens.accent : tokens.ink
+                        }
+                        onPress={() =>
+                          navigate.navigate('AddFriendsToSplit', {
+                            paymentType,
+                            selectedContact,
+                            paymentCurrency: payment.paymentMethod,
+                          })
+                        }
+                      />
+                    )}
+                  </View>
+                </View>
+                <ThemeText styles={styles.contactName} content={contactName} />
+                <AmountHero
+                  // The typed value is already in the displayed denomination:
+                  // format it as typed (keeps "1." / "1.50") and skip the
+                  // sats->fiat conversion that would mangle fiat amounts.
+                  amount={formatBalanceAmount(
+                    payment.amountValue || 0,
+                    false,
+                    masterInfoObject,
+                  )}
+                  convertAmount={false}
+                  fiatStats={payment.primaryDisplay.forceFiatStats}
+                  forceCurrency={payment.primaryDisplay.forceCurrency}
+                  masterInfoObject={{
+                    ...masterInfoObject,
+                    userBalanceDenomination:
+                      payment.primaryDisplay.denomination,
+                  }}
+                  mutedValue={!payment.amountValue}
+                />
+              </CustomScrollView>
+
+              <PaymentMethod
+                determinePaymentMethod={payment.paymentMethod}
+                handleSelectPaymentMethod={handleSelectPaymentMethod}
+                bitcoinBalance={payment.balances.sparkBalance}
+                dollarBalanceToken={payment.balances.dollarBalanceToken}
+                masterInfoObject={payment.masterInfoObject}
+                fiatStats={payment.fiatStats}
+                t={t}
+                containerStyles={styles.selectContainer}
+                isSend={paymentType === 'send'}
+              />
+
+              <CustomNumberKeyboard
+                redesign
+                showDot={payment.primaryDisplay.denomination === 'fiat'}
+                frompage="sendContactsPage"
+                setInputValue={payment.setAmountValue}
+                usingForBalance={true}
+                fiatStats={payment.conversionFiatStats}
+                disabled={payment.isResolvingDisplayCurrency}
+                disabledMessage={t(
+                  'contacts.sendAndRequestPage.fiatRateLoading',
+                )}
+              />
+              <CustomButton
+                size="regular"
+                buttonStyles={{
+                  marginTop: CONTENT_KEYBOARD_OFFSET,
+                  opacity: payment.canReview ? 1 : HIDDEN_OPACITY,
+                }}
+                useLoading={payment.isLoading}
+                actionFunction={goToNote}
+                textContent={t('constants.next')}
               />
             </View>
+          </AnimatedStep>
 
-            {!selectedContact?.isLNURL && (
-              <View style={styles.splitPayIcon}>
-                <ThemeIcon size={25} iconName={'CirclePlus'} />
-              </View>
-            )}
-          </TouchableOpacity>
-          <View style={styles.identityTextContainer}>
-            <ThemeText
-              styles={styles.contactName}
-              content={
-                selectedContact?.name || selectedContact?.uniqueName || ''
-              }
-            />
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.minHeightContainer,
-            Platform.OS !== 'web' &&
-              isDescriptionFocused &&
-              styles.focusedAmountContainer,
-          ]}
-        >
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.scrollViewContainer,
-              paymentType === 'Gift' && { justifyContent: 'flex-start' },
-              {
-                opacity:
-                  !isDescriptionFocused || paymentType === 'Gift'
-                    ? 1
-                    : HIDDEN_OPACITY,
-              },
-            ]}
+          <AnimatedStep
+            active={step === 'note'}
+            direction={direction}
+            exitsBack
           >
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={payment.amountValue || 0}
-              inputDenomination={payment.primaryDisplay.denomination}
-              forceCurrency={payment.primaryDisplay.forceCurrency}
-              forceFiatStats={payment.primaryDisplay.forceFiatStats}
-            />
-          </CustomScrollView>
-        </View>
-        <View style={styles.inputAndGiftContainer}>
-          <ThemeText
-            styles={{ opacity: HIDDEN_OPACITY }}
-            content={
-              paymentType === 'send'
-                ? t('constants.payWith')
-                : t('constants.receiveAs')
-            }
-          />
-          <ChoosePaymentMethod
-            theme={theme}
-            darkModeType={darkModeType}
-            determinePaymentMethod={payment.paymentMethod}
-            handleSelectPaymentMethod={handleSelectPaymentMethod}
-            bitcoinBalance={payment.balances.sparkBalance}
-            dollarBalanceToken={payment.balances.dollarBalanceToken}
-            masterInfoObject={payment.masterInfoObject}
-            fiatStats={payment.fiatStats}
-            uiState={
-              paymentType === 'send' ? 'SELECT_INLINE' : 'CONTACT_REQUEST'
-            }
-            t={t}
-            selectedMethod={payment.paymentMethod}
-            containerStyles={{ width: '100%', marginBottom: 8 }}
-          />
+            <View style={styles.step}>
+              <CustomScrollView
+                style={styles.hero}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.noteContent}
+              >
+                <View style={styles.headline}>
+                  <ThemeText
+                    styles={styles.headlineText}
+                    content={
+                      paymentType === 'send'
+                        ? t('constants.pay')
+                        : t('constants.request')
+                    }
+                  />
+                  {avatar(32)}
+                  <ThemeText
+                    styles={[styles.headlineText, styles.headlineName]}
+                    content={contactName}
+                  />
+                </View>
+                <View style={styles.noteRow}>
+                  <ThemeText styles={styles.noteText} content={amountLabel} />
+                  <ThemeText
+                    styles={[styles.noteText, { color: tokens.muted }]}
+                    content={t('contacts.sendAndRequestPage.noteFor')}
+                  />
+                  <TextInput
+                    autoFocus
+                    multiline
+                    maxLength={149}
+                    value={payment.descriptionValue}
+                    onChangeText={payment.setDescriptionValue}
+                    onFocus={() => setIsNoteFocused(true)}
+                    onBlur={() => setIsNoteFocused(false)}
+                    placeholder={t(
+                      'contacts.sendAndRequestPage.notePlaceholder',
+                    )}
+                    placeholderTextColor={tokens.muted}
+                    selectionColor={tokens.accent}
+                    style={[styles.noteInput, { color: tokens.ink }]}
+                  />
+                </View>
+              </CustomScrollView>
 
-          <CustomSearchInput
-            onFocusFunction={() => {
-              setIsDescriptionFocused(true);
-            }}
-            onBlurFunction={() => {
-              setIsDescriptionFocused(false);
-            }}
-            placeholderText={t('constants.paymentDescriptionPlaceholder')}
-            editable={
-              paymentType === 'send' ? true : !!payment.convertedSendAmount
-            }
-            containerStyles={styles.descriptionInput}
-            setInputText={payment.setDescriptionValue}
-            inputText={payment.descriptionValue}
-            textInputMultiline={true}
-            textAlignVertical={'center'}
-            maxLength={149}
-          />
+              <View style={styles.noteBar}>
+                <View style={styles.emojiBar}>
+                  <EmojiQuickBar
+                    description={payment.descriptionValue}
+                    onEmojiSelect={payment.setDescriptionValue}
+                    maxLength={149}
+                  />
+                </View>
+                <CustomButton
+                  size="fit"
+                  buttonStyles={{
+                    backgroundColor: tokens.ink,
+                    paddingHorizontal: 24,
+                    minHeight: 44,
+                  }}
+                  textStyles={{ color: tokens.ground }}
+                  useLoading={payment.isLoading}
+                  actionFunction={handleSubmit}
+                  textContent={
+                    paymentType === 'send'
+                      ? t('constants.review')
+                      : t('constants.request')
+                  }
+                />
+              </View>
+            </View>
+          </AnimatedStep>
         </View>
-
-        {!isDescriptionFocused && (
-          <View>
-            <CustomNumberKeyboard
-              showDot={payment.primaryDisplay.denomination === 'fiat'}
-              frompage="sendContactsPage"
-              setInputValue={payment.setAmountValue}
-              usingForBalance={true}
-              fiatStats={payment.conversionFiatStats}
-              disabled={payment.isResolvingDisplayCurrency}
-              disabledMessage={t('contacts.sendAndRequestPage.fiatRateLoading')}
-            />
-            <CustomButton
-              buttonStyles={{
-                ...styles.button,
-                opacity: payment.canReview ? 1 : HIDDEN_OPACITY,
-              }}
-              useLoading={payment.isLoading}
-              actionFunction={handleSubmit}
-              textContent={
-                paymentType === 'send'
-                  ? t('constants.review')
-                  : t('constants.request')
-              }
-            />
-          </View>
-        )}
       </View>
-
-      {isDescriptionFocused && (
-        <EmojiQuickBar
-          description={payment.descriptionValue}
-          onEmojiSelect={payment.setDescriptionValue}
-          maxLength={149}
-        />
-      )}
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  replacementContainer: {
-    flexGrow: 1,
-    width: '100%',
+  container: {
+    flex: 1,
     ...CENTER,
   },
-  webScrollableContainer: {
+  steps: {
+    flex: 1,
+  },
+  step: {
+    flex: 1,
+  },
+  hero: {
     flex: 1,
     minHeight: 0,
-    overflowY: 'auto',
   },
-  identityBadge: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 26,
-    gap: 10,
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  splitPayContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 5,
-  },
-  splitPayIcon: {
-    width: 25,
-    height: 25,
+  heroContent: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    right: -25,
+    paddingVertical: 12,
   },
-  contactListLetterImage: {
-    height: 60,
-    width: 60,
-    borderRadius: 30,
+  avatar: {
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  identityTextContainer: {
-    flexDirection: 'column',
-    gap: 2,
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  splitSlot: {
+    width: 36,
+    alignItems: 'center',
   },
   contactName: {
-    fontSize: SIZES.medium,
+    marginTop: 10,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
     includeFontPadding: false,
   },
-  minHeightContainer: {
-    minHeight: 100,
-    flex: 1,
+  amount: {
+    marginTop: 20,
   },
-  focusedAmountContainer: {
-    minHeight: 0,
+  selectContainer: {
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+  },
+  noteContent: {
+    flexGrow: 1,
+    paddingTop: 24,
+  },
+  headline: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headlineText: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 28,
+    lineHeight: 36,
+    includeFontPadding: false,
+  },
+  headlineName: {
     flexShrink: 1,
   },
-  scrollViewContainer: {
-    paddingTop: 5,
-    paddingBottom: 20,
+  noteRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginTop: 4,
+  },
+  noteText: {
+    fontSize: 28,
+    lineHeight: 36,
+    includeFontPadding: false,
+  },
+  noteInput: {
+    flex: 1,
+    minWidth: 0,
+    padding: 0,
+    margin: 0,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 28,
+    lineHeight: 36,
+    includeFontPadding: false,
+    textAlignVertical: 'top',
+  },
+  noteBar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    flexGrow: 1,
+    gap: 10,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
-  convertedAmount: {
-    marginBottom: 16,
-  },
-  inputAndGiftContainer: {
-    width: INSET_WINDOW_WIDTH,
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  button: {
-    width: 'auto',
-    ...CENTER,
-  },
-  descriptionInput: {
-    marginTop: 8,
+  emojiBar: {
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    borderRadius: 25,
+    // EmojiQuickBar brings its own top margin.
+    marginTop: -CONTENT_KEYBOARD_OFFSET,
   },
 });

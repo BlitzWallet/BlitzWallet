@@ -63,6 +63,8 @@ export default function ThemeIcon({
 
     return { ...baseStyles, ...styles };
   }, [styles, iconColor]);
+  // `fill` is a colour, or `true` to fill with the icon's own colour.
+  const fillColor = typeof fill === 'string' ? fill : iconColor;
   if (!IconComponent) return;
   // On react-native-web the icon renders as an <svg> element, where a CSS
   // `transform` rotates around the origin (0,0) instead of the center, so a
@@ -74,7 +76,7 @@ export default function ThemeIcon({
         {fill ? (
           <IconComponent
             strokeWidth={strokeWidth}
-            fill={fill}
+            fill={fillColor}
             size={size}
             style={svgStyles}
           />
@@ -93,7 +95,7 @@ export default function ThemeIcon({
     return (
       <IconComponent
         strokeWidth={strokeWidth}
-        fill={fill}
+        fill={fillColor}
         size={size}
         style={iconStyles}
       />

@@ -13,6 +13,10 @@ export default function SearchField({
   pill = false,
   onFocus,
   onBlur,
+  containerStyles,
+  blurOnSubmit = true,
+  onSubmitEditingFunction,
+  autoFocus = false,
 }) {
   const { tokens } = useTheme();
   const inSheet = useInSheet();
@@ -31,6 +35,10 @@ export default function SearchField({
         color: inSheet ? tokens.ink : tokens.onField,
         backgroundColor: inSheet ? tokens.ground : tokens.field,
       }}
+      containerStyles={containerStyles}
+      blurOnSubmit={blurOnSubmit}
+      onSubmitEditingFunction={onSubmitEditingFunction}
+      autoFocus={autoFocus}
       buttonComponent={
         <View pointerEvents="none" style={styles.glyph}>
           <ThemeIcon

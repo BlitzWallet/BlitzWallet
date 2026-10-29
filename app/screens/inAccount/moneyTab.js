@@ -321,7 +321,9 @@ export default function MoneyTab({ navigation }) {
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <PageTitle text={t('money.title')} titleStyles={styles.title} />
+        <View style={styles.header}>
+          <PageTitle text={t('money.title')} />
+        </View>
         <CustomScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -366,7 +368,12 @@ export default function MoneyTab({ navigation }) {
 const styles = StyleSheet.create({
   container: { paddingBottom: 0 },
   content: { alignSelf: 'center', width: '100%', flex: 1 },
-  title: { marginTop: 10, marginBottom: 20 },
+  header: {
+    marginTop: 10,
+    marginBottom: 20,
+    minHeight: 45,
+    justifyContent: 'center',
+  },
   spentCard: { borderRadius: 24, padding: 20 },
   spentHeader: {
     flexDirection: 'row',

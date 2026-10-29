@@ -1472,11 +1472,15 @@
       "unknownSender": "Unknown sender",
       "noContactSearch": "This contact isn't in your list yet.",
       "notFound": "not found.",
+      "favorites": "Favorites",
+      "allContacts": "All contacts",
+      "giftCards": "Gift cards",
+      "newRequest": "New request",
       "noContent": {
         "editProfileTitle": "Edit your profile",
         "editProfileDescription": "Add your details so others can easily find and pay you.",
-        "addContactstitle": "No Added Contacts",
-        "addContactsDescription": "Your contacts will appear here once you add one"
+        "addContactstitle": "No contacts yet",
+        "addContactsDescription": "Add the people you pay often. Search their username or scan their code."
       }
     },
     "addContactsHalfModal": {
@@ -1487,12 +1491,20 @@
       "noProfilesFound": "No profiles match this search",
       "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username.",
       "loadingMessage": "Looking up contact...",
-      "profileImage": "Loading profile photo..."
+      "profileImage": "Loading profile photo...",
+      "blitzUsers": "Blitz users",
+      "noProfilesHint": "Check the spelling, or search their Lightning address.",
+      "lightningAddress": "Lightning address",
+      "noName": "No name set",
+      "scanLabel": "Scan a contact QR code"
     },
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
       "requestLNURLError": "You can only request money from Blitz contacts, not Lightning addresses.",
-      "noTransactions": "Send or request a payment to see transaction history."
+      "noTransactions": "Send or request a payment to see transaction history.",
+      "waitingOnYou": "Waiting on you",
+      "favoriteLabel": "Favorite",
+      "editLabel": "Edit contact"
     },
     "expandedMessageHalfModal": {
       "title": "Full message",
@@ -1515,6 +1527,9 @@
       "unableToSaveError": "Unable to save profile image, please try again.",
       "deleteProfileImageError": "Unable to delete profile image, please try again.",
       "deleteWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored.",
+      "deleteContact": "Delete contact",
+      "deleteContactTitle": "Delete {{name}}?",
+      "deleteContactMessage": "Messages older than a week can't be brought back.",
       "receiveCurrencyPillTitle": "Receive Currency",
       "receiveCurrencyPillDesc": "Set how you receive via your Lightning address",
       "invalidCharactersError": "Name and bio cannot contain the characters < > { } ` \\",
@@ -1569,23 +1584,30 @@
       "giftMessagePlaceholder": "Write your gift message here...",
       "paymentSourceHeader": "Payment Source",
       "fiatRateLoading": "Loading currency rate",
-      "fiatRateLoadFailed": "Couldn't load the currency rate"
+      "fiatRateLoadFailed": "Couldn't load the currency rate",
+      "splitWithMore": "Split with more people",
+      "noteFor": "for",
+      "notePlaceholder": "dinner"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
       "loadingMessage": "Loading gift card information...",
       "valueHeader": "Gift Card Value",
       "redeemHeader": "How to Redeem",
-      "openClaimText": "Open Gift Card",
+      "openClaimText": "Open gift card",
       "instructionsHeader": "Redemption Instructions",
       "terms&conditions": "Terms & Conditions",
-      "cardUUID": "Card UUID",
+      "cardUUID": "Card ID",
       "helpHeader": "Need Help?",
-      "helpDesc": "If you need assistance with this gift card, copy the Card UUID above and include it in your email to our support team.",
+      "helpDesc": "Need help? Copy the card ID and include it in your email to support.",
       "unpaidMessage": "This card is unpaid. If payment was made but not reflected, please use the email below to get help.",
-      "messageLabel": "Message:",
+      "messageLabel": "Message",
       "claimed": "Used",
-      "markAsClaimed": "Mark as Used"
+      "markAsClaimed": "Mark as used",
+      "markAsUnclaimed": "Mark as not used",
+      "title": "Gift card",
+      "detailsHeader": "Details",
+      "cardFrom": "{{card}} · From {{name}}"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
@@ -1596,14 +1618,20 @@
         "acceptProfileMessage": "Paid {{name}}'s request",
         "acceptPayingContactMessage": "{{name}} paid your request",
         "requestTitle": "Received request for {{amount}}",
+        "requestedAmount": "{{name}} requested {{amount}}",
+        "theySentYou": "{{name}} sent you",
+        "youPaid": "You paid {{name}}",
         "send": "Send"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Gift Card",
         "noCardsText": "Your gift cards will appear here when a contact sends you one.",
-        "header": "Your Gift Cards",
+        "header": "Gift cards",
         "cardsLengthSingular": "{{num}} card",
-        "cardsLengthPlural": "{{num}} cards"
+        "cardsLengthPlural": "{{num}} cards",
+        "cardTitle": "{{store}} gift card",
+        "fromDate": "From {{name}} · {{date}}",
+        "recoveryNote": "You can recover a gift card for 7 days after it's sent. After that, deleting the app or clearing its data loses it."
       }
     },
     "showProfileQr": {
@@ -1620,14 +1648,15 @@
       "printHint": "Scan this code to pay me or add me on Blitz"
     },
     "splitBill": {
-      "addFriendsTitle": "Add Friends",
-      "createBillTitle": "Create",
+      "addFriendsTitle": "Add friends",
+      "createBillTitle": "Split",
       "selectedCount": "{{count}} of 10 selected",
       "searchPlaceholder": "Search contacts",
       "nextButton": "Next",
       "memoLabel": "Description",
       "memoPlaceholder": "What's this for?",
-      "totalAmountLabel": "Total Amount",
+      "totalAmountLabel": "Total amount",
+      "totalSub": "{{amount}} total",
       "evenSplit": "Even",
       "customSplit": "Custom",
       "remainderNote": "{{amount}} sat remainder stays with you",

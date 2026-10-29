@@ -32,7 +32,6 @@ import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
-import ContactProfileImage from './internalComponents/profileImage';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
@@ -48,6 +47,8 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { setStringAsync } from 'expo-clipboard';
+import { formatDisplayName } from './utils/formatListDisplayName';
+import ContactAvatar from './internalComponents/contactAvatar';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -114,7 +115,13 @@ export default function EditMyProfilePage(props) {
     >
       <View style={{ flex: 1, width: contentWidth, ...CENTER }}>
         <TopBar
-          title={fromSettings ? t('contacts.editMyProfilePage.navTitle') : ''}
+          title={
+            isEditingMyProfile
+              ? fromSettings
+                ? t('contacts.editMyProfilePage.navTitle')
+                : ''
+              : t('contacts.expandedContactPage.editLabel')
+          }
           shouldDismissKeyboard={true}
           onBack={() => keyboardGoBack(navigate)}
           right={
@@ -122,13 +129,18 @@ export default function EditMyProfilePage(props) {
             !selectedAddedContact?.isParentContact && (
               <IconButton
                 icon="Trash2"
+                label="contacts.editMyProfilePage.deleteContact"
                 onPress={() =>
-                  navigate.navigate('ConfirmActionPage', {
-                    confirmMessage: t(
-                      'contacts.editMyProfilePage.deleteWarning',
+                  navigate.navigate('ConfirmDialog', {
+                    title: t('contacts.editMyProfilePage.deleteContactTitle', {
+                      name: formatDisplayName(selectedAddedContact),
+                    }),
+                    message: t(
+                      'contacts.editMyProfilePage.deleteContactMessage',
                     ),
-                    confirmFunction: () => deleteUser(true),
-                    cancelFunction: () => deleteUser(false),
+                    confirmLabel: t('constants.delete'),
+                    cancelLabel: t('constants.cancel'),
+                    onConfirm: () => deleteUser(true),
                   })
                 }
               />
@@ -153,32 +165,19 @@ function ProfileInputFields({
   changeInputText,
   setIsKeyboardActive,
   nameRef,
-  bioRef,
   receiveAddressRef,
-  isEditingMyProfile,
   selectedAddedContact,
-  theme,
-  darkModeType,
-  textInputColor,
-  textInputBackground,
-  textColor,
   tokens,
-  navigate,
   t,
 }) {
-  const hasLNURL = !isEditingMyProfile && selectedAddedContact?.isLNURL;
-  const bioIsLast = !isEditingMyProfile;
+  const hasLNURL = selectedAddedContact?.isLNURL;
 
   return (
     <>
       <EditProfileTextInput
         label={t('contacts.editMyProfilePage.nameInputDesc')}
         placeholder={t(
-          `contacts.editMyProfilePage.${
-            isEditingMyProfile
-              ? 'nameInputPlaceholder'
-              : 'addedContactnameInputPlaceholder'
-          }`,
+          'contacts.editMyProfilePage.addedContactnameInputPlaceholder',
         )}
         value={inputs.name}
         onChangeText={text => changeInputText(text, 'name')}
@@ -186,13 +185,8 @@ function ProfileInputFields({
         onBlur={() => setIsKeyboardActive(false)}
         inputRef={nameRef}
         maxLength={30}
-        theme={theme}
-        darkModeType={darkModeType}
-        textInputColor={textInputColor}
-        textInputBackground={textInputBackground}
-        textColor={textColor}
         tokens={tokens}
-        showDivider={true}
+        isFirst={true}
       />
 
       {hasLNURL && (
@@ -205,38 +199,9 @@ function ProfileInputFields({
           onBlur={() => setIsKeyboardActive(false)}
           inputRef={receiveAddressRef}
           maxLength={200}
-          multiline={false}
-          minHeight={60}
-          theme={theme}
-          darkModeType={darkModeType}
-          textInputColor={textInputColor}
-          textInputBackground={textInputBackground}
-          textColor={textColor}
           tokens={tokens}
-          showDivider={true}
         />
       )}
-
-      <EditProfileTextInput
-        label={t('contacts.editMyProfilePage.bioInputDesc')}
-        placeholder={t('contacts.editMyProfilePage.bioInputPlaceholder')}
-        value={inputs.bio}
-        onChangeText={text => changeInputText(text, 'bio')}
-        onFocus={() => setIsKeyboardActive(true)}
-        onBlur={() => setIsKeyboardActive(false)}
-        inputRef={bioRef}
-        maxLength={150}
-        multiline={true}
-        minHeight={60}
-        maxHeight={100}
-        theme={theme}
-        darkModeType={darkModeType}
-        textInputColor={textInputColor}
-        textInputBackground={textInputBackground}
-        textColor={textColor}
-        tokens={tokens}
-        showDivider={!bioIsLast}
-      />
     </>
   );
 }
@@ -371,13 +336,7 @@ function InnerContent({
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { cache, refreshCacheObject } = useImageCache();
-  const {
-    backgroundOffset,
-    textInputColor,
-    textInputBackground,
-    textColor,
-    tokens,
-  } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const {
     decodedAddedContacts,
@@ -394,7 +353,6 @@ function InnerContent({
 
   // Contact-mode refs (unused in myProfile path but kept for contact path)
   const nameRef = useRef(null);
-  const bioRef = useRef(null);
   const receiveAddressRef = useRef(null);
   const didCallImagePicker = useRef(null);
   const myContact = globalContactsInformation.myProfile;
@@ -482,23 +440,15 @@ function InnerContent({
     refreshCacheObject();
   }, []);
 
-  // Shared props for ProfileInputFields
+  // Props for ProfileInputFields (contact path)
   const inputFieldsProps = {
     inputs,
     changeInputText,
     setIsKeyboardActive,
     nameRef,
-    bioRef,
     receiveAddressRef,
-    isEditingMyProfile,
     selectedAddedContact,
-    theme,
-    darkModeType,
-    textInputColor,
-    textInputBackground,
-    textColor,
     tokens,
-    navigate,
     t,
   };
 
@@ -541,16 +491,13 @@ function InnerContent({
               });
             }}
           >
-            <View
-              style={[
-                styles.profileImage,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
+            <View style={styles.profileImage}>
               {isAddingImage ? (
                 <FullLoadingScreen showText={false} />
               ) : (
-                <ContactProfileImage
+                <ContactAvatar
+                  name={myContact.name || t('constants.annonName')}
+                  seed={myContact.uuid}
                   updated={
                     tempImage.shouldDelete
                       ? null
@@ -565,8 +512,8 @@ function InnerContent({
                       ? tempImage.comparison?.uri
                       : myProfileImage?.localUri
                   }
-                  darkModeType={darkModeType}
-                  theme={theme}
+                  size={96}
+                  fontSize={96 / 3}
                 />
               )}
             </View>
@@ -649,7 +596,8 @@ function InnerContent({
     );
   }
 
-  // ── Contact path (unchanged) ────────────────────────────────────────────────
+  // ── Contact path (PeopleAdd/People.dc.html "Edit contact") ──────────────────
+  const canEditPhoto = !!selectedAddedContact.isLNURL;
   return (
     <View
       style={[
@@ -659,24 +607,15 @@ function InnerContent({
     >
       <CustomScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          flexGrow: 1,
-          alignItems: 'center',
-          width: fromSettings ? INSET_WINDOW_WIDTH : '100%',
-          ...CENTER,
-        }}
+        contentContainerStyle={styles.contactScrollContent}
         keyboardShouldPersistTaps="handled"
       >
         {/* Profile image */}
         <TouchableOpacity
-          activeOpacity={
-            (isEditingMyProfile || selectedAddedContact.isLNURL) &&
-            !isAddingImage
-              ? 0.2
-              : 1
-          }
+          style={styles.contactPhoto}
+          activeOpacity={canEditPhoto && !isAddingImage ? 0.2 : 1}
           onPress={async () => {
-            if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
+            if (!canEditPhoto) return;
             if (isAddingImage) return;
             if (KeyboardController.isVisible()) {
               await KeyboardController.dismiss();
@@ -696,24 +635,19 @@ function InnerContent({
           }}
         >
           <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
+            style={[styles.profileImage, { backgroundColor: backgroundOffset }]}
           >
             {isAddingImage ? (
               <FullLoadingScreen showText={false} />
             ) : (
-              <ContactProfileImage
+              <ContactAvatar
+                name={selectedAddedContact?.name || t('constants.annonName')}
+                seed={selectedAddedContact?.uuid}
                 updated={
                   tempImage.shouldDelete
                     ? null
                     : tempImage.uri
                     ? tempImage.comparison?.updated
-                    : isEditingMyProfile
-                    ? myProfileImage?.updated
                     : selectedAddedContactImage?.updated
                 }
                 uri={
@@ -721,35 +655,36 @@ function InnerContent({
                     ? null
                     : tempImage.uri
                     ? tempImage.comparison?.uri
-                    : isEditingMyProfile
-                    ? myProfileImage?.localUri
                     : selectedAddedContactImage?.localUri
                 }
-                darkModeType={darkModeType}
-                theme={theme}
+                size={96}
+                fontSize={96 / 3}
               />
             )}
           </View>
-          {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
-            <View style={styles.selectFromPhotos}>
+          {canEditPhoto && (
+            <View
+              style={[
+                styles.selectFromPhotos,
+                {
+                  backgroundColor: tokens.surface,
+                  borderColor: tokens.ground,
+                },
+              ]}
+            >
               <ThemeIcon
-                colorOverride={COLORS.lightModeText}
-                size={20}
-                iconName={hasImage ? 'X' : 'Image'}
+                redesign
+                size={18}
+                iconName={hasImage ? 'X' : 'Camera'}
               />
             </View>
           )}
         </TouchableOpacity>
 
-        {/* Unified settings card */}
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          <ProfileInputFields {...inputFieldsProps} />
-        </View>
+        <ProfileInputFields {...inputFieldsProps} />
 
         <CustomButton
           buttonStyles={{
-            width: '100%',
-            ...CENTER,
             marginTop: 'auto',
             marginBottom: isKeyboardActive
               ? CONTENT_KEYBOARD_OFFSET
@@ -795,17 +730,14 @@ function InnerContent({
 
       // ── Contact path (unchanged) ──────────────────────────────────────────
       if (
+        // Bio is not editable for contacts, so it is not validated here.
         inputs.name.length >= 30 ||
-        inputs.bio.length >= 150 ||
         inputs.uniquename.length >= 30 ||
         (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
       )
         return;
 
-      if (
-        !VALID_NAME_BIO_REGEX.test(inputs.name) ||
-        !VALID_NAME_BIO_REGEX.test(inputs.bio)
-      ) {
+      if (!VALID_NAME_BIO_REGEX.test(inputs.name)) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('contacts.editMyProfilePage.invalidCharactersError'),
         });
@@ -941,12 +873,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-  card: {
+  contactScrollContent: {
+    flexGrow: 1,
     width: '100%',
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginTop: 16,
-    marginBottom: 20,
+  },
+  contactPhoto: {
+    alignSelf: 'center',
+    marginTop: 4,
   },
   sectionHeader: {
     alignSelf: 'flex-start',

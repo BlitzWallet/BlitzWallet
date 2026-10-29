@@ -39,7 +39,6 @@ import {
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
@@ -57,6 +56,7 @@ import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swa
 import { uses24HourClock } from 'react-native-localize';
 import openWebBrowser from '../../functions/openWebBrowser';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
+import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 
 // Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
 const SHEET_CHROME = 49;
@@ -461,19 +461,20 @@ export default function ExpandedTx({
       transaction?.details?.direction === 'INCOMING' &&
       isSuccessful);
 
+  const bulkNamesArray = successfulGroup
+    .map(entry => {
+      const contact = decodedAddedContacts?.find(
+        c => c.uuid === entry.contactUUID,
+      );
+      return contact?.name || contact?.uniqueName;
+    })
+    .filter(Boolean);
+
   const brantaMerchantName = transaction.details?.brantaMerchantName;
   const counterpartyName = brantaMerchantName
     ? brantaMerchantName
     : isBulkPayment
-    ? successfulGroup
-        .map(entry => {
-          const contact = decodedAddedContacts?.find(
-            c => c.uuid === entry.contactUUID,
-          );
-          return contact?.name || contact?.uniqueName;
-        })
-        .filter(Boolean)
-        .join(', ')
+    ? bulkNamesArray.join(', ')
     : selectedContact?.name || selectedContact?.uniqueName;
 
   const formatTime = date => {
@@ -498,28 +499,33 @@ export default function ExpandedTx({
       const extra = successfulGroup.length - shown.length;
       return (
         <View style={styles.splitAvatars}>
-          {shown.map((entry, index) => (
-            <View
-              key={entry.contactUUID}
-              style={[
-                styles.heroIcon,
-                styles.splitAvatar,
-                {
-                  backgroundColor: tokens.disc,
-                  borderColor: tokens.surface,
-                  marginLeft: index === 0 ? 0 : -14,
-                  zIndex: shown.length - index,
-                },
-              ]}
-            >
-              <ContactProfileImage
-                updated={cache[entry.contactUUID]?.updated}
-                uri={cache[entry.contactUUID]?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
-              />
-            </View>
-          ))}
+          {shown.map((entry, index) => {
+            const name = bulkNamesArray[index];
+            console.log(entry, name);
+            return (
+              <View
+                key={entry.contactUUID}
+                style={[
+                  styles.heroIcon,
+                  styles.splitAvatar,
+                  {
+                    borderColor: tokens.surface,
+                    marginLeft: index === 0 ? 0 : -14,
+                    zIndex: shown.length - index,
+                  },
+                ]}
+              >
+                <ContactAvatar
+                  name={name || t('constants.annonName')}
+                  seed={entry.contactUUID}
+                  updated={cache[entry.contactUUID]?.updated}
+                  uri={cache[entry.contactUUID]?.localUri}
+                  size={56}
+                  fontSize={56 / 3}
+                />
+              </View>
+            );
+          })}
           {extra > 0 && (
             <View
               style={[
@@ -544,11 +550,13 @@ export default function ExpandedTx({
     if (contactImage) {
       return (
         <View style={[styles.heroIcon, { backgroundColor: tokens.disc }]}>
-          <ContactProfileImage
+          <ContactAvatar
+            name={selectedContact?.name || t('constants.annonName')}
+            seed={selectedContact?.uuid}
             updated={cache[sendingContactUUID]?.updated}
             uri={contactImage}
-            darkModeType={darkModeType}
-            theme={theme}
+            size={56}
+            fontSize={56 / 3}
           />
         </View>
       );

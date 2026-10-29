@@ -976,6 +976,7 @@ export default function useContactPayment({
     paymentValidation,
     canProceed,
     canReview,
+    getValidationErrorResult,
     primaryDisplay,
     conversionFiatStats,
     convertedSendAmount,

@@ -2,6 +2,10 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 import { COLORS } from '../../../constants';
 import QRCode from '../StyledQRCode';
+import ContactAvatar from '../../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
+import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
+import { useTranslation } from 'react-i18next';
+import { useImageCache } from '../../../../context-store/imageCache';
 
 const EmptyLogo = () => null;
 // 5px white ring around the badge (design: padding 5).
@@ -21,7 +25,12 @@ export default function QrCard({
   style,
   children,
 }) {
+  const { t } = useTranslation();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { tokens } = useTheme();
+  const { cache } = useImageCache();
+  const myProfile = globalContactsInformation.myProfile;
+  const imageData = cache[myProfile?.uuid];
   const Container = onPress ? TouchableOpacity : View;
   return (
     <Container
@@ -37,17 +46,24 @@ export default function QrCard({
           size={size}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logoSVG={badge ? EmptyLogo : undefined}
-          logoSize={badgeSize + BADGE_RING * 2}
+          logoSVG={EmptyLogo}
+          logoSize={badgeSize}
           logoMargin={0}
           logoBackgroundColor={COLORS.darkModeText}
           ecl="H"
         />
-        {!!badge && (
-          <View style={styles.badgeWrap} pointerEvents="none">
-            <View style={styles.badgeRing}>{badge}</View>
+        <View style={styles.badgeWrap} pointerEvents="none">
+          <View style={styles.badgeRing}>
+            <ContactAvatar
+              name={myProfile?.name || t('constants.annonName')}
+              seed={myProfile?.uuid}
+              uri={imageData?.localUri}
+              updated={imageData?.updated}
+              size={badgeSize}
+              fontSize={badgeSize / 3}
+            />
           </View>
-        )}
+        </View>
       </View>
       {children}
     </Container>

@@ -15,10 +15,7 @@ import {
 import ThemeText from './textTheme';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
-import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useImageCache } from '../../../context-store/imageCache';
-import { useGlobalContextProvider } from '../../../context-store/context';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { MODES } from '../../constants/themes';
 import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { useNavigation } from '@react-navigation/native';
@@ -27,13 +24,15 @@ import { shareFile, shareMessage } from '../handleShare';
 import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import CustomButton from './button';
+import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 
 // Photo disc in the middle of the profile QR (Show QR + Print).
 export function ProfileQrBadge({ size }) {
-  const { masterInfoObject } = useGlobalContextProvider();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
-  const myProfileImage = cache[masterInfoObject?.uuid];
+  const { t } = useTranslation();
+  const myProfile = globalContactsInformation.myProfile;
+  const myProfileImage = cache[myProfile?.uuid];
   return (
     <View
       style={{
@@ -43,14 +42,15 @@ export function ProfileQrBadge({ size }) {
         overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: tokens.disc,
       }}
     >
-      <ContactProfileImage
+      <ContactAvatar
+        name={myProfile?.name || t('constants.annonName')}
+        seed={myProfile?.uuid}
         updated={myProfileImage?.updated}
         uri={myProfileImage?.localUri}
-        darkModeType={darkModeType}
-        theme={theme}
+        size={size}
+        fontSize={size / 3}
       />
     </View>
   );

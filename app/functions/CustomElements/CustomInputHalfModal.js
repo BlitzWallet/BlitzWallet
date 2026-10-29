@@ -2,23 +2,28 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import { CENTER, SATSPERBITCOIN } from '../../constants';
-import FormattedBalanceInput from './formattedBalanceInput';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../constants';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
-import { StyleSheet } from 'react-native';
-import CustomScrollView from './scrollView';
-import ThemeText from './textTheme';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { satsToDollars } from '../spark/flashnet';
-import CurrencySwitchButton from './currencySwitchButton';
 import {
   getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
   resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
 } from '../displayCurrency';
 import useDisplayCurrencyController from '../../hooks/useDisplayCurrencyController';
 import useCurrencyDisplay from '../../hooks/useCurrencyDisplay';
+import BudgetCurrencyButton from './redesign/CurrencyButton';
+import AmountHero from './redesign/AmountHero';
+import formatBalanceAmount from '../formatNumber';
 
 export default function CustomInputHalfModal(props) {
   const {
@@ -28,7 +33,6 @@ export default function CustomInputHalfModal(props) {
     type,
     returnLocation,
     forceUSD,
-    setBackNav,
   } = props;
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -36,6 +40,8 @@ export default function CustomInputHalfModal(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const isUSDOnly = returnLocation === 'CreateSplitBill' && forceUSD;
   const fiatStats = useMemo(
     () =>
@@ -134,54 +140,30 @@ export default function CustomInputHalfModal(props) {
     setContentHeight(600);
   }, []);
 
-  useEffect(() => {
-    if (!setBackNav) return;
-    if (isUSDOnly) return;
-    setBackNav({
-      title: '',
-      rightElement:
-        returnLocation !== 'CreateSplitBill' ||
-        (returnLocation === 'CreateSplitBill' && !forceUSD) ? (
-          <CurrencySwitchButton
-            displayCurrency={displayCurrency}
-            onPress={openPicker}
-            disabled={isLoadingRate}
-          />
-        ) : null,
-    });
-    return () => setBackNav(null);
-  }, [
-    setBackNav,
-    displayCurrency,
-    openPicker,
-    isLoadingRate,
-    returnLocation,
-    forceUSD,
-  ]);
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
   return (
-    <CustomScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      showsVerticalScrollIndicator={false}
-    >
-      {message && (
-        <ThemeText
-          styles={{
-            textAlign: 'center',
-            width: '80%',
-            ...CENTER,
-            marginBottom: 10,
-          }}
-          content={message}
+    <View style={[styles.container, { width: contentWidth }]}>
+      <View style={styles.budgetButton}>
+        <BudgetCurrencyButton
+          label={isSats ? 'SAT' : normalizedDisplayCurrency}
+          onPress={openPicker}
+          disabled={isLoadingRate}
+          accessibilityLabel={t('settings.nwc.createNWCAmount.changeCurrency')}
         />
-      )}
-      <FormattedBalanceInput
-        maxWidth={0.9}
-        amountValue={amountValue}
-        inputDenomination={primaryDisplay.denomination}
+      </View>
+
+      <AmountHero
+        amount={formatBalanceAmount(amountValue || 0, false, masterInfoObject)}
+        convertAmount={false}
+        fiatStats={primaryDisplay.forceFiatStats}
         forceCurrency={primaryDisplay.forceCurrency}
-        forceFiatStats={primaryDisplay.forceFiatStats}
-        customTextInputContainerStyles={{ marginTop: isUSDOnly ? 20 : 10 }}
+        masterInfoObject={{
+          ...masterInfoObject,
+          userBalanceDenomination: primaryDisplay.denomination,
+        }}
+        mutedValue={!amountValue}
       />
 
       <CustomNumberKeyboard
@@ -189,24 +171,28 @@ export default function CustomInputHalfModal(props) {
         setInputValue={setAmountValue}
         usingForBalance={true}
         fiatStats={conversionFiatStats}
+        redesign
       />
       <CustomButton
-        buttonStyles={{
-          ...CENTER,
-        }}
         actionFunction={handleSubmit}
         textContent={t('constants.save')}
+        size={'regular'}
+        buttonStyles={styles.button}
       />
-    </CustomScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  popupContainer: {
+  container: {
     flex: 1,
+    ...CENTER,
   },
-  satValue: {
-    textAlign: 'center',
-    marginBottom: 50,
+  budgetButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    marginLeft: 'auto',
   },
+  button: { marginTop: CONTENT_KEYBOARD_OFFSET },
 });

@@ -1,29 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
-  View,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { COLORS, SIZES } from '../../../../constants';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalContactsMessages } from '../../../../../context-store/globalContacts';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import {
+  useGlobalContactsInfo,
+  useGlobalContactsMessages,
+} from '../../../../../context-store/globalContacts';
+import { useTheme } from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
 import { getGiftCardData } from '../../../../functions/contacts/giftCardStorage';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import DiscText from '../../../../functions/CustomElements/redesign/DiscText';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import Note from '../../../../functions/CustomElements/redesign/Note';
+import { CENTER } from '../../../../constants';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { formatDisplayName } from './utils/formatListDisplayName';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function formatCardDate(timestamp, t) {
+  const date = new Date(timestamp);
+  const start = new Date(date).setHours(0, 0, 0, 0);
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+  if (start === todayStart) return t('constants.today');
+  if (start === todayStart - DAY_MS) return t('constants.yesterday');
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year:
+      date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+  });
+}
 
 export default function ViewAllGiftCards() {
+  const navigation = useNavigation();
   const { giftCardsList } = useGlobalContactsMessages();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, textColor, tokens } =
-    GetThemeColors();
-  const navigate = useNavigation();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
   const [allCardsWithInfo, setAllCardsWithInfo] = useState([]);
 
@@ -78,7 +99,15 @@ export default function ViewAllGiftCards() {
     }
   }, [giftCardsList]);
 
-  const handleGiftCardPress = message => {
+  const contactNames = useMemo(() => {
+    const names = {};
+    (decodedAddedContacts || []).forEach(contact => {
+      names[contact.uuid] = formatDisplayName(contact);
+    });
+    return names;
+  }, [decodedAddedContacts]);
+
+  const handleGiftCardPress = (message, senderName) => {
     const giftCard = message.message.giftCardInfo;
     const isOutgoingPayment =
       (message.message.didSend && !message.message.isRequest) ||
@@ -86,275 +115,121 @@ export default function ViewAllGiftCards() {
         message.message.isRedeemed &&
         !message.message.didSend);
 
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'viewContactsGiftInfo',
+    navigation.navigate('ViewGiftCardCode', {
       giftCardInfo: giftCard,
       message: message.message.description,
       from: 'allGifts',
-      sliderHight: 1,
       isOutgoingPayment,
+      senderName,
     });
-    console.log(giftCard);
   };
 
-  const renderGiftCardItem = ({ item }) => {
+  const renderGiftCardItem = item => {
     const giftCardInfo = item.message.giftCardInfo;
-    const expandedCardInfo = item.expandedCardInfo;
+    const isUsed = !!item.expandedCardInfo?.userMarkedClaimed;
+    const storeName =
+      giftCardInfo?.name ||
+      t('contacts.internalComponents.viewAllGiftCards.cardNamePlaceH');
+    const senderName = contactNames[item.fromPubKey];
+    const date = formatCardDate(item.timestamp, t);
 
     return (
-      <TouchableOpacity
-        style={[
-          styles.giftCardItem,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-        onPress={() => handleGiftCardPress(item)}
-        activeOpacity={0.7}
-      >
-        {/* Claimed Status Pill */}
-        {expandedCardInfo?.userMarkedClaimed && (
-          <View
-            style={[
-              styles.claimedPill,
-              {
-                backgroundColor: true
-                  ? theme && darkModeType
-                    ? tokens.ink
-                    : tokens.accent
-                  : 'transparent',
-              },
-            ]}
-          >
-            <ThemeText
-              styles={{
-                ...styles.claimedPillText,
-                color: true
-                  ? theme && darkModeType
-                    ? COLORS.lightModeText
-                    : tokens.onAccent
-                  : textColor,
-              }}
-              content={t('contacts.viewGiftCardCode.claimed')}
+      <ListRow
+        key={giftCardInfo?.invoice || item.timestamp}
+        onPress={() => handleGiftCardPress(item, senderName)}
+        minHeight={68}
+        titleStyle={styles.title}
+        titleLines={2}
+        subLines={1}
+        lead={
+          <DiscText
+            text={storeName.trim().charAt(0).toUpperCase() || '?'}
+            size={40}
+            fontSize={15}
+          />
+        }
+        title={t('contacts.internalComponents.viewAllGiftCards.cardTitle', {
+          store: storeName,
+        })}
+        sub={
+          senderName
+            ? t('contacts.internalComponents.viewAllGiftCards.fromDate', {
+                name: senderName,
+                date,
+              })
+            : date
+        }
+        trailing={
+          <View style={styles.amountColumn}>
+            <FormattedSatText
+              neverHideBalance={true}
+              balance={giftCardInfo?.amount || 0}
+              useMillionDenomination={true}
+              styles={styles.amount}
             />
+            {isUsed && (
+              <ThemeText
+                content={t('contacts.viewGiftCardCode.claimed')}
+                styles={[styles.used, { color: tokens.muted }]}
+              />
+            )}
           </View>
-        )}
-        {/* Left side - Logo */}
-        <View style={styles.logoContainer}>
-          {giftCardInfo?.logo ? (
-            <Image
-              source={{ uri: giftCardInfo.logo }}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          ) : (
-            <View style={styles.placeholderLogo}>
-              <ThemeText styles={styles.placeholderText} content="?" />
-            </View>
-          )}
-        </View>
-
-        {/* Middle section - Details */}
-        <View style={styles.cardDetails}>
-          <ThemeText
-            styles={styles.cardName}
-            content={
-              giftCardInfo?.name ||
-              t('contacts.internalComponents.viewAllGiftCards.cardNamePlaceH')
-            }
-          />
-
-          <ThemeText
-            styles={styles.cardDate}
-            content={new Date(item.timestamp).toLocaleDateString()}
-          />
-        </View>
-
-        {/* Right side - Amount */}
-        <FormattedSatText
-          neverHideBalance={true}
-          balance={giftCardInfo?.amount || 0}
-          useMillionDenomination={true}
-        />
-        <ThemeIcon
-          size={20}
-          styles={styles.chevronContainer}
-          iconName={'ChevronRight'}
-        />
-      </TouchableOpacity>
+        }
+        showChevron={true}
+        chevronSize={18}
+      />
     );
   };
-
-  if (!giftCardsList || giftCardsList.length === 0) {
-    return (
-      <View style={styles.emptyContainer}>
-        <ThemeText
-          styles={styles.emptySubtext}
-          content={t(
-            'contacts.internalComponents.viewAllGiftCards.noCardsText',
-          )}
-        />
-      </View>
-    );
-  }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          onPress={() =>
-            navigate.navigate('InformationPopup', {
-              textContent: t('errormessages.giftCardExpiration'),
-              buttonText: t('constants.understandText'),
-            })
-          }
-          style={styles.titleContainer}
-        >
-          <ThemeText
-            styles={styles.headerTitle}
-            content={t('contacts.internalComponents.viewAllGiftCards.header')}
-          />
-        </TouchableOpacity>
-        <ThemeText
-          styles={styles.headerSubtitle}
-          content={t(
-            `contacts.internalComponents.viewAllGiftCards.cardsLength${
-              giftCardsList.length !== 1 ? 'Plural' : 'Singular'
-            }`,
-            {
-              num: giftCardsList.length,
-            },
-          )}
+    <GlobalThemeView useStandardWidth={true} styles={styles.page}>
+      <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
+        <TopBar
+          title={t('contacts.internalComponents.viewAllGiftCards.header')}
         />
+        {!giftCardsList || giftCardsList.length === 0 ? (
+          <View style={styles.empty}>
+            <EmptyState
+              icon="Gift"
+              showTitle={false}
+              sub={t(
+                'contacts.internalComponents.viewAllGiftCards.noCardsText',
+              )}
+            />
+          </View>
+        ) : (
+          <CustomScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingTop: 20,
+              paddingBottom: 20,
+            }}
+          >
+            <ListCard dividerInset={68}>
+              {allCardsWithInfo.map(renderGiftCardItem)}
+            </ListCard>
+            <View style={styles.note}>
+              <Note
+                tone="warn"
+                text={t(
+                  'contacts.internalComponents.viewAllGiftCards.recoveryNote',
+                )}
+              />
+            </View>
+          </CustomScrollView>
+        )}
       </View>
-
-      {/* Gift Cards List */}
-      <FlatList
-        data={allCardsWithInfo}
-        renderItem={renderGiftCardItem}
-        keyExtractor={(item, index) => item.invoice || index.toString()}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
-    </View>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-  },
-  headerContainer: {
-    marginBottom: 16,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  aboutIcon: {
-    width: 22,
-    height: 22,
-    marginLeft: 5,
-  },
-  headerTitle: {
-    fontSize: SIZES.xLarge,
-    marginBottom: 4,
-    textAlign: 'center',
-    includeFontPadding: false,
-  },
-  headerSubtitle: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    textAlign: 'center',
-  },
-  listContainer: {
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-  giftCardItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 2,
-  },
-  logoContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  logo: {
-    width: 35,
-    height: 35,
-  },
-  placeholderLogo: {
-    width: 35,
-    height: 35,
-    borderRadius: 6,
-    backgroundColor: '#e9ecef',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    fontSize: 18,
-    opacity: 0.5,
-    color: '#666',
-  },
-  cardDetails: {
-    flex: 1,
-    marginRight: 12,
-  },
-  cardName: {
-    flexShrink: 1,
-    fontSize: SIZES.medium,
-    marginBottom: 2,
-  },
-  cardDate: {
-    fontSize: SIZES.xSmall,
-  },
-  chevronContainer: {
-    opacity: 0.8,
-    marginLeft: 5,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    marginVertical: 4,
-  },
-  emptyContainer: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  emptySubtext: {
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-
-  claimedPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    borderTopRightRadius: 12,
-  },
-
-  claimedPillText: {
-    fontSize: SIZES.xSmall,
-    includeFontPadding: false,
-  },
+  page: { width: '100%' },
+  inner: { flex: 1 },
+  title: { fontSize: 15, lineHeight: 21 },
+  amountColumn: { alignItems: 'flex-end' },
+  amount: { fontSize: 15, includeFontPadding: false },
+  used: { fontSize: 12, lineHeight: 18, includeFontPadding: false },
+  note: { marginTop: 16, paddingHorizontal: 4 },
+  empty: { flex: 1, justifyContent: 'center' },
 });

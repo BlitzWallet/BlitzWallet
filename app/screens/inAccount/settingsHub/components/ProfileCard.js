@@ -3,7 +3,6 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { ThemeText } from '../../../../functions/CustomElements';
-import ContactProfileImage from '../../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { FONT } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +10,7 @@ import ContactRingAvatar from '../../../../components/admin/homeComponents/conta
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../../../functions/CustomElements/button';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import ContactAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 
 // D156 header: 96 avatar (ID-image swap kept, OQ-39) with a photo badge that
 // opens Edit profile, name 22/30, @username 15/22 muted, two white pills.
@@ -68,14 +67,13 @@ export default function ProfileCard({
         theme={theme}
         onToggle={handleToggle}
       >
-        <View style={[styles.profileImage, { backgroundColor: tokens.disc }]}>
-          <ContactProfileImage
-            updated={profileImage?.updated}
-            uri={profileImage?.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
-          />
-        </View>
+        <ContactAvatar
+          name={name || t('constants.annonName')}
+          seed={masterInfoObject?.uuid}
+          updated={profileImage?.updated}
+          uri={profileImage?.localUri}
+          fill
+        />
       </ContactRingAvatar>
 
       <Animated.View

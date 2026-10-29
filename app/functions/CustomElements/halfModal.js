@@ -45,8 +45,6 @@ import ViewSmsReceiveCode from '../../components/admin/homeComponents/apps/sms4s
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
-import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
-import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
 import CreateAccumulationAddressModal from '../../components/admin/homeComponents/accumulationAddresses/CreateAccumulationAddressModal';
 import AccumulationAddressSelectHalfModal from '../../components/admin/homeComponents/accumulationAddresses/AccumulationAddressSelectHalfModal';
@@ -195,7 +193,10 @@ export default function CustomHalfModal(props) {
     contentType === 'switchGenerativeAiModel' ||
     contentType === 'confirmSMS' ||
     contentType === 'confirmSMSReceive' ||
-    contentType === 'viewSMSCode';
+    contentType === 'viewSMSCode' ||
+    contentType === 'addContacts' ||
+    contentType === 'expandedContactMessage' ||
+    contentType === 'customInputText';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -402,7 +403,10 @@ export default function CustomHalfModal(props) {
         return (
           <ExpandedMessageHalfModal
             message={props.route.params?.message}
-            slideHeight={slideHeight}
+            selectedContact={props.route.params?.selectedContact}
+            txParsed={props.route.params?.txParsed}
+            amount={props.route.params?.amount}
+            timestamp={props.route.params?.timestamp}
           />
         );
       case 'customQrCode':
@@ -517,27 +521,6 @@ export default function CustomHalfModal(props) {
           />
         );
 
-      case 'viewContactsGiftInfo':
-        return (
-          <ViewGiftCardCodePage
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            giftCardInfo={props?.route?.params?.giftCardInfo}
-            from={props?.route?.params?.from}
-            isOutgoingPayment={props?.route?.params?.isOutgoingPayment}
-            message={props?.route?.params?.message}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
-      case 'ViewAllGiftCards':
-        return (
-          <ViewAllGiftCards
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-          />
-        );
       case 'SelectLRC20Token':
         return (
           <SelectLRC20Token

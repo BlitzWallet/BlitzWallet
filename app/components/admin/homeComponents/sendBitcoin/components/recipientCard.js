@@ -5,6 +5,7 @@ import { COLORS, ICONS, USDB_TOKEN_ID } from '../../../../../constants';
 import ContactProfileImage from '../../contacts/internalComponents/profileImage';
 import { getPhonePaymentDisplay } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import i18next from 'i18next';
+import ContactAvatar from '../../contacts/internalComponents/contactAvatar';
 
 // LNURL/lightning-address domain → ICONS key for the provider brand logo. When a
 // domain matches, the logo conveys the provider so we drop the "@host" and show

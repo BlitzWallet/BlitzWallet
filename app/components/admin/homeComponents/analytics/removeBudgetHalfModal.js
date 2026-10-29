@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    gap: 12,
+    gap: 10,
     marginTop: 'auto',
   },
   closeButton: {

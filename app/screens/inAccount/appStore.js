@@ -54,10 +54,9 @@ export default function AppStore({ navigation }) {
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <PageTitle
-          text={t('apps.appList.title')}
-          titleStyles={styles.titleStyles}
-        />
+        <View style={styles.header}>
+          <PageTitle text={t('apps.appList.title')} />
+        </View>
         <CustomScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -149,7 +148,12 @@ const styles = StyleSheet.create({
     width: '100%',
     flex: 1,
   },
-  titleStyles: { marginTop: 10, marginBottom: 20 },
+  header: {
+    marginTop: 10,
+    marginBottom: 20,
+    minHeight: 45,
+    justifyContent: 'center',
+  },
   card: { marginTop: 16 },
   container: { paddingBottom: 0 },
 

@@ -1,18 +1,18 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../../context-store/imageCache';
-import ContactProfileImage from './profileImage';
+import ContactAvatar from './contactAvatar';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileImageRow({
   contacts = [],
   avatarSize = 56,
   containerStyles = {},
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, tokens } = GetThemeColors();
   const { cache } = useImageCache();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -44,11 +44,13 @@ export default function ProfileImageRow({
               },
             ]}
           >
-            <ContactProfileImage
+            <ContactAvatar
+              name={contact?.name || t('constants.annonName')}
+              seed={contact?.uuid}
               updated={cache[contact?.uuid]?.updated}
               uri={cache[contact?.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
+              size={avatarSize}
+              fontSize={avatarSize / 3}
             />
           </View>
         ))}

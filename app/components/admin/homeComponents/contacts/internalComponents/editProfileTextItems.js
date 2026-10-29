@@ -1,14 +1,15 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, TextInput, View } from 'react-native';
-import { COLORS, FONT, SIZES } from '../../../../../constants';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { FONT } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 /**
- * Reusable text input component for edit profile forms
+ * Labelled field for the edit-contact form (People.dc.html "Edit contact"):
+ * small uppercase label, a white 52 input (96 for the multiline bio) and an
+ * optional "n / max" counter underneath.
  *
  * @param {Object} props
- * @param {string} props.label - Label text shown above input
+ * @param {string} props.label - Label shown above the input
  * @param {string} props.placeholder - Placeholder text for input
  * @param {string} props.value - Current input value
  * @param {function} props.onChangeText - Callback when text changes
@@ -17,16 +18,9 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
  * @param {React.RefObject} props.inputRef - Ref for the TextInput
  * @param {number} props.maxLength - Maximum character length
  * @param {boolean} props.multiline - Whether input supports multiple lines
- * @param {number} props.minHeight - Minimum height for multiline inputs
- * @param {number} props.maxHeight - Maximum height for multiline inputs
- * @param {boolean} props.theme - Dark mode enabled
- * @param {boolean} props.darkModeType - Dark mode type
- * @param {string} props.textInputColor - Text color
- * @param {string} props.textInputBackground - Background color
- * @param {string} props.textColor - Character count color
- * @param {boolean} props.showInfoIcon - Whether to show info icon
- * @param {function} props.onInfoPress - Callback when info icon is pressed
- * @param {Object} props.containerStyle - Additional container styles
+ * @param {boolean} props.showCount - Show the "n / max" counter
+ * @param {boolean} props.isFirst - First field: more space above the label
+ * @param {Object} props.tokens - Theme tokens
  */
 export default function EditProfileTextInput({
   label,
@@ -38,75 +32,33 @@ export default function EditProfileTextInput({
   inputRef,
   maxLength = 30,
   multiline = false,
-  minHeight,
-  maxHeight,
-  theme,
-  darkModeType,
-  textInputColor,
-  textInputBackground,
-  textColor,
+  showCount = false,
+  isFirst = false,
   tokens,
-  showInfoIcon = false,
-  onInfoPress,
-  containerStyle,
-  showDivider = false,
 }) {
   const isOverLimit = value.length >= maxLength;
-  const characterCountColor = isOverLimit
-    ? theme && darkModeType
-      ? textColor
-      : tokens.danger
-    : textColor;
-
-  const inputTextColor = isOverLimit
-    ? theme && darkModeType
-      ? textInputColor
-      : tokens.danger
-    : textColor;
 
   return (
-    <TouchableOpacity
-      style={[styles.container, containerStyle]}
-      activeOpacity={1}
-      onPress={() => inputRef?.current?.focus()}
-    >
-      <View style={styles.labelRow}>
-        <View style={styles.labelLeft}>
-          <ThemeText styles={styles.label} content={label} />
-          {showInfoIcon && (
-            <TouchableOpacity onPress={onInfoPress} style={styles.infoIconWrap}>
-              <ThemeIcon size={14} iconName="Info" />
-            </TouchableOpacity>
-          )}
-        </View>
-        <ThemeText
-          styles={{
-            fontSize: SIZES.xSmall,
-            includeFontPadding: false,
-            color: characterCountColor,
-          }}
-          content={`${value.length} / ${maxLength}`}
-        />
-      </View>
+    <View style={[styles.container, isFirst && styles.first]}>
+      <ThemeText
+        styles={[styles.label, { color: tokens.muted }]}
+        content={label}
+      />
 
       <TextInput
-        keyboardAppearance={theme ? 'dark' : 'light'}
+        keyboardAppearance={tokens.scheme === 'dark' ? 'dark' : 'light'}
         placeholder={placeholder}
-        placeholderTextColor={
-          theme && !darkModeType
-            ? COLORS.darkModePlaceholder
-            : COLORS.lightModePlaceholder
-        }
+        placeholderTextColor={tokens.muted}
         ref={inputRef}
         editable={true}
         multiline={multiline}
         textAlignVertical={multiline ? 'top' : 'center'}
         style={[
-          styles.textInput,
-          { color: inputTextColor },
-          multiline && {
-            minHeight: minHeight || 60,
-            maxHeight: maxHeight || 100,
+          styles.input,
+          multiline && styles.multiline,
+          {
+            backgroundColor: tokens.field,
+            color: isOverLimit ? tokens.danger : tokens.onField,
           },
         ]}
         value={value}
@@ -115,52 +67,52 @@ export default function EditProfileTextInput({
         onFocus={onFocus}
       />
 
-      {showDivider && (
-        <View style={[styles.divider, { backgroundColor: textColor }]} />
+      {showCount && (
+        <ThemeText
+          variant="hint"
+          styles={[
+            styles.count,
+            { color: isOverLimit ? tokens.danger : tokens.muted },
+          ]}
+          content={`${value.length} / ${maxLength}`}
+        />
       )}
-    </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    marginTop: 20,
   },
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  labelLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
+  first: { marginTop: 24 },
   label: {
-    fontSize: SIZES.small,
+    marginHorizontal: 4,
+    marginBottom: 8,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.48,
+    textTransform: 'uppercase',
     includeFontPadding: false,
   },
-  infoIconWrap: {
-    marginLeft: 2,
-    opacity: 0.55,
-  },
-  textInput: {
-    fontSize: SIZES.medium,
+  input: {
+    height: 52,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 0,
+    fontSize: 16,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    backgroundColor: 'transparent',
-    padding: 0,
   },
-  divider: {
-    position: 'absolute',
-    bottom: 0,
-    left: 16,
-    right: 16,
-    height: StyleSheet.hairlineWidth,
-    opacity: 0.15,
+  multiline: {
+    height: 96,
+    paddingTop: 14,
+    paddingBottom: 14,
+    lineHeight: 24,
+  },
+  count: {
+    marginHorizontal: 4,
+    marginTop: 8,
   },
 });

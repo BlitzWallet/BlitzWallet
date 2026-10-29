@@ -1,15 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 import QRCode from './StyledQRCode';
 import { Image } from 'expo-image';
-
 import { CENTER, COLORS } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
-
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useImageCache } from '../../../context-store/imageCache';
-import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
+import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 
 const EmptyLogo = () => null;
 
@@ -50,11 +49,13 @@ export default function QrCodeWrapper({
   logoBorderRadius = 50,
   centerLogo,
 }) {
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { darkModeType, theme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const myProfile = globalContactsInformation.myProfile;
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
@@ -119,12 +120,13 @@ export default function QrCodeWrapper({
             { width: imageSize - 5, height: imageSize - 5 },
           ]}
         >
-          <ContactProfileImage
+          <ContactAvatar
+            name={myProfile?.name || t('constants.annonName')}
+            seed={myProfile?.uuid}
             updated={imageData?.updated}
             uri={imageData?.uri}
-            darkModeType={darkModeType}
-            theme={theme}
-            fromCustomQR={true}
+            size={imageSize - 5}
+            fontSize={(imageSize - 5) / 3}
           />
         </View>
       )}

@@ -1,30 +1,49 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import ContactProfileImage from './internalComponents/profileImage';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import ThemeText from '../../../../functions/CustomElements/textTheme';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import ListCard, {
+  ListDivider,
+} from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import ContactAvatarDisc from './internalComponents/contactAvatar';
+import { useTheme } from '../../../../../context-store/theme';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import {
-  FONT,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import ProfileImageRow from './internalComponents/profileImageRow';
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 
 const MAX_SPLIT_CONTACTS = 10;
+
+function ContactAvatar({ contact, size }) {
+  const { cache } = useImageCache();
+  return (
+    <ContactAvatarDisc
+      name={contact.name || contact.uniqueName}
+      seed={contact.uuid}
+      uri={cache[contact.uuid]?.localUri}
+      updated={cache[contact.uuid]?.updated}
+      size={size}
+    />
+  );
+}
 
 export default function AddFriendsToSplit(props) {
   const {
@@ -34,10 +53,10 @@ export default function AddFriendsToSplit(props) {
   } = props.route.params || {};
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = useTheme();
   const { decodedAddedContacts } = useGlobalContacts();
-  const { cache } = useImageCache();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [selectedContacts, setSelectedContacts] = useState([selectedContact]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,9 +71,11 @@ export default function AddFriendsToSplit(props) {
   }, [decodedAddedContacts]);
 
   const filteredContacts = useMemo(() => {
-    if (!searchQuery) return sortedContacts;
+    // LNURL contacts can't be split with, so they never show.
+    const selectable = sortedContacts.filter(c => !c.isLNURL);
+    if (!searchQuery) return selectable;
     const lower = searchQuery.toLowerCase();
-    return sortedContacts.filter(
+    return selectable.filter(
       c =>
         c.name?.toLowerCase().startsWith(lower) ||
         c.uniqueName?.toLowerCase().startsWith(lower),
@@ -79,6 +100,8 @@ export default function AddFriendsToSplit(props) {
     [selectedContacts.length, selectedUuids],
   );
 
+  const selectedCount = selectedContacts.length;
+
   const handleNext = useCallback(() => {
     if (selectedCount <= 1) {
       navigation.navigate('ErrorScreen', {
@@ -95,217 +118,178 @@ export default function AddFriendsToSplit(props) {
 
   const renderContact = useCallback(
     ({ item: contact }) => {
-      console.log(contact);
-      // Skip contacts without a Spark address or LNURL contacts
-      const isSelectable = !contact.isLNURL;
       const isSelected = selectedUuids.has(contact.uuid);
-      const uniqueName = contact.uniqueName || '';
-      const contactName = contact.name || t('contacts.splitBill.noName') || '';
-      if (!isSelectable) return null;
+      const isLocked = contact.uuid === selectedContact.uuid;
+      const atLimit = !isSelected && selectedCount >= MAX_SPLIT_CONTACTS;
 
       return (
-        <TouchableOpacity
-          style={styles.contactRow}
-          onPress={() =>
-            isSelectable &&
-            contact.uuid !== selectedContact.uuid &&
-            toggleContact(contact)
+        <ListRow
+          minHeight={64}
+          paddingVertical={4}
+          onPress={isLocked ? undefined : () => toggleContact(contact)}
+          lead={<ContactAvatar contact={contact} size={40} />}
+          title={
+            contact.name || contact.uniqueName || t('contacts.splitBill.noName')
           }
-          activeOpacity={
-            isSelectable && contact.uuid !== selectedContact.uuid ? 0.7 : 1
-          }
-        >
-          <View
-            style={[
-              styles.contactAvatar,
-              {
-                backgroundColor: backgroundOffset,
-                opacity: isSelectable ? 1 : 0.4,
-              },
-            ]}
-          >
-            <ContactProfileImage
-              updated={cache[contact.uuid]?.updated}
-              uri={cache[contact.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <ThemeText
-              styles={styles.contactUniqueName}
-              content={uniqueName}
-              CustomNumberOfLines={1}
-            />
-            <ThemeText
-              styles={styles.contactName}
-              content={contactName}
-              CustomNumberOfLines={1}
-            />
-          </View>
-          {isSelectable ? (
-            <CheckMarkCircle containerSize={24} isActive={isSelected} />
-          ) : (
-            <View style={{ opacity: 0.4 }}>
-              <CheckMarkCircle containerSize={24} />
+          sub={contact.uniqueName ? `@${contact.uniqueName}` : undefined}
+          tone={atLimit ? 'hidden' : 'default'}
+          trailing={
+            <View
+              style={[
+                styles.check,
+                isSelected
+                  ? { backgroundColor: tokens.accent }
+                  : { borderWidth: 2, borderColor: tokens.grab },
+              ]}
+            >
+              {isSelected && (
+                <ThemeIcon
+                  redesign
+                  iconName="Check"
+                  size={14}
+                  strokeWidth={3}
+                  colorOverride={tokens.onAccent}
+                />
+              )}
             </View>
-          )}
-        </TouchableOpacity>
+          }
+        />
       );
     },
-    [
-      selectedUuids,
-      toggleContact,
-      backgroundOffset,
-      darkModeType,
-      theme,
-      cache,
-      t,
-      selectedContact,
-    ],
+    [selectedUuids, toggleContact, selectedContact, selectedCount, tokens, t],
   );
 
   const keyExtractor = useCallback(item => item.uuid, []);
-
-  const selectedCount = selectedContacts.length;
 
   return (
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
       useStandardWidth={true}
+      useTouchableWithoutFeedback
     >
-      <View style={styles.standardContainerWidth}>
-        <CustomSettingsTopBar label={t('contacts.splitBill.addFriendsTitle')} />
-      </View>
-      {/* Selected avatars stack */}
-      <View
-        style={[
-          styles.selectedSection,
-          {
-            borderColor: tokens.divider,
-          },
-        ]}
-      >
-        <ProfileImageRow contacts={selectedContacts} />
-        <ThemeText
-          styles={{
-            marginBottom: CONTENT_KEYBOARD_OFFSET,
-            textAlign: 'center',
-            opacity: HIDDEN_OPACITY,
-            fontSize: SIZES.smedium,
-          }}
-          content={t(`contacts.splitBill.selectedCount`, {
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('contacts.splitBill.addFriendsTitle')} />
+
+        <View style={styles.search}>
+          <SearchField
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('contacts.splitBill.searchPlaceholder')}
+            pill
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
+          />
+        </View>
+
+        <View horizontal style={styles.chipsScroll}>
+          {selectedContacts.map(contact => {
+            const isLocked = contact.uuid === selectedContact.uuid;
+            const displayName = contact.name || contact.uniqueName || '';
+            return (
+              <TouchableOpacity
+                key={contact.uuid}
+                disabled={isLocked}
+                onPress={() => toggleContact(contact)}
+                accessibilityRole="button"
+                accessibilityLabel={displayName}
+                style={[styles.chip, { backgroundColor: tokens.surface }]}
+              >
+                <ContactAvatar contact={contact} size={32} />
+                <ThemeText
+                  variant="body"
+                  CustomNumberOfLines={1}
+                  content={displayName.trim().split(' ')[0]}
+                  styles={styles.chipName}
+                />
+                {!isLocked && (
+                  <ThemeIcon
+                    redesign
+                    iconName="X"
+                    size={14}
+                    colorOverride={tokens.muted}
+                  />
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <SectionHeader
+          title={t('contacts.splitBill.selectedCount', {
             count: selectedCount,
           })}
         />
-      </View>
 
-      {/* Search */}
-      <CustomSearchInput
-        inputText={searchQuery}
-        setInputText={setSearchQuery}
-        placeholderText={t('contacts.splitBill.searchPlaceholder')}
-        containerStyles={styles.searchContainer}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-        onFocusFunction={() => setIsKeyboardActive(true)}
-      />
-
-      {/* Contact list */}
-      <FlatList
-        data={filteredContacts}
-        renderItem={renderContact}
-        keyExtractor={keyExtractor}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <ThemeText
-            styles={[styles.emptyText, { color: tokens.muted }]}
-            content={
+        {filteredContacts.length ? (
+          <ListCard style={styles.card}>
+            <FlatList
+              style={styles.list}
+              data={filteredContacts}
+              renderItem={renderContact}
+              keyExtractor={keyExtractor}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={ListDividerInset}
+            />
+          </ListCard>
+        ) : (
+          <EmptyState
+            icon="UsersRound"
+            title={
               decodedAddedContacts.length > 1
                 ? t('contacts.splitBill.noContactsSearch')
                 : t('contacts.splitBill.noContactsEmpty')
             }
           />
-        }
-      />
+        )}
 
-      {/* Next button */}
-      <CustomButton
-        buttonStyles={[
-          styles.nextButton,
-          {
-            opacity: selectedCount <= 1 ? 0.5 : 1,
-            marginTop: CONTENT_KEYBOARD_OFFSET,
-          },
-        ]}
-        textStyles={styles.nextButtonText}
-        actionFunction={handleNext}
-        textContent={t('contacts.splitBill.nextButton')}
-      />
+        <View style={styles.spacer} />
+        <CustomButton
+          buttonStyles={[
+            styles.nextButton,
+            { opacity: selectedCount <= 1 ? 0.5 : 1 },
+          ]}
+          actionFunction={handleNext}
+          textContent={t('contacts.splitBill.nextButton')}
+          size="regular"
+        />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  standardContainerWidth: {
-    width: '100%',
-    ...CENTER,
-  },
-  selectedSection: {
-    width: '100%',
-  },
+// Divider starts after the 40 avatar + 12 gap (68 from the card edge).
+const ListDividerInset = () => <ListDivider inset={68} />;
 
-  searchContainer: {
-    marginTop: 8,
-    marginBottom: 8,
-    width: '85%',
+const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
+  search: { marginTop: 20 },
+  chipsScroll: {
+    marginTop: 16,
+    gap: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
-  listContent: {
-    width: '85%',
-    paddingBottom: 16,
-    ...CENTER,
-  },
-  contactRow: {
+  chip: {
+    minHeight: 44,
+    paddingLeft: 4,
+    paddingRight: 8,
+    borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    gap: 6,
   },
-  contactAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    overflow: 'hidden',
-    marginRight: 12,
+  chipName: { fontSize: 14, lineHeight: 20, maxWidth: 120 },
+  card: { flexShrink: 1 },
+  list: { flexGrow: 0 },
+  check: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  contactInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  contactUniqueName: {
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  contactName: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  nextButton: {
-    width: '85%',
-    ...CENTER,
-  },
-  nextButtonText: {
-    includeFontPadding: false,
-  },
-  emptyText: {
-    textAlign: 'center',
-    // marginTop: 40,
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Descriptoin_Regular,
-    includeFontPadding: false,
-  },
+  spacer: { flex: 1 },
+  nextButton: { marginTop: CONTENT_KEYBOARD_OFFSET },
 });

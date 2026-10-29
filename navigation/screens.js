@@ -27,6 +27,8 @@ import {
   ExpandedContactsPage,
   // MyContactProfilePage,
   SendAndRequestPage,
+  ViewAllGiftCards,
+  ViewGiftCardCodePage,
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
 import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightning/backupSeedWarning';
@@ -139,6 +141,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SendAndRequestPage', component: SendAndRequestPage },
   { name: 'AddFriendsToSplit', component: AddFriendsToSplit },
   { name: 'CreateSplitBill', component: CreateSplitBill },
+  { name: 'ViewAllGiftCards', component: ViewAllGiftCards },
+  { name: 'ViewGiftCardCode', component: ViewGiftCardCodePage },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
   { name: 'POSInstructionsPath', component: POSInstructionsPath },
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},

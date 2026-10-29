@@ -18,6 +18,7 @@ export default function IconButton({
   showActiveDot = false,
   activeOpacity = 0.2,
   testID,
+  fill,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ export default function IconButton({
         iconName={icon}
         size={iconSize ?? (size === 64 ? 26 : 22)}
         colorOverride={iconColor}
+        fill={fill}
       />
       {showActiveDot && (
         <View

@@ -17,6 +17,7 @@ export default function EmptyState({
   size = 'default',
   iconTone = 'muted',
   retryText = '',
+  showTitle = true,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
@@ -46,14 +47,16 @@ export default function EmptyState({
           colorOverride={iconColor}
         />
       </View>
-      <ThemeText
-        content={title}
-        styles={[
-          styles.title,
-          large && styles.titleLarge,
-          { color: tokens.ink },
-        ]}
-      />
+      {showTitle && (
+        <ThemeText
+          content={title}
+          styles={[
+            styles.title,
+            large && styles.titleLarge,
+            { color: tokens.ink },
+          ]}
+        />
+      )}
       {!!sub && (
         <ThemeText
           variant="body"
