@@ -1,18 +1,18 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
-import { CENTER, COLORS, ICONS } from '../../../../../constants';
 import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
-import { ThemeText } from '../../../../../functions/CustomElements';
+  CENTER,
+  COLORS,
+  ICONS,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { useEffect } from 'react';
+import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
 
 export default function SelectContactRequestCurrency({
   selectedRecieveOption,
@@ -25,6 +25,8 @@ export default function SelectContactRequestCurrency({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const selectSendingBalance = term => {
     const selected = term || selectedRecieveOption;
@@ -45,85 +47,71 @@ export default function SelectContactRequestCurrency({
   };
 
   return (
-    <View style={styles.innerContainer}>
-      <ThemeText
-        styles={{ fontWeight: 500, fontSize: SIZES.large, marginBottom: 15 }}
-        content={t('contacts.selectCurrencyToRequest.header')}
+    <View style={[styles.innerContainer, { width: contentWidth }]}>
+      <PageHeader
+        title={t('contacts.selectCurrencyToRequest.header')}
+        showSub={false}
       />
-
-      <TouchableOpacity
-        onPress={() => selectSendingBalance('BTC')}
-        style={styles.containerRow}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.bitcoinOrange,
-            },
-          ]}
-        >
-          <ThemeImage
-            styles={{ width: 25, height: 25 }}
-            lightModeIcon={ICONS.bitcoinIcon}
-            darkModeIcon={ICONS.bitcoinIcon}
-            lightsOutIcon={ICONS.bitcoinIcon}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.balanceTitle}
-            content={t('constants.bitcoin_upper')}
-          />
-        </View>
-        <CheckMarkCircle
-          isActive={selectedRecieveOption === 'BTC'}
-          containerSize={25}
-          switchDarkMode={theme && darkModeType ? true : false}
+      <ListCard>
+        <PickRow
+          lead={
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? darkModeType
+                        ? backgroundColor
+                        : backgroundOffset
+                      : COLORS.bitcoinOrange,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={styles.icon}
+                lightModeIcon={ICONS.bitcoinIcon}
+                darkModeIcon={ICONS.bitcoinIcon}
+                lightsOutIcon={ICONS.bitcoinIcon}
+              />
+            </View>
+          }
+          onPress={() => selectSendingBalance('BTC')}
+          title={t('constants.bitcoin_upper')}
+          sub={t('contacts.selectCurrencyToRequest.paidInSats')}
+          selected={selectedRecieveOption === 'BTC'}
+          minHeight={76}
         />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => selectSendingBalance('USD')}
-        style={styles.containerRow}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.dollarGreen,
-            },
-          ]}
-        >
-          <ThemeImage
-            styles={{ width: 25, height: 25 }}
-            lightModeIcon={ICONS.dollarIcon}
-            darkModeIcon={ICONS.dollarIcon}
-            lightsOutIcon={ICONS.dollarIcon}
-          />
-        </View>
-
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.balanceTitle}
-            content={t('constants.dollars_upper')}
-          />
-        </View>
-        <CheckMarkCircle
-          isActive={selectedRecieveOption === 'USD'}
-          containerSize={25}
-          switchDarkMode={theme && darkModeType ? true : false}
+        <PickRow
+          lead={
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? darkModeType
+                        ? backgroundColor
+                        : backgroundOffset
+                      : COLORS.dollarGreen,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={styles.icon}
+                lightModeIcon={ICONS.dollarIcon}
+                darkModeIcon={ICONS.dollarIcon}
+                lightsOutIcon={ICONS.dollarIcon}
+              />
+            </View>
+          }
+          onPress={() => selectSendingBalance('USD')}
+          title={t('constants.dollars_upper')}
+          sub={t('contacts.selectCurrencyToRequest.paidInUsd')}
+          selected={selectedRecieveOption === 'USD'}
+          minHeight={76}
         />
-      </TouchableOpacity>
+      </ListCard>
     </View>
   );
 }
@@ -131,72 +119,15 @@ export default function SelectContactRequestCurrency({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
+  icon: { width: 24, height: 24 },
 
-  containerRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 8,
-    paddingVertical: 10,
-  },
-  textContainer: {
-    width: '100%',
-    flexShrink: 1,
-    marginLeft: 15,
-  },
-  iconSize: {
-    fontSize: SIZES.xxLarge,
-  },
-  balanceTitle: {
-    fontWeight: 500,
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-  },
-  amountText: {
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-
-  tokenContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 5,
-  },
-
-  tickerText: { marginRight: 'auto', includeFontPadding: false },
-  balanceText: { includeFontPadding: false },
-  tokenInitialContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  tokenImage: {
-    width: 45,
-    height: 45,
-    flex: 1,
-  },
   iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  disclaimerText: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginTop: 5,
   },
 });

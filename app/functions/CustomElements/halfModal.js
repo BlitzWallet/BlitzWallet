@@ -108,6 +108,7 @@ import ExportOrFilterHalfModal from '../../components/admin/homeComponents/viewA
 import { SheetSurface } from './redesign/sheetSurface';
 import ExpandedTx from '../../screens/inAccount/expandedTxPage';
 import WalletResetSheet from '../../components/admin/loginComponents/walletResetSheet';
+import ReceiveInfoSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveInfoSheet';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -196,7 +197,10 @@ export default function CustomHalfModal(props) {
     contentType === 'viewSMSCode' ||
     contentType === 'addContacts' ||
     contentType === 'expandedContactMessage' ||
-    contentType === 'customInputText';
+    contentType === 'customInputText' ||
+    contentType === 'receiveInfo' ||
+    contentType === 'SelectContactRequestCurrency' ||
+    contentType === 'displayCurrencySelect';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -307,6 +311,15 @@ export default function CustomHalfModal(props) {
             setBackNav={setBackNav}
             setContentHeight={setContentHeight}
             selectedPaymentMethod={props.route.params?.selectedPaymentMethod}
+          />
+        );
+      case 'receiveInfo':
+        return (
+          <ReceiveInfoSheet
+            title={props.route.params?.title}
+            body={props.route.params?.body}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'receiveOptions':

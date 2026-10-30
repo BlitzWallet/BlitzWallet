@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import { Image } from 'expo-image';
-import { ICONS } from '../../../../constants';
+import { COLORS, ICONS } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -15,13 +15,27 @@ export function CoinChainLogo({
   badgeSize = 18,
 }) {
   const { tokens } = GetThemeColors();
+  const isBitcoin = asset?.includes('BTC');
+
   return (
     <View style={{ width: size, height: size }}>
-      <Image
-        style={{ width: size, height: size, borderRadius: size / 2 }}
-        source={ICONS[`${asset?.toLowerCase()}Logo`]}
-        contentFit="contain"
-      />
+      {isBitcoin ? (
+        <View style={styles.bitcoinContainer}>
+          <Image
+            style={{ width: size / 1.75, height: size / 1.75 }}
+            source={ICONS.bitcoinIcon}
+            contentFit="contain"
+          />
+        </View>
+      ) : (
+        <Image
+          style={{ width: size, height: size, borderRadius: size / 2 }}
+          source={
+            ICONS[isBitcoin ? 'bitcoinIcon' : `${asset?.toLowerCase()}Logo`]
+          }
+          contentFit="contain"
+        />
+      )}
       <View
         style={[
           styles.badge,
@@ -103,4 +117,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: { fontSize: 15, lineHeight: 21 },
+  bitcoinContainer: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.bitcoinOrange,
+    borderRadius: 999,
+  },
 });

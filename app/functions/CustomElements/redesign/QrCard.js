@@ -15,10 +15,12 @@ const BADGE_RING = 5;
 // 1px divider ring, QR with an optional centre `badge` node. The QR stays
 // dark-on-white in every mode so it always scans. `children` render under the
 // QR (e.g. an address caption). `onPress` makes the whole card tappable.
+// The centre shows your avatar unless `badgeOverride` is passed (Receive).
 export default function QrCard({
   value,
   size = 216,
   badge,
+  badgeOverride,
   badgeSize = 40,
   onPress,
   accessibilityLabel,
@@ -54,14 +56,16 @@ export default function QrCard({
         />
         <View style={styles.badgeWrap} pointerEvents="none">
           <View style={styles.badgeRing}>
-            <ContactAvatar
-              name={myProfile?.name || t('constants.annonName')}
-              seed={myProfile?.uuid}
-              uri={imageData?.localUri}
-              updated={imageData?.updated}
-              size={badgeSize}
-              fontSize={badgeSize / 3}
-            />
+            {badgeOverride ?? (
+              <ContactAvatar
+                name={myProfile?.name || t('constants.annonName')}
+                seed={myProfile?.uuid}
+                uri={imageData?.localUri}
+                updated={imageData?.updated}
+                size={badgeSize}
+                fontSize={badgeSize / 3}
+              />
+            )}
           </View>
         </View>
       </View>

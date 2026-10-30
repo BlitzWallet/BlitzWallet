@@ -104,6 +104,7 @@ import { InsetsProvider } from './context-store/insetsProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider } from './context-store/toastManager';
 import { ToastContainer } from './context-store/toastContainer';
+import ShareTouchBlocker from './app/functions/CustomElements/shareTouchBlocker';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
 import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
@@ -879,6 +880,7 @@ function ResetStack(): JSX.Element | null {
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <ToastContainer />
+      <ShareTouchBlocker />
       <SparkConnectionManager />
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen

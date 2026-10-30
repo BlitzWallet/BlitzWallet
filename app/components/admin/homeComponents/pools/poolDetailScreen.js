@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { withShareTouchBlock } from '../../../../functions/CustomElements/shareTouchBlocker';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
@@ -173,9 +174,11 @@ export default function PoolDetailScreen(props) {
 
   const handleShare = useCallback(async () => {
     try {
-      await Share.share({
-        message: `https://blitzwalletapp.com/pools/${poolId}`,
-      });
+      await withShareTouchBlock(() =>
+        Share.share({
+          message: `https://blitzwalletapp.com/pools/${poolId}`,
+        }),
+      );
     } catch (err) {
       console.log('Error sharing pool:', err);
     }

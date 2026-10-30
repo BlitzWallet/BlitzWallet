@@ -156,9 +156,22 @@ export default function SendAndRequestPage(props) {
     if (paymentType === 'send') {
       navigate.navigate('ConfirmPaymentScreen', result.params);
     } else {
-      navigate.goBack();
+      navigate.replace('ConfirmPaymentRequest', {
+        amount: formatBalanceAmount(
+          payment.amountValue || 0,
+          false,
+          payment.masterInfoObject,
+        ),
+        fiatStats: payment.primaryDisplay.forceFiatStats,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: payment.primaryDisplay.denomination,
+        },
+        forceCurrency: payment.primaryDisplay.forceCurrency,
+        name: selectedContact?.name || selectedContact?.uniqueName,
+      });
     }
-  }, [navigate, payment, paymentType]);
+  }, [navigate, payment, paymentType, selectedContact]);
 
   // Amount as typed, in the denomination the amount step displays.
   const amountLabel = useMemo(
@@ -396,6 +409,8 @@ export default function SendAndRequestPage(props) {
                     description={payment.descriptionValue}
                     onEmojiSelect={payment.setDescriptionValue}
                     maxLength={149}
+                    removeMargin
+                    pill
                   />
                 </View>
                 <CustomButton
@@ -516,9 +531,6 @@ const styles = StyleSheet.create({
   emojiBar: {
     flex: 1,
     minWidth: 0,
-    overflow: 'hidden',
     borderRadius: 25,
-    // EmojiQuickBar brings its own top margin.
-    marginTop: -CONTENT_KEYBOARD_OFFSET,
   },
 });

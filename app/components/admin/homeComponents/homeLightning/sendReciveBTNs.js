@@ -59,11 +59,12 @@ export function SendRecieveBTNs({
       });
       return;
     }
-    navigateGuarded('CustomHalfModal', {
-      scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
-      wantedContent: 'receiveOptions',
-      sliderHight: 0.8,
-    });
+    navigateGuarded('ReceiveHomeRedesign');
+    // navigateGuarded('CustomHalfModal', {
+    //   scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
+    //   wantedContent: 'receiveOptions',
+    //   sliderHight: 0.8,
+    // });
   }, [handleSettingsCheck, navigateGuarded, scrollPosition, t]);
 
   const handleDeposit = useCallback(() => {

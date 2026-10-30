@@ -103,21 +103,28 @@ export default function PaymentMethod({
           title ?? (isSend ? t('constants.payWith') : t('constants.receiveAs'))
         }
         titleStyle={{ ...styles.titeStyle, color: tokens.muted }}
-        sub={`${t(
-          uiState === 'CONTACT_REQUEST' || hideBalance
-            ? `constants.${
-                determinePaymentMethod === 'BTC' ||
-                determinePaymentMethod === 'user-choice'
-                  ? 'bitcoin_upper'
-                  : 'dollars_upper'
-              }`
-            : `constants.${
-                determinePaymentMethod === 'BTC' ||
-                determinePaymentMethod === 'user-choice'
-                  ? 'sat'
-                  : 'usd'
-              }_balance`,
-        )}${showHiddenBalance ? '' : ' · ' + balance}`}
+        sub={
+          !isSend
+            ? determinePaymentMethod === 'BTC' ||
+              determinePaymentMethod === 'user-choice'
+              ? t('constants.bitcoin_upper')
+              : t('constants.dollars_upper')
+            : `${t(
+                uiState === 'CONTACT_REQUEST' || hideBalance
+                  ? `constants.${
+                      determinePaymentMethod === 'BTC' ||
+                      determinePaymentMethod === 'user-choice'
+                        ? 'bitcoin_upper'
+                        : 'dollars_upper'
+                    }`
+                  : `constants.${
+                      determinePaymentMethod === 'BTC' ||
+                      determinePaymentMethod === 'user-choice'
+                        ? 'sat'
+                        : 'usd'
+                    }_balance`,
+              )}${showHiddenBalance ? '' : ' · ' + balance}`
+        }
         subStyle={{ ...styles.subStyles, color: tokens.ink }}
         showChevron={true}
       />

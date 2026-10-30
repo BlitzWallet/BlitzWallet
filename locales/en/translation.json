@@ -1561,7 +1561,13 @@
       "header": "What do you want to send?"
     },
     "selectCurrencyToRequest": {
-      "header": "What do you want to request?"
+      "header": "What do you want to request?",
+      "paidInSats": "Paid in sats",
+      "paidInUsd": "Paid in USD"
+    },
+    "confirmRequestPage": {
+      "requestSent": "Request sent",
+      "toName": "To {{name}}"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Send Bitcoin",
@@ -3837,5 +3843,47 @@
     "giftsUnclaimed": "{{count}} unclaimed",
     "connections_one": "{{count}} connection",
     "connections_other": "{{count}} connections"
+  },
+  "receive": {
+    "requestFromContact": "Request from a contact",
+    "fromAnotherWallet": "Receive from another wallet or exchange",
+    "emptyTitle": "Get paid by people you know",
+    "emptySub": "Add a contact to request money from them. Contacts you add show up here.",
+    "addContact": "Add contact",
+    "showMyQr": "Show my QR code",
+    "receiveBitcoin": "Receive Bitcoin",
+    "receiveDollars": "Receive Dollars",
+    "receiveAsset": "Receive {{asset}}",
+    "receiveTokens": "Receive tokens",
+    "createInvoice": "Create invoice",
+    "lightning": "Lightning",
+    "bitcoinAddress": "Bitcoin address",
+    "onChain": "On-chain",
+    "otherNetworks": "Other networks",
+    "otherNetworksSub": "Bitcoin sent from these networks lands in your Bitcoin balance.",
+    "btcSource_base": "Coinbase BTC",
+    "btcSource_solana": "Solana BTC",
+    "pickNetworkSub": "Pick the network the sender is using. Ask them if you’re not sure.",
+    "networkFee": "Network fee",
+    "fromTheAmount": "From the amount",
+    "networkFeeInfo": "Bitcoin sent to this address costs a small network fee to receive. The fee is taken out of the amount you receive, so your balance may show slightly less than what was sent.",
+    "arrives": "Arrives",
+    "afterConfirmations": "After 3 confirmations",
+    "arrivesInfoBitcoin": "Bitcoin sent to this address shows up in your balance once the Bitcoin network has confirmed it 3 times. That usually takes around 30 minutes.",
+    "inAFewMinutes": "In a few minutes",
+    "arrivesInfoStable": "Payments show up in your balance once the {{chain}} network confirms them, usually within a few minutes.",
+    "minimum": "Minimum",
+    "fee": "Fee",
+    "aboutOnePercent": "About 1%",
+    "bitcoinWarning": "Network fees take a bigger share of small amounts. For smaller payments, Create invoice is cheaper.",
+    "stableWarning": "Send only {{asset}} on the {{chain}} network. Other coins or networks can be lost.",
+    "tokensWarning": "Send only Spark tokens to this address. They show up in Tokens.",
+    "invoice": "Invoice",
+    "anyAmount": "Any amount",
+    "anyAmountSub": "The sender chooses how much to pay.",
+    "arrivesAsDollars": "Arrives as Dollars",
+    "conversionNote": "The final amount can vary slightly with the price during the conversion.",
+    "whatFor": "What it’s for",
+    "share": "Share"
   }
 }

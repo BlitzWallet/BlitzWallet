@@ -99,6 +99,10 @@ import BTCMapScreen from '../app/screens/inAccount/btcMap';
 import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
 import SparkHodlInvoiceTest from '../app/screens/sparkHodlInvoiceTest';
 import ConfirmDialog from '../app/functions/CustomElements/redesign/ConfirmDialog';
+import ReceiveHomeRedesign from '../app/screens/inAccount/ReceiveHomeRedesign';
+import ReceiveAddressPage from '../app/screens/inAccount/receiveAddressPage';
+import ReceiveStablecoinNetworks from '../app/screens/inAccount/receiveStablecoinNetworks';
+import ConfirmPaymentRequest from '../app/components/admin/homeComponents/contacts/confirmRequestPage';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -217,6 +221,10 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SparkHodlInvoiceTest', component: SparkHodlInvoiceTest },
   { name: 'AnalyticsStack', component: AnalyticsStack },
   { name: 'ViewAllTxPage', component: ViewAllTxPage },
+  { name: 'ReceiveHomeRedesign', component: ReceiveHomeRedesign },
+  { name: 'ReceiveAddressPage', component: ReceiveAddressPage },
+  { name: 'ReceiveStablecoinNetworks', component: ReceiveStablecoinNetworks },
+  { name: 'ConfirmPaymentRequest', component: ConfirmPaymentRequest },
 ];
 
 const FADE_SCREENS = [

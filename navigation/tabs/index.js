@@ -109,7 +109,11 @@ function MyTabBar({ state, navigation }) {
           style={[
             styles.nav,
             styles.shadow,
-            { backgroundColor: tokens.surface },
+            {
+              backgroundColor: tokens.surface,
+              borderWidth: 1,
+              borderColor: tokens.ground,
+            },
           ]}
         >
           {state.routes.map((route, index) => {
@@ -144,7 +148,13 @@ function MyTabBar({ state, navigation }) {
             );
           })}
         </View>
-        <View style={[styles.activity, styles.shadow]}>
+        <View
+          style={[
+            styles.activity,
+            styles.shadow,
+            { borderWidth: 1, borderColor: tokens.ground },
+          ]}
+        >
           <IconButton
             icon="Clock"
             label="tabs.activity"

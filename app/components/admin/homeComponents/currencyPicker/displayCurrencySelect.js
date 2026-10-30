@@ -1,14 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
-import { ThemeText } from '../../../../functions/CustomElements';
+import {
+  CENTER,
+  COLORS,
+  ICONS,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
 import {
@@ -17,11 +24,14 @@ import {
   normalizeDisplayCurrency,
 } from '../../../../functions/displayCurrency';
 import CurrencyCoin from './currencyCoin';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import ListCard, {
+  ListDivider,
+} from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 
 export default function DisplayCurrencySelect({
   currentCurrency,
@@ -32,9 +42,10 @@ export default function DisplayCurrencySelect({
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { screenDimensions } = useAppStatus();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const normalizedCurrentCurrency = normalizeDisplayCurrency(currentCurrency);
   const deviceCurrency = (
     masterInfoObject?.fiatCurrency || 'USD'
@@ -42,11 +53,6 @@ export default function DisplayCurrencySelect({
   const [isLoadingNewRate, setIsLoadingNewRate] = useState(false);
   const isMounted = useRef(false);
   const hasSelected = useRef(false);
-
-  const cardBackground =
-    theme && darkModeType ? backgroundColor : backgroundOffset;
-  const coinBackground =
-    theme && darkModeType ? backgroundOffset : backgroundColor;
 
   useEffect(() => {
     isMounted.current = true;
@@ -101,8 +107,7 @@ export default function DisplayCurrencySelect({
         id: 'USD',
         title: t('constants.dollars_upper'),
         subtitle: 'USD',
-        iconImage: ICONS.dollarIcon,
-        coinBg: COLORS.dollarGreen,
+        symbol: getCurrencySymbol('USD'),
       },
     ];
 
@@ -115,12 +120,11 @@ export default function DisplayCurrencySelect({
         title: match?.info.name || deviceCurrency,
         subtitle: deviceCurrency,
         symbol: getCurrencySymbol(deviceCurrency),
-        coinBg: coinBackground,
       });
     }
 
     return rows;
-  }, [deviceCurrency, coinBackground, t]);
+  }, [deviceCurrency, t]);
 
   const currencies = useMemo(() => {
     const pinnedIds = new Set(pinnedRows.map(row => row.id));
@@ -134,170 +138,89 @@ export default function DisplayCurrencySelect({
     return !pinnedIds.has(normalizedCurrentCurrency);
   });
 
-  const renderPinnedRow = (row, index) => {
-    const isLast = index === pinnedRows.length - 1;
-    return (
-      <TouchableOpacity
-        key={row.id}
-        activeOpacity={0.6}
-        onPress={() => onSelect(row.id)}
-        style={[
-          styles.row,
-          !isLast && {
-            borderBottomWidth: 1,
-            borderBottomColor: coinBackground,
-          },
-        ]}
-      >
+  const renderPinnedRow = row => (
+    <PickRow
+      key={row.id}
+      onPress={() => onSelect(row.id)}
+      lead={
         <CurrencyCoin
           iconImage={row.iconImage}
           symbol={row.symbol}
-          backgroundColor={row.coinBg}
+          backgroundColor={row.coinBg || tokens.surface}
+          size={36}
         />
-        <View style={styles.textContainer}>
-          <ThemeText
-            CustomNumberOfLines={2}
-            styles={styles.rowTitle}
-            content={row.title}
-          />
-          <ThemeText styles={styles.rowSubtitle} content={row.subtitle} />
-        </View>
-        <CheckMarkCircle
-          isActive={normalizedCurrentCurrency === row.id}
-          containerSize={25}
-          switchDarkMode={theme && !darkModeType ? true : false}
-        />
-      </TouchableOpacity>
-    );
-  };
+      }
+      title={row.title}
+      sub={row.subtitle}
+      selected={normalizedCurrentCurrency === row.id}
+    />
+  );
 
+  // Rows are one card drawn piecewise so the FlatList stays virtualised.
   const renderCurrency = useCallback(
     ({ item, index }) => {
       const isFirst = index === 0;
       const isLast = index === currencies.length - 1;
       return (
-        <TouchableOpacity
-          activeOpacity={0.6}
-          onPress={() => onSelect(item.id)}
-          style={[
-            styles.row,
-            {
-              backgroundColor: cardBackground,
-              borderTopLeftRadius: isFirst ? 22 : 0,
-              borderTopRightRadius: isFirst ? 22 : 0,
-              borderBottomLeftRadius: isLast ? 22 : 0,
-              borderBottomRightRadius: isLast ? 22 : 0,
-            },
-            !isLast && {
-              borderBottomWidth: 1,
-              borderBottomColor: coinBackground,
-            },
-          ]}
+        <View
+          style={{
+            backgroundColor: tokens.ground,
+            paddingHorizontal: 16,
+            borderTopLeftRadius: isFirst ? 20 : 0,
+            borderTopRightRadius: isFirst ? 20 : 0,
+            borderBottomLeftRadius: isLast ? 20 : 0,
+            borderBottomRightRadius: isLast ? 20 : 0,
+          }}
         >
-          <CurrencyCoin
-            symbol={getCurrencySymbol(item.id)}
-            backgroundColor={coinBackground}
-            size={42}
+          {!isFirst && <ListDivider />}
+          <PickRow
+            onPress={() => onSelect(item.id)}
+            lead={
+              <CurrencyCoin
+                symbol={getCurrencySymbol(item.id)}
+                backgroundColor={tokens.surface}
+                size={36}
+              />
+            }
+            title={item.info.name}
+            sub={item.id}
+            selected={normalizedCurrentCurrency === item.id}
           />
-          <View style={styles.textContainer}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.rowTitle}
-              content={item.info.name}
-            />
-            <ThemeText styles={styles.rowSubtitle} content={item.id} />
-          </View>
-          <CheckMarkCircle
-            isActive={normalizedCurrentCurrency === item.id}
-            containerSize={25}
-            switchDarkMode={theme && !darkModeType ? true : false}
-          />
-        </TouchableOpacity>
+        </View>
       );
     },
-    [
-      currencies.length,
-      cardBackground,
-      coinBackground,
-      normalizedCurrentCurrency,
-      onSelect,
-      theme,
-      darkModeType,
-    ],
+    [currencies.length, tokens, normalizedCurrentCurrency, onSelect],
   );
 
   const listHeader = (
     <>
-      <ThemeText
-        styles={styles.headerText}
-        content={t('settings.fiatCurrency.halfModalTitle')}
+      <PageHeader
+        title={t('settings.fiatCurrency.halfModalTitle')}
+        showSub={false}
       />
 
-      <View style={[styles.card, { backgroundColor: cardBackground }]}>
+      <ListCard>
         {pinnedRows.map(renderPinnedRow)}
-      </View>
-
-      <TouchableOpacity
-        activeOpacity={0.6}
-        onPress={() => setExpanded(prev => !prev)}
-        style={[styles.moreRow, { backgroundColor: cardBackground }]}
-      >
-        <View style={[styles.coin, { backgroundColor: coinBackground }]}>
-          <View style={styles.dotGrid}>
-            <View
-              style={[
-                styles.dot,
-                {
-                  backgroundColor: theme ? textColor : COLORS.primary,
-                },
-              ]}
+        <ListRow
+          onPress={() => setExpanded(prev => !prev)}
+          lead={<Disc icon={'Globe'} />}
+          title={t('settings.fiatCurrency.moreCurrencies')}
+          sub={t('settings.fiatCurrency.currencyCount', {
+            count: Math.floor(currencies.length / 10) * 10,
+          })}
+          trailing={
+            <ThemeIcon
+              iconName="ChevronDown"
+              size={22}
+              styles={{
+                transform: [{ rotate: expanded ? '180deg' : '0deg' }],
+              }}
+              colorOverride={tokens.muted}
+              redesign
             />
-            <View
-              style={[
-                styles.dot,
-                {
-                  backgroundColor: theme ? textColor : COLORS.primary,
-                },
-              ]}
-            />
-            <View
-              style={[
-                styles.dot,
-                {
-                  backgroundColor: theme ? textColor : COLORS.primary,
-                },
-              ]}
-            />
-            <View
-              style={[
-                styles.dot,
-                {
-                  backgroundColor: theme ? textColor : COLORS.primary,
-                },
-              ]}
-            />
-          </View>
-        </View>
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.rowTitle}
-            content={t('settings.fiatCurrency.moreCurrencies')}
-          />
-          <ThemeText
-            styles={styles.rowSubtitle}
-            content={t('settings.fiatCurrency.currencyCount', {
-              count: Math.floor(currencies.length / 10) * 10,
-            })}
-          />
-        </View>
-        <ThemeIcon
-          iconName="ChevronDown"
-          size={22}
-          styles={{
-            transform: [{ rotate: expanded ? '180deg' : '0deg' }],
-          }}
+          }
         />
-      </TouchableOpacity>
+      </ListCard>
 
       {expanded && <View style={styles.listSpacer} />}
     </>
@@ -315,7 +238,7 @@ export default function DisplayCurrencySelect({
 
   return (
     <FlatList
-      style={styles.list}
+      style={[styles.list, { width: contentWidth }]}
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={listHeader}
       data={expanded ? currencies : EMPTY_LIST}
@@ -334,7 +257,6 @@ const keyExtractor = currency => currency.id;
 
 const styles = StyleSheet.create({
   list: {
-    width: INSET_WINDOW_WIDTH,
     flex: 1,
     ...CENTER,
   },
@@ -342,66 +264,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingBottom: 30,
     flexGrow: 1,
-  },
-  headerText: {
-    fontWeight: 500,
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-    marginBottom: 18,
-  },
-  card: {
-    borderRadius: 22,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 13,
-    paddingHorizontal: 16,
-  },
-  moreRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 13,
-    paddingHorizontal: 16,
-    borderRadius: 18,
-    marginTop: 16,
-  },
-  textContainer: {
-    flex: 1,
-    marginLeft: 14,
-    marginRight: 10,
-  },
-  rowTitle: {
-    fontWeight: 500,
-    includeFontPadding: false,
-  },
-  rowSubtitle: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-    marginTop: 2,
-  },
-  coin: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  dotGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    width: 13.5,
-    justifyContent: 'space-between',
-  },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    marginVertical: 1.75,
-    // opacity: HIDDEN_OPACITY,
   },
   listSpacer: {
     height: 16,

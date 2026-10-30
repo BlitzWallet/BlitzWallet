@@ -1,6 +1,7 @@
 import {Platform, Share} from 'react-native';
 import * as Sharing from 'expo-sharing';
 import {crashlyticsLogReport} from './crashlyticsLogs';
+import {withShareTouchBlock} from './CustomElements/shareTouchBlocker';
 import {
   documentDirectory,
   EncodingType,
@@ -39,11 +40,13 @@ export default async function writeAndShareFileToFilesystem(
     });
 
     if (Platform.OS === 'ios') {
-      await Share.share({
-        title: `${fileName}`,
-        url: `${fileUri}`,
-        type: fileType,
-      });
+      await withShareTouchBlock(() =>
+        Share.share({
+          title: `${fileName}`,
+          url: `${fileUri}`,
+          type: fileType,
+        }),
+      );
       return {success: true, error: null};
     }
 

@@ -9,7 +9,13 @@ const ListToneContext = createContext({ tone: 'grouped' });
 // flush: no card, rows on the surface, dividers inset 52 (SHARED_FINDINGS C4).
 // Dividers go between direct children; inside a FlatList pass
 // ItemSeparatorComponent={ListDivider} so the list stays virtualised.
-export default function ListCard({ tone = 'grouped', dividerInset, children, style }) {
+export default function ListCard({
+  tone = 'grouped',
+  dividerInset,
+  children,
+  style,
+  forceSheetColor,
+}) {
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   const items = Children.toArray(children);
@@ -19,7 +25,10 @@ export default function ListCard({ tone = 'grouped', dividerInset, children, sty
         style={[
           tone === 'grouped' && [
             styles.grouped,
-            { backgroundColor: inSheet ? tokens.ground : tokens.surface },
+            {
+              backgroundColor:
+                inSheet || forceSheetColor ? tokens.ground : tokens.surface,
+            },
           ],
           style,
         ]}

@@ -22,13 +22,15 @@ export default function AmountHero({
   const { tokens } = useTheme();
   const { masterInfoObject: contextMasterInfoObject } =
     useGlobalContextProvider();
-  const displayValue = displayCorrectDenomination({
-    amount,
-    masterInfoObject: masterInfoOverride || contextMasterInfoObject,
-    fiatStats,
-    forceCurrency,
-    convertAmount,
-  });
+  const displayValue = formatAmount
+    ? displayCorrectDenomination({
+        amount,
+        masterInfoObject: masterInfoOverride || contextMasterInfoObject,
+        fiatStats,
+        forceCurrency,
+        convertAmount,
+      })
+    : amount;
   const centsMatch = splitCents
     ? String(displayValue).match(/^(.*\d)([.,]\d{2})(\D*)$/)
     : null;
@@ -41,9 +43,7 @@ export default function AmountHero({
     >
       <ThemeText
         content={
-          !formatAmount
-            ? amount
-            : centsMatch
+          centsMatch
             ? [
                 centsMatch[1],
                 <ThemeText

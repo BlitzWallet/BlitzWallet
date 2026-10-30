@@ -1,21 +1,32 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, MIN_BTC_USD_AMOUNT_RECEIVEPAGE } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+  MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+} from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useMemo, useState } from 'react';
-import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
+import formatBalanceAmount from '../../../../functions/formatNumber';
+import { useTheme } from '../../../../../context-store/theme';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import customUUID from '../../../../functions/customUUID';
-import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
@@ -25,8 +36,8 @@ import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
   resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -37,6 +48,10 @@ export default function EditReceivePaymentInformation(props) {
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const { isUsingAltAccount } = useActiveCustodyAccount();
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
   const initialDescription = props.route.params.description || '';
@@ -74,18 +89,14 @@ export default function EditReceivePaymentInformation(props) {
     [incomingDisplayCurrency, incomingDisplayFiatStats],
   );
 
-  const {
-    displayCurrency,
-    currencyRates,
-    isLoadingRate,
-    selectCurrency,
-  } = useDisplayCurrencyController({
-    initialCurrency: initialDisplayCurrency,
-    fiatStats,
-    usdFiatStats,
-    masterInfoObject,
-    additionalRates,
-  });
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+      additionalRates,
+    });
 
   const {
     primaryDisplay,
@@ -126,11 +137,14 @@ export default function EditReceivePaymentInformation(props) {
   const requestChanged = amountChanged || descriptionChanged;
   const finalDescription = paymentDescription;
 
+  // Under the swap minimum the invoice page falls back to the any-amount
+  // Lightning address, which only works without a note on the main account.
   const cannotRequest =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
     requestedSatAmount > 0 &&
-    requestedSatAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
+    requestedSatAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE &&
+    (!!paymentDescription || isUsingAltAccount);
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
@@ -155,7 +169,8 @@ export default function EditReceivePaymentInformation(props) {
     const sendAmount = Number(requestedSatAmount) || 0;
     crashlyticsLogReport(`Running in edit payment information submit function`);
 
-    if (!requestChanged) {
+    // From Receive, an untouched $0 still creates an any-amount invoice.
+    if (!requestChanged && fromPage !== 'homepage') {
       navigate.goBack();
       return;
     }
@@ -242,24 +257,50 @@ export default function EditReceivePaymentInformation(props) {
 
   const memorizedKeyboardStyle = useMemo(() => {
     return {
-      paddingBottom: isKeyboardFocused ? 0 : bottomPadding,
+      paddingBottom: isKeyboardFocused
+        ? CONTENT_KEYBOARD_OFFSET
+        : bottomPadding,
     };
   }, [bottomPadding, isKeyboardFocused]);
+
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isFiat = primaryDisplay.denomination === 'fiat';
+  const shownAmount = amountValue || previousAmountDisplayValue || 0;
+  // The other denomination under the amount (sats under fiat, fiat under sats).
+  const secondaryLine = displayCorrectDenomination({
+    amount: requestedSatAmount,
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: isFiat ? 'sats' : 'fiat',
+    },
+    fiatStats,
+  });
 
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
       globalThemeViewStyles={memorizedKeyboardStyle}
     >
-      <View style={styles.replacementContainer}>
-        <CustomSettingsTopBar
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
           shouldDismissKeyboard={true}
-          label={t('wallet.receivePages.editPaymentInfo.editAmount')}
-          rightContent={
-            <CurrencySwitchButton
-              displayCurrency={displayCurrency}
+          title={t(
+            fromPage === 'homepage'
+              ? 'receive.createInvoice'
+              : 'wallet.receivePages.editPaymentInfo.editAmount',
+          )}
+          right={
+            <BudgetCurrencyButton
+              label={
+                normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY
+                  ? 'SAT'
+                  : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
             />
           }
         />
@@ -271,83 +312,78 @@ export default function EditReceivePaymentInformation(props) {
             { opacity: isKeyboardFocused ? HIDDEN_OPACITY : 1 },
           ]}
         >
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            placeholderAmountValue={previousAmountDisplayValue}
-            inputDenomination={primaryDisplay.denomination}
+          <AmountHero
+            amount={formatBalanceAmount(shownAmount, false, masterInfoObject)}
+            convertAmount={false}
+            fiatStats={primaryDisplay.forceFiatStats}
             forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: primaryDisplay.denomination,
+            }}
+            mutedValue={!amountValue}
           />
+          {!!requestedSatAmount && (
+            <ThemeText
+              styles={[styles.secondary, { color: tokens.muted }]}
+              content={secondaryLine}
+            />
+          )}
         </CustomScrollView>
 
-        <CustomSearchInput
-          setInputText={setPaymentDescription}
-          placeholderText={t('constants.paymentDescriptionPlaceholder')}
-          inputText={paymentDescription}
-          textInputStyles={styles.textInputStyles}
-          containerStyles={styles.descriptionInputContainer}
-          onFocusFunction={() => setIsKeyboardFocused(true)}
-          onBlurFunction={() => setIsKeyboardFocused(false)}
-          textInputMultiline={true}
-          textAlignVertical={'center'}
-          maxLength={150}
-        />
+        <View style={styles.note}>
+          <UserInput
+            value={paymentDescription}
+            onChangeText={setPaymentDescription}
+            placeholder={t('receive.whatFor')}
+            onFocus={() => setIsKeyboardFocused(true)}
+            onBlur={() => setIsKeyboardFocused(false)}
+            maxLength={150}
+          />
+        </View>
 
         {!isKeyboardFocused && (
           <>
             <CustomNumberKeyboard
-              showDot={primaryDisplay.denomination === 'fiat'}
+              redesign
+              showDot={isFiat}
               setInputValue={setAmountValue}
               usingForBalance={true}
               fiatStats={conversionFiatStats}
             />
 
             <CustomButton
+              size="regular"
               buttonStyles={{
-                ...CENTER,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
                 opacity: cannotRequest ? HIDDEN_OPACITY : 1,
               }}
               actionFunction={handleSubmit}
-              textContent={
-                requestChanged ? t('constants.request') : t('constants.back')
-              }
+              textContent={t(
+                fromPage === 'homepage' || requestChanged
+                  ? 'receive.createInvoice'
+                  : 'constants.back',
+              )}
             />
           </>
         )}
       </View>
-      {isKeyboardFocused && (
-        <EmojiQuickBar
-          description={paymentDescription}
-          onEmojiSelect={handleEmoji}
-        />
-      )}
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  replacementContainer: {
-    flexGrow: 1,
-    width: '100%',
-    ...CENTER,
-  },
-  globalContainer: {
-    flex: 1,
-  },
+  container: { flex: 1, ...CENTER },
   amountScrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
   },
-  satValue: {
+  note: { marginBottom: 12 },
+  secondary: {
+    marginTop: 4,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'center',
-  },
-  descriptionInputContainer: {
-    width: '90%',
-    maxWidth: 350,
-  },
-  textInputStyles: {
-    width: '100%',
     includeFontPadding: false,
   },
 });
