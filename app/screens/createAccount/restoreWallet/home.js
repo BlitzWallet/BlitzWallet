@@ -49,6 +49,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
   const blurTimeoutRef = useRef(null);
+  const keyboardVisibleRef = useRef(false);
   const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
 
   // Helper functions
@@ -284,9 +285,20 @@ export default function RestoreWallet({ navigation: { reset } }) {
   }, []);
 
   useEffect(() => {
+    const keyboardDidShowListener = KeyboardEvents.addListener(
+      'keyboardDidShow',
+      () => {
+        keyboardVisibleRef.current = true;
+      },
+    );
     const keyboardDidHideListener = KeyboardEvents.addListener(
       'keyboardDidHide',
       () => {
+        // A hide with no matching show is spurious (hardware keyboard / iOS
+        // simulator emit one on focus) and would blur the input we just
+        // focused. Same guard as CustomSearchInput.
+        if (!keyboardVisibleRef.current) return;
+        keyboardVisibleRef.current = false;
         setCurrentFocused(null);
         if (keyRefs.current[currentFocused]?.isFocused()) {
           keyRefs.current[currentFocused]?.blur();
@@ -295,6 +307,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
     );
 
     return () => {
+      keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
   }, [currentFocused]);
