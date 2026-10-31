@@ -49,6 +49,8 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { setStringAsync } from 'expo-clipboard';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import ContactAvatar from './internalComponents/contactAvatar';
+import { useToast } from '../../../../../context-store/toastManager';
+import { copyToClipboard } from '../../../../functions';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -268,19 +270,12 @@ function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
 // hear "Copied" (OQ-52). No toast.
 function CopyDisc({ value, label }) {
   const { tokens } = useGlobalThemeContext();
+  const { showToast } = useToast();
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 1500);
-    return () => clearTimeout(timer);
-  }, [copied]);
 
   const handleCopy = async () => {
     try {
-      await setStringAsync(value);
-      setCopied(true);
+      await copyToClipboard(value, showToast);
       AccessibilityInfo.announceForAccessibility(
         t('toastmessages.confirmCopy'),
       );
@@ -296,7 +291,7 @@ function CopyDisc({ value, label }) {
       onPress={handleCopy}
       style={[styles.copyDisc, { backgroundColor: tokens.ground }]}
     >
-      <ThemeIcon redesign size={20} iconName={copied ? 'Check' : 'Copy'} />
+      <ThemeIcon redesign size={20} iconName={'Copy'} />
     </TouchableOpacity>
   );
 }
