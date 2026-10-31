@@ -191,7 +191,7 @@ export default function ExpandedContactsPage(props) {
           style={styles.avatar}
         >
           <ContactAvatar
-            name={selectedContact?.name}
+            name={selectedContact?.name || selectedContact?.uniqueName}
             seed={selectedContact?.uuid}
             updated={imageData?.updated}
             uri={imageData?.localUri}

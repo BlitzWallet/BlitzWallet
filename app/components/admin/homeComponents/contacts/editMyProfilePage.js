@@ -218,14 +218,8 @@ function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
     <ListCard style={{ width: '100%' }}>
       <ListRow
         title={t('contacts.editMyProfilePage.nameInputDesc')}
-        trailing={
-          <ThemeText
-            styles={styles.navRowLabel}
-            content={myContact?.name || t('contacts.splitBill.noName')}
-            CustomNumberOfLines={1}
-            CustomEllipsizeMode="tail"
-          />
-        }
+        value={myContact?.name || t('contacts.splitBill.noName')}
+        trailing={'value'}
         showChevron={true}
         titleStyle={styles.rowTitle}
         onPress={() =>
@@ -234,14 +228,8 @@ function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
       />
       <ListRow
         title={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
-        trailing={
-          <ThemeText
-            styles={styles.navRowLabel}
-            content={myContact?.uniqueName || ''}
-            CustomNumberOfLines={1}
-            CustomEllipsizeMode="tail"
-          />
-        }
+        value={myContact?.uniqueName || ''}
+        trailing={'value'}
         showChevron={true}
         titleStyle={styles.rowTitle}
         onPress={() =>
@@ -250,14 +238,8 @@ function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
       />
       <ListRow
         title={t('contacts.editMyProfilePage.bioInputDesc')}
-        trailing={
-          <ThemeText
-            styles={styles.navRowLabel}
-            content={myContact?.bio || t('constants.noBioSet')}
-            CustomNumberOfLines={1}
-            CustomEllipsizeMode="tail"
-          />
-        }
+        value={myContact?.bio || t('constants.noBioSet')}
+        trailing={'value'}
         showChevron={true}
         titleStyle={styles.rowTitle}
         onPress={() =>
@@ -266,14 +248,8 @@ function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
       />
       <ListRow
         title={t('contacts.remotePaymentCurrencySelect.title')}
-        trailing={
-          <ThemeText
-            styles={styles.navRowLabel}
-            content={receiveCurrencyValue}
-            CustomNumberOfLines={1}
-            CustomEllipsizeMode="tail"
-          />
-        }
+        value={receiveCurrencyValue}
+        trailing={'value'}
         showChevron={true}
         titleStyle={styles.rowTitle}
         onPress={() =>
@@ -496,7 +472,7 @@ function InnerContent({
                 <FullLoadingScreen showText={false} />
               ) : (
                 <ContactAvatar
-                  name={myContact.name || t('constants.annonName')}
+                  name={myContact.name || myContact?.uniqueName}
                   seed={myContact.uuid}
                   updated={
                     tempImage.shouldDelete
@@ -641,7 +617,9 @@ function InnerContent({
               <FullLoadingScreen showText={false} />
             ) : (
               <ContactAvatar
-                name={selectedAddedContact?.name || t('constants.annonName')}
+                name={
+                  selectedAddedContact?.name || selectedAddedContact?.uniqueName
+                }
                 seed={selectedAddedContact?.uuid}
                 updated={
                   tempImage.shouldDelete

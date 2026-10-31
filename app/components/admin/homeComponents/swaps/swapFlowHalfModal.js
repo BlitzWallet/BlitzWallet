@@ -59,6 +59,7 @@ const STEP_HEIGHTS = {
 };
 
 export default function SwapFlowHalfModal({
+  initialFromAsset,
   setContentHeight,
   handleBackPressFunction,
 }) {
@@ -84,8 +85,10 @@ export default function SwapFlowHalfModal({
   // Swap state (migrated from SwapsPage verbatim)
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
-  const [fromAsset, setFromAsset] = useState('BTC');
-  const [toAsset, setToAsset] = useState('USD');
+  const [fromAsset, setFromAsset] = useState(initialFromAsset || 'BTC');
+  const [toAsset, setToAsset] = useState(
+    initialFromAsset === 'USD' ? 'BTC' : 'USD',
+  );
   const [isSimulating, setIsSimulating] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
   const [isLoadingPool, setIsLoadingPool] = useState(true);
@@ -126,6 +129,19 @@ export default function SwapFlowHalfModal({
     },
     [currentStep, heightFor, setContentHeight],
   );
+
+  // A balance page opens at Amount once the pool is ready; under that side's
+  // minimum it stays on Choose currency.
+  const didAutoOpenAmount = useRef(!initialFromAsset);
+  useEffect(() => {
+    if (didAutoOpenAmount.current || isLoadingPool || !poolInfo) return;
+    didAutoOpenAmount.current = true;
+    const isAboveMinimum =
+      initialFromAsset === 'BTC'
+        ? bitcoinBalance >= swapLimits.bitcoin
+        : dollarBalanceToken >= swapLimits.usd;
+    if (isAboveMinimum) navigateToStep('amountInput', 'forward');
+  }, [isLoadingPool, poolInfo]);
 
   // Mirror of currentStep readable inside async handlers, so a swap/simulation
   // that resolves after the user has navigated away doesn't force a step change.

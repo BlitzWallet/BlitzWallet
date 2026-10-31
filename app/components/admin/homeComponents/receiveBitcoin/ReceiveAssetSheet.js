@@ -46,6 +46,7 @@ export default function ReceiveAssetSheet({
   asset,
   setContentHeight,
   handleBackPressFunction,
+  isHalfModal = false,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -70,9 +71,15 @@ export default function ReceiveAssetSheet({
     }, [step, goTo]),
   );
 
-  // Close the sheet back into the Receive page and open the next screen.
+  // Close the sheet and open the next screen. As a CustomHalfModal it is its
+  // own route, so the next screen replaces it; docked it lives in the Receive
+  // page, which stays underneath.
   const open = (name, params) =>
-    handleBackPressFunction(() => navigate.navigate(name, params));
+    handleBackPressFunction(() =>
+      isHalfModal
+        ? navigate.replace(name, params)
+        : navigate.navigate(name, params),
+    );
 
   const createInvoice = () =>
     open('EditReceivePaymentInformation', {

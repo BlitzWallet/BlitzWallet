@@ -278,6 +278,26 @@ export const getSwapResultTransaction = async originalSparkId => {
     return null;
   }
 };
+// Newest token payments, without Dollars. For the Tokens page, whose rows can be
+// older than anything in the homepage projection.
+export const getTokenSparkTransactions = async (accountId, limit = 100) => {
+  try {
+    await ensureSparkDatabaseReady();
+    return await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+         AND json_extract(details, '$.isLRC20Payment') = 1
+         AND json_extract(details, '$.LRC20Token') != ?
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT ?`,
+      [String(accountId), USDB_TOKEN_ID, limit],
+    );
+  } catch (error) {
+    console.error('Error fetching token transactions:', error);
+    return [];
+  }
+};
+
 export const getAllSparkTransactions = async (options = {}) => {
   try {
     await ensureSparkDatabaseReady();

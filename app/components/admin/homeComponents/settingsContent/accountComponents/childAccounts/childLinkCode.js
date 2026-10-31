@@ -180,7 +180,7 @@ export default function ChildLinkCode(props) {
         />
         <QrCard
           value={qrValue}
-          size={180}
+          size={250}
           badge={<Disc icon={'Zap'} tone="primary" size={40} />}
           style={styles.qrWrap}
         />

@@ -124,41 +124,42 @@ export default function FormattedSatText({
   if (!shouldShowAmount) {
     children = [
       frontText && renderText(frontText),
-      hiddenText(HIDDEN_BALANCE_TEXT, 1, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.65 : 1)
-          : SIZES.xSmall * (useSizing ? 0.65 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 2, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.75 : 1)
-          : SIZES.xSmall * (useSizing ? 0.75 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 3, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.85 : 1)
-          : SIZES.xSmall * (useSizing ? 0.85 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 4, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.75 : 1)
-          : SIZES.xSmall * (useSizing ? 0.75 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 5, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.65 : 1)
-          : SIZES.xSmall * (useSizing ? 0.65 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
+      renderText('• • • • •'),
+      // hiddenText(HIDDEN_BALANCE_TEXT, 1, {
+      //   fontSize: styles?.fontSize
+      //     ? styles.fontSize * (useSizing ? 0.65 : 1)
+      //     : SIZES.xSmall * (useSizing ? 0.65 : 1),
+      //   fontFamily: FONT.Asterisk,
+      //   marginHorizontal: 2,
+      // }),
+      // hiddenText(HIDDEN_BALANCE_TEXT, 2, {
+      //   fontSize: styles?.fontSize
+      //     ? styles.fontSize * (useSizing ? 0.75 : 1)
+      //     : SIZES.xSmall * (useSizing ? 0.75 : 1),
+      //   fontFamily: FONT.Asterisk,
+      //   marginHorizontal: 2,
+      // }),
+      // hiddenText(HIDDEN_BALANCE_TEXT, 3, {
+      //   fontSize: styles?.fontSize
+      //     ? styles.fontSize * (useSizing ? 0.85 : 1)
+      //     : SIZES.xSmall * (useSizing ? 0.85 : 1),
+      //   fontFamily: FONT.Asterisk,
+      //   marginHorizontal: 2,
+      // }),
+      // hiddenText(HIDDEN_BALANCE_TEXT, 4, {
+      //   fontSize: styles?.fontSize
+      //     ? styles.fontSize * (useSizing ? 0.75 : 1)
+      //     : SIZES.xSmall * (useSizing ? 0.75 : 1),
+      //   fontFamily: FONT.Asterisk,
+      //   marginHorizontal: 2,
+      // }),
+      // hiddenText(HIDDEN_BALANCE_TEXT, 5, {
+      //   fontSize: styles?.fontSize
+      //     ? styles.fontSize * (useSizing ? 0.65 : 1)
+      //     : SIZES.xSmall * (useSizing ? 0.65 : 1),
+      //   fontFamily: FONT.Asterisk,
+      //   marginHorizontal: 2,
+      // }),
       backText && renderText(backText),
     ];
   } else if (useCustomLabel) {

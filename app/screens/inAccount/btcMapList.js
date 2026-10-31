@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +8,7 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../hooks/themeColors';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
-import { CENTER, FONT } from '../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
   CATEGORY_META,
@@ -19,15 +18,13 @@ import {
   distanceMeters,
   formatDistance,
 } from '../../functions/btcMap/distance';
+import PageHeader from '../../functions/CustomElements/redesign/PageHeader';
+import ListCard, {
+  ListDivider,
+} from '../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../functions/CustomElements/redesign/ListRow';
 
 const MAX_ROWS = 60;
-
-function BTCMapListSeparator() {
-  const { tokens } = GetThemeColors();
-  return (
-    <View style={[styles.rowSeparator, { backgroundColor: tokens.divider }]} />
-  );
-}
 
 export default function BTCMapListContent({
   bbox,
@@ -42,6 +39,8 @@ export default function BTCMapListContent({
   const { screenDimensions } = useAppStatus();
   const { tokens } = GetThemeColors();
   const { getPlacesInViewport } = useBTCMap();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [places, setPlaces] = useState(null);
 
@@ -98,9 +97,7 @@ export default function BTCMapListContent({
   const renderItem = ({ item }) => {
     const category = resolvePlaceCategory(item);
     return (
-      <TouchableOpacity
-        activeOpacity={0.6}
-        style={styles.row}
+      <ListRow
         onPress={() =>
           navigate.push('CustomHalfModal', {
             wantedContent: 'btcMapMerchant',
@@ -108,36 +105,27 @@ export default function BTCMapListContent({
             source: item.source,
           })
         }
-      >
-        <View style={[styles.iconShell, { backgroundColor: tokens.disc }]}>
-          <ThemeIcon
-            iconName={getBtcMapIcon(item.icon)}
-            size={20}
-            colorOverride={tokens.ink}
-            redesign
-          />
-        </View>
-
-        <View style={styles.rowText}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.rowName}
-            content={item.name || t('screens.btcMap.merchant.noName')}
-          />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={[styles.rowCategory, { color: tokens.muted }]}
-            content={t(CATEGORY_META[category].labelKey)}
-          />
-        </View>
-
-        {item.distance != null && (
-          <ThemeText
-            styles={[styles.rowDistance, { color: tokens.muted }]}
-            content={formatDistance(item.distance, distanceUnit)}
-          />
-        )}
-      </TouchableOpacity>
+        lead={
+          <View style={[styles.iconShell, { backgroundColor: tokens.surface }]}>
+            <ThemeIcon
+              iconName={getBtcMapIcon(item.icon)}
+              size={20}
+              colorOverride={tokens.ink}
+              redesign
+            />
+          </View>
+        }
+        title={item.name || t('screens.btcMap.merchant.noName')}
+        sub={t(CATEGORY_META[category].labelKey)}
+        trailing={
+          item.distance != null && (
+            <ThemeText
+              styles={[styles.rowDistance, { color: tokens.muted }]}
+              content={formatDistance(item.distance, distanceUnit)}
+            />
+          )
+        }
+      />
     );
   };
 
@@ -146,23 +134,23 @@ export default function BTCMapListContent({
   }
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={styles.header}
-        content={t('screens.btcMap.map.placesHere', { count: placeCount })}
+    <View style={[styles.container, { width: contentWidth }]}>
+      <PageHeader
+        title={t('screens.btcMap.map.placesHere', { count: placeCount })}
+        showSub={false}
       />
 
-      <View style={[styles.listCard, { backgroundColor: tokens.ground }]}>
+      <ListCard style={styles.card} dividerInset={72}>
         <FlatList
           data={data}
           renderItem={renderItem}
           keyExtractor={item => `${item.source}-${item.id}`}
           showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={ListDivider}
           contentContainerStyle={[
             styles.listContent,
             !data.length && styles.emptyList,
           ]}
-          ItemSeparatorComponent={BTCMapListSeparator}
           ListEmptyComponent={
             <ThemeText
               styles={[styles.empty, { color: tokens.muted }]}
@@ -170,7 +158,8 @@ export default function BTCMapListContent({
             />
           }
         />
-      </View>
+      </ListCard>
+
       {hasMoreRows && (
         <ThemeText
           styles={[styles.hasMoreMessage, { color: tokens.muted }]}
@@ -184,37 +173,13 @@ export default function BTCMapListContent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  header: {
-    fontSize: SIZES.large,
-    lineHeight: 26,
-    fontFamily: FONT.Title_Regular,
-    marginTop: 20,
-    marginBottom: 12,
-    includeFontPadding: false,
-  },
-  listCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  listContent: {
-    paddingHorizontal: 16,
-  },
+  card: { flexShrink: 1 },
   emptyList: {
     flexGrow: 1,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 64,
-    gap: 12,
-  },
-  rowSeparator: {
-    height: 1,
-    marginLeft: 56,
-  },
+
   iconShell: {
     width: 44,
     height: 44,
@@ -222,29 +187,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowText: {
-    flex: 1,
-  },
-  rowName: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
-    includeFontPadding: false,
-  },
-  rowCategory: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
-    includeFontPadding: false,
-  },
-  rowDistance: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
-    fontVariant: ['tabular-nums'],
-    includeFontPadding: false,
-    marginLeft: 8,
-  },
+
   empty: {
     textAlign: 'center',
     marginTop: 40,
@@ -254,7 +197,6 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   hasMoreMessage: {
-    fontFamily: FONT.Title_Regular,
     fontSize: 13,
     lineHeight: 19,
     textAlign: 'center',

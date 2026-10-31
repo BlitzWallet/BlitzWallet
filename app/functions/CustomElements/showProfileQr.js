@@ -45,7 +45,7 @@ export function ProfileQrBadge({ size }) {
       }}
     >
       <ContactAvatar
-        name={myProfile?.name || t('constants.annonName')}
+        name={myProfile?.name || myProfile?.uniqueName}
         seed={myProfile?.uuid}
         updated={myProfileImage?.updated}
         uri={myProfileImage?.localUri}

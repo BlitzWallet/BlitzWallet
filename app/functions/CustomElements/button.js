@@ -224,4 +224,5 @@ const PILL_SIZES = {
   compact: { minHeight: 44, width: '100%' },
   small: { minHeight: 44, alignSelf: 'center' },
   fit: { minHeight: 52, alignSelf: 'center' },
+  fill: { minHeight: 52, width: '100%', flexShrink: 1 },
 };

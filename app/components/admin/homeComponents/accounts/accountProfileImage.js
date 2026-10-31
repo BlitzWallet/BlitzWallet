@@ -58,13 +58,12 @@ export default function AccountProfileImage({
     const smallestSide = Math.min(width, height);
     setEmojiFontSize(smallestSide * 0.48);
   }, []);
-  console.log(account);
 
   return (
     <View style={styles.badge} onLayout={handleContainerLayout}>
       {account.uuid === MAIN_ACCOUNT_UUID ? (
         <ContactAvatar
-          name={myProfile.name || t('contants.annonName')}
+          name={myProfile.name || myProfile?.uniqueName}
           seed={myProfile.uuid}
           uri={uri}
           updated={updated}

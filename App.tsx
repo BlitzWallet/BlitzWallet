@@ -106,7 +106,6 @@ import { ToastProvider } from './context-store/toastManager';
 import { ToastContainer } from './context-store/toastContainer';
 import ShareTouchBlocker from './app/functions/CustomElements/shareTouchBlocker';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
-import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
@@ -881,7 +880,6 @@ function ResetStack(): JSX.Element | null {
       <HandleLNURLPayments />
       <ToastContainer />
       <ShareTouchBlocker />
-      <SparkConnectionManager />
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Splash"

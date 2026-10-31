@@ -45,7 +45,7 @@ export default function ProfileImageRow({
             ]}
           >
             <ContactAvatar
-              name={contact?.name || t('constants.annonName')}
+              name={contact?.name || contact?.unqieName}
               seed={contact?.uuid}
               updated={cache[contact?.uuid]?.updated}
               uri={cache[contact?.uuid]?.localUri}

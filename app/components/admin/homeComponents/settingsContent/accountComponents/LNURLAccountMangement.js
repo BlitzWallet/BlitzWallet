@@ -40,7 +40,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
     return entry ? entry[0] : null;
   }, [masterInfoObject.accountsLnurl, account?.uuid]);
 
-  const qrSize = Math.min(Math.round(screenDimensions.width * 0.5), 216);
+  const qrSize = Math.min(Math.round(screenDimensions.width * 0.6), 240);
 
   const isMain = !accountsLnurlId;
 

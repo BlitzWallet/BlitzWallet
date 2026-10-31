@@ -109,6 +109,7 @@ import { SheetSurface } from './redesign/sheetSurface';
 import ExpandedTx from '../../screens/inAccount/expandedTxPage';
 import WalletResetSheet from '../../components/admin/loginComponents/walletResetSheet';
 import ReceiveInfoSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveInfoSheet';
+import ReceiveAssetSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveAssetSheet';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -199,8 +200,10 @@ export default function CustomHalfModal(props) {
     contentType === 'expandedContactMessage' ||
     contentType === 'customInputText' ||
     contentType === 'receiveInfo' ||
+    contentType === 'receiveAsset' ||
     contentType === 'SelectContactRequestCurrency' ||
-    contentType === 'displayCurrencySelect';
+    contentType === 'displayCurrencySelect' ||
+    contentType === 'ViewAllTokensHalfModal';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -320,6 +323,15 @@ export default function CustomHalfModal(props) {
             body={props.route.params?.body}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'receiveAsset':
+        return (
+          <ReceiveAssetSheet
+            asset={props.route.params?.asset}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+            isHalfModal
           />
         );
       case 'receiveOptions':
@@ -703,6 +715,7 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             setBackNav={setBackNav}
+            token={props?.route?.params?.token}
           />
         );
 
@@ -718,6 +731,7 @@ export default function CustomHalfModal(props) {
       case 'swapFlow':
         return (
           <SwapFlowHalfModal
+            initialFromAsset={props?.route?.params?.fromAsset}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
           />
@@ -1052,15 +1066,13 @@ export default function CustomHalfModal(props) {
                 contentType === 'SelectLRC20Token' ||
                 contentType === 'sendOptions' ||
                 contentType === 'receiveOptions' ||
-                contentType === 'ClaimGiftHomeHalfModal' ||
-                contentType === 'btcMapList'
+                contentType === 'ClaimGiftHomeHalfModal'
               ? isKeyboardActive
                 ? CONTENT_KEYBOARD_OFFSET
                 : contentType === 'switchGenerativeAiModel' ||
                   contentType === 'addContacts' ||
                   contentType === 'sendOptions' ||
-                  contentType === 'SelectLRC20Token' ||
-                  contentType === 'btcMapList'
+                  contentType === 'SelectLRC20Token'
                 ? 0
                 : contentType === 'receiveOptions'
                 ? 0

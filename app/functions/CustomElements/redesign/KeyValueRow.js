@@ -9,7 +9,7 @@ import ThemeIcon from '../themeIcon';
 
 // Label · value (D294 key/value rows). `layout="stacked"` puts the value under
 // the label (fee rows, D300). `truncate="middle"` fits long ids on one line.
-function middleEllipsis(value, first = 9, last = 6) {
+export function middleEllipsis(value, first = 9, last = 6) {
   const text = String(value ?? '');
   if (text.length <= first + last + 1) return text;
   return `${text.slice(0, first)}…${text.slice(-last)}`;

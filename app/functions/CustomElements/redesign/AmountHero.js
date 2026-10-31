@@ -6,7 +6,12 @@ import displayCorrectDenomination from '../../displayCorrectDenomination';
 import ThemeText from '../textTheme';
 
 // Centred denomination-aware amount. Amounts shrink to fit (OQ-17).
-// `splitCents` draws the ".00" at half size in muted (Dollar goals heroes).
+// `splitCents` draws the ".00" at half size in muted (Dollar goals heroes);
+// `splitUnit` does the same for a trailing " sats". `isHidden` draws dots.
+export function splitAmountUnit(value) {
+  return String(value).match(/^(.*\d)(\s*\D+)$/);
+}
+
 export default function AmountHero({
   amount,
   fiatStats,
@@ -18,6 +23,11 @@ export default function AmountHero({
   convertAmount,
   splitCents = false,
   formatAmount = true,
+  isHidden = false,
+  splitUnit = false,
+  lineHeight,
+  amountFont = FONT.Title_Medium,
+  fractionFont = FONT.Title_Regular,
 }) {
   const { tokens } = useTheme();
   const { masterInfoObject: contextMasterInfoObject } =
@@ -31,9 +41,10 @@ export default function AmountHero({
         convertAmount,
       })
     : amount;
-  const centsMatch = splitCents
-    ? String(displayValue).match(/^(.*\d)([.,]\d{2})(\D*)$/)
-    : null;
+  const centsMatch =
+    (splitCents
+      ? String(displayValue).match(/^(.*\d)([.,]\d{2})(\D*)$/)
+      : null) || (splitUnit ? splitAmountUnit(displayValue) : null);
 
   return (
     <View
@@ -43,15 +54,21 @@ export default function AmountHero({
     >
       <ThemeText
         content={
-          centsMatch
+          isHidden
+            ? '••••••'
+            : centsMatch
             ? [
                 centsMatch[1],
                 <ThemeText
                   key="cents"
-                  content={centsMatch[2] + centsMatch[3]}
+                  content={centsMatch[2] + (centsMatch[3] || '')}
                   styles={[
                     styles.cents,
-                    { fontSize: amountSize / 2, color: tokens.muted },
+                    {
+                      fontFamily: fractionFont,
+                      fontSize: amountSize / 2,
+                      color: tokens.muted,
+                    },
                   ]}
                 />,
               ]
@@ -63,11 +80,14 @@ export default function AmountHero({
         styles={[
           styles.amount,
           {
-            fontSize: amountSize,
-            // lineHeight,
-            letterSpacing: -(amountSize * 0.035),
+            fontFamily: amountFont,
+            fontSize: isHidden ? amountSize * 0.73 : amountSize,
+            letterSpacing: isHidden
+              ? amountSize * 0.088
+              : -(amountSize * 0.035),
             color: mutedValue ? tokens.muted : tokens.ink,
           },
+          !!lineHeight && { lineHeight },
         ]}
       />
     </View>
@@ -82,13 +102,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   amount: {
-    fontFamily: FONT.Title_Medium,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
     flexShrink: 1,
   },
   cents: {
-    fontFamily: FONT.Title_Regular,
     letterSpacing: 0,
     includeFontPadding: false,
   },

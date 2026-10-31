@@ -17,12 +17,15 @@ export default function Disc({
   const danger = tone === 'danger';
   const primary = tone === 'primary';
   const white = tone === 'white' || tone === 'whiteAccent';
+  const warm = tone === 'warm';
   const background = danger
     ? tokens.dangerBg
     : primary
     ? tokens.accent
     : white
     ? tokens.surface
+    : warm
+    ? tokens.warnBg
     : tokens.disc;
   const color = danger
     ? tokens.danger
@@ -30,6 +33,8 @@ export default function Disc({
     ? tokens.onAccent
     : tone === 'accent' || tone === 'whiteAccent'
     ? tokens.accent
+    : warm
+    ? tokens.warn
     : tokens.ink;
   return (
     <View

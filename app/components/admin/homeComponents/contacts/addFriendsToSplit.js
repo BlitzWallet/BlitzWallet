@@ -19,7 +19,6 @@ import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState
 import ListCard, {
   ListDivider,
 } from '../../../../functions/CustomElements/redesign/ListCard';
-import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import ContactAvatarDisc from './internalComponents/contactAvatar';
 import { useTheme } from '../../../../../context-store/theme';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
@@ -29,6 +28,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
+import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 
 const MAX_SPLIT_CONTACTS = 10;
 
@@ -123,7 +123,7 @@ export default function AddFriendsToSplit(props) {
       const atLimit = !isSelected && selectedCount >= MAX_SPLIT_CONTACTS;
 
       return (
-        <ListRow
+        <PickRow
           minHeight={64}
           paddingVertical={4}
           onPress={isLocked ? undefined : () => toggleContact(contact)}
@@ -133,26 +133,7 @@ export default function AddFriendsToSplit(props) {
           }
           sub={contact.uniqueName ? `@${contact.uniqueName}` : undefined}
           tone={atLimit ? 'hidden' : 'default'}
-          trailing={
-            <View
-              style={[
-                styles.check,
-                isSelected
-                  ? { backgroundColor: tokens.accent }
-                  : { borderWidth: 2, borderColor: tokens.grab },
-              ]}
-            >
-              {isSelected && (
-                <ThemeIcon
-                  redesign
-                  iconName="Check"
-                  size={14}
-                  strokeWidth={3}
-                  colorOverride={tokens.onAccent}
-                />
-              )}
-            </View>
-          }
+          selected={isSelected}
         />
       );
     },

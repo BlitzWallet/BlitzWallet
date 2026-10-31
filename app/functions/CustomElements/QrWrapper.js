@@ -121,7 +121,7 @@ export default function QrCodeWrapper({
           ]}
         >
           <ContactAvatar
-            name={myProfile?.name || t('constants.annonName')}
+            name={myProfile?.name || myProfile?.unqiueName}
             seed={myProfile?.uuid}
             updated={imageData?.updated}
             uri={imageData?.uri}

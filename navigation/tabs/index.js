@@ -8,9 +8,6 @@ import {
 } from 'react-native';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BlurView } from 'expo-blur';
-import MaskedView from '@react-native-masked-view/masked-view';
-import { LinearGradient } from 'expo-linear-gradient';
 
 import { MAX_WEB_CONTENT_WIDTH } from '../../app/constants';
 import { useGlobalThemeContext } from '../../context-store/theme';
@@ -23,8 +20,6 @@ const Tab = createBottomTabNavigator();
 
 export const TAB_ITEM_HEIGHT = 64;
 const ICON_SIZE = 22;
-// Extra blur above the bar so content fades out before it reaches the pill.
-const BLUR_FADE_HEIGHT = 32;
 
 // Home · People · Money · Explore, plus the floating Activity button
 // (Money.dc.html). Label = a11y en key.
@@ -62,7 +57,7 @@ function TabButton({ route, focused, showUnread, onPress, tokens, t }) {
 }
 
 function MyTabBar({ state, navigation }) {
-  const { tokens, theme } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
   const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
@@ -82,89 +77,66 @@ function MyTabBar({ state, navigation }) {
   );
 
   return (
-    <>
-      <MaskedView
-        pointerEvents="none"
+    <View style={containerStyle}>
+      <View
         style={[
-          styles.blurBand,
-          { height: bottomPadding + TAB_ITEM_HEIGHT + BLUR_FADE_HEIGHT },
+          styles.nav,
+          styles.shadow,
+          {
+            backgroundColor: tokens.surface,
+            borderWidth: 1,
+            borderColor: tokens.ground,
+          },
         ]}
-        maskElement={
-          <LinearGradient
-            colors={['transparent', '#000']}
-            locations={[0, 0.5]}
-            style={StyleSheet.absoluteFill}
-          />
-        }
       >
-        <BlurView
-          intensity={20}
-          tint={theme ? 'dark' : 'light'}
-          experimentalBlurMethod="dimezisBlurView"
-          style={StyleSheet.absoluteFill}
-        />
-      </MaskedView>
-      <View style={containerStyle}>
-        <View
-          style={[
-            styles.nav,
-            styles.shadow,
-            {
-              backgroundColor: tokens.surface,
-              borderWidth: 1,
-              borderColor: tokens.ground,
-            },
-          ]}
-        >
-          {state.routes.map((route, index) => {
-            const focused = state.index === index;
+        {state.routes.map((route, index) => {
+          const focused = state.index === index;
 
-            const onPress = () => {
-              const event = navigation.emit({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-              });
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-              if (!focused && !event.defaultPrevented) {
-                navigation.navigate(route.name, route.params);
+            if (!focused && !event.defaultPrevented) {
+              navigation.navigate(route.name, route.params);
+            }
+          };
+
+          return (
+            <TabButton
+              key={route.key}
+              route={route}
+              focused={focused}
+              tokens={tokens}
+              t={t}
+              showUnread={
+                route.name === 'ContactsPageInit' &&
+                hasUnlookedTransactions &&
+                !focused
               }
-            };
-
-            return (
-              <TabButton
-                key={route.key}
-                route={route}
-                focused={focused}
-                tokens={tokens}
-                t={t}
-                showUnread={
-                  route.name === 'ContactsPageInit' &&
-                  hasUnlookedTransactions &&
-                  !focused
-                }
-                onPress={onPress}
-              />
-            );
-          })}
-        </View>
-        <View
-          style={[
-            styles.activity,
-            styles.shadow,
-            { borderWidth: 1, borderColor: tokens.ground },
-          ]}
-        >
-          <IconButton
-            icon="Clock"
-            label="tabs.activity"
-            size={TAB_ITEM_HEIGHT}
-            iconSize={ICON_SIZE}
-            onPress={() => navigation.navigate('ViewAllTxPage')}
-          />
-        </View>
+              onPress={onPress}
+            />
+          );
+        })}
       </View>
-    </>
+      <View
+        style={[
+          styles.activity,
+          styles.shadow,
+          { borderWidth: 1, borderColor: tokens.ground },
+        ]}
+      >
+        <IconButton
+          icon="Clock"
+          label="tabs.activity"
+          size={TAB_ITEM_HEIGHT}
+          iconSize={ICON_SIZE}
+          onPress={() => navigation.navigate('ViewAllTxPage')}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -187,7 +159,6 @@ export function MyTabs(props) {
 }
 
 const styles = StyleSheet.create({
-  blurBand: { position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 9 },
   tabsContainer: {
     position: 'absolute',
     zIndex: 10,

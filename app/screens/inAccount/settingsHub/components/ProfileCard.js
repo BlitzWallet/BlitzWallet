@@ -68,7 +68,7 @@ export default function ProfileCard({
         onToggle={handleToggle}
       >
         <ContactAvatar
-          name={name || t('constants.annonName')}
+          name={name || uniqueName}
           seed={masterInfoObject?.uuid}
           updated={profileImage?.updated}
           uri={profileImage?.localUri}

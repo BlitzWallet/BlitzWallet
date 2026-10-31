@@ -30,8 +30,6 @@ import {
   ViewAllGiftCards,
   ViewGiftCardCodePage,
 } from '../app/components/admin/homeComponents/contacts';
-import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
-import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightning/backupSeedWarning';
 
 import {
   ConfirmActionPage,
@@ -103,6 +101,9 @@ import ReceiveHomeRedesign from '../app/screens/inAccount/ReceiveHomeRedesign';
 import ReceiveAddressPage from '../app/screens/inAccount/receiveAddressPage';
 import ReceiveStablecoinNetworks from '../app/screens/inAccount/receiveStablecoinNetworks';
 import ConfirmPaymentRequest from '../app/components/admin/homeComponents/contacts/confirmRequestPage';
+import BalancePage from '../app/components/admin/homeComponents/homeLightning/balancePage';
+import TokensPage from '../app/components/admin/homeComponents/homeLightning/tokensPage';
+import AllTokensPage from '../app/components/admin/homeComponents/homeLightning/allTokensPage';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -225,6 +226,9 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'ReceiveAddressPage', component: ReceiveAddressPage },
   { name: 'ReceiveStablecoinNetworks', component: ReceiveStablecoinNetworks },
   { name: 'ConfirmPaymentRequest', component: ConfirmPaymentRequest },
+  { name: 'BalancePage', component: BalancePage },
+  { name: 'TokensPage', component: TokensPage },
+  { name: 'AllTokensPage', component: AllTokensPage },
 ];
 
 const FADE_SCREENS = [
@@ -233,7 +237,6 @@ const FADE_SCREENS = [
   { name: 'ConfirmDialog', component: ConfirmDialog },
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
   { name: 'ErrorScreen', component: ErrorScreen },
-  { name: 'SparkErrorScreen', component: SparkErrorScreen },
   // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
   {
     name: 'ContactsPageLongPressActions',
@@ -260,7 +263,6 @@ const FADE_SCREENS = [
   // },
   { name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode },
   { name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage },
-  { name: 'BackupSeedWarning', component: BackupSeedWarning },
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
   // {

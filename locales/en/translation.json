@@ -1401,7 +1401,27 @@
         "receive": "Receive",
         "scan": "Scan",
         "swap": "Swap",
-        "deposit": "Deposit"
+        "deposit": "Deposit",
+        "backupTitle": "Back up your wallet",
+        "backupSub": "Keep your recovery phrase safe",
+        "connectionTitle": "Can’t connect right now",
+        "connectionSub": "Showing your balance from {{time}}",
+        "tokensOne": "{{first}}",
+        "tokensTwo": "{{first}} and {{second}}",
+        "tokensMore": "{{first}}, {{second}} and {{count}} more"
+      },
+      "balancePage": {
+        "receiveBitcoin": "Receive Bitcoin",
+        "receiveDollars": "Receive Dollars",
+        "emptyBitcoin": "Bitcoin you send and receive will show here.",
+        "emptyDollars": "Dollars you send and receive will show here.",
+        "emptyTokens": "Tokens you send and receive will show here.",
+        "balances": "Balances",
+        "viewAllTokens": "View all {{count}} tokens",
+        "allTokens": "All tokens",
+        "searchTokens": "Search tokens",
+        "tokenOnSpark": "Token on Spark",
+        "ticker": "Ticker"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",

@@ -202,7 +202,7 @@ export default function InvoiceInfo({
             ]}
           >
             <ContactAvatar
-              name={contactInfo?.name || t('constants.annonName')}
+              name={contactInfo?.name || contactInfo?.uniqueName}
               seed={contactInfo?.uuid}
               updated={contactInfo?.imageData?.updated}
               uri={contactInfo?.imageData?.localUri}

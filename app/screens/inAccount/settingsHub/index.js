@@ -216,7 +216,7 @@ export default function SettingsHub(props) {
         <CustomScrollView showsVerticalScrollIndicator={false}>
           <ProfileCard
             profileImage={myProfileImage}
-            name={myContact?.name || t('constants.annonName')}
+            name={myContact?.name}
             uniqueName={myContact?.uniqueName}
             onEditPress={handleEditProfile}
             onShowQRPress={handleShowQR}

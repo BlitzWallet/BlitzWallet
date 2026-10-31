@@ -47,7 +47,7 @@ const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
 
 const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
-const HIDDEN_BALANCE_TEXT = `E`;
+const HIDDEN_BALANCE_TEXT = `•`;
 const BITCOIN_SAT_TEXT = 'SAT';
 const INFINITY_SYMBOL = '\u221E';
 const APPROXIMATE_SYMBOL = '≈';

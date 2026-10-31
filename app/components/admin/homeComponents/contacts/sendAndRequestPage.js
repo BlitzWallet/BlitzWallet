@@ -224,7 +224,7 @@ export default function SendAndRequestPage(props) {
 
   const avatar = size => (
     <ContactAvatar
-      name={selectedContact?.name}
+      name={selectedContact?.name || selectedContact?.uniqueName}
       seed={selectedContact?.uuid}
       updated={imageData?.updated}
       uri={imageData?.localUri}

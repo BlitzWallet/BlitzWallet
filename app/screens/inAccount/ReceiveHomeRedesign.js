@@ -69,7 +69,7 @@ export default function ReceiveHomeRedesign() {
           key={contact.uuid}
           lead={
             <ContactAvatar
-              name={contact.name || t('constants.annonName')}
+              name={contact.name || contact?.uniqueName}
               seed={contact.uuid}
               updated={cache[contact.uuid]?.updated}
               uri={cache[contact.uuid]?.localUri}

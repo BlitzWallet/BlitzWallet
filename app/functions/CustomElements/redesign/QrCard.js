@@ -58,7 +58,7 @@ export default function QrCard({
           <View style={styles.badgeRing}>
             {badgeOverride ?? (
               <ContactAvatar
-                name={myProfile?.name || t('constants.annonName')}
+                name={myProfile?.name || myProfile?.uniqueName}
                 seed={myProfile?.uuid}
                 uri={imageData?.localUri}
                 updated={imageData?.updated}
