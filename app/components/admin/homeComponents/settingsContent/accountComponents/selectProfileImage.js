@@ -218,7 +218,7 @@ export default function EmojiAvatarSelector(props) {
       }
       keyboardGoBack(navigate);
     } else {
-      navigate.goBack();
+      keyboardGoBack(navigate);
     }
   }, [
     selectedEmoji,
@@ -270,6 +270,7 @@ export default function EmojiAvatarSelector(props) {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           title={t('settings.accountComponents.selectProfileImage.title')}
+          shouldDismissKeyboard={true}
         />
         <AvatarPreview
           selectedAccount={selectedAccount}
