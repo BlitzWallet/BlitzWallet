@@ -498,7 +498,6 @@ function LimitStep({ appName, limit, onBack, onDone }) {
           fiatStats={conversionFiatStats}
           masterInfoObject={amountHeroMasterInfoObject}
           amountSize={52}
-          lineHeight={56}
           mutedValue={!hasBudget}
         />
         {hasBudget ? (

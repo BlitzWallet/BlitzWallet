@@ -136,7 +136,6 @@ export default function WalletLeaves() {
               amount={stats.totalValue ?? 0}
               fiatStats={fiatStats}
               amountSize={44}
-              lineHeight={48}
             />
           </View>
           <ThemeText
