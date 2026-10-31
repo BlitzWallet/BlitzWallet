@@ -19,7 +19,7 @@ export const NAVITEMS = [
   {
     name: 'GitHub',
     link: 'https://github.com/BlitzWallet/BlitzWallet',
-    inApp: true,
+    inApp: false,
   },
   {
     name: 'X',

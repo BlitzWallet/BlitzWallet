@@ -290,12 +290,7 @@ export default function SettingsIndex() {
                 key={item.name}
                 style={styles.footerButton}
                 onPress={() => {
-                  if (item.name !== 'GitHub')
-                    openWebBrowser({ navigate, link: item.link });
-                  else
-                    navigate.navigate('CustomWebView', {
-                      webViewURL: item.link,
-                    });
+                  openWebBrowser({ navigate, link: item.link });
                 }}
               >
                 <ThemeText
