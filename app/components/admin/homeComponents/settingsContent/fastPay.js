@@ -1,10 +1,22 @@
-import { StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { GlobalThemeView, ThemeText } from '../../../../functions/CustomElements';
-import { FONT, MAX_WEB_CONTENT_WIDTH, QUICK_PAY_STORAGE_KEY } from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import {
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  QUICK_PAY_STORAGE_KEY,
+} from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -163,10 +175,7 @@ export default function FastPay() {
             {!isEditing && (
               <>
                 <View
-                  style={[
-                    styles.divider,
-                    { backgroundColor: tokens.divider },
-                  ]}
+                  style={[styles.divider, { backgroundColor: tokens.divider }]}
                 />
                 <ThemeText
                   content={t('settings.fastPay.text5')}
@@ -239,7 +248,6 @@ const styles = StyleSheet.create({
   amount: {
     fontFamily: FONT.Title_Regular,
     fontSize: 30,
-    lineHeight: 38,
     letterSpacing: -0.6,
     fontVariant: ['tabular-nums'],
     textAlign: 'center',
