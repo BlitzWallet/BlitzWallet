@@ -17,7 +17,7 @@ import {
   useGlobalThemeContext,
   useTheme,
 } from '../../../../../../context-store/theme';
-import { SHOPS_DIRECTORY_KEY } from '../../../../../constants';
+import { CENTER, SHOPS_DIRECTORY_KEY } from '../../../../../constants';
 import {
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
@@ -38,6 +38,7 @@ import IconButton from '../../../../../functions/CustomElements/redesign/IconBut
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -91,6 +92,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
   const { backgroundColor, textInputBackground } = GetThemeColors();
   const { t } = useTranslation();
   const navigate = useNavigation();
+  const contentWidth = useContentWidth();
 
   useEffect(() => {
     if (!removeUserLocal) return;
@@ -257,87 +259,94 @@ export default function ViewOnlineListings({ removeUserLocal }) {
         useLocalPadding={true}
         useStandardWidth={true}
       >
-        <TopBar
-          title={t('apps.onlineListings.topBarLabel')}
-          onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
-        />
-        <FullLoadingScreen text={t('apps.onlineListings.loadingShopMessage')} />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar
+            title={t('apps.onlineListings.topBarLabel')}
+            onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
+          />
+          <FullLoadingScreen
+            text={t('apps.onlineListings.loadingShopMessage')}
+          />
+        </View>
       </CustomKeyboardAvoidingView>
     );
   }
 
   return (
     <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
+      useTouchableWithoutFeedback={false}
       useStandardWidth={true}
     >
-      <TopBar
-        title={t('apps.onlineListings.topBarLabel')}
-        onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
-        right={
-          <>
-            <View style={styles.filterButton}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('apps.onlineListings.topBarLabel')}
+          onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
+          right={
+            <>
+              <View style={styles.filterButton}>
+                <IconButton
+                  icon="SlidersHorizontal"
+                  label="apps.onlineListings.filterTitle"
+                  onPress={() =>
+                    keyboardNavigate(() =>
+                      navigate.navigate('CustomHalfModal', {
+                        wantedContent: 'onlineListingsFilter',
+                        sliderHight: 0.72,
+                        currentFilter,
+                        categoryOptions,
+                        onSelectFilter: filters => handleFilterApply(filters),
+                      }),
+                    )
+                  }
+                />
+                {activeFilterCount > 0 && (
+                  <View
+                    pointerEvents="none"
+                    style={[
+                      styles.filterBadge,
+                      { backgroundColor: tokens.accent },
+                    ]}
+                  >
+                    <ThemeText
+                      content={activeFilterCount}
+                      styles={[
+                        styles.filterBadgeText,
+                        { color: tokens.onAccent },
+                      ]}
+                    />
+                  </View>
+                )}
+              </View>
               <IconButton
-                icon="SlidersHorizontal"
+                icon="Plus"
                 label="apps.onlineListings.filterTitle"
                 onPress={() =>
-                  keyboardNavigate(() =>
-                    navigate.navigate('CustomHalfModal', {
-                      wantedContent: 'onlineListingsFilter',
-                      sliderHight: 0.72,
-                      currentFilter,
-                      categoryOptions,
-                      onSelectFilter: filters => handleFilterApply(filters),
-                    }),
-                  )
+                  openWebBrowser({
+                    navigate,
+                    link: 'https://bitcoinlistings.org/submit',
+                  })
                 }
               />
-              {activeFilterCount > 0 && (
-                <View
-                  pointerEvents="none"
-                  style={[
-                    styles.filterBadge,
-                    { backgroundColor: tokens.accent },
-                  ]}
-                >
-                  <ThemeText
-                    content={activeFilterCount}
-                    styles={[
-                      styles.filterBadgeText,
-                      { color: tokens.onAccent },
-                    ]}
-                  />
-                </View>
-              )}
-            </View>
-            <IconButton
-              icon="Plus"
-              label="apps.onlineListings.filterTitle"
-              onPress={() =>
-                openWebBrowser({
-                  navigate,
-                  link: 'https://bitcoinlistings.org/submit',
-                })
-              }
-            />
-          </>
-        }
-      />
+            </>
+          }
+        />
 
-      <FlatList
-        data={businesses}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={keyExtractor}
-        style={styles.flatList}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: bottomPadding },
-        ]}
-        stickyHeaderIndices={[0]}
-        ListHeaderComponent={renderListHeader}
-        ListEmptyComponent={emptyComponent}
-        renderItem={renderItem}
-      />
+        <FlatList
+          data={businesses}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={keyExtractor}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: bottomPadding },
+          ]}
+          stickyHeaderIndices={[0]}
+          ListHeaderComponent={renderListHeader}
+          ListEmptyComponent={emptyComponent}
+          renderItem={renderItem}
+        />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
@@ -418,7 +427,7 @@ const BusinessCard = React.memo(({ item, t }) => {
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, ...CENTER },
   stickySearchHeader: {
     width: '100%',
     alignSelf: 'center',
