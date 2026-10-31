@@ -40,7 +40,7 @@ export const supportedLanguagesList = [
     flagCode: 'de',
   },
   {
-    languageName: 'Française',
+    languageName: 'Français',
     fullySupported: true,
     translatedName: 'languages.french',
     shortId: 'fr',

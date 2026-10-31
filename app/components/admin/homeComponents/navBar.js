@@ -1,83 +1,60 @@
-import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
-import { CENTER } from '../../../constants';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, WINDOWWIDTH } from '../../../constants/theme';
-import { memo } from 'react';
-import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
-import ProfileImageSettingsNavigator from '../../../functions/CustomElements/profileSettingsNavigator';
-import ThemeIcon from '../../../functions/CustomElements/themeIcon';
-export const NavBar = memo(function NavBar({
-  sparkBalance,
-  sparkTokens,
-  didViewSeedPhrase,
-  isChildAccount,
-}) {
+import { useTranslation } from 'react-i18next';
+import IconButton from '../../../functions/CustomElements/redesign/IconButton';
+import ContactAvatar from './contacts/internalComponents/contactAvatar';
+import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
+import { useImageCache } from '../../../../context-store/imageCache';
+export default function HomeNav() {
   const navigate = useNavigation();
+  const { t } = useTranslation();
+  const { globalContactsInformation } = useGlobalContactsInfo();
+  const { cache } = useImageCache();
 
-  const shouldShowWarning =
-    !isChildAccount &&
-    !didViewSeedPhrase &&
-    (!!sparkBalance ||
-      !!Object.keys(sparkTokens || {}).length ||
-      Platform.OS === 'web');
+  const myProfile = globalContactsInformation.myProfile;
 
   return (
-    <View style={[styles.topBar]}>
+    <View style={styles.topBar}>
+      <IconButton
+        icon={'ScanLine'}
+        label={'constants.scan'}
+        iconSize={20}
+        onPress={() => navigate.navigate('SendBTC')}
+      />
+
       <TouchableOpacity
-        onPress={() => {
-          crashlyticsLogReport('Navigating to SendBTC from homepage navbar');
-          navigate.navigate('SendBTC');
-        }}
-        activeOpacity={0.5}
+        onPress={() => navigate.navigate('SettingsHome', {})}
+        accessibilityRole="button"
+        accessibilityLabel={t('settings.index.profileHead')}
         style={styles.iconButton}
       >
-        <ThemeIcon iconName={'ScanLine'} />
+        <ContactAvatar
+          name={myProfile?.name || myProfile?.uniqueName}
+          seed={myProfile?.uuid}
+          uri={cache[myProfile?.uuid]?.localUri}
+          updated={cache[myProfile?.uuid]?.updated}
+          size={44}
+          fontSize={16}
+        />
       </TouchableOpacity>
-      {/* Center space for animated balance - invisible but takes up space */}
-      <View style={styles.centerSpace} />
-
-      {!!shouldShowWarning && (
-        <TouchableOpacity
-          onPress={() => {
-            crashlyticsLogReport(
-              'Navigating to settings home from homepage navbar',
-            );
-            navigate.navigate('BackupSeedWarning');
-          }}
-          activeOpacity={0.5}
-          style={styles.iconButton}
-        >
-          <ThemeIcon iconName={'AlertTriangle'} />
-        </TouchableOpacity>
-      )}
-      <View style={styles.iconButton}>
-        <ProfileImageSettingsNavigator />
-      </View>
     </View>
   );
-});
+}
 
 const styles = StyleSheet.create({
   topBar: {
-    width: Platform.OS === 'web' ? '100%' : WINDOWWIDTH,
-    display: 'flex',
+    marginTop: 7,
+    marginBottom: 20,
+    minHeight: 44,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    ...CENTER,
   },
   iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     zIndex: 2,
-  },
-  centerSpace: {
-    flex: 1,
-  },
-  custodyAccountContainer: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderRadius: 15,
   },
 });

@@ -3,17 +3,11 @@ import CustomScrollView from '../../../../../functions/CustomElements/scrollView
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import LottieView from 'lottie-react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
 
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useTheme } from '../../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { useWebView } from '../../../../../../context-store/webViewContext';
@@ -22,7 +16,9 @@ import { useToast } from '../../../../../../context-store/toastManager';
 
 import {
   getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
   resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
 } from '../../../../../functions/displayCurrency';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
@@ -31,13 +27,19 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import useAccountBalancePreviews from '../../../../../hooks/useAccountBalancePreviews';
 
 import { ThemeText } from '../../../../../functions/CustomElements';
-import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
+import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
-import AccountCard from '../../accounts/accountCard';
-import ChoosePaymentMethod from '../../sendBitcoin/components/choosePaymentMethodContainer';
+import AccountCard, { getAccountName } from '../../accounts/accountCard';
+import PaymentMethod from '../../../../../functions/CustomElements/redesign/PaymentMethod';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import StepProgress from '../../../../../functions/CustomElements/redesign/StepProgress';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import AnimatedStep from '../../../../../functions/CustomElements/redesign/AnimatedStep';
+import { SheetResult, SheetTitle } from '../../savings/savingsSheetParts';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
 import {
   executeAccountTransfer,
@@ -54,34 +56,20 @@ import {
   optimisticallyUpdateBalanceSnapshot,
 } from '../../../../../functions/spark/balanceSnapshots';
 import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
-import {
-  getConfirmTxAnimation,
-  getErrorTxAnimation,
-} from '../../../../../functions/lottieAnimations';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  SATSPERBITCOIN,
-} from '../../../../../constants';
+import { CENTER, FONT, SATSPERBITCOIN } from '../../../../../constants';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
-  SIZES,
 } from '../../../../../constants/theme';
 import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
+import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 
-const PAGE_ORDER = ['account', 'amount', 'loading', 'result'];
-// Fractions of the screen, not absolute pixels: the picker/amount pages must
-// match the `sliderHight` editAccountPage opens the sheet at, or the host
-// animates the height down from the slide-in size the moment we mount.
-const HEIGHT_FRACTION_FOR_PAGE = {
-  account: 0.8,
-  amount: 0.8,
-  loading: 0.55,
-  result: 0.55,
-};
+// Fraction of the screen, not absolute pixels: must match the `sliderHight`
+// editAccountPage opens the sheet at, or the host animates the height down
+// from the slide-in size the moment we mount.
+const SHEET_FRACTION = 0.8;
 
 // Shared inline transfer sheet for Edit Account. `mode` flips the direction:
 //   add      → funds move  (picked profile) → current account
@@ -93,8 +81,8 @@ export default function AccountTransferHalfModal({
   mode,
   account,
   handleBackPressFunction,
-  setBackNav,
   setContentHeight,
+  setDismissLocked,
 }) {
   const isAdd = mode === 'add';
   const { t } = useTranslation();
@@ -102,7 +90,7 @@ export default function AccountTransferHalfModal({
   const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = useTheme();
   const { accountMnemoinc, contactsPrivateKey } = useKeysContext();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { getAccountMnemonic, custodyAccountsList, activeAccount } =
@@ -308,82 +296,12 @@ export default function AccountTransferHalfModal({
 
   const { computeTotalSats } = useAccountBalancePreviews();
 
-  // Cross-fade step transition (fade + directional slide), matching
-  // halfModalDepositFunds / CreateAccumulationAddressModal: every visited page
-  // stays mounted and all animate simultaneously on the UI thread — no
-  // mid-transition remount/thread hop, which is what made the old hook stutter.
-  // Pages mount lazily on first visit (keeps the result Lottie + amount keyboard
-  // from spinning up before reached) and stay mounted so their exit can play.
-  const [mountedPages, setMountedPages] = useState(() => new Set(['account']));
-  // Remounts the result Lottie on each entry so the confirm/error animation
-  // replays on a retry (the page itself never unmounts).
-  const [resultRunId, setResultRunId] = useState(0);
-
-  const accountOpacity = useSharedValue(1);
-  const accountTranslateX = useSharedValue(0);
-  const amountOpacity = useSharedValue(0);
-  const amountTranslateX = useSharedValue(30);
-  const loadingOpacity = useSharedValue(0);
-  const loadingTranslateX = useSharedValue(30);
-  const resultOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    const activeIndex = PAGE_ORDER.indexOf(page);
-    // Earlier pages exit left (-30), later pages wait right (+30), active sits at 0.
-    const translateForPage = key => {
-      const index = PAGE_ORDER.indexOf(key);
-      if (index === activeIndex) return 0;
-      if (index === 2 && activeIndex === 3) return 0;
-      return index < activeIndex ? -30 : 30;
-    };
-    accountOpacity.value = withTiming(page === 'account' ? 1 : 0, {
-      duration: 250,
-    });
-    accountTranslateX.value = withTiming(translateForPage('account'), {
-      duration: 250,
-    });
-    amountOpacity.value = withTiming(page === 'amount' ? 1 : 0, {
-      duration: 250,
-    });
-    amountTranslateX.value = withTiming(translateForPage('amount'), {
-      duration: 250,
-    });
-    loadingOpacity.value = withTiming(page === 'loading' ? 1 : 0, {
-      duration: 250,
-    });
-    loadingTranslateX.value = withTiming(translateForPage('loading'), {
-      duration: 250,
-    });
-    resultOpacity.value = withTiming(page === 'result' ? 1 : 0, {
-      duration: 250,
-    });
-  }, [page]);
-
-  const accountAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: accountOpacity.value,
-    transform: [{ translateX: accountTranslateX.value }],
-  }));
-  const amountAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: amountOpacity.value,
-    transform: [{ translateX: amountTranslateX.value }],
-  }));
-  const loadingAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: loadingOpacity.value,
-    transform: [{ translateX: loadingTranslateX.value }],
-  }));
-  const resultAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: resultOpacity.value,
-  }));
-
-  // Mounts a page on its first visit and keeps it mounted thereafter.
-  const goToPage = useCallback(next => {
-    setMountedPages(prev => {
-      if (prev.has(next)) return prev;
-      const updated = new Set(prev);
-      updated.add(next);
-      return updated;
-    });
-    setPage(next);
+  // Steps slide in and out with AnimatedStep. The direction has to land one
+  // render before the step changes (AnimatedStep reads it on exit).
+  const [direction, setDirection] = useState(1);
+  const goToPage = useCallback((next, nextDirection = 1) => {
+    setDirection(nextDirection);
+    setTimeout(() => setPage(next), 0);
   }, []);
 
   // Edited account missing (stale navigation param): surface a visible error
@@ -415,21 +333,23 @@ export default function AccountTransferHalfModal({
     }
   }, [loadingAccountUuid, sourceStatus, goToPage, showToast, t]);
 
-  // Height follows the live page; account/amount share 0.8 so their (most
-  // common) transition never resizes.
+  // One height for every step: resizing the sheet while a step slides in
+  // leaves its buttons dead (see AnimatedStep). Matches editAccountPage's
+  // sliderHight so the sheet doesn't jump on mount.
   useEffect(() => {
-    setContentHeight(
-      Math.round(
-        screenDimensions.height * (HEIGHT_FRACTION_FOR_PAGE[page] || 0.55),
-      ),
-    );
-  }, [page, screenDimensions.height, setContentHeight]);
+    setContentHeight(Math.round(screenDimensions.height * SHEET_FRACTION));
+  }, [screenDimensions.height, setContentHeight]);
+
+  // The sheet can't be swiped or tapped away while the transfer is in flight.
+  useEffect(() => {
+    setDismissLocked?.(page === 'loading');
+  }, [page, setDismissLocked]);
 
   // Back: amount → account; account/result let the host close; loading blocks.
   const handleBackPress = useCallback(() => {
     if (page === 'loading') return true;
     if (page === 'amount') {
-      goToPage('account');
+      goToPage('account', -1);
       return true;
     }
     return false;
@@ -452,13 +372,16 @@ export default function AccountTransferHalfModal({
     [masterInfoObject, fiatStats],
   );
 
-  const { displayCurrency, selectCurrency, currencyRates } =
+  const { displayCurrency, selectCurrency, currencyRates, isLoadingRate } =
     useDisplayCurrencyController({
       initialCurrency: initialDisplayCurrency,
       fiatStats,
       usdFiatStats,
       masterInfoObject,
     });
+
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
   const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
     useCurrencyDisplay({
@@ -486,9 +409,6 @@ export default function AccountTransferHalfModal({
     ? Math.round(Number(amountValue) * 1e6)
     : btcAmountSats;
 
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
-  const errorAnimation = getErrorTxAnimation(theme, darkModeType);
-
   const openCurrencyPicker = useCallback(
     () =>
       navigate.push('CustomHalfModal', {
@@ -503,35 +423,6 @@ export default function AccountTransferHalfModal({
       }),
     [displayCurrency, navigate, selectCurrency],
   );
-
-  // Register the chrome's back arrow on the amount step (amount → account),
-  // with the currency switcher only while moving BTC.
-  useEffect(() => {
-    if (page === 'amount') {
-      setBackNav?.({
-        title: '',
-        onPress: handleBackPress,
-        ...(asset === 'BTC'
-          ? {
-              rightElement: (
-                <CurrencySwitchButton
-                  displayCurrency={displayCurrency}
-                  onPress={openCurrencyPicker}
-                />
-              ),
-            }
-          : {}),
-      });
-    }
-    return () => setBackNav?.(null);
-  }, [
-    page,
-    asset,
-    displayCurrency,
-    handleBackPress,
-    openCurrencyPicker,
-    setBackNav,
-  ]);
 
   const feeReqRef = useRef(0);
 
@@ -603,7 +494,6 @@ export default function AccountTransferHalfModal({
     if (isSubmittingRef.current || !canDoTransfer) return;
     isSubmittingRef.current = true;
     setErrorMessage('');
-    setResultRunId(id => id + 1);
     goToPage('loading');
 
     try {
@@ -719,239 +609,287 @@ export default function AccountTransferHalfModal({
     .filter(item => !isAdd || computeTotalSats(item) > 0);
   const isConfirmed = !errorMessage;
 
+  const sheetTitle = t(
+    isAdd
+      ? 'settings.accountComponents.editAccountPage.addMoneyButton'
+      : 'settings.accountComponents.editAccountPage.withdrawMoneyButton',
+  );
+
   if (!candidates.length) {
     return (
-      <NoContentSceen
-        iconName="Users"
-        titleText={t(
-          'settings.accountComponents.transferModal.noAvailableAccounts',
-        )}
-        subTitleText={
-          custodyAccountsList.length > 1
-            ? t(
-                'settings.accountComponents.transferModal.noAvailableAccountsSubtitle',
-              )
-            : t('settings.accountComponents.transferModal.noAccountsSubtitle')
-        }
-        containerStyles={styles.emptyContainer}
-      />
+      <View style={styles.container}>
+        <SheetTitle title={sheetTitle} first={true} />
+        <View style={styles.empty}>
+          <EmptyState
+            icon="Wallet"
+            title={t(
+              'settings.accountComponents.transferModal.noAvailableAccounts',
+            )}
+            sub={
+              custodyAccountsList.length > 1
+                ? t(
+                    'settings.accountComponents.transferModal.noAvailableAccountsSubtitle',
+                  )
+                : t(
+                    'settings.accountComponents.transferModal.noAccountsSubtitle',
+                  )
+            }
+          />
+        </View>
+      </View>
     );
   }
+
+  const fromName = getAccountName(sourceAccount, t);
+  const toName = getAccountName(destinationAccount, t);
+  const amountMasterInfo = {
+    ...masterInfoObject,
+    userBalanceDenomination: isUsdAsset ? 'fiat' : 'sats',
+  };
+  const amountDisplayProps = isUsdAsset
+    ? {
+        amount: (amountOut / 1e6).toFixed(2),
+        masterInfoObject: amountMasterInfo,
+        fiatStats: usdFiatStats,
+        forceCurrency: 'USD',
+        convertAmount: false,
+      }
+    : { amount: amountOut, masterInfoObject: amountMasterInfo, fiatStats };
 
   return (
     <View style={styles.container}>
       {/* Account picker */}
-      <Animated.View
-        style={[styles.page, accountAnimatedStyle]}
-        pointerEvents={page === 'account' ? 'auto' : 'none'}
+      <AnimatedStep
+        active={page === 'account'}
+        direction={direction}
+        exitsBack={direction === -1}
       >
-        <ThemeText
-          styles={styles.pageHeader}
-          content={t(
+        <SheetTitle
+          title={sheetTitle}
+          sub={t(
             isAdd
               ? 'settings.accountComponents.transferModal.addFromTitle'
               : 'settings.accountComponents.transferModal.withdrawToTitle',
           )}
+          first={true}
         />
-
         <CustomScrollView
           showsVerticalScrollIndicator={false}
           style={styles.accountList}
           contentContainerStyle={styles.accountListContent}
         >
-          {candidates.map((candidate, index) => {
-            // Only the currently-active account's balance is already in
-            // context (instant, no fetch); every other source is fetched.
-            // Keyed on the tapped card — NOT the component-scoped
-            // isSourceActive, which reflects the previously selected account —
-            // so the skeleton and the seeded 'loading' status always describe
-            // the card actually tapped (the main wallet may not be active, and
-            // the active account may not be the main wallet).
-            const candidateIsActive = candidate.uuid === activeAccount?.uuid;
-            return (
-              <AccountCard
-                useAltBackground={theme && darkModeType}
-                key={candidate.uuid || `Account ${index}`}
-                account={candidate}
-                isLoading={
-                  loadingAccountUuid === candidate.uuid && !candidateIsActive
-                }
-                onPress={() => {
-                  // Only one account loads at a time; ignore presses mid-load.
-                  if (loadingAccountRef.current || loadingAccountUuid) return;
-                  setSelectedAccount(candidate);
-                  if (!isAdd) {
-                    // Withdraw's destination needs no balance fetch.
-                    goToPage('amount');
-                    return;
+          <ListCard tone="flush" dividerInset={52}>
+            {candidates.map((candidate, index) => {
+              // Only the currently-active account's balance is already in
+              // context (instant, no fetch); every other source is fetched.
+              // Keyed on the tapped card — NOT the component-scoped
+              // isSourceActive, which reflects the previously selected account —
+              // so the loading row and the seeded 'loading' status always
+              // describe the card actually tapped (the main wallet may not be
+              // active, and the active account may not be the main wallet).
+              const candidateIsActive = candidate.uuid === activeAccount?.uuid;
+              return (
+                <AccountCard
+                  key={candidate.uuid || `Account ${index}`}
+                  account={candidate}
+                  isLoading={
+                    loadingAccountUuid === candidate.uuid && !candidateIsActive
                   }
-                  // The amount step is gated on this pick's real balance, so
-                  // show the card as loading and drop any previous read here —
-                  // synchronously with the selection change, or the ready-
-                  // watcher would see the prior account's 'ready' status.
-                  setSourceBalance({
-                    status: candidateIsActive ? 'ready' : 'loading',
-                    btcSats: 0,
-                    usdDollars: 0,
-                    tokensObj: null,
-                  });
-                  // Record the pick synchronously so the balance effect's
-                  // cleanup can distinguish this switch from a same-account
-                  // refetch before the re-render commits.
-                  pickedSourceUuidRef.current = candidate.uuid;
-                  loadingAccountRef.current = candidate.uuid;
-                  setBalanceReloadKey(key => key + 1);
-                  setLoadingAccountUuid(candidate.uuid);
-                }}
-                balanceSats={computeTotalSats(candidate)}
-              />
-            );
-          })}
+                  onPress={() => {
+                    // Only one account loads at a time; ignore presses mid-load.
+                    if (loadingAccountRef.current || loadingAccountUuid) return;
+                    setSelectedAccount(candidate);
+                    if (!isAdd) {
+                      // Withdraw's destination needs no balance fetch.
+                      goToPage('amount');
+                      return;
+                    }
+                    // The amount step is gated on this pick's real balance, so
+                    // show the card as loading and drop any previous read here —
+                    // synchronously with the selection change, or the ready-
+                    // watcher would see the prior account's 'ready' status.
+                    setSourceBalance({
+                      status: candidateIsActive ? 'ready' : 'loading',
+                      btcSats: 0,
+                      usdDollars: 0,
+                      tokensObj: null,
+                    });
+                    // Record the pick synchronously so the balance effect's
+                    // cleanup can distinguish this switch from a same-account
+                    // refetch before the re-render commits.
+                    pickedSourceUuidRef.current = candidate.uuid;
+                    loadingAccountRef.current = candidate.uuid;
+                    setBalanceReloadKey(key => key + 1);
+                    setLoadingAccountUuid(candidate.uuid);
+                  }}
+                  balanceSats={computeTotalSats(candidate)}
+                />
+              );
+            })}
+          </ListCard>
         </CustomScrollView>
-      </Animated.View>
+      </AnimatedStep>
 
       {/* Amount entry */}
-      {mountedPages.has('amount') && (
-        <Animated.View
-          style={[StyleSheet.absoluteFill, styles.page, amountAnimatedStyle]}
-          pointerEvents={page === 'amount' ? 'auto' : 'none'}
-        >
-          <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={amountValue}
-              inputDenomination={effectivePrimaryDisplay.denomination}
-              forceCurrency={effectivePrimaryDisplay.forceCurrency}
-              forceFiatStats={effectivePrimaryDisplay.forceFiatStats}
-              customTextInputContainerStyles={{
-                marginTop: CONTENT_KEYBOARD_OFFSET,
-                marginBottom: CONTENT_KEYBOARD_OFFSET,
-              }}
-            />
-          </View>
-
-          <View
-            style={{
-              width: INSET_WINDOW_WIDTH,
-              marginTop: 'auto',
-              ...CENTER,
-              maxWidth: 400,
-            }}
-          >
-            <ThemeText
-              styles={styles.availableLabel}
-              content={t(
-                isAdd
-                  ? 'settings.accountComponents.transferModal.availableToAdd'
-                  : 'settings.accountComponents.transferModal.availableToWithdraw',
+      <AnimatedStep
+        active={page === 'amount'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        <TopBar
+          title={sheetTitle}
+          onBack={handleBackPress}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openCurrencyPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
               )}
             />
-            <ChoosePaymentMethod
-              theme={theme}
-              darkModeType={darkModeType}
-              determinePaymentMethod={asset}
-              handleSelectPaymentMethod={() =>
-                navigate.push('CustomHalfModal', {
-                  wantedContent: 'SelectPaymentMethod',
-                  sliderHight: 0.4,
-                  selectedPaymentMethod: asset,
-                  onSelectMethod: code => {
-                    setAsset(code);
-                    setAmountValue('');
-                  },
-                  bitcoinBalance: sourceBtcSats,
-                  dollarBalanceToken: sourceUsdDollars,
-                })
-              }
-              bitcoinBalance={sourceBtcSats}
-              dollarBalanceToken={sourceUsdDollars}
-              masterInfoObject={masterInfoObject}
-              fiatStats={fiatStats}
-              uiState={'SELECT_INLINE'}
-              t={t}
-              showBitcoinCardOnly={false}
-              containerStyles={{ width: '100%', marginBottom: 8 }}
-            />
-          </View>
-
-          <CustomNumberKeyboard
-            showDot={effectivePrimaryDisplay.denomination === 'fiat'}
-            frompage="accountsPayments"
-            setInputValue={setAmountValue}
-            usingForBalance={true}
-            fiatStats={effectiveFiatStats}
-          />
-
-          <CustomButton
-            buttonStyles={{
-              ...CENTER,
-              opacity:
-                canDoTransfer || transferInfo.isCalculatingFee
-                  ? 1
-                  : HIDDEN_OPACITY,
+          }
+        />
+        <View style={styles.amountBlock}>
+          <AmountHero
+            amount={
+              effectivePrimaryDisplay.denomination === 'fiat'
+                ? Number(amountValue || 0).toFixed(2)
+                : amountValue || 0
+            }
+            fiatStats={effectivePrimaryDisplay.forceFiatStats}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: effectivePrimaryDisplay.denomination,
             }}
-            useLoading={transferInfo.isCalculatingFee}
-            actionFunction={handleConfirm}
-            textContent={t('constants.confirm')}
+            forceCurrency={effectivePrimaryDisplay.forceCurrency}
+            convertAmount={false}
+            amountSize={52}
+            mutedValue={!Number(amountValue)}
           />
-        </Animated.View>
-      )}
+        </View>
 
-      {/* Loading */}
-      {mountedPages.has('loading') && (
-        <Animated.View
-          style={[StyleSheet.absoluteFill, styles.page, loadingAnimatedStyle]}
-          pointerEvents={page === 'loading' ? 'auto' : 'none'}
-        >
-          <FullLoadingScreen />
-        </Animated.View>
-      )}
+        <PaymentMethod
+          title={t(
+            isAdd
+              ? 'settings.accountComponents.transferModal.availableToAdd'
+              : 'settings.accountComponents.transferModal.availableToWithdraw',
+          )}
+          determinePaymentMethod={asset}
+          handleSelectPaymentMethod={() =>
+            navigate.push('CustomHalfModal', {
+              wantedContent: 'SelectPaymentMethod',
+              sliderHight: 0.4,
+              selectedPaymentMethod: asset,
+              onSelectMethod: code => {
+                setAsset(code);
+                setAmountValue('');
+              },
+              bitcoinBalance: sourceBtcSats,
+              dollarBalanceToken: sourceUsdDollars,
+            })
+          }
+          bitcoinBalance={sourceBtcSats}
+          dollarBalanceToken={sourceUsdDollars}
+          masterInfoObject={masterInfoObject}
+          fiatStats={fiatStats}
+          t={t}
+          containerStyles={styles.paymentMethod}
+        />
+
+        <CustomNumberKeyboard
+          redesign
+          showDot={effectivePrimaryDisplay.denomination === 'fiat'}
+          frompage="accountsPayments"
+          setInputValue={setAmountValue}
+          usingForBalance={true}
+          fiatStats={effectiveFiatStats}
+        />
+
+        <CustomButton
+          buttonStyles={[
+            styles.confirmButton,
+            !canDoTransfer &&
+              !transferInfo.isCalculatingFee && { opacity: HIDDEN_OPACITY },
+          ]}
+          useLoading={transferInfo.isCalculatingFee}
+          actionFunction={handleConfirm}
+          textContent={t('constants.confirm')}
+          size={'regular'}
+        />
+      </AnimatedStep>
+
+      {/* Sending */}
+      <AnimatedStep
+        active={page === 'loading'}
+        direction={direction}
+        fadeOnly={true}
+      >
+        <View style={styles.loading}>
+          <StepProgress
+            title={t('settings.accountComponents.transferModal.sending')}
+            subtitle={t(
+              'settings.accountComponents.transferModal.sendingSubtitle',
+              {
+                amount: displayCorrectDenomination(amountDisplayProps),
+                from: fromName,
+                to: toName,
+              },
+            )}
+          />
+        </View>
+      </AnimatedStep>
 
       {/* Result */}
-      {mountedPages.has('result') && (
-        <Animated.View
-          style={[StyleSheet.absoluteFill, styles.page, resultAnimatedStyle]}
-          pointerEvents={page === 'result' ? 'auto' : 'none'}
-        >
-          <View style={styles.globalStatusContainer}>
-            <View style={styles.statusContainer}>
-              <LottieView
-                key={resultRunId}
-                source={isConfirmed ? confirmAnimation : errorAnimation}
-                autoPlay={true}
-                loop={false}
-                style={styles.statusAnimation}
+      <AnimatedStep
+        active={page === 'result'}
+        direction={direction}
+        fadeOnly={true}
+      >
+        {isConfirmed ? (
+          <SheetResult
+            label={t(
+              'settings.accountComponents.transferModal.sentSuccessfully',
+            )}
+            amountProps={amountDisplayProps}
+            line={t('settings.accountComponents.transferModal.fromTo', {
+              from: fromName,
+              to: toName,
+            })}
+            buttonText={t('constants.done')}
+            onDone={() => handleBackPressFunction()}
+          />
+        ) : (
+          <>
+            <View style={styles.failed} accessibilityRole="alert">
+              <Disc
+                icon="TriangleAlert"
+                size={56}
+                iconSize={24}
+                tone="danger"
               />
               <ThemeText
-                styles={styles.statusText}
+                styles={styles.failedTitle}
+                content={t('screens.inAccount.confirmTxPage.failedToSend')}
+              />
+              <ThemeText
+                variant={'body'}
+                styles={[styles.failedSub, { color: tokens.muted }]}
                 content={
-                  isConfirmed
-                    ? t(`screens.inAccount.confirmTxPage.confirmMessage`, {
-                        context: isAdd ? 'sent' : 'received',
-                      })
-                    : t('screens.inAccount.confirmTxPage.failedToSend')
+                  errorMessage ||
+                  t('settings.accountComponents.transferModal.failedSubtitle')
                 }
               />
-
-              {!isConfirmed && (
-                <ThemeText
-                  styles={styles.statusSubtitle}
-                  content={errorMessage}
-                />
-              )}
             </View>
             <CustomButton
-              buttonStyles={{ ...CENTER }}
-              actionFunction={() =>
-                isConfirmed ? handleBackPressFunction() : goToPage('amount')
-              }
-              textContent={
-                isConfirmed ? t('constants.done') : t('constants.back')
-              }
+              buttonStyles={styles.bottomButton}
+              actionFunction={() => goToPage('amount', -1)}
+              textContent={t('constants.back')}
+              size={'regular'}
             />
-          </View>
-        </Animated.View>
-      )}
+          </>
+        )}
+      </AnimatedStep>
     </View>
   );
 }
@@ -961,55 +899,54 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-  },
-  page: {
-    flex: 1,
-    width: '100%',
-  },
-  pageHeader: {
-    width: '100%',
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-    includeFontPadding: false,
+    overflow: 'hidden',
   },
   accountList: {
-    width: '100%',
-    flex: 1,
+    marginTop: 12,
+    flexGrow: 0,
   },
   accountListContent: {
     paddingBottom: 8,
   },
-  emptyContainer: {
-    flex: 1,
-    minHeight: 250,
+  empty: {
+    marginTop: 56,
   },
-  availableLabel: {
-    opacity: HIDDEN_OPACITY,
-    marginBottom: 5,
-    includeFontPadding: false,
-  },
-  globalStatusContainer: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-  statusContainer: {
+  amountBlock: {
     flex: 1,
+    justifyContent: 'center',
+  },
+  paymentMethod: {
+    width: '100%',
+    marginTop: 0,
+    marginBottom: 8,
+  },
+  confirmButton: {
+    width: '100%',
+    marginTop: 12,
+  },
+  bottomButton: {
+    width: '100%',
+    marginTop: 'auto',
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  failed: {
+    marginTop: 48,
     alignItems: 'center',
   },
-  statusAnimation: {
-    width: 125,
-    height: 125,
-  },
-  statusText: {
-    fontSize: SIZES.large,
-    width: '95%',
+  failedTitle: {
+    marginTop: 20,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 26,
     textAlign: 'center',
-    marginBottom: 10,
+    includeFontPadding: false,
   },
-  statusSubtitle: {
-    opacity: 0.6,
-    width: '95%',
-    maxWidth: 300,
+  failedSub: {
+    marginTop: 6,
     textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 40,
+    paddingHorizontal: 12,
   },
 });

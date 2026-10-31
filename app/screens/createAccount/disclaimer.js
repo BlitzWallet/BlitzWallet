@@ -1,30 +1,30 @@
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { CENTER, COLORS } from '../../constants';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../constants';
+import { GlobalThemeView } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useState } from 'react';
 import { useKeysContext } from '../../../context-store/keys';
 import { createAccountMnemonic } from '../../functions';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import GetThemeColors from '../../hooks/themeColors';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import IconActionCircle from '../../functions/CustomElements/actionCircleContainer';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../functions/CustomElements/redesign/PageHeader';
+import ListCard from '../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../functions/CustomElements/redesign/Disc';
+import ConsentRow from '../../functions/CustomElements/redesign/ConsentRow';
 
 export default function DisclaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const nextPageName = route?.params?.nextPage;
 
   const nextPage = async () => {
@@ -65,256 +65,88 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar containerStyles={{ marginBottom: 0 }} />
-
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        {/* ── Shield icon ── */}
-        <IconActionCircle icon={'ShieldCheck'} />
-
-        {/* ── Header ── */}
-        <ThemeText
-          styles={styles.headerText}
-          content={t('createAccount.disclaimerPage.header')}
-          adjustsFontSizeToFit={true}
-          minimumFontScale={0.53}
-          CustomNumberOfLines={1}
-        />
-        <ThemeText
-          adjustsFontSizeToFit={true}
-          minimumFontScale={0.53}
-          CustomNumberOfLines={2}
-          styles={[styles.descriptionText, { marginBottom: 35 }]}
-          content={t('createAccount.disclaimerPage.subHeader')}
-        />
-
-        {/* ── Boxed card: info rows + dedicated terms row ── */}
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          {[
-            {
-              icon: 'Lock',
-              label: t('createAccount.disclaimerPage.row1Label'),
-              desc: t('createAccount.disclaimerPage.row1Description'),
-            },
-            {
-              icon: 'KeyRound',
-              label: t('createAccount.disclaimerPage.row2Label'),
-              desc: t('createAccount.disclaimerPage.row2Description'),
-            },
-            {
-              icon: 'TriangleAlert',
-              label: t('createAccount.disclaimerPage.row3Label'),
-              desc: t('createAccount.disclaimerPage.row3Description'),
-            },
-          ].map(({ icon, label, desc }, index) => (
-            <View
-              key={icon}
-              style={[
-                styles.infoRow,
-                index > 0 && {
-                  borderTopWidth: 1,
-                  borderTopColor: backgroundColor,
-                },
-              ]}
-            >
-              <View style={styles.infoIcon}>
-                <ThemeIcon size={20} iconName={icon} />
-              </View>
-              <View style={styles.infoText}>
-                <ThemeText styles={styles.infoLabel} content={label} />
-                <ThemeText styles={styles.infoDesc} content={desc} />
-              </View>
-            </View>
-          ))}
-          {/* ── Dedicated, tappable Terms row ── */}
-          <TouchableOpacity
-            onPress={openTermsAndConditions}
-            activeOpacity={0.7}
-            style={[
-              styles.termsRow,
-              { borderTopWidth: 1, borderTopColor: backgroundColor },
-            ]}
-          >
-            <View style={{ width: 38, alignItems: 'center' }}>
-              <ThemeIcon size={20} iconName={'FileText'} />
-            </View>
-            <ThemeText
-              styles={styles.termsRowLabel}
-              content={t('createAccount.disclaimerPage.readTerms')}
-            />
-            <ThemeIcon size={18} iconName={'ChevronRight'} />
-          </TouchableOpacity>
-        </View>
-      </CustomScrollView>
-
-      {/* ── Acknowledgment checkbox — risk + T&C ── */}
-      <TouchableOpacity
-        onPress={() => setTermsAccepted(prev => !prev)}
-        style={styles.checkboxContainer}
-        activeOpacity={0.7}
-      >
-        <View
-          style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar />
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.contentContainer}
         >
-          {termsAccepted && (
-            <ThemeIcon
-              size={15}
-              colorOverride={COLORS.darkModeText}
-              iconName={'Check'}
-            />
-          )}
-        </View>
+          <PageHeader
+            large
+            title={t('createAccount.disclaimerPage.header')}
+            sub={t('createAccount.disclaimerPage.subHeader')}
+          />
 
-        <View style={styles.termsTextContainer}>
-          <Text style={styles.checkboxText}>
-            {t('createAccount.disclaimerPage.acceptPrefix')}{' '}
-            <Text style={styles.termsLink} onPress={openTermsAndConditions}>
-              {t('createAccount.disclaimerPage.terms&Conditions')}
-            </Text>
-            {t('createAccount.disclaimerPage.acceptSuffix')}
-          </Text>
+          <View style={styles.infoCard}>
+            <ListCard dividerInset={68}>
+              {[
+                {
+                  icon: 'Lock',
+                  label: t('createAccount.disclaimerPage.row1Label'),
+                  desc: t('createAccount.disclaimerPage.row1Description'),
+                },
+                {
+                  icon: 'KeyRound',
+                  label: t('createAccount.disclaimerPage.row2Label'),
+                  desc: t('createAccount.disclaimerPage.row2Description'),
+                },
+                {
+                  icon: 'TriangleAlert',
+                  label: t('createAccount.disclaimerPage.row3Label'),
+                  desc: t('createAccount.disclaimerPage.row3Description'),
+                },
+              ].map(({ icon, label, desc }) => (
+                <ListRow
+                  key={icon}
+                  lead={<Disc icon={icon} size={40} />}
+                  title={label}
+                  sub={desc}
+                  minHeight={72}
+                  titleStyle={styles.rowTitle}
+                />
+              ))}
+            </ListCard>
+          </View>
+          <View style={styles.termsCard}>
+            <ListCard>
+              <ListRow
+                onPress={openTermsAndConditions}
+                lead={<Disc icon={'FileText'} size={40} />}
+                title={t('createAccount.disclaimerPage.readTerms')}
+                minHeight={60}
+                titleStyle={styles.rowTitle}
+                showChevron={true}
+                chevronSize={18}
+              />
+            </ListCard>
+          </View>
+        </CustomScrollView>
+        <View style={styles.footer}>
+          <ConsentRow
+            checked={termsAccepted}
+            onPress={() => setTermsAccepted(prev => !prev)}
+            text={t('createAccount.disclaimerPage.acceptPrefix')}
+            linkText={t('createAccount.disclaimerPage.terms&Conditions')}
+            onLinkPress={openTermsAndConditions}
+            suffix={t('createAccount.disclaimerPage.acceptSuffix')}
+          />
+          <CustomButton
+            buttonStyles={{ opacity: termsAccepted ? 1 : 0.5 }}
+            textContent={t('createAccount.disclaimerPage.continueBTN')}
+            actionFunction={nextPage}
+            size={'regular'}
+          />
         </View>
-      </TouchableOpacity>
-
-      {/* ── CTA ── */}
-      <CustomButton
-        buttonStyles={[
-          styles.buttonStyles,
-          { opacity: termsAccepted ? 1 : 0.5 },
-        ]}
-        textContent={t('createAccount.disclaimerPage.continueBTN')}
-        actionFunction={nextPage}
-      />
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    width: INSET_WINDOW_WIDTH,
-    alignItems: 'center',
-    ...CENTER,
-    flexGrow: 1,
-  },
-
-  // ── Header ──
-  headerText: {
-    width: '100%',
-    fontSize: SIZES.xLarge,
-    fontWeight: '500',
-    marginTop: 16,
-    marginBottom: 12,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  descriptionText: {
-    width: '90%',
-    textAlign: 'center',
-    opacity: 0.8,
-    includeFontPadding: false,
-  },
-
-  // ── Card ──
-  card: {
-    width: '100%',
-    borderRadius: 24,
-    overflow: 'hidden',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 16,
-  },
-  infoIcon: {
-    width: 38,
-    height: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  infoText: {
-    flex: 1,
-    gap: 3,
-  },
-  infoLabel: {
-    fontSize: SIZES.smedium,
-    fontWeight: '500',
-    includeFontPadding: false,
-  },
-  infoDesc: {
-    fontSize: SIZES.small,
-    opacity: 0.65,
-    includeFontPadding: false,
-  },
-
-  // ── Terms row ──
-  termsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 16,
-  },
-  termsRowLabel: {
-    flex: 1,
-    fontSize: SIZES.smedium,
-    fontWeight: '500',
-    includeFontPadding: false,
-  },
-
-  // ── Checkbox ──
-  checkboxContainer: {
-    paddingVertical: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: COLORS.lightModeText,
-    borderRadius: 8,
-    marginRight: 12,
-    marginTop: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  termsTextContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    flexShrink: 1,
-  },
-  checkboxText: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    lineHeight: 20,
-  },
-  termsLink: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.small,
-    color: COLORS.primary,
-    textDecorationLine: 'underline',
-    includeFontPadding: false,
-    lineHeight: 20,
-  },
-
-  // ── Button ──
-  buttonStyles: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
+  container: { flex: 1, ...CENTER },
+  contentContainer: { flexGrow: 1, paddingBottom: 20 },
+  infoCard: { marginTop: 32 },
+  termsCard: { marginTop: 12 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
+  footer: { gap: 12, paddingTop: CONTENT_KEYBOARD_OFFSET },
 });

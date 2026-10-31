@@ -28,7 +28,7 @@ export default function GiftCardItem({
 }) {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { showToast } = useToast();
@@ -185,9 +185,7 @@ export default function GiftCardItem({
               style={({ pressed }) => [
                 styles.actionButton,
                 {
-                  backgroundColor: theme
-                    ? backgroundColor
-                    : COLORS.darkModeText,
+                  backgroundColor: theme ? backgroundColor : tokens.disc,
                 },
                 pressed && { opacity: 0.5 },
               ]}

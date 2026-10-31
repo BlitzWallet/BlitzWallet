@@ -1,5 +1,5 @@
 <resources>
-    <color name="splash_background_color">#EBEBEB</color>
-    <color name="splashscreen_background">#EBEBEB</color>
-    <color name="colorAccent">#EBEBEB</color>
+    <color name="splash_background_color">#F0F0F2</color>
+    <color name="splashscreen_background">#F0F0F2</color>
+    <color name="colorAccent">#F0F0F2</color>
 </resources>

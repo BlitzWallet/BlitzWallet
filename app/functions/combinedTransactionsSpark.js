@@ -4,9 +4,6 @@ import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
-  FONT,
-  HIDDEN_BALANCE_TEXT,
-  ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
   SMALL_BTC_PAYMENT_LIMIT,
@@ -122,6 +119,18 @@ const generateBannerText = (timeDifference, texts) => {
 
   const years = Math.floor(roundedDays / 365);
   return `${years} ${yearText}${years === 1 ? '' : 's'} ${agoText}`;
+};
+
+const isSameDay = (a, b) => a.toDateString() === b.toDateString();
+
+// Balance-page rows: Today / Yesterday / short date.
+const getRowDate = (paymentDate, t) => {
+  const date = new Date(paymentDate);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (isSameDay(date, new Date())) return t('constants.today');
+  if (isSameDay(date, yesterday)) return t('constants.yesterday');
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
 
 const getContainerWidth = frompage => {
@@ -597,7 +606,8 @@ export const UserTransaction = memo(function UserTransaction({
   swapLimits,
 }) {
   const { t } = useTranslation();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset, tokens } =
+    GetThemeColors();
 
   // Row-local relative-time refresh: one shared 10s ticker updates the "x ago"
   // label without the parent rebuilding the animated list every 10s.
@@ -625,7 +635,10 @@ export const UserTransaction = memo(function UserTransaction({
     )
       return;
     crashlyticsLogReport('Navigating to expanded tx from user transaction');
-    navigate.navigate('ExpandedTx', { isFailedPayment: {}, transaction });
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'expandedTx',
+      transaction,
+    });
   }, [frompage, navigate, transaction]);
 
   const showPendingTransactionStatusIcon =
@@ -644,19 +657,21 @@ export const UserTransaction = memo(function UserTransaction({
   );
 
   const isGrayMode = theme && darkModeType;
+  const isBalancePageRow = frompage === TRANSACTION_CONSTANTS.HOME;
 
-  const iconBg =
-    frompage === TRANSACTION_CONSTANTS.HOME
-      ? backgroundColor
-      : backgroundOffset;
+  const iconBg = isBalancePageRow ? tokens.disc : backgroundOffset;
 
-  const iconColor = isGrayMode
+  const iconColor = isBalancePageRow
+    ? isFailedPayment
+      ? tokens.danger
+      : tokens.ink
+    : isGrayMode
     ? textColor
     : isFailedPayment
     ? !theme
-      ? COLORS.cancelRed
-      : COLORS.primary
-    : COLORS.primary;
+      ? tokens.danger
+      : tokens.accent
+    : tokens.accent;
 
   const amountColor = textColor;
   const paymentDescription = transaction.details?.description?.trim();
@@ -666,7 +681,8 @@ export const UserTransaction = memo(function UserTransaction({
   const descriptionTextStyle = useMemo(
     () => ({
       ...styles.descriptionText,
-      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+      color: tokens.ink,
+      ...(isBalancePageRow && styles.balanceRowTitle),
     }),
     [theme, darkModeType],
   );
@@ -674,14 +690,17 @@ export const UserTransaction = memo(function UserTransaction({
   const dateTextStyle = useMemo(
     () => ({
       ...styles.dateText,
-      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+      color: tokens.ink,
+      ...(isBalancePageRow && {
+        ...styles.balanceRowDate,
+        color: tokens.muted,
+      }),
     }),
     [theme, darkModeType],
   );
 
   // Pre-calculate description content
   const descriptionContent = useMemo(() => {
-    // if (userBalanceDenomination === 'hidden') return HIDDEN_BALANCE_TEXT;
     if (isDefaultDescription || !paymentDescription) {
       return transaction.details.direction === TRANSACTION_CONSTANTS.OUTGOING
         ? t('constants.sent')
@@ -701,20 +720,23 @@ export const UserTransaction = memo(function UserTransaction({
       style={{
         ...styles.transactionContainer,
         width: containerWidth,
-        paddingTop:
-          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
-          frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
-            ? 13
-            : isFirstItem
-            ? 0
-            : 13,
-        paddingBottom:
-          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
-          frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
-            ? 13
-            : isLastItem
-            ? 0
-            : 13,
+        ...(isBalancePageRow && { minHeight: 56 }),
+        paddingTop: isBalancePageRow
+          ? 8
+          : frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+            frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+          ? 13
+          : isFirstItem
+          ? 0
+          : 13,
+        paddingBottom: isBalancePageRow
+          ? 8
+          : frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
+            frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
+          ? 13
+          : isLastItem
+          ? 0
+          : 13,
       }}
       activeOpacity={
         frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ||
@@ -731,7 +753,7 @@ export const UserTransaction = memo(function UserTransaction({
       ) : (
         <View style={[styles.icons, { backgroundColor: iconBg }]}>
           <ThemeIcon
-            size={22}
+            size={isBalancePageRow ? 20 : 22}
             iconName={txIconMeta.icon}
             colorOverride={iconColor}
           />
@@ -747,12 +769,16 @@ export const UserTransaction = memo(function UserTransaction({
         <ThemeText
           CustomNumberOfLines={1}
           styles={dateTextStyle}
-          content={getTimeDisplay(
-            timeDifference.minutes,
-            timeDifference.hours,
-            timeDifference.days,
-            timeDifference.years,
-          )}
+          content={
+            isBalancePageRow
+              ? getRowDate(paymentDate, t)
+              : getTimeDisplay(
+                  timeDifference.minutes,
+                  timeDifference.hours,
+                  timeDifference.days,
+                  timeDifference.years,
+                )
+          }
         />
       </View>
       <View>
@@ -765,8 +791,14 @@ export const UserTransaction = memo(function UserTransaction({
               frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
             }
             globalBalanceDenomination={userBalanceDenomination}
-            containerStyles={styles.amountContainer}
-            styles={{ color: amountColor }}
+            containerStyles={
+              isBalancePageRow ? undefined : styles.amountContainer
+            }
+            styles={
+              isBalancePageRow
+                ? { color: amountColor, fontSize: 15, lineHeight: 21 }
+                : { color: amountColor }
+            }
             frontText={APPROXIMATE_SYMBOL}
             balance={
               satsToDollars(
@@ -786,8 +818,14 @@ export const UserTransaction = memo(function UserTransaction({
               frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
             }
             globalBalanceDenomination={userBalanceDenomination}
-            containerStyles={styles.amountContainer}
-            styles={{ color: amountColor }}
+            containerStyles={
+              isBalancePageRow ? undefined : styles.amountContainer
+            }
+            styles={
+              isBalancePageRow
+                ? { color: amountColor, fontSize: 15, lineHeight: 21 }
+                : { color: amountColor }
+            }
             frontText={
               userBalanceDenomination !== 'hidden'
                 ? transaction.details.direction ===
@@ -811,7 +849,7 @@ export const UserTransaction = memo(function UserTransaction({
         )}
       </View>
 
-      {!isLastItem && (
+      {!isLastItem && !isBalancePageRow && (
         <View style={[styles.txDivider, { backgroundColor: textColor }]} />
       )}
     </TouchableOpacity>
@@ -863,6 +901,8 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginBottom: 'auto',
   },
+  balanceRowTitle: { fontSize: 15, lineHeight: 21, marginBottom: 0 },
+  balanceRowDate: { fontSize: 13, lineHeight: 19, opacity: 1 },
   transactionTimeBanner: {
     textAlign: 'center',
   },

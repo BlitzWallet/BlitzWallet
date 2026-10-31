@@ -34,7 +34,7 @@ export default function ChoosePaymentMethod({
   hideBalance = false,
   showPayWith = false,
 }) {
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const icon =
     determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
       ? 'bitcoinIcon'
@@ -149,7 +149,7 @@ export default function ChoosePaymentMethod({
         {!showBitcoinCardOnly && (
           <ThemeIcon
             colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              theme && darkModeType ? COLORS.lightModeText : tokens.accent
             }
             size={20}
             iconName={'ChevronDown'}

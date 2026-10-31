@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Platform, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { COLORS } from '../../constants';
 import lucideIconFile from './lucideIconFile';
 import lucideIcon from './lucideIcons';
 
@@ -26,9 +25,13 @@ export default function ThemeIcon({
   styles,
   colorOverride,
   fill = null,
-  strokeWidth = 2,
+  strokeWidth: strokeWidthProp,
+  redesign = false,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  // Redesign icons (opt-in): stroke 1.75, ink (audit/SHARED.md icon row).
+  const strokeWidth =
+    strokeWidthProp !== undefined ? strokeWidthProp : redesign ? 1.75 : 2;
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   // Determine which icon to render based on theme
   const IconComponent = useMemo(() => {
@@ -38,11 +41,12 @@ export default function ThemeIcon({
   // Determine the color tint
   const iconColor = useMemo(() => {
     if (colorOverride) return colorOverride;
+    if (redesign) return tokens.ink;
     if (theme) {
-      return darkModeType ? COLORS.darkModeText : COLORS.primary;
+      return darkModeType ? tokens.ink : tokens.accent;
     }
-    return COLORS.primary;
-  }, [theme, darkModeType, colorOverride]);
+    return tokens.accent;
+  }, [theme, darkModeType, tokens, colorOverride, redesign]);
 
   // Merge styles
   const iconStyles = useMemo(() => {
@@ -59,6 +63,8 @@ export default function ThemeIcon({
 
     return { ...baseStyles, ...styles };
   }, [styles, iconColor]);
+  // `fill` is a colour, or `true` to fill with the icon's own colour.
+  const fillColor = typeof fill === 'string' ? fill : iconColor;
   if (!IconComponent) return;
   // On react-native-web the icon renders as an <svg> element, where a CSS
   // `transform` rotates around the origin (0,0) instead of the center, so a
@@ -70,7 +76,7 @@ export default function ThemeIcon({
         {fill ? (
           <IconComponent
             strokeWidth={strokeWidth}
-            fill={fill}
+            fill={fillColor}
             size={size}
             style={svgStyles}
           />
@@ -89,7 +95,7 @@ export default function ThemeIcon({
     return (
       <IconComponent
         strokeWidth={strokeWidth}
-        fill={fill}
+        fill={fillColor}
         size={size}
         style={iconStyles}
       />

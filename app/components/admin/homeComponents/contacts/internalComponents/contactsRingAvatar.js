@@ -55,18 +55,14 @@ function getBadgeConfig(pubkey) {
 }
 
 // ─── Renderer ─────────────────────────────────────────────────────────────────
-function IdenticonCircle({ spokes, size, theme, darkModeType }) {
+function IdenticonCircle({ spokes, size, tokens }) {
   const cx = size / 2;
   const cy = size / 2;
   const r = size / 2;
 
-  const bgColor = !theme
-    ? COLORS.lightModeBackgroundOffset
-    : !darkModeType
-    ? COLORS.darkModeBackgroundOffset
-    : COLORS.lightsOutBackgroundOffset;
+  const bgColor = tokens.surface;
 
-  const strokeColor = !theme ? COLORS.lightModeText : COLORS.darkModeText;
+  const strokeColor = tokens.ink;
 
   const tallOuterR = r * 0.85; // tall spokes
   const mediumOuterR = r * 0.65; // medium spokes
@@ -156,7 +152,7 @@ export default function ContactRingAvatar({
   children,
   onToggle,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
 
   const pubkey = useMemo(
     () => createHash('sha256').update(contactUUID).digest(),
@@ -316,8 +312,7 @@ export default function ContactRingAvatar({
           <IdenticonSizeAdaptor
             spokes={spokes}
             size={expandedSecondarySize}
-            theme={theme}
-            darkModeType={darkModeType}
+            tokens={tokens}
           />
         </Animated.View>
       </Animated.View>
@@ -330,18 +325,13 @@ export default function ContactRingAvatar({
  * Uses JS-side state — acceptable because SVG re-render is cheap
  * and this only triggers on press, not every frame.
  */
-function IdenticonSizeAdaptor({ spokes, theme, darkModeType, size }) {
+function IdenticonSizeAdaptor({ spokes, tokens, size }) {
   // We pick a fixed size per state — no per-frame JS call needed.
   // The Animated.View handles all the resizing; this just needs to
   // fill its parent, so we render at the larger size and let overflow clip.
   return (
     <View style={{ width: '100%', height: '100%' }}>
-      <IdenticonCircle
-        spokes={spokes}
-        size={size}
-        theme={theme}
-        darkModeType={darkModeType}
-      />
+      <IdenticonCircle spokes={spokes} size={size} tokens={tokens} />
     </View>
   );
 }

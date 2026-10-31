@@ -1,42 +1,34 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { CENTER, COLORS, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   keyboardGoBack,
   keyboardNavigate,
 } from '../../../../functions/customNavigation';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 
 export default function SavingsGoalDescribe(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [isSaving, setIsSaving] = useState(false);
   const isGoingBackRef = useRef(false);
 
   const emoji = props?.route?.params?.emoji || '🎯';
 
   const [goalName, setGoalName] = useState('');
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
-
-  const isOverLimit = goalName.length >= 50;
-  const characterCountColor = isOverLimit
-    ? theme && darkModeType
-      ? textColor
-      : COLORS.cancelRed
-    : textColor;
+  const { tokens } = GetThemeColors();
 
   const handleSave = useCallback(async () => {
     try {
@@ -60,7 +52,7 @@ export default function SavingsGoalDescribe(props) {
       isGoingBackRef.current = false;
       setIsSaving(false);
     }
-  }, [goalName, navigate]);
+  }, [goalName, navigate, emoji]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -69,38 +61,33 @@ export default function SavingsGoalDescribe(props) {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        customBackFunction={() => {
-          if (isGoingBackRef.current) return;
-          isGoingBackRef.current = true;
-          keyboardGoBack(navigate);
-        }}
-        label={t('savings.goalDescribe.screenTitle')}
-      />
-      <View style={styles.container}>
-        <View>
-          <ThemeText
-            styles={styles.title}
-            content={t('savings.goalDescribe.title')}
-          />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('savings.goalDescribe.screenTitle')}
+          shouldDismissKeyboard={true}
+        />
+        <View
+          style={[styles.emojiContainer, { backgroundColor: tokens.surface }]}
+        >
+          <ThemeText styles={styles.emojiText} content={emoji} />
+        </View>
+        <ThemeText
+          variant={'title'}
+          styles={styles.title}
+          content={t('savings.goalDescribe.title')}
+        />
 
-          <CustomSearchInput
-            containerStyles={styles.inputWrap}
-            placeholderText={t('savings.goalDescribe.placeholder')}
-            setInputText={setGoalName}
-            inputText={goalName}
-            onFocusFunction={() => setIsKeyboardActive(true)}
-            onBlurFunction={() => setIsKeyboardActive(false)}
+        <View style={styles.inputWrap}>
+          <UserInput
+            placeholder={t('savings.goalDescribe.placeholder')}
+            value={goalName}
+            onChangeText={setGoalName}
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
             autoFocus={true}
             maxLength={50}
-          />
-          <ThemeText
-            styles={{
-              textAlign: 'right',
-              color: characterCountColor,
-              marginTop: 5,
-            }}
-            content={`${goalName.length} / ${50}`}
+            focusRing={true}
+            showTextCount={true}
           />
         </View>
 
@@ -111,6 +98,7 @@ export default function SavingsGoalDescribe(props) {
           textContent={
             !goalName.trim() ? t('constants.back') : t('constants.continue')
           }
+          size={'regular'}
         />
       </View>
     </CustomKeyboardAvoidingView>
@@ -120,33 +108,32 @@ export default function SavingsGoalDescribe(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
     ...CENTER,
   },
   title: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-    marginTop: 28,
+    marginTop: 20,
   },
   inputWrap: {
-    marginTop: 20,
+    marginTop: 16,
   },
   input: {
     flex: 1,
     minHeight: 48,
     color: COLORS.lightModeText,
   },
-  primaryButton: {
+  emojiContainer: {
+    height: 72,
+    width: 72,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    // alignSelf: 'center',
+    ...CENTER,
+    marginTop: 20,
   },
-  disabledButton: {
-    opacity: 0.45,
-  },
-  primaryButtonText: {
-    color: COLORS.white,
+  emojiText: {
     includeFontPadding: false,
+    fontSize: 35,
+    lineHeight: 42,
   },
+  primaryButton: { marginTop: 'auto' },
 });

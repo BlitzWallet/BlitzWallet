@@ -1,28 +1,28 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSavings } from '../../../../../context-store/savingsContext';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { useMemo } from 'react';
-import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
-import GetThemeColors from '../../../../hooks/themeColors';
+import { Fragment, useMemo, useState } from 'react';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import PageTitle from '../../../../functions/CustomElements/redesign/PageTitle';
 
 export default function SavingsRemoveGoalConfirm(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const goalId = props?.route?.params?.goalId;
   const { savingsGoals, removeSavingsGoal } = useSavings();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { mode, tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const selectedGoal = useMemo(() => {
     return savingsGoals.find(goal => goal.id === goalId) || null;
@@ -42,48 +42,59 @@ export default function SavingsRemoveGoalConfirm(props) {
     },
   ];
 
+  const handleRemove = async () => {
+    if (isRemoving) return;
+    setIsRemoving(true);
+    const response = await removeSavingsGoal(selectedGoal?.id);
+    setIsRemoving(false);
+    if (!response?.didWork) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage:
+          response?.error ||
+          t('savings.removeGoalConfirm.errors.unableToRemoveGoal'),
+      });
+      return;
+    }
+    navigate.navigate('SavingsGoalRemovedSuccess');
+  };
+
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('savings.removeGoalConfirm.screenTitle')}
-      />
-      <View style={styles.container}>
-        <View style={{ width: '100%', alignItems: 'center' }}>
-          <IconActionCircle bottomOffset={32} icon={'Trash2'} />
-          <ThemeText
-            styles={styles.title}
-            content={t('savings.removeGoalConfirm.title')}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar />
+
+        <View style={styles.content}>
+          <Disc
+            icon={'Trash2'}
+            tone={mode !== 'dim' ? 'danger' : 'white'}
+            size={56}
+            iconSize={24}
+          />
+          <PageTitle
+            titleStyles={styles.titleText}
+            text={t('savings.removeGoalConfirm.title')}
           />
 
-          <View style={styles.warningPointsContainer}>
-            {warningPoints.map(point => (
-              <View
-                key={point.text}
-                style={[
-                  styles.warningPoint,
-                  { backgroundColor: backgroundOffset },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.warningIconContainer,
-                    {
-                      backgroundColor: theme ? backgroundColor : COLORS.primary,
-                    },
-                  ]}
-                >
-                  <ThemeIcon
-                    iconName={point.icon}
-                    size={15}
-                    colorOverride={
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.darkModeText
-                    }
+          <View style={[styles.card, { backgroundColor: tokens.surface }]}>
+            {warningPoints.map((point, index) => (
+              <Fragment key={point.icon}>
+                {index > 0 && (
+                  <View
+                    style={[
+                      styles.divider,
+                      { backgroundColor: tokens.divider },
+                    ]}
+                  />
+                )}
+                <View style={styles.point}>
+                  <Disc icon={point.icon} size={32} iconSize={16} />
+                  <ThemeText
+                    variant={'body'}
+                    styles={styles.pointText}
+                    content={point.text}
                   />
                 </View>
-                <ThemeText styles={styles.warningText} content={point.text} />
-              </View>
+              </Fragment>
             ))}
           </View>
         </View>
@@ -92,32 +103,16 @@ export default function SavingsRemoveGoalConfirm(props) {
           <CustomButton
             actionFunction={navigate.goBack}
             textContent={t('constants.cancel')}
+            size={'regular'}
+            tone={'secondary'}
           />
 
           <CustomButton
-            actionFunction={async () => {
-              const response = await removeSavingsGoal(selectedGoal?.id);
-              if (!response?.didWork) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    response?.error ||
-                    t('savings.removeGoalConfirm.errors.unableToRemoveGoal'),
-                });
-                return;
-              }
-              navigate.navigate('SavingsGoalRemovedSuccess');
-            }}
+            actionFunction={handleRemove}
+            useLoading={isRemoving}
             textContent={t('savings.removeGoalConfirm.removeButton')}
-            buttonStyles={{
-              backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
-            }}
-            textStyles={{
-              color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText,
-            }}
+            size={'regular'}
+            tone={'danger'}
           />
         </View>
       </View>
@@ -128,62 +123,33 @@ export default function SavingsRemoveGoalConfirm(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
     ...CENTER,
-    marginTop: 56,
   },
-  title: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-    alignSelf: 'center',
+  content: {
+    marginTop: 24,
+    flex: 1,
   },
-  warningPointsContainer: {
-    width: '100%',
-    maxWidth: 400,
-    marginBottom: 32,
-    gap: 15,
+  titleText: { marginTop: 16 },
+  card: {
     marginTop: 20,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 2,
   },
-  warningPoint: {
+  point: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-    padding: 16,
-    borderRadius: 12,
+    gap: 12,
+    paddingVertical: 14,
   },
-  warningIconContainer: {
-    padding: 9,
-    borderRadius: 12,
-  },
-  warningIconBadge: {
-    padding: 5,
-    borderRadius: 8,
-  },
-  warningText: {
+  pointText: {
     flex: 1,
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
+    marginTop: 5,
+  },
+  divider: {
+    height: 1,
   },
   actions: {
-    gap: 10,
-  },
-  secondaryButton: {
-    borderRadius: 22,
-    backgroundColor: COLORS.lightModeBackgroundOffset,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 13,
-  },
-  dangerButton: {
-    borderRadius: 22,
-    backgroundColor: COLORS.cancelRed,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 13,
-  },
-  dangerButtonText: {
-    color: COLORS.white,
-    includeFontPadding: false,
+    gap: 12,
   },
 });

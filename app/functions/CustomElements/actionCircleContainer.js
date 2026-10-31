@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import ThemeIcon from '../CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { COLORS } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 
 export default function IconActionCircle({
@@ -11,7 +10,7 @@ export default function IconActionCircle({
   customBackgroundColor,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   return (
     <View
       style={[
@@ -30,7 +29,7 @@ export default function IconActionCircle({
     >
       <ThemeIcon
         colorOverride={
-          theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+          theme && darkModeType ? tokens.ink : tokens.accent
         }
         iconName={icon}
         size={Math.round(size * 0.375)}

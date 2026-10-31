@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -7,15 +12,13 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../../../functions/CustomElements/button';
+import QrCard from '../../../../../../functions/CustomElements/redesign/QrCard';
+import Disc from '../../../../../../functions/CustomElements/redesign/Disc';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
-import WordsQrToggle from '../../../../../../functions/CustomElements/wordsQrToggle';
-import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
-import { CENTER } from '../../../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../../constants/theme';
-import GetThemeColors from '../../../../../../hooks/themeColors';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import { useTheme } from '../../../../../../../context-store/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
@@ -23,11 +26,14 @@ import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew
 import { copyToClipboard } from '../../../../../../functions';
 import { share } from '../../../../../../functions/handleShare';
 import { useToast } from '../../../../../../../context-store/toastManager';
+import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import Segmented from '../../../../../../functions/CustomElements/redesign/Segmented';
+import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 
 export default function ChildLinkCode(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { tokens } = useTheme();
   const {
     parentUniqueName,
     startPairing,
@@ -41,6 +47,8 @@ export default function ChildLinkCode(props) {
   const { showToast } = useToast();
   const reshareChild = props?.route?.params?.reshareChild ?? null;
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const isQrTab = selectedDisplayOption === 'qr';
 
@@ -98,34 +106,32 @@ export default function ChildLinkCode(props) {
   if (isQrTab && status === 'accept') {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          label={t('settings.childAccounts.pairing.title')}
-          customBackFunction={handleQRDecline}
-          rightContent={<PairingExpiryClock />}
-        />
-        <View style={styles.content}>
-          <ThemeText
-            styles={[styles.title, { textAlign: 'left' }]}
-            content={t('settings.childAccounts.pairing.acceptTitle')}
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar
+            title={t('settings.childAccounts.pairing.title')}
+            onBack={handleQRDecline}
+            right={<PairingExpiryClock />}
           />
-          <ThemeText
-            styles={[styles.subtitle, { textAlign: 'left' }]}
-            content={t('settings.childAccounts.pairing.acceptSubtitle', {
+          <PageHeader
+            title={t('settings.childAccounts.pairing.acceptTitle')}
+            sub={t('settings.childAccounts.pairing.acceptSubtitle', {
               name: reshareChild?.name ?? '',
             })}
           />
+
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              textContent={t('settings.childAccounts.pairing.acceptBTN')}
+              actionFunction={acceptPairing}
+              size={'regular'}
+            />
+            <CustomButton
+              textContent={t('settings.childAccounts.pairing.declineBTN')}
+              actionFunction={handleQRDecline}
+              tone={'secondary'}
+            />
+          </View>
         </View>
-        <CustomButton
-          buttonStyles={styles.button}
-          textContent={t('settings.childAccounts.pairing.acceptBTN')}
-          actionFunction={acceptPairing}
-        />
-        <CustomButton
-          buttonStyles={styles.declineButton}
-          textContent={t('settings.childAccounts.pairing.declineBTN')}
-          actionFunction={handleQRDecline}
-          textStyles={{ color: textColor }}
-        />
       </GlobalThemeView>
     );
   }
@@ -141,13 +147,15 @@ export default function ChildLinkCode(props) {
   const downloadPrompt = (
     <View style={styles.downloadPrompt}>
       <ThemeText
-        styles={styles.downloadHint}
+        styles={[styles.downloadHint, { color: tokens.muted }]}
         content={t('settings.childAccounts.pairing.noBlitz')}
       />
       <TouchableOpacity
         onPress={handleShareDownloadLink}
-        style={[styles.downloadLink, { backgroundColor: backgroundOffset }]}
+        accessibilityRole="button"
+        style={[styles.downloadLink, { backgroundColor: tokens.surface }]}
       >
+        <ThemeIcon redesign iconName="Share2" size={14} />
         <ThemeText
           styles={styles.downloadLinkText}
           content={t('settings.childAccounts.pairing.downloadLink')}
@@ -166,40 +174,43 @@ export default function ChildLinkCode(props) {
       </View>
     ) : (
       <View style={styles.tabContent}>
-        <ThemeText
-          styles={styles.title}
-          content={t('settings.childAccounts.pairing.qrTitle')}
+        <PageHeader
+          title={t('settings.childAccounts.pairing.qrTitle')}
+          sub={t('settings.childAccounts.pairing.qrSubtitle')}
         />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('settings.childAccounts.pairing.qrSubtitle')}
+        <QrCard
+          value={qrValue}
+          size={250}
+          badge={<Disc icon={'Zap'} tone="primary" size={40} />}
+          style={styles.qrWrap}
         />
-        <View style={styles.qrWrap}>
-          <QrCodeWrapper QRData={qrValue} />
-        </View>
         {downloadPrompt}
       </View>
     );
 
   const codeContent = (
     <View style={styles.tabContent}>
-      <ThemeText
-        styles={styles.title}
-        content={t('settings.childAccounts.pairing.usernameTitle')}
-      />
-      <ThemeText
-        styles={styles.subtitle}
-        content={t('settings.childAccounts.pairing.usernameSubtitle')}
+      <PageHeader
+        title={t('settings.childAccounts.pairing.usernameTitle')}
+        sub={t('settings.childAccounts.pairing.usernameSubtitle')}
       />
       <TouchableOpacity
         onPress={() => copyToClipboard(parentUniqueName, showToast)}
-        style={[styles.card, { backgroundColor: backgroundOffset }]}
+        accessibilityRole="button"
+        accessibilityLabel={t('constants.copy')}
+        style={[styles.card, { backgroundColor: tokens.surface }]}
       >
         <ThemeText
           CustomNumberOfLines={1}
           adjustsFontSizeToFit={true}
           styles={styles.usernameValue}
           content={parentUniqueName}
+        />
+        <ThemeIcon
+          redesign
+          iconName="Copy"
+          size={18}
+          colorOverride={tokens.muted}
         />
       </TouchableOpacity>
       {downloadPrompt}
@@ -208,135 +219,124 @@ export default function ChildLinkCode(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('settings.childAccounts.pairing.title')}
-        rightContent={<PairingExpiryClock />}
-      />
-      <View style={styles.toggleWrap}>
-        <WordsQrToggle
-          option1Text={t('settings.childAccounts.pairing.codeOption')}
-          option2Text={t('settings.childAccounts.pairing.qrOption')}
-          option1Value="code"
-          option2Value="qr"
-          setSelectedDisplayOption={setSelectedDisplayOption}
-          selectedDisplayOption={selectedDisplayOption}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.childAccounts.pairing.title')}
+          right={<PairingExpiryClock />}
         />
-      </View>
-      <View style={styles.content}>
-        {isQrTab ? (
-          <Animated.View
-            key="qr"
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(200)}
-            style={StyleSheet.absoluteFill}
-          >
-            {qrContent}
-          </Animated.View>
-        ) : (
-          <Animated.View
-            key="code"
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(200)}
-            style={StyleSheet.absoluteFill}
-          >
-            {codeContent}
-          </Animated.View>
+        <View style={styles.toggleWrap}>
+          <Segmented
+            fit
+            capitalizeLabels={false}
+            options={[
+              {
+                value: 'code',
+                label: t('settings.childAccounts.pairing.codeOption'),
+              },
+              {
+                value: 'qr',
+                label: t('settings.childAccounts.pairing.qrOption'),
+              },
+            ]}
+            value={selectedDisplayOption}
+            onChange={setSelectedDisplayOption}
+          />
+        </View>
+        <View style={styles.content}>
+          {isQrTab ? (
+            <Animated.View
+              key="qr"
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(200)}
+              style={StyleSheet.absoluteFill}
+            >
+              {qrContent}
+            </Animated.View>
+          ) : (
+            <Animated.View
+              key="code"
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(200)}
+              style={StyleSheet.absoluteFill}
+            >
+              {codeContent}
+            </Animated.View>
+          )}
+        </View>
+
+        {!isQrTab && (
+          <CustomButton
+            textContent={t('settings.childAccounts.pairing.generateCode')}
+            actionFunction={generateCode}
+            size={'regular'}
+          />
         )}
       </View>
-
-      {!isQrTab && (
-        <CustomButton
-          buttonStyles={styles.button}
-          textContent={t('settings.childAccounts.pairing.generateCode')}
-          actionFunction={generateCode}
-        />
-      )}
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
+  buttonContainer: {
+    marginTop: 'auto',
+    gap: 10,
+  },
   toggleWrap: {
-    width: '100%',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 16,
     marginBottom: 8,
   },
   content: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
   tabContent: {
     ...StyleSheet.absoluteFill,
-    ...CENTER,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-    textAlign: 'center',
   },
   card: {
     width: '100%',
-    borderRadius: 16,
-    paddingVertical: 40,
+    minHeight: 56,
+    borderRadius: 20,
     paddingHorizontal: 16,
-    marginTop: 20,
+    marginTop: 16,
     marginBottom: 20,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   downloadPrompt: {
     alignItems: 'center',
-    marginBottom: 20,
   },
   downloadHint: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   downloadLink: {
+    minHeight: 36,
     borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   downloadLinkText: {
-    fontSize: SIZES.smedium,
+    fontSize: 14,
+    lineHeight: 18,
     includeFontPadding: false,
-    textAlign: 'center',
   },
   usernameValue: {
-    fontSize: SIZES.xxLarge,
+    fontSize: 20,
+    lineHeight: 26,
     includeFontPadding: false,
-    textAlign: 'center',
+    flexShrink: 1,
   },
   qrWrap: {
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  hint: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-  },
-  button: { width: INSET_WINDOW_WIDTH, ...CENTER, marginTop: 'auto' },
-  declineButton: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    backgroundColor: 'transparent',
-    marginTop: 12,
-    marginBottom: 8,
+    alignSelf: 'center',
+    marginTop: 20,
+    marginBottom: 20,
   },
 });

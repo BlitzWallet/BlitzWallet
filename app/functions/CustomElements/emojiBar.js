@@ -554,6 +554,8 @@ const EmojiQuickBar = ({
   description = '',
   onEmojiSelect,
   maxLength = 150,
+  removeMargin = false,
+  pill = false,
 }) => {
   const { backgroundOffset } = GetThemeColors();
 
@@ -617,7 +619,16 @@ const EmojiQuickBar = ({
   );
 
   return (
-    <View style={[styles.emojiBar, { backgroundColor: backgroundOffset }]}>
+    <View
+      style={[
+        styles.emojiBar,
+        {
+          backgroundColor: backgroundOffset,
+          marginTop: removeMargin ? 0 : CONTENT_KEYBOARD_OFFSET,
+          borderRadius: pill ? 25 : 0,
+        },
+      ]}
+    >
       <CustomScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -644,7 +655,6 @@ const styles = StyleSheet.create({
   },
   emojiBar: {
     height: 50,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   emojiScrollContent: {
     alignItems: 'center',

@@ -62,11 +62,12 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   width = 0.95,
   maxWidth = 375,
   shouldDisplaySuccessState = false,
+  titleStyles,
 }) {
   console.log('RUNNIG SLIDER BUTTON WEB');
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const windowDimensions = screenDimensions.width * width;
   const layoutWidth = windowDimensions > maxWidth ? maxWidth : windowDimensions;
   const { t } = useTranslation();
@@ -302,23 +303,30 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
         ? COLORS.darkModeText
         : theme
         ? COLORS.darkModeText
-        : COLORS.primary,
+        : tokens.accent,
       borderColor: showLoadingIcon
         ? COLORS.darkModeText
         : theme
         ? backgroundOffset
         : backgroundColor,
     }),
-    [theme, darkModeType, showLoadingIcon, backgroundColor, backgroundOffset],
+    [
+      theme,
+      darkModeType,
+      tokens,
+      showLoadingIcon,
+      backgroundColor,
+      backgroundOffset,
+    ],
   );
 
   const titleDynamicStyles = useMemo(
-    () => ({ color: theme ? backgroundColor : COLORS.darkModeText }),
-    [theme, darkModeType, backgroundColor],
+    () => ({ color: theme ? backgroundColor : tokens.onAccent }),
+    [theme, darkModeType, tokens, backgroundColor],
   );
 
   const iconWidth = thumbIconWidth || height;
-  const thumbColor = theme ? backgroundColor : COLORS.darkModeText;
+  const thumbColor = theme ? backgroundColor : tokens.onAccent;
 
   return (
     <View
@@ -352,6 +360,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
               { left: height + 10, right: height + 10 },
               { fontSize: titleFontSize },
               titleDynamicStyles,
+              titleStyles,
             ]}
           >
             {titleText}

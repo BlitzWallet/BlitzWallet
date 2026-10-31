@@ -2,75 +2,54 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  Platform,
-  RefreshControl,
-  Pressable,
+  useWindowDimensions,
 } from 'react-native';
-import PagerView from 'react-native-pager-view';
-import { UserSatAmount } from './homeLightning/userSatAmount';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
-import { NavBar } from './navBar';
+import HomeNav from './navBar';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import { useGlobalThemeContext } from '../../../../context-store/theme';
-import { SendRecieveBTNs } from './homeLightning/sendReciveBTNs';
 import { useSparkWallet } from '../../../../context-store/sparkContext';
-import getFormattedHomepageTxsForSpark from '../../../functions/combinedTransactionsSpark';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-// import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
-// BREEZ LIQUID DISABLED: liquid event hook import commented so the SDK chain
-// is never loaded.
-// import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
-// ROOTSTOCK DISABLED: provider import commented so the ethers + boltz chain is
-// never loaded.
-import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
-import { COLORS, FONT, SIZES, USDB_TOKEN_ID } from '../../../constants';
+import BalanceCard, { getAssetBalanceText } from './homeLightning/balanceCard';
+import BalanceActions from './homeLightning/balanceActions';
+import ConnectionErrorCard from './homeLightning/connectionErrorCard';
+import HomeCard from './homeLightning/homeCard';
+import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   interpolate,
-  useHandler,
-  useEvent,
   FadeIn,
-  FadeOut,
+  LayoutAnimationConfig,
 } from 'react-native-reanimated';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
-import { useActiveCustodyAccount } from '../../../../context-store/activeAccount';
-import { BalanceDots } from './homeLightning/balanceDots';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
+import AmountHero from '../../../functions/CustomElements/redesign/AmountHero';
+import { useNodeContext } from '../../../../context-store/nodeContext';
+import Disc from '../../../functions/CustomElements/redesign/Disc';
+import SkeletonBar from '../../../functions/CustomElements/redesign/SkeletonBar';
+import {
+  TokensIconRow,
+  TokensNameRow,
+  getWalletTokens,
+} from '../../../functions/lrc20/utils';
 import { useFlashnet } from '../../../../context-store/flashnetContext';
-import { formatBalanceAmount } from '../../../functions';
-import TokensPreview from '../homeComponents/homeLightning/TokensPreview';
-import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
-import ThemeIcon from '../../../functions/CustomElements/themeIcon';
+import handleDBStateChange from '../../../functions/handleDBStateChange';
 
-const MemoizedNavBar = memo(NavBar);
-const MemoizedUserSatAmount = memo(UserSatAmount);
-const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
-
-const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
+const PRICE_WAIT_MS = 10000;
 
 const MemoizedStickyNavbarContainer = memo(
   function MemoizedStickyNavbarContainer({
     backgroundColor,
     onLayout,
-    darkModeType,
-    theme,
-    toggleTheme,
-    sparkBalance,
-    sparkTokens,
-    didViewSeedPhrase,
     masterInfoObject,
     totalSatValue,
-    bitcoinBalance,
-    dollarBalanceToken,
-    scrollPosition,
     balanceOpacityStyle,
   }) {
     return (
@@ -83,12 +62,7 @@ const MemoizedStickyNavbarContainer = memo(
           },
         ]}
       >
-        <MemoizedNavBar
-          sparkBalance={sparkBalance}
-          sparkTokens={sparkTokens}
-          didViewSeedPhrase={didViewSeedPhrase}
-          isChildAccount={masterInfoObject?.isChildAccount}
-        />
+        <HomeNav />
 
         <Animated.View
           style={[styles.navbarBalance, balanceOpacityStyle]}
@@ -96,28 +70,9 @@ const MemoizedStickyNavbarContainer = memo(
         >
           <FormattedSatText
             styles={styles.navbarBalanceText}
-            globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? masterInfoObject.userBalanceDenomination
-                : scrollPosition === 'total'
-                ? masterInfoObject.userBalanceDenomination
-                : scrollPosition === 'sats'
-                ? 'sats'
-                : 'fiat'
-            }
-            balance={
-              scrollPosition === 'total'
-                ? totalSatValue
-                : scrollPosition === 'sats'
-                ? bitcoinBalance
-                : formatBalanceAmount(
-                    dollarBalanceToken,
-                    false,
-                    masterInfoObject,
-                  )
-            }
-            forceCurrency={scrollPosition !== 'usd' ? '' : 'USD'}
-            useBalance={scrollPosition === 'usd'}
+            globalBalanceDenomination={masterInfoObject.userBalanceDenomination}
+            balance={totalSatValue}
+            useBalance={false}
             useSizing={true}
           />
         </Animated.View>
@@ -126,90 +81,66 @@ const MemoizedStickyNavbarContainer = memo(
   },
 );
 
-// Custom hook for PagerView scroll handler
-function usePagerScrollHandler(handlers, dependencies) {
-  const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
-  const subscribeForEvents = ['onPageScroll'];
-
-  return useEvent(
-    event => {
-      'worklet';
-      const { onPageScroll } = handlers;
-      if (onPageScroll && event.eventName.endsWith('onPageScroll')) {
-        onPageScroll(event, context);
-      }
-    },
-    subscribeForEvents,
-    doDependenciesDiffer,
-  );
-}
-
 export default function HomeLightning({ navigation }) {
+  const { fiatStats } = useNodeContext();
   const {
     sparkInformation,
     showTokensInformation,
-    isSendingPaymentRef,
-    updateHomepageScrollPosition,
-    // numberOfCachedTxs
+    tokensImageCache,
+    sparkConnectionError,
   } = useSparkWallet();
-  const { poolInfoRef, swapLimits } = useFlashnet();
-  const {
-    bitcoinBalance,
-    dollarBalanceSat,
-    totalSatValue,
-    dollarBalanceToken,
-  } = useUserBalanceContext();
-  // const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { isConnectedToTheInternet, didGetToHomepage, screenDimensions } =
-    useAppStatus();
+  const { poolInfo } = useFlashnet();
+
+  const { bitcoinBalance, totalSatValue, dollarBalanceToken } =
+    useUserBalanceContext();
+
+  const { masterInfoObject, setMasterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { isConnectedToTheInternet } = useAppStatus();
   const scrollViewRef = useRef(null);
   const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
-  const screenWidth = screenDimensions?.width ?? 0;
+  const { backgroundColor } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
-  const balanceScrollX = useSharedValue(0);
-  const pagerRef = useRef(null);
+  const showBackupWalletWarning =
+    !masterInfoObject?.isChildAccount && !masterInfoObject?.didViewSeedPhrase;
 
+  const showWalletConnectionError =
+    !isConnectedToTheInternet ||
+    (sparkInformation.didConnect === false && !!sparkConnectionError);
+  // A failed connect never sets the key, so fall back to the cached snapshot.
+  const isWalletLoaded =
+    !!sparkInformation.identityPubKey ||
+    (showWalletConnectionError && !!sparkInformation.balanceUpdatedAt);
+  // Total includes dollars, which need the pool price to convert (R2). Flashnet
+  // retries forever, so stop waiting after a while: until the price arrives the
+  // total counts Bitcoin only, and the Dollars tile still reads right.
+  const isWaitingForPrice =
+    isWalletLoaded && dollarBalanceToken > 0 && !poolInfo?.currentPriceAInB;
+  const [didPriceTimeOut, setDidPriceTimeOut] = useState(false);
+  useEffect(() => {
+    if (!isWaitingForPrice) return;
+    const timeout = setTimeout(() => setDidPriceTimeOut(true), PRICE_WAIT_MS);
+    return () => clearTimeout(timeout);
+  }, [isWaitingForPrice]);
+  const isTotalLoaded =
+    isWalletLoaded &&
+    (!isWaitingForPrice || didPriceTimeOut || showWalletConnectionError);
+  const isHidden = masterInfoObject.userBalanceDenomination === 'hidden';
+  const lastVisibleDenomination = useRef('sats');
+  if (!isHidden) {
+    lastVisibleDenomination.current = masterInfoObject.userBalanceDenomination;
+  }
+
+  const saveTimeoutRef = useRef(null);
+  const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const scrollY = useSharedValue(0);
   const [navbarHeight, setNavbarHeight] = useState(0);
-  const [scrollPosition, setScrollPosition] = useState('total');
 
-  const updateScrollPosition = useCallback(
-    page => {
-      const pos = page === 0 ? 'total' : page === 1 ? 'sats' : 'usd';
-      setScrollPosition(pos);
-      updateHomepageScrollPosition(pos);
-    },
-    [updateHomepageScrollPosition],
-  );
-
-  const onBalancePageScroll = usePagerScrollHandler({
-    onPageScroll: e => {
-      'worklet';
-      const scrollOffset = (e.position + e.offset) * screenWidth;
-      balanceScrollX.value = scrollOffset;
-    },
-  });
-
-  // const [refreshing, setRefreshing] = useState(false);
-
-  // const { startLiquidEventListener } = useLiquidEvent();
-  // const { startRootstockEventListener } = useRootstockProvider();
-  // ROOTSTOCK DISABLED: event listener hook commented. See handleRefresh below.
-
-  const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
-  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
-  const hideSmallPaymentsHomepage = masterInfoObject?.hideSmallPaymentsHomepage;
-  const hasMoreThanUSDB = useMemo(() => {
-    return !!Object.keys(sparkInformation.tokens || {}).filter(
-      token => token !== USDB_TOKEN_ID,
-    ).length;
-  }, [sparkInformation.tokens]);
+  const hasMoreThanUSDB = !!getWalletTokens(sparkInformation.tokens).length;
 
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
@@ -252,301 +183,157 @@ export default function HomeLightning({ navigation }) {
     };
   });
 
-  const BALANCE_PAGES = useMemo(
-    () => [
-      { key: 'total', type: 'total' },
-      { key: 'sats', type: 'sats' },
-      { key: 'usd', type: 'usd' },
-    ],
-    [],
-  );
-
-  const flatListDataForSpark = useMemo(() => {
-    return (
-      getFormattedHomepageTxsForSpark({
-        sparkInformation,
-        homepageTxPreferance,
-        navigate,
-        frompage: 'home',
-        viewAllTxText: t('wallet.homeLightning.home.see_all_txs'),
-        noTransactionHistoryText: t(
-          'wallet.homeLightning.home.no_transaction_history',
-        ),
-        todayText: t('constants.today'),
-        yesterdayText: t('constants.yesterday'),
-        dayText: t('constants.day'),
-        monthText: t('constants.month'),
-        yearText: t('constants.year'),
-        agoText: t('transactionLabelText.ago'),
-        theme,
-        darkModeType,
-        userBalanceDenomination,
-        // numberOfCachedTxs,
-        didGetToHomepage,
-        enabledLRC20: showTokensInformation,
-        scrollPosition,
-        poolInfoRef,
-        t,
-        hideSmallPaymentsHomepage,
-        swapLimits,
-      }) || []
-    );
-  }, [
-    sparkInformation.transactions,
-    sparkInformation.tokens,
-    sparkInformation.didConnect,
-    homepageTxPreferance,
-    userBalanceDenomination,
-    // numberOfCachedTxs,
-    showTokensInformation,
-    hideSmallPaymentsHomepage,
-    swapLimits.bitcoin,
-    theme,
-    darkModeType,
-  ]);
-
-  // const handleRefresh = useCallback(async () => {
-  //   crashlyticsLogReport(`Running in handle refresh function on homepage`);
-  //   try {
-  //     if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
-  //       return;
-  //     // startLiquidEventListener(6);
-  //     // startRootstockEventListener({ intervalMs: 60000 });
-  //     // ROOTSTOCK DISABLED: listener trigger commented. Original kept above.
-  //   } catch (err) {
-  //     console.log('error refreshing on homepage', err);
-  //   } finally {
-  //     setRefreshing(false);
-  //   }
-  // }, [
-  //   // startLiquidEventListener,
-  //   // startRootstockEventListener,
-  //   sparkInformation,
-  //   currentWalletMnemoinc,
-  // ]);
-
   const handleNavbarLayout = useCallback(event => {
     const { height } = event.nativeEvent.layout;
     setNavbarHeight(height);
   }, []);
 
-  const handlePageSelected = useCallback(
-    e => {
-      updateScrollPosition(e.nativeEvent.position);
-    },
-    [updateScrollPosition],
-  );
+  const handleBackupRecovery = () =>
+    navigate.navigate('SettingsContentHome', { for: 'backup wallet' });
 
-  // const colors = useMemo(
-  //   () =>
-  //     Platform.select({
-  //       ios: darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-  //       android: darkModeType && theme ? COLORS.lightModeText : COLORS.primary,
-  //     }),
-  //   [darkModeType, theme],
-  // );
+  const handleBalanceChange = () => {
+    if (!isConnectedToTheInternet) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('errormessages.nointernet'),
+      });
+      return;
+    }
+    if (!isWalletLoaded) return;
 
-  // const refreshControl = useMemo(
-  //   () => (
-  //     <RefreshControl
-  //       colors={[colors]}
-  //       tintColor={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
-  //       refreshing={refreshing}
-  //       onRefresh={handleRefresh}
-  //     />
-  //   ),
-  //   [colors, refreshing, handleRefresh, darkModeType, theme],
-  // );
+    // Tap hides and shows; sats vs fiat is chosen in Settings.
+    handleDBStateChange(
+      {
+        userBalanceDenomination: isHidden
+          ? lastVisibleDenomination.current
+          : 'hidden',
+      },
+      setMasterInfoObject,
+      toggleMasterInfoObject,
+      saveTimeoutRef,
+      initialValueRef,
+    );
+  };
+
+  const handleBalance = asset => navigate.navigate('BalancePage', { asset });
+  const handleTokens = () => navigate.navigate('TokensPage');
 
   const scrollViewContainerStyles = useMemo(() => {
     return {
       flexGrow: 1,
-      backgroundColor,
-      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT,
+      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 10,
     };
-  }, [backgroundColor, bottomPadding]);
-
-  const memoizedTxList = useMemo(
-    () =>
-      flatListDataForSpark.map(tx => (
-        <Animated.View
-          key={tx.key}
-          entering={FadeIn.duration(150)}
-          exiting={FadeOut.duration(150)}
-        >
-          {tx.item}
-        </Animated.View>
-      )),
-    [flatListDataForSpark],
-  );
+  }, [bottomPadding]);
 
   return (
-    <GlobalThemeView
-      styles={styles.themeViewStyle}
-      useStandardWidth={Platform.OS === 'web'}
-    >
-      <Animated.ScrollView
-        alwaysBounceVertical={false}
-        ref={scrollViewRef}
-        // refreshControl={refreshControl}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={scrollViewContainerStyles}
-        stickyHeaderIndices={[0]}
-      >
-        {/* Sticky navbar */}
-        <MemoizedStickyNavbarContainer
-          backgroundColor={backgroundColor}
-          onLayout={handleNavbarLayout}
-          darkModeType={darkModeType}
-          theme={theme}
-          toggleTheme={toggleTheme}
-          sparkBalance={sparkInformation?.balance}
-          sparkTokens={sparkInformation?.tokens}
-          didViewSeedPhrase={didViewSeedPhrase}
-          masterInfoObject={masterInfoObject}
-          totalSatValue={totalSatValue}
-          bitcoinBalance={bitcoinBalance}
-          dollarBalanceToken={dollarBalanceToken}
-          scrollPosition={scrollPosition}
-          balanceOpacityStyle={balanceOpacityStyle}
-        />
+    <GlobalThemeView styles={styles.themeViewStyle} useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <Animated.ScrollView
+          alwaysBounceVertical={false}
+          ref={scrollViewRef}
+          // refreshControl={refreshControl}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={scrollViewContainerStyles}
+          stickyHeaderIndices={[0]}
+        >
+          <MemoizedStickyNavbarContainer
+            backgroundColor={backgroundColor}
+            onLayout={handleNavbarLayout}
+            masterInfoObject={masterInfoObject}
+            totalSatValue={totalSatValue}
+            balanceOpacityStyle={balanceOpacityStyle}
+          />
+          <ThemeText
+            content={t('constants.total_balance')}
+            variant={'hint'}
+            styles={styles.amountLabel}
+          />
+          <View style={styles.amount}>
+            <LayoutAnimationConfig skipEntering>
+              {isTotalLoaded ? (
+                <Animated.View
+                  key={isHidden ? 'hidden' : 'shown'}
+                  entering={FadeIn.duration(isHidden ? 150 : 250)}
+                >
+                  <TouchableOpacity onPress={handleBalanceChange}>
+                    <AmountHero
+                      amountSize={60}
+                      amount={totalSatValue}
+                      fiatStats={fiatStats}
+                      masterInfoObject={masterInfoObject}
+                      isHidden={isHidden}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
+              ) : (
+                <SkeletonBar width={176} height={46} borderRadius={14} />
+              )}
+            </LayoutAnimationConfig>
+          </View>
+          <BalanceActions />
 
-        {/* Balance pager (horizontal swipe) */}
-        <View style={[styles.balanceSection, { backgroundColor }]}>
-          <View style={styles.pagerWrapper}>
-            <AnimatedPagerView
-              ref={pagerRef}
-              style={styles.pagerView}
-              initialPage={0}
-              onPageSelected={handlePageSelected}
-              onPageScroll={onBalancePageScroll}
-            >
-              {BALANCE_PAGES.map(item => (
-                <View key={item.key} style={styles.pageContainer}>
-                  {item.type === 'total' && (
-                    <>
-                      <ThemeText
-                        content={t('constants.total_balance')}
-                        styles={styles.balanceLabel}
-                      />
-                      <MemoizedUserSatAmount
-                        isConnectedToTheInternet={isConnectedToTheInternet}
-                        theme={theme}
-                        darkModeType={darkModeType}
-                        sparkInformation={sparkInformation}
-                        mode="total"
-                      />
-                    </>
-                  )}
-
-                  {item.type === 'sats' && (
-                    <>
-                      <ThemeText
-                        content={t('constants.sat_balance')}
-                        styles={styles.balanceLabel}
-                      />
-                      <MemoizedUserSatAmount
-                        isConnectedToTheInternet={isConnectedToTheInternet}
-                        theme={theme}
-                        darkModeType={darkModeType}
-                        sparkInformation={sparkInformation}
-                        mode="sats"
-                      />
-                    </>
-                  )}
-
-                  {item.type === 'usd' && (
-                    <>
-                      <ThemeText
-                        content={t('constants.usd_balance')}
-                        styles={styles.balanceLabel}
-                      />
-                      <MemoizedUserSatAmount
-                        isConnectedToTheInternet={isConnectedToTheInternet}
-                        theme={theme}
-                        darkModeType={darkModeType}
-                        sparkInformation={sparkInformation}
-                        mode="usd"
-                      />
-                    </>
-                  )}
-                </View>
-              ))}
-            </AnimatedPagerView>
-            <View style={styles.staticOverlay} pointerEvents="box-none">
-              <BalanceDots
-                scrollX={balanceScrollX}
-                pageCount={BALANCE_PAGES.length}
-                screenWidth={screenWidth}
-                theme={theme}
-                darkModeType={darkModeType}
+          <View style={styles.footer}>
+            <ConnectionErrorCard visible={showWalletConnectionError} />
+            {showBackupWalletWarning && (
+              <HomeCard
+                onPress={handleBackupRecovery}
+                lead={
+                  <Disc
+                    icon={'AlertTriangle'}
+                    size={44}
+                    iconSize={20}
+                    tone="danger"
+                  />
+                }
+                title={t('wallet.homeLightning.home.backupTitle')}
+                sub={t('wallet.homeLightning.home.backupSub')}
               />
-
-              <MemoizedSendRecieveBTNs
-                theme={theme}
-                darkModeType={darkModeType}
-                isConnectedToTheInternet={isConnectedToTheInternet}
-                scrollPosition={scrollPosition}
+            )}
+            <View style={styles.metricsRow}>
+              <BalanceCard
+                onPress={() => handleBalance('dollars')}
+                isBitcoin={false}
+                label={t('constants.dollars_upper')}
+                isHidden={isHidden}
+                isLoading={!isWalletLoaded}
+                amount={getAssetBalanceText({
+                  isBitcoin: false,
+                  amount: dollarBalanceToken,
+                  masterInfoObject,
+                  fiatStats,
+                })}
+              />
+              <BalanceCard
+                onPress={() => handleBalance('bitcoin')}
+                isBitcoin={true}
+                label={t('constants.bitcoin_upper')}
+                isHidden={isHidden}
+                isLoading={!isWalletLoaded}
+                amount={getAssetBalanceText({
+                  isBitcoin: true,
+                  amount: bitcoinBalance,
+                  masterInfoObject,
+                  fiatStats,
+                })}
               />
             </View>
-          </View>
-        </View>
-
-        {showTokensInformation && hasMoreThanUSDB && (
-          <TokensPreview didGetToHomepage={didGetToHomepage} />
-        )}
-
-        {/* Transactions list */}
-
-        <View
-          style={[
-            styles.txListContainer,
-            {
-              backgroundColor: backgroundOffset,
-              paddingTop: flatListDataForSpark.length > 1 ? 5 : 15,
-            },
-          ]}
-        >
-          {flatListDataForSpark.length > 1 && (
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => navigate.navigate('ViewAllTxPage')}
-              style={styles.sectionHeader}
-            >
-              <ThemeText
-                content={t('wallet.homeLightning.home.activity')}
-                styles={styles.sectionTitle}
+            {showTokensInformation && hasMoreThanUSDB && (
+              <HomeCard
+                onPress={handleTokens}
+                lead={
+                  <TokensIconRow
+                    tokens={sparkInformation.tokens}
+                    tokensImageCache={tokensImageCache}
+                  />
+                }
+                title={t('constants.tokens')}
+                sub={TokensNameRow(sparkInformation.tokens, t)}
               />
-              <Pressable
-                onPress={() => navigate.navigate('ViewAllTxPage')}
-                style={({ pressed }) => [
-                  {
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                  },
-                  pressed && { opacity: 0.5 },
-                ]}
-              >
-                <View style={[styles.leftContainer, { opacity: 0.5 }]}>
-                  <ThemeText
-                    styles={styles.seeAllLink}
-                    content={t('settings.hub.viewAll')}
-                  />
-                  <ThemeIcon
-                    colorOverride={textColor}
-                    size={15}
-                    iconName={'ChevronRight'}
-                  />
-                </View>
-              </Pressable>
-            </TouchableOpacity>
-          )}
-          {memoizedTxList}
-        </View>
-      </Animated.ScrollView>
+            )}
+          </View>
+        </Animated.ScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
@@ -554,6 +341,28 @@ export default function HomeLightning({ navigation }) {
 const styles = StyleSheet.create({
   themeViewStyle: {
     paddingBottom: 0,
+  },
+  container: { flex: 1, ...CENTER },
+  amountLabel: {
+    fontFamily: FONT.Title_Medium,
+    marginTop: 26,
+    fontSize: 14,
+    includeFontPadding: false,
+  },
+  amount: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    minHeight: 84,
+    marginBottom: 24,
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingTop: 24,
+    gap: 12,
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    gap: 12,
   },
   navbarContainer: {
     justifyContent: 'center',
@@ -573,65 +382,5 @@ const styles = StyleSheet.create({
   navbarBalanceText: {
     fontSize: SIZES.large,
     includeFontPadding: false,
-  },
-  balanceLabel: {
-    textTransform: 'uppercase',
-    includeFontPadding: false,
-    fontSize: SIZES.smedium,
-  },
-  balanceSection: {
-    alignItems: 'center',
-  },
-  pagerWrapper: {
-    position: 'relative',
-    width: '100%',
-  },
-  pagerView: {
-    width: '100%',
-    height: 325,
-  },
-  pageContainer: {
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 52,
-  },
-  staticOverlay: {
-    position: 'absolute',
-    bottom: 50,
-    left: 0,
-    right: 0,
-  },
-  sectionHeader: {
-    width: '100%',
-    height: 45,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    alignSelf: 'center',
-    marginBottom: 10,
-    gap: 5,
-  },
-  sectionTitle: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  seeAllLink: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  txListContainer: {
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 16,
-    paddingHorizontal: 15,
-    paddingBottom: 15,
-    paddingTop: 5,
   },
 });

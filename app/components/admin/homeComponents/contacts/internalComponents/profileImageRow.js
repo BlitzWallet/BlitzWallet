@@ -1,26 +1,25 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { COLORS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../../context-store/imageCache';
-import ContactProfileImage from './profileImage';
+import ContactAvatar from './contactAvatar';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileImageRow({
   contacts = [],
   avatarSize = 56,
   containerStyles = {},
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { cache } = useImageCache();
+  const { t } = useTranslation();
 
   return (
     <View
       style={[
         styles.selectedSection,
         {
-          borderColor: theme ? backgroundOffset : COLORS.offsetBackground,
+          borderColor: tokens.divider,
         },
         containerStyles,
       ]}
@@ -45,11 +44,13 @@ export default function ProfileImageRow({
               },
             ]}
           >
-            <ContactProfileImage
+            <ContactAvatar
+              name={contact?.name || contact?.unqieName}
+              seed={contact?.uuid}
               updated={cache[contact?.uuid]?.updated}
               uri={cache[contact?.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
+              size={avatarSize}
+              fontSize={avatarSize / 3}
             />
           </View>
         ))}

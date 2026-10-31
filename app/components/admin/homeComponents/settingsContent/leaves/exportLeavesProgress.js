@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import DeviceInfo from 'react-native-device-info';
@@ -13,7 +13,8 @@ import {
 } from '../../../../../functions/spark/leavesStorage';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import StepProgress from '../../../../../functions/CustomElements/redesign/StepProgress';
+import { useTheme } from '../../../../../../context-store/theme';
 
 // Maps the SDK Network enum int to the label the recovery tooling expects.
 const NETWORK_LABELS = {
@@ -47,7 +48,9 @@ export default function ExportLeavesProgress({
   const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation, reconcileExitNodes } = useSparkWallet();
+  const { tokens } = useTheme();
   const [step, setStep] = useState('gathering');
+  const [skipped, setSkipped] = useState([]);
   const mountedRef = useRef(true);
   const hasRunRef = useRef(false);
 
@@ -78,6 +81,7 @@ export default function ExportLeavesProgress({
         // getSparkLeaves returns undefined only when the fetch itself failed;
         // an empty array means the wallet genuinely has no leaves.
         const fetchFailed = rawLeaves == null;
+        if (fetchFailed) setSkipped(['saving', 'exit']);
         const hasFreshLeaves = Array.isArray(rawLeaves) && rawLeaves.length > 0;
 
         if (!fetchFailed && !hasFreshLeaves) {
@@ -150,7 +154,11 @@ export default function ExportLeavesProgress({
         if (!mountedRef.current) return;
 
         if (parts.length === 0) {
-          finishWithError('screens.inAccount.walletLeaves.noLeavesToExport');
+          finishWithError(
+            t('screens.inAccount.walletLeaves.noExitReadyLeaves', {
+              min: EXIT_MIN_SATS.toLocaleString(),
+            }),
+          );
           return;
         }
 
@@ -218,17 +226,36 @@ export default function ExportLeavesProgress({
     handleBackPressFunction,
   ]);
 
+  const stepOrder = ['gathering', 'saving', 'exit', 'building', 'sharing'];
+  const activeIndex = stepOrder.indexOf(step);
+  const steps = stepOrder.map((key, index) => ({
+    key,
+    label: t(STEP_MESSAGES[key]),
+    state: skipped.includes(key)
+      ? 'skipped'
+      : index < activeIndex
+      ? 'done'
+      : index === activeIndex
+      ? 'active'
+      : 'pending',
+  }));
+
   return (
-    <FullLoadingScreen
-      text={t(STEP_MESSAGES[step])}
-      textStyles={styles.message}
-    />
+    <View style={[styles.container, { backgroundColor: tokens.surface }]}>
+      <StepProgress
+        title={t('screens.inAccount.walletLeaves.progress.title')}
+        subtitle={t('screens.inAccount.walletLeaves.progress.keepOpen')}
+        steps={steps}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  message: {
-    textAlign: 'center',
-    includeFontPadding: false,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
 });

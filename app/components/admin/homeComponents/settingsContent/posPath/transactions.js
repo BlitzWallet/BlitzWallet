@@ -1,13 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { CENTER, ICONS, SIZES } from '../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePOSTransactions } from '../../../../../../context-store/pos';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -17,10 +15,14 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import ListCard, {
+  ListDivider,
+} from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 
 export default function ViewPOSTransactions() {
   const { groupedTxs, isLoading } = usePOSTransactions();
@@ -30,7 +32,8 @@ export default function ViewPOSTransactions() {
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const filteredList = useMemo(() => {
     return !groupedTxs.length
@@ -46,40 +49,39 @@ export default function ViewPOSTransactions() {
       const [name, { totalTipAmount }] = item;
       if (!name || totalTipAmount === undefined) return null;
       return (
-        <TouchableOpacity
-          style={[
-            styles.transactionCard,
-            { backgroundColor: backgroundOffset },
-          ]}
+        <ListRow
+          lead={<Disc icon="Users" size={40} />}
+          title={name}
+          titleLines={1}
+          subLines={1}
+          minHeight={64}
+          titleStyle={styles.title}
+          subStyle={styles.sub}
+          sub={
+            totalTipAmount
+              ? t('settings.posPath.transactions.unpaidtips', {
+                  number: displayCorrectDenomination({
+                    amount: totalTipAmount,
+                    masterInfoObject,
+                    fiatStats,
+                  }),
+                })
+              : t('settings.posPath.transactions.allPaid')
+          }
+          showChevron={true}
+          chevronSize={18}
           onPress={() =>
             keyboardNavigate(() =>
-              navigate.navigate('TotalTipsScreen', { item }),
+              navigate.navigate('TotalTipsScreen', {
+                wantedContent: 'posTipsDetail',
+                name,
+              }),
             )
           }
-        >
-          <View style={styles.transactionInfo}>
-            <ThemeText
-              styles={styles.nameText}
-              content={name}
-              CustomNumberOfLines={1}
-            />
-            <ThemeText
-              styles={styles.tipText}
-              content={t('settings.posPath.transactions.unpaidtips', {
-                number: displayCorrectDenomination({
-                  amount: totalTipAmount,
-                  masterInfoObject,
-                  fiatStats,
-                }),
-              })}
-              CustomNumberOfLines={1}
-            />
-          </View>
-          <ThemeIcon iconName={'ChevronRight'} />
-        </TouchableOpacity>
+        />
       );
     },
-    [backgroundOffset, masterInfoObject, fiatStats, t, navigate],
+    [masterInfoObject, fiatStats, t, navigate],
   );
 
   if (isLoading) return <FullLoadingScreen />;
@@ -87,19 +89,17 @@ export default function ViewPOSTransactions() {
   if (!groupedTxs.length) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          shouldDismissKeyboard={true}
-          showLeftImage={false}
-          leftImageBlue={ICONS.receiptIcon}
-          LeftImageDarkMode={ICONS.receiptWhite}
-          containerStyles={{ marginBottom: 0 }}
-          label={t('settings.posPath.transactions.title')}
-        />
-        <NoContentSceen
-          iconName="Receipt"
-          titleText={t('settings.posPath.transactions.noEmployeeTitle')}
-          subTitleText={t('settings.posPath.transactions.noEmployeeSubTitle')}
-        />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('settings.posPath.transactions.title')} />
+          <View style={styles.empty}>
+            <EmptyState
+              icon="Receipt"
+              iconTone="ink"
+              title={t('settings.posPath.transactions.noEmployeeTitle')}
+              sub={t('settings.posPath.transactions.noEmployeeSubTitle')}
+            />
+          </View>
+        </View>
       </GlobalThemeView>
     );
   }
@@ -109,77 +109,57 @@ export default function ViewPOSTransactions() {
       styles={styles.globalContainer}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        showLeftImage={false}
-        leftImageBlue={ICONS.receiptIcon}
-        LeftImageDarkMode={ICONS.receiptWhite}
-        containerStyles={{ marginBottom: 0 }}
-        label={t('settings.posPath.transactions.title')}
-      />
-      <View style={{ flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER }}>
-        <CustomSearchInput
-          placeholderText={t(
-            'settings.posPath.transactions.empNamePlaceholder',
-          )}
-          inputText={employeeName}
-          setInputText={setEmployeeName}
-          containerStyles={styles.searchContainer}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.posPath.transactions.title')}
+          shouldDismissKeyboard={true}
         />
-        {filteredList.length ? (
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            style={styles.flatList}
-            contentContainerStyle={{ paddingBottom: bottomPadding + 16 }}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={true}
-            data={filteredList}
-            renderItem={transactionItem}
-            keyExtractor={([name]) => name}
+        <View style={styles.search}>
+          <SearchField
+            pill
+            value={employeeName}
+            onChangeText={setEmployeeName}
+            placeholder={t('settings.posPath.transactions.empNamePlaceholder')}
           />
+        </View>
+        {filteredList.length ? (
+          <ListCard dividerInset={52} style={styles.card}>
+            <FlatList
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 4 }}
+              showsVerticalScrollIndicator={false}
+              data={filteredList}
+              renderItem={transactionItem}
+              keyExtractor={([name]) => name}
+              ItemSeparatorComponent={TipsSeparator}
+            />
+          </ListCard>
         ) : (
           <ThemeText
             styles={styles.emptyText}
             content={t('settings.posPath.transactions.noTips')}
           />
         )}
+        <View style={{ height: bottomPadding }} />
       </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
+function TipsSeparator() {
+  return <ListDivider inset={52} />;
+}
+
 const styles = StyleSheet.create({
   globalContainer: { paddingBottom: 0 },
-  searchContainer: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  flatList: {
-    width: '100%',
-  },
-  transactionCard: {
-    width: '100%',
-    borderRadius: 8,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  transactionInfo: {
-    flex: 1,
-    marginRight: 8,
-  },
-  nameText: {
-    includeFontPadding: false,
-  },
-  tipText: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    includeFontPadding: false,
-    marginTop: 2,
-  },
+  container: { flex: 1, ...CENTER },
+  search: { marginTop: 16 },
+  card: { marginTop: 16, flexShrink: 1 },
+  title: { fontSize: 15, lineHeight: 21 },
+  sub: { fontSize: 13, lineHeight: 19 },
+  empty: { flex: 1, justifyContent: 'center' },
   emptyText: {
     textAlign: 'center',
+    marginTop: 24,
   },
 });

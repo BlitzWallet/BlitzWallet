@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, FONT, SIZES } from '../../../../constants';
+import { CENTER, FONT, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
@@ -18,7 +18,7 @@ export function SendRecieveBTNs({
 }) {
   const navigateGuarded = useGuardedNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
 
   const handleSettingsCheck = useCallback(() => {
     try {
@@ -30,7 +30,7 @@ export function SendRecieveBTNs({
     }
   }, [isConnectedToTheInternet]);
 
-  const arrowIconColor = COLORS.darkModeText;
+  const arrowIconColor = tokens.onAccent;
   const handleSend = useCallback(() => {
     crashlyticsLogReport(
       'Running in send and receive buttons on homepage for button type: send',
@@ -59,11 +59,12 @@ export function SendRecieveBTNs({
       });
       return;
     }
-    navigateGuarded('CustomHalfModal', {
-      scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
-      wantedContent: 'receiveOptions',
-      sliderHight: 0.8,
-    });
+    navigateGuarded('ReceiveHomeRedesign');
+    // navigateGuarded('CustomHalfModal', {
+    //   scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
+    //   wantedContent: 'receiveOptions',
+    //   sliderHight: 0.8,
+    // });
   }, [handleSettingsCheck, navigateGuarded, scrollPosition, t]);
 
   const handleDeposit = useCallback(() => {
@@ -121,7 +122,7 @@ export function SendRecieveBTNs({
             styles.btn,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundOffset : COLORS.primary,
+                theme && darkModeType ? backgroundOffset : tokens.accent,
             },
           ]}
         >
@@ -149,7 +150,7 @@ export function SendRecieveBTNs({
             styles.btn,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundOffset : COLORS.primary,
+                theme && darkModeType ? backgroundOffset : tokens.accent,
             },
           ]}
         >
@@ -174,7 +175,7 @@ export function SendRecieveBTNs({
               styles.btn,
               {
                 backgroundColor:
-                  theme && darkModeType ? backgroundOffset : COLORS.primary,
+                  theme && darkModeType ? backgroundOffset : tokens.accent,
               },
             ]}
           >
@@ -198,7 +199,7 @@ export function SendRecieveBTNs({
             styles.btn,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundOffset : COLORS.primary,
+                theme && darkModeType ? backgroundOffset : tokens.accent,
             },
           ]}
         >

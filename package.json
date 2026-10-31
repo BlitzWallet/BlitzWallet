@@ -54,6 +54,7 @@
     "events": "^3.3.0",
     "expo": "~54.0.37",
     "expo-background-task": "~1.0.8",
+    "expo-blur": "~15.0.8",
     "expo-clipboard": "~8.0.7",
     "expo-crypto": "~15.0.7",
     "expo-file-system": "~19.0.24",

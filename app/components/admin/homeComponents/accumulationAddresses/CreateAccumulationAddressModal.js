@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -8,51 +8,48 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import {
   ACCUMULATION_CHAINS,
   ACCUMULATION_DESTINATIONS,
   getChainExpandHeight,
   getAccumulationAddressLimit,
 } from '../../../../constants/accumulationAddresses';
-import { CENTER, ICONS } from '../../../../constants';
-import { Image } from 'expo-image';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { CENTER } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import ChainRow from './chainRow';
 import useExpandAutoScroll from '../../../../hooks/useExpandAutoScroll';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import AnimatedStep, {
+  growThenStep,
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import { AssetDisc, SheetTitle } from '../savings/savingsSheetParts';
+import { CoinChainLogo, destinationLabel } from './AccumulationAddressCard';
 
 // Steps: 'chain' | 'destination' | 'confirm'
 const STEPS = ['chain', 'destination', 'confirm'];
+const STEP_HEIGHTS = { chain: 720, destination: 380, confirm: 440 };
 
 export default function CreateAccumulationAddressModal({
   setContentHeight,
   handleBackPressFunction,
   forcedDestination,
-  setBackNav,
+  setDismissLocked,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { addresses, createAddress } = useAccumulationAddresses();
   const { masterInfoObject } = useGlobalContextProvider();
   const { bottomPadding } = useGlobalInsets();
 
   const [step, setStep] = useState('chain');
+  const [direction, setDirection] = useState(1);
   const [expandedChain, setExpandedChain] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [selectedChain, setSelectedChain] = useState(null);
@@ -60,7 +57,6 @@ export default function CreateAccumulationAddressModal({
     forcedDestination || null,
   );
   const [isCreating, setIsCreating] = useState(false);
-  const [mountedSteps, setMountedSteps] = useState(() => new Set(['chain']));
 
   const isPairAtCap = useCallback(
     (chainId, asset, dest) =>
@@ -79,69 +75,27 @@ export default function CreateAccumulationAddressModal({
       getPanelHeight: getChainExpandHeight,
     });
 
-  const chainOpacity = useSharedValue(1);
-  const chainTranslateX = useSharedValue(0);
-  const destinationOpacity = useSharedValue(0);
-  const destinationTranslateX = useSharedValue(30);
-  const confirmOpacity = useSharedValue(0);
-  const confirmTranslateX = useSharedValue(30);
+  useStepSheetHeight(setContentHeight, STEP_HEIGHTS[step]);
 
+  // The sheet can't be swiped away while the address is being created.
   useEffect(() => {
-    const activeIndex = STEPS.indexOf(step);
-    const translateForStep = screenStep => {
-      const screenIndex = STEPS.indexOf(screenStep);
-      if (screenIndex === activeIndex) return 0;
-      return screenIndex < activeIndex ? -30 : 30;
-    };
+    setDismissLocked?.(isCreating);
+  }, [isCreating, setDismissLocked]);
 
-    chainOpacity.value = withTiming(step === 'chain' ? 1 : 0, {
-      duration: 250,
-    });
-    chainTranslateX.value = withTiming(translateForStep('chain'), {
-      duration: 250,
-    });
-    destinationOpacity.value = withTiming(step === 'destination' ? 1 : 0, {
-      duration: 250,
-    });
-    destinationTranslateX.value = withTiming(translateForStep('destination'), {
-      duration: 250,
-    });
-    confirmOpacity.value = withTiming(step === 'confirm' ? 1 : 0, {
-      duration: 250,
-    });
-    confirmTranslateX.value = withTiming(translateForStep('confirm'), {
-      duration: 250,
-    });
-  }, [step]);
-
-  const chainAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: chainOpacity.value,
-    transform: [{ translateX: chainTranslateX.value }],
-  }));
-
-  const destinationAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: destinationOpacity.value,
-    transform: [{ translateX: destinationTranslateX.value }],
-  }));
-
-  const confirmAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: confirmOpacity.value,
-    transform: [{ translateX: confirmTranslateX.value }],
-  }));
-
-  const goToStep = useCallback(nextStep => {
-    setMountedSteps(prev => {
-      if (prev.has(nextStep)) return prev;
-      const next = new Set(prev);
-      next.add(nextStep);
-      return next;
-    });
-    setStep(nextStep);
-  }, []);
-
-  useEffect(() => {
-    setContentHeight(450);
-  }, [step]);
+  // A step's exit side is read from its last render while still active, so
+  // the direction has to land one render before the step changes.
+  const goToStep = useCallback(
+    nextStep => {
+      setDirection(STEPS.indexOf(nextStep) > STEPS.indexOf(step) ? 1 : -1);
+      growThenStep(
+        setContentHeight,
+        STEP_HEIGHTS[step],
+        STEP_HEIGHTS[nextStep],
+        () => setTimeout(() => setStep(nextStep), 0),
+      );
+    },
+    [step, setContentHeight],
+  );
 
   const handleBackPress = useCallback(() => {
     if (isCreating) return true;
@@ -164,22 +118,6 @@ export default function CreateAccumulationAddressModal({
 
   useHandleBackPressNew(handleBackPress);
 
-  // Register the chrome's back arrow whenever past the first step.
-  useEffect(() => {
-    if (step === 'chain') {
-      setBackNav?.(null);
-    } else {
-      setBackNav?.({
-        onPress: handleBackPress,
-        title:
-          step === 'destination'
-            ? t('screens.accumulationAddresses.create.pickDestination')
-            : t('screens.accumulationAddresses.create.confirm'),
-      });
-    }
-    return () => setBackNav?.(null);
-  }, [step, handleBackPress, setBackNav]);
-
   const handleCreate = useCallback(async () => {
     setIsCreating(true);
     const result = await createAddress({
@@ -190,7 +128,15 @@ export default function CreateAccumulationAddressModal({
     });
     setIsCreating(false);
     if (result?.address) {
-      handleBackPressFunction();
+      // On success the new address opens.
+      handleBackPressFunction(() =>
+        navigate.replace('AccumulationAddressDetail', {
+          sourceChain: selectedChain.id,
+          sourceAsset: selectedAsset,
+          destinationAsset: selectedDestination,
+          selectedId: result.address.accumulationAddressId,
+        }),
+      );
     } else if (result?.error === 'limit_reached') {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.accumulationAddresses.create.limitReached'),
@@ -210,233 +156,165 @@ export default function CreateAccumulationAddressModal({
     t,
   ]);
 
+  const backBar = (
+    <View style={styles.backBar}>
+      <TopBar onBack={handleBackPress} />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      {/* Chain step */}
-      <Animated.View
-        style={[styles.animatedContainer, chainAnimatedStyle]}
-        pointerEvents={step === 'chain' ? 'auto' : 'none'}
+      <AnimatedStep
+        active={step === 'chain'}
+        direction={direction}
+        exitsBack={direction === -1}
       >
-        <ThemeText
-          styles={styles.stepTitle}
-          content={t('screens.accumulationAddresses.create.pickChain')}
+        <SheetTitle
+          first={true}
+          title={t('screens.accumulationAddresses.create.pickChain')}
+          sub={t('screens.accumulationAddresses.create.pickChainSub')}
         />
         <CustomScrollView
           ref={scrollViewRef}
+          style={styles.list}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
           showsVerticalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
           onLayout={onLayout}
         >
-          {ACCUMULATION_CHAINS.map(chain => (
-            <View
-              key={chain.id}
-              onLayout={e => handleRowLayout(chain.id, e.nativeEvent.layout.y)}
-            >
-              <ChainRow
-                chain={chain}
-                expanded={expandedChain === chain.id}
-                onToggleExpand={id =>
-                  setExpandedChain(prev => (prev === id ? null : id))
+          <ListCard tone="flush" dividerInset={44}>
+            {ACCUMULATION_CHAINS.map(chain => (
+              <View
+                key={chain.id}
+                onLayout={e =>
+                  handleRowLayout(chain.id, e.nativeEvent.layout.y)
                 }
-                onSelectAsset={(c, asset) => {
-                  setSelectedChain(c);
-                  setSelectedAsset(asset);
-                  goToStep(forcedDestination ? 'confirm' : 'destination');
-                  setExpandedChain(null);
-                }}
-                isAssetTaken={
-                  forcedDestination
-                    ? asset => isPairAtCap(chain.id, asset, forcedDestination)
-                    : () => false
-                }
-                onDisabledAssetPress={() =>
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t(
-                      'screens.accumulationAddresses.create.limitReached',
-                    ),
-                  })
-                }
-                theme={theme}
-                darkModeType={darkModeType}
-                backgroundColor={backgroundColor}
-                backgroundOffset={backgroundOffset}
-              />
-            </View>
-          ))}
-        </CustomScrollView>
-      </Animated.View>
-
-      {mountedSteps.has('destination') && (
-        <Animated.View
-          style={[
-            StyleSheet.absoluteFill,
-            styles.animatedContainer,
-            destinationAnimatedStyle,
-          ]}
-          pointerEvents={step === 'destination' ? 'auto' : 'none'}
-        >
-          {ACCUMULATION_DESTINATIONS.map(dest => {
-            const atCap = isPairAtCap(selectedChain?.id, selectedAsset, dest);
-            return (
-              <TouchableOpacity
-                key={dest}
-                activeOpacity={atCap ? HIDDEN_OPACITY : 0.2}
-                style={[
-                  styles.optionRow,
-                  { opacity: atCap ? HIDDEN_OPACITY : 1 },
-                ]}
-                onPress={() => {
-                  if (atCap) {
+              >
+                <ChainRow
+                  chain={chain}
+                  expanded={expandedChain === chain.id}
+                  onToggleExpand={id =>
+                    setExpandedChain(prev => (prev === id ? null : id))
+                  }
+                  onSelectAsset={(c, asset) => {
+                    setSelectedChain(c);
+                    setSelectedAsset(asset);
+                    goToStep(forcedDestination ? 'confirm' : 'destination');
+                  }}
+                  isAssetTaken={
+                    forcedDestination
+                      ? asset => isPairAtCap(chain.id, asset, forcedDestination)
+                      : () => false
+                  }
+                  onDisabledAssetPress={() =>
                     navigate.navigate('ErrorScreen', {
                       errorMessage: t(
                         'screens.accumulationAddresses.create.limitReached',
                       ),
-                    });
-                    return;
-                  }
-                  setSelectedDestination(dest);
-                  goToStep('confirm');
-                }}
-              >
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? darkModeType
-                            ? backgroundColor
-                            : backgroundOffset
-                          : dest === 'BTC'
-                          ? COLORS.bitcoinOrange
-                          : COLORS.dollarGreen,
-                    },
-                  ]}
-                >
-                  <ThemeImage
-                    styles={{ width: 25, height: 25 }}
-                    lightModeIcon={
-                      dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
-                    }
-                    darkModeIcon={
-                      dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
-                    }
-                    lightsOutIcon={
-                      dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
-                    }
-                  />
-                </View>
-                <ThemeText
-                  styles={styles.optionLabel}
-                  content={
-                    dest === 'BTC'
-                      ? t('constants.bitcoin_upper')
-                      : t('constants.dollars_upper')
+                    })
                   }
                 />
-                <ThemeIcon iconName="ChevronRight" size={18} />
-              </TouchableOpacity>
-            );
+              </View>
+            ))}
+          </ListCard>
+        </CustomScrollView>
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={step === 'destination'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        {backBar}
+        <SheetTitle
+          title={t('screens.accumulationAddresses.create.pickDestination')}
+          sub={t('screens.accumulationAddresses.create.pickDestinationSub', {
+            asset: selectedAsset,
+            chain: selectedChain?.label,
           })}
-        </Animated.View>
-      )}
-
-      {mountedSteps.has('confirm') && (
-        <Animated.View
-          style={[
-            StyleSheet.absoluteFill,
-            styles.animatedContainer,
-            confirmAnimatedStyle,
-          ]}
-          pointerEvents={step === 'confirm' ? 'auto' : 'none'}
-        >
-          <View style={styles.confirmContent}>
-            <View style={styles.assetRow}>
-              <View style={styles.confirmIconWrapper}>
-                <View
-                  style={[
-                    styles.confirmChainCircle,
-                    { backgroundColor: backgroundOffset },
-                  ]}
-                >
-                  <Image
-                    style={styles.confirmChainIcon}
-                    source={
-                      ICONS[`chain_${selectedChain?.label.toLowerCase()}`]
+        />
+        <View style={styles.list}>
+          <ListCard tone="flush">
+            {ACCUMULATION_DESTINATIONS.map(dest => {
+              const atCap = isPairAtCap(selectedChain?.id, selectedAsset, dest);
+              const currency = destinationLabel(dest, t);
+              return (
+                <View key={dest} style={atCap && styles.disabledRow}>
+                  <ListRow
+                    lead={
+                      <AssetDisc
+                        asset={dest === 'BTC' ? 'bitcoin' : 'dollar'}
+                      />
                     }
-                    contentFit="contain"
+                    title={currency}
+                    titleStyle={styles.rowTitle}
+                    sub={t('screens.accumulationAddresses.create.arrivesIn', {
+                      currency,
+                    })}
+                    minHeight={64}
+                    trailing="chevron"
+                    onPress={() => {
+                      if (atCap) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t(
+                            'screens.accumulationAddresses.create.limitReached',
+                          ),
+                        });
+                        return;
+                      }
+                      setSelectedDestination(dest);
+                      goToStep('confirm');
+                    }}
                   />
                 </View>
-                <View
-                  style={[
-                    styles.confirmCurrencyBadge,
-                    { borderColor: backgroundColor },
-                  ]}
-                >
-                  <Image
-                    style={styles.confirmCurrencyIcon}
-                    source={ICONS[`${selectedAsset?.toLowerCase()}Logo`]}
-                    contentFit="contain"
-                  />
-                </View>
-              </View>
-              <ThemeIcon styles={{ opacity: 0.7 }} iconName={'ArrowRight'} />
-              <View style={styles.confirmIconWrapper}>
-                <View
-                  style={[
-                    styles.confirmChainCircle,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundColor
-                          : selectedDestination === 'BTC'
-                          ? COLORS.bitcoinOrange
-                          : COLORS.dollarGreen,
-                    },
-                  ]}
-                >
-                  <Image
-                    style={[styles.confirmChainIcon, { width: 50, height: 50 }]}
-                    source={
-                      ICONS[
-                        selectedDestination === 'BTC'
-                          ? 'bitcoinIcon'
-                          : 'dollarIcon'
-                      ]
-                    }
-                    contentFit="contain"
-                  />
-                </View>
-              </View>
-            </View>
+              );
+            })}
+          </ListCard>
+        </View>
+      </AnimatedStep>
 
-            <ThemeText
-              styles={styles.confirmChainName}
-              content={selectedChain?.label}
+      <AnimatedStep
+        active={step === 'confirm'}
+        direction={direction}
+        exitsBack={direction === -1}
+      >
+        {backBar}
+        <SheetTitle title={t('screens.accumulationAddresses.create.confirm')} />
+        <View style={styles.confirmContent}>
+          <View style={styles.assetRow}>
+            <CoinChainLogo
+              asset={selectedAsset}
+              chainLabel={selectedChain?.label}
+              size={56}
             />
-            <ThemeText
-              styles={styles.confirmSubtitle}
-              content={t('screens.accumulationAddresses.create.convertDesc', {
-                chain: selectedChain?.label,
-                asset: selectedAsset,
-                receiveCurrency:
-                  selectedDestination === 'BTC'
-                    ? t('constants.bitcoin_upper')
-                    : t('constants.dollars_upper'),
-              })}
+            <ThemeIcon
+              redesign
+              iconName="ArrowRight"
+              size={22}
+              colorOverride={tokens.muted}
+            />
+            <AssetDisc
+              asset={selectedDestination === 'BTC' ? 'bitcoin' : 'dollar'}
+              size={56}
             />
           </View>
-
-          <CustomButton
-            buttonStyles={[styles.createBtn, { marginBottom: bottomPadding }]}
-            textContent={t('screens.accumulationAddresses.summary.create')}
-            actionFunction={handleCreate}
-            useLoading={isCreating}
+          <ThemeText
+            styles={[styles.confirmSubtitle, { color: tokens.muted }]}
+            content={t('screens.accumulationAddresses.create.convertDesc', {
+              chain: selectedChain?.label,
+              asset: selectedAsset,
+              receiveCurrency: destinationLabel(selectedDestination, t),
+            })}
           />
-        </Animated.View>
-      )}
+        </View>
+        <CustomButton
+          size="regular"
+          textContent={t('screens.accumulationAddresses.summary.create')}
+          actionFunction={handleCreate}
+          useLoading={isCreating}
+        />
+      </AnimatedStep>
     </View>
   );
 }
@@ -446,89 +324,31 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
+    overflow: 'hidden',
   },
-  animatedContainer: {
-    flex: 1,
-    width: '100%',
-  },
-  stepTitle: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: 8,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingBottom: 16,
-    gap: 10,
-  },
-  assetRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  optionLabel: {
-    flex: 1,
-    includeFontPadding: false,
-  },
-  iconContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  backBar: { marginTop: 8 },
+  list: { marginTop: 12, flexGrow: 0, flexShrink: 1 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
+  disabledRow: { opacity: 0.5 },
   confirmContent: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 20,
   },
-  confirmIconWrapper: {
-    position: 'relative',
-    marginBottom: 20,
-  },
-  confirmChainCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 45,
+  assetRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  confirmChainIcon: {
-    width: 80,
-    height: 80,
-  },
-  confirmCurrencyBadge: {
-    position: 'absolute',
-    width: 25,
-    height: 25,
-    borderRadius: 15,
-    bottom: -4,
-    right: -4,
-    borderWidth: 2,
-    overflow: 'hidden',
-  },
-  confirmCurrencyIcon: {
-    width: '100%',
-    height: '100%',
-  },
-  confirmChainName: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 6,
-    includeFontPadding: false,
+    gap: 14,
   },
   confirmSubtitle: {
-    maxWidth: 250,
-    width: '90%',
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
+    maxWidth: 280,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'center',
+    includeFontPadding: false,
   },
-  createBtn: { width: 'auto', ...CENTER },
   assetIcon: {
     width: 45,
     height: 45,

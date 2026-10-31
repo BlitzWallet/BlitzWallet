@@ -1,12 +1,16 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  PERSISTED_LOGIN_COUNT_KEY,
+} from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
-import { GlobalThemeView } from '../../functions/CustomElements';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
 import {
   StackActions,
@@ -27,7 +31,6 @@ import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshot
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
 import { useWebView } from '../../../context-store/webViewContext';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
@@ -38,12 +41,15 @@ import {
 } from '../../functions/initializeAllDatabases';
 import { isTabConflictError } from '../../functions/webDatabaseOwnership';
 import openWebBrowser from '../../functions/openWebBrowser';
-import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
 import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
 import { isWipeInProgress } from '../../functions/secureStore';
-import i18next from 'i18next';
+import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import Disc from '../../functions/CustomElements/redesign/Disc';
+import CustomButton from '../../functions/CustomElements/button';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useReducedMotion } from '../../constants/motion';
 
 export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
@@ -63,13 +69,16 @@ export default function ConnectingToNodeLoadingScreen() {
   const { didRunHandshakeRef } = useWebView();
   const { connectToSparkWallet, setSparkInformation } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const { screenDimensions, toggleDidGetToHomepage } = useAppStatus();
   const { toggleFiatStats } = useNodeContext();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
+  const reducedMotion = useReducedMotion();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const didRunConnectionRef = useRef(null);
   // Latched once startConnectProcess has fully settled (navigated, or errored
   // into the recoverable UI). The watchdog below keys off this, NOT off
@@ -246,25 +255,16 @@ export default function ConnectingToNodeLoadingScreen() {
           // Another web tab owns the wallet. TabInUse is the single place for
           // that; its "Use here" reloads, which recreates the SQLite worker.
           navigate.reset({ index: 0, routes: [{ name: 'TabInUse' }] });
-        } else if (err.message === DB_INIT_TIMEOUT_ERROR) {
-          setHasError({
-            title: t('screens.inAccount.loadingScreen.dbInitError1'),
-            subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
-            // Web only. expo-sqlite keeps the stalled worker for the page's
-            // lifetime, so an in-page retry would stall again; a reload
-            // replaces it. A failed open (dbInitError) keeps Recover.
-            reloadOnRetry: true,
-          });
-        } else if (err.message === 'dbInitError') {
-          setHasError({
-            title: t('screens.inAccount.loadingScreen.dbInitError1'),
-            subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
-          });
         } else {
-          setHasError({
-            title: t('screens.inAccount.loadingScreen.initErrorTitle'),
-            subtitle: err.message,
-          });
+          // One copy for every failure (Q1-6); the raw message goes to
+          // Crashlytics only.
+          if (
+            err.message !== DB_INIT_TIMEOUT_ERROR &&
+            err.message !== 'dbInitError'
+          ) {
+            crashlyticsRecordErrorReport(err.message);
+          }
+          setHasError(true);
         }
       } finally {
         // Settled either way (navigated, bailed as a stale duplicate, or errored
@@ -321,41 +321,57 @@ export default function ConnectingToNodeLoadingScreen() {
       crashlyticsRecordErrorReport(
         `Login watchdog fired after 45s. Last phase reached: ${phaseRef.current}`,
       );
-      setHasError({
-        title: i18next.t('screens.inAccount.loadingScreen.initErrorTitle'),
-        subtitle: i18next.t(
-          'screens.inAccount.loadingScreen.userSettingsError',
-        ),
-      });
+      setHasError(true);
     }, 45000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.globalContainer}>
+      <View style={[styles.container, { width: contentWidth }]}>
         {hasError ? (
-          <>
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('SettingsHome', { isDoomsday: true })
-              }
-              style={styles.doomsday}
-            >
-              <ThemeIcon iconName={'Settings'} />
-            </TouchableOpacity>
-            <NoContentScreen
-              iconName="TriangleAlert"
-              titleText={hasError.title}
-              subTitleText={hasError.subtitle}
-              showButton={true}
-              buttonText={
-                hasError.reloadOnRetry
+          <Animated.View
+            key="error"
+            entering={FadeIn.duration(200)}
+            style={styles.innerContainer}
+          >
+            <View style={styles.settingsButton}>
+              <IconButton
+                icon={'Settings'}
+                label={'screens.inAccount.settingsContent.settings'}
+                iconSize={20}
+                onPress={() =>
+                  navigate.navigate('SettingsHome', { isDoomsday: true })
+                }
+              />
+            </View>
+            <View style={styles.centered}>
+              <Disc
+                icon="TriangleAlert"
+                size={88}
+                iconSize={36}
+                tone="danger"
+              />
+              <ThemeText
+                variant="title"
+                styles={styles.title}
+                content={t('screens.inAccount.loadingScreen.dbInitError1')}
+              />
+              <ThemeText
+                variant="body"
+                styles={[styles.subtitle, { color: tokens.muted }]}
+                content={t('screens.inAccount.loadingScreen.dbInitError2')}
+              />
+            </View>
+            <CustomButton
+              textContent={
+                Platform.OS === 'web'
                   ? t('constants.retry')
                   : t('constants.recover')
               }
-              buttonFunction={
-                hasError.reloadOnRetry
+              size={'regular'}
+              actionFunction={
+                Platform.OS === 'web'
                   ? () => window.location.reload()
                   : () =>
                       openWebBrowser({
@@ -364,17 +380,30 @@ export default function ConnectingToNodeLoadingScreen() {
                       })
               }
             />
-          </>
+          </Animated.View>
         ) : (
-          <LottieView
-            source={transformedAnimation}
-            autoPlay
-            loop={true}
-            style={{
-              width: Math.min(screenDimensions.width * 0.4, 400),
-              height: Math.min(screenDimensions.width * 0.4, 400),
-            }}
-          />
+          <Animated.View
+            key="loading"
+            exiting={FadeOut.duration(200)}
+            style={styles.loadingContainer}
+            accessible
+            accessibilityLabel={t(
+              'screens.inAccount.loadingScreen.loadingMessage2',
+            )}
+          >
+            <LottieView
+              source={transformedAnimation}
+              colorFilters={[
+                { keypath: '**', color: theme ? tokens.ink : tokens.accent },
+              ]}
+              autoPlay={!reducedMotion}
+              loop={true}
+              style={{
+                width: Math.min(screenDimensions.width * 0.4, 400),
+                height: Math.min(screenDimensions.width * 0.4, 400),
+              }}
+            />
+          </Animated.View>
         )}
       </View>
     </GlobalThemeView>
@@ -382,14 +411,18 @@ export default function ConnectingToNodeLoadingScreen() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
+  container: {
     flex: 1,
+    ...CENTER,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  doomsday: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
+  innerContainer: { flex: 1 },
+  settingsButton: { position: 'absolute', top: 0, right: 0, zIndex: 1 },
+  centered: { flex: 1, alignItems: 'center', paddingTop: 166 },
+  title: { marginTop: 28, textAlign: 'center' },
+  subtitle: { marginTop: 8, textAlign: 'center' },
 });

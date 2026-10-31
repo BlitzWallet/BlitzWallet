@@ -1,16 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ThemeText } from '../../../../../../functions/CustomElements';
-import { CENTER, FONT, SIZES } from '../../../../../../constants';
 import { useTranslation } from 'react-i18next';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { CENTER } from '../../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
 import CustomButton from '../../../../../../functions/CustomElements/button';
+import { useTheme } from '../../../../../../../context-store/theme';
+import { SheetTitle } from '../../../savings/savingsSheetParts';
 
+// "Are you sure?" gate (D270). Swiping down goes back to the pattern.
 export default function ChildMatchCodeConfirmation({
   confirmMatch,
   handleBackPressFunction,
+  setContentHeight,
 }) {
   const { t } = useTranslation();
+  const { tokens } = useTheme();
+
+  useEffect(() => {
+    setContentHeight?.(320);
+  }, [setContentHeight]);
 
   const handleConfirmMatch = useCallback(async () => {
     try {
@@ -19,27 +28,24 @@ export default function ChildMatchCodeConfirmation({
     } catch (err) {
       console.log('err', err);
     }
-  }, [confirmMatch]);
+  }, [confirmMatch, handleBackPressFunction]);
 
   return (
     <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('settings.childAccounts.pairing.areYouSure')}
+      <SheetTitle
+        title={t('settings.childAccounts.pairing.areYouSure')}
+        first={true}
       />
-
       <ThemeText
-        styles={styles.description}
+        styles={[styles.description, { color: tokens.muted }]}
         content={t('settings.childAccounts.pairing.confirmGate')}
       />
-
-      <View style={styles.buttonContainer}>
-        <CustomButton
-          buttonStyles={styles.closeButton}
-          textContent={t('settings.childAccounts.pairing.confirmBTN')}
-          actionFunction={handleConfirmMatch}
-        />
-      </View>
+      <CustomButton
+        buttonStyles={styles.button}
+        textContent={t('settings.childAccounts.pairing.confirmBTN')}
+        actionFunction={handleConfirmMatch}
+        size={'regular'}
+      />
     </View>
   );
 }
@@ -50,32 +56,13 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: SIZES.xLarge,
-    fontFamily: FONT.Title_Regular,
-    marginBottom: 12,
-  },
   description: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 24,
+    marginTop: 8,
+    fontSize: 15,
     lineHeight: 22,
   },
-  buttonContainer: {
+  button: {
     width: '100%',
-    gap: 12,
     marginTop: 'auto',
-  },
-  closeButton: {
-    ...CENTER,
-  },
-  cancelButton: {
-    width: '100%',
-    opacity: 0.6,
   },
 });

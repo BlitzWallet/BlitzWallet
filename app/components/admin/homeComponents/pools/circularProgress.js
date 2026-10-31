@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { SIZES } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import Animated, {
@@ -14,6 +13,7 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { useTranslation } from 'react-i18next';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -42,9 +42,11 @@ export default function CircularProgress({
   useAltBackground = false,
   useFillAnimation = false,
   showConfirmed = false,
+  trackColor: trackColorOverride,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const animatedPercentage = useSharedValue(0);
   const isInitialLoadRef = useRef(true);
 
@@ -67,9 +69,10 @@ export default function CircularProgress({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  const progressColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-  const trackColor = useAltBackground ? backgroundColor : backgroundOffset;
+  const progressColor = theme && darkModeType ? tokens.ink : tokens.accent;
+  const trackColor =
+    trackColorOverride ||
+    (useAltBackground ? backgroundColor : backgroundOffset);
 
   useEffect(() => {
     let timer;
@@ -152,7 +155,7 @@ export default function CircularProgress({
             adjustsFontSizeToFit={true}
             minimumFontScale={0.6}
             styles={styles.goalAmount}
-            content={`of ${goalAmount}`}
+            content={t('wallet.pools.ofAmount', { amount: goalAmount })}
           />
         </View>
       ) : (

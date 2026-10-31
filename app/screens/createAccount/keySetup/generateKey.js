@@ -1,10 +1,9 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../components/login';
-import { CENTER, COLORS, SIZES } from '../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
-import LoginNavbar from '../../../components/login/navBar';
 import CustomButton from '../../../functions/CustomElements/button';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useNavigation } from '@react-navigation/native';
@@ -12,8 +11,9 @@ import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import { useKeysContext } from '../../../../context-store/keys';
 import { useState } from 'react';
 import GetThemeColors from '../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../context-store/theme';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../constants/theme';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
 
 const MASKED_WORD = '••••••';
 
@@ -24,9 +24,10 @@ export default function GenerateKey() {
 
   const { t } = useTranslation();
   const hookNavigate = useNavigation();
-  const { backgroundColor } = GetThemeColors();
-  const { theme } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
   const isWeb = Platform.OS === 'web';
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const isValidMnemonic = mnemonic.length === 12;
   // Web has no later reminder it can rely on (storage may be wiped), so the
@@ -47,191 +48,166 @@ export default function GenerateKey() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <LoginNavbar />
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        <ThemeText
-          styles={styles.title}
-          content={t(
-            isWeb
-              ? 'createAccount.keySetup.generateKey.webHeader'
-              : 'createAccount.keySetup.generateKey.header',
-          )}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t(
-            isWeb
-              ? 'createAccount.keySetup.generateKey.webStorageWarning'
-              : 'createAccount.keySetup.generateKey.subHeader',
-          )}
-        />
-
-        {!isValidMnemonic ? (
-          <FullLoadingScreen
-            showLoadingIcon={false}
-            text={t('createAccount.keySetup.generateKey.keyGenError')}
-          />
-        ) : (
-          <View style={styles.seedWrapper}>
-            {/* Real words are only rendered once revealed. */}
-            <KeyContainer
-              keys={showSeed ? mnemonic : mnemonic.map(() => MASKED_WORD)}
-            />
-            {!showSeed && (
-              <View
-                style={[
-                  styles.overlay,
-                  {
-                    borderColor: theme
-                      ? 'rgba(255,255,255,0.22)'
-                      : 'rgba(255,255,255,0.95)',
-                  },
-                ]}
-              >
-                <View style={[styles.overlayVeil, { backgroundColor }]} />
-                <View style={styles.overlayContent}>
-                  <ThemeIcon iconName="EyeOff" size={24} />
-                  <ThemeText
-                    styles={styles.revealTitle}
-                    content={t(
-                      'createAccount.keySetup.generateKey.revealTitle',
-                    )}
-                  />
-                  <ThemeText
-                    styles={styles.seedPrivacyMessage}
-                    content={t(
-                      'createAccount.keySetup.generateKey.seedPrivacyMessage',
-                    )}
-                  />
-                  <CustomButton
-                    buttonStyles={styles.revealButton}
-                    textStyles={{ color: COLORS.darkModeText }}
-                    actionFunction={() => setShowSeed(true)}
-                    textContent={t('createAccount.keySetup.generateKey.showIt')}
-                  />
-                </View>
-              </View>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar />
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.contentContainer}
+        >
+          <PageHeader
+            large
+            title={t(
+              isWeb
+                ? 'createAccount.keySetup.generateKey.webHeader'
+                : 'createAccount.keySetup.generateKey.header',
             )}
-          </View>
-        )}
-      </CustomScrollView>
-
-      <View style={styles.footer}>
-        <ThemeText
-          styles={isWeb ? styles.footerText : styles.disclaimer}
-          content={t(
-            isWeb
-              ? 'createAccount.keySetup.generateKey.webSubHeader'
-              : 'createAccount.keySetup.generateKey.disclaimer',
+            sub={t(
+              isWeb
+                ? 'createAccount.keySetup.generateKey.webStorageWarning'
+                : 'createAccount.keySetup.generateKey.subHeader',
+            )}
+          />
+          {!isValidMnemonic ? (
+            <FullLoadingScreen
+              showLoadingIcon={false}
+              text={t('createAccount.keySetup.generateKey.keyGenError')}
+            />
+          ) : (
+            <View style={styles.seedWrapper}>
+              {/* Real words are only rendered once revealed. */}
+              <KeyContainer
+                keys={showSeed ? mnemonic : mnemonic.map(() => MASKED_WORD)}
+              />
+              {!showSeed && (
+                <View
+                  style={[
+                    styles.overlay,
+                    // ground at 86 % so the masked tiles show through.
+                    { backgroundColor: `${tokens.ground}DB` },
+                  ]}
+                >
+                  <View style={styles.overlayContent}>
+                    <ThemeIcon
+                      redesign
+                      iconName="EyeOff"
+                      size={28}
+                      colorOverride={tokens.ink}
+                    />
+                    <ThemeText
+                      styles={styles.revealTitle}
+                      content={t(
+                        'createAccount.keySetup.generateKey.revealTitle',
+                      )}
+                    />
+                    <ThemeText
+                      styles={[
+                        styles.seedPrivacyMessage,
+                        { color: tokens.muted },
+                      ]}
+                      content={t(
+                        'createAccount.keySetup.generateKey.seedPrivacyMessage',
+                      )}
+                    />
+                    <CustomButton
+                      actionFunction={() => setShowSeed(true)}
+                      textContent={t(
+                        'createAccount.keySetup.generateKey.showIt',
+                      )}
+                      size={'small'}
+                      buttonStyles={styles.revealButton}
+                      textStyles={styles.revealButtonText}
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
           )}
-        />
-        <CustomButton
-          buttonStyles={{
-            ...styles.nextButton,
-            opacity: canContinue ? 1 : HIDDEN_OPACITY,
-          }}
-          textContent={t('constants.next')}
-          actionFunction={handleNextPress}
-          disabled={!canContinue}
-        />
+        </CustomScrollView>
+
+        <View style={styles.footer}>
+          <ThemeText
+            styles={[
+              isWeb ? styles.footerText : styles.disclaimer,
+              { color: tokens.muted },
+            ]}
+            content={t(
+              isWeb
+                ? 'createAccount.keySetup.generateKey.webSubHeader'
+                : 'createAccount.keySetup.generateKey.disclaimer',
+            )}
+          />
+          <CustomButton
+            buttonStyles={{
+              opacity: canContinue ? 1 : HIDDEN_OPACITY,
+            }}
+            textContent={t('constants.next')}
+            actionFunction={handleNextPress}
+            disabled={!canContinue}
+            size={'regular'}
+          />
+        </View>
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    ...CENTER,
+  },
   contentContainer: {
     flexGrow: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     paddingBottom: 20,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
   },
   seedWrapper: {
     width: '100%',
     position: 'relative',
+    marginTop: 24,
   },
   overlay: {
     position: 'absolute',
-    top: -SIZES.small,
-    bottom: 0,
-    left: -SIZES.small,
-    right: -SIZES.small,
-    borderRadius: SIZES.large,
+    top: -6,
+    bottom: 4,
+    left: -6,
+    right: -6,
+    borderRadius: 22,
     overflow: 'hidden',
     justifyContent: 'center',
-    borderWidth: 1.5,
-    ...Platform.select({
-      web: { backdropFilter: 'blur(18px) saturate(180%)' },
-    }),
-  },
-  overlayVeil: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: Platform.OS === 'web' ? 0.45 : 0.85,
+    paddingHorizontal: 28,
+    ...Platform.select({ web: { backdropFilter: 'blur(8px)' } }),
   },
   overlayContent: {
-    padding: SIZES.large,
-    gap: SIZES.small,
+    alignItems: 'center',
   },
   revealTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+    fontSize: 17,
+    lineHeight: 24,
+    marginTop: 14,
+    textAlign: 'center',
     includeFontPadding: false,
   },
   seedPrivacyMessage: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: SIZES.small,
+    fontSize: 14,
+    lineHeight: 21,
+    marginTop: 4,
+    marginBottom: 20,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
-  revealButton: {
-    width: '100%',
-    backgroundColor: COLORS.primary,
-  },
-  notice: {
-    width: '100%',
-    borderRadius: 8,
-    padding: SIZES.medium,
-    marginTop: 10,
-    gap: SIZES.small,
-  },
-  noticeText: {
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-  },
+  revealButton: { paddingHorizontal: 24 },
+  revealButtonText: { fontSize: 15 },
   footer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    gap: SIZES.medium,
+    gap: 12,
     paddingTop: 10,
   },
   footerText: {
-    opacity: 0.6,
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: 'center',
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
+    includeFontPadding: false,
   },
   disclaimer: {
-    fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: SIZES.medium,
-  },
-  nextButton: {
-    width: '100%',
   },
 });

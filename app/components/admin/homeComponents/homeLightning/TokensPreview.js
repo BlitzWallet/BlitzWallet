@@ -16,7 +16,10 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import {
+  useGlobalThemeContext,
+  useTheme,
+} from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
 import { useAppStatus } from '../../../../../context-store/appStatus';
@@ -28,7 +31,7 @@ export default function TokensPreview({ didGetToHomepage }) {
   const { t } = useTranslation();
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
   const containerWidth = (screenDimensions?.width ?? 0) * 0.85 - 30;
   const navigate = useNavigation();
@@ -92,14 +95,8 @@ export default function TokensPreview({ didGetToHomepage }) {
 
       {showPlaceholder ? (
         <SkeletonPlaceholder
-          highlightColor={
-            theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.lightModeBackground
-          }
-          backgroundColor={COLORS.opaicityGray}
+          highlightColor={tokens.ground}
+          backgroundColor={tokens.skel}
           enabled={true}
           speed={SKELETON_ANIMATION_SPEED}
         >
@@ -157,6 +154,7 @@ function TokenItem({
   tokensImageCache,
 }) {
   const imageUri = tokensImageCache[tokenIdentifier];
+  const { tokens } = useTheme();
 
   return (
     <View style={styles.tokenRowContainer}>
@@ -166,8 +164,8 @@ function TokenItem({
           backgroundColor: imageUri
             ? 'transparent'
             : theme && darkModeType
-            ? COLORS.darkModeText
-            : COLORS.primary,
+            ? tokens.ink
+            : tokens.accent,
         }}
       >
         {imageUri ? (
@@ -181,7 +179,7 @@ function TokenItem({
         ) : (
           <ThemeIcon
             colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
+              theme && darkModeType ? COLORS.lightModeText : tokens.onAccent
             }
             size={22}
             iconName={'Coins'}

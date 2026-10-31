@@ -4,131 +4,90 @@ import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, COLORS } from '../../../../constants';
-import ContactProfileImage from './internalComponents/profileImage';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { CENTER, COLORS, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import ContactAvatar from './internalComponents/contactAvatar';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import AddContactsPage from './addContactsPage';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import ContactRingAvatar from './internalComponents/contactsRingAvatar';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 
-// Memoized shared header component
-const SharedHeader = memo(
-  ({
-    selectedContact,
-    imageData,
-    theme,
-    darkModeType,
-    backgroundOffset,
-    isContactAdded,
-    isEditingMyProfile,
-    navigate,
-  }) => {
-    if (selectedContact?.isLNURL) {
-      return (
-        <View
-          style={[styles.profileImageContainer, { width: 150, height: 150 }]}
-        >
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
-          >
-            <ContactProfileImage
-              updated={imageData?.updated}
-              uri={imageData?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-        </View>
-      );
-    }
+// Memoized shared header component. Contacts with a user id get the ID image
+// as a badge that swaps with the photo when tapped (ContactRingAvatar).
+const SharedHeader = memo(({ selectedContact, imageData, isContactAdded }) => {
+  const size = isContactAdded ? 88 : 96;
+  const fontSize = isContactAdded ? 28 : 32;
+  const containerStyle = isContactAdded
+    ? styles.addedImageContainer
+    : styles.profileImageContainer;
+  const name = selectedContact?.name?.trim() || selectedContact?.uniqueName;
 
+  if (selectedContact?.isLNURL) {
     return (
-      <View style={styles.profileImageContainer}>
-        <ContactRingAvatar
-          contactUUID={selectedContact.uuid}
-          size={150}
-          theme={theme}
-        >
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
-          >
-            <ContactProfileImage
-              updated={imageData?.updated}
-              uri={imageData?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-        </ContactRingAvatar>
+      <View style={containerStyle}>
+        <ContactAvatar
+          name={name}
+          seed={selectedContact.uuid}
+          uri={imageData?.localUri}
+          updated={imageData?.updated}
+          size={size}
+          fontSize={fontSize}
+        />
       </View>
     );
-  },
-);
+  }
+
+  return (
+    <View style={containerStyle}>
+      <ContactRingAvatar contactUUID={selectedContact.uuid} size={size}>
+        <ContactAvatar
+          fill
+          name={name}
+          seed={selectedContact.uuid}
+          uri={imageData?.localUri}
+          updated={imageData?.updated}
+          fontSize={fontSize}
+        />
+      </ContactRingAvatar>
+    </View>
+  );
+});
 
 // Memoized navbar
 const MemoizedNavBar = memo(
   ({
     onBack,
-    theme,
-    darkModeType,
     selectedContact,
-    backgroundColor,
     isContactAdded,
     handleFavortie,
     handleSettings,
   }) => {
     return (
-      <CustomSettingsTopBar
-        customBackFunction={onBack}
-        containerStyles={{ marginBottom: 15 }}
-        rightContent={
-          <>
-            {selectedContact && isContactAdded && (
-              <TouchableOpacity
+      <TopBar
+        onBack={onBack}
+        right={
+          selectedContact &&
+          isContactAdded && (
+            <View style={styles.topBar}>
+              <IconButton
+                icon={'Star'}
+                label="contacts.expandedContactPage.favoriteLabel"
                 onPress={() => {
                   handleFavortie({ selectedContact });
                 }}
-              >
-                <ThemeIcon
-                  colorOverride={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                  fill={
-                    selectedContact.isFavorite
-                      ? theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary
-                      : backgroundColor
-                  }
-                  iconName={'Star'}
-                />
-              </TouchableOpacity>
-            )}
-            {selectedContact && isContactAdded && (
-              <TouchableOpacity
+                fill={selectedContact?.isFavorite}
+              />
+              <IconButton
                 onPress={() => handleSettings({ selectedContact })}
-              >
-                <ThemeIcon iconName={'Settings'} />
-              </TouchableOpacity>
-            )}
-          </>
+                icon={'Pencil'}
+                label="contacts.expandedContactPage.editLabel"
+              />
+            </View>
+          )
         }
       />
     );
@@ -136,14 +95,13 @@ const MemoizedNavBar = memo(
 );
 
 export default function ExpandedAddContactsPage(props) {
-  const { decodedAddedContacts, globalContactsInformation, contactsMessags } =
-    useGlobalContacts();
+  const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { cache, refreshCacheObject } = useImageCache();
   const { handleFavortie, handleSettings } = useExpandedNavbar();
   const { bottomPadding } = useGlobalInsets();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   useEffect(() => {
     // make sure to refresh cache object so profile image shows
@@ -163,13 +121,6 @@ export default function ExpandedAddContactsPage(props) {
     );
   }, [decodedAddedContacts, newContact]);
 
-  const isSelf = useMemo(() => {
-    return (
-      newContact.uniqueName?.toLowerCase() ===
-      globalContactsInformation?.myProfile?.uniqueName?.toLowerCase()
-    );
-  }, [newContact.uniqueName, globalContactsInformation?.myProfile?.uniqueName]);
-
   const isContactAdded = !!selectedContact;
   const imageData = cache[newContact?.uuid];
   const contactTransactions = contactsMessags[newContact?.uuid]?.messages || [];
@@ -185,62 +136,55 @@ export default function ExpandedAddContactsPage(props) {
 
   return (
     <GlobalThemeView styles={themeBottomPadding} useStandardWidth={true}>
-      <MemoizedNavBar
-        theme={theme}
-        darkModeType={darkModeType}
-        onBack={handleBack}
-        selectedContact={selectedContact}
-        backgroundColor={backgroundColor}
-        isContactAdded={isContactAdded}
-        handleFavortie={handleFavortie}
-        handleSettings={handleSettings}
-      />
-
-      <CustomScrollView
-        contentContainerStyle={{
-          paddingBottom: isContactAdded ? bottomPadding : 0,
-          flexGrow: 1,
-        }}
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={isContactAdded && !!contactTransactions.length}
-      >
-        <SharedHeader
-          selectedContact={newContact}
-          imageData={imageData}
-          theme={theme}
-          darkModeType={darkModeType}
-          backgroundOffset={backgroundOffset}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <MemoizedNavBar
+          onBack={handleBack}
+          selectedContact={selectedContact}
           isContactAdded={isContactAdded}
-          isEditingMyProfile={isSelf}
-          navigate={navigate}
+          handleFavortie={handleFavortie}
+          handleSettings={handleSettings}
         />
-
-        {isContactAdded ? (
-          <ExpandedContactsPage
-            uuid={selectedContact.uuid}
-            hideProfileImage={true}
+        <CustomScrollView
+          contentContainerStyle={{
+            paddingBottom: isContactAdded ? bottomPadding : 0,
+            flexGrow: 1,
+          }}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={isContactAdded && !!contactTransactions.length}
+        >
+          <SharedHeader
+            selectedContact={newContact}
+            imageData={imageData}
+            isContactAdded={isContactAdded}
           />
-        ) : (
-          <AddContactsPage selectedContact={newContact} />
-        )}
-      </CustomScrollView>
+
+          {isContactAdded ? (
+            <ExpandedContactsPage
+              uuid={selectedContact.uuid}
+              hideProfileImage={true}
+            />
+          ) : (
+            <AddContactsPage selectedContact={newContact} />
+          )}
+        </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
+  topBar: {
+    flexDirection: 'row',
+    gap: 10,
+  },
   profileImageContainer: {
     ...CENTER,
+    marginTop: 40,
   },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 125,
+  addedImageContainer: {
     ...CENTER,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginBottom: 10,
+    marginTop: 8,
   },
   selectFromPhotos: {
     width: 30,

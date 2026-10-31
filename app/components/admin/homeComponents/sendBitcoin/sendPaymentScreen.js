@@ -44,7 +44,6 @@ import ChooseLRC20TokenContainer from './components/chooseLRC20TokenContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -154,7 +153,8 @@ export default function SendPaymentScreen(props) {
 
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor, tokens } =
+    GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
 
   const didWarnAboutBudget = useRef(null);
@@ -1781,9 +1781,9 @@ export default function SendPaymentScreen(props) {
               <SliderProgressAnimation
                 ref={progressAnimationRef}
                 isVisible={showProgressAnimation || isUsingFastPay}
-                textColor={COLORS.darkModeText}
+                textColor={tokens.onAccent}
                 backgroundColor={
-                  theme && darkModeType ? backgroundOffset : COLORS.primary
+                  theme && darkModeType ? backgroundOffset : tokens.accent
                 }
                 width={0.95}
               />

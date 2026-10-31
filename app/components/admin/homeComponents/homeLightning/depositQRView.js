@@ -64,7 +64,7 @@ export default function DepositQRView({
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
   const { swapLimits, poolInfoRef } = useFlashnet();
@@ -485,8 +485,7 @@ export default function DepositQRView({
           style={[
             styles.divider,
             {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
+              backgroundColor: tokens.divider,
             },
           ]}
         />

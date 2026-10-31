@@ -7,8 +7,6 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
-  MAX_INDEX_FOR_POOLS_DERIVE,
-  STARTING_INDEX_FOR_POOLS_DERIVE,
 } from '../../../../../constants';
 import {
   HIDDEN_OPACITY,
@@ -16,9 +14,8 @@ import {
 } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import { derivePoolWallet } from '../../../../../functions/pools/derivePoolWallet';
+import { createPoolDocument } from '../poolCreationSharedLogic';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { v4 as uuidv4 } from 'uuid';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
@@ -60,50 +57,14 @@ export default function PoolDescriptionInput({
     try {
       setIsLoading(true);
 
-      const currentDerivedPoolIndex =
-        masterInfoObject.currentDerivedPoolIndex || 0;
-      const derivationIndex =
-        STARTING_INDEX_FOR_POOLS_DERIVE + currentDerivedPoolIndex;
-
-      // Hard cap: pool indices must stay below the savings space (200000).
-      // Using >= (not ===) so a corrupted counter can never slip past.
-      if (derivationIndex >= MAX_INDEX_FOR_POOLS_DERIVE) {
-        throw new Error('You have reached the maximum amount of pools');
-      }
-
-      const derivedWallet = await derivePoolWallet(
+      const poolDocument = await createPoolDocument({
+        masterInfoObject,
         accountMnemoinc,
-        derivationIndex,
-      );
-
-      const poolId = uuidv4();
-      const creatorProfile = globalContactsInformation?.myProfile || {};
-
-      const poolDocument = {
-        poolId,
-        creatorUUID: masterInfoObject.uuid,
-        creatorName: creatorProfile.name || creatorProfile.uniqueName || '',
-
-        poolTitle: poolTitle.trim(),
+        globalContactsInformation,
+        poolTitle,
         goalAmount,
-        currentAmount: 0,
-
-        status: 'active',
-
-        sparkAddress: derivedWallet.sparkAddress,
-        identityPubKey: derivedWallet.identityPubKeyHex,
-        derivationIndex,
-
-        poolDenomination: masterInfoObject.fiatCurrency,
-
-        createdAt: Date.now(),
-        closedAt: null,
-        transferTxId: null,
-
-        contributorCount: 0,
-        lastContributionAt: null,
-        topContributors: [],
-      };
+      });
+      const poolId = poolDocument.poolId;
 
       setIsLoading(false);
 
@@ -113,7 +74,7 @@ export default function PoolDescriptionInput({
         handleBackPressFunction(() => {
           navigate.replace('PoolsStack', {
             screen: 'PoolDetailScreen',
-            params: {poolId, pool: poolDocument, shouldSave: true},
+            params: { poolId, pool: poolDocument, shouldSave: true },
           });
         });
       } else {
@@ -127,7 +88,7 @@ export default function PoolDescriptionInput({
         // Navigate to PoolDetailScreen after closing overlay
         navigate.replace('PoolsStack', {
           screen: 'PoolDetailScreen',
-          params: {poolId, pool: poolDocument, shouldSave: true},
+          params: { poolId, pool: poolDocument, shouldSave: true },
         });
       }
     } catch (err) {

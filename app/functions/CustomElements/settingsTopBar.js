@@ -27,7 +27,7 @@ export default function CustomSettingsTopBar({
   centerContent,
 }) {
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const lastBackPressRef = useRef(0);
 
   const handleBackPress = useCallback(() => {
@@ -90,13 +90,9 @@ export default function CustomSettingsTopBar({
                   styles.badge,
                   {
                     backgroundColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                     borderColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
+                      theme && darkModeType ? tokens.ink : tokens.accent,
                   },
                 ]}
                 pointerEvents="none"
@@ -110,7 +106,7 @@ export default function CustomSettingsTopBar({
                       color:
                         theme && darkModeType
                           ? COLORS.lightModeText
-                          : COLORS.darkModeText,
+                          : tokens.onAccent,
                     },
                   ]}
                   content={badgeCount}

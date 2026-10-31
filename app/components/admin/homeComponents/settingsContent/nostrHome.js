@@ -1,125 +1,66 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { CENTER } from '../../../../constants';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-
-const SettingsSection = ({ children, style }) => (
-  <View style={[styles.section, style]}>{children}</View>
-);
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
 export default function NostrHome() {
   const navigate = useNavigation();
-  const { darkModeType, theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { t } = useTranslation();
 
-  return (
-    <CustomScrollView
-      showsVerticalScrollIndicator={false}
-      style={styles.innerContainer}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <SettingsSection>
-        <TouchableOpacity
-          onPress={() => navigate.navigate('Nip5VerificationPage')}
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          <View style={styles.settingsItem}>
-            <View style={styles.settingsItemText}>
-              <ThemeText
-                styles={styles.settingsItemLabel}
-                content={t('settings.nostrHome.nip5Title')}
-              />
-              <ThemeText
-                styles={styles.settingsItemDescription}
-                content={t('settings.nostrHome.nip5Desc')}
-              />
-            </View>
-            <ThemeIcon iconName="ChevronRight" />
-          </View>
-        </TouchableOpacity>
-      </SettingsSection>
+  // Rows show the saved address and connection count in place of the
+  // descriptions once there is something to show.
+  const nip5Name = masterInfoObject?.nip5Settings?.name;
+  const nwcCount = Object.keys(masterInfoObject?.NWC?.accounts || {}).length;
 
-      <SettingsSection style={styles.lastSection}>
-        <TouchableOpacity
+  return (
+    <View style={styles.innerContainer}>
+      <ListCard style={styles.card} dividerInset={68}>
+        <ListRow
+          onPress={() => navigate.navigate('Nip5VerificationPage')}
+          lead={<Disc icon={'AtSign'} size={40} />}
+          title={t('settings.nostrHome.nip5Title')}
+          sub={
+            nip5Name
+              ? `${nip5Name}@blitzwalletapp.com`
+              : t('settings.nostrHome.nip5Desc')
+          }
+          subLines={2}
+          minHeight={64}
+          titleStyle={styles.rowTitle}
+          showChevron={true}
+        />
+        <ListRow
           onPress={() => navigate.navigate('NosterWalletConnect')}
-          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
-        >
-          <View style={styles.settingsItem}>
-            <View style={styles.settingsItemText}>
-              <View style={styles.labelRow}>
-                <ThemeText
-                  styles={styles.settingsItemLabel}
-                  content={t('settings.nostrHome.nwcTitle')}
-                />
-              </View>
-              <ThemeText
-                styles={styles.settingsItemDescription}
-                content={t('settings.nostrHome.nwcDesc')}
-              />
-            </View>
-            <ThemeIcon iconName="ChevronRight" />
-          </View>
-        </TouchableOpacity>
-      </SettingsSection>
-    </CustomScrollView>
+          lead={<Disc icon={'Plug'} size={40} />}
+          title={t('settings.nostrHome.nwcTitle')}
+          sub={
+            nwcCount
+              ? t('settings.nostrHome.nwcCount', { count: nwcCount })
+              : t('settings.nostrHome.nwcDesc')
+          }
+          subLines={2}
+          minHeight={64}
+          titleStyle={styles.rowTitle}
+          showChevron={true}
+        />
+      </ListCard>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  scrollContent: {
-    paddingTop: 24,
-    paddingBottom: 40,
-  },
-  section: {
-    marginBottom: 8,
-    width: '100%',
-  },
-  lastSection: {
-    marginBottom: 0,
-  },
-  sectionContent: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 16,
-  },
-  settingsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemText: {
     flex: 1,
-    flexShrink: 1,
-    marginRight: 8,
   },
-  settingsItemLabel: {
-    includeFontPadding: false,
+  card: {
+    marginTop: 20,
   },
-  settingsItemDescription: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-    marginTop: 4,
-  },
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexShrink: 1,
-  },
-  experimentalBadge: {
-    fontSize: SIZES.small,
-    marginLeft: 5,
-    includeFontPadding: false,
-    flexShrink: 1,
+  rowTitle: {
+    fontSize: 15,
+    lineHeight: 21,
   },
 });

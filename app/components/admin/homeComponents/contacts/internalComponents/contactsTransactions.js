@@ -1,11 +1,9 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { CENTER, COLORS, FONT, SIZES } from '../../../../../constants';
+import { View, StyleSheet } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { ThemeText } from '../../../../../functions/CustomElements';
 import { getDataFromCollection, updateMessage } from '../../../../../../db';
 import { sendPushNotification } from '../../../../../functions/messaging/publishMessage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -21,28 +19,34 @@ import { getTransactionContent } from '../contactsPageComponents/transactionText
 import { PARENT_ACCOUNT_TRANSFER_MARKER } from '../../../../../functions/messaging/parentAccountTransferMessage';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { formatBalanceAmount } from '../../../../../functions';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
+
+// An unpaid request from the contact that is waiting on me. Same condition the
+// old render used for "not a completed transaction".
+export const isAwaitingMyPayment = message =>
+  !!message &&
+  !message.didSend &&
+  !!message.isRequest &&
+  message.isRedeemed == null;
 
 const ConfirmedOrSentTransaction = React.memo(
   ({
     txParsed,
     paymentDescription,
-    timeDifferenceMinutes,
-    timeDifferenceHours,
-    timeDifferenceDays,
-    timeDifferenceYears,
+    timestamp,
+    timeDisplay,
     navigate,
     masterInfoObject,
     isPendingRequest,
+    contactName,
+    onPress,
   }) => {
     const { t } = useTranslation();
+    const { tokens, backgroundOffset } = GetThemeColors();
     const { theme, darkModeType } = useGlobalThemeContext();
-    const { textColor, backgroundOffset } = GetThemeColors();
 
     const didDeclinePayment =
       txParsed.isRedeemed != null && !txParsed.isRedeemed;
@@ -66,41 +70,35 @@ const ConfirmedOrSentTransaction = React.memo(
       txParsed.isDeposit,
     ]);
 
-    const timeDisplay = useMemo(
-      () =>
-        getTimeDisplay(
-          timeDifferenceMinutes,
-          timeDifferenceHours,
-          timeDifferenceDays,
-          timeDifferenceYears,
-        ),
-      [
-        timeDifferenceMinutes,
-        timeDifferenceHours,
-        timeDifferenceDays,
-        timeDifferenceYears,
-      ],
-    );
+    // The description moves to the sub line; plain payments read "X sent you" /
+    // "You paid X", requests and transfers keep their existing labels.
+    const title = useMemo(() => {
+      const isTransfer =
+        txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER] &&
+        typeof txParsed.isDeposit === 'boolean';
+      if (!isTransfer && !txParsed.isRequest) {
+        return t(
+          txParsed.didSend
+            ? 'contacts.internalComponents.contactsTransactions.youPaid'
+            : 'contacts.internalComponents.contactsTransactions.theySentYou',
+          { name: contactName },
+        );
+      }
+      return getTransactionContent({
+        paymentDescription: '',
+        didDeclinePayment,
+        txParsed,
+        t,
+      });
+    }, [didDeclinePayment, txParsed, t, contactName]);
 
-    const transactionContent = useMemo(
+    const timeText = useMemo(
       () =>
-        getTransactionContent({
-          paymentDescription,
-          didDeclinePayment,
-          txParsed,
-          t,
+        new Date(timestamp).toLocaleTimeString(undefined, {
+          hour: 'numeric',
+          minute: '2-digit',
         }),
-      [paymentDescription, didDeclinePayment, txParsed, t],
-    );
-
-    const textColorValue = useMemo(
-      () =>
-        didDeclinePayment
-          ? theme && darkModeType
-            ? textColor
-            : COLORS.cancelRed
-          : textColor,
-      [didDeclinePayment, theme, darkModeType, textColor],
+      [timestamp],
     );
 
     const balanceValue = useMemo(
@@ -134,71 +132,53 @@ const ConfirmedOrSentTransaction = React.memo(
     }
 
     return (
-      <View style={[styles.transactionContainer, styles.centerAlign]}>
-        <ThemeIcon
-          colorOverride={
-            didDeclinePayment
-              ? theme && darkModeType
-                ? COLORS.darkModeText
-                : COLORS.cancelRed
-              : undefined
-          }
-          styles={styles.icons}
-          iconName={
-            didDeclinePayment
-              ? 'CircleX'
-              : isPendingRequest
-              ? 'Clock'
-              : isOutgoingPayment
-              ? 'ArrowUp'
-              : 'ArrowDown'
-          }
-        />
-
-        <View style={styles.contentContainer}>
-          <ThemeText
-            CustomEllipsizeMode="tail"
-            CustomNumberOfLines={1}
-            styles={{
-              ...styles.descriptionText,
-              color: textColorValue,
-              marginRight: 15,
-              marginBottom: 2,
-              includeFontPadding: false,
-            }}
-            content={transactionContent}
+      <ListRow
+        onPress={onPress}
+        minHeight={64}
+        titleStyle={styles.title}
+        titleLines={2}
+        subLines={2}
+        lead={
+          <Disc
+            size={40}
+            tone={didDeclinePayment ? 'danger' : 'default'}
+            icon={
+              didDeclinePayment
+                ? 'CircleX'
+                : isPendingRequest
+                ? 'Clock'
+                : isOutgoingPayment
+                ? 'ArrowUp'
+                : 'ArrowDown'
+            }
           />
-          <ThemeText
+        }
+        title={title}
+        sub={[paymentDescription, timeText].filter(Boolean).join(' · ')}
+        trailing={
+          <FormattedSatText
+            frontText={
+              didDeclinePayment ||
+              masterInfoObject.userBalanceDenomination === 'hidden'
+                ? ''
+                : isOutgoingPayment
+                ? '-'
+                : '+'
+            }
             styles={{
-              ...styles.dateText,
-              color: textColorValue,
-              includeFontPadding: false,
+              ...styles.amount,
+              ...(didDeclinePayment && { color: tokens.danger }),
             }}
-            content={timeDisplay}
+            balance={balanceValue}
+            useMillionDenomination
+            useBalance={txParsed?.paymentDenomination === 'USD'}
+            useCustomLabel={txParsed?.paymentDenomination === 'USD'}
+            customLabel={
+              txParsed?.paymentDenomination === 'USD' ? 'USDB' : null
+            }
           />
-        </View>
-
-        <FormattedSatText
-          frontText={
-            didDeclinePayment ||
-            masterInfoObject.userBalanceDenomination === 'hidden'
-              ? ''
-              : isOutgoingPayment
-              ? '-'
-              : '+'
-          }
-          styles={{
-            ...styles.amountText,
-            color: textColorValue,
-            includeFontPadding: false,
-          }}
-          balance={balanceValue}
-          useMillionDenomination
-          useBalance={txParsed?.paymentDenomination === 'USD'}
-          useCustomLabel={txParsed?.paymentDenomination === 'USD'}
-          customLabel={txParsed?.paymentDenomination === 'USD' ? 'USDB' : null}
-        />
-      </View>
+        }
+      />
     );
   },
 );
@@ -213,8 +193,7 @@ export default function ContactsTransactionItem(props) {
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const navigate = useNavigation();
   const getServerTime = useServerTimeOnly();
   const { globalContactsInformation } = useGlobalContactsInfo();
@@ -481,150 +460,106 @@ export default function ContactsTransactionItem(props) {
     if (paymentDescription) {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'expandedContactMessage',
-        sliderHight: 0.3,
+        sliderHight: 0.4,
         message: paymentDescription,
+        selectedContact,
+        txParsed,
+        amount: requestAmount,
+        timestamp: transaction.timestamp,
       });
     }
-  }, [paymentDescription, navigate, txParsed]);
-
-  const buttonStyle = useMemo(
-    () => ({
-      ...styles.acceptOrPayBTN,
-      backgroundColor: theme ? textColor : COLORS.primary,
-    }),
-    [theme, textColor],
-  );
-
-  const declineButtonStyle = useMemo(
-    () => ({
-      ...styles.acceptOrPayBTN,
-      borderWidth: 1,
-      borderColor: theme ? textColor : COLORS.primary,
-      backgroundColor: 'transparent',
-    }),
-    [theme, textColor],
-  );
+  }, [
+    paymentDescription,
+    navigate,
+    txParsed,
+    selectedContact,
+    requestAmount,
+    transaction.timestamp,
+  ]);
 
   if (!txParsed) return null;
 
+  const contactName = selectedContact.name || selectedContact.uniqueName;
+
+  if (isCompletedTransaction) {
+    return (
+      <ConfirmedOrSentTransaction
+        txParsed={txParsed}
+        paymentDescription={paymentDescription}
+        timestamp={transaction.timestamp}
+        timeDisplay={timeDisplay}
+        navigate={navigate}
+        masterInfoObject={masterInfoObject}
+        isPendingRequest={isPendingRequest}
+        contactName={contactName}
+        onPress={
+          paymentDescription && !txParsed?.[PARENT_ACCOUNT_TRANSFER_MARKER]
+            ? handlePress
+            : undefined
+        }
+      />
+    );
+  }
+
+  const payText = t('constants.pay');
+  const declineText = t('constants.decline');
+
   return (
-    <TouchableOpacity onPress={handlePress} key={props.id} activeOpacity={1}>
-      {isCompletedTransaction ? (
-        <ConfirmedOrSentTransaction
-          txParsed={txParsed}
-          paymentDescription={paymentDescription}
-          {...timeCalculations}
-          navigate={navigate}
-          masterInfoObject={masterInfoObject}
-          isPendingRequest={isPendingRequest}
-        />
-      ) : (
-        <View style={styles.transactionContainer}>
-          <ThemeIcon
-            styles={styles.icons}
-            iconName={isPendingRequest ? 'Clock' : 'ArrowDown'}
-          />
-
-          <View style={styles.contentContainer}>
-            <ThemeText
-              styles={{ includeFontPadding: false }}
-              content={t(
-                'contacts.internalComponents.contactsTransactions.requestTitle',
-                {
-                  amount: requestAmount,
-                },
-              )}
-            />
-            <ThemeText
-              styles={{
-                ...styles.dateText,
-                marginBottom: paymentDescription ? 0 : 15,
-              }}
-              content={timeDisplay}
-            />
-
-            {paymentDescription && (
-              <ThemeText
-                CustomEllipsizeMode="tail"
-                CustomNumberOfLines={2}
-                styles={{
-                  ...styles.descriptionText,
-                  marginBottom: 10,
-                }}
-                content={paymentDescription}
-              />
-            )}
-
-            <CustomButton
-              useLoading={isLoading.sendBTN}
-              loadingColor={backgroundColor}
-              actionFunction={() =>
-                acceptPayRequest(transaction, selectedContact)
-              }
-              buttonStyles={{ ...buttonStyle, marginBottom: 10 }}
-              textStyles={{ color: backgroundColor, includeFontPadding: false }}
-              textContent={t(
-                'contacts.internalComponents.contactsTransactions.send',
-              )}
-            />
-
+    <View style={styles.waitingItem}>
+      <ListRow
+        onPress={paymentDescription ? handlePress : undefined}
+        minHeight={40}
+        paddingVertical={0}
+        titleStyle={styles.title}
+        titleLines={2}
+        subLines={2}
+        lead={<Disc icon="ArrowDown" size={40} />}
+        title={t(
+          'contacts.internalComponents.contactsTransactions.requestedAmount',
+          { name: contactName, amount: requestAmount },
+        )}
+        sub={[paymentDescription, timeDisplay].filter(Boolean).join(' · ')}
+      />
+      <AdaptiveButtonRow
+        pill
+        labels={[declineText, payText]}
+        containerStyle={styles.waitingButtons}
+      >
+        {({ buttonStyle }) => (
+          <>
             <CustomButton
               useLoading={isLoading.declineBTN}
-              loadingColor={theme ? textColor : COLORS.primary}
+              loadingColor={tokens.ink}
               actionFunction={() =>
                 updatePaymentStatus(transaction, true, false)
               }
-              buttonStyles={declineButtonStyle}
-              textStyles={{
-                color: theme ? textColor : COLORS.primary,
-                includeFontPadding: false,
-              }}
-              textContent={t('constants.decline')}
+              buttonStyles={[buttonStyle, { backgroundColor: tokens.ground }]}
+              enableElipsis={false}
+              textContent={declineText}
+              size={'compact'}
+              tone={'secondary'}
             />
-          </View>
-        </View>
-      )}
-    </TouchableOpacity>
+            <CustomButton
+              useLoading={isLoading.sendBTN}
+              loadingColor={tokens.onAccent}
+              actionFunction={() =>
+                acceptPayRequest(transaction, selectedContact)
+              }
+              buttonStyles={buttonStyle}
+              enableElipsis={false}
+              textContent={payText}
+              size={'compact'}
+            />
+          </>
+        )}
+      </AdaptiveButtonRow>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  transactionContainer: {
-    width: INSET_WINDOW_WIDTH,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 12.5,
-    ...CENTER,
-  },
-  centerAlign: {
-    alignItems: 'center',
-  },
-  contentContainer: {
-    width: '100%',
-    flex: 1,
-  },
-  icons: {
-    width: 30,
-    height: 30,
-    marginRight: 5,
-  },
-  descriptionText: {
-    fontSize: SIZES.medium,
-  },
-  dateText: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-  },
-  amountText: {
-    fontWeight: '400',
-  },
-  amountContainer: {
-    marginBottom: 'auto',
-  },
-  acceptOrPayBTN: {
-    width: '100%',
-    overflow: 'hidden',
-    borderRadius: 15,
-    alignItems: 'center',
-  },
+  title: { fontSize: 15, lineHeight: 21 },
+  amount: { fontSize: 15, includeFontPadding: false },
+  waitingItem: { paddingVertical: 16 },
+  waitingButtons: { width: '100%', marginTop: 14 },
 });

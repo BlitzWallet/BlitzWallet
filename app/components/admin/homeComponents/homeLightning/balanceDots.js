@@ -3,7 +3,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
 } from 'react-native-reanimated';
-import { COLORS } from '../../../../constants';
+import { useTheme } from '../../../../../context-store/theme';
 
 const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
   const animatedStyle = useAnimatedStyle(() => {
@@ -32,6 +32,7 @@ const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
 
     return { opacity, width, borderRadius };
   });
+  const { tokens } = useTheme();
 
   return (
     <Animated.View
@@ -39,8 +40,7 @@ const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
         styles.dot,
         animatedStyle,
         {
-          backgroundColor:
-            theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+          backgroundColor: theme && darkModeType ? tokens.ink : tokens.accent,
         },
       ]}
     />

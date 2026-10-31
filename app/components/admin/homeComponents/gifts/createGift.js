@@ -1,27 +1,20 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { GlobalThemeView } from '../../../../functions/CustomElements';
 import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useNavigation } from '@react-navigation/native';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import {
   convertToDecimals,
@@ -29,19 +22,25 @@ import {
 } from '../../../../functions/spark/swapAmountUtils';
 import {
   getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
   resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
 
 export default function CreateGift(props) {
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { t } = useTranslation();
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const [amountValue, setAmountValue] = useState('');
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const determinePaymentMethod =
     props.route?.params?.selectedPaymentMethod || 'BTC';
   const usdFiatStats = useMemo(
@@ -64,6 +63,9 @@ export default function CreateGift(props) {
       usdFiatStats,
       masterInfoObject,
     });
+
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
   const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
     useCurrencyDisplay({
@@ -102,74 +104,75 @@ export default function CreateGift(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('screens.inAccount.giftPages.createGift.header')}
-        rightContent={
-          <CurrencySwitchButton
-            displayCurrency={displayCurrency}
-            onPress={openPicker}
-            disabled={isLoadingRate}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('screens.inAccount.giftPages.createGift.header')}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
+          }
+        />
+
+        <View style={styles.amountContainer}>
+          {/* AmountHero formats sats, so pass the converted amount (as in
+              createNWCAmount), not the typed fiat string. */}
+          <AmountHero
+            amount={localSatAmount}
+            fiatStats={conversionFiatStats}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: primaryDisplay.denomination,
+              fiatCurrency:
+                primaryDisplay.forceCurrency ||
+                masterInfoObject?.fiatCurrency ||
+                'USD',
+              satDisplay: isSats ? 'text' : 'symbol',
+            }}
           />
-        }
-      />
-      <View style={{ width: INSET_WINDOW_WIDTH, ...CENTER }}>
-        <ThemeText
-          styles={styles.title}
-          content={t('screens.inAccount.giftPages.createGift.amountPageHeader')}
+        </View>
+
+        <PaymentMethod
+          determinePaymentMethod={determinePaymentMethod}
+          handleSelectPaymentMethod={handleSelectPaymentMethod}
+          bitcoinBalance={bitcoinBalance}
+          dollarBalanceToken={dollarBalanceToken}
+          masterInfoObject={masterInfoObject}
+          fiatStats={fiatStats}
+          t={t}
+          containerStyles={styles.selectContainer}
         />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('screens.inAccount.giftPages.createGift.amountPageDesc')}
+
+        <CustomNumberKeyboard
+          showDot={primaryDisplay.denomination === 'fiat'}
+          setInputValue={setAmountValue}
+          usingForBalance={true}
+          fiatStats={conversionFiatStats}
+          redesign
+        />
+
+        <CustomButton
+          disabled={localSatAmount <= 0}
+          textContent={t('constants.continue')}
+          actionFunction={() => {
+            if (localSatAmount <= 0) return;
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'addGiftQuantity',
+              amount: localSatAmount,
+              dollarAmount: convertToDecimals(dollarAmount),
+              amountValue,
+              giftDenomination: determinePaymentMethod,
+            });
+          }}
+          size={'regular'}
+          buttonStyles={styles.button}
         />
       </View>
-
-      <View style={styles.container}>
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={amountValue}
-          inputDenomination={primaryDisplay.denomination}
-          forceCurrency={primaryDisplay.forceCurrency}
-          forceFiatStats={primaryDisplay.forceFiatStats}
-        />
-      </View>
-
-      <ChoosePaymentMethod
-        theme={theme}
-        darkModeType={darkModeType}
-        determinePaymentMethod={determinePaymentMethod}
-        handleSelectPaymentMethod={handleSelectPaymentMethod}
-        bitcoinBalance={bitcoinBalance}
-        dollarBalanceToken={dollarBalanceToken}
-        masterInfoObject={masterInfoObject}
-        fiatStats={fiatStats}
-        t={t}
-        hideBalance={true}
-      />
-
-      <CustomNumberKeyboard
-        showDot={primaryDisplay.denomination === 'fiat'}
-        setInputValue={setAmountValue}
-        usingForBalance={true}
-        fiatStats={conversionFiatStats}
-      />
-
-      <CustomButton
-        buttonStyles={[
-          styles.buttonContainer,
-          { opacity: localSatAmount <= 0 ? HIDDEN_OPACITY : 1 },
-        ]}
-        textContent={t('constants.continue')}
-        actionFunction={() => {
-          if (localSatAmount <= 0) return;
-          navigate.navigate('CustomHalfModal', {
-            wantedContent: 'addGiftQuantity',
-            amount: localSatAmount,
-            dollarAmount: convertToDecimals(dollarAmount),
-            amountValue,
-            giftDenomination: determinePaymentMethod,
-          });
-        }}
-      />
     </GlobalThemeView>
   );
 }
@@ -177,34 +180,13 @@ export default function CreateGift(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
+  amountContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    ...CENTER,
   },
-  sectionTitle: {
-    fontSize: SIZES.medium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-
-  buttonContainer: {
-    width: 'auto',
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
-  },
+  selectContainer: { marginBottom: CONTENT_KEYBOARD_OFFSET },
+  button: { marginTop: CONTENT_KEYBOARD_OFFSET },
 });

@@ -1,32 +1,29 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSequence,
   withDelay,
   Easing,
 } from 'react-native-reanimated';
 import Svg, { Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { CENTER, COLORS, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
-import {
-  FONT,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../constants/theme';
+import { FONT } from '../../constants/theme';
 import { useAppStatus } from '../../../context-store/appStatus';
 import useAdaptiveFontSize from '../../hooks/useAdaptiveFontSIze';
+import { useTheme } from '../../../context-store/theme';
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const BOX_STROKE = '#D8DCE3';
 
 // ─── Box-grid SVG background ──────────────────────────────────────────────────
 function BoxGrid({ W, H }) {
+  const { tokens } = useTheme();
   const BOX = 52;
   const GAP = 0;
   const STEP = BOX + GAP;
@@ -49,21 +46,9 @@ function BoxGrid({ W, H }) {
     >
       <Defs>
         <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-          <Stop
-            offset="0%"
-            stopColor={COLORS.lightModeBackground}
-            stopOpacity="0"
-          />
-          <Stop
-            offset="68%"
-            stopColor={COLORS.lightModeBackground}
-            stopOpacity="0"
-          />
-          <Stop
-            offset="100%"
-            stopColor={COLORS.lightModeBackground}
-            stopOpacity="1"
-          />
+          <Stop offset="0%" stopColor={tokens.ground} stopOpacity="0" />
+          <Stop offset="68%" stopColor={tokens.ground} stopOpacity="0" />
+          <Stop offset="100%" stopColor={tokens.ground} stopOpacity="1" />
         </LinearGradient>
       </Defs>
 
@@ -74,7 +59,7 @@ function BoxGrid({ W, H }) {
           y={b.y}
           width={BOX}
           height={BOX}
-          fill={COLORS.lightModeBackground}
+          fill={tokens.ground}
           stroke={BOX_STROKE}
           strokeWidth={1}
         />
@@ -92,6 +77,9 @@ const easeOut = Easing.out(Easing.cubic);
 export default function CreateAccountHome({ navigation: { navigate } }) {
   const { t } = useTranslation();
   const { screenDimensions } = useAppStatus();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   // Shared values
   const logoOpacity = useSharedValue(0);
@@ -151,7 +139,7 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
     <GlobalThemeView styles={{ maxWidth: 'unset' }}>
       <BoxGrid W={screenDimensions.width} H={screenDimensions.height} />
 
-      <View style={styles.container}>
+      <View style={[styles.container, { width: contentWidth }]}>
         {/* ── Headline ── */}
         <Animated.View style={[styles.heroWrap, headingStyle]}>
           <ThemeText
@@ -174,7 +162,7 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
             styles={[
               styles.headline,
               {
-                color: COLORS.primary,
+                color: tokens.accent,
                 fontSize,
                 marginVertical: headlineMargin,
               },
@@ -189,14 +177,18 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
         {/* ── CTAs ── */}
         <Animated.View style={[styles.ctaSection, btnsStyle]}>
           <CustomButton
-            buttonStyles={styles.primaryBtn}
-            textStyles={styles.primaryBtnText}
+            buttonStyles={[
+              styles.primaryBtn,
+              { backgroundColor: tokens.accent },
+            ]}
+            textStyles={[styles.primaryBtnText, { color: tokens.onAccent }]}
             textContent={t('createAccount.homePage.buttons.button2')}
             actionFunction={() => go('WalletSetupFork')}
+            size={'regular'}
           />
 
           <ThemeText
-            styles={styles.disclaimer}
+            styles={[styles.disclaimer, { color: tokens.muted }]}
             content={t('createAccount.homePage.subtitle')}
             isLight={true}
           />
@@ -210,8 +202,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    maxWidth: MAX_WEB_CONTENT_WIDTH,
     ...CENTER,
   },
   heroWrap: {
@@ -227,23 +217,21 @@ const styles = StyleSheet.create({
   spacer: { height: 0 },
   ctaSection: {
     width: '100%',
-    gap: 12,
+    gap: 16,
     alignItems: 'center',
   },
   primaryBtn: {
     width: '100%',
-    backgroundColor: COLORS.primary,
   },
   primaryBtnText: {
-    color: COLORS.white,
     letterSpacing: 0.1,
   },
   disclaimer: {
     fontSize: SIZES.xSmall,
-    opacity: HIDDEN_OPACITY,
+    lineHeight: 18,
+    letterSpacing: 0.6,
     textAlign: 'center',
     includeFontPadding: false,
-    marginTop: 8,
     textTransform: 'uppercase',
   },
 });

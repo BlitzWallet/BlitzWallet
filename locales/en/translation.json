@@ -15,6 +15,7 @@
     "total_balance": "Total Balance",
     "sat_balance": "Bitcoin Balance",
     "usd_balance": "Dollar Balance",
+    "amountAvailable": "{{amount}} available",
     "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
@@ -48,6 +49,8 @@
     "done": "Done",
     "continue": "Continue",
     "back": "Back",
+    "clear": "Clear",
+    "openInBrowser": "Open in browser",
     "close": "Close",
     "delete": "Delete",
     "add": "Add",
@@ -57,6 +60,8 @@
     "retry": "Retry",
     "download": "Download",
     "contactUs": "Contact us",
+    "copyEmail": "Copy email",
+    "openInbox": "Open inbox",
     "pay": "Pay",
     "processing": "Processing",
     "support": "Support",
@@ -134,7 +139,8 @@
     "stablecoinRefundReceived": "Stablecoin refund",
     "payWith": "Pay with",
     "receiveAs": "Receive as",
-    "tokens": "Tokens"
+    "tokens": "Tokens",
+    "emailSupport": "Email support"
   },
   "languages": {
     "english": "English",
@@ -142,7 +148,7 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française",
+    "french": "Français",
     "swedish": "Svenska",
     "russian": "Русский"
   },
@@ -222,7 +228,7 @@
       "subtitle": "Your wallet. Your money. Open-source.",
       "buttons": {
         "button1": "Restore Account",
-        "button2": "Get Started",
+        "button2": "Get started",
         "joinAccount": "Join shared wallet"
       }
     },
@@ -251,7 +257,7 @@
       "terms&Conditions": "Terms",
       "acceptSuffix": ".",
       "acceptError": "Please accept the Terms & Conditions to continue.",
-      "continueBTN": "Agree & Continue"
+      "continueBTN": "Agree & continue"
     },
     "verifyKeyPage": {
       "header": "Let's confirm your recovery phrase!"
@@ -260,8 +266,8 @@
       "generateKey": {
         "header": "This is your password to your money, if you lose it you lose your money!",
         "webHeader": "Back up your recovery phrase",
-        "webStorageWarning": "Your recovery phrase is the only way to restore your wallet. Browser data can be cleared or removed, which may erase your wallet from this device.",
-        "webSubHeader": "Keep your recovery phrase somewhere private. Do not save a screenshot or share them with anyone.",
+        "webStorageWarning": "Your recovery phrase is the only way to restore your wallet. Browser data can be cleared, which may erase your wallet from this device.",
+        "webSubHeader": "Keep it somewhere private. Don’t screenshot it or share it with anyone.",
         "subHeader": "Write it down with a pen and paper and keep it safe!",
         "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
         "errorText": "Error fetching recovery phrase",
@@ -277,13 +283,13 @@
         "wipeError": "Unable to clear this device's previous wallet data. Your PIN is saved, but please retry before continuing.",
         "wrongPinError": "Try again",
         "enterPinMessage": "Create PIN",
-        "confirmPin": "Confirm Pin",
+        "confirmPin": "Confirm PIN",
         "attemptsText": "{{number}} attempts left"
       },
       "password": {
-        "createHeader": "Create Password",
+        "createHeader": "Create a password",
         "createSubtitle": "Your password protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
-        "createButton": "Create Wallet",
+        "createButton": "Create wallet",
         "newPasswordPlaceholder": "Enter password",
         "confirmPasswordPlaceholder": "Confirm password",
         "mismatchError": "Passwords do not match",
@@ -294,7 +300,7 @@
         "hidePassword": "Hide password"
       },
       "passkey": {
-        "offerHeader": "Create Passkey",
+        "offerHeader": "Create a passkey",
         "offerSubtitle": "Your passkey protects access to your wallet. Your recovery phrase is what restores it, so save it somewhere safe. You can view it anytime in Settings.",
         "createButton": "Create a passkey",
         "usePassword": "Use a password instead",
@@ -342,7 +348,16 @@
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left",
-      "biometricsHeader": "Open with Biometrics"
+      "biometricsHeader": "Open with biometrics",
+      "goodMorning": "Good morning",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening",
+      "biometricsResetTitle": "We couldn’t verify your biometrics",
+      "removeWalletLabel": "Remove wallet from this device"
+    },
+    "resetSheet": {
+      "deleteWalletData": "Delete wallet data",
+      "message": "Do you want to delete all wallet data? Only continue if your recovery phrase is securely backed up."
     },
     "passwordPage": {
       "enterPasswordMessage": "Enter Password",
@@ -353,12 +368,15 @@
       "forgotPassword": "Forgot password?",
       "forgotPasswordConfirm": "Forgot your password? The only way to recover is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
       "storageError": "Unable to read wallet storage. Please try again.",
-      "loginButton": "Log In"
+      "forgotPasswordTitle": "Forgot your password?",
+      "forgotPasswordMessage": "The only way to recover is to reset and restore with your recovery phrase. Do you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
+      "loginButton": "Log in"
     },
     "passkeyPage": {
-      "unlockButton": "Open with Passkey",
+      "unlockButton": "Open with passkey",
       "unlockError": "Couldn't unlock with your passkey",
       "lostPasskey": "Lost your passkey?",
+      "lostPasskeyMessage": "The only way back in is to reset and restore with your recovery phrase. Do you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
       "lostPasskeyConfirm": "Lost your passkey? The only way back in is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up."
     }
   },
@@ -440,15 +458,16 @@
       }
     },
     "chatGPT": {
-      "newChat": "New Chat",
+      "newChat": "New chat",
+      "chats": "Chats",
       "loadingMessage": "Loading previous chats",
       "addCreditsPage": {
         "title": "Add Credits",
-        "unlockTitle": "Unlock AI.",
+        "unlockTitle": "Unlock AI",
         "bestValue": "Best Value",
         "feature1": "Access the latest AI models",
-        "feature2": "No subscriptions — pay as you go",
-        "feature3": "Private, fast powered payments",
+        "feature2": "No subscriptions, pay as you go",
+        "feature3": "Private, fast payments",
         "feature4": "Choose your plan size",
         "feature5": "Simple, one-time purchases",
         "description": "In order to use the latest generative AI models, you must purchase credits. Choose an option below to begin.",
@@ -467,12 +486,15 @@
       },
       "chatGPTHome": {
         "availableCredits": "Available credits: {{credits}}",
+        "creditsLeft": "{{credits}} credits left",
         "noAvailableCreditsError": "You have run out of credits.",
         "inputPlaceholder": "Message {{gptName}}",
         "youText": "You"
       },
       "confirmLeaveChat": {
-        "title": "Do you want to save your chat?"
+        "title": "Save this chat?",
+        "message": "Saved chats stay in your chat list so you can pick them up later.",
+        "dontSave": "Don’t save"
       },
       "confirmationPage": {
         "title": "Confirm Purchase",
@@ -480,19 +502,27 @@
         "price": "Price: ",
         "fee": "Fee: ",
         "chooseAmount": "Choose an amount",
+        "chooseAmountSub": "Credits for AI chat. One-time purchase.",
+        "custom": "Custom",
+        "buyCredits": "Buy AI credits",
+        "slideToPay": "Slide to pay",
+        "buying": "Buying {{amount}} of credits.",
+        "errorTitle": "Couldn’t buy credits",
         "minimumAmountError": "Minimum amount is {{amount}}",
         "maximumAmountError": "Maximum amount is {{amount}}",
         "confirmMessage": "You are about to purchase AI credits.",
-        "contributionWarning": "This payment is final. Payments cannot be refunded, even if the credits are not used."
+        "contributionWarning": "This payment is final. It can’t be refunded, even if the credits aren’t used."
       },
       "switchModel": {
         "inputLabel": "Input: {{amount}}/M",
         "outputLabel": "Output: {{amount}}/M",
-        "chooseModel": "Choose Model",
+        "chooseModel": "Choose model",
+        "searchPlaceholder": "Search models",
         "noModels": "No models match that name. Please check the spelling or try a different name."
       },
       "exampleSearchCards": {
         "title": "Example Search Cards",
+        "tryAsking": "Try asking",
         "examples": [
           {
             "topLine": "How do I start learning React Native?",
@@ -880,14 +910,19 @@
       "home": {
         "pageDescription": "Send and receive SMS messages without giving away your personal phone number.",
         "pricingError": "Unable to get SMS pricing",
-        "codeLabel": "Code"
+        "codeLabel": "Code",
+        "viewCode": "View code"
       },
       "confirmationSlideUp": {
-        "title": "Confirm number",
-        "price": "Price: ",
-        "fee": "Fee: ",
+        "title": "Text message to",
+        "price": "Price",
+        "fee": "Fee",
         "invalidNumber": "Not a valid phone number",
-        "receiveTitle": "Confirm Receive"
+        "receiveTitle": "A number for",
+        "country": "Country",
+        "refundNote": "No code in 21 minutes? You’re refunded automatically.",
+        "slideToPay": "Slide to pay",
+        "receivePlanType": "SMS receive code"
       },
       "sendPage": {
         "startingSendingMessage": "Creating send order",
@@ -903,60 +938,68 @@
         "runningTries": "Attempt {{runCount}} of {{maxTries}} attempts",
         "notAbleToSettleInvoice": "Unable to settle invoice.",
         "paymentMemo": "Store - SMS Send",
-        "confirmedMessage": "Your text message is on its way",
+        "confirmedMessage": "Your text is on its way",
         "noCountry": "You must choose a country first.",
         "countryStepTitle": "Choose a country",
-        "countryStepSubtitle": "Select the country code for the number you want to send an SMS to.",
+        "countryStepSubtitle": "Pick the country of the number you’re texting.",
         "countrySearchPlaceholder": "Search countries",
         "phoneStepTitle": "Enter the phone number",
-        "phoneStepSubtitle": "Enter the full number excluding the country code (e.g. 2025551234 for (202) 555-1234).",
+        "phoneStepSubtitle": "Without the country code.",
         "invalidMessageError": "Enter a message before continuing",
         "descriptionStepTitle": "Add your message",
-        "descriptionStepSubtitle": "SMS4Sats requires a message. Keep it short and under 140 characters.",
-        "descriptionInputPlaceholder": "Enter message"
+        "descriptionStepSubtitle": "To {{phone}}. Keep it under 140 characters.",
+        "descriptionInputPlaceholder": "Enter message",
+        "confirmedSubtitle": "To {{phone}} · {{amount}}"
       },
       "sentPayments": {
         "titlesend": "Sent Messages",
         "titlereceive": "Received Codes",
         "noPaymentssend": "You have not sent any messages",
         "noPaymentsreceive": "You have not received any codes",
-        "helpMessage": "For help, reach out to:",
+        "helpMessage": "For help, reach out to",
         "orderId": "Order ID",
         "pending": "Order pending",
         "refunded": "Order refunded",
         "retryClaim": "Get code",
         "fetchOrderError": "Failed to fetch order status",
         "failedUpdate": "Failed to update order status",
-        "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes",
-        "reclaimComplete": "Retry complete. If no code is generated, you will be auto-refunded after 21 minutes.",
-        "noCode": "No code",
+        "refundedOrder": "This order was refunded. The payment returns to your wallet automatically.",
+        "reclaimComplete": "No code yet. If none arrives in 21 minutes, you’re refunded automatically.",
+        "noCode": "No code yet",
         "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again.",
         "noPurchasesTitle": "You haven’t sent or received any SMS messages yet. Once you do, they’ll show up here."
       },
       "receivePage": {
         "paymentMemo": "Store - SMS Receive",
         "selectCountry": "Select Country",
-        "autoSelectInfoMessage": "We recommend keeping it on 'Auto Select' so the system picks the most reliable option.",
-        "autoSelect": "Auto Select",
+        "autoSelectInfoMessage": "Pick the country for your number. Auto select picks the most reliable option.",
+        "autoSelect": "Auto select",
         "inputPlaceholder": "Search for a service",
         "locationLoadingMessage": "Getting location-based services",
         "noAvailableServices": "This location has no services",
         "orderDetailsLoading": "Getting order details",
         "countryStepTitle": "Choose a country",
         "countrySearchPlaceholder": "Search countries",
-        "fetchServicesError": "Unable to load available SMS services"
+        "fetchServicesError": "Unable to load available SMS services",
+        "recommended": "Recommended",
+        "serviceStepTitle": "Which app is the code for?",
+        "serviceStepSubtitle": "You get a number to sign up with, and the code shows here."
       },
       "confirmCodePage": {
-        "header": "Your order has been successfully initiated",
-        "phoneNumberLabel": "Your Number:",
-        "step1": "Click the receipt icon in the top right to view your order history",
-        "step2": "Use the 'Get Code' button on the homepage to retrieve your verification code, after adding the number to the service",
-        "step3": "If no code is received, your payment will be automatically refunded in 21 minutes",
-        "automaticRefund": "No number was available for this service. Your funds have already been refunded.",
-        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes."
+        "header": "Your number is ready",
+        "phoneNumberLabel": "Your number",
+        "step1": "Enter this number in {{title}}.",
+        "step2": "Come back and tap Get code on SMS messages.",
+        "step3": "No code in 21 minutes? You’re refunded automatically.",
+        "automaticRefund": "No number was available for this service. Your payment returns to your wallet automatically.",
+        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes.",
+        "paidSubtitle": "{{title}} · paid {{amount}}",
+        "stillAllocating": "Your number isn’t ready yet. Check SMS messages in a minute. If no number is assigned, you’re refunded automatically."
       },
       "viewSMSReceiveCode": {
-        "header": "Your code"
+        "header": "Your code",
+        "headerFor": "Your {{title}} code",
+        "dontShare": "Don’t share this code with anyone."
       }
     },
     "onlineListings": {
@@ -1120,34 +1163,41 @@
     },
     "pools": {
       "receiveViaPool": "Receive via pool",
-      "createPool": "Create Pool",
-      "addDescription": "Add Description",
+      "createPool": "Create pool",
+      "addDescription": "Add description",
       "collectPaymentsDescription": "Set a goal, invite contributors, and track contributions.",
       "whatIsPoolFor": "What's this pool for?",
       "examplePlaceholder": "e.g. Trip to Miami",
       "creating": "Creating...",
-      "creatingPool": "Creating pool...",
-      "gettingBalance": "Getting pool balance...",
-      "preparingTransfer": "Preparing transfer...",
-      "connectingToPool": "Connecting to pool...",
+      "creatingPool": "Creating pool…",
+      "gettingBalance": "Getting pool balance",
+      "preparingTransfer": "Preparing transfer",
+      "connectingToPool": "Connecting to pool",
       "unableToConnect": "Unable to connect to the pool, please try again,",
       "unableToGetBalance": "Unable to get pool balance",
       "noFundsFound": "No funds found in this pool",
-      "closingPool": "Closing pool...",
-      "gettingAddress": "Getting your wallet address...",
+      "closingPool": "Closing pool",
+      "gettingAddress": "Getting your wallet address",
       "unableToGetAddress": "Unable to get your main wallet address",
-      "transferringFunds": "Transferring funds...",
+      "transferringFunds": "Transferring funds",
       "failedToTransfer": "Failed to transfer pool funds",
       "notFound": "Pool not found",
+      "unknown": "Unknown",
+      "maxPoolsReached": "You have reached the maximum amount of pools",
+      "swapSimulationFailed": "Swap simulation failed",
+      "paymentFailed": "Payment failed",
+      "blitzUser": "Blitz User",
+      "ofAmount": "of {{amount}}",
       "closePoolTitle": "Close this pool?",
-      "closePoolWarning": "All funds will be transferred to your main wallet. This pool will stop accepting payments and cannot be reopened.",
+      "closePoolWarning": "All {{amount}} moves to your main wallet. The pool stops taking payments and can’t be reopened.",
       "closePool": "Close pool",
       "goal": "Goal: ",
       "payment_one": "{{count}} payment",
       "payment_other": "{{count}} payments",
       "closed": "Closed ",
       "pool": "Pool",
-      "couldNotFind": "We couldn't find this pool.",
+      "couldNotFindTitle": "Pool not found",
+      "couldNotFindSub": "This pool may have been removed or is no longer available.",
       "createdBy": "By ",
       "moneyTransferred": "Money transferred to Main Wallet",
       "contribute": "Contribute",
@@ -1157,10 +1207,10 @@
       "noActivePools": "No active pools",
       "closedSection": "Closed",
       "noClosedPools": "No closed pools",
-      "sendingContribution": "Sending contribution...",
-      "contributionSent": "Contribution sent!",
+      "sendingContribution": "Sending contribution…",
+      "contributionSent": "Contribution sent",
       "contributeTo": "to ",
-      "contributionWarning": "This payment is final. Contributions cannot be refunded, even if the pool goal is not reached.",
+      "contributionWarning": "This payment is final. Contributions can’t be refunded, even if the pool doesn’t reach its goal.",
       "chooseContributionAmount": "Choose a contribution amount",
       "organizer": "Organizer",
       "contributorCount_one": "{{count}} person",
@@ -1170,9 +1220,10 @@
       "late_pool_contribution_label": "Late contribution to \"{{poolName}}\"",
       "activitySection": "Activity",
       "active": "Active",
-      "savingPoolError": "We were not able to create this pool. Please try again.",
+      "savingPoolErrorTitle": "Couldn't create pool",
+      "savingPoolErrorSub": "We were not able to create this pool. Please try again.",
       "info": {
-        "title": "About Pools",
+        "title": "About pools",
         "whatArePools": "What are pools?",
         "whatArePoolsBody": "Pools let you collect Bitcoin payments, and know who's contributed toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
         "howItWorks": "How it works",
@@ -1181,8 +1232,18 @@
         "howStep3": "• Contributors send Bitcoin directly to the pool",
         "howStep4": "• Close the pool when ready to move funds to your wallet"
       },
-      "noPoolsTitle": "No Created Pools",
-      "noPoolsSubTitle": "Once you create a pool, it’ll show up here as active or inactive."
+      "noPoolsTitle": "No pools yet",
+      "noPoolsSubTitle": "Once you create a pool, it’ll show up here as active or inactive.",
+      "viewActivityTitle": "Contributions",
+      "activityInfoHeader": "{{numPeople}} people paid {{contributionAmount}} toward {{totalAmount}}.",
+      "closePoolLoadingTitle": "Closing pool",
+      "closePoolLoadingSub": "Keep the app open until it finishes.",
+      "poolGoal": "Pool goal",
+      "other": "Other",
+      "available": "Available: {{amount}}",
+      "minimum": "Minimum: {{amount}}",
+      "slideToContribute": "Slide to contribute",
+      "sentTo": "To {{name}}"
     },
     "cameraModal": {
       "noCamera": "No access to camera",
@@ -1195,7 +1256,10 @@
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Only QR codes are accepted.",
       "qrDecodeError": "Error decoding QR code",
-      "scanHint": "Point your camera at the QR code"
+      "scanHint": "Point your camera at the QR code",
+      "chooseImage": "Choose image",
+      "pasteClipboard": "Paste from clipboard",
+      "flash": "Flash"
     },
     "confirmClipboard": {
       "clipboardContent": "Text Copied to Clipboard",
@@ -1337,7 +1401,27 @@
         "receive": "Receive",
         "scan": "Scan",
         "swap": "Swap",
-        "deposit": "Deposit"
+        "deposit": "Deposit",
+        "backupTitle": "Back up your wallet",
+        "backupSub": "Keep your recovery phrase safe",
+        "connectionTitle": "Can’t connect right now",
+        "connectionSub": "Showing your balance from {{time}}",
+        "tokensOne": "{{first}}",
+        "tokensTwo": "{{first}} and {{second}}",
+        "tokensMore": "{{first}}, {{second}} and {{count}} more"
+      },
+      "balancePage": {
+        "receiveBitcoin": "Receive Bitcoin",
+        "receiveDollars": "Receive Dollars",
+        "emptyBitcoin": "Bitcoin you send and receive will show here.",
+        "emptyDollars": "Dollars you send and receive will show here.",
+        "emptyTokens": "Tokens you send and receive will show here.",
+        "balances": "Balances",
+        "viewAllTokens": "View all {{count}} tokens",
+        "allTokens": "All tokens",
+        "searchTokens": "Search tokens",
+        "tokenOnSpark": "Token on Spark",
+        "ticker": "Ticker"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -1408,11 +1492,15 @@
       "unknownSender": "Unknown sender",
       "noContactSearch": "This contact isn't in your list yet.",
       "notFound": "not found.",
+      "favorites": "Favorites",
+      "allContacts": "All contacts",
+      "giftCards": "Gift cards",
+      "newRequest": "New request",
       "noContent": {
         "editProfileTitle": "Edit your profile",
         "editProfileDescription": "Add your details so others can easily find and pay you.",
-        "addContactstitle": "No Added Contacts",
-        "addContactsDescription": "Your contacts will appear here once you add one"
+        "addContactstitle": "No contacts yet",
+        "addContactsDescription": "Add the people you pay often. Search their username or scan their code."
       }
     },
     "addContactsHalfModal": {
@@ -1423,19 +1511,27 @@
       "noProfilesFound": "No profiles match this search",
       "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username.",
       "loadingMessage": "Looking up contact...",
-      "profileImage": "Loading profile photo..."
+      "profileImage": "Loading profile photo...",
+      "blitzUsers": "Blitz users",
+      "noProfilesHint": "Check the spelling, or search their Lightning address.",
+      "lightningAddress": "Lightning address",
+      "noName": "No name set",
+      "scanLabel": "Scan a contact QR code"
     },
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
       "requestLNURLError": "You can only request money from Blitz contacts, not Lightning addresses.",
-      "noTransactions": "Send or request a payment to see transaction history."
+      "noTransactions": "Send or request a payment to see transaction history.",
+      "waitingOnYou": "Waiting on you",
+      "favoriteLabel": "Favorite",
+      "editLabel": "Edit contact"
     },
     "expandedMessageHalfModal": {
       "title": "Full message",
       "noDescription": "No description"
     },
     "editMyProfilePage": {
-      "navTitle": "Edit Profile",
+      "navTitle": "Edit profile",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Enter your name",
       "addedContactnameInputPlaceholder": "Enter thier name",
@@ -1451,26 +1547,47 @@
       "unableToSaveError": "Unable to save profile image, please try again.",
       "deleteProfileImageError": "Unable to delete profile image, please try again.",
       "deleteWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored.",
+      "deleteContact": "Delete contact",
+      "deleteContactTitle": "Delete {{name}}?",
+      "deleteContactMessage": "Messages older than a week can't be brought back.",
       "receiveCurrencyPillTitle": "Receive Currency",
       "receiveCurrencyPillDesc": "Set how you receive via your Lightning address",
       "invalidCharactersError": "Name and bio cannot contain the characters < > { } ` \\",
       "invalidReceiveAddressError": "Please enter a valid Lightning address (e.g. user@domain.com)",
       "aboutYou": "About you",
-      "lightningAddress": "Lightning Address",
-      "addContactLightningAddress": "Lightning Address"
+      "lightningAddress": "Lightning address",
+      "addContactLightningAddress": "Lightning Address",
+      "share": "Share",
+      "tipPage": "Tips page",
+      "shareHint": "Both change when you change your username.",
+      "copyLightningAddress": "Copy Lightning address",
+      "copyTipPage": "Copy Tips page link",
+      "profilePhoto": "Profile photo",
+      "choosePhoto": "Choose a new photo",
+      "deletePhoto": "Delete photo",
+      "deletePhotoConfirm": "Delete your photo?",
+      "delete": "Delete"
     },
     "remotePaymentCurrencySelect": {
       "title": "Receive currency",
-      "description": "Choose how you receive payments from contacts and your Lightning Address.",
+      "description": "How payments from contacts and your Lightning address arrive.",
       "futurePaymentsMessage": "Receive as {{option}}",
-      "warningMessage": "When selecting {{option}}, there’s a {{amount}} minimum. Smaller payments will be received in Bitcoin.",
+      "arriveAsSats": "Payments arrive as sats",
+      "arriveAsDollars": "Payments arrive as dollars",
+      "warningMessage": "Payments under {{amount}} still arrive as Bitcoin.",
       "changeSelectionError": "{{option}} is already selected. Change your selection to update your setting."
     },
     "selectCurrencyToSend": {
       "header": "What do you want to send?"
     },
     "selectCurrencyToRequest": {
-      "header": "What do you want to request?"
+      "header": "What do you want to request?",
+      "paidInSats": "Paid in sats",
+      "paidInUsd": "Paid in USD"
+    },
+    "confirmRequestPage": {
+      "requestSent": "Request sent",
+      "toName": "To {{name}}"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Send Bitcoin",
@@ -1493,23 +1610,30 @@
       "giftMessagePlaceholder": "Write your gift message here...",
       "paymentSourceHeader": "Payment Source",
       "fiatRateLoading": "Loading currency rate",
-      "fiatRateLoadFailed": "Couldn't load the currency rate"
+      "fiatRateLoadFailed": "Couldn't load the currency rate",
+      "splitWithMore": "Split with more people",
+      "noteFor": "for",
+      "notePlaceholder": "dinner"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
       "loadingMessage": "Loading gift card information...",
       "valueHeader": "Gift Card Value",
       "redeemHeader": "How to Redeem",
-      "openClaimText": "Open Gift Card",
+      "openClaimText": "Open gift card",
       "instructionsHeader": "Redemption Instructions",
       "terms&conditions": "Terms & Conditions",
-      "cardUUID": "Card UUID",
+      "cardUUID": "Card ID",
       "helpHeader": "Need Help?",
-      "helpDesc": "If you need assistance with this gift card, copy the Card UUID above and include it in your email to our support team.",
+      "helpDesc": "Need help? Copy the card ID and include it in your email to support.",
       "unpaidMessage": "This card is unpaid. If payment was made but not reflected, please use the email below to get help.",
-      "messageLabel": "Message:",
+      "messageLabel": "Message",
       "claimed": "Used",
-      "markAsClaimed": "Mark as Used"
+      "markAsClaimed": "Mark as used",
+      "markAsUnclaimed": "Mark as not used",
+      "title": "Gift card",
+      "detailsHeader": "Details",
+      "cardFrom": "{{card}} · From {{name}}"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
@@ -1520,14 +1644,20 @@
         "acceptProfileMessage": "Paid {{name}}'s request",
         "acceptPayingContactMessage": "{{name}} paid your request",
         "requestTitle": "Received request for {{amount}}",
+        "requestedAmount": "{{name}} requested {{amount}}",
+        "theySentYou": "{{name}} sent you",
+        "youPaid": "You paid {{name}}",
         "send": "Send"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Gift Card",
         "noCardsText": "Your gift cards will appear here when a contact sends you one.",
-        "header": "Your Gift Cards",
+        "header": "Gift cards",
         "cardsLengthSingular": "{{num}} card",
-        "cardsLengthPlural": "{{num}} cards"
+        "cardsLengthPlural": "{{num}} cards",
+        "cardTitle": "{{store}} gift card",
+        "fromDate": "From {{name}} · {{date}}",
+        "recoveryNote": "You can recover a gift card for 7 days after it's sent. After that, deleting the app or clearing its data loses it."
       }
     },
     "showProfileQr": {
@@ -1537,17 +1667,22 @@
       "copyMessage": "Copied!",
       "lnurlCopy": "Copy Address",
       "blitzCopy": "Copy Link",
-      "scanProfile": "Scan Profile"
+      "scanProfile": "Scan profile",
+      "shareMessage": "Hi, add me on Blitz! {{address}}",
+      "copyAddress": "Copy your Lightning address",
+      "qrCode": "QR code",
+      "printHint": "Scan this code to pay me or add me on Blitz"
     },
     "splitBill": {
-      "addFriendsTitle": "Add Friends",
-      "createBillTitle": "Create",
+      "addFriendsTitle": "Add friends",
+      "createBillTitle": "Split",
       "selectedCount": "{{count}} of 10 selected",
       "searchPlaceholder": "Search contacts",
       "nextButton": "Next",
       "memoLabel": "Description",
       "memoPlaceholder": "What's this for?",
-      "totalAmountLabel": "Total Amount",
+      "totalAmountLabel": "Total amount",
+      "totalSub": "{{amount}} total",
       "evenSplit": "Even",
       "customSplit": "Custom",
       "remainderNote": "{{amount}} sat remainder stays with you",
@@ -1583,8 +1718,13 @@
   },
   "settings": {
     "index": {
-      "editProfile": "Edit Profile",
+      "editProfile": "Edit profile",
       "showQR": "Show QR",
+      "changePhoto": "Change photo",
+      "backup": "Backup",
+      "social": "Social",
+      "pointOfSale": "Point of sale",
+      "nostr": "Nostr",
       "identiconMessage": "This design is unique to your wallet and helps others confirm it’s really you when adding your contact.",
       "profileHead": "Profile",
       "settingsHead": "Settings",
@@ -1601,20 +1741,20 @@
       "poweredBySpark": "Spark",
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
-      "sparkHeader": "Good to Know",
+      "sparkHeader": "Good to know",
       "sparkDescription": "Blitz is powered by the Spark protocol. Spark is an off-chain protocol where Spark Operators update the state of Bitcoin ownership off-chain, allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
-      "learnMore": "Learn More",
+      "learnMore": "Learn more",
       "creatorHeader": "Creator",
       "uiUxHeader": "UX / UI",
       "olliRole": "Engineering",
       "versionLabel": "Version",
-      "bundleVerified": "Bundle Verified",
-      "bundleUnverified": "Bundle Unverified",
-      "showTechnicals": "Show Technical Details",
-      "hideTechnicals": "Hide Technical Details",
-      "backendHash": "Backend Signature",
-      "expectedHash": "Expected Signature",
-      "exchangeRatesHeader": "Exchange Rates",
+      "bundleVerified": "Bundle verified",
+      "bundleUnverified": "Bundle unverified",
+      "showTechnicals": "Show technical details",
+      "hideTechnicals": "Hide technical details",
+      "backendHash": "Backend signature",
+      "expectedHash": "Expected signature",
+      "exchangeRatesHeader": "Exchange rates",
       "exchangeRatesDescription": "Bitcoin/fiat exchange rates are retrieved from third-party APIs. Rates may not be perfectly accurate, always verify the Bitcoin amount before sending a payment.",
       "exchangeRatesSourcesLabel": "Data sources",
       "exchangeRateCoinbase": "Coinbase",
@@ -1631,10 +1771,10 @@
       "light": "Light",
       "lightsOut": "Lights out",
       "dim": "Dim",
-      "balDisplay": "Balance Display",
+      "balDisplay": "Balance",
       "prev": "Preview",
-      "denomination": "Denomination",
-      "displayForm": "Display Format",
+      "denomination": "Show balance as",
+      "displayForm": "Bitcoin format",
       "homepage": "Homepage",
       "txToDisplay": "Transactions to Display",
       "hideSmallPayments": "Hide Small Payments",
@@ -1645,11 +1785,11 @@
       "transactionsLabel_30": "30 Transactions",
       "transactionsLabel_35": "35 Transactions",
       "transactionsLabel_40": "40 Transactions",
-      "privFeat": "Privacy & Features",
+      "privFeat": "Privacy",
       "cameraSwipe": "Swipe for camera",
       "cameraSwipeDesc": "Swipe right on any main screen to open the camera.",
-      "unkownSenders": "Hide Unknown Senders",
-      "unknownSenderDesc": "Hide transactions from unknown contacts",
+      "unkownSenders": "Hide unknown senders",
+      "unknownSenderDesc": "Hide transactions from people who aren’t your contacts",
       "text1": "Dark Mode Style",
       "text2": "Lights out",
       "text3": "Dim",
@@ -1670,24 +1810,26 @@
       "text15": "Hide Unknown Senders",
       "sparkTitle": "BTKN Spark Tokens",
       "sliderTitle_enabled": "Show BTKN tokens",
-      "thousandsSeperator": "Thousands Separator",
+      "thousandsSeperator": "Thousands separator",
       "space": "Space",
-      "local": "Local Number Format"
+      "local": "Local"
     },
     "fastPay": {
       "text1": "Error adding input value. Please try again.",
       "text2": "Amount cannot be 0",
       "text3": "Enable Fast Pay",
-      "text4": "Fast pay threshold",
-      "text5": "Fast pay allows you to instantly send payments below a specified threshold without needing to swipe for confirmation.",
+      "text4": "Fast Pay threshold",
+      "text5": "Fast Pay sends payments under this amount straight away, without the slide to confirm.",
       "text6": "Current",
-      "text7": "New"
+      "text7": "New",
+      "editThresholdA11y": "Edit threshold"
     },
     "loginSecurity": {
-      "text1": "Enable Login Security",
-      "text2": "Security Type",
-      "text3": "Pin",
-      "text4": "Biometric",
+      "text1": "Enable login security",
+      "text2": "Unlock with",
+      "text3": "PIN",
+      "text4": "Biometrics",
+      "passwordMethod": "Password",
       "text5": "Device does not have a Biometric profile. Create one in Settings to continue.",
       "text6": "Error logging in with Biometrics",
       "text7": "Device does not support Biometric login",
@@ -1699,10 +1841,11 @@
       "migratingStorageMessage": "Migrating storage to new security.",
       "createPinPageHeader": "{{type}} your Blitz PIN",
       "invalidPinconfirmation": "PINs do not match. Try again!",
-      "randomPinKeyboardToggle": "Shuffle Keypad",
+      "randomPinKeyboardToggle": "Shuffle keypad",
+      "randomPinKeyboardSubtitle": "Change the order of the PIN numbers each time you unlock.",
       "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
       "biometricsHead": "About biometrics",
-      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet.",
+      "biometricsSubHead": "Your recovery phrase is protected by this phone’s biometrics. If you change them, Blitz can no longer reach your phrase and you’ll be locked out of your wallet.",
       "changePasswordTitle": "Change Password",
       "currentPasswordSubtitle": "Enter your current password to change it.",
       "currentPasswordPlaceholder": "Current password",
@@ -1726,28 +1869,29 @@
       "switchedToPassword": "Switched to password"
     },
     "seedPhrase": {
-      "header": "Keep this recovery phrase in a secure and safe place",
-      "headerDesc": "Do not share it with anyone!",
+      "header": "Keep this phrase somewhere safe",
+      "headerDesc": "Don’t share it with anyone.",
       "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
       "wordsText": "Words",
-      "qrText": "QR Code",
+      "qrText": "QR code",
       "showSeedWarning": "Are you sure you want to show your recovery phrase?",
       "warning": {
         "title_accounts": "Keep Your Recovery Phrase Secret",
         "point1_accounts": "Your secret recovery phrase is like a master key to your wallet.",
         "point2_accounts": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
         "point3_accounts": "Never share it with anyone—no person, website, or app.",
-        "title_settings": "Keep Your Recovery Phrase Secret",
-        "point1_settings": "Your secret recovery phrase is like a master key to your wallet.",
-        "point2_settings": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
-        "point3_settings": "Never share it with anyone—no person, website, or app.",
-        "checkbox": "I understand that sharing my recovery phrase could result in permanent loss of funds.",
+        "title_settings": "Keep your recovery phrase secret",
+        "point1_settings": "Your recovery phrase is the master key to your wallet.",
+        "point2_settings": "Anyone who gets it can take your money, and lost funds can’t be recovered.",
+        "point3_settings": "Never share it with anyone: no person, website or app.",
+        "checkbox": "I understand that sharing my recovery phrase could mean losing my funds for good.",
         "continueButton": "Continue"
       }
     },
     "crashReporting": {
       "crashreporting_enabled": "Enabled crash reporting",
       "crashreporting_disabled": "Disabled crash reporting",
+      "switchLabel": "Crash reporting",
       "descriptionText": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
     },
     "accounts": {
@@ -1837,9 +1981,9 @@
         "title": "Share",
         "usernameTitle": "Share your username",
         "usernameSubtitle": "Have them open Blitz on their phone and choose \"Join managed wallet\".",
-        "generateCode": "Generate Code",
+        "generateCode": "Generate code",
         "usernameLabel": "Your username: {{name}}",
-        "codeNavTitle": "Share Code",
+        "codeNavTitle": "Share code",
         "codeTitle": "Share this pairing code",
         "codeSubtitle": "Share this code so they can join your shared wallet.",
         "waiting": "Waiting for them to enter the code…",
@@ -1875,7 +2019,7 @@
       },
       "transactions": {
         "title": "Activity",
-        "noTxHistorySub": "The accounts transactions will appear here once they send or receive one."
+        "noTxHistorySub": "{{name}}’s payments will show here once they send or receive one."
       },
       "page": {
         "title": "Children account",
@@ -1900,10 +2044,10 @@
           "row3Description": "Only join a wallet from someone you know.",
           "continue": "Continue"
         },
-        "codeNavTitle": "Enter Username",
+        "codeNavTitle": "Enter username",
         "codeTitle": "Enter their username",
         "codeSubtitle": "Enter the username shown on the other person's phone.",
-        "pairCodeNavTitle": "Enter Code",
+        "pairCodeNavTitle": "Enter code",
         "pairCodeTitle": "Enter the pairing code",
         "pairCodeSubtitle": "Enter the 6-digit code shown on the other person's phone.",
         "wrongCode": "That code didn't work. Check the code and the username, then try again.",
@@ -1925,7 +2069,7 @@
         "codePlaceholder": "username",
         "codeOption": "Code",
         "scanOption": "Scan",
-        "scanNavTitle": "Scan Code",
+        "scanNavTitle": "Scan code",
         "scanTitle": "Scan their QR code",
         "scanHint": "Position the QR code in view to activate",
         "scanWaiting": "Waiting for the request to be accepted",
@@ -1940,27 +2084,31 @@
     "resetWallet": {
       "header": "Are you sure?",
       "dataDeleteHeader": "Select data to delete from this device.",
-      "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your recovery phrase saved, you WILL lose access to your funds.",
+      "dataDeleteDesc": "This deletes all wallet data from this phone. If you haven’t saved your recovery phrase, you will lose access to your money.",
       "seedAndPinOpt": "Delete all data from my device",
       "balanceText": "Your balance is",
       "localStorageError": "Unable to delete locally stored information",
       "secureStorageError": "Unable to delete securely stored information",
       "boxNotChecked": "Please check the box to confirm you want to delete your wallet before deleating.",
-      "title": "Delete Wallet",
-      "warningText": "I understand that I can only recover my funds with my recovery phrase, and if I lose it, my funds cannot be recovered."
+      "title": "Delete wallet",
+      "warningText": "I understand I can only recover my money with my recovery phrase, and if I lose it, it’s gone."
     },
     "sparkInfo": {
-      "title": "Wallet Info",
-      "sparkAddress": "Spark Address",
-      "pubKey": "Public Key"
+      "title": "Wallet info",
+      "sparkAddress": "Spark address",
+      "pubKey": "Public key",
+      "copyA11y": "Copy {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Your current wallet balance is {{balance}}. Blitz adds a {{fee}} fee to all BTKN payments. Make sure you have some Bitcoin in your wallet to send tokens.",
       "title": "Spark Settings",
       "sliderTitle_enabled": "Enabled BTKN",
       "sliderTitle_disabled": "Disabled BTKN",
+      "switchLabel": "BTKN tokens",
+      "switchSub": "Send and receive tokens on the Spark network.",
+      "disclaimer": "Blitz is a Bitcoin wallet and doesn’t promote tokens. This is here so you can use the technology you choose.",
       "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you to send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin-focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.",
-      "selectTokenHeader": "Default Token",
+      "selectTokenHeader": "Default token",
       "selectTokenInformationPopup": "Choose which token you’d like to use first when sending payments. Don’t worry—you can still change it on the payment page anytime."
     },
     "viewSwapsHome": {
@@ -1988,19 +2136,20 @@
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
+      "subtitle": "Rootstock transfer",
       "id": "ID",
       "swapDetails": "Transfer Details",
-      "claimAddress": "Claim Address",
-      "timeoutBHeight": "Timeout Block Height",
+      "claimAddress": "Claim address",
+      "timeoutBHeight": "Timeout block",
       "expAmount": "Expected Amount",
       "invoice": "Invoice",
       "refundSwap": "Refund transfer",
       "date": "Date",
       "completed": "Completed",
       "refunded": "Refunded",
-      "rootstockTx": "Rootstock Tx",
-      "lockTx": "Lock Tx",
-      "refundTx": "Refund Tx",
+      "rootstockTx": "Rootstock tx",
+      "lockTx": "Lock tx",
+      "refundTx": "Refund tx",
       "refundError": "Refund failed. Please try again or contact support."
     },
     "viewAllLiquidSwaps": {
@@ -2020,36 +2169,39 @@
       "autoClaimLabel": "Auto-Claim",
       "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached.",
       "unsupportedTitle": "We no longer support {{type}}",
-      "unsupportedDesc": "If you still have funds on {{type}}, restore your Blitz recovery phrase in a compatible wallet to access them. Need help? Contact us below.",
+      "unsupportedDesc": "If you still have funds on {{type}}, restore your Blitz recovery phrase in a compatible wallet to reach them. Need help? Contact us.",
       "contactUs": "Contact us",
-      "refundInProgress": "Refund in progress. Keep the app open until it completes.",
-      "refundComplete": "Refund complete. Your funds are back in your Liquid wallet."
+      "refundInProgress": "Refund in progress. Keep the app open.",
+      "refundComplete": "Refund complete."
     },
     "notifications": {
       "mainToggle": "Allow notifications",
       "allowPush": "Allow push notifications",
       "disablePush": "Turn off push notifications",
-      "updateInSettings": "Update in app settings",
+      "updateInSettings": "Change in phone settings",
       "open": "Open",
+      "openA11y": "Open phone settings",
       "disabledTitle": "Notifications are off",
-      "disabledSubtitle": "Allow push notifications above to choose which payments and events you get alerted about.",
-      "optionsTitle": "Notification options",
-      "contact": "Contact",
-      "contactDesc": "Payments received from your added contacts",
+      "disabledSubtitle": "Allow push notifications above to choose which payments you hear about.",
+      "optionsTitle": "Notify me about",
+      "contact": "Contacts",
+      "contactDesc": "Payments from your contacts",
       "lnurl": "Lightning address",
-      "lnurlDesc": "Payments received via your Lightning address",
+      "lnurlDesc": "Payments to your Lightning address",
       "nostrZaps": "Nostr zaps",
-      "nostrZapsDesc": "Zap payments sent to your Nostr profile",
+      "nostrZapsDesc": "Zaps sent to your Nostr profile",
       "nwc": "Wallet Connect",
-      "nwcDesc": "Events received through Wallet Connect",
-      "pos": "Point-of-sale",
-      "posDesc": "Payments received at your point-of-sale"
+      "nwcDesc": "Events from Wallet Connect",
+      "pos": "Point of sale",
+      "posDesc": "Payments at your point of sale"
     },
     "nostrHome": {
       "nip5Title": "Nostr address",
       "nip5Desc": "Quickly verify your Nostr identity using Blitz.",
       "nwcTitle": "Wallet Connect",
-      "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
+      "nwcDesc": "Connect your Blitz Wallet to apps using Nostr.",
+      "nwcCount_one": "{{count}} connection",
+      "nwcCount_other": "{{count}} connections"
     },
     "fiatCurrency": {
       "title": "Currency",
@@ -2072,8 +2224,8 @@
       "swapsType": "BTC <> USD Swaps",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
-      "sparkSwapType": "BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "sparkSwapType": "BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC or USDB ↔︎ stablecoin (cross-chain)",
       "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
@@ -2081,9 +2233,10 @@
       "rootstockFee": "0.1% Boltz fee + network fees",
       "accumulationType": "Accumulation addresses",
       "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
-      "othersType": "All other",
-      "othersFee": "Network Fees",
-      "networkFeeLinkDesc": "Tap to see a breakdown of Spark network fees"
+      "othersType": "Everything else",
+      "othersFee": "Network fees only",
+      "networkFeeLinkDesc": "Tap to see a breakdown of Spark network fees",
+      "networkFeeLink": "See Spark network fees"
     },
     "nip5": {
       "noNameError": "Name cannot be empty.",
@@ -2106,13 +2259,34 @@
         "invalidFormat": "Invalid pubkey format: must be either a 64-character hex string or npub"
       },
       "saveAddress": "Save address",
+      "available": "Available",
+      "copyAddress": "Copy Nostr address",
       "infoText": "Nostr address links a short address like name@blitzwalletapp.com to your Nostr public key (npub), so Nostr apps can verify your identity.\n\nAfter saving, add this address to the Nostr address field of your Nostr profile. The list updates once per day, so it may take up to 24 hours to verify.",
       "removeAddress": "Remove address",
-      "removeWarning": "Remove {{address}}?\n\nThis frees up the username, so anyone can claim it and you may not be able to get it back. Nostr apps may keep showing it for up to 24 hours."
+      "removeWarning": "Remove {{address}}?\n\nThis frees up the username, so anyone can claim it and you may not be able to get it back. Nostr apps may keep showing it for up to 24 hours.",
+      "removeTitle": "Remove {{address}}?",
+      "removeSub": "Anyone can claim this name after, and you may not get it back. Nostr apps may show it for up to 24 hours."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Are you sure you want to delete this connection?",
+      "accountBalance": {
+        "title": "Account balance",
+        "subtitle": "What apps can spend"
+      },
+      "connectionsHeader": "Connections",
+      "connectionSummary": {
+        "noBudget": "No budget",
+        "canSend": "Can send {{amount}} {{period}}",
+        "cantSend": "Can’t send"
+      },
+      "deleteDialog": {
+        "title": "Delete this connection?",
+        "message": "{{name}} will stop working with your wallet. Money in your Wallet Connect account stays there."
+      },
+      "connectionString": {
+        "subtitle": "Scan it from {{name}}, or copy and paste it.",
+        "warning": "Whoever has this connection string can access whatever permissions you gave it."
+      },
       "addAccount": "Add connection",
       "empty": {
         "title": "No connections yet",
@@ -2122,14 +2296,14 @@
         "navTitle": "Name",
         "title": "Name this connection",
         "editTitle": "Edit connection name",
-        "subtitle": "Give the connection a name so you can recognize it later.",
+        "subtitle": "Give it a name so you can recognize it later.",
         "editSubtitle": "Choose a new name so you can recognize this connection later.",
         "placeholder": "Connection name"
       },
       "createNWCPermissions": {
         "title": "Permissions",
-        "pageTitle": "Add connection permissions",
-        "pageSubtitle": "Choose what actions {{name}} can perform.",
+        "pageTitle": "What can {{name}} do?",
+        "pageSubtitle": "Turn on only what the app needs.",
         "editTitle": "Edit connection permissions",
         "editSubtitle": "Edit what actions {{name}} can perform."
       },
@@ -2140,12 +2314,21 @@
         "editTitle": "Edit spending budget",
         "editSubtitle": "Change the spending limit and when it resets. Leave blank for no limit.",
         "renewalPlaceholder": "Select renewal period",
-        "createButton": "Create connection"
+        "createButton": "Create connection",
+        "resetTitle": "How often does it reset?",
+        "noLimit": "No limit",
+        "resetsDaily": "Resets daily",
+        "resetsWeekly": "Resets weekly",
+        "resetsMonthly": "Resets monthly",
+        "resetsYearly": "Resets yearly",
+        "resetHint": "Opens reset period options.",
+        "changeCurrency": "Change currency"
       },
       "accountCreated": {
         "title": "Connection created",
-        "subtitle": "Your connection has been created, copy the connection string to start using it.",
-        "copyConnection": "Copy connection string"
+        "subtitle": "Copy the connection string and paste it into {{connection}}.",
+        "copyConnection": "Copy connection string",
+        "connectionStringLabel": "Connection string"
       },
       "accountPage": {
         "title": "Manage Connection",
@@ -2154,7 +2337,7 @@
         "permissionsCount_one": "{{count}} permission",
         "permissionsCount_other": "{{count}} permissions",
         "renewalLabel": "Renewal period",
-        "amountLabel": "Budget amount",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Connection string",
         "deleteAccount": "Delete connection"
       },
@@ -2179,7 +2362,8 @@
       },
       "noNotifications": {
         "title": "Notifications required",
-        "subtitle": "Wallet Connect requires push notifications. Please enable them in Settings and try again."
+        "subtitle": "Wallet Connect needs push notifications to answer apps. Turn them on, then come back.",
+        "button": "Turn on notifications"
       },
       "showSeedPage": {
         "loadingMessage": "Generating recovery phrase",
@@ -2225,10 +2409,10 @@
         "row1Label": "Add funds",
         "row1Description": "Add money by receiving it or moving it from your main account.",
         "row2Label": "Separate account",
-        "row2Description": "This account is separate from your main account for added security.",
+        "row2Description": "Kept apart from your main account, so apps can only spend what you put here.",
         "row3Label": "App access",
         "row3Description": "Connected apps can use this account to make payments.",
-        "continueButton": "Get Started"
+        "continueButton": "Get started"
       }
     },
     "accountComponents": {
@@ -2268,15 +2452,16 @@
         "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
       },
       "editAccountName": {
-        "title": "Account Name",
+        "title": "Account name",
         "namePlaceholder": "Name"
       },
       "editAccountPage": {
         "title": "Account",
-        "accountNameLabel": "Account Name",
-        "showRecoveryPhraseLabel": "Show Recovery Phrase",
-        "lightningAddressLabel": "Account Address",
+        "accountNameLabel": "Account name",
+        "showRecoveryPhraseLabel": "Show recovery phrase",
+        "lightningAddressLabel": "Account address",
         "removeAccountLabel": "Remove Account",
+        "stillConnectingLabel": "Connection info",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
         "account_unpin": "Unpin Account",
@@ -2294,10 +2479,13 @@
         "activateButton": "Activate account",
         "addMoneyButton": "Add money",
         "withdrawMoneyButton": "Withdraw",
-        "viewActivityLabel": "Account History",
-        "manageConnectionsLabel": "Manage Connections",
+        "viewActivityLabel": "Account history",
+        "manageConnectionsLabel": "Manage connections",
         "loadError": "Unable to load account",
         "loadErrorDesc": "Please try again. If the problem continues, contact support.",
+        "bitcoinBalanceLabel": "Bitcoin balance",
+        "dollarBalanceLabel": "Dollar balance",
+        "editAvatarLabel": "Choose avatar",
         "stillConnectingInfo": "Your balance may be out of date while we finish connecting your account."
       },
       "removeAccountPage": {
@@ -2308,28 +2496,30 @@
         "removeButton": "Remove"
       },
       "selectCreateAccountType": {
-        "title": "Add Account",
+        "title": "Add account",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
         "importRecoveryPhraseDescription": "Import personal accounts from another wallet",
-        "recoverRecoveryPhraseTitle": "Recover Personal Account",
+        "recoverRecoveryPhraseTitle": "Recover personal account",
         "recoverRecoveryPhraseDescription": "Restore a personal account",
-        "createNewAccountTitle": "Create Personal Account",
+        "createNewAccountTitle": "Create personal account",
         "createNewAccountDescription": "Create a wallet for yourself",
         "createChildAccountTitle": "Create Managed Account",
         "createChildAccountDescription": "Create a wallet for someone else"
       },
       "selectProfileImage": {
-        "title": "Choose Avatar",
-        "searchPlaceholder": "Search emojis...",
-        "saveButton": "Save Avatar"
+        "title": "Choose avatar",
+        "searchPlaceholder": "Search emojis…",
+        "saveButton": "Save avatar"
       },
       "restoreDerivedAccount": {
-        "title": "Restore Account",
-        "emptyStateTitle": "No Accounts to Restore",
+        "title": "Restore account",
+        "emptyStateTitle": "No accounts to restore",
         "emptyStateMessage": "All accounts are currently restored. No missing accounts found.",
         "accountCardTitle": "Account {{index}}",
         "accountCardSubtitle": "Derivation Index: {{index}}",
         "restoreButton": "Restore",
+        "restoringLabel": "Restoring…",
+        "subtitle": "Accounts you removed that your recovery phrase can bring back.",
         "nameInputTitle": "Name This Account",
         "nameInputPlaceholder": "Account {{index}}",
         "nameInputConfirm": "Restore Account",
@@ -2357,6 +2547,11 @@
         "selfTransfer": "You cannot transfer to yourself",
         "addFunds": "{{name}} added money",
         "withdrawFunds": "{{name}} withdrew money",
+        "sending": "Sending…",
+        "sendingSubtitle": "{{amount}} from {{from}} to {{to}}",
+        "sentSuccessfully": "Sent successfully",
+        "fromTo": "From {{from}} to {{to}}",
+        "failedSubtitle": "Something went wrong while sending. Please try again.",
         "balanceLoadError": "Couldn't load this account's balance. Please try again."
       }
     },
@@ -2368,7 +2563,7 @@
       "noActivePools": "You don’t have any active pools right now. Tap to view your pools."
     },
     "hub": {
-      "viewAll": "View All",
+      "viewAll": "View all",
       "accounts": "Accounts",
       "accountsEmptyDesc": "View, create, manage, and move funds between all of your accounts.",
       "pinAccount": "Pin",
@@ -2381,9 +2576,9 @@
     },
     "posPath": {
       "settings": {
-        "nameTakenError": "This point-of-sale name is already in use.",
+        "nameTakenError": "This name is already in use. Try another.",
         "nameRegexError": "Name can only include letters and numbers.",
-        "title": "Point-of-sale",
+        "title": "Point of sale",
         "storeNameInputDesc": "Store name",
         "storeNameInputPlaceholder": "Enter store name",
         "displayCurrencyDesc": "Display currency",
@@ -2394,17 +2589,33 @@
         "updateItems": "Update Items",
         "addItem": "Add Item",
         "openPos": "Open POS",
-        "brandLogo": "Brand Logo",
-        "changeLogo": "Change Logo",
+        "brandLogo": "Brand logo",
+        "changeLogo": "Change",
         "removeLogo": "Remove",
         "uploadLogo": "Tap to upload brand logo",
-        "addProducts": "Add products"
+        "addProducts": "Add products",
+        "addLogo": "Add your logo",
+        "logoSize": "Square, at least 400 × 400 px",
+        "yourCheckout": "Your checkout: ",
+        "prices": "Prices",
+        "currency": "Currency",
+        "items": "Items",
+        "itemsCount_one": "{{count}} item",
+        "itemsCount_other": "{{count}} items",
+        "itemsCurrencyWarning": "Some items are priced in another currency",
+        "runningTheStore": "Running the store",
+        "tipsToPay": "Tips to pay",
+        "peopleCount_one": "{{count}} person",
+        "peopleCount_other": "{{count}} people",
+        "staffSign": "Staff sign",
+        "currencySheetTitle": "Store currency"
       },
       "posInstructionsPath": {
-        "title": "Instructions",
+        "title": "Staff sign",
         "head1": "How to accept",
         "head2": "Bitcoin payments",
-        "step1": "Scan QR code with your camera"
+        "step1": "Scan this code with your phone’s camera to open the checkout.",
+        "share": "Share checkout link"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "User does not have any tips balance.",
@@ -2413,47 +2624,66 @@
         "notifyngMessage": "Notifiying...",
         "errorPaying": "Unable to pay Blitz contact. Try again later.",
         "invalidName": "Name is not a Lightning Address or a Blitz user.",
-        "removeEmployeeWarning": "Are you sure you want to remove this employee?",
+        "removeEmployeeWarning": "Their tip history is deleted from this phone.",
         "startingPaymentProcessMessage": "Begining payment process, please do not leave this page or the app.",
         "goBack": "Go back",
         "lastSale": "Last sale:",
         "numTipsPaid": "Tips paid:",
         "numUnpaidTips": "Unpaid tips:",
         "tipBalance": "Tip balance:",
-        "viewTips": "View Tips"
+        "viewTips": "View Tips",
+        "removeEmployeeTitle": "Remove {{name}}?",
+        "removeEmployeeUnpaidWarning": "Their tip history is deleted from this phone, including {{amount}} you haven’t paid yet.",
+        "blitzUser": "Blitz username",
+        "lightningAddress": "Lightning address",
+        "lastSaleSub": "{{type}} · last sale {{date}}",
+        "toPay": "To pay",
+        "paidBefore": "{{amount}} paid before",
+        "tips": "Tips",
+        "payAmount": "Pay {{amount}}",
+        "payingTitle": "Paying {{name}}…",
+        "notifyingTitle": "Notifying {{name}}…",
+        "payingSub": "Sending {{amount}}. Keep the app open until it finishes.",
+        "markPaid": "Mark {{amount}} from {{date}} as paid",
+        "remove": "Remove {{name}}"
       },
       "transactions": {
-        "unpaidtips": "Tips: {{number}}",
+        "unpaidtips": "{{number}} unpaid",
         "title": "Tips to pay",
-        "empNamePlaceholder": "Employee name",
+        "empNamePlaceholder": "Staff name",
         "noEmployees": "You currently don’t have any employees with saved tips. Once an employee uses the point-of-sale, their tips will appear here so you can pay them.",
-        "noTips": "Employee has no tips",
-        "noEmployeeTitle": "No Tips To Pay",
-        "noEmployeeSubTitle": "You don’t have any tips to pay yet. When an employee receives a tip, it’ll show up here."
+        "noTips": "No one matches your search.",
+        "noEmployeeTitle": "No tips to pay",
+        "noEmployeeSubTitle": "When someone on your staff gets a tip at checkout, it shows up here so you can pay them.",
+        "allPaid": "All paid"
       },
       "items": {
         "addItemHalfModal": {
           "nameLengthError": "Item name must be less than 60 characters.",
           "addItemError": "There was a problem adding your item to the POS. Please try again.",
           "editItem": "Edit item",
-          "addItem": "Add New Item",
-          "pricesLabel": "Prices are based on your saved currency ({{currency}})",
+          "addItem": "Add item",
+          "pricesLabel": "Prices are in {{currency}}. Change the currency in Point of sale.",
           "editMessage": "Edit display currency in POS settings.",
           "itemNamePlaceholder": "Item name",
-          "pricePlaceholder": "Price ({{number}})",
-          "updateCurrency": "Update Currency",
-          "addItemBTN": "Add Item"
+          "pricePlaceholder": "Price in {{number}}",
+          "updateCurrency": "Save in {{currency}}",
+          "addItemBTN": "Add item",
+          "currencyChangeNote": "This price was set in {{from}}. Saving charges {{amount}} in {{to}}."
         },
         "addPOSItemsPage": {
-          "denominationError": "Price is in {{currency1}}, but store currency is {{currency2}}.",
-          "deleteItemMessage": "Are you sure you want to delete this point-of-sale item?",
-          "title": "POS items",
-          "itemSearchPlaceholder": "Item name...",
+          "denominationError": "Priced in {{currency1}}. Your store uses {{currency2}}.",
+          "deleteItemMessage": "Staff won’t see it at checkout anymore.",
+          "title": "Items",
+          "itemSearchPlaceholder": "Search items",
           "noItemsSearch": "No items match your search.",
           "noItemsAdded": "Add an item for it to show up here.",
-          "ctaBTN": "Add Item",
-          "noPosTitle": "No POS Items",
-          "noPosSub": "You don’t have any POS items saved yet. Once you save one, it will show up here."
+          "ctaBTN": "Add item",
+          "noPosTitle": "No items yet",
+          "noPosSub": "Add what you sell. Staff tap an item at checkout instead of typing its price.",
+          "deleteItemTitle": "Delete {{name}}?",
+          "editItem": "Edit {{name}}",
+          "deleteItem": "Delete {{name}}"
         }
       },
       "internalComponents": {
@@ -2517,15 +2747,21 @@
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
         "contactSupport": "Support",
-        "viewProgress": "View progress"
+        "viewProgress": "View progress",
+        "status": "Status",
+        "paymentFailed": "Payment failed",
+        "moreDetails": "More details",
+        "showLess": "Show less",
+        "waitingForConfirmations": "Waiting for {{count}} confirmations"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
-        "title": "Blitz Downloads",
+        "title": "Blitz downloads",
         "COMMENT": "Full sentence below = Number of totalUser users",
-        "goalUserCount": "of {{goalUserCount}} users.",
+        "goalUserCount": "of {{goalUserCount}} users",
         "percentOfGoal": "{{goalPercent}}% of goal",
-        "numAddedUsers": "+{{numNewUsers}} users today"
+        "numAddedUsers": "+{{numNewUsers}} users today",
+        "chartA11y": "Downloads over the last {{period}}"
       },
       "loadingScreen": {
         "loadingMessage1": "Please don't close the app",
@@ -2596,27 +2832,27 @@
         "pools": "Pools",
         "display currency": "Currency",
         "receive currency": "Lightning Address",
-        "display options": "Display Options",
+        "display options": "Display options",
         "edit contact profile": "Edit Contact Profile",
-        "view all swaps": "Network Transfers",
+        "view all swaps": "Network transfers",
         "fast pay": "Fast Pay",
         "spend and replace": "Spend and Replace",
-        "blitz fee details": "Blitz Fee Details",
-        "crash reports": "Crash Reports",
+        "blitz fee details": "Blitz fee details",
+        "crash reports": "Crash reports",
         "notifications": "Notifications",
-        "blitz stats": "Blitz Stats",
+        "blitz stats": "Blitz stats",
         "accounts": "Accounts",
         "nostr": "Nostr",
-        "login mode": "Login Mode",
-        "backup wallet": "Backup Wallet",
-        "show seed phrase": "Backup Wallet",
-        "spark info": "Spark Info",
-        "wallet leaves": "Wallet Data",
-        "delete wallet": "Delete Wallet",
+        "login mode": "Login mode",
+        "backup wallet": "Backup wallet",
+        "show seed phrase": "Backup wallet",
+        "spark info": "Spark info",
+        "wallet leaves": "Wallet data",
+        "delete wallet": "Delete wallet",
         "general": "General",
         "preferences": "Preferences",
         "security": "Security",
-        "technical settings": "Technical Settings",
+        "technical settings": "Technical settings",
         "experimental features": "Experimental Features",
         "settings": "Settings",
         "blitzRestore": "Blitz Restore",
@@ -2624,13 +2860,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Synced: {{time}}",
+        "lastSynced": "Synced {{time}}",
         "never": "Never",
         "treeLabel": "Tree {{id}}",
         "treeSubtitle": "{{count}} leaves",
         "showMore": "Show more",
         "exportButton": "Export backup",
         "noLeavesToExport": "There are no leaves to export yet.",
+        "noExitReadyLeaves": "None of your leaves are large enough to exit yet (each needs {{min}} sats).",
         "exportError": "Could not export your leaves. Please try again.",
         "notReadyTitle": "Not ready to exit",
         "readyTitle": "Ready to exit",
@@ -2662,11 +2899,12 @@
         },
         "progress": {
           "title": "Exporting backup",
-          "gathering": "Gathering your wallet leaves…",
-          "saving": "Saving a local backup…",
-          "exit": "Fetching exit data…",
-          "building": "Building your backup file…",
-          "sharing": "Opening the share sheet…"
+          "keepOpen": "Keep the app open until it finishes.",
+          "gathering": "Gathering your wallet leaves",
+          "saving": "Saving a local backup",
+          "exit": "Fetching exit data",
+          "building": "Building your backup file",
+          "sharing": "Opening the share sheet"
         }
       },
       "remotePayments": {
@@ -2695,7 +2933,7 @@
         "bitrefillInvoiceId": "Bitrefill Invoice ID"
       },
       "viewAllTxPage": {
-        "title": "Transactions",
+        "title": "Activity",
         "filterAll": "All",
         "filterLightning": "Lightning",
         "filterBitcoin": "Bitcoin",
@@ -2705,24 +2943,30 @@
         "filterSwaps": "Swaps",
         "filterSavings": "Dollar goals",
         "filterPools": "Pools",
-        "noTxHistoryTitle": "No Transaction History",
-        "noTxHistorySub": "Your transactions will appear here once you send or receive one.",
+        "noTxHistoryTitle": "No transactions yet",
+        "noTxHistorySub": "Payments you send and receive show up here.",
         "searchPlaceholder": "Search descriptions",
-        "noFilterResultsTitle": "No Matching Transactions",
+        "noFilterResultsTitle": "No matching transactions",
         "noFilterResultsSub": "No transactions match your current filters. Try adjusting or clearing them.",
-        "filterModalTitle": "Filter Transactions",
+        "filterModalTitle": "Filter transactions",
         "exportButton": "Export",
         "filterDirectionTitle": "Direction",
         "filterSent": "Sent",
         "filterReceived": "Received",
-        "filterDateTitle": "Date Range",
+        "filterDateTitle": "Date range",
         "filterDate7d": "Last 7 days",
         "filterDate30d": "Last 30 days",
         "filterDate90d": "Last 90 days",
         "filterDate1y": "Last 12 months",
-        "filterTypeTitle": "Transaction Type",
-        "filterApply": "Apply Filters",
-        "filterClearAll": "Clear All"
+        "filterTypeTitle": "Transaction type",
+        "filterApply": "Apply filters",
+        "filterClearAll": "Clear all",
+        "exportTitle": "Export CSV",
+        "filterTitle": "Filter payments",
+        "filterShowing": "Showing",
+        "filterClear": "Clear",
+        "insightsLabel": "Spending insights",
+        "moreOptionsLabel": "More options"
       },
       "lrc20HalfModal": {
         "title": "Search Tokens",
@@ -2751,19 +2995,35 @@
         "fundGiftMessage": "Creating Gift",
         "reclaimGiftMessage": "Reclaiming Gift",
         "giftsHome": {
-          "title": "Blitz Gifts",
+          "title": "Gifts",
           "desc": "Share Bitcoin or Dollars with friends and family."
         },
         "balanceDenominationHeader": "Select the currency for your gift",
         "giftsOverview": {
           "noGiftsHead": "No gifts yet",
           "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family.",
-          "createGift": "Create Gift",
+          "createGift": "Create gift",
           "claimed": "Claimed",
           "expired": "Expired",
           "unclaimed": "Unclaimed",
           "reclaimed": "Reclaimed",
-          "noClaimURL": "No claim URL available for this gift. Please wait till the gift is expired to reclaim your money."
+          "noClaimURL": "No claim URL available for this gift. Please wait till the gift is expired to reclaim your money.",
+          "copyLink": "Copy link",
+          "pastGifts": "Past gifts",
+          "noNote": "No note",
+          "activeCount": "Active · {{count}}",
+          "activeEndsIn": {
+            "days_one": "Active · ends in {{count}} day",
+            "days_other": "Active · ends in {{count}} days",
+            "hours_one": "Active · ends in {{count}} hour",
+            "hours_other": "Active · ends in {{count}} hours",
+            "minutes_one": "Active · ends in {{count}} minute",
+            "minutes_other": "Active · ends in {{count}} minutes",
+            "lessThanMin": "Active · ends in under a minute"
+          },
+          "endsOn": "ends {{date}}",
+          "claimNoteSingle": "You’ll see if it was claimed when it ends on {{date}}.",
+          "claimNoteMany": "Each shows if it was claimed once it ends."
         },
         "createGift": {
           "noAmountError": "Please enter an amount to create your gift.",
@@ -2774,9 +3034,9 @@
           "startProcess1": "Preparing your gift…",
           "startProcess2": "Setting things up…",
           "startProcess3": "Adding funds to your gift…",
-          "header": "Create Gift",
-          "inputPlaceholder": "Add a message or note...",
-          "button": "Create Gift",
+          "header": "Create gift",
+          "inputPlaceholder": "Note",
+          "button": "Create gift",
           "disclaimer": "Held for {{numDays}} days while the gift can be claimed. If not, you can get your money back.",
           "durationText": "{{numDays}} days",
           "type": "Type",
@@ -2784,57 +3044,75 @@
           "maxGiftsError": "You've reached the maximum number of gifts",
           "insufficientBalanceQuantity": "Not enough balance for {{count}} gifts",
           "descriptionTitle": "Add a note",
-          "descriptionSubtitle": "Give the recipient a hint about what this gift is for.",
+          "descriptionSubtitle": "Give them a hint about what this gift is for.",
           "swapError": "Swap simulation not available or failed",
           "durationTitle": "How long should this gift last?",
           "durationSubtitle": "Choose how long it can be claimed.",
           "warningTitle": "Funds on hold",
           "warningSubtitle": "Unclaimed funds can be reclaimed after {{numDays}} days.",
-          "bulkButton": "Create {{count}} Gifts",
+          "warningText": "Funds stay on hold. If nobody claims it, you can reclaim it after {{numDays}} days.",
+          "bulkButton": "Create {{count}} gifts",
           "maxQuantityHint": "Maximum of 20 gifts allowed.",
           "amountPageHeader": "Add an amount",
-          "amountPageDesc": "Enter the amount for each gift, and select its denomination."
+          "amountPageDesc": "Enter the amount for each gift, and select its denomination.",
+          "quantitySub": "Each one is {{amount}}. Up to {{max}}.",
+          "quantityOther": "Other",
+          "quantityCount_one": "{{count}} gift",
+          "quantityCount_other": "{{count}} gifts",
+          "quantityMaxHint": "Each one is {{amount}}. Maximum of {{max}} gifts."
         },
         "giftConfirmation": {
-          "header": "Gift Created!",
-          "whatToDo": "Share this gift with anyone using the QR code or link below",
+          "header": "Gift created",
+          "whatToDo": "Share it with anyone using the link or a QR code.",
           "details": "Gift Details",
           "expire": "Expires",
           "giftLink": "Gift Link",
           "shareGift": "Share Gift",
-          "createAnother": "Create Another",
+          "createAnother": "Create another",
           "done": "Done",
-          "showQr": "Show QR Code",
-          "bulkHeader": "{{count}} Gifts Created!",
-          "copyAllLinks": "Copy All Links"
+          "showQr": "Show QR code",
+          "bulkHeader": "{{count}} gifts created",
+          "copyAllLinks": "Copy all links",
+          "bulkDesc": "Send each link to one person. Each gift can be claimed once.",
+          "bulkRowTitle": "Gift {{number}} · {{amount}}",
+          "scanToClaim": "Scan to claim",
+          "scanWarning": "Whoever scans this first claims the gift."
         },
         "claimHome": {
           "header": "Enter gift link",
-          "desc": "Paste the gift link you received or scan the QR code to claim your gift",
-          "inputPlaceholder": "Enter gift link",
-          "claim": "Claim Gift",
+          "desc": "Paste the gift link you received or scan its QR code.",
+          "inputPlaceholder": "Gift link",
+          "claim": "Claim gift",
           "noGiftLinkError": "We couldn’t find a gift link. Please scan or paste the link you received.",
           "invalidGiftFormat": "Invalid gift link. Please copy the full link and try again."
         },
         "reclaimPage": {
-          "header": "Reclaim your gift",
-          "desc": "Enter or choose the gift ID to return an unclaimed, expired gift to your wallet.",
+          "header": "Reclaim a gift",
+          "desc": "Return an unclaimed, expired gift to your wallet.",
           "inputPlaceholder": "Enter gift ID",
           "dropdownPlaceHolder": "Select Expired Gift",
-          "button": "Reclaim Gift",
-          "noReclaimsMessage": "You have no expired gifts right now. Come back after a gift has expired to reclaim it.",
-          "advancedModeBTN": "Advanced Mode"
+          "button": "Reclaim gift",
+          "noReclaimsMessage": "You have no expired gifts right now.",
+          "advancedModeBTN": "Advanced mode",
+          "title": "Reclaim",
+          "expiredOn": "{{amount}} · Expired {{date}}"
         },
         "advancedMode": {
-          "header": "Advanced Mode",
+          "header": "Advanced mode",
           "currentIndexHead": "Current Gift Index",
           "infoHead": "How Blitz Gifts Work",
           "infoDesc1": "Blitz gifts use separate wallets created from your main wallet. This lets you recover unclaimed funds while keeping your main wallet protected.",
           "infoDesc2": "Most expired gifts can be reclaimed on the regular reclaim page. If a gift wasn’t fully received or the normal reclaim option doesn’t work, you can use this page to select a specific gift and check if any money is still left.",
           "inputHead": "Enter Gift Number",
-          "invalidGiftNum": "Please enter a valid gift number between 1 and {{currentGiftIndex}}",
-          "restoreGiftBTN": "Restore Gift",
-          "advancedWarning": "This advanced feature should only be used when the standard reclaim process doesn't work. If you're unsure, try the normal reclaim page first."
+          "invalidGiftNum": "Please enter a gift number from 1 to {{currentGiftIndex}}.",
+          "restoreGiftBTN": "Restore gift",
+          "advancedWarning": "This advanced feature should only be used when the standard reclaim process doesn't work. If you're unsure, try the normal reclaim page first.",
+          "title": "Restore a gift by number",
+          "sub": "Only use this if Reclaim didn’t work.",
+          "inputLabel": "Gift number",
+          "hint_one": "You’ve made {{count}} gift. Enter a number from 1 to {{count}}.",
+          "hint_other": "You’ve made {{count}} gifts. Enter a number from 1 to {{count}}.",
+          "howItWorks": "Each gift is its own small wallet made from yours, so money left in it can come back to you."
         },
         "claimPage": {
           "parseError": "We couldn’t read the gift details from this link.",
@@ -2853,18 +3131,26 @@
           "claimLoading": "Claiming your gift… please stay in the app.",
           "reclaimLoading": "Returning your funds… please stay in the app.",
           "claimAmountHead": "Receiving amount",
-          "reclaimAmountHead": "Amount Restored",
-          "reclaimAmountHeadExpert": "Gift Number Restored",
-          "networkFeeWarningExpert": "Any amount found, minus network fees, will be added to your balance",
-          "networkFeeWarning": "This amount, minus network fees, will be added to your balance",
+          "reclaimAmountHead": "Reclaiming gift",
+          "reclaimAmountHeadExpert": "Restoring gift",
+          "networkFeeWarningExpert": "Any amount found, minus network fees, comes back to your balance.",
+          "networkFeeWarning": "Network fees come out of this amount.",
           "buttonTextClaiming": "Claiming",
-          "reclaimButton": "Reclaim Gift",
-          "claimButton": "Accept Gift",
+          "reclaimButton": "Reclaim gift",
+          "claimButton": "Accept gift",
           "confirmMessage": "Your gift has been claimed, and you will receive your funds shortly",
           "defaultDesc": "Blitz Gift",
           "claimingGiftMessage1": "Preparing Gift...",
           "giftBalanceMessage": "Confirming your gift balance...",
-          "claimingGiftMessage4": "Claiming Gift..."
+          "claimingGiftMessage4": "Claiming Gift...",
+          "reclaimFeeWarning": "This amount, minus network fees, comes back to your balance.",
+          "expertGiftLabel": "Gift #{{number}}",
+          "claimingTitle": "Claiming your gift…",
+          "reclaimingTitle": "Returning your funds…",
+          "stayInApp": "Please stay in the app.",
+          "claimedTitle": "Gift claimed",
+          "reclaimedTitle": "Gift reclaimed",
+          "claimedSub": "It will show in your balance shortly."
         }
       },
       "swapsPage": {
@@ -2907,8 +3193,8 @@
         "loadingMessageButton": "Loading...",
         "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Swap services are available through third-party API providers.",
-        "serviceUnavailableHead": "Service Unavailable",
-        "serviceUnavailableDesc": "Unable to connect to swap service. Please check your connection and try again.",
+        "serviceUnavailableHead": "Service unavailable",
+        "serviceUnavailableDesc": "Can’t reach the swap service. Check your connection and try again.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
         "paymentDescription_outgoing": "{{swapDirection}}",
@@ -2938,18 +3224,22 @@
         "availableToSwapInto": "Swap up to {{amount}} into {{asset}}.",
         "enterAmountTitle": "Enter the amount to swap.",
         "noContentTitle": "No balance available",
-        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin.",
+        "noContentSubTittle": "Add funds to your wallet to start swapping.",
         "insufficientBTCToSwap": "A Bitcoin balance of at least {{amount}} is required to swap from Bitcoin.",
         "insufficientUSDToSwap": "A Dollar balance of at least {{amount}} is required to swap from Dollars.",
         "belowSwapLimitTitle": "Balance too low to swap",
         "belowSwapLimitBitcoin": "Your Bitcoin balance is below the swap minimum. Add at least {{btcMin}} to start swapping.",
         "belowSwapLimitDollar": "Your Dollar balance is below the swap minimum. Add at least {{usdMin}} to start swapping.",
-        "belowSwapLimitBoth": "Your balances are below the swap minimum. You need at least {{btcMin}} in Bitcoin or {{usdMin}} in Dollars to start swapping."
+        "belowSwapLimitBoth": "You need at least {{btcMin}} in Bitcoin or {{usdMin}} in Dollars to start swapping.",
+        "satsUnit": "sats",
+        "flipA11y": "Swap direction"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
-        "noHistoryTitle": "No Swap History",
-        "noHistoryDesc": "Your swap transactions will appear here",
+        "noHistoryTitle": "No swaps yet",
+        "noHistoryDesc": "Your swaps will appear here.",
+        "bitcoinToDollars": "Bitcoin → Dollars",
+        "dollarsToBitcoin": "Dollars → Bitcoin",
         "pageTitle": "History"
       },
       "sparkReceivePage": {
@@ -2958,22 +3248,23 @@
       "sendAndReplace": {
         "slider": "{{state}} Spend and Replace",
         "userDollarAmount": "Available dollar balance: {{dollarAmount}}",
-        "explainer": "When enabled, each outgoing Bitcoin payment is automatically replaced by swapping an equivalent amount from your dollar balance. If your dollar balance is less than the spent amount, the full dollar balance is swapped instead. No swap is made if the replacement amount is less than {{minAmount}}.",
+        "userDollarAmountLabel": "Available dollar balance",
+        "explainer": "Each Bitcoin payment you send is replaced by swapping the same amount from your dollar balance. If your dollar balance is smaller, all of it is swapped. No swap is made under {{minAmount}}.",
         "fundingDescription": "Spend & Replace purchase",
         "acceptingDescription": "Spend & Replace refill",
         "toastMessageTitle": "Bitcoin balance refilled"
       }
     },
     "accumulationAddresses": {
-      "title": "Accumulation Addresses",
+      "title": "Accumulation addresses",
       "subtitle": "Auto-convert stablecoins to BTC or Dollars",
       "navTitle": "Addresses",
-      "sectionTitle": "Active Addresses",
+      "sectionTitle": "Active addresses",
       "empty": {
-        "title": "No Accumulation Addresses",
+        "title": "No accumulation addresses",
         "subtitle": "Create an address to auto-convert deposits into Bitcoin or Dollars"
       },
-      "createButton": "Create Address",
+      "createButton": "Create address",
       "addressCount": "{{count}} addresses",
       "info": {
         "title": "What are they?",
@@ -2992,31 +3283,36 @@
         "reindexNoFunds": "No new funds found for this address.",
         "reindexError": "Couldn't check this address. Please try again later.",
         "printQR": "Print QR",
-        "deleteButton": "Delete Address",
-        "deleteConfirmTitle": "Delete Address?",
+        "deleteButton": "Delete address",
+        "deleteConfirmTitle": "Delete this address?",
         "deleteConfirmBody": "Deleting this address stops future payments from being redirected and may result in lost funds. Make sure everyone knows it’s no longer active before removing it.",
         "chain": "Chain",
         "source": "Source",
         "Destination": "Destination",
         "selectAnotherOption": "Select Another Option",
-        "selectAddress": "Select Address",
-        "viewAll": "View All Addresses"
+        "selectAddress": "Select address",
+        "viewAll": "View All Addresses",
+        "selectAddressSub": "You have {{count}} {{asset}} on {{chain}} addresses.",
+        "created": "Created {{date}}"
       },
       "create": {
         "pickAsset": "Select Payment Currency",
-        "pickChain": "Select Chain",
-        "pickDestination": "Select Destination",
-        "confirm": "Confirm Address",
+        "pickChain": "Select chain",
+        "pickDestination": "Select destination",
+        "confirm": "Confirm address",
         "alreadyExists": "You already have an address for this combination",
-        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}",
+        "convertDesc": "Your {{asset}} on {{chain}} will be converted into {{receiveCurrency}}.",
         "createNewAddress": "Create New Address",
-        "limitReached": "You've reached the maximum number of addresses for this option."
+        "limitReached": "You've reached the maximum number of addresses for this option.",
+        "pickChainSub": "Where will the money come from?",
+        "pickDestinationSub": "{{asset}} on {{chain}} converts into…",
+        "arrivesIn": "Arrives in your {{currency}} balance"
       },
       "summary": {
         "chain": "Chain",
         "paymentCurrency": "Payment Currency",
         "destination": "Destination",
-        "create": "Create Address"
+        "create": "Create address"
       },
       "errors": {
         "createFailed": "Failed to create address. Please try again.",
@@ -3035,8 +3331,17 @@
         "zoomIn": "Zoom in to see all merchants",
         "findAPlace": "Find a place",
         "placesHere": "{{count}} places here",
+        "placesHere_one": "{{count}} place here",
         "noPlaces": "No places found",
-        "hasMorePlaces": "Showing the nearest {{num}}. Zoom in for more."
+        "hasMorePlaces": "Showing the nearest {{num}}. Zoom in for more.",
+        "a11y": {
+          "filter": "Filter",
+          "filterOn": "Filter, on",
+          "myLocation": "My location",
+          "zoomIn": "Zoom in",
+          "zoomOut": "Zoom out",
+          "place": "Place"
+        }
       },
       "merchant": {
         "noName": "Unknown Merchant",
@@ -3045,6 +3350,7 @@
         "dataMessage": "Data from {{source}}"
       },
       "filter": {
+        "title": "Filter places",
         "categoriesTitle": "Categories",
         "distanceTitle": "Distance",
         "all": "All",
@@ -3077,7 +3383,16 @@
       "textInputDescriptor": "EMAIL",
       "emailplaceholder": "you@example.com",
       "emailError": "Please enter a valid email address.",
-      "completePayment": "Complete Payment"
+      "completePayment": "Complete payment",
+      "emailHelper": "Bitrefill sends your codes and receipts here.",
+      "orderAmount": "Bitrefill order · {{amount}}"
+    },
+    "webViewPopup": {
+      "allowedTitle": "External link",
+      "allowedSub": "This link will open in a new browser tab.",
+      "notAllowedTitle": "Link not supported",
+      "notAllowedSub": "Only links that start with http or https can be opened.",
+      "openLink": "Open link"
     }
   },
   "toastmessages": {
@@ -3165,9 +3480,11 @@
     "liquid": "LBTC <> BTC"
   },
   "tabs": {
-    "home": "Wallet",
-    "appStore": "Store",
-    "contacts": "Contacts"
+    "home": "Home",
+    "contacts": "People",
+    "money": "Money",
+    "appStore": "Explore",
+    "activity": "Activity"
   },
   "pushNotifications": {
     "paymentReceived": {
@@ -3266,39 +3583,39 @@
   },
   "savings": {
     "home": {
-      "title": "Dollar Goals",
+      "title": "Dollar goals",
       "howItWorksLink": "How it works",
       "earnedCard": "Earned: {{amount}}",
       "setGoalTitle": "Set a goal",
       "setGoalSubtitle": "Set money aside for what matters most.",
       "savingsGoalFallback": "Goal",
-      "createAnotherGoal": "Create Another Goal",
-      "disclaimer": "Goal balances is held in USDB, a dollar-backed stablecoin issued by Brale. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
+      "createAnotherGoal": "Create another goal",
+      "disclaimer": "Goal balances are held in USDB, a dollar-backed stablecoin issued by Brale. Bitcoin rewards come from Flashnet, are variable, not guaranteed and may be zero. USDB is not FDIC insured. Not a bank product."
     },
     "preview": {
       "title": "Dollar Goals",
       "earnInterest": "Set goals, track progress, and hold dollars on your own terms."
     },
     "goalEmoji": {
-      "screenTitle": "Choose Emoji",
+      "screenTitle": "New goal",
       "title": "Pick an emoji that fits your goal",
       "subtitle": "What defines your goal the most?",
       "continueButton": "Choose emoji"
     },
     "goalDescribe": {
-      "screenTitle": "Enter Description",
+      "screenTitle": "New goal",
       "title": "Describe your goal",
       "placeholder": "Extra cash"
     },
     "goalAmount": {
-      "screenTitle": "Set Goal",
+      "screenTitle": "New goal",
       "goalFallbackName": "Goal",
       "errors": {
         "unableToSetGoal": "Unable to set goal"
       }
     },
     "goalSuccess": {
-      "title": "Your goal is now set for {{amount}}",
+      "title": "Your goal is set for {{amount}}",
       "subtitle": "Start adding money to reach your goal."
     },
     "goalDetails": {
@@ -3309,16 +3626,16 @@
     "updateGoal": {
       "screenTitle": "Update Goal",
       "title": "Update goal",
-      "body": "You can either change how much you've set aside for your goal or remove it.",
+      "body": "Change how much you’ve set aside for your goal, or remove it.",
       "removeButton": "Remove goal",
       "updateButton": "Update goal"
     },
     "removeGoalConfirm": {
       "screenTitle": "Remove Goal",
       "title": "Remove goal",
-      "warningProgressLost": "You will no longer see progress toward your {{goalName}} goal.",
-      "warningMoneyReturned": "Any money dedicated to this goal will automatically be transferred to your main balance.",
-      "removeButton": "Remove Goal",
+      "warningProgressLost": "You’ll no longer see progress toward your {{goalName}} goal.",
+      "warningMoneyReturned": "Any money set aside for this goal moves to your main balance automatically.",
+      "removeButton": "Remove goal",
       "errors": {
         "unableToRemoveGoal": "Unable to remove goal"
       }
@@ -3348,8 +3665,8 @@
       "processing": "Processing...",
       "steps": {
         "processing": "Processing...",
-        "swapping": "Swapping funds to dollar...",
-        "adding": "Adding to account...",
+        "swapping": "Swapping funds to dollars",
+        "adding": "Adding to your goal",
         "complete": "Complete."
       },
       "successTitle": "Money added",
@@ -3358,15 +3675,20 @@
       "errors": {
         "unableToCompleteTransfer": "Unable to complete transfer"
       },
-      "pageDescription": "Add money from your {{fromBalance}} balance to your {{destination}} balance",
+      "pageDescription": "Add money from your {{fromBalanceLabel}} to your {{destination}} goal.",
       "noSourceTitle": "No funding source available",
-      "noSourceSubtitle": "Add Bitcoin or Dollars to your wallet. Funding from Bitcoin requires at least {{amount}}.",
+      "noSourceSubtitle": "Add Bitcoin or Dollars to your wallet first. Adding from Bitcoin needs at least {{amount}}.",
       "noUSDInfoMessage": "A Dollar balance greater than {{amount}} is required to fund your savings.",
-      "noBTCInfoMessage": "A Bitcoin balance greater than the minimum swap amount of {{amount}} is required to fund your savings."
+      "noBTCInfoMessage": "A Bitcoin balance greater than the minimum swap amount of {{amount}} is required to fund your savings.",
+      "pageDescription_general": "Add money from your {{fromBalanceLabel}} to your general goal.",
+      "addingTo": "Adding to {{destination}}",
+      "loadingTitle": "Adding money…",
+      "loadingSubtitle": "{{amount}} to {{destination}}",
+      "successTo": "To {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "What would you like to withdraw?",
-      "interestOption": "Bitcoin balance",
+      "interestOption": "Bitcoin rewards",
       "savingsOption": "Goals balance",
       "interestZeroHint": "No Bitcoin rewards yet",
       "savingsZeroHint": "Nothing saved yet",
@@ -3383,18 +3705,18 @@
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
       "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",
-      "withdrawAll": "Withdraw All",
+      "withdrawAll": "Withdraw all",
       "generalSavings": "General goal",
       "destinationTitle": "Withdraw money to",
       "availableHint": "Available: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Confirm withdrawal",
-      "confirmSubtitle_interestAll": "Withdraw all bitcoin rewards to your {{destination}}",
-      "confirmSubtitle_interest": "Withdraw bitcoin rewards to your {{destination}}",
-      "confirmSubtitle_goalAll": "Withdraw all from {{goalName}} to your {{destination}}",
-      "confirmSubtitle_goal": "Withdraw from {{goalName}} to your {{destination}}",
-      "confirmSubtitle_generalAll": "Withdraw all from goal balance to your {{destination}}",
-      "confirmSubtitle_general": "Withdraw from goal balance to your {{destination}}",
+      "confirmSubtitle_interestAll": "Withdraw all Bitcoin rewards to your {{destinationLabel}}.",
+      "confirmSubtitle_interest": "Withdraw Bitcoin rewards to your {{destinationLabel}}.",
+      "confirmSubtitle_goalAll": "Withdraw all from {{goalName}} to your {{destinationLabel}}.",
+      "confirmSubtitle_goal": "Withdraw from {{goalName}} to your {{destinationLabel}}.",
+      "confirmSubtitle_generalAll": "Withdraw all from goal balance to your {{destinationLabel}}.",
+      "confirmSubtitle_general": "Withdraw from goal balance to your {{destinationLabel}}.",
       "estimatedSats": "≈ {{sats}} after swap",
       "confirmButton": "Confirm",
       "processing": "Processing withdrawal...",
@@ -3411,7 +3733,11 @@
       "errors": {
         "unableToCompleteWithdrawal": "Unable to complete withdrawal"
       },
-      "withdrawlAll": "Withdrawal All"
+      "withdrawlAll": "Withdrawal All",
+      "interestEarned": "{{amount}} earned",
+      "availableFrom": "Available: {{amount}} · from {{source}}",
+      "loadingSubtitle": "{{amount}} from {{source}}",
+      "successTo": "To your {{destinationLabel}}"
     },
     "howItWorks": {
       "headline1": "Your dollars,",
@@ -3452,7 +3778,9 @@
     "savingsWalletError": "Goal wallet not ready",
     "rewardsPayout": "Bitcoin rewards payout",
     "rewardsWithdrawal": "Bitcoin rewards withdrawl",
-    "total_balance": "Total Balance"
+    "total_balance": "Total balance",
+    "bitcoinBalance": "Bitcoin balance",
+    "dollarBalance": "Dollar balance"
   },
   "analytics": {
     "overBudget": "Over budget",
@@ -3478,6 +3806,7 @@
       "noBudgetSub": "Tap to create a monthly budget",
       "leftToSpend": "{{amount}} left to spend",
       "percentRemaining": "{{percent}}% remaining",
+      "ofBudget": "of {{amount}}",
       "totalBalance": "Total balance"
     },
     "breakdown": {
@@ -3495,9 +3824,13 @@
       "noBudgetSetSub": "Create a monthly budget to track your spending",
       "noBudgetSetButton": "Create budget",
       "leftToSpend": "Left to spend",
+      "leftToSpendRing": "left to spend",
+      "monthlyBudget": "Monthly budget",
+      "resetsMonthly": "Resets on the 1st of each month",
+      "removeBudgetLabel": "Remove budget",
       "spentThisMonth": "Spent this month",
       "removeBudgetTitle": "Remove your budget?",
-      "removeBudgetSub": "Removing this budget will stop alerts and tracking. You can create it again anytime.",
+      "removeBudgetSub": "Alerts and tracking stop. You can set a new budget anytime.",
       "nearBudgetWarning": "You're close to your monthly spending limit",
       "overBudgetWarning": "You've already reached your monthly spending limit",
       "willExceedBudgetWarning": "Sending this payment will put you over your monthly spending limit",
@@ -3518,5 +3851,59 @@
     "progress": "Updating… {{percent}}%",
     "later": "Later",
     "error": "Update failed. Check your connection and try again."
+  },
+  "money": {
+    "title": "Money",
+    "spentIn": "Spent in {{month}}",
+    "today": "Today",
+    "chartLabel": "Daily spending in {{month}}",
+    "savingsGoals": "Savings goals",
+    "goalProgress": "{{current}} of {{target}}",
+    "poolsCollecting": "{{count}} collecting",
+    "giftsUnclaimed": "{{count}} unclaimed",
+    "connections_one": "{{count}} connection",
+    "connections_other": "{{count}} connections"
+  },
+  "receive": {
+    "requestFromContact": "Request from a contact",
+    "fromAnotherWallet": "Receive from another wallet or exchange",
+    "emptyTitle": "Get paid by people you know",
+    "emptySub": "Add a contact to request money from them. Contacts you add show up here.",
+    "addContact": "Add contact",
+    "showMyQr": "Show my QR code",
+    "receiveBitcoin": "Receive Bitcoin",
+    "receiveDollars": "Receive Dollars",
+    "receiveAsset": "Receive {{asset}}",
+    "receiveTokens": "Receive tokens",
+    "createInvoice": "Create invoice",
+    "lightning": "Lightning",
+    "bitcoinAddress": "Bitcoin address",
+    "onChain": "On-chain",
+    "otherNetworks": "Other networks",
+    "otherNetworksSub": "Bitcoin sent from these networks lands in your Bitcoin balance.",
+    "btcSource_base": "Coinbase BTC",
+    "btcSource_solana": "Solana BTC",
+    "pickNetworkSub": "Pick the network the sender is using. Ask them if you’re not sure.",
+    "networkFee": "Network fee",
+    "fromTheAmount": "From the amount",
+    "networkFeeInfo": "Bitcoin sent to this address costs a small network fee to receive. The fee is taken out of the amount you receive, so your balance may show slightly less than what was sent.",
+    "arrives": "Arrives",
+    "afterConfirmations": "After 3 confirmations",
+    "arrivesInfoBitcoin": "Bitcoin sent to this address shows up in your balance once the Bitcoin network has confirmed it 3 times. That usually takes around 30 minutes.",
+    "inAFewMinutes": "In a few minutes",
+    "arrivesInfoStable": "Payments show up in your balance once the {{chain}} network confirms them, usually within a few minutes.",
+    "minimum": "Minimum",
+    "fee": "Fee",
+    "aboutOnePercent": "About 1%",
+    "bitcoinWarning": "Network fees take a bigger share of small amounts. For smaller payments, Create invoice is cheaper.",
+    "stableWarning": "Send only {{asset}} on the {{chain}} network. Other coins or networks can be lost.",
+    "tokensWarning": "Send only Spark tokens to this address. They show up in Tokens.",
+    "invoice": "Invoice",
+    "anyAmount": "Any amount",
+    "anyAmountSub": "The sender chooses how much to pay.",
+    "arrivesAsDollars": "Arrives as Dollars",
+    "conversionNote": "The final amount can vary slightly with the price during the conversion.",
+    "whatFor": "What it’s for",
+    "share": "Share"
   }
 }

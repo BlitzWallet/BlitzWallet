@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,24 +6,19 @@ import {
   ThemeText,
 } from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../../constants';
-import {
-  FONT,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
-import { useCallback, useMemo } from 'react';
-import { getConfirmTxAnimation } from '../../../../../../functions/lottieAnimations';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
-import LottieView from 'lottie-react-native';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
+import { useCallback } from 'react';
+import { useTheme } from '../../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
+import Disc from '../../../../../../functions/CustomElements/redesign/Disc';
 
 export default function ChildLinkSuccess() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { resetSession } = useChildPairing();
 
   const handleDone = useCallback(() => {
@@ -35,64 +30,48 @@ export default function ChildLinkSuccess() {
     return true;
   }, []);
 
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
-
   useHandleBackPressNew(handleDone);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar customBackFunction={handleDone} />
-      <View style={styles.centered}>
-        <LottieView
-          source={confirmAnimation}
-          autoPlay={true}
-          loop={false}
-          style={{
-            width: 125,
-            height: 125,
-          }}
-        />
-        <ThemeText
-          styles={styles.title}
-          content={t('settings.childAccounts.pairing.linkedTitle')}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('settings.childAccounts.pairing.linkedSubtitle')}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <View style={styles.centered} accessibilityRole="alert">
+          <Disc icon="Check" size={88} iconSize={40} tone="primary" />
+          <ThemeText
+            variant="title"
+            styles={styles.title}
+            content={t('settings.childAccounts.pairing.linkedTitle')}
+          />
+          <ThemeText
+            variant="body"
+            styles={[styles.subtitle, { color: tokens.muted }]}
+            content={t('settings.childAccounts.pairing.linkedSubtitle')}
+          />
+        </View>
+        <CustomButton
+          size="regular"
+          textContent={t('settings.childAccounts.confirmation.done')}
+          actionFunction={handleDone}
         />
       </View>
-      <CustomButton
-        buttonStyles={styles.button}
-        textContent={t('settings.childAccounts.confirmation.done')}
-        actionFunction={handleDone}
-      />
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
+  // Same layout as ClaimLinkError: disc top 250 pt from the screen top.
   centered: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 196,
   },
   title: {
-    fontFamily: FONT.Title_Medium,
-    fontSize: SIZES.large,
-    width: '95%',
+    marginTop: 28,
     textAlign: 'center',
-
-    marginBottom: 10,
   },
   subtitle: {
-    opacity: 0.6,
-    width: '95%',
-    maxWidth: 300,
+    marginTop: 8,
     textAlign: 'center',
-  },
-  button: {
-    width: INSET_WINDOW_WIDTH,
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
   },
 });

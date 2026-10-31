@@ -47,6 +47,7 @@ export const LNURLBanner = ({
   backgroundColor,
   backgroundOffset,
   textColor,
+  tokens,
   onQRPress,
 }) => {
   const { t } = useTranslation();
@@ -62,7 +63,7 @@ export const LNURLBanner = ({
         styles.bannerContainer,
         {
           backgroundColor:
-            theme && darkModeType ? backgroundColor : COLORS.primary,
+            theme && darkModeType ? backgroundColor : tokens.accent,
         },
       ]}
     >
@@ -71,7 +72,7 @@ export const LNURLBanner = ({
         <ThemeText
           styles={[
             styles.sectionHeader,
-            { marginTop: 0, marginBottom: 0, color: COLORS.darkModeText },
+            { marginTop: 0, marginBottom: 0, color: tokens.onAccent },
           ]}
           content={t('wallet.halfModal.payMe')}
         />
@@ -79,11 +80,11 @@ export const LNURLBanner = ({
           CustomNumberOfLines={1}
           adjustsFontSizeToFit={true}
           allowFontScaling={true}
-          styles={[styles.bannerAddress, { color: COLORS.darkModeText }]}
+          styles={[styles.bannerAddress, { color: tokens.onAccent }]}
           content={lnurlAddress}
         />
         <ThemeText
-          styles={[styles.bannerSubtitle, { color: COLORS.darkModeText }]}
+          styles={[styles.bannerSubtitle, { color: tokens.onAccent }]}
           content={'@blitzwalletapp.com'}
         />
       </View>
@@ -92,7 +93,7 @@ export const LNURLBanner = ({
           onPress={handleCopy}
           style={[
             styles.bannerIconButton,
-            { backgroundColor: COLORS.darkModeText },
+            { backgroundColor: tokens.onAccent },
           ]}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
@@ -100,7 +101,7 @@ export const LNURLBanner = ({
             size={20}
             iconName={'Copy'}
             colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              theme && darkModeType ? COLORS.lightModeText : tokens.accent
             }
           />
         </TouchableOpacity>
@@ -109,7 +110,7 @@ export const LNURLBanner = ({
           onPress={onQRPress}
           style={[
             styles.bannerIconButton,
-            { backgroundColor: COLORS.darkModeText },
+            { backgroundColor: tokens.onAccent },
           ]}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
@@ -117,7 +118,7 @@ export const LNURLBanner = ({
             size={20}
             iconName={'QrCode'}
             colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              theme && darkModeType ? COLORS.lightModeText : tokens.accent
             }
           />
         </TouchableOpacity>
@@ -319,7 +320,8 @@ export default function HalfModalReceiveOptions({
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor, tokens } =
+    GetThemeColors();
 
   const lnurlAddress = useMemo(
     () =>
@@ -477,6 +479,7 @@ export default function HalfModalReceiveOptions({
             backgroundColor={backgroundColor}
             backgroundOffset={backgroundOffset}
             textColor={textColor}
+            tokens={tokens}
             onQRPress={() =>
               openOverlay(
                 { type: 'lnurlQR' },
@@ -513,7 +516,7 @@ export default function HalfModalReceiveOptions({
             >
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  theme && darkModeType ? tokens.ink : tokens.accent
                 }
                 size={24}
                 iconName={'QrCode'}
@@ -563,10 +566,7 @@ export default function HalfModalReceiveOptions({
             style={[
               styles.divider,
               {
-                borderColor:
-                  theme && darkModeType
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : 'rgba(0, 0, 0, 0.05)',
+                borderColor: tokens.divider,
               },
             ]}
           />

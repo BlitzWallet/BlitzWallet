@@ -1,52 +1,26 @@
-import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
+import { useCallback } from 'react';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { GlobalThemeView } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
-import { SIZES, TOPBAR_HEIGHT } from '../../../constants';
+import { SIZES } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import { useToast } from '../../../../context-store/toastManager';
-import { getAllLocalPools } from '../../../functions/pools/poolsStorage';
-import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import { copyToClipboard } from '../../../functions';
-
 import ProfileCard from './components/ProfileCard';
 import AccountsPreview from './components/AccountsPreview';
-import PoolsPreview from './components/PoolsPreview';
-import SavingsPreview from './components/SavingsPreview';
-import PointOfSaleBanner from './components/PointOfSaleBanner';
-import GiftsPreview from './components/GiftsPreview';
-import AccumulationAddressesPreview from './components/AccumulationAddressesPreview';
-import AnalyticsPreview from './components/AnalyticsPreview';
-
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
-import SectionCard from './components/SectionCard';
-import SettingsRow from './components/SettingsRow';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import openWebBrowser from '../../../functions/openWebBrowser';
-
-const INITIAL_WIDGET_ORDER = [
-  { id: 'accounts', type: 'accounts' },
-  { id: 'savings', type: 'savings' },
-  { id: 'pools', type: 'pools' },
-  { id: 'gifts', type: 'gifts' },
-  { id: 'accumulation', type: 'accumulation' },
-  { id: 'analytics', type: 'analytics' },
-  { id: 'point-of-sale', type: 'point-of-sale' },
-];
+import { MAX_WEB_CONTENT_WIDTH } from '../../../constants';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../functions/CustomElements/redesign/Disc';
+import IconButton from '../../../functions/CustomElements/redesign/IconButton';
+import CustomScrollView from '../../../functions/CustomElements/scrollView';
 
 const DOOMSDAY_ROW = [
   {
@@ -63,96 +37,24 @@ const DOOMSDAY_ROW = [
     name: 'Delete Wallet',
     displayName: 'screens.inAccount.settingsContent.delete wallet',
     iconName: 'Trash2',
+    isDestructive: true,
   },
 ];
-const SCROLL_THRESHOLD = 100;
 
 export default function SettingsHub(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { showToast } = useToast();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { bottomPadding } = useGlobalInsets();
-  const [poolsArray, setPoolsArray] = useState([]);
-  const [activePoolsArray, setActivePoolsArray] = useState([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      (async () => {
-        const allPools = await getAllLocalPools();
-        const uuid = masterInfoObject?.uuid;
-        const owned = allPools.filter(p => p.creatorUUID === uuid);
-        setPoolsArray(owned.sort((a, b) => b.createdAt - a.createdAt));
-        setActivePoolsArray(
-          owned
-            .filter(p => p.status === 'active')
-            .sort((a, b) => b.createdAt - a.createdAt),
-        );
-      })();
-    }, [masterInfoObject?.uuid]),
-  );
+  const { tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const isDoomsday = props?.route?.params?.isDoomsday;
   const myProfileImage = cache[masterInfoObject?.uuid];
   const myContact = globalContactsInformation?.myProfile;
-
-  const scrollY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
-      console.log(event);
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  const profileTextStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [1, 0],
-      Extrapolation.CLAMP,
-    );
-
-    const translateY = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [0, -10],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      opacity,
-      transform: [{ translateY }],
-      position: 'absolute',
-    };
-  });
-
-  const settingsTextStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [0, 1],
-      Extrapolation.CLAMP,
-    );
-
-    const translateY = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [10, 0],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      opacity,
-      transform: [{ translateY }],
-      position: 'absolute',
-    };
-  });
-  const widgetOrder = INITIAL_WIDGET_ORDER;
 
   const handleEditProfile = useCallback(() => {
     if (!isConnectedToTheInternet) {
@@ -172,26 +74,11 @@ export default function SettingsHub(props) {
     navigate.navigate('ShowProfileQr');
   }, [navigate]);
 
-  const handleCopyUsername = useCallback(() => {
-    copyToClipboard(myContact?.uniqueName, showToast);
-  }, [myContact?.uniqueName, showToast]);
-
-  const handleSavingsPress = useCallback(() => {
-    navigate.navigate('SavingsStack');
-  }, [navigate]);
-  const handleAccumulationPress = useCallback(() => {
-    navigate.navigate('AccumulationAddressesHome');
-  }, [navigate]);
-
   const handleViewAllAccounts = useCallback(() => {
     navigate.navigate('SettingsContentHome', {
       for: 'Accounts',
       initialTab: 'personal',
     });
-  }, [navigate]);
-
-  const handleViewAllPools = useCallback(() => {
-    navigate.navigate('PoolsStack');
   }, [navigate]);
 
   const handlePOS = useCallback(() => {
@@ -205,56 +92,6 @@ export default function SettingsHub(props) {
     navigate.navigate('SettingsContentHome', { for: 'Point-of-sale' });
   }, [isConnectedToTheInternet, navigate, t]);
 
-  const handleOpenGifts = useCallback(() => {
-    navigate.navigate('GiftsStack');
-  }, [navigate]);
-
-  const handleAnalyticsPress = useCallback(() => {
-    navigate.navigate('AnalyticsStack');
-  }, [navigate]);
-
-  const renderWidgetItem = useCallback(
-    ({ item }) => {
-      // Ordering is driven by INITIAL_WIDGET_ORDER and rendered as-is in FlashList.
-      switch (item.type) {
-        case 'accounts':
-          return <AccountsPreview onViewAll={handleViewAllAccounts} />;
-        case 'pools':
-          return (
-            <PoolsPreview
-              activePoolsArray={activePoolsArray}
-              poolsArray={poolsArray}
-              onViewAll={handleViewAllPools}
-            />
-          );
-        case 'savings':
-          return <SavingsPreview onPress={handleSavingsPress} />;
-        case 'point-of-sale':
-          return <PointOfSaleBanner onPress={handlePOS} />;
-        case 'gifts':
-          return <GiftsPreview onPress={handleOpenGifts} />;
-        case 'accumulation':
-          return (
-            <AccumulationAddressesPreview onPress={handleAccumulationPress} />
-          );
-        case 'analytics':
-          return <AnalyticsPreview onPress={handleAnalyticsPress} />;
-        default:
-          return null;
-      }
-    },
-    [
-      activePoolsArray,
-      handleAnalyticsPress,
-      handleOpenGifts,
-      handlePOS,
-      handleViewAllAccounts,
-      handleViewAllPools,
-      handleSavingsPress,
-      poolsArray,
-    ],
-  );
-
   const handleSettingsRowPress = useCallback(
     row => {
       navigate.navigate('SettingsContentHome', {
@@ -264,126 +101,145 @@ export default function SettingsHub(props) {
     },
     [isConnectedToTheInternet, isDoomsday],
   );
-  const renderSection = useCallback(
-    (rows, title) => {
-      return (
-        <SectionCard title={title}>
-          {rows.map((row, index) => (
-            <SettingsRow
-              key={row.name}
-              iconName={row.iconName}
-              iconImage={row.iconImage}
-              iconImageWhite={row.iconImageWhite}
-              label={t(row.displayName)}
-              onPress={() => handleSettingsRowPress(row)}
-              isLast={index === rows.length - 1}
-              isDestructive={row.isDestructive}
-            />
-          ))}
-        </SectionCard>
-      );
-    },
-    [t, handleSettingsRowPress],
-  );
 
   if (isDoomsday) {
     return (
       <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-        <CustomSettingsTopBar label={t('settings.index.settingsHead')} />
-        <View style={styles.doomedayContianer}>
-          {renderSection(DOOMSDAY_ROW)}
-
-          <TouchableOpacity
-            onPress={() => {
-              openWebBrowser({
-                navigate,
-                link: 'https://recover.blitzwalletapp.com/',
-              });
-            }}
-            style={{
-              ...styles.posContainer,
-              borderColor:
-                theme && darkModeType ? COLORS.white : COLORS.primary,
-              marginTop: 30,
-            }}
-          >
-            <ThemeText
-              styles={{
-                color: theme && darkModeType ? COLORS.white : COLORS.primary,
-                fontSize: SIZES.xLarge,
-                marginLeft: 10,
-                includeFontPadding: false,
-              }}
-              content={t('screens.inAccount.settingsContent.blitzRestore')}
-            />
-          </TouchableOpacity>
+        <View style={[styles.doomedayContianer, { width: contentWidth }]}>
+          <TopBar title={t('settings.index.settingsHead')} />
+          <View style={styles.doomedayCard}>
+            <ListCard dividerInset={48}>
+              {DOOMSDAY_ROW.map(row => (
+                <ListRow
+                  key={row.name}
+                  title={t(row.displayName)}
+                  minHeight={52}
+                  titleStyle={styles.doomedayRowTitle}
+                  tone={row.isDestructive ? 'danger' : 'default'}
+                  lead={
+                    <Disc
+                      icon={row.iconName}
+                      size={36}
+                      tone={row.isDestructive ? 'danger' : 'default'}
+                    />
+                  }
+                  trailing={
+                    row.isDestructive ? undefined : (
+                      <ThemeIcon
+                        redesign
+                        iconName="ChevronRight"
+                        size={18}
+                        colorOverride={tokens.muted}
+                      />
+                    )
+                  }
+                  onPress={() => handleSettingsRowPress(row)}
+                />
+              ))}
+              <ListRow
+                title={t('screens.inAccount.settingsContent.blitzRestore')}
+                minHeight={52}
+                titleStyle={styles.doomedayRowTitle}
+                onPress={() => {
+                  openWebBrowser({
+                    navigate,
+                    link: 'https://recover.blitzwalletapp.com/',
+                  });
+                }}
+                trailing={
+                  <ThemeIcon
+                    redesign
+                    iconName="ExternalLink"
+                    size={18}
+                    colorOverride={tokens.muted}
+                  />
+                }
+              />
+            </ListCard>
+          </View>
         </View>
       </GlobalThemeView>
     );
   }
 
+  const profileRows = [
+    {
+      key: 'settings',
+      icon: 'Settings',
+      label: t('settings.index.settingsHead'),
+      onPress: () => navigate.navigate('SettingsIndex'),
+    },
+    !masterInfoObject?.isChildAccount && {
+      key: 'backup',
+      icon: 'KeyRound',
+      label: t('settings.index.backup'),
+      onPress: () => handleSettingsRowPress({ name: 'Backup wallet' }),
+    },
+    {
+      key: 'social',
+      icon: 'Share2',
+      label: t('settings.index.social'),
+      onPress: () =>
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'socialLinks',
+        }),
+    },
+    {
+      key: 'pos',
+      icon: 'Store',
+      label: t('settings.index.pointOfSale'),
+      onPress: handlePOS,
+    },
+    // Nostr stays native only (WM-18).
+    Platform.OS !== 'web' && {
+      key: 'nostr',
+      icon: 'AtSign',
+      label: t('settings.index.nostr'),
+      onPress: () => handleSettingsRowPress({ name: 'Nostr' }),
+    },
+  ].filter(Boolean);
+
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <View style={styles.topBar}>
-        <TouchableOpacity style={styles.goBackTopbar} onPress={navigate.goBack}>
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-
-        <View style={styles.headerTextContainer}>
-          <Animated.View style={profileTextStyle}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.topBarLabel}
-              content={
-                !isDoomsday
-                  ? t('settings.index.profileHead')
-                  : t('settings.index.settingsHead')
-              }
+      <View style={{ width: contentWidth, ...CENTER }}>
+        <TopBar
+          title={t('settings.index.profileHead')}
+          right={
+            <IconButton
+              icon="Settings"
+              label="settings.index.settingsHead"
+              onPress={() => navigate.navigate('SettingsIndex')}
             />
-          </Animated.View>
+          }
+        />
 
-          <Animated.View style={settingsTextStyle}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.topBarLabel}
-              content={t('settings.index.settingsHead')}
-            />
-          </Animated.View>
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            navigate.navigate('SettingsIndex');
-          }}
-        >
-          <ThemeIcon iconName={'Settings'} />
-        </TouchableOpacity>
+        <CustomScrollView showsVerticalScrollIndicator={false}>
+          <ProfileCard
+            profileImage={myProfileImage}
+            name={myContact?.name}
+            uniqueName={myContact?.uniqueName}
+            onEditPress={handleEditProfile}
+            onShowQRPress={handleShowQR}
+          />
+          <AccountsPreview onViewAll={handleViewAllAccounts} />
+          <View style={styles.rowsCard}>
+            <ListCard dividerInset={64}>
+              {profileRows.map(row => (
+                <ListRow
+                  key={row.key}
+                  title={row.label}
+                  minHeight={52}
+                  paddingVertical={8}
+                  titleStyle={styles.rowTitle}
+                  lead={<Disc icon={row.icon} size={36} />}
+                  trailing="chevron"
+                  onPress={row.onPress}
+                />
+              ))}
+            </ListCard>
+          </View>
+        </CustomScrollView>
       </View>
-
-      <FlatList
-        data={widgetOrder}
-        estimatedItemSize={132}
-        keyExtractor={item => item.id}
-        renderItem={renderWidgetItem}
-        // onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: bottomPadding },
-        ]}
-        ListHeaderComponent={
-          <>
-            <ProfileCard
-              profileImage={myProfileImage}
-              name={myContact?.name || t('constants.annonName')}
-              uniqueName={myContact?.uniqueName}
-              onEditPress={handleEditProfile}
-              onShowQRPress={handleShowQR}
-              onCopyUsername={handleCopyUsername}
-            />
-          </>
-        }
-      />
     </GlobalThemeView>
   );
 }
@@ -392,26 +248,11 @@ const styles = StyleSheet.create({
   globalContainer: {
     paddingBottom: 0,
   },
-  topBar: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    height: TOPBAR_HEIGHT,
-  },
-  goBackTopbar: {
-    marginRight: 'auto',
-  },
-  topBarLabel: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-  },
   listContent: {
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    paddingTop: 8,
   },
+  rowsCard: { marginTop: 12, marginBottom: 20 },
+  rowTitle: { fontSize: 15, lineHeight: 22 },
   widgetsHeader: {
     width: '100%',
     marginTop: 12,
@@ -420,13 +261,6 @@ const styles = StyleSheet.create({
   widgetsTitle: {
     fontSize: SIZES.large,
     includeFontPadding: false,
-  },
-  headerTextContainer: {
-    width: '100%',
-    paddingHorizontal: 35,
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   widgetsSubtitle: {
     marginTop: 2,
@@ -449,8 +283,8 @@ const styles = StyleSheet.create({
   },
   doomedayContianer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: 20,
+    alignSelf: 'center',
   },
+  doomedayCard: { marginTop: 16 },
+  doomedayRowTitle: { fontSize: 15, lineHeight: 21 },
 });

@@ -1,25 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../constants';
+import { StyleSheet, View } from 'react-native';
+import { ICONS } from '../../../constants';
 import { useTranslation } from 'react-i18next';
-import { ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
-import { decryptMnemonicWithPasskey, getStoredPasskeyInfo } from '../../../functions/passkeyMnemonic';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
+import {
+  decryptMnemonicWithPasskey,
+  getStoredPasskeyInfo,
+} from '../../../functions/passkeyMnemonic';
 import { tintStyle } from '../../../functions/webTintColor';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import { Image } from 'expo-image';
+import TextButton from '../../../functions/CustomElements/redesign/TextButton';
+import { ThemeText } from '../../../functions/CustomElements';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { LOGIN_LOGO_TOP } from './loginLayout';
 
 // Web login for a wallet locked by a passkey. Unlike PasswordPage there is no
 // attempt counter and no auto-reset: a passkey can't be guessed (the
 // authenticator enforces its own lockout), and a glitchy password manager
 // must never be able to wipe a wallet.
 export default function PasskeyLoginPage() {
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const [error, setError] = useState('');
   const [isUnlocking, setIsUnlocking] = useState(false);
   const { setAccountMnemonic } = useKeysContext();
@@ -78,11 +83,10 @@ export default function PasskeyLoginPage() {
 
   const handleLostPasskey = useCallback(() => {
     if (isUnlockingRef.current) return;
-    navigate.navigate('ConfirmActionPage', {
-      confirmMessage: t(
-        'adminLogin.passkeyPage.lostPasskeyConfirm',
-        'Lost your passkey? The only way back in is to reset and restore with your recovery phrase.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.',
-      ),
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'walletReset',
+      title: t('adminLogin.passkeyPage.lostPasskey'),
+      message: t('adminLogin.passkeyPage.lostPasskeyMessage'),
       confirmFunction: async () => {
         const deleted = await factoryResetWallet();
         if (deleted) {
@@ -98,40 +102,37 @@ export default function PasskeyLoginPage() {
 
   return (
     <View style={styles.contentContainer}>
-      {!!error && <ThemeText styles={styles.errorText} content={error} />}
-      <View style={styles.centerContent}>
-        <Image
-          source={ICONS.logoIcon}
-          style={[
-            styles.logo,
-            tintStyle(theme ? COLORS.darkModeText : undefined),
-          ]}
-        />
-      </View>
+      <Image
+        source={ICONS.logoIcon}
+        style={[styles.logo, tintStyle(theme ? tokens.ink : undefined)]}
+      />
+      {!!error && (
+        <Animated.View entering={FadeIn.duration(150)}>
+          <ThemeText
+            styles={[styles.errorText, { color: tokens.danger }]}
+            content={error}
+          />
+        </Animated.View>
+      )}
       <View style={styles.buttonContainer}>
         <CustomButton
           textContent={t(
             'adminLogin.passkeyPage.unlockButton',
-            'Unlock with passkey',
+            'Open with passkey',
           )}
           actionFunction={unlock}
           disabled={isUnlocking}
           useLoading={isUnlocking}
+          size={'regular'}
         />
-        <TouchableOpacity
-          testID="lost-passkey"
-          style={styles.lostButton}
+        <TextButton
+          text={t('adminLogin.passkeyPage.lostPasskey')}
+          align="center"
+          textStyle={styles.lostText}
           onPress={handleLostPasskey}
           disabled={isUnlocking}
-        >
-          <ThemeText
-            styles={styles.lostText}
-            content={t(
-              'adminLogin.passkeyPage.lostPasskey',
-              'Lost your passkey?',
-            )}
-          />
-        </TouchableOpacity>
+          testID={'lost-passkey'}
+        />
       </View>
     </View>
   );
@@ -140,41 +141,27 @@ export default function PasskeyLoginPage() {
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    width: WINDOWWIDTH,
-    alignItems: 'center',
-    ...CENTER,
-  },
-  header: {
-    fontSize: SIZES.xxLarge,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: 50,
-  },
-  errorText: {
-    fontSize: SIZES.small,
-    color: COLORS.cancelRed,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  buttonContainer: {
-    marginTop: 'auto',
-    width: '100%',
-  },
-  lostButton: {
-    marginTop: 15,
-  },
-  lostText: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-  },
-  centerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   logo: {
-    width: 120,
-    height: 120,
+    position: 'absolute',
+    top: LOGIN_LOGO_TOP,
+    alignSelf: 'center',
+    width: 88,
+    height: 88,
+  },
+  errorText: {
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginBottom: 12,
+  },
+  buttonContainer: {
+    gap: 12,
+  },
+  lostText: {
+    fontSize: 15,
+    lineHeight: 22,
   },
 });

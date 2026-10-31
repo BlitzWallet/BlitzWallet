@@ -26,7 +26,7 @@ export default function WordsQrToggle({
 }) {
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { t } = useTranslation();
   const navigate = useNavigation();
 
@@ -91,8 +91,7 @@ export default function WordsQrToggle({
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: translateX.value }, { translateY: 3 }],
-      backgroundColor:
-        theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+      backgroundColor: theme && darkModeType ? tokens.ink : tokens.accent,
       width: buttonWidth,
     };
   });
@@ -124,10 +123,8 @@ export default function WordsQrToggle({
                 selectedDisplayOption === option1Value
                   ? theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText
-                  : theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeText,
+                    : tokens.onAccent
+                  : tokens.ink,
             }}
             content={option1Text}
           />
@@ -146,10 +143,8 @@ export default function WordsQrToggle({
                 selectedDisplayOption === option2Value
                   ? theme && darkModeType
                     ? COLORS.lightModeText
-                    : COLORS.darkModeText
-                  : theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeText,
+                    : tokens.onAccent
+                  : tokens.ink,
             }}
             content={option2Text}
           />

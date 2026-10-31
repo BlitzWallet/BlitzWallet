@@ -1,44 +1,33 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  FONT,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 
 export default function CreateGiftDescription(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const { amount, amountValue, dollarAmount, giftDenomination, giftQuantity } =
     props.route.params || {};
 
   const [description, setDescription] = useState('');
 
-  const isOverLimit = description.length >= 150;
-  const characterCountColor = isOverLimit
-    ? theme && darkModeType
-      ? textColor
-      : COLORS.cancelRed
-    : textColor;
+  const trimmed = description?.trim();
 
   return (
     <CustomKeyboardAvoidingView
@@ -47,83 +36,71 @@ export default function CreateGiftDescription(props) {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('screens.inAccount.giftPages.createGift.header')}
-      />
-      <CustomScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.container}>
-          <ThemeText
-            styles={styles.title}
-            content={t(
-              'screens.inAccount.giftPages.createGift.descriptionTitle',
-            )}
-          />
-          <ThemeText
-            styles={styles.subtitle}
-            content={t(
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('screens.inAccount.giftPages.createGift.header')}
+          shouldDismissKeyboard={true}
+        />
+        <CustomScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+        >
+          <PageHeader
+            title={t('screens.inAccount.giftPages.createGift.descriptionTitle')}
+            sub={t(
               'screens.inAccount.giftPages.createGift.descriptionSubtitle',
             )}
           />
-          <CustomSearchInput
-            inputText={description}
-            setInputText={setDescription}
-            placeholderText={t(
+          <UserInput
+            value={description}
+            onChangeText={setDescription}
+            placeholder={t(
               'screens.inAccount.giftPages.createGift.inputPlaceholder',
             )}
-            textInputMultiline={true}
             maxLength={150}
-            onFocusFunction={() => setIsKeyboardActive(true)}
-            onBlurFunction={() => setIsKeyboardActive(false)}
-            textInputStyles={styles.textArea}
-            textAlignVertical="top"
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
+            focusRing={true}
+            showTextCount={true}
           />
-          <ThemeText
-            styles={{
-              textAlign: 'right',
-              color: characterCountColor,
-              marginTop: 6,
+        </CustomScrollView>
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            disabled={!trimmed}
+            actionFunction={() => {
+              if (!trimmed) return;
+              keyboardNavigate(() => {
+                navigate.navigate('CreateGiftDuration', {
+                  amount,
+                  amountValue,
+                  dollarAmount,
+                  giftDenomination,
+                  giftQuantity,
+                  description: trimmed,
+                });
+              });
             }}
-            content={`${description.length} / 150`}
+            textContent={t('constants.continue')}
+            size={'regular'}
+          />
+          <CustomButton
+            actionFunction={() => {
+              keyboardNavigate(() => {
+                navigate.navigate('CreateGiftDuration', {
+                  amount,
+                  amountValue,
+                  dollarAmount,
+                  giftDenomination,
+                  giftQuantity,
+                  description: '',
+                });
+              });
+            }}
+            textContent={t('constants.skip', { defaultValue: 'Skip' })}
+            tone={'secondary'}
           />
         </View>
-      </CustomScrollView>
-      <CustomButton
-        buttonStyles={styles.button}
-        actionFunction={() => {
-          if (!description.trim()) {
-            keyboardNavigate(() => {
-              navigate.navigate('CreateGiftDuration', {
-                amount,
-                amountValue,
-                dollarAmount,
-                giftDenomination,
-                giftQuantity,
-                description: '',
-              });
-            });
-          } else {
-            keyboardNavigate(() => {
-              navigate.navigate('CreateGiftDuration', {
-                amount,
-                amountValue,
-                dollarAmount,
-                giftDenomination,
-                giftQuantity,
-                description: description.trim(),
-              });
-            });
-          }
-        }}
-        textContent={
-          !description.trim()
-            ? t('constants.skip', { defaultValue: 'Skip' })
-            : t('constants.continue')
-        }
-      />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
@@ -131,31 +108,13 @@ export default function CreateGiftDescription(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   scroll: {
     flexGrow: 1,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  textArea: {
-    minHeight: 120,
-  },
+  buttonContainer: { gap: 10 },
   button: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

@@ -6,16 +6,26 @@ import {
   setLocalStorageItem,
 } from '../../../functions';
 import {
+  ICONS,
+  LOCK_SCREEN_PROFILE_KEY,
   LOGIN_SECUITY_MODE_KEY,
   PERSISTED_LOGIN_COUNT_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
-  SIZES,
 } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
 import RNRestart from 'react-native-restart-newarch';
-import PinDot from '../../../functions/CustomElements/pinDot';
+import { Image } from 'expo-image';
+import Animated, {
+  FadeIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '../../../../context-store/theme';
+import { tintStyle } from '../../../functions/webTintColor';
 import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
@@ -39,6 +49,17 @@ export default function PinPage() {
     needsToBeMigrated: null,
   });
   const [useRanomPinLayout, setUseRandomPinLayout] = useState(false);
+  // E2: photo cached on Home. undefined until read (the greeting
+  // stays hidden so it never flashes the logo first), null when never cached.
+  const [lockProfile, setLockProfile] = useState(undefined);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const { tokens, scheme } = useTheme();
+  const [isShaking, setIsShaking] = useState(false);
+  const isShakingRef = useRef(false);
+  const dotsShake = useSharedValue(0);
+  const dotsShakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: dotsShake.value }],
+  }));
   const { setAccountMnemonic } = useKeysContext();
   const { t } = useTranslation();
   const didNavigate = useRef(null);
@@ -94,6 +115,18 @@ export default function PinPage() {
           enteredPin: [null, null, null, null],
         };
       });
+      // The PIN itself is cleared above, at once: a full PIN left in state
+      // re-runs the check and counts one entry several times. Only the dots
+      // stay filled while they shake 3× over 240 ms; keys wait until then.
+      isShakingRef.current = true;
+      setIsShaking(true);
+      dotsShake.value = withSequence(
+        ...[8, -8, 8, -8, 8, 0].map(x => withTiming(x, { duration: 40 })),
+      );
+      setTimeout(() => {
+        isShakingRef.current = false;
+        setIsShaking(false);
+      }, 240);
     }
   }, [loginSettings, navigate, t]);
 
@@ -201,6 +234,7 @@ export default function PinPage() {
           storedPin,
           ranomkeyboardLayout,
           persistedPinEnterCount,
+          storedLockProfile,
         ] = await Promise.all([
           getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
             JSON.parse(data),
@@ -210,8 +244,14 @@ export default function PinPage() {
             JSON.parse,
           ),
           getLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY).then(JSON.parse),
+          // Display-only: a bad cached value must never fail the PIN setup
+          // loaded alongside it.
+          getLocalStorageItem(LOCK_SCREEN_PROFILE_KEY)
+            .then(JSON.parse)
+            .catch(() => null),
         ]);
         setUseRandomPinLayout(ranomkeyboardLayout);
+        setLockProfile(storedLockProfile || null);
 
         let needsToBeMigrated;
         try {
@@ -229,39 +269,78 @@ export default function PinPage() {
           enteredPinCount: persistedPinEnterCount || 0,
         }));
       } catch (err) {
+        setLockProfile(null);
         console.log('Load pin page information error', err);
       }
     }
     loadPageInformation();
   }, []);
 
+  // Greeting follows the time of day; no name (owner 2026-10-26).
+  const hour = new Date().getHours();
+  const greeting = t(
+    `adminLogin.pinPage.${
+      hour < 12 ? 'goodMorning' : hour < 18 ? 'goodAfternoon' : 'goodEvening'
+    }`,
+  );
+  const showPhoto = !!lockProfile?.imageUri && !photoFailed;
+
   return (
     <View style={styles.contentContainer}>
-      <ThemeText
-        styles={styles.header}
-        content={t('adminLogin.pinPage.enterPinMessage')}
-      />
+      <View
+        style={[styles.greeting, lockProfile === undefined && styles.hidden]}
+      >
+        {showPhoto ? (
+          <Image
+            source={{ uri: lockProfile.imageUri }}
+            style={[styles.avatar, styles.photo]}
+            contentFit="cover"
+            onError={() => setPhotoFailed(true)}
+          />
+        ) : (
+          <Image
+            source={ICONS.logoIcon}
+            style={[
+              styles.avatar,
+              tintStyle(scheme === 'light' ? undefined : tokens.ink),
+            ]}
+          />
+        )}
+        <ThemeText variant="title" styles={styles.header} content={greeting} />
+      </View>
 
       {!!loginSettings.enteredPinCount && (
-        <ThemeText
-          styles={styles.enterText}
-          content={t('adminLogin.pinPage.attemptsText', {
-            attempts: 8 - loginSettings.enteredPinCount,
-          })}
-        />
+        <Animated.View entering={FadeIn.duration(150)}>
+          <ThemeText
+            styles={[styles.attemptsText, { color: tokens.danger }]}
+            content={t('adminLogin.pinPage.attemptsText', {
+              attempts: 8 - loginSettings.enteredPinCount,
+            })}
+          />
+        </Animated.View>
       )}
 
-      <View
+      <Animated.View
+        accessible={true}
+        accessibilityRole="image"
+        accessibilityLabel={`${
+          loginSettings.enteredPin.filter(n => typeof n === 'number').length
+        } of 4`}
         style={[
           styles.dotContainer,
-          { marginTop: loginSettings.enteredPinCount ? 0 : 30 },
+          { marginTop: loginSettings.enteredPinCount ? 48 : 76 },
+          dotsShakeStyle,
         ]}
       >
-        <PinDot pin={loginSettings.enteredPin} dotNum={0} />
-        <PinDot pin={loginSettings.enteredPin} dotNum={1} />
-        <PinDot pin={loginSettings.enteredPin} dotNum={2} />
-        <PinDot pin={loginSettings.enteredPin} dotNum={3} />
-      </View>
+        {loginSettings.enteredPin.map((digit, index) => (
+          <LoginPinDot
+            key={index}
+            filled={isShaking || typeof digit === 'number'}
+            filledColor={tokens.accent}
+            emptyColor={tokens.tabPill}
+          />
+        ))}
+      </Animated.View>
       <View style={styles.keyboardContainer}>
         {keyboardLayout.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.keyboard_row}>
@@ -270,6 +349,8 @@ export default function PinPage() {
                 key={`${rowIndex}-${colIndex}`}
                 num={num}
                 addPin={addPin}
+                redesign
+                pinPad
               />
             ))}
           </View>
@@ -279,6 +360,7 @@ export default function PinPage() {
   );
 
   function addPin(id) {
+    if (isShakingRef.current) return;
     if (typeof id != 'number') {
       if (id === null) {
         setLoginSettings(prev => {
@@ -323,43 +405,74 @@ export default function PinPage() {
   }
 }
 
+// Each digit fills its dot over 120 ms with the same 1.1 bounce as PinDot.
+function LoginPinDot({ filled, filledColor, emptyColor }) {
+  const scale = useSharedValue(1);
+  useEffect(() => {
+    if (!filled) return;
+    scale.value = withSequence(
+      withTiming(1.1, { duration: 100 }),
+      withTiming(1, { duration: 100 }),
+    );
+  }, [filled, scale]);
+  const bounceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        {
+          backgroundColor: filled ? filledColor : emptyColor,
+          transitionProperty: 'backgroundColor',
+          transitionDuration: 120,
+        },
+        bounceStyle,
+      ]}
+    />
+  );
+}
+
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: 'center',
   },
+  greeting: { alignItems: 'center' },
+  hidden: { opacity: 0 },
+  avatar: {
+    width: 72,
+    height: 72,
+    marginTop: 64,
+  },
+  photo: { borderRadius: 36 },
   header: {
-    fontSize: SIZES.xLarge,
-    marginTop: 50,
+    textAlign: 'center',
+    marginTop: 20,
   },
-  enterText: {
-    fontSize: SIZES.large,
-    marginBottom: 30,
+  attemptsText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
-
   dotContainer: {
-    width: 150,
-    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 24,
   },
-
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
   keyboardContainer: {
     width: '100%',
-    maxWidth: 400,
     marginTop: 'auto',
+    gap: 10,
   },
   keyboard_row: {
-    width: '100%',
-    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  key: {
-    width: '33.333333333%',
-    height: 70,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 10,
   },
 });

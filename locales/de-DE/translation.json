@@ -58,6 +58,8 @@
     "retry": "Erneut versuchen",
     "download": "Herunterladen",
     "contactUs": "Kontaktieren Sie uns",
+    "copyEmail": "E-Mail kopieren",
+    "openInbox": "Posteingang öffnen",
     "pay": "Bezahlen",
     "processing": "Wird verarbeitet…",
     "support": "Support",
@@ -1681,13 +1683,15 @@
       "text4": "Schnellzahlungsschwelle (Sats)",
       "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen.",
       "text6": "Aktuell",
-      "text7": "Neu"
+      "text7": "Neu",
+      "editThresholdA11y": "Schwellenwert bearbeiten"
     },
     "loginSecurity": {
       "text1": "Anmeldesicherheit aktivieren",
-      "text2": "Sicherheitstyp",
+      "text2": "Entsperren mit",
       "text3": "PIN",
-      "text4": "Biometrisch",
+      "text4": "Biometrie",
+      "passwordMethod": "Passwort",
       "text5": "Gerät hat kein biometrisches Profil. Erstellen Sie eines in den Einstellungen, um fortzufahren.",
       "text6": "Fehler beim Anmelden mit Biometrie.",
       "text7": "Gerät unterstützt keine biometrische Anmeldung.",
@@ -1700,6 +1704,7 @@
       "createPinPageHeader": "{{type}} Ihren Blitz-PIN",
       "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
+      "randomPinKeyboardSubtitle": "Ändert bei jeder Entsperrung die Reihenfolge der PIN-Ziffern.",
       "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
       "biometricsHead": "Biometrie",
       "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Wenn sich diese ändern, kann Blitz Wallet nicht mehr auf Ihre Wiederherstellungsphrase zugreifen und Ihre Wallet wird gesperrt.",
@@ -1748,6 +1753,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Absturzberichte aktiviert",
       "crashreporting_disabled": "Absturzberichte deaktiviert",
+      "switchLabel": "Absturzberichte",
       "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version."
     },
     "accounts": {
@@ -1791,13 +1797,17 @@
     "sparkInfo": {
       "title": "Wallet-Informationen",
       "sparkAddress": "Spark-Adresse",
-      "pubKey": "Öffentlicher Schlüssel"
+      "pubKey": "Öffentlicher Schlüssel",
+      "copyA11y": "{{label}} kopieren"
     },
     "sparkLrc20": {
       "balanceError": "Ihr aktuelles Wallet-Guthaben beträgt {{balance}}. Blitz fügt allen BTKN-Zahlungen eine Gebühr von {{fee}} hinzu. Stellen Sie sicher, dass sich etwas Bitcoin in Ihrer Wallet befindet, um Token zu senden.",
       "title": "Spark-Einstellungen",
       "sliderTitle_enabled": "BTKN aktiviert",
       "sliderTitle_disabled": "BTKN deaktiviert",
+      "switchLabel": "BTKN-Token",
+      "switchSub": "Token im Spark-Netzwerk senden und empfangen.",
+      "disclaimer": "Blitz ist eine Bitcoin-Wallet und bewirbt keine Token. Diese Funktion ist da, damit Sie die Technologie nutzen können, die Sie bevorzugen.",
       "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin ausgerichtete Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.",
       "selectTokenHeader": "Standard-Token",
       "selectTokenInformationPopup": "Bitte wählen Sie aus, welchen Token Sie zuerst für Zahlungen verwenden möchten. Keine Sorge – Sie können dies jederzeit auf der Zahlungsseite ändern."
@@ -1827,6 +1837,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Submarine-Swap",
+      "subtitle": "Rootstock-Transfer",
       "id": "ID",
       "swapDetails": "Übertragungsdetails",
       "claimAddress": "Auszahlungsadresse",
@@ -1861,8 +1872,8 @@
       "unsupportedTitle": "Wir unterstützen {{type}} nicht mehr",
       "unsupportedDesc": "Falls Sie noch Guthaben auf {{type}} haben, stellen Sie die Wiederherstellungsphrase Ihrer Blitz Wallet in einer kompatiblen Wallet wieder her, um darauf zuzugreifen. Benötigen Sie Hilfe? Kontaktieren Sie uns unten.",
       "contactUs": "Kontaktieren Sie uns",
-      "refundInProgress": "Rückerstattung wird durchgeführt. Lassen Sie die App geöffnet, bis der Vorgang abgeschlossen ist.",
-      "refundComplete": "Rückerstattung abgeschlossen. Ihr Guthaben ist wieder in Ihrer Liquid-Wallet verfügbar."
+      "refundInProgress": "Rückerstattung wird durchgeführt. Lassen Sie die App geöffnet.",
+      "refundComplete": "Rückerstattung abgeschlossen."
     },
     "notifications": {
       "mainToggle": "Benachrichtigungen zulassen",
@@ -1870,6 +1881,7 @@
       "disablePush": "Push-Benachrichtigungen ausschalten",
       "updateInSettings": "In den App-Einstellungen ändern",
       "open": "Öffnen",
+      "openA11y": "Telefon-Einstellungen öffnen",
       "disabledTitle": "Benachrichtigungen sind ausgeschaltet",
       "disabledSubtitle": "Aktivieren Sie oben die Push-Benachrichtigungen, um zu wählen, über welche Zahlungen und Ereignisse Sie informiert werden möchten.",
       "optionsTitle": "Benachrichtigungsoptionen",
@@ -1911,8 +1923,8 @@
       "swapsType": "BTC <> USD-Swaps",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
-      "sparkSwapType": "BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (kettenübergreifend)",
+      "sparkSwapType": "BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC oder USDB ↔︎ Stablecoin (kettenübergreifend)",
       "chainSwapFee": "0,5 % Blitz-Gebühr + mindestens 0,1 % Flashnet-Gebühr",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-Gebühr + Netzwerkgebühren",
@@ -1920,9 +1932,10 @@
       "rootstockFee": "0,1 % Boltz-Gebühr + Netzwerkgebühren",
       "accumulationType": "Akkumulationsadressen",
       "accumulationFee": "0,5 % Blitz-Gebühr + 0,5 % Flashnet-Gebühr",
-      "othersType": "Alle anderen",
-      "othersFee": "Netzwerkgebühren",
-      "networkFeeLinkDesc": "Tippen Sie hier, um eine Aufschlüsselung der Spark-Netzwerkgebühren anzuzeigen."
+      "othersType": "Alles andere",
+      "othersFee": "Nur Netzwerkgebühren",
+      "networkFeeLinkDesc": "Tippen Sie hier, um eine Aufschlüsselung der Spark-Netzwerkgebühren anzuzeigen.",
+      "networkFeeLink": "Spark-Netzwerkgebühren anzeigen"
     },
     "nip5": {
       "noNameError": "Name darf nicht leer sein.",
@@ -1951,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Sind Sie sicher, dass Sie diese Verbindung löschen möchten?",
+      "deleteDialog": {
+        "title": "Diese Verbindung löschen?",
+        "message": "{{name}} funktioniert dann nicht mehr mit Ihrer Wallet. Das Geld auf Ihrem Wallet-Connect-Konto bleibt dort."
+      },
+      "connectionString": {
+        "subtitle": "Scannen Sie sie in {{name}} oder kopieren Sie sie und fügen Sie sie ein.",
+        "warning": "Wer diese Verbindungszeichenfolge hat, kann alle Berechtigungen nutzen, die Sie ihr gegeben haben."
+      },
       "addAccount": "Verbindung hinzufügen",
+      "accountBalance": {
+        "title": "Kontostand",
+        "subtitle": "Was Apps ausgeben können"
+      },
+      "connectionsHeader": "Verbindungen",
+      "connectionSummary": {
+        "noBudget": "Kein Budget",
+        "canSend": "Kann {{amount}} {{period}} senden",
+        "cantSend": "Kann nicht senden"
+      },
       "empty": {
         "title": "Noch keine Verbindungen",
         "subtitle": "Nutzen Sie Ihr Wallet-Connect-Konto mit Ihren bevorzugten Apps."
@@ -1967,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Berechtigungen",
-        "pageTitle": "Verbindungsberechtigungen hinzufügen",
-        "pageSubtitle": "Wählen Sie aus, welche Aktionen {{name}} ausführen darf.",
+        "pageTitle": "Was kann {{name}} tun?",
+        "pageSubtitle": "Aktivieren Sie nur, was die App benötigt.",
         "editTitle": "Verbindungsberechtigungen bearbeiten",
         "editSubtitle": "Ändern Sie, welche Aktionen {{name}} ausführen darf."
       },
@@ -1979,7 +2009,15 @@
         "editTitle": "Ausgabenbudget bearbeiten",
         "editSubtitle": "Ändern Sie das Ausgabenlimit und dessen Zurücksetzung. Für kein Limit leer lassen.",
         "renewalPlaceholder": "Verlängerungszeitraum auswählen",
-        "createButton": "Verbindung erstellen"
+        "createButton": "Verbindung erstellen",
+        "resetTitle": "Wie oft wird das Limit zurückgesetzt?",
+        "noLimit": "Kein Limit",
+        "resetsDaily": "Tägliche Zurücksetzung",
+        "resetsWeekly": "Wöchentliche Zurücksetzung",
+        "resetsMonthly": "Monatliche Zurücksetzung",
+        "resetsYearly": "Jährliche Zurücksetzung",
+        "resetHint": "Öffnet die Optionen für den Zurücksetzungszeitraum.",
+        "changeCurrency": "Währung ändern"
       },
       "accountPage": {
         "title": "Verbindung verwalten",
@@ -1988,7 +2026,7 @@
         "permissionsCount_one": "{{count}} Berechtigung",
         "permissionsCount_other": "{{count}} Berechtigungen",
         "renewalLabel": "Verlängerungszeitraum",
-        "amountLabel": "Budgetbetrag",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Verbindungszeichenfolge",
         "deleteAccount": "Verbindung löschen"
       },
@@ -2013,7 +2051,8 @@
       },
       "noNotifications": {
         "title": "Benachrichtigungen erforderlich",
-        "subtitle": "Wallet Connect benötigt Push-Benachrichtigungen. Bitte aktivieren Sie sie in den Einstellungen und versuchen Sie es erneut."
+        "subtitle": "Wallet Connect benötigt Push-Benachrichtigungen, um Apps zu antworten. Aktivieren Sie sie und kommen Sie dann zurück.",
+        "button": "Benachrichtigungen einschalten"
       },
       "showSeedPage": {
         "loadingMessage": "Wiederherstellungsphrase wird generiert",
@@ -2059,15 +2098,16 @@
         "row1Label": "Guthaben hinzufügen",
         "row1Description": "Fügen Sie Geld hinzu, indem Sie es empfangen oder von Ihrem Hauptkonto überweisen.",
         "row2Label": "Separates Konto",
-        "row2Description": "Dieses Konto ist aus Sicherheitsgründen von Ihrem Hauptkonto getrennt.",
+        "row2Description": "Getrennt von Ihrem Hauptkonto, sodass Apps nur ausgeben können, was Sie hier einzahlen.",
         "row3Label": "App-Zugriff",
         "row3Description": "Verbundene Apps können dieses Konto verwenden, um Zahlungen auszuführen.",
         "continueButton": "Loslegen"
       },
       "accountCreated": {
         "title": "Verbindung erstellt",
-        "subtitle": "Ihre Verbindung wurde erstellt. Kopieren Sie die Verbindungszeichenfolge, um sie zu verwenden.",
-        "copyConnection": "Verbindungszeichenfolge kopieren"
+        "subtitle": "Kopieren Sie die Verbindungszeichenfolge und fügen Sie sie in {{connection}} ein.",
+        "copyConnection": "Verbindungszeichenfolge kopieren",
+        "connectionStringLabel": "Verbindungszeichenfolge"
       }
     },
     "accountComponents": {
@@ -2525,6 +2565,7 @@
         "goalUserCount": "von {{goalUserCount}} Nutzern",
         "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
         "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute",
+        "chartA11y": "Downloads im Zeitraum {{period}}",
         "COMMENT": "Der vollständige Satz unten zeigt die Anzahl aller Nutzer an."
       },
       "loadingScreen": {
@@ -2624,13 +2665,14 @@
       },
       "walletLeaves": {
         "sats": "Sats",
-        "lastSynced": "Synchronisiert: {{time}}",
+        "lastSynced": "Synchronisiert {{time}}",
         "never": "Nie",
         "treeLabel": "Baum {{id}}",
         "treeSubtitle": "{{count}} Blätter",
         "showMore": "Mehr anzeigen",
         "exportButton": "Backup exportieren",
         "noLeavesToExport": "Es gibt noch keine Blätter zum Exportieren.",
+        "noExitReadyLeaves": "Keines Ihrer Blätter ist groß genug, um bereits auszusteigen (jedes benötigt {{min}} Sats).",
         "exportError": "Ihre Blätter konnten nicht exportiert werden. Bitte versuchen Sie es erneut.",
         "notReadyTitle": "Nicht bereit zum Ausstieg",
         "readyTitle": "Bereit zum Ausstieg",
@@ -2662,11 +2704,12 @@
         },
         "progress": {
           "title": "Backup wird exportiert",
-          "gathering": "Wallet-Blätter werden gesammelt…",
-          "saving": "Lokales Backup wird gespeichert…",
-          "exit": "Ausstiegsdaten werden abgerufen…",
-          "building": "Backup-Datei wird erstellt…",
-          "sharing": "Freigabemenü wird geöffnet…"
+          "keepOpen": "Lassen Sie die App geöffnet, bis der Vorgang abgeschlossen ist.",
+          "gathering": "Wallet-Blätter werden gesammelt",
+          "saving": "Lokales Backup wird gespeichert",
+          "exit": "Ausstiegsdaten werden abgerufen",
+          "building": "Backup-Datei wird erstellt",
+          "sharing": "Freigabemenü wird geöffnet"
         }
       },
       "remotePayments": {
@@ -2955,6 +2998,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Ausgeben und ersetzen",
         "userDollarAmount": "Verfügbares Dollar-Guthaben: {{dollarAmount}}",
+        "userDollarAmountLabel": "Verfügbares Dollar-Guthaben",
         "explainer": "Wenn diese Option aktiviert ist, wird jede ausgehende Bitcoin-Zahlung automatisch ausgeglichen, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben per Swap umgewandelt wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben per Swap umgewandelt. Kein Swap erfolgt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
         "fundingDescription": "Spend & Replace-Kauf",
         "acceptingDescription": "Spend & Replace-Aufladung",
@@ -3045,6 +3089,7 @@
         "dataMessage": "Daten von {{source}}"
       },
       "filter": {
+        "title": "Orte filtern",
         "categoriesTitle": "Kategorien",
         "distanceTitle": "Entfernung",
         "all": "Alle",

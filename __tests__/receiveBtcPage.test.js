@@ -199,6 +199,7 @@ jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   backgroundColor: '#ffffff',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../app/hooks/usePaymentInputDisplay', () => {

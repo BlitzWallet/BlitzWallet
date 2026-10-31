@@ -1,30 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   interpolateColor,
 } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
-import { COLORS, SIZES } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useTranslation } from 'react-i18next';
 
+// 52 × 32 track, 28 knob (I.13). Controlled via `stateValue`; the legacy
+// `page` path still writes masterInfoObject for un-migrated screens.
 const CustomToggleSwitch = ({
   page,
   toggleSwitchFunction,
   stateValue,
   containerStyles,
+  accessibilityLabel,
 }) => {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-  const [textWidth, setTextWidth] = useState(0);
+  const { tokens } = useGlobalThemeContext();
   const isOn =
     page === 'cameraSlider'
       ? masterInfoObject.enabledSlidingCamera
@@ -35,34 +31,13 @@ const CustomToggleSwitch = ({
       : page === 'useTrampoline'
       ? masterInfoObject.useTrampoline
       : false;
-  const localIsOn = stateValue != undefined ? stateValue : isOn;
-
-  const [sliderText, setSliderText] = useState(localIsOn ? 'ON' : 'OFF');
+  const localIsOn =
+    stateValue !== undefined && stateValue !== null ? stateValue : isOn;
 
   const animatedValue = useSharedValue(localIsOn ? 1 : 0);
-  const opacityTextValue = useSharedValue(localIsOn ? 1 : 0);
-  const isInitialRender = useRef(true);
 
   useEffect(() => {
-    animatedValue.value = withTiming(localIsOn ? 1 : 0, { duration: 300 });
-
-    const onTextFadeOut = () => {
-      if (isInitialRender.current) {
-        isInitialRender.current = false;
-      } else setSliderText(prev => (prev === 'ON' ? 'OFF' : 'ON'));
-      // Change text after fade out
-
-      // Fade in animation
-      opacityTextValue.value = withTiming(1, { duration: 150 });
-    };
-
-    opacityTextValue.value = withTiming(
-      isInitialRender.current ? 1 : 0,
-      { duration: 150 },
-      () => {
-        scheduleOnRN(onTextFadeOut);
-      },
-    );
+    animatedValue.value = withTiming(localIsOn ? 1 : 0, { duration: 200 });
   }, [localIsOn]);
 
   const toggleSwitch = () => {
@@ -77,66 +52,16 @@ const CustomToggleSwitch = ({
     });
   };
 
-  const useAltStyle =
-    page === 'cameraSlider' ||
-    page === 'eCash' ||
-    page === 'bankSettings' ||
-    page === 'hideUnknownContacts' ||
-    page === 'useTrampoline' ||
-    page === 'LoginSecurityMode' ||
-    page === 'fastPay' ||
-    page === 'nwcAccount' ||
-    page === 'lrc20Settings' ||
-    page === 'useRanomPinLayout' ||
-    page === 'settingsNotifications' ||
-    page === 'settingsCrashReporting' ||
-    page === 'tipPaymentStatus' ||
-    page === 'liquidSwap' ||
-    page === 'pinAccount' ||
-    page === 'spendAndReplace';
-
-  const circleColors = [
-    useAltStyle
-      ? theme
-        ? COLORS.darkModeText
-        : COLORS.primary
-      : COLORS.darkModeText,
-    useAltStyle
-      ? theme
-        ? backgroundColor
-        : COLORS.darkModeText
-      : darkModeType && theme
-      ? COLORS.lightsOutBackground
-      : COLORS.darkModeText,
-  ]; // From inactive to active color
-  const switchColors = [
-    useAltStyle
-      ? theme
-        ? backgroundColor
-        : COLORS.darkModeText
-      : backgroundOffset,
-    darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-  ]; // From inactive to active color
-
   const switchStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
       animatedValue.value,
       [0, 1],
-      switchColors,
+      [tokens.grab, tokens.accent],
     ),
   }));
   const circleStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      animatedValue.value,
-      [0, 1],
-      circleColors,
-    ),
-    transform: [{ translateX: 5 + animatedValue.value * 35 }], // From left to right position
+    transform: [{ translateX: 2 + animatedValue.value * 20 }],
   }));
-
-  const sliderTextLength = t(
-    `constants.${sliderText.toLowerCase()}Lower`,
-  ).length;
 
   return (
     <TouchableOpacity
@@ -147,67 +72,41 @@ const CustomToggleSwitch = ({
           toggleSwitch();
         }
       }}
-      style={containerStyles}
+      style={[styles.touch, containerStyles]}
       activeOpacity={0.7}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: !!localIsOn }}
+      accessibilityLabel={accessibilityLabel}
     >
       <Animated.View style={[styles.switch, switchStyle]}>
         <Animated.View style={[styles.circle, circleStyle]} />
-        {/* <Animated.Text
-          onLayout={event => {
-            console.log(event.nativeEvent.layout.width);
-            setTextWidth(event.nativeEvent.layout.width);
-          }}
-          numberOfLines={1}
-          style={[
-            styles.text,
-            {
-              // left: circlePosition,
-              flexShrink: 1,
-              color: localIsOn
-                ? darkModeType && theme
-                  ? COLORS.lightsOutBackground
-                  : COLORS.white
-                : textColor, // From inactive to active color
-              opacity: animatedTextColor,
-              transform: [
-                {
-                  translateX: textPosition,
-                },
-              ],
-            },
-          ]}
-        >
-          {`${t(`constants.${sliderText.toLowerCase()}Lower`)
-            .slice(0, 3)
-            .toUpperCase()}${sliderTextLength > 3 ? '.' : ''}`}
-        </Animated.Text> */}
       </Animated.View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  touch: { width: 52, height: 44, alignItems: 'center', justifyContent: 'center' },
   switch: {
-    width: 70,
-    height: 35,
-    borderRadius: 20,
+    width: 52,
+    height: 32,
+    borderRadius: 999,
     justifyContent: 'center',
-    // paddingHorizontal: 20,
   },
   circle: {
-    width: 24,
-    height: 24,
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: '#fff',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
     position: 'absolute',
+    top: 2,
+    left: 0,
     zIndex: 1,
-  },
-  text: {
-    position: 'absolute',
-    fontSize: SIZES.small,
-    color: '#fff',
-    fontWeight: 'bold',
+    shadowColor: '#15161A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 2,
   },
 });
 

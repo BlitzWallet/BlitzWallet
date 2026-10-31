@@ -1,44 +1,32 @@
-import { useMemo, useState } from 'react';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import { StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { CustomKeyboardAvoidingView } from '../../../../../functions/CustomElements';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
-  CONTENT_KEYBOARD_OFFSET,
   MAX_DERIVED_ACCOUNTS,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
-import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
 
 export default function CreateCustodyAccountPage() {
   const maxLength = 50;
   const { masterInfoObject } = useGlobalContextProvider();
   const { createDerivedAccount } = useActiveCustodyAccount();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [name, setName] = useState('');
-
-  const { textInputColor, textColor } = GetThemeColors();
 
   const navigate = useNavigation();
 
@@ -82,89 +70,49 @@ export default function CreateCustodyAccountPage() {
     }
   };
 
-  const isOverLimit = name.length >= maxLength;
-  const characterCountColor = isOverLimit
-    ? theme && darkModeType
-      ? textColor
-      : COLORS.cancelRed
-    : textColor;
-
   return (
     <CustomKeyboardAvoidingView
-      globalThemeViewStyles={styles.globalContainer}
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('settings.accountComponents.editAccountName.title')}
-        iconNew="Trash2"
-      />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.accountComponents.editAccountName.title')}
+          shouldDismissKeyboard={true}
+        />
 
-      <CustomScrollView
-        style={{ width: INSET_WINDOW_WIDTH }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps={'handled'}
-      >
-        <ThemeText
-          styles={styles.title}
-          content={t('settings.childAccounts.enterName.title')}
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps={'handled'}
+        >
+          <PageHeader
+            title={t('settings.childAccounts.enterName.title')}
+            sub={t('settings.childAccounts.enterName.subtitle')}
+          />
+          <UserInput
+            value={name}
+            onChangeText={setName}
+            maxLength={maxLength}
+            placeholder={t('settings.childAccounts.enterName.placeholder')}
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
+            focusRing
+            showTextCount
+          />
+        </CustomScrollView>
+        <CustomButton
+          disabled={!name}
+          useLoading={isCreatingAccount}
+          textContent={t('settings.childAccounts.enterName.create')}
+          actionFunction={handleCreateAccount}
+          size={'regular'}
         />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('settings.childAccounts.enterName.subtitle')}
-        />
-        <CustomSearchInput
-          inputText={name}
-          setInputText={setName}
-          maxLength={maxLength}
-          textInputStyles={{
-            color: textInputColor,
-          }}
-          placeholderText={t('settings.childAccounts.enterName.placeholder')}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          onBlurFunction={() => setIsKeyboardActive(false)}
-        />
-        <ThemeText
-          styles={{
-            textAlign: 'right',
-            color: characterCountColor,
-            marginTop: 5,
-          }}
-          content={`${name.length} / ${maxLength}`}
-        />
-      </CustomScrollView>
-      <CustomButton
-        useLoading={isCreatingAccount}
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-          opacity: !name ? HIDDEN_OPACITY : 1,
-        }}
-        textContent={t('settings.childAccounts.enterName.create')}
-        actionFunction={handleCreateAccount}
-      />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
+  container: { flex: 1, ...CENTER },
 });

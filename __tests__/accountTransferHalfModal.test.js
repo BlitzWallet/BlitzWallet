@@ -98,6 +98,7 @@ jest.mock('../context-store/nodeContext', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
+  useTheme: () => ({ tokens: {} }),
   useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
 }));
 
@@ -125,6 +126,7 @@ jest.mock('../context-store/webViewContext', () => ({
 }));
 
 jest.mock('../app/functions/displayCurrency', () => ({
+  ...jest.requireActual('../app/functions/displayCurrency'),
   getDefaultDisplayCurrency: () => ({
     denomination: 'sats',
     forceCurrency: null,
@@ -194,7 +196,7 @@ jest.mock('../app/functions/CustomElements', () => {
   };
 });
 
-jest.mock('../app/functions/CustomElements/formattedBalanceInput', () => ({
+jest.mock('../app/functions/CustomElements/redesign/AmountHero', () => ({
   __esModule: true,
   default: () => null,
 }));
@@ -238,20 +240,81 @@ jest.mock('../app/functions/CustomElements/loadingScreen', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/functions/CustomElements/noContentScreen', () => {
+jest.mock('../app/functions/CustomElements/redesign/EmptyState', () => {
   const MockReact = require('react');
   const RN = require('react-native');
   return {
     __esModule: true,
-    default: ({ titleText, subTitleText }) =>
+    default: ({ title, sub }) =>
       MockReact.createElement(
         RN.View,
         { testID: 'no-content-screen' },
-        titleText,
-        subTitleText,
+        title,
+        sub,
       ),
   };
 });
+
+// Sheet chrome: the amount step's back arrow is an in-sheet TopBar.
+jest.mock('../app/functions/CustomElements/redesign/TopBar', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ onBack }) =>
+      MockReact.createElement(RN.TouchableOpacity, {
+        testID: 'sheet-back',
+        onPress: onBack,
+      }),
+  };
+});
+
+jest.mock('../app/functions/CustomElements/redesign/AnimatedStep', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ active, children }) =>
+      active ? MockReact.createElement(RN.View, null, children) : null,
+  };
+});
+
+jest.mock('../app/functions/CustomElements/redesign/ListCard', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ children }) => MockReact.createElement(RN.View, null, children),
+  };
+});
+
+jest.mock('../app/functions/CustomElements/redesign/StepProgress', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../app/functions/CustomElements/redesign/Disc', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../app/components/admin/homeComponents/savings/savingsSheetParts', () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    SheetTitle: () => null,
+    SheetResult: ({ onDone }) =>
+      MockReact.createElement(RN.TouchableOpacity, {
+        testID: 'transfer-confirm-button',
+        onPress: onDone,
+      }),
+  };
+});
+
+jest.mock('../app/functions/displayCorrectDenomination', () => ({
+  __esModule: true,
+  default: ({ amount }) => String(amount),
+}));
 
 jest.mock('../app/components/admin/homeComponents/accounts/accountCard', () => {
   const MockReact = require('react');
@@ -264,6 +327,7 @@ jest.mock('../app/components/admin/homeComponents/accounts/accountCard', () => {
         { testID: `account-card-${account.uuid}`, onPress, isLoading },
         account.name,
       ),
+    getAccountName: account => account?.name,
   };
 });
 
@@ -277,7 +341,7 @@ jest.mock('../context-store/toastManager', () => ({
 // The asset card opens the SelectPaymentMethod picker via navigation; tests
 // capture the pushed params and drive onSelectMethod themselves.
 jest.mock(
-  '../app/components/admin/homeComponents/sendBitcoin/components/choosePaymentMethodContainer',
+  '../app/functions/CustomElements/redesign/PaymentMethod',
   () => {
     const MockReact = require('react');
     const RN = require('react-native');
@@ -396,7 +460,6 @@ async function renderModal(props) {
         mode="add"
         account={mockCurrentAccount}
         handleBackPressFunction={jest.fn()}
-        setBackNav={jest.fn()}
         setContentHeight={mockSetContentHeight}
         {...props}
       />,
@@ -731,10 +794,9 @@ describe('AccountTransferHalfModal step flow', () => {
     expect(mockExecuteAccountTransfer).toHaveBeenCalledTimes(1);
   });
 
-  // editAccountPage opens the sheet at sliderHight 0.8. The first page must ask
-  // for that same height or the host animates the sheet's height down over the
-  // slide-in; the result page is the only intentional resize.
-  test('opens at the slide-in height and only resizes on the result page', async () => {
+  // editAccountPage opens the sheet at sliderHight 0.8. Every step keeps that
+  // height: resizing while a step slides in leaves its buttons dead.
+  test('opens at the slide-in height and never resizes', async () => {
     mockCustodyAccounts = [{ uuid: 'other-uuid', name: 'Other' }];
     const renderer = await renderModal();
     expect(mockSetContentHeight).toHaveBeenLastCalledWith(640); // 0.8 * 800
@@ -748,7 +810,7 @@ describe('AccountTransferHalfModal step flow', () => {
       await jest.advanceTimersByTimeAsync(300);
       await flushMicrotasks();
     });
-    expect(mockSetContentHeight).toHaveBeenLastCalledWith(440); // 0.55 * 800
+    expect(mockSetContentHeight).toHaveBeenLastCalledWith(640);
   });
 });
 
@@ -781,6 +843,9 @@ describe('AccountTransferHalfModal picker loading gate', () => {
     await act(async () => {
       resolveBalance({ didWork: true, balance: 2000n, tokensObj: {} });
       await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     expect(mockGetSparkBalance).toHaveBeenCalledTimes(1);
@@ -817,6 +882,9 @@ describe('AccountTransferHalfModal picker loading gate', () => {
     await act(async () => {
       resolveBalance({ didWork: true, balance: 2000n, tokensObj: {} });
       await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
     });
     expect(() =>
       renderer.root.findByProps({ testID: 'keyboard-input' }),
@@ -867,18 +935,18 @@ describe('AccountTransferHalfModal picker loading gate', () => {
       { uuid: 'active-uuid', name: 'Active' },
       { uuid: 'other-uuid', name: 'Other' },
     ];
-    let backOnPress;
-    const renderer = await renderModal({
-      setBackNav: nav => {
-        if (nav?.onPress) backOnPress = nav.onPress;
-      },
-    });
+    const renderer = await renderModal();
+    const backOnPress = () =>
+      renderer.root.findByProps({ testID: 'sheet-back' }).props.onPress();
 
     // Pick the active account: its balance is already in context, so it
     // advances to the amount step immediately with no balance fetch.
     await act(async () => {
       pressAccountCard(renderer, 'active-uuid');
       await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
     });
     expect(mockGetSparkBalance).not.toHaveBeenCalled();
 
@@ -888,6 +956,9 @@ describe('AccountTransferHalfModal picker loading gate', () => {
     await act(async () => {
       backOnPress();
       await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
     });
     await act(async () => {
       pressAccountCard(renderer, 'other-uuid');
@@ -945,12 +1016,9 @@ describe('AccountTransferHalfModal picker loading gate', () => {
       { uuid: 'first-uuid', name: 'First' },
       { uuid: 'second-uuid', name: 'Second' },
     ];
-    let backOnPress;
-    const renderer = await renderModal({
-      setBackNav: nav => {
-        if (nav?.onPress) backOnPress = nav.onPress;
-      },
-    });
+    const renderer = await renderModal();
+    const backOnPress = () =>
+      renderer.root.findByProps({ testID: 'sheet-back' }).props.onPress();
 
     await selectAccount(renderer, 'first-uuid');
     expect(mockDisposeSparkWallet).not.toHaveBeenCalled();
@@ -960,6 +1028,9 @@ describe('AccountTransferHalfModal picker loading gate', () => {
     await act(async () => {
       backOnPress();
       await flushMicrotasks();
+    });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
     });
     await selectAccount(renderer, 'second-uuid');
 

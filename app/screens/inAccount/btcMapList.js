@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -6,12 +6,9 @@ import { ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
-import { CENTER } from '../../constants';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
   CATEGORY_META,
@@ -21,6 +18,11 @@ import {
   distanceMeters,
   formatDistance,
 } from '../../functions/btcMap/distance';
+import PageHeader from '../../functions/CustomElements/redesign/PageHeader';
+import ListCard, {
+  ListDivider,
+} from '../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../functions/CustomElements/redesign/ListRow';
 
 const MAX_ROWS = 60;
 
@@ -34,11 +36,11 @@ export default function BTCMapListContent({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { getPlacesInViewport } = useBTCMap();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [places, setPlaces] = useState(null);
 
@@ -90,17 +92,12 @@ export default function BTCMapListContent({
     return rows.slice(0, MAX_ROWS);
   }, [places, categories, userLocation]);
 
-  const iconShellColor =
-    theme && darkModeType ? backgroundColor : backgroundOffset;
-  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
   const hasMoreRows = data?.length < placeCount;
 
   const renderItem = ({ item }) => {
     const category = resolvePlaceCategory(item);
     return (
-      <TouchableOpacity
-        activeOpacity={0.6}
-        style={[styles.row, { borderBottomColor: backgroundOffset }]}
+      <ListRow
         onPress={() =>
           navigate.push('CustomHalfModal', {
             wantedContent: 'btcMapMerchant',
@@ -108,35 +105,27 @@ export default function BTCMapListContent({
             source: item.source,
           })
         }
-      >
-        <View style={[styles.iconShell, { backgroundColor: iconShellColor }]}>
-          <ThemeIcon
-            iconName={getBtcMapIcon(item.icon)}
-            size={20}
-            colorOverride={iconColor}
-          />
-        </View>
-
-        <View style={styles.rowText}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.rowName}
-            content={item.name || t('screens.btcMap.merchant.noName')}
-          />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.rowCategory}
-            content={t(CATEGORY_META[category].labelKey)}
-          />
-        </View>
-
-        {item.distance != null && (
-          <ThemeText
-            styles={styles.rowDistance}
-            content={formatDistance(item.distance, distanceUnit)}
-          />
-        )}
-      </TouchableOpacity>
+        lead={
+          <View style={[styles.iconShell, { backgroundColor: tokens.surface }]}>
+            <ThemeIcon
+              iconName={getBtcMapIcon(item.icon)}
+              size={20}
+              colorOverride={tokens.ink}
+              redesign
+            />
+          </View>
+        }
+        title={item.name || t('screens.btcMap.merchant.noName')}
+        sub={t(CATEGORY_META[category].labelKey)}
+        trailing={
+          item.distance != null && (
+            <ThemeText
+              styles={[styles.rowDistance, { color: tokens.muted }]}
+              content={formatDistance(item.distance, distanceUnit)}
+            />
+          )
+        }
+      />
     );
   };
 
@@ -145,36 +134,38 @@ export default function BTCMapListContent({
   }
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={styles.header}
-        content={t('screens.btcMap.map.placesHere', { count: placeCount })}
+    <View style={[styles.container, { width: contentWidth }]}>
+      <PageHeader
+        title={t('screens.btcMap.map.placesHere', { count: placeCount })}
+        showSub={false}
       />
 
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => `${item.source}-${item.id}`}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: bottomPadding }}
-        ListEmptyComponent={
-          <ThemeText
-            styles={styles.empty}
-            content={t('screens.btcMap.map.noPlaces')}
-          />
-        }
-        ListFooterComponent={
-          hasMoreRows && (
+      <ListCard style={styles.card} dividerInset={72}>
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => `${item.source}-${item.id}`}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={ListDivider}
+          contentContainerStyle={[
+            styles.listContent,
+            !data.length && styles.emptyList,
+          ]}
+          ListEmptyComponent={
             <ThemeText
-              styles={[
-                styles.hasMoreMessage,
-                { marginTop: bottomPadding - 10 },
-              ]}
-              content={t('screens.btcMap.map.hasMorePlaces', { num: MAX_ROWS })}
+              styles={[styles.empty, { color: tokens.muted }]}
+              content={t('screens.btcMap.map.noPlaces')}
             />
-          )
-        }
-      />
+          }
+        />
+      </ListCard>
+
+      {hasMoreRows && (
+        <ThemeText
+          styles={[styles.hasMoreMessage, { color: tokens.muted }]}
+          content={t('screens.btcMap.map.hasMorePlaces', { num: MAX_ROWS })}
+        />
+      )}
     </View>
   );
 }
@@ -182,57 +173,34 @@ export default function BTCMapListContent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  header: {
-    fontSize: SIZES.large,
-    fontFamily: 'Poppins-Medium',
-    marginBottom: 16,
-    includeFontPadding: false,
+  card: { flexShrink: 1 },
+  emptyList: {
+    flexGrow: 1,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    gap: 14,
-    borderBottomWidth: 1,
-  },
+
   iconShell: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowText: {
-    flex: 1,
-  },
-  rowName: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  rowCategory: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
-    includeFontPadding: false,
-    marginTop: 2,
-  },
-  rowDistance: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    includeFontPadding: false,
-    marginLeft: 8,
-  },
+
   empty: {
     textAlign: 'center',
     marginTop: 40,
-    opacity: 0.7,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
+    includeFontPadding: false,
   },
   hasMoreMessage: {
-    fontSize: SIZES.smedium,
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: 'center',
-    marginTop: 40,
-    opacity: 0.7,
+    marginTop: 16,
+    includeFontPadding: false,
   },
 });

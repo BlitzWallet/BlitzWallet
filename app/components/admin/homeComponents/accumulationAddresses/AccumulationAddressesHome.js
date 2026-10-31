@@ -1,28 +1,32 @@
 import { useCallback, useMemo } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-
-import AccumulationInfoCard from './AccumulationInfoCard';
 import AccumulationAddressCard from './AccumulationAddressCard';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../functions/CustomElements/button';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+import { FONT } from '../../../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../../../constants';
 import { getPairKey } from '../../../../constants/accumulationAddresses';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import InfoDropdown from '../../../../functions/CustomElements/redesign/InfoDropdown';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 
 export default function AccumulationAddressesHome() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { addresses } = useAccumulationAddresses();
   const { isConnectedToTheInternet } = useAppStatus();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const handleCreate = useCallback(() => {
     if (!isConnectedToTheInternet) {
@@ -57,49 +61,79 @@ export default function AccumulationAddressesHome() {
     return Array.from(byKey.values());
   }, [addresses]);
 
-  const renderAddressItem = useCallback(({ item }) => {
-    return <AccumulationAddressCard group={item} />;
-  }, []);
-
-  const renderEmptyState = () => (
-    <NoContentSceen
-      iconName="ArrowDownToLine"
-      titleText={t('screens.accumulationAddresses.empty.title')}
-      subTitleText={t('screens.accumulationAddresses.empty.subtitle')}
-    />
-  );
+  if (!groups.length) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('screens.accumulationAddresses.title')} />
+          <View style={styles.empty}>
+            <EmptyState
+              icon={'ArrowDownToLine'}
+              title={t('screens.accumulationAddresses.empty.title')}
+              sub={t('screens.accumulationAddresses.empty.subtitle')}
+            />
+          </View>
+          <CustomButton
+            textContent={t('screens.accumulationAddresses.createButton')}
+            actionFunction={handleCreate}
+            size={'regular'}
+          />
+        </View>
+      </GlobalThemeView>
+    );
+  }
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('screens.accumulationAddresses.navTitle')}
-      />
-
-      <View style={styles.innerContainer}>
-        <FlatList
-          data={groups}
-          renderItem={renderAddressItem}
-          keyExtractor={item => getPairKey(item)}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={renderEmptyState}
-          ListHeaderComponent={
-            <View>
-              <AccumulationInfoCard isExpanded={false} />
-              {addresses.length > 0 && (
-                <ThemeText
-                  styles={styles.sectionHeader}
-                  content={t('screens.accumulationAddresses.sectionTitle')}
-                />
-              )}
-            </View>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('screens.accumulationAddresses.title')} />
+        <InfoDropdown
+          icon="Info"
+          title={t('screens.accumulationAddresses.info.title')}
+          infoComponenet={
+            <>
+              <ThemeText
+                styles={styles.bodyText}
+                content={t('screens.accumulationAddresses.info.whatAreBody')}
+              />
+              <ThemeText
+                styles={styles.sectionTitle}
+                content={t('screens.accumulationAddresses.info.howItWorks')}
+              />
+              <ThemeText
+                styles={styles.bulletText}
+                content={t('screens.accumulationAddresses.info.step1')}
+              />
+              <ThemeText
+                styles={styles.bulletText}
+                content={t('screens.accumulationAddresses.info.step2')}
+              />
+              <ThemeText
+                styles={styles.bulletText}
+                content={t('screens.accumulationAddresses.info.step3')}
+              />
+            </>
           }
         />
+        <SectionHeader
+          title={t('screens.accumulationAddresses.sectionTitle')}
+          style={styles.sectionHeader}
+        />
+        <CustomScrollView>
+          <ListCard>
+            {groups.map(item => (
+              <AccumulationAddressCard
+                key={getPairKey(item.representative)}
+                group={item}
+              />
+            ))}
+          </ListCard>
+        </CustomScrollView>
 
         <CustomButton
-          buttonStyles={styles.createBtn}
           textContent={t('screens.accumulationAddresses.createButton')}
           actionFunction={handleCreate}
+          size={'regular'}
         />
       </View>
     </GlobalThemeView>
@@ -107,15 +141,31 @@ export default function AccumulationAddressesHome() {
 }
 
 const styles = StyleSheet.create({
-  innerContainer: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
+  container: { flex: 1, ...CENTER },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  // InfoDropdown already leaves 16 below; design gap is 20.
+  sectionHeader: { marginTop: 4 },
   listContent: {
     flexGrow: 1,
     paddingBottom: 16,
   },
-  sectionHeader: {
-    fontSize: SIZES.large,
-    marginTop: 20,
-    marginBottom: 12,
+
+  sectionTitle: {
+    fontSize: SIZES.smedium,
+    fontFamily: FONT.Title_Medium,
+    marginTop: 12,
+    marginBottom: 4,
   },
-  createBtn: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
+  bodyText: {
+    fontSize: SIZES.small,
+    opacity: 0.8,
+    lineHeight: 18,
+  },
+  bulletText: {
+    fontSize: SIZES.small,
+    opacity: 0.8,
+    lineHeight: 18,
+    paddingLeft: 8,
+    marginBottom: 2,
+  },
 });

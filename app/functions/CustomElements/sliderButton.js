@@ -60,10 +60,11 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   width = 0.95,
   maxWidth = 375,
   shouldDisplaySuccessState = false,
+  titleStyles,
 }) {
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const windowDimensions = screenDimensions.width * width;
   const layoutWidth = windowDimensions > maxWidth ? maxWidth : windowDimensions;
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
@@ -190,20 +191,20 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
         ? COLORS.darkModeText
         : theme
         ? COLORS.darkModeText
-        : COLORS.primary,
+        : tokens.accent,
       borderColor: showLoadingIcon
         ? COLORS.darkModeText
         : theme
         ? backgroundOffset
         : backgroundColor,
     };
-  }, [theme, darkModeType, showLoadingIcon]);
+  }, [theme, darkModeType, tokens, showLoadingIcon]);
 
   const titleDynamicStyles = useMemo(() => {
     return {
-      color: theme ? backgroundColor : COLORS.darkModeText,
+      color: theme ? backgroundColor : tokens.onAccent,
     };
-  }, [theme, darkModeType]);
+  }, [theme, darkModeType, tokens]);
 
   return (
     <Animated.View
@@ -240,6 +241,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
               { left: height + 10, right: height + 10 },
               textStyle,
               titleDynamicStyles,
+              titleStyles,
             ]}
           >
             {titleText}

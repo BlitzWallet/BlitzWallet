@@ -58,6 +58,8 @@
     "retry": "Försök igen",
     "download": "Nedladdningar",
     "contactUs": "Kontakta oss",
+    "copyEmail": "Kopiera e-post",
+    "openInbox": "Öppna inkorgen",
     "pay": "Betala",
     "processing": "Bearbetning",
     "support": "Stöd",
@@ -142,7 +144,7 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française",
+    "french": "Français",
     "swedish": "Svenska",
     "russian": "Русский"
   },
@@ -1681,13 +1683,15 @@
       "text4": "Tröskelvärde för snabb utbetalning (SAT)",
       "text5": "Med Fast pay kan du omedelbart betala fakturor under en viss gräns utan att behöva swisha för att få en bekräftelse.",
       "text6": "Nuvarande",
-      "text7": "Nytt"
+      "text7": "Nytt",
+      "editThresholdA11y": "Redigera tröskel"
     },
     "loginSecurity": {
       "text1": "Aktivera inloggningssäkerhet",
-      "text2": "Typ av säkerhet",
-      "text3": "Stift",
-      "text4": "Biometrisk",
+      "text2": "Lås upp med",
+      "text3": "PIN",
+      "text4": "Biometri",
+      "passwordMethod": "Lösenord",
       "text5": "Enheten har inte någon biometrisk profil. Skapa en i inställningarna för att fortsätta.",
       "text6": "Fel vid inloggning med biometri",
       "text7": "Enheten stöder inte biometrisk inloggning",
@@ -1699,7 +1703,8 @@
       "migratingStorageMessage": "Migrering av lagring till ny säkerhet.",
       "createPinPageHeader": "{{type}} din Blitz PIN-kod",
       "invalidPinconfirmation": "PIN-koderna stämmer inte överens. Försök igen!",
-      "randomPinKeyboardToggle": "Knappsats för shuffle",
+      "randomPinKeyboardToggle": "Blanda knappsats",
+      "randomPinKeyboardSubtitle": "Ändrar ordningen på PIN-siffrorna varje gång du låser upp.",
       "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster.",
       "biometricsHead": "Om biometri",
       "biometricsSubHead": "Din återställningsfras skyddas av din enhets nuvarande biometriska data. Om du ändrar dem kommer Blitz Wallet inte längre att kunna komma åt din återställningsfras och du låses ute från din plånbok.",
@@ -1748,6 +1753,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Aktiverad kraschrapportering",
       "crashreporting_disabled": "Avaktiverad kraschrapportering",
+      "switchLabel": "Kraschrapportering",
       "descriptionText": "Kraschdata hjälper oss att förbättra stabiliteten och prestandan i vår applikation.\n\nNär en krasch inträffar registreras automatiskt följande enhetsinformation:\n\n- Operativsystem: OS-version, enhetens orientering och jailbreak-status\n- Detaljer om enheten: Modell, orientering och tillgängligt RAM-minne\n- Information om krasch: Datum för kraschen och appens version"
     },
     "accounts": {
@@ -1790,14 +1796,18 @@
     },
     "sparkInfo": {
       "title": "Information om plånboken",
-      "sparkAddress": "Spark Adress",
-      "pubKey": "Allmän nyckel"
+      "sparkAddress": "Spark-adress",
+      "pubKey": "Publik nyckel",
+      "copyA11y": "Kopiera {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Ditt nuvarande plånboksaldo är {{balance}}. Blitz lägger till en avgift på {{fee}} för alla BTKN-betalningar. Se till att du har lite Bitcoin i din plånbok för att skicka tokens.",
       "title": "Inställningar för gnista",
       "sliderTitle_enabled": "Aktiverad BTKN",
       "sliderTitle_disabled": "Avaktiverad BTKN",
+      "switchLabel": "BTKN-token",
+      "switchSub": "Skicka och ta emot token på Spark-nätverket.",
+      "disclaimer": "Blitz är en Bitcoin-plånbok och främjar inte tokens. Funktionen finns här så att du kan använda den teknik du själv väljer.",
       "sliderDesc": "BTKN är Spark's inbyggda token. Om du aktiverar BTKN kan du skicka och ta emot tokens i Spark-nätverket.\n\nBlitz är en Bitcoin-fokuserad plånbok. Vi främjar inte eller stödjer användningen av tokens. Den här funktionen finns eftersom vi anser att användare ska ha friheten att använda den teknik de vill använda.",
       "selectTokenHeader": "Standard Token",
       "selectTokenInformationPopup": "Välj vilken token du vill använda först när du skickar betalningar. Oroa dig inte - du kan fortfarande ändra det på betalningssidan när som helst."
@@ -1827,6 +1837,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Byte av ubåt",
+      "subtitle": "Rootstock-överföring",
       "id": "ID",
       "swapDetails": "Överför detaljer",
       "claimAddress": "Adress för anspråk",
@@ -1861,8 +1872,8 @@
       "unsupportedTitle": "Vi stöder inte längre {{type}}",
       "unsupportedDesc": "Om du fortfarande har medel på {{type}}, återställ din Blitz-återställningsfras i en kompatibel plånbok för att komma åt dem. Behöver du hjälp? Kontakta oss nedan.",
       "contactUs": "Kontakta oss",
-      "refundInProgress": "Återbetalning pågår. Håll appen öppen tills den är klar.",
-      "refundComplete": "Återbetalning slutförd. Dina medel är tillbaka i din Liquid-plånbok."
+      "refundInProgress": "Återbetalning pågår. Håll appen öppen.",
+      "refundComplete": "Återbetalning slutförd."
     },
     "notifications": {
       "mainToggle": "Tillåt aviseringar",
@@ -1870,6 +1881,7 @@
       "disablePush": "Stäng av pushaviseringar",
       "updateInSettings": "Uppdatera i appinställningarna",
       "open": "Öppna",
+      "openA11y": "Öppna telefoninställningar",
       "disabledTitle": "Aviseringar är avstängda",
       "disabledSubtitle": "Tillåt pushaviseringar ovan för att välja vilka betalningar och händelser du vill bli meddelad om.",
       "optionsTitle": "Alternativ för avisering",
@@ -1911,16 +1923,17 @@
       "swapsType": "BTC <> USD-växlingar",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
-      "sparkSwapType": "BTC <> USDB-växlingar (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "sparkSwapType": "BTC ↔︎ USDB-växlingar (Spark)",
+      "chainSwapType": "BTC eller USDB ↔︎ Stablecoin (cross-chain)",
       "chainSwapFee": "0,5 % Blitz-avgift + 0,1 %+ plattformsavgift",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-avgift + nätverksavgifter",
       "accumulationType": "Ackumuleringsadresser",
       "accumulationFee": "0,5 % Blitz-avgift + 0,5 % plattformsavgift",
-      "othersType": "Övrigt",
-      "othersFee": "Nätverksavgifter",
+      "othersType": "Allt annat",
+      "othersFee": "Endast nätverksavgifter",
       "networkFeeLinkDesc": "Tryck för att se en uppdelning av Spark-nätverksavgifter",
+      "networkFeeLink": "Visa Spark-nätverksavgifter",
       "rootstock": "Rootstock <> BTC",
       "rootstockFee": "0,1 % Boltz-avgift + nätverksavgifter"
     },
@@ -1951,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Är du säker på att du vill ta bort den här anslutningen?",
+      "deleteDialog": {
+        "title": "Ta bort den här anslutningen?",
+        "message": "{{name}} slutar fungera med din plånbok. Pengarna på ditt Wallet Connect-konto stannar kvar där."
+      },
+      "connectionString": {
+        "subtitle": "Skanna den i {{name}}, eller kopiera och klistra in den.",
+        "warning": "Den som har den här anslutningssträngen kan använda alla behörigheter du gav den."
+      },
       "addAccount": "Lägg till anslutning",
+      "accountBalance": {
+        "title": "Kontosaldo",
+        "subtitle": "Vad appar kan spendera"
+      },
+      "connectionsHeader": "Anslutningar",
+      "connectionSummary": {
+        "noBudget": "Ingen budget",
+        "canSend": "Kan skicka {{amount}} {{period}}",
+        "cantSend": "Kan inte skicka"
+      },
       "empty": {
         "title": "Inga anslutningar ännu",
         "subtitle": "Använd ditt Wallet Connect-konto med dina favoritappar."
@@ -1967,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Behörigheter",
-        "pageTitle": "Lägg till anslutningsbehörigheter",
-        "pageSubtitle": "Välj vilka åtgärder {{name}} kan utföra.",
+        "pageTitle": "Vad kan {{name}} göra?",
+        "pageSubtitle": "Slå bara på det appen behöver.",
         "editTitle": "Redigera anslutningsbehörigheter",
         "editSubtitle": "Redigera vilka åtgärder {{name}} kan utföra."
       },
@@ -1979,7 +2009,15 @@
         "editTitle": "Redigera utgiftsbudget",
         "editSubtitle": "Ändra utgiftsgränsen och när den återställs. Lämna tomt för ingen gräns.",
         "renewalPlaceholder": "Välj förnyelseperiod",
-        "createButton": "Skapa anslutning"
+        "createButton": "Skapa anslutning",
+        "resetTitle": "Hur ofta återställs gränsen?",
+        "noLimit": "Ingen gräns",
+        "resetsDaily": "Återställs dagligen",
+        "resetsWeekly": "Återställs veckovis",
+        "resetsMonthly": "Återställs månadsvis",
+        "resetsYearly": "Återställs årligen",
+        "resetHint": "Öppnar alternativen för återställningsperiod.",
+        "changeCurrency": "Ändra valuta"
       },
       "accountPage": {
         "title": "Hantera anslutning",
@@ -1988,7 +2026,7 @@
         "permissionsCount_one": "{{count}} behörighet",
         "permissionsCount_other": "{{count}} behörigheter",
         "renewalLabel": "Förnyelseperiod",
-        "amountLabel": "Budgetbelopp",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Anslutningssträng",
         "deleteAccount": "Ta bort anslutning"
       },
@@ -2013,7 +2051,8 @@
       },
       "noNotifications": {
         "title": "Aviseringar krävs",
-        "subtitle": "Wallet Connect kräver push-aviseringar. Aktivera dem i Inställningar och försök igen."
+        "subtitle": "Wallet Connect behöver push-aviseringar för att svara appar. Slå på dem och kom tillbaka.",
+        "button": "Slå på aviseringar"
       },
       "showSeedPage": {
         "loadingMessage": "Genererar återställningsfras",
@@ -2059,15 +2098,16 @@
         "row1Label": "Lägg till pengar",
         "row1Description": "Lägg till pengar genom att ta emot dem eller flytta dem från ditt huvudkonto.",
         "row2Label": "Separat konto",
-        "row2Description": "Det här kontot är åtskilt från ditt huvudkonto för ökad säkerhet.",
+        "row2Description": "Åtskilt från ditt huvudkonto, så appar bara kan spendera det du lägger här.",
         "row3Label": "Appåtkomst",
         "row3Description": "Anslutna appar kan använda det här kontot för att göra betalningar.",
         "continueButton": "Kom igång"
       },
       "accountCreated": {
         "title": "Anslutning skapad",
-        "subtitle": "Din anslutning har skapats. Kopiera anslutningssträngen för att börja använda den.",
-        "copyConnection": "Kopiera anslutningssträng"
+        "subtitle": "Kopiera anslutningssträngen och klistra in den i {{connection}}.",
+        "copyConnection": "Kopiera anslutningssträng",
+        "connectionStringLabel": "Anslutningssträng"
       }
     },
     "accountComponents": {
@@ -2522,9 +2562,10 @@
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
         "title": "Blitz-nedladdningar",
-        "goalUserCount": "av {{goalUserCount}} användare.",
+        "goalUserCount": "av {{goalUserCount}} användare",
         "percentOfGoal": "{{goalPercent}} av målet",
         "numAddedUsers": "+{{numNewUsers}} användare idag",
+        "chartA11y": "Nedladdningar under perioden {{period}}",
         "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
@@ -2624,13 +2665,14 @@
       },
       "walletLeaves": {
         "sats": "sats",
-        "lastSynced": "Synkroniserad: {{time}}",
+        "lastSynced": "Synkroniserad {{time}}",
         "never": "Aldrig",
         "treeLabel": "Träd {{id}}",
         "treeSubtitle": "{{count}} blad",
         "showMore": "Visa fler",
         "exportButton": "Exportera säkerhetskopia",
         "noLeavesToExport": "Det finns inga blad att exportera ännu.",
+        "noExitReadyLeaves": "Inga av dina blad är ännu stora nog att gå ut (varje blad kräver {{min}} sats).",
         "exportError": "Det gick inte att exportera dina blad. Försök igen.",
         "notReadyTitle": "Inte redo att lämna",
         "readyTitle": "Redo att lämna",
@@ -2662,11 +2704,12 @@
         },
         "progress": {
           "title": "Exporterar säkerhetskopia",
-          "gathering": "Samlar in dina plånboksblad…",
-          "saving": "Sparar en lokal säkerhetskopia…",
-          "exit": "Hämtar utträdesdata…",
-          "building": "Skapar din säkerhetskopia…",
-          "sharing": "Öppnar delningsmenyn…"
+          "keepOpen": "Håll appen öppen tills det är klart.",
+          "gathering": "Samlar in dina plånboksblad",
+          "saving": "Sparar en lokal säkerhetskopia",
+          "exit": "Hämtar utträdesdata",
+          "building": "Skapar din säkerhetskopia",
+          "sharing": "Öppnar delningsmenyn"
         }
       },
       "remotePayments": {
@@ -2958,6 +3001,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Spendera och ersätt",
         "userDollarAmount": "Tillgängligt dollarsaldo: {{dollarAmount}}",
+        "userDollarAmountLabel": "Tillgängligt dollarsaldo",
         "explainer": "När funktionen är aktiverad ersätts varje utgående Bitcoin-betalning automatiskt genom att ett motsvarande belopp växlas från ditt dollarsaldo. Om ditt dollarsaldo är lägre än det spenderade beloppet växlas hela dollarsaldot istället. Ingen växling görs om ersättningsbeloppet är mindre än {{minAmount}}.",
         "fundingDescription": "Spend & Replace-köp",
         "acceptingDescription": "Spend & Replace-påfyllning",
@@ -3045,6 +3089,7 @@
         "dataMessage": "Data från {{source}}"
       },
       "filter": {
+        "title": "Filtrera platser",
         "categoriesTitle": "Kategorier",
         "distanceTitle": "Avstånd",
         "all": "Alla",

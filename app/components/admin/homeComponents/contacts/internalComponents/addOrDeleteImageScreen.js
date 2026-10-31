@@ -15,7 +15,8 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function AddOrDeleteContactImage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, textColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, textColor, backgroundOffset, tokens } =
+    GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -57,7 +58,7 @@ export default function AddOrDeleteContactImage(props) {
             >
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={20}
                 iconName={'Image'}
@@ -79,8 +80,7 @@ export default function AddOrDeleteContactImage(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -95,10 +95,7 @@ export default function AddOrDeleteContactImage(props) {
                   styles={[
                     styles.primaryText,
                     {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
+                      color: theme && darkModeType ? tokens.ink : tokens.accent,
                     },
                   ]}
                   content={
@@ -111,10 +108,7 @@ export default function AddOrDeleteContactImage(props) {
                 style={[
                   styles.btnDivider,
                   {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
+                    backgroundColor: tokens.divider,
                   },
                 ]}
               />

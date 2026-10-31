@@ -29,7 +29,7 @@ export function Toast({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { topPadding } = useGlobalInsets();
   const { t } = useTranslation();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
 
   // shared values
   const slideY = useSharedValue(50);
@@ -138,7 +138,7 @@ export function Toast({
             {toast.type === 'clipboard' ? (
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={25}
                 styles={{ marginRight: 15 }}
@@ -147,7 +147,7 @@ export function Toast({
             ) : toast.type === 'confirmTx' ? (
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={25}
                 styles={{ marginRight: 15 }}
@@ -156,7 +156,7 @@ export function Toast({
             ) : toast.type === 'handleSwap' ? (
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={25}
                 styles={{ marginRight: 15 }}
@@ -165,7 +165,7 @@ export function Toast({
             ) : toast.type === 'error' ? (
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={25}
                 styles={{ marginRight: 15 }}
@@ -174,7 +174,7 @@ export function Toast({
             ) : toast.type === 'success' ? (
               <ThemeIcon
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.lightModeText : tokens.accent
                 }
                 size={25}
                 styles={{ marginRight: 15 }}

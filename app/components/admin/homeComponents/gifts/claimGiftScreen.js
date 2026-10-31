@@ -1,5 +1,10 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { deleteGift, getGiftCard } from '../../../../../db';
 import { parseGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
 import { useNavigation } from '@react-navigation/native';
@@ -8,17 +13,23 @@ import { getPublicKey } from 'nostr-tools';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
-  CENTER,
-  SIZES,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
   WEBSITE_REGEX,
 } from '../../../../constants';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import { useTheme } from '../../../../../context-store/theme';
+import AnimatedStep, {
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import { AssetDisc, SheetResult } from '../savings/savingsSheetParts';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import { giftAsset } from './giftDisplay';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import {
@@ -37,9 +48,6 @@ import {
 } from '../../../../functions/gift/giftsStorage';
 import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import LottieView from 'lottie-react-native';
 import {
   deriveGiftRestoreKey,
   deriveSparkGiftMnemonic,
@@ -53,20 +61,23 @@ export default function ClaimGiftScreen({
   expertMode,
   customGiftIndex,
   handleBackPressFunction,
+  setContentHeight,
+  setDismissLocked,
 }) {
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = useTheme();
   const [giftDetails, setGiftDetails] = useState({});
   const [isClaiming, setIsClaiming] = useState(false);
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const [didClaim, setDidClaim] = useState(false);
-  const animationRef = useRef(null);
+  const [claimedExpert, setClaimedExpert] = useState(null);
   const [claimStatus, setClaimStatus] = useState('');
 
   // Store the initialization promise and result
@@ -464,6 +475,12 @@ export default function ClaimGiftScreen({
         fees,
         fromBalance,
       );
+      if (expertMode) {
+        setClaimedExpert({
+          amount: fromBalance === 'USD' ? sendingAmount / 1e6 : sendingAmount,
+          denomination: fromBalance,
+        });
+      }
       setDidClaim(true);
     } catch (err) {
       console.log('Error claiming gift:', err);
@@ -508,12 +525,6 @@ export default function ClaimGiftScreen({
     loadGiftDetails,
   ]);
 
-  useEffect(() => {
-    if (didClaim) {
-      animationRef.current?.play();
-    }
-  }, [didClaim]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -523,180 +534,183 @@ export default function ClaimGiftScreen({
     };
   }, []);
 
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
+  const isConnected =
+    sparkInformation.identityPubKey && sparkInformation.didConnect;
+  const hasDetails = !!Object.keys(giftDetails).length;
+  const isReclaim = claimType === 'reclaim';
+  const page =
+    !isConnected || !hasDetails
+      ? 'loading'
+      : didClaim
+      ? 'claimed'
+      : isClaiming
+      ? 'claiming'
+      : 'details';
 
-  const containerBackgroundColor = useMemo(() => {
-    return theme && darkModeType ? backgroundColor : backgroundOffset;
-  }, [theme, darkModeType, backgroundColor, backgroundOffset]);
+  // One height for every page: resizing the sheet while a step slides in
+  // leaves the step's touch area out of sync (Accept stopped responding).
+  useStepSheetHeight(setContentHeight, 460);
 
-  if (!sparkInformation.identityPubKey || !sparkInformation.didConnect) {
-    return (
-      <FullLoadingScreen
-        text={t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage')}
-      />
-    );
-  }
+  // Funds are moving: block hardware back and the sheet dismiss.
+  useHandleBackPressNew(isClaiming ? () => true : null);
+  useEffect(() => {
+    setDismissLocked?.(isClaiming);
+    return () => setDismissLocked?.(false);
+  }, [isClaiming, setDismissLocked]);
 
-  if (!Object.keys(giftDetails).length) {
-    return <FullLoadingScreen showText={false} />;
-  }
+  const amountProps = (amount, isUSD) => ({
+    amount,
+    fiatStats,
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: isUSD
+        ? 'fiat'
+        : masterInfoObject.userBalanceDenomination,
+    },
+    forceCurrency: isUSD ? 'USD' : false,
+    convertAmount: !isUSD,
+  });
 
-  if (didClaim) {
-    return (
-      <View style={styles.tempClaimMessageContainer}>
-        <LottieView
-          ref={animationRef}
-          source={confirmAnimation}
-          loop={false}
-          style={styles.lottieView}
-        />
-        <ThemeText
-          styles={styles.confirmMessage}
-          content={t('screens.inAccount.giftPages.claimPage.confirmMessage')}
-        />
-        <CustomButton
-          actionFunction={handleBackPressFunction}
-          textContent={t('constants.done')}
-        />
-      </View>
-    );
-  }
+  const giftAmountProps = amountProps(
+    denomination === 'BTC' ? giftDetails.amount : giftDetails?.dollarAmount,
+    denomination === 'USD',
+  );
 
-  const amountDisplay = expertMode
-    ? customGiftIndex
-    : displayCorrectDenomination({
-        amount:
-          denomination === 'BTC'
-            ? giftDetails.amount
-            : giftDetails?.dollarAmount,
-        masterInfoObject: {
-          ...masterInfoObject,
-          userBalanceDenomination:
-            denomination === 'USD'
-              ? 'fiat'
-              : masterInfoObject.userBalanceDenomination,
-        },
-        fiatStats,
-        forceCurrency: denomination === 'USD' ? 'USD' : false,
-        convertAmount: denomination !== 'USD',
-      });
-
-  const headerText =
-    claimType === 'reclaim'
-      ? t('screens.inAccount.giftPages.claimPage.reclaimHead')
-      : t('screens.inAccount.giftPages.claimPage.claimHead');
-
-  const amountHeaderText =
-    claimType === 'reclaim'
-      ? expertMode
-        ? t('screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert')
-        : t('screens.inAccount.giftPages.claimPage.reclaimAmountHead')
-      : t('screens.inAccount.giftPages.claimPage.claimAmountHead');
-
-  const amountDescriptionText = expertMode
+  const feeText = expertMode
     ? t('screens.inAccount.giftPages.claimPage.networkFeeWarningExpert')
+    : isReclaim
+    ? t('screens.inAccount.giftPages.claimPage.reclaimFeeWarning')
     : t('screens.inAccount.giftPages.claimPage.networkFeeWarning');
 
-  const buttonText = isClaiming
-    ? t('screens.inAccount.giftPages.claimPage.buttonTextClaiming')
-    : claimType === 'reclaim'
-    ? t('screens.inAccount.giftPages.claimPage.reclaimButton')
-    : t('screens.inAccount.giftPages.claimPage.claimButton');
-
-  const loadingText =
-    claimStatus ||
-    (claimType === 'reclaim'
-      ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')
-      : t('screens.inAccount.giftPages.claimPage.claimLoading'));
+  const topLine = isReclaim
+    ? expertMode
+      ? t('screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert')
+      : t('screens.inAccount.giftPages.claimPage.reclaimAmountHead')
+    : giftDetails.description;
 
   return (
-    <View style={styles.container}>
-      <ThemeText styles={styles.header} content={headerText} />
-      <View
-        style={[styles.border, { backgroundColor: containerBackgroundColor }]}
-      />
-
-      {isClaiming ? (
+    <View style={[styles.container, { width: contentWidth }]}>
+      {page === 'loading' && (
         <FullLoadingScreen
-          textStyles={styles.claimingMessage}
-          text={loadingText}
+          showText={!isConnected}
+          text={t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage')}
         />
-      ) : (
-        <>
-          <View
-            style={[
-              styles.amountContainer,
-              { backgroundColor: containerBackgroundColor },
-            ]}
-          >
-            <ThemeText
-              styles={styles.amountHeader}
-              content={amountHeaderText}
-            />
-            <ThemeText styles={styles.amount} content={amountDisplay} />
-            <ThemeText
-              styles={styles.amountDescription}
-              content={amountDescriptionText}
-            />
-          </View>
-          <CustomButton
-            buttonStyles={styles.buttonContainer}
-            textContent={buttonText}
-            actionFunction={handleClaim}
-          />
-        </>
       )}
+
+      {/* Fade only: details replaces the spinner while the sheet is still
+          sliding up, and a sideways slide on top of that looked jittery. */}
+      <AnimatedStep active={page === 'details'} direction={1} fadeOnly>
+        {isReclaim && <TopBar onBack={() => handleBackPressFunction()} />}
+        <View style={styles.center}>
+          <AssetDisc asset={expertMode ? 'bitcoin' : giftAsset(giftDetails)} />
+          {!!topLine && (
+            <ThemeText
+              variant={'body'}
+              styles={[styles.note, { color: tokens.muted }]}
+              content={topLine}
+            />
+          )}
+          {expertMode ? (
+            <ThemeText
+              styles={styles.amount}
+              content={t(
+                'screens.inAccount.giftPages.claimPage.expertGiftLabel',
+                {
+                  number: customGiftIndex,
+                },
+              )}
+            />
+          ) : (
+            <AmountHero {...giftAmountProps} amountSize={40} />
+          )}
+        </View>
+        <ThemeText
+          variant={'hint'}
+          styles={[styles.fee, { color: tokens.muted }]}
+          content={feeText}
+        />
+        <CustomButton
+          buttonStyles={styles.button}
+          textContent={
+            isReclaim
+              ? t('screens.inAccount.giftPages.claimPage.reclaimButton')
+              : t('screens.inAccount.giftPages.claimPage.claimButton')
+          }
+          actionFunction={handleClaim}
+          size={'regular'}
+        />
+      </AnimatedStep>
+
+      <AnimatedStep active={page === 'claiming'} direction={1} fadeOnly>
+        <View style={styles.claiming}>
+          <ActivityIndicator size="large" color={tokens.accent} />
+          <ThemeText
+            styles={styles.title}
+            content={
+              isReclaim
+                ? t('screens.inAccount.giftPages.claimPage.reclaimingTitle')
+                : t('screens.inAccount.giftPages.claimPage.claimingTitle')
+            }
+          />
+          <ThemeText
+            variant={'body'}
+            styles={[styles.sub, { color: tokens.muted }]}
+            content={t('screens.inAccount.giftPages.claimPage.stayInApp')}
+          />
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep active={page === 'claimed'} direction={1} fadeOnly>
+        <SheetResult
+          label={
+            isReclaim
+              ? t('screens.inAccount.giftPages.claimPage.reclaimedTitle')
+              : t('screens.inAccount.giftPages.claimPage.claimedTitle')
+          }
+          amountProps={
+            expertMode && claimedExpert
+              ? amountProps(
+                  claimedExpert.amount,
+                  claimedExpert.denomination === 'USD',
+                )
+              : giftAmountProps
+          }
+          line={t('screens.inAccount.giftPages.claimPage.claimedSub')}
+          buttonText={t('constants.done')}
+          onDone={handleBackPressFunction}
+        />
+      </AnimatedStep>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-  header: {
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-    fontWeight: 500,
-  },
-  border: {
-    height: 3,
-    marginVertical: 20,
-  },
-  amountContainer: {
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  amountHeader: {
-    textAlign: 'center',
-  },
+  container: { flex: 1, alignSelf: 'center' },
+  center: { marginTop: 24, alignItems: 'center' },
+  note: { marginTop: 14, textAlign: 'center' },
   amount: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 40,
+    lineHeight: 48,
+    marginTop: 14,
     textAlign: 'center',
-    fontSize: SIZES.xxLarge,
-    marginVertical: 10,
+    includeFontPadding: false,
   },
-  amountDescription: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    opacity: 0.6,
-  },
-  buttonContainer: {
-    marginTop: 'auto',
-    alignSelf: 'center',
-  },
-  tempClaimMessageContainer: {
+  fee: { marginTop: 'auto', marginBottom: 12, textAlign: 'center' },
+  button: { width: '100%' },
+  claiming: {
     flex: 1,
     alignItems: 'center',
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    justifyContent: 'center',
+    paddingBottom: 40,
   },
-  confirmMessage: { textAlign: 'center', marginBottom: 'auto' },
-  claimingMessage: {
+  title: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 26,
+    marginTop: 24,
     textAlign: 'center',
-    width: INSET_WINDOW_WIDTH,
-    minHeight: 80,
+    includeFontPadding: false,
   },
-  lottieView: {
-    width: 150,
-    height: 150,
-  },
+  sub: { marginTop: 6, textAlign: 'center' },
 });

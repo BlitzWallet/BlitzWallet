@@ -1,13 +1,25 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { CENTER, SIZES } from '../../../../constants';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
+import { CENTER, FONT } from '../../../../constants';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
+import { SheetTitle } from '../savings/savingsSheetParts';
+import { CoinChainLogo, shortenAddress } from './AccumulationAddressCard';
+
+const ROW_HEIGHT = 61;
+
+// Backend objects carry no timestamp today; the date line shows once one does.
+function createdDate(addr) {
+  const raw = addr.createdAt ?? addr.created_at ?? addr.createdTime;
+  if (!raw) return null;
+  const date = new Date(raw);
+  if (isNaN(date)) return null;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 
 export default function AccumulationAddressSelectHalfModal({
   addresses,
@@ -16,60 +28,65 @@ export default function AccumulationAddressSelectHalfModal({
   handleBackPressFunction,
   setContentHeight,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const list = addresses || [];
+  const first = list[0];
+  const chainLabel =
+    ACCUMULATION_CHAINS.find(c => c.id === first?.sourceChain)?.label ??
+    first?.sourceChain;
 
   useEffect(() => {
-    setContentHeight(450);
-  }, [setContentHeight]);
+    setContentHeight(Math.min(640, 170 + list.length * ROW_HEIGHT));
+  }, [setContentHeight, list.length]);
 
   const handleSelect = addr => {
-    onSelect(addr);
+    if (addr.accumulationAddressId !== selectedId) onSelect(addr);
     handleBackPressFunction();
   };
 
   return (
     <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('screens.accumulationAddresses.detail.selectAddress')}
-      />
-      <CustomScrollView showsVerticalScrollIndicator={false}>
-        {(addresses || []).map(addr => {
-          const depositAddress = addr.depositAddress ?? '';
-          const shortAddress = `${depositAddress.slice(
-            0,
-            8,
-          )}…${depositAddress.slice(-6)}`;
-          const isSelected = addr.accumulationAddressId === selectedId;
-          return (
-            <TouchableOpacity
-              disabled={isSelected}
-              key={addr.accumulationAddressId}
-              activeOpacity={0.7}
-              style={[
-                styles.row,
-                {
-                  backgroundColor: isSelected
-                    ? theme && darkModeType
-                      ? backgroundColor
-                      : backgroundOffset
-                    : 'transparent',
-                  borderWidth: isSelected ? 1 : 0,
-                  borderColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-              ]}
-              onPress={() => handleSelect(addr)}
-            >
-              <ThemeText styles={styles.addressText} content={shortAddress} />
-              {!isSelected && <ThemeIcon size={20} iconName={'ChevronRight'} />}
-            </TouchableOpacity>
-          );
+      <SheetTitle
+        first={true}
+        title={t('screens.accumulationAddresses.detail.selectAddress')}
+        sub={t('screens.accumulationAddresses.detail.selectAddressSub', {
+          count: list.length,
+          asset: first?.sourceAsset,
+          chain: chainLabel,
         })}
+      />
+      <CustomScrollView
+        style={styles.list}
+        showsVerticalScrollIndicator={false}
+      >
+        <ListCard>
+          {list.map(addr => {
+            const date = createdDate(addr);
+            return (
+              <PickRow
+                key={addr.accumulationAddressId}
+                title={shortenAddress(addr.depositAddress)}
+                titleStyle={styles.address}
+                sub={
+                  date
+                    ? t('screens.accumulationAddresses.detail.created', {
+                        date,
+                      })
+                    : undefined
+                }
+                lead={
+                  <CoinChainLogo
+                    asset={addr.sourceAsset}
+                    chainLabel={chainLabel}
+                  />
+                }
+                selected={addr.accumulationAddressId === selectedId}
+                onPress={() => handleSelect(addr)}
+                minHeight={60}
+              />
+            );
+          })}
+        </ListCard>
       </CustomScrollView>
     </View>
   );
@@ -81,22 +98,11 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: 10,
-    includeFontPadding: false,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 50,
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  addressText: {
+  list: { marginTop: 12, flexGrow: 0 },
+  address: {
+    fontFamily: FONT.mono,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
   },
   rightSection: {

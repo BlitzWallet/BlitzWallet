@@ -1,10 +1,11 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useMemo } from 'react';
 import ThemeIcon from './themeIcon';
+import { useInSheet } from './redesign/sheetSurface';
 
 export default function CustomButton({
   buttonStyles,
@@ -12,20 +13,50 @@ export default function CustomButton({
   actionFunction,
   textContent,
   useLoading,
-  loadingColor = COLORS.lightModeText,
+  loadingColor,
   useArrow = false,
   disabled = false,
   onTextLayout,
   enableElipsis = true,
+  size,
+  tone,
+  progress,
+  icon,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const isSheet = useInSheet();
+  // Redesign pill is opt-in: without size/tone the button renders as today.
+  const redesign = !!(size || tone);
+  const fill = redesign
+    ? tone === 'secondary'
+      ? isSheet
+        ? tokens.ground
+        : tokens.surface
+      : tone === 'danger'
+      ? tokens.danger
+      : tokens.accent
+    : null;
+  const label = redesign
+    ? tone === 'secondary'
+      ? tokens.ink
+      : tokens.onAccent
+    : null;
 
   const memorizedContainerStyles = useMemo(() => {
     // Base styles with theme color
-    const baseStyles = {
-      ...styles.buttonLocalStyles,
-      minWidth: useArrow ? 50 : 120,
-    };
+    const baseStyles = redesign
+      ? {
+          ...styles.pill,
+          ...PILL_SIZES[size || 'regular'],
+          backgroundColor: fill,
+          opacity: disabled ? 0.5 : 1,
+          ...(icon && styles.withIcon),
+        }
+      : {
+          ...styles.buttonLocalStyles,
+          minWidth: useArrow ? 50 : 120,
+        };
+    if (typeof progress === 'number') baseStyles.overflow = 'hidden';
 
     if (!buttonStyles) {
       return baseStyles;
@@ -45,18 +76,16 @@ export default function CustomButton({
       ...baseStyles,
       ...buttonStyles,
     };
-  }, [buttonStyles]);
+  }, [buttonStyles, redesign, size, fill, disabled, progress, icon]);
 
   const memorizedTextStyles = useMemo(() => {
     // Base styles with theme color
-    const baseStyles = {
-      ...styles.text,
-      color: theme
-        ? darkModeType
-          ? COLORS.lightsOutBackground
-          : COLORS.darkModeBackground
-        : COLORS.lightModeText,
-    };
+    const baseStyles = redesign
+      ? { ...styles.pillText, color: label }
+      : {
+          ...styles.text,
+          color: theme ? tokens.ground : tokens.ink,
+        };
 
     if (!textStyles) {
       return baseStyles;
@@ -76,7 +105,7 @@ export default function CustomButton({
       ...baseStyles,
       ...textStyles,
     };
-  }, [theme, darkModeType, textStyles]);
+  }, [theme, darkModeType, tokens, textStyles, redesign, label]);
 
   return (
     <TouchableOpacity
@@ -87,30 +116,59 @@ export default function CustomButton({
         actionFunction();
       }}
     >
+      {typeof progress === 'number' && (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.progressFill,
+            {
+              width: `${Math.min(Math.max(progress, 0), 1) * 100}%`,
+              backgroundColor:
+                tone === 'secondary' ? tokens.disc : 'rgba(255,255,255,0.24)',
+            },
+          ]}
+        />
+      )}
       {useLoading ? (
         <FullLoadingScreen
           showText={false}
           size="small"
-          loadingColor={loadingColor}
+          loadingColor={
+            loadingColor !== undefined
+              ? loadingColor
+              : redesign
+              ? label
+              : COLORS.lightModeText
+          }
         />
       ) : useArrow ? (
         <ThemeIcon
           colorOverride={
             theme && darkModeType
               ? buttonStyles?.backgroundColor
-                ? COLORS.darkModeText
+                ? tokens.ink
                 : COLORS.lightModeText
               : undefined
           }
           iconName={'ChevronRight'}
         />
       ) : (
-        <ThemeText
-          onTextLayout={onTextLayout}
-          CustomNumberOfLines={enableElipsis ? 1 : undefined}
-          content={textContent}
-          styles={memorizedTextStyles}
-        />
+        <>
+          {redesign && !!icon && (
+            <ThemeIcon
+              redesign
+              iconName={icon}
+              size={20}
+              colorOverride={label}
+            />
+          )}
+          <ThemeText
+            onTextLayout={onTextLayout}
+            CustomNumberOfLines={enableElipsis ? 1 : undefined}
+            content={textContent}
+            styles={memorizedTextStyles}
+          />
+        </>
       )}
     </TouchableOpacity>
   );
@@ -133,7 +191,38 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
+  pill: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    cursor: 'pointer',
+  },
+  withIcon: { flexDirection: 'row', gap: 8 },
+  pillText: {
+    fontSize: 16,
+    lineHeight: 22,
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+  progressFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+  },
   arrowStyles: {
     transform: [{ rotate: '180deg' }],
   },
 });
+
+// audit/SHARED_FINDINGS.md I.3: regular/compact are full width; small/fit hug
+// their content.
+const PILL_SIZES = {
+  regular: { minHeight: 52, width: '100%' },
+  compact: { minHeight: 44, width: '100%' },
+  small: { minHeight: 44, alignSelf: 'center' },
+  fit: { minHeight: 52, alignSelf: 'center' },
+  fill: { minHeight: 52, width: '100%', flexShrink: 1 },
+};

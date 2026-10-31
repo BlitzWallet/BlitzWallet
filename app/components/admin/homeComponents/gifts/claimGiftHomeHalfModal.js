@@ -1,46 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  WEBSITE_REGEX,
-} from '../../../../constants';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
-import { ThemeText } from '../../../../functions/CustomElements';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { MAX_WEB_CONTENT_WIDTH, WEBSITE_REGEX } from '../../../../constants';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import AnimatedStep, {
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
 import getClipboardText from '../../../../functions/getClipboardText';
 import ClaimGiftScreen from './claimGiftScreen';
-import GetThemeColors from '../../../../hooks/themeColors';
+import { SheetTitle } from '../savings/savingsSheetParts';
 import { hasStringAsync } from 'expo-clipboard';
 
 export default function ClaimGiftHomeHalfModal({
   setContentHeight,
   setIsKeyboardActive,
   handleBackPressFunction,
+  setDismissLocked,
 }) {
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textInputColor } = GetThemeColors();
   const [showPasteButton, setShowPasteButton] = useState(true);
 
   const [enteredLink, setEnteredLink] = useState('');
   const [didSave, setDidSave] = useState(false);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    setContentHeight(550);
-  }, []);
+  useStepSheetHeight(setContentHeight, 400);
 
   // determine if we should show the past button based on state of clipboard and whether input is focused
   useEffect(() => {
@@ -85,52 +76,38 @@ export default function ClaimGiftHomeHalfModal({
     }
   };
 
-  if (
-    enteredLink &&
+  const showClaim =
+    !!enteredLink &&
     typeof enteredLink === 'string' &&
     WEBSITE_REGEX.test(enteredLink) &&
-    didSave
-  ) {
-    return (
-      <ClaimGiftScreen
-        url={enteredLink}
-        claimType={'claim'}
-        expertMode={false}
-        customGiftIndex={undefined}
-        handleBackPressFunction={handleBackPressFunction}
-        theme={theme}
-        darkModeType={darkModeType}
-      />
-    );
-  }
+    didSave;
 
   return (
-    <View style={styles.content}>
-      {/* Title & Description */}
-      <ThemeText
-        styles={styles.title}
-        content={t('screens.inAccount.giftPages.claimHome.header')}
-      />
+    <View style={[styles.container, { width: contentWidth }]}>
+      <AnimatedStep active={!showClaim} direction={1} exitsBack={false}>
+        <SheetTitle
+          first
+          title={t('screens.inAccount.giftPages.claimHome.header')}
+          sub={t('screens.inAccount.giftPages.claimHome.desc')}
+        />
 
-      <ThemeText
-        styles={styles.description}
-        content={t('screens.inAccount.giftPages.claimHome.desc')}
-      />
-
-      {/* Input Container */}
-      <CustomSearchInput
-        setInputText={setEnteredLink}
-        inputText={enteredLink}
-        placeholderText={t(
-          'screens.inAccount.giftPages.claimHome.inputPlaceholder',
-        )}
-        containerStyles={{
-          justifyContent: 'center',
-          marginBottom: CONTENT_KEYBOARD_OFFSET,
-        }}
-        textInputStyles={{ paddingRight: 45 }}
-        buttonComponent={
-          <TouchableOpacity
+        <View style={styles.inputRow}>
+          <View style={styles.input}>
+            <UserInput
+              pill
+              value={enteredLink}
+              onChangeText={setEnteredLink}
+              placeholder={t(
+                'screens.inAccount.giftPages.claimHome.inputPlaceholder',
+              )}
+              onFocus={() => setIsKeyboardActive(true)}
+              onBlur={() => setIsKeyboardActive(false)}
+            />
+          </View>
+          <IconButton
+            tone="disc"
+            icon={enteredLink ? 'X' : 'ScanLine'}
+            label={enteredLink ? 'constants.clear' : 'constants.scan'}
             onPress={() => {
               if (enteredLink) {
                 setEnteredLink('');
@@ -143,68 +120,51 @@ export default function ClaimGiftHomeHalfModal({
                 );
               }
             }}
-            style={styles.qrButton}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? textInputColor : COLORS.primary
-              }
-              iconName={enteredLink ? 'X' : 'ScanLine'}
-            />
-          </TouchableOpacity>
-        }
-        onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-      />
+          />
+        </View>
 
-      <CustomButton
-        buttonStyles={[
-          {
-            alignSelf: 'center',
-            marginTop: 'auto',
-            opacity: !enteredLink && !showPasteButton ? HIDDEN_OPACITY : 1,
-          },
-        ]}
-        actionFunction={handleClaimGift}
-        textContent={
-          !enteredLink
-            ? t('constants.paste')
-            : t('screens.inAccount.giftPages.claimHome.claim')
-        }
-      />
+        <CustomButton
+          buttonStyles={[
+            styles.button,
+            {
+              opacity: !enteredLink && !showPasteButton ? HIDDEN_OPACITY : 1,
+            },
+          ]}
+          actionFunction={handleClaimGift}
+          size={'regular'}
+          textContent={
+            !enteredLink
+              ? t('constants.paste')
+              : t('screens.inAccount.giftPages.claimHome.claim')
+          }
+        />
+      </AnimatedStep>
+
+      {/* Not wrapped in an AnimatedStep: nesting ClaimGiftScreen's own steps
+          inside one left a finished step covering the Accept button. */}
+      {showClaim && (
+        <ClaimGiftScreen
+          url={enteredLink}
+          claimType={'claim'}
+          expertMode={false}
+          customGiftIndex={undefined}
+          handleBackPressFunction={handleBackPressFunction}
+          setContentHeight={setContentHeight}
+          setDismissLocked={setDismissLocked}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'red',
+  container: { flex: 1, alignSelf: 'center' },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 20,
   },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    marginBottom: 5,
-  },
-  description: {
-    fontSize: SIZES.small,
-    marginBottom: 20,
-    maxWidth: 384,
-    lineHeight: 20,
-    opacity: 0.6,
-  },
-
-  qrButton: {
-    position: 'absolute',
-    right: 10,
-    zIndex: 1,
-  },
+  input: { flex: 1 },
+  button: { width: '100%', marginTop: 'auto' },
 });

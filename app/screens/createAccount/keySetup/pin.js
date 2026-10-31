@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
-import { CENTER, SIZES } from '../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
-import KeyForKeyboard from '../../../functions/CustomElements/key';
+import CustomNumberKeyboard from '../../../functions/CustomElements/customNumberKeyboard';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import RNRestart from 'react-native-restart-newarch';
@@ -23,18 +29,20 @@ import {
   isPasskeySupported,
   storeMnemonicWithPasskey,
 } from '../../../functions/passkeyMnemonic';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import TextButton from '../../../functions/CustomElements/redesign/TextButton';
+import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
-import IconActionCircle from '../../../functions/CustomElements/actionCircleContainer';
-import { useGlobalThemeContext } from '../../../../context-store/theme';
-import GetThemeColors from '../../../hooks/themeColors';
+import { useTheme } from '../../../../context-store/theme';
+import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
 
 function WebCreatePassword(props) {
   const { accountMnemoinc } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = useTheme();
   const navigate = useNavigation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // 'checking' until the capability check resolves, then 'offer' (passkey
@@ -208,89 +216,91 @@ function WebCreatePassword(props) {
   if (step === 'password') {
     return (
       <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
-        <CustomSettingsTopBar customBackFunction={handleGoBack} />
-        <PasswordCreateForm
-          headerText={t(
-            'createAccount.keySetup.password.createHeader',
-            'Create Password',
-          )}
-          subtitleText={
-            passkeyUnsupported
-              ? t(
-                  'createAccount.keySetup.passkey.unsupported',
-                  "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",
-                )
-              : t(
-                  'createAccount.keySetup.password.createSubtitle',
-                  'Choose a strong password to protect your wallet.',
-                )
-          }
-          buttonText={t(
-            'createAccount.keySetup.password.createButton',
-            'Create Wallet',
-          )}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-        />
+        <View style={[styles.innerContainer, { width: contentWidth }]}>
+          <TopBar title="" onBack={handleGoBack} />
+          <PasswordCreateForm
+            headerText={t(
+              'createAccount.keySetup.password.createHeader',
+              'Create Password',
+            )}
+            subtitleText={
+              passkeyUnsupported
+                ? t(
+                    'createAccount.keySetup.passkey.unsupported',
+                    "Your password manager can't protect a wallet with a passkey yet. Set a password instead.",
+                  )
+                : t(
+                    'createAccount.keySetup.password.createSubtitle',
+                    'Choose a strong password to protect your wallet.',
+                  )
+            }
+            buttonText={t(
+              'createAccount.keySetup.password.createButton',
+              'Create Wallet',
+            )}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
+        </View>
       </GlobalThemeView>
     );
   }
 
   return (
     <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
-      <CustomSettingsTopBar customBackFunction={handleGoBack} />
-      <View style={styles.container}>
-        <View style={styles.passkeyContent}>
-          <ThemeText
-            styles={styles.passkeyHeader}
-            content={t('createAccount.keySetup.passkey.offerHeader')}
-          />
-          <ThemeText
-            styles={styles.passkeySubtitle}
-            content={t(
-              'createAccount.keySetup.passkey.offerSubtitle',
-              'Unlock with your face, fingerprint, or device PIN instead of a password. If you ever lose your passkey, you can restore your wallet with your recovery phrase.',
+      <View style={[styles.innerContainer, { width: contentWidth }]}>
+        <TopBar title="" onBack={handleGoBack} />
+        <View style={styles.container}>
+          <View style={styles.passkeyContent}>
+            <PageHeader
+              large
+              title={t('createAccount.keySetup.passkey.offerHeader')}
+              sub={t(
+                'createAccount.keySetup.passkey.offerSubtitle',
+                'Unlock with your face, fingerprint, or device PIN instead of a password. If you ever lose your passkey, you can restore your wallet with your recovery phrase.',
+              )}
+            />
+            {step === 'confirm-failed' && (
+              <ThemeText
+                styles={[styles.passkeyError, { color: tokens.danger }]}
+                content={t('createAccount.keySetup.passkey.confirmFailed')}
+              />
             )}
-          />
-          {step === 'confirm-failed' && (
-            <ThemeText
-              styles={styles.passkeyError}
-              content={t('createAccount.keySetup.passkey.confirmFailed')}
+          </View>
+          <View style={styles.keyIconContainer}>
+            <View style={[styles.keyDisc, { backgroundColor: tokens.surface }]}>
+              <ThemeIcon
+                redesign
+                iconName="KeyRound"
+                size={44}
+                colorOverride={tokens.accent}
+              />
+            </View>
+          </View>
+          <View style={styles.passkeyButtons}>
+            <CustomButton
+              size="regular"
+              tone="primary"
+              textContent={
+                step === 'confirm-failed'
+                  ? t('createAccount.keySetup.passkey.tryAgain')
+                  : t('createAccount.keySetup.passkey.createButton')
+              }
+              actionFunction={handlePasskey}
+              disabled={isSubmitting}
+              useLoading={isSubmitting}
             />
-          )}
-        </View>
-        <View style={styles.keyIconContainer}>
-          <IconActionCircle
-            customBackgroundColor={
-              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
-            }
-            icon={'Key'}
-            size={130}
-          />
-        </View>
-        <View style={styles.passkeyButtons}>
-          <CustomButton
-            textContent={
-              step === 'confirm-failed'
-                ? t('createAccount.keySetup.passkey.tryAgain')
-                : t('createAccount.keySetup.passkey.createButton')
-            }
-            actionFunction={handlePasskey}
-            disabled={isSubmitting}
-            useLoading={isSubmitting}
-          />
-          <TouchableOpacity
-            testID="use-password-instead"
-            style={styles.usePasswordButton}
-            onPress={() => {
-              if (!isPasskeyBusyRef.current) showPasswordForm(false);
-            }}
-            disabled={isSubmitting}
-          >
-            <ThemeText
-              content={t('createAccount.keySetup.passkey.usePassword')}
+            <TextButton
+              testID="use-password-instead"
+              text={t('createAccount.keySetup.passkey.usePassword')}
+              align="center"
+              textStyle={styles.usePasswordText}
+              disabled={isSubmitting}
+              onPress={() => {
+                if (!isPasskeyBusyRef.current) showPasswordForm(false);
+              }}
             />
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
     </GlobalThemeView>
@@ -299,6 +309,9 @@ function WebCreatePassword(props) {
 
 function PinPageNative(props) {
   const { accountMnemoinc } = useKeysContext();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [pin, setPin] = useState([null, null, null, null]);
   const [confirmPin, setConfirmPin] = useState([]);
   const [pinNotMatched, setPinNotMatched] = useState(false);
@@ -406,57 +419,54 @@ function PinPageNative(props) {
     })();
   }, [pin]);
 
+  // Confirm step: back returns to Create PIN. Create step: leave the screen.
+  const handleBack = useCallback(() => {
+    if (isConfirming) {
+      setPin([null, null, null, null]);
+      setConfirmPin([]);
+      setIsConfirming(false);
+    } else {
+      navigate.goBack();
+    }
+    return true;
+  }, [isConfirming, navigate]);
+
+  useHandleBackPressNew(handleBack);
+
   return (
-    <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
-      <ThemeText
-        styles={styles.header}
-        content={
-          isConfirming
-            ? pinNotMatched
-              ? t('createAccount.keySetup.pin.wrongPinError')
-              : t('createAccount.keySetup.pin.confirmPin')
-            : t('createAccount.keySetup.pin.enterPinMessage')
-        }
-      />
-      {!!pinEnterCount && (
-        <ThemeText
-          styles={styles.enterText}
-          content={t('createAccount.keySetup.pin.attemptsText', {
-            number: 8 - pinEnterCount,
-          })}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.innerContainer, { width: contentWidth }]}>
+        <TopBar onBack={handleBack} />
+        <View style={styles.pinHeader}>
+          <ThemeText
+            variant="title"
+            content={
+              isConfirming
+                ? t('createAccount.keySetup.pin.confirmPin')
+                : t('createAccount.keySetup.pin.enterPinMessage')
+            }
+          />
+          {isConfirming && !!pinEnterCount && (
+            <ThemeText
+              styles={[styles.attemptsText, { color: tokens.danger }]}
+              content={t('createAccount.keySetup.pin.attemptsText', {
+                number: 8 - pinEnterCount,
+              })}
+            />
+          )}
+          <View style={styles.dotContainer}>
+            <PinDot redesign pin={pin} dotNum={0} />
+            <PinDot redesign pin={pin} dotNum={1} />
+            <PinDot redesign pin={pin} dotNum={2} />
+            <PinDot redesign pin={pin} dotNum={3} />
+          </View>
+        </View>
+        <CustomNumberKeyboard
+          redesign
+          pinPad
+          showDot={false}
+          customFunction={addPin}
         />
-      )}
-
-      <View
-        style={[styles.dotContainer, { marginTop: pinEnterCount ? 0 : 30 }]}
-      >
-        <PinDot pin={pin} dotNum={0} />
-        <PinDot pin={pin} dotNum={1} />
-        <PinDot pin={pin} dotNum={2} />
-        <PinDot pin={pin} dotNum={3} />
-      </View>
-
-      <View style={styles.keyboardContainer}>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={1} addPin={addPin} />
-          <KeyForKeyboard num={2} addPin={addPin} />
-          <KeyForKeyboard num={3} addPin={addPin} />
-        </View>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={4} addPin={addPin} />
-          <KeyForKeyboard num={5} addPin={addPin} />
-          <KeyForKeyboard num={6} addPin={addPin} />
-        </View>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={7} addPin={addPin} />
-          <KeyForKeyboard num={8} addPin={addPin} />
-          <KeyForKeyboard num={9} addPin={addPin} />
-        </View>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={'C'} addPin={addPin} />
-          <KeyForKeyboard num={0} addPin={addPin} />
-          <KeyForKeyboard num={'back'} addPin={addPin} />
-        </View>
       </View>
     </GlobalThemeView>
   );
@@ -504,90 +514,58 @@ export default function PinPage(props) {
 }
 
 const styles = StyleSheet.create({
+  innerContainer: {
+    flex: 1,
+    ...CENTER,
+  },
   contentContainer: {
     alignItems: 'center',
   },
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-  },
-  header: {
-    fontSize: SIZES.xLarge,
-    marginTop: 50,
-  },
-  enterText: {
-    fontSize: SIZES.large,
-    marginBottom: 30,
-  },
-
-  dotContainer: {
-    width: 150,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dot: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  dot_active: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  keyboardContainer: {
     width: '100%',
-    maxWidth: 400,
-    marginTop: 'auto',
   },
-  keyboard_row: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  key: {
-    width: '33.33333333333333%',
-    height: 70,
-    display: 'flex',
+  pinHeader: {
+    marginTop: 96,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  keyText: {
-    fontSize: SIZES.xLarge,
+  attemptsText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+    includeFontPadding: false,
+  },
+  dotContainer: {
+    marginTop: 28,
+    flexDirection: 'row',
+    gap: 20,
   },
   passkeyContent: {
     width: '100%',
   },
-  passkeyHeader: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  passkeySubtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-  },
   passkeyError: {
-    fontSize: SIZES.small,
-    color: '#e74c3c',
-    textAlign: 'center',
+    fontSize: 15,
+    lineHeight: 22,
     marginTop: 12,
   },
   keyIconContainer: {
     flex: 1,
     alignItems: 'center',
+    paddingTop: 72,
+  },
+  keyDisc: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   passkeyButtons: {
     width: '100%',
+    gap: 12,
   },
-  usePasswordButton: {
-    marginTop: 15,
-    padding: 5,
-    ...CENTER,
+  usePasswordText: {
+    fontSize: 15,
+    lineHeight: 22,
   },
 });

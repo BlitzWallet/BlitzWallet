@@ -1,21 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, FONT, SIZES } from '../../../../constants';
+import { useEffect, useRef } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  CENTER,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+} from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function RemoveBudgetHalfModal({
   setContentHeight,
   handleBackPressFunction,
 }) {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
+  const { mode } = useGlobalThemeContext();
   const isMounted = useRef(true);
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
-  const [isLoading, setIsLoading] = useState(false);
+  const cancelButton = t('constants.cancel');
+  const removeButton = t('constants.remove');
 
   useEffect(() => {
     setContentHeight(400);
@@ -25,32 +36,47 @@ export default function RemoveBudgetHalfModal({
   }, []);
 
   const removeBudget = async () => {
-    setIsLoading(true);
     await toggleMasterInfoObject({ monthlyBudget: null });
     handleBackPressFunction();
-    setIsLoading(false);
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('analytics.budget.removeBudgetTitle')}
+    <View style={[styles.container, { width: contentWidth }]}>
+      <Disc
+        icon={'Trash2'}
+        tone={mode !== 'dim' ? 'danger' : 'regular'}
+        size={56}
+        iconSize={24}
       />
-
-      <ThemeText
-        styles={styles.description}
-        content={t('analytics.budget.removeBudgetSub')}
+      <PageHeader
+        title={t('analytics.budget.removeBudgetTitle')}
+        sub={t('analytics.budget.removeBudgetSub')}
       />
-
-      <View style={styles.buttonContainer}>
-        <CustomButton
-          buttonStyles={styles.closeButton}
-          textContent={t('constants.remove')}
-          actionFunction={removeBudget}
-          useLoading={isLoading}
-        />
-      </View>
+      <AdaptiveButtonRow
+        labels={[cancelButton, removeButton]}
+        containerStyle={styles.buttonContainer}
+      >
+        {({ buttonStyle }) => (
+          <>
+            <CustomButton
+              buttonStyles={[styles.actionButton, buttonStyle]}
+              enableElipsis={false}
+              textContent={cancelButton}
+              actionFunction={handleBackPressFunction}
+              size={'regular'}
+              tone="secondary"
+            />
+            <CustomButton
+              buttonStyles={[styles.actionButton, buttonStyle]}
+              enableElipsis={false}
+              textContent={removeButton}
+              actionFunction={removeBudget}
+              size={'regular'}
+              tone={mode !== 'dim' ? 'danger' : 'regular'}
+            />
+          </>
+        )}
+      </AdaptiveButtonRow>
     </View>
   );
 }
@@ -58,7 +84,7 @@ export default function RemoveBudgetHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
+    paddingTop: 15,
     ...CENTER,
   },
   centerContainer: {
@@ -101,7 +127,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    gap: 12,
+    gap: 10,
     marginTop: 'auto',
   },
   closeButton: {

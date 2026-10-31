@@ -1,52 +1,57 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, SIZES } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { useCallback, useMemo } from 'react';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import LottieView from 'lottie-react-native';
+import { useCallback } from 'react';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import GetThemeColors from '../../../../hooks/themeColors';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
 export default function SavingsGoalSuccess(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const amount = Number(props?.route?.params?.amount || 0);
+  const { amount: paramAmount, emoji } = props?.route?.params;
+  const amount = Number(paramAmount || 0);
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const handleGoHome = useCallback(() => {
     navigate.popTo('SavingsHome');
     return true;
   }, []);
 
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
-
   useHandleBackPressNew(handleGoHome);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar customBackFunction={handleGoHome} />
-      <View style={styles.container}>
+      <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.content}>
-          <LottieView
-            source={confirmAnimation}
-            loop={false}
-            autoPlay={true}
-            style={styles.animation}
-          />
+          <View>
+            <View
+              style={[
+                styles.emojiContainer,
+                { backgroundColor: tokens.surface },
+              ]}
+            >
+              <ThemeText styles={styles.emojiText} content={emoji} />
+            </View>
+            <View style={[styles.badge, { borderColor: tokens.ground }]}>
+              <Disc size={32} icon={'Check'} tone="primary" />
+            </View>
+          </View>
           <ThemeText
+            variant={'title'}
             styles={styles.title}
             content={t('savings.goalSuccess.title', {
               amount: displayCorrectDenomination({
@@ -62,15 +67,16 @@ export default function SavingsGoalSuccess(props) {
             })}
           />
           <ThemeText
-            styles={styles.subtitle}
+            variant={'body'}
+            styles={[styles.subtitle, { color: tokens.muted }]}
             content={t('savings.goalSuccess.subtitle')}
           />
         </View>
 
         <CustomButton
-          buttonStyles={styles.button}
           actionFunction={handleGoHome}
           textContent={t('constants.done')}
+          size={'regular'}
         />
       </View>
     </GlobalThemeView>
@@ -80,32 +86,38 @@ export default function SavingsGoalSuccess(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
     ...CENTER,
   },
   content: {
-    marginTop: 30,
+    flex: 1,
     alignItems: 'center',
-    gap: 12,
-  },
-  animation: {
-    width: 150,
-    height: 150,
+    paddingTop: 196,
   },
   title: {
-    fontSize: SIZES.large,
+    marginTop: 28,
     textAlign: 'center',
-    includeFontPadding: false,
   },
   subtitle: {
-    opacity: 0.7,
-    includeFontPadding: false,
+    marginTop: 8,
     textAlign: 'center',
   },
-  button: {
+  emojiContainer: {
+    height: 88,
+    width: 88,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    // alignSelf: 'center',
+  },
+  emojiText: {
+    includeFontPadding: false,
+    fontSize: 42,
+    lineHeight: 50,
+  },
+  badge: {
+    position: 'absolute',
+    bottom: -7,
+    right: -7,
+    borderWidth: 3,
+    borderRadius: 999,
   },
 });

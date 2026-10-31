@@ -1,6 +1,5 @@
-import { FlatList, StyleSheet } from 'react-native';
-import { GlobalThemeView } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { getRestorableIndices } from '../../../../../functions/accounts/derivedAccounts';
@@ -8,14 +7,27 @@ import { useMemo, useState } from 'react';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import AccountCard from '../../accounts/accountCard';
-import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../../functions/CustomElements';
+import ListCard, {
+  ListDivider,
+} from '../../../../../functions/CustomElements/redesign/ListCard';
+import { useTheme } from '../../../../../../context-store/theme';
 
 export default function RestoreDerivedAccountPage() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { custodyAccounts, restoreDerivedAccount } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
+  const { tokens } = useTheme();
   const [isRestoring, setIsRestoring] = useState(0);
 
   const restorableIndices = getRestorableIndices(
@@ -41,6 +53,7 @@ export default function RestoreDerivedAccountPage() {
       return;
     }
 
+    if (isRestoring) return;
     setIsRestoring(index);
 
     try {
@@ -78,49 +91,96 @@ export default function RestoreDerivedAccountPage() {
 
   const renderAccountCard = ({ item: account }) => {
     const index = account.derivationIndex;
+    const restoring = isRestoring === index;
     return (
       <AccountCard
         account={account}
         onPress={() => handleRestore(index)}
-        isLoading={isRestoring === index}
-        isAccountSwitching={isRestoring === index}
+        showChevron={false}
+        trailing={
+          <ThemeText
+            styles={[
+              styles.restoreText,
+              { color: restoring ? tokens.muted : tokens.link },
+            ]}
+            content={t(
+              restoring
+                ? 'settings.accountComponents.restoreDerivedAccount.restoringLabel'
+                : 'settings.accountComponents.restoreDerivedAccount.restoreButton',
+            )}
+          />
+        }
       />
     );
   };
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('settings.accountComponents.restoreDerivedAccount.title')}
-      />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.accountComponents.restoreDerivedAccount.title')}
+        />
 
-      {restorableIndices.length === 0 ? (
-        <NoContentSceen
-          iconName="Users"
-          titleText={t(
-            'settings.accountComponents.restoreDerivedAccount.emptyStateTitle',
-          )}
-          subTitleText={t(
-            'settings.accountComponents.restoreDerivedAccount.emptyStateMessage',
-          )}
-        />
-      ) : (
-        <FlatList
-          data={restorableElements}
-          renderItem={renderAccountCard}
-          keyExtractor={item => `restorable-${item.derivationIndex}`}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+        {restorableIndices.length === 0 ? (
+          <View style={styles.empty}>
+            <EmptyState
+              icon={'Users'}
+              title={t(
+                'settings.accountComponents.restoreDerivedAccount.emptyStateTitle',
+              )}
+              sub={t(
+                'settings.accountComponents.restoreDerivedAccount.emptyStateMessage',
+              )}
+            />
+          </View>
+        ) : (
+          <View style={styles.listWrap}>
+            <ThemeText
+              content={t(
+                'settings.accountComponents.restoreDerivedAccount.subtitle',
+              )}
+              styles={[styles.subtitle, { color: tokens.muted }]}
+            />
+            <ListCard dividerInset={68} style={styles.card}>
+              <FlatList
+                data={restorableElements}
+                renderItem={renderAccountCard}
+                extraData={isRestoring}
+                keyExtractor={item => `restorable-${item.derivationIndex}`}
+                ItemSeparatorComponent={ListDivider}
+                showsVerticalScrollIndicator={false}
+              />
+            </ListCard>
+          </View>
+        )}
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  listContainer: {
-    paddingTop: 20,
-    paddingHorizontal: 16,
-    paddingBottom: 40,
+  container: {
+    flex: 1,
+    ...CENTER,
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listWrap: { flex: 1 },
+  subtitle: {
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+    marginBottom: 20,
+    paddingHorizontal: 12,
+  },
+  card: { flexShrink: 1 },
+  restoreText: {
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
 });

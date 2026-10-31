@@ -1,16 +1,10 @@
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { View, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
@@ -23,7 +17,6 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
@@ -31,7 +24,8 @@ import { useKeysContext } from '../../../../context-store/keys';
 import { handleRestoreFromText } from '../../../functions/seed';
 import parseStandardSeedQR from '../../../functions/parseStandardSeedQR';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
 import {
   KeyboardController,
   KeyboardEvents,
@@ -47,12 +41,15 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
   const blurTimeoutRef = useRef(null);
+  const keyboardVisibleRef = useRef(false);
   const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
 
   // Helper functions
@@ -177,10 +174,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
     }
   };
 
-  const seedItemBackgroundColor = useMemo(
-    () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
-    [theme],
-  );
+  const seedItemBackgroundColor = useMemo(() => tokens.surface, [tokens]);
 
   const inputKeys = useMemo(() => {
     const rows = [];
@@ -199,10 +193,17 @@ export default function RestoreWallet({ navigation: { reset } }) {
           <View
             style={[
               styles.seedItem,
-              { backgroundColor: seedItemBackgroundColor },
+              {
+                backgroundColor: seedItemBackgroundColor,
+                borderColor:
+                  currentFocused === item1 ? tokens.accent : 'transparent',
+              },
             ]}
           >
-            <ThemeText styles={styles.numberText} content={`${item1}.`} />
+            <ThemeText
+              styles={[styles.numberText, { color: tokens.muted }]}
+              content={`${item1}.`}
+            />
             <TextInput
               autoCorrect={false}
               autoComplete="off"
@@ -220,8 +221,8 @@ export default function RestoreWallet({ navigation: { reset } }) {
               onSubmitEditing={() => handleSubmit(item1)}
               onChangeText={e => handleInputElement(e, item1)}
               blurOnSubmit={false}
-              cursorColor={COLORS.lightModeText}
-              style={styles.textInputStyle}
+              cursorColor={tokens.ink}
+              style={[styles.textInputStyle, { color: tokens.ink }]}
             />
           </View>
 
@@ -229,10 +230,17 @@ export default function RestoreWallet({ navigation: { reset } }) {
           <View
             style={[
               styles.seedItem,
-              { backgroundColor: seedItemBackgroundColor },
+              {
+                backgroundColor: seedItemBackgroundColor,
+                borderColor:
+                  currentFocused === item2 ? tokens.accent : 'transparent',
+              },
             ]}
           >
-            <ThemeText styles={styles.numberText} content={`${item2}.`} />
+            <ThemeText
+              styles={[styles.numberText, { color: tokens.muted }]}
+              content={`${item2}.`}
+            />
             <TextInput
               autoCorrect={false}
               autoComplete="off"
@@ -250,8 +258,8 @@ export default function RestoreWallet({ navigation: { reset } }) {
               onSubmitEditing={() => handleSubmit(item2)}
               onChangeText={e => handleInputElement(e, item2)}
               blurOnSubmit={false}
-              cursorColor={COLORS.lightModeText}
-              style={styles.textInputStyle}
+              cursorColor={tokens.ink}
+              style={[styles.textInputStyle, { color: tokens.ink }]}
             />
           </View>
         </View>,
@@ -266,6 +274,8 @@ export default function RestoreWallet({ navigation: { reset } }) {
     theme,
     inputedKey,
     seedItemBackgroundColor,
+    currentFocused,
+    tokens,
   ]);
 
   useEffect(() => {
@@ -275,9 +285,20 @@ export default function RestoreWallet({ navigation: { reset } }) {
   }, []);
 
   useEffect(() => {
+    const keyboardDidShowListener = KeyboardEvents.addListener(
+      'keyboardDidShow',
+      () => {
+        keyboardVisibleRef.current = true;
+      },
+    );
     const keyboardDidHideListener = KeyboardEvents.addListener(
       'keyboardDidHide',
       () => {
+        // A hide with no matching show is spurious (hardware keyboard / iOS
+        // simulator emit one on focus) and would blur the input we just
+        // focused. Same guard as CustomSearchInput.
+        if (!keyboardVisibleRef.current) return;
+        keyboardVisibleRef.current = false;
         setCurrentFocused(null);
         if (keyRefs.current[currentFocused]?.isFocused()) {
           keyRefs.current[currentFocused]?.blur();
@@ -286,6 +307,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
     );
 
     return () => {
+      keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
   }, [currentFocused]);
@@ -301,55 +323,37 @@ export default function RestoreWallet({ navigation: { reset } }) {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      <View style={styles.viewContainer}>
-        <CustomSettingsTopBar />
+      <View style={[styles.viewContainer, { width: contentWidth }]}>
+        <TopBar />
         <View style={styles.keyContainer}>
           <CustomScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.contentContainer}
           >
-            <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
-              styles={styles.title}
-              content={t('createAccount.restoreWallet.home.header')}
+            <PageHeader
+              large
+              title={t('createAccount.restoreWallet.home.header')}
+              sub={t('createAccount.restoreWallet.home.desc')}
             />
-            <ThemeText
-              CustomNumberOfLines={2}
-              adjustsFontSizeToFit={true}
-              styles={styles.subtitle}
-              content={t('createAccount.restoreWallet.home.desc')}
-            />
-            {inputKeys}
+            <View style={styles.seedGrid}>{inputKeys}</View>
           </CustomScrollView>
 
           {!currentFocused && (
-            <View
-              style={{
-                paddingBottom: bottomPadding,
-                width: INSET_WINDOW_WIDTH,
-                ...CENTER,
-                marginTop: CONTENT_KEYBOARD_OFFSET,
-              }}
-            >
-              {/* Paste + Scan row */}
-              <View style={styles.secondaryButtonRow}>
-                <CustomButton
-                  buttonStyles={styles.secondaryButton}
-                  textContent={t('createAccount.restoreWallet.home.scanQr')}
-                  actionFunction={() =>
-                    navigate.navigate('CameraModal', {
-                      updateBitcoinAdressFunc: handleCameraScan,
-                      fromPage: 'addContact',
-                    })
-                  }
-                />
-              </View>
-
-              {/* Restore — full width */}
+            <View style={[styles.footer, { paddingBottom: bottomPadding }]}>
               <CustomButton
-                buttonStyles={styles.restoreButton}
-                textStyles={{ color: COLORS.darkModeText }}
+                size="regular"
+                tone="secondary"
+                icon="ScanLine"
+                textContent={t('createAccount.restoreWallet.home.scanQr')}
+                actionFunction={() =>
+                  navigate.navigate('CameraModal', {
+                    updateBitcoinAdressFunc: handleCameraScan,
+                    fromPage: 'addContact',
+                  })
+                }
+              />
+              <CustomButton
+                size="regular"
                 textContent={t('constants.restore')}
                 actionFunction={keyValidation}
               />
@@ -375,7 +379,6 @@ export default function RestoreWallet({ navigation: { reset } }) {
 const styles = StyleSheet.create({
   viewContainer: {
     flex: 1,
-    width: '100%',
     ...CENTER,
   },
   keyContainer: {
@@ -393,24 +396,17 @@ const styles = StyleSheet.create({
   navContainer: {
     marginRight: 'auto',
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
   contentContainer: {
     flexGrow: 1,
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
     ...CENTER,
     paddingBottom: 20,
+  },
+  seedGrid: { marginTop: 28 },
+  footer: {
+    width: '100%',
+    gap: 12,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   pasteButton: {
     // width: 145,
@@ -427,39 +423,32 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  // White r14 cells; the 2 pt border is the focus ring (transparent at rest).
   seedItem: {
-    flexShrink: 1,
-    width: '100%',
-    minHeight: 55,
+    flex: 1,
+    minWidth: 0,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    gap: 8,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    borderWidth: 2,
   },
   numberText: {
-    fontSize: SIZES.medium,
+    width: 22,
+    fontSize: 13,
+    lineHeight: 19,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
-    marginRight: 10,
   },
   textInputStyle: {
-    width: '100%',
-    flexShrink: 1,
-    minHeight: Platform.OS === 'ios' ? 0 : 55,
-    fontSize: SIZES.medium,
+    flex: 1,
+    minWidth: 0,
+    height: 44,
+    padding: 0,
+    fontSize: 15,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    color: COLORS.lightModeText,
-  },
-  secondaryButtonRow: {
-    width: '100%',
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  secondaryButton: {
-    flex: 1,
-  },
-  restoreButton: {
-    width: '100%',
-    backgroundColor: COLORS.primary,
   },
 });

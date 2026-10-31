@@ -8,54 +8,50 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { COLORS, SIZES } from '../../../../constants';
+import { COLORS } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { ThemeText } from '../../../../functions/CustomElements/index';
-import GetThemeColors from '../../../../hooks/themeColors';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { FONT, HIDDEN_OPACITY } from '../../../../constants/theme';
+import { FONT } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { convertToDecimals } from '../../../../functions/spark/swapAmountUtils';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const SIZE = 200;
-const STROKE_WIDTH = 16;
+const SIZE = 96;
+const STROKE_WIDTH = 14;
+const RADIUS = (SIZE - STROKE_WIDTH) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
 export default function BalancePieChart({ isBalanceHidden }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
     useUserBalanceContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
 
   const btcValue = bitcoinBalance;
   const dollarValue = dollarBalanceSat || 0;
-
   const dollarValueuUSD = parseFloat(dollarBalanceToken) || 0;
 
   const total = btcValue + dollarValue;
   const isEmpty = total === 0;
-
   const btcPct = isEmpty ? 0 : Math.min((btcValue / total) * 100, 100);
 
-  const centerText = useMemo(() => {
-    return displayCorrectDenomination({
-      amount: total,
-      masterInfoObject,
-      fiatStats,
-    });
-  }, [total, masterInfoObject, fiatStats]);
+  const totalText = useMemo(
+    () =>
+      displayCorrectDenomination({
+        amount: total,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [total, masterInfoObject, fiatStats],
+  );
 
-  // Ring geometry
-  const radius = (SIZE - STROKE_WIDTH) / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  // Reanimated
   const animatedPct = useSharedValue(0);
   const isInitialRef = useRef(true);
 
@@ -75,12 +71,11 @@ export default function BalancePieChart({ isBalanceHidden }) {
   }, [btcPct]);
 
   const animatedProps = useAnimatedProps(() => ({
-    strokeDashoffset: circumference - (animatedPct.value / 100) * circumference,
+    strokeDashoffset: CIRCUMFERENCE - (animatedPct.value / 100) * CIRCUMFERENCE,
   }));
 
-  // Legend helpers
-  const formatLegendValue = (value, key) => {
-    return displayCorrectDenomination({
+  const formatLegendValue = (value, key) =>
+    displayCorrectDenomination({
       amount: value,
       masterInfoObject: {
         ...masterInfoObject,
@@ -90,10 +85,6 @@ export default function BalancePieChart({ isBalanceHidden }) {
       convertAmount: key === 'btc',
       forceCurrency: 'USD',
     });
-  };
-
-  const btcPercent = isEmpty ? 0 : Math.round((btcValue / total) * 100);
-  const dolPercent = isEmpty ? 0 : 100 - btcPercent;
 
   const visibleSegments = isEmpty
     ? []
@@ -101,189 +92,122 @@ export default function BalancePieChart({ isBalanceHidden }) {
         btcValue > 0 && {
           key: 'btc',
           label: t('constants.bitcoin_upper'),
-          color:
-            theme && darkModeType ? COLORS.darkModeText : COLORS.bitcoinOrange,
+          color: COLORS.bitcoinOrange,
           value: btcValue,
-          percent: btcPercent,
         },
         dollarValue > 0 && {
           key: 'dollar',
           label: t('constants.dollars_upper'),
-          color: theme && darkModeType ? COLORS.gray : COLORS.dollarGreen,
+          color: COLORS.dollarGreen,
           value: convertToDecimals(dollarValueuUSD),
-          percent: dolPercent,
         },
       ].filter(Boolean);
 
   return (
-    <View style={styles.container}>
-      {/* Ring */}
-      <View style={styles.chartContainer}>
-        <Svg width={SIZE} height={SIZE}>
-          {/* Track — dollar color (always full circle) */}
-          <Circle
+    <View style={[styles.card, { backgroundColor: tokens.surface }]}>
+      <Svg width={SIZE} height={SIZE}>
+        {/* Track: dollar colour (full circle), grey when empty */}
+        <Circle
+          cx={SIZE / 2}
+          cy={SIZE / 2}
+          r={RADIUS}
+          stroke={isEmpty ? tokens.disc : COLORS.dollarGreen}
+          strokeWidth={STROKE_WIDTH}
+          fill="none"
+        />
+        {!isEmpty && (
+          <AnimatedCircle
             cx={SIZE / 2}
             cy={SIZE / 2}
-            r={radius}
-            stroke={
-              isEmpty
-                ? theme
-                  ? backgroundOffset
-                  : COLORS.gray2
-                : theme && darkModeType
-                ? COLORS.gray
-                : COLORS.dollarGreen
-            }
+            r={RADIUS}
+            stroke={COLORS.bitcoinOrange}
             strokeWidth={STROKE_WIDTH}
             fill="none"
+            strokeDasharray={CIRCUMFERENCE}
+            animatedProps={animatedProps}
+            transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
           />
-          {/* Animated arc — bitcoin color */}
-          {!isEmpty && (
-            <AnimatedCircle
-              cx={SIZE / 2}
-              cy={SIZE / 2}
-              r={radius}
-              stroke={
-                theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.bitcoinOrange
-              }
-              strokeWidth={STROKE_WIDTH}
-              fill="none"
-              strokeDasharray={circumference}
-              animatedProps={animatedProps}
-              strokeLinecap="round"
-              transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+        )}
+      </Svg>
+      <View style={styles.texts}>
+        <ThemeText
+          styles={[styles.label, { color: tokens.muted }]}
+          content={t('analytics.home.totalBalance')}
+        />
+        <ThemeText
+          styles={[styles.total, isBalanceHidden && styles.hiddenText]}
+          content={isBalanceHidden ? 'A A A A A' : totalText}
+          CustomNumberOfLines={1}
+          adjustsFontSizeToFit={true}
+        />
+        {visibleSegments.map(seg => (
+          <View key={seg.key} style={styles.legendRow}>
+            <View style={[styles.swatch, { backgroundColor: seg.color }]} />
+            <ThemeText
+              styles={[styles.legendLabel, { color: tokens.muted }]}
+              content={seg.label}
             />
-          )}
-        </Svg>
-
-        {/* Center text */}
-        <View style={styles.centerLabel} pointerEvents="none">
-          <ThemeText
-            styles={[styles.centerText, isBalanceHidden && styles.hiddenText]}
-            content={isBalanceHidden ? 'A A A A A' : centerText}
-            CustomNumberOfLines={1}
-            adjustsFontSizeToFit={true}
-          />
-          <ThemeText
-            styles={styles.centerTextLabel}
-            content={t('analytics.home.totalBalance')}
-            CustomNumberOfLines={1}
-            adjustsFontSizeToFit={true}
-          />
-        </View>
+            <ThemeText
+              styles={[styles.legendAmount, isBalanceHidden && styles.hiddenText]}
+              content={
+                isBalanceHidden
+                  ? 'A A A A A'
+                  : formatLegendValue(seg.value, seg.key)
+              }
+              CustomNumberOfLines={1}
+            />
+          </View>
+        ))}
       </View>
-      {/* Legend card */}
-      {visibleSegments.length > 0 && (
-        <View
-          style={[styles.legendCard, { backgroundColor: backgroundOffset }]}
-        >
-          {visibleSegments.map((seg, idx) => (
-            <View key={seg.key}>
-              <View
-                style={[
-                  styles.legendRow,
-                  visibleSegments.length === 2 && {
-                    [seg.key === 'btc' ? 'marginBottom' : 'marginTop']: 10,
-                  },
-                ]}
-              >
-                <View style={[styles.swatch, { backgroundColor: seg.color }]} />
-                <ThemeText styles={styles.legendLabel} content={seg.label} />
-                <ThemeText
-                  styles={[
-                    styles.legendAmount,
-                    isBalanceHidden && styles.hiddenText,
-                    isBalanceHidden && { fontSize: SIZES.xSmall },
-                  ]}
-                  content={
-                    isBalanceHidden
-                      ? 'A A A A A'
-                      : formatLegendValue(seg.value, seg.key)
-                  }
-                  CustomNumberOfLines={1}
-                  adjustsFontSizeToFit={true}
-                />
-                <ThemeText
-                  styles={styles.legendPercent}
-                  content={`${seg.percent}%`}
-                />
-              </View>
-              {idx < visibleSegments.length - 1 && (
-                <View style={[styles.divider, { backgroundColor }]} />
-              )}
-            </View>
-          ))}
-        </View>
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 32,
-  },
-  chartContainer: {
+  card: {
+    borderRadius: 24,
+    padding: 20,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    position: 'relative',
+    gap: 20,
   },
-  centerLabel: {
-    position: 'absolute',
-    width: SIZE - STROKE_WIDTH * 2 - 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+  texts: { flex: 1, gap: 8 },
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
-  centerText: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
+  total: {
+    fontSize: 24,
+    lineHeight: 30,
+    letterSpacing: -0.48,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   hiddenText: {
     fontFamily: FONT.Asterisk,
   },
-  centerTextLabel: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    includeFontPadding: false,
-    opacity: HIDDEN_OPACITY,
-  },
-  legendCard: {
-    borderRadius: 16,
-    padding: 16,
-  },
   legendRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   swatch: {
     width: 10,
     height: 10,
-    borderRadius: 4,
+    borderRadius: 5,
   },
   legendLabel: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
     includeFontPadding: false,
   },
   legendAmount: {
-    flex: 1,
-    fontSize: SIZES.medium,
-    textAlign: 'right',
+    flexShrink: 1,
+    fontSize: 14,
+    lineHeight: 20,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
-  },
-  legendPercent: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'right',
-    includeFontPadding: false,
-  },
-  divider: {
-    height: 2,
-    borderRadius: 0.5,
   },
 });

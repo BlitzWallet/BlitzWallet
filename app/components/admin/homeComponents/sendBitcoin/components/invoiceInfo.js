@@ -16,7 +16,7 @@ import {
   resolveAssetAvatar,
   resolveRecipientDisplay,
 } from './recipientCard';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import ContactAvatar from '../../contacts/internalComponents/contactAvatar';
 
 export default function InvoiceInfo({
   paymentInfo,
@@ -37,7 +37,7 @@ export default function InvoiceInfo({
   );
   // Labels come from `i18next.t` inside recipientCard, which doesn't subscribe
   // this component to language changes — the hook does.
-  useTranslation();
+  const { t } = useTranslation();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
   const splitContacts = splitRecipients?.map(({ contact }) => contact);
@@ -201,11 +201,13 @@ export default function InvoiceInfo({
               },
             ]}
           >
-            <ContactProfileImage
+            <ContactAvatar
+              name={contactInfo?.name || contactInfo?.uniqueName}
+              seed={contactInfo?.uuid}
               updated={contactInfo?.imageData?.updated}
               uri={contactInfo?.imageData?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
+              size={40}
+              fontSize={40 / 3}
             />
           </View>
           <ThemeText

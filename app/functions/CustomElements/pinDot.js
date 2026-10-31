@@ -1,7 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {useEffect, useMemo, useRef} from 'react';
 import GetThemeColors from '../../hooks/themeColors';
-import {COLORS} from '../../constants';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import Animated, {
   useSharedValue,
@@ -10,11 +9,12 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-export default function PinDot({dotNum, pin}) {
+// `redesign`: 14 pt dots, accent fill (owner 2026-10-26; design drew ink).
+export default function PinDot({dotNum, pin, redesign = false}) {
   const {theme} = useGlobalThemeContext();
   const isInitialLoad = useRef(true);
 
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const {textColor, tokens} = GetThemeColors();
   const dotScale = useSharedValue(1);
 
   useEffect(() => {
@@ -32,20 +32,33 @@ export default function PinDot({dotNum, pin}) {
   const memorizedStyles = useMemo(() => {
     if (typeof pin[dotNum] === 'number') {
       return {
-        backgroundColor: theme ? textColor : COLORS.primary,
+        backgroundColor: redesign
+          ? tokens.accent
+          : theme
+          ? textColor
+          : tokens.accent,
       };
     } else {
       return {
-        backgroundColor: backgroundOffset,
+        borderWidth: 2,
+        borderColor: tokens.muted,
       };
     }
-  }, [pin, dotNum, theme]);
+  }, [pin, dotNum, theme, tokens, redesign]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{scale: dotScale.value}],
   }));
 
-  return <Animated.View style={[memorizedStyles, styles.dot, animatedStyle]} />;
+  return (
+    <Animated.View
+      style={[
+        memorizedStyles,
+        redesign ? styles.dotRedesign : styles.dot,
+        animatedStyle,
+      ]}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
@@ -53,6 +66,12 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
+  },
+
+  dotRedesign: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
   },
 
   dot_active: {

@@ -1,35 +1,20 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../functions/CustomElements';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { CENTER } from '../../../../constants/styles';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
 import {
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
   VALID_URL_REGEX,
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { searchUsers } from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
-import { useKeysContext } from '../../../../../context-store/keys';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import ContactProfileImage from './internalComponents/profileImage';
+import ContactAvatar from './internalComponents/contactAvatar';
 import { getCachedProfileImage } from '../../../../functions/cachedImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
@@ -38,8 +23,18 @@ import { isBlitzLNURLAddress } from '../../../../functions/lnurl';
 import getPhonePaymentAddress, {
   isPhonePaymentNumber,
 } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import { SheetTitle } from '../savings/savingsSheetParts';
+import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import ListCard, {
+  ListDivider,
+} from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import AnimatedStep from '../../../../functions/CustomElements/redesign/AnimatedStep';
 
 export default function AddContactsHalfModal({
   slideHeight,
@@ -66,18 +61,20 @@ export function AddContactContent({
   onContactAdded,
   isScreenActive,
 }) {
-  const { contactsPrivateKey } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const [searchInput, setSearchInput] = useState(startingSearchValue || '');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [remoteLoadingMessage, setRemoteLoadingMessage] = useState('');
   const navigate = useNavigation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
+
   const searchCacheRef = useRef(new Map()); // normalizedTerm -> resolved users[]
   const didClickCamera = useRef(null);
+  const isAddingRef = useRef(false);
   const { t } = useTranslation();
   const isFocused = useRef(false);
 
@@ -105,7 +102,8 @@ export function AddContactContent({
 
   const handleTextInputBlur = () => {
     if (setIsKeyboardActive) setIsKeyboardActive(false);
-    if (!searchInput && !didClickCamera.current) {
+    // The field stays mounted while a lookup runs, so a blur then is not a dismissal.
+    if (!searchInput && !didClickCamera.current && !remoteLoadingMessage) {
       handleBackPressFunction?.();
     }
     didClickCamera.current = false;
@@ -415,116 +413,106 @@ export function AddContactContent({
     }
   };
 
-  const handleAddPress = () => {
-    if (isPhoneNumber) {
-      clearHalfModalForPhone();
-    } else {
-      clearHalfModalForLNURL();
+  // The field stays live during a lookup, so block a second submit until it ends.
+  const handleAddPress = async () => {
+    if (isAddingRef.current) return;
+    isAddingRef.current = true;
+    try {
+      if (isPhoneNumber) {
+        await clearHalfModalForPhone();
+      } else {
+        await clearHalfModalForLNURL();
+      }
+    } finally {
+      isAddingRef.current = false;
     }
   };
 
-  if (remoteLoadingMessage.length) {
-    return (
-      <FullLoadingScreen
-        textStyles={{ textAlign: 'center' }}
-        text={remoteLoadingMessage}
-      />
-    );
-  }
+  const noUserProfiles = searchInput.length > 0 && searchInput !== '@';
+  const showAddressStep = isUsingLNURL || isPhoneNumber;
+
+  const step = remoteLoadingMessage.length
+    ? 'loading'
+    : showAddressStep
+    ? 'address'
+    : isSearching
+    ? 'loading'
+    : users.length
+    ? 'results'
+    : noUserProfiles
+    ? 'noMatch'
+    : 'hint';
 
   return (
-    <View style={styles.innerContainer}>
-      <View style={styles.titleContainer}>
-        <ThemeText
-          styles={styles.titleText}
-          content={t('contacts.addContactsHalfModal.title')}
+    <View style={[styles.innerContainer, { width: contentWidth }]}>
+      <SheetTitle first title={t('contacts.addContactsHalfModal.title')} />
+      <View style={styles.search}>
+        <SearchField
+          placeholder={t('contacts.addContactsHalfModal.searchPlaceholder')}
+          value={searchInput}
+          onChangeText={handleSearch}
+          pill
+          autoFocus={true}
+          containerStyles={{ flexShrink: 1 }}
+          onFocus={() => setIsKeyboardActive && setIsKeyboardActive(true)}
+          onBlur={handleTextInputBlur}
+          blurOnSubmit={false}
+          onSubmitEditingFunction={handleAddPress}
         />
-        {isSearching && (
-          <ActivityIndicator
-            size={'small'}
-            color={theme && darkModeType ? COLORS.darkModeText : COLORS.primary}
-          />
-        )}
-      </View>
-      <CustomSearchInput
-        placeholderText={t('contacts.addContactsHalfModal.searchPlaceholder')}
-        setInputText={handleSearch}
-        inputText={searchInput}
-        autoFocus={true}
-        blurOnSubmit={false}
-        containerStyles={{
-          justifyContent: 'center',
-          marginBottom: CONTENT_KEYBOARD_OFFSET,
-        }}
-        textInputStyles={{ paddingRight: 45 }}
-        onSubmitEditingFunction={handleAddPress}
-        buttonComponent={
-          <TouchableOpacity
-            onPress={() => {
-              didClickCamera.current = true;
-              if (isScreenActive) isScreenActive.current = false;
-              keyboardNavigate(() =>
-                navigate.navigate('CameraModal', {
-                  updateBitcoinAdressFunc: parseContact,
-                  fromPage: 'addContact',
-                }),
-              );
-            }}
-            style={{
-              position: 'absolute',
-              right: 10,
-              zIndex: 1,
-            }}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-              }
-              iconName={'ScanLine'}
-            />
-          </TouchableOpacity>
-        }
-        onFocusFunction={() => setIsKeyboardActive && setIsKeyboardActive(true)}
-        onBlurFunction={handleTextInputBlur}
-      />
-
-      {isUsingLNURL || isPhoneNumber ? (
-        <CustomScrollView
-          keyboardShouldPersistTaps="always"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            alignItems: 'center',
-            marginTop: 10,
-            flexGrow: 1,
+        <IconButton
+          size={52}
+          tone="disc"
+          icon={'ScanLine'}
+          label="contacts.addContactsHalfModal.scanLabel"
+          onPress={() => {
+            didClickCamera.current = true;
+            if (isScreenActive) isScreenActive.current = false;
+            keyboardNavigate(() =>
+              navigate.navigate('CameraModal', {
+                updateBitcoinAdressFunc: parseContact,
+                fromPage: 'addContact',
+              }),
+            );
           }}
-        >
-          <ThemeText
-            content={t('contacts.addContactsHalfModal.lnurlAddMessage')}
-          />
-          <ThemeText styles={{ marginBottom: 25 }} content={searchInput} />
+        />
+      </View>
 
-          <CustomButton
-            buttonStyles={{
-              width: 'auto',
-              ...CENTER,
-              marginTop: 'auto',
-            }}
-            actionFunction={handleAddPress}
-            textContent={t('constants.continue')}
+      <View style={styles.steps}>
+        <AnimatedStep active={step === 'hint'} direction={1} fadeOnly>
+          <View style={styles.hint}>
+            <EmptyState
+              icon={'UserPlus'}
+              iconTone="ink"
+              showTitle={false}
+              sub={t('contacts.addContactsHalfModal.startTypingMessage')}
+            />
+          </View>
+        </AnimatedStep>
+
+        <AnimatedStep active={step === 'noMatch'} direction={1} fadeOnly>
+          <View style={styles.noMatch}>
+            <EmptyState
+              icon={'Search'}
+              title={t('contacts.addContactsHalfModal.noProfilesFound')}
+              sub={t('contacts.addContactsHalfModal.noProfilesHint')}
+            />
+          </View>
+        </AnimatedStep>
+
+        <AnimatedStep active={step === 'results'} direction={1} fadeOnly>
+          <SectionHeader
+            first
+            style={styles.sectionHeader}
+            title={t('contacts.addContactsHalfModal.blitzUsers')}
           />
-        </CustomScrollView>
-      ) : (
-        <>
-          {users.length ? (
+          <ListCard dividerInset={LIST_DIVIDER_INSET} style={styles.results}>
             <FlatList
               showsVerticalScrollIndicator={false}
               data={users}
+              ItemSeparatorComponent={ListDivider}
               renderItem={({ item }) => (
                 <ContactListItem
                   savedContact={item}
-                  contactsPrivateKey={contactsPrivateKey}
-                  theme={theme}
-                  darkModeType={darkModeType}
                   onContactAdded={onContactAdded}
                   handleBackPressFunction={handleBackPressFunction}
                 />
@@ -533,31 +521,52 @@ export function AddContactContent({
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="none"
             />
-          ) : (
-            <ThemeText
-              styles={{ textAlign: 'center', marginTop: 10 }}
-              content={
-                isSearching && searchInput.length > 0
-                  ? ''
-                  : searchInput.length > 0 && searchInput !== '@'
-                  ? t('contacts.addContactsHalfModal.noProfilesFound')
-                  : t('contacts.addContactsHalfModal.startTypingMessage')
-              }
+          </ListCard>
+        </AnimatedStep>
+
+        <AnimatedStep active={step === 'address'} direction={1} fadeOnly>
+          <View style={styles.address}>
+            <ListCard style={styles.card}>
+              <ListRow
+                lead={<Disc icon={'AtSign'} size={44} tone="white" />}
+                title={searchInput}
+                titleStyle={styles.rowTitle}
+                minHeight={76}
+                paddingVertical={16}
+                sub={
+                  isUsingLNURL
+                    ? t('contacts.addContactsHalfModal.lightningAddress')
+                    : t('wallet.halfModal.mobileMoneyTitle')
+                }
+              />
+            </ListCard>
+            <CustomButton
+              buttonStyles={styles.continueButton}
+              actionFunction={handleAddPress}
+              textContent={t('constants.continue')}
+              size={'regular'}
             />
-          )}
-        </>
-      )}
+          </View>
+        </AnimatedStep>
+
+        <AnimatedStep active={step === 'loading'} direction={1} fadeOnly>
+          <FullLoadingScreen
+            showText={!!remoteLoadingMessage}
+            textStyles={{ textAlign: 'center' }}
+            text={remoteLoadingMessage}
+          />
+        </AnimatedStep>
+      </View>
     </View>
   );
 }
+
 function ContactListItem({
   savedContact,
   onContactAdded,
   handleBackPressFunction,
-  darkModeType,
-  theme,
 }) {
-  const { textColor, backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
   const navigate = useNavigation();
 
   const newContact = {
@@ -580,70 +589,41 @@ function ContactListItem({
     }
   };
 
+  const name = newContact.name || t('contacts.addContactsHalfModal.noName');
+
   return (
-    <TouchableOpacity onPress={handleContactPress}>
-      <View style={[styles.contactListContainer, {}]}>
-        <View
-          style={[
-            styles.contactListLetterImage,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
-        >
-          <ContactProfileImage
-            updated={newContact.updated}
-            uri={newContact.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
-          />
-        </View>
-        <View>
-          <ThemeText
-            styles={{ includeFontPadding: false }}
-            content={newContact.uniqueName}
-          />
-          <ThemeText
-            styles={{ includeFontPadding: false, fontSize: SIZES.small }}
-            content={newContact.name || 'No name set'}
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
+    <ListRow
+      onPress={handleContactPress}
+      minHeight={64}
+      titleStyle={styles.rowTitle}
+      lead={
+        <ContactAvatar
+          name={newContact.name || newContact.uniqueName}
+          seed={newContact.uuid}
+          uri={newContact.localUri}
+          updated={newContact.updated}
+        />
+      }
+      title={name}
+      sub={`@${newContact.uniqueName}`}
+      showChevron
+      chevronSize={18}
+    />
   );
 }
 
+const LIST_DIVIDER_INSET = 68;
+
 const styles = StyleSheet.create({
-  innerContainer: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
-    flexDirection: 'row',
-  },
-
-  titleText: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    textAlign: 'left',
-    marginRight: 10,
-  },
-
-  contactListContainer: {
-    width: '100%',
-    paddingVertical: 10,
-
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  contactListLetterImage: {
-    height: 40,
-    width: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginRight: 10,
-  },
+  innerContainer: { flex: 1, ...CENTER },
+  search: { flexDirection: 'row', gap: 8, width: '100%', marginTop: 16 },
+  steps: { flex: 1 },
+  hint: { marginTop: 56 },
+  noMatch: { marginTop: 40 },
+  sectionHeader: { marginTop: 20 },
+  results: { flexShrink: 1 },
+  address: { flex: 1, marginTop: 20 },
+  card: { width: '100%' },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
+  continueButton: { marginTop: 'auto' },
 });
