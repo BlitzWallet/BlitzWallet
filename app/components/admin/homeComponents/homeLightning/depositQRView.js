@@ -392,6 +392,7 @@ export default function DepositQRView({
       <View style={styles.centerContent}>
         <LottieView
           source={errorAnimation}
+          renderMode="SOFTWARE"
           loop={false}
           autoPlay={true}
           style={{

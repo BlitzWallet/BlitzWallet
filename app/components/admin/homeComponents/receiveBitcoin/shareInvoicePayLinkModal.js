@@ -198,6 +198,7 @@ export default function ShareInvoicePayLinkModal({
     <View style={styles.container}>
       <LottieView
         source={confirmAnimation}
+        renderMode="SOFTWARE"
         loop={false}
         style={styles.animation}
         autoPlay={true}

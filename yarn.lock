@@ -5963,7 +5963,7 @@ __metadata:
     libphonenumber-js: 1.13.2
     light-bolt11-decoder: ^3.2.0
     lottie-react: ^2.4.1
-    lottie-react-native: ^7.3.4
+    lottie-react-native: 7.3.8
     lucide-react: ^1.26.0
     lucide-react-native: ^0.562.0
     maplibre-gl: 5.24.0
@@ -13445,9 +13445,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lottie-react-native@npm:^7.3.4":
-  version: 7.3.4
-  resolution: "lottie-react-native@npm:7.3.4"
+"lottie-react-native@npm:7.3.8":
+  version: 7.3.8
+  resolution: "lottie-react-native@npm:7.3.8"
   peerDependencies:
     "@lottiefiles/dotlottie-react": ^0.13.5
     react: "*"
@@ -13458,7 +13458,7 @@ __metadata:
       optional: true
     react-native-windows:
       optional: true
-  checksum: 05e08757001daa078b58c126b3819c4059209882587cead937393e88403ddb14af72b8fb8003436ebe360f6fae74ff608c5ae3b1d35c5033b50e78d59db6e212
+  checksum: 1fd4317fd0e82bd99418274e6058f520ea71b4d4cca3a6c65c093dfb51588c40132a951b74f964d020dcda79159eb0bfba4edc1336862998d3851fa9d15d8ee0
   languageName: node
   linkType: hard
 

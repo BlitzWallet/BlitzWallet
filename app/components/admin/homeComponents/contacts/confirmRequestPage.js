@@ -29,6 +29,7 @@ export default function ConfirmPaymentRequset(props) {
           <LottieView
             autoPlay={true}
             source={confirmAnimation}
+            renderMode="SOFTWARE"
             loop={false}
             style={{
               width: 130,

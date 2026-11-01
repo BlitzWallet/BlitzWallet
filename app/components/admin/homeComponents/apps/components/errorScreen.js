@@ -22,6 +22,7 @@ export default function StoreErrorPage({ error }) {
       <LottieView
         ref={animationRef}
         source={errorAnimation}
+        renderMode="SOFTWARE"
         loop={false}
         style={{
           width: 100,

@@ -36,6 +36,7 @@ export default function ErrorWithPayment({ reason, onContinue }) {
           <LottieView
             ref={animationRef}
             source={errorAnimation}
+            renderMode="SOFTWARE"
             loop={false}
             style={{
               width: 125,

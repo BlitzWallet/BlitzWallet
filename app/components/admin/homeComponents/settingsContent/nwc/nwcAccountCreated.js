@@ -48,6 +48,7 @@ export default function NWCAccountCreated(props) {
           <LottieView
             ref={animationRef}
             source={confirmAnimation}
+            renderMode="SOFTWARE"
             loop={false}
             style={{ width: 125, height: 125 }}
           />

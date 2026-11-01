@@ -76,6 +76,7 @@ export default function ConfirmSMSReceivePage(props) {
               <LottieView
                 ref={animationRef}
                 source={confirmAnimation}
+                renderMode="SOFTWARE"
                 loop={false}
                 style={styles.animation}
               />

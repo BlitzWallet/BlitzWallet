@@ -16,6 +16,7 @@ export default function ChildQRWaiting() {
     <View style={styles.container}>
       <LottieView
         source={confirmAnimation}
+        renderMode="SOFTWARE"
         loop={false}
         autoPlay={true}
         style={styles.animation}

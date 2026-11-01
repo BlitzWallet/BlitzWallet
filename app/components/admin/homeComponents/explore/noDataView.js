@@ -57,6 +57,7 @@ export default function NoDataView() {
       <LottieView
         ref={animationRef}
         source={errorAnimation}
+        renderMode="SOFTWARE"
         loop={false}
         style={{
           width: screenDimensions.width / 1.5,

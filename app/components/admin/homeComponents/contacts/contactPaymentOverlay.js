@@ -271,6 +271,7 @@ export default function ContactPaymentOverlay({
               {successData !== null && (
                 <LottieView
                   source={confirmAnimation}
+                  renderMode="SOFTWARE"
                   loop={false}
                   autoPlay
                   style={styles.lottie}

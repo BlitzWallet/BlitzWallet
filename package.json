@@ -81,7 +81,7 @@
     "libphonenumber-js": "1.13.2",
     "light-bolt11-decoder": "^3.2.0",
     "lottie-react": "^2.4.1",
-    "lottie-react-native": "^7.3.4",
+    "lottie-react-native": "7.3.8",
     "lucide-react": "^1.26.0",
     "lucide-react-native": "^0.562.0",
     "maplibre-gl": "5.24.0",

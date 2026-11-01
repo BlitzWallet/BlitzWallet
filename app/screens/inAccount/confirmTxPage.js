@@ -168,6 +168,7 @@ export default function ConfirmTxPage(props) {
           <LottieView
             ref={animationRef}
             source={didSucceed ? confirmAnimation : errorAnimation}
+            renderMode="SOFTWARE"
             loop={false}
             style={styles.lottie}
           />
@@ -203,6 +204,7 @@ export default function ConfirmTxPage(props) {
         <LottieView
           ref={animationRef}
           source={didSucceed ? confirmAnimation : errorAnimation}
+          renderMode="SOFTWARE"
           loop={false}
           style={styles.lottie}
         />
