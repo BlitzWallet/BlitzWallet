@@ -42,10 +42,7 @@ export function SendRecieveBTNs({
       });
       return;
     }
-    navigateGuarded('CustomHalfModal', {
-      wantedContent: 'sendOptions',
-      sliderHight: 0.8,
-    });
+    navigateGuarded('SendList');
   }, [handleSettingsCheck, navigateGuarded, t]);
 
   const handleReceive = useCallback(() => {

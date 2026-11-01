@@ -136,7 +136,13 @@ export default function GiftConfirmation(props) {
     });
 
   const handleGoHome = useCallback(() => {
-    navigate.popTo('GiftsPageHome');
+    // Opened from the gifts overview: stay in GiftsStack. Opened straight
+    // from SendList (no GiftsPageHome beneath): clear back to SendList.
+    if (navigate.getState().routes.some(r => r.name === 'GiftsPageHome')) {
+      navigate.popTo('GiftsPageHome');
+      return true;
+    }
+    navigate.popTo('SendList');
     return true;
   }, [navigate]);
 

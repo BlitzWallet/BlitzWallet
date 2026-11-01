@@ -140,7 +140,6 @@ export default function SettingsIndex() {
   const { tokens, mode } = useTheme();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const [scrolled, setScrolled] = useState(false);
 
   const currentLanguage = supportedLanguagesList.find(
     item => item.id === masterInfoObject.userSelectedLanguage,
@@ -257,12 +256,10 @@ export default function SettingsIndex() {
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('settings.index.settingsHead')} scrolled={scrolled} />
+        <TopBar title={t('settings.index.settingsHead')} />
         <CustomScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={event => setScrolled(event.nativeEvent.contentOffset.y > 0)}
           contentContainerStyle={styles.scrollContent}
         >
           {renderSection(

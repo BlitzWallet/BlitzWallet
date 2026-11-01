@@ -1,40 +1,43 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useAnalyticsNumbers } from '../../../../../../context-store/analyticsContext';
-import { CENTER, SIZES } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import { useTheme } from '../../../../../../context-store/theme';
 import { computeBudgetWarning } from '../../../../../hooks/useBudgetWarning';
 import { useTranslation } from 'react-i18next';
+import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
+import { CENTER } from '../../../../../constants';
+import KeyValueRow from '../../../../../functions/CustomElements/redesign/KeyValueRow';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
 
+// SendLimits.dc.html "Heads up · budget": warn disc, one line, the over/left
+// amount and the monthly budget, Continue. Shown on the first slide.
 export default function BudgetWarningModal({
   handleBackPressFunction,
   sendingAmount = 0,
+  setContentHeight,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const { spentTotal } = useAnalyticsNumbers();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
+  const contentWidth = useContentWidth();
+
+  useEffect(() => {
+    setContentHeight?.(430);
+  }, [setContentHeight]);
 
   const budget = masterInfoObject?.monthlyBudget ?? null;
-  const { isOverBudget, leftToSpend } = computeBudgetWarning(
-    budget,
-    spentTotal,
-  );
+  const { isOverBudget } = computeBudgetWarning(budget, spentTotal);
 
   const willExceedBudget =
     !isOverBudget && spentTotal + sendingAmount > budget?.amount;
-  const isRed = isOverBudget || willExceedBudget;
-
-  const accentColor =
-    theme && darkModeType ? tokens.ink : isRed ? tokens.danger : tokens.accent;
 
   const subheader = isOverBudget
     ? t('analytics.budget.overBudgetWarning')
@@ -43,105 +46,66 @@ export default function BudgetWarningModal({
     : t('analytics.budget.nearBudgetWarning');
 
   const amountAfterSend = budget?.amount - (spentTotal + sendingAmount);
-
-  const displayAmount = Math.abs(amountAfterSend);
-
   const amountLabel =
     isOverBudget || willExceedBudget
       ? t('analytics.overBy')
       : t('analytics.remaining');
 
-  return (
-    <View style={[styles.sheet]}>
-      {/* Icon */}
-      <View style={styles.iconContainer}>
-        <ThemeIcon
-          iconName={'TriangleAlert'}
-          colorOverride={accentColor}
-          size={40}
-        />
-      </View>
+  const isBalanceHidden = masterInfoObject?.userBalanceDenomination === 'hidden';
+  const overByAmountText = isBalanceHidden
+    ? '• • • • •'
+    : displayCorrectDenomination({
+        amount: Math.abs(amountAfterSend),
+        masterInfoObject,
+        fiatStats,
+      });
 
-      {/* Header */}
+  const budgetAmountText = isBalanceHidden
+    ? '• • • • •'
+    : displayCorrectDenomination({
+        amount: budget?.amount || 0,
+        masterInfoObject,
+        fiatStats,
+      });
+
+  return (
+    <View style={[styles.sheet, { width: contentWidth }]}>
+      <Disc icon="TriangleAlert" size={56} iconSize={24} tone="warm" />
       <ThemeText
         styles={styles.header}
         content={t('analytics.budget.budgetWarningHeadsUp')}
       />
-
-      {/* Subheader */}
-      <ThemeText styles={styles.subheader} content={subheader} />
-
-      {/* Amount remaining */}
-      <View
-        style={[
-          styles.amountContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
-        <ThemeText styles={styles.amountLabel} content={amountLabel} />
-        <FormattedSatText
-          containerStyles={styles.amountValue}
-          styles={{ fontSize: SIZES.xLarge }}
-          balance={displayAmount}
+      <ThemeText
+        variant="body"
+        styles={[styles.subheader, { color: tokens.muted }]}
+        content={subheader}
+      />
+      <ListCard style={styles.card}>
+        <KeyValueRow
+          mono={false}
+          label={amountLabel}
+          value={overByAmountText}
         />
-      </View>
-
-      {/* Continue button */}
+        <KeyValueRow
+          mono={false}
+          label={t('analytics.budget.monthlyBudget')}
+          value={budgetAmountText}
+        />
+      </ListCard>
       <CustomButton
-        buttonStyles={styles.continueButton}
+        size="regular"
+        buttonStyles={styles.button}
         textContent={t('constants.continue')}
-        actionFunction={handleBackPressFunction}
+        actionFunction={() => handleBackPressFunction()}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    flex: 1,
-  },
-
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  header: {
-    fontSize: SIZES.xLarge,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subheader: {
-    fontSize: SIZES.medium,
-    textAlign: 'center',
-    opacity: 0.7,
-    marginBottom: 24,
-    lineHeight: 22,
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-  },
-  amountContainer: {
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 'auto',
-  },
-  amountLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    marginBottom: 4,
-  },
-  amountValue: {
-    alignSelf: 'center',
-  },
-  continueButton: {
-    alignSelf: 'center',
-  },
+  sheet: { flex: 1, ...CENTER, alignItems: 'center', marginTop: 15 },
+  header: { marginTop: 16, fontSize: 20, lineHeight: 26, textAlign: 'center' },
+  subheader: { marginTop: 4, textAlign: 'center' },
+  card: { marginTop: 20, alignSelf: 'stretch' },
+  button: { marginTop: 'auto' },
 });

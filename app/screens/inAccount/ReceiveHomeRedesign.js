@@ -4,8 +4,7 @@ import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import { useTranslation } from 'react-i18next';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
-import SearchField from '../../functions/CustomElements/redesign/SearchField';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useProcessedContacts } from '../../components/admin/homeComponents/contacts/contactsPageComponents/hooks';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
@@ -28,7 +27,6 @@ export default function ReceiveHomeRedesign() {
   const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
   const { cache } = useImageCache();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const [name, setName] = useState('');
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
@@ -54,40 +52,30 @@ export default function ReceiveHomeRedesign() {
   }, [contactInfoList]);
 
   const contactElements = useMemo(() => {
-    const search = name.trim().toLowerCase();
-    return sortedContacts
-      .filter(
-        contact =>
-          !search ||
-          (contact.name || t('constants.annonName'))
-            ?.toLowerCase()
-            .includes(search) ||
-          contact.uniqueName?.toLowerCase().includes(search),
-      )
-      .map(contact => (
-        <ListRow
-          key={contact.uuid}
-          lead={
-            <ContactAvatar
-              name={contact.name || contact?.uniqueName}
-              seed={contact.uuid}
-              updated={cache[contact.uuid]?.updated}
-              uri={cache[contact.uuid]?.localUri}
-            />
-          }
-          title={contact.name || t('constants.annonName')}
-          sub={`@${contact.uniqueName}`}
-          onPress={() =>
-            navigate.navigate('SendAndRequestPage', {
-              selectedContact: contact,
-              paymentType: 'request',
-              imageData: cache[contact.uuid],
-            })
-          }
-          showChevron
-        />
-      ));
-  }, [sortedContacts, name, cache, navigate, t]);
+    return sortedContacts.map(contact => (
+      <ListRow
+        key={contact.uuid}
+        lead={
+          <ContactAvatar
+            name={contact.name || contact?.uniqueName}
+            seed={contact.uuid}
+            updated={cache[contact.uuid]?.updated}
+            uri={cache[contact.uuid]?.localUri}
+          />
+        }
+        title={contact.name || t('constants.annonName')}
+        sub={`@${contact.uniqueName}`}
+        onPress={() =>
+          navigate.navigate('SendAndRequestPage', {
+            selectedContact: contact,
+            paymentType: 'request',
+            imageData: cache[contact.uuid],
+          })
+        }
+        showChevron
+      />
+    ));
+  }, [sortedContacts, cache, navigate, t]);
 
   return (
     <GlobalThemeView useStandardWidth={false} styles={styles.screen}>
@@ -103,26 +91,14 @@ export default function ReceiveHomeRedesign() {
           }
         />
         {sortedContacts.length ? (
-          <>
-            <View style={styles.search}>
-              <SearchField
-                value={name}
-                onChangeText={setName}
-                pill
-                placeholder={t('constants.search')}
-              />
-            </View>
-            <CustomScrollView
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.list}
-            >
-              <SectionHeader title={t('receive.requestFromContact')} />
-              {!!contactElements.length && (
-                <ListCard>{contactElements}</ListCard>
-              )}
-            </CustomScrollView>
-          </>
+          <CustomScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.list}
+          >
+            <SectionHeader title={t('receive.requestFromContact')} />
+            {!!contactElements.length && <ListCard>{contactElements}</ListCard>}
+          </CustomScrollView>
         ) : (
           <View style={styles.empty}>
             <EmptyState

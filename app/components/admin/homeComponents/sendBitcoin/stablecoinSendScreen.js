@@ -1,19 +1,23 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import {
-  CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import CurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
+import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
+import useContentWidth from '../../../../functions/CustomElements/redesign/useContentWidth';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -25,12 +29,8 @@ import {
   SIZES,
   USDB_TOKEN_ID,
 } from '../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -50,19 +50,19 @@ import {
   calculateFlashnetAmountIn,
   dollarsToSats,
 } from '../../../../functions/spark/flashnet';
-import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
-import SendTransactionFeeInfo from './components/feeInfo';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { formatAmountText, formatFeeText } from './functions/formatSendText';
 import { formatStablecoinAmount } from '../../../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../../../functions';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import {
   getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
 import { formatCountdown } from '../../../../functions/timeFormatter';
@@ -90,8 +90,8 @@ export default function StablecoinSendScreen() {
   const { t } = useTranslation();
 
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
-  const { bottomPadding } = useGlobalInsets();
+  const { backgroundOffset, tokens } = GetThemeColors();
+  const contentWidth = useContentWidth();
   const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -117,14 +117,12 @@ export default function StablecoinSendScreen() {
     prefillAmount != null ? String(prefillAmount) : '',
   );
   console.log(rawInput);
-  const [description, setDescription] = useState('');
 
   const [quote, setQuote] = useState(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [sending, setSending] = useState(false);
-  const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [retriggerQuoteFetch, setRetriggerQuoteFetch] = useState(0);
 
   const debounceRef = useRef(null);
@@ -378,7 +376,6 @@ export default function StablecoinSendScreen() {
   }, [navigate, screenMode]);
 
   const openPicker = () => {
-    if (!isAmountFocused) return;
     if (isConfirmMode || sourceMethod === 'USD') return;
 
     navigate.navigate('CustomHalfModal', {
@@ -452,7 +449,7 @@ export default function StablecoinSendScreen() {
           fee: quote?.fee,
           totalFee: 0,
           supportFee: 0,
-          description: description || '',
+          description: '',
           address: quote.depositAddress,
           sourceSparkAddress: sparkInformation.sparkAddress,
           time: Date.now(),
@@ -557,7 +554,6 @@ export default function StablecoinSendScreen() {
     navigate,
     currentWalletMnemoinc,
     sparkInformation,
-    description,
     address,
     chain,
     asset,
@@ -569,10 +565,6 @@ export default function StablecoinSendScreen() {
     chainLabel,
     asset,
   ]);
-
-  const handleEmoji = newDescription => {
-    setDescription(newDescription);
-  };
 
   const isQuoteLoading =
     (quoteLoading || (quote && countdown === null)) && !sending;
@@ -633,7 +625,6 @@ export default function StablecoinSendScreen() {
       clearCountdown();
       return;
     }
-    setIsAmountFocused(true);
     setScreenMode('CONFIRM_PAYMENT');
   }, [
     canConfirm,
@@ -650,14 +641,6 @@ export default function StablecoinSendScreen() {
     navigate,
     hasEnoughBalance,
   ]);
-
-  const rowBg = backgroundOffset;
-
-  const memorizedKeyboardStyle = useMemo(() => {
-    return {
-      paddingBottom: !isAmountFocused ? 0 : bottomPadding,
-    };
-  }, [isAmountFocused]);
 
   const isConfirmMode = screenMode === 'CONFIRM_PAYMENT';
 
@@ -688,37 +671,78 @@ export default function StablecoinSendScreen() {
     }
   }, [isConfirmMode, shouldWarn, convertedSendAmount]);
 
+  const displayDetails = {
+    masterInfoObject,
+    primaryDisplay,
+    conversionFiatStats,
+    fiatStats,
+  };
+  const amountText = formatAmountText(rawInput || 0, displayDetails);
+  const feeText = formatFeeText(
+    isQuoteLoading ? 0 : quote?.fee || 0,
+    displayDetails,
+  );
+  const bitcoinAmountText = displayCorrectDenomination({
+    amount: quote?.amountIn || 0,
+    masterInfoObject: { ...masterInfoObject, userBalanceDenomination: 'sats' },
+    fiatStats,
+  });
+  const usdAmountText = displayCorrectDenomination({
+    amount: quote?.amountIn || 0,
+    masterInfoObject: { ...masterInfoObject, userBalanceDenomination: 'fiat' },
+    forceCurrency: 'USD',
+    fiatStats: usdFiatStats,
+  });
+  const currencyCode = normalizeDisplayCurrency(
+    sourceMethod === 'USD' ? 'USD' : displayCurrency,
+  );
+  // Compare against the amount the user didn't type: sats entry shows USD,
+  // USD entry shows bitcoin, any other fiat shows both.
+  const showBitcoinRow = sourceMethod === 'BTC' && currencyCode !== 'SATS';
+  const showUsdRow = sourceMethod === 'BTC' && currencyCode !== 'USD';
+  const countdownDanger =
+    countdown != null &&
+    countdown < 30000 &&
+    (theme && darkModeType ? tokens.ink : tokens.danger);
+
   return (
-    <CustomKeyboardAvoidingView
-      useStandardWidth={true}
-      globalThemeViewStyles={memorizedKeyboardStyle}
-    >
-      <View style={styles.replacementContainer}>
-        <CustomSettingsTopBar
-          label={`${t('constants.send')}`}
-          containerStyles={{ marginBottom: 0 }}
-          rightContent={
-            isConfirmMode ? (
-              countdown != null ? (
-                <ThemeText
-                  styles={[
-                    styles.countdownText,
-                    { backgroundColor: backgroundOffset },
-                    countdown < 30000 && {
-                      color: theme && darkModeType ? tokens.ink : tokens.danger,
-                    },
-                  ]}
-                  content={formatCountdown(countdown)}
-                />
-              ) : null
-            ) : (
-              <CurrencySwitchButton
-                displayCurrency={
-                  sourceMethod === 'USD' ? 'USD' : displayCurrency
-                }
-                onPress={openPicker}
-                disabled={isLoadingRate || sourceMethod === 'USD'}
-              />
+    <GlobalThemeView useStandardWidth={false}>
+      <View style={[styles.replacementContainer, { width: contentWidth }]}>
+        <TopBar
+          title={`${t('constants.send')}`}
+          right={
+            isConfirmMode ? null : (
+              <>
+                {countdown != null && (
+                  <View
+                    style={[
+                      styles.countdownPill,
+                      { backgroundColor: tokens.surface },
+                    ]}
+                    accessibilityLabel={`${t(
+                      'wallet.stablecoinSend.quoteExpiresIn',
+                    )} ${formatCountdown(countdown)}`}
+                  >
+                    <ThemeText
+                      styles={[
+                        styles.countdownText,
+                        !!countdownDanger && { color: countdownDanger },
+                      ]}
+                      content={formatCountdown(countdown)}
+                    />
+                  </View>
+                )}
+                {sourceMethod !== 'USD' && (
+                  <CurrencyButton
+                    label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
+                    onPress={openPicker}
+                    disabled={isLoadingRate}
+                    accessibilityLabel={t(
+                      'settings.nwc.createNWCAmount.changeCurrency',
+                    )}
+                  />
+                )}
+              </>
             )
           }
         />
@@ -728,87 +752,106 @@ export default function StablecoinSendScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={CENTER}>
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={rawInput}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
-              activeOpacity={!convertedSendAmount ? 0.5 : 1}
+          <View style={styles.hero}>
+            <AmountHero
+              amount={amountText}
+              formatAmount={false}
+              mutedValue={!convertedSendAmount}
+              amountSize={60}
             />
             <ThemeText
-              styles={styles.receiveAmount}
-              content={receiveAmountContent}
+              variant="body"
+              CustomNumberOfLines={1}
+              styles={[styles.secondary, { color: tokens.muted }]}
+              content={`${t(
+                'wallet.stablecoinSend.recipientGets',
+              )} ${receiveAmountContent}`}
             />
           </View>
 
-          {/* Confirm mode: fee info */}
+          {/* Confirm mode: destination, fee and quote clock */}
           {isConfirmMode && (
-            <SendTransactionFeeInfo
-              paymentFee={quote?.fee}
-              isLightningPayment={true}
-              isDecoding={isQuoteLoading}
-              display={primaryDisplay}
-            />
-          )}
-
-          {/* Confirm mode: destination info */}
-          {isConfirmMode && (
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: address,
-                })
-              }
-              style={[styles.destinationBox, { backgroundColor: rowBg }]}
-            >
-              <View style={styles.destinationContent}>
-                <View style={styles.confirmIconWrapper}>
-                  <View
-                    style={[
-                      styles.confirmChainCircle,
-                      { backgroundColor: backgroundOffset },
-                    ]}
-                  >
-                    <Image
-                      style={styles.confirmChainIcon}
-                      source={ICONS[`chain_${chainLabel?.toLowerCase()}`]}
-                      contentFit="contain"
-                    />
+            <ListCard style={styles.card}>
+              <ListRow
+                onPress={() =>
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'sendAddress',
+                    address,
+                    title: t('wallet.stablecoinSend.networkLabel', {
+                      currency: asset,
+                      chain: chainLabel,
+                    }),
+                    sliderHight: 0.6,
+                  })
+                }
+                minHeight={72}
+                lead={
+                  <View style={styles.confirmIconWrapper}>
+                    <View
+                      style={[
+                        styles.confirmChainCircle,
+                        { backgroundColor: tokens.disc },
+                      ]}
+                    >
+                      <Image
+                        style={styles.confirmChainIcon}
+                        source={ICONS[`chain_${chainLabel?.toLowerCase()}`]}
+                        contentFit="contain"
+                      />
+                    </View>
+                    <View
+                      style={[
+                        styles.confirmCurrencyBadge,
+                        { borderColor: tokens.ground },
+                      ]}
+                    >
+                      <Image
+                        style={styles.confirmCurrencyIcon}
+                        source={ICONS[`${asset?.toLowerCase()}Logo`]}
+                        contentFit="contain"
+                      />
+                    </View>
                   </View>
-                  <View
-                    style={[
-                      styles.confirmCurrencyBadge,
-                      { borderColor: backgroundColor },
-                    ]}
-                  >
-                    <Image
-                      style={styles.confirmCurrencyIcon}
-                      source={ICONS[`${asset?.toLowerCase()}Logo`]}
-                      contentFit="contain"
-                    />
-                  </View>
-                </View>
-                <ThemeText
-                  styles={styles.quoteValue}
-                  content={`${truncateAddress(address)}`}
+                }
+                title={t('wallet.stablecoinSend.networkLabel', {
+                  currency: asset,
+                  chain: chainLabel,
+                })}
+                sub={truncateAddress(address)}
+                showChevron
+              />
+              {showUsdRow && (
+                <KeyValueRow
+                  mono={false}
+                  label={t('wallet.stablecoinSend.usdAmount')}
+                  value={usdAmountText}
                 />
-              </View>
-              {/* <ThemeIcon
-                iconName="ChevronRight"
-                size={20}
-                styles={styles.destinationChevron}
-              /> */}
-            </TouchableOpacity>
+              )}
+              {showBitcoinRow && (
+                <KeyValueRow
+                  mono={false}
+                  label={t('wallet.stablecoinSend.bitcoinAmount')}
+                  value={bitcoinAmountText}
+                />
+              )}
+              <KeyValueRow
+                mono={false}
+                label={t('constants.fee')}
+                value={feeText}
+              />
+              <KeyValueRow
+                mono={false}
+                label={t('wallet.stablecoinSend.quoteExpiresIn')}
+                value={countdown != null ? formatCountdown(countdown) : '—'}
+                valueColor={countdownDanger || undefined}
+              />
+            </ListCard>
           )}
         </CustomScrollView>
 
         {/* Source method picker: shown in edit mode only */}
         {!isConfirmMode && (
-          <ChoosePaymentMethod
-            theme={theme}
-            darkModeType={darkModeType}
+          <PaymentMethod
             determinePaymentMethod={sourceMethod}
             handleSelectPaymentMethod={handleMethodToggle}
             bitcoinBalance={bitcoinBalance}
@@ -818,42 +861,25 @@ export default function StablecoinSendScreen() {
             uiState="EDIT_AMOUNT"
             t={t}
             containerStyles={{ marginTop: 5 }}
-            showPayWith={true}
-          />
-        )}
-
-        {/* Description input: edit mode only */}
-        {!isConfirmMode && (
-          <CustomSearchInput
-            onFocusFunction={() => setIsAmountFocused(false)}
-            onBlurFunction={() => setIsAmountFocused(true)}
-            placeholderText={t('constants.paymentDescriptionPlaceholder')}
-            setInputText={setDescription}
-            inputText={description}
-            textInputMultiline={true}
-            textAlignVertical="baseline"
-            maxLength={150}
-            containerStyles={{
-              width: INSET_WINDOW_WIDTH,
-              maxWidth: 400,
-              marginTop: 10,
-              ...CENTER,
-            }}
           />
         )}
 
         {/* EDIT_AMOUNT: keyboard + Review button */}
-        {!isConfirmMode && isAmountFocused && (
-          <CustomNumberKeyboard
-            setInputValue={setRawInput}
-            showDot={primaryDisplay.denomination === 'fiat'}
-            fiatStats={conversionFiatStats}
-            usingForBalance={true}
-          />
+        {!isConfirmMode && (
+          <View style={styles.keyboard}>
+            <CustomNumberKeyboard
+              setInputValue={setRawInput}
+              showDot={primaryDisplay.denomination === 'fiat'}
+              fiatStats={conversionFiatStats}
+              usingForBalance={true}
+              redesign
+            />
+          </View>
         )}
 
-        {!isConfirmMode && isAmountFocused && (
+        {!isConfirmMode && (
           <CustomButton
+            size="regular"
             textContent={t('constants.review')}
             actionFunction={handleReview}
             buttonStyles={{
@@ -875,40 +901,24 @@ export default function StablecoinSendScreen() {
                 backgroundColor={
                   theme && darkModeType ? backgroundOffset : tokens.accent
                 }
-                width={0.95}
+                width={1}
               />
             ) : (
               <SwipeButtonNew
+                variant="redesign"
+                title={t('wallet.sendPages.reviewParts.slideToSend')}
                 onSwipeSuccess={handleSend}
-                width={0.85}
                 resetAfterSuccessAnimDuration={true}
                 shouldResetAfterSuccess={!sending}
                 containerStyles={{
                   opacity: canConfirm ? 1 : HIDDEN_OPACITY,
-                }}
-                thumbIconStyles={{
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                  borderColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                }}
-                railStyles={{
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                  borderColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
                 }}
               />
             )}
           </View>
         )}
       </View>
-
-      {/* Emoji bar for description input */}
-      {!isAmountFocused && !isConfirmMode && (
-        <EmojiQuickBar description={description} onEmojiSelect={handleEmoji} />
-      )}
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
 
@@ -924,61 +934,42 @@ const styles = StyleSheet.create({
     // textTransform: 'capitalize',
   },
   replacementContainer: {
-    flexGrow: 1,
-    width: '100%',
+    flex: 1,
     ...CENTER,
   },
   scrollContent: {
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
+    paddingTop: 52,
+    paddingBottom: 10,
   },
+  keyboard: { marginVertical: CONTENT_KEYBOARD_OFFSET },
+  hero: { alignItems: 'center' },
+  secondary: { marginTop: 4, textAlign: 'center' },
+  card: { marginTop: 48 },
   satValue: {
     fontSize: SIZES.medium,
     marginTop: 4,
-  },
-  destinationBox: {
-    width: '80%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 16,
-    ...CENTER,
-    marginTop: 30,
-  },
-  destinationContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   destinationChevron: {
     opacity: 0.8,
     position: 'absolute',
     right: 12,
   },
-  receiveAmount: {
-    opacity: HIDDEN_OPACITY,
-    ...CENTER,
+  countdownPill: {
+    minHeight: 44,
+    paddingHorizontal: 14,
+    borderRadius: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   countdownText: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-  },
-  quoteValue: {
-    flexShrink: 1,
-    fontSize: SIZES.medium,
+    fontSize: 14,
     includeFontPadding: false,
   },
   buttonContainer: {
-    width: '100%',
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'center',
   },
   confirmIconWrapper: {
     position: 'relative',

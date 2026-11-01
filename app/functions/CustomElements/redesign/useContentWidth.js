@@ -5,5 +5,5 @@ import { MAX_WEB_CONTENT_WIDTH } from '../../../constants';
 // Window, never 'screen' (N-9).
 export default function useContentWidth() {
   const { width } = useWindowDimensions();
-  return Math.min(width, MAX_WEB_CONTENT_WIDTH) - 2 * 16;
+  return Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 }

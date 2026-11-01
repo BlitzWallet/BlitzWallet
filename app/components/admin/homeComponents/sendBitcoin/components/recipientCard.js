@@ -72,6 +72,7 @@ export function resolveRecipientDisplay({
     return {
       kind: 'contact',
       displayName: contactName,
+      uuid: contactInfo?.uuid,
       imageUri: contactInfo.imageData?.localUri,
       imageUpdated: contactInfo.imageData?.updated,
     };
@@ -230,7 +231,18 @@ export function RecipientAvatar({
     );
   }
 
-  // branta / contact / lightning fallback all go through ContactProfileImage,
+  if (resolved?.kind === 'contact') {
+    return (
+      <ContactAvatar
+        name={resolved.displayName}
+        seed={resolved.uuid}
+        uri={resolved?.imageUri}
+        updated={resolved?.imageUpdated}
+      />
+    );
+  }
+
+  // branta / lightning fallback all go through ContactProfileImage,
   // which renders the user-icon fallback when there is no uri.
   return (
     <View style={circle}>

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { openComposer, openInbox } from 'react-native-email-link';
 import { useToast } from '../../../../context-store/toastManager';
@@ -15,19 +15,29 @@ export default function ContactUsHalfModal({
   setContentHeight,
   emailSubject,
   emailBody,
+  copyBody,
 }) {
   const { t } = useTranslation();
   const { showToast } = useToast();
 
+  const copyContent = copyBody ? emailBody : SUPPORT_EMAIL;
+
   const copyEmail = () => {
-    copyToClipboard(SUPPORT_EMAIL, showToast);
+    copyToClipboard(copyContent, showToast);
     handleBackPressFunction?.();
   };
 
   // With a body (failed-payment support) the email opens pre-filled.
   const openEmailInbox = async () => {
     try {
-      if (emailBody) {
+      if (emailBody && Platform.OS === 'web') {
+        // react-native-email-link is a no-op stub on web.
+        await Linking.openURL(
+          `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+            emailSubject,
+          )}&body=${encodeURIComponent(emailBody)}`,
+        );
+      } else if (emailBody) {
         await openComposer({
           to: SUPPORT_EMAIL,
           subject: emailSubject,
@@ -37,7 +47,7 @@ export default function ContactUsHalfModal({
         await openInbox();
       }
     } catch (err) {
-      copyToClipboard(SUPPORT_EMAIL, showToast);
+      copyToClipboard(copyContent, showToast);
     }
     handleBackPressFunction?.();
   };
@@ -53,7 +63,11 @@ export default function ContactUsHalfModal({
     >
       <ListCard tone="flush" dividerInset={68}>
         <ListRow
-          title={t('constants.copyEmail')}
+          title={t(
+            copyBody
+              ? 'screens.inAccount.confirmTxPage.copyReport'
+              : 'constants.copyEmail',
+          )}
           minHeight={64}
           lead={<Disc icon="Copy" size={40} />}
           trailing="chevron"
@@ -61,7 +75,11 @@ export default function ContactUsHalfModal({
         />
         <ListRow
           title={t(
-            emailBody ? 'constants.emailSupport' : 'constants.openInbox',
+            copyBody
+              ? 'screens.inAccount.confirmTxPage.emailReport'
+              : emailBody
+              ? 'constants.emailSupport'
+              : 'constants.openInbox',
           )}
           minHeight={64}
           lead={<Disc icon={emailBody ? 'Mail' : 'Inbox'} size={40} />}

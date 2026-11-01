@@ -110,23 +110,16 @@ export default function PaymentMethod({
               ? t('constants.bitcoin_upper')
               : t('constants.dollars_upper')
             : `${t(
-                uiState === 'CONTACT_REQUEST' || hideBalance
-                  ? `constants.${
-                      determinePaymentMethod === 'BTC' ||
-                      determinePaymentMethod === 'user-choice'
-                        ? 'bitcoin_upper'
-                        : 'dollars_upper'
-                    }`
-                  : `constants.${
-                      determinePaymentMethod === 'BTC' ||
-                      determinePaymentMethod === 'user-choice'
-                        ? 'sat'
-                        : 'usd'
-                    }_balance`,
+                `constants.${
+                  determinePaymentMethod === 'BTC' ||
+                  determinePaymentMethod === 'user-choice'
+                    ? 'bitcoin_upper'
+                    : 'dollars_upper'
+                }`,
               )}${showHiddenBalance ? '' : ' · ' + balance}`
         }
         subStyle={{ ...styles.subStyles, color: tokens.ink }}
-        showChevron={true}
+        showChevron={!showBitcoinCardOnly}
       />
     </ListCard>
   );

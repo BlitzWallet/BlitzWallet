@@ -101,6 +101,10 @@ import ReceiveHomeRedesign from '../app/screens/inAccount/ReceiveHomeRedesign';
 import ReceiveAddressPage from '../app/screens/inAccount/receiveAddressPage';
 import ReceiveStablecoinNetworks from '../app/screens/inAccount/receiveStablecoinNetworks';
 import ConfirmPaymentRequest from '../app/components/admin/homeComponents/contacts/confirmRequestPage';
+import SendList from '../app/screens/inAccount/sendList';
+import SendAmountScreen from '../app/components/admin/homeComponents/sendBitcoin/sendAmountScreen';
+import SendDescriptionScreen from '../app/components/admin/homeComponents/sendBitcoin/sendDescriptionScreen';
+import SendReviewScreen from '../app/components/admin/homeComponents/sendBitcoin/sendReviewScreen';
 import BalancePage from '../app/components/admin/homeComponents/homeLightning/balancePage';
 import TokensPage from '../app/components/admin/homeComponents/homeLightning/tokensPage';
 import AllTokensPage from '../app/components/admin/homeComponents/homeLightning/allTokensPage';
@@ -135,6 +139,21 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {
     name: 'ConfirmPaymentScreen',
     component: SendPaymentScreen,
+    options: { gestureEnabled: false },
+  },
+  {
+    name: 'SendAmount',
+    component: SendAmountScreen,
+    options: { gestureEnabled: false },
+  },
+  {
+    name: 'SendDescription',
+    component: SendDescriptionScreen,
+    options: { gestureEnabled: false },
+  },
+  {
+    name: 'SendReview',
+    component: SendReviewScreen,
     options: { gestureEnabled: false },
   },
   { name: 'ExpandedContactsPage', component: ExpandedContactsPage },
@@ -226,6 +245,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'ReceiveAddressPage', component: ReceiveAddressPage },
   { name: 'ReceiveStablecoinNetworks', component: ReceiveStablecoinNetworks },
   { name: 'ConfirmPaymentRequest', component: ConfirmPaymentRequest },
+  { name: 'SendList', component: SendList },
   { name: 'BalancePage', component: BalancePage },
   { name: 'TokensPage', component: TokensPage },
   { name: 'AllTokensPage', component: AllTokensPage },

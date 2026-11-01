@@ -27,11 +27,7 @@ export default function BalanceActions({
     }
     navigateGuarded(route, params);
   };
-  const handleSend = () =>
-    go('CustomHalfModal', {
-      wantedContent: 'sendOptions',
-      sliderHight: 0.8,
-    });
+  const handleSend = () => go('SendList');
   const handleReceive = () => go(receiveRoute, receiveParams);
   const handleSwap = () =>
     go('CustomHalfModal', {

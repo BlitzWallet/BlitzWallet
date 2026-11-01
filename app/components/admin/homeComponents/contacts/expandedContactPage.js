@@ -256,17 +256,19 @@ export default function ExpandedContactsPage(props) {
   if (hideProfileImage) {
     return (
       <View style={styles.flex}>
-        {!selectedContact ? (
-          <FullLoadingScreen
-            text={t('contacts.expandedContactPage.loadingContactError')}
-            textStyles={{ testAlign: 'center' }}
-          />
-        ) : (
-          <>
-            {header}
-            {history}
-          </>
-        )}
+        <View style={styles.flex}>
+          {!selectedContact ? (
+            <FullLoadingScreen
+              text={t('contacts.expandedContactPage.loadingContactError')}
+              textStyles={{ testAlign: 'center' }}
+            />
+          ) : (
+            <>
+              {header}
+              {history}
+            </>
+          )}
+        </View>
         <AdaptiveButtonRow
           pill
           labels={[requestText, payText]}

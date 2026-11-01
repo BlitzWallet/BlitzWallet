@@ -23,6 +23,7 @@ import {
 } from './swipeButton/constants';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
+import RedesignSwipe from './swipeButton/redesignSwipe';
 import { useAutoFitFontSize } from './textTheme.web';
 
 const BORDER_WIDTH = 3;
@@ -184,6 +185,9 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   const finishRemainingSwipe = () => {
     setThumbWidth(cfg.current.thumbMaxWidth, DEFAULT_ANIMATION_DURATION);
     setTitleProgress(1, 200);
+    // Read at swipe time, like native: a prop that flips while the delay runs
+    // (SendReview's one-time budget warning) must not cancel this reset.
+    const shouldReset = cfg.current.shouldResetAfterSuccess;
     invokeOnSwipeSuccess();
     const resetDelay =
       DEFAULT_ANIMATION_DURATION +
@@ -191,7 +195,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
         ? cfg.current.resetAfterSuccessAnimDelay
         : RESET_AFTER_SUCCESS_DEFAULT_DELAY);
     setTimeout(() => {
-      if (cfg.current.shouldResetAfterSuccess) resetAll();
+      if (shouldReset) resetAll();
     }, resetDelay);
   };
 
@@ -445,4 +449,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SwipeButtonNew;
+const SwipeButton = props =>
+  props.variant === 'redesign' ? (
+    <RedesignSwipe Inner={SwipeButtonNew} {...props} />
+  ) : (
+    <SwipeButtonNew {...props} />
+  );
+
+export default SwipeButton;

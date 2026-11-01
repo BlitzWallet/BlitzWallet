@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'expo-image';
-import { ThemeText } from '.';
-import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, ICONS, SIZES } from '../../constants';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import ThemeIcon from './themeIcon';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { CENTER, ICONS } from '../../constants';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import ListCard from './redesign/ListCard';
+import ListRow from './redesign/ListRow';
+import { SheetTitle } from '../../components/admin/homeComponents/savings/savingsSheetParts';
 import { useTranslation } from 'react-i18next';
 
 const CHAIN_TO_FLASHNET = {
@@ -58,15 +57,11 @@ export default function StablecoinAssetPickerHalfModal({
   setContentHeight,
 }) {
   const navigate = useNavigation();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
   useEffect(() => {
-    setContentHeight(400);
+    setContentHeight(360);
   }, []);
-
-  const rowBg = theme && darkModeType ? backgroundColor : backgroundOffset;
 
   const handleAssetSelect = asset => {
     handleBackPressFunction(() => {
@@ -81,69 +76,45 @@ export default function StablecoinAssetPickerHalfModal({
 
   return (
     <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('wallet.stablecoinSend.assetPicker.header')}
-      />
+      <SheetTitle first title={t('wallet.stablecoinSend.assetPicker.header')} />
+      <ListCard style={{ marginTop: 16 }}>
+        {ASSETS.map(item => {
+          const isUnsupported =
+            (item.id === 'USDT' && !USDT_SUPPORTED_CHAINS.has(selectedChain)) ||
+            (item.id === 'USDC' && !USDC_SUPPORTED_CHAINS.has(selectedChain));
 
-      {ASSETS.map(item => {
-        const isUnsupported =
-          (item.id === 'USDT' && !USDT_SUPPORTED_CHAINS.has(selectedChain)) ||
-          (item.id === 'USDC' && !USDC_SUPPORTED_CHAINS.has(selectedChain));
-
-        const rowContent = (
-          <>
-            <Image
-              style={styles.assetIcon}
-              source={item.icon}
-              contentFit="contain"
-            />
-            <View style={styles.assetInfo}>
-              <ThemeText styles={styles.assetName} content={item.name} />
-              {isUnsupported && (
-                <ThemeText
-                  styles={styles.unsupportedLabel}
-                  content={t('wallet.stablecoinSend.assetPicker.notAvailable', {
-                    chain: selectedChain,
-                  })}
-                />
-              )}
-            </View>
-            {!isUnsupported && (
-              <View style={{ opacity: 0.5 }}>
-                <ThemeIcon
-                  iconName={'ChevronRight'}
-                  size={20}
-                  colorOverride={textColor}
-                />
-              </View>
-            )}
-          </>
-        );
-
-        if (isUnsupported) {
           return (
             <View
               key={item.id}
-              style={[styles.row, { backgroundColor: rowBg, opacity: 0.4 }]}
-              pointerEvents="none"
+              style={isUnsupported && styles.unsupported}
+              pointerEvents={isUnsupported ? 'none' : 'auto'}
             >
-              {rowContent}
+              <ListRow
+                onPress={
+                  isUnsupported ? undefined : () => handleAssetSelect(item.id)
+                }
+                minHeight={64}
+                lead={
+                  <Image
+                    style={styles.assetIcon}
+                    source={item.icon}
+                    contentFit="contain"
+                  />
+                }
+                title={item.name}
+                sub={
+                  isUnsupported
+                    ? t('wallet.stablecoinSend.assetPicker.notAvailable', {
+                        chain: selectedChain,
+                      })
+                    : undefined
+                }
+                showChevron={!isUnsupported}
+              />
             </View>
           );
-        }
-
-        return (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.row, { backgroundColor: rowBg }]}
-            onPress={() => handleAssetSelect(item.id)}
-            activeOpacity={0.7}
-          >
-            {rowContent}
-          </TouchableOpacity>
-        );
-      })}
+        })}
+      </ListCard>
     </View>
   );
 }
@@ -154,37 +125,10 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     paddingBottom: 16,
-    gap: 10,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    gap: 12,
-  },
+  unsupported: { opacity: 0.55 },
   assetIcon: {
     width: 40,
     height: 40,
-  },
-  assetInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  assetName: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    includeFontPadding: false,
-  },
-
-  unsupportedLabel: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
   },
 });

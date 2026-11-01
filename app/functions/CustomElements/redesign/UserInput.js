@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 import CustomSearchInput from '../searchInput';
@@ -24,53 +24,76 @@ export default function UserInput({
   focusRing = false,
   keyboardType,
   multiline = false,
+  forceSheet,
+  right,
 }) {
   const { tokens, mode } = useTheme();
   const inSheet = useInSheet();
   const [isFocused, setIsFocused] = useState(false);
+  const [rightWidth, setRightWidth] = useState(0);
   const isOverLimit = value?.length >= maxLength;
   const characterCountColor = isOverLimit
     ? mode === 'dim'
       ? tokens.muted
       : tokens.danger
     : tokens.muted;
+  const handleRightLayout = useCallback(layout => {
+    setRightWidth(layout.nativeEvent.layout.width + 10);
+  }, []);
   return (
     <View>
-      <CustomSearchInput
-        onFocusFunction={() => {
-          setIsFocused(true);
-          onFocus?.();
-        }}
-        onBlurFunction={() => {
-          setIsFocused(false);
-          onBlur?.();
-        }}
-        inputText={value}
-        setInputText={onChangeText}
-        placeholderText={placeholder}
-        placeholderTextColor={tokens.muted}
-        textAlignVertical={multiline ? 'top' : 'center'}
-        textInputMultiline={multiline}
-        autoFocus={autoFocus}
-        maxLength={maxLength}
-        onSubmitEditingFunction={onSubmitEditing}
-        textInputStyles={{
-          ...styles.input,
-          ...(pill && styles.pill),
-          ...(multiline && styles.multiline),
-          ...(focusRing && {
-            borderWidth: 2,
-            borderColor: isFocused
-              ? isOverLimit
-                ? characterCountColor
-                : tokens.accent
-              : 'transparent',
-          }),
-          color: inSheet ? tokens.ink : tokens.onField,
-          backgroundColor: inSheet ? tokens.ground : tokens.field,
-        }}
-        keyboardType={keyboardType}
-      />
+      <View>
+        <CustomSearchInput
+          onFocusFunction={() => {
+            setIsFocused(true);
+            onFocus?.();
+          }}
+          onBlurFunction={() => {
+            setIsFocused(false);
+            onBlur?.();
+          }}
+          inputText={value}
+          setInputText={onChangeText}
+          placeholderText={placeholder}
+          placeholderTextColor={tokens.muted}
+          textAlignVertical={multiline ? 'top' : 'center'}
+          textInputMultiline={multiline}
+          autoFocus={autoFocus}
+          maxLength={maxLength}
+          onSubmitEditingFunction={onSubmitEditing}
+          textInputStyles={{
+            ...styles.input,
+            ...(pill && styles.pill),
+            ...(multiline && styles.multiline),
+            ...(focusRing && {
+              borderWidth: 2,
+              borderColor: isFocused
+                ? isOverLimit
+                  ? characterCountColor
+                  : tokens.accent
+                : 'transparent',
+            }),
+            color: inSheet || forceSheet ? tokens.ink : tokens.onField,
+            backgroundColor:
+              inSheet || forceSheet ? tokens.ground : tokens.field,
+            ...(!!right && { height: 56, paddingRight: rightWidth }),
+          }}
+          keyboardType={keyboardType}
+        />
+        {!!right && (
+          <View
+            onLayout={handleRightLayout}
+            style={{
+              height: '100%',
+              position: 'absolute',
+              right: 5,
+              justifyContent: 'center',
+            }}
+          >
+            {right}
+          </View>
+        )}
+      </View>
       {showTextCount && (
         <ThemeText
           styles={{

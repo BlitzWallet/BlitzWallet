@@ -23,6 +23,7 @@ export default function KeyValueRow({
   layout = 'inline',
   truncate,
   mono = true,
+  valueColor,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
@@ -60,7 +61,7 @@ export default function KeyValueRow({
         styles={[
           styles.value,
           !mono && styles.valueText,
-          { color: tokens.ink },
+          { color: valueColor || tokens.ink },
         ]}
       />
       {copyValue != null && (

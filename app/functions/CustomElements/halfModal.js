@@ -109,6 +109,8 @@ import { SheetSurface } from './redesign/sheetSurface';
 import ExpandedTx from '../../screens/inAccount/expandedTxPage';
 import WalletResetSheet from '../../components/admin/loginComponents/walletResetSheet';
 import ReceiveInfoSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveInfoSheet';
+import AddressSheet from '../../components/admin/homeComponents/sendBitcoin/components/addressSheet';
+import VerifiedSheet from '../../components/admin/homeComponents/sendBitcoin/components/verifiedSheet';
 import ReceiveAssetSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveAssetSheet';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -154,6 +156,7 @@ export default function CustomHalfModal(props) {
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
   const isRedesignSheet =
     contentType === 'selectSwapNetwork' ||
+    contentType === 'stablecoinAssetPicker' ||
     contentType === 'rootstockSwapInfo' ||
     contentType === 'contactUs' ||
     contentType === 'exportLeavesProgress' ||
@@ -178,6 +181,9 @@ export default function CustomHalfModal(props) {
     contentType === 'addMoneyToSavings' ||
     contentType === 'withdrawFromSavings' ||
     contentType === 'SelectPaymentMethod' ||
+    contentType === 'sendAddress' ||
+    contentType === 'brantaVerified' ||
+    contentType === 'nearBudgetLimitWarning' ||
     contentType === 'addGiftQuantity' ||
     contentType === 'ClaimGiftScreen' ||
     contentType === 'ClaimGiftHomeHalfModal' ||
@@ -203,7 +209,8 @@ export default function CustomHalfModal(props) {
     contentType === 'receiveAsset' ||
     contentType === 'SelectContactRequestCurrency' ||
     contentType === 'displayCurrencySelect' ||
-    contentType === 'ViewAllTokensHalfModal';
+    contentType === 'ViewAllTokensHalfModal' ||
+    contentType === 'SelectLRC20Token';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
@@ -301,21 +308,21 @@ export default function CustomHalfModal(props) {
 
   const renderContent = () => {
     switch (contentType) {
-      case 'sendOptions':
-        return (
-          <HalfModalSendOptions
-            handleBackPressFunction={handleBackPressFunction}
-            setIsKeyboardActive={setIsKeyboardActive}
-            isKeyboardActive={isKeyboardActive}
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            isScreenActive={isScreenActive}
-            setBackNav={setBackNav}
-            setContentHeight={setContentHeight}
-            selectedPaymentMethod={props.route.params?.selectedPaymentMethod}
-          />
-        );
+      // case 'sendOptions':
+      //   return (
+      //     <HalfModalSendOptions
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setIsKeyboardActive={setIsKeyboardActive}
+      //       isKeyboardActive={isKeyboardActive}
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       slideHeight={slideHeight}
+      //       isScreenActive={isScreenActive}
+      //       setBackNav={setBackNav}
+      //       setContentHeight={setContentHeight}
+      //       selectedPaymentMethod={props.route.params?.selectedPaymentMethod}
+      //     />
+      //   );
       case 'receiveInfo':
         return (
           <ReceiveInfoSheet
@@ -334,21 +341,21 @@ export default function CustomHalfModal(props) {
             isHalfModal
           />
         );
-      case 'receiveOptions':
-        return (
-          <HalfModalReceiveOptions
-            setIsKeyboardActive={setIsKeyboardActive}
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            scrollPosition={props.route.params?.scrollPosition}
-            handleBackPressFunction={handleBackPressFunction}
-            setContentHeight={setContentHeight}
-            isScreenActive={isScreenActive}
-            setBackNav={setBackNav}
-            selectedRequestMethod={props.route.params?.selectedRequestMethod}
-          />
-        );
+      // case 'receiveOptions':
+      //   return (
+      //     <HalfModalReceiveOptions
+      //       setIsKeyboardActive={setIsKeyboardActive}
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       slideHeight={slideHeight}
+      //       scrollPosition={props.route.params?.scrollPosition}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setContentHeight={setContentHeight}
+      //       isScreenActive={isScreenActive}
+      //       setBackNav={setBackNav}
+      //       selectedRequestMethod={props.route.params?.selectedRequestMethod}
+      //     />
+      //   );
       case 'confirmSMS':
         return (
           <ConfirmSMSPayment
@@ -381,15 +388,15 @@ export default function CustomHalfModal(props) {
           />
         );
 
-      case 'exportTransactions':
-        return (
-          <ConfirmExportPayments
-            theme={theme}
-            darkModeType={darkModeType}
-            startExport={props.route.params?.startExport}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
+      // case 'exportTransactions':
+      //   return (
+      //     <ConfirmExportPayments
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       startExport={props.route.params?.startExport}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //     />
+      //   );
       case 'switchGenerativeAiModel':
         return (
           <SwitchGenerativeAIModel
@@ -434,13 +441,13 @@ export default function CustomHalfModal(props) {
             timestamp={props.route.params?.timestamp}
           />
         );
-      case 'customQrCode':
-        return (
-          <CustomQrCode
-            data={props.route.params?.data}
-            setContentHeight={setContentHeight}
-          />
-        );
+      // case 'customQrCode':
+      //   return (
+      //     <CustomQrCode
+      //       data={props.route.params?.data}
+      //       setContentHeight={setContentHeight}
+      //     />
+      //   );
       case 'addPOSItemsHalfModal':
         return (
           <AddPOSItemHalfModal
@@ -500,38 +507,38 @@ export default function CustomHalfModal(props) {
         );
       // case 'chooseLNURLCopyFormat':
       //   return <ChooseLNURLCopyFormat />;
-      case 'LRC20AssetSelectorHalfModal':
-        return (
-          <LRC20AssetSelectorHalfModal
-            theme={theme}
-            darkModeType={darkModeType}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
-      case 'LRC20TokenInformation':
-        return (
-          <LRC20TokenInformation
-            theme={theme}
-            darkModeType={darkModeType}
-            tokenIdentifier={props?.route?.params?.tokenIdentifier}
-            slideHeight={slideHeight}
-            setContentHeight={setContentHeight}
-          />
-        );
+      // case 'LRC20AssetSelectorHalfModal':
+      //   return (
+      //     <LRC20AssetSelectorHalfModal
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //     />
+      //   );
+      // case 'LRC20TokenInformation':
+      //   return (
+      //     <LRC20TokenInformation
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       tokenIdentifier={props?.route?.params?.tokenIdentifier}
+      //       slideHeight={slideHeight}
+      //       setContentHeight={setContentHeight}
+      //     />
+      //   );
 
-      case 'SelectPaymentType':
-        return (
-          <SelectPaymentType
-            theme={theme}
-            handleBackPressFunction={handleBackPressFunction}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            setContentHeight={setContentHeight}
-            selectedContact={props?.route?.params?.selectedContact}
-            imageData={props?.route?.params?.imageData}
-            paymentType={props?.route?.params?.paymentType}
-          />
-        );
+      // case 'SelectPaymentType':
+      //   return (
+      //     <SelectPaymentType
+      //       theme={theme}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       darkModeType={darkModeType}
+      //       slideHeight={slideHeight}
+      //       setContentHeight={setContentHeight}
+      //       selectedContact={props?.route?.params?.selectedContact}
+      //       imageData={props?.route?.params?.imageData}
+      //       paymentType={props?.route?.params?.paymentType}
+      //     />
+      //   );
       case 'SelectContactRequestCurrency':
         return (
           <SelectContactRequestCurrency
@@ -550,6 +557,7 @@ export default function CustomHalfModal(props) {
         return (
           <SelectLRC20Token
             handleBackPressFunction={handleBackPressFunction}
+            fromPage={props?.route?.params?.fromPage}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
@@ -593,24 +601,44 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
-      case 'SelectReceiveAsset':
+      // case 'SelectReceiveAsset':
+      //   return (
+      //     <SelectReceiveAsset
+      //       endReceiveType={props?.route?.params?.endReceiveType}
+      //       selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //     />
+      //   );
+      // case 'AddMessageReceivePage':
+      //   return (
+      //     <AddReceiveMessageHalfModal
+      //       memo={props?.route?.params?.memo}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setContentHeight={setContentHeight}
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //     />
+      //   );
+      case 'sendAddress':
         return (
-          <SelectReceiveAsset
-            endReceiveType={props?.route?.params?.endReceiveType}
-            selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
+          <AddressSheet
+            address={props?.route?.params?.address}
+            title={props?.route?.params?.title}
+            setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
-            theme={theme}
-            darkModeType={darkModeType}
           />
         );
-      case 'AddMessageReceivePage':
+      case 'brantaVerified':
         return (
-          <AddReceiveMessageHalfModal
-            memo={props?.route?.params?.memo}
-            handleBackPressFunction={handleBackPressFunction}
+          <VerifiedSheet
+            merchantName={props?.route?.params?.merchantName}
+            verificationURL={props?.route?.params?.verificationURL}
+            address={props?.route?.params?.address}
+            addressTitle={props?.route?.params?.addressTitle}
             setContentHeight={setContentHeight}
-            theme={theme}
-            darkModeType={darkModeType}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'createPoolFlow':
@@ -701,14 +729,14 @@ export default function CustomHalfModal(props) {
             />
           </SavingsProvider>
         );
-      case 'howSavingsWorks':
-        return (
-          <HowSavingsWorks
-            currentBalance={props?.route?.params?.currentBalance}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
+      // case 'howSavingsWorks':
+      //   return (
+      //     <HowSavingsWorks
+      //       currentBalance={props?.route?.params?.currentBalance}
+      //       setContentHeight={setContentHeight}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //     />
+      //   );
       case 'ViewAllTokensHalfModal':
         return (
           <ViewAllTokensHalfModal
@@ -736,15 +764,15 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
-      case 'txFilter':
-        return (
-          <TxFilterHalfModal
-            currentFilter={props?.route?.params?.currentFilter}
-            onSelectFilter={props?.route?.params?.onSelectFilter}
-            handleBackPressFunction={handleBackPressFunction}
-            setContentHeight={setContentHeight}
-          />
-        );
+      // case 'txFilter':
+      //   return (
+      //     <TxFilterHalfModal
+      //       currentFilter={props?.route?.params?.currentFilter}
+      //       onSelectFilter={props?.route?.params?.onSelectFilter}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setContentHeight={setContentHeight}
+      //     />
+      //   );
       case 'onlineListingsFilter':
         return (
           <OnlineListingsFilterHalfModal
@@ -756,15 +784,15 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
           />
         );
-      case 'payLinkCurrencySelect':
-        return (
-          <PayLinkCurrencySelect
-            currentCurrency={props?.route?.params?.currentCurrency}
-            onSelectCurrency={props?.route?.params?.onSelectCurrency}
-            handleBackPressFunction={handleBackPressFunction}
-            setContentHeight={setContentHeight}
-          />
-        );
+      // case 'payLinkCurrencySelect':
+      //   return (
+      //     <PayLinkCurrencySelect
+      //       currentCurrency={props?.route?.params?.currentCurrency}
+      //       onSelectCurrency={props?.route?.params?.onSelectCurrency}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setContentHeight={setContentHeight}
+      //     />
+      //   );
       case 'displayCurrencySelect':
         return (
           <DisplayCurrencySelect
@@ -822,6 +850,7 @@ export default function CustomHalfModal(props) {
           <BudgetWarningModal
             handleBackPressFunction={handleBackPressFunction}
             sendingAmount={props?.route?.params?.sendingAmount}
+            setContentHeight={setContentHeight}
           />
         );
 
@@ -855,39 +884,39 @@ export default function CustomHalfModal(props) {
             placeCount={props?.route?.params?.placeCount}
           />
         );
-      case 'depositFunds':
-        return (
-          <HalfModalDepositFunds
-            handleBackPressFunction={handleBackPressFunction}
-            setContentHeight={setContentHeight}
-            setBackNav={setBackNav}
-            theme={theme}
-            darkModeType={darkModeType}
-            showLightning={props.route.params?.showLightning ?? false}
-          />
-        );
-      case 'receiveMethodOptions':
-        return (
-          <HalfModalDepositFunds
-            handleBackPressFunction={handleBackPressFunction}
-            setContentHeight={setContentHeight}
-            setBackNav={setBackNav}
-            theme={theme}
-            darkModeType={darkModeType}
-            showLightning={true}
-          />
-        );
-      case 'shareInvoicePaylink':
-        return (
-          <ShareInvoicePayLinkModal
-            rawAmount={props.route.params?.rawAmount}
-            currencyType={props.route.params?.currencyType}
-            onCreated={props.route.params?.onCreated}
-            setContentHeight={setContentHeight}
-            sharePayLinkCache={props.route.params?.sharePayLinkCache}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
+      // case 'depositFunds':
+      //   return (
+      //     <HalfModalDepositFunds
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setContentHeight={setContentHeight}
+      //       setBackNav={setBackNav}
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       showLightning={props.route.params?.showLightning ?? false}
+      //     />
+      //   );
+      // case 'receiveMethodOptions':
+      //   return (
+      //     <HalfModalDepositFunds
+      //       handleBackPressFunction={handleBackPressFunction}
+      //       setContentHeight={setContentHeight}
+      //       setBackNav={setBackNav}
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       showLightning={true}
+      //     />
+      //   );
+      // case 'shareInvoicePaylink':
+      //   return (
+      //     <ShareInvoicePayLinkModal
+      //       rawAmount={props.route.params?.rawAmount}
+      //       currencyType={props.route.params?.currencyType}
+      //       onCreated={props.route.params?.onCreated}
+      //       setContentHeight={setContentHeight}
+      //       sharePayLinkCache={props.route.params?.sharePayLinkCache}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //     />
+      //   );
       case 'rootstockSwapInfo':
         return (
           <RootstockSwapInfo
@@ -908,6 +937,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             emailSubject={props?.route?.params?.emailSubject}
             emailBody={props?.route?.params?.emailBody}
+            copyBody={props?.route?.params?.copyBody}
           />
         );
       case 'exportLeavesProgress':

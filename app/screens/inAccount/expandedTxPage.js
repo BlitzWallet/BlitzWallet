@@ -57,6 +57,7 @@ import { uses24HourClock } from 'react-native-localize';
 import openWebBrowser from '../../functions/openWebBrowser';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
+import { getTokenIcon } from '../../functions/lrc20/utils';
 
 // Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
 const SHEET_CHROME = 49;
@@ -378,7 +379,7 @@ export default function ExpandedTx({
           setTransaction(newTx);
         } else {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error when claiming payment.',
+            errorMessage: t('screens.inAccount.expandedTxPage.claimError'),
           });
         }
       }
@@ -562,11 +563,7 @@ export default function ExpandedTx({
       );
     }
 
-    const externalImage =
-      transaction.details?.brantaMerchantLogo ||
-      (isLRC20Payment &&
-        !isUSDBPayment &&
-        tokensImageCache?.[transaction.details.LRC20Token]);
+    const externalImage = transaction.details?.brantaMerchantLogo;
     if (externalImage) {
       return (
         <View style={[styles.heroIcon, { backgroundColor: tokens.disc }]}>
@@ -582,13 +579,13 @@ export default function ExpandedTx({
 
     if (isLRC20Payment && !isUSDBPayment) {
       return (
-        <View style={[styles.heroIcon, { backgroundColor: tokens.accent }]}>
-          <ThemeIcon
-            redesign
-            iconName="Coins"
-            size={28}
-            colorOverride={tokens.onAccent}
-          />
+        <View style={styles.heroIcon}>
+          {getTokenIcon(
+            [transaction.details.LRC20Token, selectedToken],
+            56,
+            tokensImageCache,
+            18,
+          )}
         </View>
       );
     }

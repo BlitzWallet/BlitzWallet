@@ -140,7 +140,8 @@
     "payWith": "Pay with",
     "receiveAs": "Receive as",
     "tokens": "Tokens",
-    "emailSupport": "Email support"
+    "emailSupport": "Email support",
+    "noName": "No name"
   },
   "languages": {
     "english": "English",
@@ -1363,10 +1364,26 @@
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minutes"
       },
+      "reviewParts": {
+        "splitNamesOne": "{{first}}",
+        "splitNamesTwo": "{{first}} and {{second}}",
+        "splitNamesThree": "{{first}}, {{second}} and {{third}}",
+        "splitNamesMore": "{{first}}, {{second}}, {{third}} and {{count}} more",
+        "splitEach": "{{amount}} each",
+        "splitDifferent": "Different amounts",
+        "sending": "Sending",
+        "slideToSend": "Slide to send",
+        "verified": "Verified",
+        "viewAddress": "View address",
+        "verifiedBody": "Branta checked that this payment request really comes from {{merchantName}}, so you know who you're paying.",
+        "verifiedBodyNoName": "Branta checked that this payment request is genuine, so you know who you're paying.",
+        "checkAddress": "Check it matches the one you were given."
+      },
       "selectLRC20Token": {
         "title": "Select Token",
         "searchPlaceholder": "Token name...",
-        "noTokensFoundText": "No tokens found"
+        "noTokensFoundText": "No tokens found",
+        "noTokensFoundSub": "Try adjusting your search to use the token."
       },
       "sendMaxComponent": {
         "sendMax": "Send Max",
@@ -1464,6 +1481,10 @@
       "recipientGets": "Recipient gets",
       "youSend": "You send",
       "quoteExpiresIn": "Quote expires in",
+      "bitcoinAmount": "Bitcoin amount",
+      "usdAmount": "USD amount",
+      "sendingTo": "Sending to {{address}}",
+      "sendingToOn": "Sending to {{address}} on {{chain}}",
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
       "swapInProgress": "Payment in Progress",
@@ -2720,6 +2741,7 @@
         "confirmMessage": "{{direction}} successfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
         "sendReport": "Report a problem",
+        "failedPaymentSupportSubject": "Failed Payment Support",
         "lnurlAuthSuccess": "You're signed in and ready to go.",
         "emailReport": "Send via Email",
         "copyReport": "Copy to Clipboard",
@@ -2752,7 +2774,8 @@
         "paymentFailed": "Payment failed",
         "moreDetails": "More details",
         "showLess": "Show less",
-        "waitingForConfirmations": "Waiting for {{count}} confirmations"
+        "waitingForConfirmations": "Waiting for {{count}} confirmations",
+        "claimError": "Error when claiming payment."
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
@@ -3244,6 +3267,15 @@
       },
       "sparkReceivePage": {
         "header": "Spark Address"
+      },
+      "sendList": {
+        "phone": "Phone",
+        "placeholder": "Enter or paste an address",
+        "placeholderEmpty": "Enter an address",
+        "emptyTitle": "Paste or scan to send to anyone",
+        "emptySub": "Contacts you add will show up here.",
+        "contacts": "Send to a contact",
+        "contact": "Contact"
       },
       "sendAndReplace": {
         "slider": "{{state}} Spend and Replace",

@@ -20,6 +20,7 @@ import {
 import { SwipeThumb } from './swipeButton/swipeThumb';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
+import RedesignSwipe from './swipeButton/redesignSwipe';
 
 const containerStyles = StyleSheet.create({
   container: {
@@ -279,4 +280,11 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   );
 });
 
-export default SwipeButtonNew;
+const SwipeButton = props =>
+  props.variant === 'redesign' ? (
+    <RedesignSwipe Inner={SwipeButtonNew} {...props} />
+  ) : (
+    <SwipeButtonNew {...props} />
+  );
+
+export default SwipeButton;
