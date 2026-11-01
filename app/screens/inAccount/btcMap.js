@@ -209,6 +209,9 @@ export default function BTCMapScreen() {
 
     if (!points.length) {
       clusterManagerRef.current = null;
+      // Reset dedupe refs so the next non-empty build isn't skipped as "same"
+      lastRenderedMarkersRef.current = [];
+      lastRenderedCountRef.current = 0;
       setMarkers([]);
       setPlaceCount(0);
       setIsClusteringReady(true);
@@ -217,7 +220,7 @@ export default function BTCMapScreen() {
 
     const cacheGranularity = z >= 14 ? 20 : z >= 10 ? 10 : 5;
     const manager = getOrBuildBTCMapClusterManager(
-      `btcmap:v${dataVersion}:${z}:${
+      `btcmap:v${dataVersion}:${[...filter.categories].sort().join(',')}:${z}:${
         Math.round(lat * cacheGranularity) / cacheGranularity
       }:${Math.round(lon * cacheGranularity) / cacheGranularity}`,
       points,
@@ -486,7 +489,7 @@ export default function BTCMapScreen() {
                 >
                   <View style={styles.marker}>
                     <ThemeImage
-                      styles={{ width: 18, height: 18 }}
+                      styles={{ width: 16, height: 16 }}
                       lightModeIcon={ICONS.bitcoinIcon}
                       darkModeIcon={ICONS.bitcoinIcon}
                       lightsOutIcon={ICONS.bitcoinIcon}
@@ -652,9 +655,9 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: '#fff',
-    backgroundColor: COLORS.bitcoinOrange,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
     ...SHADOWS.pin,

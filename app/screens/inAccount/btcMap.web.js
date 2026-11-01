@@ -227,6 +227,9 @@ export default function BTCMapScreen() {
 
     if (!points.length) {
       clusterManagerRef.current = null;
+      // Reset dedupe refs so the next non-empty build isn't skipped as "same"
+      lastRenderedMarkersRef.current = [];
+      lastRenderedCountRef.current = 0;
       setMarkers([]);
       setPlaceCount(0);
       setIsClusteringReady(true);
@@ -235,7 +238,7 @@ export default function BTCMapScreen() {
 
     const cacheGranularity = z >= 14 ? 20 : z >= 10 ? 10 : 5;
     const manager = getOrBuildBTCMapClusterManager(
-      `btcmap:v${dataVersion}:${z}:${
+      `btcmap:v${dataVersion}:${[...filter.categories].sort().join(',')}:${z}:${
         Math.round(lat * cacheGranularity) / cacheGranularity
       }:${Math.round(lon * cacheGranularity) / cacheGranularity}`,
       points,
