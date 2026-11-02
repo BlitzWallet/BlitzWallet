@@ -3,18 +3,12 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  MAX_WEB_CONTENT_WIDTH,
-  VALID_USERNAME_REGEX,
-} from '../../../../../constants';
-import {
-  CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import { canUsePOSName } from '../../../../../../db';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import { useTheme } from '../../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
@@ -28,7 +22,6 @@ import { KeyboardController } from 'react-native-keyboard-controller';
 import { getSavedPOSTransactions } from '../../../../../functions/pos';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import SectionHeader from '../../../../../functions/CustomElements/redesign/SectionHeader';
-import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
@@ -57,11 +50,7 @@ export default function PosSettingsPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { isConnectedToTheInternet } = useAppStatus();
-  const [storeNameInput, setStoreNameInput] = useState(
-    masterInfoObject?.posSettings?.storeName,
-  );
-  // Name problems show under the field; the saved name stays as it was.
-  const [nameError, setNameError] = useState('');
+  const storeName = masterInfoObject?.posSettings?.storeName;
   const [unpaidPeople, setUnpaidPeople] = useState(0);
   const logoKey = masterInfoObject?.posSettings?.brandLogo;
   const cachedImageData = logoKey ? cache?.[logoKey] : null;
@@ -69,7 +58,6 @@ export default function PosSettingsPage() {
   const brandLogoUri = cachedImageData?.localUri || null;
   const brandLogoUpdated = cachedImageData?.updated || null;
 
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { bottomPadding } = useGlobalInsets();
 
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
@@ -78,10 +66,6 @@ export default function PosSettingsPage() {
   const showErrorIcon = posItemsList.filter(
     item => item.initialCurrency !== currentCurrency,
   ).length;
-
-  const nameChanged =
-    masterInfoObject.posSettings.storeName.toLowerCase() !==
-    storeNameInput.toLowerCase();
 
   useFocusEffect(
     useCallback(() => {
@@ -101,28 +85,7 @@ export default function PosSettingsPage() {
     }, []),
   );
 
-  const savePOSSettings = async (newData, type) => {
-    if (type === 'storeName') {
-      if (
-        newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
-      ) {
-        setNameError(t('settings.posPath.settings.nameTakenError'));
-        return;
-      }
-      if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
-        setNameError(t('settings.posPath.settings.nameRegexError'));
-        return;
-      }
-
-      const isValidPosName = await canUsePOSName(
-        'blitzWalletUsers',
-        newData.storeNameLower,
-      );
-      if (!isValidPosName) {
-        setNameError(t('settings.posPath.settings.nameTakenError'));
-        return;
-      }
-    }
+  const savePOSSettings = async newData => {
     toggleMasterInfoObject({
       posSettings: {
         ...masterInfoObject.posSettings,
@@ -132,17 +95,17 @@ export default function PosSettingsPage() {
   };
 
   const handleLogoChange = useCallback(() => {
-    savePOSSettings({ brandLogo: masterInfoObject.uuid + '_POS' }, 'brandLogo');
+    savePOSSettings({ brandLogo: masterInfoObject.uuid + '_POS' });
   }, [savePOSSettings, masterInfoObject.uuid]);
 
   const handleLogoRemove = useCallback(() => {
-    savePOSSettings({ brandLogo: null }, 'brandLogo');
+    savePOSSettings({ brandLogo: null });
   }, [savePOSSettings]);
 
   const handleCurrencyChange = useCallback(
     async currencyId => {
       await KeyboardController.dismiss();
-      savePOSSettings({ storeCurrency: currencyId }, 'currency');
+      savePOSSettings({ storeCurrency: currencyId });
     },
     [savePOSSettings],
   );
@@ -156,40 +119,15 @@ export default function PosSettingsPage() {
     });
   }, [navigate, currentCurrency, handleCurrencyChange]);
 
-  const handleNameChange = useCallback(text => {
-    setNameError('');
-    setStoreNameInput(text);
-  }, []);
-
-  const handleSaveOrOpen = useCallback(() => {
-    if (nameChanged) {
-      savePOSSettings(
-        {
-          storeName: storeNameInput.trim(),
-          storeNameLower: storeNameInput.trim().toLowerCase(),
-        },
-        'storeName',
-      );
-      return;
-    } else {
-      openWebBrowser({
-        navigate,
-        link: `https://pay.blitzwalletapp.com/${masterInfoObject.posSettings.storeName}`,
-      });
-    }
-  }, [
-    nameChanged,
-    masterInfoObject.posSettings.storeName,
-    storeNameInput,
-    navigate,
-    savePOSSettings,
-  ]);
+  const handleOpenPOS = useCallback(() => {
+    openWebBrowser({
+      navigate,
+      link: `https://pay.blitzwalletapp.com/${storeName}`,
+    });
+  }, [storeName, navigate]);
 
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      useStandardWidth={true}
-    >
+    <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           title={t('settings.posPath.settings.title')}
@@ -199,9 +137,7 @@ export default function PosSettingsPage() {
           style={styles.scrollView}
           contentContainerStyle={{
             paddingTop: 16,
-            paddingBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : bottomPadding,
+            paddingBottom: bottomPadding,
           }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -218,34 +154,18 @@ export default function PosSettingsPage() {
           <SectionHeader
             title={t('settings.posPath.settings.storeNameInputDesc')}
           />
-          <UserInput
-            value={storeNameInput}
-            onChangeText={handleNameChange}
-            placeholder={t(
-              'settings.posPath.settings.storeNameInputPlaceholder',
-            )}
-            onFocus={() => setIsKeyboardActive(true)}
-            onBlur={() => setIsKeyboardActive(false)}
-            focusRing={true}
-          />
-          {nameError ? (
-            <ThemeText
-              styles={[styles.fieldNote, { color: tokens.danger }]}
-              content={nameError}
+          <ListCard>
+            <ListRow
+              onPress={() => navigate.navigate('EditStoreNamePage')}
+              lead={<Disc icon={'Pencil'} />}
+              title={t('settings.posPath.settings.storeNameInputDesc')}
+              titleStyle={styles.rowTitle}
+              minHeight={52}
+              trailing={<RowValue text={storeName} />}
+              showChevron={true}
+              chevronSize={18}
             />
-          ) : (
-            <ThemeText
-              styles={[styles.fieldNote, { color: tokens.muted }]}
-              content={[
-                t('settings.posPath.settings.yourCheckout'),
-                <ThemeText
-                  key="link"
-                  styles={styles.fieldNote}
-                  content={`pay.blitzwalletapp.com/${storeNameInput}`}
-                />,
-              ]}
-            />
-          )}
+          </ListCard>
 
           <SectionHeader title={t('settings.posPath.settings.prices')} />
           <ListCard dividerInset={64}>
@@ -338,20 +258,13 @@ export default function PosSettingsPage() {
           </ListCard>
         </CustomScrollView>
 
-        {!isKeyboardActive && (
-          <CustomButton
-            buttonStyles={{ marginBottom: bottomPadding }}
-            actionFunction={handleSaveOrOpen}
-            textContent={
-              nameChanged
-                ? t('constants.save')
-                : t('settings.posPath.settings.openPos')
-            }
-            size={'regular'}
-          />
-        )}
+        <CustomButton
+          actionFunction={handleOpenPOS}
+          textContent={t('settings.posPath.settings.openPos')}
+          size={'regular'}
+        />
       </View>
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
 
@@ -359,13 +272,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollView: {
     flex: 1,
-  },
-  fieldNote: {
-    fontSize: 13,
-    lineHeight: 19,
-    marginTop: 8,
-    marginHorizontal: 4,
-    includeFontPadding: false,
   },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   rowValue: {

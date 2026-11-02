@@ -55,6 +55,7 @@ import CreateNWCAmount from '../app/components/admin/homeComponents/settingsCont
 import NWCAccountPage from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountPage';
 import NWCAccountCreated from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountCreated';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
+import EditStoreNamePage from '../app/components/admin/homeComponents/settingsContent/posPath/editStoreName';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
@@ -183,6 +184,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'RestoreWallet', component: RestoreWallet },
   // {name: 'EcashSettings', component: EcashSettings},
   { name: 'AddPOSItemsPage', component: AddPOSItemsPage },
+  { name: 'EditStoreNamePage', component: EditStoreNamePage },
   { name: 'CreateCustodyAccount', component: CreateCustodyAccountPage },
   { name: 'SelectCreateAccountType', component: SelectCreateAccountType },
   { name: 'RestoreDerivedAccount', component: RestoreDerivedAccountPage },
