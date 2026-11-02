@@ -8,7 +8,7 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { COLORS } from '../../../../constants';
+import { COLORS, HIDDEN_BALANCE_TEXT } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -135,8 +135,12 @@ export default function BalancePieChart({ isBalanceHidden }) {
           content={t('analytics.home.totalBalance')}
         />
         <ThemeText
-          styles={[styles.total, isBalanceHidden && styles.hiddenText]}
-          content={isBalanceHidden ? 'A A A A A' : totalText}
+          styles={styles.total}
+          content={
+            isBalanceHidden
+              ? `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`
+              : totalText
+          }
           CustomNumberOfLines={1}
           adjustsFontSizeToFit={true}
         />
@@ -148,10 +152,10 @@ export default function BalancePieChart({ isBalanceHidden }) {
               content={seg.label}
             />
             <ThemeText
-              styles={[styles.legendAmount, isBalanceHidden && styles.hiddenText]}
+              styles={styles.legendAmount}
               content={
                 isBalanceHidden
-                  ? 'A A A A A'
+                  ? `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`
                   : formatLegendValue(seg.value, seg.key)
               }
               CustomNumberOfLines={1}
@@ -183,9 +187,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.48,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
-  },
-  hiddenText: {
-    fontFamily: FONT.Asterisk,
   },
   legendRow: {
     flexDirection: 'row',

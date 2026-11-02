@@ -3,7 +3,10 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { GlobalThemeView, ThemeText } from '../../../../functions/CustomElements';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import {
   FONT,
   HIDDEN_BALANCE_TEXT,
@@ -76,7 +79,9 @@ export default function DisplayOptions() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={[styles.previewCard, { backgroundColor: tokens.surface }]}>
+          <View
+            style={[styles.previewCard, { backgroundColor: tokens.surface }]}
+          >
             <ThemeText
               content={t('settings.displayOptions.prev')}
               styles={[styles.previewLabel, { color: tokens.muted }]}
@@ -222,7 +227,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   hiddenBalance: {
-    fontFamily: FONT.Asterisk,
     fontSize: 34,
     lineHeight: 44,
     includeFontPadding: false,

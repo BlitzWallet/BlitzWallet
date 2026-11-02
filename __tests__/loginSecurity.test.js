@@ -38,7 +38,6 @@ jest.mock('../app/constants', () => ({
     Other_Medium: 'Poppins-Medium',
     Other_Regular: 'Poppins-Regular',
     Other_Bold: 'Poppins-Bold',
-    Asterisk: 'Blitzicons1',
     mono: 'monospace',
   },
   HIDDEN_OPACITY: 0.5,

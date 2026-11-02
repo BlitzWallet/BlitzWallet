@@ -96,7 +96,6 @@ const FONT = {
   Other_Medium: 'Poppins-Medium',
   Other_Regular: 'Poppins-Regular',
   Other_Bold: 'Poppins-Bold',
-  Asterisk: 'Blitzicons1',
   mono: Platform.select({
     ios: 'Menlo',
     android: 'monospace',

@@ -16,7 +16,11 @@ import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
 import DailyBarChart from '../../functions/CustomElements/redesign/DailyBarChart';
-import { FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import {
+  FONT,
+  HIDDEN_BALANCE_TEXT,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../constants';
 import { useReducedMotion } from '../../constants/motion';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
@@ -171,14 +175,14 @@ function SpentCard({ dailySpent, onPress }) {
         minimumFontScale={0.5}
         content={
           isHidden
-            ? 'A A A A A'
+            ? `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`
             : displayCorrectDenomination({
                 amount: shown,
                 masterInfoObject,
                 fiatStats,
               })
         }
-        styles={[styles.spentAmount, isHidden && styles.hiddenAmount]}
+        styles={styles.spentAmount}
       />
       <View style={styles.chart}>
         <DailyBarChart
@@ -389,7 +393,6 @@ const styles = StyleSheet.create({
     letterSpacing: -1.2,
     includeFontPadding: false,
   },
-  hiddenAmount: { fontFamily: FONT.Asterisk, fontSize: 24 },
   chart: { marginTop: 20 },
   axis: {
     marginTop: 8,
