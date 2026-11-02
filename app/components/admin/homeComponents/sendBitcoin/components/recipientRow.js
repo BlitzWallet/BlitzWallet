@@ -26,7 +26,7 @@ export default function RecipientRow({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
 
   const view = useMemo(() => {
     const formatted = formatSparkPaymentAddress(paymentInfo, undefined, true);
@@ -118,12 +118,7 @@ export default function RecipientRow({
       accessibilityRole="button"
       accessibilityLabel={view.name}
       lead={
-        <RecipientAvatar
-          resolved={view.avatar}
-          theme={theme}
-          darkModeType={darkModeType}
-          backgroundColor={tokens.disc}
-        />
+        <RecipientAvatar resolved={view.avatar} backgroundColor={tokens.disc} />
       }
       trailing={
         <ThemeIcon

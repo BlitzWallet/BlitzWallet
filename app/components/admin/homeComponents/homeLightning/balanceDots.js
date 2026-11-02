@@ -5,7 +5,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTheme } from '../../../../../context-store/theme';
 
-const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
+const Dot = ({ scrollX, index, screenWidth }) => {
   const animatedStyle = useAnimatedStyle(() => {
     const progress = scrollX.value / screenWidth;
 
@@ -40,7 +40,7 @@ const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
         styles.dot,
         animatedStyle,
         {
-          backgroundColor: theme && darkModeType ? tokens.ink : tokens.accent,
+          backgroundColor: tokens.accent,
         },
       ]}
     />
@@ -51,8 +51,6 @@ export const BalanceDots = ({
   scrollX,
   pageCount,
   screenWidth,
-  theme,
-  darkModeType,
   fromAccounts = false,
 }) => {
   return (
@@ -63,14 +61,7 @@ export const BalanceDots = ({
       ]}
     >
       {Array.from({ length: pageCount }).map((_, i) => (
-        <Dot
-          key={i}
-          scrollX={scrollX}
-          index={i}
-          screenWidth={screenWidth}
-          theme={theme}
-          darkModeType={darkModeType}
-        />
+        <Dot key={i} scrollX={scrollX} index={i} screenWidth={screenWidth} />
       ))}
     </View>
   );

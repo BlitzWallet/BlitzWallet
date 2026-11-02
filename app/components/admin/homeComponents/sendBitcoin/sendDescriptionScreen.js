@@ -15,7 +15,6 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import formatBalanceAmount from '../../../../functions/formatNumber';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import useContentWidth from '../../../../functions/CustomElements/redesign/useContentWidth';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useSendPaymentDetails from './hooks/useSendPaymentDetails';
@@ -54,7 +53,6 @@ export default function SendDescriptionScreen(props) {
     params,
   });
   const { paymentValidation, displayAmount, primaryDisplay } = details;
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { tokens } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const contentWidth = useContentWidth();
@@ -216,8 +214,6 @@ export default function SendDescriptionScreen(props) {
             />
             <RecipientAvatar
               resolved={resolved}
-              theme={theme}
-              darkModeType={darkModeType}
               size={32}
               backgroundColor={tokens.surface}
             />

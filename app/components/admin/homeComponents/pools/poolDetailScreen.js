@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  Platform,
   RefreshControl,
   Share,
   StyleSheet,
@@ -20,7 +19,6 @@ import {
   SIZES,
   STARTING_INDEX_FOR_POOLS_DERIVE,
 } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../../../context-store/poolContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -29,7 +27,6 @@ import ContributorAvatar from './contributorAvatar';
 import AvatarStack from './avatarStack';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -62,7 +59,6 @@ export default function PoolDetailScreen(props) {
     loadContributionsForPool,
     updatePoolList,
   } = usePools();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const [refreshing, setRefreshing] = useState(false);
@@ -218,25 +214,16 @@ export default function PoolDetailScreen(props) {
     setRefreshing(false);
   };
 
-  const colors = useMemo(
-    () =>
-      Platform.select({
-        ios: darkModeType && theme ? tokens.ink : tokens.accent,
-        android: darkModeType && theme ? COLORS.lightModeText : tokens.accent,
-      }),
-    [darkModeType, theme],
-  );
-
   const refreshControl = useMemo(
     () => (
       <RefreshControl
-        colors={[colors]}
-        tintColor={darkModeType && theme ? tokens.ink : tokens.accent}
+        colors={[tokens.accent]}
+        tintColor={tokens.accent}
         refreshing={refreshing}
         onRefresh={handleRefresh}
       />
     ),
-    [colors, refreshing, handleRefresh, darkModeType, theme],
+    [refreshing, handleRefresh, tokens],
   );
 
   const closedDate = pool?.closedAt

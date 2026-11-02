@@ -5,7 +5,6 @@ import { CENTER, COLORS } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useImageCache } from '../../../context-store/imageCache';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
@@ -51,9 +50,8 @@ export default function QrCodeWrapper({
 }) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
-  const { darkModeType, theme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
   const myProfile = globalContactsInformation.myProfile;
   const imageData = cache[masterInfoObject.uuid];
@@ -71,8 +69,7 @@ export default function QrCodeWrapper({
     <View
       style={{
         ...styles.qrContainer,
-        backgroundColor:
-          theme && darkModeType ? backgroundColor : backgroundOffset,
+        backgroundColor: backgroundOffset,
         ...clampedOuterContainerStyle,
       }}
     >

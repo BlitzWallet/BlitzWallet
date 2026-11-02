@@ -36,7 +36,7 @@ export default function ContactAvatar({
   fontSize = 14,
   fill = false,
 }) {
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const initials = uri ? '' : getInitials(name);
   const [fillWidth, setFillWidth] = useState(0);
   return (
@@ -72,12 +72,7 @@ export default function ContactAvatar({
           }}
         />
       ) : (
-        <ContactProfileImage
-          updated={updated}
-          uri={uri}
-          darkModeType={darkModeType}
-          theme={theme}
-        />
+        <ContactProfileImage updated={updated} uri={uri} />
       )}
     </View>
   );

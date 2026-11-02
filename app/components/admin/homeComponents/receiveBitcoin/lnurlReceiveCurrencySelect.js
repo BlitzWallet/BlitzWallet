@@ -1,8 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { ICONS } from '../../../../constants';
 import { COLORS } from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -29,8 +27,6 @@ export default function LnurlReceiveCurrencySelect({
   const { masterInfoObject, toggleMasterInfoObject, updateAccountsLnurlEntry } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -68,7 +64,6 @@ export default function LnurlReceiveCurrencySelect({
     });
   };
 
-  const isLightsOut = theme && darkModeType;
   const options = [
     {
       value: 'btc',
@@ -112,9 +107,7 @@ export default function LnurlReceiveCurrencySelect({
                   style={[
                     styles.iconContainer,
                     {
-                      backgroundColor: isLightsOut
-                        ? backgroundOffset
-                        : option.color,
+                      backgroundColor: option.color,
                     },
                   ]}
                 >

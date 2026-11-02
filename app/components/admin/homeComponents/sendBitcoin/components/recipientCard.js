@@ -148,13 +148,7 @@ export function resolveRecipientDisplay({
 // Renders the circular avatar for a resolved recipient: branta/contact profile
 // image, provider brand logo, mobile-money country flag, or the standard user-icon
 // fallback for plain lightning addresses.
-export function RecipientAvatar({
-  resolved,
-  theme,
-  darkModeType,
-  size = 40,
-  backgroundColor,
-}) {
+export function RecipientAvatar({ resolved, size = 40, backgroundColor }) {
   const isProvider = resolved?.kind === 'provider';
   const circle = [
     styles.circle,
@@ -215,10 +209,7 @@ export function RecipientAvatar({
         style={[
           circle,
           {
-            backgroundColor:
-              theme && darkModeType
-                ? backgroundColor
-                : COLORS[isDollar ? 'dollarGreen' : 'bitcoinOrange'],
+            backgroundColor: COLORS[isDollar ? 'dollarGreen' : 'bitcoinOrange'],
           },
         ]}
       >
@@ -249,8 +240,6 @@ export function RecipientAvatar({
       <ContactProfileImage
         uri={resolved?.imageUri}
         updated={resolved?.imageUpdated}
-        darkModeType={darkModeType}
-        theme={theme}
       />
     </View>
   );

@@ -1,20 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { FONT } from '../../../../constants';
-import {
-  AVATAR_COLORS,
-  AVATAR_COLORS_LIGHTS_OUT,
-} from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { COLORS, FONT } from '../../../../constants';
+import { AVATAR_COLORS } from '../../../../constants/theme';
 
-function getColorForName(name, useGray) {
+function getColorForName(name) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return useGray
-    ? AVATAR_COLORS_LIGHTS_OUT[Math.abs(hash) % AVATAR_COLORS.length]
-    : AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
 /**
@@ -27,8 +21,6 @@ export default function ContributorAvatar({
   contributorName = '',
   avatarSize = 28,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
-
   return (
     <View
       style={[
@@ -37,10 +29,7 @@ export default function ContributorAvatar({
           width: avatarSize,
           height: avatarSize,
           borderRadius: avatarSize / 2,
-          backgroundColor: getColorForName(
-            contributorName || '',
-            theme && darkModeType,
-          ),
+          backgroundColor: getColorForName(contributorName || ''),
         },
       ]}
     >
@@ -49,7 +38,7 @@ export default function ContributorAvatar({
           styles.initial,
           {
             fontSize: avatarSize * 0.4,
-            color: '#ffffff',
+            color: COLORS.lightModeText,
           },
         ]}
         content={contributorName.charAt(0).toUpperCase()}

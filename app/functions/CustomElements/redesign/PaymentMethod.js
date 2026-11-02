@@ -11,7 +11,6 @@ import {
   SIZES,
 } from '../../../constants';
 import ThemeImage from '../themeImage';
-import { useGlobalThemeContext } from '../../../../context-store/theme';
 
 export default function PaymentMethod({
   determinePaymentMethod,
@@ -28,7 +27,6 @@ export default function PaymentMethod({
   isSend = true,
   title,
 }) {
-  const { mode } = useGlobalThemeContext();
   const { tokens } = GetThemeColors();
   const icon =
     determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
@@ -84,10 +82,7 @@ export default function PaymentMethod({
             style={[
               styles.iconContainer,
               {
-                backgroundColor:
-                  mode === 'lightsOut'
-                    ? tokens.ground
-                    : COLORS[iconBackgroundColor],
+                backgroundColor: COLORS[iconBackgroundColor],
               },
             ]}
           >

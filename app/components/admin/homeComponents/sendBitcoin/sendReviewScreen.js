@@ -30,7 +30,6 @@ import {
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { satsToDollars } from '../../../../functions/spark/flashnet';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -118,8 +117,7 @@ export default function SendReviewScreen(props) {
   // the provider's ref (not a consumer mirror) keeps it valid even after this
   // screen is unmounted by the reset's navigation.
   const { authResetkeyRef } = useAuthContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const contentWidth = useContentWidth();
 
@@ -704,9 +702,7 @@ export default function SendReviewScreen(props) {
                 ref={progressAnimationRef}
                 isVisible={showProgressAnimation || isUsingFastPay}
                 textColor={tokens.onAccent}
-                backgroundColor={
-                  theme && darkModeType ? backgroundOffset : tokens.accent
-                }
+                backgroundColor={tokens.accent}
                 width={1}
               />
             ) : (

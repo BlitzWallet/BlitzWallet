@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, FONT, SIZES, TOPBAR_HEIGHT } from '../../constants';
+import { FONT, SIZES, TOPBAR_HEIGHT } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import ThemeIcon from './themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -16,7 +16,6 @@ export default function CustomSettingsTopBar({
   showLeftImage,
   leftImageFunction,
   leftImageBlue,
-  LeftImageDarkMode,
   leftImageStyles = {},
   customBackFunction,
   customBackColor,
@@ -27,7 +26,7 @@ export default function CustomSettingsTopBar({
   centerContent,
 }) {
   const navigate = useNavigation();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const lastBackPressRef = useRef(0);
 
   const handleBackPress = useCallback(() => {
@@ -78,7 +77,7 @@ export default function CustomSettingsTopBar({
               ) : (
                 <ThemeImage
                   styles={{ ...leftImageStyles }}
-                  lightsOutIcon={LeftImageDarkMode}
+                  lightsOutIcon={leftImageBlue}
                   darkModeIcon={leftImageBlue}
                   lightModeIcon={leftImageBlue}
                 />
@@ -89,10 +88,8 @@ export default function CustomSettingsTopBar({
                 style={[
                   styles.badge,
                   {
-                    backgroundColor:
-                      theme && darkModeType ? tokens.ink : tokens.accent,
-                    borderColor:
-                      theme && darkModeType ? tokens.ink : tokens.accent,
+                    backgroundColor: tokens.accent,
+                    borderColor: tokens.accent,
                   },
                 ]}
                 pointerEvents="none"
@@ -103,10 +100,7 @@ export default function CustomSettingsTopBar({
                   styles={[
                     styles.badgeText,
                     {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.lightModeText
-                          : tokens.onAccent,
+                      color: tokens.onAccent,
                     },
                   ]}
                   content={badgeCount}

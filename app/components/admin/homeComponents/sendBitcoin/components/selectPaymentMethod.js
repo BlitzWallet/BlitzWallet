@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { ICONS } from '../../../../../constants';
 import { COLORS } from '../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { formatBalanceAmount } from '../../../../../functions';
@@ -37,8 +35,6 @@ export default function SelectPaymentMethod({
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
 
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
   const [picked, setPicked] = useState(
     selectedPaymentMethod === 'USD' ? 'USD' : 'BTC',
@@ -85,12 +81,7 @@ export default function SelectPaymentMethod({
               style={[
                 styles.iconContainer,
                 {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundColor
-                        : backgroundOffset
-                      : COLORS.bitcoinOrange,
+                  backgroundColor: COLORS.bitcoinOrange,
                 },
               ]}
             >
@@ -130,12 +121,7 @@ export default function SelectPaymentMethod({
               style={[
                 styles.iconContainer,
                 {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundColor
-                        : backgroundOffset
-                      : COLORS.dollarGreen,
+                  backgroundColor: COLORS.dollarGreen,
                 },
               ]}
             >

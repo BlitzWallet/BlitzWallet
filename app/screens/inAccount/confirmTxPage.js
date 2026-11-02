@@ -282,8 +282,6 @@ export default function ConfirmTxPage(props) {
           >
             <RecipientAvatar
               resolved={recipientResolved}
-              theme={theme}
-              darkModeType={darkModeType}
               size={30}
               backgroundColor={tokens.disc}
             />

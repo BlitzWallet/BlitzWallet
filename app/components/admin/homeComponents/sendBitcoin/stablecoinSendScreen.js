@@ -29,7 +29,6 @@ import {
   USDB_TOKEN_ID,
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -87,8 +86,7 @@ export default function StablecoinSendScreen() {
   } = route.params;
   const { t } = useTranslation();
 
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const contentWidth = useContentWidth();
   const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
@@ -695,9 +693,7 @@ export default function StablecoinSendScreen() {
   const showBitcoinRow = sourceMethod === 'BTC' && currencyCode !== 'SATS';
   const showUsdRow = sourceMethod === 'BTC' && currencyCode !== 'USD';
   const countdownDanger =
-    countdown != null &&
-    countdown < 30000 &&
-    (theme && darkModeType ? tokens.ink : tokens.danger);
+    countdown != null && countdown < 30000 && tokens.danger;
 
   return (
     <GlobalThemeView useStandardWidth={false}>
@@ -892,9 +888,7 @@ export default function StablecoinSendScreen() {
                 ref={progressAnimationRef}
                 isVisible={true}
                 textColor={tokens.onAccent}
-                backgroundColor={
-                  theme && darkModeType ? backgroundOffset : tokens.accent
-                }
+                backgroundColor={tokens.accent}
                 width={1}
               />
             ) : (

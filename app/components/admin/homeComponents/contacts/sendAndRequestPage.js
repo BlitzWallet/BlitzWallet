@@ -51,7 +51,7 @@ export default function SendAndRequestPage(props) {
 
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { tokens, mode } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
@@ -279,9 +279,7 @@ export default function SendAndRequestPage(props) {
                         label="contacts.sendAndRequestPage.splitWithMore"
                         size={36}
                         iconSize={18}
-                        iconColor={
-                          mode !== 'lightsOut' ? tokens.accent : tokens.ink
-                        }
+                        iconColor={tokens.accent}
                         onPress={() =>
                           navigate.navigate('AddFriendsToSplit', {
                             paymentType,

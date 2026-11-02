@@ -1,15 +1,10 @@
-import {
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { CENTER, SIZES } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useCallback, useEffect, useState } from 'react';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import PinDot from '../../../../../functions/CustomElements/pinDot';
 import KeyForKeyboard from '../../../../../functions/CustomElements/key';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
@@ -25,9 +20,7 @@ import { useAppStatus } from '../../../../../../context-store/appStatus';
 
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, transparentOveraly } =
-    GetThemeColors();
+  const { backgroundOffset, transparentOveraly, tokens } = GetThemeColors();
   const [pinSettings, setPinSettings] = useState({
     enteredPin: [null, null, null, null],
     savedPin: [null, null, null, null],
@@ -128,8 +121,7 @@ export default function ConfirmPinForLoginMode() {
         style={[
           styles.contentContainer,
           {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
+            backgroundColor: backgroundOffset,
             paddingBottom: bottomPadding,
           },
           animatedStyle,
@@ -141,8 +133,7 @@ export default function ConfirmPinForLoginMode() {
               style={[
                 styles.topBar,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.grab,
                 },
               ]}
             />

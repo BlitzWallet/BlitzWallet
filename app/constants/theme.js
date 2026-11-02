@@ -170,17 +170,6 @@ const AVATAR_COLORS = [
   '#AFC2D6', // very light neutral blue
 ];
 
-const AVATAR_COLORS_LIGHTS_OUT = [
-  '#E6E6E6',
-  '#CCCCCC',
-  '#B3B3B3',
-  '#999999',
-  '#808080',
-  '#666666',
-  '#4D4D4D',
-  '#333333',
-];
-
 export {
   COLORS,
   FONT,
@@ -190,5 +179,4 @@ export {
   INSET_WINDOW_WIDTH,
   HIDDEN_OPACITY,
   AVATAR_COLORS,
-  AVATAR_COLORS_LIGHTS_OUT,
 };

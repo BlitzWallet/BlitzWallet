@@ -624,7 +624,7 @@ export default function BitrefillShopModal() {
                   styles={[
                     styles.statusText,
                     {
-                      color: theme && darkModeType ? tokens.ink : tokens.danger,
+                      color: tokens.danger,
                     },
                   ]}
                   content={t('screens.bitrefill.emailError')}

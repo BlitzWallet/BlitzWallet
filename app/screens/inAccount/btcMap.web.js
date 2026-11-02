@@ -12,7 +12,6 @@ import { useBTCMap } from '../../../context-store/btcMapContext';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { SIZES } from '../../constants';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
@@ -67,7 +66,6 @@ export default function BTCMapScreen() {
   const { screenDimensions } = useAppStatus();
   const { textColor, backgroundOffset, backgroundColor, tokens } =
     GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { topPadding, bottomPadding } = useGlobalInsets();
   const {
     isLoading: storeLoading,
@@ -91,10 +89,10 @@ export default function BTCMapScreen() {
   });
 
   const loading = storeLoading || !isClusteringReady;
-  const markerBg = theme && darkModeType ? backgroundColor : tokens.accent;
+  const markerBg = tokens.accent;
   const isFilterActive =
     filter.categories.length > 0 || filter.distanceUnit !== 'auto';
-  const iconColor = theme && darkModeType ? textColor : tokens.accent;
+  const iconColor = tokens.accent;
 
   const SCREEN_ASPECT_RATIO = screenDimensions.width / screenDimensions.height;
   const activeLocation = userLocation ?? DEFAULT_LOCATION;

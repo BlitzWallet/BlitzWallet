@@ -9,7 +9,6 @@ import {
 } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
@@ -107,7 +106,6 @@ export default function ConfirmSplitPayment(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { globalContactsInformation } = useGlobalContacts();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const contentWidth = useContentWidth();
   // Provider-owned auth-reset counter. A long-background/logout reset bumps it
   // AND navigates to SplashReload (login); it also tears down the WebView
@@ -119,7 +117,7 @@ export default function ConfirmSplitPayment(props) {
   // the provider's ref (not a consumer mirror) keeps it valid even after this
   // screen is unmounted by the reset's navigation.
   const { authResetkeyRef } = useAuthContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
 
   const isSendingPayment = useRef(null);
   const rateAtConfirmEntryRef = useRef(null);
@@ -915,9 +913,7 @@ export default function ConfirmSplitPayment(props) {
                 ref={progressAnimationRef}
                 isVisible={showProgressAnimation}
                 textColor={tokens.onAccent}
-                backgroundColor={
-                  theme && darkModeType ? backgroundOffset : tokens.accent
-                }
+                backgroundColor={tokens.accent}
                 width={1}
               />
             ) : (

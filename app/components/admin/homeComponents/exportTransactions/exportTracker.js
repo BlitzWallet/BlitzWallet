@@ -77,14 +77,12 @@ export async function exportTransactionsCsv({
 
 export default function ConfirmExportPayments({
   startExport,
-  theme,
-  darkModeType,
   handleBackPressFunction,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const onSwipeSuccess = useCallback(() => {
@@ -128,11 +126,10 @@ export default function ConfirmExportPayments({
 
   const dynamicStyles = useMemo(() => {
     return {
-      backgroundColor:
-        theme && darkModeType ? backgroundOffset : backgroundColor,
-      borderColor: theme && darkModeType ? backgroundOffset : backgroundColor,
+      backgroundColor: tokens.accent,
+      borderColor: tokens.accent,
     };
-  }, [theme, darkModeType]);
+  }, [tokens]);
 
   return (
     <View style={styles.containerStyle}>

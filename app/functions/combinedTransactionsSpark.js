@@ -386,9 +386,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
                 <ThemeIcon
                   size={22}
                   iconName={'Clock'}
-                  colorOverride={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
+                  colorOverride={COLORS.primary}
                 />
               </View>
 
@@ -529,22 +527,11 @@ export const UserTransaction = memo(function UserTransaction({
     isReceive,
   );
 
-  const isGrayMode = theme && darkModeType;
   const isBalancePageRow = frompage === TRANSACTION_CONSTANTS.HOME;
 
   const iconBg = isBalancePageRow ? tokens.disc : backgroundOffset;
 
-  const iconColor = isBalancePageRow
-    ? isFailedPayment
-      ? tokens.danger
-      : tokens.ink
-    : isGrayMode
-    ? textColor
-    : isFailedPayment
-    ? !theme
-      ? tokens.danger
-      : tokens.accent
-    : tokens.accent;
+  const iconColor = isFailedPayment ? tokens.danger : tokens.ink;
 
   const amountColor = textColor;
   const paymentDescription = transaction.details?.description?.trim();

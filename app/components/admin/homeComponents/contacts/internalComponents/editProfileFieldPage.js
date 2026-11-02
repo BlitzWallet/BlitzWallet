@@ -22,7 +22,6 @@ import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { claimUniqueName, isUniqueNameAvailable } from '../../../../../../db';
@@ -71,8 +70,7 @@ export default function EditProfileFieldPage(props) {
   const config = FIELD_CONFIG[fieldKey] || FIELD_CONFIG.name;
 
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textInputColor, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { globalContactsInformation, toggleGlobalContactsInformation } =
     useGlobalContactsInfo();
   const { publicKey } = useKeysContext();
@@ -280,8 +278,7 @@ export default function EditProfileFieldPage(props) {
         usernameState === USERNAME_STATE.INVALID
       : !isValidContent;
 
-  const statusColor =
-    isError && !(theme && darkModeType) ? tokens.danger : tokens.muted;
+  const statusColor = isError ? tokens.danger : tokens.muted;
 
   return (
     <CustomKeyboardAvoidingView
@@ -346,9 +343,7 @@ export default function EditProfileFieldPage(props) {
                     redesign
                     iconName="CircleCheck"
                     size={20}
-                    colorOverride={
-                      theme && darkModeType ? textInputColor : COLORS.nostrGreen
-                    }
+                    colorOverride={COLORS.nostrGreen}
                   />
                 ) : usernameState === USERNAME_STATE.INVALID ||
                   usernameState === USERNAME_STATE.TAKEN ? (
@@ -356,9 +351,7 @@ export default function EditProfileFieldPage(props) {
                     redesign
                     iconName="CircleAlert"
                     size={20}
-                    colorOverride={
-                      theme && darkModeType ? textInputColor : tokens.danger
-                    }
+                    colorOverride={tokens.danger}
                   />
                 ) : null}
               </View>

@@ -42,11 +42,8 @@ export default function ThemeIcon({
   const iconColor = useMemo(() => {
     if (colorOverride) return colorOverride;
     if (redesign) return tokens.ink;
-    if (theme) {
-      return darkModeType ? tokens.ink : tokens.accent;
-    }
     return tokens.accent;
-  }, [theme, darkModeType, tokens, colorOverride, redesign]);
+  }, [tokens, colorOverride, redesign]);
 
   // Merge styles
   const iconStyles = useMemo(() => {

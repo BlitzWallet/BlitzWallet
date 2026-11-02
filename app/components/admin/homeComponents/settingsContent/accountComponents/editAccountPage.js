@@ -21,7 +21,6 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import {
   CENTER,
@@ -92,7 +91,6 @@ export default function EditAccountPage(props) {
   const { accountMnemoinc } = useKeysContext();
   const { globalContactsInformation } = useGlobalContacts();
   const { tokens } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
@@ -612,8 +610,6 @@ export default function EditAccountPage(props) {
                 scrollX={balanceScrollX}
                 pageCount={2}
                 screenWidth={screenWidth}
-                theme={theme}
-                darkModeType={darkModeType}
                 fromAccounts={true}
               />
             </View>

@@ -1,13 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import {
-  Platform,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
@@ -16,7 +9,6 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useToast } from '../../../../../context-store/toastManager';
@@ -46,7 +38,6 @@ const isActive = (gift, now) =>
 export default function GiftsOverview() {
   const navigate = useNavigation();
   const { giftsArray, checkForRefunds, updateGiftList } = useGifts();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { showToast } = useToast();
@@ -70,25 +61,16 @@ export default function GiftsOverview() {
     setRefreshing(false);
   };
 
-  const colors = useMemo(
-    () =>
-      Platform.select({
-        ios: darkModeType && theme ? tokens.ink : tokens.accent,
-        android: darkModeType && theme ? COLORS.lightModeText : tokens.accent,
-      }),
-    [darkModeType, theme],
-  );
-
   const refreshControl = useMemo(
     () => (
       <RefreshControl
-        colors={[colors]}
-        tintColor={darkModeType && theme ? tokens.ink : tokens.accent}
+        colors={[tokens.accent]}
+        tintColor={tokens.accent}
         refreshing={refreshing}
         onRefresh={handleRefresh}
       />
     ),
-    [colors, refreshing, handleRefresh, darkModeType, theme],
+    [refreshing, handleRefresh, tokens],
   );
 
   const { active, past } = useMemo(() => {

@@ -2,9 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import { COLORS, ICONS } from '../../../../../constants';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
@@ -17,8 +15,6 @@ export default function SelectContactRequestCurrency({
   onSelectMethod,
 }) {
   const navigate = useNavigation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
@@ -49,12 +45,7 @@ export default function SelectContactRequestCurrency({
               style={[
                 styles.iconContainer,
                 {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundColor
-                        : backgroundOffset
-                      : COLORS.bitcoinOrange,
+                  backgroundColor: COLORS.bitcoinOrange,
                 },
               ]}
             >
@@ -78,12 +69,7 @@ export default function SelectContactRequestCurrency({
               style={[
                 styles.iconContainer,
                 {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundColor
-                        : backgroundOffset
-                      : COLORS.dollarGreen,
+                  backgroundColor: COLORS.dollarGreen,
                 },
               ]}
             >
