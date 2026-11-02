@@ -34,6 +34,7 @@ import { saveNWCAccount } from '../../../../../functions/nwc';
 import { parseNWCAuthRequest } from '../../../../../functions/nwc/walletAuth';
 import NostrWalletConnectNoNotifications from './noNotifications';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../../functions/CustomElements/redesign/ResultAnimation';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
@@ -335,12 +336,7 @@ export default function NWCAuthApproval({
           direction={direction}
         >
           <View style={styles.resultContent}>
-            <Disc
-              size={72}
-              iconSize={32}
-              icon={page === 'error' ? 'CircleAlert' : 'Check'}
-              tone={page === 'error' ? 'danger' : 'primary'}
-            />
+            <ResultAnimation type={page === 'error' ? 'error' : 'success'} />
             <ThemeText
               styles={styles.resultTitle}
               content={t(

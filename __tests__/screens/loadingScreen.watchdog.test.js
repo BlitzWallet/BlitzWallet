@@ -125,6 +125,8 @@ jest.mock('../../app/functions/CustomElements/button', () => {
 });
 jest.mock('../../app/functions/lottieAnimations', () => ({
   getMascatWalkingAnimation: () => ({}),
+  getErrorTxAnimation: () => ({}),
+  getConfirmTxAnimation: () => ({}),
 }));
 jest.mock('../../app/functions/openWebBrowser', () => ({
   __esModule: true,

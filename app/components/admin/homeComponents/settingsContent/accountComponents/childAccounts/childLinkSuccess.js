@@ -11,7 +11,7 @@ import { useChildPairing } from '../../../../../../../context-store/childPairing
 import { useCallback } from 'react';
 import { useTheme } from '../../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
-import Disc from '../../../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../../../functions/CustomElements/redesign/ResultAnimation';
 
 export default function ChildLinkSuccess() {
   const navigate = useNavigation();
@@ -36,7 +36,7 @@ export default function ChildLinkSuccess() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.centered} accessibilityRole="alert">
-          <Disc icon="Check" size={88} iconSize={40} tone="primary" />
+          <ResultAnimation />
           <ThemeText
             variant="title"
             styles={styles.title}
@@ -60,11 +60,11 @@ export default function ChildLinkSuccess() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  // Same layout as ClaimLinkError: disc top 250 pt from the screen top.
+  // Same layout as ClaimLinkError: result animation centred where the 88 pt disc was.
   centered: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 196,
+    paddingTop: 178,
   },
   title: {
     marginTop: 28,

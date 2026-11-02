@@ -9,7 +9,7 @@ import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useCallback } from 'react';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
-import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 
 export default function SavingsGoalRemovedSuccess() {
   const navigate = useNavigation();
@@ -28,7 +28,7 @@ export default function SavingsGoalRemovedSuccess() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.content}>
-          <Disc icon={'Check'} size={88} iconSize={40} tone="primary" />
+          <ResultAnimation />
           <ThemeText
             variant={'title'}
             styles={styles.title}
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 196,
+    paddingTop: 178,
   },
   title: {
     marginTop: 28,

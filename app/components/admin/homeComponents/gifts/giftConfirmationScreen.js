@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import Animated, { ZoomIn } from 'react-native-reanimated';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
@@ -30,6 +29,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 import { useGifts } from '../../../../../context-store/giftContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
@@ -166,9 +166,7 @@ export default function GiftConfirmation(props) {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Animated.View entering={ZoomIn.duration(300)}>
-              <Disc icon="Check" tone="primary" size={72} iconSize={32} />
-            </Animated.View>
+            <ResultAnimation />
             <ThemeText
               styles={styles.title}
               content={

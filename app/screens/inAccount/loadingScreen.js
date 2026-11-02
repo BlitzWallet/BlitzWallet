@@ -46,7 +46,7 @@ import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
 import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
 import { isWipeInProgress } from '../../functions/secureStore';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
-import Disc from '../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../functions/CustomElements/redesign/ResultAnimation';
 import CustomButton from '../../functions/CustomElements/button';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useReducedMotion } from '../../constants/motion';
@@ -346,12 +346,7 @@ export default function ConnectingToNodeLoadingScreen() {
               />
             </View>
             <View style={styles.centered}>
-              <Disc
-                icon="TriangleAlert"
-                size={88}
-                iconSize={36}
-                tone="danger"
-              />
+              <ResultAnimation type="error" />
               <ThemeText
                 variant="title"
                 styles={styles.title}

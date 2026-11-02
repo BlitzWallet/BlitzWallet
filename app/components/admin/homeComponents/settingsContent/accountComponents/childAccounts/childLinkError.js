@@ -11,7 +11,7 @@ import { useChildPairing } from '../../../../../../../context-store/childPairing
 import { useCallback } from 'react';
 import { useTheme } from '../../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
-import Disc from '../../../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../../../functions/CustomElements/redesign/ResultAnimation';
 
 // Pairing session ended (D272): expiry, decline or failed handoff. Done
 // returns to the account page.
@@ -35,7 +35,7 @@ export default function ChildLinkError() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.centered} accessibilityRole="alert">
-          <Disc icon="X" size={88} iconSize={36} tone="white" />
+          <ResultAnimation type="error" />
           <ThemeText
             variant="title"
             styles={styles.title}
@@ -66,11 +66,11 @@ export default function ChildLinkError() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  // Same layout as ClaimLinkError: disc top 250 pt from the screen top.
+  // Same layout as ClaimLinkError: result animation centred where the 88 pt disc was.
   centered: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 196,
+    paddingTop: 178,
   },
   title: {
     marginTop: 28,

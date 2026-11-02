@@ -36,7 +36,7 @@ import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import StepProgress from '../../../../../functions/CustomElements/redesign/StepProgress';
-import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../../functions/CustomElements/redesign/ResultAnimation';
 import AnimatedStep from '../../../../../functions/CustomElements/redesign/AnimatedStep';
 import { SheetResult } from '../../savings/savingsSheetParts';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
@@ -859,12 +859,7 @@ export default function AccountTransferHalfModal({
         ) : (
           <>
             <View style={styles.failed} accessibilityRole="alert">
-              <Disc
-                icon="TriangleAlert"
-                size={56}
-                iconSize={24}
-                tone="danger"
-              />
+              <ResultAnimation type="error" />
               <ThemeText
                 styles={styles.failedTitle}
                 content={t('screens.inAccount.confirmTxPage.failedToSend')}

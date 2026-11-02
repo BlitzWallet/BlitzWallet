@@ -3,7 +3,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
-import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import { COLORS, FONT, ICONS } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
@@ -85,7 +85,7 @@ export function SheetResult({ label, amountProps, line, buttonText, onDone }) {
   return (
     <>
       <View style={styles.result}>
-        <Disc icon="Check" size={88} iconSize={40} tone="primary" />
+        <ResultAnimation />
         <ThemeText
           variant={'body'}
           styles={[styles.resultLabel, { color: tokens.muted }]}

@@ -31,7 +31,7 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
-import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../../functions/CustomElements/redesign/ResultAnimation';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 
 export default function SMSMessagingSendDescriptionPage(props) {
@@ -184,7 +184,7 @@ export default function SMSMessagingSendDescriptionPage(props) {
         <View style={[styles.container, { width: contentWidth }]}>
           <TopBar onBack={done} />
           <View style={styles.confirm}>
-            <Disc icon={'Check'} tone="primary" size={72} iconSize={34} />
+            <ResultAnimation />
             <ThemeText
               styles={styles.confirmTitle}
               content={t('apps.sms4sats.sendPage.confirmedMessage')}

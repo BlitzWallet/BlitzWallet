@@ -6,7 +6,7 @@ import CustomButton from '../../../functions/CustomElements/button';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
-import Disc from '../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../functions/CustomElements/redesign/ResultAnimation';
 
 export default function ClaimLinkError() {
   const navigate = useNavigation();
@@ -25,7 +25,7 @@ export default function ClaimLinkError() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.centered} accessibilityRole="alert">
-          <Disc icon="X" size={88} iconSize={36} tone="white" />
+          <ResultAnimation type="error" />
           <ThemeText
             variant="title"
             styles={styles.title}
@@ -56,11 +56,12 @@ export default function ClaimLinkError() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  // Disc top sits 250 pt from the screen top (54 pt of it is the top inset).
+  // Animation is centred where the 88 pt disc was (disc top 250 pt from the
+  // screen top, 54 pt of it the top inset).
   centered: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 196,
+    paddingTop: 178,
   },
   title: {
     marginTop: 28,

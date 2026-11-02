@@ -18,7 +18,7 @@ import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHead
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import Note from '../../../../functions/CustomElements/redesign/Note';
-import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import StepProgress from '../../../../functions/CustomElements/redesign/StepProgress';
 import AnimatedStep, {
   growThenStep,
@@ -388,7 +388,7 @@ export default function ContributeToPoolHalfModal({
         fadeOnly={true}
       >
         <View style={styles.success}>
-          <Disc icon="Check" size={88} iconSize={40} tone="primary" />
+          <ResultAnimation />
           <ThemeText
             styles={[
               styles.muted,

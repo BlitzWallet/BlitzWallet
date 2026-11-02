@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import { FONT } from '../../../../constants';
 
 export default function SwapSuccess({ onDone, onNewSwap }) {
@@ -10,7 +10,7 @@ export default function SwapSuccess({ onDone, onNewSwap }) {
   return (
     <>
       <View style={styles.result}>
-        <Disc icon="Check" size={88} iconSize={40} tone="primary" />
+        <ResultAnimation />
         <ThemeText
           styles={styles.title}
           content={t('screens.inAccount.swapsPage.swapConfimred')}
