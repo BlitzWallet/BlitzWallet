@@ -4,7 +4,7 @@ import { CustomKeyboardAvoidingView } from '../../functions/CustomElements';
 import { CENTER } from '../../constants';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import SendModal from '../../components/admin/homeComponents/sendBitcoin/sendModal';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
@@ -26,6 +26,8 @@ const runCallback = callback => callback();
 export default function SendList() {
   const { t } = useTranslation();
   const navigate = useNavigation();
+  // Set when Send was opened from the Bitcoin or Dollars page.
+  const preSelectedPaymentMethod = useRoute().params?.preSelectedPaymentMethod;
   const { tokens } = useTheme();
   const { topPadding } = useGlobalInsets();
   const contentWidth = useContentWidth();
@@ -78,12 +80,13 @@ export default function SendList() {
             selectedContact: contact,
             paymentType: 'send',
             imageData: cache[contact.uuid],
+            selectedPaymentMethod: preSelectedPaymentMethod,
           })
         }
         showChevron
       />
     ));
-  }, [sortedContacts, cache, navigate, t]);
+  }, [sortedContacts, cache, navigate, t, preSelectedPaymentMethod]);
 
   const openMobileMoney = useCallback(() => setShowMobileMoney(true), []);
   const closeMobileMoney = useCallback(() => setShowMobileMoney(false), []);
@@ -123,7 +126,11 @@ export default function SendList() {
           </View>
         )}
       </View>
-      <SendModal contentWidth={contentWidth} onPhonePress={openMobileMoney} />
+      <SendModal
+        contentWidth={contentWidth}
+        onPhonePress={openMobileMoney}
+        preSelectedPaymentMethod={preSelectedPaymentMethod}
+      />
       {showMobileMoney && (
         <View
           style={[
@@ -140,6 +147,7 @@ export default function SendList() {
               onClose={closeMobileMoney}
               handleBackPressFunction={runCallback}
               navigate={navigate}
+              preSelectedPaymentMethod={preSelectedPaymentMethod}
               setBackNav={setBackNav}
               setContentHeight={noop}
             />

@@ -69,6 +69,9 @@ export default function BalancePage(props) {
               receiveRoute={'CustomHalfModal'}
               receiveParams={{ wantedContent: 'receiveAsset', asset }}
               swapParams={{ fromAsset: isBitcoin ? 'BTC' : 'USD' }}
+              sendParams={{
+                preSelectedPaymentMethod: isBitcoin ? 'BTC' : 'USD',
+              }}
             />
           </View>
           <ActivityCard

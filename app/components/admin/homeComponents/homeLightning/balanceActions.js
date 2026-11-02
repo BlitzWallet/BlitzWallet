@@ -13,6 +13,7 @@ export default function BalanceActions({
   receiveRoute = 'ReceiveHomeRedesign',
   receiveParams,
   swapParams,
+  sendParams,
 }) {
   const navigateGuarded = useGuardedNavigation();
   const { isConnectedToTheInternet } = useAppStatus();
@@ -27,7 +28,7 @@ export default function BalanceActions({
     }
     navigateGuarded(route, params);
   };
-  const handleSend = () => go('SendList');
+  const handleSend = () => go('SendList', sendParams);
   const handleReceive = () => go(receiveRoute, receiveParams);
   const handleSwap = () =>
     go('CustomHalfModal', {

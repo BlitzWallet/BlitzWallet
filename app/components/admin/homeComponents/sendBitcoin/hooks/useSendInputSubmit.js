@@ -8,7 +8,7 @@ import handlePreSendPageParsing from '../../../../../functions/sendBitcoin/handl
 import getReceiveAddressAndContactForContactsPayment from '../../contacts/internalComponents/getReceiveAddressAndKindForPayment';
 import getClipboardText from '../../../../../functions/getClipboardText';
 
-export default function useSendInputSubmit() {
+export default function useSendInputSubmit(preSelectedPaymentMethod) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { cache } = useImageCache();
@@ -116,6 +116,7 @@ export default function useSendInputSubmit() {
           },
           selectedContact: matchedContact,
           retrivedContact,
+          preSelectedPaymentMethod,
         });
         return;
       }
@@ -144,9 +145,17 @@ export default function useSendInputSubmit() {
       navigate.navigate('ConfirmPaymentScreen', {
         btcAdress: parsed.btcAdress,
         fromPage: '',
+        preSelectedPaymentMethod,
       });
     },
-    [navigate, decodedAddedContacts, globalContactsInformation, cache, t],
+    [
+      navigate,
+      decodedAddedContacts,
+      globalContactsInformation,
+      cache,
+      t,
+      preSelectedPaymentMethod,
+    ],
   );
 
   const paste = useCallback(async () => {

@@ -90,6 +90,7 @@ export default function MobileMoneySendOverlay({
   navigate,
   setBackNav,
   setContentHeight,
+  preSelectedPaymentMethod,
 }) {
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
@@ -196,9 +197,17 @@ export default function MobileMoneySendOverlay({
       navigate.navigate('ConfirmPaymentScreen', {
         btcAdress: intlNumber,
         fromPage: '',
+        preSelectedPaymentMethod,
       });
     });
-  }, [selectedCountry, phoneNumber, navigate, t, handleBackPressFunction]);
+  }, [
+    selectedCountry,
+    phoneNumber,
+    navigate,
+    t,
+    handleBackPressFunction,
+    preSelectedPaymentMethod,
+  ]);
 
   const CountryItem = useCallback(
     ({ item }) => {

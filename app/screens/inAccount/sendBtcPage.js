@@ -25,8 +25,9 @@ import getClipboardText from '../../functions/getClipboardText';
 import CameraUnavailable from '../../functions/CustomElements/camera/cameraUnavailable';
 import ScannerView from '../../functions/CustomElements/camera/scannerView';
 
-export default function SendPaymentHome({ pageViewPage, from }) {
+export default function SendPaymentHome({ pageViewPage, from, route }) {
   const navigate = useNavigation();
+  const preSelectedPaymentMethod = route?.params?.preSelectedPaymentMethod;
   const isFocused = useIsFocused();
   const isPhotoeLibraryOpen = useRef(false);
   const {
@@ -104,14 +105,16 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         if (from === 'home')
           navigate.navigate('ConfirmPaymentScreen', {
             btcAdress: response.btcAdress,
+            preSelectedPaymentMethod,
           });
         else
           navigate.replace('ConfirmPaymentScreen', {
             btcAdress: response.btcAdress,
+            preSelectedPaymentMethod,
           });
       }, 100);
     },
-    [navigate, from],
+    [navigate, from, preSelectedPaymentMethod],
   );
 
   const handleBarCodeScanned = useCallback(

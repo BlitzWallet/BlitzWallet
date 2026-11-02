@@ -23,14 +23,20 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import { hasStringAsync } from 'expo-clipboard';
 import useSendInputSubmit from './hooks/useSendInputSubmit';
 
-export default function SendModal({ contentWidth, onPhonePress }) {
+export default function SendModal({
+  contentWidth,
+  onPhonePress,
+  preSelectedPaymentMethod,
+}) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = useTheme();
   const { bottomPadding } = useGlobalInsets();
   const [manualInput, setManualInput] = useState('');
   const [showPasteButton, setShowPasteButton] = useState(true);
-  const { submit, paste, inputError, clearError } = useSendInputSubmit();
+  const { submit, paste, inputError, clearError } = useSendInputSubmit(
+    preSelectedPaymentMethod,
+  );
   const pasteOpacity = useSharedValue(1);
 
   const checkClipboard = useCallback(async () => {
@@ -89,7 +95,9 @@ export default function SendModal({ contentWidth, onPhonePress }) {
         <View style={styles.buttons}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigate.navigate('SendBTC')}
+            onPress={() =>
+              navigate.navigate('SendBTC', { preSelectedPaymentMethod })
+            }
           >
             <ThemeIcon size={22} redesign iconName={'ScanLine'} />
             <ThemeText styles={styles.text} content={t('constants.scan')} />
