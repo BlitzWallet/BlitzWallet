@@ -16,10 +16,7 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { canUsePOSName } from '../../../../../../db';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
-import {
-  useGlobalThemeContext,
-  useTheme,
-} from '../../../../../../context-store/theme';
+import { useTheme } from '../../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
@@ -55,7 +52,6 @@ export default function PosSettingsPage() {
     useGlobalContextProvider();
   const { cache } = useImageCache();
   const { tokens } = useTheme();
-  const { mode } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
@@ -234,10 +230,7 @@ export default function PosSettingsPage() {
           />
           {nameError ? (
             <ThemeText
-              styles={[
-                styles.fieldNote,
-                { color: mode === 'dim' ? tokens.ink : tokens.danger },
-              ]}
+              styles={[styles.fieldNote, { color: tokens.danger }]}
               content={nameError}
             />
           ) : (
@@ -289,9 +282,7 @@ export default function PosSettingsPage() {
                       <ThemeIcon
                         redesign
                         size={16}
-                        colorOverride={
-                          mode === 'dim' ? tokens.ink : tokens.danger
-                        }
+                        colorOverride={tokens.danger}
                         iconName={'TriangleAlert'}
                       />
                     )

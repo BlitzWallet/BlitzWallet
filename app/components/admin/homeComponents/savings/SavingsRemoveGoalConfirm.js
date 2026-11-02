@@ -19,7 +19,7 @@ export default function SavingsRemoveGoalConfirm(props) {
   const { t } = useTranslation();
   const goalId = props?.route?.params?.goalId;
   const { savingsGoals, removeSavingsGoal } = useSavings();
-  const { mode, tokens } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [isRemoving, setIsRemoving] = useState(false);
@@ -64,12 +64,7 @@ export default function SavingsRemoveGoalConfirm(props) {
         <TopBar />
 
         <View style={styles.content}>
-          <Disc
-            icon={'Trash2'}
-            tone={mode !== 'dim' ? 'danger' : 'white'}
-            size={56}
-            iconSize={24}
-          />
+          <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
           <PageTitle
             titleStyles={styles.titleText}
             text={t('savings.removeGoalConfirm.title')}

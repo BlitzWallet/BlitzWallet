@@ -36,7 +36,6 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { nip19 } from 'nostr-tools';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
 
 const NIP5_DOMAIN = '@blitzwalletapp.com';
@@ -47,7 +46,6 @@ export default function Nip5VerificationPage() {
   const navigate = useNavigation();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { mode } = useGlobalThemeContext();
   const { tokens } = GetThemeColors();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -334,10 +332,7 @@ export default function Nip5VerificationPage() {
           )}
           {showPubkeyError && (
             <ThemeText
-              styles={[
-                styles.statusText,
-                { color: mode !== 'dim' ? tokens.danger : tokens.ink },
-              ]}
+              styles={[styles.statusText, { color: tokens.danger }]}
               content={t(parsedPubkey.error)}
             />
           )}
@@ -356,7 +351,7 @@ export default function Nip5VerificationPage() {
             {!!name && (
               <TextButton
                 textStyle={{
-                  color: mode !== 'dim' ? tokens.danger : tokens.ink,
+                  color: tokens.danger,
                 }}
                 disabled={isLoading}
                 onPress={removeNip5Information}

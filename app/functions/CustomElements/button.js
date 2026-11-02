@@ -33,7 +33,7 @@ export default function CustomButton({
         ? tokens.ground
         : tokens.surface
       : tone === 'danger'
-      ? tokens.danger
+      ? tokens.dangerFill
       : tokens.accent
     : null;
   const label = redesign

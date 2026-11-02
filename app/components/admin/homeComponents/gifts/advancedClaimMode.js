@@ -10,10 +10,7 @@ import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
-import {
-  useGlobalThemeContext,
-  useTheme,
-} from '../../../../../context-store/theme';
+import { useTheme } from '../../../../../context-store/theme';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 import Note from '../../../../functions/CustomElements/redesign/Note';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
@@ -22,7 +19,6 @@ export default function AdvancedGiftClaim() {
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
   const { width } = useWindowDimensions();
-  const { mode } = useGlobalThemeContext();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [giftNumber, setGiftNumber] = useState('');
   const currentGiftIndex = masterInfoObject?.currentDerivedGiftIndex || 1;
@@ -92,11 +88,7 @@ export default function AdvancedGiftClaim() {
             styles={[
               styles.hint,
               {
-                color: showError
-                  ? mode !== 'dim'
-                    ? tokens.danger
-                    : tokens.ink
-                  : tokens.muted,
+                color: showError ? tokens.danger : tokens.muted,
               },
             ]}
             content={

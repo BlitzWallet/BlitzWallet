@@ -6,14 +6,12 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function RemoveBudgetHalfModal({
   setContentHeight,
   handleBackPressFunction,
 }) {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
-  const { mode } = useGlobalThemeContext();
   const isMounted = useRef(true);
   const { t } = useTranslation();
 
@@ -34,12 +32,7 @@ export default function RemoveBudgetHalfModal({
 
   return (
     <View style={styles.container}>
-      <Disc
-        icon={'Trash2'}
-        tone={mode !== 'dim' ? 'danger' : 'regular'}
-        size={56}
-        iconSize={24}
-      />
+      <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
       <SheetHeader
         afterIcon
         title={t('analytics.budget.removeBudgetTitle')}
@@ -65,7 +58,7 @@ export default function RemoveBudgetHalfModal({
               textContent={removeButton}
               actionFunction={removeBudget}
               size={'regular'}
-              tone={mode !== 'dim' ? 'danger' : 'regular'}
+              tone="danger"
             />
           </>
         )}

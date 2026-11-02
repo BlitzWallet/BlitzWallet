@@ -11,10 +11,7 @@ import { useGlobalContextProvider } from '../../../../../../../context-store/con
 import { useNavigation } from '@react-navigation/native';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
 import { formatCurrency } from '../../../../../../functions/formatCurrency';
-import {
-  useGlobalThemeContext,
-  useTheme,
-} from '../../../../../../../context-store/theme';
+import { useTheme } from '../../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../../../functions/CustomElements/redesign/SearchField';
@@ -26,7 +23,6 @@ import IconButton from '../../../../../../functions/CustomElements/redesign/Icon
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { mode } = useGlobalThemeContext();
   const { tokens } = useTheme();
   const [posItemSearch, setPosItemSearch] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
@@ -80,7 +76,7 @@ export default function AddPOSItemsPage() {
             subStyle={[
               styles.sub,
               otherCurrency && {
-                color: mode === 'dim' ? tokens.ink : tokens.danger,
+                color: tokens.danger,
               },
             ]}
             trailing={

@@ -26,16 +26,12 @@ export default function UserInput({
   forceSheet,
   right,
 }) {
-  const { tokens, mode } = useTheme();
+  const { tokens } = useTheme();
   const inSheet = useInSheet();
   const [isFocused, setIsFocused] = useState(false);
   const [rightWidth, setRightWidth] = useState(0);
   const isOverLimit = value?.length >= maxLength;
-  const characterCountColor = isOverLimit
-    ? mode === 'dim'
-      ? tokens.muted
-      : tokens.danger
-    : tokens.muted;
+  const characterCountColor = isOverLimit ? tokens.danger : tokens.muted;
   const handleRightLayout = useCallback(layout => {
     setRightWidth(layout.nativeEvent.layout.width + 10);
   }, []);

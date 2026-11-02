@@ -137,7 +137,7 @@ export default function SettingsIndex() {
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { tokens, mode } = useTheme();
+  const { tokens } = useTheme();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -185,7 +185,7 @@ export default function SettingsIndex() {
   const renderRow = useCallback(
     row => {
       const value = getInlineValue(row);
-      const danger = !!row.isDestructive && mode !== 'dim';
+      const danger = !!row.isDestructive;
 
       return (
         <ListRow
@@ -226,7 +226,7 @@ export default function SettingsIndex() {
         />
       );
     },
-    [getInlineValue, handleSettingsRowPress, t, tokens.muted, mode],
+    [getInlineValue, handleSettingsRowPress, t, tokens.muted],
   );
 
   const renderSection = useCallback(

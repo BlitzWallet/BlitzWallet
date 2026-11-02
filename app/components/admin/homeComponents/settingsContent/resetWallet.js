@@ -16,7 +16,7 @@ export default function ResetPage() {
   const [wantsToReset, setWantsToReset] = useState(false);
   const [isWiping, setIsWiping] = useState(false);
   const isWipingRef = useRef(false);
-  const { tokens, mode } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -46,12 +46,7 @@ export default function ResetPage() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Disc
-          icon="Trash2"
-          size={56}
-          iconSize={24}
-          tone={mode !== 'dim' ? 'danger' : 'default'}
-        />
+        <Disc icon="Trash2" size={56} iconSize={24} tone="danger" />
         <ThemeText
           styles={[styles.title, { color: tokens.ink }]}
           content={t('settings.resetWallet.title')}
