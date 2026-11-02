@@ -189,7 +189,8 @@ export default function CustomHalfModal(props) {
     contentType === 'SelectContactRequestCurrency' ||
     contentType === 'displayCurrencySelect' ||
     contentType === 'ViewAllTokensHalfModal' ||
-    contentType === 'SelectLRC20Token';
+    contentType === 'SelectLRC20Token' ||
+    contentType === 'defaultTokenPicker';
   const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);

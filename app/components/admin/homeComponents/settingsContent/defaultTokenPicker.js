@@ -37,7 +37,7 @@ export default function DefaultTokenPicker({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...CENTER, paddingBottom: 24 },
+  container: { flex: 1, ...CENTER, paddingBottom: 24, marginTop: 20 },
   card: { marginTop: 4 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
 });
