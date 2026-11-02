@@ -2,7 +2,6 @@ import { Platform } from 'react-native';
 import {
   AddOrDeleteContactImage,
   CameraModal,
-  ContactsPageLongPressActions,
   EditReceivePaymentInformation,
   ErrorScreen,
   SendPaymentScreen,
@@ -258,10 +257,6 @@ const FADE_SCREENS = [
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
   { name: 'ErrorScreen', component: ErrorScreen },
   // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
-  {
-    name: 'ContactsPageLongPressActions',
-    component: ContactsPageLongPressActions,
-  },
   // {name: 'RestoreProofsPopup', component: RestoreProofsPopup},
   // {name: 'MigrateProofsPopup', component: MigrateProofsPopup},
   { name: 'AddOrDeleteContactImage', component: AddOrDeleteContactImage },

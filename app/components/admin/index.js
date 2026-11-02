@@ -2,7 +2,6 @@ import AddChatGPTCredits from './homeComponents/apps/chatGPT/addCreditsPage';
 import CameraModal from './homeComponents/cameraModal';
 import { ContactsPage, EditMyProfilePage } from './homeComponents/contacts';
 import AddOrDeleteContactImage from './homeComponents/contacts/internalComponents/addOrDeleteImageScreen';
-import ContactsPageLongPressActions from './homeComponents/contacts/internalComponents/contactsPageLongPressActions';
 import ErrorScreen from './homeComponents/errorScreen';
 import HomeLightning from './homeComponents/homeLightning';
 
@@ -20,7 +19,6 @@ export {
   ErrorScreen,
   AddChatGPTCredits,
   ContactsPage,
-  ContactsPageLongPressActions,
   AddOrDeleteContactImage,
   ConfirmSplitPayment,
 };
