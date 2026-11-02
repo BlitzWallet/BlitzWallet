@@ -91,111 +91,22 @@ import ReceiveInfoSheet from '../../components/admin/homeComponents/receiveBitco
 import AddressSheet from '../../components/admin/homeComponents/sendBitcoin/components/addressSheet';
 import VerifiedSheet from '../../components/admin/homeComponents/sendBitcoin/components/verifiedSheet';
 import ReceiveAssetSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveAssetSheet';
+import useContentWidth from './redesign/useContentWidth';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
 ]);
 
-// Flip to 'arrow' for the plain app-standard back arrow, or 'circle' for the
-// circular chevron that matches the reference screenshot.
-
-function HalfModalBackButton({
-  onPress,
-  backgroundOffset,
-  backgroundColor,
-  theme,
-  darkModeType,
-  btnType = 'circle',
-}) {
-  return (
-    <TouchableOpacity onPress={onPress} style={styles.backButton} hitSlop={10}>
-      <View
-        style={[
-          styles.backButtonCircle,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
-        <ThemeIcon
-          iconName={btnType === 'circle' ? 'ChevronLeft' : 'X'}
-          size={22}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { screenDimensions } = useAppStatus();
   const navigation = useNavigation();
+  const contentWidth = useContentWidth();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
-  const isRedesignSheet =
-    contentType === 'selectSwapNetwork' ||
-    contentType === 'stablecoinAssetPicker' ||
-    contentType === 'rootstockSwapInfo' ||
-    contentType === 'contactUs' ||
-    contentType === 'exportLeavesProgress' ||
-    contentType === 'btcMapFilter' ||
-    contentType === 'btcMapList' ||
-    contentType === 'btcMapMerchant' ||
-    contentType === 'onlineListingsFilter' ||
-    contentType === 'nwcBudgetPeriod' ||
-    contentType === 'nwcConnectionString' ||
-    contentType === 'nwcAuthApproval' ||
-    contentType === 'lnurlReceiveCurrencySelect' ||
-    contentType === 'ProfilePhotoModal' ||
-    contentType === 'socialLinks' ||
-    contentType === 'closePoolConfirmation' ||
-    contentType === 'createPoolFlow' ||
-    contentType === 'contributeToPool' ||
-    contentType === 'ExportOrFilterHalfModal' ||
-    contentType === 'txFilter' ||
-    contentType === 'expandedTx' ||
-    contentType === 'RemoveBudgetHalfModal' ||
-    contentType === 'walletReset' ||
-    contentType === 'addMoneyToSavings' ||
-    contentType === 'withdrawFromSavings' ||
-    contentType === 'SelectPaymentMethod' ||
-    contentType === 'sendAddress' ||
-    contentType === 'brantaVerified' ||
-    contentType === 'nearBudgetLimitWarning' ||
-    contentType === 'addGiftQuantity' ||
-    contentType === 'ClaimGiftScreen' ||
-    contentType === 'ClaimGiftHomeHalfModal' ||
-    contentType === 'giftQrCode' ||
-    contentType === 'createAccumulationAddress' ||
-    contentType === 'accumulationAddressSelect' ||
-    contentType === 'addPOSItemsHalfModal' ||
-    contentType === 'posCurrencySelect' ||
-    contentType === 'posTipsDetail' ||
-    contentType === 'swapFlow' ||
-    contentType === 'accountTransfer' ||
-    contentType === 'LNURLAccountMangement' ||
-    contentType === 'childMatchCodeConfirmation' ||
-    contentType === 'chatGPT' ||
-    contentType === 'switchGenerativeAiModel' ||
-    contentType === 'confirmSMS' ||
-    contentType === 'confirmSMSReceive' ||
-    contentType === 'viewSMSCode' ||
-    contentType === 'addContacts' ||
-    contentType === 'expandedContactMessage' ||
-    contentType === 'customInputText' ||
-    contentType === 'receiveInfo' ||
-    contentType === 'receiveAsset' ||
-    contentType === 'SelectContactRequestCurrency' ||
-    contentType === 'displayCurrencySelect' ||
-    contentType === 'ViewAllTokensHalfModal' ||
-    contentType === 'SelectLRC20Token' ||
-    contentType === 'defaultTokenPicker';
-  const { backgroundColor, backgroundOffset, transparentOveraly, tokens } =
-    GetThemeColors();
+  const { transparentOveraly, tokens } = GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
-  // { onPress, title } when the active content registers a back step, else null
-  const [backNav, setBackNav] = useState(null);
+
   // Content sets this while it must not be swiped or tapped away (a payment
   // in flight). Its own buttons can still close the sheet.
   const [dismissLocked, setDismissLocked] = useState(false);
@@ -288,21 +199,6 @@ export default function CustomHalfModal(props) {
 
   const renderContent = () => {
     switch (contentType) {
-      // case 'sendOptions':
-      //   return (
-      //     <HalfModalSendOptions
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setIsKeyboardActive={setIsKeyboardActive}
-      //       isKeyboardActive={isKeyboardActive}
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       slideHeight={slideHeight}
-      //       isScreenActive={isScreenActive}
-      //       setBackNav={setBackNav}
-      //       setContentHeight={setContentHeight}
-      //       selectedPaymentMethod={props.route.params?.selectedPaymentMethod}
-      //     />
-      //   );
       case 'receiveInfo':
         return (
           <ReceiveInfoSheet
@@ -321,21 +217,6 @@ export default function CustomHalfModal(props) {
             isHalfModal
           />
         );
-      // case 'receiveOptions':
-      //   return (
-      //     <HalfModalReceiveOptions
-      //       setIsKeyboardActive={setIsKeyboardActive}
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       slideHeight={slideHeight}
-      //       scrollPosition={props.route.params?.scrollPosition}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setContentHeight={setContentHeight}
-      //       isScreenActive={isScreenActive}
-      //       setBackNav={setBackNav}
-      //       selectedRequestMethod={props.route.params?.selectedRequestMethod}
-      //     />
-      //   );
       case 'confirmSMS':
         return (
           <ConfirmSMSPayment
@@ -368,15 +249,6 @@ export default function CustomHalfModal(props) {
           />
         );
 
-      // case 'exportTransactions':
-      //   return (
-      //     <ConfirmExportPayments
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       startExport={props.route.params?.startExport}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //     />
-      //   );
       case 'switchGenerativeAiModel':
         return (
           <SwitchGenerativeAIModel
@@ -408,9 +280,6 @@ export default function CustomHalfModal(props) {
           />
         );
 
-      // case 'myProfileQRcode':
-      //   return <MyProfileQRCode theme={theme} />;
-
       case 'expandedContactMessage':
         return (
           <ExpandedMessageHalfModal
@@ -421,13 +290,6 @@ export default function CustomHalfModal(props) {
             timestamp={props.route.params?.timestamp}
           />
         );
-      // case 'customQrCode':
-      //   return (
-      //     <CustomQrCode
-      //       data={props.route.params?.data}
-      //       setContentHeight={setContentHeight}
-      //     />
-      //   );
       case 'addPOSItemsHalfModal':
         return (
           <AddPOSItemHalfModal
@@ -457,18 +319,7 @@ export default function CustomHalfModal(props) {
             setDismissLocked={setDismissLocked}
           />
         );
-      // case 'editLNURLOnReceive':
-      //   return (
-      //     <EditLNURLContactOnReceivePage
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       slideHeight={slideHeight}
-      //       isKeyboardActive={isKeyboardActive}
-      //       setIsKeyboardActive={setIsKeyboardActive}
-      //       setContentHeight={setContentHeight}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //     />
-      //   );
+
       case 'customInputText':
         return (
           <CustomInputHalfModal
@@ -482,43 +333,9 @@ export default function CustomHalfModal(props) {
             returnLocation={props?.route?.params?.returnLocation}
             passedParams={props?.route?.params?.passedParams}
             forceUSD={props?.route?.params?.forceUSD}
-            setBackNav={setBackNav}
           />
         );
-      // case 'chooseLNURLCopyFormat':
-      //   return <ChooseLNURLCopyFormat />;
-      // case 'LRC20AssetSelectorHalfModal':
-      //   return (
-      //     <LRC20AssetSelectorHalfModal
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //     />
-      //   );
-      // case 'LRC20TokenInformation':
-      //   return (
-      //     <LRC20TokenInformation
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       tokenIdentifier={props?.route?.params?.tokenIdentifier}
-      //       slideHeight={slideHeight}
-      //       setContentHeight={setContentHeight}
-      //     />
-      //   );
 
-      // case 'SelectPaymentType':
-      //   return (
-      //     <SelectPaymentType
-      //       theme={theme}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       darkModeType={darkModeType}
-      //       slideHeight={slideHeight}
-      //       setContentHeight={setContentHeight}
-      //       selectedContact={props?.route?.params?.selectedContact}
-      //       imageData={props?.route?.params?.imageData}
-      //       paymentType={props?.route?.params?.paymentType}
-      //     />
-      //   );
       case 'SelectContactRequestCurrency':
         return (
           <SelectContactRequestCurrency
@@ -581,26 +398,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
-      // case 'SelectReceiveAsset':
-      //   return (
-      //     <SelectReceiveAsset
-      //       endReceiveType={props?.route?.params?.endReceiveType}
-      //       selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //     />
-      //   );
-      // case 'AddMessageReceivePage':
-      //   return (
-      //     <AddReceiveMessageHalfModal
-      //       memo={props?.route?.params?.memo}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setContentHeight={setContentHeight}
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //     />
-      //   );
+
       case 'sendAddress':
         return (
           <AddressSheet
@@ -654,7 +452,6 @@ export default function CustomHalfModal(props) {
             url={props?.route?.params?.url}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
-            setBackNav={setBackNav}
           />
         );
       case 'nwcBudgetPeriod':
@@ -682,7 +479,6 @@ export default function CustomHalfModal(props) {
             giftDenomination={props?.route?.params?.giftDenomination}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
-            setBackNav={setBackNav}
           />
         );
       case 'addMoneyToSavings':
@@ -709,20 +505,12 @@ export default function CustomHalfModal(props) {
             />
           </SavingsProvider>
         );
-      // case 'howSavingsWorks':
-      //   return (
-      //     <HowSavingsWorks
-      //       currentBalance={props?.route?.params?.currentBalance}
-      //       setContentHeight={setContentHeight}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //     />
-      //   );
+
       case 'ViewAllTokensHalfModal':
         return (
           <ViewAllTokensHalfModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
-            setBackNav={setBackNav}
             token={props?.route?.params?.token}
           />
         );
@@ -744,15 +532,7 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
-      // case 'txFilter':
-      //   return (
-      //     <TxFilterHalfModal
-      //       currentFilter={props?.route?.params?.currentFilter}
-      //       onSelectFilter={props?.route?.params?.onSelectFilter}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setContentHeight={setContentHeight}
-      //     />
-      //   );
+
       case 'onlineListingsFilter':
         return (
           <OnlineListingsFilterHalfModal
@@ -764,15 +544,7 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
           />
         );
-      // case 'payLinkCurrencySelect':
-      //   return (
-      //     <PayLinkCurrencySelect
-      //       currentCurrency={props?.route?.params?.currentCurrency}
-      //       onSelectCurrency={props?.route?.params?.onSelectCurrency}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setContentHeight={setContentHeight}
-      //     />
-      //   );
+
       case 'displayCurrencySelect':
         return (
           <DisplayCurrencySelect
@@ -864,39 +636,6 @@ export default function CustomHalfModal(props) {
             placeCount={props?.route?.params?.placeCount}
           />
         );
-      // case 'depositFunds':
-      //   return (
-      //     <HalfModalDepositFunds
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setContentHeight={setContentHeight}
-      //       setBackNav={setBackNav}
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       showLightning={props.route.params?.showLightning ?? false}
-      //     />
-      //   );
-      // case 'receiveMethodOptions':
-      //   return (
-      //     <HalfModalDepositFunds
-      //       handleBackPressFunction={handleBackPressFunction}
-      //       setContentHeight={setContentHeight}
-      //       setBackNav={setBackNav}
-      //       theme={theme}
-      //       darkModeType={darkModeType}
-      //       showLightning={true}
-      //     />
-      //   );
-      // case 'shareInvoicePaylink':
-      //   return (
-      //     <ShareInvoicePayLinkModal
-      //       rawAmount={props.route.params?.rawAmount}
-      //       currencyType={props.route.params?.currencyType}
-      //       onCreated={props.route.params?.onCreated}
-      //       setContentHeight={setContentHeight}
-      //       sharePayLinkCache={props.route.params?.sharePayLinkCache}
-      //       handleBackPressFunction={handleBackPressFunction}
-      //     />
-      //   );
       case 'rootstockSwapInfo':
         return (
           <RootstockSwapInfo
@@ -1047,7 +786,6 @@ export default function CustomHalfModal(props) {
         style={[
           styles.contentContainer,
           animatedStyle,
-          isRedesignSheet && styles.redesignContentContainer,
           {
             backgroundColor: 'black',
             marginTop: topPadding,
@@ -1058,91 +796,31 @@ export default function CustomHalfModal(props) {
         <View
           style={{
             flex: 1,
-            backgroundColor: isRedesignSheet
-              ? tokens.surface
-              : theme && darkModeType
-              ? backgroundOffset
-              : backgroundColor,
+            backgroundColor: tokens.surface,
             ...(Platform.OS === 'web' && {
               paddingLeft: leftPadding,
               paddingRight: rightPadding,
             }),
-            paddingBottom: isRedesignSheet
-              ? 34
-              : contentType === 'switchGenerativeAiModel' ||
-                contentType === 'addPOSItemsHalfModal' ||
-                // contentType === 'editLNURLOnReceive' ||
-                contentType === 'addContacts' ||
-                contentType === 'SelectLRC20Token' ||
-                contentType === 'sendOptions' ||
-                contentType === 'receiveOptions' ||
-                contentType === 'ClaimGiftHomeHalfModal'
-              ? isKeyboardActive
-                ? CONTENT_KEYBOARD_OFFSET
-                : contentType === 'switchGenerativeAiModel' ||
-                  contentType === 'addContacts' ||
-                  contentType === 'sendOptions' ||
-                  contentType === 'SelectLRC20Token'
-                ? 0
-                : contentType === 'receiveOptions'
-                ? 0
-                : bottomPadding
-              : contentType === 'onlineListingsFilter' ||
-                contentType === 'depositFunds' ||
-                contentType === 'receiveMethodOptions' ||
-                contentType === 'createAccumulationAddress'
-              ? 0
-              : bottomPadding,
+            paddingBottom: bottomPadding,
           }}
         >
           <GestureDetector gesture={panGesture}>
             <View style={styles.topBarContainer}>
-              {backNav ? (
-                <View style={styles.headerRow}>
-                  {typeof backNav.onPress === 'function' && (
-                    <HalfModalBackButton
-                      onPress={backNav.onPress}
-                      backgroundOffset={backgroundOffset}
-                      btnType={backNav.btnType}
-                      theme={theme}
-                      darkModeType={darkModeType}
-                      backgroundColor={backgroundColor}
-                    />
-                  )}
-                  {!!backNav.title && (
-                    <ThemeText
-                      CustomNumberOfLines={1}
-                      styles={styles.headerTitle}
-                      content={backNav.title}
-                    />
-                  )}
-                  {!!backNav.rightElement && (
-                    <View style={styles.headerRight}>
-                      {backNav.rightElement}
-                    </View>
-                  )}
-                </View>
-              ) : (
-                <View
-                  style={[
-                    styles.topBar,
-                    isRedesignSheet && styles.redesignGrab,
-                    {
-                      backgroundColor:
-                        isRedesignSheet || !(theme && darkModeType)
-                          ? tokens.grab
-                          : backgroundColor,
-                    },
-                  ]}
-                />
-              )}
+              <View
+                style={[
+                  styles.topBar,
+                  {
+                    backgroundColor: tokens.grab,
+                  },
+                ]}
+              />
             </View>
           </GestureDetector>
-          {isRedesignSheet ? (
-            <SheetSurface>{renderContent()}</SheetSurface>
-          ) : (
-            renderContent()
-          )}
+          <SheetSurface>
+            <View style={[styles.gutter, { width: contentWidth }]}>
+              {renderContent()}
+            </View>
+          </SheetSurface>
         </View>
       </Animated.View>
     </KeyboardAvoidingView>
@@ -1157,6 +835,11 @@ const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
   },
+  // The one side inset for every sheet; content fills it and sets no width.
+  gutter: {
+    flex: 1,
+    ...CENTER,
+  },
   topBarContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -1164,67 +847,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  redesignGrab: {
+
+  topBar: {
     width: 36,
     height: 5,
     borderRadius: 999,
     marginTop: 0,
     marginBottom: 0,
   },
-  topBar: {
-    width: 120,
-    height: 8,
-    marginTop: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  headerRow: {
-    width: '100%',
-    minHeight: 36,
-    marginTop: 10,
-    marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-    textAlign: 'center',
-    paddingHorizontal: 56,
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    zIndex: 3,
-  },
-  backButtonCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerRight: {
-    position: 'absolute',
-    right: 20,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    zIndex: 3,
-  },
+
   contentContainer: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     flexShrink: 1,
     overflow: 'hidden',
   },
-  redesignContentContainer: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-  },
+
   webContentConteiner: {
     width: '100%',
     maxWidth: MAX_WEB_CONTENT_WIDTH,
