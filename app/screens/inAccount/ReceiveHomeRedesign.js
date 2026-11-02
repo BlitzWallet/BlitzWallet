@@ -86,7 +86,9 @@ export default function ReceiveHomeRedesign() {
             <IconButton
               icon="QrCode"
               label="receive.showMyQr"
-              onPress={() => navigate.navigate('ShowProfileQr')}
+              onPress={() =>
+                navigate.navigate('ShowProfileQr', { showButton: false })
+              }
             />
           }
         />

@@ -57,7 +57,8 @@ export function ProfileQrBadge({ size }) {
 
 // D158: one code (your Lightning address, OQ-40) on a white card with your
 // name. Tap copies; Print + Share sit in the top bar.
-export default function ShowProfileQr() {
+export default function ShowProfileQr(props) {
+  const { showButton = true } = props?.route?.params || {};
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -233,18 +234,19 @@ export default function ShowProfileQr() {
             </QrCard>
           </ViewShot>
         </View>
-
-        <CustomButton
-          size="regular"
-          icon="ScanLine"
-          textContent={t('contacts.showProfileQr.scanProfile')}
-          actionFunction={() =>
-            navigate.navigate('CameraModal', {
-              updateBitcoinAdressFunc: handleProfileScan,
-              fromPage: 'ShowProfileQr',
-            })
-          }
-        />
+        {showButton && (
+          <CustomButton
+            size="regular"
+            icon="ScanLine"
+            textContent={t('contacts.showProfileQr.scanProfile')}
+            actionFunction={() =>
+              navigate.navigate('CameraModal', {
+                updateBitcoinAdressFunc: handleProfileScan,
+                fromPage: 'ShowProfileQr',
+              })
+            }
+          />
+        )}
       </View>
     </GlobalThemeView>
   );
