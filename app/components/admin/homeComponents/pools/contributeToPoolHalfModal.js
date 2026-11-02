@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -16,6 +14,7 @@ import PresetAmountGrid from './presetAmountGrid';
 import PoolAmountKeypad from './components/poolAmountKeypad';
 import CustomButton from '../../../../functions/CustomElements/button';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import Note from '../../../../functions/CustomElements/redesign/Note';
@@ -284,10 +283,7 @@ export default function ContributeToPoolHalfModal({
         direction={direction}
         exitsBack={direction === -1}
       >
-        <ThemeText
-          styles={styles.selectTitle}
-          content={t('wallet.pools.chooseContributionAmount')}
-        />
+        <SheetHeader first title={t('wallet.pools.chooseContributionAmount')} />
 
         <PresetAmountGrid
           onSelectPreset={setSelectedAmountSats}
@@ -425,16 +421,7 @@ export default function ContributeToPoolHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
-  },
-  selectTitle: {
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 12,
-    marginBottom: 16,
-    includeFontPadding: false,
   },
   bottomButton: {
     width: '100%',

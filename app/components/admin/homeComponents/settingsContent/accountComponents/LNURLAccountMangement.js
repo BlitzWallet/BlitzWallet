@@ -8,17 +8,12 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { copyToClipboard } from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
-import {
-  CENTER,
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-} from '../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import QrCard from '../../../../../functions/CustomElements/redesign/QrCard';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
-import { SheetTitle } from '../../savings/savingsSheetParts';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { shareMessage } from '../../../../../functions/handleShare';
@@ -58,7 +53,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
 
   return (
     <View style={styles.container}>
-      <SheetTitle
+      <SheetHeader
         title={t(
           'settings.accountComponents.editAccountPage.lightningAddressLabel',
         )}
@@ -118,13 +113,10 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
   scrollContent: {
     flexGrow: 1,
     alignItems: 'center',
-    paddingTop: 20,
   },
   addressRow: {
     flexDirection: 'row',

@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import {
-  APPROXIMATE_SYMBOL,
-  CENTER,
-  USDB_TOKEN_ID,
-} from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { APPROXIMATE_SYMBOL, USDB_TOKEN_ID } from '../../../../constants';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {
   isSendingPayingEventEmiiter,
@@ -1058,8 +1053,6 @@ export default function SwapFlowHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
 });

@@ -11,22 +11,6 @@ import { useTheme } from '../../../../../context-store/theme';
 // Shared pieces of the Add money and Withdraw sheets (SavingsMove.dc.html,
 // SavingsSheets.dc.html).
 
-export function SheetTitle({ title, sub, first = false }) {
-  const { tokens } = useTheme();
-  return (
-    <View style={first ? styles.titleFirst : styles.titleAfterBack}>
-      <ThemeText styles={styles.title} content={title} />
-      {!!sub && (
-        <ThemeText
-          variant={'body'}
-          styles={[styles.sub, { color: tokens.muted }]}
-          content={sub}
-        />
-      )}
-    </View>
-  );
-}
-
 export function EmojiDisc({ emoji }) {
   const { tokens } = useTheme();
   return (
@@ -125,15 +109,6 @@ export function SheetResult({ label, amountProps, line, buttonText, onDone }) {
 }
 
 const styles = StyleSheet.create({
-  titleFirst: { marginTop: 20 },
-  titleAfterBack: { marginTop: 4 },
-  title: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-  },
-  sub: { marginTop: 4 },
   disc: {
     width: 40,
     height: 40,

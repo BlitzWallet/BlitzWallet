@@ -1,10 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { deleteGift, getGiftCard } from '../../../../../db';
 import { parseGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +11,6 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   FONT,
-  MAX_WEB_CONTENT_WIDTH,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
   WEBSITE_REGEX,
@@ -63,8 +57,6 @@ export default function ClaimGiftScreen({
   setContentHeight,
   setDismissLocked,
 }) {
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
@@ -588,7 +580,7 @@ export default function ClaimGiftScreen({
     : giftDetails.description;
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
+    <View style={styles.container}>
       {page === 'loading' && (
         <FullLoadingScreen
           showText={!isConnected}
@@ -684,7 +676,7 @@ export default function ClaimGiftScreen({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignSelf: 'center' },
+  container: { flex: 1 },
   center: { marginTop: 24, alignItems: 'center' },
   note: { marginTop: 14, textAlign: 'center' },
   amount: {

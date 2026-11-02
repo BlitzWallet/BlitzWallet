@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
-import { MAX_WEB_CONTENT_WIDTH, WEBSITE_REGEX } from '../../../../constants';
+import { View, StyleSheet } from 'react-native';
+import { WEBSITE_REGEX } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
@@ -13,7 +13,7 @@ import AnimatedStep, {
 } from '../../../../functions/CustomElements/redesign/AnimatedStep';
 import getClipboardText from '../../../../functions/getClipboardText';
 import ClaimGiftScreen from './claimGiftScreen';
-import { SheetTitle } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { hasStringAsync } from 'expo-clipboard';
 
 export default function ClaimGiftHomeHalfModal({
@@ -22,8 +22,6 @@ export default function ClaimGiftHomeHalfModal({
   handleBackPressFunction,
   setDismissLocked,
 }) {
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const navigate = useNavigation();
   const [showPasteButton, setShowPasteButton] = useState(true);
 
@@ -83,9 +81,9 @@ export default function ClaimGiftHomeHalfModal({
     didSave;
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
+    <View style={styles.container}>
       <AnimatedStep active={!showClaim} direction={1} exitsBack={false}>
-        <SheetTitle
+        <SheetHeader
           first
           title={t('screens.inAccount.giftPages.claimHome.header')}
           sub={t('screens.inAccount.giftPages.claimHome.desc')}
@@ -158,12 +156,11 @@ export default function ClaimGiftHomeHalfModal({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignSelf: 'center' },
+  container: { flex: 1 },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 20,
   },
   input: { flex: 1 },
   button: { width: '100%', marginTop: 'auto' },

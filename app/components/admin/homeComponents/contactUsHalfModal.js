@@ -93,7 +93,6 @@ export default function ContactUsHalfModal({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
     paddingTop: 8,
   },
 });

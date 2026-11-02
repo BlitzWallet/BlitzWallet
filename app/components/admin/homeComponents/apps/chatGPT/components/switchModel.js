@@ -3,9 +3,9 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { getAIModels } from '../contants/modelCache';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
 import { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '../../../../../../../context-store/theme';
+import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
 import SearchField from '../../../../../../functions/CustomElements/redesign/SearchField';
 import ListCard, {
   ListDivider,
@@ -69,20 +69,15 @@ export default function SwitchGenerativeAIModel({
 
   return (
     <View style={styles.globalContainer}>
-      <ThemeText
-        styles={styles.chooseModelText}
-        content={t('apps.chatGPT.switchModel.chooseModel')}
+      <SheetHeader first title={t('apps.chatGPT.switchModel.chooseModel')} />
+      <SearchField
+        pill={true}
+        value={modelSearch}
+        onChangeText={setModelSearch}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
+        placeholder={t('apps.chatGPT.switchModel.searchPlaceholder')}
       />
-      <View style={styles.search}>
-        <SearchField
-          pill={true}
-          value={modelSearch}
-          onChangeText={setModelSearch}
-          onFocus={() => setIsKeyboardActive(true)}
-          onBlur={() => setIsKeyboardActive(false)}
-          placeholder={t('apps.chatGPT.switchModel.searchPlaceholder')}
-        />
-      </View>
       {filteredList.length ? (
         <ListCard style={styles.list}>
           <FlatList
@@ -108,17 +103,6 @@ export default function SwitchGenerativeAIModel({
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-  },
-  chooseModelText: {
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 20,
-    includeFontPadding: false,
-  },
-  search: {
-    marginTop: 16,
   },
   list: {
     marginTop: 12,

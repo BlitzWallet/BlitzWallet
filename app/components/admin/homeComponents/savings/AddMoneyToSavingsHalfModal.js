@@ -10,7 +10,7 @@ import {
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { APPROXIMATE_SYMBOL, CENTER } from '../../../../constants';
+import { APPROXIMATE_SYMBOL } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -20,7 +20,6 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import {
   BTC_ASSET_ADDRESS,
   dollarsToSats,
@@ -47,8 +46,8 @@ import {
   EmojiDisc,
   SheetEmpty,
   SheetResult,
-  SheetTitle,
 } from './savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 const MIN_STEP_MS = 800;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -371,7 +370,7 @@ export default function AddMoneyToSavingsHalfModal({
   // ─── chooseGoal ───────────────────────────────────────────────────────────
   const renderChooseGoal = () => (
     <>
-      <SheetTitle title={t('savings.addMoney.chooseGoalTitle')} first={true} />
+      <SheetHeader title={t('savings.addMoney.chooseGoalTitle')} first={true} />
       <CustomScrollView
         style={styles.list}
         showsVerticalScrollIndicator={false}
@@ -453,7 +452,7 @@ export default function AddMoneyToSavingsHalfModal({
     return (
       <>
         {step.length > 1 && backBar}
-        <SheetTitle
+        <SheetHeader
           title={t('savings.addMoney.sourceTitle')}
           sub={t('savings.addMoney.addingTo', {
             destination: destinationLabel,
@@ -635,7 +634,7 @@ export default function AddMoneyToSavingsHalfModal({
     return (
       <>
         {backBar}
-        <SheetTitle
+        <SheetHeader
           title={t('savings.addMoney.confirmTitle')}
           sub={t('savings.addMoney.pageDescription', {
             context: isGeneralGoal ? 'general' : undefined,
@@ -780,15 +779,12 @@ export default function AddMoneyToSavingsHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   backBar: {
     marginTop: 8,
   },
   list: {
-    marginTop: 12,
     flexGrow: 0,
   },
   rowTitle: {

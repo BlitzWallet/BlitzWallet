@@ -38,7 +38,8 @@ import EmptyState from '../../../../../functions/CustomElements/redesign/EmptySt
 import StepProgress from '../../../../../functions/CustomElements/redesign/StepProgress';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import AnimatedStep from '../../../../../functions/CustomElements/redesign/AnimatedStep';
-import { SheetResult, SheetTitle } from '../../savings/savingsSheetParts';
+import { SheetResult } from '../../savings/savingsSheetParts';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
 import {
@@ -56,11 +57,8 @@ import {
   optimisticallyUpdateBalanceSnapshot,
 } from '../../../../../functions/spark/balanceSnapshots';
 import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
-import { CENTER, FONT, SATSPERBITCOIN } from '../../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
+import { FONT, SATSPERBITCOIN } from '../../../../../constants';
+import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
@@ -617,7 +615,7 @@ export default function AccountTransferHalfModal({
   if (!candidates.length) {
     return (
       <View style={styles.container}>
-        <SheetTitle title={sheetTitle} first={true} />
+        <SheetHeader title={sheetTitle} first={true} />
         <View style={styles.empty}>
           <EmptyState
             icon="Wallet"
@@ -663,7 +661,7 @@ export default function AccountTransferHalfModal({
         direction={direction}
         exitsBack={direction === -1}
       >
-        <SheetTitle
+        <SheetHeader
           title={sheetTitle}
           sub={t(
             isAdd
@@ -896,12 +894,9 @@ export default function AccountTransferHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   accountList: {
-    marginTop: 12,
     flexGrow: 0,
   },
   accountListContent: {

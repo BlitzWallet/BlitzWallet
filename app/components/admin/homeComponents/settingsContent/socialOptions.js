@@ -7,7 +7,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { useTranslation } from 'react-i18next';
-import { FONT } from '../../../../constants';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 // D280 footer (Q19-4): three muted text buttons, same URLs and openers.
 export const NAVITEMS = [
@@ -73,15 +73,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   linkText: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
-  sheet: { paddingHorizontal: 20 },
-  sheetTitle: {
-    marginTop: 18,
-    marginBottom: 14,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-  },
   sheetRowTitle: { fontSize: 16, lineHeight: 22 },
 });
 
@@ -103,16 +94,12 @@ export function SocialLinksSheet({
 
   return (
     <View
-      style={styles.sheet}
       onLayout={e =>
         // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
         setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
       }
     >
-      <ThemeText
-        styles={styles.sheetTitle}
-        content={t('settings.index.social')}
-      />
+      <SheetHeader first title={t('settings.index.social')} />
       <ListCard>
         {NAVITEMS.map(item => (
           <ListRow

@@ -298,11 +298,15 @@ jest.mock('../app/functions/CustomElements/redesign/Disc', () => ({
   default: () => null,
 }));
 
+jest.mock('../app/functions/CustomElements/redesign/SheetHeader', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 jest.mock('../app/components/admin/homeComponents/savings/savingsSheetParts', () => {
   const MockReact = require('react');
   const RN = require('react-native');
   return {
-    SheetTitle: () => null,
     SheetResult: ({ onDone }) =>
       MockReact.createElement(RN.TouchableOpacity, {
         testID: 'transfer-confirm-button',

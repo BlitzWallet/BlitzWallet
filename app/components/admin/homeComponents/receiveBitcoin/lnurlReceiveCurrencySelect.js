@@ -14,7 +14,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import Note from '../../../../functions/CustomElements/redesign/Note';
-import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 // Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
 const SHEET_CHROME = 49;
@@ -88,12 +88,12 @@ export default function LnurlReceiveCurrencySelect({
 
   return (
     <View
-      style={styles.innerContainer}
       onLayout={e =>
         setContentHeight(Math.round(e.nativeEvent.layout.height) + SHEET_CHROME)
       }
     >
-      <PageHeader
+      <SheetHeader
+        first
         title={t('contacts.remotePaymentCurrencySelect.title')}
         sub={t('contacts.remotePaymentCurrencySelect.description')}
       />
@@ -163,9 +163,6 @@ export default function LnurlReceiveCurrencySelect({
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
-    paddingHorizontal: 20,
-  },
   iconContainer: {
     width: 44,
     height: 44,

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../hooks/themeColors';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { FONT } from '../../constants';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
   CATEGORY_META,
@@ -18,7 +18,7 @@ import {
   distanceMeters,
   formatDistance,
 } from '../../functions/btcMap/distance';
-import PageHeader from '../../functions/CustomElements/redesign/PageHeader';
+import SheetHeader from '../../functions/CustomElements/redesign/SheetHeader';
 import ListCard, {
   ListDivider,
 } from '../../functions/CustomElements/redesign/ListCard';
@@ -39,8 +39,6 @@ export default function BTCMapListContent({
   const { screenDimensions } = useAppStatus();
   const { tokens } = GetThemeColors();
   const { getPlacesInViewport } = useBTCMap();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [places, setPlaces] = useState(null);
 
@@ -134,10 +132,10 @@ export default function BTCMapListContent({
   }
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
-      <PageHeader
+    <View style={styles.container}>
+      <SheetHeader
+        first
         title={t('screens.btcMap.map.placesHere', { count: placeCount })}
-        showSub={false}
       />
 
       <ListCard style={styles.card} dividerInset={72}>
@@ -173,7 +171,6 @@ export default function BTCMapListContent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    ...CENTER,
   },
   card: { flexShrink: 1 },
   emptyList: {

@@ -1,18 +1,11 @@
 import { useCallback, useState } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import {
-  CENTER,
   FONT,
   GIFTS_QUANTITY_PRESETS,
   MAX_GIFT_QUANTITY,
   MAX_GIFTS,
-  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +23,7 @@ import AnimatedStep, {
   growThenStep,
   useStepSheetHeight,
 } from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import { formatGiftAmount } from './giftDisplay';
 
@@ -51,8 +45,6 @@ export default function AddGiftQuantityHalfModal({
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { swapLimits, poolInfoRef } = useFlashnet();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [step, setStep] = useState('select');
   const [customValue, setCustomValue] = useState('');
@@ -198,15 +190,12 @@ export default function AddGiftQuantityHalfModal({
   const isValid = customQty >= 1 && customQty <= MAX_GIFT_QUANTITY;
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
+    <View style={styles.container}>
       <AnimatedStep active={step === 'select'} direction={direction}>
-        <ThemeText
-          styles={styles.title}
-          content={t('screens.inAccount.giftPages.createGift.quantityHeader')}
-        />
-        <ThemeText
-          styles={[styles.sub, { color: tokens.muted }]}
-          content={t('screens.inAccount.giftPages.createGift.quantitySub', {
+        <SheetHeader
+          first
+          title={t('screens.inAccount.giftPages.createGift.quantityHeader')}
+          sub={t('screens.inAccount.giftPages.createGift.quantitySub', {
             amount: perGiftAmount,
             max: MAX_GIFT_QUANTITY,
           })}
@@ -291,24 +280,8 @@ export default function AddGiftQuantityHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    ...CENTER,
-  },
-  title: {
-    marginTop: 20,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-  },
-  sub: {
-    marginTop: 4,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
-    includeFontPadding: false,
   },
   grid: {
-    marginTop: 20,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,

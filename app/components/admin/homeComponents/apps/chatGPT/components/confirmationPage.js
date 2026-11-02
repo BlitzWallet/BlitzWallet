@@ -1,8 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
-import { CENTER } from '../../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
+import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
 import CustomNumberKeyboard from '../../../../../../functions/CustomElements/customNumberKeyboard';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import SwipeButtonNew from '../../../../../../functions/CustomElements/sliderButton';
@@ -312,14 +311,10 @@ export default function ConfirmChatGPTPage({
         direction={direction}
         exitsBack={direction === -1}
       >
-        <ThemeText
-          styles={styles.selectTitle}
-          content={t('apps.chatGPT.confirmationPage.chooseAmount')}
-        />
-        <ThemeText
-          variant="body"
-          styles={{ color: tokens.muted }}
-          content={t('apps.chatGPT.confirmationPage.chooseAmountSub')}
+        <SheetHeader
+          first
+          title={t('apps.chatGPT.confirmationPage.chooseAmount')}
+          sub={t('apps.chatGPT.confirmationPage.chooseAmountSub')}
         />
 
         <View style={styles.grid}>
@@ -497,19 +492,9 @@ export default function ConfirmChatGPTPage({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
-  selectTitle: {
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 20,
-    marginBottom: 4,
-    includeFontPadding: false,
-  },
   grid: {
-    marginTop: 20,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,

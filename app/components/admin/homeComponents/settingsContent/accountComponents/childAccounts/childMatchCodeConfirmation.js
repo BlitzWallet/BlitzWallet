@@ -2,11 +2,9 @@ import { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../../functions/CustomElements';
-import { CENTER } from '../../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import { useTheme } from '../../../../../../../context-store/theme';
-import { SheetTitle } from '../../../savings/savingsSheetParts';
+import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
 
 // "Are you sure?" gate (D270). Swiping down goes back to the pattern.
 export default function ChildMatchCodeConfirmation({
@@ -32,7 +30,7 @@ export default function ChildMatchCodeConfirmation({
 
   return (
     <View style={styles.container}>
-      <SheetTitle
+      <SheetHeader
         title={t('settings.childAccounts.pairing.areYouSure')}
         first={true}
       />
@@ -53,11 +51,8 @@ export default function ChildMatchCodeConfirmation({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
   description: {
-    marginTop: 8,
     fontSize: 15,
     lineHeight: 22,
   },

@@ -229,7 +229,6 @@ export default function SMSConfirmSheet({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginHorizontal: 20,
     overflow: 'hidden',
   },
   centered: {

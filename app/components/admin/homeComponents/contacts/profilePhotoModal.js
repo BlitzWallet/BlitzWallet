@@ -1,14 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, FONT } from '../../../../constants';
-import ThemeText from '../../../../functions/CustomElements/textTheme';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useEffect } from 'react';
-import useContentWidth from '../../../../functions/CustomElements/redesign/useContentWidth';
 
 export default function ProfilePhotoModal({
   setContentHeight,
@@ -19,7 +17,6 @@ export default function ProfilePhotoModal({
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const contentWidth = useContentWidth();
 
   const handleChoose = () =>
     handleBackPressFunction(() => {
@@ -43,11 +40,8 @@ export default function ProfilePhotoModal({
   }, []);
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
-      <ThemeText
-        styles={styles.title}
-        content={t('contacts.editMyProfilePage.profilePhoto')}
-      />
+    <View style={styles.container}>
+      <SheetHeader first title={t('contacts.editMyProfilePage.profilePhoto')} />
       <ListCard dividerInset={68}>
         <ListRow
           onPress={handleChoose}
@@ -79,15 +73,7 @@ export default function ProfilePhotoModal({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...CENTER },
-  title: {
-    marginTop: 18,
-    marginBottom: 14,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-  },
+  container: { flex: 1 },
   rowTitle: { fontSize: 16, lineHeight: 22 },
   cancel: { marginTop: 'auto' },
 });

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { CENTER, ICONS, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import { ICONS } from '../../../../../constants';
 import { COLORS } from '../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -12,7 +12,7 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { formatBalanceAmount } from '../../../../../functions';
-import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -36,11 +36,9 @@ export default function SelectPaymentMethod({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
   const [picked, setPicked] = useState(
     selectedPaymentMethod === 'USD' ? 'USD' : 'BTC',
@@ -77,13 +75,8 @@ export default function SelectPaymentMethod({
       : t('wallet.sendPages.selectPaymentMethod.header');
 
   return (
-    <View style={[styles.innerContainer, { width: contentWidth }]}>
-      <PageHeader
-        title={headerText}
-        sub={sub}
-        showSub={!!sub}
-        subStyles={[styles.sub, { color: tokens.muted }]}
-      />
+    <View style={styles.innerContainer}>
+      <SheetHeader first title={headerText} sub={sub} />
 
       <ListCard>
         <PickRow
@@ -195,9 +188,7 @@ export default function SelectPaymentMethod({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    ...CENTER,
   },
-  sub: { marginTop: -4, marginBottom: 16, opacity: 1 },
   confirmButton: { marginTop: 'auto' },
   iconContainer: {
     width: 44,

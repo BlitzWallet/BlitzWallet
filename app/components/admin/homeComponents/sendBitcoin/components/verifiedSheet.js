@@ -6,6 +6,7 @@ import { useTheme } from '../../../../../../context-store/theme';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 
 export default function VerifiedSheet({
   merchantName,
@@ -46,14 +47,10 @@ export default function VerifiedSheet({
       <View style={styles.head}>
         <Disc icon="BadgeCheck" size={48} iconSize={24} tone="accent" />
       </View>
-      <ThemeText
-        styles={styles.title}
-        content={t('wallet.sendPages.reviewParts.verified')}
-      />
-      <ThemeText
-        variant="body"
-        styles={{ color: tokens.muted, marginTop: 8 }}
-        content={t(
+      <SheetHeader
+        afterIcon
+        title={t('wallet.sendPages.reviewParts.verified')}
+        sub={t(
           merchantName
             ? 'wallet.sendPages.reviewParts.verifiedBody'
             : 'wallet.sendPages.reviewParts.verifiedBodyNoName',
@@ -97,9 +94,8 @@ export default function VerifiedSheet({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20 },
+  container: { flex: 1 },
   head: { marginTop: 8, alignItems: 'flex-start' },
-  title: { marginTop: 16, fontSize: 20, lineHeight: 28 },
   link: { marginTop: 12, minHeight: 44, justifyContent: 'center' },
   button: { marginTop: 'auto' },
 });

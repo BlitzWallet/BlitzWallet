@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { SheetTitle } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 // Explainer for a QR card row (Receive.dc.html "Network fee tapped"):
 // the row label as the title, the full explanation as the body.
@@ -18,12 +18,12 @@ export default function ReceiveInfoSheet({
   const { tokens } = useTheme();
 
   useEffect(() => {
-    setContentHeight(Math.min(420, 190 + Math.ceil(body.length / 40) * 24));
+    setContentHeight(Math.min(420, 198 + Math.ceil(body.length / 40) * 24));
   }, [body, setContentHeight]);
 
   return (
     <View style={styles.container}>
-      <SheetTitle first title={title} />
+      <SheetHeader first title={title} />
       <ThemeText
         styles={[styles.body, { color: tokens.muted }]}
         content={body}
@@ -39,7 +39,7 @@ export default function ReceiveInfoSheet({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20 },
-  body: { marginTop: 8, fontSize: 15, lineHeight: 22 },
+  container: { flex: 1 },
+  body: { fontSize: 15, lineHeight: 22 },
   button: { marginTop: 'auto' },
 });

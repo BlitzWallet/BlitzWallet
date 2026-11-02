@@ -1,6 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 import {
-  CENTER,
   EMAIL_REGEX,
   FONT,
   POINT_OF_SALE_PAYOUT_DESCRIPTION,
@@ -22,7 +21,6 @@ import customUUID from '../../../../../functions/customUUID';
 import { publishMessage } from '../../../../../functions/messaging/publishMessage';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { bulkUpdateDidPay, deleteEmployee } from '../../../../../functions/pos';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
 import { usePOSTransactions } from '../../../../../../context-store/pos';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
@@ -36,7 +34,6 @@ import IconButton from '../../../../../functions/CustomElements/redesign/IconBut
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import SectionHeader from '../../../../../functions/CustomElements/redesign/SectionHeader';
 import StepProgress from '../../../../../functions/CustomElements/redesign/StepProgress';
-import { SheetSurface } from '../../../../../functions/CustomElements/redesign/sheetSurface';
 import AnimatedStep, {
   growThenStep,
   useStepSheetHeight,
@@ -281,139 +278,133 @@ export default function TotalTipsScreen({
   const toPayParts = String(toPay).match(/^(.*\d)(\s+\D+)$/);
 
   return (
-    <SheetSurface>
-      <View style={styles.container}>
-        <AnimatedStep active={currentPage === 'tips'} direction={direction}>
-          <View style={styles.page}>
-            <View style={styles.header}>
-              <View style={styles.headerText}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.name}
-                  content={name}
-                />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={[styles.small, { color: tokens.muted }]}
-                  content={
-                    lastSale
-                      ? t('settings.posPath.totalTipsScreen.lastSaleSub', {
-                          type: contactType,
-                          date: lastSale,
-                        })
-                      : contactType
-                  }
-                />
-              </View>
-              <IconButton
-                icon="Trash2"
-                iconSize={20}
-                tone="disc"
-                label={t('settings.posPath.totalTipsScreen.remove', { name })}
-                onPress={removeEmployee}
-              />
-            </View>
-
-            <View
-              style={[styles.toPayCard, { backgroundColor: tokens.ground }]}
-            >
+    <View style={styles.container}>
+      <AnimatedStep active={currentPage === 'tips'} direction={direction}>
+        <View style={styles.page}>
+          <View style={styles.header}>
+            <View style={styles.headerText}>
               <ThemeText
-                styles={[styles.toPayLabel, { color: tokens.muted }]}
-                content={t('settings.posPath.totalTipsScreen.toPay')}
+                CustomNumberOfLines={1}
+                styles={styles.name}
+                content={name}
               />
               <ThemeText
                 CustomNumberOfLines={1}
-                styles={styles.toPayAmount}
+                styles={[styles.small, { color: tokens.muted }]}
                 content={
-                  toPayParts
-                    ? [
-                        toPayParts[1],
-                        <ThemeText
-                          key="unit"
-                          content={toPayParts[2]}
-                          styles={[styles.toPayUnit, { color: tokens.muted }]}
-                        />,
-                      ]
-                    : toPay
+                  lastSale
+                    ? t('settings.posPath.totalTipsScreen.lastSaleSub', {
+                        type: contactType,
+                        date: lastSale,
+                      })
+                    : contactType
                 }
               />
-              {!!totalPaidTxs && (
-                <ThemeText
-                  styles={[
-                    styles.small,
-                    styles.paidBefore,
-                    { color: tokens.muted },
-                  ]}
-                  content={t('settings.posPath.totalTipsScreen.paidBefore', {
-                    amount: formatAmount(totalPaidTxs),
-                  })}
-                />
-              )}
             </View>
-
-            <SectionHeader
-              title={t('settings.posPath.totalTipsScreen.tips')}
-              style={styles.tipsHeader}
-            />
-            <CustomScrollView
-              style={styles.list}
-              showsVerticalScrollIndicator={false}
-            >
-              <ListCard>
-                {sourtedTxs.map(item => (
-                  <TipsTXItem
-                    key={String(item.dbDateAdded)}
-                    item={item}
-                    masterInfoObject={masterInfoObject}
-                    fiatStats={fiatStats}
-                    t={t}
-                  />
-                ))}
-              </ListCard>
-            </CustomScrollView>
-
-            <CustomButton
-              buttonStyles={styles.payButton}
-              disabled={totalTipAmount < 1}
-              actionFunction={handlePayment}
-              textContent={t('settings.posPath.totalTipsScreen.payAmount', {
-                amount: toPay,
-              })}
-              size="regular"
+            <IconButton
+              icon="Trash2"
+              iconSize={20}
+              tone="disc"
+              label={t('settings.posPath.totalTipsScreen.remove', { name })}
+              onPress={removeEmployee}
             />
           </View>
-        </AnimatedStep>
 
-        <AnimatedStep
-          active={currentPage === 'loading'}
-          direction={direction}
-          exitsBack={true}
-        >
-          <View style={styles.loading}>
-            <StepProgress
-              title={
-                isNotifying
-                  ? t('settings.posPath.totalTipsScreen.notifyingTitle', {
-                      name,
-                    })
-                  : t('settings.posPath.totalTipsScreen.payingTitle', { name })
+          <View style={[styles.toPayCard, { backgroundColor: tokens.ground }]}>
+            <ThemeText
+              styles={[styles.toPayLabel, { color: tokens.muted }]}
+              content={t('settings.posPath.totalTipsScreen.toPay')}
+            />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.toPayAmount}
+              content={
+                toPayParts
+                  ? [
+                      toPayParts[1],
+                      <ThemeText
+                        key="unit"
+                        content={toPayParts[2]}
+                        styles={[styles.toPayUnit, { color: tokens.muted }]}
+                      />,
+                    ]
+                  : toPay
               }
-              subtitle={t('settings.posPath.totalTipsScreen.payingSub', {
-                amount: toPay,
-              })}
             />
+            {!!totalPaidTxs && (
+              <ThemeText
+                styles={[
+                  styles.small,
+                  styles.paidBefore,
+                  { color: tokens.muted },
+                ]}
+                content={t('settings.posPath.totalTipsScreen.paidBefore', {
+                  amount: formatAmount(totalPaidTxs),
+                })}
+              />
+            )}
           </View>
-        </AnimatedStep>
-      </View>
-    </SheetSurface>
+
+          <SectionHeader
+            title={t('settings.posPath.totalTipsScreen.tips')}
+            style={styles.tipsHeader}
+          />
+          <CustomScrollView
+            style={styles.list}
+            showsVerticalScrollIndicator={false}
+          >
+            <ListCard>
+              {sourtedTxs.map(item => (
+                <TipsTXItem
+                  key={String(item.dbDateAdded)}
+                  item={item}
+                  masterInfoObject={masterInfoObject}
+                  fiatStats={fiatStats}
+                  t={t}
+                />
+              ))}
+            </ListCard>
+          </CustomScrollView>
+
+          <CustomButton
+            buttonStyles={styles.payButton}
+            disabled={totalTipAmount < 1}
+            actionFunction={handlePayment}
+            textContent={t('settings.posPath.totalTipsScreen.payAmount', {
+              amount: toPay,
+            })}
+            size="regular"
+          />
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentPage === 'loading'}
+        direction={direction}
+        exitsBack={true}
+      >
+        <View style={styles.loading}>
+          <StepProgress
+            title={
+              isNotifying
+                ? t('settings.posPath.totalTipsScreen.notifyingTitle', {
+                    name,
+                  })
+                : t('settings.posPath.totalTipsScreen.payingTitle', { name })
+            }
+            subtitle={t('settings.posPath.totalTipsScreen.payingSub', {
+              amount: toPay,
+            })}
+          />
+        </View>
+      </AnimatedStep>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   page: { flex: 1 },
@@ -425,6 +416,7 @@ const styles = StyleSheet.create({
   },
   headerText: { flex: 1, minWidth: 0 },
   name: {
+    fontFamily: FONT.Title_Medium,
     fontSize: 20,
     lineHeight: 26,
     includeFontPadding: false,

@@ -203,7 +203,6 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: {
-    paddingHorizontal: 20,
     paddingTop: 18,
   },
   hero: {

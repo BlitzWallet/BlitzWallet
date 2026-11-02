@@ -1,11 +1,5 @@
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -37,13 +31,11 @@ export default function ExportOrFilterHalfModal({
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { width } = useWindowDimensions();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { tokens } = useTheme();
   const [isExporting, setIsExporting] = useState(false);
   const [step, setStep] = useState('menu');
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   useStepSheetHeight(
     setContentHeight,
@@ -96,7 +88,7 @@ export default function ExportOrFilterHalfModal({
   return (
     <View style={styles.container}>
       <AnimatedStep active={step === 'menu'} direction={-1}>
-        <View style={[styles.menu, { width: contentWidth }]}>
+        <View style={styles.menu}>
           <ListRow
             minHeight={64}
             titleStyle={styles.rowTitle}
@@ -132,6 +124,6 @@ export default function ExportOrFilterHalfModal({
 
 const styles = StyleSheet.create({
   container: { flex: 1, overflow: 'hidden' },
-  menu: { marginTop: 14, ...CENTER },
+  menu: { marginTop: 14 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
 });

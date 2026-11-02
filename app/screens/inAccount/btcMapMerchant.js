@@ -9,9 +9,8 @@ import {
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, FONT, SIZES } from '../../constants';
+import { FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
@@ -209,7 +208,7 @@ export default function BTCMapMerchantContent({
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
+  content: { flex: 1 },
   scrollView: { flex: 1 },
   hero: {
     alignItems: 'center',

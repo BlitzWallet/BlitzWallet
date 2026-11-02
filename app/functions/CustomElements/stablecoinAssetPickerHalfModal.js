@@ -2,11 +2,10 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'expo-image';
-import { CENTER, ICONS } from '../../constants';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { ICONS } from '../../constants';
 import ListCard from './redesign/ListCard';
 import ListRow from './redesign/ListRow';
-import { SheetTitle } from '../../components/admin/homeComponents/savings/savingsSheetParts';
+import SheetHeader from './redesign/SheetHeader';
 import { useTranslation } from 'react-i18next';
 
 const CHAIN_TO_FLASHNET = {
@@ -76,8 +75,11 @@ export default function StablecoinAssetPickerHalfModal({
 
   return (
     <View style={styles.container}>
-      <SheetTitle first title={t('wallet.stablecoinSend.assetPicker.header')} />
-      <ListCard style={{ marginTop: 16 }}>
+      <SheetHeader
+        first
+        title={t('wallet.stablecoinSend.assetPicker.header')}
+      />
+      <ListCard>
         {ASSETS.map(item => {
           const isUnsupported =
             (item.id === 'USDT' && !USDT_SUPPORTED_CHAINS.has(selectedChain)) ||
@@ -122,8 +124,6 @@ export default function StablecoinAssetPickerHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     paddingBottom: 16,
   },
   unsupported: { opacity: 0.55 },

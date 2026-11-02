@@ -6,12 +6,9 @@ import { ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, FONT } from '../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../constants/theme';
+import { FONT } from '../../constants';
+import { HIDDEN_OPACITY, SIZES } from '../../constants/theme';
+import SheetHeader from '../../functions/CustomElements/redesign/SheetHeader';
 import {
   BTC_MAP_CATEGORIES,
   CATEGORY_META,
@@ -105,10 +102,7 @@ export default function BTCMapFilterContent({
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        <ThemeText
-          styles={styles.title}
-          content={t('screens.btcMap.filter.title')}
-        />
+        <SheetHeader first title={t('screens.btcMap.filter.title')} />
 
         <ThemeText
           styles={[styles.sectionLabel, { color: tokens.muted }]}
@@ -206,24 +200,15 @@ export default function BTCMapFilterContent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
   scrollView: {
     flex: 1,
-  },
-  title: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 20,
-    includeFontPadding: false,
   },
   sectionLabel: {
     fontFamily: FONT.Title_Regular,
     fontSize: SIZES.smedium,
     lineHeight: 20,
-    marginTop: 16,
+    marginTop: 0,
     marginHorizontal: 4,
     marginBottom: 8,
     includeFontPadding: false,

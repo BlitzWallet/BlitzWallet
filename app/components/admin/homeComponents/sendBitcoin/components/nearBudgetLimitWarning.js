@@ -2,15 +2,12 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useAnalyticsNumbers } from '../../../../../../context-store/analyticsContext';
-import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
-import { useTheme } from '../../../../../../context-store/theme';
 import { computeBudgetWarning } from '../../../../../hooks/useBudgetWarning';
 import { useTranslation } from 'react-i18next';
-import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
-import { CENTER } from '../../../../../constants';
 import KeyValueRow from '../../../../../functions/CustomElements/redesign/KeyValueRow';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -25,9 +22,7 @@ export default function BudgetWarningModal({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { spentTotal } = useAnalyticsNumbers();
-  const { tokens } = useTheme();
   const { t } = useTranslation();
-  const contentWidth = useContentWidth();
 
   useEffect(() => {
     setContentHeight?.(430);
@@ -69,17 +64,16 @@ export default function BudgetWarningModal({
       });
 
   return (
-    <View style={[styles.sheet, { width: contentWidth }]}>
+    <View style={styles.sheet}>
       <Disc icon="TriangleAlert" size={56} iconSize={24} tone="warm" />
-      <ThemeText
-        styles={styles.header}
-        content={t('analytics.budget.budgetWarningHeadsUp')}
-      />
-      <ThemeText
-        variant="body"
-        styles={[styles.subheader, { color: tokens.muted }]}
-        content={subheader}
-      />
+      <View style={styles.header}>
+        <SheetHeader
+          afterIcon
+          centered
+          title={t('analytics.budget.budgetWarningHeadsUp')}
+          sub={subheader}
+        />
+      </View>
       <ListCard style={styles.card}>
         <KeyValueRow
           mono={false}
@@ -103,9 +97,8 @@ export default function BudgetWarningModal({
 }
 
 const styles = StyleSheet.create({
-  sheet: { flex: 1, ...CENTER, alignItems: 'center', marginTop: 15 },
-  header: { marginTop: 16, fontSize: 20, lineHeight: 26, textAlign: 'center' },
-  subheader: { marginTop: 4, textAlign: 'center' },
-  card: { marginTop: 20, alignSelf: 'stretch' },
+  sheet: { flex: 1, alignItems: 'center', marginTop: 15 },
+  header: { alignSelf: 'stretch' },
+  card: { alignSelf: 'stretch' },
   button: { marginTop: 'auto' },
 });

@@ -8,14 +8,13 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
-import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { FONT } from '../../../../constants/theme';
 import {
   ACCUMULATION_CHAINS,
   ACCUMULATION_DESTINATIONS,
   getChainExpandHeight,
   getAccumulationAddressLimit,
 } from '../../../../constants/accumulationAddresses';
-import { CENTER } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import ChainRow from './chainRow';
@@ -28,7 +27,8 @@ import AnimatedStep, {
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
-import { AssetDisc, SheetTitle } from '../savings/savingsSheetParts';
+import { AssetDisc } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { CoinChainLogo, destinationLabel } from './AccumulationAddressCard';
 
 // Steps: 'chain' | 'destination' | 'confirm'
@@ -169,7 +169,7 @@ export default function CreateAccumulationAddressModal({
         direction={direction}
         exitsBack={direction === -1}
       >
-        <SheetTitle
+        <SheetHeader
           first={true}
           title={t('screens.accumulationAddresses.create.pickChain')}
           sub={t('screens.accumulationAddresses.create.pickChainSub')}
@@ -227,7 +227,7 @@ export default function CreateAccumulationAddressModal({
         exitsBack={direction === -1}
       >
         {backBar}
-        <SheetTitle
+        <SheetHeader
           title={t('screens.accumulationAddresses.create.pickDestination')}
           sub={t('screens.accumulationAddresses.create.pickDestinationSub', {
             asset: selectedAsset,
@@ -280,7 +280,9 @@ export default function CreateAccumulationAddressModal({
         exitsBack={direction === -1}
       >
         {backBar}
-        <SheetTitle title={t('screens.accumulationAddresses.create.confirm')} />
+        <SheetHeader
+          title={t('screens.accumulationAddresses.create.confirm')}
+        />
         <View style={styles.confirmContent}>
           <View style={styles.assetRow}>
             <CoinChainLogo
@@ -322,12 +324,10 @@ export default function CreateAccumulationAddressModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   backBar: { marginTop: 8 },
-  list: { marginTop: 12, flexGrow: 0, flexShrink: 1 },
+  list: { flexGrow: 0, flexShrink: 1 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   disabledRow: { opacity: 0.5 },
   confirmContent: {

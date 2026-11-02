@@ -1,8 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { FONT } from '../../../../../constants';
 import { useTheme } from '../../../../../../context-store/theme';
-import ThemeText from '../../../../../functions/CustomElements/textTheme';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
 
@@ -27,15 +26,11 @@ export default function NWCBudgetPeriodHalfModal({
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        content={t('settings.nwc.createNWCAmount.resetTitle')}
-        styles={styles.title}
-      />
+    <View>
+      <SheetHeader first title={t('settings.nwc.createNWCAmount.resetTitle')} />
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel={t('settings.nwc.createNWCAmount.resetTitle')}
-        style={styles.options}
       >
         <ListCard dividerInset={16} style={{ backgroundColor: tokens.surface }}>
           {BUDGET_RENEWAL_OPTIONS.map(option => (
@@ -56,19 +51,6 @@ export default function NWCBudgetPeriodHalfModal({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-  },
-  title: {
-    marginTop: 20,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-  },
-  options: {
-    marginTop: 12,
-  },
   optionTitle: {
     fontSize: 15,
     lineHeight: 21,

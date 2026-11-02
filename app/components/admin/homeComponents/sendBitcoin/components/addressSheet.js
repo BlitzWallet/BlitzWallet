@@ -7,7 +7,7 @@ import { FONT } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import copyToClipboard from '../../../../../functions/copyToClipboard';
-import { SheetTitle } from '../../savings/savingsSheetParts';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 
 export default function AddressSheet({
@@ -46,7 +46,7 @@ export default function AddressSheet({
 
   return (
     <View style={styles.container}>
-      <SheetTitle
+      <SheetHeader
         first
         title={title}
         sub={t('wallet.sendPages.reviewParts.checkAddress')}
@@ -81,8 +81,8 @@ export default function AddressSheet({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20 },
-  address: { marginVertical: 20, padding: 16, borderRadius: 16, flexShrink: 1 },
+  container: { flex: 1 },
+  address: { marginBottom: 20, padding: 16, borderRadius: 16, flexShrink: 1 },
   addressText: { fontSize: 16, lineHeight: 28, includeFontPadding: false },
   group: {
     fontFamily: FONT.Title_Regular,

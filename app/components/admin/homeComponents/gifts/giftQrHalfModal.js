@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FONT } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
@@ -19,16 +20,11 @@ export default function GiftQrHalfModal({ claimURL, title, setContentHeight }) {
 
   return (
     <View style={styles.container}>
-      <ThemeText
-        content={t('screens.inAccount.giftPages.giftConfirmation.scanToClaim')}
-        styles={styles.title}
+      <SheetHeader
+        first
+        title={t('screens.inAccount.giftPages.giftConfirmation.scanToClaim')}
+        sub={title}
       />
-      {!!title && (
-        <ThemeText
-          content={title}
-          styles={[styles.sub, { color: tokens.muted }]}
-        />
-      )}
       <QrCard
         value={claimURL}
         badge={<Disc icon={'Gift'} tone="primary" size={40} />}
@@ -43,22 +39,8 @@ export default function GiftQrHalfModal({ claimURL, title, setContentHeight }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20 },
-  title: {
-    marginTop: 20,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-  },
-  sub: {
-    marginTop: 4,
-    fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
-    includeFontPadding: false,
-  },
-  qrCard: { marginTop: 20, alignSelf: 'center' },
+  container: { flex: 1 },
+  qrCard: { alignSelf: 'center' },
   warning: {
     marginTop: 16,
     textAlign: 'center',

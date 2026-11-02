@@ -18,17 +18,14 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import { CENTER } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { KeyboardController } from 'react-native-keyboard-controller';
-import PageTitle from '../../../../../functions/CustomElements/redesign/PageTitle';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import SectionHeader from '../../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import DiscText from '../../../../../functions/CustomElements/redesign/DiscText';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
-import { SheetSurface } from '../../../../../functions/CustomElements/redesign/sheetSurface';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
@@ -119,7 +116,7 @@ export default function OnlineListingsFilterHalfModal({
   }, [currentFilter]);
 
   useEffect(() => {
-    setContentHeight(700);
+    setContentHeight(712);
   }, [setContentHeight]);
 
   const handleClear = useCallback(() => {
@@ -159,188 +156,185 @@ export default function OnlineListingsFilterHalfModal({
   }, []);
 
   return (
-    <SheetSurface>
-      <View style={[styles.container, { backgroundColor: backgroundOffset }]}>
-        {showCountryPicker ? (
+    <View style={[styles.container, { backgroundColor: backgroundOffset }]}>
+      {showCountryPicker ? (
+        <Animated.View
+          key="country-page-fade"
+          entering={FadeIn.duration(PAGE_DURATION)}
+          exiting={FadeOut.duration(PAGE_DURATION)}
+          style={styles.page}
+        >
           <Animated.View
-            key="country-page-fade"
-            entering={FadeIn.duration(PAGE_DURATION)}
-            exiting={FadeOut.duration(PAGE_DURATION)}
+            key="country-page-slide"
+            entering={SlideInRight.duration(PAGE_DURATION)}
+            exiting={SlideOutRight.duration(PAGE_DURATION)}
             style={styles.page}
           >
-            <Animated.View
-              key="country-page-slide"
-              entering={SlideInRight.duration(PAGE_DURATION)}
-              exiting={SlideOutRight.duration(PAGE_DURATION)}
-              style={styles.page}
-            >
-              <CountryPickerPage
-                selectedCountryCode={draft.countryCode}
-                allCountries={allCountries}
-                loadingCountries={loadingCountries}
-                onSelectCountry={handleCountryPress}
-                onBackPress={handleCountryBackPress}
-                setIsKeyboardActive={setIsKeyboardActive}
-              />
-            </Animated.View>
+            <CountryPickerPage
+              selectedCountryCode={draft.countryCode}
+              allCountries={allCountries}
+              loadingCountries={loadingCountries}
+              onSelectCountry={handleCountryPress}
+              onBackPress={handleCountryBackPress}
+              setIsKeyboardActive={setIsKeyboardActive}
+            />
           </Animated.View>
-        ) : (
+        </Animated.View>
+      ) : (
+        <Animated.View
+          key="filter-page-fade"
+          entering={
+            hasOpenedCountryPicker.current
+              ? FadeIn.duration(PAGE_DURATION)
+              : undefined
+          }
+          exiting={FadeOut.duration(PAGE_DURATION)}
+          style={styles.page}
+        >
           <Animated.View
-            key="filter-page-fade"
+            key="filter-page-slide"
             entering={
               hasOpenedCountryPicker.current
-                ? FadeIn.duration(PAGE_DURATION)
+                ? SlideInLeft.duration(PAGE_DURATION)
                 : undefined
             }
-            exiting={FadeOut.duration(PAGE_DURATION)}
+            exiting={SlideOutLeft.duration(PAGE_DURATION)}
             style={styles.page}
           >
-            <Animated.View
-              key="filter-page-slide"
-              entering={
-                hasOpenedCountryPicker.current
-                  ? SlideInLeft.duration(PAGE_DURATION)
-                  : undefined
-              }
-              exiting={SlideOutLeft.duration(PAGE_DURATION)}
-              style={styles.page}
-            >
-              <View style={[styles.mainContent]}>
-                <CustomScrollView
-                  style={styles.scrollView}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <PageTitle text={filterTitle} titleStyles={styles.title} />
+            <View style={[styles.mainContent]}>
+              <CustomScrollView
+                style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
+              >
+                <SheetHeader first title={filterTitle} />
 
-                  <SectionHeader
-                    first={true}
-                    title={t('apps.onlineListings.filterCategoriesTitle')}
-                    style={styles.firstSection}
-                  />
+                <SectionHeader
+                  first={true}
+                  title={t('apps.onlineListings.filterCategoriesTitle')}
+                  style={styles.firstSection}
+                />
 
-                  <View style={styles.pillRow}>
-                    <TouchableOpacity
-                      activeOpacity={0.75}
-                      onPress={handleSelectAllCategories}
-                      style={[
-                        styles.pill,
-                        draft.categories.length === 0
-                          ? styles.pillActive
-                          : styles.pillInactive,
+                <View style={styles.pillRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.75}
+                    onPress={handleSelectAllCategories}
+                    style={[
+                      styles.pill,
+                      draft.categories.length === 0
+                        ? styles.pillActive
+                        : styles.pillInactive,
+                      {
+                        backgroundColor:
+                          draft.categories.length === 0
+                            ? tokens.accent
+                            : backgroundColor,
+                      },
+                    ]}
+                  >
+                    <ThemeText
+                      styles={[
+                        styles.pillText,
                         {
-                          backgroundColor:
+                          color:
                             draft.categories.length === 0
-                              ? tokens.accent
-                              : backgroundColor,
+                              ? tokens.onAccent
+                              : textColor,
                         },
                       ]}
-                    >
-                      <ThemeText
-                        styles={[
-                          styles.pillText,
+                      content={t(
+                        'apps.onlineListings.filterAllCategories',
+                      ).replace(/^All Categories$/, 'All categories')}
+                    />
+                  </TouchableOpacity>
+
+                  {categoryOptions.map(category => {
+                    const isActive = draft.categories.includes(category);
+
+                    return (
+                      <TouchableOpacity
+                        key={category}
+                        activeOpacity={0.75}
+                        onPress={() => toggleCategory(category)}
+                        style={[
+                          styles.pill,
+                          isActive ? styles.pillActive : styles.pillInactive,
                           {
-                            color:
-                              draft.categories.length === 0
-                                ? tokens.onAccent
-                                : textColor,
+                            backgroundColor: isActive
+                              ? tokens.accent
+                              : backgroundColor,
                           },
                         ]}
-                        content={t(
-                          'apps.onlineListings.filterAllCategories',
-                        ).replace(/^All Categories$/, 'All categories')}
-                      />
-                    </TouchableOpacity>
-
-                    {categoryOptions.map(category => {
-                      const isActive = draft.categories.includes(category);
-
-                      return (
-                        <TouchableOpacity
-                          key={category}
-                          activeOpacity={0.75}
-                          onPress={() => toggleCategory(category)}
-                          style={[
-                            styles.pill,
-                            isActive ? styles.pillActive : styles.pillInactive,
+                      >
+                        <ThemeText
+                          styles={[
+                            styles.pillText,
                             {
-                              backgroundColor: isActive
-                                ? tokens.accent
-                                : backgroundColor,
+                              color: isActive ? tokens.onAccent : textColor,
                             },
                           ]}
-                        >
-                          <ThemeText
-                            styles={[
-                              styles.pillText,
-                              {
-                                color: isActive ? tokens.onAccent : textColor,
-                              },
-                            ]}
-                            content={t(`apps.onlineListings.${category}`)}
-                          />
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-
-                  <SectionHeader
-                    title={t('apps.onlineListings.filterCountryTitle')}
-                    style={styles.countrySection}
-                  />
-
-                  <ListCard>
-                    <ListRow
-                      title={
-                        allCountries.find(
-                          item => item.code === draft.countryCode,
-                        )?.countryName ??
-                        selectedCountryName(draft.countryCode, t)
-                      }
-                      titleStyle={styles.selectedCountryName}
-                      lead={
-                        draft.countryCode === 'WW' ? (
-                          <Disc
-                            tone="white"
-                            icon="Globe"
-                            size={36}
-                            iconSize={18}
-                          />
-                        ) : (
-                          <DiscText tone="white" text={draft.countryCode} />
-                        )
-                      }
-                      trailing="chevron"
-                      onPress={() => {
-                        hasOpenedCountryPicker.current = true;
-                        setShowCountryPicker(true);
-                      }}
-                      minHeight={56}
-                      paddingVertical={0}
-                    />
-                  </ListCard>
-
-                  <View style={{ height: 20 }} />
-                </CustomScrollView>
-
-                <View style={styles.bottomBar}>
-                  <TextButton
-                    text={t('apps.onlineListings.filterClear')}
-                    onPress={handleClear}
-                  />
-
-                  <CustomButton
-                    buttonStyles={styles.applyButton}
-                    actionFunction={handleApply}
-                    textContent={t('apps.onlineListings.filterApply')}
-                    size="fit"
-                  />
+                          content={t(`apps.onlineListings.${category}`)}
+                        />
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
+
+                <SectionHeader
+                  title={t('apps.onlineListings.filterCountryTitle')}
+                  style={styles.countrySection}
+                />
+
+                <ListCard>
+                  <ListRow
+                    title={
+                      allCountries.find(item => item.code === draft.countryCode)
+                        ?.countryName ??
+                      selectedCountryName(draft.countryCode, t)
+                    }
+                    titleStyle={styles.selectedCountryName}
+                    lead={
+                      draft.countryCode === 'WW' ? (
+                        <Disc
+                          tone="white"
+                          icon="Globe"
+                          size={36}
+                          iconSize={18}
+                        />
+                      ) : (
+                        <DiscText tone="white" text={draft.countryCode} />
+                      )
+                    }
+                    trailing="chevron"
+                    onPress={() => {
+                      hasOpenedCountryPicker.current = true;
+                      setShowCountryPicker(true);
+                    }}
+                    minHeight={56}
+                    paddingVertical={0}
+                  />
+                </ListCard>
+
+                <View style={{ height: 20 }} />
+              </CustomScrollView>
+
+              <View style={styles.bottomBar}>
+                <TextButton
+                  text={t('apps.onlineListings.filterClear')}
+                  onPress={handleClear}
+                />
+
+                <CustomButton
+                  buttonStyles={styles.applyButton}
+                  actionFunction={handleApply}
+                  textContent={t('apps.onlineListings.filterApply')}
+                  size="fit"
+                />
               </View>
-            </Animated.View>
+            </View>
           </Animated.View>
-        )}
-      </View>
-    </SheetSurface>
+        </Animated.View>
+      )}
+    </View>
   );
 }
 
@@ -435,10 +429,7 @@ function CountryPickerPage({
         tone={'disc'}
         onPress={handleBackPress}
       />
-      <PageTitle
-        text={t('apps.onlineListings.filterCountryTitle')}
-        titleStyles={styles.countryTitle}
-      />
+      <SheetHeader title={t('apps.onlineListings.filterCountryTitle')} />
       <SearchField
         value={countrySearch}
         onChangeText={setCountrySearch}
@@ -481,8 +472,6 @@ function CountryPickerPage({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   page: {
@@ -495,16 +484,8 @@ const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
   },
-  title: {
-    fontSize: 20,
-    lineHeight: 26,
-    letterSpacing: 0,
-    marginTop: 8,
-    marginBottom: 0,
-    includeFontPadding: false,
-  },
   firstSection: {
-    marginTop: 16,
+    marginTop: 0,
     marginBottom: 8,
   },
   countrySection: {
@@ -549,14 +530,6 @@ const styles = StyleSheet.create({
   },
   countryPage: {
     flex: 1,
-  },
-  countryTitle: {
-    fontSize: 20,
-    lineHeight: 26,
-    letterSpacing: 0,
-    marginTop: 8,
-    marginBottom: 10,
-    includeFontPadding: false,
   },
   countryList: {
     width: '100%',

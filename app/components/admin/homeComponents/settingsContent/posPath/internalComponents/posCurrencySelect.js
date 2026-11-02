@@ -1,16 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { CENTER } from '../../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
 import { useAppStatus } from '../../../../../../../context-store/appStatus';
 import { fiatCurrencies } from '../../../../../../functions/currencyOptions';
-import PageTitle from '../../../../../../functions/CustomElements/redesign/PageTitle';
+import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
 import SearchField from '../../../../../../functions/CustomElements/redesign/SearchField';
 import ListCard, {
   ListDivider,
 } from '../../../../../../functions/CustomElements/redesign/ListCard';
-import { SheetSurface } from '../../../../../../functions/CustomElements/redesign/sheetSurface';
 import CurrencyRow from '../../../currencyPicker/currencyRow';
 
 // Store currency picker for Point of sale (same rows as Settings › Currency).
@@ -63,33 +60,31 @@ export default function POSCurrencySelect({
   );
 
   return (
-    <SheetSurface>
-      <View style={styles.container}>
-        <PageTitle
-          text={t('settings.posPath.settings.currencySheetTitle')}
-          titleStyles={styles.title}
+    <View style={styles.container}>
+      <SheetHeader
+        first
+        title={t('settings.posPath.settings.currencySheetTitle')}
+      />
+      <SearchField
+        pill
+        value={search}
+        onChangeText={setSearch}
+        placeholder={t('settings.fiatCurrency.placeholderText')}
+        onFocus={() => setIsKeyboardActive?.(true)}
+        onBlur={() => setIsKeyboardActive?.(false)}
+      />
+      <ListCard tone="flush" style={styles.card}>
+        <FlatList
+          data={currencies}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={15}
+          ItemSeparatorComponent={CurrencySeparator}
         />
-        <SearchField
-          pill
-          value={search}
-          onChangeText={setSearch}
-          placeholder={t('settings.fiatCurrency.placeholderText')}
-          onFocus={() => setIsKeyboardActive?.(true)}
-          onBlur={() => setIsKeyboardActive?.(false)}
-        />
-        <ListCard tone="flush" style={styles.card}>
-          <FlatList
-            data={currencies}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            keyboardShouldPersistTaps="always"
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={15}
-            ItemSeparatorComponent={CurrencySeparator}
-          />
-        </ListCard>
-      </View>
-    </SheetSurface>
+      </ListCard>
+    </View>
   );
 }
 
@@ -100,13 +95,6 @@ function CurrencySeparator() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-  title: {
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 8,
-    marginBottom: 16,
-    includeFontPadding: false,
-  },
+  container: { flex: 1 },
   card: { flex: 1, marginTop: 16 },
 });

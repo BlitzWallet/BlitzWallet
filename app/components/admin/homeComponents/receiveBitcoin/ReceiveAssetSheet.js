@@ -17,7 +17,7 @@ import {
   ACCUMULATION_BTC_SOURCES,
   ACCUMULATION_CHAINS,
 } from '../../../../constants/accumulationAddresses';
-import { SheetTitle } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { AssetLogo, QrBadge } from './receiveParts';
 
 // Receive Bitcoin / Receive Dollars sheet (Receive.dc.html "Bitcoin tapped",
@@ -98,10 +98,10 @@ export default function ReceiveAssetSheet({
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, !isHalfModal && styles.clip]}>
       <AnimatedStep active={step === 'options'} direction={direction}>
-        <View style={styles.page}>
-          <SheetTitle
+        <View style={[styles.page, !isHalfModal && styles.inset]}>
+          <SheetHeader
             first
             title={t(
               asset === 'dollars'
@@ -109,7 +109,7 @@ export default function ReceiveAssetSheet({
                 : 'receive.receiveBitcoin',
             )}
           />
-          <ListCard style={styles.card}>
+          <ListCard>
             {invoiceRow}
             {asset === 'dollars'
               ? ['USDT', 'USDC'].map(coin => (
@@ -153,18 +153,18 @@ export default function ReceiveAssetSheet({
         direction={direction}
         exitsBack
       >
-        <View style={styles.page}>
+        <View style={[styles.page, !isHalfModal && styles.inset]}>
           <IconButton
             icon="ArrowLeft"
             label="constants.back"
             tone="disc"
             onPress={() => goTo('options')}
           />
-          <SheetTitle
+          <SheetHeader
             title={t('receive.otherNetworks')}
             sub={t('receive.otherNetworksSub')}
           />
-          <ListCard style={styles.card}>
+          <ListCard>
             {BTC_SOURCES.map(source => {
               const chain = ACCUMULATION_CHAINS.find(
                 c => c.id === source.chain,
@@ -258,9 +258,10 @@ function ChainPill({ label }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, overflow: 'hidden' },
-  page: { flex: 1, paddingHorizontal: 20 },
-  card: { marginTop: 16 },
+  container: { flex: 1 },
+  clip: { overflow: 'hidden' },
+  page: { flex: 1 },
+  inset: { paddingHorizontal: 20 },
   rowTexts: { flex: 1, gap: 4 },
   rowTitle: { fontSize: 17, lineHeight: 24, includeFontPadding: false },
   pills: { flexDirection: 'row', alignItems: 'center', gap: 6 },

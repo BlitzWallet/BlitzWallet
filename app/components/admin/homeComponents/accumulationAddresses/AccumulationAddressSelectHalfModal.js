@@ -2,12 +2,11 @@ import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CENTER, FONT } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { FONT } from '../../../../constants';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
-import { SheetTitle } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { CoinChainLogo, shortenAddress } from './AccumulationAddressCard';
 
 const ROW_HEIGHT = 61;
@@ -36,7 +35,7 @@ export default function AccumulationAddressSelectHalfModal({
     first?.sourceChain;
 
   useEffect(() => {
-    setContentHeight(Math.min(640, 170 + list.length * ROW_HEIGHT));
+    setContentHeight(Math.min(640, 174 + list.length * ROW_HEIGHT));
   }, [setContentHeight, list.length]);
 
   const handleSelect = addr => {
@@ -46,7 +45,7 @@ export default function AccumulationAddressSelectHalfModal({
 
   return (
     <View style={styles.container}>
-      <SheetTitle
+      <SheetHeader
         first={true}
         title={t('screens.accumulationAddresses.detail.selectAddress')}
         sub={t('screens.accumulationAddresses.detail.selectAddressSub', {
@@ -95,10 +94,8 @@ export default function AccumulationAddressSelectHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
-  list: { marginTop: 12, flexGrow: 0 },
+  list: { flexGrow: 0 },
   address: {
     fontFamily: FONT.mono,
     fontSize: 15,

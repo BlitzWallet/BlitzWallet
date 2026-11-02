@@ -1,21 +1,18 @@
 import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 import AnimatedStep, {
   growThenStep,
   useStepSheetHeight,
 } from '../../../../functions/CustomElements/redesign/AnimatedStep';
-import { CENTER } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import GetThemeColors from '../../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import PoolAmountKeypad from './components/poolAmountKeypad';
@@ -36,7 +33,6 @@ export default function CreatePoolFlow({
   const { accountMnemoinc } = useKeysContext();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { fiatStats } = useNodeContext();
-  const { tokens } = GetThemeColors();
 
   const [currentStep, setCurrentStep] = useState('amount');
   const [direction, setDirection] = useState(1);
@@ -130,27 +126,21 @@ export default function CreatePoolFlow({
           onBack={() => !isCreatingRef.current && goTo('amount')}
           shouldDismissKeyboard={true}
         />
-        <ThemeText
-          content={t('wallet.pools.whatIsPoolFor')}
-          styles={styles.title}
-        />
-        <ThemeText
-          content={`${t('wallet.pools.goal')}${displayCorrectDenomination({
+        <SheetHeader
+          title={t('wallet.pools.whatIsPoolFor')}
+          sub={`${t('wallet.pools.goal')}${displayCorrectDenomination({
             amount: goalAmount,
             masterInfoObject,
             fiatStats,
           })}`}
-          styles={[styles.sub, { color: tokens.muted }]}
         />
-        <View style={styles.input}>
-          <UserInput
-            value={poolTitle}
-            onChangeText={setPoolTitle}
-            placeholder={t('wallet.pools.examplePlaceholder')}
-            maxLength={100}
-            autoFocus={true}
-          />
-        </View>
+        <UserInput
+          value={poolTitle}
+          onChangeText={setPoolTitle}
+          placeholder={t('wallet.pools.examplePlaceholder')}
+          maxLength={100}
+          autoFocus={true}
+        />
         <CustomButton
           buttonStyles={styles.button}
           textContent={
@@ -170,24 +160,7 @@ export default function CreatePoolFlow({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
-  },
-  title: {
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 4,
-    includeFontPadding: false,
-  },
-  sub: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 4,
-    includeFontPadding: false,
-  },
-  input: {
-    marginTop: 16,
   },
   button: {
     width: '100%',

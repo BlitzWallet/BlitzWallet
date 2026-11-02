@@ -651,7 +651,6 @@ export default function ExpandedTx({
       keyboardShouldPersistTaps="handled"
     >
       <View
-        style={styles.content}
         onLayout={e =>
           setContentHeight?.(
             Math.round(e.nativeEvent.layout.height) + SHEET_CHROME,
@@ -867,7 +866,6 @@ export default function ExpandedTx({
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  content: { paddingHorizontal: 20 },
   title: {
     marginTop: 14,
     fontSize: 17,

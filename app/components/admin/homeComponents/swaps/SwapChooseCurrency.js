@@ -11,11 +11,8 @@ import { formatBalanceAmount } from '../../../../functions';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import {
-  AssetDisc,
-  SheetEmpty,
-  SheetTitle,
-} from '../savings/savingsSheetParts';
+import { AssetDisc, SheetEmpty } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { useSwapFormatters } from './swapParts';
 
 // First step: pick the balance to swap from. Also shows the pool loading,
@@ -141,11 +138,11 @@ export default function SwapChooseCurrency({
 
   return (
     <>
-      <SheetTitle
+      <SheetHeader
         title={t('screens.inAccount.swapsPage.chooseCurrencyTitle')}
         first={true}
       />
-      <ListCard style={styles.list} dividerInset={68}>
+      <ListCard dividerInset={68}>
         {options.map(option => (
           <View key={option.key} style={!option.enabled && styles.dim}>
             <ListRow
@@ -185,7 +182,6 @@ export default function SwapChooseCurrency({
 }
 
 const styles = StyleSheet.create({
-  list: { marginTop: 16 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   dim: { opacity: 0.45 },
   history: { marginTop: 'auto' },

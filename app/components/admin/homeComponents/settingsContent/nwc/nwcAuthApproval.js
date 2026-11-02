@@ -14,7 +14,7 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import { SIZES } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
@@ -553,8 +553,6 @@ function LimitStep({ appName, limit, onBack, onDone }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   scrollContent: {

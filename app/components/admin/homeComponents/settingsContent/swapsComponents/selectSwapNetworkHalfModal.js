@@ -3,8 +3,7 @@ import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { FONT, ICONS } from '../../../../../constants';
-import { useTheme } from '../../../../../../context-store/theme';
-import ThemeText from '../../../../../functions/CustomElements/textTheme';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 
@@ -26,7 +25,6 @@ export default function SelectSwapNetworkHalfModal({
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { tokens } = useTheme();
 
   const selectNetwork = swapType => {
     handleBackPressFunction(() =>
@@ -38,11 +36,8 @@ export default function SelectSwapNetworkHalfModal({
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={[styles.title, { color: tokens.ink }]}
-        content={t('settings.viewSwapsHome.selectionTitle')}
-      />
+    <View>
+      <SheetHeader first title={t('settings.viewSwapsHome.selectionTitle')} />
 
       <ListCard dividerInset={52}>
         {SWAP_OPTIONS.map(option => (
@@ -69,18 +64,6 @@ export default function SelectSwapNetworkHalfModal({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 0,
-  },
-  title: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
-    includeFontPadding: false,
-    marginBottom: 14,
-  },
   rowTitle: {
     fontFamily: FONT.Title_Regular,
     fontSize: 16,

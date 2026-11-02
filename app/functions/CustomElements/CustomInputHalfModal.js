@@ -2,14 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../constants';
+import { CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { satsToDollars } from '../spark/flashnet';
@@ -39,8 +35,6 @@ export default function CustomInputHalfModal(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const isUSDOnly = returnLocation === 'CreateSplitBill' && forceUSD;
   const fiatStats = useMemo(
     () =>
@@ -143,7 +137,7 @@ export default function CustomInputHalfModal(props) {
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
+    <View style={styles.container}>
       <View style={styles.budgetButton}>
         <BudgetCurrencyButton
           label={isSats ? 'SAT' : normalizedDisplayCurrency}
@@ -185,7 +179,6 @@ export default function CustomInputHalfModal(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    ...CENTER,
   },
   budgetButton: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
@@ -7,12 +7,7 @@ import { useTheme } from '../../../../../context-store/theme';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
-import {
-  CENTER,
-  FONT,
-  INFINITY_SYMBOL,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../../../constants';
+import { FONT, INFINITY_SYMBOL } from '../../../../constants';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
@@ -43,14 +38,12 @@ export default function ViewAllTokensHalfModal({ token, setContentHeight }) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const navigate = useNavigation();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const metadata = token[1]?.tokenMetadata;
   const publicKey = metadata?.tokenPublicKey;
 
   return (
     <View
-      style={[styles.container, { width: contentWidth }]}
+      style={styles.container}
       // 49 = sheet grabber (15) + bottom padding (34).
       onLayout={e =>
         setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
@@ -138,7 +131,7 @@ export default function ViewAllTokensHalfModal({ token, setContentHeight }) {
 }
 
 const styles = StyleSheet.create({
-  container: { ...CENTER, paddingTop: 16 },
+  container: { paddingTop: 16 },
   card: { marginTop: 16, marginBottom: 8 },
   name: { fontSize: 15, lineHeight: 21 },
   sub: { fontSize: 13, lineHeight: 19, includeFontPadding: false },

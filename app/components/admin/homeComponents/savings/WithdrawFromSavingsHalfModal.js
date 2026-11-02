@@ -10,7 +10,6 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
-  CENTER,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -30,7 +29,7 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { FONT } from '../../../../constants/theme';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
@@ -58,8 +57,8 @@ import {
   EmojiDisc,
   SheetEmpty,
   SheetResult,
-  SheetTitle,
 } from './savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 // Persists { pollTimestamp: number, balance: number } so the balance poller
 // can be skipped when no new interest payment has arrived since the last poll.
@@ -823,7 +822,7 @@ export default function WithdrawFromSavingsHalfModal({
 
     return (
       <>
-        <SheetTitle
+        <SheetHeader
           title={t('savings.withdraw.balanceTypeTitle')}
           first={true}
         />
@@ -921,7 +920,7 @@ export default function WithdrawFromSavingsHalfModal({
     return (
       <>
         {backBar}
-        <SheetTitle title={t('savings.withdraw.chooseGoalTitle')} />
+        <SheetHeader title={t('savings.withdraw.chooseGoalTitle')} />
         <CustomScrollView
           style={styles.list}
           showsVerticalScrollIndicator={false}
@@ -1131,7 +1130,7 @@ export default function WithdrawFromSavingsHalfModal({
     return (
       <>
         {backBar}
-        <SheetTitle
+        <SheetHeader
           title={t('savings.withdraw.confirmTitle')}
           sub={confirmDescription}
         />
@@ -1224,15 +1223,12 @@ export default function WithdrawFromSavingsHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     overflow: 'hidden',
   },
   backBar: {
     marginTop: 8,
   },
   list: {
-    marginTop: 12,
     flexGrow: 0,
   },
   rowTitle: {

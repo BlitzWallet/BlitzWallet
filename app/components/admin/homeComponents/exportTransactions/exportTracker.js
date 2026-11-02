@@ -5,8 +5,6 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { CENTER } from '../../../../constants';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useTranslation } from 'react-i18next';
@@ -156,7 +154,7 @@ export default function ConfirmExportPayments({
 }
 
 const styles = StyleSheet.create({
-  titleText: { width: INSET_WINDOW_WIDTH, ...CENTER, textAlign: 'center' },
+  titleText: { textAlign: 'center' },
   containerStyle: {
     flex: 1,
     alignItems: 'center',

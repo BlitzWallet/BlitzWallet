@@ -1,13 +1,12 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { CENTER, USDB_TOKEN_ID } from '../../../../../constants';
+import { USDB_TOKEN_ID } from '../../../../../constants';
 import { useCallback, useMemo, useState } from 'react';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useNavigation } from '@react-navigation/native';
-import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import ListCard, {
   ListDivider,
@@ -22,7 +21,6 @@ export default function SelectLRC20Token({
   handleBackPressFunction,
   fromPage,
 }) {
-  const contentWidth = useContentWidth();
   const navigate = useNavigation();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
   const [searchInput, setSearchInput] = useState('');
@@ -143,7 +141,7 @@ export default function SelectLRC20Token({
   );
 
   return (
-    <View style={[styles.innerContainer, { width: contentWidth }]}>
+    <View style={styles.innerContainer}>
       <SearchField
         placeholder={t('wallet.sendPages.selectLRC20Token.searchPlaceholder')}
         onChangeText={handleSearch}
@@ -187,7 +185,6 @@ export default function SelectLRC20Token({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    ...CENTER,
     marginTop: 15,
   },
   card: { flexShrink: 1, marginTop: 10 },

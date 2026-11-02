@@ -1,16 +1,11 @@
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {
-  CENTER,
-  COLORS,
-  ICONS,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../../../../constants';
+import { COLORS, ICONS } from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
 
@@ -25,8 +20,6 @@ export default function SelectContactRequestCurrency({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const selectSendingBalance = term => {
     const selected = term || selectedRecieveOption;
@@ -47,11 +40,8 @@ export default function SelectContactRequestCurrency({
   };
 
   return (
-    <View style={[styles.innerContainer, { width: contentWidth }]}>
-      <PageHeader
-        title={t('contacts.selectCurrencyToRequest.header')}
-        showSub={false}
-      />
+    <View style={styles.innerContainer}>
+      <SheetHeader first title={t('contacts.selectCurrencyToRequest.header')} />
       <ListCard>
         <PickRow
           lead={
@@ -119,7 +109,6 @@ export default function SelectContactRequestCurrency({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    ...CENTER,
   },
   icon: { width: 24, height: 24 },
 

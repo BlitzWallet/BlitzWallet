@@ -3,17 +3,12 @@ import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import {
-  FONT,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
-import { CENTER } from '../../../../constants';
+import { FONT, HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import { useEffect, useState } from 'react';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomButton from '../../../../functions/CustomElements/button';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 const TYPE_KEYS = [
   'Lightning',
@@ -142,13 +137,14 @@ export default function TxFilterHalfModal({
             onPress={onBack}
           />
         )}
-        <ThemeText
-          styles={[styles.title, onBack && styles.titleAfterBack]}
-          content={t(`${ns}.filterModalTitle`)}
-        />
+        <SheetHeader first={!onBack} title={t(`${ns}.filterModalTitle`)} />
 
         <ThemeText
-          styles={[styles.sectionLabel, { color: tokens.muted }]}
+          styles={[
+            styles.sectionLabel,
+            styles.sectionLabelFirst,
+            { color: tokens.muted },
+          ]}
           content={t(`${ns}.filterDirectionTitle`)}
         />
         <View style={styles.directionRow}>
@@ -224,21 +220,9 @@ export default function TxFilterHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
   scrollView: {
     flex: 1,
-  },
-  title: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 28,
-    marginTop: 18,
-    includeFontPadding: false,
-  },
-  titleAfterBack: {
-    marginTop: 12,
   },
   sectionLabel: {
     fontFamily: FONT.Title_Regular,
@@ -247,6 +231,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
     includeFontPadding: false,
+  },
+  sectionLabelFirst: {
+    marginTop: 0,
   },
   directionRow: {
     flexDirection: 'row',

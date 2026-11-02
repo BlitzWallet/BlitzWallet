@@ -1,20 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import {
-  CENTER,
-  COLORS,
-  ICONS,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../../../constants';
+import { COLORS, ICONS } from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
@@ -25,7 +15,7 @@ import {
 } from '../../../../functions/displayCurrency';
 import CurrencyCoin from './currencyCoin';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard, {
   ListDivider,
 } from '../../../../functions/CustomElements/redesign/ListCard';
@@ -44,8 +34,6 @@ export default function DisplayCurrencySelect({
   const { masterInfoObject } = useGlobalContextProvider();
   const { screenDimensions } = useAppStatus();
   const { tokens } = GetThemeColors();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const normalizedCurrentCurrency = normalizeDisplayCurrency(currentCurrency);
   const deviceCurrency = (
     masterInfoObject?.fiatCurrency || 'USD'
@@ -194,10 +182,7 @@ export default function DisplayCurrencySelect({
 
   const listHeader = (
     <>
-      <PageHeader
-        title={t('settings.fiatCurrency.halfModalTitle')}
-        showSub={false}
-      />
+      <SheetHeader first title={t('settings.fiatCurrency.halfModalTitle')} />
 
       <ListCard>
         {pinnedRows.map(renderPinnedRow)}
@@ -238,7 +223,7 @@ export default function DisplayCurrencySelect({
 
   return (
     <FlatList
-      style={[styles.list, { width: contentWidth }]}
+      style={styles.list}
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={listHeader}
       data={expanded ? currencies : EMPTY_LIST}
@@ -258,7 +243,6 @@ const keyExtractor = currency => currency.id;
 const styles = StyleSheet.create({
   list: {
     flex: 1,
-    ...CENTER,
   },
   listContent: {
     width: '100%',

@@ -1,10 +1,5 @@
-import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
-import { CENTER } from '../../../../constants/styles';
-import {
-  EMAIL_REGEX,
-  MAX_WEB_CONTENT_WIDTH,
-  VALID_URL_REGEX,
-} from '../../../../constants';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { EMAIL_REGEX, VALID_URL_REGEX } from '../../../../constants';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
 import { useEffect, useRef, useState } from 'react';
@@ -23,7 +18,7 @@ import getPhonePaymentAddress, {
   isPhonePaymentNumber,
 } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import { SheetTitle } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import ListCard, {
@@ -66,8 +61,6 @@ export function AddContactContent({
   const [isSearching, setIsSearching] = useState(false);
   const [remoteLoadingMessage, setRemoteLoadingMessage] = useState('');
   const navigate = useNavigation();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
 
@@ -443,8 +436,8 @@ export function AddContactContent({
     : 'hint';
 
   return (
-    <View style={[styles.innerContainer, { width: contentWidth }]}>
-      <SheetTitle first title={t('contacts.addContactsHalfModal.title')} />
+    <View style={styles.innerContainer}>
+      <SheetHeader first title={t('contacts.addContactsHalfModal.title')} />
       <View style={styles.search}>
         <SearchField
           placeholder={t('contacts.addContactsHalfModal.searchPlaceholder')}
@@ -614,8 +607,8 @@ function ContactListItem({
 const LIST_DIVIDER_INSET = 68;
 
 const styles = StyleSheet.create({
-  innerContainer: { flex: 1, ...CENTER },
-  search: { flexDirection: 'row', gap: 8, width: '100%', marginTop: 16 },
+  innerContainer: { flex: 1 },
+  search: { flexDirection: 'row', gap: 8, width: '100%' },
   steps: { flex: 1 },
   hint: { marginTop: 56 },
   noMatch: { marginTop: 40 },

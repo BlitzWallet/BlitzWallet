@@ -2,8 +2,6 @@ import { StyleSheet, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
-import useContentWidth from '../../../../functions/CustomElements/redesign/useContentWidth';
-import { CENTER } from '../../../../constants';
 
 export default function DefaultTokenPicker({
   options = [],
@@ -11,12 +9,11 @@ export default function DefaultTokenPicker({
   handleBackPressFunction,
 }) {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
-  const contentWidth = useContentWidth();
 
   return (
     // Sheet shell is still today's ground until the P2 halfModal restyle, so no
     // white body and no SheetSurface (cards stay white on the ground shell).
-    <View style={[styles.container, { width: contentWidth }]}>
+    <View style={styles.container}>
       <ListCard dividerInset={0} style={styles.card}>
         {options.map(option => (
           <PickRow
@@ -37,7 +34,7 @@ export default function DefaultTokenPicker({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...CENTER, paddingBottom: 24, marginTop: 20 },
+  container: { flex: 1, paddingBottom: 24, marginTop: 20 },
   card: { marginTop: 4 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
 });

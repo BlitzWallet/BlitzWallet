@@ -1,10 +1,9 @@
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../context-store/theme';
-import { SheetTitle } from '../savings/savingsSheetParts';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import ContactAvatar from './internalComponents/contactAvatar';
 
@@ -43,8 +42,6 @@ export default function ExpandedMessageHalfModal({
 }) {
   const { t } = useTranslation();
   const { tokens } = useTheme();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const name = selectedContact?.name || selectedContact?.uniqueName;
 
   const title = txParsed?.isRequest
@@ -65,8 +62,8 @@ export default function ExpandedMessageHalfModal({
   });
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
-      <SheetTitle first title={t('contacts.expandedMessageHalfModal.title')} />
+    <View style={styles.container}>
+      <SheetHeader first title={t('contacts.expandedMessageHalfModal.title')} />
       <View style={styles.listCard}>
         <ListRow
           minHeight={40}
@@ -106,10 +103,10 @@ export default function ExpandedMessageHalfModal({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...CENTER },
+  container: { flex: 1 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   scroll: { marginTop: 16, flexGrow: 0 },
-  listCard: { marginVertical: 10 },
+  listCard: { marginBottom: 10 },
   card: {
     borderRadius: 16,
     paddingVertical: 16,

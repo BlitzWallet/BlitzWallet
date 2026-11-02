@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useKeysContext } from '../../../../../context-store/keys';
@@ -20,7 +19,7 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
-import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -49,8 +48,6 @@ export default function ClosePoolConfirmation({
   const { fiatStats } = useNodeContext();
   const isMounted = useRef(true);
   const { t } = useTranslation();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState('');
@@ -267,7 +264,7 @@ export default function ClosePoolConfirmation({
 
   if (isLoading) {
     return (
-      <View style={[styles.container, { width: contentWidth, marginTop: 40 }]}>
+      <View style={[styles.container, { marginTop: 40 }]}>
         <StepProgress
           title={t('wallet.pools.closePoolLoadingTitle')}
           subtitle={t('wallet.pools.closePoolLoadingSub')}
@@ -291,9 +288,10 @@ export default function ClosePoolConfirmation({
   }
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
+    <View style={styles.container}>
       <Disc icon={'ArchiveX'} iconSize={24} size={56} />
-      <PageHeader
+      <SheetHeader
+        afterIcon
         title={t('wallet.pools.closePoolTitle')}
         sub={t('wallet.pools.closePoolWarning', {
           amount: displayCorrectDenomination({
@@ -335,7 +333,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 10,
-    ...CENTER,
   },
   centerContainer: {
     flex: 1,
