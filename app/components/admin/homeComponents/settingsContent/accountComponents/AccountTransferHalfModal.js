@@ -61,7 +61,6 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
-import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';

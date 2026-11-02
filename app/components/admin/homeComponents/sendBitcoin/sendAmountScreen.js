@@ -53,7 +53,6 @@ export default function SendAmountScreen(props) {
     enteredPaymentInfo = {},
     masterTokenInfo = {},
     selectedPaymentMethod = '',
-    preSelectedPaymentMethod,
     contactInfo,
     paymentDisplayCurrency,
     paymentDisplayFiatStats,

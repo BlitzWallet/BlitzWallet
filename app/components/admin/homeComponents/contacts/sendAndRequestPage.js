@@ -454,11 +454,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
   },
-  avatar: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
   avatarRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -474,9 +469,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
     includeFontPadding: false,
-  },
-  amount: {
-    marginTop: 20,
   },
   selectContainer: {
     marginBottom: CONTENT_KEYBOARD_OFFSET,

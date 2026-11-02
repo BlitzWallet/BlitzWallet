@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -114,7 +110,4 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   buttonContainer: { gap: 10 },
-  button: {
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-  },
 });

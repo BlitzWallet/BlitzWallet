@@ -56,11 +56,6 @@ jest.mock('../app/functions/CustomElements/themeIcon', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/functions/CustomElements/noContentScreen', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundColor: '#ffffff',
   backgroundOffset: '#eeeeee',

@@ -1,8 +1,8 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, FONT, ICONS, SIZES, TOPBAR_HEIGHT } from '../../constants';
+import { COLORS, FONT, SIZES, TOPBAR_HEIGHT } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import ThemeIcon from './themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';

@@ -4,7 +4,6 @@ import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { COLORS, FONT, ICONS } from '../../../../constants';
 import { MODES } from '../../../../constants/themes';
-import { useTheme } from '../../../../../context-store/theme';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -95,7 +94,6 @@ export function ReceiveQrCard({
 // Round QR centre badge: a coloured disc with a white glyph, or a logo image
 // with an optional small chain logo on its corner.
 export function QrBadge({ kind, image, chainImage, size = 44 }) {
-  const { tokens } = useTheme();
   const disc = { width: size, height: size, borderRadius: size / 2 };
   const glyph = size * 0.55;
   let inner;

@@ -46,7 +46,6 @@ import {
   getGiftByUuid,
   updateGiftLocal,
 } from '../../../../functions/gift/giftsStorage';
-import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import {
   deriveGiftRestoreKey,

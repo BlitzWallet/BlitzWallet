@@ -1,6 +1,6 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -21,7 +21,7 @@ import {
 import { bulkSparkPayment } from '../../../../functions/spark/bulkPaymentFunctions';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
@@ -65,7 +65,6 @@ import {
   getDefaultDisplayCurrency,
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
 
@@ -120,8 +119,7 @@ export default function ConfirmSplitPayment(props) {
   // the provider's ref (not a consumer mirror) keeps it valid even after this
   // screen is unmounted by the reset's navigation.
   const { authResetkeyRef } = useAuthContext();
-  const { textColor, backgroundOffset, backgroundColor, tokens } =
-    GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
 
   const isSendingPayment = useRef(null);
   const rateAtConfirmEntryRef = useRef(null);
@@ -169,13 +167,12 @@ export default function ConfirmSplitPayment(props) {
       }),
     [paymentCurrency, masterInfoObject, fiatStats],
   );
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
+  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
 
   const {
     primaryDisplay,
@@ -201,14 +198,6 @@ export default function ConfirmSplitPayment(props) {
   const displayAmount = convertSatsToDisplay(totalSplitSats);
 
   const { shouldWarn } = useBudgetWarning(totalSplitSats);
-
-  const openPicker = () =>
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'displayCurrencySelect',
-      sliderHight: 0.6,
-      currentCurrency: displayCurrency,
-      onSelectCurrency: selectCurrency,
-    });
 
   // ── Balance validation ──────────────────────────────────────────────────────
 
@@ -737,10 +726,6 @@ export default function ConfirmSplitPayment(props) {
       ? t('constants.dollars_upper')
       : t('constants.bitcoin_upper');
 
-  const denomination = isUSDSplit
-    ? 'fiat'
-    : masterInfoObject.userBalanceDenomination || 'sats';
-
   // ── Render ──────────────────────────────────────────────────────────────────
 
   const displayDetails = {
@@ -999,17 +984,6 @@ const styles = StyleSheet.create({
   feeLoading: { paddingVertical: 14, gap: 8 },
   feeLabel: { fontSize: 15, lineHeight: 22 },
   swapContainer: { flexGrow: 1, paddingTop: 132 },
-  sectionTitle: {
-    fontSize: SIZES.medium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  amountDisplay: {
-    includeFontPadding: false,
-    fontSize: SIZES.large,
-    textAlign: 'center',
-  },
   balanceScrollContainer: {
     flexGrow: 1,
     paddingTop: 72,

@@ -11,7 +11,7 @@ import { ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { CENTER, FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
@@ -262,17 +262,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     includeFontPadding: false,
-  },
-  paymentSection: { marginBottom: 28, gap: 16, marginTop: 'auto' },
-  paymentRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  paymentInfo: { flex: 1, marginLeft: 12 },
-  lightningIcon: { width: 15, height: 20 },
-  paymentLabel: { fontWeight: 500, includeFontPadding: false, marginBottom: 2 },
-  paymentDesc: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-    lineHeight: 18,
   },
   actionRow: {
     width: '100%',

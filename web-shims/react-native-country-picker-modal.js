@@ -12,7 +12,6 @@
 // callingCode stay identical to native. The JSON is bundled via Metro's JSON
 // transformer; we lazily require it to keep the web entry point synchronous.
 
-import React from 'react';
 import bundledCountries from '../node_modules/react-native-country-picker-modal/lib/assets/data/countries-emoji.json' with { type: 'json' };
 
 let _countries = null;

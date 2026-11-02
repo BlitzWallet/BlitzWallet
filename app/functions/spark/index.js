@@ -1,5 +1,4 @@
 import {
-  loadSparkSdk,
   getSparkWallet as getLazySparkWallet,
   getBuildUnilateralExitChain,
   getSparkAddressUtils,
@@ -55,7 +54,6 @@ const ClaimStaticDepositStatus = {
 import { getAllSparkTransactions } from './transactions';
 import { SPARK_TO_SPARK_FEE } from '../../constants/math';
 import {
-  getCachedTokens,
   mergeTokensWithCache,
   migrateCachedTokens,
   saveCachedTokens,
@@ -1804,7 +1802,6 @@ export const sparkPaymentType = tx => {
     const isLightningPayment = tx.type === 'PREIMAGE_SWAP';
     const isBitcoinPayment =
       tx.type === 'COOPERATIVE_EXIT' || tx.type === 'UTXO_SWAP';
-    const isSparkPayment = tx.type === 'TRANSFER';
 
     return isLightningPayment
       ? 'lightning'

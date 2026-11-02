@@ -151,11 +151,6 @@ jest.mock('../app/functions/CustomElements/button', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/functions/CustomElements/dropdownMenu', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 // FormattedSatText and FormattedBalanceInput are the two amount renderers we
 // want to distinguish between. Each mock surfaces the props it received via a
 // `componentProps` prop on a host Text node so tests can inspect them.

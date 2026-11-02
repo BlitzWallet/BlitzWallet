@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
-import { SIZES } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
@@ -248,39 +247,8 @@ const styles = StyleSheet.create({
   globalContainer: {
     paddingBottom: 0,
   },
-  listContent: {
-    ...CENTER,
-  },
   rowsCard: { marginTop: 12, marginBottom: 20 },
   rowTitle: { fontSize: 15, lineHeight: 22 },
-  widgetsHeader: {
-    width: '100%',
-    marginTop: 12,
-    marginBottom: 14,
-  },
-  widgetsTitle: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-  },
-  widgetsSubtitle: {
-    marginTop: 2,
-    fontSize: SIZES.small,
-    opacity: 0.55,
-    includeFontPadding: false,
-  },
-  posContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    borderWidth: 2,
-    ...CENTER,
-    paddingHorizontal: 25,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginBottom: 10,
-    marginTop: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   doomedayContianer: {
     flex: 1,
     alignSelf: 'center',

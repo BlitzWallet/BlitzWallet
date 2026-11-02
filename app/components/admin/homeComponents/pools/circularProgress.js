@@ -67,7 +67,6 @@ export default function CircularProgress({
 
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const progressColor = theme && darkModeType ? tokens.ink : tokens.accent;
   const trackColor =

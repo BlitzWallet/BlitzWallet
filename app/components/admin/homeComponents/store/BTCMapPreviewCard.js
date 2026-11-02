@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { FONT, ICONS, SIZES } from '../../../../constants';
+import { ICONS } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -138,9 +138,6 @@ const styles = StyleSheet.create({
     height: 320,
     overflow: 'hidden',
   },
-  mapWash: {
-    opacity: 1,
-  },
   textOverlay: {
     position: 'absolute',
     top: 26,
@@ -160,32 +157,11 @@ const styles = StyleSheet.create({
     lineHeight: 34,
     includeFontPadding: false,
   },
-  leftFade: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    width: '60%',
-  },
   topFade: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     height: '60%',
-  },
-  rightFade: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    width: '10%',
-  },
-  bottomFade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '10%',
   },
 });

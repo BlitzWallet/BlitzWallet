@@ -1,11 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import {
-  CENTER,
-  FONT,
-  MAX_WEB_CONTENT_WIDTH,
-  SIZES,
-} from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -87,54 +82,9 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     ...CENTER,
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: SIZES.xLarge,
-    fontFamily: FONT.Title_Regular,
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  detailsBox: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
-    marginBottom: 32,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: SIZES.medium,
-    opacity: 0.6,
-  },
-  detailValue: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Bold,
-    maxWidth: '60%',
-    textAlign: 'right',
-  },
   buttonContainer: {
     width: '100%',
     gap: 10,
     marginTop: 'auto',
-  },
-  closeButton: {
-    ...CENTER,
-  },
-  cancelButton: {
-    width: '100%',
-    opacity: 0.6,
   },
 });

@@ -92,22 +92,12 @@ jest.mock('../app/functions/CustomElements/switch', () => ({
   },
 }));
 
-jest.mock('../app/functions/CustomElements/checkMarkCircle', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 jest.mock('../app/functions/CustomElements/themeIcon', () => ({
   __esModule: true,
   default: () => null,
 }));
 
 jest.mock('../app/functions/CustomElements/loadingScreen', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
-jest.mock('../app/functions/CustomElements/noContentScreen', () => ({
   __esModule: true,
   default: () => null,
 }));
@@ -136,10 +126,6 @@ jest.mock('../app/functions/CustomElements/button', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
-  __esModule: true,
-  default: () => null,
-}));
 jest.mock('../app/functions/passkeyMnemonic', () => ({}));
 
 const LoginSecurity =

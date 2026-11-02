@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, View } from 'react-native';

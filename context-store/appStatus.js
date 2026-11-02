@@ -58,7 +58,6 @@ const AppStatusProvider = ({ children }) => {
   const timeInBackgroundRef = useRef(0);
 
   const hasInitializedNavListener = useRef(false);
-  const hasInitializedBoltzData = useRef(false);
   const hasInitializedNetworkMonitoring = useRef(null);
 
   const toggleDidGetToHomepage = useCallback(newInfo => {

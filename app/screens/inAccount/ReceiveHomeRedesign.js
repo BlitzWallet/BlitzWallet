@@ -124,7 +124,6 @@ export default function ReceiveHomeRedesign() {
 const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  search: { marginTop: 20 },
   list: { paddingBottom: 24 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

@@ -128,14 +128,6 @@ jest.mock(
     },
 );
 
-jest.mock(
-  '../../../app/functions/CustomElements/currencySwitchButton',
-  () =>
-    function MockCurrencySwitchButton() {
-      return null;
-    },
-);
-
 jest.mock('../../../app/functions/spark/flashnet', () => ({
   satsToDollars: () => '0.00',
 }));

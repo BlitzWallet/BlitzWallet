@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
@@ -33,7 +27,6 @@ import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import TextButton from '../../../functions/CustomElements/redesign/TextButton';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
-import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useTheme } from '../../../../context-store/theme';
 import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
 

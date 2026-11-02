@@ -284,12 +284,6 @@ const FADE_SCREENS = [
   { name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode },
   { name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage },
 ];
-const FADE_TRANSPARENT_MODAL_SCREENS = [
-  // {
-  //   name: 'RefundLiquidSwapPopup',
-  //   component: RefundLiquidSwapPopup,
-  // },
-];
 const BITREFILL_SCREEN = {
   name: 'BitrefillShopModal',
   component: BitrefillShopModal,
@@ -316,6 +310,5 @@ export {
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,
   FADE_SCREENS,
-  FADE_TRANSPARENT_MODAL_SCREENS,
   MODAL_CARD_SCREENS,
 };

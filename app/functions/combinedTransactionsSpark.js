@@ -1,11 +1,10 @@
-import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import {
   APPROXIMATE_SYMBOL,
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
   SIZES,
-  SKELETON_ANIMATION_SPEED,
   SMALL_BTC_PAYMENT_LIMIT,
   SMALL_USD_PAYMENT_LIMIT,
   USDB_TOKEN_ID,
@@ -16,7 +15,6 @@ import FormattedSatText from './CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
 import React, { memo, useMemo, useCallback } from 'react';
 import { crashlyticsLogReport } from './crashlyticsLogs';
-import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
 import { getTimeDisplay } from './contacts';
 import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
@@ -66,28 +64,6 @@ const shouldHideSmallPayment = ({
   return amount < SMALL_BTC_PAYMENT_LIMIT;
 };
 
-const SKELETON_STYLES = {
-  icon: {
-    height: 40,
-    width: 40,
-    marginRight: 12,
-    borderRadius: 100,
-  },
-  content: {
-    flex: 1,
-    height: 30,
-  },
-  line: {
-    flex: 1,
-    marginBottom: 10,
-    borderRadius: 100,
-  },
-  lastLine: {
-    flex: 1,
-    borderRadius: 100,
-  },
-};
-
 // Utility functions moved outside component
 const calculateTimeDifference = (currentTime, paymentDate) => {
   const timeDifferenceMs = currentTime - paymentDate;
@@ -96,29 +72,6 @@ const calculateTimeDifference = (currentTime, paymentDate) => {
   const days = hours / 24;
   const years = days / 365;
   return { minutes, hours, days, years, timeDifferenceMs };
-};
-
-const generateBannerText = (timeDifference, texts) => {
-  const { todayText, yesterdayText, dayText, monthText, yearText, agoText } =
-    texts;
-
-  if (timeDifference < 0.5) return todayText;
-  if (timeDifference > 0.5 && timeDifference < 1) return yesterdayText;
-
-  const roundedDays = Math.round(timeDifference);
-  if (roundedDays <= 30) {
-    return `${roundedDays} ${
-      roundedDays === 1 ? dayText : dayText + 's'
-    } ${agoText}`;
-  }
-
-  if (roundedDays < 365) {
-    const months = Math.floor(roundedDays / 30);
-    return `${months} ${monthText}${months === 1 ? '' : 's'} ${agoText}`;
-  }
-
-  const years = Math.floor(roundedDays / 365);
-  return `${years} ${yearText}${years === 1 ? '' : 's'} ${agoText}`;
 };
 
 const isSameDay = (a, b) => a.toDateString() === b.toDateString();
@@ -139,65 +92,6 @@ const getContainerWidth = frompage => {
     ? INSET_WINDOW_WIDTH
     : '100%';
 };
-
-const createLoadingSkeleton = (
-  numberOfCachedTxs,
-  frompage,
-  theme,
-  darkModeType,
-) => {
-  const arrayLength = Math.min(numberOfCachedTxs, 20);
-  const containerWidth = getContainerWidth(frompage);
-
-  const loadingTxElements = Array.from({ length: arrayLength }, (_, i) => (
-    <View
-      key={i}
-      style={{
-        ...styles.transactionContainer,
-        width: containerWidth,
-        ...CENTER,
-        paddingVertical:
-          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
-          frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
-            ? 13
-            : 0,
-      }}
-    >
-      <View style={SKELETON_STYLES.icon} />
-      <View style={SKELETON_STYLES.content}>
-        <View style={SKELETON_STYLES.line} />
-        <View style={SKELETON_STYLES.lastLine} />
-      </View>
-    </View>
-  ));
-
-  return {
-    type: 'tx',
-    item: (
-      <SkeletonPlaceholder
-        highlightColor={
-          theme
-            ? darkModeType
-              ? COLORS.lightsOutBackground
-              : COLORS.darkModeBackground
-            : COLORS.lightModeBackground
-        }
-        backgroundColor={COLORS.opaicityGray}
-        enabled={true}
-        speed={SKELETON_ANIMATION_SPEED}
-      >
-        {loadingTxElements}
-      </SkeletonPlaceholder>
-    ),
-    key: 'placeholderTxs',
-  };
-};
-
-const createDateBanner = bannerText => (
-  <View key={bannerText}>
-    <ThemeText styles={styles.transactionTimeBanner} content={bannerText} />
-  </View>
-);
 
 // Add this helper OUTSIDE the component (after TRANSACTION_CONSTANTS)
 const getTxIconName = (
@@ -251,19 +145,10 @@ export default function getFormattedHomepageTxsForSpark(props) {
     homepageTxPreferance = 25,
     navigate,
     frompage,
-    viewAllTxText,
     noTransactionHistoryText,
-    todayText,
-    yesterdayText,
-    dayText,
-    monthText,
-    yearText,
-    agoText,
     theme,
     darkModeType,
     userBalanceDenomination,
-    // numberOfCachedTxs,
-    didGetToHomepage,
     enabledLRC20,
     scrollPosition,
     poolInfoRef,
@@ -285,7 +170,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
 
   let formattedTxs = [];
   let ln_funding_txIds = new Set();
-  let currentGroupedDate = '';
   const transactionLimit =
     frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
     frompage === TRANSACTION_CONSTANTS.MANAGED_ACCOUNT
@@ -301,16 +185,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
   // ) {
   //   formattedTxs.push(createLoadingSkeleton(1, frompage, theme, darkModeType));
   // }
-
-  // Pre-calculate text objects to avoid recreation
-  const bannerTexts = {
-    todayText,
-    yesterdayText,
-    dayText,
-    monthText,
-    yearText,
-    agoText,
-  };
 
   for (
     let transactionIndex = 0;
@@ -606,8 +480,7 @@ export const UserTransaction = memo(function UserTransaction({
   swapLimits,
 }) {
   const { t } = useTranslation();
-  const { textColor, backgroundColor, backgroundOffset, tokens } =
-    GetThemeColors();
+  const { textColor, backgroundOffset, tokens } = GetThemeColors();
 
   // Row-local relative-time refresh: one shared 10s ticker updates the "x ago"
   // label without the parent rebuilding the animated list every 10s.

@@ -9,7 +9,6 @@ import {
   sendSparkLightningPayment,
   sendSparkPayment,
   getSparkAddress,
-  sparkWallet,
   sendSparkTokens,
 } from '.';
 import { waitForSwapCompletion } from './waitForSwapCompletion';
@@ -17,13 +16,7 @@ import {
   isSendingPayingEventEmiiter,
   SENDING_PAYMENT_EVENT_NAME,
 } from '../../../context-store/sparkContext';
-import {
-  DEFAULT_PAYMENT_EXPIRY_SEC,
-  SPEND_AND_REPLACE_STORAGE_KEY,
-  USDB_TOKEN_ID,
-} from '../../constants';
-import sha256Hash from '../hash';
-import calculateProgressiveBracketFee from './calculateSupportFee';
+import { SPEND_AND_REPLACE_STORAGE_KEY, USDB_TOKEN_ID } from '../../constants';
 import {
   calculateFlashnetAmountIn,
   dollarsToSats,
@@ -709,26 +702,3 @@ export const sparkReceivePaymentWrapper = async ({
     return { didWork: false, error: err.message };
   }
 };
-
-async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
-  try {
-    if (!supportFee) return;
-    if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
-      // const txPromise = sendSparkPayment({
-      //   receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
-      //   amountSats: supportFee,
-      //   mnemonic,
-      // });
-      // await Promise.race([
-      //   txPromise,
-      //   new Promise(res => setTimeout(res, 30000)),
-      // ]);
-      // txPromise.catch(err =>
-      //   console.log('Error sending support payment (late)', err),
-      // );
-      // await new Promise(res => setTimeout(res, 800)); // wait a bit
-    }
-  } catch (err) {
-    console.log('Error sending support payment', err);
-  }
-}

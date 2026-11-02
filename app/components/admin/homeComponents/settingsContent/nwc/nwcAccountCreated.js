@@ -1,5 +1,5 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';

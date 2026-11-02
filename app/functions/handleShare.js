@@ -1,20 +1,12 @@
 import * as Sharing from 'expo-sharing';
-import { Platform, Share } from 'react-native';
+import { Share } from 'react-native';
 import {
   documentDirectory,
   EncodingType,
-  StorageAccessFramework,
   writeAsStringAsync,
-  readAsStringAsync,
 } from 'expo-file-system/legacy';
 import writeAndShareFileToFilesystem from './writeFileToFilesystem';
 import { withShareTouchBlock } from './CustomElements/shareTouchBlocker';
-
-/**
- * Normalize file URI to ensure it starts with file://
- */
-const normalizeFileUri = uri =>
-  uri.startsWith('file://') ? uri : `file://${uri}`;
 
 /**
  * Determine encoding type based on file type

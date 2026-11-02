@@ -15,8 +15,7 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function AddOrDeleteContactImage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, textColor, backgroundOffset, tokens } =
-    GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 

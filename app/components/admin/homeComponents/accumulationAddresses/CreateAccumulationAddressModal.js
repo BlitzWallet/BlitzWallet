@@ -349,34 +349,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
   },
-  assetIcon: {
-    width: 45,
-    height: 45,
-  },
-  assetOptionsContainer: {
-    overflow: 'hidden',
-    gap: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
-  assetOptionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    gap: 12,
-  },
-  assetOptionIconContainer: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  assetOptionIcon: {
-    width: 35,
-    height: 35,
-  },
 });

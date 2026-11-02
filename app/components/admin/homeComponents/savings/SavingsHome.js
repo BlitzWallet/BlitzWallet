@@ -8,12 +8,7 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import {
-  CENTER,
-  COLORS,
-  MAX_WEB_CONTENT_WIDTH,
-  SIZES,
-} from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CircularProgress from '../pools/circularProgress';
 import { fromMicros, mergeAndSortSavingsActivity } from './utils';
@@ -248,79 +243,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 21,
   },
-  balanceValue: {
-    fontSize: SIZES.huge,
-    flexShrink: 1,
-    includeFontPadding: false,
-  },
-  earnedContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    gap: 4,
-  },
-  interestRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    // gap: 1,
-    marginBottom: 20,
-  },
-  interestText: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryActionText: {
-    color: COLORS.darkModeText,
-    includeFontPadding: false,
-  },
-  secondaryAction: {
-    backgroundColor: COLORS.lightModeBackgroundOffset,
-  },
-  disabledAction: {
-    opacity: 0.5,
-  },
-  sectionCard: {
-    borderRadius: 16,
-    padding: 0,
-    overflow: 'hidden',
-  },
-  goalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 14,
-  },
-  goalIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  goalCopyWrap: {
-    flex: 1,
-  },
-  goalCardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 14,
-  },
-  goalCardRowBorder: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.gray2,
-  },
   goalEmojiCircle: {
     width: 40,
     height: 40,
@@ -332,82 +254,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 24,
     includeFontPadding: false,
-  },
-  goalContent: {
-    flex: 1,
-  },
-  goalTitle: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  goalSubtitle: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-  updateGoalRow: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.gray2,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  updateGoalText: {
-    includeFontPadding: false,
-  },
-  activityHeader: {
-    fontSize: SIZES.smedium,
-    marginBottom: 8,
-    includeFontPadding: false,
-    marginTop: 14,
-  },
-  emptyActivity: {
-    opacity: 0.7,
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-    padding: 14,
-  },
-  activityRow: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomColor: COLORS.gray2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  activityLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  activityIconCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activityTitle: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  activityDate: {
-    fontSize: SIZES.xSmall,
-    opacity: 0.6,
-    includeFontPadding: false,
-  },
-  activityAmount: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-  },
-  activityPositive: {
-    color: COLORS.dollarGreen,
-  },
-  activityNegative: {
-    color: COLORS.cancelRed,
   },
   disclaimer: {
     fontSize: 12,

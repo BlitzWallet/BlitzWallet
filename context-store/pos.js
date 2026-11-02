@@ -18,11 +18,9 @@ import {
 import { getTwoWeeksAgoDate } from '../app/functions/rotateAddressDateChecker';
 import {
   collection,
-  getDocs,
   onSnapshot,
   orderBy,
   query,
-  startAfter,
   where,
 } from '@react-native-firebase/firestore';
 // Initiate context
@@ -171,8 +169,4 @@ function usePOSTransactions() {
   return context;
 }
 
-export {
-  POSTransactionsContextManager,
-  POSTransactionsProvider,
-  usePOSTransactions,
-};
+export { POSTransactionsProvider, usePOSTransactions };

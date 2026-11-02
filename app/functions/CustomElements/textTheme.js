@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { COLORS, FONT, SIZES } from '../../constants';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useMemo } from 'react';

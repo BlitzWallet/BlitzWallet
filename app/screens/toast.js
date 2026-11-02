@@ -9,7 +9,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
-import { COLORS, ICONS } from '../constants';
+import { COLORS } from '../constants';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { SIZES, WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -275,12 +275,6 @@ const styles = StyleSheet.create({
   },
   clipboardToast: {
     backgroundColor: COLORS.darkModeText,
-  },
-  successToast: {
-    backgroundColor: '#4CAF50',
-  },
-  errorToast: {
-    backgroundColor: '#F44336',
   },
   warningToast: {
     backgroundColor: '#FF9800',

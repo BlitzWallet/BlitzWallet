@@ -58,10 +58,6 @@ jest.mock('../../app/functions/CustomElements', () => ({
 }));
 jest.mock('../../app/functions/CustomElements/button', () => 'Button');
 jest.mock('../../app/functions/CustomElements/searchInput', () => 'Input');
-jest.mock(
-  '../../app/functions/CustomElements/actionCircleContainer',
-  () => 'Icon',
-);
 jest.mock('../../app/functions/CustomElements/themeIcon', () => 'Icon');
 
 const recoveryLabel = 'createAccount.legacyWebMigration.useRecoveryPhrase';

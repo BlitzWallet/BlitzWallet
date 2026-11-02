@@ -26,7 +26,6 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SIZES,
   USDB_TOKEN_ID,
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
@@ -63,7 +62,6 @@ import {
   normalizeDisplayCurrency,
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
 import { formatCountdown } from '../../../../functions/timeFormatter';
 import { useAuthContext } from '../../../../../context-store/authContext';
@@ -167,19 +165,15 @@ export default function StablecoinSendScreen() {
     isSendingPayment.current = sending;
   }, [sending]);
 
-  const {
-    primaryDisplay,
-    conversionFiatStats,
-    convertSatsToDisplay,
-    convertDisplayToSats,
-  } = useCurrencyDisplay({
-    displayCurrency: sourceMethod === 'USD' ? 'USD' : displayCurrency,
-    fiatStats,
-    usdFiatStats,
-    currencyRates,
-    masterInfoObject,
-    isSendingPayment: isSendingPayment.current,
-  });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency: sourceMethod === 'USD' ? 'USD' : displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+      isSendingPayment: isSendingPayment.current,
+    });
 
   // Kept current so the success-page handoff reads the live display config
   // rather than a stale value captured in the handleSend useCallback closure.
@@ -254,7 +248,7 @@ export default function StablecoinSendScreen() {
         if (myToken !== fetchTokenRef.current) return;
 
         if (!result || result.error) {
-          const { code, message, minimumSats } = result.error;
+          const { code, minimumSats } = result.error;
 
           if (code === 'amount_too_small') {
             if (minimumSats) {
@@ -923,16 +917,6 @@ export default function StablecoinSendScreen() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-  },
-  sectionTitle: {
-    fontSize: SIZES.medium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-    // textTransform: 'capitalize',
-  },
   replacementContainer: {
     flex: 1,
     ...CENTER,
@@ -946,15 +930,6 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center' },
   secondary: { marginTop: 4, textAlign: 'center' },
   card: { marginTop: 48 },
-  satValue: {
-    fontSize: SIZES.medium,
-    marginTop: 4,
-  },
-  destinationChevron: {
-    opacity: 0.8,
-    position: 'absolute',
-    right: 12,
-  },
   countdownPill: {
     minHeight: 44,
     paddingHorizontal: 14,

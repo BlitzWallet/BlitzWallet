@@ -22,7 +22,6 @@ import {
   SIZES,
 } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useKeysContext } from '../../../../../context-store/keys';
@@ -657,10 +656,6 @@ export default function BitrefillShopModal() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 30,
-    paddingBottom: 0,
-  },
   overlayContainr: {
     flex: 1,
   },
@@ -687,22 +682,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: CONTENT_KEYBOARD_OFFSET,
   },
-  editEmailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    // paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  editEmailText: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-  },
-  editEmailLink: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    textDecorationLine: 'underline',
-  },
   // ── Email overlay ──
   emailOverlay: {
     position: 'absolute',
@@ -715,42 +694,6 @@ const styles = StyleSheet.create({
   emailOverlayInner: {
     paddingTop: 30,
     ...CENTER,
-  },
-  emailContent: {
-    flex: 1,
-    ...(isWeb && { width: INSET_WINDOW_WIDTH, ...CENTER }),
-    // paddingHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-  emailTopSection: {
-    flex: 1,
-  },
-  emailTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  emailDescription: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-    opacity: 0.6,
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.55,
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    marginTop: 16,
-  },
-  inputCard: {
-    borderRadius: 12,
-    marginTop: 8,
-    justifyContent: 'center',
   },
   helperText: {
     marginTop: 10,
@@ -765,11 +708,5 @@ const styles = StyleSheet.create({
   buttonRow: {
     marginTop: 'auto',
     gap: 10,
-  },
-  halfButton: {
-    flex: 1,
-  },
-  skipButton: {
-    opacity: 0.5,
   },
 });

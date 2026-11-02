@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Linking, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Linking } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,

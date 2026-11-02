@@ -43,13 +43,6 @@ import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
 import { formatBalanceAmount, copyToClipboard } from '../../functions';
-import {
-  claimSparkHodlLightningPayment,
-  querySparkHodlLightningPayments,
-} from '../../functions/spark';
-import { useKeysContext } from '../../../context-store/keys';
-import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMessages';
-import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
 import { isOrchestraSwapFailed } from '../../functions/spark/orchestraLightning';
 import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swapProgress';
@@ -176,13 +169,10 @@ export default function ExpandedTx({
   const { cache } = useImageCache();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
   const navigate = useNavigation();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
-  const [isClaimingHtlc, setIsClaimingHtlc] = useState(false);
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToast();
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [isEditingMemo, setIsEditingMemo] = useState(false);
@@ -191,7 +181,6 @@ export default function ExpandedTx({
   const didRunMemoSaveRef = useRef(false);
   const scrollRef = useRef(null);
 
-  const claimHTLCLabel = t('screens.inAccount.expandedTxPage.claimPayment');
   const contactSupportLabel = t(
     'screens.inAccount.expandedTxPage.contactSupport',
   );
@@ -313,78 +302,6 @@ export default function ExpandedTx({
       setTransaction(newTx);
     } catch (err) {
       console.log(err);
-    }
-  };
-
-  const claimHTLC = async () => {
-    try {
-      setIsClaimingHtlc(true);
-      const decodedPreimage = decryptMessage(
-        contactsPrivateKey,
-        contactsPublicKey,
-        transaction.details.encryptedPreimage,
-      );
-
-      const response = await claimSparkHodlLightningPayment({
-        preimage: decodedPreimage,
-        mnemonic: currentWalletMnemoinc,
-      });
-      const responseStatus = await querySparkHodlLightningPayments({
-        paymentHashes: [transaction.details.paymentHash],
-        mnemonic: currentWalletMnemoinc,
-      });
-
-      if (!response.didWork) throw new Error('Failed to claim preimage');
-      if (response.didWork) {
-        const htlcTrueStatus = responseStatus.paidPreimages;
-        let newTx = JSON.parse(JSON.stringify(transaction));
-        newTx.details.didClaimHTLC = true;
-        newTx.details.preimage = decodedPreimage;
-        newTx.id = transaction.sparkID;
-        newTx.paymentStatus =
-          htlcTrueStatus[0].status === 1 ? 'completed' : 'failed';
-        await bulkUpdateSparkTransactions(
-          [newTx],
-          undefined,
-          undefined,
-          undefined,
-          true,
-        );
-        setTransaction(newTx);
-      }
-    } catch (err) {
-      console.log('Error claiming htlc in tx detials', err);
-
-      const htlcStatus = await querySparkHodlLightningPayments({
-        paymentHashes: [transaction.details.paymentHash],
-        mnemonic: currentWalletMnemoinc,
-      });
-
-      if (htlcStatus.paidPreimages?.length) {
-        const htlc = htlcStatus.paidPreimages[0];
-
-        if (htlc.status === 2 || htlc.status === 1) {
-          let newTx = JSON.parse(JSON.stringify(transaction));
-          newTx.details.didClaimHTLC = true;
-          newTx.id = transaction.sparkID;
-          newTx.paymentStatus = htlc.status === 1 ? 'completed' : 'failed';
-
-          await bulkUpdateSparkTransactions(
-            [newTx],
-            undefined,
-            undefined,
-            undefined,
-            true,
-          );
-          setTransaction(newTx);
-        } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('screens.inAccount.expandedTxPage.claimError'),
-          });
-        }
-      }
-    } finally {
-      setIsClaimingHtlc(false);
     }
   };
 

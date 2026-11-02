@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { FONT } from '../../../../constants';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 

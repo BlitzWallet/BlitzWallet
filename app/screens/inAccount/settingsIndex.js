@@ -8,7 +8,7 @@ import {
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';

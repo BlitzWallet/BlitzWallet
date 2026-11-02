@@ -4,7 +4,6 @@ import {
   EMAIL_REGEX,
   MAX_WEB_CONTENT_WIDTH,
   VALID_URL_REGEX,
-  VALID_USERNAME_REGEX,
 } from '../../../../constants';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';

@@ -63,18 +63,14 @@ export default function PoolAmountKeypad({
     });
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-  } = useCurrencyDisplay({
-    displayCurrency,
-    fiatStats,
-    usdFiatStats,
-    currencyRates,
-    masterInfoObject,
-  });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
 
   const sats = convertDisplayToSats(amountValue);
   const primaryMasterInfoObject = useMemo(
@@ -97,17 +93,6 @@ export default function PoolAmountKeypad({
       }),
     [primaryMasterInfoObject, conversionFiatStats],
   );
-  const formatSecondary = amount =>
-    displayCorrectDenomination({
-      amount,
-      masterInfoObject: {
-        ...masterInfoObject,
-        userBalanceDenomination: secondaryDisplay.denomination,
-        satDisplay: 'text',
-      },
-      fiatStats: secondaryDisplay.forceFiatStats || fiatStats,
-      forceCurrency: secondaryDisplay.forceCurrency,
-    });
 
   const openPicker = useCallback(
     () =>

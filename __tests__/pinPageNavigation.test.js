@@ -146,14 +146,6 @@ jest.mock('../app/components/admin/loginComponents/passwordCreateForm', () => ({
   default: () => null,
 }));
 
-jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-jest.mock('../app/functions/CustomElements/actionCircleContainer', () => ({
-  __esModule: true,
-  default: () => null,
-}));
 jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: () => null,

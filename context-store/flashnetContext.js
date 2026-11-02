@@ -2,7 +2,6 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useReducer,
   useEffect,
   useMemo,
   useRef,
@@ -13,11 +12,9 @@ import {
   findBestPool,
   USD_ASSET_ADDRESS,
   swapBitcoinToToken,
-  getUserSwapHistory,
   minFlashnetSwapAmounts,
   checkClawbackEligibility,
   requestManualClawback,
-  dollarsToSats,
   currentPriceAinBToPriceDollars,
   addActiveSwap,
   removeActiveSwap,
@@ -34,7 +31,6 @@ import {
   getSparkPaymentStatus,
   initializeFlashnet,
 } from '../app/functions/spark';
-import { USDB_TOKEN_ID } from '../app/constants';
 import {
   bulkUpdateSparkTransactions,
   deleteUnpaidSparkLightningTransaction,
@@ -47,9 +43,7 @@ import {
 import {
   isFlashnetTransfer,
   loadSavedTransferIds,
-  setFlashnetTransfer,
 } from '../app/functions/spark/handleFlashnetTransferIds';
-import { useToast } from './toastManager';
 import { useAuthContext } from './authContext';
 import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
@@ -65,7 +59,6 @@ const poolInfoChanged = (next, prev) =>
   POOL_WATCHED_KEYS.some(k => next?.[k] !== prev?.[k]);
 
 export function FlashnetProvider({ children }) {
-  const { showToast } = useToast();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { appState } = useAppStatus();
   const { sparkInformation, sparkInfoRef, setSparkInformation } =

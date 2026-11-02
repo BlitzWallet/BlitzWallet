@@ -33,7 +33,6 @@ import {
 } from '../../../../functions/localStorage';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
@@ -367,16 +366,4 @@ const styles = StyleSheet.create({
   pillRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
   pill: { flex: 1, width: 'auto' },
   bottomButton: { marginTop: CONTENT_KEYBOARD_OFFSET },
-  qrContainer: {
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: COLORS.white,
-    marginVertical: 20,
-  },
-  optionBtn: { width: '100%', marginBottom: 10 },
-  deleteBtn: {
-    width: '100%',
-    backgroundColor: COLORS.cancelRed,
-  },
-  deleteText: { color: COLORS.white },
 });

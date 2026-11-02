@@ -103,14 +103,8 @@ jest.mock('../app/components/admin/loginComponents/passwordCreateForm', () => ({
   default: props => require('react').createElement('MockPasswordForm', props),
 }));
 
-jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 for (const path of [
   '../app/functions/CustomElements/switch',
-  '../app/functions/CustomElements/checkMarkCircle',
   '../app/functions/CustomElements/themeIcon',
   '../app/functions/CustomElements/loadingScreen',
 ]) {

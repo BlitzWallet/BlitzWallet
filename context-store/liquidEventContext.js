@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useMemo,
-} from 'react';
+import { createContext, useContext, useMemo } from 'react';
 // import {
 //   addEventListener,
 //   removeEventListener,
@@ -34,10 +27,6 @@ import {
 // implementation is preserved after the early return for re-enable.
 
 const LiquidEventContext = createContext(null);
-
-const DEFAULT_EVENT_LIMIT = 15;
-const DEBOUNCE_DELAY = 2000;
-const REQUIRED_SYNC_COUNT = 2;
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({ children }) {

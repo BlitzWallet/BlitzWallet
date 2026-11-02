@@ -461,7 +461,4 @@ const styles = StyleSheet.create({
   bottomButtons: {
     gap: 12,
   },
-  removeButton: {
-    backgroundColor: 'transparent',
-  },
 });

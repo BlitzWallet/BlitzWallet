@@ -31,7 +31,7 @@ export default function AnalyticsCreateBudgetPage() {
   const navigate = useNavigation();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  const { swapUSDPriceDollars } = useFlashnet();
   const { tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -64,13 +64,12 @@ export default function AnalyticsCreateBudgetPage() {
     [masterInfoObject, fiatStats],
   );
 
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
+  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
 
   const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
     useCurrencyDisplay({
@@ -82,18 +81,6 @@ export default function AnalyticsCreateBudgetPage() {
     });
 
   const localSatAmount = convertDisplayToSats(amountValue);
-
-  const openPicker = () =>
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'displayCurrencySelect',
-      sliderHight: 0.9,
-      currentCurrency: displayCurrency,
-      onSelectCurrency: async code => {
-        const response = await selectCurrency(code);
-        if (response?.didWork) setAmountValue('');
-        return response;
-      },
-    });
 
   async function handleSave() {
     if (!localSatAmount || localSatAmount <= 0) {
@@ -155,10 +142,6 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     ...CENTER,
-  },
-  contentContainer: {
-    flex: 1,
-    alignSelf: 'center',
   },
   container: {
     flex: 1,

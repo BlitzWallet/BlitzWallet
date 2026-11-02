@@ -9,7 +9,7 @@ import { ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
 import TextButton from '../../../functions/CustomElements/redesign/TextButton';
 import { useTranslation } from 'react-i18next';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../constants/theme';
 import { useTheme } from '../../../../context-store/theme';
 import { openBrowserAsync } from 'expo-web-browser';
 import PasswordField from './passwordField';

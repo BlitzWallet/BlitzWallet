@@ -18,10 +18,6 @@ import {
   useTheme,
 } from '../../../../../../context-store/theme';
 import { CENTER, SHOPS_DIRECTORY_KEY } from '../../../../../constants';
-import {
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
@@ -434,7 +430,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 12,
   },
-  flatList: { flex: 1, width: WINDOWWIDTH, alignSelf: 'center' },
   listContent: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -494,24 +489,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     includeFontPadding: false,
   },
-  textInputContainer: {
-    overflow: 'hidden',
-    borderRadius: 999,
-  },
-  searchInput: {
-    height: 52,
-    paddingLeft: 48,
-    paddingRight: 16,
-    paddingVertical: 0,
-    borderRadius: 999,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  searchIcon: {
-    position: 'absolute',
-    left: 16,
-    top: 17,
-  },
   filterButton: {
     position: 'relative',
   },
@@ -529,11 +506,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     includeFontPadding: false,
     textAlign: 'center',
-  },
-  submitListingBTN: {
-    marginTop: 8,
-    marginBottom: 12,
-    alignSelf: 'center',
-    width: INSET_WINDOW_WIDTH,
   },
 });

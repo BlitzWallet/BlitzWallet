@@ -92,10 +92,6 @@ jest.mock('../../app/functions/CustomElements/searchInput', () => ({
   __esModule: true,
   default: () => null,
 }));
-jest.mock('../../app/functions/CustomElements/wordsQrToggle', () => ({
-  __esModule: true,
-  default: () => null,
-}));
 jest.mock('../../app/functions/CustomElements/camera/inlineQrScanner', () => ({
   __esModule: true,
   default: () => null,

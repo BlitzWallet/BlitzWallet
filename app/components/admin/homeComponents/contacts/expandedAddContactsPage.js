@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, COLORS, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
@@ -185,17 +185,5 @@ const styles = StyleSheet.create({
   addedImageContainer: {
     ...CENTER,
     marginTop: 8,
-  },
-  selectFromPhotos: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    backgroundColor: COLORS.darkModeText,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    right: 12.5,
-    bottom: 12.5,
-    zIndex: 2,
   },
 });

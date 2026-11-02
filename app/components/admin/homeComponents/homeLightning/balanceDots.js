@@ -90,9 +90,4 @@ const styles = StyleSheet.create({
     borderRadius: 2.5,
     marginHorizontal: 2.5,
   },
-
-  balanceLabel: {
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
 });

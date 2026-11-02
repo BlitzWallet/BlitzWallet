@@ -1,8 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { FONT, ICONS } from '../../../../constants';
+import { ICONS } from '../../../../constants';
 import { COLORS } from '../../../../constants/theme';
-import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useState } from 'react';
@@ -31,7 +30,7 @@ export default function LnurlReceiveCurrencySelect({
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, tokens } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 

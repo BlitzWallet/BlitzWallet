@@ -63,7 +63,7 @@ export default function PoolDetailScreen(props) {
     updatePoolList,
   } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const [refreshing, setRefreshing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -459,9 +459,6 @@ export default function PoolDetailScreen(props) {
                       item?.creatorName ||
                       item?.contributorName ||
                       t('wallet.pools.unknown');
-                    const isLast = index === recentActivity.length - 1;
-                    const showSeparator =
-                      !isLast || contributions.length > MAX_VISIBLE_ACTIVITY;
 
                     return (
                       <ListRow

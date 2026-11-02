@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { SIZES } from '../../../../constants';
 import SavingsTransactionComponenet from './transactionContainer';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -74,18 +73,7 @@ export default function SavingsActivityContainer({ transactions = [] }) {
 const styles = StyleSheet.create({
   container: {},
   header: { marginTop: 20, marginBottom: 8 },
-  sectionCard: {
-    borderRadius: 16,
-    padding: 0,
-    overflow: 'hidden',
-  },
 
-  activityHeader: {
-    fontSize: SIZES.smedium,
-    marginBottom: 8,
-    includeFontPadding: false,
-    marginTop: 14,
-  },
   emptyActivity: {
     paddingVertical: 18,
   },

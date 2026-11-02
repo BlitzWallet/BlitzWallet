@@ -4,9 +4,6 @@ import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
-  FONT,
-  HIDDEN_BALANCE_TEXT,
-  SIZES,
 } from '../../constants';
 import ThemeText from './textTheme';
 import { formatCurrency } from '../formatCurrency';
@@ -103,16 +100,6 @@ export default function FormattedSatText({
       CustomNumberOfLines={autoAdjustFontSize ? 1 : undefined}
       adjustsFontSizeToFit={autoAdjustFontSize}
       key={content}
-      reversed={reversed}
-      styles={{ includeFontPadding: false, ...styles, ...extra }}
-      content={content}
-    />
-  );
-  const hiddenText = (content, key, extra = {}) => (
-    <ThemeText
-      CustomNumberOfLines={autoAdjustFontSize ? 1 : undefined}
-      adjustsFontSizeToFit={autoAdjustFontSize}
-      key={key}
       reversed={reversed}
       styles={{ includeFontPadding: false, ...styles, ...extra }}
       content={content}

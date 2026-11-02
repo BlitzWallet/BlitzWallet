@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -8,7 +7,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, SIZES } from '../../../../../constants';
+import { CENTER } from '../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import {
   GlobalThemeView,
@@ -372,28 +371,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     marginTop: 12,
-    ...CENTER,
-  },
-  currencyButton: {
-    minHeight: 44,
-    paddingLeft: 16,
-    paddingRight: 12,
-    borderRadius: 999,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  currencyLabel: {
-    fontSize: 14,
-    lineHeight: 20,
-    includeFontPadding: false,
-  },
-  unlimitedHelper: {
-    width: INSET_WINDOW_WIDTH,
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
     ...CENTER,
   },
 });

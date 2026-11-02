@@ -18,11 +18,9 @@ import {
   ViewSwapsHome,
   WalletLeaves,
 } from '../../components/admin/homeComponents/settingsContent';
-import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { EditMyProfilePage } from '../../components/admin';
 
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
@@ -32,10 +30,8 @@ import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 
 export default function SettingsContentIndex(props) {
-  const navigate = useNavigation();
-
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedPage = props?.route?.params?.for;

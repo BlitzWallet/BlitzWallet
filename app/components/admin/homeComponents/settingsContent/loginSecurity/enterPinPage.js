@@ -6,9 +6,9 @@ import {
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import { CENTER, SIZES } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import PinDot from '../../../../../functions/CustomElements/pinDot';
 import KeyForKeyboard from '../../../../../functions/CustomElements/key';
@@ -290,13 +290,6 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  key: {
-    width: '33.333333333%',
-    height: 70,
-    display: 'flex',
-    alignItems: 'center',
     justifyContent: 'center',
   },
 });

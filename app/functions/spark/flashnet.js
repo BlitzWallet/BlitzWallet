@@ -35,10 +35,7 @@ import {
   setFlashnetTransfer,
 } from './handleFlashnetTransferIds';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
-import {
-  bulkUpdateSparkTransactions,
-  getSingleSparkLightningRequest,
-} from './transactions';
+import { bulkUpdateSparkTransactions } from './transactions';
 import { decode } from '../decodeBolt11';
 import fetchBackend from '../../../db/handleBackend';
 import { privateKeyFromSeedWords } from '../nostrCompatability';

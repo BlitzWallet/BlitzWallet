@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -166,9 +166,6 @@ const styles = StyleSheet.create({
   animation: {
     width: 150,
     height: 150,
-  },
-  instructionsContainer: {
-    width: '90%',
   },
   introText: {
     textAlign: 'center',

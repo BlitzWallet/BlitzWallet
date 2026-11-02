@@ -145,10 +145,6 @@ const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // InfoDropdown already leaves 16 below; design gap is 20.
   sectionHeader: { marginTop: 4 },
-  listContent: {
-    flexGrow: 1,
-    paddingBottom: 16,
-  },
 
   sectionTitle: {
     fontSize: SIZES.smedium,

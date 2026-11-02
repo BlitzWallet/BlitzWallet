@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 import CustomSearchInput from '../searchInput';
-import ThemeIcon from '../themeIcon';
 import { useInSheet } from './sheetSurface';
 import ThemeText from '../textTheme';
 import { SIZES } from '../../../constants';
@@ -121,5 +120,4 @@ const styles = StyleSheet.create({
   },
   pill: { borderRadius: 999 },
   multiline: { height: 120, paddingTop: 14, paddingBottom: 14 },
-  glyph: { position: 'absolute', left: 16, top: 17 },
 });

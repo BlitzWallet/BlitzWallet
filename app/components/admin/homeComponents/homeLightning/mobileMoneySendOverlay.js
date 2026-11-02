@@ -12,7 +12,7 @@ import Animated, {
 import { useTranslation } from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
 import { AsYouType } from 'libphonenumber-js';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -386,28 +386,6 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-    includeFontPadding: false,
-  },
-  countryRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    marginBottom: 12,
-  },
   flagContainer: {
     width: 44,
     height: 44,
@@ -415,20 +393,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  countryTextContainer: {
-    flex: 1,
-    marginLeft: 15,
-  },
-  countryName: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  countryProvider: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    marginTop: 2,
-    includeFontPadding: false,
   },
   keyboardContainer: { marginTop: 'auto' },
   phoneInputRow: {

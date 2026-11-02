@@ -12,23 +12,17 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
   MAX_WEB_CONTENT_WIDTH,
-  SIZES,
   VALID_NAME_BIO_REGEX,
 } from '../../../../constants';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import { isValidUniqueName } from '../../../../../db';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
@@ -46,7 +40,6 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
-import { setStringAsync } from 'expo-clipboard';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { useToast } from '../../../../../context-store/toastManager';
@@ -305,7 +298,6 @@ function InnerContent({
   fromSettings,
 }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { cache, refreshCacheObject } = useImageCache();
   const { backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -836,12 +828,6 @@ function InnerContent({
 }
 
 const styles = StyleSheet.create({
-  hideProfileContainer: {
-    flex: 1,
-    alignItems: 'center',
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
   innerContainer: {
     flex: 1,
     width: '100%',
@@ -881,57 +867,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     overflow: 'hidden',
   },
-  navRow: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    minHeight: 60,
-  },
-  navRowLabelLine: {
-    marginRight: 'auto',
-    flexShrink: 1,
-  },
-  navRowLabel: {
-    fontSize: 14,
-    lineHeight: 20,
-    includeFontPadding: false,
-    opacity: 0.55,
-    flexShrink: 1,
-    marginLeft: 10,
-  },
-  navRowValue: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-    marginRight: 'auto',
-  },
-  copyLinkRow: {
-    paddingVertical: 8,
-  },
-  copyLinkText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.55,
-    flex: 1,
-    marginRight: 4,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: 16,
-    opacity: 0.15,
-  },
   rowTitle: { fontSize: 15, lineHeight: 22 },
   shareTitle: { fontSize: 13, lineHeight: 19 },
   shareSub: { fontSize: 15, lineHeight: 22 },
-  shareHint: {
-    alignSelf: 'flex-start',
-    marginTop: 8,
-    marginHorizontal: 4,
-    fontSize: 13,
-    lineHeight: 19,
-    includeFontPadding: false,
-  },
   copyDisc: {
     width: 44,
     height: 44,

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -22,7 +22,7 @@ export default function ProfileCard({
   onShowQRPress,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
   const editProfileLabel = t('settings.index.editProfile');
   const showQrLabel = t('settings.index.showQR');
@@ -140,26 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
   },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
   // 44 white disc with a 3 px ground ring, hanging off the avatar corner.
-  photoBadge: {
-    position: 'absolute',
-    right: -9,
-    bottom: -9,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   nameBlock: {
     width: '100%',
     marginTop: 12,

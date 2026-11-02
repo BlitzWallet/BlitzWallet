@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, ICONS, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';

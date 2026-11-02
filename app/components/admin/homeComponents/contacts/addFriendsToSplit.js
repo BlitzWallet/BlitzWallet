@@ -264,13 +264,6 @@ const styles = StyleSheet.create({
   chipName: { fontSize: 14, lineHeight: 20, maxWidth: 120 },
   card: { flexShrink: 1 },
   list: { flexGrow: 0 },
-  check: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   spacer: { flex: 1 },
   nextButton: { marginTop: CONTENT_KEYBOARD_OFFSET },
 });

@@ -216,9 +216,6 @@ export default function ReceivePaymentHome(props) {
     ? 0
     : initialSendAmount || userReceiveAmount || 0;
 
-  const isUsingLnurl =
-    !displayedReceiveAmount && !isUsingAltAccount && !paymentDescription;
-
   const displayAddress = address;
 
   const handleShareInvoice = async () => {

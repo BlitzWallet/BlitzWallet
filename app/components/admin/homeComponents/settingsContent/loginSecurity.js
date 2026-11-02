@@ -16,7 +16,6 @@ import {
 } from '../../../../functions';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import {
   decryptMnemonicWithPin,
@@ -36,14 +35,12 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
-import PasskeyIcon from '../../../admin/loginComponents/passkeyIcon';
 import {
   createPasskey,
   decryptMnemonicWithPasskey,
   forgetPasskey,
   getStoredPasskeyInfo,
   isPasskeySupported,
-  passkeyName,
   storeMnemonicWithPasskey,
 } from '../../../../functions/passkeyMnemonic';
 
@@ -957,12 +954,6 @@ const styles = StyleSheet.create({
   cardSpacing: {
     marginTop: 16,
   },
-  detailCard: {
-    width: '100%',
-    marginTop: 16,
-    borderRadius: 20,
-    padding: 16,
-  },
   stepBlock: {
     width: '100%',
     marginTop: 16,
@@ -979,20 +970,6 @@ const styles = StyleSheet.create({
   },
   webErrorText: {
     marginTop: 8,
-  },
-  passkeyCard: {
-    alignItems: 'center',
-  },
-  passkeyTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    marginTop: 12,
-    marginBottom: 6,
-  },
-  passkeyText: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
   },
 });
 

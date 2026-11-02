@@ -6,22 +6,16 @@ import {
 } from 'react-native-keyboard-controller';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
   SIZES,
 } from '../../constants';
-import {
-  HalfModalSendOptions,
-  HalfModalReceiveOptions,
-} from '../../components/admin';
 import {
   ConfirmSMSPayment,
   SwitchGenerativeAIModel,
 } from '../../components/admin/homeComponents/apps';
 import ThemeText from './textTheme';
 import ThemeIcon from './themeIcon';
-import ConfirmExportPayments from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import ConfirmChatGPTPage from '../../components/admin/homeComponents/apps/chatGPT/components/confirmationPage';
 import AddContactsHalfModal from '../../components/admin/homeComponents/contacts/addContactsHalfModal';
 import GetThemeColors from '../../hooks/themeColors';
@@ -34,17 +28,11 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
 import CustomInputHalfModal from './CustomInputHalfModal';
-import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
-import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
-import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
-import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/receiveCodeConfirmation';
 import ViewSmsReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
-import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
 import CreateAccumulationAddressModal from '../../components/admin/homeComponents/accumulationAddresses/CreateAccumulationAddressModal';
 import AccumulationAddressSelectHalfModal from '../../components/admin/homeComponents/accumulationAddresses/AccumulationAddressSelectHalfModal';
@@ -59,13 +47,9 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
-import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 import CreatePoolFlow from '../../components/admin/homeComponents/pools/createPoolFlow';
-import {
-  SelectContactRequestCurrency,
-  SelectPaymentType,
-} from '../../components/admin/homeComponents/contacts';
+import { SelectContactRequestCurrency } from '../../components/admin/homeComponents/contacts';
 import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/closePoolConfirmation';
 import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
 import NWCAuthApproval from '../../components/admin/homeComponents/settingsContent/nwc/nwcAuthApproval';
@@ -74,16 +58,13 @@ import NWCConnectionStringHalfModal from '../../components/admin/homeComponents/
 import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
 import { SavingsProvider } from '../../../context-store/savingsContext';
-import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
 import GiftQrHalfModal from '../../components/admin/homeComponents/gifts/giftQrHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
-import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import POSCurrencySelect from '../../components/admin/homeComponents/settingsContent/posPath/internalComponents/posCurrencySelect';
 import TotalTipsScreen from '../../components/admin/homeComponents/settingsContent/posPath/totalTipsScreen';
 import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
-import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
 import DisplayCurrencySelect from '../../components/admin/homeComponents/currencyPicker/displayCurrencySelect';
 import LnurlReceiveCurrencySelect from '../../components/admin/homeComponents/receiveBitcoin/lnurlReceiveCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
@@ -92,8 +73,6 @@ import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoi
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import BTCMapFilterContent from '../../screens/inAccount/btcMapFilter';
 import BTCMapListContent from '../../screens/inAccount/btcMapList';
-import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
-import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 import ContactUsHalfModal from '../../components/admin/homeComponents/contactUsHalfModal';
@@ -1170,9 +1149,6 @@ export default function CustomHalfModal(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   keyboardAvoidingView: {
     flex: 1,
     justifyContent: 'flex-end',

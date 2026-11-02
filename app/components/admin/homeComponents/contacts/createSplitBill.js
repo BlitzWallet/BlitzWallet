@@ -50,7 +50,6 @@ export default function CreateSplitBill(props) {
   const {
     selectedContacts = [],
     paymentType,
-    amount,
     paymentCurrency = 'BTC',
   } = props.route.params || {};
   const { t } = useTranslation();

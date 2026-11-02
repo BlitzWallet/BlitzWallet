@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -29,7 +29,6 @@ export default function CustomInputHalfModal(props) {
   const {
     handleBackPressFunction,
     setContentHeight,
-    message,
     type,
     returnLocation,
     forceUSD,

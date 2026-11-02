@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { FONT, SIZES } from '../../constants';
+import { FONT } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -444,14 +444,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     paddingVertical: 16,
-  },
-  paymentConfirmedMessage: {
-    width: '90%',
-    fontSize: SIZES.medium,
-
-    fontFamily: FONT.Title_Regular,
-    textAlign: 'center',
-    marginTop: 20,
   },
   lottie: { width: 125, height: 125 },
   hero: { marginTop: 12, alignItems: 'center' },

@@ -50,7 +50,6 @@ export default function ReceiveAssetSheet({
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { tokens } = useTheme();
   const [step, setStep] = useState('options');
   const [direction, setDirection] = useState(1);
 

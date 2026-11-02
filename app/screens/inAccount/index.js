@@ -1,8 +1,5 @@
-import FaceIdPage from '../../components/admin/homeComponents/settingsContent/loginSecurity';
 // import toggleSecureStoreData from '../../functions/toggleSecureData';
-import AppStore from './appStore';
 import AppStorePageIndex from './appStorePageIndex';
-import BuyBitcoinHome from './buyBitcoinHome';
 // import {ConnectionToNode} from './conectionToNode';
 import ConfirmTxPage from './confirmTxPage';
 
@@ -21,19 +18,14 @@ export {
   AdminLogin,
   ReceivePaymentHome,
   SendPaymentHome,
-  // ConnectionToNode,
   ConfirmTxPage,
   SettingsContentIndex,
   SettingsIndex,
-  FaceIdPage,
   ViewAllTxPage,
   ManagedAccountActivityPage,
   ConnectingToNodeLoadingScreen,
-  // toggleSecureStoreData,
   AdminHomeIndex,
-  AppStore,
   AppStorePageIndex,
-  BuyBitcoinHome,
   SettingsHub,
   SparkReceivePage,
 };

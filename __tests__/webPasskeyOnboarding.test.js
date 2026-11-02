@@ -43,16 +43,6 @@ jest.mock('../app/components/admin/loginComponents/passwordCreateForm', () => ({
   default: props => require('react').createElement('MockPasswordForm', props),
 }));
 
-jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
-jest.mock('../app/functions/CustomElements/actionCircleContainer', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
   default: () => ({

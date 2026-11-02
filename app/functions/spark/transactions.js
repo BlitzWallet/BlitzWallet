@@ -1736,23 +1736,6 @@ export const cleanStalePendingSparkLightningTransactions = async () => {
   }
 };
 
-const formatDetailsJSON = tx => {
-  const newDetails = {
-    direction: tx.transferDirection ?? null,
-    fee: tx.fee ?? 0,
-    address: tx.address ?? '',
-    amount: tx.totalValue ?? 0,
-    paymentTime: tx.updatedTime ?? tx.createdTime ?? Date.now(),
-    description: tx.description ?? '',
-    status: tx.status ?? 'pending',
-    sparkID: tx.id ?? '',
-    l1TxId: tx.l1TxId ?? null,
-    preimage: tx.preimage ?? null,
-    paymentHash: tx.paymentHash ?? null,
-  };
-  return newDetails;
-};
-
 // Run an arbitrary spark-DB write through the same FIFO queue that serializes
 // bulkUpdateSparkTransactions, so independent BEGIN/COMMIT scopes on the shared
 // sqlLiteDB connection can never interleave.

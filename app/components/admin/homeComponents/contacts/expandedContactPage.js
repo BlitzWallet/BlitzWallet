@@ -451,14 +451,6 @@ const styles = StyleSheet.create({
   listContent: { paddingBottom: 16 },
   header: { alignItems: 'center', marginTop: 8 },
   avatar: { ...CENTER },
-  avatarPhoto: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
   nameText: {
     fontFamily: FONT.Title_Medium,
     fontSize: 22,

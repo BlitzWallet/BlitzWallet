@@ -564,18 +564,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 16,
   },
-  logoContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  logo: {
-    width: '60%',
-    aspectRatio: 1,
-  },
   title: {
     fontSize: 22,
     lineHeight: 28,
@@ -598,64 +586,12 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   spendingLimit: { marginTop: 10 },
-  card: {
-    width: '100%',
-    borderRadius: 16,
-  },
-  row: {
-    minHeight: 56,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  rowIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   rowLabel: {
     fontSize: 15,
     includeFontPadding: false,
   },
-  limitCard: {
-    marginTop: 12,
-  },
   limitValue: {
     fontSize: SIZES.smedium,
-    includeFontPadding: false,
-  },
-  footnoteRow: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingTop: 12,
-    paddingHorizontal: 4,
-  },
-  footnote: {
-    flex: 1,
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    lineHeight: 18,
-  },
-  paidFrom: {
-    fontSize: 13,
-    lineHeight: 20,
-    marginTop: 8,
-    paddingHorizontal: 4,
-    includeFontPadding: false,
-  },
-  limitTitle: {
-    fontSize: 20,
-    lineHeight: 26,
-    marginTop: 12,
-    includeFontPadding: false,
-  },
-  limitSubtitle: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 4,
     includeFontPadding: false,
   },
   primaryButton: {
@@ -686,20 +622,10 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     includeFontPadding: false,
   },
-  spacer: {
-    flex: 1,
-  },
   resultContent: {
     flex: 1,
     alignItems: 'center',
     paddingTop: 32,
-  },
-  resultIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   resultTitle: {
     fontSize: SIZES.large,

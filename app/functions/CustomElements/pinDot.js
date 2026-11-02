@@ -74,10 +74,4 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
 
-  dot_active: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-  },
 });

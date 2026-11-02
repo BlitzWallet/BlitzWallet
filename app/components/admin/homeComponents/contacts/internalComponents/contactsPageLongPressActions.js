@@ -4,7 +4,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { COLORS } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';

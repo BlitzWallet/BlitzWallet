@@ -46,7 +46,6 @@ jest.mock('../app/functions/CustomElements', () => ({
 jest.mock('../app/components/login', () => ({
   KeyContainer: props => require('react').createElement('MockKeys', props),
 }));
-jest.mock('../app/components/login/navBar', () => () => null);
 jest.mock(
   '../app/functions/CustomElements/button',
   () => props => require('react').createElement('MockButton', props),

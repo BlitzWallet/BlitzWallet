@@ -64,7 +64,6 @@ export default function EditReceivePaymentInformation(props) {
   const incomingDisplayFiatStats = props.route.params.paymentDisplayFiatStats;
   const incomingDisplayAmount = props.route.params.paymentDisplayAmount;
 
-  const isUSDReceiveMode = endReceiveType === 'USD';
   const usdFiatStats = useMemo(
     () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
     [fiatStats, swapUSDPriceDollars],
@@ -145,10 +144,6 @@ export default function EditReceivePaymentInformation(props) {
     requestedSatAmount > 0 &&
     requestedSatAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE &&
     (!!paymentDescription || isUsingAltAccount);
-
-  const handleEmoji = newDescription => {
-    setPaymentDescription(newDescription);
-  };
 
   const openPicker = useCallback(() => {
     if (isKeyboardFocused) return;

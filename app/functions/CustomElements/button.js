@@ -212,9 +212,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
-  arrowStyles: {
-    transform: [{ rotate: '180deg' }],
-  },
 });
 
 // audit/SHARED_FINDINGS.md I.3: regular/compact are full width; small/fit hug

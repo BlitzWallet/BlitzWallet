@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import Svg, { Circle, Rect, ClipPath, Defs, G, Line } from 'react-native-svg';
+import Svg, { Circle, ClipPath, Defs, G, Line } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

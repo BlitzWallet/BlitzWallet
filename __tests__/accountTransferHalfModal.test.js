@@ -380,11 +380,6 @@ jest.mock('../context-store/keys', () => ({
   }),
 }));
 
-jest.mock('../app/functions/CustomElements/currencySwitchButton', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 jest.mock('../app/functions/spark/accountTransfer', () => ({
   executeAccountTransfer: (...args) => mockExecuteAccountTransfer(...args),
   getAccountTransferFee: (...args) => mockGetAccountTransferFee(...args),

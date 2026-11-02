@@ -29,7 +29,6 @@ export default function SavingsGoalDetails(props) {
     allSavingsTransactions,
     getGoalBalanceMicros,
     refreshSavings,
-    refreshBalances,
   } = useSavings();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();

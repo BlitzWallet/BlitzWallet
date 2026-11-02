@@ -22,7 +22,7 @@ export default function SeedPhrasePage({ extraData, route }) {
 
   const mnemonic = mnemonicString?.split(' ') || [];
   const navigate = useNavigation();
-  const { tokens, mode } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');

@@ -3,7 +3,6 @@ import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import {
   APPROXIMATE_SYMBOL,
   CENTER,
-  SIZES,
   USDB_TOKEN_ID,
 } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
@@ -663,10 +662,6 @@ export default function SwapFlowHalfModal({
     });
   };
 
-  const handleDropdownToggle = value => {
-    setSlippagePercent(value.value);
-  };
-
   const performSwap = async () => {
     if (isSwappingRef.current) return;
 
@@ -884,7 +879,6 @@ export default function SwapFlowHalfModal({
   // ── Review step computed values (safe to call unconditionally) ───────────────
 
   const isBtcToUsdbReview = fromAsset === 'BTC';
-  const reviewDecimals = tokenInformation?.tokenMetadata?.decimals || 6;
 
   const reviewSwapFee = simulationResult
     ? isBtcToUsdbReview
@@ -1067,20 +1061,5 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     overflow: 'hidden',
-  },
-  navbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 52,
-    paddingHorizontal: 16,
-  },
-  navbarBackBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  navbarLabel: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
   },
 });

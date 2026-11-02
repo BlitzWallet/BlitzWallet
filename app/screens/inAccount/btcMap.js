@@ -8,7 +8,7 @@ import {
   InteractionManager,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';

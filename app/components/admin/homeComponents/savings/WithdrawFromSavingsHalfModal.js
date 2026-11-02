@@ -109,7 +109,6 @@ export default function WithdrawFromSavingsHalfModal({
     totalGoalsBalance,
     savingsBalance,
     savingsWallet,
-    interestPayouts,
     walletBitcoinBalanceSats,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
@@ -223,13 +222,12 @@ export default function WithdrawFromSavingsHalfModal({
   const isInterestDisabled = interestSats <= 0;
   const isSavingsDisabled = savingsBalanceUsd <= 0;
 
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
+  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
 
   const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
     useCurrencyDisplay({

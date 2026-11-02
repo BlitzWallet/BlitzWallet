@@ -30,7 +30,6 @@ import ContactAvatar from '../../components/admin/homeComponents/contacts/intern
 export function ProfileQrBadge({ size }) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
-  const { t } = useTranslation();
   const myProfile = globalContactsInformation.myProfile;
   const myProfileImage = cache[myProfile?.uuid];
   return (

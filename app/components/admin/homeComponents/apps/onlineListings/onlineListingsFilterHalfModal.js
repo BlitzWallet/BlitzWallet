@@ -550,13 +550,6 @@ const styles = StyleSheet.create({
   countryPage: {
     flex: 1,
   },
-  countryBackButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   countryTitle: {
     fontSize: 20,
     lineHeight: 26,
@@ -564,26 +557,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 10,
     includeFontPadding: false,
-  },
-  searchInput: {
-    width: '100%',
-    borderRadius: 999,
-    marginTop: 14,
-    marginBottom: 12,
-  },
-  countrySearchInput: {
-    height: 52,
-    paddingLeft: 48,
-    paddingRight: 16,
-    paddingVertical: 0,
-    borderRadius: 999,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  countrySearchIcon: {
-    position: 'absolute',
-    left: 16,
-    top: 17,
   },
   countryList: {
     width: '100%',
@@ -595,13 +568,6 @@ const styles = StyleSheet.create({
   },
   countryFlatList: {
     flex: 1,
-  },
-  countryFlagShell: {
-    width: 36,
-    height: 36,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   countryName: {
     fontSize: 15,

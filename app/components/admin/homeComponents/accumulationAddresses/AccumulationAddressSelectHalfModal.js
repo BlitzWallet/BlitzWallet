@@ -105,12 +105,4 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     includeFontPadding: false,
   },
-  rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  copyButton: {
-    padding: 4,
-  },
 });

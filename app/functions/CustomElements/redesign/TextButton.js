@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';

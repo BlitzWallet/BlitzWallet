@@ -87,11 +87,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
   const headingY = useSharedValue(24);
   const btnsOpacity = useSharedValue(0);
 
-  // Animated styles
-  const logoStyle = useAnimatedStyle(() => ({
-    opacity: logoOpacity.value,
-  }));
-
   const headingStyle = useAnimatedStyle(() => ({
     opacity: headingOpacity.value,
     transform: [{ translateY: headingY.value }],

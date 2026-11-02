@@ -41,7 +41,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -393,9 +393,6 @@ const styles = StyleSheet.create({
     width: '105.263%',
     marginLeft: '-2.632%',
   },
-  navContainer: {
-    marginRight: 'auto',
-  },
   contentContainer: {
     flexGrow: 1,
     width: '100%',
@@ -407,15 +404,6 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 12,
     marginTop: CONTENT_KEYBOARD_OFFSET,
-  },
-  pasteButton: {
-    // width: 145,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    marginTop: 20,
-    marginBottom: 20,
-    ...CENTER,
-    textAlign: 'center',
   },
   seedRow: {
     width: '100%',

@@ -4,7 +4,6 @@ import { COLORS } from '../../../constants';
 import QRCode from '../StyledQRCode';
 import ContactAvatar from '../../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
-import { useTranslation } from 'react-i18next';
 import { useImageCache } from '../../../../context-store/imageCache';
 
 const EmptyLogo = () => null;
@@ -27,7 +26,6 @@ export default function QrCard({
   style,
   children,
 }) {
-  const { t } = useTranslation();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { tokens } = useTheme();
   const { cache } = useImageCache();

@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import { useCallback, useEffect } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useImageCache } from '../../../context-store/imageCache';
@@ -43,9 +43,3 @@ export default function AdminHomeIndex() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

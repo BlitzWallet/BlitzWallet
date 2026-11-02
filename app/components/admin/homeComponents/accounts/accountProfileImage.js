@@ -15,7 +15,6 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useState, useCallback } from 'react';
 import ContactAvatar from '../contacts/internalComponents/contactAvatar';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
-import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function AccountProfileImage({
@@ -23,7 +22,6 @@ export default function AccountProfileImage({
   imageSize,
   useStoredEmoji = true,
 }) {
-  const { t } = useTranslation();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { masterInfoObject } = useGlobalContextProvider();

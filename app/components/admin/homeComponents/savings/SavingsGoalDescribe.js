@@ -6,7 +6,7 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, COLORS, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   keyboardGoBack,
@@ -115,11 +115,6 @@ const styles = StyleSheet.create({
   },
   inputWrap: {
     marginTop: 16,
-  },
-  input: {
-    flex: 1,
-    minHeight: 48,
-    color: COLORS.lightModeText,
   },
   emojiContainer: {
     height: 72,
