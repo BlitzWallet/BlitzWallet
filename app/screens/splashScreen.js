@@ -95,10 +95,7 @@ const SplashScreen = () => {
       <Animated.View style={[styles.container, animatedStyle]}>
         <Image
           source={SplashLogo}
-          style={[
-            styles.logo,
-            tintStyle(theme && darkModeType ? tokens.ink : tokens.accent),
-          ]}
+          style={[styles.logo, tintStyle(theme ? tokens.ink : tokens.accent)]}
           contentFit="contain"
         />
       </Animated.View>
