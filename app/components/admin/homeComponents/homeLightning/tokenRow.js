@@ -7,6 +7,7 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { getTokenIcon } from '../../../../functions/lrc20/utils';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import formatBalanceAmount from '../../../../functions/formatNumber';
+import { HIDDEN_BALANCE_CLOSE } from '../../../../constants';
 
 // `token` is an [identifier, tokenInfo] entry of sparkInformation.tokens.
 export default function TokenRow({ token }) {
@@ -36,7 +37,7 @@ export default function TokenRow({ token }) {
           styles={styles.amount}
           content={
             masterInfoObject.userBalanceDenomination === 'hidden'
-              ? '••••'
+              ? HIDDEN_BALANCE_CLOSE
               : formatBalanceAmount(
                   formatTokensNumber(token[1]?.balance, metadata?.decimals),
                   true,

@@ -1,7 +1,11 @@
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../components/login';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
+import {
+  CENTER,
+  HIDDEN_BALANCE_CLOSE,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
@@ -14,8 +18,6 @@ import GetThemeColors from '../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../constants/theme';
 import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
-
-const MASKED_WORD = '••••••';
 
 export default function GenerateKey() {
   const { accountMnemoinc } = useKeysContext();
@@ -76,7 +78,9 @@ export default function GenerateKey() {
             <View style={styles.seedWrapper}>
               {/* Real words are only rendered once revealed. */}
               <KeyContainer
-                keys={showSeed ? mnemonic : mnemonic.map(() => MASKED_WORD)}
+                keys={
+                  showSeed ? mnemonic : mnemonic.map(() => HIDDEN_BALANCE_CLOSE)
+                }
               />
               {!showSeed && (
                 <View

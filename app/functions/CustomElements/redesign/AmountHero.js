@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { FONT } from '../../../constants';
+import { FONT, HIDDEN_BALANCE_CLOSE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import displayCorrectDenomination from '../../displayCorrectDenomination';
@@ -55,7 +55,7 @@ export default function AmountHero({
       <ThemeText
         content={
           isHidden
-            ? '••••••'
+            ? HIDDEN_BALANCE_CLOSE
             : centsMatch
             ? [
                 centsMatch[1],

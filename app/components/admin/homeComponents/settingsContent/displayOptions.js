@@ -9,7 +9,7 @@ import {
 } from '../../../../functions/CustomElements';
 import {
   FONT,
-  HIDDEN_BALANCE_TEXT,
+  HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -66,7 +66,7 @@ export default function DisplayOptions() {
 
   const themeValue = !theme ? 'light' : darkModeType ? 'lightsOut' : 'dim';
 
-  const hiddenBalance = `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`;
+  const hiddenBalance = HIDDEN_BALANCE_CLOSE;
 
   return (
     <GlobalThemeView useStandardWidth={true}>

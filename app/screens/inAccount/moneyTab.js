@@ -18,7 +18,7 @@ import Disc from '../../functions/CustomElements/redesign/Disc';
 import DailyBarChart from '../../functions/CustomElements/redesign/DailyBarChart';
 import {
   FONT,
-  HIDDEN_BALANCE_TEXT,
+  HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
 } from '../../constants';
 import { useReducedMotion } from '../../constants/motion';
@@ -175,7 +175,7 @@ function SpentCard({ dailySpent, onPress }) {
         minimumFontScale={0.5}
         content={
           isHidden
-            ? `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`
+            ? HIDDEN_BALANCE_CLOSE
             : displayCorrectDenomination({
                 amount: shown,
                 masterInfoObject,

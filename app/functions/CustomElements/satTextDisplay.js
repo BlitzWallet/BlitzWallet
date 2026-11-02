@@ -4,7 +4,7 @@ import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
-  HIDDEN_BALANCE_TEXT,
+  HIDDEN_BALANCE_CLOSE,
 } from '../../constants';
 import ThemeText from './textTheme';
 import { formatCurrency } from '../formatCurrency';
@@ -112,9 +112,7 @@ export default function FormattedSatText({
   if (!shouldShowAmount) {
     children = [
       frontText && renderText(frontText),
-      renderText(
-        `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`,
-      ),
+      renderText(HIDDEN_BALANCE_CLOSE),
       backText && renderText(backText),
     ];
   } else if (useCustomLabel) {

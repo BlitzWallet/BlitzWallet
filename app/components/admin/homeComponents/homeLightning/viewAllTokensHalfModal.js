@@ -7,7 +7,11 @@ import { useTheme } from '../../../../../context-store/theme';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
-import { FONT, INFINITY_SYMBOL } from '../../../../constants';
+import {
+  FONT,
+  HIDDEN_BALANCE_CLOSE,
+  INFINITY_SYMBOL,
+} from '../../../../constants';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
@@ -63,7 +67,7 @@ export default function ViewAllTokensHalfModal({ token, setContentHeight }) {
           label={t('screens.inAccount.lrc20TokenDataHalfModal.balance')}
           value={
             masterInfoObject.userBalanceDenomination === 'hidden'
-              ? '••••'
+              ? HIDDEN_BALANCE_CLOSE
               : `${formatBalanceAmount(
                   formatTokensNumber(token[1]?.balance, metadata?.decimals),
                   true,

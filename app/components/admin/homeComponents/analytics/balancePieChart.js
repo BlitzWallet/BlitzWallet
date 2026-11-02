@@ -8,14 +8,13 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { COLORS, HIDDEN_BALANCE_TEXT } from '../../../../constants';
+import { COLORS, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { ThemeText } from '../../../../functions/CustomElements/index';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { FONT } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { convertToDecimals } from '../../../../functions/spark/swapAmountUtils';
 
@@ -136,11 +135,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
         />
         <ThemeText
           styles={styles.total}
-          content={
-            isBalanceHidden
-              ? `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`
-              : totalText
-          }
+          content={isBalanceHidden ? HIDDEN_BALANCE_CLOSE : totalText}
           CustomNumberOfLines={1}
           adjustsFontSizeToFit={true}
         />
@@ -155,7 +150,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
               styles={styles.legendAmount}
               content={
                 isBalanceHidden
-                  ? `${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`
+                  ? HIDDEN_BALANCE_CLOSE
                   : formatLegendValue(seg.value, seg.key)
               }
               CustomNumberOfLines={1}
