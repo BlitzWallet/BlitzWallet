@@ -463,9 +463,8 @@ export default function ExpandedTx({
       );
     }
 
-    const contactImage =
-      sendingContactUUID && cache[sendingContactUUID]?.localUri;
-    if (contactImage) {
+    if (sendingContactUUID) {
+      const contactImage = cache[sendingContactUUID]?.localUri;
       return (
         <View style={[styles.heroIcon, { backgroundColor: tokens.disc }]}>
           <ContactAvatar
