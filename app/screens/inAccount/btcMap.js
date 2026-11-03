@@ -45,7 +45,7 @@ export default function BTCMapScreen() {
   const navigate = useNavigation();
   const { screenDimensions } = useAppStatus();
   const { tokens } = GetThemeColors();
-  const { theme } = useGlobalThemeContext();
+  const { theme, mode } = useGlobalThemeContext();
   const { topPadding, bottomPadding } = useGlobalInsets();
   const {
     isLoading: storeLoading,
@@ -487,7 +487,17 @@ export default function BTCMapScreen() {
                   accessibilityLabel={t('screens.btcMap.map.a11y.place')}
                   onPress={() => handleMarkerPress(m)}
                 >
-                  <View style={styles.marker}>
+                  <View
+                    style={[
+                      styles.marker,
+                      {
+                        backgroundColor:
+                          mode !== 'light'
+                            ? COLORS.lightModeText
+                            : tokens.accent,
+                      },
+                    ]}
+                  >
                     <ThemeImage
                       styles={{ width: 16, height: 16 }}
                       lightModeIcon={ICONS.bitcoinIcon}
