@@ -74,7 +74,6 @@ export default function SMSConfirmSheet({
       masterInfoObject: {
         ...masterInfoObject,
         userBalanceDenomination: 'sats',
-        satDisplay: 'word',
       },
       fiatStats,
     });

@@ -431,7 +431,6 @@ function LimitStep({ appName, limit, onBack, onDone }) {
       userBalanceDenomination: primaryDisplay.denomination,
       fiatCurrency:
         primaryDisplay.forceCurrency || masterInfoObject?.fiatCurrency || 'USD',
-      satDisplay: isSats ? 'text' : 'symbol',
     }),
     [masterInfoObject, primaryDisplay, isSats],
   );

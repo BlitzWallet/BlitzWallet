@@ -86,7 +86,6 @@ export default function ConfirmChatGPTPage({
   const satsMasterInfoObject = {
     ...masterInfoObject,
     userBalanceDenomination: 'sats',
-    satDisplay: 'text',
   };
   const formatSats = amount =>
     displayCorrectDenomination({

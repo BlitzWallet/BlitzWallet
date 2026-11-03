@@ -227,7 +227,6 @@ export default function CreateNWCAmount(props) {
       userBalanceDenomination: primaryDisplay.denomination,
       fiatCurrency:
         primaryDisplay.forceCurrency || masterInfoObject?.fiatCurrency || 'USD',
-      satDisplay: isSats ? 'text' : 'symbol',
     }),
     [masterInfoObject, primaryDisplay, isSats],
   );

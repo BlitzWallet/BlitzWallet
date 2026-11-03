@@ -132,7 +132,6 @@ export default function CreateGift(props) {
                 primaryDisplay.forceCurrency ||
                 masterInfoObject?.fiatCurrency ||
                 'USD',
-              satDisplay: isSats ? 'text' : 'symbol',
             }}
           />
         </View>
