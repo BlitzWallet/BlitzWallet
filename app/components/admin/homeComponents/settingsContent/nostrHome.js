@@ -28,7 +28,6 @@ export default function NostrHome() {
               ? `${nip5Name}@blitzwalletapp.com`
               : t('settings.nostrHome.nip5Desc')
           }
-          subLines={2}
           minHeight={64}
           titleStyle={styles.rowTitle}
           showChevron={true}
@@ -42,7 +41,6 @@ export default function NostrHome() {
               ? t('settings.nostrHome.nwcCount', { count: nwcCount })
               : t('settings.nostrHome.nwcDesc')
           }
-          subLines={2}
           minHeight={64}
           titleStyle={styles.rowTitle}
           showChevron={true}
