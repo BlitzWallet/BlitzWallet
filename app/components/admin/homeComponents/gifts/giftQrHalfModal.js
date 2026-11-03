@@ -6,7 +6,6 @@ import { useTheme } from '../../../../../context-store/theme';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
-import Disc from '../../../../functions/CustomElements/redesign/Disc';
 
 const SHEET_HEIGHT = 500;
 
@@ -27,7 +26,6 @@ export default function GiftQrHalfModal({ claimURL, title, setContentHeight }) {
       />
       <QrCard
         value={claimURL}
-        badge={<Disc icon={'Gift'} tone="primary" size={40} />}
         style={styles.qrCard}
       />
       <ThemeText

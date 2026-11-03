@@ -6,7 +6,6 @@ import { copyToClipboard } from '../../../../../functions';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import QrCard from '../../../../../functions/CustomElements/redesign/QrCard';
-import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import Note from '../../../../../functions/CustomElements/redesign/Note';
 
 // Full sheet height from the frame (grab + content + 34 bottom padding).
@@ -37,7 +36,6 @@ export default function NWCConnectionStringHalfModal({
       />
       <QrCard
         value={data}
-        badge={<Disc icon={'Plug'} size={40} />}
         onPress={copy}
         accessibilityLabel={t('constants.copy')}
       />

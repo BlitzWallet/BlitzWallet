@@ -26,7 +26,6 @@ export function ReceiveQrCard({
   size,
   loading,
   errorText,
-  badge,
   caption,
   rows,
   onPress,

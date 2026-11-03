@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../../../../context-store/keys';
-import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 import calculateSeedQR from './seedQR';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -99,28 +99,8 @@ export default function SeedPhrasePage({ extraData, route }) {
         </View>
 
         {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
-          <View
-            style={[
-              styles.qrCard,
-              {
-                height: seedContainerHeight,
-              },
-            ]}
-          >
-            <QrCodeWrapper
-              qrSize={230}
-              outerContainerStyle={{
-                backgroundColor: 'transparent',
-                width: '100%',
-                height: '100%',
-                borderRadius: 20,
-              }}
-              innerContainerStyle={{
-                width: 230,
-                height: 230,
-              }}
-              QRData={qrValue}
-            />
+          <View style={styles.qrCard}>
+            <QrCard value={qrValue} size={seedContainerHeight} />
           </View>
         ) : (
           <View
@@ -155,9 +135,5 @@ const styles = StyleSheet.create({
   words: { marginTop: 12 },
   qrCard: {
     marginTop: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
   },
 });

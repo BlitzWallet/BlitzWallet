@@ -11,7 +11,6 @@ import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import QrCard from './redesign/QrCard';
 import CustomButton from './button';
-import { ProfileQrBadge } from './showProfileQr';
 import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { MODES } from '../../constants/themes';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
@@ -102,9 +101,9 @@ export default function ProfilePrintPage() {
             <QrCard
               value={lnurl}
               size={160}
-              badge={<ProfileQrBadge size={30} />}
               badgeSize={30}
               style={styles.qr}
+              showBadge={false}
             />
             <ThemeText styles={styles.address} content={lnurl} />
           </View>

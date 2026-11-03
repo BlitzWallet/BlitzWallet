@@ -13,7 +13,7 @@ import SettingsIndex from './settingsIndex';
 import ViewAllTxPage from './viewAllTxPage';
 import ManagedAccountActivityPage from './managedAccountActivityPage';
 import SettingsHub from './settingsHub';
-import SparkReceivePage from './sparkReceivePage';
+
 export {
   AdminLogin,
   ReceivePaymentHome,
@@ -27,5 +27,4 @@ export {
   AdminHomeIndex,
   AppStorePageIndex,
   SettingsHub,
-  SparkReceivePage,
 };

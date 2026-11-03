@@ -1,8 +1,8 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
-import { COLORS } from '../../../constants';
+import { CENTER, COLORS } from '../../../constants';
 import QRCode from '../StyledQRCode';
-import ContactAvatar from '../../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
+import ContactProfileImage from '../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 
@@ -11,20 +11,20 @@ const EmptyLogo = () => null;
 const BADGE_RING = 5;
 
 // QR card for sheets (Wallet Connect, Account address, Gift): white 28 card,
-// 1px divider ring, QR with an optional centre `badge` node. The QR stays
-// dark-on-white in every mode so it always scans. `children` render under the
-// QR (e.g. an address caption). `onPress` makes the whole card tappable.
-// The centre shows your avatar unless `badgeOverride` is passed (Receive).
+// 1px divider ring, QR with the profile photo in the centre ring (Blitz logo
+// when there is none). The QR stays dark-on-white in every mode so it always
+// scans. `children` render under the QR (e.g. an address caption). `onPress`
+// makes the whole card tappable.
 export default function QrCard({
   value,
   size = 216,
-  badge,
-  badgeOverride,
+  quietZone = 0,
   badgeSize = 40,
   onPress,
   accessibilityLabel,
   style,
   children,
+  showBadge = true,
 }) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { tokens } = useTheme();
@@ -44,28 +44,34 @@ export default function QrCard({
         <QRCode
           value={value}
           size={size}
+          quietZone={quietZone}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logoSVG={EmptyLogo}
-          logoSize={badgeSize}
+          logoSVG={showBadge ? EmptyLogo : undefined}
+          logoSize={showBadge ? badgeSize : undefined}
           logoMargin={0}
           logoBackgroundColor={COLORS.darkModeText}
           ecl="H"
         />
-        <View style={styles.badgeWrap} pointerEvents="none">
-          <View style={styles.badgeRing}>
-            {badgeOverride ?? (
-              <ContactAvatar
-                name={myProfile?.name || myProfile?.uniqueName}
-                seed={myProfile?.uuid}
+        {showBadge && (
+          <View style={styles.badgeWrap} pointerEvents="none">
+            <View
+              style={[
+                styles.badgeRing,
+                {
+                  width: badgeSize + BADGE_RING * 2,
+                  height: badgeSize + BADGE_RING * 2,
+                },
+              ]}
+            >
+              <ContactProfileImage
+                fromCustomQR
                 uri={imageData?.localUri}
                 updated={imageData?.updated}
-                size={badgeSize}
-                fontSize={badgeSize / 3}
               />
-            )}
+            </View>
           </View>
-        </View>
+        )}
       </View>
       {children}
     </Container>

@@ -180,7 +180,6 @@
   "app/functions/CustomElements/CustomInputHalfModal.js": true,
   "app/functions/CustomElements/CustomKeyboardAvoidingVIew.js": true,
   "app/functions/CustomElements/Icon.js": true,
-  "app/functions/CustomElements/QrWrapper.js": true,
   "app/functions/CustomElements/button.js": true,
   "app/functions/CustomElements/camera/cameraPageNavbar.js": true,
   "app/functions/CustomElements/chart/grid.js": true,

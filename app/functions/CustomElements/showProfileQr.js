@@ -15,7 +15,6 @@ import {
 import ThemeText from './textTheme';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
-import { useImageCache } from '../../../context-store/imageCache';
 import { MODES } from '../../constants/themes';
 import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { useNavigation } from '@react-navigation/native';
@@ -24,36 +23,6 @@ import { shareFile, shareMessage } from '../handleShare';
 import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import CustomButton from './button';
-import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
-
-// Photo disc in the middle of the profile QR (Show QR + Print).
-export function ProfileQrBadge({ size }) {
-  const { globalContactsInformation } = useGlobalContactsInfo();
-  const { cache } = useImageCache();
-  const myProfile = globalContactsInformation.myProfile;
-  const myProfileImage = cache[myProfile?.uuid];
-  return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        overflow: 'hidden',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <ContactAvatar
-        name={myProfile?.name || myProfile?.uniqueName}
-        seed={myProfile?.uuid}
-        updated={myProfileImage?.updated}
-        uri={myProfileImage?.localUri}
-        size={size}
-        fontSize={size / 3}
-      />
-    </View>
-  );
-}
 
 // D158: one code (your Lightning address, OQ-40) on a white card with your
 // name. Tap copies; Print + Share sit in the top bar.
@@ -213,8 +182,6 @@ export default function ShowProfileQr(props) {
             <QrCard
               value={lnurl}
               size={qrSize}
-              badge={<ProfileQrBadge size={48} />}
-              badgeSize={48}
               onPress={handleCopy}
               accessibilityLabel={t('contacts.showProfileQr.copyAddress')}
               style={styles.card}

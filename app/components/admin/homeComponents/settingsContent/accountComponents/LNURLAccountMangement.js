@@ -12,7 +12,6 @@ import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import QrCard from '../../../../../functions/CustomElements/redesign/QrCard';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
-import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
@@ -66,7 +65,6 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
         <QrCard
           value={lnurlAddress}
           size={qrSize}
-          badge={<Disc icon={'Zap'} tone="primary" size={40} />}
           onPress={handleCopy}
           accessibilityLabel={t('wallet.halfModal.copyAddress')}
         >

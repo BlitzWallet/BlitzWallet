@@ -205,16 +205,6 @@ jest.mock(
 );
 
 jest.mock(
-  '../app/functions/CustomElements/QrWrapper',
-  () =>
-    function MockQrCodeWrapper({ QRData }) {
-      const MockReact = require('react');
-      const RN = require('react-native');
-      return MockReact.createElement(RN.Text, null, QRData);
-    },
-);
-
-jest.mock(
   '../app/functions/CustomElements/loadingScreen',
   () =>
     function MockFullLoadingScreen() {

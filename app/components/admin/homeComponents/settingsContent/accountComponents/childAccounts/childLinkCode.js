@@ -14,7 +14,6 @@ import {
 } from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import QrCard from '../../../../../../functions/CustomElements/redesign/QrCard';
-import Disc from '../../../../../../functions/CustomElements/redesign/Disc';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
@@ -181,7 +180,6 @@ export default function ChildLinkCode(props) {
         <QrCard
           value={qrValue}
           size={250}
-          badge={<Disc icon={'Zap'} tone="primary" size={40} />}
           style={styles.qrWrap}
         />
         {downloadPrompt}

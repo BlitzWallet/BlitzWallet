@@ -47,7 +47,6 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 import Note from '../../../../functions/CustomElements/redesign/Note';
 import {
-  CoinChainLogo,
   destinationLabel,
   shortenAddress,
 } from './AccumulationAddressCard';
@@ -274,12 +273,6 @@ export default function AccumulationAddressDetail() {
             >
               <QrCard
                 value={depositAddress}
-                badge={
-                  <CoinChainLogo
-                    asset={selected.sourceAsset}
-                    chainLabel={chainLabel}
-                  />
-                }
               >
                 <TouchableOpacity
                   disabled={!hasSeveral}
