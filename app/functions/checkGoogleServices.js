@@ -1,9 +1,9 @@
-import { utils } from '@react-native-firebase/app';
+import { getUtils } from '@react-native-firebase/app';
 
 export function checkGooglePlayServices() {
   try {
     const areGoogleServicesEnabled =
-      utils().playServicesAvailability.isAvailable;
+      getUtils().playServicesAvailability.isAvailable;
     return areGoogleServicesEnabled;
   } catch (err) {
     console.log('Error getting google services information', err);
