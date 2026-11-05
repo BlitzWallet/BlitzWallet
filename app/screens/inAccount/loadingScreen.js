@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   CENTER,
   MAX_WEB_CONTENT_WIDTH,
@@ -7,6 +7,7 @@ import {
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
@@ -255,16 +256,25 @@ export default function ConnectingToNodeLoadingScreen() {
           // Another web tab owns the wallet. TabInUse is the single place for
           // that; its "Use here" reloads, which recreates the SQLite worker.
           navigate.reset({ index: 0, routes: [{ name: 'TabInUse' }] });
+        } else if (err.message === DB_INIT_TIMEOUT_ERROR) {
+          setHasError({
+            title: t('screens.inAccount.loadingScreen.dbInitError1'),
+            subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
+            // Web only. expo-sqlite keeps the stalled worker for the page's
+            // lifetime, so an in-page retry would stall again; a reload
+            // replaces it. A failed open (dbInitError) keeps Recover.
+            reloadOnRetry: true,
+          });
+        } else if (err.message === 'dbInitError') {
+          setHasError({
+            title: t('screens.inAccount.loadingScreen.dbInitError1'),
+            subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
+          });
         } else {
-          // One copy for every failure (Q1-6); the raw message goes to
-          // Crashlytics only.
-          if (
-            err.message !== DB_INIT_TIMEOUT_ERROR &&
-            err.message !== 'dbInitError'
-          ) {
-            crashlyticsRecordErrorReport(err.message);
-          }
-          setHasError(true);
+          setHasError({
+            title: t('screens.inAccount.loadingScreen.initErrorTitle'),
+            subtitle: err.message,
+          });
         }
       } finally {
         // Settled either way (navigated, bailed as a stale duplicate, or errored
@@ -321,7 +331,12 @@ export default function ConnectingToNodeLoadingScreen() {
       crashlyticsRecordErrorReport(
         `Login watchdog fired after 45s. Last phase reached: ${phaseRef.current}`,
       );
-      setHasError(true);
+      setHasError({
+        title: i18next.t('screens.inAccount.loadingScreen.initErrorTitle'),
+        subtitle: i18next.t(
+          'screens.inAccount.loadingScreen.userSettingsError',
+        ),
+      });
     }, 45000);
     return () => clearTimeout(timer);
   }, []);
@@ -350,23 +365,23 @@ export default function ConnectingToNodeLoadingScreen() {
               <ThemeText
                 variant="title"
                 styles={styles.title}
-                content={t('screens.inAccount.loadingScreen.dbInitError1')}
+                content={hasError.title}
               />
               <ThemeText
                 variant="body"
                 styles={[styles.subtitle, { color: tokens.muted }]}
-                content={t('screens.inAccount.loadingScreen.dbInitError2')}
+                content={hasError.subtitle}
               />
             </View>
             <CustomButton
               textContent={
-                Platform.OS === 'web'
+                hasError.reloadOnRetry
                   ? t('constants.retry')
                   : t('constants.recover')
               }
               size={'regular'}
               actionFunction={
-                Platform.OS === 'web'
+                hasError.reloadOnRetry
                   ? () => window.location.reload()
                   : () =>
                       openWebBrowser({

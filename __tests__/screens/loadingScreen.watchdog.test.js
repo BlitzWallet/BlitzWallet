@@ -379,26 +379,18 @@ describe('loading screen database setup errors', () => {
     return renderer;
   };
 
-  // Q1-7: web always offers Retry (reload); native always offers Recover.
-  test('on web every setup error offers Retry, which reloads the page', async () => {
-    const { Platform } = require('react-native');
-    const realOS = Platform.OS;
-    Platform.OS = 'web';
-    try {
-      const renderer = await renderWithDatabaseError('dbInitError');
+  test('a setup timeout offers Retry, which reloads the page', async () => {
+    const renderer = await renderWithDatabaseError('dbInitTimeout');
 
-      expect(showsErrorUI(renderer)).toBe(true);
-      expect(mockErrorButtonProps.current.textContent).toBe('constants.retry');
-      mockErrorButtonProps.current.actionFunction();
-      expect(global.location.reload).toHaveBeenCalledTimes(1);
-      expect(openWebBrowser).not.toHaveBeenCalled();
-    } finally {
-      Platform.OS = realOS;
-    }
+    expect(showsErrorUI(renderer)).toBe(true);
+    expect(mockErrorButtonProps.current.textContent).toBe('constants.retry');
+    mockErrorButtonProps.current.actionFunction();
+    expect(global.location.reload).toHaveBeenCalledTimes(1);
+    expect(openWebBrowser).not.toHaveBeenCalled();
   });
 
-  test('on native a setup timeout offers Recover', async () => {
-    const renderer = await renderWithDatabaseError('dbInitTimeout');
+  test('a failed database open keeps Recover', async () => {
+    const renderer = await renderWithDatabaseError('dbInitError');
 
     expect(showsErrorUI(renderer)).toBe(true);
     expect(mockErrorButtonProps.current.textContent).toBe('constants.recover');
