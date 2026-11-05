@@ -9,6 +9,10 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '17.4'
 prepare_react_native_project!
 
+# RNFB 26.4.1 bundles Firebase iOS 12.19.3. 26.x defaults to SPM, which needs
+# dynamic frameworks; stay on CocoaPods + static frameworks. RNFB 27 removes this opt-out.
+$RNFirebaseDisableSPM = true
+
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
