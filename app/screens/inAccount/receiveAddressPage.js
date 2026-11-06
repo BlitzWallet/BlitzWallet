@@ -155,6 +155,20 @@ export default function ReceiveAddressPage(props) {
       body,
     });
 
+  const openAddressSheet = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'sendAddress',
+      address: address,
+      isReceive: true,
+      title: t(
+        `receive.address_share_${
+          isBitcoin ? 'bitcoin' : isStable ? 'stablecoin' : 'tokens'
+        }`,
+      ),
+      sliderHight: 0.6,
+    });
+  };
+
   const title = isBitcoin
     ? t('receive.bitcoinAddress')
     : isStable
@@ -235,6 +249,7 @@ export default function ReceiveAddressPage(props) {
           contentContainerStyle={styles.scroll}
         >
           <ReceiveQrCard
+            onPress={openAddressSheet}
             value={address}
             size={qrSize}
             loading={addressState.isGeneratingInvoice}

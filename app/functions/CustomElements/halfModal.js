@@ -404,6 +404,7 @@ export default function CustomHalfModal(props) {
           <AddressSheet
             address={props?.route?.params?.address}
             title={props?.route?.params?.title}
+            isReceive={props?.route?.params?.isReceive}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
           />

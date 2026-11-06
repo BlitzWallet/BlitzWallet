@@ -1377,7 +1377,8 @@
         "viewAddress": "View address",
         "verifiedBody": "Branta checked that this payment request really comes from {{merchantName}}, so you know who you're paying.",
         "verifiedBodyNoName": "Branta checked that this payment request is genuine, so you know who you're paying.",
-        "checkAddress": "Check it matches the one you were given."
+        "checkAddress": "Check it matches the one you were given.",
+        "checkAddress_receive": "Check it matches the one you shared."
       },
       "selectLRC20Token": {
         "title": "Select Token",
@@ -3936,6 +3937,9 @@
     "arrivesAsDollars": "Arrives as Dollars",
     "conversionNote": "The final amount can vary slightly with the price during the conversion.",
     "whatFor": "What it’s for",
-    "share": "Share"
+    "share": "Share",
+    "address_share_bitcoin": "Bitcoin address",
+    "address_share_stablecoin": "Stablecoin address",
+    "address_share_tokens": "Tokens address"
   }
 }

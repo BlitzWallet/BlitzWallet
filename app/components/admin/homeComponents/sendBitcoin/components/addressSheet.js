@@ -13,6 +13,7 @@ import CustomScrollView from '../../../../../functions/CustomElements/scrollView
 export default function AddressSheet({
   address,
   title,
+  isReceive,
   setContentHeight,
   handleBackPressFunction,
 }) {
@@ -49,7 +50,9 @@ export default function AddressSheet({
       <SheetHeader
         first
         title={title}
-        sub={t('wallet.sendPages.reviewParts.checkAddress')}
+        sub={t('wallet.sendPages.reviewParts.checkAddress', {
+          context: isReceive ? 'receive' : undefined,
+        })}
       />
       <View style={[styles.address, { backgroundColor: tokens.ground }]}>
         <CustomScrollView>
