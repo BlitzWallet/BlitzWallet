@@ -17,13 +17,13 @@ import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const dayStart = time => {
+export const dayStart = time => {
   const date = new Date(time);
   date.setHours(0, 0, 0, 0);
   return date.getTime();
 };
 
-const sectionTitle = (start, todayStart, t) => {
+export const sectionTitle = (start, todayStart, t) => {
   if (start === todayStart) return t('constants.today');
   if (start === todayStart - DAY_MS) return t('constants.yesterday');
   const date = new Date(start);
@@ -101,6 +101,26 @@ export function buildActivitySections({
   return sections;
 }
 
+// Items are rebuilt on every list rebuild; compare the fields a row reads so
+// an unchanged tx doesn't re-render.
+const sameItem = (a, b) =>
+  a === b ||
+  (a.tx === b.tx &&
+    a.time === b.time &&
+    a.isFailed === b.isFailed &&
+    a.isLRC20Payment === b.isLRC20Payment &&
+    a.showSwapConversion === b.showSwapConversion);
+
+const rowPropsEqual = (prev, next) => {
+  for (const key in next) {
+    if (
+      key === 'item' ? !sameItem(prev.item, next.item) : prev[key] !== next[key]
+    )
+      return false;
+  }
+  return true;
+};
+
 export default memo(function ActivityRow({
   item,
   navigate,
@@ -110,6 +130,7 @@ export default memo(function ActivityRow({
   swapLimits,
   sub,
   canEditMemo,
+  neverHideBalance = true,
 }) {
   const { t } = useTranslation();
   const { tx, time, isLRC20Payment, isFailed, showSwapConversion } = item;
@@ -173,7 +194,7 @@ export default memo(function ActivityRow({
       trailing={
         showSwapEstimate ? (
           <FormattedSatText
-            neverHideBalance={true}
+            neverHideBalance={neverHideBalance}
             globalBalanceDenomination={userBalanceDenomination}
             styles={styles.amount}
             frontText={APPROXIMATE_SYMBOL}
@@ -187,7 +208,7 @@ export default memo(function ActivityRow({
           />
         ) : (
           <FormattedSatText
-            neverHideBalance={true}
+            neverHideBalance={neverHideBalance}
             globalBalanceDenomination={userBalanceDenomination}
             styles={styles.amount}
             frontText={
@@ -210,7 +231,8 @@ export default memo(function ActivityRow({
       }
     />
   );
-});
+},
+rowPropsEqual);
 
 const styles = StyleSheet.create({
   title: { fontSize: 15, lineHeight: 21 },

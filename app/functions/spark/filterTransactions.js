@@ -33,6 +33,8 @@ export function filterDisplayableTransactions({
   tokens,
   limit = 25,
   hideSmallPaymentsHomepage,
+  getDetails = tx => JSON.parse(tx.details),
+  toRow,
 }) {
   if (!transactions?.length) return [];
 
@@ -45,10 +47,12 @@ export function filterDisplayableTransactions({
 
     let paymentDetails;
     try {
-      paymentDetails = JSON.parse(tx.details);
+      paymentDetails = getDetails(tx);
     } catch {
       continue;
     }
+
+    if (!paymentDetails || typeof paymentDetails !== 'object') continue;
 
     const paymentType = tx.paymentType;
     const paymentStatus = tx.paymentStatus;
@@ -118,7 +122,7 @@ export function filterDisplayableTransactions({
 
     shownTxs.add(tx.sparkID);
 
-    result.push(tx);
+    result.push(toRow ? toRow(tx, paymentDetails, showSwapConversion) : tx);
   }
 
   return result;

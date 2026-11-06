@@ -5,10 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import getFormattedHomepageTxsForSpark from '../../../../functions/combinedTransactionsSpark';
 import { getTokenSparkTransactions } from '../../../../functions/spark/transactions';
+import ActivityRow, {
+  dayStart,
+  sectionTitle,
+} from '../viewAllComponents/activityRow';
 
 // E4: the shared home projection holds this page's rows while it is mounted
 // (max 25, no load-more), including under sheets opened from the page. Tokens
@@ -22,11 +26,14 @@ export default function ActivityCard({ scrollPosition, emptyText, style }) {
   } = useSparkWallet();
   const { poolInfo, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { theme, darkModeType, tokens } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const onlyTokens = scrollPosition === 'tokens';
   const [tokenTxs, setTokenTxs] = useState(null);
+  const { identityPubKey, transactions, tokens } = sparkInformation;
+  // The row keeps the page's unit: never a sats-to-fiat conversion.
+  const userBalanceDenomination =
+    masterInfoObject.userBalanceDenomination === 'hidden' ? 'hidden' : 'sats';
 
   useEffect(() => {
     if (onlyTokens) return;
@@ -37,80 +44,79 @@ export default function ActivityCard({ scrollPosition, emptyText, style }) {
   }, [onlyTokens, scrollPosition, updateHomepageScrollPosition]);
 
   useEffect(() => {
-    if (!onlyTokens || !sparkInformation.identityPubKey) return;
+    if (!onlyTokens || !identityPubKey) return;
     let isCurrent = true;
-    getTokenSparkTransactions(sparkInformation.identityPubKey).then(txs => {
+    getTokenSparkTransactions(identityPubKey).then(txs => {
       if (isCurrent) setTokenTxs(txs);
     });
     return () => {
       isCurrent = false;
     };
-  }, [
-    onlyTokens,
-    sparkInformation.identityPubKey,
-    sparkInformation.transactions,
-  ]);
+  }, [onlyTokens, identityPubKey, transactions]);
 
+  // Depends on the tx list and token map only, so balance ticks don't rebuild it.
   const rows = useMemo(() => {
     const items = getFormattedHomepageTxsForSpark({
-      sparkInformation: onlyTokens
-        ? { ...sparkInformation, transactions: tokenTxs || [] }
-        : sparkInformation,
-      navigate,
-      frompage: 'home',
-      theme,
-      darkModeType,
-      // The row keeps the page's unit: never a sats-to-fiat conversion.
-      userBalanceDenomination:
-        masterInfoObject.userBalanceDenomination === 'hidden'
-          ? 'hidden'
-          : 'sats',
+      transactions: onlyTokens ? tokenTxs : transactions,
+      tokens,
       enabledLRC20: showTokensInformation,
       scrollPosition: onlyTokens ? 'total' : scrollPosition,
-      poolInfoRef: poolInfo,
-      swapLimits,
-      t,
     });
-    return items.filter(item => item.key !== 'noTx');
+    // One label per day, not per row.
+    const today = dayStart(Date.now());
+    const labels = new Map();
+    for (const item of items) {
+      const day = dayStart(item.time);
+      if (!labels.has(day)) labels.set(day, sectionTitle(day, today, t));
+      item.sub = labels.get(day);
+    }
+    return items;
   }, [
-    sparkInformation,
+    transactions,
     tokenTxs,
+    tokens,
     onlyTokens,
     scrollPosition,
-    navigate,
-    theme,
-    darkModeType,
-    masterInfoObject.userBalanceDenomination,
     showTokensInformation,
-    poolInfo,
-    swapLimits,
     t,
   ]);
 
   return (
-    <View style={[styles.card, { backgroundColor: tokens.surface }, style]}>
-      <View style={styles.header}>
-        <ThemeText
-          content={t('wallet.homeLightning.home.activity')}
-          styles={styles.title}
-        />
+    <ListCard style={[styles.card, style]}>
+      <View>
+        <View style={styles.header}>
+          <ThemeText
+            content={t('wallet.homeLightning.home.activity')}
+            styles={styles.title}
+          />
+        </View>
+        {rows.length ? (
+          <ListCard dividerInset={68} style={styles.rows}>
+            {rows.map(item => (
+              <ActivityRow
+                key={item.id}
+                item={item}
+                sub={item.sub}
+                navigate={navigate}
+                userBalanceDenomination={userBalanceDenomination}
+                neverHideBalance={false}
+                tokens={tokens}
+                poolInfoRef={poolInfo}
+                swapLimits={swapLimits}
+              />
+            ))}
+          </ListCard>
+        ) : onlyTokens && !tokenTxs ? null : (
+          <ThemeText variant="hint" content={emptyText} styles={styles.empty} />
+        )}
       </View>
-      {rows.length ? (
-        rows.map(row => row.item)
-      ) : onlyTokens && !tokenTxs ? null : (
-        <ThemeText variant="hint" content={emptyText} styles={styles.empty} />
-      )}
-    </View>
+    </ListCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingTop: 2,
-    paddingBottom: 8,
-  },
+  card: { paddingTop: 2, paddingBottom: 4 },
+  rows: { paddingHorizontal: 0 },
   header: { minHeight: 48, justifyContent: 'center' },
   title: { fontSize: 16, lineHeight: 22, includeFontPadding: false },
   empty: {
