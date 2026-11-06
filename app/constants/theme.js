@@ -115,27 +115,34 @@ const SIZES = {
   userSatText: 30,
 };
 
+const makeShadow = (color, offsetY, opacity, radius, offsetX = 0) => {
+  if (Platform.OS !== 'android') {
+    return {
+      shadowColor: color,
+      shadowOffset: { width: offsetX, height: offsetY },
+      shadowOpacity: opacity,
+      shadowRadius: radius,
+    };
+  }
+  if (Platform.Version < 31) return {};
+  const hex =
+    color.length === 4 ? color.replace(/\w/g, '$&$&').slice(1) : color.slice(1);
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.substr(i, 2), 16));
+  return {
+    boxShadow: [
+      {
+        offsetX,
+        offsetY,
+        blurRadius: radius,
+        color: `rgba(${r},${g},${b},${opacity})`,
+      },
+    ],
+  };
+};
+
 const SHADOWS = {
-  small: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 2,
-  },
-  medium: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 5.84,
-    elevation: 5,
-  },
+  small: makeShadow('#000', 2, 0.25, 3.84),
+  medium: makeShadow('#000', 2, 0.25, 5.84),
   // Hairline outline for controls floating over the map (design:
   // 0 0 0 1px rgba(21,22,26,.08)).
   ring: {
@@ -143,16 +150,7 @@ const SHADOWS = {
     borderColor: 'rgba(21,22,26,0.08)',
   },
   // Drop shadow under map pins (design: 0 6px 18px -6px rgba(21,22,26,.45)).
-  pin: {
-    shadowColor: '#15161A',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.45,
-    shadowRadius: 9,
-    elevation: 6,
-  },
+  pin: makeShadow('#15161A', 6, 0.45, 9),
 };
 const WINDOWWIDTH = '95%';
 const INSET_WINDOW_WIDTH = '90%';
@@ -170,6 +168,7 @@ const AVATAR_COLORS = [
 ];
 
 export {
+  makeShadow,
   COLORS,
   FONT,
   SIZES,

@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalThemeContext } from '../../../context-store/theme';
+import { makeShadow } from '../../constants/theme';
 
 // 52 × 32 track, 28 knob (I.13). Controlled via `stateValue`; the legacy
 // `page` path still writes masterInfoObject for un-migrated screens.
@@ -102,11 +103,7 @@ const styles = StyleSheet.create({
     top: 2,
     left: 0,
     zIndex: 1,
-    shadowColor: '#15161A',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 2,
+    ...makeShadow('#15161A', 1, 0.25, 3),
   },
 });
 

@@ -10,6 +10,7 @@ import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { MAX_WEB_CONTENT_WIDTH } from '../../app/constants';
+import { makeShadow } from '../../app/constants/theme';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContactsMessages } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
@@ -180,11 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: TAB_ITEM_HEIGHT / 2,
     borderWidth: Platform.OS === 'android' ? 0 : StyleSheet.hairlineWidth,
     borderColor: 'rgba(21,22,26,0.06)',
-    shadowColor: '#15161A',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.16,
-    shadowRadius: 15,
-    elevation: 6,
+    ...makeShadow('#15161A', 10, 0.16, 15),
   },
   activity: { width: TAB_ITEM_HEIGHT, height: TAB_ITEM_HEIGHT },
   tabItem: {
