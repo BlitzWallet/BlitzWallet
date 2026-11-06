@@ -66,6 +66,8 @@ function Ring({ size, strokeWidth, color, track }) {
 // steps: [{ key, label, state: 'done' | 'active' | 'pending' | 'skipped' }]
 export default function StepProgress({ title, subtitle, steps = [] }) {
   const { tokens } = useTheme();
+  // A single step adds nothing beyond the header loader, so list only 2+.
+  const visibleSteps = steps.filter(step => step.state !== 'skipped');
   return (
     <View style={styles.container}>
       <Ring
@@ -81,10 +83,9 @@ export default function StepProgress({ title, subtitle, steps = [] }) {
           styles={[styles.subtitle, { color: tokens.muted }]}
         />
       )}
-      <View style={styles.list}>
-        {steps
-          .filter(step => step.state !== 'skipped')
-          .map(step => (
+      {visibleSteps.length > 1 && (
+        <View style={styles.list}>
+          {visibleSteps.map(step => (
             <View key={step.key} style={styles.step}>
               <View style={styles.marker}>
                 {step.state === 'done' ? (
@@ -126,7 +127,8 @@ export default function StepProgress({ title, subtitle, steps = [] }) {
               />
             </View>
           ))}
-      </View>
+        </View>
+      )}
     </View>
   );
 }

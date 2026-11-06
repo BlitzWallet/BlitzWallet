@@ -38,6 +38,7 @@ import {
 } from '../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { subscribeToSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
+import { getUsdTokenDollars } from '../../../../functions/spark/balanceSnapshots';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -116,6 +117,9 @@ export default function WithdrawFromSavingsHalfModal({
   ]);
   const [direction, setDirection] = useState(1);
   const [walletBTCBalance, setWalletBTCBalance] = useState(null);
+  // USDB dollars from the same SDK balance events; authoritative over the
+  // savings context (which can be stale or have missed a balance).
+  const [walletUsdDollars, setWalletUsdDollars] = useState(null);
   const [cachedBalance, setCachedBalance] = useState(0);
   // Destination is derived from the balance type: interest → main wallet's
   // Bitcoin balance, savings → main wallet's dollar balance. A preselected goal
@@ -216,7 +220,7 @@ export default function WithdrawFromSavingsHalfModal({
     walletBTCBalance ?? walletBitcoinBalanceSats ?? cachedBalance ?? 0;
 
   // Savings balance in USD (fromMicros of walletBalanceMicros)
-  const savingsBalanceUsd = Number(savingsBalance || 0);
+  const savingsBalanceUsd = walletUsdDollars ?? Number(savingsBalance || 0);
 
   const isInterestDisabled = interestSats <= 0;
   const isSavingsDisabled = savingsBalanceUsd <= 0;
@@ -261,7 +265,9 @@ export default function WithdrawFromSavingsHalfModal({
 
   // Full savings wallet balance (all goals + unallocated) — used for Withdraw All.
   const totalWithdrawMicros =
-    walletBalanceMicros ?? (currentBalance || 0) * 1_000_000;
+    walletUsdDollars != null
+      ? Math.round(walletUsdDollars * 1_000_000)
+      : walletBalanceMicros ?? (currentBalance || 0) * 1_000_000;
 
   // Available balance for the selected goal.
   // For UNALLOCATED we subtract goal-allocated micros so the hint and
@@ -273,6 +279,14 @@ export default function WithdrawFromSavingsHalfModal({
       : getGoalBalanceMicros(selectedGoalId);
 
   const balanceUsd = availableBalanceMicros / 1_000_000;
+
+  // Nothing to send from the chosen source — the amount page shows an empty
+  // state instead. A zero SDK balance wins over a stale goal/context value.
+  const hasNothingToWithdraw =
+    selectedBalanceType === 'interest'
+      ? interestSats <= 0
+      : availableBalanceMicros <= 0 ||
+        (walletUsdDollars != null && walletUsdDollars <= 0);
 
   // ─── BACKGROUND INIT EFFECT ───────────────────────────────────────────────
   // Fires once when the balanceType page first mounts. A full-screen loader
@@ -351,6 +365,7 @@ export default function WithdrawFromSavingsHalfModal({
             if (result?.didWork) {
               const newBalance = Number(result.balance);
               setWalletBTCBalance(newBalance);
+              setWalletUsdDollars(getUsdTokenDollars(result.tokensObj));
               // Persist so future opens can show a value instantly.
               setLocalStorageItem(
                 SAVINGS_INTEREST_POLL_CACHE_KEY,
@@ -401,7 +416,11 @@ export default function WithdrawFromSavingsHalfModal({
     Math.max(460, 200 + (savingsGoals.length + 2) * 65),
   );
   const heightFor = page =>
-    page === 'chooseGoal' ? chooseGoalHeight : STEP_HEIGHTS[page];
+    page === 'chooseGoal'
+      ? chooseGoalHeight
+      : page === 'amount' && hasNothingToWithdraw
+      ? STEP_HEIGHTS.balanceType
+      : STEP_HEIGHTS[page];
 
   useStepSheetHeight(setContentHeight, heightFor(currentPage));
 
@@ -422,7 +441,7 @@ export default function WithdrawFromSavingsHalfModal({
         () => setTimeout(() => setStep(update), 0),
       );
     },
-    [currentPage, setContentHeight, chooseGoalHeight],
+    [currentPage, setContentHeight, chooseGoalHeight, hasNothingToWithdraw],
   );
 
   const pushStep = useCallback(
@@ -975,6 +994,18 @@ export default function WithdrawFromSavingsHalfModal({
 
   // ─── amount ───────────────────────────────────────────────────────────────
   const renderAmount = () => {
+    if (hasNothingToWithdraw) {
+      return (
+        <SheetEmpty
+          icon="Wallet"
+          title={t('savings.withdraw.empty.title')}
+          sub={t('savings.withdraw.empty.subtitle')}
+          buttonText={t('constants.back')}
+          onPress={closeOrBack}
+        />
+      );
+    }
+
     // Interest → direct BTC send (validate sats); savings → direct USDB send
     // (validate USD micros). Neither path swaps, so there's no swap minimum.
     const canContinue = (() => {
