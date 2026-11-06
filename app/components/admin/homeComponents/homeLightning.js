@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   amount: {
     alignItems: 'flex-start',
     justifyContent: 'center',
-    minHeight: 84,
+    height: 84,
     marginBottom: 24,
   },
   footer: {
