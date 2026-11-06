@@ -74,11 +74,7 @@ export default function DisplayOptions() {
         <TopBar
           title={t('screens.inAccount.settingsContent.display options')}
         />
-        <CustomScrollView
-          style={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView showsVerticalScrollIndicator={false}>
           <View
             style={[styles.previewCard, { backgroundColor: tokens.surface }]}
           >
@@ -203,8 +199,6 @@ function FieldLabel({ text, style }) {
 
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
   previewCard: {
     marginTop: 16,
     borderRadius: 20,
