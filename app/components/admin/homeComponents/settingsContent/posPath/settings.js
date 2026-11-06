@@ -74,7 +74,7 @@ export default function PosSettingsPage() {
         if (!active || !txs) return;
         const people = new Set(
           txs
-            .filter(tx => !tx.didPay)
+            .filter(tx => !tx.didPay && !!tx.serverName?.length)
             .map(tx => tx.serverName?.toLowerCase()?.trim()),
         );
         setUnpaidPeople(people.size);
