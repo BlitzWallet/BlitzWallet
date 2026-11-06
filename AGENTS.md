@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repository. Assumes no prior knowl
 
 ## Project Overview
 
-BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet for iOS, Android, and the web (PWA), built with React Native and Expo. Users control their own 12-word BIP39 seed phrase; there is no KYC and no custodial service. Payments run primarily on the [Spark](https://spark.info) Layer 2 network, with additional support for Lightning (via Breez Liquid SDK), Liquid, Rootstock, Boltz swaps, LNURL, Nostr Wallet Connect (NWC), stablecoins (USDB/USDT/USDC), and merchant/POS tools. Backend services (contacts, messaging, notifications, gifts, pools) use Firebase. The app is localized into 8 languages.
+BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet for iOS, Android, and the web (PWA), built with React Native and Expo. Users control their own 12-word BIP39 seed phrase; there is no KYC and no custodial service. Payments run primarily on the [Spark](https://spark.info) Layer 2 network, with additional support for Lightning (via Breez Liquid SDK), Liquid, Rootstock, Boltz swaps, LNURL, Nostr Wallet Connect (NWC), stablecoins (USDB/USDT/USDC), and merchant/POS tools. Backend services (contacts, messaging, notifications, gifts, pools) use Firebase. The app is localized into 9 languages.
 
 - License: Apache 2.0 (`LICENSE`)
 - Public repo: https://github.com/BlitzWallet/BlitzWallet

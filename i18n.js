@@ -24,6 +24,7 @@ const languageLoaders = {
   fr: () => import('./locales/fr/translation.json'),
   sv: () => import('./locales/sv/translation.json'),
   ru: () => import('./locales/ru/translation.json'),
+  wo: () => import('./locales/wo/translation.json'),
 };
 
 const lazyTranslationBackend = {
@@ -60,6 +61,7 @@ i18n
       'fr',
       'sv',
       'ru',
+      'wo',
     ],
     load: 'currentOnly',
     interpolation: { escapeValue: false },
