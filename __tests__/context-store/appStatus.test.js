@@ -12,15 +12,6 @@ jest.mock('expo-network', () => ({
   getNetworkStateAsync: jest.fn(async () => ({ isInternetReachable: true })),
 }));
 
-jest.mock('../../app/functions/boltz/boltzSwapInfo', () => ({
-  getBoltzSwapPairInformation: jest.fn(async () => ({})),
-}));
-
-jest.mock('../../app/functions/boltz/rootstock/swapLimits', () => ({
-  buildRootstockSubmarineLimits: jest.fn(() => ({})),
-  DEFAULT_ROOTSTOCK_SUBMARINE_PAIR: { limits: { minimal: 1, maximal: 1 } },
-}));
-
 jest.mock('../../app/functions/crashlyticsLogs', () => ({
   crashlyticsLogReport: jest.fn(),
 }));

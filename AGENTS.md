@@ -29,7 +29,7 @@ BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet 
 - `index.background.js` — headless background-notification handler (Firebase messaging + expo-task-manager). Deliberately contains **no** App component or Context providers — keep it that way
 - `app/` — application code
   - `app/functions/` — business logic, organized by domain: `spark/` (largest module: payments, transactions, restore, Flashnet swaps, spend-and-replace), `sendBitcoin/`, `receiveBitcoin/`, `boltz/`, `breezLiquid/`, `lnurl/`, `nwc/`, `contacts/`, `accounts/`, `messaging/`, `notifications/`, `pos/`, `pools/`, `savings/`, `gift/`, `lrc20/`, `webview/`, plus many single-file utilities
-  - `app/screens/` — UI screens: `createAccount/` (onboarding), `inAccount/` (main app: home, send/receive, settings, POS, gifts, BTC map, analytics), plus debug screens (`boltzDebug.js`, `breezSparkTest.js`)
+  - `app/screens/` — UI screens: `createAccount/` (onboarding), `inAccount/` (main app: home, send/receive, settings, POS, gifts, BTC map, analytics)
   - `app/components/`, `app/hooks/`, `app/constants/` (theme, styles, math, icons), `app/assets/`
 - `context-store/` — ~35 React Context providers (theme, keys, auth, spark wallet, contacts, NWC, flashnet, pools, savings, POS, balances, notifications, webview, etc.)
 - `navigation/` — stack/drawer/tab navigators (`GiftsStack`, `POSStack`, `PoolsStack`, `SavingsStack`, …) and `navigationService.tsx`

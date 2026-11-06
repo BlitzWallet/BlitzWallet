@@ -1,51 +1,50 @@
-import { Linking, Platform, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { CENTER, COLORS, FONT, SIZES } from '../../constants';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { FONT } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-import { copyToClipboard } from '../../functions';
+import AmountHero from '../../functions/CustomElements/redesign/AmountHero';
+import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
+import { formatAmountText } from '../../components/admin/homeComponents/sendBitcoin/functions/formatSendText';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import GetThemeColors from '../../hooks/themeColors';
-import { openComposer } from 'react-native-email-link';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import {
   getConfirmTxAnimation,
   getErrorTxAnimation,
 } from '../../functions/lottieAnimations';
-import { useToast } from '../../../context-store/toastManager';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
-import { useAppStatus } from '../../../context-store/appStatus';
-import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 import customUUID from '../../functions/customUUID';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { getSingleContact } from '../../../db';
 import { getCachedProfileImage } from '../../functions/cachedImage';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
 import { isBlitzLNURLAddress } from '../../functions/lnurl';
 import { canonicalizePhonePaymentAddress } from '../../functions/sendBitcoin/getPhonePaymentAddress';
-import FormattedBalanceInput from '../../functions/CustomElements/formattedBalanceInput';
 import {
   RecipientAvatar,
   resolveRecipientDisplay,
 } from '../../components/admin/homeComponents/sendBitcoin/components/recipientCard';
 import openWebBrowser from '../../functions/openWebBrowser';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
+import TextButton from '../../functions/CustomElements/redesign/TextButton';
 
 export default function ConfirmTxPage(props) {
   const { sparkInformation } = useSparkWallet();
-  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
-  const { showToast } = useToast();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
   const { t } = useTranslation();
   const { decodedAddedContacts } = useGlobalContactsInfo();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const contentWidth = useContentWidth();
   const [isAddingContact, setIsAddingContact] = useState(false);
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
@@ -125,7 +124,7 @@ export default function ConfirmTxPage(props) {
   const statusSubtitle = isLNURLAuth
     ? t('screens.inAccount.confirmTxPage.lnurlAuthSuccess')
     : !didSucceed
-    ? t('screens.inAccount.confirmTxPage.paymentErrorMessage')
+    ? t('screens.inAccount.confirmTxPage.failedToSend')
     : showPendingMessage
     ? successActionDescription ||
       t('screens.inAccount.confirmTxPage.sendingInProgress')
@@ -162,77 +161,71 @@ export default function ConfirmTxPage(props) {
   if (props.route.params?.isSplitPayment && props.route.params?.isRequset) {
     return (
       <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
-        <LottieView
-          ref={animationRef}
-          source={didSucceed ? confirmAnimation : errorAnimation}
-          loop={false}
-          style={{
-            width: screenDimensions.width / 1.5,
-            height: screenDimensions.width / 1.5,
-            maxWidth: 400,
-            maxHeight: 400,
-          }}
-        />
-        <ThemeText
-          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
-          content={t('screens.inAccount.confirmTxPage.bulkSuccess')}
-        />
-        <CustomButton
-          buttonStyles={{
-            width: INSET_WINDOW_WIDTH,
-            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
-            marginTop: 'auto',
-            paddingHorizontal: 15,
-          }}
-          textStyles={{
-            ...styles.buttonText,
-            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          actionFunction={() => {
-            requestAnimationFrame(() => {
+        <CustomScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+        >
+          <LottieView
+            ref={animationRef}
+            source={didSucceed ? confirmAnimation : errorAnimation}
+            renderMode="SOFTWARE"
+            loop={false}
+            style={styles.lottie}
+          />
+          <ThemeText
+            variant="title"
+            styles={styles.title}
+            content={t('screens.inAccount.confirmTxPage.bulkSuccess')}
+          />
+        </CustomScrollView>
+        <View style={[styles.footer, { width: contentWidth }]}>
+          <CustomButton
+            size="regular"
+            actionFunction={() => {
               requestAnimationFrame(() => {
-                navigate.popToTop();
+                requestAnimationFrame(() => {
+                  navigate.popToTop();
+                });
               });
-            });
-          }}
-          textContent={t('constants.continue')}
-        />
+            }}
+            textContent={t('constants.continue')}
+          />
+        </View>
       </GlobalThemeView>
     );
   }
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
-      <View style={styles.contentContainer}>
+      <CustomScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.contentContainer}
+      >
         <LottieView
           ref={animationRef}
           source={didSucceed ? confirmAnimation : errorAnimation}
+          renderMode="SOFTWARE"
           loop={false}
-          style={{
-            width: 125,
-            height: 125,
-          }}
+          style={styles.lottie}
         />
         {(didSucceed || amount > 0) && !isLNURLAuth && (
-          <View style={{ marginBottom: 10 }}>
+          <View style={styles.hero}>
             {displayAmount && paymentDisplay ? (
-              <FormattedBalanceInput
-                maxWidth={0.7}
-                amountValue={displayAmount}
-                inputDenomination={paymentDisplay.denomination}
-                forceCurrency={paymentDisplay.forceCurrency}
-                forceFiatStats={paymentDisplay.forceFiatStats}
-                customCurrencyCode={displayTokenTicker}
-                maxDecimals={
-                  displayTokenTicker ? token?.tokenMetadata?.decimals ?? 0 : 2
-                }
+              <AmountHero
+                amount={formatAmountText(displayAmount, {
+                  masterInfoObject,
+                  primaryDisplay: paymentDisplay,
+                  conversionFiatStats: paymentDisplay.forceFiatStats,
+                  isUsingLRC20: !!displayTokenTicker,
+                  tokenDecimals: token?.tokenMetadata?.decimals ?? 0,
+                  displayTokenTicker,
+                })}
+                formatAmount={false}
+                amountSize={56}
               />
             ) : (
               <FormattedSatText
-                styles={{
-                  fontSize: 45,
-                  includeFontPadding: false,
-                }}
+                styles={styles.amountText}
                 neverHideBalance={true}
                 balance={isLRC20Payment ? formattedTokensBalance : amount}
                 useCustomLabel={isLRC20Payment}
@@ -260,39 +253,14 @@ export default function ConfirmTxPage(props) {
 
         {isLNURLAuth && (
           <ThemeText
-            styles={{
-              fontFamily: FONT.Title_Medium,
-              fontSize: SIZES.large,
-              width: '95%',
-              textAlign: 'center',
-              marginTop: 20,
-              marginBottom: 10,
-            }}
+            variant="title"
+            styles={styles.title}
             content={t('screens.inAccount.confirmTxPage.walletConnected')}
-          />
-        )}
-        {!didSucceed && (
-          <ThemeText
-            styles={{
-              fontFamily: FONT.Title_Medium,
-              fontSize: SIZES.large,
-              width: '95%',
-              textAlign: 'center',
-              marginTop: 20,
-              marginBottom: 10,
-            }}
-            content={t('screens.inAccount.confirmTxPage.failedToSend')}
           />
         )}
 
         <ThemeText
-          styles={{
-            opacity: 0.6,
-            width: '95%',
-            maxWidth: 300,
-            textAlign: 'center',
-            marginBottom: 40,
-          }}
+          styles={[styles.status, { color: tokens.muted }]}
           content={statusSubtitle}
         />
 
@@ -301,21 +269,21 @@ export default function ConfirmTxPage(props) {
             activeOpacity={recipientResolved.fullAddress ? 0.6 : 1}
             disabled={!recipientResolved.fullAddress}
             onPress={() =>
-              navigate.navigate('ErrorScreen', {
-                errorMessage: recipientResolved.fullAddress,
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'sendAddress',
+                address: recipientResolved.fullAddress,
+                title: t(
+                  'screens.inAccount.receiveBtcPage.invoiceDescription_lightningAddress',
+                ),
+                sliderHight: 0.6,
               })
             }
-            style={[
-              styles.recipientCard,
-              { backgroundColor: backgroundOffset },
-            ]}
+            style={[styles.recipientCard, { backgroundColor: tokens.surface }]}
           >
             <RecipientAvatar
               resolved={recipientResolved}
-              theme={theme}
-              darkModeType={darkModeType}
               size={30}
-              backgroundColor={backgroundColor}
+              backgroundColor={tokens.disc}
             />
             <ThemeText
               styles={styles.recipientName}
@@ -324,178 +292,140 @@ export default function ConfirmTxPage(props) {
             />
           </TouchableOpacity>
         )}
-      </View>
-      <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          backgroundColor:
-            didSucceed && !theme ? COLORS.primary : COLORS.darkModeText,
-          marginTop: 'auto',
-          paddingHorizontal: 15,
-        }}
-        textStyles={{
-          ...styles.buttonText,
-          color:
-            didSucceed && !theme ? COLORS.darkModeText : COLORS.lightModeText,
-        }}
-        actionFunction={() => {
-          // This will go to whatever the base homsecreen is set to
-          requestAnimationFrame(() => {
+      </CustomScrollView>
+      <View style={[styles.footer, { width: contentWidth }]}>
+        <CustomButton
+          size="regular"
+          tone={didSucceed ? undefined : 'secondary'}
+          actionFunction={() => {
+            // This will go to whatever the base homsecreen is set to
             requestAnimationFrame(() => {
-              navigate.popToTop();
+              requestAnimationFrame(() => {
+                navigate.popToTop();
+              });
             });
-          });
-        }}
-        textContent={buttonText}
-      />
+          }}
+          textContent={buttonText}
+        />
 
-      {!didSucceed && !isLNURLAuth && (
-        <DropdownMenu
-          options={[
-            {
-              label: t('screens.inAccount.confirmTxPage.emailReport'),
-              value: 'email',
-            },
-            {
-              label: t('screens.inAccount.confirmTxPage.copyReport'),
-              value: 'clipboard',
-            },
-          ]}
-          selectedValue=""
-          placeholder={t('screens.inAccount.confirmTxPage.sendReport')}
-          onSelect={async item => {
-            if (item.value === 'email') {
-              try {
-                if (Platform.OS === 'web') {
-                  await Linking.openURL(
-                    `mailto:support@blitzwalletapp.com?subject=${encodeURIComponent('Payment Failed')}&body=${encodeURIComponent(String(errorMessage))}`,
-                  );
-                } else {
-                  await openComposer({
-                    to: 'support@blitzwalletapp.com',
-                    subject: 'Payment Failed',
-                    body: String(errorMessage),
-                  });
-                }
-              } catch (err) {
-                console.log('Email composer error:', err);
-              }
-            } else if (item.value === 'clipboard') {
-              copyToClipboard(String(errorMessage), showToast);
+        {!didSucceed && !isLNURLAuth && (
+          <TextButton
+            onPress={() =>
+              navigate.push('CustomHalfModal', {
+                wantedContent: 'contactUs',
+                emailSubject: t(
+                  'screens.inAccount.confirmTxPage.failedPaymentSupportSubject',
+                ),
+                emailBody: String(errorMessage),
+                copyBody: true,
+              })
             }
-          }}
-          showClearIcon={false}
-          showVerticalArrows={false}
-          translateLabelText={false}
-          customButtonStyles={{
-            backgroundColor: 'transparent',
-          }}
-          textStyles={{
-            ...CENTER,
-          }}
-        />
-      )}
+            text={t('screens.inAccount.confirmTxPage.sendReport')}
+            align="center"
+          />
+        )}
 
-      {didSucceed && successActionUrl && (
-        <CustomButton
-          textStyles={{ color: textColor }}
-          buttonStyles={{
-            width: INSET_WINDOW_WIDTH,
-            paddingHorizontal: 15,
-            backgroundColor: 'unset',
-          }}
-          actionFunction={async () => {
-            openWebBrowser({ navigate, link: successActionUrl });
-          }}
-          textContent={t('screens.inAccount.confirmTxPage.lud9SuccessAction')}
-        />
-      )}
+        {didSucceed && successActionUrl && (
+          <CustomButton
+            textStyles={[styles.linkText, { color: tokens.link }]}
+            buttonStyles={{
+              width: '100%',
+              paddingHorizontal: 15,
+              backgroundColor: 'unset',
+            }}
+            actionFunction={async () => {
+              openWebBrowser({ navigate, link: successActionUrl });
+            }}
+            textContent={t('screens.inAccount.confirmTxPage.lud9SuccessAction')}
+          />
+        )}
 
-      {showAddContact && (
-        <CustomButton
-          textStyles={{ color: textColor }}
-          buttonStyles={{
-            width: INSET_WINDOW_WIDTH,
-            paddingHorizontal: 15,
-            backgroundColor: 'unset',
-          }}
-          loadingColor={textColor}
-          useLoading={isAddingContact}
-          disabled={isAddingContact}
-          actionFunction={async () => {
-            if (isAddingContact) return;
-            if (isBlitzAddress) {
-              setIsAddingContact(true);
-              try {
-                const username = lnurlAddress.split('@')[0];
-                const results = await getSingleContact(username);
-                if (!results.length) {
+        {showAddContact && (
+          <CustomButton
+            textStyles={[styles.linkText, { color: tokens.link }]}
+            buttonStyles={{
+              width: '100%',
+              paddingHorizontal: 15,
+              backgroundColor: 'unset',
+            }}
+            loadingColor={tokens.link}
+            useLoading={isAddingContact}
+            disabled={isAddingContact}
+            actionFunction={async () => {
+              if (isAddingContact) return;
+              if (isBlitzAddress) {
+                setIsAddingContact(true);
+                try {
+                  const username = lnurlAddress.split('@')[0];
+                  const results = await getSingleContact(username);
+                  if (!results.length) {
+                    setIsAddingContact(false);
+                    return;
+                  }
+                  const user = results[0];
+                  await getCachedProfileImage(user.contacts.myProfile.uuid);
+                  const newContact = {
+                    name: user.contacts.myProfile.name || '',
+                    bio: user.contacts.myProfile.bio || '',
+                    uniqueName: user.contacts.myProfile.uniqueName || '',
+                    uuid: user.contacts.myProfile.uuid,
+                    isFavorite: false,
+                    transactions: [],
+                    unlookedTransactions: 0,
+                    isAdded: true,
+                  };
+                  navigate.replace('ExpandedAddContactsPage', { newContact });
+                } catch (_) {
                   setIsAddingContact(false);
-                  return;
                 }
-                const user = results[0];
-                await getCachedProfileImage(user.contacts.myProfile.uuid);
+              } else {
+                const uuid = customUUID();
+                if (!uuid) return;
                 const newContact = {
-                  name: user.contacts.myProfile.name || '',
-                  bio: user.contacts.myProfile.bio || '',
-                  uniqueName: user.contacts.myProfile.uniqueName || '',
-                  uuid: user.contacts.myProfile.uuid,
+                  name: lnurlAddress.split('@')[0],
+                  bio: '',
+                  uniqueName: '',
                   isFavorite: false,
                   transactions: [],
                   unlookedTransactions: 0,
+                  receiveAddress: lnurlAddress,
                   isAdded: true,
+                  isLNURL: true,
+                  profileImage: '',
+                  uuid,
                 };
                 navigate.replace('ExpandedAddContactsPage', { newContact });
-              } catch (_) {
-                setIsAddingContact(false);
               }
-            } else {
-              const uuid = customUUID();
-              if (!uuid) return;
+            }}
+            textContent={t('contacts.contactsPage.addContactButton')}
+          />
+        )}
+
+        {showAddBlitzContact && (
+          <CustomButton
+            textStyles={[styles.linkText, { color: tokens.link }]}
+            buttonStyles={{
+              width: '100%',
+              paddingHorizontal: 15,
+              backgroundColor: 'unset',
+            }}
+            actionFunction={() => {
               const newContact = {
-                name: lnurlAddress.split('@')[0],
-                bio: '',
-                uniqueName: '',
+                name: blitzContactInfo.name || '',
+                bio: blitzContactInfo.bio || '',
+                uniqueName: blitzContactInfo.uniqueName || '',
+                uuid: blitzContactInfo.uuid,
                 isFavorite: false,
                 transactions: [],
                 unlookedTransactions: 0,
-                receiveAddress: lnurlAddress,
                 isAdded: true,
-                isLNURL: true,
-                profileImage: '',
-                uuid,
               };
               navigate.replace('ExpandedAddContactsPage', { newContact });
-            }
-          }}
-          textContent={t('contacts.contactsPage.addContactButton')}
-        />
-      )}
-
-      {showAddBlitzContact && (
-        <CustomButton
-          textStyles={{ color: textColor }}
-          buttonStyles={{
-            width: INSET_WINDOW_WIDTH,
-            paddingHorizontal: 15,
-            backgroundColor: 'unset',
-          }}
-          actionFunction={() => {
-            const newContact = {
-              name: blitzContactInfo.name || '',
-              bio: blitzContactInfo.bio || '',
-              uniqueName: blitzContactInfo.uniqueName || '',
-              uuid: blitzContactInfo.uuid,
-              isFavorite: false,
-              transactions: [],
-              unlookedTransactions: 0,
-              isAdded: true,
-            };
-            navigate.replace('ExpandedAddContactsPage', { newContact });
-          }}
-          textContent={t('contacts.contactsPage.addContactButton')}
-        />
-      )}
+            }}
+            textContent={t('contacts.contactsPage.addContactButton')}
+          />
+        )}
+      </View>
     </GlobalThemeView>
   );
 }
@@ -505,40 +435,54 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  scroll: { flex: 1, width: '100%' },
   contentContainer: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    paddingVertical: 16,
   },
-  buttonText: {
-    fontFamily: FONT.Descriptoin_Regular,
+  lottie: { width: 125, height: 125 },
+  hero: { marginTop: 12, alignItems: 'center' },
+  amountText: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 56,
+    letterSpacing: -1.96,
+    includeFontPadding: false,
   },
-  paymentConfirmedMessage: {
-    width: '90%',
-    fontSize: SIZES.medium,
-
+  title: { textAlign: 'center', marginTop: 12 },
+  status: {
     fontFamily: FONT.Title_Regular,
+    fontSize: 16,
+    lineHeight: 24,
+    includeFontPadding: false,
+    maxWidth: 300,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 8,
   },
-  lottie: {
-    width: 300, // adjust as necessary
-    height: 300, // adjust as necessary
+  footer: { paddingTop: 8, rowGap: 4 },
+  linkText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
   },
   recipientCard: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
-    maxWidth: '90%',
+    maxWidth: '100%',
+    minHeight: 54,
+    marginTop: 40,
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 100,
+    paddingLeft: 12,
+    paddingRight: 20,
+    borderRadius: 999,
     columnGap: 10,
   },
   recipientName: {
     flexShrink: 1,
+    fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    fontSize: SIZES.smedium,
+    fontSize: 15,
   },
 });

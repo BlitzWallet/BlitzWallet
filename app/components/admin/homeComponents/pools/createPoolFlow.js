@@ -1,106 +1,158 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { usePoolCreationFlow } from './poolCreationSharedLogic';
-import PoolAmountInput from './components/poolAmountInput';
-import PoolDescriptionInput from './components/poolDescriptionInput';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import CustomButton from '../../../../functions/CustomElements/button';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
+import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
+import AnimatedStep, {
+  growThenStep,
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useKeysContext } from '../../../../../context-store/keys';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import PoolAmountKeypad from './components/poolAmountKeypad';
+import { createPoolDocument } from './poolCreationSharedLogic';
+
+const STEP_HEIGHTS = { amount: 720, name: 400 };
 
 /**
- * Create Pool Flow Component
- * Used as CustomHalfModal content for settings path
- * Provides multi-step pool creation (amount → description)
- *
- * @param {Object} route - Navigation route params
- * @param {Function} setContentHeight - Callback to adjust modal height
- * @param {Function} handleBackPressFunction - Back press handler from modal
- * @param {Object} navigate - Navigation object
+ * Create Pool sheet (CustomHalfModal content): goal amount → pool name.
  */
 export default function CreatePoolFlow({
-  route,
   setContentHeight,
   handleBackPressFunction,
   navigate,
-  setBackNav,
 }) {
-  const { bottomPadding } = useGlobalInsets();
+  const { t } = useTranslation();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { accountMnemoinc } = useKeysContext();
+  const { globalContactsInformation } = useGlobalContactsInfo();
+  const { fiatStats } = useNodeContext();
 
-  const {
-    currentStep,
-    goalAmount,
-    setGoalAmount,
-    setCurrentStep,
-    amountStyle,
-    descStyle,
-  } = usePoolCreationFlow({
-    onComplete: () => navigate.goBack(),
-    onCancel: () => navigate.goBack(),
-  });
+  const [currentStep, setCurrentStep] = useState('amount');
+  const [direction, setDirection] = useState(1);
+  const [goalAmount, setGoalAmount] = useState(0);
+  const [poolTitle, setPoolTitle] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const isCreatingRef = useRef(false);
 
-  useEffect(() => {
-    const height = currentStep === 'description' ? 400 : 600; // Adjust height based on step
-    setContentHeight?.(height);
-  }, [currentStep, setContentHeight]);
+  useStepSheetHeight(setContentHeight, STEP_HEIGHTS[currentStep]);
 
-  // Handle back navigation (header arrow + Android hardware back)
+  const goTo = useCallback(
+    step => {
+      setDirection(step === 'name' ? 1 : -1);
+      growThenStep(
+        setContentHeight,
+        STEP_HEIGHTS[currentStep],
+        STEP_HEIGHTS[step],
+        () => setCurrentStep(step),
+      );
+    },
+    [currentStep, setContentHeight],
+  );
+
   const handleBackPress = useCallback(() => {
-    if (currentStep === 'description') {
-      // On description step, go back to amount step
-      setCurrentStep('amount');
-      return true;
-    } else {
-      // On amount step, close the modal
-      handleBackPressFunction();
+    if (isCreatingRef.current) return true;
+    if (currentStep === 'name') {
+      goTo('amount');
       return true;
     }
-  }, [currentStep, setCurrentStep, handleBackPressFunction]);
-
-  // Register the header back button on the description step. The amount step's
-  // header (currency switch button) is owned by PoolAmountInput while mounted.
-  useEffect(() => {
-    if (currentStep === 'description') {
-      setBackNav?.({ onPress: handleBackPress, title: '' });
-      return () => setBackNav?.(null);
-    }
-  }, [setBackNav, handleBackPress, currentStep]);
-
+    return false;
+  }, [currentStep, goTo]);
   useHandleBackPressNew(handleBackPress);
+
+  const isValid = poolTitle.trim().length > 0 && goalAmount > 0;
+
+  const handleCreatePool = async () => {
+    if (!isValid || isCreatingRef.current) return;
+    isCreatingRef.current = true;
+    setIsCreating(true);
+    try {
+      const pool = await createPoolDocument({
+        masterInfoObject,
+        accountMnemoinc,
+        globalContactsInformation,
+        poolTitle,
+        goalAmount,
+      });
+      handleBackPressFunction(() => {
+        navigate.replace('PoolsStack', {
+          screen: 'PoolDetailScreen',
+          params: { poolId: pool.poolId, pool, shouldSave: true },
+        });
+      });
+    } catch (err) {
+      console.log('Error creating pool:', err);
+      isCreatingRef.current = false;
+      setIsCreating(false);
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* Amount Step */}
-      {currentStep !== 'description' && (
-        <Animated.View
-          style={[
-            styles.stepContainer,
-            amountStyle,
-            { paddingBottom: bottomPadding },
-          ]}
-        >
-          <PoolAmountInput
-            onContinue={amount => {
-              setGoalAmount(amount);
-              setCurrentStep('description');
-            }}
-            onBack={handleBackPressFunction}
-            setBackNav={setBackNav}
-          />
-        </Animated.View>
-      )}
-      {/* Description Step */}
-      {currentStep === 'description' && (
-        <Animated.View style={[styles.stepContainer, descStyle]}>
-          <PoolDescriptionInput
-            goalAmount={goalAmount}
-            onCreatePool={poolData => {
-              // Pool created via handleBackPressFunction in PoolDescriptionInput
-            }}
-            onBack={() => setCurrentStep('amount')}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        </Animated.View>
-      )}
+      <AnimatedStep
+        active={currentStep === 'amount'}
+        direction={direction}
+        exitsBack={false}
+      >
+        <PoolAmountKeypad
+          label={t('wallet.pools.poolGoal')}
+          buttonText={sats =>
+            sats ? t('wallet.pools.addDescription') : t('constants.back')
+          }
+          onContinue={sats => {
+            if (!sats) {
+              handleBackPressFunction();
+              return;
+            }
+            setGoalAmount(sats);
+            goTo('name');
+          }}
+        />
+      </AnimatedStep>
+
+      <AnimatedStep
+        active={currentStep === 'name'}
+        direction={direction}
+        exitsBack={true}
+      >
+        <TopBar
+          onBack={() => !isCreatingRef.current && goTo('amount')}
+          shouldDismissKeyboard={true}
+        />
+        <SheetHeader
+          title={t('wallet.pools.whatIsPoolFor')}
+          sub={`${t('wallet.pools.goal')}${displayCorrectDenomination({
+            amount: goalAmount,
+            masterInfoObject,
+            fiatStats,
+          })}`}
+        />
+        <UserInput
+          value={poolTitle}
+          onChangeText={setPoolTitle}
+          placeholder={t('wallet.pools.examplePlaceholder')}
+          maxLength={100}
+          autoFocus={true}
+        />
+        <CustomButton
+          buttonStyles={styles.button}
+          textContent={
+            isCreating
+              ? t('wallet.pools.creatingPool')
+              : t('wallet.pools.createPool')
+          }
+          actionFunction={handleCreatePool}
+          disabled={!isValid || isCreating}
+          size="regular"
+        />
+      </AnimatedStep>
     </View>
   );
 }
@@ -108,12 +160,10 @@ export default function CreatePoolFlow({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    overflow: 'hidden',
   },
-  stepContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  button: {
+    width: '100%',
+    marginTop: 'auto',
   },
 });

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { KeyboardController } from 'react-native-keyboard-controller';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -8,19 +8,16 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../functions/CustomElements/button';
-import CustomSearchInput from '../../../functions/CustomElements/searchInput';
-import WordsQrToggle from '../../../functions/CustomElements/wordsQrToggle';
 import InlineQrScanner from '../../../functions/CustomElements/camera/inlineQrScanner';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
   VALID_USERNAME_REGEX,
 } from '../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../constants/theme';
+import { SIZES } from '../../../constants/theme';
 import { useChildClaim } from '../../../../context-store/childClaimContext';
 import {
   keyboardGoBack,
@@ -30,6 +27,9 @@ import { parsePairingQr } from '../../../functions/accounts/childPairing';
 import GetThemeColors from '../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import ChildQRWaiting from './childQRWaiting';
+import TopBar from '../../../functions/CustomElements/redesign/TopBar';
+import Segmented from '../../../functions/CustomElements/redesign/Segmented';
+import UserInput from '../../../functions/CustomElements/redesign/UserInput';
 
 // Statuses in which the camera is live on the Scan tab. While joining /
 // awaiting the camera is stopped (isActive=false) and the status content
@@ -41,7 +41,9 @@ export default function ChildEnterCode() {
   const navigate = useNavigation();
   const isFocused = useIsFocused();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { status, errorMessage, submitPairing, resetSession, sessionRef } =
     useChildClaim();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
@@ -130,131 +132,125 @@ export default function ChildEnterCode() {
       isKeyboardActive={!isScanTab && isKeyboardActive}
       useTouchableWithoutFeedback={!isScanTab}
     >
-      <CustomSettingsTopBar
-        customBackFunction={handleBack}
-        label={t(
-          isScanTab
-            ? 'settings.childAccounts.claim.scanNavTitle'
-            : 'settings.childAccounts.claim.codeNavTitle',
-        )}
-      />
-
-      <View style={styles.toggleWrap}>
-        <WordsQrToggle
-          option1Text={t('settings.childAccounts.claim.codeOption')}
-          option2Text={t('settings.childAccounts.claim.scanOption')}
-          option1Value="code"
-          option2Value="scan"
-          setSelectedDisplayOption={selectDisplayOption}
-          selectedDisplayOption={selectedDisplayOption}
-        />
-      </View>
-
-      {isScanTab ? (
-        <View style={styles.content}>
-          <ThemeText
-            styles={styles.title}
-            content={t('settings.childAccounts.claim.scanTitle')}
-          />
-          <ThemeText
-            styles={styles.subtitle}
-            content={t('settings.childAccounts.claim.scanSubtitle')}
-          />
-          <View
-            style={[styles.scannerBox, { backgroundColor: backgroundOffset }]}
-          >
-            {isLiveScanning && (
-              <InlineQrScanner
-                onScan={handleScan}
-                isActive={scannerActive}
-                resetToken={resetToken}
-                hintText={t('settings.childAccounts.claim.scanHint')}
-              />
-            )}
-            {(status === 'joining' || status === 'confirm') && (
-              <FullLoadingScreen
-                text={t('settings.childAccounts.claim.connectingMessage')}
-              />
-            )}
-            {status === 'awaiting' && <ChildQRWaiting />}
-          </View>
-          {!!errorMessage && (
-            <ThemeText styles={styles.error} content={errorMessage} />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          onBack={handleBack}
+          title={t(
+            isScanTab
+              ? 'settings.childAccounts.claim.scanNavTitle'
+              : 'settings.childAccounts.claim.codeNavTitle',
           )}
-        </View>
-      ) : (
-        <>
-          <CustomScrollView
-            style={styles.codeScroll}
-            contentContainerStyle={styles.codeScrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <ThemeText
-              styles={styles.title}
-              content={t('settings.childAccounts.claim.codeTitle')}
-            />
-            <ThemeText
-              styles={styles.subtitle}
-              content={t('settings.childAccounts.claim.codeSubtitle')}
-            />
-            <View style={styles.inputWrap}>
-              <CustomSearchInput
-                inputText={name}
-                setInputText={setName}
-                maxLength={30}
-                placeholderText={t(
-                  'settings.childAccounts.claim.codePlaceholder',
-                )}
-                onSubmitEditingFunction={goNext}
-                onFocusFunction={() => setIsKeyboardActive(true)}
-                onBlurFunction={() => setIsKeyboardActive(false)}
-              />
-            </View>
-          </CustomScrollView>
-          <CustomButton
-            buttonStyles={styles.button}
-            textContent={t('settings.childAccounts.claim.next')}
-            actionFunction={goNext}
+        />
+
+        <View style={styles.toggleWrap}>
+          <Segmented
+            options={[
+              {
+                value: 'code',
+                label: t('settings.childAccounts.claim.codeOption'),
+              },
+              {
+                value: 'scan',
+                label: t('settings.childAccounts.claim.scanOption'),
+              },
+            ]}
+            value={selectedDisplayOption}
+            onChange={selectDisplayOption}
           />
-        </>
-      )}
+        </View>
+
+        {isScanTab ? (
+          <View style={styles.content}>
+            <ThemeText
+              variant="title"
+              styles={styles.title}
+              content={t('settings.childAccounts.claim.scanTitle')}
+            />
+            <ThemeText
+              variant="body"
+              styles={[styles.subtitle, { color: tokens.muted }]}
+              content={t('settings.childAccounts.claim.scanSubtitle')}
+            />
+            <View
+              style={[styles.scannerBox, { backgroundColor: backgroundOffset }]}
+            >
+              {isLiveScanning && (
+                <InlineQrScanner
+                  onScan={handleScan}
+                  isActive={scannerActive}
+                  resetToken={resetToken}
+                  hintText={t('settings.childAccounts.claim.scanHint')}
+                />
+              )}
+              {(status === 'joining' || status === 'confirm') && (
+                <FullLoadingScreen
+                  text={t('settings.childAccounts.claim.connectingMessage')}
+                />
+              )}
+              {status === 'awaiting' && <ChildQRWaiting />}
+            </View>
+            {!!errorMessage && (
+              <ThemeText
+                styles={[styles.error, { color: tokens.danger }]}
+                content={errorMessage}
+              />
+            )}
+          </View>
+        ) : (
+          <>
+            <CustomScrollView
+              style={styles.codeScroll}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <ThemeText
+                variant="title"
+                styles={styles.title}
+                content={t('settings.childAccounts.claim.codeTitle')}
+              />
+              <ThemeText
+                variant="body"
+                styles={[styles.subtitle, { color: tokens.muted }]}
+                content={t('settings.childAccounts.claim.codeSubtitle')}
+              />
+              <UserInput
+                value={name}
+                onChangeText={setName}
+                maxLength={30}
+                placeholder={t('settings.childAccounts.claim.codePlaceholder')}
+                onSubmitEditing={goNext}
+                onFocus={() => setIsKeyboardActive(true)}
+                onBlur={() => setIsKeyboardActive(false)}
+                focusRing
+              />
+            </CustomScrollView>
+
+            <CustomButton
+              buttonStyles={styles.button}
+              textContent={t('settings.childAccounts.claim.next')}
+              actionFunction={goNext}
+              size={'regular'}
+            />
+          </>
+        )}
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  toggleWrap: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  content: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  codeScroll: {
-    flex: 1,
-  },
-  codeScrollContent: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
+  container: { ...CENTER, flex: 1 },
+  toggleWrap: { width: '100%', marginTop: 12 },
+  content: { flex: 1 },
+  codeScroll: { flex: 1 },
   title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
+    letterSpacing: -0.44,
     marginTop: 28,
-    marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
+    marginTop: 8,
+    marginBottom: 28,
     textAlign: 'center',
   },
   scannerBox: {
@@ -264,22 +260,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  whiteCenterText: {
-    width: '80%',
-    textAlign: 'center',
-  },
-  inputWrap: {
-    marginTop: 20,
-  },
   error: {
     fontSize: SIZES.smedium,
-    color: COLORS.cancelRed,
     textAlign: 'center',
     marginTop: 16,
   },
   button: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

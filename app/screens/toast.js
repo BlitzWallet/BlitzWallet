@@ -9,14 +9,13 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
-import { COLORS, ICONS } from '../constants';
+import { COLORS } from '../constants';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { SIZES, WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
-import { useGlobalThemeContext } from '../../context-store/theme';
 import ThemeIcon from '../functions/CustomElements/themeIcon';
 
 export function Toast({
@@ -26,10 +25,9 @@ export function Toast({
   sparkInformation,
   masterInfoObject,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { topPadding } = useGlobalInsets();
   const { t } = useTranslation();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
 
   // shared values
   const slideY = useSharedValue(50);
@@ -137,45 +135,35 @@ export function Toast({
           <View style={styles.toastContent}>
             {toast.type === 'clipboard' ? (
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={tokens.accent}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Copy'}
               />
             ) : toast.type === 'confirmTx' ? (
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={tokens.accent}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Info'}
               />
             ) : toast.type === 'handleSwap' ? (
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={tokens.accent}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'ArrowUpDown'}
               />
             ) : toast.type === 'error' ? (
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={tokens.accent}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Info'}
               />
             ) : toast.type === 'success' ? (
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={tokens.accent}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Check'}
@@ -275,12 +263,6 @@ const styles = StyleSheet.create({
   },
   clipboardToast: {
     backgroundColor: COLORS.darkModeText,
-  },
-  successToast: {
-    backgroundColor: '#4CAF50',
-  },
-  errorToast: {
-    backgroundColor: '#F44336',
   },
   warningToast: {
     backgroundColor: '#FF9800',

@@ -13,8 +13,6 @@ export default function ContactProfileImage({
   priority = 'high',
   contentFit = 'cover',
   uri,
-  darkModeType,
-  theme,
   updated,
   fromCustomQR = false,
 }) {
@@ -27,11 +25,7 @@ export default function ContactProfileImage({
     failedImageLoadURI.current = '';
   }, [uri, updated]);
 
-  const fallbackIcon = fromCustomQR
-    ? ICONS.logoWithPadding
-    : darkModeType && theme
-    ? ICONS.userWhite
-    : ICONS.userIcon;
+  const fallbackIcon = fromCustomQR ? ICONS.logoWithPadding : ICONS.userIcon;
 
   const customURI = useMemo(() => {
     if (!uri) return null;

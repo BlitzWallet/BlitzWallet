@@ -199,6 +199,7 @@ jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   backgroundColor: '#ffffff',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../app/hooks/usePaymentInputDisplay', () => {
@@ -268,17 +269,6 @@ jest.mock(
           MockReact.createElement(RN.Text, null, 'Top bar edit'),
         ),
       );
-    },
-);
-
-jest.mock(
-  '../app/functions/CustomElements/QrWrapper',
-  () =>
-    function MockQrCodeWrapper({ QRData }) {
-      const MockReact = require('react');
-      const RN = require('react-native');
-
-      return MockReact.createElement(RN.Text, { testID: 'qr-data' }, QRData);
     },
 );
 

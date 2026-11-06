@@ -20,7 +20,7 @@ import {
 } from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
-import DeviceInfo, {
+import {
   getModel,
   getSystemVersion,
   getVersion,

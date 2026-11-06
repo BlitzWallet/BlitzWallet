@@ -2,25 +2,29 @@
 import { View, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import {
-  FONT,
-  SIZES,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
+import { useTheme } from '../../../../../../context-store/theme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
+// SendLimits.dc.html "Swap rate updated": 88 white disc with a refresh glyph,
+// the explanation under it. The title key names the disc for screen readers.
 export default function SwapRatesChangedState() {
   const { t } = useTranslation();
+  const { tokens } = useTheme();
 
   return (
     <View style={styles.container}>
-      <ThemeIcon iconName={'RefreshCw'} size={36} />
+      <View
+        style={[styles.disc, { backgroundColor: tokens.surface }]}
+        accessible
+        accessibilityLabel={t(
+          'wallet.sendPages.sendPaymentScreen.swapRatesChangedTitle',
+        )}
+      >
+        <ThemeIcon redesign iconName={'RefreshCw'} size={36} />
+      </View>
       <ThemeText
-        styles={styles.title}
-        content={t('wallet.sendPages.sendPaymentScreen.swapRatesChangedTitle')}
-      />
-      <ThemeText
-        styles={styles.body}
+        variant="body"
+        styles={[styles.body, { color: tokens.muted }]}
         content={t('wallet.sendPages.sendPaymentScreen.swapRatesChangedBody')}
       />
     </View>
@@ -28,22 +32,13 @@ export default function SwapRatesChangedState() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: INSET_WINDOW_WIDTH,
+  container: { width: '100%', alignItems: 'center' },
+  disc: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: 'center',
-
-    gap: 12,
+    justifyContent: 'center',
   },
-  title: {
-    fontFamily: FONT.Title_Regular,
-    fontWeight: 500,
-    fontSize: SIZES.large,
-    textAlign: 'center',
-  },
-  body: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    opacity: 0.65,
-    lineHeight: 18,
-  },
+  body: { marginTop: 8, textAlign: 'center' },
 });

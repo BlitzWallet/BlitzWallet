@@ -25,7 +25,6 @@ export default async function processBolt11Invoice(input, context) {
     usablePaymentMethod,
     bitcoinBalance,
     dollarBalanceSat,
-    min_usd_swap_amount,
     convertedSendAmount,
     poolInfoRef,
   } = context;

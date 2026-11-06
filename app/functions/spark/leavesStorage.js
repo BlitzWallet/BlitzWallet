@@ -111,7 +111,6 @@ const leavesDB = createSelfHealingDatabase({
   name: `${LEAVES_DATABASE}.db`,
   setup: setupLeavesSchema,
 });
-const sqlLiteDB = leavesDB.db;
 
 async function getDatabase() {
   return leavesDB.ensureReady();

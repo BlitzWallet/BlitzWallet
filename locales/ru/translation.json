@@ -58,6 +58,8 @@
     "retry": "Повторить",
     "download": "Скачать",
     "contactUs": "Связаться с нами",
+    "copyEmail": "Копировать e-mail",
+    "openInbox": "Открыть входящие",
     "pay": "Оплатить",
     "processing": "Обработка",
     "support": "Поддержка",
@@ -142,7 +144,7 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française",
+    "french": "Français",
     "swedish": "Svenska",
     "russian": "Русский"
   },
@@ -1681,13 +1683,15 @@
       "text4": "Лимит быстрой оплаты (SAT)",
       "text5": "Быстрая оплата позволяет мгновенно оплачивать инвойсы ниже лимита без подтверждения свайпом.",
       "text6": "Текущий",
-      "text7": "Новый"
+      "text7": "Новый",
+      "editThresholdA11y": "Изменить порог"
     },
     "loginSecurity": {
-      "text1": "Безопасность входа",
-      "text2": "Тип защиты",
+      "text1": "Включить защиту входа",
+      "text2": "Разблокировать с помощью",
       "text3": "PIN",
       "text4": "Биометрия",
+      "passwordMethod": "Пароль",
       "text5": "Нет биометрического профиля. Создайте его в настройках устройства.",
       "text6": "Ошибка входа по биометрии",
       "text7": "Устройство не поддерживает биометрию",
@@ -1700,6 +1704,7 @@
       "createPinPageHeader": "{{type}} ваш PIN Blitz",
       "invalidPinconfirmation": "PIN-коды не совпадают!",
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
+      "randomPinKeyboardSubtitle": "Меняет порядок цифр PIN при каждой разблокировке.",
       "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN.",
       "biometricsHead": "О биометрии",
       "biometricsSubHead": "Ваша фраза восстановления защищена текущими биометрическими данными устройства. Их изменение не позволит Blitz Wallet получить доступ к вашей фразе восстановления и заблокирует доступ к кошельку.",
@@ -1748,6 +1753,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Отчеты включены",
       "crashreporting_disabled": "Отчеты отключены",
+      "switchLabel": "Отчёты о сбоях",
       "descriptionText": "Данные о сбоях помогают нам улучшать приложение.\n\nЗаписываются: версия ОС, модель устройства и время сбоя."
     },
     "accounts": {
@@ -1791,13 +1797,17 @@
     "sparkInfo": {
       "title": "Инфо о кошельке",
       "sparkAddress": "Адрес Spark",
-      "pubKey": "Публичный ключ"
+      "pubKey": "Публичный ключ",
+      "copyA11y": "Копировать {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Ваш баланс {{balance}}. Комиссия Blitz {{fee}}. Пополните Биткоин для отправки токенов.",
       "title": "Настройки Spark",
       "sliderTitle_enabled": "BTKN включен",
       "sliderTitle_disabled": "BTKN отключен",
+      "switchLabel": "Токены BTKN",
+      "switchSub": "Отправляйте и получайте токены в сети Spark.",
+      "disclaimer": "Blitz — это биткоин-кошелёк, и он не продвигает токены. Эта функция здесь, чтобы вы могли использовать ту технологию, которую выберете.",
       "sliderDesc": "BTKN — нативный токен Spark. Включение позволяет отправлять/получать токены.\n\nBlitz — биткоин-кошелек и не продвигает токены. Функция добавлена для свободы выбора.",
       "selectTokenHeader": "Токен по умолчанию",
       "selectTokenInformationPopup": "Выберите токен для использования по умолчанию. Его можно сменить при оплате."
@@ -1827,6 +1837,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
+      "subtitle": "Перевод Rootstock",
       "id": "ID",
       "swapDetails": "Детали перевода",
       "claimAddress": "Адрес клейма",
@@ -1861,8 +1872,8 @@
       "unsupportedTitle": "Мы больше не поддерживаем {{type}}",
       "unsupportedDesc": "Если у вас остались средства на {{type}}, восстановите вашу фразу восстановления Blitz в совместимом кошельке, чтобы получить к ним доступ. Нужна помощь? Свяжитесь с нами ниже.",
       "contactUs": "Связаться с нами",
-      "refundInProgress": "Возврат выполняется. Не закрывайте приложение, пока он не завершится.",
-      "refundComplete": "Возврат завершён. Ваши средства снова в вашем Liquid-кошельке."
+      "refundInProgress": "Возврат выполняется. Не закрывайте приложение.",
+      "refundComplete": "Возврат завершён."
     },
     "notifications": {
       "mainToggle": "Разрешить уведомления",
@@ -1870,6 +1881,7 @@
       "disablePush": "Отключить push-уведомления",
       "updateInSettings": "Изменить в настройках приложения",
       "open": "Открыть",
+      "openA11y": "Открыть настройки телефона",
       "disabledTitle": "Уведомления отключены",
       "disabledSubtitle": "Разрешите push-уведомления выше, чтобы выбрать, о каких платежах и событиях вы хотите получать оповещения.",
       "optionsTitle": "Опции уведомлений",
@@ -1911,16 +1923,17 @@
       "swapsType": "Свопы BTC <> USD",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% пул + {{blitzFee}}% Blitz",
-      "sparkSwapType": "Свопы BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (кросс-чейн)",
+      "sparkSwapType": "Свопы BTC ↔︎ USDB (Spark)",
+      "chainSwapType": "BTC или USDB ↔︎ Stablecoin (кросс-чейн)",
       "chainSwapFee": "0,5% комиссия Blitz + 0,1%+ комиссия платформы",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% комиссия Blitz + сетевые комиссии",
       "accumulationType": "Адреса накопления",
       "accumulationFee": "0,5% комиссия Blitz + 0,5% комиссия платформы",
-      "othersType": "Остальное",
-      "othersFee": "Сетевые комиссии",
+      "othersType": "Всё остальное",
+      "othersFee": "Только сетевые комиссии",
       "networkFeeLinkDesc": "Нажмите, чтобы увидеть детализацию комиссий сети Spark",
+      "networkFeeLink": "Посмотреть комиссии сети Spark",
       "rootstock": "Rootstock <> BTC",
       "rootstockFee": "Комиссия Boltz 0,1 % + комиссии сети"
     },
@@ -1951,8 +1964,25 @@
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Вы уверены, что хотите удалить это подключение?",
+      "deleteDialog": {
+        "title": "Удалить это подключение?",
+        "message": "{{name}} перестанет работать с вашим кошельком. Деньги на вашем счёте Wallet Connect останутся там."
+      },
+      "connectionString": {
+        "subtitle": "Отсканируйте её в {{name}} или скопируйте и вставьте.",
+        "warning": "Любой, у кого есть эта строка подключения, может использовать все выданные ей разрешения."
+      },
       "addAccount": "Добавить подключение",
+      "accountBalance": {
+        "title": "Баланс счёта",
+        "subtitle": "Сколько могут тратить приложения"
+      },
+      "connectionsHeader": "Подключения",
+      "connectionSummary": {
+        "noBudget": "Без бюджета",
+        "canSend": "Может отправлять {{amount}} {{period}}",
+        "cantSend": "Не может отправлять"
+      },
       "empty": {
         "title": "Пока нет подключений",
         "subtitle": "Используйте ваш счёт Wallet Connect с любимыми приложениями."
@@ -1967,8 +1997,8 @@
       },
       "createNWCPermissions": {
         "title": "Разрешения",
-        "pageTitle": "Добавить разрешения подключения",
-        "pageSubtitle": "Выберите, какие действия может выполнять {{name}}.",
+        "pageTitle": "Что может делать {{name}}?",
+        "pageSubtitle": "Включите только то, что нужно приложению.",
         "editTitle": "Изменить разрешения подключения",
         "editSubtitle": "Измените, какие действия может выполнять {{name}}."
       },
@@ -1979,7 +2009,15 @@
         "editTitle": "Изменить бюджет расходов",
         "editSubtitle": "Измените лимит расходов и период его сброса. Оставьте пустым, чтобы без лимита.",
         "renewalPlaceholder": "Выберите период обновления",
-        "createButton": "Создать подключение"
+        "createButton": "Создать подключение",
+        "resetTitle": "Как часто сбрасывается лимит?",
+        "noLimit": "Без лимита",
+        "resetsDaily": "Сброс ежедневно",
+        "resetsWeekly": "Сброс еженедельно",
+        "resetsMonthly": "Сброс ежемесячно",
+        "resetsYearly": "Сброс ежегодно",
+        "resetHint": "Открывает настройки периода сброса.",
+        "changeCurrency": "Изменить валюту"
       },
       "accountPage": {
         "title": "Управление подключением",
@@ -1990,7 +2028,7 @@
         "permissionsCount_many": "{{count}} разрешений",
         "permissionsCount_other": "{{count}} разрешений",
         "renewalLabel": "Период обновления",
-        "amountLabel": "Сумма бюджета",
+        "amountLabel": "Бюджет",
         "viewSecretLabel": "Строка подключения",
         "deleteAccount": "Удалить подключение"
       },
@@ -2015,7 +2053,8 @@
       },
       "noNotifications": {
         "title": "Требуются уведомления",
-        "subtitle": "Для Wallet Connect нужны push-уведомления. Включите их в настройках и попробуйте снова."
+        "subtitle": "Wallet Connect нужны push-уведомления, чтобы отвечать приложениям. Включите их и вернитесь.",
+        "button": "Включить уведомления"
       },
       "showSeedPage": {
         "loadingMessage": "Создание фразы восстановления",
@@ -2061,15 +2100,16 @@
         "row1Label": "Пополнить счет",
         "row1Description": "Пополните счет, получая деньги или переводя их с основного аккаунта.",
         "row2Label": "Отдельный аккаунт",
-        "row2Description": "Этот аккаунт отделен от вашего основного аккаунта для дополнительной безопасности.",
+        "row2Description": "Отдельно от вашего основного аккаунта, поэтому приложения могут тратить только то, что вы положите сюда.",
         "row3Label": "Доступ приложений",
         "row3Description": "Подключенные приложения могут использовать этот аккаунт для платежей.",
         "continueButton": "Начать"
       },
       "accountCreated": {
         "title": "Подключение создано",
-        "subtitle": "Подключение создано. Скопируйте строку подключения, чтобы начать его использовать.",
-        "copyConnection": "Скопировать строку подключения"
+        "subtitle": "Скопируйте строку подключения и вставьте её в {{connection}}.",
+        "copyConnection": "Скопировать строку подключения",
+        "connectionStringLabel": "Строка подключения"
       }
     },
     "accountComponents": {
@@ -2524,9 +2564,10 @@
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
         "title": "Загрузки Blitz",
-        "goalUserCount": "из {{goalUserCount}} пользователей.",
+        "goalUserCount": "из {{goalUserCount}} пользователей",
         "percentOfGoal": "{{goalPercent}}% от цели",
         "numAddedUsers": "+{{numNewUsers}} пользователей сегодня",
+        "chartA11y": "Загрузки за период {{period}}",
         "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
@@ -2626,13 +2667,14 @@
       },
       "walletLeaves": {
         "sats": "сат.",
-        "lastSynced": "Синхронизировано: {{time}}",
+        "lastSynced": "Синхронизировано {{time}}",
         "never": "Никогда",
         "treeLabel": "Дерево {{id}}",
         "treeSubtitle": "{{count}} листьев",
         "showMore": "Показать больше",
         "exportButton": "Экспортировать резервную копию",
         "noLeavesToExport": "Пока нет листьев для экспорта.",
+        "noExitReadyLeaves": "Ни один из ваших листьев пока не достаточно велик для выхода (каждому требуется {{min}} сат.).",
         "exportError": "Не удалось экспортировать листья. Попробуйте ещё раз.",
         "notReadyTitle": "Пока не готово к выходу",
         "readyTitle": "Готово к выходу",
@@ -2664,11 +2706,12 @@
         },
         "progress": {
           "title": "Экспорт резервной копии",
-          "gathering": "Сбор листьев вашего кошелька…",
-          "saving": "Сохранение локальной резервной копии…",
-          "exit": "Получение данных для выхода…",
-          "building": "Создание файла резервной копии…",
-          "sharing": "Открытие меню «Поделиться»…"
+          "keepOpen": "Не закрывайте приложение до завершения.",
+          "gathering": "Сбор листьев вашего кошелька",
+          "saving": "Сохранение локальной резервной копии",
+          "exit": "Получение данных для выхода",
+          "building": "Создание файла резервной копии",
+          "sharing": "Открытие меню «Поделиться»"
         }
       },
       "remotePayments": {
@@ -2966,6 +3009,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Тратить и заменять",
         "userDollarAmount": "Доступный долларовый баланс: {{dollarAmount}}",
+        "userDollarAmountLabel": "Доступный баланс в долларах",
         "explainer": "Когда функция включена, каждый исходящий платёж в Bitcoin автоматически заменяется обменом эквивалентной суммы с вашего долларового баланса. Если долларовый баланс меньше потраченной суммы, вместо этого будет обменян весь доступный баланс. Обмен не выполняется, если сумма замены меньше {{minAmount}}.",
         "fundingDescription": "Покупка Spend & Replace",
         "acceptingDescription": "Пополнение Spend & Replace",
@@ -3053,6 +3097,7 @@
         "dataMessage": "Данные с {{source}}"
       },
       "filter": {
+        "title": "Фильтр мест",
         "categoriesTitle": "Категории",
         "distanceTitle": "Расстояние",
         "all": "Все",

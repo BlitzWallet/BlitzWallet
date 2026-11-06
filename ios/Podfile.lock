@@ -1291,6 +1291,8 @@ PODS:
     - ExpoModulesCore
   - ExpoBackgroundTask (1.0.8):
     - ExpoModulesCore
+  - ExpoBlur (15.0.8):
+    - ExpoModulesCore
   - ExpoClipboard (8.0.7):
     - ExpoModulesCore
   - ExpoCrypto (15.0.7):
@@ -1630,15 +1632,15 @@ PODS:
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
   - Logging (1.4.0)
-  - lottie-ios (4.5.0)
-  - lottie-react-native (7.3.4):
+  - lottie-ios (4.6.0)
+  - lottie-react-native (7.3.8):
     - boost
     - DoubleConversion
     - fast_float
     - fmt
     - glog
     - hermes-engine
-    - lottie-ios (= 4.5.0)
+    - lottie-ios (= 4.6.0)
     - RCT-Folly
     - RCT-Folly/Fabric
     - RCTRequired
@@ -5230,6 +5232,7 @@ DEPENDENCIES:
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoBackgroundTask (from `../node_modules/expo-background-task/ios`)
+  - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
@@ -5457,6 +5460,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-asset/ios"
   ExpoBackgroundTask:
     :path: "../node_modules/expo-background-task/ios"
+  ExpoBlur:
+    :path: "../node_modules/expo-blur/ios"
   ExpoClipboard:
     :path: "../node_modules/expo-clipboard/ios"
   ExpoCrypto:
@@ -5735,6 +5740,7 @@ SPEC CHECKSUMS:
   Expo: c3473549eabe0d0dbe3a4ed23610147bd6301c72
   ExpoAsset: 9e5a7c9c0a9fb83ad5b2bb365141f2bd7f289b66
   ExpoBackgroundTask: e0d201d38539c571efc5f9cb661fae8ab36ed61b
+  ExpoBlur: b90747a3f22a8b6ceffd9cb0dc41a4184efdc656
   ExpoClipboard: af650d14765f19c60ce2a1eaf9dfe6445eff7365
   ExpoCrypto: c1fbce112d1b6b79652bbe380b4fd4cc91676595
   ExpoFileSystem: 8e87545aef1d8d31f244edbfdd0780df4e5bac2e
@@ -5789,8 +5795,8 @@ SPEC CHECKSUMS:
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: d2b7601b28c063bde347fac764166b5362037846
+  lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+  lottie-react-native: 7696ee54db539844f215c7e1f37372ae3138f37d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NitroImage: 68bfdafa38678ecb7d6e3d5f77aca99353a2a81e
   NitroModules: f2a165630c12aed5793d6b42b9002c6a649ea04e
@@ -5915,6 +5921,6 @@ SPEC CHECKSUMS:
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: f616a6f557337422154992608f4a903fb1bd757b
+PODFILE CHECKSUM: 7ade55d32a22614ca87c1293571e19c5a4d8e38d
 
 COCOAPODS: 1.16.2

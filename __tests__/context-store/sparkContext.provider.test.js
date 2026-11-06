@@ -845,6 +845,25 @@ describe('incoming transfers', () => {
     expect(balance()).toBe(5100);
     expect(mockWorld.toasts).toHaveLength(1);
   });
+
+  test.each(['ConfirmPaymentScreen', 'SendAmount', 'SendDescription', 'SendReview'])(
+    'incoming payment on %s shows no toast',
+    async route => {
+      await login({ startBalance: 5000 });
+      mockWorld.route = route;
+      mockWorld.transfers.unshift({
+        id: 't1',
+        amount: 100,
+        time: Date.now() + 10000,
+      });
+      setLeaves({ available: 5100 });
+      emitBalance();
+      emitClaim('t1', 5100);
+      await advance(15000);
+      expect(balance()).toBe(5100);
+      expect(mockWorld.toasts).toHaveLength(0);
+    },
+  );
 });
 
 // ── characterization: reads, lifecycle, staleness ──────────────────────────
@@ -964,6 +983,31 @@ describe('reads and lifecycle', () => {
     act(() => mockWorld.setAuthResetkey(k => k + 1));
     await advance(2000);
     expect(mockWorld.nativeWallet.listenerCount('balance:update')).toBe(0);
+  });
+
+  test('native: auth reset after a long background still ends connected', async () => {
+    mockWorld.runtime = 'native';
+    await login({ startBalance: 5000 });
+    expect(ctx.sparkInformation.didConnect).toBe(true);
+    // Long background → foreground: webViewContext resets the page (conn
+    // false, nothing flips it back on native) while auth bumps the reset key
+    // and appStatus drops didGetToHomepage 100 ms later.
+    act(() => {
+      mockWorld.setConn(prev => ({ state: false, count: prev.count + 1 }));
+      mockWorld.setAuthResetkey(k => k + 1);
+    });
+    await advance(100);
+    act(() => mockWorld.setHomepage(false));
+    await advance(2000);
+    // Splash → loadingScreen runs the login connect again, then reaches Home.
+    act(() => {
+      ctx.connectToSparkWallet(MOCK_IDENTITY);
+    });
+    await advance(1500);
+    act(() => mockWorld.setHomepage(true));
+    await advance(4000);
+    expect(ctx.sparkInformation.identityPubKey).toBe(MOCK_IDENTITY);
+    expect(ctx.sparkInformation.didConnect).toBe(true);
   });
 
   test('#6: a read in flight at logout never writes the old balance', async () => {

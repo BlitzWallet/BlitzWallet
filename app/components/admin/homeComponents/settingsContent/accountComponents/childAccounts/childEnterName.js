@@ -1,22 +1,11 @@
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
-import { StyleSheet } from 'react-native';
+import { CustomKeyboardAvoidingView } from '../../../../../../functions/CustomElements';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useRef, useState } from 'react';
-import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER } from '../../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import { keyboardGoBack } from '../../../../../../functions/customNavigation';
@@ -35,8 +24,9 @@ import customUUID from '../../../../../../functions/customUUID';
 import { privateKeyFromSeedWords } from '../../../../../../functions/nostrCompatability';
 import { encriptMessage } from '../../../../../../functions/messaging/encodingAndDecodingMessages';
 import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashlyticsLogs';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../../hooks/themeColors';
+import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
+import UserInput from '../../../../../../functions/CustomElements/redesign/UserInput';
 
 export default function ChildEnterName(props) {
   const navigate = useNavigation();
@@ -45,8 +35,8 @@ export default function ChildEnterName(props) {
   const editChild = props?.route?.params?.editChild;
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { accountMnemoinc, publicKey } = useKeysContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [accountName, setAccountName] = useState(editChild?.name || '');
@@ -202,12 +192,6 @@ export default function ChildEnterName(props) {
   );
 
   const canSave = editChild?.name !== accountName;
-  const isOverLimit = accountName.length >= maxLength;
-  const characterCountColor = isOverLimit
-    ? theme && darkModeType
-      ? textColor
-      : COLORS.cancelRed
-    : textColor;
 
   return (
     <CustomKeyboardAvoidingView
@@ -215,85 +199,56 @@ export default function ChildEnterName(props) {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('settings.accountComponents.editAccountName.title')}
-      />
-
-      <CustomScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps={'handled'}
-      >
-        <ThemeText
-          styles={styles.title}
-          content={t(
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          shouldDismissKeyboard={true}
+          title={t('settings.accountComponents.editAccountName.title')}
+        />
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps={'handled'}
+        >
+          <PageHeader
+            title={t(
+              editChild
+                ? 'settings.childAccounts.enterName.editTitle'
+                : 'settings.childAccounts.enterName.title',
+            )}
+            sub={t(
+              editChild
+                ? 'settings.childAccounts.enterName.editSubtitle'
+                : 'settings.childAccounts.enterName.subtitle',
+            )}
+          />
+          <UserInput
+            value={accountName}
+            onChangeText={setAccountName}
+            maxLength={maxLength}
+            placeholder={t('settings.childAccounts.enterName.placeholder')}
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
+            focusRing
+            showTextCount
+          />
+        </CustomScrollView>
+        <CustomButton
+          disabled={!accountName.trim()}
+          useLoading={isCreating}
+          textContent={
             editChild
-              ? 'settings.childAccounts.enterName.editTitle'
-              : 'settings.childAccounts.enterName.title',
-          )}
+              ? canSave
+                ? t('constants.save')
+                : t('constants.back')
+              : t('settings.childAccounts.enterName.create')
+          }
+          actionFunction={handleNext}
+          size={'regular'}
         />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t(
-            editChild
-              ? 'settings.childAccounts.enterName.editSubtitle'
-              : 'settings.childAccounts.enterName.subtitle',
-          )}
-        />
-        <CustomSearchInput
-          inputText={accountName}
-          setInputText={setAccountName}
-          placeholderText={t('settings.childAccounts.enterName.placeholder')}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          onBlurFunction={() => setIsKeyboardActive(false)}
-          maxLength={maxLength}
-        />
-        <ThemeText
-          styles={{
-            textAlign: 'right',
-            color: characterCountColor,
-            marginTop: 5,
-          }}
-          content={`${accountName.length} / ${maxLength}`}
-        />
-      </CustomScrollView>
-      <CustomButton
-        buttonStyles={{
-          ...CENTER,
-          width: INSET_WINDOW_WIDTH,
-          opacity: !accountName.trim() ? HIDDEN_OPACITY : 1,
-        }}
-        useLoading={isCreating}
-        textContent={
-          editChild
-            ? canSave
-              ? t('constants.save')
-              : t('constants.back')
-            : t('settings.childAccounts.enterName.create')
-        }
-        actionFunction={handleNext}
-      />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
+  container: { flex: 1, ...CENTER },
 });

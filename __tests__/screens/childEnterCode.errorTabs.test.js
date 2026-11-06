@@ -7,7 +7,7 @@
 // switches via resetSession, and the Code branch simply gates it out).
 //
 // Drives the real screen with a mutable mocked claim context and a stubbed
-// WordsQrToggle whose options are clickable host elements.
+// Segmented whose options are clickable host elements.
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -62,7 +62,10 @@ jest.mock('../../app/functions/accounts/childPairing', () => ({
 
 jest.mock('../../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#000000' }),
+  default: () => ({
+    backgroundOffset: '#000000',
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 
 // Every ThemeText's content lands here so assertions can check which copy is
@@ -92,22 +95,18 @@ jest.mock('../../app/functions/CustomElements/searchInput', () => ({
 }));
 
 // Clickable toggle stub: two host elements that drive the screen's tab state.
-jest.mock('../../app/functions/CustomElements/wordsQrToggle', () => {
+jest.mock('../../app/functions/CustomElements/redesign/Segmented', () => {
   const React = require('react');
   return {
     __esModule: true,
-    default: ({ option1Value, option2Value, setSelectedDisplayOption }) => [
-      React.createElement('view', {
-        key: 'option1',
-        testID: 'toggle-code',
-        onClick: () => setSelectedDisplayOption(option1Value),
-      }),
-      React.createElement('view', {
-        key: 'option2',
-        testID: 'toggle-scan',
-        onClick: () => setSelectedDisplayOption(option2Value),
-      }),
-    ],
+    default: ({ options, onChange }) =>
+      options.map((option, i) =>
+        React.createElement('view', {
+          key: option.value,
+          testID: i === 0 ? 'toggle-code' : 'toggle-scan',
+          onClick: () => onChange(option.value),
+        }),
+      ),
   };
 });
 
@@ -122,7 +121,14 @@ jest.mock('../../app/functions/CustomElements/loadingScreen', () => ({
 
 // childQRWaiting (imported, only rendered while awaiting) pulls these in.
 jest.mock('../../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: null }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: null,
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 jest.mock('lottie-react-native', () => 'LottieView');
 jest.mock('../../app/functions/lottieAnimations', () => ({

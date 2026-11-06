@@ -1,25 +1,32 @@
 import { useCallback, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
-import { CENTER } from '../../../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../../constants/theme';
-import GetThemeColors from '../../../../../../hooks/themeColors';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import { useTheme } from '../../../../../../../context-store/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
+import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 
 export default function ChildShareCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { status, pairingCode, isEnded, resetSession } = useChildPairing();
 
   // Child joined and the SAS is ready -> move to the verify screen.
@@ -45,76 +52,71 @@ export default function ChildShareCode() {
   }
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('settings.childAccounts.pairing.codeNavTitle')}
-        rightContent={status === 'preparing' ? null : <PairingExpiryClock />}
-        customBackFunction={handleGoBack}
-      />
-      {status === 'preparing' ? (
-        <FullLoadingScreen showText={false} />
-      ) : (
-        <View style={styles.content}>
-          <ThemeText
-            styles={styles.title}
-            content={t('settings.childAccounts.pairing.codeTitle')}
-          />
-          <ThemeText
-            styles={styles.subtitle}
-            content={t('settings.childAccounts.pairing.codeSubtitle')}
-          />
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
-              styles={styles.codeValue}
-              content={firstHalf + ' ' + secondHalf}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.childAccounts.pairing.codeNavTitle')}
+          onBack={handleGoBack}
+          right={status === 'preparing' ? null : <PairingExpiryClock />}
+        />
+        {status === 'preparing' ? (
+          <FullLoadingScreen showText={false} />
+        ) : (
+          <View style={styles.content}>
+            <PageHeader
+              title={t('settings.childAccounts.pairing.codeTitle')}
+              sub={t('settings.childAccounts.pairing.codeSubtitle')}
             />
+            <View style={[styles.card, { backgroundColor: tokens.surface }]}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                adjustsFontSizeToFit={true}
+                styles={styles.codeValue}
+                content={firstHalf + ' ' + secondHalf}
+              />
+            </View>
+            <View style={styles.waiting}>
+              <ActivityIndicator size="small" color={tokens.muted} />
+              <ThemeText
+                styles={[styles.hint, { color: tokens.muted }]}
+                content={t('settings.childAccounts.pairing.waiting')}
+              />
+            </View>
           </View>
-          <ThemeText
-            styles={styles.hint}
-            content={t('settings.childAccounts.pairing.waiting')}
-          />
-        </View>
-      )}
+        )}
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
+  container: { flex: 1, ...CENTER },
+  content: { flex: 1 },
   card: {
-    borderRadius: 16,
-    paddingVertical: 40,
+    minHeight: 72,
+    borderRadius: 20,
     paddingHorizontal: 16,
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   codeValue: {
-    fontSize: SIZES.huge,
+    fontSize: 32,
+    lineHeight: 40,
+    letterSpacing: 1,
     includeFontPadding: false,
     textAlign: 'center',
+    fontVariant: ['tabular-nums'],
+  },
+  waiting: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   hint: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
+    fontSize: 13,
+    lineHeight: 18,
+    includeFontPadding: false,
   },
 });

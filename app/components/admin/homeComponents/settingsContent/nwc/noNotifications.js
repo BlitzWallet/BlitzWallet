@@ -1,10 +1,9 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import { CENTER } from '../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 
 export default function NostrWalletConnectNoNotifications({
   fromModal = false,
@@ -12,16 +11,22 @@ export default function NostrWalletConnectNoNotifications({
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   return (
-    <View style={styles.globalContainer}>
-      <NoContentSceen
-        iconName="BellOff"
-        titleText={t('settings.nwc.noNotifications.title')}
-        subTitleText={t('settings.nwc.noNotifications.subtitle')}
-      />
+    <View style={[styles.globalContainer, { width: contentWidth }]}>
+      <View style={styles.warningContainer}>
+        <EmptyState
+          icon={'BellOff'}
+          title={t('settings.nwc.noNotifications.title')}
+          sub={t('settings.nwc.noNotifications.subtitle')}
+        />
+      </View>
+
       <CustomButton
-        textContent={t('constants.enable')}
+        textContent={t('settings.nwc.noNotifications.button')}
+        size="regular"
         actionFunction={() => {
           if (fromModal) {
             backFunction(() => {
@@ -42,8 +47,12 @@ export default function NostrWalletConnectNoNotifications({
 }
 
 const styles = StyleSheet.create({
+  warningContainer: {
+    flex: 1,
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
   globalContainer: {
-    width: INSET_WINDOW_WIDTH,
     flex: 1,
     ...CENTER,
   },

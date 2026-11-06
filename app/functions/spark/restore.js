@@ -3,7 +3,6 @@ import {
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
-  getSparkBalance,
   getSparkPaymentStatus,
   getSparkTransactions,
   querySparkHodlLightningPayments,
@@ -37,7 +36,6 @@ import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
 import fetchBackend from '../../../db/handleBackend';
 import i18next from 'i18next';
-import { getBalanceWithTimeout } from './timeoutHelpers';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
 const MAX_BATCH_SIZE = 100;

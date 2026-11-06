@@ -1,25 +1,25 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CENTER,
-  CONTENT_KEYBOARD_OFFSET,
   MAIN_ACCOUNT_UUID,
   MAX_WEB_CONTENT_WIDTH,
   NWC_ACCOUNT_UUID,
 } from '../../../../constants';
-import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
+import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import AccountCard from '../accounts/accountCard';
 import useAccountBalancePreviews from '../../../../hooks/useAccountBalancePreviews';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import Segmented from '../../../../functions/CustomElements/redesign/Segmented';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
@@ -27,6 +27,8 @@ export default function CreateCustodyAccounts() {
   const { custodyAccountsList } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const params = route.params || {};
   const [activeTab, setActiveTab] = useState(params?.initialTab || 'personal');
 
@@ -92,101 +94,109 @@ export default function CreateCustodyAccounts() {
   }, [isLinked]);
 
   return (
-    <CustomKeyboardAvoidingView useLocalPadding={true} useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('constants.accounts')}
-        leftImageStyles={{ height: 25 }}
-        iconNew="Info"
-        showLeftImage={!masterInfoObject.isChildAccount}
-        leftImageFunction={handleAboutClick}
-      />
-      {!masterInfoObject.isChildAccount && (
-        <WordsQrToggle
-          selectedDisplayOption={activeTab}
-          setSelectedDisplayOption={setActiveTab}
-          option1Text={t('settings.accounts.tabs.personal')}
-          option1Value="personal"
-          option2Text={t('settings.accounts.tabs.linked')}
-          option2Value="linked"
-          containerStyle={styles.toggle}
-        />
-      )}
-      <CustomScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {activeAccounts.length > 0 ? (
-          <View style={styles.listContainer}>
-            {activeAccounts.map((item, index) => (
-              <AccountCard
-                key={item.uuid || `Account ${index}`}
-                account={item}
-                onPress={() => handleOpenAccount(item)}
-                balanceSats={isLinked ? undefined : computeTotalSats(item)}
-                lastUpdated={isLinked ? undefined : computeLastUpdated(item)}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('constants.accounts')}
+          right={
+            !masterInfoObject.isChildAccount ? (
+              <IconButton
+                icon={'Info'}
+                label={
+                  isLinked
+                    ? 'settings.accounts.linkedInfo.title'
+                    : 'settings.accounts.personalInfo.title'
+                }
+                onPress={handleAboutClick}
               />
-            ))}
+            ) : undefined
+          }
+        />
+
+        {!masterInfoObject.isChildAccount && (
+          <View style={styles.toggleWrap}>
+            <Segmented
+              fit
+              options={[
+                {
+                  value: 'personal',
+                  label: t('settings.accounts.tabs.personal'),
+                },
+                {
+                  value: 'linked',
+                  label: t('settings.accounts.tabs.linked'),
+                },
+              ]}
+              value={activeTab}
+              onChange={setActiveTab}
+            />
           </View>
-        ) : (
-          <NoContentSceen
-            iconName="Users"
-            titleText={t(
-              isLinked
-                ? 'settings.accounts.emptyLinked.title'
-                : 'settings.accounts.noResults.title',
+        )}
+        <CustomScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {activeAccounts.length > 0 ? (
+            <ListCard>
+              {activeAccounts.map((item, index) => (
+                <AccountCard
+                  key={item.uuid || `Account ${index}`}
+                  account={item}
+                  onPress={() => handleOpenAccount(item)}
+                  balanceSats={isLinked ? undefined : computeTotalSats(item)}
+                  lastUpdated={isLinked ? undefined : computeLastUpdated(item)}
+                />
+              ))}
+            </ListCard>
+          ) : (
+            <View style={styles.emptyContainer}>
+              <EmptyState
+                icon={'Users'}
+                title={t(
+                  isLinked
+                    ? 'settings.accounts.emptyLinked.title'
+                    : 'settings.accounts.noResults.title',
+                )}
+                sub={t(
+                  isLinked
+                    ? 'settings.accounts.emptyLinked.subtitle'
+                    : 'settings.accounts.noResults.subtitle',
+                )}
+              />
+            </View>
+          )}
+        </CustomScrollView>
+
+        {!masterInfoObject.isChildAccount && (
+          <CustomButton
+            actionFunction={handleNavigateAddAccount}
+            textContent={t(
+              'settings.accountComponents.selectCreateAccountType.title',
             )}
-            subTitleText={t(
-              isLinked
-                ? 'settings.accounts.emptyLinked.subtitle'
-                : 'settings.accounts.noResults.subtitle',
-            )}
-            containerStyles={styles.emptyContainer}
+            size={'regular'}
           />
         )}
-      </CustomScrollView>
-
-      {!masterInfoObject.isChildAccount && (
-        <CustomButton
-          buttonStyles={{
-            width: INSET_WINDOW_WIDTH,
-            marginTop: CONTENT_KEYBOARD_OFFSET,
-            ...CENTER,
-          }}
-          actionFunction={handleNavigateAddAccount}
-          textStyles={styles.actionButtonText}
-          textContent={t(
-            'settings.accountComponents.selectCreateAccountType.title',
-          )}
-        />
-      )}
-    </CustomKeyboardAvoidingView>
+      </View>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
+  toggleWrap: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
   scrollContainer: {
-    marginTop: CONTENT_KEYBOARD_OFFSET,
+    marginTop: 20,
   },
   scrollContent: {
-    width: INSET_WINDOW_WIDTH,
-    maxWidth: MAX_WEB_CONTENT_WIDTH,
-    ...CENTER,
     flexGrow: 1,
-  },
-  toggle: {
-    ...CENTER,
-    marginBottom: 4,
-  },
-  listContainer: {
-    width: '100%',
-    paddingTop: 8,
   },
   emptyContainer: {
     flex: 1,
-    minHeight: 250,
-  },
-  actionButtonText: {
-    includeFontPadding: false,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

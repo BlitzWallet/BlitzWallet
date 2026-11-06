@@ -138,6 +138,9 @@ const SKIP_CONFIRM_NAV_UPDATE_TYPES = new Set([
 // by the route names registered in navigation/screens.js.
 const BLOCKED_TOAST_ROUTE_NAMES = new Set([
   'ConfirmPaymentScreen', // sendPaymentScreen.js
+  'SendAmount', // sendAmountScreen.js
+  'SendDescription', // sendDescriptionScreen.js
+  'SendReview', // sendReviewScreen.js
   'ConfirmSplitPayment', // confirmSplitPayment.js
   'StablecoinSendScreen', // stablecoinSendScreen.js
 ]);
@@ -220,6 +223,7 @@ const SparkWalletProvider = ({ children }) => {
   const sessionTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
+  const handledDownEventCount = useRef(-1);
   const prevAppState = useRef(appState);
   const prevAccountId = useRef(null);
   const isSendingPaymentRef = useRef(false);
@@ -265,8 +269,11 @@ const SparkWalletProvider = ({ children }) => {
   // stream:connected is recognized as a *re*connect (which warrants one
   // reconcile read) rather than the benign initial connect.
   const streamWasDisconnectedRef = useRef(false);
-  const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
-  const hideSmallPaymentsHomepage = masterInfoObject.hideSmallPaymentsHomepage;
+  // Q19-1: the Settings controls are gone. Keep the stored values untouched,
+  // but read today's defaults so a stored 15-40 limit or hide-small flag has
+  // no effect on Home.
+  const homepageTxPreferance = 25;
+  const hideSmallPaymentsHomepage = false;
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
@@ -364,6 +371,16 @@ const SparkWalletProvider = ({ children }) => {
 
   useEffect(() => {
     async function handleWalletStateChange() {
+      // A "down" event describes the moment the page went away. This effect
+      // also re-runs on didGetToHomepage / connect changes, which would replay
+      // a stale down after a later connect already set didConnect (native
+      // never emits the "up" that would undo it). Consume it once, even if
+      // the guards below drop it.
+      if (changeSparkConnectionState.state === false) {
+        if (handledDownEventCount.current === changeSparkConnectionState.count)
+          return;
+        handledDownEventCount.current = changeSparkConnectionState.count;
+      }
       if (!didGetToHomepage) return;
       if (!sparkInfoRef.current.identityPubKey) return;
       if (changeSparkConnectionState.state == null) return;

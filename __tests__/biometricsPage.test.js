@@ -46,6 +46,18 @@ jest.mock('../app/functions/CustomElements', () => ({
   ThemeText: () => null,
 }));
 
+jest.mock('react-native-reanimated', () => {
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: { View: RN.View },
+    FadeIn: { duration: () => undefined },
+    useSharedValue: value => ({ value }),
+    useAnimatedStyle: callback => callback(),
+    withTiming: value => value,
+  };
+});
+
 jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: props => {
@@ -56,12 +68,20 @@ jest.mock('../app/functions/CustomElements/button', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('@react-navigation/native', () => ({
@@ -140,12 +160,20 @@ async function flush() {
   }
 }
 
+// Run the 200ms logo fade that precedes the post-login navigation.
+async function finishLogoFade() {
+  await act(async () => {
+    jest.advanceTimersByTime(200);
+  });
+}
+
 // Fire the 500ms auto-trigger and settle the resulting flow.
 async function fireAutoTrigger() {
   await act(async () => {
     jest.advanceTimersByTime(500);
   });
   await flush();
+  await finishLogoFade();
 }
 
 // Manually press the button and settle the flow.
@@ -154,6 +182,7 @@ async function tap(renderer) {
     await button(renderer).props.actionFunction();
   });
   await flush();
+  await finishLogoFade();
 }
 
 // Re-render so hook mocks re-read the mutated context state (simulates a
@@ -307,6 +336,7 @@ describe('BiometricsLogin - race guards', () => {
       await Promise.resolve();
     });
     await flush();
+    await finishLogoFade();
 
     expect(mockDecrypt).toHaveBeenCalledTimes(1);
     expect(mockNavigate.replace).toHaveBeenCalledTimes(1);
@@ -367,9 +397,10 @@ describe('BiometricsLogin - retry handling', () => {
       btn.props.onPress();
     });
     expect(mockNavigate.navigate).toHaveBeenCalledWith(
-      'ConfirmActionPage',
+      'CustomHalfModal',
       expect.objectContaining({
-        confirmMessage: 'adminLogin.pinPage.isBiometricEnabledConfirmAction',
+        wantedContent: 'walletReset',
+        title: 'adminLogin.pinPage.biometricsResetTitle',
       }),
     );
   });
@@ -440,9 +471,10 @@ describe('BiometricsLogin - legacy migration', () => {
 
     expect(mockNavigate.replace).not.toHaveBeenCalled();
     expect(mockNavigate.navigate).toHaveBeenCalledWith(
-      'ConfirmActionPage',
+      'CustomHalfModal',
       expect.objectContaining({
-        confirmMessage: 'adminLogin.pinPage.isBiometricEnabledConfirmAction',
+        wantedContent: 'walletReset',
+        title: 'adminLogin.pinPage.biometricsResetTitle',
       }),
     );
   });

@@ -1,35 +1,92 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Dimensions, Platform } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import ChatGPTHome from '../../app/components/admin/homeComponents/apps/chatGPT/chatGPTHome';
 import { AddChatGPTCredits } from '../../app/components/admin';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalAppData } from '../../context-store/appData';
-import GetThemeColors from '../../app/hooks/themeColors';
 import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { getAIModels } from '../../app/components/admin/homeComponents/apps/chatGPT/contants/modelCache';
+import { useTheme } from '../../context-store/theme';
+import { ThemeText } from '../../app/functions/CustomElements';
+import CustomScrollView from '../../app/functions/CustomElements/scrollView';
+import ListCard from '../../app/functions/CustomElements/redesign/ListCard';
+import Disc from '../../app/functions/CustomElements/redesign/Disc';
 
 const Drawer = createDrawerNavigator();
 
-function ChatGPTDrawer({ confirmationSliderData }) {
-  const { decodedChatGPT } = useGlobalAppData();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+// Right-side chats list: New chat first, then saved chats newest first.
+function ChatsDrawerContent({ state, navigation }) {
+  const { tokens } = useTheme();
   const { t } = useTranslation();
+  const { topPadding, bottomPadding } = useGlobalInsets();
+
+  return (
+    <View
+      style={[
+        styles.drawer,
+        {
+          backgroundColor: tokens.surface,
+          paddingTop: topPadding + 7,
+          paddingBottom: bottomPadding,
+        },
+      ]}
+    >
+      <ThemeText
+        styles={styles.drawerTitle}
+        content={t('apps.chatGPT.chats')}
+      />
+      <CustomScrollView
+        style={styles.drawerList}
+        showsVerticalScrollIndicator={false}
+      >
+        <ListCard tone="flush" dividerInset={0}>
+          {state.routes.map(route => {
+            const chat = route.params?.chatHistory;
+            return (
+              <TouchableOpacity
+                key={route.key}
+                accessibilityRole="button"
+                onPress={() => {
+                  navigation.navigate(route.name);
+                  navigation.closeDrawer();
+                }}
+                style={[styles.drawerRow, !chat && styles.newChatRow]}
+              >
+                {!chat && <Disc icon="Plus" size={36} iconSize={18} />}
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.drawerRowText}
+                  content={chat ? chat.firstQuery : t('apps.chatGPT.newChat')}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </ListCard>
+      </CustomScrollView>
+    </View>
+  );
+}
+
+function ChatGPTDrawer() {
+  const { decodedChatGPT } = useGlobalAppData();
+  const { tokens } = useTheme();
+  const { t } = useTranslation();
+  const { width } = useWindowDimensions();
 
   const isMounted = useRef(false);
   const [didLoad, setDidLoad] = useState(false);
-  const { bottomPadding, rightPadding } = useGlobalInsets();
+  const { rightPadding } = useGlobalInsets();
 
   const chatGPTCoversations = decodedChatGPT.conversation || [];
   const chatGPTCredits = decodedChatGPT.credits;
-
-  const drawerWidth = useMemo(() => {
-    return Dimensions.get('screen').width * 0.5 < 150 ||
-      Dimensions.get('screen').width * 0.5 > 230
-      ? 175
-      : Dimensions.get('screen').width * 0.55;
-  }, [Dimensions]);
 
   const savedConversations =
     chatGPTCoversations.length != 0 ? [...chatGPTCoversations, null] : [null];
@@ -95,19 +152,15 @@ function ChatGPTDrawer({ confirmationSliderData }) {
     }
     return (
       <Drawer.Navigator
+        drawerContent={props => <ChatsDrawerContent {...props} />}
         screenOptions={{
           drawerType: 'front',
+          overlayColor: tokens.scrim,
           drawerStyle: {
-            backgroundColor: backgroundColor,
-            width: drawerWidth,
-            paddingBottom: bottomPadding,
+            backgroundColor: tokens.surface,
+            width: Math.min(280, width * 0.8),
             ...(Platform.OS === 'web' && { paddingRight: rightPadding }),
           },
-
-          drawerActiveBackgroundColor: backgroundOffset,
-          drawerActiveTintColor: textColor,
-          drawerInactiveTintColor: textColor,
-
           headerShown: false,
           drawerPosition: 'right',
         }}
@@ -116,10 +169,39 @@ function ChatGPTDrawer({ confirmationSliderData }) {
       </Drawer.Navigator>
     );
   } else {
-    return (
-      <AddChatGPTCredits confirmationSliderData={confirmationSliderData} />
-    );
+    return <AddChatGPTCredits />;
   }
 }
+
+const styles = StyleSheet.create({
+  drawer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  drawerTitle: {
+    minHeight: 44,
+    fontSize: 20,
+    lineHeight: 44,
+    includeFontPadding: false,
+  },
+  drawerList: {
+    marginTop: 8,
+  },
+  drawerRow: {
+    width: '100%',
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  newChatRow: {
+    minHeight: 52,
+  },
+  drawerRowText: {
+    flex: 1,
+    fontSize: 15,
+    includeFontPadding: false,
+  },
+});
 
 export { ChatGPTDrawer };

@@ -1,16 +1,14 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import SendTransactionFeeInfo from './components/feeInfo';
 import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
@@ -20,18 +18,25 @@ import {
   useSparkWallet,
 } from '../../../../../context-store/sparkContext';
 import { bulkSparkPayment } from '../../../../functions/spark/bulkPaymentFunctions';
-import InvoiceInfo from './components/invoiceInfo';
-import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../constants/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import { RowShell } from '../../../../functions/CustomElements/redesign/ListRow';
+import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
+import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
+import useContentWidth from '../../../../functions/CustomElements/redesign/useContentWidth';
+import ContactAvatar from '../contacts/internalComponents/contactAvatar';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import {
+  formatAmountText,
+  formatFeeText,
+  formatSecondaryText,
+} from './functions/formatSendText';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -52,7 +57,6 @@ import {
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
 import { waitForSwapCompletion } from '../../../../functions/spark/waitForSwapCompletion';
 import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
@@ -60,8 +64,6 @@ import {
   getDefaultDisplayCurrency,
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
-import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
 
@@ -104,7 +106,7 @@ export default function ConfirmSplitPayment(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { globalContactsInformation } = useGlobalContacts();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const contentWidth = useContentWidth();
   // Provider-owned auth-reset counter. A long-background/logout reset bumps it
   // AND navigates to SplashReload (login); it also tears down the WebView
   // bridge, which settles any in-flight/held send with a fabricated cleanup
@@ -115,7 +117,7 @@ export default function ConfirmSplitPayment(props) {
   // the provider's ref (not a consumer mirror) keeps it valid even after this
   // screen is unmounted by the reset's navigation.
   const { authResetkeyRef } = useAuthContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
 
   const isSendingPayment = useRef(null);
   const rateAtConfirmEntryRef = useRef(null);
@@ -163,13 +165,12 @@ export default function ConfirmSplitPayment(props) {
       }),
     [paymentCurrency, masterInfoObject, fiatStats],
   );
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
+  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
 
   const {
     primaryDisplay,
@@ -195,14 +196,6 @@ export default function ConfirmSplitPayment(props) {
   const displayAmount = convertSatsToDisplay(totalSplitSats);
 
   const { shouldWarn } = useBudgetWarning(totalSplitSats);
-
-  const openPicker = () =>
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'displayCurrencySelect',
-      sliderHight: 0.6,
-      currentCurrency: displayCurrency,
-      onSelectCurrency: selectCurrency,
-    });
 
   // ── Balance validation ──────────────────────────────────────────────────────
 
@@ -596,10 +589,7 @@ export default function ConfirmSplitPayment(props) {
           if (swap) setFlashnetTransfer(swap.inboundTransferId);
         }
 
-        await waitForSwapCompletion(
-          currentWalletMnemoinc,
-          outboundTransferId,
-        );
+        await waitForSwapCompletion(currentWalletMnemoinc, outboundTransferId);
       }
 
       let effectiveSplitRecipients = splitRecipients;
@@ -734,78 +724,151 @@ export default function ConfirmSplitPayment(props) {
       ? t('constants.dollars_upper')
       : t('constants.bitcoin_upper');
 
-  const denomination = isUSDSplit
-    ? 'fiat'
-    : masterInfoObject.userBalanceDenomination || 'sats';
-
   // ── Render ──────────────────────────────────────────────────────────────────
 
-  return (
-    <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.replacementContainer}>
-        <CustomSettingsTopBar
-          label={t('constants.send')}
-          containerStyles={{ marginBottom: 0 }}
-        />
+  const displayDetails = {
+    masterInfoObject,
+    primaryDisplay,
+    secondaryDisplay,
+    conversionFiatStats,
+    fiatStats,
+  };
+  const amountText = formatAmountText(displayAmount, displayDetails);
+  const secondaryText = formatSecondaryText(totalSplitSats, displayDetails);
+  const feeSpeedText = `${formatFeeText(paymentFee, displayDetails)} · ${t(
+    'constants.instant',
+  )}`;
 
-        <CustomScrollView contentContainerStyle={styles.balanceScrollContainer}>
+  // Names and shares for the recipient row. Display only: equal shares differ
+  // by at most the remainder the last person absorbs.
+  const splitNames = (splitRecipients || []).map(
+    r =>
+      String(r?.contact?.name || r?.contact?.uniqueName || '')
+        .trim()
+        .split(/\s+/)[0],
+  );
+  const splitNamesText =
+    splitNames.length <= 1
+      ? t('wallet.sendPages.reviewParts.splitNamesOne', {
+          first: splitNames[0] || '',
+        })
+      : splitNames.length === 2
+      ? t('wallet.sendPages.reviewParts.splitNamesTwo', {
+          first: splitNames[0],
+          second: splitNames[1],
+        })
+      : splitNames.length === 3
+      ? t('wallet.sendPages.reviewParts.splitNamesThree', {
+          first: splitNames[0],
+          second: splitNames[1],
+          third: splitNames[2],
+        })
+      : t('wallet.sendPages.reviewParts.splitNamesMore', {
+          first: splitNames[0],
+          second: splitNames[1],
+          third: splitNames[2],
+          count: splitNames.length - 3,
+        });
+  const shareValues = (splitRecipients || []).map(r =>
+    isUSDSplit ? r?.amountCents || 0 : r?.amountSats || 0,
+  );
+  const isEvenSplit =
+    shareValues.length > 0 &&
+    Math.max(...shareValues) - Math.min(...shareValues) <
+      Math.max(shareValues.length, 1);
+  const splitShareText = isEvenSplit
+    ? t('wallet.sendPages.reviewParts.splitEach', {
+        amount: formatAmountText(
+          convertSatsToDisplay(splitRecipients?.[0]?.amountSats),
+          displayDetails,
+        ),
+      })
+    : t('wallet.sendPages.reviewParts.splitDifferent');
+
+  return (
+    <GlobalThemeView useStandardWidth={false}>
+      <View style={[styles.replacementContainer, { width: contentWidth }]}>
+        <TopBar title={t('constants.send')} />
+
+        <CustomScrollView
+          contentContainerStyle={
+            uiState === 'SWAP_RATES_CHANGED'
+              ? styles.swapContainer
+              : styles.balanceScrollContainer
+          }
+        >
           {/* Amount display — always shown except during rate-change intercept */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
-            <View>
-              <FormattedBalanceInput
-                maxWidth={0.9}
-                amountValue={displayAmount}
-                inputDenomination={primaryDisplay.denomination}
-                forceCurrency={primaryDisplay.forceCurrency}
-                forceFiatStats={primaryDisplay.forceFiatStats}
+            <View style={styles.hero}>
+              <ThemeText
+                styles={[styles.secondary, { color: tokens.muted }]}
+                content={t('wallet.sendPages.reviewParts.sending')}
               />
-              {uiState === 'CONFIRM_PAYMENT' && (
-                <SecondaryAmountDisplay
-                  amountSats={totalSplitSats}
-                  secondaryDisplay={secondaryDisplay}
+              <AmountHero
+                amount={amountText}
+                formatAmount={false}
+                amountSize={60}
+              />
+              {uiState === 'CONFIRM_PAYMENT' && !!secondaryText && (
+                <ThemeText
+                  variant="body"
+                  CustomNumberOfLines={1}
+                  styles={[styles.secondary, { color: tokens.muted }]}
+                  content={secondaryText}
                 />
               )}
             </View>
           )}
 
-          {/* Fee info */}
+          {/* Recipient summary and fee info */}
           {uiState === 'CONFIRM_PAYMENT' && (
-            <SendTransactionFeeInfo
-              paymentFee={paymentFee}
-              isSparkPayment={true}
-              isDecoding={isCalculatingFeeQuote}
-              display={primaryDisplay}
-            />
-          )}
-
-          {/* Recipient summary */}
-          {uiState === 'CONFIRM_PAYMENT' && (
-            <InvoiceInfo
-              paymentInfo={{
-                paymentNetwork: 'spark',
-                sendAmount: totalSplitSats,
-                canEditPayment: false,
-                data: { expectedReceive: isUSDSplit ? 'tokens' : 'sats' },
-              }}
-              contactInfo={null}
-              theme={theme}
-              darkModeType={darkModeType}
-              isSplitPayment={true}
-              splitRecipients={splitRecipients}
-            />
+            <ListCard style={styles.card}>
+              <RowShell
+                minHeight={72}
+                accessibilityLabel={splitNamesText}
+                lead={<SplitAvatars contacts={splitRecipients} />}
+              >
+                <View style={styles.splitTexts}>
+                  <ThemeText
+                    styles={styles.splitNames}
+                    CustomNumberOfLines={2}
+                    content={splitNamesText}
+                  />
+                  <ThemeText
+                    variant="hint"
+                    CustomNumberOfLines={1}
+                    content={splitShareText}
+                  />
+                </View>
+              </RowShell>
+              {isCalculatingFeeQuote ? (
+                <View style={styles.feeLoading}>
+                  <ThemeText
+                    variant="body"
+                    content={t('wallet.sendPages.feeInfo.title')}
+                    styles={styles.feeLabel}
+                  />
+                  <SkeletonBar width={96} height={14} borderRadius={7} />
+                </View>
+              ) : (
+                <KeyValueRow
+                  layout="stacked"
+                  label={t('wallet.sendPages.feeInfo.title')}
+                  value={feeSpeedText}
+                />
+              )}
+            </ListCard>
           )}
 
           {/* Payment method picker */}
           {uiState === 'CHOOSE_METHOD' && (
-            <ChoosePaymentMethod
-              theme={theme}
-              darkModeType={darkModeType}
+            <PaymentMethod
               determinePaymentMethod={
                 canPayBTC && canPayUSD
                   ? sendingMethod || 'user-choice'
                   : sendingMethod
               }
-              handleSelectPaymentMethod={handleSelectPaymentMethod}
+              handleSelectPaymentMethod={() => handleSelectPaymentMethod(false)}
               bitcoinBalance={bitcoinBalance}
               dollarBalanceToken={dollarBalanceToken}
               masterInfoObject={masterInfoObject}
@@ -813,7 +876,7 @@ export default function ConfirmSplitPayment(props) {
               uiState={uiState}
               t={t}
               showBitcoinCardOnly={!canPayUSD}
-              showPayWith={true}
+              containerStyles={styles.card}
             />
           )}
 
@@ -824,9 +887,9 @@ export default function ConfirmSplitPayment(props) {
         {/* CHOOSE_METHOD — continue button */}
         {uiState === 'CHOOSE_METHOD' && (
           <CustomButton
+            size="regular"
             buttonStyles={{
               ...CENTER,
-              width: INSET_WINDOW_WIDTH,
               opacity: sendingMethod ? 1 : HIDDEN_OPACITY,
             }}
             actionFunction={() => handleSelectPaymentMethod(true)}
@@ -837,7 +900,8 @@ export default function ConfirmSplitPayment(props) {
         {/* SWAP_RATES_CHANGED — reset CTA */}
         {uiState === 'SWAP_RATES_CHANGED' && (
           <CustomButton
-            buttonStyles={{ width: INSET_WINDOW_WIDTH, ...CENTER }}
+            size="regular"
+            buttonStyles={{ alignSelf: 'stretch', ...CENTER }}
             actionFunction={handleRateChangedReset}
             textContent={t(
               'wallet.sendPages.sendPaymentScreen.swapRatesChangedButton',
@@ -852,32 +916,19 @@ export default function ConfirmSplitPayment(props) {
               <SliderProgressAnimation
                 ref={progressAnimationRef}
                 isVisible={showProgressAnimation}
-                textColor={COLORS.darkModeText}
-                backgroundColor={
-                  theme && darkModeType ? backgroundOffset : COLORS.primary
-                }
-                width={0.95}
+                textColor={tokens.onAccent}
+                backgroundColor={tokens.accent}
+                width={1}
               />
             ) : (
               <SwipeButtonNew
+                variant="redesign"
+                title={t('wallet.sendPages.reviewParts.slideToSend')}
                 onSwipeSuccess={sendPayment}
-                width={0.85}
                 resetAfterSuccessAnimDuration={true}
                 shouldResetAfterSuccess={!canSendPayment}
                 containerStyles={{
                   opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
-                }}
-                thumbIconStyles={{
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                  borderColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                }}
-                railStyles={{
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                  borderColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
                 }}
               />
             )}
@@ -888,28 +939,54 @@ export default function ConfirmSplitPayment(props) {
   );
 }
 
+// Up to three overlapping avatars for the recipient row (SendReview split).
+function SplitAvatars({ contacts = [] }) {
+  const { cache } = useImageCache();
+  const { tokens } = GetThemeColors();
+  return (
+    <View style={styles.avatars}>
+      {contacts.slice(0, 3).map(({ contact }, index) => (
+        <View
+          key={contact?.uuid || index}
+          style={[
+            styles.avatarRing,
+            { backgroundColor: tokens.surface },
+            index > 0 && styles.avatarOverlap,
+          ]}
+        >
+          <ContactAvatar
+            name={contact?.name || contact?.uniqueName}
+            seed={contact?.uuid}
+            updated={cache[contact?.uuid]?.updated}
+            uri={cache[contact?.uuid]?.localUri}
+            size={32}
+            fontSize={12}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   replacementContainer: {
-    flexGrow: 1,
-    width: '100%',
+    flex: 1,
     ...CENTER,
   },
-  sectionTitle: {
-    fontSize: SIZES.medium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  amountDisplay: {
-    includeFontPadding: false,
-    fontSize: SIZES.large,
-    textAlign: 'center',
-  },
+  hero: { alignItems: 'center' },
+  secondary: { marginTop: 4, textAlign: 'center' },
+  card: { marginTop: 48 },
+  splitTexts: { flexGrow: 1, flexShrink: 1 },
+  splitNames: { fontSize: 15, lineHeight: 21, includeFontPadding: false },
+  avatars: { flexDirection: 'row', alignItems: 'center' },
+  avatarRing: { borderRadius: 18, padding: 2 },
+  avatarOverlap: { marginLeft: -10 },
+  feeLoading: { paddingVertical: 14, gap: 8 },
+  feeLabel: { fontSize: 15, lineHeight: 22 },
+  swapContainer: { flexGrow: 1, paddingTop: 132 },
   balanceScrollContainer: {
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
+    paddingTop: 72,
   },
   buttonContainer: {
     alignItems: 'center',

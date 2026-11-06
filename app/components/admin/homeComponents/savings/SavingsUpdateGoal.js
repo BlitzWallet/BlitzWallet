@@ -1,41 +1,44 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSavings } from '../../../../../context-store/savingsContext';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
-import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function SavingsUpdateGoal(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { savingsGoals } = useSavings();
+  const { tokens } = GetThemeColors();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const goalId = props?.route?.params?.goalId;
   const selectedGoal = savingsGoals.find(goal => goal.id === goalId) || null;
 
-  const { theme, darkModeType } = useGlobalThemeContext();
-
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('savings.updateGoal.screenTitle')} />
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={selectedGoal?.name || t('savings.updateGoal.screenTitle')}
+        />
 
-      <View style={styles.container}>
         <View style={styles.content}>
-          <IconActionCircle bottomOffset={32} icon={'RefreshCcw'} />
+          <Disc icon={'RefreshCcw'} tone="white" size={56} iconSize={24} />
           <ThemeText
+            variant={'title'}
             styles={styles.title}
             content={t('savings.updateGoal.title')}
           />
           <ThemeText
-            styles={styles.body}
+            variant={'body'}
+            styles={[styles.body, { color: tokens.muted }]}
             content={t('savings.updateGoal.body')}
           />
         </View>
@@ -48,19 +51,11 @@ export default function SavingsUpdateGoal(props) {
               })
             }
             textContent={t('savings.updateGoal.removeButton')}
+            size={'regular'}
+            tone={'secondary'}
           />
 
           <CustomButton
-            buttonStyles={{
-              backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-            }}
-            textStyles={{
-              color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText,
-            }}
             actionFunction={() => {
               navigate.navigate('SavingsGoalAmount', {
                 mode: 'update',
@@ -70,6 +65,7 @@ export default function SavingsUpdateGoal(props) {
               });
             }}
             textContent={t('savings.updateGoal.updateButton')}
+            size={'regular'}
           />
         </View>
       </View>
@@ -80,25 +76,19 @@ export default function SavingsUpdateGoal(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
     ...CENTER,
   },
   content: {
-    marginTop: 56,
-    alignItems: 'center',
-    gap: 10,
+    marginTop: 24,
+    flex: 1,
   },
   title: {
-    fontSize: SIZES.large,
-    includeFontPadding: false,
+    marginTop: 20,
   },
   body: {
-    textAlign: 'center',
-    opacity: 0.75,
-    includeFontPadding: false,
+    marginTop: 8,
   },
   actions: {
-    gap: 10,
+    gap: 12,
   },
 });

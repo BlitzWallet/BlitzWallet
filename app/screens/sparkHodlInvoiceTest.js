@@ -15,7 +15,7 @@ import * as Crypto from 'expo-crypto';
 import { sha256 } from '@noble/hashes/sha2';
 import { bytesToHex } from '@noble/hashes/utils';
 
-import QrCodeWrapper from '../functions/CustomElements/QrWrapper';
+import QrCard from '../functions/CustomElements/redesign/QrCard';
 import {
   claimSparkHodlLightningPayment,
   getSparkBalance,
@@ -471,11 +471,12 @@ export default function SparkHodlInvoiceTest() {
 
           {invoice ? (
             <View style={styles.invoiceArea}>
-              <QrCodeWrapper
-                QRData={invoice}
-                qrSize={250}
-                outerContainerStyle={styles.qrOuter}
-                innerContainerStyle={styles.qrInner}
+              <QrCard
+                value={invoice}
+                size={250}
+                quietZone={15}
+                badgeSize={50}
+                style={styles.qrCard}
               />
               <Text selectable style={styles.invoiceText}>
                 {invoice}
@@ -784,14 +785,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 12,
   },
-  qrOuter: {
-    width: 282,
-    minHeight: 282,
+  qrCard: {
+    borderWidth: 0,
+    padding: 0,
     marginBottom: 12,
-  },
-  qrInner: {
-    width: 250,
-    height: 250,
   },
   invoiceText: {
     color: '#111827',

@@ -1,17 +1,17 @@
 import { useRoute } from '@react-navigation/native';
-import { FlatList, StyleSheet, View } from 'react-native';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../constants';
+import {
+  SectionList,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import { useUpdateHomepageTransactions } from '../../hooks/updateHomepageTransactions';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
-import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import { useFlashnet } from '../../../context-store/flashnetContext';
-import NoContentSceen from '../../functions/CustomElements/noContentScreen';
 import CustomButton from '../../functions/CustomElements/button';
 import { useKeysContext } from '../../../context-store/keys';
 import { deriveChildMnemonic } from '../../functions/accounts/childAccounts';
@@ -28,9 +28,25 @@ import {
 import { USDB_TOKEN_ID } from '../../constants';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
+import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
+import ListCard, {
+  ListDivider,
+} from '../../functions/CustomElements/redesign/ListCard';
+import ActivityRow, {
+  buildActivitySections,
+} from '../../components/admin/homeComponents/viewAllComponents/activityRow';
 
 const PAGE = 20;
+
+// Rows sit in a per-row ListCard so the SectionList stays virtualised; only
+// the first/last row of a day keeps the card's rounded corners.
+const ActivitySeparator = () => (
+  <ListCard style={styles.middleRow}>
+    <ListDivider inset={68} />
+  </ListCard>
+);
 
 export default function ManagedAccountActivityPage() {
   const route = useRoute();
@@ -40,9 +56,9 @@ export default function ManagedAccountActivityPage() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { accountMnemoinc } = useKeysContext();
   const { getAccountMnemonic, custodyAccountsList } = useActiveCustodyAccount();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const currentTime = useUpdateHomepageTransactions();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
   const isChild = childIndex !== undefined;
@@ -54,10 +70,14 @@ export default function ManagedAccountActivityPage() {
       );
     }
     return custodyAccountsList?.find(item => item.uuid === accountId) || {};
-  }, [isChild, accountId, custodyAccountsList, masterInfoObject?.childAccounts]);
+  }, [
+    isChild,
+    accountId,
+    custodyAccountsList,
+    masterInfoObject?.childAccounts,
+  ]);
 
   const [rawRows, setRawRows] = useState([]);
-  const [txs, setTxs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -169,92 +189,107 @@ export default function ManagedAccountActivityPage() {
     loadNextPage,
   ]);
 
-  useEffect(() => {
-    if (!rawRows.length) return;
-    const formattedTxs = getFormattedHomepageTxsForSpark({
-      currentTime,
-      sparkInformation: {
-        didConnect: true,
-        identityPubKey: identityPubKeyRef.current,
-        transactions: rawRows,
-        tokens: {
-          ...sparkInformation.tokens,
-          [USDB_TOKEN_ID]: sparkInformation.tokens?.[USDB_TOKEN_ID] ?? {
-            tokenMetadata: { decimals: 6, tokenTicker: 'USDB' },
-          },
-        },
+  // Same rows and day sections as the Activity page. The account's token
+  // metadata isn't loaded here, so USDB falls back to its known decimals.
+  const tokens = useMemo(
+    () => ({
+      ...sparkInformation.tokens,
+      [USDB_TOKEN_ID]: sparkInformation.tokens?.[USDB_TOKEN_ID] ?? {
+        tokenMetadata: { decimals: 6, tokenTicker: 'USDB' },
       },
-      navigate: { navigate: () => {} },
-      frompage: 'managedAccount',
-      viewAllTxText: t('wallet.see_all_txs'),
-      noTransactionHistoryText: t('wallet.no_transaction_history'),
-      todayText: t('constants.today'),
-      yesterdayText: t('constants.yesterday'),
-      dayText: t('constants.day'),
-      monthText: t('constants.month'),
-      yearText: t('constants.year'),
-      agoText: t('transactionLabelText.ago'),
-      theme,
-      darkModeType,
-      userBalanceDenomination,
-      didGetToHomepage: true,
-      enabledLRC20: true,
-      poolInfoRef,
-      t,
-      swapLimits,
-      showFailedTransactions: true,
-    });
-    setTxs(formattedTxs);
-  }, [
-    currentTime,
-    rawRows,
-    sparkInformation.tokens,
-    t,
-    theme,
-    darkModeType,
-    userBalanceDenomination,
-    poolInfoRef,
-    swapLimits.bitcoin,
-  ]);
+    }),
+    [sparkInformation.tokens],
+  );
 
-  const doesNotHaveTransactions = txs.length === 1 && txs[0].key === 'noTx';
+  const sections = useMemo(
+    () =>
+      buildActivitySections({
+        transactions: rawRows,
+        tokens,
+        enabledLRC20: true,
+        t,
+      }),
+    [rawRows, tokens, t],
+  );
+
+  const renderItem = useCallback(
+    ({ item, index, section }) => (
+      <ListCard
+        style={[
+          index > 0 && styles.squareTop,
+          index < section.data.length - 1 && styles.squareBottom,
+        ]}
+      >
+        <ActivityRow
+          item={item}
+          // Rows belong to another account, so taps stay inert (as before).
+          navigate={NO_OP_NAVIGATE}
+          userBalanceDenomination={userBalanceDenomination}
+          tokens={tokens}
+          poolInfoRef={poolInfoRef}
+          swapLimits={swapLimits}
+          // Memo saves only update the active account's tx list.
+          canEditMemo={false}
+        />
+      </ListCard>
+    ),
+    [userBalanceDenomination, tokens, poolInfoRef, swapLimits],
+  );
+
+  const renderSectionHeader = useCallback(
+    ({ section }) => (
+      <SectionHeader
+        title={section.title}
+        style={section === sections[0] && styles.first}
+      />
+    ),
+    [sections],
+  );
+
+  // Also shown on the empty state: a page whose rows are all filtered out
+  // must still be able to load the next page.
+  const loadMoreButton = hasMore ? (
+    <CustomButton
+      buttonStyles={styles.loadMoreButton}
+      actionFunction={loadNextPage}
+      textContent={t('constants.loadMore')}
+      useLoading={isLoadingMore}
+      size={'regular'}
+      tone={'secondary'}
+    />
+  ) : null;
 
   return (
-    <GlobalThemeView useStandardWidth={true} style={styles.container}>
-      <View style={styles.contentContainer}>
-        <CustomSettingsTopBar
-          showLeftImage={false}
-          label={t('settings.childAccounts.transactions.title')}
-        />
-        <View style={{ flex: 1 }}>
-          {isLoading ? (
-            <FullLoadingScreen />
-          ) : doesNotHaveTransactions || !rawRows.length ? (
-            <NoContentSceen
-              iconName="Clock"
-              titleText={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
-              subTitleText={t(
-                'settings.childAccounts.transactions.noTxHistorySub',
-              )}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('settings.childAccounts.transactions.title')} />
+        {isLoading ? (
+          <FullLoadingScreen />
+        ) : !sections.length ? (
+          <View style={styles.emptyContainer}>
+            <EmptyState
+              icon={'Clock'}
+              title={t('settings.childAccounts.page.noTransactions')}
+              sub={t('settings.childAccounts.transactions.noTxHistorySub', {
+                name: accountInformation?.name,
+              })}
             />
-          ) : (
-            <FlatList
-              initialNumToRender={20}
-              maxToRenderPerBatch={20}
-              windowSize={3}
-              style={{ flex: 1, width: '100%' }}
-              showsVerticalScrollIndicator={false}
-              data={txs}
-              renderItem={({ item }) => item?.item}
-            />
-          )}
-        </View>
-        {hasMore && (
-          <CustomButton
-            buttonStyles={styles.loadMoreButton}
-            actionFunction={loadNextPage}
-            textContent={t('constants.loadMore')}
-            useLoading={isLoadingMore}
+            {loadMoreButton}
+          </View>
+        ) : (
+          <SectionList
+            sections={sections}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
+            ItemSeparatorComponent={ActivitySeparator}
+            stickySectionHeadersEnabled={false}
+            initialNumToRender={12}
+            maxToRenderPerBatch={12}
+            windowSize={11}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            ListFooterComponent={loadMoreButton}
           />
         )}
       </View>
@@ -262,16 +297,21 @@ export default function ManagedAccountActivityPage() {
   );
 }
 
+const NO_OP_NAVIGATE = { navigate: () => {} };
+
 const styles = StyleSheet.create({
-  container: { width: '100%', height: 100 },
-  contentContainer: {
-    width: '100%',
+  container: { flex: 1, ...CENTER },
+  emptyContainer: {
     flex: 1,
-    ...CENTER,
+    paddingTop: 160,
   },
+  listContent: { paddingBottom: 24 },
+  squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
+  squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
+  middleRow: { borderRadius: 0 },
+  first: { marginTop: 22 },
   loadMoreButton: {
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    width: '100%',
+    marginTop: 16,
   },
 });

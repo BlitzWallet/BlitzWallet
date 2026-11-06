@@ -5,8 +5,6 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { CENTER } from '../../../../constants';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useTranslation } from 'react-i18next';
@@ -14,85 +12,88 @@ import { getAllSparkTransactions } from '../../../../functions/spark/transaction
 import { formatBalanceAmount } from '../../../../functions';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 
+// Builds the CSV of every Spark tx and opens the share sheet. Resolves null
+// when there is nothing to export.
+export async function exportTransactionsCsv({
+  accountId,
+  masterInfoObject,
+  t,
+}) {
+  const allTxs = await getAllSparkTransactions({
+    accountId,
+  });
+  if (!allTxs || !allTxs.length) return null;
+  crashlyticsLogReport('Stating transaction exporting');
+  const headers = [
+    [
+      t('wallet.exportTransactions.paymentType'),
+      t('wallet.exportTransactions.description'),
+      t('wallet.exportTransactions.date'),
+      t('wallet.exportTransactions.txFees'),
+      t('wallet.exportTransactions.amount'),
+      t('wallet.exportTransactions.sent/received'),
+    ],
+  ];
+
+  const conjoinedTxList = allTxs;
+  let formatedData = [];
+
+  for (let index = 0; index < conjoinedTxList.length; index++) {
+    const tx = conjoinedTxList[index];
+
+    try {
+      const txDetails = JSON.parse(tx.details);
+      const txDate = new Date(txDetails.time);
+
+      const formattedTx = [
+        tx.paymentType,
+        txDetails.description
+          ? txDetails.description
+          : t('constants.noDescription'),
+        txDate.toLocaleString().replace(/,/g, ' '),
+        formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),
+        formatBalanceAmount(txDetails.amount, undefined, masterInfoObject),
+        txDetails.direction === 'OUTGOING'
+          ? t('constants.sent')
+          : t('constants.received'),
+      ];
+      formatedData.push(formattedTx);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const csvData = headers
+    .concat(formatedData)
+    .map(row =>
+      row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','),
+    )
+    .join('\n');
+
+  const fileName = 'BlitzWallet.csv';
+
+  return writeAndShareFileToFilesystem(csvData, fileName, 'text/csv');
+}
+
 export default function ConfirmExportPayments({
   startExport,
-  theme,
-  darkModeType,
   handleBackPressFunction,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
 
   const onSwipeSuccess = useCallback(() => {
     setTimeout(async () => {
       try {
-        const allTxs = await getAllSparkTransactions({
+        const response = await exportTransactionsCsv({
           accountId: sparkInformation.identityPubKey,
+          masterInfoObject,
+          t,
         });
-        if (!allTxs || !allTxs.length) return;
-        crashlyticsLogReport('Stating transaction exporting');
-        const headers = [
-          [
-            t('wallet.exportTransactions.paymentType'),
-            t('wallet.exportTransactions.description'),
-            t('wallet.exportTransactions.date'),
-            t('wallet.exportTransactions.txFees'),
-            t('wallet.exportTransactions.amount'),
-            t('wallet.exportTransactions.sent/received'),
-          ],
-        ];
-
-        const conjoinedTxList = allTxs;
-        let formatedData = [];
-
-        for (let index = 0; index < conjoinedTxList.length; index++) {
-          const tx = conjoinedTxList[index];
-
-          try {
-            const txDetails = JSON.parse(tx.details);
-            const txDate = new Date(txDetails.time);
-
-            const formattedTx = [
-              tx.paymentType,
-              txDetails.description
-                ? txDetails.description
-                : t('constants.noDescription'),
-              txDate.toLocaleString().replace(/,/g, ' '),
-              formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),
-              formatBalanceAmount(
-                txDetails.amount,
-                undefined,
-                masterInfoObject,
-              ),
-              txDetails.direction === 'OUTGOING'
-                ? t('constants.sent')
-                : t('constants.received'),
-            ];
-            formatedData.push(formattedTx);
-          } catch (err) {
-            console.log(err);
-          }
-        }
-
-        const csvData = headers
-          .concat(formatedData)
-          .map(row =>
-            row
-              .map(field => `"${String(field).replace(/"/g, '""')}"`)
-              .join(','),
-          )
-          .join('\n');
-
-        const fileName = 'BlitzWallet.csv';
-
-        const response = await writeAndShareFileToFilesystem(
-          csvData,
-          fileName,
-          'text/csv',
-        );
+        if (!response) return;
 
         handleBackPressFunction(() => {
           navigate.goBack();
@@ -125,11 +126,10 @@ export default function ConfirmExportPayments({
 
   const dynamicStyles = useMemo(() => {
     return {
-      backgroundColor:
-        theme && darkModeType ? backgroundOffset : backgroundColor,
-      borderColor: theme && darkModeType ? backgroundOffset : backgroundColor,
+      backgroundColor: tokens.accent,
+      borderColor: tokens.accent,
     };
-  }, [theme, darkModeType]);
+  }, [tokens]);
 
   return (
     <View style={styles.containerStyle}>
@@ -151,7 +151,7 @@ export default function ConfirmExportPayments({
 }
 
 const styles = StyleSheet.create({
-  titleText: { width: INSET_WINDOW_WIDTH, ...CENTER, textAlign: 'center' },
+  titleText: { textAlign: 'center' },
   containerStyle: {
     flex: 1,
     alignItems: 'center',

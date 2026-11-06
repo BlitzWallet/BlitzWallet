@@ -1,18 +1,16 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { SIZES, SATSPERBITCOIN } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
+import { SATSPERBITCOIN } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 const PRESET_AMOUNTS_USD = [5, 10, 25, 50, 100];
 
 /**
- * Cash App-style preset amount selection grid.
- * Shows $5, $10, $25, $50, $100 and a "..." for custom amounts.
- * Dynamically adjusts to 2 rows of 3 or 3 rows of 2 based on content width.
+ * Preset amount selection grid: $5, $10, $25, $50, $100 and Other, in
+ * 2 rows of 3.
  *
  * @param {function} onSelectPreset - Called with sats (number) when a preset is selected
  * @param {number} selectedAmountSats - Currently selected amount in sats (for highlight)
@@ -24,9 +22,9 @@ export default function PresetAmountGrid({
   fiatStats,
   onCustomPress,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
+  const { t } = useTranslation();
 
   const fiatPrice = fiatStats?.value || 0;
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
@@ -71,70 +69,39 @@ export default function PresetAmountGrid({
   // Create all items (presets + custom)
   const allItems = [...presets, { isCustomButton: true }];
 
-  // Split into rows based on layout
-  const rows = [
-    allItems.slice(0, 2),
-    allItems.slice(2, 4),
-    allItems.slice(4, 6),
-  ];
-
   const renderButton = item => {
-    if (item.isCustomButton) {
-      return (
-        <TouchableOpacity
-          key="custom"
-          activeOpacity={0.7}
-          onPress={handleCustomAmount}
-          style={[
-            styles.presetButton,
-            {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.darkModeText,
-              borderColor: isCustomSelected()
-                ? theme
-                  ? COLORS.darkModeText
-                  : COLORS.primary
-                : 'transparent',
-            },
-          ]}
-        >
-          <ThemeText styles={styles.presetText} content={'...'} />
-        </TouchableOpacity>
-      );
-    }
-
+    const selected = item.isCustomButton
+      ? isCustomSelected()
+      : isPresetSelected(item);
     return (
       <TouchableOpacity
-        key={item.usd}
+        key={item.isCustomButton ? 'custom' : item.usd}
         activeOpacity={0.7}
-        onPress={() => handleSelect(item)}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        onPress={
+          item.isCustomButton ? handleCustomAmount : () => handleSelect(item)
+        }
         style={[
           styles.presetButton,
           {
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
-            borderColor: isPresetSelected(item)
-              ? theme
-                ? COLORS.darkModeText
-                : COLORS.primary
-              : 'transparent',
+            backgroundColor: tokens.disc,
+            borderColor: selected ? tokens.accent : 'transparent',
           },
         ]}
       >
         <ThemeText
           styles={styles.presetText}
-          content={displayCorrectDenomination({
-            amount: isFiatMode ? item.usd : item.sats,
-            masterInfoObject,
-            fiatStats,
-            convertAmount: !isFiatMode,
-          })}
+          content={
+            item.isCustomButton
+              ? t('wallet.pools.other')
+              : displayCorrectDenomination({
+                  amount: isFiatMode ? item.usd : item.sats,
+                  masterInfoObject,
+                  fiatStats,
+                  convertAmount: !isFiatMode,
+                })
+          }
         />
       </TouchableOpacity>
     );
@@ -142,7 +109,7 @@ export default function PresetAmountGrid({
 
   return (
     <View style={styles.grid}>
-      {rows.map((row, rowIndex) => (
+      {[allItems.slice(0, 3), allItems.slice(3, 6)].map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
           {row.map(item => renderButton(item))}
         </View>
@@ -153,23 +120,25 @@ export default function PresetAmountGrid({
 
 const styles = StyleSheet.create({
   grid: {
-    gap: 12,
+    gap: 10,
   },
   row: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
   },
   presetButton: {
     flex: 1,
-    minHeight: 50,
-    borderRadius: 12,
+    flexBasis: 0,
+    minHeight: 64,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     paddingHorizontal: 8,
   },
   presetText: {
-    fontSize: SIZES.medium,
+    fontSize: 17,
+    fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
 });

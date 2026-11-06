@@ -1,39 +1,45 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import {
-  CENTER,
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-  SIZES,
-} from '../../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { getLocalStorageItem, copyToClipboard } from '../../../../../functions';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useToast } from '../../../../../../context-store/toastManager';
-import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import {
   buildSmsMessageUniqueKey,
   dedupeSmsMessages,
+  fetchReceiveOrder,
+  fetchSms4Sats,
   formatSmsPhoneNumber,
+  RECEIVE_TERMINAL_STATES,
+  SMS4SATS_API,
 } from './utils';
-import { WINDOWWIDTH } from '../../../../../constants/theme';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import ListCard, {
+  ListDivider,
+} from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
+import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 
-const ORDER_STATUS_ENDPOINT = 'https://api2.sms4sats.com/orderstatus';
 const RATE_LIMIT_WINDOW = 30000;
 const RATE_LIMIT_COUNT = 5;
 
@@ -46,8 +52,7 @@ export default function SMSMessagingHome() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const contentWidth = useContentWidth();
   const { decodedMessages, toggleGlobalAppDataInformation } =
     useGlobalAppData();
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -57,7 +62,6 @@ export default function SMSMessagingHome() {
 
   const sendLabel = t('constants.send');
   const receiveLabel = t('constants.receive');
-
 
   const saveMessagesToDB = useCallback(
     async nextMessages => {
@@ -163,92 +167,75 @@ export default function SMSMessagingHome() {
     });
   }, [localMessages.received, localMessages.sent]);
 
-  const updateReceiveOrderStatus = useCallback(
-    async (selectedItem, smsData, shouldDelete = false) => {
+  const updateReceiveOrder = useCallback(
+    async (selectedItem, update) => {
       const savedMessages = JSON.parse(JSON.stringify(localMessages));
-      let updatedItem = null;
-
-      if (shouldDelete) {
-        savedMessages.received = (savedMessages.received || []).filter(
-          item => item.orderId !== selectedItem.orderId,
-        );
-      } else {
-        updatedItem = {
-          ...selectedItem,
-          code: smsData.code,
-          number: smsData.number,
-          country: smsData.country,
-          id: smsData.id,
-          timestamp: smsData.timestamp,
-          isPending:
-            !smsData.code && !(smsData.status === 'OK' && !!smsData.error),
-          isRefunded: smsData.status === 'OK' && !!smsData.error,
-        };
-
-        savedMessages.received = (savedMessages.received || []).map(item =>
-          item.orderId === selectedItem.orderId ? updatedItem : item,
-        );
-      }
-
+      const updatedItem = { ...selectedItem, ...update };
+      savedMessages.received = (savedMessages.received || []).map(item =>
+        item.orderId === selectedItem.orderId ? updatedItem : item,
+      );
       await saveMessagesToDB(savedMessages);
       return updatedItem;
     },
     [localMessages, saveMessagesToDB],
   );
 
-  const fetchOrderStatus = useCallback(async orderId => {
-    const response = await fetch(
-      `${ORDER_STATUS_ENDPOINT}?orderId=${encodeURIComponent(orderId)}`,
-    );
+  const openCode = useCallback(
+    item =>
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'viewSMSCode',
+        code: item.code,
+        title: item.title,
+      }),
+    [navigate],
+  );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  // Orders bought before the v2 API have no access token; those can only
+  // be read through the legacy status endpoint.
+  const fetchOrderUpdate = useCallback(async item => {
+    if (!item.accessToken) {
+      const data = await fetchSms4Sats(
+        `${SMS4SATS_API}/orderstatus?orderId=${encodeURIComponent(
+          item.orderId,
+        )}`,
+      );
+      const isRefunded = data.status === 'OK' && !!data.error;
+      return {
+        code: data.code,
+        number: data.number || item.number,
+        isPending: !data.code && !isRefunded,
+        isRefunded,
+      };
     }
-
-    return response.json();
+    const order = await fetchReceiveOrder(item.orderId, item.accessToken);
+    const code = order.messages?.find(message => message.code)?.code;
+    const isDone = RECEIVE_TERMINAL_STATES.includes(order.status);
+    return {
+      code,
+      number: order.phoneNumber || item.number,
+      country: order.countryName || item.country,
+      isPending: !code && !isDone,
+      isRefunded: !code && isDone,
+    };
   }, []);
 
   const handleReceiveAction = useCallback(
     async (selectedItem, setIsLoading) => {
       if (selectedItem.code) {
-        navigate.navigate('ViewSMSReceiveCode', {
-          country: selectedItem.country,
-          code: selectedItem.code,
-          phone: selectedItem.number,
-        });
-        return;
-      }
-
-      if (!selectedItem.isPending) {
-        copyToClipboard(selectedItem.orderId, showToast);
+        openCode(selectedItem);
         return;
       }
 
       setIsLoading(true);
-
       try {
-        const smsData = await fetchOrderStatus(selectedItem.orderId);
+        const update = await fetchOrderUpdate(selectedItem);
+        const updatedItem = await updateReceiveOrder(selectedItem, update);
 
-        if (smsData.paid && smsData.code) {
-          const updatedItem = await updateReceiveOrderStatus(
-            selectedItem,
-            smsData,
-          );
-
-          navigate.navigate('ViewSMSReceiveCode', {
-            country: updatedItem.country,
-            code: updatedItem.code,
-            phone: updatedItem.number,
-          });
-        } else if (smsData.status === 'OK' && smsData.error) {
-          await updateReceiveOrderStatus(selectedItem, smsData);
+        if (updatedItem.code) {
+          openCode(updatedItem);
+        } else if (updatedItem.isRefunded) {
           navigate.navigate('ErrorScreen', {
             errorMessage: t('apps.sms4sats.sentPayments.refundedOrder'),
-          });
-        } else if (!selectedItem.number && smsData.number) {
-          await updateReceiveOrderStatus(selectedItem, smsData);
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('apps.sms4sats.sentPayments.reclaimComplete'),
           });
         } else {
           navigate.navigate('ErrorScreen', {
@@ -264,7 +251,7 @@ export default function SMSMessagingHome() {
         setIsLoading(false);
       }
     },
-    [fetchOrderStatus, navigate, showToast, t, updateReceiveOrderStatus],
+    [fetchOrderUpdate, navigate, openCode, t, updateReceiveOrder],
   );
 
   const handleReceiveRateLimitedAction = useCallback(
@@ -308,365 +295,205 @@ export default function SMSMessagingHome() {
   );
 
   const renderMessageItem = useCallback(
-    ({ item }) => {
-      return (
-        <SMSHistoryCard
-          item={item}
-          showToast={showToast}
-          navigate={navigate}
-          t={t}
-          onOpenReceive={handleReceiveRateLimitedAction}
-          onDeleteReceive={updateReceiveOrderStatus}
-          theme={theme}
-        />
-      );
-    },
-    [
-      handleReceiveRateLimitedAction,
-      navigate,
-      showToast,
-      t,
-      updateReceiveOrderStatus,
-      theme,
-    ],
+    ({ item }) => (
+      <SMSHistoryRow
+        item={item}
+        showToast={showToast}
+        t={t}
+        onOpenReceive={handleReceiveRateLimitedAction}
+      />
+    ),
+    [handleReceiveRateLimitedAction, showToast, t],
   );
 
   if (isBootstrapping && !decodedMessages) {
     return <FullLoadingScreen />;
   }
 
+  const actionButtons = (
+    <View style={styles.buttonContainer}>
+      <CustomButton
+        textContent={sendLabel}
+        actionFunction={() => navigate.navigate('SMSMessagingSendPage')}
+        tone={'secondary'}
+        size={'regular'}
+      />
+      <CustomButton
+        textContent={receiveLabel}
+        actionFunction={() =>
+          navigate.navigate('SMSMessagingReceiveCountryPage')
+        }
+        tone={'secondary'}
+        size={'regular'}
+      />
+    </View>
+  );
+
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('apps.appList.SMS')} />
-      <View style={styles.body}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('apps.appList.SMS')} />
         {!combinedMessages.length ? (
-          <NoContentSceen
-            iconName="Receipt"
-            titleText={t('apps.noPurchaseTitle')}
-            subTitleText={t('apps.sms4sats.sentPayments.noPurchasesTitle')}
-          />
+          <View style={styles.empty}>
+            <EmptyState
+              icon={'MessageSquare'}
+              title={t('apps.noPurchaseTitle')}
+              sub={t('apps.sms4sats.sentPayments.noPurchasesTitle')}
+            />
+          </View>
         ) : (
-          <FlatList
-            data={combinedMessages}
-            renderItem={renderMessageItem}
-            keyExtractor={(item, index) =>
-              buildSmsMessageUniqueKey(item, index)
-            }
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            ListFooterComponent={
-              <TouchableOpacity
-                onPress={() =>
-                  copyToClipboard('support@sms4sats.com', showToast)
-                }
-                style={styles.supportContainer}
-              >
-                <ThemeText
-                  styles={styles.supportText}
-                  content={t('apps.sms4sats.sentPayments.helpMessage')}
-                />
-                <ThemeText
-                  styles={styles.supportEmail}
-                  content="support@sms4sats.com"
-                />
-              </TouchableOpacity>
-            }
-          />
-        )}
-      </View>
-
-      <AdaptiveButtonRow
-        labels={[sendLabel, receiveLabel]}
-        containerStyle={styles.buttonContainer}
-      >
-        {({ buttonStyle }) => (
           <>
-            <CustomButton
-              buttonStyles={[
-                styles.actionButton,
-                {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-                buttonStyle,
-              ]}
-              textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-              }}
-              enableElipsis={false}
-              textContent={sendLabel}
-              actionFunction={() => navigate.navigate('SMSMessagingSendPage')}
-            />
-
-            <CustomButton
-              buttonStyles={[
-                styles.actionButton,
-                {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-                buttonStyle,
-              ]}
-              textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-              }}
-              enableElipsis={false}
-              textContent={receiveLabel}
-              actionFunction={() =>
-                navigate.navigate('SMSMessagingReceiveCountryPage')
-              }
-            />
+            <ListCard style={styles.card}>
+              <FlatList
+                data={combinedMessages}
+                renderItem={renderMessageItem}
+                keyExtractor={(item, index) =>
+                  buildSmsMessageUniqueKey(item, index)
+                }
+                showsVerticalScrollIndicator={false}
+                ItemSeparatorComponent={ListDivider}
+              />
+            </ListCard>
+            <SupportFooter showToast={showToast} t={t} />
+            <View style={styles.spacer} />
           </>
         )}
-      </AdaptiveButtonRow>
+        {actionButtons}
+      </View>
     </GlobalThemeView>
   );
 }
 
-function SMSHistoryCard({
-  item,
-  navigate,
-  onOpenReceive,
-  onDeleteReceive,
-  showToast,
-  t,
-  theme,
-}) {
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+function SupportFooter({ showToast, t }) {
+  const { tokens } = GetThemeColors();
+  return (
+    <TouchableOpacity
+      onPress={() => copyToClipboard('support@sms4sats.com', showToast)}
+      style={styles.supportContainer}
+    >
+      <ThemeText
+        styles={[styles.supportText, { color: tokens.muted }]}
+        content={[
+          t('apps.sms4sats.sentPayments.helpMessage'),
+          ' ',
+          <ThemeText
+            key="email"
+            styles={[styles.supportText, { color: tokens.link }]}
+            content="support@sms4sats.com"
+          />,
+        ]}
+      />
+    </TouchableOpacity>
+  );
+}
+
+function SMSHistoryRow({ item, onOpenReceive, showToast, t }) {
+  const { tokens } = GetThemeColors();
   const [isLoading, setIsLoading] = useState(false);
   const isReceive = item.recordType === 'received';
-  const isRecivePending = isReceive && item.isPending;
 
-  const subtitleText = useMemo(() => {
-    if (!isReceive) return item.message;
-    if (item.isRefunded) return t('apps.sms4sats.sentPayments.refunded');
-    if (item.code) return `${t('apps.sms4sats.home.codeLabel')}: ${item.code}`;
-    return t('apps.sms4sats.sentPayments.noCode');
-  }, [isReceive, item.code, item.isRefunded, item.message, t]);
+  const title = isReceive
+    ? item.title || t('constants.receive')
+    : formatSmsPhoneNumber(item.phone);
 
-  const titleText = useMemo(() => {
-    if (!isReceive) {
-      return formatSmsPhoneNumber(item.phone);
-    }
+  const status = !isReceive
+    ? item.message
+    : item.isRefunded
+    ? t('apps.sms4sats.sentPayments.refunded')
+    : item.code
+    ? `${t('apps.sms4sats.home.codeLabel')}: ${item.code}`
+    : t('apps.sms4sats.sentPayments.noCode');
 
-    return item.title || t('constants.receive');
-  }, [isReceive, item.phone, item.title, t]);
-
-  const extraText = useMemo(() => {
-    if (!isReceive) return item.orderId;
-
-    if (item.number) {
-      try {
-        return parsePhoneNumberWithError(
-          item.number.startsWith('+') ? item.number : `+${item.number}`,
-        ).formatInternational();
-      } catch (error) {
-        return item.number;
-      }
-    }
-
-    return item.orderId;
-  }, [isReceive, item.number, item.orderId]);
-
-  const buttonText = useMemo(() => {
-    if (!isReceive) return t('apps.sms4sats.sentPayments.orderId');
-    if (item.code) {
-      return t('apps.sms4sats.home.viewCode', { defaultValue: 'View code' });
-    }
-    if (item.isPending) {
-      return t('apps.sms4sats.sentPayments.retryClaim');
-    }
-    return t('apps.sms4sats.sentPayments.orderId');
-  }, [isReceive, item.code, item.isPending, t]);
+  const number = isReceive && item.number && formatSmsPhoneNumber(item.number);
+  const hasAction = isReceive && (item.code || item.isPending);
 
   return (
-    <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-      <View
-        style={[
-          styles.contentContainer,
-          { marginBottom: isReceive && isRecivePending ? 8 : 0 },
-        ]}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor,
-            },
-          ]}
-        >
-          <ThemeIcon
-            size={20}
-            iconName={!isReceive ? 'ArrowUp' : 'ArrowDown'}
-          />
-        </View>
-
-        <View style={styles.badgeRow}>
-          <ThemeText
-            styles={styles.cardTitle}
-            content={titleText}
-            CustomNumberOfLines={1}
-          />
-          <ThemeText
-            styles={styles.cardSubtitle}
-            content={subtitleText}
-            CustomNumberOfLines={2}
-          />
-          {isRecivePending && (
-            <ThemeText
-              styles={styles.cardDetails}
-              content={extraText}
-              CustomNumberOfLines={1}
-            />
-          )}
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.copyButton,
-            {
-              backgroundColor,
-            },
-          ]}
-          onPress={() => {
-            if (isRecivePending && item.number) {
-              copyToClipboard(item.number, showToast);
-              return;
-            }
-
-            copyToClipboard(item.orderId, showToast);
-          }}
-          disabled={isLoading}
-        >
-          <ThemeIcon size={16} iconName={'Copy'} />
-        </TouchableOpacity>
-      </View>
-
-      {isReceive && isRecivePending && (
-        <CustomButton
-          actionFunction={() => {
-            if (!isReceive) {
-              copyToClipboard(item.orderId, showToast);
-              return;
-            }
-
-            onOpenReceive(item, setIsLoading);
-          }}
-          buttonStyles={styles.cardButton}
-          textContent={buttonText}
-          useLoading={isLoading}
+    <ListRow
+      lead={
+        <Disc
+          icon={isReceive ? 'ArrowDown' : 'ArrowUp'}
+          size={40}
+          iconSize={18}
         />
-      )}
-    </View>
+      }
+      title={title}
+      titleLines={1}
+      sub={number ? `${status}\n${number}` : status}
+      subLines={3}
+      trailing={
+        isLoading ? (
+          <ActivityIndicator color={tokens.ink} />
+        ) : hasAction ? (
+          <TouchableOpacity
+            onPress={() => onOpenReceive(item, setIsLoading)}
+            style={[styles.pill, { backgroundColor: tokens.ground }]}
+          >
+            <ThemeText
+              styles={[styles.pillText, { color: tokens.link }]}
+              content={
+                item.code
+                  ? t('apps.sms4sats.home.viewCode')
+                  : t('apps.sms4sats.sentPayments.retryClaim')
+              }
+            />
+          </TouchableOpacity>
+        ) : (
+          <IconButton
+            icon="Copy"
+            label="constants.copy"
+            tone="disc"
+            size={36}
+            iconSize={16}
+            onPress={() =>
+              copyToClipboard(
+                isReceive && item.number ? item.number : item.orderId,
+                showToast,
+              )
+            }
+          />
+        )
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
+  container: {
     flex: 1,
-  },
-  description: {
-    fontSize: SIZES.smedium,
-    opacity: 0.7,
-    marginBottom: 12,
-    lineHeight: 22,
-  },
-  listContent: {
-    flexGrow: 1,
-    width: WINDOWWIDTH,
     ...CENTER,
   },
-  card: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: 'rgba(127, 127, 127, 0.10)',
-  },
-  cardBody: { marginLeft: 'auto' },
-  badgeRow: {
-    gap: 2,
-  },
-  badgeText: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    textTransform: 'uppercase',
-  },
-  categoryContainer: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 999,
-  },
-  categoryText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  cardTitle: {
-    fontWeight: '500',
-  },
-  cardSubtitle: {
-    fontSize: SIZES.smedium,
-    opacity: 0.8,
-  },
-  cardDetails: {
-    fontSize: SIZES.smedium,
-    opacity: 0.8,
-  },
-  cardActions: {
-    flexDirection: 'row',
+  empty: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 14,
+    justifyContent: 'center',
   },
-  cardButton: {
-    width: '100%',
-    marginTop: CONTENT_KEYBOARD_OFFSET,
+  card: {
+    marginTop: 16,
+    flexShrink: 1,
   },
-  deleteButton: {
-    padding: 8,
+  spacer: {
+    flex: 1,
+  },
+  pill: {
+    minHeight: 32,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillText: {
+    fontSize: 13,
+    includeFontPadding: false,
   },
   supportContainer: {
     paddingVertical: 20,
   },
   supportText: {
+    fontSize: 13,
     textAlign: 'center',
-    marginBottom: 4,
-  },
-  supportEmail: {
-    textAlign: 'center',
-    fontWeight: '600',
   },
   buttonContainer: {
-    width: WINDOWWIDTH,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
-  },
-  actionButton: {
-    minHeight: 50,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
     gap: 10,
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  iconContainer: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  copyButton: {
-    padding: 8,
-    borderRadius: 8,
-    marginLeft: 'auto',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

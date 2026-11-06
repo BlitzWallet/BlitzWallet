@@ -1,18 +1,25 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, COLORS, PENDING_PARENT_CONTACT_KEY } from '../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
-import { ThemeText } from '../../functions/CustomElements';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  PENDING_PARENT_CONTACT_KEY,
+} from '../../constants';
 import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { removeLocalStorageItem } from '../../functions';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../functions/CustomElements/redesign/PageHeader';
+import ListCard from '../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../functions/CustomElements/redesign/Disc';
 
 export default function WalletSetupFork() {
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const options = [
     {
@@ -50,49 +57,30 @@ export default function WalletSetupFork() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar />
-      <View style={styles.content}>
-        <ThemeText
-          styles={styles.title}
-          content={t('createAccount.walletSetup.title')}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('createAccount.walletSetup.subtitle')}
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar />
+        <PageHeader
+          large
+          title={t('createAccount.walletSetup.title')}
+          sub={t('createAccount.walletSetup.subtitle')}
         />
 
         <View style={styles.card}>
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={option.icon}
-              onPress={option.onPress}
-              activeOpacity={0.7}
-              style={[
-                styles.row,
-                index > 0 && {
-                  borderTopWidth: 1,
-                  borderTopColor: COLORS.lightModeBackground,
-                },
-              ]}
-            >
-              <View style={styles.infoIcon}>
-                <ThemeIcon
-                  iconName={option.icon}
-                  size={20}
-                  colorOverride={COLORS.primary}
-                />
-              </View>
-              <View style={styles.rowText}>
-                <ThemeText styles={styles.rowTitle} content={option.title} />
-                <ThemeText styles={styles.rowDesc} content={option.desc} />
-              </View>
-              <ThemeIcon
-                iconName={'ChevronRight'}
-                size={20}
-                colorOverride={COLORS.primary}
+          <ListCard dividerInset={68}>
+            {options.map(option => (
+              <ListRow
+                key={option.icon}
+                onPress={option.onPress}
+                lead={<Disc icon={option.icon} size={40} />}
+                title={option.title}
+                sub={option.desc}
+                showChevron={true}
+                chevronSize={18}
+                minHeight={76}
+                titleStyle={styles.rowTitle}
               />
-            </TouchableOpacity>
-          ))}
+            ))}
+          </ListCard>
         </View>
       </View>
     </GlobalThemeView>
@@ -102,56 +90,8 @@ export default function WalletSetupFork() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  card: {
-    width: '100%',
-    marginTop: 24,
-    borderRadius: 24,
-    backgroundColor: COLORS.lightModeBackgroundOffset,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-  rowText: {
-    flex: 1,
-    gap: 3,
-  },
-  rowTitle: {
-    fontSize: SIZES.smedium,
-    fontWeight: '500',
-    color: COLORS.lightModeText,
-    includeFontPadding: false,
-  },
-  rowDesc: {
-    fontSize: SIZES.small,
-    opacity: 0.65,
-    includeFontPadding: false,
-  },
-  infoIcon: {
-    width: 38,
-    height: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
+  card: { marginTop: 32 },
+  rowTitle: { fontSize: 15, lineHeight: 21 },
 });

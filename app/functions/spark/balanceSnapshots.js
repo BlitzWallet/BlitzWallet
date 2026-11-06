@@ -9,13 +9,13 @@ const TABLE = 'account_balance_snapshots';
 // never drift.
 export function getUsdTokenDollars(tokensObj) {
   const usdbToken = tokensObj?.[USDB_TOKEN_ID];
-  if (usdbToken?.balance != null && usdbToken?.tokenMetadata?.decimals != null) {
+  if (
+    usdbToken?.balance != null &&
+    usdbToken?.tokenMetadata?.decimals != null
+  ) {
     return (
       parseFloat(
-        formatTokensNumber(
-          usdbToken.balance,
-          usdbToken.tokenMetadata.decimals,
-        ),
+        formatTokensNumber(usdbToken.balance, usdbToken.tokenMetadata.decimals),
       ) || 0
     );
   }
@@ -29,7 +29,11 @@ export function getUsdTokenDollars(tokensObj) {
 const bigIntSafeReplacer = (_key, value) =>
   typeof value === 'bigint' ? value.toString() : value;
 
-export async function saveAccountBalanceSnapshot(identityPubKey, balance, tokensObj) {
+export async function saveAccountBalanceSnapshot(
+  identityPubKey,
+  balance,
+  tokensObj,
+) {
   try {
     const db = await ensureSparkDatabaseReady();
     await db.runAsync(
@@ -89,14 +93,32 @@ export async function getAccountBalanceSnapshot(identityPubKey) {
   try {
     const db = await ensureSparkDatabaseReady();
     const row = await db.getFirstAsync(
-      `SELECT balance, tokens FROM ${TABLE} WHERE identityPubKey = ?`,
+      `SELECT balance, tokens, updatedAt FROM ${TABLE} WHERE identityPubKey = ?`,
       [identityPubKey],
     );
     if (!row) return null;
-    return { balance: row.balance, tokens: JSON.parse(row.tokens) };
+    return {
+      balance: row.balance,
+      tokens: JSON.parse(row.tokens),
+      balanceUpdatedAt: row.updatedAt,
+    };
   } catch (err) {
     console.log('Error reading account balance snapshot', err);
     return null;
+  }
+}
+
+// The balance is confirmed current: Home's connection card reads this time.
+// No-op until the first commit has written a row.
+export async function touchAccountBalanceSnapshot(identityPubKey) {
+  try {
+    const db = await ensureSparkDatabaseReady();
+    await db.runAsync(
+      `UPDATE ${TABLE} SET updatedAt = ? WHERE identityPubKey = ?`,
+      [Date.now(), identityPubKey],
+    );
+  } catch (err) {
+    console.log('Error updating account balance snapshot time', err);
   }
 }
 

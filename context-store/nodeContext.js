@@ -7,12 +7,9 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { Platform } from 'react-native';
 import { useGlobalContextProvider } from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
-import { useAppStatus } from './appStatus';
-import { useSparkWallet } from './sparkContext';
 // import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 // BREEZ LIQUID DISABLED: liquid auto-swap + connection imports commented so
 // the SDK chain is never loaded. Original lines kept for re-enable.
@@ -25,7 +22,7 @@ const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
   // const { sparkInformation } = useSparkWallet();
-  const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   // const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({

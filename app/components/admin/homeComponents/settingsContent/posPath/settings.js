@@ -1,171 +1,41 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import {
-  CENTER,
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  VALID_USERNAME_REGEX,
-} from '../../../../../constants';
-import {
-  CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import { canUsePOSName } from '../../../../../../db';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
-import {
-  FONT,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-  WINDOWWIDTH,
-} from '../../../../../constants/theme';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import { keyboardNavigate } from '../../../../../functions/customNavigation';
+import { useTheme } from '../../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
-import { fiatCurrencies } from '../../../../../functions/currencyOptions';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useImageCache } from '../../../../../../context-store/imageCache';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import BrandLogoUploader from './internalComponents/brandLogoUploader';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import { getSavedPOSTransactions } from '../../../../../functions/pos';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import SectionHeader from '../../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 
-const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
-  const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
-
+const RowValue = ({ text, icon }) => {
+  const { tokens } = useTheme();
   return (
-    <View style={styles.inputSection}>
+    <View style={styles.rowValue}>
+      {icon}
       <ThemeText
-        styles={styles.sectionCardLabel}
-        content={t('settings.posPath.settings.storeNameInputDesc')}
+        CustomNumberOfLines={1}
+        styles={[styles.rowValueText, { color: tokens.muted }]}
+        content={text}
       />
-      <CustomSearchInput
-        setInputText={onChange}
-        inputText={value}
-        placeholderText={t(
-          'settings.posPath.settings.storeNameInputPlaceholder',
-        )}
-        textInputStyles={{
-          backgroundColor: backgroundOffset,
-          color: textColor,
-        }}
-        containerStyles={styles.inputContainer}
-        onBlurFunction={onBlur}
-        onFocusFunction={onFocus}
-        shouldDelayBlur={false}
-      />
-    </View>
-  );
-};
-
-const CurrencySelector = ({
-  currentCurrency,
-  onCurrencyChange,
-  theme,
-  darkModeType,
-}) => {
-  const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
-
-  const currencyOptions = fiatCurrencies
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map(currency => ({
-      label: `${currency.id} - ${currency.info.name}`,
-      value: currency.id,
-    }));
-
-  const selectedCurrencyLabel = currencyOptions.find(
-    opt => opt.value === currentCurrency,
-  )?.label;
-
-  return (
-    <View style={styles.inputSection}>
-      <ThemeText
-        styles={styles.sectionCardLabel}
-        content={t('settings.posPath.settings.displayCurrencyDesc')}
-      />
-      <DropdownMenu
-        options={currencyOptions}
-        selectedValue={selectedCurrencyLabel}
-        onSelect={value => {
-          const selectedOption = currencyOptions.find(
-            opt => opt.label === value.label,
-          );
-          if (selectedOption) {
-            onCurrencyChange(selectedOption.value);
-          }
-        }}
-        dropdownItemCustomStyles={styles.dropdownItemStyles}
-        placeholder={currentCurrency}
-        showClearIcon={false}
-        showVerticalArrowsAbsolute={true}
-        // globalContainerStyles={styles.dropdownContainer}
-        customButtonStyles={{
-          backgroundColor: backgroundOffset,
-        }}
-        translateLabelText={false}
-      />
-    </View>
-  );
-};
-
-const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
-  const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-
-  return (
-    <View style={styles.inputSection}>
-      <ThemeText
-        styles={styles.sectionCardLabel}
-        content={t('settings.posPath.settings.addProducts')}
-      />
-      <View
-        style={[styles.addItemContainer, { backgroundColor: backgroundOffset }]}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.itemsText}
-          content={t('settings.posPath.settings.numAddeditems', {
-            number: itemCount,
-            isPlurl:
-              itemCount !== 1 ? t('settings.posPath.settings.plurlEnding') : '',
-          })}
-        />
-        <TouchableOpacity onPress={onInfo} style={styles.infoButton}>
-          {showErrorIcon ? (
-            <ThemeIcon
-              size={20}
-              colorOverride={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
-              }
-              iconName={'CircleAlert'}
-            />
-          ) : (
-            <ThemeIcon size={20} iconName={'Info'} />
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={onNavigate}
-          style={[
-            styles.chevronButton,
-            { backgroundColor: theme ? backgroundColor : COLORS.darkModeText },
-          ]}
-        >
-          <ThemeIcon size={20} iconName={'ChevronRight'} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -173,22 +43,21 @@ const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
 export default function PosSettingsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { isConnectedToTheInternet } = useAppStatus();
   const { cache } = useImageCache();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const [storeNameInput, setStoreNameInput] = useState(
-    masterInfoObject?.posSettings?.storeName,
-  );
+  const { isConnectedToTheInternet } = useAppStatus();
+  const storeName = masterInfoObject?.posSettings?.storeName;
+  const [unpaidPeople, setUnpaidPeople] = useState(0);
   const logoKey = masterInfoObject?.posSettings?.brandLogo;
   const cachedImageData = logoKey ? cache?.[logoKey] : null;
 
   const brandLogoUri = cachedImageData?.localUri || null;
   const brandLogoUpdated = cachedImageData?.updated || null;
 
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { bottomPadding } = useGlobalInsets();
 
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
@@ -198,35 +67,25 @@ export default function PosSettingsPage() {
     item => item.initialCurrency !== currentCurrency,
   ).length;
 
-  const savePOSSettings = async (newData, type) => {
-    if (type === 'storeName') {
-      if (
-        newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
-      ) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.posPath.settings.nameTakenError'),
-        });
-        return;
-      }
-      if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.posPath.settings.nameRegexError'),
-        });
-        return;
-      }
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      getSavedPOSTransactions().then(txs => {
+        if (!active || !txs) return;
+        const people = new Set(
+          txs
+            .filter(tx => !tx.didPay && !!tx.serverName?.length)
+            .map(tx => tx.serverName?.toLowerCase()?.trim()),
+        );
+        setUnpaidPeople(people.size);
+      });
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
 
-      const isValidPosName = await canUsePOSName(
-        'blitzWalletUsers',
-        newData.storeNameLower,
-      );
-      if (!isValidPosName) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.posPath.settings.nameTakenError'),
-        });
-        setStoreNameInput(masterInfoObject.posSettings.storeName);
-        return;
-      }
-    }
+  const savePOSSettings = async newData => {
     toggleMasterInfoObject({
       posSettings: {
         ...masterInfoObject.posSettings,
@@ -236,78 +95,131 @@ export default function PosSettingsPage() {
   };
 
   const handleLogoChange = useCallback(() => {
-    savePOSSettings({ brandLogo: masterInfoObject.uuid + '_POS' }, 'brandLogo');
+    savePOSSettings({ brandLogo: masterInfoObject.uuid + '_POS' });
   }, [savePOSSettings, masterInfoObject.uuid]);
 
   const handleLogoRemove = useCallback(() => {
-    savePOSSettings({ brandLogo: null }, 'brandLogo');
+    savePOSSettings({ brandLogo: null });
   }, [savePOSSettings]);
 
   const handleCurrencyChange = useCallback(
     async currencyId => {
       await KeyboardController.dismiss();
-      savePOSSettings({ storeCurrency: currencyId }, 'currency');
+      savePOSSettings({ storeCurrency: currencyId });
     },
     [savePOSSettings],
   );
 
-  const handleItemsInfo = useCallback(() => {
-    navigate.navigate('InformationPopup', {
-      textContent: showErrorIcon
-        ? t('settings.posPath.settings.differingCurrencyItemsError', {
-            number: showErrorIcon,
-          })
-        : t('settings.posPath.settings.itemsDescription'),
-      buttonText: t('constants.understandText'),
+  const openCurrencySelect = useCallback(async () => {
+    await KeyboardController.dismiss();
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'posCurrencySelect',
+      currentCurrency,
+      onSelectCurrency: handleCurrencyChange,
     });
-  }, [showErrorIcon, navigate, t]);
+  }, [navigate, currentCurrency, handleCurrencyChange]);
 
-  const handleSaveOrOpen = useCallback(() => {
-    if (
-      masterInfoObject.posSettings.storeName.toLowerCase() !==
-      storeNameInput.toLowerCase()
-    ) {
-      savePOSSettings(
-        {
-          storeName: storeNameInput.trim(),
-          storeNameLower: storeNameInput.trim().toLowerCase(),
-        },
-        'storeName',
-      );
-      return;
-    } else {
-      openWebBrowser({
-        navigate,
-        link: `https://pay.blitzwalletapp.com/${masterInfoObject.posSettings.storeName}`,
-      });
-    }
-  }, [
-    masterInfoObject.posSettings.storeName,
-    storeNameInput,
-    navigate,
-    savePOSSettings,
-  ]);
+  const handleOpenPOS = useCallback(() => {
+    openWebBrowser({
+      navigate,
+      link: `https://pay.blitzwalletapp.com/${storeName}`,
+    });
+  }, [storeName, navigate]);
 
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      useStandardWidth={true}
-    >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('settings.posPath.settings.title')}
-        containerStyles={{ marginBottom: 8 }}
-        rightContent={
-          <>
-            <TouchableOpacity
-              onPress={() => {
-                navigate.navigate('POSInstructionsPath');
-              }}
-            >
-              <ThemeIcon iconName={'Info'} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t('settings.posPath.settings.title')}
+          shouldDismissKeyboard={true}
+        />
+        <CustomScrollView
+          style={styles.scrollView}
+          contentContainerStyle={{
+            paddingTop: 16,
+            paddingBottom: bottomPadding,
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <BrandLogoUploader
+            onLogoChange={handleLogoChange}
+            onLogoRemove={handleLogoRemove}
+            masterInfoObject={masterInfoObject}
+            cachedImageData={cachedImageData}
+            brandLogoUri={brandLogoUri}
+            brandLogoUpdated={brandLogoUpdated}
+          />
+
+          <SectionHeader
+            title={t('settings.posPath.settings.storeNameInputDesc')}
+          />
+          <ListCard>
+            <ListRow
+              onPress={() => navigate.navigate('EditStoreNamePage')}
+              lead={<Disc icon={'Pencil'} />}
+              title={t('settings.posPath.settings.storeNameInputDesc')}
+              titleStyle={styles.rowTitle}
+              minHeight={52}
+              trailing={<RowValue text={storeName} />}
+              showChevron={true}
+              chevronSize={18}
+            />
+          </ListCard>
+
+          <SectionHeader title={t('settings.posPath.settings.prices')} />
+          <ListCard dividerInset={64}>
+            <ListRow
+              onPress={openCurrencySelect}
+              lead={<Disc icon={'Banknote'} />}
+              title={t('settings.posPath.settings.currency')}
+              titleStyle={styles.rowTitle}
+              minHeight={52}
+              trailing={<RowValue text={currentCurrency} />}
+              showChevron={true}
+              chevronSize={18}
+            />
+            <ListRow
+              onPress={() => navigate.navigate('AddPOSItemsPage')}
+              lead={<Disc icon={'Tag'} />}
+              title={t('settings.posPath.settings.items')}
+              titleStyle={styles.rowTitle}
+              minHeight={52}
+              accessibilityLabel={
+                showErrorIcon
+                  ? `${t('settings.posPath.settings.items')}, ${t(
+                      'settings.posPath.settings.itemsCurrencyWarning',
+                    )}`
+                  : undefined
+              }
+              trailing={
+                <RowValue
+                  text={t('settings.posPath.settings.itemsCount', {
+                    count: posItemsList.length,
+                  })}
+                  icon={
+                    !!showErrorIcon && (
+                      <ThemeIcon
+                        redesign
+                        size={16}
+                        colorOverride={tokens.danger}
+                        iconName={'TriangleAlert'}
+                      />
+                    )
+                  }
+                />
+              }
+              showChevron={true}
+              chevronSize={18}
+            />
+          </ListCard>
+
+          <SectionHeader
+            title={t('settings.posPath.settings.runningTheStore')}
+          />
+          <ListCard dividerInset={64}>
+            <ListRow
+              onPress={() =>
                 keyboardNavigate(() => {
                   if (!isConnectedToTheInternet) {
                     navigate.navigate('ErrorScreen', {
@@ -316,140 +228,61 @@ export default function PosSettingsPage() {
                     return;
                   }
                   navigate.navigate('POSStack');
-                });
-              }}
-            >
-              <ThemeImage
-                lightsOutIcon={ICONS.receiptWhite}
-                darkModeIcon={ICONS.receiptIcon}
-                lightModeIcon={ICONS.receiptIcon}
-              />
-            </TouchableOpacity>
-          </>
-        }
-      />
-      <CustomScrollView
-        style={[styles.scrollView, CENTER]}
-        contentContainerStyle={[
-          styles.scrollContent,
-          {
-            paddingBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : bottomPadding,
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <BrandLogoUploader
-          onLogoChange={handleLogoChange}
-          onLogoRemove={handleLogoRemove}
-          masterInfoObject={masterInfoObject}
-          cachedImageData={cachedImageData}
-          brandLogoUri={brandLogoUri}
-          brandLogoUpdated={brandLogoUpdated}
-        />
+                })
+              }
+              lead={<Disc icon={'Receipt'} />}
+              title={t('settings.posPath.settings.tipsToPay')}
+              titleStyle={styles.rowTitle}
+              minHeight={52}
+              trailing={
+                !!unpaidPeople && (
+                  <RowValue
+                    text={t('settings.posPath.settings.peopleCount', {
+                      count: unpaidPeople,
+                    })}
+                  />
+                )
+              }
+              showChevron={true}
+              chevronSize={18}
+            />
+            <ListRow
+              onPress={() => navigate.navigate('POSInstructionsPath')}
+              lead={<Disc icon={'Printer'} />}
+              title={t('settings.posPath.settings.staffSign')}
+              titleStyle={styles.rowTitle}
+              minHeight={52}
+              showChevron={true}
+              chevronSize={18}
+            />
+          </ListCard>
+        </CustomScrollView>
 
-        <StoreNameInput
-          value={storeNameInput}
-          onChange={setStoreNameInput}
-          onFocus={() => setIsKeyboardActive(true)}
-          onBlur={() => setIsKeyboardActive(false)}
-          theme={theme}
-        />
-
-        <CurrencySelector
-          currentCurrency={currentCurrency}
-          onCurrencyChange={handleCurrencyChange}
-          theme={theme}
-          darkModeType={darkModeType}
-        />
-        <ItemsSection
-          itemCount={posItemsList.length}
-          showErrorIcon={showErrorIcon}
-          onNavigate={() => navigate.navigate('AddPOSItemsPage')}
-          onInfo={handleItemsInfo}
-        />
-      </CustomScrollView>
-
-      {!isKeyboardActive && (
         <CustomButton
-          buttonStyles={[
-            styles.mainButton,
-            {
-              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-              marginBottom: bottomPadding,
-            },
-          ]}
-          textStyles={{
-            color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-          }}
-          actionFunction={handleSaveOrOpen}
-          textContent={
-            masterInfoObject.posSettings.storeName.toLowerCase() !==
-            storeNameInput.toLowerCase()
-              ? t('constants.save')
-              : t('settings.posPath.settings.openPos')
-          }
+          actionFunction={handleOpenPOS}
+          textContent={t('settings.posPath.settings.openPos')}
+          size={'regular'}
         />
-      )}
-    </CustomKeyboardAvoidingView>
+      </View>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, ...CENTER },
   scrollView: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
   },
-  scrollContent: {
-    paddingTop: 16,
-    gap: 16,
-  },
-  inputSection: {},
-  sectionCard: {
-    width: '100%',
-    borderRadius: 8,
-    padding: 16,
-  },
-  sectionCardLabel: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    includeFontPadding: false,
-    marginBottom: 8,
-  },
-  inputContainer: {
-    borderRadius: 8,
-  },
-  dropdownContainer: {
-    marginTop: 8,
-  },
-  dropdownItemStyles: {
-    justifyContent: 'flex-start',
-  },
-  addItemContainer: {
-    width: '100%',
-    borderRadius: 8,
-    padding: 16,
+  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowValue: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  itemsText: {
-    includeFontPadding: false,
-    marginRight: 8,
+    gap: 6,
     flexShrink: 1,
   },
-  infoButton: {
-    marginRight: 8,
-  },
-  chevronButton: {
-    padding: 8,
-    borderRadius: 8,
-    marginLeft: 'auto',
-  },
-  mainButton: {
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
+  rowValueText: {
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
 });

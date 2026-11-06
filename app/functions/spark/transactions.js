@@ -278,6 +278,26 @@ export const getSwapResultTransaction = async originalSparkId => {
     return null;
   }
 };
+// Newest token payments, without Dollars. For the Tokens page, whose rows can be
+// older than anything in the homepage projection.
+export const getTokenSparkTransactions = async (accountId, limit = 100) => {
+  try {
+    await ensureSparkDatabaseReady();
+    return await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+         AND json_extract(details, '$.isLRC20Payment') = 1
+         AND json_extract(details, '$.LRC20Token') != ?
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT ?`,
+      [String(accountId), USDB_TOKEN_ID, limit],
+    );
+  } catch (error) {
+    console.error('Error fetching token transactions:', error);
+    return [];
+  }
+};
+
 export const getAllSparkTransactions = async (options = {}) => {
   try {
     await ensureSparkDatabaseReady();
@@ -1714,23 +1734,6 @@ export const cleanStalePendingSparkLightningTransactions = async () => {
     console.error('Error cleaning stale spark transactions:', error);
     return false;
   }
-};
-
-const formatDetailsJSON = tx => {
-  const newDetails = {
-    direction: tx.transferDirection ?? null,
-    fee: tx.fee ?? 0,
-    address: tx.address ?? '',
-    amount: tx.totalValue ?? 0,
-    paymentTime: tx.updatedTime ?? tx.createdTime ?? Date.now(),
-    description: tx.description ?? '',
-    status: tx.status ?? 'pending',
-    sparkID: tx.id ?? '',
-    l1TxId: tx.l1TxId ?? null,
-    preimage: tx.preimage ?? null,
-    paymentHash: tx.paymentHash ?? null,
-  };
-  return newDetails;
 };
 
 // Run an arbitrary spark-DB write through the same FIFO queue that serializes

@@ -41,7 +41,6 @@ export default async function processLNUrlPay(input, context) {
     bitcoinBalance,
     dollarBalanceSat,
     convertedSendAmount,
-    min_usd_swap_amount,
     poolInfoRef,
     contactsPrivateKey,
     publicKey,

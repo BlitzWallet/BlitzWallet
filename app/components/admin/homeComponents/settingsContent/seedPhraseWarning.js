@@ -1,21 +1,21 @@
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import GetThemeColors from '../../../../hooks/themeColors';
+import { FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
 
 export default function SeedPhraseWarning(props) {
   const routeMnemonic = props?.route?.params?.mnemonic || props?.mnemonic;
@@ -24,19 +24,14 @@ export default function SeedPhraseWarning(props) {
 
   const { t } = useTranslation();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { toggleMasterInfoObject } = useGlobalContextProvider();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
-  const toggleTermsAcceptance = useCallback(() => {
-    setTermsAccepted(!termsAccepted);
-  }, [termsAccepted]);
-
-  const handleContinue = useCallback(() => {
-    if (!termsAccepted) {
-      return;
-    }
+  const handleContinue = () => {
+    if (!termsAccepted) return;
 
     const extraData = {
       ...routeExtraData,
@@ -52,7 +47,7 @@ export default function SeedPhraseWarning(props) {
       for: 'show seed phrase',
       extraData,
     });
-  }, [termsAccepted, routeMnemonic, routeExtraData]);
+  };
 
   const warningPoints = [
     {
@@ -73,194 +68,86 @@ export default function SeedPhraseWarning(props) {
     },
   ];
 
-  const WarningContent = useCallback(() => {
-    return (
-      <View style={{ flex: 1 }}>
-        <CustomScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.contentContainer}>
-            {/* Icon */}
-            <IconActionCircle icon={'ShieldAlert'} bottomOffset={32} />
+  const body = (
+    <View style={styles.body}>
+      <CustomScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <ThemeText
+          styles={[styles.title, { color: tokens.ink }]}
+          content={t('settings.seedPhrase.warning.title', {
+            context: fromPage,
+          })}
+        />
 
-            {/* Title */}
-            <ThemeText
-              styles={styles.title}
-              content={t('settings.seedPhrase.warning.title', {
-                context: fromPage,
-              })}
+        <ListCard dividerInset={52} style={styles.card}>
+          {warningPoints.map((point, index) => (
+            <ListRow
+              key={index}
+              title={point.text}
+              titleStyle={styles.rowTitle}
+              accessibilityLabel={point.text}
+              minHeight={68}
+              paddingVertical={12}
+              lead={<Disc icon={point.icon} size={40} />}
             />
+          ))}
+        </ListCard>
+      </CustomScrollView>
 
-            {/* Warning Points */}
-            <View style={styles.warningPointsContainer}>
-              {warningPoints.map((point, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.warningPoint,
-                    { backgroundColor: backgroundOffset },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.warningIconContainer,
-                      {
-                        backgroundColor: theme
-                          ? backgroundColor
-                          : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    <ThemeIcon
-                      iconName={point.icon}
-                      size={15}
-                      colorOverride={COLORS.darkModeText}
-                    />
-                  </View>
-                  <ThemeText
-                    styles={[styles.warningText, { color: textColor }]}
-                    content={point.text}
-                  />
-                </View>
-              ))}
-            </View>
-          </View>
-        </CustomScrollView>
-
-        {/* Checkbox */}
-        <TouchableOpacity
-          onPress={toggleTermsAcceptance}
-          style={styles.checkboxContainer}
-        >
-          <View
-            style={[
-              styles.checkbox,
-              { borderColor: textColor },
-              termsAccepted && {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-                borderColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-          >
-            {termsAccepted && (
-              <ThemeIcon
-                size={12}
-                colorOverride={
-                  theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText
-                }
-                iconName={'Check'}
-              />
-            )}
-          </View>
-          <ThemeText
-            styles={[styles.checkboxText, { color: textColor }]}
-            content={t('settings.seedPhrase.warning.checkbox')}
-          />
-        </TouchableOpacity>
-
-        {/* Continue Button */}
+      <View style={styles.footer}>
+        <ConsentRow
+          checked={termsAccepted}
+          onPress={() => setTermsAccepted(value => !value)}
+          text={t('settings.seedPhrase.warning.checkbox')}
+        />
         <CustomButton
-          buttonStyles={{
-            ...styles.continueButton,
-            opacity: termsAccepted ? 1 : 0.6,
-          }}
+          size="regular"
+          tone="primary"
+          disabled={!termsAccepted}
           textContent={t('settings.seedPhrase.warning.continueButton')}
           actionFunction={handleContinue}
         />
       </View>
-    );
-  }, [
-    warningPoints,
-    termsAccepted,
-    toggleTermsAcceptance,
-    handleContinue,
-    textColor,
-    theme,
-    darkModeType,
-  ]);
+    </View>
+  );
 
   if (fromPage === 'settings') {
-    return <WarningContent />;
+    return body;
   }
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar />
-      <WarningContent />
+      <View style={[styles.standalone, { width: contentWidth }]}>
+        <TopBar title="" />
+        {body}
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    ...CENTER,
-    paddingTop: 20,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'center',
-  },
-  contentContainer: {
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
+  body: { flex: 1 },
+  standalone: { flex: 1, alignSelf: 'center' },
+  scroll: { flex: 1 },
+  scrollContent: { paddingTop: 16, paddingBottom: 24 },
   title: {
-    fontSize: SIZES.xLarge,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  warningPointsContainer: {
-    width: '100%',
-    maxWidth: 400,
-    gap: 15,
-  },
-  warningPoint: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    padding: 16,
-    borderRadius: 12,
-  },
-  warningIconContainer: {
-    padding: 9,
-    borderRadius: 12,
-  },
-  warningText: {
-    flex: 1,
-    includeFontPadding: false,
-    marginTop: -2,
-  },
-  checkboxContainer: {
-    width: INSET_WINDOW_WIDTH,
-    paddingTop: CONTENT_KEYBOARD_OFFSET,
-    paddingBottom: 15,
-    marginBottom: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...CENTER,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderRadius: 3,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  checkboxText: {
-    fontSize: SIZES.small,
-    flex: 1,
+    fontFamily: FONT.Title_Medium,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.56,
     includeFontPadding: false,
   },
-  continueButton: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+  card: { marginTop: 24 },
+  rowTitle: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  footer: {
+    gap: 12,
+    paddingTop: 12,
   },
 });

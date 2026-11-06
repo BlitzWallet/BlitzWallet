@@ -86,9 +86,12 @@ export default function LiquidSwapsPage() {
   return (
     <SupportMessage
       type={t('settings.viewSwapsHome.liquid')}
+      statusState={refundStatus}
       statusText={
         refundStatus === 'pending'
           ? t('settings.viewAllLiquidSwaps.refundInProgress')
+          : refundStatus === 'complete'
+          ? t('settings.viewAllLiquidSwaps.refundComplete')
           : ''
       }
     />
