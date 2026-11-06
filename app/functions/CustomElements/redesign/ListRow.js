@@ -48,7 +48,12 @@ export default function ListRow({
       }
       isHidden={tone === 'hidden'}
       trailing={
-        <View style={styles.trailing}>
+        <View
+          style={[
+            styles.trailing,
+            trailing === 'value' && styles.trailingValue,
+          ]}
+        >
           {trailing === 'chevron' ? (
             <ThemeIcon
               redesign
@@ -77,6 +82,7 @@ export default function ListRow({
               variant="body"
               content={value}
               styles={{ color: tokens.muted, flexShrink: 1 }}
+              CustomNumberOfLines={1}
             />
           ) : null}
           {showChevron && (
@@ -167,4 +173,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  // Cap the value so a long trailing string can never squeeze the title/sub
+  // out. The value shrinks and wraps inside this width instead.
+  trailingValue: { flexShrink: 1, maxWidth: '60%' },
 });
