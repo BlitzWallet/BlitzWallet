@@ -24,6 +24,7 @@ export default function KeyValueRow({
   truncate,
   mono = true,
   valueColor,
+  enableValueClick = false,
 }) {
   const { tokens } = useTheme();
   const { t } = useTranslation();
@@ -44,6 +45,44 @@ export default function KeyValueRow({
           content={displayValue}
           styles={[styles.stackedValue, { color: tokens.muted }]}
         />
+      </View>
+    );
+  }
+
+  if (enableValueClick) {
+    return (
+      <View style={styles.row}>
+        <ThemeText
+          variant="body"
+          content={label}
+          styles={[styles.label, { color: tokens.muted }]}
+        />
+        {copyValue != null && (
+          <TouchableOpacity
+            onPress={() => copyToClipboard(copyValue, showToast)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              copyLabel || t('settings.sparkInfo.copyA11y', { label })
+            }
+            style={styles.copyButtonFull}
+          >
+            <ThemeText
+              content={displayValue}
+              CustomNumberOfLines={1}
+              styles={[
+                styles.value,
+                !mono && styles.valueText,
+                { color: valueColor || tokens.ink },
+              ]}
+            />
+            <ThemeIcon
+              redesign
+              iconName="Copy"
+              size={16}
+              colorOverride={tokens.muted}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -113,6 +152,12 @@ const styles = StyleSheet.create({
     marginRight: -12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  copyButtonFull: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
   },
   stacked: { paddingVertical: 14 },
   stackedLabel: { fontSize: 15, lineHeight: 22 },

@@ -83,6 +83,7 @@ export default function SparkInfo() {
                 label: t('settings.sparkInfo.sparkAddress'),
               })}
               truncate="middle"
+              enableValueClick
             />
             <KeyValueRow
               label={t('settings.sparkInfo.pubKey')}
@@ -92,6 +93,7 @@ export default function SparkInfo() {
                 label: t('settings.sparkInfo.pubKey'),
               })}
               truncate="middle"
+              enableValueClick
             />
           </ListCard>
 
