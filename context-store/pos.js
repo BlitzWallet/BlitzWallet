@@ -44,6 +44,7 @@ const POSTransactionsProvider = ({ children }) => {
       for (const tx of txList) {
         const serverName = tx.serverName?.toLowerCase()?.trim();
         let savedAccount = totals[serverName];
+        if (!savedAccount && !serverName?.length) continue;
         if (!savedAccount) {
           totals[serverName] = {
             totalTipAmount: 0,
