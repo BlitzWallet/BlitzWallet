@@ -160,7 +160,6 @@ export default function FiatCurrencyPage() {
             maxToRenderPerBatch={15}
             windowSize={5}
             ItemSeparatorComponent={CurrencySeparator}
-            contentContainerStyle={styles.listContent}
           />
         </ListCard>
       </View>
@@ -185,5 +184,4 @@ const styles = StyleSheet.create({
   },
   search: { marginTop: 16 },
   card: { flex: 1, marginTop: 16 },
-  listContent: { paddingBottom: 24 },
 });
