@@ -743,6 +743,10 @@ export default function StablecoinSendScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.hero}>
+            <ThemeText
+              styles={[styles.secondary, { color: tokens.muted }]}
+              content={t('wallet.sendPages.reviewParts.sending')}
+            />
             <AmountHero
               amount={amountText}
               formatAmount={false}

@@ -800,6 +800,10 @@ export default function ConfirmSplitPayment(props) {
           {/* Amount display — always shown except during rate-change intercept */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
             <View style={styles.hero}>
+              <ThemeText
+                styles={[styles.secondary, { color: tokens.muted }]}
+                content={t('wallet.sendPages.reviewParts.sending')}
+              />
               <AmountHero
                 amount={amountText}
                 formatAmount={false}
