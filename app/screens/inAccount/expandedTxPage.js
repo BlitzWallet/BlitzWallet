@@ -419,7 +419,6 @@ export default function ExpandedTx({
         <View style={styles.splitAvatars}>
           {shown.map((entry, index) => {
             const name = bulkNamesArray[index];
-            console.log(entry, name);
             return (
               <View
                 key={entry.contactUUID}
@@ -468,7 +467,7 @@ export default function ExpandedTx({
       return (
         <View style={[styles.heroIcon, { backgroundColor: tokens.disc }]}>
           <ContactAvatar
-            name={selectedContact?.name || t('constants.annonName')}
+            name={selectedContact?.name || selectedContact?.uniqueName}
             seed={selectedContact?.uuid}
             updated={cache[sendingContactUUID]?.updated}
             uri={contactImage}
