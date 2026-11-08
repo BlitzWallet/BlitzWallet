@@ -48,7 +48,7 @@ export default function EditProfileTextInput({
       <TextInput
         keyboardAppearance={tokens.scheme === 'dark' ? 'dark' : 'light'}
         placeholder={placeholder}
-        placeholderTextColor={tokens.muted}
+        placeholderTextColor={`${tokens.onField}A6`}
         ref={inputRef}
         editable={true}
         multiline={multiline}

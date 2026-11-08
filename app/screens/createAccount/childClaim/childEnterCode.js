@@ -229,6 +229,7 @@ export default function ChildEnterCode() {
               buttonStyles={styles.button}
               textContent={t('settings.childAccounts.claim.next')}
               actionFunction={goNext}
+              disabled={!isValid}
               size={'regular'}
             />
           </>

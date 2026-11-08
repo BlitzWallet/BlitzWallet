@@ -136,7 +136,12 @@
     "stablecoinRefundReceived": "Возврат стейблкоина",
     "payWith": "Оплатить с помощью",
     "receiveAs": "Получить в виде",
-    "tokens": "Токены"
+    "tokens": "Токены",
+    "amountAvailable": "Доступно {{amount}}",
+    "clear": "Очистить",
+    "openInBrowser": "Открыть в браузере",
+    "emailSupport": "Поддержка по электронной почте",
+    "noName": "Без имени"
   },
   "languages": {
     "english": "English",
@@ -344,7 +349,12 @@
       "wrongPinError": "Неверный PIN, попробуйте снова",
       "enterPinMessage": "Введите PIN",
       "attemptsText": "Осталось попыток: {{attempts}}",
-      "biometricsHeader": "Войти по биометрии"
+      "biometricsHeader": "Войти по биометрии",
+      "goodMorning": "Доброе утро",
+      "goodAfternoon": "Добрый день",
+      "goodEvening": "Добрый вечер",
+      "biometricsResetTitle": "Не удалось проверить биометрию",
+      "removeWalletLabel": "Удалить кошелёк с этого устройства"
     },
     "passwordPage": {
       "enterPasswordMessage": "Введите пароль",
@@ -355,13 +365,20 @@
       "forgotPassword": "Забыли пароль?",
       "forgotPasswordConfirm": "Забыли пароль? Единственный способ восстановить доступ — сбросить данные и восстановить кошелек с помощью сид-фразы.\n\nХотите удалить все данные кошелька? Продолжайте только если ваша сид-фраза надежно сохранена.",
       "loginButton": "Войти",
-      "storageError": "Не удалось прочитать хранилище кошелька. Попробуйте снова."
+      "storageError": "Не удалось прочитать хранилище кошелька. Попробуйте снова.",
+      "forgotPasswordTitle": "Забыли пароль?",
+      "forgotPasswordMessage": "Единственный способ восстановить доступ — сбросить и восстановить с помощью фразы восстановления. Удалить все данные кошелька? Продолжайте только если ваша фраза восстановления надёжно сохранена."
     },
     "passkeyPage": {
       "unlockButton": "Разблокировать пасскеем",
       "unlockError": "Не удалось разблокировать пасскеем",
       "lostPasskey": "Потеряли пасскей?",
-      "lostPasskeyConfirm": "Потеряли пасскей? Единственный способ вернуться — сбросить и восстановить кошелек с помощью фразы восстановления.\n\nХотите удалить все данные кошелька? Продолжайте только если ваша фраза восстановления надежно сохранена."
+      "lostPasskeyConfirm": "Потеряли пасскей? Единственный способ вернуться — сбросить и восстановить кошелек с помощью фразы восстановления.\n\nХотите удалить все данные кошелька? Продолжайте только если ваша фраза восстановления надежно сохранена.",
+      "lostPasskeyMessage": "Единственный способ вернуться — сбросить и восстановить с помощью фразы восстановления. Удалить все данные кошелька? Продолжайте только если ваша фраза восстановления надёжно сохранена."
+    },
+    "resetSheet": {
+      "deleteWalletData": "Удалить данные кошелька",
+      "message": "Удалить все данные кошелька? Продолжайте только если ваша фраза восстановления надёжно сохранена."
     }
   },
   "apps": {
@@ -471,10 +488,13 @@
         "availableCredits": "Доступно кредитов: {{credits}}",
         "noAvailableCreditsError": "У вас закончились кредиты.",
         "inputPlaceholder": "Сообщение {{gptName}}",
-        "youText": "Вы"
+        "youText": "Вы",
+        "creditsLeft": "Осталось кредитов: {{credits}}"
       },
       "confirmLeaveChat": {
-        "title": "Хотите сохранить чат?"
+        "title": "Хотите сохранить чат?",
+        "message": "Сохранённые чаты остаются в списке, чтобы вы могли вернуться к ним позже.",
+        "dontSave": "Не сохранять"
       },
       "confirmationPage": {
         "title": "Подтвердить покупку",
@@ -485,13 +505,20 @@
         "minimumAmountError": "Минимальная сумма: {{amount}}",
         "maximumAmountError": "Максимальная сумма: {{amount}}",
         "confirmMessage": "Вы собираетесь приобрести кредиты ИИ.",
-        "contributionWarning": "Этот платёж окончательный. Платежи не возвращаются, даже если кредиты не использованы."
+        "contributionWarning": "Этот платёж окончательный. Платежи не возвращаются, даже если кредиты не использованы.",
+        "chooseAmountSub": "Кредиты для ИИ-чата. Разовая покупка.",
+        "custom": "Другой",
+        "buyCredits": "Купить кредиты ИИ",
+        "slideToPay": "Сдвиньте для оплаты",
+        "buying": "Покупка кредитов на {{amount}}.",
+        "errorTitle": "Не удалось купить кредиты"
       },
       "switchModel": {
         "inputLabel": "Вход: {{amount}}/M",
         "outputLabel": "Выход: {{amount}}/M",
         "chooseModel": "Выбрать модель",
-        "noModels": "Модели не найдены. Проверьте название."
+        "noModels": "Модели не найдены. Проверьте название.",
+        "searchPlaceholder": "Поиск моделей"
       },
       "exampleSearchCards": {
         "title": "Примеры запросов",
@@ -872,24 +899,31 @@
             "category": "Технологии"
           }
         ],
-        "sectionTitle": "Ответы на ваши вопросы"
+        "sectionTitle": "Ответы на ваши вопросы",
+        "tryAsking": "Попробуйте спросить"
       },
       "saveChat": {
         "errorMessage": "Извините, не удалось сохранить диалог."
-      }
+      },
+      "chats": "Чаты"
     },
     "sms4sats": {
       "home": {
         "pageDescription": "Отправляйте и получайте СМС без раскрытия своего номера.",
         "pricingError": "Не удалось получить цены СМС",
-        "codeLabel": "Код"
+        "codeLabel": "Код",
+        "viewCode": "Показать код"
       },
       "confirmationSlideUp": {
         "title": "Подтвердить номер",
         "price": "Цена: ",
         "fee": "Комиссия: ",
         "invalidNumber": "Некорректный номер",
-        "receiveTitle": "Подтвердить получение"
+        "receiveTitle": "Подтвердить получение",
+        "country": "Страна",
+        "refundNote": "Нет кода за 21 минуту? Средства вернутся автоматически.",
+        "slideToPay": "Сдвиньте для оплаты",
+        "receivePlanType": "Код получения по SMS"
       },
       "sendPage": {
         "startingSendingMessage": "Создание заказа на отправку",
@@ -915,7 +949,8 @@
         "invalidMessageError": "Введите сообщение перед продолжением",
         "descriptionStepTitle": "Добавьте сообщение",
         "descriptionStepSubtitle": "SMS4Sats требует сообщение. Держите его коротким и менее 140 символов.",
-        "descriptionInputPlaceholder": "Введите сообщение"
+        "descriptionInputPlaceholder": "Введите сообщение",
+        "confirmedSubtitle": "На {{phone}} · {{amount}}"
       },
       "sentPayments": {
         "titlesend": "Отправленные СМС",
@@ -946,7 +981,10 @@
         "orderDetailsLoading": "Получение деталей заказа",
         "countryStepTitle": "Выберите страну",
         "countrySearchPlaceholder": "Поиск стран",
-        "fetchServicesError": "Не удалось загрузить доступные SMS-сервисы"
+        "fetchServicesError": "Не удалось загрузить доступные SMS-сервисы",
+        "recommended": "Рекомендуется",
+        "serviceStepTitle": "Для какого приложения код?",
+        "serviceStepSubtitle": "Вы получите номер для регистрации, а код появится здесь."
       },
       "confirmCodePage": {
         "header": "Ваш заказ был успешно создан",
@@ -955,10 +993,14 @@
         "step2": "Используйте кнопку «Получить код» на главной странице, чтобы получить код подтверждения после добавления номера в сервис",
         "step3": "Если код не будет получен, ваш платёж будет автоматически возвращён через 21 минуту",
         "automaticRefund": "Для этого сервиса не было доступного номера. Ваши средства уже возвращены.",
-        "waitedRefund": "Для этого сервиса не было доступного номера. Ваши средства будут автоматически возвращены через 21 минуту."
+        "waitedRefund": "Для этого сервиса не было доступного номера. Ваши средства будут автоматически возвращены через 21 минуту.",
+        "paidSubtitle": "{{title}} · оплачено {{amount}}",
+        "stillAllocating": "Ваш номер ещё не готов. Проверьте SMS через минуту. Если номер не будет присвоен, средства вернутся автоматически."
       },
       "viewSMSReceiveCode": {
-        "header": "Ваш код"
+        "header": "Ваш код",
+        "headerFor": "Ваш код {{title}}",
+        "dontShare": "Не делитесь этим кодом ни с кем."
       }
     },
     "onlineListings": {
@@ -1184,7 +1226,27 @@
         "howStep4": "• Закройте пул, когда будете готовы перевести средства в свою wallet"
       },
       "noPoolsTitle": "Нет созданных пулов",
-      "noPoolsSubTitle": "Как только вы создадите пул, он появится здесь как активный или неактивный."
+      "noPoolsSubTitle": "Как только вы создадите пул, он появится здесь как активный или неактивный.",
+      "unknown": "Неизвестно",
+      "maxPoolsReached": "Вы достигли максимального количества пулов",
+      "swapSimulationFailed": "Не удалось смоделировать обмен",
+      "paymentFailed": "Платёж не удался",
+      "blitzUser": "Пользователь Blitz",
+      "ofAmount": "из {{amount}}",
+      "couldNotFindTitle": "Пул не найден",
+      "couldNotFindSub": "Этот пул мог быть удалён или больше недоступен.",
+      "savingPoolErrorTitle": "Не удалось создать пул",
+      "savingPoolErrorSub": "Мы не смогли создать этот пул. Пожалуйста, попробуйте снова.",
+      "viewActivityTitle": "Взносы",
+      "activityInfoHeader": "{{numPeople}} человек внесли {{contributionAmount}} из {{totalAmount}}.",
+      "closePoolLoadingTitle": "Закрытие пула",
+      "closePoolLoadingSub": "Держите приложение открытым до завершения.",
+      "poolGoal": "Цель пула",
+      "other": "Другое",
+      "available": "Доступно: {{amount}}",
+      "minimum": "Минимум: {{amount}}",
+      "slideToContribute": "Сдвиньте, чтобы внести вклад",
+      "sentTo": "Кому: {{name}}"
     },
     "cameraModal": {
       "noCamera": "Нет доступа к камере",
@@ -1197,7 +1259,10 @@
       "noFlash": "Нет вспышки",
       "scanningResponse": "Принимаются только QR-коды.",
       "qrDecodeError": "Ошибка декодирования QR",
-      "scanHint": "Наведите камеру на QR-код"
+      "scanHint": "Наведите камеру на QR-код",
+      "chooseImage": "Выбрать изображение",
+      "pasteClipboard": "Вставить из буфера обмена",
+      "flash": "Вспышка"
     },
     "confirmClipboard": {
       "clipboardContent": "Текст скопирован",
@@ -1304,7 +1369,8 @@
       "selectLRC20Token": {
         "title": "Выберите токен",
         "searchPlaceholder": "Имя токена...",
-        "noTokensFoundText": "Токены не найдены"
+        "noTokensFoundText": "Токены не найдены",
+        "noTokensFoundSub": "Попробуйте изменить запрос, чтобы использовать токен."
       },
       "sendMaxComponent": {
         "sendMax": "Отправить макс.",
@@ -1322,6 +1388,22 @@
         "balanceError": "Недостаточно средств",
         "swapMinimumError": "Минимум для свопа {{currency1}} -> {{currency2}}: {{amount}}",
         "flashnetOffineError": "Конвертации между долларами и биткойном в настоящее время недоступны. Пожалуйста, попробуйте позже."
+      },
+      "reviewParts": {
+        "splitNamesOne": "{{first}}",
+        "splitNamesTwo": "{{first}} и {{second}}",
+        "splitNamesThree": "{{first}}, {{second}} и {{third}}",
+        "splitNamesMore": "{{first}}, {{second}}, {{third}} и ещё {{count}}",
+        "splitEach": "по {{amount}}",
+        "splitDifferent": "Разные суммы",
+        "sending": "Отправка",
+        "slideToSend": "Сдвиньте для отправки",
+        "verified": "Проверено",
+        "viewAddress": "Показать адрес",
+        "verifiedBody": "Branta проверила, что этот запрос на оплату действительно поступил от {{merchantName}}, чтобы вы знали, кому платите.",
+        "verifiedBodyNoName": "Branta проверила, что этот запрос на оплату подлинный, чтобы вы знали, кому платите.",
+        "checkAddress": "Убедитесь, что он совпадает с тем, который вам дали.",
+        "checkAddress_receive": "Убедитесь, что он совпадает с тем, который вы отправили."
       }
     },
     "switchOption": {
@@ -1339,7 +1421,14 @@
         "receive": "Получить",
         "scan": "Сканировать",
         "swap": "Обмен",
-        "deposit": "Пополнить"
+        "deposit": "Пополнить",
+        "backupTitle": "Сделайте резервную копию кошелька",
+        "backupSub": "Храните фразу восстановления в безопасности",
+        "connectionTitle": "Сейчас нет подключения",
+        "connectionSub": "Показан баланс на {{time}}",
+        "tokensOne": "{{first}}",
+        "tokensTwo": "{{first}} и {{second}}",
+        "tokensMore": "{{first}}, {{second}} и ещё {{count}}"
       },
       "lrc20Assets": {
         "actionText": "{{action}} токены",
@@ -1356,6 +1445,19 @@
         "description": "На кошельке есть средства, но сид-фраза не сохранена. Если потеряете устройство, деньги могут пропасть навсегда.",
         "backupBTN": "Создать копию",
         "laterBTN": "Позже"
+      },
+      "balancePage": {
+        "receiveBitcoin": "Получить биткоины",
+        "receiveDollars": "Получить доллары",
+        "emptyBitcoin": "Отправленные и полученные биткоины будут отображаться здесь.",
+        "emptyDollars": "Отправленные и полученные доллары будут отображаться здесь.",
+        "emptyTokens": "Отправленные и полученные токены будут отображаться здесь.",
+        "balances": "Балансы",
+        "viewAllTokens": "Показать все токены ({{count}})",
+        "allTokens": "Все токены",
+        "searchTokens": "Поиск токенов",
+        "tokenOnSpark": "Токен на Spark",
+        "ticker": "Тикер"
       }
     },
     "exportTransactions": {
@@ -1395,7 +1497,11 @@
         "header": "Выберите валюту для отправки.",
         "notAvailable": "Недоступно в сети {{chain}}"
       },
-      "networkLabel": "{{currency}} b {{chain}}"
+      "networkLabel": "{{currency}} b {{chain}}",
+      "bitcoinAmount": "Сумма в биткоинах",
+      "usdAmount": "Сумма в USD",
+      "sendingTo": "Отправка на {{address}}",
+      "sendingToOn": "Отправка на {{address}} в сети {{chain}}"
     }
   },
   "contacts": {
@@ -1415,7 +1521,11 @@
         "editProfileDescription": "Добавьте свои данные, чтобы другие могли легко вас найти и оплатить.",
         "addContactstitle": "Контакты не добавлены",
         "addContactsDescription": "Ваши контакты появятся здесь после добавления."
-      }
+      },
+      "favorites": "Избранное",
+      "allContacts": "Все контакты",
+      "giftCards": "Подарочные карты",
+      "newRequest": "Новый запрос"
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Контакт не найден.",
@@ -1425,12 +1535,20 @@
       "noProfilesFound": "Профили не найдены",
       "startTypingMessage": "Ищите по адресу Молнии (name@service.com) или юзернейму Blitz.",
       "loadingMessage": "Поиск контакта...",
-      "profileImage": "Загрузка фото профиля..."
+      "profileImage": "Загрузка фото профиля...",
+      "blitzUsers": "Пользователи Blitz",
+      "noProfilesHint": "Проверьте написание или найдите их Lightning-адрес.",
+      "lightningAddress": "Lightning-адрес",
+      "noName": "Имя не задано",
+      "scanLabel": "Сканировать QR-код контакта"
     },
     "expandedContactPage": {
       "loadingContactError": "Не удалось загрузить контакт.",
       "requestLNURLError": "Запрашивать деньги можно только у контактов Blitz, не у адресов Молнии.",
-      "noTransactions": "История пуста."
+      "noTransactions": "История пуста.",
+      "waitingOnYou": "Ожидает вас",
+      "favoriteLabel": "В избранное",
+      "editLabel": "Изменить контакт"
     },
     "expandedMessageHalfModal": {
       "title": "Полное сообщение",
@@ -1459,20 +1577,37 @@
       "invalidReceiveAddressError": "Введите корректный адрес Молнии (например, user@domain.com)",
       "aboutYou": "О вас",
       "lightningAddress": "Lightning-адрес",
-      "addContactLightningAddress": "Lightning-адрес"
+      "addContactLightningAddress": "Lightning-адрес",
+      "deleteContact": "Удалить контакт",
+      "deleteContactTitle": "Удалить {{name}}?",
+      "deleteContactMessage": "Сообщения старше недели восстановить нельзя.",
+      "share": "Поделиться",
+      "tipPage": "Страница чаевых",
+      "shareHint": "Оба меняются при изменении имени пользователя.",
+      "copyLightningAddress": "Скопировать Lightning-адрес",
+      "copyTipPage": "Скопировать ссылку на страницу чаевых",
+      "profilePhoto": "Фото профиля",
+      "choosePhoto": "Выбрать новое фото",
+      "deletePhoto": "Удалить фото",
+      "deletePhotoConfirm": "Удалить ваше фото?",
+      "delete": "Удалить"
     },
     "remotePaymentCurrencySelect": {
       "title": "Валюта получения",
       "description": "Выберите, как получать платежи от контактов и на ваш Lightning-адрес.",
       "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
       "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin.",
-      "changeSelectionError": "{{option}} уже выбрано. Измените выбор, чтобы обновить настройку."
+      "changeSelectionError": "{{option}} уже выбрано. Измените выбор, чтобы обновить настройку.",
+      "arriveAsSats": "Платежи поступают в сатах",
+      "arriveAsDollars": "Платежи поступают в долларах"
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"
     },
     "selectCurrencyToRequest": {
-      "header": "Выберите валюту для запроса"
+      "header": "Выберите валюту для запроса",
+      "paidInSats": "Оплачено в сатах",
+      "paidInUsd": "Оплачено в USD"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Отправить Bitcoin",
@@ -1495,7 +1630,10 @@
       "giftMessagePlaceholder": "Напишите сообщение для подарка здесь...",
       "paymentSourceHeader": "Источник оплаты",
       "fiatRateLoading": "Загрузка курса валюты для Lightning-адреса",
-      "fiatRateLoadFailed": "Не удалось загрузить курс валюты"
+      "fiatRateLoadFailed": "Не удалось загрузить курс валюты",
+      "splitWithMore": "Разделить с другими людьми",
+      "noteFor": "для",
+      "notePlaceholder": "ужин"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Не удалось загрузить карту.",
@@ -1511,7 +1649,11 @@
       "unpaidMessage": "Карта не оплачена. Если оплата прошла, напишите в поддержку.",
       "messageLabel": "Сообщение:",
       "claimed": "Использовано",
-      "markAsClaimed": "Отметить как использованную"
+      "markAsClaimed": "Отметить как использованную",
+      "markAsUnclaimed": "Отметить как неиспользованную",
+      "title": "Подарочная карта",
+      "detailsHeader": "Детали",
+      "cardFrom": "{{card}} · От {{name}}"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
@@ -1522,14 +1664,20 @@
         "acceptProfileMessage": "Оплачен запрос от {{name}}",
         "acceptPayingContactMessage": "{{name}} оплатил ваш запрос",
         "requestTitle": "Получен запрос на {{amount}}",
-        "send": "Отправить"
+        "send": "Отправить",
+        "requestedAmount": "{{name}} запросил {{amount}}",
+        "theySentYou": "{{name}} отправил вам",
+        "youPaid": "Вы заплатили {{name}}"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Подарочная карта",
         "noCardsText": "Здесь появятся полученные карты.",
         "header": "Ваши карты",
         "cardsLengthSingular": "{{num}} карта",
-        "cardsLengthPlural": "{{num}} карт"
+        "cardsLengthPlural": "{{num}} карт",
+        "cardTitle": "Подарочная карта {{store}}",
+        "fromDate": "От {{name}} · {{date}}",
+        "recoveryNote": "Подарочную карту можно восстановить в течение 7 дней после отправки. После этого удаление приложения или очистка его данных приведёт к её потере."
       }
     },
     "showProfileQr": {
@@ -1539,7 +1687,11 @@
       "copyMessage": "Скопировано!",
       "lnurlCopy": "Копировать адрес",
       "blitzCopy": "Копировать ссылку",
-      "scanProfile": "Сканировать"
+      "scanProfile": "Сканировать",
+      "shareMessage": "Привет, добавьте меня в Blitz! {{address}}",
+      "copyAddress": "Скопировать ваш Lightning-адрес",
+      "qrCode": "QR-код",
+      "printHint": "Отсканируйте этот код, чтобы заплатить мне или добавить меня в Blitz"
     },
     "splitBill": {
       "addFriendsTitle": "Добавить друзей для разделения",
@@ -1575,12 +1727,17 @@
         "noDescription": "Добавьте описание.",
         "noContactsSelected": "Выберите хотя бы один контакт",
         "contactLookupFailed": "Не удалось загрузить платёжную информацию одного или нескольких контактов. Попробуйте снова."
-      }
+      },
+      "totalSub": "Итого: {{amount}}"
     },
     "editProfileFieldPage": {
       "nameDescription": "Ваше отображаемое имя видят другие пользователи. Его можно изменить в любой момент.",
       "uniquenameDescription": "Изменение юзернейма также изменит ваш адрес Молнии. Платежи на ваш старый юзернейм будут потеряны.",
       "bioDescription": "Ваше био — это короткое описание, которое помогает другим узнать вас лучше."
+    },
+    "confirmRequestPage": {
+      "requestSent": "Запрос отправлен",
+      "toName": "Кому: {{name}}"
     }
   },
   "settings": {
@@ -1590,7 +1747,12 @@
       "identiconMessage": "Этот дизайн уникален для вашего кошелька и помогает другим подтвердить, что это действительно вы, когда они добавляют ваш контакт.",
       "profileHead": "Профиль",
       "settingsHead": "Настройки",
-      "seedPopup": "Сид-фраза — это список слов для восстановления доступа к Биткоинам. Запишите и спрячьте её. Никогда никому не передавайте."
+      "seedPopup": "Сид-фраза — это список слов для восстановления доступа к Биткоинам. Запишите и спрячьте её. Никогда никому не передавайте.",
+      "changePhoto": "Изменить фото",
+      "backup": "Резервная копия",
+      "social": "Социальное",
+      "pointOfSale": "Точка продаж",
+      "nostr": "Nostr"
     },
     "about": {
       "licenseHeader": "ПО",
@@ -1900,7 +2062,11 @@
       "nip5Title": "Nostr-адрес",
       "nip5Desc": "Быстро подтвердите личность Nostr через Blitz.",
       "nwcTitle": "Wallet Connect",
-      "nwcDesc": "Подключите Blitz к приложениям на Nostr."
+      "nwcDesc": "Подключите Blitz к приложениям на Nostr.",
+      "nwcCount_one": "{{count}} подключение",
+      "nwcCount_other": "{{count}} подключений",
+      "nwcCount_few": "{{count}} подключения",
+      "nwcCount_many": "{{count}} подключений"
     },
     "fiatCurrency": {
       "title": "Валюта",
@@ -1960,7 +2126,11 @@
       "saveAddress": "Сохранить адрес",
       "infoText": "Nostr-адрес связывает короткий адрес вида name@blitzwalletapp.com с вашим публичным ключом Nostr (npub), чтобы приложения Nostr могли подтвердить вашу личность.\n\nПосле сохранения добавьте этот адрес в поле Nostr-адреса вашего профиля Nostr. Список обновляется раз в день, поэтому подтверждение может занять до 24 часов.",
       "removeAddress": "Удалить адрес",
-      "removeWarning": "Удалить {{address}}?\n\nИмя пользователя освободится: его сможет занять кто угодно, и вернуть его, возможно, не получится. Приложения Nostr могут показывать его ещё до 24 часов."
+      "removeWarning": "Удалить {{address}}?\n\nИмя пользователя освободится: его сможет занять кто угодно, и вернуть его, возможно, не получится. Приложения Nostr могут показывать его ещё до 24 часов.",
+      "available": "Доступно",
+      "copyAddress": "Скопировать Nostr-адрес",
+      "removeTitle": "Удалить {{address}}?",
+      "removeSub": "После этого любой сможет занять это имя, и вы можете его не вернуть. Приложения Nostr могут показывать его до 24 часов."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
@@ -2179,7 +2349,11 @@
         "loadError": "Не удалось загрузить аккаунт",
         "loadErrorDesc": "Попробуйте еще раз. Если проблема не исчезнет, обратитесь в службу поддержки.",
         "stillConnectingInfo": "Ваш баланс может быть неактуальным, пока мы завершаем подключение вашего счета.",
-        "manageConnectionsLabel": "Управлять подключениями"
+        "manageConnectionsLabel": "Управлять подключениями",
+        "stillConnectingLabel": "Информация о подключении",
+        "bitcoinBalanceLabel": "Баланс биткоинов",
+        "dollarBalanceLabel": "Баланс долларов",
+        "editAvatarLabel": "Выбрать аватар"
       },
       "selectCreateAccountType": {
         "title": "Добавить аккаунт",
@@ -2209,7 +2383,9 @@
         "nameInputConfirm": "Восстановить аккаунт",
         "nameInputCancel": "Отмена",
         "successMessage": "Аккаунт {{index}} успешно восстановлен",
-        "errorMessage": "Не удалось восстановить аккаунт"
+        "errorMessage": "Не удалось восстановить аккаунт",
+        "restoringLabel": "Восстановление…",
+        "subtitle": "Аккаунты, которые вы удалили и которые можно восстановить с помощью фразы восстановления."
       },
       "selectAltAccount": {
         "from": "Выберите аккаунт, с которого хотите отправить.",
@@ -2238,7 +2414,12 @@
         "selfTransfer": "Нельзя перевести самому себе",
         "addFunds": "{{name}} пополнил(а) счет",
         "withdrawFunds": "{{name}} снял(а) деньги",
-        "balanceLoadError": "Не удалось загрузить баланс этого аккаунта. Попробуйте ещё раз."
+        "balanceLoadError": "Не удалось загрузить баланс этого аккаунта. Попробуйте ещё раз.",
+        "sending": "Отправка…",
+        "sendingSubtitle": "{{amount}} с {{from}} на {{to}}",
+        "sentSuccessfully": "Успешно отправлено",
+        "fromTo": "С {{from}} на {{to}}",
+        "failedSubtitle": "При отправке произошла ошибка. Пожалуйста, попробуйте снова."
       }
     },
     "accountsPoolsScreen": {
@@ -2279,13 +2460,33 @@
         "changeLogo": "Изменить логотип",
         "removeLogo": "Удалить",
         "uploadLogo": "Нажмите, чтобы загрузить логотип бренда",
-        "addProducts": "Добавить продукты"
+        "addProducts": "Добавить продукты",
+        "addLogo": "Добавить логотип",
+        "logoSize": "Квадратный, не менее 400 × 400 px",
+        "yourCheckout": "Ваша касса: ",
+        "prices": "Цены",
+        "currency": "Валюта",
+        "items": "Товары",
+        "itemsCount_one": "{{count}} товар",
+        "itemsCount_other": "{{count}} товаров",
+        "itemsCurrencyWarning": "Некоторые товары указаны в другой валюте",
+        "runningTheStore": "Управление магазином",
+        "tipsToPay": "Чаевые к выплате",
+        "peopleCount_one": "{{count}} человек",
+        "peopleCount_other": "{{count}} человек",
+        "staffSign": "Табличка для сотрудников",
+        "currencySheetTitle": "Валюта магазина",
+        "itemsCount_few": "{{count}} товара",
+        "itemsCount_many": "{{count}} товаров",
+        "peopleCount_few": "{{count}} человека",
+        "peopleCount_many": "{{count}} человек"
       },
       "posInstructionsPath": {
         "title": "Инструкции",
         "head1": "Как принимать",
         "head2": "Биткоин-платежи",
-        "step1": "Отсканируйте QR-код"
+        "step1": "Отсканируйте QR-код",
+        "share": "Поделиться ссылкой на кассу"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Нет баланса чаевых.",
@@ -2301,7 +2502,21 @@
         "numTipsPaid": "Выплачено чаевых:",
         "numUnpaidTips": "Невыплаченные:",
         "tipBalance": "Баланс чаевых:",
-        "viewTips": "Чаевые"
+        "viewTips": "Чаевые",
+        "removeEmployeeTitle": "Удалить {{name}}?",
+        "removeEmployeeUnpaidWarning": "История чаевых будет удалена с этого телефона, включая {{amount}}, которые вы ещё не выплатили.",
+        "blitzUser": "Имя пользователя Blitz",
+        "lightningAddress": "Lightning-адрес",
+        "lastSaleSub": "{{type}} · последняя продажа {{date}}",
+        "toPay": "К оплате",
+        "paidBefore": "{{amount}} выплачено ранее",
+        "tips": "Чаевые",
+        "payAmount": "Оплатить {{amount}}",
+        "payingTitle": "Оплата {{name}}…",
+        "notifyingTitle": "Уведомление {{name}}…",
+        "payingSub": "Отправка {{amount}}. Держите приложение открытым до завершения.",
+        "markPaid": "Отметить {{amount}} от {{date}} как выплаченные",
+        "remove": "Удалить {{name}}"
       },
       "transactions": {
         "unpaidtips": "Чаевые: {{number}}",
@@ -2310,7 +2525,8 @@
         "noEmployees": "Нет сотрудников с чаевыми.",
         "noTips": "Нет чаевых",
         "noEmployeeTitle": "Нет чаевых к оплате",
-        "noEmployeeSubTitle": "У вас пока нет чаевых к оплате. Когда сотрудник получит чаевые, они появятся здесь."
+        "noEmployeeSubTitle": "У вас пока нет чаевых к оплате. Когда сотрудник получит чаевые, они появятся здесь.",
+        "allPaid": "Все выплачено"
       },
       "items": {
         "addItemHalfModal": {
@@ -2323,7 +2539,8 @@
           "itemNamePlaceholder": "Название",
           "pricePlaceholder": "Цена ({{number}})",
           "updateCurrency": "Обновить валюту",
-          "addItemBTN": "Добавить"
+          "addItemBTN": "Добавить",
+          "currencyChangeNote": "Эта цена была задана в {{from}}. При сохранении будет списано {{amount}} в {{to}}."
         },
         "addPOSItemsPage": {
           "denominationError": "Цена в {{currency1}}, а валюта магазина {{currency2}}.",
@@ -2334,7 +2551,10 @@
           "noItemsAdded": "Добавьте товар, чтобы он появился здесь.",
           "ctaBTN": "Добавить товар",
           "noPosTitle": "Нет позиций POS",
-          "noPosSub": "У вас пока нет сохранённых позиций POS. Как только вы сохраните одну, она появится здесь."
+          "noPosSub": "У вас пока нет сохранённых позиций POS. Как только вы сохраните одну, она появится здесь.",
+          "deleteItemTitle": "Удалить {{name}}?",
+          "editItem": "Изменить {{name}}",
+          "deleteItem": "Удалить {{name}}"
         }
       },
       "internalComponents": {
@@ -2542,7 +2762,8 @@
         "bulkSuccess": "Запросы успешно отправлены",
         "bulkPartialSuccess": "Запросы не отправлены",
         "sendingInProgress": "Ваш платёж отправлен. Пожалуйста, подождите, пока он будет подтверждён.",
-        "stablecoinDesc": "{{asset}} в сети {{chain}}"
+        "stablecoinDesc": "{{asset}} в сети {{chain}}",
+        "failedPaymentSupportSubject": "Поддержка по неудачному платежу"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Отправлено",
@@ -2559,7 +2780,13 @@
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
         "contactSupport": "Поддержка",
-        "viewProgress": "Посмотреть статус"
+        "viewProgress": "Посмотреть статус",
+        "status": "Статус",
+        "paymentFailed": "Платёж не удался",
+        "moreDetails": "Подробнее",
+        "showLess": "Показать меньше",
+        "waitingForConfirmations": "Ожидание подтверждений: {{count}}",
+        "claimError": "Ошибка при получении платежа."
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
@@ -2755,7 +2982,7 @@
         "searchPlaceholder": "Поиск по описаниям",
         "noFilterResultsTitle": "Подходящих транзакций не найдено",
         "noFilterResultsSub": "Нет транзакций, соответствующих текущим фильтрам. Попробуйте изменить или очистить фильтры.",
-        "filterModalTitle": "Фильтр транзакций",
+        "filterModalTitle": "Фильтр платежей",
         "exportButton": "Экспорт",
         "filterDirectionTitle": "Направление",
         "filterSent": "Отправлено",
@@ -2767,7 +2994,13 @@
         "filterDate1y": "Последние 12 месяцев",
         "filterTypeTitle": "Тип транзакции",
         "filterApply": "Применить фильтры",
-        "filterClearAll": "Очистить всё"
+        "filterClearAll": "Очистить всё",
+        "exportTitle": "Экспорт CSV",
+        "filterTitle": "Фильтр платежей",
+        "filterShowing": "Показано",
+        "filterClear": "Очистить",
+        "insightsLabel": "Аналитика расходов",
+        "moreOptionsLabel": "Другие параметры"
       },
       "lrc20HalfModal": {
         "title": "Поиск токенов",
@@ -2814,7 +3047,29 @@
           "expired": "Истек",
           "unclaimed": "Не получен",
           "reclaimed": "Возвращен",
-          "noClaimURL": "URL для получения этого подарка недоступен. Пожалуйста, подождите, пока подарок не истечёт, чтобы вернуть средства."
+          "noClaimURL": "URL для получения этого подарка недоступен. Пожалуйста, подождите, пока подарок не истечёт, чтобы вернуть средства.",
+          "copyLink": "Скопировать ссылку",
+          "pastGifts": "Прошлые подарки",
+          "noNote": "Без заметки",
+          "activeCount": "Активно · {{count}}",
+          "activeEndsIn": {
+            "days_one": "Активно · завершится через {{count}} день",
+            "days_other": "Активно · завершится через {{count}} дней",
+            "hours_one": "Активно · завершится через {{count}} час",
+            "hours_other": "Активно · завершится через {{count}} часов",
+            "minutes_one": "Активно · завершится через {{count}} минуту",
+            "minutes_other": "Активно · завершится через {{count}} минут",
+            "lessThanMin": "Активно · завершится меньше чем через минуту",
+            "days_few": "Активно · завершится через {{count}} дня",
+            "days_many": "Активно · завершится через {{count}} дней",
+            "hours_few": "Активно · завершится через {{count}} часа",
+            "hours_many": "Активно · завершится через {{count}} часов",
+            "minutes_few": "Активно · завершится через {{count}} минуты",
+            "minutes_many": "Активно · завершится через {{count}} минут"
+          },
+          "endsOn": "завершится {{date}}",
+          "claimNoteSingle": "Вы увидите, был ли он получен, когда он завершится {{date}}.",
+          "claimNoteMany": "У каждого будет показано, был ли он получен, после завершения."
         },
         "createGift": {
           "noAmountError": "Введите сумму подарка.",
@@ -2844,7 +3099,15 @@
           "bulkButton": "Создать {{count}} подарков",
           "maxQuantityHint": "Максимум 20 подарков разрешено.",
           "amountPageHeader": "Добавить сумму",
-          "amountPageDesc": "Введите сумму для каждого подарка и выберите номинал."
+          "amountPageDesc": "Введите сумму для каждого подарка и выберите номинал.",
+          "warningText": "Средства остаются заблокированными. Если никто их не получит, вы сможете вернуть их через {{numDays}} дней.",
+          "quantitySub": "Каждый — {{amount}}. Максимум {{max}}.",
+          "quantityOther": "Другое",
+          "quantityCount_one": "{{count}} подарок",
+          "quantityCount_other": "{{count}} подарков",
+          "quantityMaxHint": "Каждый — {{amount}}. Максимум {{max}} подарков.",
+          "quantityCount_few": "{{count}} подарка",
+          "quantityCount_many": "{{count}} подарков"
         },
         "giftConfirmation": {
           "header": "Подарок создан!",
@@ -2857,7 +3120,11 @@
           "done": "Готово",
           "showQr": "Показать QR-код",
           "bulkHeader": "Создано подарков: {{count}}!",
-          "copyAllLinks": "Скопировать все ссылки"
+          "copyAllLinks": "Скопировать все ссылки",
+          "bulkDesc": "Отправляйте каждую ссылку одному человеку. Каждый подарок можно получить только один раз.",
+          "bulkRowTitle": "Подарок {{number}} · {{amount}}",
+          "scanToClaim": "Сканируйте, чтобы получить",
+          "scanWarning": "Тот, кто отсканирует это первым, получит подарок."
         },
         "claimHome": {
           "header": "Введите ссылку",
@@ -2874,7 +3141,9 @@
           "dropdownPlaceHolder": "Выберите истекший подарок",
           "button": "Вернуть",
           "noReclaimsMessage": "Нет истекших подарков.",
-          "advancedModeBTN": "Расширенный режим"
+          "advancedModeBTN": "Расширенный режим",
+          "title": "Вернуть",
+          "expiredOn": "{{amount}} · Истёк {{date}}"
         },
         "advancedMode": {
           "header": "Расширенный режим",
@@ -2885,7 +3154,15 @@
           "inputHead": "Введите номер подарка",
           "invalidGiftNum": "Введите номер от 1 до {{currentGiftIndex}}",
           "restoreGiftBTN": "Восстановить подарок",
-          "advancedWarning": "Используйте только если обычный возврат не работает."
+          "advancedWarning": "Используйте только если обычный возврат не работает.",
+          "title": "Восстановить подарок по номеру",
+          "sub": "Используйте, только если «Вернуть» не сработало.",
+          "inputLabel": "Номер подарка",
+          "hint_one": "Вы создали {{count}} подарок. Введите число от 1 до {{count}}.",
+          "hint_other": "Вы создали {{count}} подарков. Введите число от 1 до {{count}}.",
+          "howItWorks": "Каждый подарок — это отдельный маленький кошелёк, созданный из вашего, поэтому оставшиеся в нём деньги могут вернуться к вам.",
+          "hint_few": "Вы создали {{count}} подарка. Введите число от 1 до {{count}}.",
+          "hint_many": "Вы создали {{count}} подарков. Введите число от 1 до {{count}}."
         },
         "claimPage": {
           "parseError": "Не удалось прочитать детали.",
@@ -2915,7 +3192,15 @@
           "defaultDesc": "Подарок Blitz",
           "claimingGiftMessage1": "Подготовка...",
           "giftBalanceMessage": "Подтверждение баланса подарка...",
-          "claimingGiftMessage4": "Получение..."
+          "claimingGiftMessage4": "Получение...",
+          "reclaimFeeWarning": "Эта сумма за вычетом сетевых комиссий вернётся на ваш баланс.",
+          "expertGiftLabel": "Подарок №{{number}}",
+          "claimingTitle": "Получение подарка…",
+          "reclaimingTitle": "Возврат средств…",
+          "stayInApp": "Пожалуйста, оставайтесь в приложении.",
+          "claimedTitle": "Подарок получен",
+          "reclaimedTitle": "Подарок возвращён",
+          "claimedSub": "Скоро появится на вашем балансе."
         }
       },
       "swapsPage": {
@@ -2995,13 +3280,17 @@
         "belowSwapLimitTitle": "Слишком низкий баланс для обмена",
         "belowSwapLimitBitcoin": "Ваш баланс в Bitcoin ниже минимума для обмена. Добавьте не менее {{btcMin}}, чтобы начать обмен.",
         "belowSwapLimitDollar": "Ваш баланс в долларах ниже минимума для обмена. Добавьте не менее {{usdMin}}, чтобы начать обмен.",
-        "belowSwapLimitBoth": "Ваши балансы ниже минимума для обмена. Чтобы начать обмен, нужно не менее {{btcMin}} в Bitcoin или {{usdMin}} в долларах."
+        "belowSwapLimitBoth": "Ваши балансы ниже минимума для обмена. Чтобы начать обмен, нужно не менее {{btcMin}} в Bitcoin или {{usdMin}} в долларах.",
+        "satsUnit": "сат",
+        "flipA11y": "Направление обмена"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",
         "noHistoryTitle": "Нет истории обменов",
         "noHistoryDesc": "Ваши операции обмена появятся здесь.",
-        "pageTitle": "История"
+        "pageTitle": "История",
+        "bitcoinToDollars": "Биткоины → Доллары",
+        "dollarsToBitcoin": "Доллары → Биткоины"
       },
       "sparkReceivePage": {
         "header": "Адрес Spark"
@@ -3014,6 +3303,15 @@
         "fundingDescription": "Покупка Spend & Replace",
         "acceptingDescription": "Пополнение Spend & Replace",
         "toastMessageTitle": "Баланс Bitcoin пополнен"
+      },
+      "sendList": {
+        "phone": "Телефон",
+        "placeholder": "Введите или вставьте адрес",
+        "placeholderEmpty": "Введите адрес",
+        "emptyTitle": "Вставьте или отсканируйте, чтобы отправить кому угодно",
+        "emptySub": "Добавленные контакты появятся здесь.",
+        "contacts": "Отправить контакту",
+        "contact": "Контакт"
       }
     },
     "accumulationAddresses": {
@@ -3052,7 +3350,9 @@
         "chain": "Сеть",
         "selectAnotherOption": "Выбрать другой вариант",
         "selectAddress": "Выбрать адрес",
-        "viewAll": "Показать все адреса"
+        "viewAll": "Показать все адреса",
+        "selectAddressSub": "У вас {{count}} {{asset}} на адресах {{chain}}.",
+        "created": "Создано {{date}}"
       },
       "create": {
         "pickAsset": "Выберите валюту платежа",
@@ -3062,7 +3362,10 @@
         "alreadyExists": "У вас уже есть адрес для этой комбинации",
         "convertDesc": "Ваш {{asset}} в сети {{chain}} будет конвертирован в {{receiveCurrency}}",
         "createNewAddress": "Создать новый адрес",
-        "limitReached": "Вы достигли максимального количества адресов для этого варианта."
+        "limitReached": "Вы достигли максимального количества адресов для этого варианта.",
+        "pickChainSub": "Откуда поступят деньги?",
+        "pickDestinationSub": "{{asset}} в сети {{chain}} конвертируется в…",
+        "arrivesIn": "Поступит на ваш баланс в {{currency}}"
       },
       "summary": {
         "chain": "Сеть",
@@ -3088,7 +3391,19 @@
         "findAPlace": "Найти место",
         "placesHere": "Здесь мест: {{count}}",
         "noPlaces": "Места не найдены",
-        "hasMorePlaces": "Показаны ближайшие {{num}} мест. Увеличьте масштаб, чтобы увидеть больше."
+        "hasMorePlaces": "Показаны ближайшие {{num}} мест. Увеличьте масштаб, чтобы увидеть больше.",
+        "placesHere_one": "{{count}} место здесь",
+        "a11y": {
+          "filter": "Фильтр",
+          "filterOn": "Фильтр, включён",
+          "myLocation": "Моё местоположение",
+          "zoomIn": "Приблизить",
+          "zoomOut": "Отдалить",
+          "place": "Место"
+        },
+        "placesHere_few": "{{count}} места здесь",
+        "placesHere_many": "{{count}} мест здесь",
+        "placesHere_other": "{{count}} места здесь"
       },
       "merchant": {
         "noName": "Неизвестный продавец",
@@ -3130,7 +3445,16 @@
       "textInputDescriptor": "ЭЛ. ПОЧТА",
       "emailplaceholder": "you@example.com",
       "emailError": "Введите действительный адрес электронной почты.",
-      "completePayment": "Завершить платеж"
+      "completePayment": "Завершить платеж",
+      "emailHelper": "Bitrefill отправляет сюда ваши коды и квитанции.",
+      "orderAmount": "Заказ Bitrefill · {{amount}}"
+    },
+    "webViewPopup": {
+      "allowedTitle": "Внешняя ссылка",
+      "allowedSub": "Эта ссылка откроется в новой вкладке браузера.",
+      "notAllowedTitle": "Ссылка не поддерживается",
+      "notAllowedSub": "Можно открывать только ссылки, начинающиеся с http или https.",
+      "openLink": "Открыть ссылку"
     }
   },
   "toastmessages": {
@@ -3220,7 +3544,9 @@
   "tabs": {
     "home": "Кошелек",
     "appStore": "Магазин",
-    "contacts": "Контакты"
+    "contacts": "Контакты",
+    "money": "Деньги",
+    "activity": "Активность"
   },
   "pushNotifications": {
     "paymentReceived": {
@@ -3415,7 +3741,12 @@
       "noSourceTitle": "Нет доступного источника средств",
       "noSourceSubtitle": "Добавьте Bitcoin или USD в ваш кошелёк. Для финансирования в Bitcoin требуется минимум {{amount}}.",
       "noUSDInfoMessage": "Для финансирования сбережений требуется баланс USD больше {{amount}}.",
-      "noBTCInfoMessage": "Для финансирования сбережений требуется баланс Bitcoin выше минимальной суммы обмена {{amount}}."
+      "noBTCInfoMessage": "Для финансирования сбережений требуется баланс Bitcoin выше минимальной суммы обмена {{amount}}.",
+      "pageDescription_general": "Добавьте деньги со своего {{fromBalanceLabel}} в общую цель.",
+      "addingTo": "Добавление в {{destination}}",
+      "loadingTitle": "Добавление денег…",
+      "loadingSubtitle": "{{amount}} в {{destination}}",
+      "successTo": "Куда: {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "Что вы хотите вывести?",
@@ -3464,7 +3795,11 @@
       "errors": {
         "unableToCompleteWithdrawal": "Не удалось выполнить вывод"
       },
-      "withdrawlAll": "Вывести всё"
+      "withdrawlAll": "Вывести всё",
+      "interestEarned": "Заработано: {{amount}}",
+      "availableFrom": "Доступно: {{amount}} · из {{source}}",
+      "loadingSubtitle": "{{amount}} из {{source}}",
+      "successTo": "На ваш {{destinationLabel}}"
     },
     "howItWorks": {
       "headline1": "Твои деньги,",
@@ -3505,7 +3840,9 @@
     "savingsWalletError": "Сберегательный кошелёк не готов",
     "rewardsPayout": "Выплата вознаграждений в биткоинах",
     "rewardsWithdrawal": "Вывод вознаграждений в биткоинах",
-    "total_balance": "Общий баланс"
+    "total_balance": "Общий баланс",
+    "bitcoinBalance": "Баланс биткоинов",
+    "dollarBalance": "Баланс долларов"
   },
   "analytics": {
     "overBudget": "Превышение бюджета",
@@ -3531,7 +3868,8 @@
       "noBudgetSub": "Нажмите, чтобы создать месячный бюджет",
       "leftToSpend": "Осталось {{amount}}",
       "percentRemaining": "{{percent}}% осталось",
-      "totalBalance": "Общий баланс"
+      "totalBalance": "Общий баланс",
+      "ofBudget": "из {{amount}}"
     },
     "breakdown": {
       "noReceivedTitle": "Нет полученных платежей",
@@ -3554,7 +3892,11 @@
       "nearBudgetWarning": "Вы близки к месячному лимиту расходов",
       "overBudgetWarning": "Вы уже достигли месячного лимита расходов",
       "willExceedBudgetWarning": "Этот платёж превысит месячный лимит",
-      "budgetWarningHeadsUp": "Внимание"
+      "budgetWarningHeadsUp": "Внимание",
+      "leftToSpendRing": "осталось потратить",
+      "monthlyBudget": "Месячный бюджет",
+      "resetsMonthly": "Сбрасывается 1-го числа каждого месяца",
+      "removeBudgetLabel": "Удалить бюджет"
     }
   },
   "tabInUse": {
@@ -3571,5 +3913,64 @@
     "progress": "Обновление… {{percent}}%",
     "later": "Позже",
     "error": "Не удалось обновить. Проверьте соединение и попробуйте снова."
+  },
+  "money": {
+    "title": "Деньги",
+    "spentIn": "Потрачено в {{month}}",
+    "today": "Сегодня",
+    "chartLabel": "Ежедневные расходы в {{month}}",
+    "savingsGoals": "Цели накоплений",
+    "goalProgress": "{{current}} из {{target}}",
+    "poolsCollecting": "{{count}} собирают",
+    "giftsUnclaimed": "{{count}} не получено",
+    "connections_one": "{{count}} подключение",
+    "connections_other": "{{count}} подключений",
+    "connections_few": "{{count}} подключения",
+    "connections_many": "{{count}} подключений"
+  },
+  "receive": {
+    "requestFromContact": "Запросить у контакта",
+    "fromAnotherWallet": "Получить из другого кошелька или биржи",
+    "emptyTitle": "Получайте платежи от знакомых людей",
+    "emptySub": "Добавьте контакт, чтобы запросить у него деньги. Добавленные контакты появятся здесь.",
+    "addContact": "Добавить контакт",
+    "showMyQr": "Показать мой QR-код",
+    "receiveBitcoin": "Получить биткоины",
+    "receiveDollars": "Получить доллары",
+    "receiveAsset": "Получить {{asset}}",
+    "receiveTokens": "Получить токены",
+    "createInvoice": "Создать счёт",
+    "lightning": "Lightning",
+    "bitcoinAddress": "Bitcoin-адрес",
+    "onChain": "В блокчейне",
+    "otherNetworks": "Другие сети",
+    "otherNetworksSub": "Биткоины, отправленные из этих сетей, поступят на ваш баланс биткоинов.",
+    "btcSource_base": "BTC Coinbase",
+    "btcSource_solana": "Solana BTC",
+    "pickNetworkSub": "Выберите сеть, которую использует отправитель. Спросите его, если не уверены.",
+    "networkFee": "Сетевая комиссия",
+    "fromTheAmount": "Из суммы",
+    "networkFeeInfo": "За получение биткоинов на этот адрес взимается небольшая сетевая комиссия. Она вычитается из получаемой суммы, поэтому баланс может быть немного меньше отправленной суммы.",
+    "arrives": "Поступит",
+    "afterConfirmations": "После 3 подтверждений",
+    "arrivesInfoBitcoin": "Биткоины, отправленные на этот адрес, появятся на вашем балансе после 3 подтверждений в сети Bitcoin. Обычно это занимает около 30 минут.",
+    "inAFewMinutes": "Через несколько минут",
+    "arrivesInfoStable": "Платежи появятся на вашем балансе после подтверждения в сети {{chain}}, обычно в течение нескольких минут.",
+    "minimum": "Минимум",
+    "fee": "Комиссия",
+    "aboutOnePercent": "Около 1 %",
+    "bitcoinWarning": "При небольших суммах сетевая комиссия составляет бо́льшую долю. Для небольших платежей «Создать счёт» дешевле.",
+    "stableWarning": "Отправляйте только {{asset}} в сети {{chain}}. Другие монеты или сети могут быть потеряны.",
+    "tokensWarning": "Отправляйте на этот адрес только токены Spark. Они появятся в разделе «Токены».",
+    "invoice": "Счёт",
+    "anyAmount": "Любая сумма",
+    "anyAmountSub": "Отправитель выбирает сумму.",
+    "arrivesAsDollars": "Поступит в долларах",
+    "conversionNote": "Итоговая сумма может немного меняться в зависимости от цены во время конвертации.",
+    "whatFor": "Назначение",
+    "share": "Поделиться",
+    "address_share_bitcoin": "Bitcoin-адрес",
+    "address_share_stablecoin": "Адрес стейблкоина",
+    "address_share_tokens": "Адрес токенов"
   }
 }

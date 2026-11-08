@@ -50,7 +50,9 @@ export default function UserInput({
           inputText={value}
           setInputText={onChangeText}
           placeholderText={placeholder}
-          placeholderTextColor={tokens.muted}
+          placeholderTextColor={
+            inSheet || forceSheet ? tokens.muted : `${tokens.onField}A6`
+          }
           textAlignVertical={multiline ? 'top' : 'center'}
           textInputMultiline={multiline}
           autoFocus={autoFocus}

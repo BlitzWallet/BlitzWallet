@@ -27,7 +27,7 @@ export default function SearchField({
       inputText={value}
       setInputText={onChangeText}
       placeholderText={placeholder}
-      placeholderTextColor={tokens.muted}
+      placeholderTextColor={inSheet ? tokens.muted : `${tokens.onField}A6`}
       textAlignVertical="center"
       textInputStyles={{
         ...styles.input,

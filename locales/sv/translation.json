@@ -136,7 +136,12 @@
     "stablecoinRefundReceived": "Stablecoin-återbetalning",
     "payWith": "Betala med",
     "receiveAs": "Ta emot som",
-    "tokens": "Token"
+    "tokens": "Token",
+    "amountAvailable": "{{amount}} tillgängligt",
+    "clear": "Rensa",
+    "openInBrowser": "Öppna i webbläsaren",
+    "emailSupport": "Support via e-post",
+    "noName": "Inget namn"
   },
   "languages": {
     "english": "English",
@@ -344,7 +349,12 @@
       "wrongPinError": "Fel PIN-kod, försök igen",
       "enterPinMessage": "Ange PIN-kod",
       "attemptsText": "{{attempts}} försök kvar",
-      "biometricsHeader": "Öppna med biometrik"
+      "biometricsHeader": "Öppna med biometrik",
+      "goodMorning": "God morgon",
+      "goodAfternoon": "God eftermiddag",
+      "goodEvening": "God kväll",
+      "biometricsResetTitle": "Vi kunde inte verifiera din biometri",
+      "removeWalletLabel": "Ta bort plånboken från den här enheten"
     },
     "passwordPage": {
       "enterPasswordMessage": "Ange lösenord",
@@ -355,13 +365,20 @@
       "forgotPassword": "Glömt lösenordet?",
       "forgotPasswordConfirm": "Har du glömt ditt lösenord? Det enda sättet att återställa är att radera och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad.",
       "loginButton": "Logga in",
-      "storageError": "Kunde inte läsa plånbokens lagring. Försök igen."
+      "storageError": "Kunde inte läsa plånbokens lagring. Försök igen.",
+      "forgotPasswordTitle": "Glömt ditt lösenord?",
+      "forgotPasswordMessage": "Det enda sättet att återställa är att återställa och återupprätta med din återställningsfras. Vill du radera all plånboksdata? Fortsätt bara om din återställningsfras är säkert säkerhetskopierad."
     },
     "passkeyPage": {
       "unlockButton": "Lås upp med passnyckel",
       "unlockError": "Kunde inte låsa upp med din passnyckel",
       "lostPasskey": "Tappat din passnyckel?",
-      "lostPasskeyConfirm": "Tappat din passnyckel? Det enda sättet tillbaka är att återställa och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad."
+      "lostPasskeyConfirm": "Tappat din passnyckel? Det enda sättet tillbaka är att återställa och återställa med din återställningsfras.\n\nVill du radera all plånboksdata? Fortsätt endast om din återställningsfras är säkert säkerhetskopierad.",
+      "lostPasskeyMessage": "Det enda sättet att komma tillbaka är att återställa och återupprätta med din återställningsfras. Vill du radera all plånboksdata? Fortsätt bara om din återställningsfras är säkert säkerhetskopierad."
+    },
+    "resetSheet": {
+      "deleteWalletData": "Radera plånboksdata",
+      "message": "Vill du radera all plånboksdata? Fortsätt bara om din återställningsfras är säkert säkerhetskopierad."
     }
   },
   "apps": {
@@ -471,10 +488,13 @@
         "availableCredits": "Tillgängliga krediter: {{credits}}",
         "noAvailableCreditsError": "Du har slut på krediter.",
         "inputPlaceholder": "Meddelande {{gptName}}",
-        "youText": "Du"
+        "youText": "Du",
+        "creditsLeft": "{{credits}} krediter kvar"
       },
       "confirmLeaveChat": {
-        "title": "Vill du rädda din chatt?"
+        "title": "Vill du rädda din chatt?",
+        "message": "Sparade chattar finns kvar i din lista så att du kan återuppta dem senare.",
+        "dontSave": "Spara inte"
       },
       "confirmationPage": {
         "title": "Bekräfta köpet",
@@ -485,13 +505,20 @@
         "minimumAmountError": "Minbelopp är {{amount}}",
         "maximumAmountError": "Maxbelopp är {{amount}}",
         "confirmMessage": "Du håller på att köpa AI-krediter.",
-        "contributionWarning": "Denna betalning är slutgiltig. Betalningar kan inte återbetalas, även om krediterna inte används."
+        "contributionWarning": "Denna betalning är slutgiltig. Betalningar kan inte återbetalas, även om krediterna inte används.",
+        "chooseAmountSub": "Krediter för AI-chatt. Engångsköp.",
+        "custom": "Anpassat",
+        "buyCredits": "Köp AI-krediter",
+        "slideToPay": "Skjut för att betala",
+        "buying": "Köper {{amount}} krediter.",
+        "errorTitle": "Det gick inte att köpa krediter"
       },
       "switchModel": {
         "inputLabel": "Inmatning: {{amount}}/M",
         "outputLabel": "Utgång: {{amount}}/M",
         "chooseModel": "Välj modell",
-        "noModels": "Inga modeller matchar det namnet. Vänligen kontrollera stavningen eller prova ett annat namn."
+        "noModels": "Inga modeller matchar det namnet. Vänligen kontrollera stavningen eller prova ett annat namn.",
+        "searchPlaceholder": "Sök modeller"
       },
       "exampleSearchCards": {
         "title": "Exempel på sökkort",
@@ -872,24 +899,31 @@
             "category": "Teknik"
           }
         ],
-        "sectionTitle": "Dina frågor besvarade"
+        "sectionTitle": "Dina frågor besvarade",
+        "tryAsking": "Prova att fråga"
       },
       "saveChat": {
         "errorMessage": "Tyvärr kunde vi inte spara din konversation."
-      }
+      },
+      "chats": "Chattar"
     },
     "sms4sats": {
       "home": {
         "pageDescription": "Skicka och ta emot sms-meddelanden utan att lämna ut ditt personliga telefonnummer.",
         "pricingError": "Det går inte att få SMS-prissättning",
-        "codeLabel": "Kod"
+        "codeLabel": "Kod",
+        "viewCode": "Visa kod"
       },
       "confirmationSlideUp": {
         "title": "Bekräfta nummer",
         "price": "Pris: ",
         "fee": "Avgift: ",
         "invalidNumber": "Inte ett giltigt telefonnummer",
-        "receiveTitle": "Bekräfta Mottagning"
+        "receiveTitle": "Bekräfta Mottagning",
+        "country": "Land",
+        "refundNote": "Ingen kod inom 21 minuter? Du återbetalas automatiskt.",
+        "slideToPay": "Skjut för att betala",
+        "receivePlanType": "SMS-mottagningskod"
       },
       "sendPage": {
         "startingSendingMessage": "Skapa sändorder",
@@ -915,7 +949,8 @@
         "invalidMessageError": "Ange ett meddelande innan du fortsätter",
         "descriptionStepTitle": "Lägg till ditt meddelande",
         "descriptionStepSubtitle": "SMS4Sats kräver ett meddelande. Håll det kort och under 140 tecken.",
-        "descriptionInputPlaceholder": "Skriv meddelande"
+        "descriptionInputPlaceholder": "Skriv meddelande",
+        "confirmedSubtitle": "Till {{phone}} · {{amount}}"
       },
       "sentPayments": {
         "titlesend": "Skickade meddelanden",
@@ -946,7 +981,10 @@
         "orderDetailsLoading": "Hämta orderinformation",
         "countryStepTitle": "Välj ett land",
         "countrySearchPlaceholder": "Sök länder",
-        "fetchServicesError": "Kunde inte ladda tillgängliga SMS-tjänster"
+        "fetchServicesError": "Kunde inte ladda tillgängliga SMS-tjänster",
+        "recommended": "Rekommenderas",
+        "serviceStepTitle": "Vilken app är koden för?",
+        "serviceStepSubtitle": "Du får ett nummer att registrera dig med, och koden visas här."
       },
       "confirmCodePage": {
         "header": "Din beställning har startats framgångsrikt",
@@ -955,10 +993,14 @@
         "step2": "Använd knappen ”Hämta kod” på startsidan för att få din verifieringskod efter att du har lagt till numret i tjänsten",
         "step3": "Om ingen kod tas emot återbetalas din betalning automatiskt inom 21 minuter",
         "automaticRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel har redan återbetalats.",
-        "waitedRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel återbetalas automatiskt efter 21 minuter."
+        "waitedRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel återbetalas automatiskt efter 21 minuter.",
+        "paidSubtitle": "{{title}} · betalat {{amount}}",
+        "stillAllocating": "Ditt nummer är inte klart än. Kolla SMS om en minut. Om inget nummer tilldelas återbetalas du automatiskt."
       },
       "viewSMSReceiveCode": {
-        "header": "Din kod"
+        "header": "Din kod",
+        "headerFor": "Din {{title}}-kod",
+        "dontShare": "Dela inte den här koden med någon."
       }
     },
     "onlineListings": {
@@ -1184,7 +1226,27 @@
         "howStep4": "• Stäng poolen när du är redo att flytta medlen till din wallet"
       },
       "noPoolsTitle": "Inga skapade pooler",
-      "noPoolsSubTitle": "När du skapar en pool visas den här som aktiv eller inaktiv."
+      "noPoolsSubTitle": "När du skapar en pool visas den här som aktiv eller inaktiv.",
+      "unknown": "Okänd",
+      "maxPoolsReached": "Du har nått det maximala antalet pooler",
+      "swapSimulationFailed": "Simulering av växling misslyckades",
+      "paymentFailed": "Betalningen misslyckades",
+      "blitzUser": "Blitz-användare",
+      "ofAmount": "av {{amount}}",
+      "couldNotFindTitle": "Poolen hittades inte",
+      "couldNotFindSub": "Den här poolen kan ha tagits bort eller är inte längre tillgänglig.",
+      "savingPoolErrorTitle": "Det gick inte att skapa poolen",
+      "savingPoolErrorSub": "Vi kunde inte skapa den här poolen. Försök igen.",
+      "viewActivityTitle": "Bidrag",
+      "activityInfoHeader": "{{numPeople}} personer har betalat {{contributionAmount}} av {{totalAmount}}.",
+      "closePoolLoadingTitle": "Stänger poolen",
+      "closePoolLoadingSub": "Håll appen öppen tills det är klart.",
+      "poolGoal": "Poolens mål",
+      "other": "Övrigt",
+      "available": "Tillgängligt: {{amount}}",
+      "minimum": "Minsta: {{amount}}",
+      "slideToContribute": "Skjut för att bidra",
+      "sentTo": "Till {{name}}"
     },
     "cameraModal": {
       "noCamera": "Ingen tillgång till kamera",
@@ -1197,7 +1259,10 @@
       "noFlash": " Enheten har inte en fackla",
       "scanningResponse": "Endast QR-koder accepteras.",
       "qrDecodeError": "Fel vid avkodning av QR-kod",
-      "scanHint": "Rikta kameran mot QR-koden"
+      "scanHint": "Rikta kameran mot QR-koden",
+      "chooseImage": "Välj bild",
+      "pasteClipboard": "Klistra in från urklipp",
+      "flash": "Blixt"
     },
     "confirmClipboard": {
       "clipboardContent": "Text kopierad till urklipp",
@@ -1304,7 +1369,8 @@
       "selectLRC20Token": {
         "title": "Välj Token",
         "searchPlaceholder": "Token namn...",
-        "noTokensFoundText": "Inga polletter hittades"
+        "noTokensFoundText": "Inga polletter hittades",
+        "noTokensFoundSub": "Prova att justera sökningen för att använda token."
       },
       "sendMaxComponent": {
         "sendMax": "Skicka Max",
@@ -1322,6 +1388,22 @@
         "balanceError": "Otillräckligt saldo för att slutföra betalningen",
         "swapMinimumError": "Swaps från {{currency1}} till {{currency2}} kräver ett minimum på {{amount}}",
         "flashnetOffineError": "Växlingar mellan dollar och Bitcoin är för närvarande inte tillgängliga. Försök igen senare."
+      },
+      "reviewParts": {
+        "splitNamesOne": "{{first}}",
+        "splitNamesTwo": "{{first}} och {{second}}",
+        "splitNamesThree": "{{first}}, {{second}} och {{third}}",
+        "splitNamesMore": "{{first}}, {{second}}, {{third}} och {{count}} till",
+        "splitEach": "{{amount}} var",
+        "splitDifferent": "Olika belopp",
+        "sending": "Skickar",
+        "slideToSend": "Skjut för att skicka",
+        "verified": "Verifierad",
+        "viewAddress": "Visa adress",
+        "verifiedBody": "Branta har kontrollerat att denna betalningsbegäran verkligen kommer från {{merchantName}}, så att du vet vem du betalar.",
+        "verifiedBodyNoName": "Branta har kontrollerat att denna betalningsbegäran är äkta, så att du vet vem du betalar.",
+        "checkAddress": "Kontrollera att den matchar den du fick.",
+        "checkAddress_receive": "Kontrollera att den matchar den du delade."
       }
     },
     "switchOption": {
@@ -1339,7 +1421,14 @@
         "receive": "Ta emot",
         "scan": "Skanna",
         "swap": "Swap",
-        "deposit": "Sätt in"
+        "deposit": "Sätt in",
+        "backupTitle": "Säkerhetskopiera din plånbok",
+        "backupSub": "Håll din återställningsfras säker",
+        "connectionTitle": "Kan inte ansluta just nu",
+        "connectionSub": "Visar ditt saldo från {{time}}",
+        "tokensOne": "{{first}}",
+        "tokensTwo": "{{first}} och {{second}}",
+        "tokensMore": "{{first}}, {{second}} och {{count}} till"
       },
       "lrc20Assets": {
         "actionText": "{{action}} symboler",
@@ -1356,6 +1445,19 @@
         "description": "Du har pengar i din plånbok, men du har inte sparat din seed phrase. Din seedfras är en lista med ord som låser upp din plånbok. Om du tappar bort den här enheten och inte har sparat den kan dina pengar vara borta för alltid.",
         "backupBTN": "Säkerhetskopiera nu",
         "laterBTN": "Jag gör det senare."
+      },
+      "balancePage": {
+        "receiveBitcoin": "Ta emot Bitcoin",
+        "receiveDollars": "Ta emot dollar",
+        "emptyBitcoin": "Bitcoin som du skickar och tar emot visas här.",
+        "emptyDollars": "Dollar som du skickar och tar emot visas här.",
+        "emptyTokens": "Tokens som du skickar och tar emot visas här.",
+        "balances": "Saldon",
+        "viewAllTokens": "Visa alla {{count}} tokens",
+        "allTokens": "Alla tokens",
+        "searchTokens": "Sök tokens",
+        "tokenOnSpark": "Token på Spark",
+        "ticker": "Ticker"
       }
     },
     "exportTransactions": {
@@ -1395,7 +1497,11 @@
         "header": "Välj den valuta du vill skicka.",
         "notAvailable": "Inte tillgängligt på {{chain}}"
       },
-      "networkLabel": "{{currency}} på {{chain}}"
+      "networkLabel": "{{currency}} på {{chain}}",
+      "bitcoinAmount": "Bitcoin-belopp",
+      "usdAmount": "USD-belopp",
+      "sendingTo": "Skickar till {{address}}",
+      "sendingToOn": "Skickar till {{address}} på {{chain}}"
     }
   },
   "contacts": {
@@ -1415,7 +1521,11 @@
         "editProfileDescription": "Lägg till dina uppgifter så att andra enkelt kan hitta och betala dig.",
         "addContactstitle": "Inga kontakter tillagda",
         "addContactsDescription": "Dina kontakter visas här när du lägger till en."
-      }
+      },
+      "favorites": "Favoriter",
+      "allContacts": "Alla kontakter",
+      "giftCards": "Presentkort",
+      "newRequest": "Ny begäran"
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Jag har inte lyckats hitta någon kontakt.",
@@ -1425,12 +1535,20 @@
       "noProfilesFound": "Inga profiler matchar denna sökning",
       "startTypingMessage": "Sök efter LNURL (t.ex. name@service.com) eller Blitz-användarnamn.",
       "loadingMessage": "Söker efter kontakt...",
-      "profileImage": "Laddar profilbild..."
+      "profileImage": "Laddar profilbild...",
+      "blitzUsers": "Blitz-användare",
+      "noProfilesHint": "Kontrollera stavningen eller sök efter deras Lightning-adress.",
+      "lightningAddress": "Lightning-adress",
+      "noName": "Inget namn angett",
+      "scanLabel": "Skanna en kontakts QR-kod"
     },
     "expandedContactPage": {
       "loadingContactError": "Det gick inte att ladda kontakten, försök igen.",
       "requestLNURLError": "Du kan bara begära pengar från Blitz-kontakter, inte LNURL-adresser.",
-      "noTransactions": "Skicka eller begär en betalning för att se transaktionshistorik."
+      "noTransactions": "Skicka eller begär en betalning för att se transaktionshistorik.",
+      "waitingOnYou": "Väntar på dig",
+      "favoriteLabel": "Favorit",
+      "editLabel": "Redigera kontakt"
     },
     "expandedMessageHalfModal": {
       "title": "Fullständigt meddelande",
@@ -1459,20 +1577,37 @@
       "invalidReceiveAddressError": "Ange en giltig Lightning-adress (t.ex. användare@domän.com)",
       "aboutYou": "Om dig",
       "lightningAddress": "Lightning-adress",
-      "addContactLightningAddress": "Lightning-adress"
+      "addContactLightningAddress": "Lightning-adress",
+      "deleteContact": "Ta bort kontakt",
+      "deleteContactTitle": "Ta bort {{name}}?",
+      "deleteContactMessage": "Meddelanden äldre än en vecka kan inte återställas.",
+      "share": "Dela",
+      "tipPage": "Drickssida",
+      "shareHint": "Båda ändras när du byter användarnamn.",
+      "copyLightningAddress": "Kopiera Lightning-adress",
+      "copyTipPage": "Kopiera länken till drickssidan",
+      "profilePhoto": "Profilbild",
+      "choosePhoto": "Välj ett nytt foto",
+      "deletePhoto": "Ta bort foto",
+      "deletePhotoConfirm": "Ta bort ditt foto?",
+      "delete": "Ta bort"
     },
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
       "description": "Välj hur du vill ta emot betalningar från kontakter och din Lightning-adress.",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
       "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin.",
-      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen."
+      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen.",
+      "arriveAsSats": "Betalningar kommer som sats",
+      "arriveAsDollars": "Betalningar kommer som dollar"
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
     },
     "selectCurrencyToRequest": {
-      "header": "Välj valuta att begära"
+      "header": "Välj valuta att begära",
+      "paidInSats": "Betalt i sats",
+      "paidInUsd": "Betalt i USD"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Skicka Bitcoin",
@@ -1495,7 +1630,10 @@
       "giftMessagePlaceholder": "Skriv ditt presentmeddelande här...",
       "paymentSourceHeader": "Betalningskälla",
       "fiatRateLoading": "Laddar valutakurs för Lightning-adress",
-      "fiatRateLoadFailed": "Det gick inte att ladda valutakursen"
+      "fiatRateLoadFailed": "Det gick inte att ladda valutakursen",
+      "splitWithMore": "Dela med fler personer",
+      "noteFor": "för",
+      "notePlaceholder": "middag"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Vi kunde inte ladda ditt presentkort just nu. Vänligen försök igen.",
@@ -1511,7 +1649,11 @@
       "unpaidMessage": "Detta kort är obetalt. Om betalningen gjordes men inte återspeglas, vänligen använd e-postadressen nedan för att få hjälp.",
       "messageLabel": "Meddelande:",
       "claimed": "Begagnad",
-      "markAsClaimed": "Markera som använd"
+      "markAsClaimed": "Markera som använd",
+      "markAsUnclaimed": "Markera som oanvänd",
+      "title": "Presentkort",
+      "detailsHeader": "Detaljer",
+      "cardFrom": "{{card}} · Från {{name}}"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
@@ -1522,14 +1664,20 @@
         "acceptProfileMessage": "Betalade {{name}}:s begäran",
         "acceptPayingContactMessage": "{{name}} betalat din förfrågan",
         "requestTitle": "Mottagen begäran om {{amount}}",
-        "send": "Skicka"
+        "send": "Skicka",
+        "requestedAmount": "{{name}} begärde {{amount}}",
+        "theySentYou": "{{name}} skickade till dig",
+        "youPaid": "Du betalade {{name}}"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Presentkort",
         "noCardsText": "Dina presentkort kommer att visas här när en kontakt skickar ett till dig.",
         "header": "Dina presentkort",
         "cardsLengthSingular": "{{num}} kort",
-        "cardsLengthPlural": "{{num}} kort"
+        "cardsLengthPlural": "{{num}} kort",
+        "cardTitle": "Presentkort från {{store}}",
+        "fromDate": "Från {{name}} · {{date}}",
+        "recoveryNote": "Du kan återställa ett presentkort inom 7 dagar efter att det skickats. Därefter förlorar du det om du raderar appen eller rensar dess data."
       }
     },
     "showProfileQr": {
@@ -1539,7 +1687,11 @@
       "copyMessage": "Kopierat!",
       "lnurlCopy": "Kopia av adress",
       "blitzCopy": "Kopiera länk",
-      "scanProfile": "Skanna profil"
+      "scanProfile": "Skanna profil",
+      "shareMessage": "Hej, lägg till mig på Blitz! {{address}}",
+      "copyAddress": "Kopiera din Lightning-adress",
+      "qrCode": "QR-kod",
+      "printHint": "Skanna den här koden för att betala mig eller lägga till mig på Blitz"
     },
     "splitBill": {
       "addFriendsTitle": "Lägg till vänner att dela med",
@@ -1575,12 +1727,17 @@
         "noDescription": "Lägg till en beskrivning.",
         "noContactsSelected": "Välj minst en kontakt",
         "contactLookupFailed": "Det gick inte att läsa in betalningsinformation för en eller flera kontakter. Försök igen."
-      }
+      },
+      "totalSub": "{{amount}} totalt"
     },
     "editProfileFieldPage": {
       "nameDescription": "Ditt visningsnamn är hur andra ser dig. Det kan ändras när som helst.",
       "uniquenameDescription": "Om du ändrar ditt användarnamn ändras också din Lightning-adress. Betalningar till ditt gamla användarnamn går förlorade.",
       "bioDescription": "Din bio är en kort beskrivning som hjälper andra att lära känna dig."
+    },
+    "confirmRequestPage": {
+      "requestSent": "Begäran skickad",
+      "toName": "Till {{name}}"
     }
   },
   "settings": {
@@ -1590,7 +1747,12 @@
       "identiconMessage": "Den här designen är unik för din plånbok och hjälper andra att bekräfta att det verkligen är du när de lägger till din kontakt.",
       "profileHead": "Profil",
       "settingsHead": "Inställningar",
-      "seedPopup": "En seed phrase är en lista med ord som gör att du kan återställa dina Bitcoin om din enhet försvinner eller skadas. Skriv ner den och förvara den på ett säkert sätt. Ge den aldrig till någon - om någon får tag på den kan de ta alla dina bitcoin."
+      "seedPopup": "En seed phrase är en lista med ord som gör att du kan återställa dina Bitcoin om din enhet försvinner eller skadas. Skriv ner den och förvara den på ett säkert sätt. Ge den aldrig till någon - om någon får tag på den kan de ta alla dina bitcoin.",
+      "changePhoto": "Byt foto",
+      "backup": "Säkerhetskopia",
+      "social": "Socialt",
+      "pointOfSale": "Försäljningsställe",
+      "nostr": "Nostr"
     },
     "about": {
       "licenseHeader": "Programvara",
@@ -1900,7 +2062,9 @@
       "nip5Title": "Nostr-adress",
       "nip5Desc": "Verifiera snabbt din Nostr-identitet med hjälp av Blitz.",
       "nwcTitle": "Wallet Connect",
-      "nwcDesc": "Anslut din Blitz Wallet till appar som använder Nostr."
+      "nwcDesc": "Anslut din Blitz Wallet till appar som använder Nostr.",
+      "nwcCount_one": "{{count}} anslutning",
+      "nwcCount_other": "{{count}} anslutningar"
     },
     "fiatCurrency": {
       "title": "Valuta",
@@ -1960,7 +2124,11 @@
       "saveAddress": "Spara adress",
       "infoText": "Nostr-adressen kopplar en kort adress som namn@blitzwalletapp.com till din publika Nostr-nyckel (npub), så att Nostr-appar kan verifiera din identitet.\n\nLägg till adressen i Nostr-adressfältet i din Nostr-profil efter att du sparat. Listan uppdateras en gång per dag, så verifieringen kan ta upp till 24 timmar.",
       "removeAddress": "Ta bort adress",
-      "removeWarning": "Ta bort {{address}}?\n\nAnvändarnamnet frigörs, så vem som helst kan ta det och du kanske inte kan få tillbaka det. Nostr-appar kan fortsätta visa det i upp till 24 timmar."
+      "removeWarning": "Ta bort {{address}}?\n\nAnvändarnamnet frigörs, så vem som helst kan ta det och du kanske inte kan få tillbaka det. Nostr-appar kan fortsätta visa det i upp till 24 timmar.",
+      "available": "Tillgängligt",
+      "copyAddress": "Kopiera Nostr-adress",
+      "removeTitle": "Ta bort {{address}}?",
+      "removeSub": "Därefter kan vem som helst ta namnet, och du kanske inte får tillbaka det. Nostr-appar kan visa det i upp till 24 timmar."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
@@ -2177,7 +2345,11 @@
         "loadError": "Det gick inte att ladda kontot",
         "loadErrorDesc": "Försök igen. Om problemet kvarstår, kontakta supporten.",
         "stillConnectingInfo": "Ditt saldo kanske inte är uppdaterat medan vi slutför anslutningen av ditt konto.",
-        "manageConnectionsLabel": "Hantera anslutningar"
+        "manageConnectionsLabel": "Hantera anslutningar",
+        "stillConnectingLabel": "Anslutningsinfo",
+        "bitcoinBalanceLabel": "Bitcoin-saldo",
+        "dollarBalanceLabel": "Dollar-saldo",
+        "editAvatarLabel": "Välj avatar"
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",
@@ -2207,7 +2379,9 @@
         "nameInputConfirm": "Återställ konto",
         "nameInputCancel": "Avbryt",
         "successMessage": "Konto {{index}} återställdes framgångsrikt",
-        "errorMessage": "Misslyckades återställa kontot"
+        "errorMessage": "Misslyckades återställa kontot",
+        "restoringLabel": "Återställer…",
+        "subtitle": "Konton som du har tagit bort och som din återställningsfras kan återskapa."
       },
       "selectAltAccount": {
         "from": "Välj kontot du vill skicka från.",
@@ -2236,7 +2410,12 @@
         "selfTransfer": "Du kan inte överföra till dig själv",
         "addFunds": "{{name}} lade till pengar",
         "withdrawFunds": "{{name}} tog ut pengar",
-        "balanceLoadError": "Det gick inte att läsa in saldot för det här kontot. Försök igen."
+        "balanceLoadError": "Det gick inte att läsa in saldot för det här kontot. Försök igen.",
+        "sending": "Skickar…",
+        "sendingSubtitle": "{{amount}} från {{from}} till {{to}}",
+        "sentSuccessfully": "Skickat",
+        "fromTo": "Från {{from}} till {{to}}",
+        "failedSubtitle": "Något gick fel vid skickandet. Försök igen."
       }
     },
     "accountsPoolsScreen": {
@@ -2277,13 +2456,29 @@
         "changeLogo": "Byt logo",
         "removeLogo": "Ta bort",
         "uploadLogo": "Tryck för att ladda upp varumärkeslogo",
-        "addProducts": "Lägg till produkter"
+        "addProducts": "Lägg till produkter",
+        "addLogo": "Lägg till din logotyp",
+        "logoSize": "Kvadratisk, minst 400 × 400 px",
+        "yourCheckout": "Din kassa: ",
+        "prices": "Priser",
+        "currency": "Valuta",
+        "items": "Artiklar",
+        "itemsCount_one": "{{count}} artikel",
+        "itemsCount_other": "{{count}} artiklar",
+        "itemsCurrencyWarning": "Vissa artiklar har priser i en annan valuta",
+        "runningTheStore": "Driva butiken",
+        "tipsToPay": "Dricks att betala",
+        "peopleCount_one": "{{count}} person",
+        "peopleCount_other": "{{count}} personer",
+        "staffSign": "Personalsskylt",
+        "currencySheetTitle": "Butikens valuta"
       },
       "posInstructionsPath": {
         "title": "Instruktioner",
         "head1": "Hur man accepterar",
         "head2": "Bitcoin-betalningar",
-        "step1": "Skanna QR-koden med din kamera"
+        "step1": "Skanna QR-koden med din kamera",
+        "share": "Dela kassalänk"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Användaren har inte något tips-saldo.",
@@ -2293,13 +2488,27 @@
         "errorPaying": "Kan inte betala blitzkontakt. Försök igen senare.",
         "invalidName": "Namnet är inte en LNURL eller en Blitz-användare.",
         "removeEmployeeWarning": "Är du säker på att du vill ta bort den här medarbetaren?",
-        "startingPaymentProcessMessage": "'Påbörjar betalningsprocessen, lämna inte den här sidan eller appen.",
+        "startingPaymentProcessMessage": "Påbörjar betalningsprocessen, lämna inte den här sidan eller appen.",
         "goBack": "Gå tillbaka",
         "lastSale": "Senaste försäljningen:",
         "numTipsPaid": "Tips betalda:",
         "numUnpaidTips": "Obetalda dricks:",
         "tipBalance": "Tippa balansen:",
-        "viewTips": "Visa tips"
+        "viewTips": "Visa tips",
+        "removeEmployeeTitle": "Ta bort {{name}}?",
+        "removeEmployeeUnpaidWarning": "Deras drickshistorik raderas från den här telefonen, inklusive {{amount}} som du inte har betalat än.",
+        "blitzUser": "Blitz-användarnamn",
+        "lightningAddress": "Lightning-adress",
+        "lastSaleSub": "{{type}} · senaste försäljning {{date}}",
+        "toPay": "Att betala",
+        "paidBefore": "{{amount}} betalat tidigare",
+        "tips": "Dricks",
+        "payAmount": "Betala {{amount}}",
+        "payingTitle": "Betalar {{name}}…",
+        "notifyingTitle": "Meddelar {{name}}…",
+        "payingSub": "Skickar {{amount}}. Håll appen öppen tills det är klart.",
+        "markPaid": "Markera {{amount}} från {{date}} som betalad",
+        "remove": "Ta bort {{name}}"
       },
       "transactions": {
         "unpaidtips": "Tips: {{number}}",
@@ -2308,7 +2517,8 @@
         "noEmployees": "Du har för närvarande inga anställda med sparade dricks. När en anställd använder kassasystemet kommer deras dricks att visas här så att du kan betala ut dem.",
         "noTips": "Medarbetaren har inga tips",
         "noEmployeeTitle": "Inga dricks att betala",
-        "noEmployeeSubTitle": "Du har inga dricks att betala ännu. När en anställd får ett dricks visas det här."
+        "noEmployeeSubTitle": "Du har inga dricks att betala ännu. När en anställd får ett dricks visas det här.",
+        "allPaid": "Allt betalt"
       },
       "items": {
         "addItemHalfModal": {
@@ -2321,7 +2531,8 @@
           "itemNamePlaceholder": "Artikelns namn",
           "pricePlaceholder": "Pris ({{number}})",
           "updateCurrency": "Uppdatera valuta",
-          "addItemBTN": "Lägg till artikel"
+          "addItemBTN": "Lägg till artikel",
+          "currencyChangeNote": "Det här priset angavs i {{from}}. När du sparar debiteras {{amount}} i {{to}}."
         },
         "addPOSItemsPage": {
           "denominationError": "Priset är i {{currency1}}, men butikens valuta är {{currency2}}.",
@@ -2332,7 +2543,10 @@
           "noItemsAdded": "Lägg till ett objekt för att det ska visas här.",
           "ctaBTN": "Lägg till artikel",
           "noPosTitle": "Inga POS-artiklar",
-          "noPosSub": "Du har inga sparade POS-artiklar ännu. När du sparar en visas den här."
+          "noPosSub": "Du har inga sparade POS-artiklar ännu. När du sparar en visas den här.",
+          "deleteItemTitle": "Ta bort {{name}}?",
+          "editItem": "Redigera {{name}}",
+          "deleteItem": "Ta bort {{name}}"
         }
       },
       "internalComponents": {
@@ -2540,7 +2754,8 @@
         "bulkSuccess": "Förfrågningar skickades",
         "bulkPartialSuccess": "Inga förfrågningar skickades",
         "sendingInProgress": "Din betalning har skickats. Vänta medan den bekräftas.",
-        "stablecoinDesc": "{{asset}} på {{chain}}"
+        "stablecoinDesc": "{{asset}} på {{chain}}",
+        "failedPaymentSupportSubject": "Support för misslyckad betalning"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Utskickat belopp",
@@ -2557,7 +2772,13 @@
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
         "contactSupport": "Support",
-        "viewProgress": "Visa förlopp"
+        "viewProgress": "Visa förlopp",
+        "status": "Status",
+        "paymentFailed": "Betalningen misslyckades",
+        "moreDetails": "Mer information",
+        "showLess": "Visa mindre",
+        "waitingForConfirmations": "Väntar på {{count}} bekräftelser",
+        "claimError": "Fel vid hämtning av betalning."
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
@@ -2753,7 +2974,7 @@
         "searchPlaceholder": "Sök beskrivningar",
         "noFilterResultsTitle": "Inga matchande transaktioner",
         "noFilterResultsSub": "Inga transaktioner matchar dina nuvarande filter. Försök att justera eller rensa dem.",
-        "filterModalTitle": "Filtrera transaktioner",
+        "filterModalTitle": "Filtrera betalningar",
         "exportButton": "Exportera",
         "filterDirectionTitle": "Riktning",
         "filterSent": "Skickat",
@@ -2765,7 +2986,13 @@
         "filterDate1y": "Senaste 12 månaderna",
         "filterTypeTitle": "Transaktionstyp",
         "filterApply": "Använd filter",
-        "filterClearAll": "Rensa alla"
+        "filterClearAll": "Rensa alla",
+        "exportTitle": "Exportera CSV",
+        "filterTitle": "Filtrera betalningar",
+        "filterShowing": "Visar",
+        "filterClear": "Rensa",
+        "insightsLabel": "Utgiftsinsikter",
+        "moreOptionsLabel": "Fler alternativ"
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",
@@ -2806,7 +3033,23 @@
           "expired": "Utgått",
           "unclaimed": "Ej utkrävd",
           "reclaimed": "Återvunnen",
-          "noClaimURL": "Ingen inlösnings-URL tillgänglig för detta present. Vänta tills presenten har gått ut för att återfå dina pengar."
+          "noClaimURL": "Ingen inlösnings-URL tillgänglig för detta present. Vänta tills presenten har gått ut för att återfå dina pengar.",
+          "copyLink": "Kopiera länk",
+          "pastGifts": "Tidigare gåvor",
+          "noNote": "Ingen anteckning",
+          "activeCount": "Aktiv · {{count}}",
+          "activeEndsIn": {
+            "days_one": "Aktiv · slutar om {{count}} dag",
+            "days_other": "Aktiv · slutar om {{count}} dagar",
+            "hours_one": "Aktiv · slutar om {{count}} timme",
+            "hours_other": "Aktiv · slutar om {{count}} timmar",
+            "minutes_one": "Aktiv · slutar om {{count}} minut",
+            "minutes_other": "Aktiv · slutar om {{count}} minuter",
+            "lessThanMin": "Aktiv · slutar om mindre än en minut"
+          },
+          "endsOn": "slutar {{date}}",
+          "claimNoteSingle": "Du ser om det hämtades när det slutar {{date}}.",
+          "claimNoteMany": "Var och en visar om den hämtades när den tar slut."
         },
         "createGift": {
           "noAmountError": "Ange ett belopp för att skapa din gåva.",
@@ -2836,7 +3079,13 @@
           "bulkButton": "Skapa {{count}} presenter",
           "maxQuantityHint": "Maximalt 20 presenter tillåtna.",
           "amountPageHeader": "Lägg till ett belopp",
-          "amountPageDesc": "Ange beloppet för varje gåva och välj dess valör."
+          "amountPageDesc": "Ange beloppet för varje gåva och välj dess valör.",
+          "warningText": "Medlen hålls kvar. Om ingen hämtar det kan du få tillbaka det efter {{numDays}} dagar.",
+          "quantitySub": "Var och en är {{amount}}. Upp till {{max}}.",
+          "quantityOther": "Övrigt",
+          "quantityCount_one": "{{count}} gåva",
+          "quantityCount_other": "{{count}} gåvor",
+          "quantityMaxHint": "Var och en är {{amount}}. Maximalt {{max}} gåvor."
         },
         "giftConfirmation": {
           "header": "Gåva skapad!",
@@ -2849,7 +3098,11 @@
           "done": "Klar",
           "showQr": "Visa QR-kod",
           "bulkHeader": "{{count}} gåvor skapade!",
-          "copyAllLinks": "Kopiera alla länkar"
+          "copyAllLinks": "Kopiera alla länkar",
+          "bulkDesc": "Skicka varje länk till en person. Varje gåva kan hämtas en gång.",
+          "bulkRowTitle": "Gåva {{number}} · {{amount}}",
+          "scanToClaim": "Skanna för att hämta",
+          "scanWarning": "Den som skannar detta först hämtar gåvan."
         },
         "claimHome": {
           "header": "Ange länk till gåvan",
@@ -2866,7 +3119,9 @@
           "dropdownPlaceHolder": "Välj utgången gåva",
           "button": "Återkräva gåva",
           "noReclaimsMessage": "Du har inga förfallna gåvor just nu. Kom tillbaka när en gåva har löpt ut för att hämta den.",
-          "advancedModeBTN": "Avancerat läge"
+          "advancedModeBTN": "Avancerat läge",
+          "title": "Få tillbaka",
+          "expiredOn": "{{amount}} · Utgick {{date}}"
         },
         "advancedMode": {
           "header": "Avancerat läge",
@@ -2877,7 +3132,13 @@
           "inputHead": "Ange presentnummer",
           "invalidGiftNum": "Ange ett giltigt presentnummer mellan 1 och {{currentGiftIndex}}",
           "restoreGiftBTN": "Återställ gåva",
-          "advancedWarning": "Denna avancerade funktion ska endast användas när standardprocessen för återkrav inte fungerar. Om du är osäker, prova först den vanliga återkravssidan."
+          "advancedWarning": "Denna avancerade funktion ska endast användas när standardprocessen för återkrav inte fungerar. Om du är osäker, prova först den vanliga återkravssidan.",
+          "title": "Återställ en gåva med nummer",
+          "sub": "Använd bara detta om Få tillbaka inte fungerade.",
+          "inputLabel": "Gåvonummer",
+          "hint_one": "Du har skapat {{count}} gåva. Ange ett nummer från 1 till {{count}}.",
+          "hint_other": "Du har skapat {{count}} gåvor. Ange ett nummer från 1 till {{count}}.",
+          "howItWorks": "Varje gåva är en egen liten plånbok skapad från din, så pengar som blir kvar kan komma tillbaka till dig."
         },
         "claimPage": {
           "parseError": "Vi kunde inte läsa gåvodetaljerna från den här länken.",
@@ -2907,7 +3168,15 @@
           "defaultDesc": "Blixtgåva",
           "claimingGiftMessage1": "Förbereder gåva...",
           "giftBalanceMessage": "Bekräftar din gåvas saldo...",
-          "claimingGiftMessage4": "Anspråk på gåva..."
+          "claimingGiftMessage4": "Anspråk på gåva...",
+          "reclaimFeeWarning": "Detta belopp, minus nätverksavgifter, kommer tillbaka till ditt saldo.",
+          "expertGiftLabel": "Gåva nr {{number}}",
+          "claimingTitle": "Hämtar din gåva…",
+          "reclaimingTitle": "Återför dina medel…",
+          "stayInApp": "Stanna kvar i appen.",
+          "claimedTitle": "Gåva hämtad",
+          "reclaimedTitle": "Gåva återställd",
+          "claimedSub": "Det visas i ditt saldo inom kort."
         }
       },
       "swapsPage": {
@@ -2987,13 +3256,17 @@
         "belowSwapLimitBitcoin": "Ditt Bitcoin-saldo är under minimigränsen för växling. Lägg till minst {{btcMin}} för att börja växla.",
         "belowSwapLimitDollar": "Ditt dollarsaldo är under minimigränsen för växling. Lägg till minst {{usdMin}} för att börja växla.",
         "belowSwapLimitBoth": "Dina saldon är under minimigränsen för växling. Du behöver minst {{btcMin}} i Bitcoin eller {{usdMin}} i dollar för att börja växla.",
-        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
+        "satsUnit": "sats",
+        "flipA11y": "Växlingsriktning"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Det gick inte att läsa in swap-historiken. Försök igen senare.",
         "noHistoryTitle": "Ingen swap-historik",
         "noHistoryDesc": "Dina swap-transaktioner visas här.",
-        "pageTitle": "Historik"
+        "pageTitle": "Historik",
+        "bitcoinToDollars": "Bitcoin → Dollar",
+        "dollarsToBitcoin": "Dollar → Bitcoin"
       },
       "sparkReceivePage": {
         "header": "Spark-adress"
@@ -3006,6 +3279,15 @@
         "fundingDescription": "Spend & Replace-köp",
         "acceptingDescription": "Spend & Replace-påfyllning",
         "toastMessageTitle": "Bitcoin-saldo påfyllt"
+      },
+      "sendList": {
+        "phone": "Telefon",
+        "placeholder": "Ange eller klistra in en adress",
+        "placeholderEmpty": "Ange en adress",
+        "emptyTitle": "Klistra in eller skanna för att skicka till vem som helst",
+        "emptySub": "Kontakter som du lägger till visas här.",
+        "contacts": "Skicka till en kontakt",
+        "contact": "Kontakt"
       }
     },
     "accumulationAddresses": {
@@ -3044,7 +3326,9 @@
         "Destination": "Destination",
         "selectAnotherOption": "Välj ett annat alternativ",
         "selectAddress": "Välj adress",
-        "viewAll": "Visa alla adresser"
+        "viewAll": "Visa alla adresser",
+        "selectAddressSub": "Du har {{count}} {{asset}} på {{chain}}-adresser.",
+        "created": "Skapad {{date}}"
       },
       "create": {
         "pickAsset": "Välj betalningsvaluta",
@@ -3054,7 +3338,10 @@
         "alreadyExists": "Du har redan en adress för denna kombination",
         "convertDesc": "Din {{asset}} på {{chain}} kommer att konverteras till {{receiveCurrency}}",
         "createNewAddress": "Skapa ny adress",
-        "limitReached": "Du har nått det maximala antalet adresser för detta alternativ."
+        "limitReached": "Du har nått det maximala antalet adresser för detta alternativ.",
+        "pickChainSub": "Varifrån kommer pengarna?",
+        "pickDestinationSub": "{{asset}} på {{chain}} omvandlas till…",
+        "arrivesIn": "Anländer till ditt saldo i {{currency}}"
       },
       "summary": {
         "chain": "Kedja",
@@ -3080,7 +3367,16 @@
         "findAPlace": "Hitta en plats",
         "placesHere": "{{count}} platser här",
         "noPlaces": "Inga platser hittades",
-        "hasMorePlaces": "Visar de närmaste {{num}} platserna. Zooma in för att se fler."
+        "hasMorePlaces": "Visar de närmaste {{num}} platserna. Zooma in för att se fler.",
+        "placesHere_one": "{{count}} plats här",
+        "a11y": {
+          "filter": "Filter",
+          "filterOn": "Filter, på",
+          "myLocation": "Min plats",
+          "zoomIn": "Zooma in",
+          "zoomOut": "Zooma ut",
+          "place": "Plats"
+        }
       },
       "merchant": {
         "noName": "Okänd handlare",
@@ -3122,7 +3418,16 @@
       "textInputDescriptor": "E-POST",
       "emailplaceholder": "du@exempel.se",
       "emailError": "Ange en giltig e-postadress.",
-      "completePayment": "Slutför betalning"
+      "completePayment": "Slutför betalning",
+      "emailHelper": "Bitrefill skickar dina koder och kvitton hit.",
+      "orderAmount": "Bitrefill-beställning · {{amount}}"
+    },
+    "webViewPopup": {
+      "allowedTitle": "Extern länk",
+      "allowedSub": "Den här länken öppnas i en ny webbläsarflik.",
+      "notAllowedTitle": "Länken stöds inte",
+      "notAllowedSub": "Endast länkar som börjar med http eller https kan öppnas.",
+      "openLink": "Öppna länk"
     }
   },
   "toastmessages": {
@@ -3212,7 +3517,9 @@
   "tabs": {
     "home": "Plånbok",
     "appStore": "Butik",
-    "contacts": "Kontaktpersoner"
+    "contacts": "Kontaktpersoner",
+    "money": "Pengar",
+    "activity": "Aktivitet"
   },
   "pushNotifications": {
     "paymentReceived": {
@@ -3407,7 +3714,12 @@
       "noSourceTitle": "Ingen finansieringskälla tillgänglig",
       "noSourceSubtitle": "Lägg till Bitcoin eller USD i din plånbok. Finansiering med Bitcoin kräver minst {{amount}}.",
       "noUSDInfoMessage": "Ett USD-saldo större än {{amount}} krävs för att finansiera ditt sparande.",
-      "noBTCInfoMessage": "Ett Bitcoin-saldo större än det minsta växlingsbeloppet på {{amount}} krävs för att finansiera ditt sparande."
+      "noBTCInfoMessage": "Ett Bitcoin-saldo större än det minsta växlingsbeloppet på {{amount}} krävs för att finansiera ditt sparande.",
+      "pageDescription_general": "Lägg till pengar från din {{fromBalanceLabel}} till ditt allmänna mål.",
+      "addingTo": "Lägger till i {{destination}}",
+      "loadingTitle": "Lägger till pengar…",
+      "loadingSubtitle": "{{amount}} till {{destination}}",
+      "successTo": "Till {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "Vad vill du ta ut?",
@@ -3456,7 +3768,11 @@
       "errors": {
         "unableToCompleteWithdrawal": "Det gick inte att slutföra uttaget"
       },
-      "withdrawlAll": "Ta ut allt"
+      "withdrawlAll": "Ta ut allt",
+      "interestEarned": "{{amount}} intjänat",
+      "availableFrom": "Tillgängligt: {{amount}} · från {{source}}",
+      "loadingSubtitle": "{{amount}} från {{source}}",
+      "successTo": "Till din {{destinationLabel}}"
     },
     "howItWorks": {
       "headline1": "Dina pengar,",
@@ -3497,7 +3813,9 @@
     "savingsWalletError": "Sparplånboken är inte redo",
     "rewardsPayout": "Utbetalning av Bitcoin-belöningar",
     "rewardsWithdrawal": "Uttag av Bitcoin-belöningar",
-    "total_balance": "Totalt saldo"
+    "total_balance": "Totalt saldo",
+    "bitcoinBalance": "Bitcoin-saldo",
+    "dollarBalance": "Dollar-saldo"
   },
   "analytics": {
     "overBudget": "Över budget",
@@ -3523,7 +3841,8 @@
       "noBudgetSub": "Tryck för att skapa en månadsbudget",
       "leftToSpend": "{{amount}} kvar att spendera",
       "percentRemaining": "{{percent}}% kvar",
-      "totalBalance": "Totalt saldo"
+      "totalBalance": "Totalt saldo",
+      "ofBudget": "av {{amount}}"
     },
     "breakdown": {
       "noReceivedTitle": "Inga mottagna betalningar",
@@ -3546,7 +3865,11 @@
       "nearBudgetWarning": "Du är nära din månatliga budgetgräns",
       "overBudgetWarning": "Du har redan nått din månatliga budgetgräns",
       "willExceedBudgetWarning": "Denna betalning kommer att överskrida din månatliga gräns",
-      "budgetWarningHeadsUp": "Obs"
+      "budgetWarningHeadsUp": "Obs",
+      "leftToSpendRing": "kvar att spendera",
+      "monthlyBudget": "Månadsbudget",
+      "resetsMonthly": "Nollställs den 1:a varje månad",
+      "removeBudgetLabel": "Ta bort budget"
     }
   },
   "tabInUse": {
@@ -3563,5 +3886,62 @@
     "progress": "Uppdaterar… {{percent}}%",
     "later": "Senare",
     "error": "Uppdateringen misslyckades. Kontrollera din anslutning och försök igen."
+  },
+  "money": {
+    "title": "Pengar",
+    "spentIn": "Spenderat i {{month}}",
+    "today": "Idag",
+    "chartLabel": "Dagliga utgifter i {{month}}",
+    "savingsGoals": "Sparmål",
+    "goalProgress": "{{current}} av {{target}}",
+    "poolsCollecting": "{{count}} samlar in",
+    "giftsUnclaimed": "{{count}} ej hämtade",
+    "connections_one": "{{count}} anslutning",
+    "connections_other": "{{count}} anslutningar"
+  },
+  "receive": {
+    "requestFromContact": "Begär från en kontakt",
+    "fromAnotherWallet": "Ta emot från en annan plånbok eller börs",
+    "emptyTitle": "Få betalt av personer du känner",
+    "emptySub": "Lägg till en kontakt för att begära pengar från dem. Kontakter du lägger till visas här.",
+    "addContact": "Lägg till kontakt",
+    "showMyQr": "Visa min QR-kod",
+    "receiveBitcoin": "Ta emot Bitcoin",
+    "receiveDollars": "Ta emot dollar",
+    "receiveAsset": "Ta emot {{asset}}",
+    "receiveTokens": "Ta emot tokens",
+    "createInvoice": "Skapa faktura",
+    "lightning": "Lightning",
+    "bitcoinAddress": "Bitcoin-adress",
+    "onChain": "On-chain",
+    "otherNetworks": "Andra nätverk",
+    "otherNetworksSub": "Bitcoin som skickas från dessa nätverk hamnar i ditt Bitcoin-saldo.",
+    "btcSource_base": "Coinbase BTC",
+    "btcSource_solana": "Solana BTC",
+    "pickNetworkSub": "Välj det nätverk som avsändaren använder. Fråga dem om du är osäker.",
+    "networkFee": "Nätverksavgift",
+    "fromTheAmount": "Från beloppet",
+    "networkFeeInfo": "Att ta emot Bitcoin till den här adressen kostar en liten nätverksavgift. Avgiften dras av från beloppet du får, så ditt saldo kan bli något lägre än det som skickades.",
+    "arrives": "Anländer",
+    "afterConfirmations": "Efter 3 bekräftelser",
+    "arrivesInfoBitcoin": "Bitcoin som skickas till den här adressen visas i ditt saldo när Bitcoin-nätverket har bekräftat det 3 gånger. Det tar vanligtvis cirka 30 minuter.",
+    "inAFewMinutes": "Om några minuter",
+    "arrivesInfoStable": "Betalningar visas i ditt saldo när {{chain}}-nätverket bekräftar dem, vanligtvis inom några minuter.",
+    "minimum": "Minsta",
+    "fee": "Avgift",
+    "aboutOnePercent": "Cirka 1 %",
+    "bitcoinWarning": "Nätverksavgifter tar en större andel av små belopp. För mindre betalningar är Skapa faktura billigare.",
+    "stableWarning": "Skicka endast {{asset}} på {{chain}}-nätverket. Andra mynt eller nätverk kan gå förlorade.",
+    "tokensWarning": "Skicka endast Spark-tokens till den här adressen. De visas under Tokens.",
+    "invoice": "Faktura",
+    "anyAmount": "Valfritt belopp",
+    "anyAmountSub": "Avsändaren väljer hur mycket som ska betalas.",
+    "arrivesAsDollars": "Anländer som dollar",
+    "conversionNote": "Det slutliga beloppet kan variera något med priset under konverteringen.",
+    "whatFor": "Vad det gäller",
+    "share": "Dela",
+    "address_share_bitcoin": "Bitcoin-adress",
+    "address_share_stablecoin": "Stablecoin-adress",
+    "address_share_tokens": "Token-adress"
   }
 }

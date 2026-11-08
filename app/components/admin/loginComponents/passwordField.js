@@ -25,7 +25,7 @@ export default function PasswordField({
       inputText={value}
       setInputText={onChangeText}
       placeholderText={placeholder}
-      placeholderTextColor={tokens.muted}
+      placeholderTextColor={`${tokens.onField}A6`}
       secureTextEntry={!show}
       autoComplete={autoComplete}
       textContentType={textContentType}

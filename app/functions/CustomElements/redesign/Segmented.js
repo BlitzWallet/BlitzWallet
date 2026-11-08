@@ -1,4 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 
@@ -15,6 +16,10 @@ export default function Segmented({
   fit = false,
 }) {
   const { tokens } = useTheme();
+  const { i18n } = useTranslation();
+  // Title Case is an English convention; other languages keep sentence case.
+  const capitalize =
+    capitalizeLabels && (!i18n?.language || i18n.language.startsWith('en'));
 
   const select = nextValue => {
     if (nextValue === value) return;
@@ -47,7 +52,7 @@ export default function Segmented({
               content={option.label}
               styles={[
                 styles.label,
-                !capitalizeLabels && styles.noCapitalize,
+                !capitalize && styles.noCapitalize,
                 { color: selected ? tokens.onAccent : tokens.tabIdle },
               ]}
             />
