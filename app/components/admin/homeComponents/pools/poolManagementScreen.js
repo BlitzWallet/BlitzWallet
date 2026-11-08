@@ -98,12 +98,15 @@ export default function PoolManagementScreen() {
   ];
 
   const renderPoolSection = useCallback(
-    ({ item }) => {
+    ({ item, index }) => {
       const hasPools = item.pools.length > 0;
 
       return (
-        <View style={styles.section}>
-          <SectionHeader title={item.title} />
+        <View>
+          <SectionHeader
+            title={item.title}
+            style={index === 0 && styles.firstHeader}
+          />
 
           {hasPools ? (
             <ListCard>
@@ -219,10 +222,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
+    paddingBottom: 16,
   },
-  section: {
-    marginBottom: 12,
-  },
+  // InfoDropdown's 16 bottom margin + 4 = the design's 20.
+  firstHeader: { marginTop: 4 },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -16,6 +16,7 @@ import ContactAvatar from '../../components/admin/homeComponents/contacts/intern
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import { useNavigation } from '@react-navigation/native';
 import ReceiveModal from '../../components/admin/homeComponents/receiveBitcoin/ReceiveModal';
+import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
 
 // Receive (Receive.dc.html): request from a contact first, then the
 // "another wallet or exchange" panel. A contact opens the contact Request
@@ -63,7 +64,7 @@ export default function ReceiveHomeRedesign() {
             uri={cache[contact.uuid]?.localUri}
           />
         }
-        title={contact.name || t('constants.annonName')}
+        title={formatDisplayName(contact) || t('constants.annonName')}
         sub={`@${contact.uniqueName}`}
         onPress={() =>
           navigate.navigate('SendAndRequestPage', {

@@ -19,6 +19,7 @@ import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import ContactAvatarDisc from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
+import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
 
 const noop = () => {};
 const runCallback = callback => callback();
@@ -73,7 +74,7 @@ export default function SendList() {
             uri={cache[contact.uuid]?.localUri}
           />
         }
-        title={contact.name || t('constants.annonName')}
+        title={formatDisplayName(contact) || t('constants.annonName')}
         sub={contact.isLNURL ? undefined : `@${contact.uniqueName}`}
         onPress={() =>
           navigate.navigate('SendAndRequestPage', {

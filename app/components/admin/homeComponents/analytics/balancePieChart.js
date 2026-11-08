@@ -16,7 +16,7 @@ import { ThemeText } from '../../../../functions/CustomElements/index';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
-import { convertToDecimals } from '../../../../functions/spark/swapAmountUtils';
+import truncateToTwoDecimals from '../../../../functions/truncateNumber';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -98,7 +98,8 @@ export default function BalancePieChart({ isBalanceHidden }) {
           key: 'dollar',
           label: t('constants.dollars_upper'),
           color: COLORS.dollarGreen,
-          value: convertToDecimals(dollarValueuUSD),
+          // Truncate like the Home and Dollars balances, so all three agree.
+          value: Number(truncateToTwoDecimals(dollarValueuUSD)),
         },
       ].filter(Boolean);
 

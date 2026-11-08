@@ -775,6 +775,7 @@ export default function ExpandedTx({
               placeholder={t('transactionLabelText.memo')}
               maxLength={200}
               autoFocus={true}
+              focusRing
               onBlur={runMemoSave}
             />
           </View>

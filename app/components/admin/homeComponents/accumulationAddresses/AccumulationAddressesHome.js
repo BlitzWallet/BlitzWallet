@@ -119,7 +119,7 @@ export default function AccumulationAddressesHome() {
           title={t('screens.accumulationAddresses.sectionTitle')}
           style={styles.sectionHeader}
         />
-        <CustomScrollView>
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ListCard>
             {groups.map(item => (
               <AccumulationAddressCard
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // InfoDropdown already leaves 16 below; design gap is 20.
   sectionHeader: { marginTop: 4 },
+  scrollContent: { paddingBottom: 16 },
 
   sectionTitle: {
     fontSize: SIZES.smedium,

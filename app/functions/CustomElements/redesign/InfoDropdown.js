@@ -88,15 +88,16 @@ export default function InfoDropdown({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
-    marginTop: 10,
+    borderRadius: 20,
+    marginTop: 20,
     marginBottom: 16,
     overflow: 'hidden',
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    minHeight: 56,
+    paddingVertical: 10,
     paddingHorizontal: 16,
   },
   headerTitle: {

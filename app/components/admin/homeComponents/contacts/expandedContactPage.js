@@ -38,6 +38,7 @@ import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ContactAvatar from './internalComponents/contactAvatar';
+import { formatDisplayName } from './utils/formatListDisplayName';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_TRANSACTIONS = 50;
@@ -203,7 +204,7 @@ export default function ExpandedContactsPage(props) {
 
       <ThemeText
         styles={[styles.nameText, !hideProfileImage && styles.nameGap]}
-        content={selectedContact.name || t('constants.annonName')}
+        content={formatDisplayName(selectedContact) || t('constants.annonName')}
       />
 
       {selectedContact.uniqueName && (
