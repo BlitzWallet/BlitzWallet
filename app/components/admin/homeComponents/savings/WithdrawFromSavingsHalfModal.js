@@ -1041,6 +1041,7 @@ export default function WithdrawFromSavingsHalfModal({
             }}
             forceCurrency={primaryDisplay.forceCurrency}
             convertAmount={false}
+            mutedValue={!Number(amountValue)}
             amountSize={52}
           />
           <ThemeText

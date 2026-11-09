@@ -739,14 +739,19 @@ export default function StablecoinSendScreen() {
 
         <CustomScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            !isConfirmMode && styles.scrollContentCentered,
+          ]}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.hero}>
-            <ThemeText
-              styles={[styles.secondary, { color: tokens.muted }]}
-              content={t('wallet.sendPages.reviewParts.sending')}
-            />
+            {isConfirmMode && (
+              <ThemeText
+                styles={[styles.secondary, { color: tokens.muted }]}
+                content={t('wallet.sendPages.reviewParts.sending')}
+              />
+            )}
             <AmountHero
               amount={amountText}
               formatAmount={false}
@@ -924,6 +929,8 @@ const styles = StyleSheet.create({
     paddingTop: 52,
     paddingBottom: 10,
   },
+  // Amount step: centred like SendAmount; the review keeps the top offset.
+  scrollContentCentered: { paddingTop: 10, justifyContent: 'center' },
   keyboard: { marginVertical: CONTENT_KEYBOARD_OFFSET },
   hero: { alignItems: 'center' },
   secondary: { marginTop: 4, textAlign: 'center' },

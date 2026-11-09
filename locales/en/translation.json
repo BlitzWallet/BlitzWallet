@@ -118,7 +118,7 @@
     "recover": "Recover",
     "search": "Search",
     "review": "Review",
-    "loadMore": "Load More",
+    "loadMore": "Load more",
     "invoice": "Invoice",
     "annonName": "Anonymous User",
     "claim": "Claim",
@@ -191,7 +191,7 @@
     "weekly": "Weekly",
     "monthly": "Monthly",
     "yearly": "Yearly",
-    "noLimit": "No Limit"
+    "noLimit": "No limit"
   },
   "transactionLabelText": {
     "notSent": "Payment not sent",
@@ -1034,7 +1034,7 @@
       "loadingShopMessage": "Loading online shops",
       "inputPlaceHolder": "Search businesses...",
       "noBuisMessage": "We couldn’t find anything matching your search.",
-      "visitWebsite": "Visit Website",
+      "visitWebsite": "Visit website",
       "addListing": "Add Shop"
     }
   },
@@ -1082,7 +1082,7 @@
       "phonePaymentTitle": "Pay {{number}}",
       "phonePaymentDesc": "Sending to mobile number",
       "phonePaymentDescGcash": "Sending to GCash number",
-      "mobileMoneyTitle": "Mobile Money",
+      "mobileMoneyTitle": "Mobile money",
       "mobileMoneySubtitle": "Pay to a mobile money account.",
       "mobileMoneyCountryTitle": "Select a country",
       "mobileMoneyCountrySubtitle": "Choose the country of the mobile money account you're paying.",
@@ -1322,7 +1322,7 @@
         "zeroAmountInvoiceDollarPayments": "Zero amount invoices cannot be paid with USD. Please use BTC.",
         "decodingPayment": "Decoding payment information...",
         "selectPaymentMethod": "Please select a payment method to continue",
-        "swapRatesChangedTitle": "Swap Rate Updated",
+        "swapRatesChangedTitle": "Swap rate updated",
         "swapRatesChangedBody": "The exchange rate for this swap changed while you were reviewing. Please re-enter your amount to continue.",
         "swapRatesChangedButton": "Re-enter Amount",
         "feeEstimateError": "Unable to estimate fee, please try again",
@@ -1363,7 +1363,7 @@
         "title": "Something went wrong"
       },
       "feeInfo": {
-        "title": "Fee and Speed",
+        "title": "Fee and speed",
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minutes"
       },
@@ -1475,9 +1475,9 @@
     },
     "stablecoinSend": {
       "sendStablecoins": "Send Stablecoins",
-      "selectChain": "Select Network",
+      "selectChain": "Select network",
       "network": "Network",
-      "selectAsset": "Select Currency",
+      "selectAsset": "Select currency",
       "recipient": "Recipient",
       "gettingQuote": "Getting quote…",
       "quoteExpired": "Quote expired. Please try again.",
@@ -1499,7 +1499,7 @@
       "swapStatus": "Payment Status",
       "chainSwap": "Stablecoin",
       "assetPicker": {
-        "header": "Select the currency you want to send.",
+        "header": "Select currency",
         "notAvailable": "Not available on {{chain}}"
       },
       "networkLabel": "{{currency}} on {{chain}}"
@@ -1512,8 +1512,8 @@
       "searchContactsPlaceholder": "Search added contacts",
       "noContactsMessage": "You have no contacts",
       "editContactProfileMessage": "Edit your profile to begin using contacts.",
-      "addContactButton": "Add Contact",
-      "editContactButton": "Edit Profile",
+      "addContactButton": "Add contact",
+      "editContactButton": "Edit profile",
       "unknownSender": "Unknown sender",
       "noContactSearch": "This contact isn't in your list yet.",
       "notFound": "not found.",
@@ -1566,7 +1566,7 @@
       "uniqueNameInputPlaceholder": "Enter your username",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Enter a short bio",
-      "addContactBTN": " Add Contact",
+      "addContactBTN": " Add contact",
       "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and it must contain at least 1 letter.",
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
       "unableToSaveError": "Unable to save profile image, please try again.",
@@ -2488,7 +2488,7 @@
         "accountNameLabel": "Account name",
         "showRecoveryPhraseLabel": "Show recovery phrase",
         "lightningAddressLabel": "Account address",
-        "removeAccountLabel": "Remove Account",
+        "removeAccountLabel": "Remove account",
         "stillConnectingLabel": "Connection info",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
@@ -2760,7 +2760,7 @@
         "bulkPartialSuccess": "No requests sent",
         "stablecoinDesc": "{{asset}} on {{chain}}",
         "walletConnected": "Wallet connected",
-        "lud9SuccessAction": "View Receipt"
+        "lud9SuccessAction": "View receipt"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Sent amount",
@@ -3024,7 +3024,7 @@
         },
         "shareMessage": "You've received a {{amount}} gift! Claim it here:\n{{link}}",
         "fundGiftMessage": "Creating Gift",
-        "reclaimGiftMessage": "Reclaiming Gift",
+        "reclaimGiftMessage": "Reclaiming gift",
         "giftsHome": {
           "title": "Gifts",
           "desc": "Share Bitcoin or Dollars with friends and family."
@@ -3100,7 +3100,7 @@
           "details": "Gift Details",
           "expire": "Expires",
           "giftLink": "Gift Link",
-          "shareGift": "Share Gift",
+          "shareGift": "Share gift",
           "createAnother": "Create another",
           "done": "Done",
           "showQr": "Show QR code",
@@ -3173,9 +3173,9 @@
           "claimButton": "Accept gift",
           "confirmMessage": "Your gift has been claimed, and you will receive your funds shortly",
           "defaultDesc": "Blitz Gift",
-          "claimingGiftMessage1": "Preparing Gift...",
-          "giftBalanceMessage": "Confirming your gift balance...",
-          "claimingGiftMessage4": "Claiming Gift...",
+          "claimingGiftMessage1": "Preparing gift…",
+          "giftBalanceMessage": "Confirming your gift balance…",
+          "claimingGiftMessage4": "Claiming gift…",
           "reclaimFeeWarning": "This amount, minus network fees, comes back to your balance.",
           "expertGiftLabel": "Gift #{{number}}",
           "claimingTitle": "Claiming your gift…",
@@ -3667,7 +3667,7 @@
       "emptyState": "No goal set"
     },
     "updateGoal": {
-      "screenTitle": "Update Goal",
+      "screenTitle": "Update goal",
       "title": "Update goal",
       "body": "Change your goal amount, or remove it.",
       "removeButton": "Remove goal",
