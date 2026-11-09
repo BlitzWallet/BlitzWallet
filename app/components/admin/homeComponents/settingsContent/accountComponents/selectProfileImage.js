@@ -36,6 +36,7 @@ import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 
 // One grid row of 7. Each row is its own slice of the white card (first/last
 // rows round the corners) so the SectionList stays virtualised. `selected` is
@@ -85,6 +86,7 @@ const EmojiRow = memo(({ item, onEmojiSelect, selected, isFirst, isLast }) => {
 });
 
 const EmojiGrid = memo(({ sections, onEmojiSelect, selectedEmoji }) => {
+  const { t } = useTranslation();
   const renderEmojiRow = useCallback(
     ({ item, index, section }) => (
       <EmojiRow
@@ -120,6 +122,15 @@ const EmojiGrid = memo(({ sections, onEmojiSelect, selectedEmoji }) => {
       initialNumToRender={10}
       maxToRenderPerBatch={10}
       windowSize={5}
+      ListEmptyComponent={
+        <View style={styles.empty}>
+          <EmptyState
+            icon="Search"
+            title={t('constants.noSearchResults')}
+            sub={t('constants.noSearchResultsSub')}
+          />
+        </View>
+      }
     />
   );
 });
@@ -304,6 +315,7 @@ export default function EmojiAvatarSelector(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
+  empty: { marginTop: 48 },
   previewContainer: {
     alignSelf: 'center',
     marginTop: 8,

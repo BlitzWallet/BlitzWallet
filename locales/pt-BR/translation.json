@@ -141,7 +141,9 @@
     "clear": "Limpar",
     "openInBrowser": "Abrir no navegador",
     "emailSupport": "Suporte por e-mail",
-    "noName": "Sem nome"
+    "noName": "Sem nome",
+    "noSearchResults": "Nenhum resultado",
+    "noSearchResultsSub": "Tente outra busca."
   },
   "languages": {
     "english": "English",
@@ -1756,7 +1758,7 @@
     },
     "about": {
       "licenseHeader": "Software",
-      "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
+      "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto, sob a licença:",
       "licenseLinkLabel": "Licença Apache v2.0",
       "walletHeader": "Blitz Wallet",
       "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning e com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder todo seu dinheiro.",
@@ -2901,7 +2903,7 @@
         "verdictBodyNotReady": "Seu dinheiro está seguro. Mas nenhuma das suas folhas é grande o suficiente para recuperar os valores por conta própria — cada uma precisa ultrapassar {{min}} sats para compensar as taxas da rede Bitcoin.",
         "verdictBodyReady": "Você tem folhas grandes o suficiente para recuperar os valores por conta própria. Cada folha pronta para saída ultrapassa os {{min}} sats necessários para compensar as taxas da rede Bitcoin.",
         "bucketReadyTitle": "Recuperável",
-        "bucketReadySub": "Acima de {{min}} sats",
+        "bucketReadySub": "Acima de {{min}}",
         "bucketBelowTitle": "Abaixo do limite",
         "bucketBelowSub": "Quantia que não pode ser recuperada",
         "exportTitle": "Abrir ferramenta de recuperação",
@@ -3258,7 +3260,8 @@
         "belowSwapLimitBoth": "Seus saldos estão abaixo do mínimo necessário para realizar trocas. Você precisa de pelo menos {{btcMin}} em bitcoin ou {{usdMin}} em dólares",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
         "satsUnit": "sats",
-        "flipA11y": "Direção da troca"
+        "flipA11y": "Direção da troca",
+        "minimumToSwap": "É preciso ter pelo menos {{amount}} para trocar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",

@@ -159,6 +159,7 @@ export default function SettingsIndex() {
       if (row.name === 'ViewAllSwaps') {
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'selectSwapNetwork',
+          sliderHight: 0.45,
         });
         return;
       }

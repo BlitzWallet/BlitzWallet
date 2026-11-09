@@ -171,7 +171,7 @@ export default function ReceiveModal({ contentWidth }) {
                     fromTokens: true,
                   })
                 }
-                lead={<Disc icon="Layers" />}
+                lead={<Disc icon="Layers" tone="white" />}
                 title={t('constants.tokens')}
                 showChevron
               />

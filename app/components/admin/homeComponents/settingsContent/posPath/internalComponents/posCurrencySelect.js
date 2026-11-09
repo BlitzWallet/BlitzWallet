@@ -9,6 +9,7 @@ import ListCard, {
   ListDivider,
 } from '../../../../../../functions/CustomElements/redesign/ListCard';
 import CurrencyRow from '../../../currencyPicker/currencyRow';
+import EmptyState from '../../../../../../functions/CustomElements/redesign/EmptyState';
 
 // Store currency picker for Point of sale (same rows as Settings › Currency).
 export default function POSCurrencySelect({
@@ -82,6 +83,15 @@ export default function POSCurrencySelect({
           showsVerticalScrollIndicator={false}
           initialNumToRender={15}
           ItemSeparatorComponent={CurrencySeparator}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <EmptyState
+                icon="Search"
+                title={t('constants.noSearchResults')}
+                sub={t('constants.noSearchResultsSub')}
+              />
+            </View>
+          }
         />
       </ListCard>
     </View>
@@ -97,4 +107,5 @@ function CurrencySeparator() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   card: { flex: 1, marginTop: 16 },
+  empty: { marginTop: 32 },
 });

@@ -14,6 +14,7 @@ import ListCard, {
   ListDivider,
 } from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 
 // Country step shared by Send and Receive. Each country is
@@ -65,39 +66,49 @@ export default function SMSCountryPickerScreen({
           onBlur={() => setIsKeyboardActive(false)}
           pill
         />
-        <ListCard style={styles.card}>
-          <FlatList
-            data={listData}
-            keyExtractor={item => item.key}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="always"
-            ItemSeparatorComponent={ListDivider}
-            renderItem={({ item }) => (
-              <PickRow
-                onPress={() => onSelect(item)}
-                lead={
-                  <View
-                    style={[styles.flag, { backgroundColor: tokens.ground }]}
-                  >
-                    {item.isoCode === 'WW' ? (
-                      <ThemeIcon
-                        redesign
-                        iconName="Globe"
-                        size={20}
-                        colorOverride={tokens.ink}
-                      />
-                    ) : (
-                      <CountryFlag isoCode={item.isoCode} size={14} />
-                    )}
-                  </View>
-                }
-                title={item.label}
-                sub={item.sub}
-                selected={item.key === selectedKey}
-              />
-            )}
-          />
-        </ListCard>
+        {listData.length === 0 ? (
+          <View style={styles.empty}>
+            <EmptyState
+              icon="Search"
+              title={t('constants.noSearchResults')}
+              sub={t('constants.noSearchResultsSub')}
+            />
+          </View>
+        ) : (
+          <ListCard style={styles.card}>
+            <FlatList
+              data={listData}
+              keyExtractor={item => item.key}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="always"
+              ItemSeparatorComponent={ListDivider}
+              renderItem={({ item }) => (
+                <PickRow
+                  onPress={() => onSelect(item)}
+                  lead={
+                    <View
+                      style={[styles.flag, { backgroundColor: tokens.ground }]}
+                    >
+                      {item.isoCode === 'WW' ? (
+                        <ThemeIcon
+                          redesign
+                          iconName="Globe"
+                          size={20}
+                          colorOverride={tokens.ink}
+                        />
+                      ) : (
+                        <CountryFlag isoCode={item.isoCode} size={14} />
+                      )}
+                    </View>
+                  }
+                  title={item.label}
+                  sub={item.sub}
+                  selected={item.key === selectedKey}
+                />
+              )}
+            />
+          </ListCard>
+        )}
         <CustomButton
           disabled={!selectedKey}
           textContent={t('constants.next')}
@@ -114,6 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
+  empty: { flex: 1, marginTop: 48 },
   card: {
     marginTop: 10,
     flexShrink: 1,

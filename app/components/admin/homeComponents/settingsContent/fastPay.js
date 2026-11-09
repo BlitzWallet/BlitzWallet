@@ -169,20 +169,28 @@ export default function FastPay() {
             <ThemeText
               adjustsFontSizeToFit
               CustomNumberOfLines={1}
-              content={isEditing ? newThresholdDisplay : savedThresholdDisplay}
-              styles={[styles.amount, { color: tokens.ink }]}
+              content={
+                isEditing && thresholdInput !== '0'
+                  ? newThresholdDisplay
+                  : savedThresholdDisplay
+              }
+              styles={[
+                styles.amount,
+                {
+                  color:
+                    isEditing && thresholdInput === '0'
+                      ? tokens.muted
+                      : tokens.ink,
+                },
+              ]}
             />
-            {!isEditing && (
-              <>
-                <View
-                  style={[styles.divider, { backgroundColor: tokens.divider }]}
-                />
-                <ThemeText
-                  content={t('settings.fastPay.text5')}
-                  styles={[styles.explainer, { color: tokens.muted }]}
-                />
-              </>
-            )}
+            <View
+              style={[styles.divider, { backgroundColor: tokens.divider }]}
+            />
+            <ThemeText
+              content={t('settings.fastPay.text5')}
+              styles={[styles.explainer, { color: tokens.muted }]}
+            />
           </TouchableOpacity>
         </CustomScrollView>
 

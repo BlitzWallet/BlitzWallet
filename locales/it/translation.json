@@ -141,7 +141,9 @@
     "clear": "Cancella",
     "openInBrowser": "Apri nel browser",
     "emailSupport": "Supporto via email",
-    "noName": "Nessun nome"
+    "noName": "Nessun nome",
+    "noSearchResults": "Nessun risultato",
+    "noSearchResultsSub": "Prova con un’altra ricerca."
   },
   "languages": {
     "english": "English",
@@ -1756,7 +1758,7 @@
     },
     "about": {
       "licenseHeader": "Software",
-      "licenseBody": "Blitz è un'app gratuita e open source distribuita sotto la",
+      "licenseBody": "Blitz è un'app gratuita e open source, distribuita con licenza:",
       "licenseLinkLabel": "Licenza Apache v2.0",
       "walletHeader": "Blitz Wallet",
       "walletDescription": "Questo è un portafoglio Bitcoin Spark auto-custodito compatibile con la rete Lightning. Blitz non ha accesso ai tuoi fondi. Se perdi la tua frase di recupero, potresti perdere i tuoi fondi.",
@@ -2078,7 +2080,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet fornisce strumenti gratuiti e open source alla comunità Bitcoin.\n\nPer supportare la sostenibilità a lungo termine del progetto, verrà applicata una piccola commissione di transazione a ogni pagamento.\n\nLa suddivisione delle commissioni è riportata di seguito.",
+      "description": "Blitz Wallet fornisce strumenti gratuiti e open source alla comunità Bitcoin.\n\nPer supportare la sostenibilità a lungo termine del progetto, viene applicata una piccola commissione su swap e indirizzi di accumulo.\n\nLa suddivisione delle commissioni è riportata di seguito.",
       "upTo": "Fino a",
       "fixedFee": "Commissione Fissa",
       "percent": "Percentuale",
@@ -2901,7 +2903,7 @@
         "verdictBodyNotReady": "I tuoi fondi sono al sicuro. Tuttavia, nessuna delle tue foglie è abbastanza grande da uscire autonomamente: ciascuna deve superare {{min}} sats per compensare le commissioni on-chain.",
         "verdictBodyReady": "Hai foglie abbastanza grandi da uscire autonomamente. Ogni foglia pronta per l'uscita supera la soglia di {{min}} sats necessaria per compensare le commissioni on-chain.",
         "bucketReadyTitle": "Pronto per l'uscita",
-        "bucketReadySub": "Oltre {{min}} sats",
+        "bucketReadySub": "Oltre {{min}}",
         "bucketBelowTitle": "Sotto la soglia",
         "bucketBelowSub": "Troppo piccola per uscire da sola",
         "exportTitle": "Apri lo strumento di recupero",
@@ -3258,7 +3260,8 @@
         "belowSwapLimitBoth": "I tuoi saldi sono inferiori al minimo per scambiare. Hai bisogno di almeno {{btcMin}} in Bitcoin o {{usdMin}} in dollari per iniziare a scambiare.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
         "satsUnit": "sats",
-        "flipA11y": "Direzione dello scambio"
+        "flipA11y": "Direzione dello scambio",
+        "minimumToSwap": "Servono almeno {{amount}} per lo scambio."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossibile caricare la cronologia degli swap. Riprova più tardi.",

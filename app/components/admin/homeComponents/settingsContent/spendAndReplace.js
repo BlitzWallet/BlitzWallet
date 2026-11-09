@@ -9,6 +9,7 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { getAssetBalanceText } from '../homeLightning/balanceCard';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -32,15 +33,11 @@ export default function SpendAndReplace() {
     });
   }, [toggleMasterInfoObject, isEnabled]);
 
-  const dollarBalance = displayCorrectDenomination({
-    amount: dollarBalanceToken.toFixed(2),
-    masterInfoObject: {
-      ...masterInfoObject,
-      userBalanceDenomination: 'fiat',
-    },
+  const dollarBalance = getAssetBalanceText({
+    isBitcoin: false,
+    amount: dollarBalanceToken,
+    masterInfoObject,
     fiatStats,
-    forceCurrency: 'USD',
-    convertAmount: false,
   });
 
   return (

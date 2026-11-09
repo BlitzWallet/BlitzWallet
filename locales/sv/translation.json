@@ -14,7 +14,7 @@
     "receive": "Ta emot",
     "accept": "Acceptera",
     "total_balance": "Totalt saldo",
-    "sat_balance": "Bitcoin Balans",
+    "sat_balance": "Bitcoinsaldo",
     "usd_balance": "Dollarsaldo",
     "amount": "Belopp",
     "sent": "Skickad",
@@ -141,7 +141,9 @@
     "clear": "Rensa",
     "openInBrowser": "Öppna i webbläsaren",
     "emailSupport": "Support via e-post",
-    "noName": "Inget namn"
+    "noName": "Inget namn",
+    "noSearchResults": "Inga träffar",
+    "noSearchResultsSub": "Prova en annan sökning."
   },
   "languages": {
     "english": "English",
@@ -1756,7 +1758,7 @@
     },
     "about": {
       "licenseHeader": "Programvara",
-      "licenseBody": "Blitz är en app med fri och öppen källkod under",
+      "licenseBody": "Blitz är en app med fri och öppen källkod, licensierad under:",
       "licenseLinkLabel": "Apache-licens v2.0",
       "walletHeader": "Blitz Wallet",
       "walletDescription": "Detta är en självförvaltande Bitcoin Spark-plånbok kompatibel med Lightning-nätverket. Blitz har inte tillgång till dina medel. Om du förlorar din återställningsfras kan det leda till förlust av medel.",
@@ -2901,7 +2903,7 @@
         "verdictBodyNotReady": "Dina pengar är säkra. Men inget av dina blad är tillräckligt stort för att lämna på egen hand – varje blad måste överstiga {{min}} sats för att täcka on-chain-avgifterna.",
         "verdictBodyReady": "Du har blad som är tillräckligt stora för att lämna på egen hand. Varje blad som är redo att lämna överstiger {{min}} sats som krävs för att täcka on-chain-avgifterna.",
         "bucketReadyTitle": "Redo att lämna",
-        "bucketReadySub": "Över {{min}} sats",
+        "bucketReadySub": "Över {{min}}",
         "bucketBelowTitle": "Under gränsen",
         "bucketBelowSub": "För litet för att lämna på egen hand",
         "exportTitle": "Öppna återställningsverktyget",
@@ -3258,7 +3260,8 @@
         "belowSwapLimitBoth": "Dina saldon är under minimigränsen för växling. Du behöver minst {{btcMin}} i Bitcoin eller {{usdMin}} i dollar för att börja växla.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
         "satsUnit": "sats",
-        "flipA11y": "Växlingsriktning"
+        "flipA11y": "Växlingsriktning",
+        "minimumToSwap": "Kräver minst {{amount}} för att växla."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Det gick inte att läsa in swap-historiken. Försök igen senare.",

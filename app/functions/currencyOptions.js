@@ -7,7 +7,7 @@ export const fiatCurrencies = [
   { info: { spacing: null, name: 'Bulgarian Lev' }, id: 'BGN' },
   { info: { spacing: null, name: 'CFA Franc BCEAO' }, id: 'XOF' },
   { info: { spacing: null, name: 'Canadian Dollar' }, id: 'CAD' },
-  { info: { spacing: null, name: 'Cost Rican Colon' }, id: 'CRC' },
+  { info: { spacing: null, name: 'Costa Rican Colón' }, id: 'CRC' },
   { info: { spacing: null, name: 'Czech Koruna' }, id: 'CZK' },
   { info: { spacing: null, name: 'Danish Krone' }, id: 'DKK' },
   { info: { spacing: null, name: 'Dong' }, id: 'VND' },

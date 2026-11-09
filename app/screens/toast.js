@@ -9,7 +9,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
-import { COLORS } from '../constants';
+import { COLORS, FONT } from '../constants';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { SIZES, WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -95,12 +95,8 @@ export function Toast({
         return [...baseStyle, styles.clipboardToast];
       case 'success':
         return [...baseStyle, styles.clipboardToast];
-      case 'warning':
-        return [...baseStyle, styles.warningToast];
-      case 'info':
-        return [...baseStyle, styles.infoToast];
       default:
-        return [...baseStyle, styles.defaultToast];
+        return [...baseStyle, styles.clipboardToast];
     }
   };
 
@@ -176,7 +172,10 @@ export function Toast({
                 <View>
                   <ThemeText
                     CustomNumberOfLines={1}
-                    styles={[styles.paymentReceivedTitle, { fontWeight: 500 }]}
+                    styles={[
+                      styles.paymentReceivedTitle,
+                      { fontFamily: FONT.Title_Medium },
+                    ]}
                     content={t(
                       'screens.inAccount.sendAndReplace.toastMessageTitle',
                     )}
@@ -200,7 +199,10 @@ export function Toast({
                 <View>
                   <ThemeText
                     CustomNumberOfLines={1}
-                    styles={[styles.paymentReceivedTitle, { fontWeight: 500 }]}
+                    styles={[
+                      styles.paymentReceivedTitle,
+                      { fontFamily: FONT.Title_Medium },
+                    ]}
                     content={t('pushNotifications.paymentReceived.title')}
                   />
                   <ThemeText
@@ -222,7 +224,10 @@ export function Toast({
                 <View>
                   <ThemeText
                     CustomNumberOfLines={1}
-                    styles={[styles.paymentReceivedTitle, { fontWeight: 500 }]}
+                    styles={[
+                      styles.paymentReceivedTitle,
+                      { fontFamily: FONT.Title_Medium },
+                    ]}
                     content={t('toastmessages.handleSwap.title')}
                   />
                   <ThemeText
@@ -263,15 +268,6 @@ const styles = StyleSheet.create({
   },
   clipboardToast: {
     backgroundColor: COLORS.darkModeText,
-  },
-  warningToast: {
-    backgroundColor: '#FF9800',
-  },
-  infoToast: {
-    backgroundColor: '#2196F3',
-  },
-  defaultToast: {
-    backgroundColor: '#323232',
   },
   toastContent: {
     flexDirection: 'row',

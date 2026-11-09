@@ -11,6 +11,7 @@ import ListCard, {
   ListDivider,
 } from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 
 export default function ChooseLangugae() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -52,27 +53,37 @@ export default function ChooseLangugae() {
             placeholder={t(selectedLanguageText?.languageName)}
           />
         </View>
-        <ListCard dividerInset={0} style={styles.card}>
-          <FlatList
-            data={filteredList}
-            keyExtractor={keyExtractor}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="always"
-            style={{ maxHeight: height - 240 }}
-            ItemSeparatorComponent={LanguageSeparator}
-            renderItem={({ item }) => (
-              <PickRow
-                title={t(item.translatedName)}
-                minHeight={52}
-                titleStyle={styles.rowTitle}
-                selected={
-                  item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
-                }
-                onPress={() => updateLanguageSetting(item)}
-              />
-            )}
-          />
-        </ListCard>
+        {filteredList.length === 0 ? (
+          <View style={styles.empty}>
+            <EmptyState
+              icon="Search"
+              title={t('constants.noSearchResults')}
+              sub={t('constants.noSearchResultsSub')}
+            />
+          </View>
+        ) : (
+          <ListCard dividerInset={0} style={styles.card}>
+            <FlatList
+              data={filteredList}
+              keyExtractor={keyExtractor}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="always"
+              style={{ maxHeight: height - 240 }}
+              ItemSeparatorComponent={LanguageSeparator}
+              renderItem={({ item }) => (
+                <PickRow
+                  title={t(item.translatedName)}
+                  minHeight={52}
+                  titleStyle={styles.rowTitle}
+                  selected={
+                    item.id?.toLowerCase() === selectedLanguage?.toLowerCase()
+                  }
+                  onPress={() => updateLanguageSetting(item)}
+                />
+              )}
+            />
+          </ListCard>
+        )}
       </View>
     </GlobalThemeView>
   );
@@ -88,5 +99,6 @@ const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   search: { marginTop: 16 },
   card: { marginTop: 16 },
+  empty: { marginTop: 48 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
 });

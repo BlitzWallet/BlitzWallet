@@ -110,10 +110,14 @@ export default function SwapChooseCurrency({
       key: 'BTC',
       disc: 'bitcoin',
       title: t('constants.sat_balance'),
-      sub: t('screens.inAccount.swapsPage.availableToSwapInto', {
-        amount: formatSats(btcBalance),
-        asset: t('constants.dollars_upper'),
-      }),
+      sub: bitcoinBalanceIsAboveSwapLimit
+        ? t('screens.inAccount.swapsPage.availableToSwapInto', {
+            amount: formatSats(btcBalance),
+            asset: t('constants.dollars_upper'),
+          })
+        : t('screens.inAccount.swapsPage.minimumToSwap', {
+            amount: formattedBitcoinSwapMin,
+          }),
       enabled: bitcoinBalanceIsAboveSwapLimit,
       notice: t('screens.inAccount.swapsPage.insufficientBTCToSwap', {
         amount: formattedBitcoinSwapMin,
@@ -123,12 +127,16 @@ export default function SwapChooseCurrency({
       key: 'USD',
       disc: 'dollar',
       title: t('constants.usd_balance'),
-      sub: t('screens.inAccount.swapsPage.availableToSwapInto', {
-        amount: formatUsd(
-          formatBalanceAmount(dollarBalanceToken, false, masterInfoObject),
-        ),
-        asset: t('constants.bitcoin_upper'),
-      }),
+      sub: dollarBalanceIsAboveSwapLimit
+        ? t('screens.inAccount.swapsPage.availableToSwapInto', {
+            amount: formatUsd(
+              formatBalanceAmount(dollarBalanceToken, false, masterInfoObject),
+            ),
+            asset: t('constants.bitcoin_upper'),
+          })
+        : t('screens.inAccount.swapsPage.minimumToSwap', {
+            amount: formattedDollarSwapMin,
+          }),
       enabled: dollarBalanceIsAboveSwapLimit,
       notice: t('screens.inAccount.swapsPage.insufficientUSDToSwap', {
         amount: formattedDollarSwapMin,

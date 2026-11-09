@@ -141,7 +141,9 @@
     "clear": "Leeren",
     "openInBrowser": "Im Browser öffnen",
     "emailSupport": "Support per E-Mail",
-    "noName": "Kein Name"
+    "noName": "Kein Name",
+    "noSearchResults": "Keine Treffer",
+    "noSearchResultsSub": "Versuche eine andere Suche."
   },
   "languages": {
     "english": "Englisch",
@@ -1756,7 +1758,7 @@
     },
     "about": {
       "licenseHeader": "Software",
-      "licenseBody": "Blitz ist eine kostenlose und Open-Source-App unter der",
+      "licenseBody": "Blitz ist eine kostenlose Open-Source-App, lizenziert unter:",
       "licenseLinkLabel": "Apache-Lizenz v2.0",
       "walletHeader": "Blitz Wallet",
       "walletDescription": "Dies ist eine selbstverwaltete Bitcoin- und Lightning-Wallet mit Spark-Unterstützung. Blitz hat keinen Zugriff auf Ihre Gelder. Wenn Sie Ihre Wiederherstellungsphrase (Seed-Phrase) verlieren, führt dies zum dauerhaften Verlust Ihrer Gelder.",
@@ -2078,7 +2080,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet stellt der Bitcoin-Community kostenlose Open-Source-Tools zur Verfügung.\n\nUm die langfristige Nachhaltigkeit des Projekts zu unterstützen, wird auf jede Zahlung eine kleine Transaktionsgebühr erhoben.\n\nDie Aufschlüsselung der Gebühren finden Sie unten.",
+      "description": "Blitz Wallet stellt der Bitcoin-Community kostenlose Open-Source-Tools zur Verfügung.\n\nUm die langfristige Nachhaltigkeit des Projekts zu unterstützen, wird auf Swaps und Akkumulationsadressen eine kleine Gebühr erhoben.\n\nDie Aufschlüsselung der Gebühren finden Sie unten.",
       "upTo": "Bis zu",
       "fixedFee": "Feste Gebühr",
       "percent": "Prozent",
@@ -2901,7 +2903,7 @@
         "verdictBodyNotReady": "Ihr Geld ist sicher. Keines Ihrer Blätter ist jedoch groß genug, um allein auszusteigen. Jedes Blatt muss mindestens {{min}} Sats enthalten, damit sich die On-Chain-Gebühren lohnen.",
         "verdictBodyReady": "Sie haben Blätter, die groß genug sind, um allein auszusteigen. Jedes ausstiegsbereite Blatt enthält mehr als die {{min}} Sats, die nötig sind, um die On-Chain-Gebühren zu decken.",
         "bucketReadyTitle": "Bereit zum Ausstieg",
-        "bucketReadySub": "Über {{min}} Sats",
+        "bucketReadySub": "Über {{min}}",
         "bucketBelowTitle": "Unter Schwellenwert",
         "bucketBelowSub": "Zu klein für einen alleinigen Ausstieg",
         "exportTitle": "Recovery-Tool öffnen",
@@ -3258,7 +3260,8 @@
         "belowSwapLimitBoth": "Ihre Guthaben liegen unter dem Mindestbetrag für einen Swap. Sie benötigen mindestens {{btcMin}} in Bitcoin oder {{usdMin}} in Dollar, um einen Swap zu starten.",
         "COMMENT": "Darauf achten, dass die Tauschmeldung in Schreibweise und Reihenfolge exakt mit dem Hinweis zu hohen Preisauswirkungen übereinstimmt.",
         "satsUnit": "Sats",
-        "flipA11y": "Tauschrichtung"
+        "flipA11y": "Tauschrichtung",
+        "minimumToSwap": "Mindestens {{amount}} zum Tauschen nötig."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",

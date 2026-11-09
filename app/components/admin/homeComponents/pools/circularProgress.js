@@ -2,7 +2,7 @@ import { useMemo, useRef, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { SIZES } from '../../../../constants';
+import { FONT, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import Animated, {
   useSharedValue,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   fundeedAmount: {
     fontSize: SIZES.xxLarge,
-    fontWeight: 500,
+    fontFamily: FONT.Title_Medium,
     textAlign: 'center',
     includeFontPadding: false,
     flexShrink: 1,

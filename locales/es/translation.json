@@ -141,7 +141,9 @@
     "clear": "Borrar",
     "openInBrowser": "Abrir en el navegador",
     "emailSupport": "Soporte por correo electrónico",
-    "noName": "Sin nombre"
+    "noName": "Sin nombre",
+    "noSearchResults": "Sin resultados",
+    "noSearchResultsSub": "Prueba con otra búsqueda."
   },
   "languages": {
     "english": "English",
@@ -1756,7 +1758,7 @@
     },
     "about": {
       "licenseHeader": "Software",
-      "licenseBody": "Blitz es una aplicación gratuita y de código abierto bajo la",
+      "licenseBody": "Blitz es una aplicación gratuita y de código abierto, bajo la licencia:",
       "licenseLinkLabel": "Licencia Apache v2.0",
       "walletHeader": "Blitz Wallet",
       "walletDescription": "Esta es una billetera Bitcoin Spark autocustodiada compatible con la red Lightning. Blitz no tiene acceso a sus fondos. Si pierde su frase de recuperación, podría perder sus fondos.",
@@ -2901,7 +2903,7 @@
         "verdictBodyNotReady": "Tu dinero está seguro. Pero ninguna de tus hojas es lo suficientemente grande para salir por sí sola: cada una debe superar {{min}} sats para compensar las comisiones on-chain.",
         "verdictBodyReady": "Tienes hojas lo suficientemente grandes para salir por sí solas. Cada hoja lista para salir supera los {{min}} sats necesarios para compensar las comisiones on-chain.",
         "bucketReadyTitle": "Listo para salir",
-        "bucketReadySub": "Más de {{min}} sats",
+        "bucketReadySub": "Más de {{min}}",
         "bucketBelowTitle": "Debajo del umbral",
         "bucketBelowSub": "Demasiado pequeña para salir sola",
         "exportTitle": "Abrir herramienta de recuperación",
@@ -3258,7 +3260,8 @@
         "belowSwapLimitBoth": "Tus saldos están por debajo del mínimo para intercambiar. Necesitas al menos {{btcMin}} en Bitcoin o {{usdMin}} en dólares para comenzar a intercambiar.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
         "satsUnit": "sats",
-        "flipA11y": "Dirección del intercambio"
+        "flipA11y": "Dirección del intercambio",
+        "minimumToSwap": "Se necesitan al menos {{amount}} para intercambiar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "No se pudo cargar el historial de intercambios. Inténtalo de nuevo más tarde.",

@@ -14,7 +14,7 @@
     "receive": "Recevoir",
     "accept": "Accepter",
     "total_balance": "Solde total",
-    "sat_balance": "Bilan Bitcoin",
+    "sat_balance": "Solde Bitcoin",
     "usd_balance": "Solde en dollars",
     "amount": "Montant",
     "sent": "Envoyé",
@@ -141,7 +141,9 @@
     "clear": "Effacer",
     "openInBrowser": "Ouvrir dans le navigateur",
     "emailSupport": "Assistance par e-mail",
-    "noName": "Sans nom"
+    "noName": "Sans nom",
+    "noSearchResults": "Aucun résultat",
+    "noSearchResultsSub": "Essayez une autre recherche."
   },
   "languages": {
     "english": "English",
@@ -1756,7 +1758,7 @@
     },
     "about": {
       "licenseHeader": "Logiciel",
-      "licenseBody": "Blitz est une application gratuite et open source distribuée sous la",
+      "licenseBody": "Blitz est une application gratuite et open source, distribuée sous licence :",
       "licenseLinkLabel": "Licence Apache v2.0",
       "walletHeader": "Blitz Wallet",
       "walletDescription": "Il s'agit d'un portefeuille Bitcoin Spark auto-détenu compatible avec le réseau Lightning. Blitz n'a pas accès à vos fonds. Si vous perdez votre phrase de récupération, cela peut entraîner une perte de fonds.",
@@ -2078,7 +2080,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet fournit des outils gratuits et open source à la communauté Bitcoin.\n\nAfin de soutenir la viabilité à long terme du projet, de légers frais de transaction seront appliqués à chaque paiement.\n\nLe détail des frais est indiqué ci-dessous.",
+      "description": "Blitz Wallet fournit des outils gratuits et open source à la communauté Bitcoin.\n\nAfin de soutenir la viabilité à long terme du projet, de légers frais sont appliqués aux swaps et aux adresses d’accumulation.\n\nLe détail des frais est indiqué ci-dessous.",
       "upTo": "Jusqu'à",
       "fixedFee": "Frais fixes",
       "percent": "Pourcentage",
@@ -2901,7 +2903,7 @@
         "verdictBodyNotReady": "Vos fonds sont en sécurité. Cependant, aucune de vos feuilles n’est assez importante pour sortir seule : chacune doit dépasser {{min}} sats afin de compenser les frais on-chain.",
         "verdictBodyReady": "Vous avez des feuilles suffisamment importantes pour sortir seules. Chaque feuille prête à sortir dépasse le seuil de {{min}} sats nécessaire pour compenser les frais on-chain.",
         "bucketReadyTitle": "Prêt à sortir",
-        "bucketReadySub": "Au-dessus de {{min}} sats",
+        "bucketReadySub": "Au-dessus de {{min}}",
         "bucketBelowTitle": "Sous le seuil",
         "bucketBelowSub": "Trop petite pour sortir seule",
         "exportTitle": "Ouvrir l’outil de récupération",
@@ -3258,7 +3260,8 @@
         "belowSwapLimitBoth": "Vos soldes sont inférieurs au minimum requis pour échanger. Vous avez besoin d'au moins {{btcMin}} en Bitcoin ou {{usdMin}} en dollars pour commencer à échanger.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
         "satsUnit": "sats",
-        "flipA11y": "Sens de l'échange"
+        "flipA11y": "Sens de l'échange",
+        "minimumToSwap": "Il faut au moins {{amount}} pour échanger."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossible de charger l’historique des échanges. Veuillez réessayer plus tard.",

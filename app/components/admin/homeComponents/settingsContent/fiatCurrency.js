@@ -21,6 +21,7 @@ import ListCard, {
   ListDivider,
 } from '../../../../functions/CustomElements/redesign/ListCard';
 import CurrencyRow from '../currencyPicker/currencyRow';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 
 export default function FiatCurrencyPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -149,19 +150,29 @@ export default function FiatCurrencyPage() {
             placeholder={t('settings.fiatCurrency.placeholderText')}
           />
         </View>
-        <ListCard dividerInset={52} style={styles.card}>
-          <FlatList
-            data={filteredList}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            keyboardShouldPersistTaps="always"
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={15}
-            maxToRenderPerBatch={15}
-            windowSize={5}
-            ItemSeparatorComponent={CurrencySeparator}
-          />
-        </ListCard>
+        {filteredList.length === 0 ? (
+          <View style={styles.empty}>
+            <EmptyState
+              icon="Search"
+              title={t('constants.noSearchResults')}
+              sub={t('constants.noSearchResultsSub')}
+            />
+          </View>
+        ) : (
+          <ListCard dividerInset={52} style={styles.card}>
+            <FlatList
+              data={filteredList}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              keyboardShouldPersistTaps="always"
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={15}
+              maxToRenderPerBatch={15}
+              windowSize={5}
+              ItemSeparatorComponent={CurrencySeparator}
+            />
+          </ListCard>
+        )}
       </View>
     </GlobalThemeView>
   );
@@ -183,5 +194,6 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   search: { marginTop: 16 },
-  card: { flex: 1, marginTop: 16 },
+  card: { flexShrink: 1, marginTop: 16 },
+  empty: { marginTop: 48 },
 });

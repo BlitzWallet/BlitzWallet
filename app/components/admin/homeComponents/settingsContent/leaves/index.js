@@ -95,7 +95,11 @@ export default function WalletLeaves() {
     );
   }
 
-  const minLabel = EXIT_MIN_SATS.toLocaleString();
+  const minLabel = displayCorrectDenomination({
+    amount: EXIT_MIN_SATS,
+    masterInfoObject,
+    fiatStats,
+  });
   const belowCount = Math.max(stats.totalLeaves - stats.exitEligible, 0);
   const belowValue = Math.max(stats.totalValue - stats.exitEligibleValue, 0);
 
@@ -155,7 +159,13 @@ export default function WalletLeaves() {
               minHeight={68}
               titleStyle={styles.rowTitle}
               subStyle={styles.rowSub}
-              lead={<Disc icon="Check" size={40} tone="primary" />}
+              lead={
+                <Disc
+                  icon="Check"
+                  size={40}
+                  tone={stats.exitEligible > 0 ? 'primary' : 'default'}
+                />
+              }
               trailing={
                 <View style={styles.trailing}>
                   <ThemeText
