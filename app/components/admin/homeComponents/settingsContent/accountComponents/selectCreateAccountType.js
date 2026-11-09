@@ -54,11 +54,13 @@ export default function SelectCreateAccountType() {
               'settings.accountComponents.selectCreateAccountType.recoverRecoveryPhraseTitle',
             )}
             sub={t(
-              'settings.accountComponents.selectCreateAccountType.recoverRecoveryPhraseDescription',
+              restorableIndices.length
+                ? 'settings.accountComponents.selectCreateAccountType.recoverRecoveryPhraseDescription'
+                : 'settings.accountComponents.selectCreateAccountType.recoverNoneDescription',
             )}
             titleStyle={styles.rowTitle}
             minHeight={64}
-            showChevron={true}
+            showChevron={!!restorableIndices.length}
             tone={!restorableIndices.length ? 'hidden' : 'regular'}
           />
         </ListCard>

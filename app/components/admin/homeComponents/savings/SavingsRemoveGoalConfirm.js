@@ -12,7 +12,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import { Fragment, useMemo, useState } from 'react';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
-import PageTitle from '../../../../functions/CustomElements/redesign/PageTitle';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
 
 export default function SavingsRemoveGoalConfirm(props) {
   const navigate = useNavigation();
@@ -65,9 +65,9 @@ export default function SavingsRemoveGoalConfirm(props) {
 
         <View style={styles.content}>
           <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
-          <PageTitle
-            titleStyles={styles.titleText}
-            text={t('savings.removeGoalConfirm.title')}
+          <PageHeader
+            title={t('savings.removeGoalConfirm.title')}
+            showSub={false}
           />
 
           <View style={[styles.card, { backgroundColor: tokens.surface }]}>

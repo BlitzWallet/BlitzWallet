@@ -21,18 +21,21 @@ export default function AdvancedGiftClaim() {
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [giftNumber, setGiftNumber] = useState('');
-  const currentGiftIndex = masterInfoObject?.currentDerivedGiftIndex || 1;
+  const giftCount = Math.max(
+    0,
+    (masterInfoObject?.currentDerivedGiftIndex || 1) - 1,
+  );
   const { t } = useTranslation();
   const { tokens } = useTheme();
 
   const handleClaim = async () => {
     const num = parseInt(giftNumber);
-    if (!giftNumber || num < 1 || num > currentGiftIndex) {
+    if (!giftNumber || num < 1 || num > giftCount) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t(
           'screens.inAccount.giftPages.advancedMode.invalidGiftNum',
           {
-            currentGiftIndex,
+            currentGiftIndex: giftCount,
           },
         ),
       });
@@ -52,7 +55,7 @@ export default function AdvancedGiftClaim() {
   const isValid =
     giftNumber &&
     parseInt(giftNumber) >= 1 &&
-    parseInt(giftNumber) <= currentGiftIndex;
+    parseInt(giftNumber) <= giftCount;
   const showError = giftNumber && !isValid;
 
   return (
@@ -94,10 +97,10 @@ export default function AdvancedGiftClaim() {
             content={
               showError
                 ? t('screens.inAccount.giftPages.advancedMode.invalidGiftNum', {
-                    currentGiftIndex,
+                    currentGiftIndex: giftCount,
                   })
                 : t('screens.inAccount.giftPages.advancedMode.hint', {
-                    count: currentGiftIndex,
+                    count: giftCount,
                   })
             }
           />

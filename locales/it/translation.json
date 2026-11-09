@@ -1708,6 +1708,7 @@
       "customSplit": "Personalizzato",
       "remainderNote": "{{amount}} sat rimanenti restano a te",
       "perPerson": "{{amount}} / persona",
+      "personShare": "Quota di {{name}}",
       "confirmButton": "Conferma",
       "maxContactsWarning": "Massimo 10 contatti per divisione",
       "insufficientFunds": "Fondi insufficienti. Ti mancano {{shortfall}} sats.",
@@ -1897,6 +1898,7 @@
     "seedPhrase": {
       "header": "Conserva questa frase seme in un luogo sicuro e protetto",
       "headerDesc": "Non condividerla con nessuno!",
+      "accountTitle": "Frase di recupero",
       "qrWarning": "Sei sicuro di voler mostrare questo codice QR?\n\nScansionare la tua frase seed è comodo, ma assicurati di utilizzare un dispositivo sicuro e affidabile. Questo aiuta a proteggere il tuo portafoglio.",
       "wordsText": "Parole",
       "qrText": "QR Code",
@@ -2360,6 +2362,7 @@
         "importRecoveryPhraseTitle": "Importa frase di recupero",
         "importRecoveryPhraseDescription": "Importa conti personali da un altro wallet",
         "recoverRecoveryPhraseTitle": "Recupera conto personale",
+        "recoverNoneDescription": "Nessun account personale da recuperare",
         "recoverRecoveryPhraseDescription": "Ripristina un conto personale",
         "createChildAccountTitle": "Crea conto gestito",
         "createChildAccountDescription": "Crea un portafoglio per qualcun altro"
@@ -2604,6 +2607,7 @@
         "placeholder": "Nome del conto",
         "next": "Avanti",
         "create": "Crea conto",
+        "managedSubtitle": "Questo sarà un account gestito. Dagli un nome per riconoscerlo in seguito.",
         "editTitle": "Modifica il nome dell'account",
         "editSubtitle": "Scegli un nuovo nome per riconoscere questo account in seguito."
       },
@@ -2969,7 +2973,7 @@
         "filterContacts": "Contatti",
         "filterGifts": "Regali",
         "filterSwaps": "Scambi",
-        "filterSavings": "Risparmi",
+        "filterSavings": "Obiettivi in dollari",
         "filterPools": "Pool",
         "noTxHistoryTitle": "Nessuna cronologia delle transazioni",
         "noTxHistorySub": "Le tue transazioni appariranno qui una volta che ne invii o ricevi una.",
@@ -3078,6 +3082,8 @@
           "durationSubtitle": "Scegli per quanto tempo può essere riscattato.",
           "warningTitle": "Fondi in attesa",
           "warningSubtitle": "I fondi non riscattati possono essere recuperati dopo {{numDays}} giorni.",
+          "giftSummary_one": "1 regalo · {{amount}}",
+          "giftSummary_other": "{{count}} regali × {{amount}}",
           "bulkButton": "Crea {{count}} regali",
           "maxQuantityHint": "Massimo 20 regali consentiti.",
           "amountPageHeader": "Aggiungi un importo",
@@ -3330,7 +3336,7 @@
         "selectAnotherOption": "Seleziona un'altra opzione",
         "selectAddress": "Seleziona indirizzo",
         "viewAll": "Visualizza tutti gli indirizzi",
-        "selectAddressSub": "Hai {{count}} {{asset}} su indirizzi {{chain}}.",
+        "selectAddressSub": "Hai {{count}} indirizzi {{asset}} su {{chain}}.",
         "created": "Creato il {{date}}"
       },
       "create": {
@@ -3621,7 +3627,7 @@
   },
   "savings": {
     "home": {
-      "title": "Risparmi",
+      "title": "Obiettivi in dollari",
       "howItWorksLink": "Come funziona",
       "earnedCard": "Guadagnato: {{amount}}",
       "setGoalTitle": "Imposta un obiettivo",
@@ -3664,7 +3670,7 @@
     "updateGoal": {
       "screenTitle": "Aggiorna obiettivo",
       "title": "Aggiorna obiettivo",
-      "body": "Puoi modificare l'importo dedicato al tuo obiettivo oppure rimuoverlo.",
+      "body": "Puoi modificare l'importo del tuo obiettivo oppure rimuoverlo.",
       "removeButton": "Rimuovi obiettivo",
       "updateButton": "Aggiorna obiettivo"
     },
@@ -3895,7 +3901,7 @@
     "spentIn": "Speso in {{month}}",
     "today": "Oggi",
     "chartLabel": "Spese giornaliere in {{month}}",
-    "savingsGoals": "Obiettivi di risparmio",
+    "savingsGoals": "Obiettivi in dollari",
     "goalProgress": "{{current}} di {{target}}",
     "poolsCollecting": "{{count}} in raccolta",
     "giftsUnclaimed": "{{count}} non riscattati",

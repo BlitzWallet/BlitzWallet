@@ -1708,6 +1708,7 @@
       "customSplit": "Personalizado",
       "remainderNote": "{{amount}} sat restantes se quedan contigo",
       "perPerson": "{{amount}} / persona",
+      "personShare": "Parte de {{name}}",
       "confirmButton": "Confirmar",
       "maxContactsWarning": "Máximo 10 contactos por división",
       "insufficientFunds": "Fondos insuficientes. Te faltan {{shortfall}} sats.",
@@ -1894,6 +1895,7 @@
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",
       "headerDesc": "¡No la compartas con nadie!",
+      "accountTitle": "Frase de recuperación",
       "qrWarning": "¿Seguro que desea mostrar este código QR?\n\nEscanear su frase inicial es conveniente, pero asegúrese de usar un dispositivo seguro y confiable. Esto ayuda a proteger su billetera.",
       "wordsText": "palabras",
       "qrText": "Código QR",
@@ -2357,6 +2359,7 @@
         "importRecoveryPhraseTitle": "Importar frase de recuperación",
         "importRecoveryPhraseDescription": "Importar cuentas personales desde otra wallet",
         "recoverRecoveryPhraseTitle": "Recuperar cuenta personal",
+        "recoverNoneDescription": "No hay cuentas personales para recuperar",
         "recoverRecoveryPhraseDescription": "Restaurar una cuenta personal",
         "createChildAccountTitle": "Crear cuenta gestionada",
         "createChildAccountDescription": "Crea una wallet para otra persona"
@@ -2604,6 +2607,7 @@
         "placeholder": "Nombre de la cuenta",
         "next": "Siguiente",
         "create": "Crear cuenta",
+        "managedSubtitle": "Esta será una cuenta administrada. Ponle un nombre para reconocerla después.",
         "editTitle": "Editar nombre de la cuenta",
         "editSubtitle": "Elige un nuevo nombre para reconocer esta cuenta más adelante."
       },
@@ -2969,7 +2973,7 @@
         "filterContacts": "Contactos",
         "filterGifts": "Regalos",
         "filterSwaps": "Intercambios",
-        "filterSavings": "Ahorros",
+        "filterSavings": "Metas en dólares",
         "filterPools": "Fondos",
         "noTxHistoryTitle": "Sin historial de transacciones",
         "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una.",
@@ -3078,6 +3082,8 @@
           "durationSubtitle": "Elige cuánto tiempo puede ser reclamado.",
           "warningTitle": "Fondos retenidos",
           "warningSubtitle": "Los fondos no reclamados pueden recuperarse después de {{numDays}} días.",
+          "giftSummary_one": "1 regalo · {{amount}}",
+          "giftSummary_other": "{{count}} regalos × {{amount}}",
           "bulkButton": "Crear {{count}} regalos",
           "maxQuantityHint": "Máximo de 20 regalos permitidos.",
           "amountPageHeader": "Añadir un monto",
@@ -3330,7 +3336,7 @@
         "selectAnotherOption": "Seleccionar otra opción",
         "selectAddress": "Seleccionar dirección",
         "viewAll": "Ver todas las direcciones",
-        "selectAddressSub": "Tienes {{count}} {{asset}} en direcciones de {{chain}}.",
+        "selectAddressSub": "Tienes {{count}} direcciones de {{asset}} en {{chain}}.",
         "created": "Creado el {{date}}"
       },
       "create": {
@@ -3621,7 +3627,7 @@
   },
   "savings": {
     "home": {
-      "title": "Ahorros",
+      "title": "Metas en dólares",
       "howItWorksLink": "Cómo funciona",
       "earnedCard": "Ganado: {{amount}}",
       "setGoalTitle": "Establecer meta",
@@ -3895,7 +3901,7 @@
     "spentIn": "Gastado en {{month}}",
     "today": "Hoy",
     "chartLabel": "Gasto diario en {{month}}",
-    "savingsGoals": "Objetivos de ahorro",
+    "savingsGoals": "Metas en dólares",
     "goalProgress": "{{current}} de {{target}}",
     "poolsCollecting": "{{count}} recaudando",
     "giftsUnclaimed": "{{count}} sin reclamar",

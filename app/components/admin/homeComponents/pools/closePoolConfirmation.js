@@ -23,7 +23,6 @@ import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHead
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import StepProgress from '../../../../functions/CustomElements/redesign/StepProgress';
 
 const STEP_MESSAGES = {
@@ -57,7 +56,7 @@ export default function ClosePoolConfirmation({
   const cancelButton = t('constants.cancel');
 
   useEffect(() => {
-    setContentHeight(isLoading ? 500 : 400);
+    if (isLoading) setContentHeight(500);
   }, [isLoading]);
 
   useEffect(() => {
@@ -288,7 +287,13 @@ export default function ClosePoolConfirmation({
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.confirmContainer}
+      onLayout={e =>
+        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+      }
+    >
       <Disc icon={'ArchiveX'} iconSize={24} size={56} />
       <SheetHeader
         afterIcon
@@ -301,30 +306,19 @@ export default function ClosePoolConfirmation({
           }),
         })}
       />
-      <AdaptiveButtonRow
-        labels={[cancelButton, closeButton]}
-        containerStyle={styles.buttonContainer}
-      >
-        {({ buttonStyle }) => (
-          <>
-            <CustomButton
-              buttonStyles={[styles.actionButton, buttonStyle]}
-              enableElipsis={false}
-              textContent={cancelButton}
-              actionFunction={handleBackPressFunction}
-              size={'regular'}
-              tone="secondary"
-            />
-            <CustomButton
-              buttonStyles={[styles.actionButton, buttonStyle]}
-              enableElipsis={false}
-              textContent={closeButton}
-              actionFunction={handleClosePool}
-              size={'regular'}
-            />
-          </>
-        )}
-      </AdaptiveButtonRow>
+      <View style={styles.buttonContainer}>
+        <CustomButton
+          textContent={cancelButton}
+          actionFunction={handleBackPressFunction}
+          size={'regular'}
+          tone="secondary"
+        />
+        <CustomButton
+          textContent={closeButton}
+          actionFunction={handleClosePool}
+          size={'regular'}
+        />
+      </View>
     </View>
   );
 }
@@ -334,6 +328,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 10,
   },
+  confirmContainer: {
+    marginTop: 10,
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -341,6 +338,7 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    marginTop: 'auto',
+    gap: 10,
+    marginTop: 24,
   },
 });

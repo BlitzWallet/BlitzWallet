@@ -1708,6 +1708,7 @@
       "customSplit": "Вручную",
       "remainderNote": "Остаток {{amount}} сат остаётся у вас",
       "perPerson": "{{amount}} / человек",
+      "personShare": "Доля: {{name}}",
       "confirmButton": "Подтвердить",
       "maxContactsWarning": "Максимум 10 контактов на разделение",
       "insufficientFunds": "Недостаточно средств. Не хватает {{shortfall}} сат.",
@@ -1897,6 +1898,7 @@
     "seedPhrase": {
       "header": "Храните сид-фразу в надежном месте",
       "headerDesc": "Никому не сообщайте её!",
+      "accountTitle": "Фраза восстановления",
       "qrWarning": "Показать QR-код?\n\nСканируйте только на надежном устройстве.",
       "wordsText": "Слова",
       "qrText": "QR-код",
@@ -2364,6 +2366,7 @@
         "importRecoveryPhraseTitle": "Импортировать фразу восстановления",
         "importRecoveryPhraseDescription": "Импортировать личные аккаунты из другого кошелька",
         "recoverRecoveryPhraseTitle": "Восстановить личный аккаунт",
+        "recoverNoneDescription": "Нет личных аккаунтов для восстановления",
         "recoverRecoveryPhraseDescription": "Восстановить ранее созданный личный аккаунт",
         "createChildAccountTitle": "Создать управляемый аккаунт",
         "createChildAccountDescription": "Создайте кошелёк для другого человека"
@@ -2612,6 +2615,7 @@
         "placeholder": "Название аккаунта",
         "next": "Далее",
         "create": "Создать аккаунт",
+        "managedSubtitle": "Это будет управляемый аккаунт. Дайте ему имя, чтобы потом его узнать.",
         "editTitle": "Изменить название аккаунта",
         "editSubtitle": "Выберите новое название, чтобы узнавать этот аккаунт в будущем."
       },
@@ -2977,7 +2981,7 @@
         "filterContacts": "Контакты",
         "filterGifts": "Подарки",
         "filterSwaps": "Обмены",
-        "filterSavings": "Сбережения",
+        "filterSavings": "Цели в долларах",
         "filterPools": "Пулы",
         "noTxHistoryTitle": "Нет истории транзакций",
         "noTxHistorySub": "Ваши транзакции появятся здесь, как только вы отправите или получите одну.",
@@ -3098,6 +3102,10 @@
           "durationSubtitle": "Выберите, как долго его можно получить.",
           "warningTitle": "Средства заморожены",
           "warningSubtitle": "Невостребованные средства можно вернуть через {{numDays}} дней.",
+          "giftSummary_one": "{{count}} подарок × {{amount}}",
+          "giftSummary_few": "{{count}} подарка × {{amount}}",
+          "giftSummary_many": "{{count}} подарков × {{amount}}",
+          "giftSummary_other": "{{count}} подарка × {{amount}}",
           "bulkButton": "Создать {{count}} подарков",
           "maxQuantityHint": "Максимум 20 подарков разрешено.",
           "amountPageHeader": "Добавить сумму",
@@ -3354,7 +3362,7 @@
         "selectAnotherOption": "Выбрать другой вариант",
         "selectAddress": "Выбрать адрес",
         "viewAll": "Показать все адреса",
-        "selectAddressSub": "У вас {{count}} {{asset}} на адресах {{chain}}.",
+        "selectAddressSub": "Адресов {{asset}} в сети {{chain}}: {{count}}.",
         "created": "Создано {{date}}"
       },
       "create": {
@@ -3648,7 +3656,7 @@
   },
   "savings": {
     "home": {
-      "title": "Сбережения",
+      "title": "Цели в долларах",
       "howItWorksLink": "Как это работает",
       "earnedCard": "Заработано: {{amount}}",
       "setGoalTitle": "Поставить цель",
@@ -3691,7 +3699,7 @@
     "updateGoal": {
       "screenTitle": "Обновить цель",
       "title": "Обновить цель",
-      "body": "Ты можешь изменить сумму, отложенную на цель, или удалить её.",
+      "body": "Ты можешь изменить сумму цели или удалить её.",
       "removeButton": "Удалить цель",
       "updateButton": "Обновить цель"
     },
@@ -3922,7 +3930,7 @@
     "spentIn": "Потрачено в {{month}}",
     "today": "Сегодня",
     "chartLabel": "Ежедневные расходы в {{month}}",
-    "savingsGoals": "Цели накоплений",
+    "savingsGoals": "Цели в долларах",
     "goalProgress": "{{current}} из {{target}}",
     "poolsCollecting": "{{count}} собирают",
     "giftsUnclaimed": "{{count}} не получено",

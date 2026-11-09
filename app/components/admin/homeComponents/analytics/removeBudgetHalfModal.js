@@ -5,7 +5,6 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
-import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 
 export default function RemoveBudgetHalfModal({
   setContentHeight,
@@ -19,7 +18,6 @@ export default function RemoveBudgetHalfModal({
   const removeButton = t('constants.remove');
 
   useEffect(() => {
-    setContentHeight(400);
     return () => {
       isMounted.current = false;
     };
@@ -31,50 +29,43 @@ export default function RemoveBudgetHalfModal({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      onLayout={e =>
+        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+      }
+    >
       <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
       <SheetHeader
         afterIcon
         title={t('analytics.budget.removeBudgetTitle')}
         sub={t('analytics.budget.removeBudgetSub')}
       />
-      <AdaptiveButtonRow
-        labels={[cancelButton, removeButton]}
-        containerStyle={styles.buttonContainer}
-      >
-        {({ buttonStyle }) => (
-          <>
-            <CustomButton
-              buttonStyles={[styles.actionButton, buttonStyle]}
-              enableElipsis={false}
-              textContent={cancelButton}
-              actionFunction={handleBackPressFunction}
-              size={'regular'}
-              tone="secondary"
-            />
-            <CustomButton
-              buttonStyles={[styles.actionButton, buttonStyle]}
-              enableElipsis={false}
-              textContent={removeButton}
-              actionFunction={removeBudget}
-              size={'regular'}
-              tone="danger"
-            />
-          </>
-        )}
-      </AdaptiveButtonRow>
+      <View style={styles.buttonContainer}>
+        <CustomButton
+          textContent={cancelButton}
+          actionFunction={handleBackPressFunction}
+          size={'regular'}
+          tone="secondary"
+        />
+        <CustomButton
+          textContent={removeButton}
+          actionFunction={removeBudget}
+          size={'regular'}
+          tone="danger"
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingTop: 15,
   },
   buttonContainer: {
-    width: '100%',
     gap: 10,
-    marginTop: 'auto',
+    marginTop: 24,
   },
 });

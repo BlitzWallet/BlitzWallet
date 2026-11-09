@@ -110,6 +110,7 @@ export default function AnalyticsCreateBudgetPage() {
               userBalanceDenomination: primaryDisplay.denomination,
             }}
             amountSize={60}
+            mutedValue={!localSatAmount}
           />
           <ThemeText
             styles={[styles.resets, { color: tokens.muted }]}

@@ -1708,6 +1708,7 @@
       "customSplit": "Personnalisé",
       "remainderNote": "{{amount}} sat restant reste avec vous",
       "perPerson": "{{amount}} / personne",
+      "personShare": "Part de {{name}}",
       "confirmButton": "Confirmer",
       "maxContactsWarning": "Maximum 10 contacts par partage",
       "insufficientFunds": "Fonds insuffisants. Il vous manque {{shortfall}} sats.",
@@ -1897,6 +1898,7 @@
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",
       "headerDesc": "Ne le partagez avec personne !",
+      "accountTitle": "Phrase de récupération",
       "qrWarning": "Êtes-vous sûr de vouloir afficher ce code QR ?\n\nScanner votre phrase de semence est pratique, mais assurez-vous d'utiliser un appareil sécurisé et de confiance. Cela permet de préserver la sécurité de votre portefeuille.",
       "wordsText": "Mots",
       "qrText": "Code QR",
@@ -2360,6 +2362,7 @@
         "importRecoveryPhraseTitle": "Importer une phrase de récupération",
         "importRecoveryPhraseDescription": "Importer des comptes personnels depuis un autre wallet",
         "recoverRecoveryPhraseTitle": "Récupérer un compte personnel",
+        "recoverNoneDescription": "Aucun compte personnel à récupérer",
         "recoverRecoveryPhraseDescription": "Restaurer un compte personnel",
         "createChildAccountTitle": "Créer un compte géré",
         "createChildAccountDescription": "Créez un portefeuille pour quelqu'un d'autre"
@@ -2604,6 +2607,7 @@
         "placeholder": "Nom du compte",
         "next": "Suivant",
         "create": "Créer le compte",
+        "managedSubtitle": "Ce sera un compte géré. Donnez-lui un nom pour le reconnaître plus tard.",
         "editTitle": "Modifier le nom du compte",
         "editSubtitle": "Choisissez un nouveau nom pour reconnaître ce compte plus tard."
       },
@@ -2969,7 +2973,7 @@
         "filterContacts": "Contacts",
         "filterGifts": "Cadeaux",
         "filterSwaps": "Échanges",
-        "filterSavings": "Épargne",
+        "filterSavings": "Objectifs en dollars",
         "filterPools": "Cagnottes",
         "noTxHistoryTitle": "Aucun historique de transactions",
         "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une.",
@@ -3078,6 +3082,8 @@
           "durationSubtitle": "Choisissez combien de temps il peut être réclamé.",
           "warningTitle": "Fonds retenus",
           "warningSubtitle": "Les fonds non réclamés peuvent être récupérés après {{numDays}} jours.",
+          "giftSummary_one": "1 cadeau · {{amount}}",
+          "giftSummary_other": "{{count}} cadeaux × {{amount}}",
           "bulkButton": "Créer {{count}} cadeaux",
           "maxQuantityHint": "Maximum de 20 cadeaux autorisés.",
           "amountPageHeader": "Ajouter un montant",
@@ -3330,7 +3336,7 @@
         "selectAnotherOption": "Sélectionner une autre option",
         "selectAddress": "Sélectionner une adresse",
         "viewAll": "Voir toutes les adresses",
-        "selectAddressSub": "Vous avez {{count}} {{asset}} sur des adresses {{chain}}.",
+        "selectAddressSub": "Vous avez {{count}} adresses {{asset}} sur {{chain}}.",
         "created": "Créé le {{date}}"
       },
       "create": {
@@ -3621,7 +3627,7 @@
   },
   "savings": {
     "home": {
-      "title": "Épargne",
+      "title": "Objectifs en dollars",
       "howItWorksLink": "Comment ça marche",
       "earnedCard": "Gagné : {{amount}}",
       "setGoalTitle": "Définir un objectif",
@@ -3664,7 +3670,7 @@
     "updateGoal": {
       "screenTitle": "Mettre à jour l'objectif",
       "title": "Mettre à jour l'objectif",
-      "body": "Tu peux modifier le montant alloué à ton objectif ou le supprimer.",
+      "body": "Tu peux modifier le montant de ton objectif ou le supprimer.",
       "removeButton": "Supprimer l'objectif",
       "updateButton": "Mettre à jour l'objectif"
     },
@@ -3895,7 +3901,7 @@
     "spentIn": "Dépensé en {{month}}",
     "today": "Aujourd'hui",
     "chartLabel": "Dépenses quotidiennes en {{month}}",
-    "savingsGoals": "Objectifs d'épargne",
+    "savingsGoals": "Objectifs en dollars",
     "goalProgress": "{{current}} sur {{target}}",
     "poolsCollecting": "{{count}} en collecte",
     "giftsUnclaimed": "{{count}} non réclamés",

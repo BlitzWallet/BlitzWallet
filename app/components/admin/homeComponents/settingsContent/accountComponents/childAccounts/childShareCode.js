@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -20,11 +21,15 @@ import PairingExpiryClock from './pairingExpiryClock';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
+import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
+import { copyToClipboard } from '../../../../../../functions';
+import { useToast } from '../../../../../../../context-store/toastManager';
 
 export default function ChildShareCode() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = useTheme();
+  const { showToast } = useToast();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { status, pairingCode, isEnded, resetSession } = useChildPairing();
@@ -66,14 +71,25 @@ export default function ChildShareCode() {
               title={t('settings.childAccounts.pairing.codeTitle')}
               sub={t('settings.childAccounts.pairing.codeSubtitle')}
             />
-            <View style={[styles.card, { backgroundColor: tokens.surface }]}>
+            <TouchableOpacity
+              onPress={() => copyToClipboard(pairingCode, showToast)}
+              accessibilityRole="button"
+              accessibilityLabel={t('constants.copy')}
+              style={[styles.card, { backgroundColor: tokens.surface }]}
+            >
               <ThemeText
                 CustomNumberOfLines={1}
                 adjustsFontSizeToFit={true}
                 styles={styles.codeValue}
                 content={firstHalf + ' ' + secondHalf}
               />
-            </View>
+              <ThemeIcon
+                redesign
+                iconName="Copy"
+                size={18}
+                colorOverride={tokens.muted}
+              />
+            </TouchableOpacity>
             <View style={styles.waiting}>
               <ActivityIndicator size="small" color={tokens.muted} />
               <ThemeText
@@ -97,16 +113,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 20,
     marginBottom: 16,
+    flexDirection: 'row',
+    gap: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   codeValue: {
     fontSize: 32,
-    lineHeight: 40,
     letterSpacing: 1,
     includeFontPadding: false,
     textAlign: 'center',
     fontVariant: ['tabular-nums'],
+    flexShrink: 1,
   },
   waiting: {
     flexDirection: 'row',

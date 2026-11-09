@@ -215,14 +215,16 @@ export default function AddFriendsToSplit(props) {
             />
           </ListCard>
         ) : (
-          <EmptyState
-            icon="UsersRound"
-            title={
-              decodedAddedContacts.length > 1
-                ? t('contacts.splitBill.noContactsSearch')
-                : t('contacts.splitBill.noContactsEmpty')
-            }
-          />
+          <View style={styles.empty}>
+            <EmptyState
+              icon="UsersRound"
+              title={
+                decodedAddedContacts.length > 1
+                  ? t('contacts.splitBill.noContactsSearch')
+                  : t('contacts.splitBill.noContactsEmpty')
+              }
+            />
+          </View>
         )}
 
         <View style={styles.spacer} />
@@ -263,6 +265,7 @@ const styles = StyleSheet.create({
   },
   chipName: { fontSize: 14, lineHeight: 20, maxWidth: 120 },
   card: { flexShrink: 1 },
+  empty: { marginTop: 24 },
   list: { flexGrow: 0 },
   spacer: { flex: 1 },
   nextButton: { marginTop: CONTENT_KEYBOARD_OFFSET },

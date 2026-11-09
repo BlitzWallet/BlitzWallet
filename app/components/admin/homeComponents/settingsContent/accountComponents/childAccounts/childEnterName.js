@@ -217,7 +217,7 @@ export default function ChildEnterName(props) {
             sub={t(
               editChild
                 ? 'settings.childAccounts.enterName.editSubtitle'
-                : 'settings.childAccounts.enterName.subtitle',
+                : 'settings.childAccounts.enterName.managedSubtitle',
             )}
           />
           <UserInput

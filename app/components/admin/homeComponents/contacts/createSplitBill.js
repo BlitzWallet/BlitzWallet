@@ -119,6 +119,24 @@ export default function CreateSplitBill(props) {
     }
   }, [splitMode]);
 
+  // Even -> Custom keeps the typed total: seed each share with the even split
+  // (last person takes the remainder, as buildRecipients does).
+  const handleModeChange = mode => {
+    if (mode === 'custom' && splitMode === 'even') {
+      const total = isUSD ? totalCentsInt : totalSatsInt;
+      const per = n > 0 ? Math.floor(total / n) : 0;
+      setCustomAmounts(prev => {
+        const next = { ...prev };
+        selectedContacts.forEach((c, i) => {
+          if (next[c.uuid] == null)
+            next[c.uuid] = i === n - 1 ? total - per * (n - 1) : per;
+        });
+        return next;
+      });
+    }
+    setSplitMode(mode);
+  };
+
   const totalSatsInt = useMemo(() => parseInt(totalSats, 10) || 0, [totalSats]);
   const totalCentsInt = useMemo(
     () => parseInt(totalCents, 10) || 0,
@@ -388,13 +406,15 @@ export default function CreateSplitBill(props) {
   );
 
   const contactElements = useMemo(() => {
-    return selectedContacts.map(contact => {
+    return selectedContacts.map((contact, index) => {
       const uniqueName = contact.uniqueName || '';
       const contactName =
         contact.name || uniqueName || t('contacts.splitBill.noName') || '';
       const contactAmount =
         splitMode === 'even'
-          ? perPersonNative
+          ? index === selectedContacts.length - 1
+            ? totalNative - perPersonNative * (selectedContacts.length - 1)
+            : perPersonNative
           : typeof customAmounts[contact.uuid] === 'number'
           ? customAmounts[contact.uuid]
           : parseInt(customAmounts[contact.uuid] || '0', 10);
@@ -412,6 +432,7 @@ export default function CreateSplitBill(props) {
           autoAdjustFontSize
           styles={styles.amountText}
           balance={contactAmount}
+          neverHideBalance={true}
         />
       );
 
@@ -431,6 +452,8 @@ export default function CreateSplitBill(props) {
           }
           title={contactName}
           sub={uniqueName ? `@${uniqueName}` : undefined}
+          titleLines={1}
+          subLines={1}
           trailing={
             splitMode === 'custom' ? (
               <TouchableOpacity
@@ -443,6 +466,9 @@ export default function CreateSplitBill(props) {
                       returnLocation: 'CreateSplitBill',
                       sliderHight: 0.5,
                       type: contact.uuid,
+                      title: t('contacts.splitBill.personShare', {
+                        name: contactName,
+                      }),
                       forceUSD: isUSD,
                     }),
                   );
@@ -461,6 +487,7 @@ export default function CreateSplitBill(props) {
     selectedContacts,
     splitMode,
     perPersonNative,
+    totalNative,
     customAmounts,
     cache,
     isUSD,
@@ -522,24 +549,21 @@ export default function CreateSplitBill(props) {
                 mutedValue={totalNative <= 0}
               />
             </TouchableOpacity>
-            <ThemeText
-              variant="body"
-              styles={[styles.muted, { color: tokens.muted }]}
-              content={
-                splitMode === 'even'
-                  ? t('contacts.splitBill.perPerson', {
-                      amount: formatNative(perPersonNative),
-                    })
-                  : t('contacts.splitBill.totalSub', {
-                      amount: formatNative(totalNative),
-                    })
-              }
-            />
+            {/* Custom: the hero already is the total, so no repeat. */}
+            {splitMode === 'even' && (
+              <ThemeText
+                variant="body"
+                styles={[styles.muted, { color: tokens.muted }]}
+                content={t('contacts.splitBill.perPerson', {
+                  amount: formatNative(perPersonNative),
+                })}
+              />
+            )}
             <View style={styles.segmented}>
               <Segmented
                 fit
                 value={splitMode}
-                onChange={setSplitMode}
+                onChange={handleModeChange}
                 options={[
                   { value: 'even', label: t('contacts.splitBill.evenSplit') },
                   {

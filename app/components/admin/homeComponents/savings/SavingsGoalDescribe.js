@@ -8,10 +8,7 @@ import {
 } from '../../../../functions/CustomElements';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {
-  keyboardGoBack,
-  keyboardNavigate,
-} from '../../../../functions/customNavigation';
+import { keyboardNavigate } from '../../../../functions/customNavigation';
 import GetThemeColors from '../../../../hooks/themeColors';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
@@ -35,17 +32,13 @@ export default function SavingsGoalDescribe(props) {
       if (isGoingBackRef.current) return;
       setIsSaving(true);
       isGoingBackRef.current = true;
-      if (!goalName.trim()) {
-        await keyboardGoBack(navigate);
-      } else {
-        await keyboardNavigate(() => {
-          navigate.navigate('SavingsGoalAmount', {
-            emoji,
-            goalName: goalName.trim(),
-            mode: 'create',
-          });
+      await keyboardNavigate(() => {
+        navigate.navigate('SavingsGoalAmount', {
+          emoji,
+          goalName: goalName.trim(),
+          mode: 'create',
         });
-      }
+      });
     } catch (err) {
       console.log(err);
     } finally {
@@ -94,10 +87,9 @@ export default function SavingsGoalDescribe(props) {
         <CustomButton
           buttonStyles={[styles.primaryButton]}
           actionFunction={handleSave}
+          disabled={!goalName.trim()}
           useLoading={isSaving}
-          textContent={
-            !goalName.trim() ? t('constants.back') : t('constants.continue')
-          }
+          textContent={t('constants.continue')}
           size={'regular'}
         />
       </View>

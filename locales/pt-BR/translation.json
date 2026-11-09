@@ -19,7 +19,7 @@
     "amount": "Quantia",
     "sent": "Você enviou",
     "received": "Você recebeu",
-    "store": "Marketplace",
+    "store": "Loja",
     "faucet": "Torneira",
     "today": "Hoje",
     "yesterday": "Ontem",
@@ -1708,6 +1708,7 @@
       "customSplit": "Personalizado",
       "remainderNote": "{{amount}} sat restantes ficam com você",
       "perPerson": "{{amount}} / pessoa",
+      "personShare": "Parte de {{name}}",
       "confirmButton": "Confirmar",
       "maxContactsWarning": "Máximo de 10 contatos por divisão",
       "insufficientFunds": "Fundos insuficientes. Faltam {{shortfall}} sats.",
@@ -1897,6 +1898,7 @@
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
       "headerDesc": "Não compartilhe com ninguém!",
+      "accountTitle": "Frase de recuperação",
       "qrWarning": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase de recuperação é prático, mas certifique-se de usar um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura.",
       "wordsText": "Palavras",
       "qrText": "Código QR",
@@ -2360,6 +2362,7 @@
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas pessoais de outras carteiras",
         "recoverRecoveryPhraseTitle": "Restaurar conta pessoal",
+        "recoverNoneDescription": "Nenhuma conta pessoal para recuperar",
         "recoverRecoveryPhraseDescription": "Recuperar uma conta pessoal",
         "createChildAccountTitle": "Criar conta parental",
         "createChildAccountDescription": "Crie uma conta para outra pessoa"
@@ -2604,6 +2607,7 @@
         "placeholder": "Nome da conta",
         "next": "Próximo",
         "create": "Criar conta",
+        "managedSubtitle": "Esta será uma conta gerenciada. Dê um nome a ela para reconhecê-la depois.",
         "editTitle": "Editar nome da conta",
         "editSubtitle": "Escolha um novo nome para esta conta."
       },
@@ -2969,7 +2973,7 @@
         "filterContacts": "Contatos",
         "filterGifts": "Vales-Blitz",
         "filterSwaps": "Trocas",
-        "filterSavings": "Caixinhas",
+        "filterSavings": "Metas em dólar",
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
         "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta.",
@@ -3078,6 +3082,8 @@
           "durationSubtitle": "Escolha o prazo máximo que o Vale-Blitz poderá ser resgatado.",
           "warningTitle": "Fundos expirados",
           "warningSubtitle": "Fundos não resgatados podem ser recuperados após {{numDays}} dias.",
+          "giftSummary_one": "1 presente · {{amount}}",
+          "giftSummary_other": "{{count}} presentes × {{amount}}",
           "bulkButton": "Criar {{count}} Vales-Blitz",
           "maxQuantityHint": "Máximo de 20 Vales-Blitz permitidos.",
           "amountPageHeader": "Escolha uma quantia",
@@ -3330,7 +3336,7 @@
         "selectAnotherOption": "Selecionar outra opção",
         "selectAddress": "Selecionar endereço",
         "viewAll": "Ver todos os endereços",
-        "selectAddressSub": "Você tem {{count}} {{asset}} em endereços {{chain}}.",
+        "selectAddressSub": "Você tem {{count}} endereços {{asset}} na rede {{chain}}.",
         "created": "Criado em {{date}}"
       },
       "create": {
@@ -3621,7 +3627,7 @@
   },
   "savings": {
     "home": {
-      "title": "Caixinhas",
+      "title": "Metas em dólar",
       "howItWorksLink": "Como funciona",
       "earnedCard": "Já rendeu: {{amount}}",
       "setGoalTitle": "Escolha um desejo",
@@ -3895,7 +3901,7 @@
     "spentIn": "Gasto em {{month}}",
     "today": "Hoje",
     "chartLabel": "Gastos diários em {{month}}",
-    "savingsGoals": "Metas de poupança",
+    "savingsGoals": "Metas em dólar",
     "goalProgress": "{{current}} de {{target}}",
     "poolsCollecting": "{{count}} coletando",
     "giftsUnclaimed": "{{count}} não resgatados",

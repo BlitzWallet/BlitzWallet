@@ -151,9 +151,7 @@ export default function PosSettingsPage() {
             brandLogoUpdated={brandLogoUpdated}
           />
 
-          <SectionHeader
-            title={t('settings.posPath.settings.storeNameInputDesc')}
-          />
+          <SectionHeader title={t('constants.store')} />
           <ListCard>
             <ListRow
               onPress={() => navigate.navigate('EditStoreNamePage')}

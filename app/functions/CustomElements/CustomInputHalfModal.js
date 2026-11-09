@@ -19,6 +19,7 @@ import useDisplayCurrencyController from '../../hooks/useDisplayCurrencyControll
 import useCurrencyDisplay from '../../hooks/useCurrencyDisplay';
 import BudgetCurrencyButton from './redesign/CurrencyButton';
 import AmountHero from './redesign/AmountHero';
+import SheetHeader from './redesign/SheetHeader';
 import formatBalanceAmount from '../formatNumber';
 
 export default function CustomInputHalfModal(props) {
@@ -28,6 +29,7 @@ export default function CustomInputHalfModal(props) {
     type,
     returnLocation,
     forceUSD,
+    title,
   } = props;
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -138,13 +140,22 @@ export default function CustomInputHalfModal(props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.budgetButton}>
-        <BudgetCurrencyButton
-          label={isSats ? 'SAT' : normalizedDisplayCurrency}
-          onPress={openPicker}
-          disabled={isLoadingRate}
-          accessibilityLabel={t('settings.nwc.createNWCAmount.changeCurrency')}
-        />
+      <View style={styles.headerRow}>
+        {!!title && (
+          <View style={styles.titleWrap}>
+            <SheetHeader first title={title} />
+          </View>
+        )}
+        <View style={styles.budgetButton}>
+          <BudgetCurrencyButton
+            label={isSats ? 'SAT' : normalizedDisplayCurrency}
+            onPress={openPicker}
+            disabled={isLoadingRate}
+            accessibilityLabel={t(
+              'settings.nwc.createNWCAmount.changeCurrency',
+            )}
+          />
+        </View>
       </View>
 
       <AmountHero
@@ -180,6 +191,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  titleWrap: { flex: 1 },
   budgetButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',

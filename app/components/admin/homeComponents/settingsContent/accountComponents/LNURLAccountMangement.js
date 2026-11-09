@@ -70,7 +70,7 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
         >
           <View style={[styles.addressRow, { width: qrSize }]}>
             <ThemeText
-              CustomNumberOfLines={1}
+              CustomNumberOfLines={2}
               styles={[styles.addressText, { color: COLORS.lightModeText }]}
               content={lnurlAddress}
             />
@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     flexShrink: 1,
+    textAlign: 'center',
     includeFontPadding: false,
   },
   mainButton: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },

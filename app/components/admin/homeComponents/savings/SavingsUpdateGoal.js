@@ -11,6 +11,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import GetThemeColors from '../../../../hooks/themeColors';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
 
 export default function SavingsUpdateGoal(props) {
   const navigate = useNavigation();
@@ -31,15 +32,9 @@ export default function SavingsUpdateGoal(props) {
 
         <View style={styles.content}>
           <Disc icon={'RefreshCcw'} tone="white" size={56} iconSize={24} />
-          <ThemeText
-            variant={'title'}
-            styles={styles.title}
-            content={t('savings.updateGoal.title')}
-          />
-          <ThemeText
-            variant={'body'}
-            styles={[styles.body, { color: tokens.muted }]}
-            content={t('savings.updateGoal.body')}
+          <PageHeader
+            title={t('savings.updateGoal.title')}
+            sub={t('savings.updateGoal.body')}
           />
         </View>
 
@@ -81,12 +76,6 @@ const styles = StyleSheet.create({
   content: {
     marginTop: 24,
     flex: 1,
-  },
-  title: {
-    marginTop: 20,
-  },
-  body: {
-    marginTop: 8,
   },
   actions: {
     gap: 12,

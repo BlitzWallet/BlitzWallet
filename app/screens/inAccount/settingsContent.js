@@ -116,6 +116,9 @@ export default function SettingsContentIndex(props) {
               title={
                 selectedPage?.toLowerCase() === 'backup wallet'
                   ? ''
+                  : selectedPage?.toLowerCase() === 'show seed phrase' &&
+                    extraData?.mnemonic
+                  ? t('settings.seedPhrase.accountTitle')
                   : t(
                       `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
                     )

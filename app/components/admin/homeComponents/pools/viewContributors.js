@@ -58,7 +58,8 @@ export default function ViewContibutors(props) {
         <SectionHeader
           first={true}
           title={t('wallet.pools.activityInfoHeader', {
-            numPeople: contributers.length,
+            count: contributions.length,
+            numPeople: contributions.length,
             contributionAmount: displayCorrectDenomination({
               amount: pool.currentAmount,
               masterInfoObject,

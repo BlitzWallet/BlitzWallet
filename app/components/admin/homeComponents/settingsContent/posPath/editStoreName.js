@@ -21,12 +21,12 @@ import {
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { canUsePOSName } from '../../../../../../db';
+import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
 
 const MAX_LENGTH = 30;
 
@@ -141,13 +141,6 @@ export default function EditStoreNamePage() {
   const isError =
     nameState === NAME_STATE.TAKEN || nameState === NAME_STATE.INVALID;
 
-  const statusText =
-    nameState === NAME_STATE.TAKEN
-      ? t('settings.posPath.settings.nameTakenError')
-      : nameState === NAME_STATE.INVALID
-      ? t('settings.posPath.settings.nameRegexError')
-      : `${value.length} / ${MAX_LENGTH}`;
-
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
@@ -157,6 +150,7 @@ export default function EditStoreNamePage() {
     >
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          title={t('settings.posPath.settings.storeNameInputDesc')}
           onBack={() => {
             if (isGoingBackRef.current) return;
             isGoingBackRef.current = true;
@@ -179,62 +173,49 @@ export default function EditStoreNamePage() {
               />,
             ]}
           />
-
           <View style={styles.inputCard}>
-            <CustomSearchInput
-              textInputRef={inputRef}
-              inputText={value}
-              setInputText={setValue}
+            <UserInput
+              inputRef={inputRef}
+              value={value}
+              onChangeText={setValue}
               maxLength={MAX_LENGTH}
-              placeholderText={t(
+              placeholder={t(
                 'settings.posPath.settings.storeNameInputPlaceholder',
               )}
-              onBlurFunction={handleHardwareBack}
-              onFocusFunction={() => setIsKeyboardActive(true)}
-              textInputStyles={{
-                ...styles.input,
-                color: tokens.onField,
-                backgroundColor: tokens.field,
-              }}
+              onFocus={() => setIsKeyboardActive(true)}
+              onBlur={handleHardwareBack}
+              showTextCount
+              right={
+                <View style={styles.statusIcon}>
+                  {nameState === NAME_STATE.CHECKING ? (
+                    <ActivityIndicator size="small" color={tokens.muted} />
+                  ) : nameState === NAME_STATE.AVAILABLE ? (
+                    <ThemeIcon
+                      redesign
+                      iconName="CircleCheck"
+                      size={20}
+                      colorOverride={COLORS.nostrGreen}
+                    />
+                  ) : isError ? (
+                    <ThemeIcon
+                      redesign
+                      iconName="CircleAlert"
+                      size={20}
+                      colorOverride={tokens.danger}
+                    />
+                  ) : null}
+                </View>
+              }
             />
-            <View style={styles.statusIcon}>
-              {nameState === NAME_STATE.CHECKING ? (
-                <ActivityIndicator size="small" color={tokens.muted} />
-              ) : nameState === NAME_STATE.AVAILABLE ? (
-                <ThemeIcon
-                  redesign
-                  iconName="CircleCheck"
-                  size={20}
-                  colorOverride={COLORS.nostrGreen}
-                />
-              ) : isError ? (
-                <ThemeIcon
-                  redesign
-                  iconName="CircleAlert"
-                  size={20}
-                  colorOverride={tokens.danger}
-                />
-              ) : null}
-            </View>
           </View>
-
-          <ThemeText
-            styles={[
-              styles.statusText,
-              { color: isError ? tokens.danger : tokens.muted },
-            ]}
-            content={statusText}
-          />
         </View>
 
         <CustomButton
           size="regular"
-          tone={didEdit && canSave ? undefined : 'secondary'}
+          disabled={!(didEdit && canSave)}
           actionFunction={handleSave}
           useLoading={isSaving}
-          textContent={
-            didEdit && canSave ? t('constants.save') : t('constants.back')
-          }
+          textContent={t('constants.save')}
         />
       </View>
     </CustomKeyboardAvoidingView>
@@ -264,30 +245,14 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   inputCard: {
-    justifyContent: 'center',
     marginTop: 20,
   },
-  input: {
-    height: 52,
-    borderRadius: 12,
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 16,
-    paddingRight: 48,
-    fontSize: 16,
-  },
+
   statusIcon: {
     width: 24,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
     right: 14,
-  },
-  statusText: {
-    fontSize: 13,
-    lineHeight: 19,
-    includeFontPadding: false,
-    marginTop: 8,
-    marginHorizontal: 4,
   },
 });

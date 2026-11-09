@@ -52,6 +52,9 @@ export default function SavingsGoalAmount(props) {
       masterInfoObject,
     });
 
+  const showCurrentTarget =
+    mode === 'update' && !amountValue && !!selectedGoal?.targetAmountMicros;
+
   const localSatAmount = convertDisplayToSats(amountValue);
 
   const fiatAmount = (
@@ -75,7 +78,9 @@ export default function SavingsGoalAmount(props) {
           <AmountHero
             amount={
               primaryDisplay.denomination === 'fiat'
-                ? Number(amountValue || 0).toFixed(2)
+                ? showCurrentTarget
+                  ? (selectedGoal.targetAmountMicros / 1e6).toFixed(2)
+                  : Number(amountValue || 0).toFixed(2)
                 : amountValue || 0
             }
             fiatStats={primaryDisplay.forceFiatStats}
@@ -85,6 +90,7 @@ export default function SavingsGoalAmount(props) {
             }}
             forceCurrency={primaryDisplay.forceCurrency}
             convertAmount={false}
+            mutedValue={showCurrentTarget}
             amountSize={60}
           />
         </View>

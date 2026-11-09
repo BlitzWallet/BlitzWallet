@@ -234,11 +234,14 @@ export default function AnalyticsPage() {
                 <View
                   style={[
                     styles.statusPill,
-                    { backgroundColor: budgetStatus.color },
+                    { backgroundColor: budgetStatus.pillBg },
                   ]}
                 >
                   <ThemeText
-                    styles={[styles.statusText, { color: tokens.onAccent }]}
+                    styles={[
+                      styles.statusText,
+                      { color: budgetStatus.pillText },
+                    ]}
                     content={budgetStatus.label}
                   />
                 </View>

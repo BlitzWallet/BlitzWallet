@@ -1708,6 +1708,7 @@
       "customSplit": "Anpassat",
       "remainderNote": "{{amount}} sat i rest stannar hos dig",
       "perPerson": "{{amount}} / person",
+      "personShare": "{{name}}s andel",
       "confirmButton": "Bekräfta",
       "maxContactsWarning": "Max 10 kontakter per uppdelning",
       "insufficientFunds": "Otillräckliga medel. Du saknar {{shortfall}} sats.",
@@ -1897,6 +1898,7 @@
     "seedPhrase": {
       "header": "Förvara denna fröfras på ett säkert och tryggt ställe",
       "headerDesc": "Dela inte med dig av den till någon!",
+      "accountTitle": "Återställningsfras",
       "qrWarning": "Är du säker på att du vill visa den här QR-koden?\n\nAtt skanna din seed-fras är bekvämt, men se till att du använder en säker och betrodd enhet. Detta hjälper till att hålla din plånbok säker.",
       "wordsText": "Ord",
       "qrText": "QR-kod",
@@ -2360,6 +2362,7 @@
         "importRecoveryPhraseTitle": "Importera återställningsfras",
         "importRecoveryPhraseDescription": "Importera personliga konton från en annan wallet",
         "recoverRecoveryPhraseTitle": "Återställ personligt konto",
+        "recoverNoneDescription": "Inga personliga konton att återställa",
         "recoverRecoveryPhraseDescription": "Återställ ett personligt konto",
         "createChildAccountTitle": "Skapa hanterat konto",
         "createChildAccountDescription": "Skapa en plånbok åt någon annan"
@@ -2604,6 +2607,7 @@
         "placeholder": "Kontonamn",
         "next": "Nästa",
         "create": "Skapa konto",
+        "managedSubtitle": "Detta blir ett hanterat konto. Ge det ett namn så att du känner igen det senare.",
         "editTitle": "Redigera kontonamn",
         "editSubtitle": "Välj ett nytt namn så att du kan känna igen kontot senare."
       },
@@ -2969,7 +2973,7 @@
         "filterContacts": "Kontakter",
         "filterGifts": "Gåvor",
         "filterSwaps": "Växlingar",
-        "filterSavings": "Sparande",
+        "filterSavings": "Dollarmål",
         "filterPools": "Pooler",
         "noTxHistoryTitle": "Ingen transaktionshistorik",
         "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en.",
@@ -3078,6 +3082,8 @@
           "durationSubtitle": "Välj hur länge det kan hämtas.",
           "warningTitle": "Tillgångar spärrade",
           "warningSubtitle": "Ej inlösta tillgångar kan återkrävas efter {{numDays}} dagar.",
+          "giftSummary_one": "1 present · {{amount}}",
+          "giftSummary_other": "{{count}} presenter × {{amount}}",
           "bulkButton": "Skapa {{count}} presenter",
           "maxQuantityHint": "Maximalt 20 presenter tillåtna.",
           "amountPageHeader": "Lägg till ett belopp",
@@ -3330,7 +3336,7 @@
         "selectAnotherOption": "Välj ett annat alternativ",
         "selectAddress": "Välj adress",
         "viewAll": "Visa alla adresser",
-        "selectAddressSub": "Du har {{count}} {{asset}} på {{chain}}-adresser.",
+        "selectAddressSub": "Du har {{count}} {{asset}}-adresser på {{chain}}.",
         "created": "Skapad {{date}}"
       },
       "create": {
@@ -3621,7 +3627,7 @@
   },
   "savings": {
     "home": {
-      "title": "Sparande",
+      "title": "Dollarmål",
       "howItWorksLink": "Så här fungerar det",
       "earnedCard": "Intjänat: {{amount}}",
       "setGoalTitle": "Sätt ett mål",
@@ -3664,7 +3670,7 @@
     "updateGoal": {
       "screenTitle": "Uppdatera mål",
       "title": "Uppdatera mål",
-      "body": "Du kan ändra hur mycket du sparat mot ditt mål eller ta bort det.",
+      "body": "Du kan ändra målbeloppet eller ta bort det.",
       "removeButton": "Ta bort mål",
       "updateButton": "Uppdatera mål"
     },
@@ -3895,7 +3901,7 @@
     "spentIn": "Spenderat i {{month}}",
     "today": "Idag",
     "chartLabel": "Dagliga utgifter i {{month}}",
-    "savingsGoals": "Sparmål",
+    "savingsGoals": "Dollarmål",
     "goalProgress": "{{current}} av {{target}}",
     "poolsCollecting": "{{count}} samlar in",
     "giftsUnclaimed": "{{count}} ej hämtade",

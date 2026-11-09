@@ -21,7 +21,8 @@ export default function GiftsPageHome() {
           title={t('screens.inAccount.giftPages.giftsHome.title')}
           right={
             <IconButton
-              icon={'RotateCcw'}
+              icon={'Undo2'}
+              label="screens.inAccount.giftPages.reclaimPage.header"
               onPress={() => navigate.navigate('ReclaimGift')}
             />
           }

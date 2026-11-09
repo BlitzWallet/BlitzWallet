@@ -25,6 +25,7 @@ export default function UserInput({
   multiline = false,
   forceSheet,
   right,
+  inputRef,
 }) {
   const { tokens } = useTheme();
   const inSheet = useInSheet();
@@ -39,6 +40,7 @@ export default function UserInput({
     <View>
       <View>
         <CustomSearchInput
+          textInputRef={inputRef}
           onFocusFunction={() => {
             setIsFocused(true);
             onFocus?.();

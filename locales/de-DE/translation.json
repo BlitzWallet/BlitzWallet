@@ -1708,6 +1708,7 @@
       "customSplit": "Individuell",
       "remainderNote": "{{amount}} Sat Rest bleibt bei Ihnen",
       "perPerson": "{{amount}} / Person",
+      "personShare": "Anteil von {{name}}",
       "confirmButton": "Bestätigen",
       "maxContactsWarning": "Maximal 10 Kontakte pro Aufteilung",
       "insufficientFunds": "Unzureichendes Guthaben. Ihnen fehlen {{shortfall}} Sats.",
@@ -1897,6 +1898,7 @@
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",
       "headerDesc": "Teilen Sie sie mit niemandem!",
+      "accountTitle": "Wiederherstellungsphrase",
       "qrWarning": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Wiederherstellungsphrase ist praktisch. Stellen Sie jedoch sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden. So schützen Sie Ihre Wallet.",
       "wordsText": "Wörter",
       "qrText": "QR-Code",
@@ -2360,6 +2362,7 @@
         "importRecoveryPhraseTitle": "Wiederherstellungsphrase (Seed-Phrase) importieren.",
         "importRecoveryPhraseDescription": "Persönliche Konten aus einer anderen Wallet importieren.",
         "recoverRecoveryPhraseTitle": "Persönliches Konto wiederherstellen",
+        "recoverNoneDescription": "Keine persönlichen Konten zur Wiederherstellung",
         "recoverRecoveryPhraseDescription": "Ein persönliches Konto wiederherstellen.",
         "createChildAccountTitle": "Verwaltetes Konto erstellen",
         "createChildAccountDescription": "Erstellen Sie eine Wallet für Ihr Kind oder eine andere Person Ihres Vertrauens."
@@ -2604,6 +2607,7 @@
         "placeholder": "Kontoname",
         "next": "Weiter",
         "create": "Konto erstellen",
+        "managedSubtitle": "Dies wird ein verwaltetes Konto. Gib ihm einen Namen, damit du es später wiedererkennst.",
         "editTitle": "Kontonamen bearbeiten",
         "editSubtitle": "Wählen Sie einen neuen Namen, damit Sie dieses Konto später wiedererkennen."
       },
@@ -2969,7 +2973,7 @@
         "filterContacts": "Kontakte",
         "filterGifts": "Geschenke",
         "filterSwaps": "Swaps",
-        "filterSavings": "Sparziele",
+        "filterSavings": "Dollar-Ziele",
         "filterPools": "Sparpools",
         "noTxHistoryTitle": "Keine Transaktionshistorie",
         "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen.",
@@ -3078,6 +3082,8 @@
           "durationSubtitle": "Wählen Sie, wie lange es eingelöst werden kann.",
           "warningTitle": "Guthaben gesperrt",
           "warningSubtitle": "Nicht eingelöste Beträge können nach {{numDays}} Tagen zurückgefordert werden.",
+          "giftSummary_one": "1 Geschenk · {{amount}}",
+          "giftSummary_other": "{{count}} Geschenke × {{amount}}",
           "bulkButton": "{{count}} Geschenke erstellen",
           "maxQuantityHint": "Maximal 20 Geschenke erlaubt.",
           "amountPageHeader": "Betrag hinzufügen",
@@ -3330,7 +3336,7 @@
         "selectAnotherOption": "Andere Option auswählen",
         "selectAddress": "Adresse auswählen",
         "viewAll": "Alle Adressen anzeigen",
-        "selectAddressSub": "Sie haben {{count}} {{asset}} auf {{chain}}-Adressen.",
+        "selectAddressSub": "Sie haben {{count}} {{asset}}-Adressen auf {{chain}}.",
         "created": "Erstellt am {{date}}"
       },
       "create": {
@@ -3621,7 +3627,7 @@
   },
   "savings": {
     "home": {
-      "title": "Sparziele",
+      "title": "Dollar-Ziele",
       "howItWorksLink": "So funktioniert es:",
       "earnedCard": "Verdient: {{amount}}",
       "setGoalTitle": "Sparziel setzen",
@@ -3895,7 +3901,7 @@
     "spentIn": "Ausgegeben im {{month}}",
     "today": "Heute",
     "chartLabel": "Tägliche Ausgaben im {{month}}",
-    "savingsGoals": "Sparziele",
+    "savingsGoals": "Dollar-Ziele",
     "goalProgress": "{{current}} von {{target}}",
     "poolsCollecting": "{{count}} sammeln",
     "giftsUnclaimed": "{{count}} nicht eingelöst",
