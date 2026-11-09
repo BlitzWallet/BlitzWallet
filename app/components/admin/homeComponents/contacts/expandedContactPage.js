@@ -39,8 +39,8 @@ import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButt
 import CustomButton from '../../../../functions/CustomElements/button';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { formatDisplayName } from './utils/formatListDisplayName';
+import formatDate from '../../../../functions/formatDate';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_TRANSACTIONS = 50;
 
 const dayStart = time => {
@@ -50,19 +50,7 @@ const dayStart = time => {
 };
 
 // Same Today / Yesterday / date titles as viewAllComponents/activityRow.js.
-const dayTitle = (start, todayStart, t) => {
-  if (start === todayStart) return t('constants.today');
-  if (start === todayStart - DAY_MS) return t('constants.yesterday');
-  const date = new Date(start);
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year:
-      date.getFullYear() === new Date(todayStart).getFullYear()
-        ? undefined
-        : 'numeric',
-  });
-};
+const dayTitle = start => formatDate(start, 'day');
 
 // Newest-first messages -> [{ key, title, items }]: unpaid requests that await
 // me first, then one block per local day.
@@ -83,7 +71,7 @@ const buildSections = (transactions, currentTime, t) => {
       section = {
         key: String(start),
         start,
-        title: dayTitle(start, todayStart, t),
+        title: dayTitle(start),
         items: [],
       };
       sections.push(section);

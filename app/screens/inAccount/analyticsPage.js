@@ -26,6 +26,7 @@ import Segmented from '../../functions/CustomElements/redesign/Segmented';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import Disc from '../../functions/CustomElements/redesign/Disc';
 import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
+import formatDate from '../../functions/formatDate';
 
 export default function AnalyticsPage() {
   const navigate = useNavigation();
@@ -59,9 +60,7 @@ export default function AnalyticsPage() {
     masterInfoObject?.userBalanceDenomination === 'hidden';
   const budgetStatus = getBudgetStatus(spentPercent, t, tokens);
   const isSats = localDenomination === 'sats';
-  const monthName = new Date().toLocaleDateString(undefined, {
-    month: 'long',
-  });
+  const monthName = formatDate(Date.now(), 'month');
 
   const formatMonthAmount = amount =>
     displayCorrectDenomination({

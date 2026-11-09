@@ -13,6 +13,7 @@ import ActivityRow, {
   dayStart,
   sectionTitle,
 } from '../viewAllComponents/activityRow';
+import formatDate from '../../../../functions/formatDate';
 
 // E4: the shared home projection holds this page's rows while it is mounted
 // (max 25, no load-more), including under sheets opened from the page. Tokens
@@ -67,7 +68,7 @@ export default function ActivityCard({ scrollPosition, emptyText, style }) {
     const labels = new Map();
     for (const item of items) {
       const day = dayStart(item.time);
-      if (!labels.has(day)) labels.set(day, sectionTitle(day, today, t));
+      if (!labels.has(day)) labels.set(day, sectionTitle(day));
       item.sub = labels.get(day);
     }
     return items;

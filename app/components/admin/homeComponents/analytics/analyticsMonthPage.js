@@ -22,6 +22,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useAnalytics } from '../../../../../context-store/analyticsContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import formatDate from '../../../../functions/formatDate';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
@@ -73,10 +74,7 @@ function DailyBars({ cumulativeData }) {
   const max = Math.max(...daily.filter(value => value !== null), 0);
 
   const dayLabel = day =>
-    new Date(now.getFullYear(), now.getMonth(), day).toLocaleDateString(
-      undefined,
-      { month: 'short', day: 'numeric' },
-    );
+    formatDate(new Date(now.getFullYear(), now.getMonth(), day), 'monthDay');
 
   return (
     <>
@@ -141,7 +139,8 @@ export default function AnalyticsMonthPage(props) {
   const isFiat = localDenomination === 'fiat';
   const suffix = isFiat ? 'USD' : 'BTC';
   const txs = analytics[`${isIncome ? 'inTxs' : 'outTxs'}${suffix}`];
-  const total = analytics[`${isIncome ? 'incomeTotal' : 'spentTotal'}${suffix}`];
+  const total =
+    analytics[`${isIncome ? 'incomeTotal' : 'spentTotal'}${suffix}`];
   const cumulativeData =
     analytics[`cumulative${isIncome ? 'Income' : 'Spent'}Data${suffix}`];
 
@@ -235,9 +234,7 @@ export default function AnalyticsMonthPage(props) {
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar
-          title={t(isIncome ? 'constants.received' : 'constants.sent')}
-        />
+        <TopBar title={t(isIncome ? 'constants.received' : 'constants.sent')} />
         {analytics.isLoading ? (
           <FullLoadingScreen showText={false} />
         ) : (

@@ -6,29 +6,10 @@ import { useTheme } from '../../../../../context-store/theme';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import ContactAvatar from './internalComponents/contactAvatar';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const dayStart = time => {
-  const date = new Date(time);
-  date.setHours(0, 0, 0, 0);
-  return date.getTime();
-};
+import formatDate from '../../../../functions/formatDate';
 
 // "Today" / "Yesterday" / "Oct 2", same titles as the contact history.
-const dayLabel = (timestamp, t) => {
-  const start = dayStart(timestamp);
-  const todayStart = dayStart(Date.now());
-  if (start === todayStart) return t('constants.today');
-  if (start === todayStart - DAY_MS) return t('constants.yesterday');
-  const date = new Date(timestamp);
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year:
-      date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-  });
-};
+const dayLabel = timestamp => formatDate(timestamp, 'day');
 
 // "Full message" sheet: title, the payment it belongs to (avatar, "Alex sent
 // you $25.00", "Today · 12:40 PM"), then the note in a grey bubble. Long notes
@@ -56,10 +37,7 @@ export default function ExpandedMessageHalfModal({
         { name },
       )} ${amount}`;
 
-  const time = new Date(timestamp).toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const time = formatDate(timestamp, 'time');
 
   return (
     <View style={styles.container}>
@@ -79,7 +57,7 @@ export default function ExpandedMessageHalfModal({
             />
           }
           title={title}
-          sub={`${dayLabel(timestamp, t)} · ${time}`}
+          sub={`${dayLabel(timestamp)} · ${time}`}
         />
       </View>
       <CustomScrollView

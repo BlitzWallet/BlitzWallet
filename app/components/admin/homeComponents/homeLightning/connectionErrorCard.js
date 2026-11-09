@@ -15,16 +15,15 @@ import { touchAccountBalanceSnapshot } from '../../../../functions/spark/balance
 import CustomButton from '../../../../functions/CustomElements/button';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import HomeCard from './homeCard';
+import formatDate from '../../../../functions/formatDate';
 
 const SUPPORT_EMAIL = 'support@blitzwalletapp.com';
 
 // Today shows the time alone, older adds the date.
 function formatLastConnected(timestamp) {
-  const date = new Date(timestamp);
-  const time = { hour: 'numeric', minute: '2-digit' };
-  return date.toDateString() === new Date().toDateString()
-    ? date.toLocaleTimeString([], time)
-    : date.toLocaleString([], { month: 'short', day: 'numeric', ...time });
+  return new Date(timestamp).toDateString() === new Date().toDateString()
+    ? formatDate(timestamp, 'time')
+    : formatDate(timestamp, 'dateTime');
 }
 
 // Retry reconnects; after one failed retry the pill reports the error (same

@@ -6,13 +6,9 @@ import { ThemeText } from '../../../../../../functions/CustomElements';
 import CustomToggleSwitch from '../../../../../../functions/CustomElements/switch';
 import ListRow from '../../../../../../functions/CustomElements/redesign/ListRow';
 import { useTheme } from '../../../../../../../context-store/theme';
+import formatDate from '../../../../../../functions/formatDate';
 
-export const formatTipDate = timestamp =>
-  new Date(timestamp).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+export const formatTipDate = timestamp => formatDate(timestamp, 'date');
 
 // One tip: amount · date, "Unpaid"/"Paid" and the switch that marks it by hand.
 export default function TipsTXItem({ item, masterInfoObject, fiatStats, t }) {

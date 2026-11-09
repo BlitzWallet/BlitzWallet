@@ -8,6 +8,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { CoinChainLogo, shortenAddress } from './AccumulationAddressCard';
+import formatDate from '../../../../functions/formatDate';
 
 const ROW_HEIGHT = 61;
 
@@ -15,9 +16,7 @@ const ROW_HEIGHT = 61;
 function createdDate(addr) {
   const raw = addr.createdAt ?? addr.created_at ?? addr.createdTime;
   if (!raw) return null;
-  const date = new Date(raw);
-  if (isNaN(date)) return null;
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return formatDate(raw, 'date') || null;
 }
 
 export default function AccumulationAddressSelectHalfModal({

@@ -1,4 +1,5 @@
 import { DEFAULT_GOAL_EMOJI } from '../../../../constants';
+import formatDate from '../../../../functions/formatDate';
 
 export const toMicros = value => {
   const numeric = Number(value || 0);
@@ -13,12 +14,7 @@ export const fromMicros = value => {
 };
 
 export const formatTxDate = timestamp => {
-  const date = new Date(Number(timestamp || Date.now()));
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  return formatDate(Number(timestamp || Date.now()), 'date');
 };
 
 export async function fetchSavingsInterestPayouts(

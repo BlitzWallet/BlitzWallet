@@ -23,6 +23,7 @@ import { formatBalanceAmount } from '../../../../../functions';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
+import formatDate from '../../../../../functions/formatDate';
 
 // An unpaid request from the contact that is waiting on me. Same condition the
 // old render used for "not a completed transaction".
@@ -92,14 +93,7 @@ const ConfirmedOrSentTransaction = React.memo(
       });
     }, [didDeclinePayment, txParsed, t, contactName]);
 
-    const timeText = useMemo(
-      () =>
-        new Date(timestamp).toLocaleTimeString(undefined, {
-          hour: 'numeric',
-          minute: '2-digit',
-        }),
-      [timestamp],
-    );
+    const timeText = useMemo(() => formatDate(timestamp, 'time'), [timestamp]);
 
     const balanceValue = useMemo(
       () =>

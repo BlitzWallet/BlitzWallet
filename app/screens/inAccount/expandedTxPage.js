@@ -28,7 +28,6 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../context-store/toastManager';
-import { formatLocalTimeShort } from '../../functions/timeFormatter';
 import {
   bulkUpdateSparkTransactions,
   getSingleSparkTransaction,
@@ -46,11 +45,11 @@ import { formatBalanceAmount, copyToClipboard } from '../../functions';
 import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
 import { isOrchestraSwapFailed } from '../../functions/spark/orchestraLightning';
 import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swapProgress';
-import { uses24HourClock } from 'react-native-localize';
 import openWebBrowser from '../../functions/openWebBrowser';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { getTokenIcon } from '../../functions/lrc20/utils';
+import formatDate from '../../functions/formatDate';
 
 // Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
 const SHEET_CHROME = 49;
@@ -395,19 +394,6 @@ export default function ExpandedTx({
     ? bulkNamesArray.join(', ')
     : selectedContact?.name || selectedContact?.uniqueName;
 
-  const formatTime = date => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-
-    if (uses24HourClock()) {
-      return `${hours}:${minutes}`;
-    }
-
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-    return `${formattedHours}:${minutes} ${ampm}`;
-  };
-
   // External image first (merchant logo, contact photo, token logo), then
   // the asset's standard logo.
   const renderHeroIcon = () => {
@@ -719,9 +705,7 @@ export default function ExpandedTx({
 
         <DetailRow
           label={t('transactionLabelText.date')}
-          value={`${formatLocalTimeShort(paymentDate)} · ${formatTime(
-            paymentDate,
-          )}`}
+          value={formatDate(paymentDate, 'dateTime')}
         />
 
         {showFeeInfoRow && (

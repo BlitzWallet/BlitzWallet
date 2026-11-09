@@ -14,10 +14,7 @@ import {
   WEEK_OPTIONS,
   YEAR_IN_MILLS,
 } from '../../components/admin/homeComponents/explore/constants';
-import {
-  formatLocalTimeNumericMonthDay,
-  getNoonChicagoUtcMs,
-} from '../../functions/timeFormatter';
+import { getNoonChicagoUtcMs } from '../../functions/timeFormatter';
 import {
   formatBalanceAmount,
   getLocalStorageItem,
@@ -35,6 +32,7 @@ import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
 import Segmented from '../../functions/CustomElements/redesign/Segmented';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
+import formatDate from '../../functions/formatDate';
 
 const TIME_FRAMES = ['day', 'week', 'month', 'year'];
 
@@ -171,7 +169,7 @@ export default function ExploreUsers() {
       const todayDay = now.getDay();
       const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
       const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
-      return formatLocalTimeNumericMonthDay(
+      return formatDate(
         new Date(endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index)),
       );
     });

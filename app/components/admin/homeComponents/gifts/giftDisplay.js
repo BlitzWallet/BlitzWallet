@@ -1,6 +1,6 @@
-import i18n from 'i18next';
 import { STARTING_INDEX_FOR_GIFTS_DERIVE } from '../../../../constants';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import formatDate from '../../../../functions/formatDate';
 
 // Shared display helpers for gift rows, cards and sheets.
 
@@ -28,10 +28,7 @@ export function formatGiftAmount({ gift, masterInfoObject, fiatStats }) {
 
 // 'Oct 27'
 export function giftShortDate(ms) {
-  return new Date(ms).toLocaleDateString(i18n.language, {
-    month: 'short',
-    day: 'numeric',
-  });
+  return formatDate(ms, 'monthDay');
 }
 
 // 'asset' value for AssetDisc (savingsSheetParts).

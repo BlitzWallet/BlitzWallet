@@ -14,8 +14,7 @@ import { satsToDollars } from '../../../../functions/spark/flashnet';
 import { isOrchestraSwapFailed } from '../../../../functions/spark/orchestraLightning';
 import { getStableTx } from '../../../../functions/spark/enrichedTxCache';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+import formatDate from '../../../../functions/formatDate';
 
 export const dayStart = time => {
   const date = new Date(time);
@@ -23,19 +22,7 @@ export const dayStart = time => {
   return date.getTime();
 };
 
-export const sectionTitle = (start, todayStart, t) => {
-  if (start === todayStart) return t('constants.today');
-  if (start === todayStart - DAY_MS) return t('constants.yesterday');
-  const date = new Date(start);
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year:
-      date.getFullYear() === new Date(todayStart).getFullYear()
-        ? undefined
-        : 'numeric',
-  });
-};
+export const sectionTitle = start => formatDate(start, 'day');
 
 // Raw SQLite rows (newest first) -> SectionList sections grouped by local day.
 // Same skip rules as getFormattedHomepageTxsForSpark's view-all path, but
@@ -80,7 +67,7 @@ export function buildActivitySections({
       const start = dayStart(time);
       if (!section || section.start !== start) {
         section = { key: String(start), start, title: '', data: [] };
-        section.title = sectionTitle(start, todayStart, t);
+        section.title = sectionTitle(start);
         sections.push(section);
       }
 
@@ -146,14 +133,7 @@ export default memo(function ActivityRow({
       ? t(isReceive ? 'constants.received' : 'constants.sent')
       : description;
 
-  const timeText = useMemo(
-    () =>
-      new Date(time).toLocaleTimeString(undefined, {
-        hour: 'numeric',
-        minute: '2-digit',
-      }),
-    [time],
-  );
+  const timeText = useMemo(() => formatDate(time, 'time'), [time]);
 
   const icon = isFailed
     ? 'CircleX'

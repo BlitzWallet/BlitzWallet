@@ -23,21 +23,10 @@ import Note from '../../../../functions/CustomElements/redesign/Note';
 import { CENTER } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { formatDisplayName } from './utils/formatListDisplayName';
+import formatDate from '../../../../functions/formatDate';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function formatCardDate(timestamp, t) {
-  const date = new Date(timestamp);
-  const start = new Date(date).setHours(0, 0, 0, 0);
-  const todayStart = new Date().setHours(0, 0, 0, 0);
-  if (start === todayStart) return t('constants.today');
-  if (start === todayStart - DAY_MS) return t('constants.yesterday');
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year:
-      date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-  });
+function formatCardDate(timestamp) {
+  return formatDate(timestamp, 'day');
 }
 
 export default function ViewAllGiftCards() {
@@ -131,7 +120,7 @@ export default function ViewAllGiftCards() {
       giftCardInfo?.name ||
       t('contacts.internalComponents.viewAllGiftCards.cardNamePlaceH');
     const senderName = contactNames[item.fromPubKey];
-    const date = formatCardDate(item.timestamp, t);
+    const date = formatCardDate(item.timestamp);
 
     return (
       <ListRow

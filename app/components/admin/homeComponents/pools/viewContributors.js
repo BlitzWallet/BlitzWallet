@@ -17,6 +17,7 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import formatDate from '../../../../functions/formatDate';
 
 export default function ViewContibutors(props) {
   const pool = props.route?.params?.pool;
@@ -86,7 +87,7 @@ export default function ViewContibutors(props) {
 
               const isOrganizer = index === 0;
 
-              const contributedDate = formatDate(item?.createdAt, t);
+              const contributedDate = formatContributedDate(item?.createdAt);
 
               return (
                 <ListRow
@@ -117,7 +118,7 @@ export default function ViewContibutors(props) {
   );
 }
 
-const formatDate = (createdAt, t) => {
+const formatContributedDate = createdAt => {
   try {
     if (!createdAt) return '';
 
@@ -133,19 +134,7 @@ const formatDate = (createdAt, t) => {
       return '';
     }
 
-    const today = new Date();
-
-    const isSameDay =
-      date.getFullYear() === today.getFullYear() &&
-      date.getMonth() === today.getMonth() &&
-      date.getDate() === today.getDate();
-
-    if (isSameDay) return t('constants.today');
-
-    return date.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatDate(date, 'day');
   } catch (err) {
     return '';
   }

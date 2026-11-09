@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { getAllSparkTransactions } from '../../../../functions/spark/transactions';
 import { formatBalanceAmount } from '../../../../functions';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import formatDate from '../../../../functions/formatDate';
 
 // Builds the CSV of every Spark tx and opens the share sheet. Resolves null
 // when there is nothing to export.
@@ -50,7 +51,7 @@ export async function exportTransactionsCsv({
         txDetails.description
           ? txDetails.description
           : t('constants.noDescription'),
-        txDate.toLocaleString().replace(/,/g, ' '),
+        formatDate(txDate, 'sortable'),
         formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),
         formatBalanceAmount(txDetails.amount, undefined, masterInfoObject),
         txDetails.direction === 'OUTGOING'

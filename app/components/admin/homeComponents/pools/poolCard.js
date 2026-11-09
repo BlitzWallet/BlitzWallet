@@ -7,6 +7,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import formatDate from '../../../../functions/formatDate';
 
 /**
  * Pool card for the management list.
@@ -29,12 +30,7 @@ export default function PoolCard({ pool, onPress }) {
     });
   };
 
-  const closedDate = pool.closedAt
-    ? new Date(pool.closedAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-      })
-    : '';
+  const closedDate = pool.closedAt ? formatDate(pool.closedAt, 'date') : '';
 
   return (
     <ListRow

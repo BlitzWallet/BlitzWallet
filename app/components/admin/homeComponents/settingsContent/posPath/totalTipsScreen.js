@@ -38,6 +38,7 @@ import AnimatedStep, {
   growThenStep,
   useStepSheetHeight,
 } from '../../../../../functions/CustomElements/redesign/AnimatedStep';
+import formatDate from '../../../../../functions/formatDate';
 
 const HEIGHTS = { tips: 640, loading: 420 };
 
@@ -267,12 +268,7 @@ export default function TotalTipsScreen({
   const contactType = EMAIL_REGEX.test(name)
     ? t('settings.posPath.totalTipsScreen.lightningAddress')
     : t('settings.posPath.totalTipsScreen.blitzUser');
-  const lastSale = lastActivity
-    ? new Date(lastActivity).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-      })
-    : null;
+  const lastSale = lastActivity ? formatDate(lastActivity, 'date') : null;
   const toPay = formatAmount(totalTipAmount);
   // "2,450 sats" → big number + muted unit; fiat values stay whole.
   const toPayParts = String(toPay).match(/^(.*\d)(\s+\D+)$/);

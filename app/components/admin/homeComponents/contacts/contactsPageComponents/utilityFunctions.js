@@ -1,5 +1,4 @@
-import { uses24HourClock } from 'react-native-localize';
-import { formatLocalTimeNumeric } from '../../../../../functions/timeFormatter';
+import formatDate from '../../../../../functions/formatDate';
 
 // Utility functions
 function isSameDay(date1, date2) {
@@ -23,7 +22,8 @@ function getDaysDifference(laterDate, earlierDate) {
   );
 
   const differenceMs = later - earlier;
-  return Math.floor(differenceMs / (1000 * 60 * 60 * 24));
+  // Both sides are local midnights, so a DST day is 23h/25h: round, not floor.
+  return Math.round(differenceMs / (1000 * 60 * 60 * 24));
 }
 
 export function createFormattedDate(time, currentTime, t) {
@@ -46,16 +46,7 @@ export function createFormattedDate(time, currentTime, t) {
   if (isSameDay(date, currentDate) && hoursAgo >= 12 && date.getHours() < 5) {
     formattedTime = t('constants.yesterday');
   } else if (isSameDay(date, currentDate)) {
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    if (uses24HourClock()) {
-      formattedTime = `${hours}:${minutes}`;
-    } else {
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-      formattedTime = `${formattedHours}:${minutes} ${ampm}`;
-    }
+    formattedTime = formatDate(date, 'time');
   } else {
     const daysDiff = getDaysDifference(currentDate, date);
     if (daysDiff === 1) {
@@ -63,7 +54,7 @@ export function createFormattedDate(time, currentTime, t) {
     } else if (daysDiff >= 2 && daysDiff <= 6) {
       formattedTime = daysOfWeek[date.getDay()];
     } else {
-      formattedTime = formatLocalTimeNumeric(date);
+      formattedTime = formatDate(date, 'date');
     }
   }
 

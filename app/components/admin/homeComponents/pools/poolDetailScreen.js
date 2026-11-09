@@ -40,6 +40,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import formatDate from '../../../../functions/formatDate';
 
 const MAX_VISIBLE_ACTIVITY = 3;
 
@@ -226,12 +227,7 @@ export default function PoolDetailScreen(props) {
     [refreshing, handleRefresh, tokens],
   );
 
-  const closedDate = pool?.closedAt
-    ? new Date(pool.closedAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-      })
-    : '';
+  const closedDate = pool?.closedAt ? formatDate(pool.closedAt, 'date') : '';
 
   // ---------- Error / Loading states (unchanged) ----------
 

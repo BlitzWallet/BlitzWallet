@@ -46,6 +46,7 @@ import {
 } from '../../components/admin/homeComponents/savings/utils';
 import { getAllLocalPools } from '../../functions/pools/poolsStorage';
 import { getAllLocalGifts } from '../../functions/gift/giftsStorage';
+import formatDate from '../../functions/formatDate';
 
 const DONE_GIFT_STATES = ['Claimed', 'Reclaimed', 'Expired'];
 
@@ -128,7 +129,7 @@ function useCountUp(target, duration, enabled) {
 }
 
 function SpentCard({ dailySpent, onPress }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { tokens } = useTheme();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -144,11 +145,8 @@ function SpentCard({ dailySpent, onPress }) {
   );
   const isHidden = masterInfoObject.userBalanceDenomination === 'hidden';
   const dayLabel = day =>
-    new Date(now.getFullYear(), now.getMonth(), day).toLocaleDateString(
-      i18n.language,
-      { month: 'short', day: 'numeric' },
-    );
-  const monthName = now.toLocaleDateString(i18n.language, { month: 'long' });
+    formatDate(new Date(now.getFullYear(), now.getMonth(), day), 'monthDay');
+  const monthName = formatDate(now, 'month');
 
   return (
     <TouchableOpacity

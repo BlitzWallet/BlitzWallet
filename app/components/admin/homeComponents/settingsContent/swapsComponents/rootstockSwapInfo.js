@@ -13,14 +13,15 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeText from '../../../../../functions/CustomElements/textTheme';
 import KeyValueRow from '../../../../../functions/CustomElements/redesign/KeyValueRow';
+import formatDate from '../../../../../functions/formatDate';
 
 const EMPTY_VALUE = '--';
 
-function formatDate(value) {
+function formatSwapDate(value) {
   if (!value) return null;
   const num = Number(value);
   if (!num) return null;
-  return new Date(num).toLocaleString();
+  return formatDate(num, 'dateTime');
 }
 
 function formatBlockHeight(value) {
@@ -56,7 +57,7 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   const rows = [
     {
       label: t('settings.rootstockSwapInfo.date'),
-      value: formatDate(data?.createdAt),
+      value: formatSwapDate(data?.createdAt),
       mono: false,
     },
     {
