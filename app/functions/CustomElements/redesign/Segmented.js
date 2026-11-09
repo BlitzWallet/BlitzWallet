@@ -84,7 +84,12 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   // Content-sized pills for a centred switch (Analytics Bitcoin/Dollars).
-  fitSegment: { flex: 0, paddingHorizontal: 20 },
+  fitSegment: {
+    flex: 0,
+    flexBasis: 'auto',
+    flexShrink: 0,
+    paddingHorizontal: 20,
+  },
   noCapitalize: {
     textTransform: 'none',
   },
