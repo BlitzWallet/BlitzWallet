@@ -6,7 +6,6 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
@@ -63,7 +62,6 @@ export default function useSendPaymentDetails({
   balanceRef.current.dollarBalanceSat = dollarBalanceSat;
   balanceRef.current.dollarBalanceToken = dollarBalanceToken;
 
-  const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { sparkInformation, showTokensInformation, sparkInfoRef } =
@@ -329,7 +327,6 @@ export default function useSendPaymentDetails({
         seletctedToken,
         currentWalletMnemoinc,
         t,
-        sendWebViewRequest,
         contactInfo,
         globalContactsInformation,
         accountMnemoinc,
@@ -358,7 +355,6 @@ export default function useSendPaymentDetails({
       sparkInformation,
       seletctedToken,
       currentWalletMnemoinc,
-      sendWebViewRequest,
       contactInfo,
       globalContactsInformation,
       accountMnemoinc,
@@ -381,7 +377,6 @@ export default function useSendPaymentDetails({
     dollarBalanceSat,
     dollarBalanceToken,
     balanceRef,
-    sendWebViewRequest,
     currentWalletMnemoinc,
     contactsPrivateKey,
     sparkInformation,

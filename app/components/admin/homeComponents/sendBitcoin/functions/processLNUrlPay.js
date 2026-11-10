@@ -33,7 +33,6 @@ export default async function processLNUrlPay(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     t,
-    sendWebViewRequest,
     fromPage,
     contactInfo,
     globalContactsInformation,
@@ -271,7 +270,6 @@ export default async function processLNUrlPay(input, context) {
           paymentType: !!decoded.data.usingSparkAddress ? 'spark' : 'lightning',
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
         }),
       );
     }

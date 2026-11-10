@@ -31,7 +31,6 @@ import { removeLocalStorageItem } from '../../functions/localStorage';
 import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshots';
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
-import { useWebView } from '../../../context-store/webViewContext';
 import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
@@ -67,7 +66,6 @@ export default function ConnectingToNodeLoadingScreen() {
     preloadedUserData,
     setPreLoadedUserData,
   } = useGlobalContextProvider();
-  const { didRunHandshakeRef } = useWebView();
   const { connectToSparkWallet, setSparkInformation } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
   const { theme, tokens } = useGlobalThemeContext();
@@ -136,33 +134,22 @@ export default function ConnectingToNodeLoadingScreen() {
           await new Promise(res => setTimeout(res, 1000));
         }
 
-        phaseRef.current = 'deriving keys + webview handshake + db init';
+        phaseRef.current = 'deriving keys + db init';
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
 
-        // ── Phase 1: Derive keys + wait for webview handshake in parallel ──
-        const waitForHandshake = async () => {
-          if (didRunHandshakeRef.current) return;
-          console.warn('Webview has not finished setting up: wait here');
-          for (let i = 0; i < 10; i++) {
-            if (didRunHandshakeRef.current) break;
-            console.log('Waiting for webview to finish. Retry number:', i);
-            await new Promise(res => setTimeout(res, 1000));
-          }
-        };
-
+        // ── Phase 1: Derive keys + init databases in parallel ──
         // initializeAllDatabases is awaited here (it's fired non-blocking from
         // the splash screen) so every local table exists before connecting or
-        // reading cached data. Runs in parallel with key derivation/handshake.
+        // reading cached data. Runs in parallel with key derivation.
         const [[privateKey, identityPubKey]] = await Promise.all([
           Promise.all([
             privateKeyFromSeedWords(accountMnemoinc),
             deriveSparkIdentityKey(accountMnemoinc),
           ]),
-          waitForHandshake(),
           initializeAllDatabases(),
         ]);
 
-        crashlyticsLogReport('Derived keys, webview handshake and db ready');
+        crashlyticsLogReport('Derived keys and db ready');
         phaseRef.current = 'loading user settings + cached balance/txs';
 
         // Start wallet connection after keys are derived — passes identityPubKey

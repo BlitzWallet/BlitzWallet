@@ -27,7 +27,6 @@ import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { getSingleContact } from '../../../../../../db';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useTheme } from '../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
@@ -50,7 +49,6 @@ export default function TotalTipsScreen({
   setContentHeight,
   setDismissLocked,
 }) {
-  const { sendWebViewRequest } = useWebView();
   const { decodedAddedContacts, globalContactsInformation } =
     useGlobalContactsInfo();
   const { groupedTxs } = usePOSTransactions();
@@ -149,7 +147,6 @@ export default function TotalTipsScreen({
           // webViewRef,
           sparkInformation,
           currentWalletMnemoinc: accountMnemoinc,
-          sendWebViewRequest,
         });
         // const didPay = await payPOSLiquid({
         //   liquidNodeInformation,
@@ -213,7 +210,6 @@ export default function TotalTipsScreen({
           // liquidNodeInformation,
           // nodeInformation,
           // minMaxLiquidSwapAmounts,
-          sendWebViewRequest,
         });
         if (didPay) {
           await updateInteralDBState(unpaidTxs);
@@ -235,7 +231,6 @@ export default function TotalTipsScreen({
     unpaidTxs,
     getServerTime,
     masterInfoObject,
-    sendWebViewRequest,
   ]);
 
   const updateInteralDBState = useCallback(async txList => {

@@ -19,7 +19,6 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 
 function SlideThumbIcon() {
@@ -54,7 +53,6 @@ export default function SMSConfirmSheet({
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = GetThemeColors();
-  const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -92,7 +90,6 @@ export default function SMSConfirmSheet({
           sparkInformation,
           userBalance: sparkInformation.balance,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
         });
         if (!fee.didWork) throw new Error(t('errormessages.paymentFeeError'));
         if (

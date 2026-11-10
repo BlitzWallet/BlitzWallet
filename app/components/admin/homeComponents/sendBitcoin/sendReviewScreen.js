@@ -78,7 +78,6 @@ export default function SendReviewScreen(props) {
     poolInfoRef,
     swapUSDPriceDollars,
     bitcoinBalance,
-    sendWebViewRequest,
     currentWalletMnemoinc,
     contactsPrivateKey,
     sparkInformation,
@@ -415,7 +414,6 @@ export default function SendReviewScreen(props) {
         usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
         seletctedToken: selectedLRC20Asset,
         mnemonic: currentWalletMnemoinc,
-        sendWebViewRequest,
         contactInfo,
         fromMainSendScreen: true,
         usablePaymentMethod: resolvedPaymentMethod,
@@ -523,6 +521,14 @@ export default function SendReviewScreen(props) {
                   params: {
                     transaction: paymentResponse.response,
                     error: paymentResponse.error,
+                    // Ambiguous failure: the payment may have been sent, so the
+                    // confirm page shows a non-final state with no resend.
+                    ...(paymentResponse.outcome === 'unknown'
+                      ? {
+                          paymentStatus: 'unknown',
+                          intentId: paymentResponse.intentId,
+                        }
+                      : {}),
                     lnurlAddress:
                       paymentInfo?.type === InputTypes.LNURL_PAY
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
@@ -564,7 +570,6 @@ export default function SendReviewScreen(props) {
     bitcoinBalance,
     sparkInformation,
     currentWalletMnemoinc,
-    sendWebViewRequest,
     contactInfo,
     fromPage,
     effectivePublishMessageFunc,

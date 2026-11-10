@@ -20,7 +20,6 @@ import displayCorrectDenomination from '../../functions/displayCorrectDenominati
 import { useToast } from '../../../context-store/toastManager';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { useWebView } from '../../../context-store/webViewContext';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
@@ -61,7 +60,6 @@ export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const guardedNavigate = useGuardedNavigation();
   const { fiatStats } = useNodeContext();
-  const { sendWebViewRequest } = useWebView();
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -183,7 +181,6 @@ export default function ReceivePaymentHome(props) {
         navigate,
         signer,
         currentWalletMnemoinc,
-        sendWebViewRequest,
         sparkInformation,
         endReceiveType,
         swapLimits,

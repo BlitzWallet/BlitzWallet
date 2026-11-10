@@ -14,7 +14,6 @@ import { ACCUMULATION_CHAINS } from '../../constants/accumulationAddresses';
 import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import { useWebView } from '../../../context-store/webViewContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
@@ -44,7 +43,6 @@ export default function ReceiveAddressPage(props) {
   const { bottomPadding } = useGlobalInsets();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { sendWebViewRequest } = useWebView();
   const { swapLimits, poolInfoRef } = useFlashnet();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -118,7 +116,6 @@ export default function ReceiveAddressPage(props) {
       navigate,
       signer: null,
       currentWalletMnemoinc,
-      sendWebViewRequest,
       sparkInformation,
       endReceiveType: 'BTC',
       swapLimits,

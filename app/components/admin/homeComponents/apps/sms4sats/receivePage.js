@@ -21,7 +21,6 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -70,7 +69,6 @@ const popularRank = code => {
 };
 
 export default function SMSMessagingReceivedPage(props) {
-  const { sendWebViewRequest } = useWebView();
   const selectedCountry = props.route.params?.selectedCountry ?? {
     value: 999,
     label: 'Auto Select',
@@ -179,7 +177,6 @@ export default function SMSMessagingReceivedPage(props) {
           sparkInformation,
           description: t('apps.sms4sats.receivePage.paymentMemo'),
           currentWalletMnemoinc,
-          sendWebViewRequest,
         });
         if (!paymentResponse.didWork) {
           await saveMessagesToDB(original);
@@ -246,7 +243,6 @@ export default function SMSMessagingReceivedPage(props) {
       masterInfoObject,
       saveMessagesToDB,
       decodedMessages,
-      sendWebViewRequest,
       navigate,
       t,
     ],

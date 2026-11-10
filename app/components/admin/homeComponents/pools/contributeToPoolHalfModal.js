@@ -33,7 +33,6 @@ import { Timestamp } from '@react-native-firebase/firestore';
 import { saveContributionLocal } from '../../../../functions/pools/poolsStorage';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
-import { useWebView } from '../../../../../context-store/webViewContext';
 import { validatePoolPayment } from './poolPaymentValidation';
 import {
   BTC_ASSET_ADDRESS,
@@ -73,7 +72,6 @@ export default function ContributeToPoolHalfModal({
   const navigate = useNavigation();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
     useUserBalanceContext();
-  const { sendWebViewRequest } = useWebView();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -227,7 +225,6 @@ export default function ContributeToPoolHalfModal({
         userBalance: sparkInformation.userBalance,
         sparkInformation,
         mnemonic: currentWalletMnemoinc,
-        sendWebViewRequest,
         poolInfoRef,
         usablePaymentMethod: paymentMethod,
         swapPaymentQuote,

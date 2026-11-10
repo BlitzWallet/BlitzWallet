@@ -16,7 +16,6 @@ import { useGlobalAppData } from '../../../../../../../context-store/appData';
 import { useTranslation } from 'react-i18next';
 import getLNURLDetails from '../../../../../../functions/lnurl/getLNURLDetails';
 import { InputTypes } from 'bitcoin-address-parser';
-import { useWebView } from '../../../../../../../context-store/webViewContext';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 import displayCorrectDenomination from '../../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../../context-store/nodeContext';
@@ -60,7 +59,6 @@ export default function ConfirmChatGPTPage({
   handleBackPressFunction,
   setDismissLocked,
 }) {
-  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -169,7 +167,6 @@ export default function ConfirmChatGPTPage({
           sparkInformation,
           userBalance: sparkInformation.balance,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
         });
         if (!fee.didWork) throw new Error(t('errormessages.paymentFeeError'));
         if (!mounted) return;
@@ -228,7 +225,6 @@ export default function ConfirmChatGPTPage({
         sparkInformation,
         userBalance: sparkInformation.balance,
         mnemonic: currentWalletMnemoinc,
-        sendWebViewRequest,
       });
       if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
       toggleGlobalAppDataInformation(
@@ -256,7 +252,6 @@ export default function ConfirmChatGPTPage({
     sparkInformation,
     masterInfoObject,
     currentWalletMnemoinc,
-    sendWebViewRequest,
     decodedChatGPT,
     globalAppDataInformation,
     toggleGlobalAppDataInformation,

@@ -12,7 +12,6 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { publishMessage } from '../../../../../functions/messaging/publishMessage';
 import customUUID from '../../../../../functions/customUUID';
@@ -75,7 +74,6 @@ export default function useContactPayment({
   const getServerTime = useServerTimeOnly();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToast();
-  const { sendWebViewRequest } = useWebView();
 
   const explicitPaymentMethod =
     paymentType === 'send' ? selectedPaymentMethod : selectedRequestMethod;
@@ -510,7 +508,6 @@ export default function useContactPayment({
             masterInfoObject,
             sparkInformation,
             mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
           });
           if (!feeResult.didWork) throw new Error('Fee estimation failed');
           const fee = feeResult.fee;
@@ -556,7 +553,6 @@ export default function useContactPayment({
       poolInfoRef,
       selectedContact?.isLNURL,
       selectedContact?.receiveAddress,
-      sendWebViewRequest,
       showToast,
       sparkInformation,
       t,

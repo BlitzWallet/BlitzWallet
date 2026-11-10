@@ -39,7 +39,6 @@ import { parseInput } from 'bitcoin-address-parser';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import { useWebView } from '../../../../../context-store/webViewContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import {
@@ -133,7 +132,6 @@ export default function BitrefillShopModal() {
     useUserBalanceContext();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sendWebViewRequest } = useWebView();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { poolInfoRef } = useFlashnet();
@@ -284,7 +282,6 @@ export default function BitrefillShopModal() {
             paymentType: 'lightning',
             masterInfoObject,
             mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
           });
 
           if (!btcFeeResult.didWork) {
@@ -351,7 +348,6 @@ export default function BitrefillShopModal() {
           userBalance: bitcoinBalance,
           sparkInformation,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
           usablePaymentMethod: method,
           swapPaymentQuote,
           fromMainSendScreen: false,
@@ -381,7 +377,6 @@ export default function BitrefillShopModal() {
     [
       masterInfoObject,
       currentWalletMnemoinc,
-      sendWebViewRequest,
       bitcoinBalance,
       dollarBalanceToken,
       dollarBalanceSat,

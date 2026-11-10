@@ -19,7 +19,6 @@ import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
@@ -41,7 +40,6 @@ export default function SMSMessagingSendDescriptionPage(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sendWebViewRequest } = useWebView();
   const { fiatStats } = useNodeContext();
   const { decodedMessages, toggleGlobalAppDataInformation } =
     useGlobalAppData();
@@ -107,7 +105,6 @@ export default function SMSMessagingSendDescriptionPage(props) {
           sparkInformation,
           description: t('apps.sms4sats.sendPage.paymentMemo'),
           currentWalletMnemoinc,
-          sendWebViewRequest,
         });
 
         if (!paymentResponse.didWork) {
@@ -133,7 +130,6 @@ export default function SMSMessagingSendDescriptionPage(props) {
       masterInfoObject,
       navigate,
       normalizedPhoneNumber,
-      sendWebViewRequest,
       sparkInformation,
       t,
       saveMessagesToDB,
