@@ -66,6 +66,7 @@ import ViewContibutors from '../app/components/admin/homeComponents/pools/viewCo
 import PoolsStack from './PoolsStack';
 import GiftsStack from './GiftsStack';
 import SavingsStack from './SavingsStack';
+import UnilateralExitStack from './UnilateralExitStack';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -221,6 +222,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'PoolsStack', component: PoolsStack },
   { name: 'GiftsStack', component: GiftsStack },
   { name: 'SavingsStack', component: SavingsStack },
+  { name: 'UnilateralExitStack', component: UnilateralExitStack },
   {
     name: 'ConfirmSplitPayment',
     component: ConfirmSplitPayment,

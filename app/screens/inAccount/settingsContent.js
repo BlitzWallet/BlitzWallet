@@ -16,7 +16,7 @@ import {
   NotificationPreferances,
   BlitzFeeInformation,
   ViewSwapsHome,
-  WalletLeaves,
+  SdkLogs,
 } from '../../components/admin/homeComponents/settingsContent';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { EditMyProfilePage } from '../../components/admin';
@@ -87,7 +87,7 @@ export default function SettingsContentIndex(props) {
       selectedPage?.toLowerCase() === 'edit contact profile' ||
       selectedPage?.toLowerCase() === 'accounts' ||
       selectedPage?.toLowerCase() === 'viewallswaps' ||
-      selectedPage?.toLowerCase() === 'wallet leaves' ? (
+      selectedPage?.toLowerCase() === 'logs' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -107,7 +107,7 @@ export default function SettingsContentIndex(props) {
               swapType={props?.route?.params?.swapType}
             />
           )}
-          {selectedPage?.toLowerCase() === 'wallet leaves' && <WalletLeaves />}
+          {selectedPage?.toLowerCase() === 'logs' && <SdkLogs />}
         </>
       ) : (
         <GlobalThemeView useStandardWidth={true}>

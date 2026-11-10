@@ -88,9 +88,14 @@ const TECHNICAL_ROWS = [
     iconName: 'SendToBack',
   },
   {
-    name: 'Wallet Leaves',
-    displayName: 'screens.inAccount.settingsContent.wallet leaves',
+    name: 'Wallet Recovery',
+    displayName: 'screens.inAccount.settingsContent.wallet recovery',
     iconName: 'DatabaseBackup',
+  },
+  {
+    name: 'Logs',
+    displayName: 'screens.inAccount.settingsContent.logs',
+    iconName: 'ScrollText',
   },
 ];
 
@@ -154,6 +159,10 @@ export default function SettingsIndex() {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('errormessages.nointernet'),
         });
+        return;
+      }
+      if (row.name === 'Wallet Recovery') {
+        navigate.navigate('UnilateralExitStack');
         return;
       }
       if (row.name === 'ViewAllSwaps') {

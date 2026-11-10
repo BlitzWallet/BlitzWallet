@@ -76,7 +76,6 @@ import BTCMapListContent from '../../screens/inAccount/btcMapList';
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 import ContactUsHalfModal from '../../components/admin/homeComponents/contactUsHalfModal';
-import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
 import DefaultTokenPicker from '../../components/admin/homeComponents/settingsContent/defaultTokenPicker';
 import AccountTransferHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/AccountTransferHalfModal';
 import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/childMatchCodeConfirmation';
@@ -661,13 +660,7 @@ export default function CustomHalfModal(props) {
             copyBody={props?.route?.params?.copyBody}
           />
         );
-      case 'exportLeavesProgress':
-        return (
-          <ExportLeavesProgress
-            onExported={props?.route?.params?.onExported}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
+
       case 'defaultTokenPicker':
         return (
           <DefaultTokenPicker
