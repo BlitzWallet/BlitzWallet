@@ -86,6 +86,18 @@ def enableProguardInReleaseBuilds = false
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
+    // Breez Spark: the RN package and the NWC AAR (both 0.28.0) ship
+    // libbreez_sdk_spark_bindings.so. The AAR's copy must win: it is a superset
+    // (adds server-only MySQL/Postgres storage, which the Kotlin bindings check
+    // at load) and all 213 shared uniffi checksums are identical. pickFirst can't
+    // choose it (local module jniLibs merge first), so android/build.gradle
+    // removes the RN module's copy; pickFirst stays only as a fallback.
+    // verifyBreezSparkNativeLib below fails the build if the RN copy is packaged.
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['**/libbreez_sdk_spark_bindings.so']
+        }
+    }
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
@@ -180,7 +192,8 @@ dependencies {
     implementation('com.google.firebase:firebase-messaging')
 
     // Native NWC handler (src/main/java/com/blitzwallet/nwc)
-    implementation("breez_sdk_spark:bindings-android:0.26.0")
+    // Must match @breeztech/breez-sdk-spark-react-native (see packaging below).
+    implementation("breez_sdk_spark:bindings-android:0.28.0")
     // 0.22.x: newer releases need Kotlin 2.3 metadata (this app compiles with 2.1).
     implementation("fr.acinq.secp256k1:secp256k1-kmp:0.22.0")
     implementation("fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.22.0")
@@ -196,3 +209,19 @@ dependencies {
 //         force "net.java.dev.jna:jna-platform:5.17.0"
 //     }
 // }
+
+// Guard for the pickFirst above: the packaged Breez library must be the AAR
+// build (only it exports the Postgres storage symbol).
+afterEvaluate {
+    tasks.matching { it.name ==~ /merge.*NativeLibs/ }.configureEach { t ->
+        t.doLast {
+            def marker = 'uniffi_breez_sdk_spark_fn_func_postgres_storage'
+            t.outputs.files.asFileTree.matching { include '**/libbreez_sdk_spark_bindings.so' }.each { so ->
+                def found = new String(so.bytes, 'ISO-8859-1').contains(marker)
+                if (!found) {
+                    throw new GradleException("Packaged ${so} is the RN Breez build, not the NWC AAR build; the :nwc service would fail its uniffi checksum check.")
+                }
+            }
+        }
+    }
+}

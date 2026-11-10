@@ -3,7 +3,7 @@
 # ObjC module the extension does not use.
 Pod::Spec.new do |s|
   s.name = 'BreezSdkSpark'
-  s.version = '0.26.0'
+  s.version = '0.28.0'
   s.summary = 'Swift bindings to the Breez Spark SDK'
   s.homepage = 'https://breez.technology'
   s.license = { :type => 'MIT' }

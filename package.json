@@ -23,7 +23,8 @@
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@branta-ops/branta": "^3.2.1",
-    "@breeztech/react-native-breez-sdk-liquid": "^0.11.13",
+    "@breeztech/breez-sdk-spark": "^0.28.0",
+    "@breeztech/breez-sdk-spark-react-native": "^0.28.0",
     "@buildonspark/spark-sdk": "^0.8.8",
     "@craftzdog/react-native-buffer": "^6.1.0",
     "@expo/metro-runtime": "~6.1.2",
@@ -122,7 +123,6 @@
     "react-native-webview": "^13.16.1",
     "react-native-worklets": "^0.8.3",
     "rn-qr-generator": "^2.0.0",
-    "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#c7594395001eb9afe7260fd9cd461cf9cd14c520",
     "stream-browserify": "^3.0.0",
     "supercluster": "^9.0.0",
     "text-encoding": "^0.7.0",

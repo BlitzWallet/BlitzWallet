@@ -1197,16 +1197,39 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.37):
     - BoringSSL-GRPC/Interface (= 0.0.37)
   - BoringSSL-GRPC/Interface (0.0.37)
-  - breez_sdk_liquid (0.11.13):
-    - BreezSDKLiquid (= 0.11.13)
-    - React-Core
-  - breez_sdk_liquidFFI (0.11.13)
-  - breez_sdk_sparkFFI (0.26.0)
-  - BreezSDKLiquid (0.11.13):
-    - breez_sdk_liquidFFI (= 0.11.13)
-  - BreezSdkSpark (0.26.0):
-    - breez_sdk_sparkFFI (= 0.26.0)
+  - breez_sdk_sparkFFI (0.28.0)
+  - BreezSdkSpark (0.28.0):
+    - breez_sdk_sparkFFI (= 0.28.0)
     - Swift-BigInt (~> 2.4)
+  - BreezSdkSparkReactNative (0.28.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - uniffi-bindgen-react-native (= 0.29.3-1)
+    - Yoga
   - CGRPCZlib (1.8.0)
   - Clusterer (5.0.2):
     - boost
@@ -5181,6 +5204,8 @@ PODS:
     - SwiftNIOTLS (< 3, >= 2.32.0)
   - SwiftProtobuf (1.38.1)
   - UMAppLoader (6.0.7)
+  - uniffi-bindgen-react-native (0.29.3-1):
+    - React-Core
   - VisionCamera (5.2.3):
     - boost
     - DoubleConversion
@@ -5220,9 +5245,9 @@ PODS:
 DEPENDENCIES:
   - BlitzSecp256k1 (from `NotificationService/Podspecs/BlitzSecp256k1.podspec`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - "breez_sdk_liquid (from `../node_modules/@breeztech/react-native-breez-sdk-liquid`)"
   - breez_sdk_sparkFFI (from `NotificationService/Podspecs/breez_sdk_sparkFFI.podspec`)
   - BreezSdkSpark (from `NotificationService/Podspecs/BreezSdkSpark.podspec`)
+  - "BreezSdkSparkReactNative (from `../node_modules/@breeztech/breez-sdk-spark-react-native`)"
   - Clusterer (from `../node_modules/react-native-clusterer`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../node_modules/expo-application/ios`)
@@ -5357,6 +5382,7 @@ DEPENDENCIES:
   - SocketRocket (~> 0.7.1)
   - "spark-sdk (from `../node_modules/@buildonspark/spark-sdk`)"
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
+  - uniffi-bindgen-react-native (from `../node_modules/uniffi-bindgen-react-native`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -5365,8 +5391,6 @@ SPEC REPOS:
     - _NIODataStructures
     - abseil
     - BoringSSL-GRPC
-    - breez_sdk_liquidFFI
-    - BreezSDKLiquid
     - CGRPCZlib
     - CNIOAtomics
     - CNIOBoringSSL
@@ -5436,12 +5460,12 @@ EXTERNAL SOURCES:
     :podspec: NotificationService/Podspecs/BlitzSecp256k1.podspec
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
-  breez_sdk_liquid:
-    :path: "../node_modules/@breeztech/react-native-breez-sdk-liquid"
   breez_sdk_sparkFFI:
     :podspec: NotificationService/Podspecs/breez_sdk_sparkFFI.podspec
   BreezSdkSpark:
     :podspec: NotificationService/Podspecs/BreezSdkSpark.podspec
+  BreezSdkSparkReactNative:
+    :path: "../node_modules/@breeztech/breez-sdk-spark-react-native"
   Clusterer:
     :path: "../node_modules/react-native-clusterer"
   DoubleConversion:
@@ -5707,6 +5731,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@buildonspark/spark-sdk"
   UMAppLoader:
     :path: "../node_modules/unimodules-app-loader/ios"
+  uniffi-bindgen-react-native:
+    :path: "../node_modules/uniffi-bindgen-react-native"
   VisionCamera:
     :path: "../node_modules/react-native-vision-camera"
   Yoga:
@@ -5718,11 +5744,9 @@ SPEC CHECKSUMS:
   BlitzSecp256k1: 27fe067d109185a14485c70d4758509d7ac41ace
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
-  breez_sdk_liquid: e05cd39b19b9e029ecf50195e4e7df0aefb745cd
-  breez_sdk_liquidFFI: f05fadc0611126ade76d1fe6761ed8b020aabefb
-  breez_sdk_sparkFFI: 364a1f4c8e54ba3533d9459eeb083322bf7fc403
-  BreezSDKLiquid: ee6bf5a57f1b2533dc3c14c24c9773496f17b756
-  BreezSdkSpark: ffb51fadc450426ee25d9a8048ef4efb62009749
+  breez_sdk_sparkFFI: 3761730f61a909b1247c187aad77f92ada8ce383
+  BreezSdkSpark: c48f3ea63987c50065ab06758e098ae0da73962e
+  BreezSdkSparkReactNative: 27ef4dee78414d5b9313f5000ae6519ca5f82bb6
   CGRPCZlib: 298dd3237ba4bd7b3eed109e7080ff3324b7d9c9
   Clusterer: 6b8e946e6d4593644d04acd9c1fca686e8d4f5cb
   CNIOAtomics: 8edf08644e5e6fa0f021c239be9e8beb1cd9ef18
@@ -5917,6 +5941,7 @@ SPEC CHECKSUMS:
   SwiftNIOTransportServices: 0b2b407819d82eb63af558c5396e33c945759503
   SwiftProtobuf: 409d3aaec90e51b1705b1dd8065b56893450e77c
   UMAppLoader: e1234c45d2b7da239e9e90fc4bbeacee12afd5b6
+  uniffi-bindgen-react-native: 076bf125ee96728ccca853fadd7f93bb31b7cf26
   VisionCamera: 1a62a209b073cdc6ad5e47bbb67116a834ea4e61
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5

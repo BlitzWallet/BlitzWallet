@@ -9,6 +9,7 @@ const esModules = [
   '@noble',
   '@buildonspark/spark-sdk',
   '@bufbuild/protobuf',
+  'uuid',
   // All Expo packages ship untranspiled ESM/TS and touch native modules;
   // suites that reach them through the app import graph either transform
   // them here or stub them with a local jest.mock (see jest.setup.js).
