@@ -93,16 +93,14 @@ export const UserBalanceProvider = ({ children }) => {
   }, [bitcoinBalance, dollarBalanceSat]);
 
   useEffect(() => {
-    if (!usdbTokenInfo?.balance) return;
     try {
-      const numberTokenBalance = Number(usdbTokenInfo?.balance);
+      const numberTokenBalance = Number(usdbTokenInfo?.balance ?? 0);
       if (isNaN(numberTokenBalance)) return;
       setDollarBalanceToken(numberTokenBalance);
     } catch {}
   }, [usdbTokenInfo?.balance]);
 
   useEffect(() => {
-    if (!bitcoinBalance) return;
     try {
       const numberBitcoinBalance = Number(bitcoinBalance);
       if (isNaN(numberBitcoinBalance)) return;
