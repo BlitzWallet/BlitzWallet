@@ -676,7 +676,7 @@ describe('reads and lifecycle', () => {
       },
     ];
     await mountAndLogout();
-    expect(ctx.sparkInformation.transactions).toEqual([]);
+    expect(ctx.txsHashKey).toBe('');
     act(() => renderer.unmount());
 
     mockWorld.initFails = true;

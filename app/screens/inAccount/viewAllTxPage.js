@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { getFilteredTransactions } from '../../functions/spark/transactions';
@@ -25,6 +24,7 @@ import ListCard, {
   ListDivider,
 } from '../../functions/CustomElements/redesign/ListCard';
 import ActivityRow, {
+  ActivityRowSkeleton,
   buildActivitySections,
 } from '../../components/admin/homeComponents/viewAllComponents/activityRow';
 import { FONT } from '../../constants/theme';
@@ -32,6 +32,7 @@ import { FONT } from '../../constants/theme';
 const EMPTY_FILTER = { directions: [], dateRange: null, types: [] };
 const NS = 'screens.inAccount.viewAllTxPage';
 const DIRECTION_LABELS = { sent: 'filterSent', received: 'filterReceived' };
+const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
 
 // Rows sit in a per-row ListCard so the SectionList stays virtualised; only
 // the first/last row of a day keeps the card's rounded corners.
@@ -45,7 +46,8 @@ export default function ViewAllTxPage() {
   const navigate = useNavigation();
   const [currentFilter, setCurrentFilter] = useState(EMPTY_FILTER);
   const [rawTxs, setRawTxs] = useState(null);
-  const { sparkInformation, showTokensInformation } = useSparkWallet();
+  const { sparkInformation, showTokensInformation, txsVersion } =
+    useSparkWallet();
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { tokens } = useGlobalThemeContext();
@@ -55,20 +57,16 @@ export default function ViewAllTxPage() {
   const { t } = useTranslation();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
-  // sparkInformation.transactions is only the recent slice, but it changes on
-  // every new or updated payment, so it doubles as the reload signal.
+  // txsVersion bumps on every new or updated payment: the reload signal.
   useEffect(() => {
+    if (!sparkInformation.identityPubKey) return;
     const requestId = ++requestIdRef.current;
     getFilteredTransactions(currentFilter, {
       accountId: sparkInformation.identityPubKey,
     }).then(result => {
       if (requestId === requestIdRef.current) setRawTxs(result || []);
     });
-  }, [
-    currentFilter,
-    sparkInformation.identityPubKey,
-    sparkInformation.transactions,
-  ]);
+  }, [currentFilter, sparkInformation.identityPubKey, txsVersion]);
 
   const sections = useMemo(
     () =>
@@ -194,7 +192,11 @@ export default function ViewAllTxPage() {
           </View>
         )}
         {!sections ? (
-          <FullLoadingScreen />
+          <ListCard style={styles.skeleton}>
+            {SKELETON_ROWS.map(key => (
+              <ActivityRowSkeleton key={key} />
+            ))}
+          </ListCard>
         ) : !sections.length ? (
           <View style={styles.emptyContainer}>
             <EmptyState
@@ -241,6 +243,7 @@ const styles = StyleSheet.create({
     paddingTop: 160,
   },
   listContent: { paddingBottom: 24 },
+  skeleton: { marginTop: 22 },
   squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
   squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
   middleRow: { borderRadius: 0 },

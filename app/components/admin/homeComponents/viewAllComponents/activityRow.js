@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   APPROXIMATE_SYMBOL,
@@ -15,6 +15,7 @@ import { isOrchestraSwapFailed } from '../../../../functions/spark/orchestraLigh
 import { getStableTx } from '../../../../functions/spark/enrichedTxCache';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import formatDate from '../../../../functions/formatDate';
+import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
 
 export const dayStart = time => {
   const date = new Date(time);
@@ -214,7 +215,28 @@ export default memo(function ActivityRow({
 },
 rowPropsEqual);
 
+// Loading stand-in with the row's footprint (64 high, 40 disc, gap 12).
+export function ActivityRowSkeleton() {
+  return (
+    <View style={styles.skeletonRow}>
+      <SkeletonBar width={40} height={40} borderRadius={20} />
+      <View style={styles.skeletonTexts}>
+        <SkeletonBar width={140} height={14} borderRadius={7} />
+        <SkeletonBar width={80} height={12} borderRadius={6} />
+      </View>
+      <SkeletonBar width={64} height={14} borderRadius={7} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   title: { fontSize: 15, lineHeight: 21 },
   amount: { fontSize: 15, includeFontPadding: false },
+  skeletonRow: {
+    minHeight: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  skeletonTexts: { flex: 1, gap: 6 },
 });

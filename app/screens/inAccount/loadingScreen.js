@@ -31,7 +31,6 @@ import { removeLocalStorageItem } from '../../functions/localStorage';
 import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshots';
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
-import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -165,23 +164,21 @@ export default function ConnectingToNodeLoadingScreen() {
         const hasSavedInfo = Object.keys(masterInfoObject || {}).length > 5;
 
         // ── Phase 2: Cache reads + settings init all in parallel ──────────
-        const [placeholderTxs, balanceSnapshot, didLoadUserSettings] =
-          await Promise.all([
-            getCachedSparkTransactions(20, identityPubKey.publicKeyHex),
-            getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
-            hasSavedInfo
-              ? Promise.resolve({ didWork: true })
-              : initializeUserSettingsFromHistory({
-                  setMasterInfoObject,
-                  toggleGlobalContactsInformation,
-                  toggleGlobalAppDataInformation,
-                  accountMnemoinc,
-                  preloadedData: preloadedUserData.data,
-                  setPreLoadedUserData,
-                  privateKey,
-                  publicKey,
-                }),
-          ]);
+        const [balanceSnapshot, didLoadUserSettings] = await Promise.all([
+          getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
+          hasSavedInfo
+            ? Promise.resolve({ didWork: true })
+            : initializeUserSettingsFromHistory({
+                setMasterInfoObject,
+                toggleGlobalContactsInformation,
+                toggleGlobalAppDataInformation,
+                accountMnemoinc,
+                preloadedData: preloadedUserData.data,
+                setPreLoadedUserData,
+                privateKey,
+                publicKey,
+              }),
+        ]);
 
         if (!hasSavedInfo) {
           crashlyticsLogReport('Opened all SQL lite tables');
@@ -196,14 +193,13 @@ export default function ConnectingToNodeLoadingScreen() {
         //https://github.com/firebase/firebase-ios-sdk/issues/15974#issuecomment-4155423268
         //https://github.com/firebase/firebase-ios-sdk/pull/15991
         toggleContactsPrivateKey(privateKey);
-        console.log(balanceSnapshot, placeholderTxs, 'balance and tx snapshot');
+        console.log(balanceSnapshot, 'balance snapshot');
         crashlyticsLogReport('Loaded user settings and cached balance/txs');
         phaseRef.current = 'applying cached state + navigating home';
 
         // ── Phase 3: Apply cached balance ─────────────────────────────────
         setSparkInformation(prev => ({
           ...prev,
-          transactions: placeholderTxs,
           ...(balanceSnapshot ?? {}),
         }));
 
