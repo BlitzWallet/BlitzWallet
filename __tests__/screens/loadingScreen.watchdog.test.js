@@ -46,9 +46,6 @@ jest.mock('../../context-store/context', () => ({
     setPreLoadedUserData: jest.fn(),
   }),
 }));
-jest.mock('../../context-store/webViewContext', () => ({
-  useWebView: () => ({ didRunHandshakeRef: { current: true } }),
-}));
 jest.mock('../../context-store/sparkContext', () => ({
   useSparkWallet: () => ({
     connectToSparkWallet: jest.fn(),

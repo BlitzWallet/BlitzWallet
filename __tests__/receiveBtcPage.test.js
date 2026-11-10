@@ -86,12 +86,6 @@ jest.mock('../context-store/nodeContext', () => ({
   }),
 }));
 
-jest.mock('../context-store/webViewContext', () => ({
-  useWebView: () => ({
-    sendWebViewRequest: jest.fn(),
-  }),
-}));
-
 jest.mock('../context-store/theme', () => ({
   useGlobalThemeContext: () => ({
     theme: false,

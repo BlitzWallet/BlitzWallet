@@ -121,10 +121,6 @@ jest.mock('../context-store/appStatus', () => ({
   useAppStatus: () => ({ screenDimensions: { height: 800, width: 400 } }),
 }));
 
-jest.mock('../context-store/webViewContext', () => ({
-  useWebView: () => ({ sendWebViewRequest: jest.fn() }),
-}));
-
 jest.mock('../app/functions/displayCurrency', () => ({
   ...jest.requireActual('../app/functions/displayCurrency'),
   getDefaultDisplayCurrency: () => ({
@@ -393,7 +389,7 @@ jest.mock('../app/functions/spark', () => ({
   disposeSparkWallet: (...args) => mockDisposeSparkWallet(...args),
   getSparkBalance: (...args) => mockGetSparkBalance(...args),
   getSparkIdentityPubKey: (...args) => mockGetSparkIdentityPubKey(...args),
-  initializeSparkWallet: (...args) => mockInitializeSparkWallet(...args),
+  openDerivedWallet: (...args) => mockInitializeSparkWallet(...args),
 }));
 
 jest.mock('../app/functions/spark/awaitBalanceChange', () => ({
@@ -874,8 +870,6 @@ describe('AccountTransferHalfModal picker loading gate', () => {
     expect(mockInitializeSparkWallet).toHaveBeenCalledTimes(1);
     expect(mockInitializeSparkWallet).toHaveBeenCalledWith(
       'other-uuid-mnemonic',
-      false,
-      expect.anything(),
     );
 
     await act(async () => {

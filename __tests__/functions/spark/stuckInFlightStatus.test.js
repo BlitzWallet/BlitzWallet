@@ -6,66 +6,37 @@
 // rows, so a lost claim event would leave it that way permanently.
 
 const mockGetAllPendingSparkPayments = jest.fn();
-const mockGetSingleTxDetails = jest.fn();
-const mockGetSparkPaymentStatus = jest.fn();
 const mockBulkUpdateSparkTransactions = jest.fn();
 
 jest.mock('../../../app/functions/spark', () => ({
-  getSingleTxDetails: (...a) => mockGetSingleTxDetails(...a),
-  getSparkBitcoinPaymentRequest: jest.fn(),
-  getSparkLightningPaymentStatus: jest.fn(),
-  getSparkLightningSendRequest: jest.fn(),
-  getSparkBalance: jest.fn(),
-  getSparkPaymentStatus: (...a) => mockGetSparkPaymentStatus(...a),
-  getSparkTransactions: jest.fn().mockResolvedValue({ transfers: [] }),
   querySparkHodlLightningPayments: jest.fn(),
-  sparkPaymentType: jest.fn(),
 }));
 
-jest.mock('@buildonspark/spark-sdk/types', () => ({
-  LightningSendRequestStatus: {},
-  SparkCoopExitRequestStatus: {},
+// Breez has not resolved any of the pending rows (no payment found, empty
+// sweep), so only the 16-day wedged-send rule can change a row.
+jest.mock('../../../app/functions/spark/walletRuntime', () => ({
+  acquire: jest.fn(async () => ({
+    getPayment: jest.fn().mockResolvedValue(undefined),
+    listPayments: jest.fn().mockResolvedValue([]),
+  })),
 }));
 
-jest.mock('../../../app/constants', () => ({
-  IS_BITCOIN_REQUEST_ID: /^btc/,
-  IS_SPARK_ID: /^spark/,
-  IS_SPARK_REQUEST_ID: /^sprt/,
-}));
-
-jest.mock('../../../app/functions/localStorage', () => ({
-  getLocalStorageItem: jest.fn().mockResolvedValue(null),
-  setLocalStorageItem: jest.fn(),
+jest.mock('../../../app/functions/spark/paymentIngest', () => ({
+  ...jest.requireActual('../../../app/functions/spark/paymentIngest'),
+  projectBreezPayments: jest.fn().mockResolvedValue({ records: [] }),
 }));
 
 jest.mock('../../../app/functions/spark/transactions', () => ({
   bulkUpdateSparkTransactions: (...a) => mockBulkUpdateSparkTransactions(...a),
-  deleteSparkTransaction: jest.fn(),
   deleteUnpaidSparkLightningTransaction: jest.fn(),
   getAllPendingSparkPayments: (...a) => mockGetAllPendingSparkPayments(...a),
-  getAllSparkTransactions: jest.fn().mockResolvedValue([]),
-  getAllSparkContactInvoices: jest.fn().mockResolvedValue([]),
   getAllUnpaidSparkLightningInvoices: jest.fn().mockResolvedValue([]),
   getAllUnpaidHoldInvoicesFromTxs: jest.fn().mockResolvedValue([]),
-  getBulkPaymentGroupTransferIds: jest.fn().mockResolvedValue(new Set()),
-}));
-
-jest.mock('../../../app/functions/spark/transformTxToPayment', () => ({
-  transformTxToPaymentObject: jest.fn(),
-}));
-
-jest.mock('../../../app/functions/hash', () => ({
-  __esModule: true,
-  default: jest.fn(),
 }));
 
 jest.mock('../../../db/handleBackend', () => ({
   __esModule: true,
   default: jest.fn(),
-}));
-
-jest.mock('../../../app/functions/spark/timeoutHelpers', () => ({
-  getBalanceWithTimeout: jest.fn(),
 }));
 
 const {
@@ -107,13 +78,6 @@ function pendingLightningTx(direction, ageMs) {
 describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Transfer is still in its initial in-flight state; the normal classifier
-    // maps that to 'pending', so any 'failed' below came from the detector.
-    mockGetSingleTxDetails.mockResolvedValue({
-      id: 'spark-stuck-1',
-      status: 'TRANSFER_STATUS_SENDER_INITIATED',
-    });
-    mockGetSparkPaymentStatus.mockReturnValue('pending');
   });
 
   test('INCOMING row older than 72h stays pending (claim can still arrive)', async () => {
@@ -124,7 +88,7 @@ describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
 
     const res = await updateSparkTxStatus('mnemonic', 'acct-1');
 
-    expect(res.updated[0].paymentStatus).toBe('pending');
+    expect(res.updated.map(r => r.paymentStatus)).not.toContain('failed');
   });
 
   test('OUTGOING spark row older than 72h stays pending (receiver may claim late — no double-pay)', async () => {
@@ -144,7 +108,7 @@ describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
       response: [pendingSparkTx('OUTGOING', PAST_STUCK_WINDOW_MS)],
     });
     const res = await updateSparkTxStatus('mnemonic', 'acct-1');
-    expect(res.updated[0].paymentStatus).toBe('pending');
+    expect(res.updated.map(r => r.paymentStatus)).not.toContain('failed');
   });
 
   test('OUTGOING lightning row older than 16 days flips to failed so it can be retried', async () => {
@@ -156,6 +120,15 @@ describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
         'lightning',
       ),
     ).toBe('failed');
+
+    // Integration: an unresolved outgoing lightning row past 16 days is written failed
+    mockGetAllPendingSparkPayments.mockResolvedValue({
+      didWork: true,
+      response: [pendingLightningTx('OUTGOING', PAST_STUCK_WINDOW_MS)],
+    });
+    const res = await updateSparkTxStatus('mnemonic', 'acct-1');
+    expect(res.updated.map(r => r.paymentStatus)).toEqual(['failed']);
+    expect(mockBulkUpdateSparkTransactions).toHaveBeenCalled();
   });
 
   test('OUTGOING row inside the 72h window stays pending', async () => {
@@ -173,8 +146,6 @@ describe('stuckInFlightStatus direction gate (via updateSparkTxStatus)', () => {
       response: [pendingSparkTx('OUTGOING', INSIDE_STUCK_WINDOW_MS)],
     });
     const res = await updateSparkTxStatus('mnemonic', 'acct-1');
-    // Spark stays pending regardless of window; lightning inside window also stays pending (no update)
-    // For spark, the status remains pending so an update is still emitted (paymentStatus pending)
-    expect(res.updated[0].paymentStatus).toBe('pending');
+    expect(res.updated.map(r => r.paymentStatus)).not.toContain('failed');
   });
 });

@@ -65,13 +65,6 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
   removeItem: jest.fn(),
 }));
-jest.mock('../../../context-store/webViewContext', () => ({
-  OPERATION_TYPES: {},
-  sendWebViewRequestGlobal: jest.fn(),
-  getHandshakeComplete: jest.fn(),
-  getIsNativeRuntime: jest.fn(() => false),
-  setForceReactNative: jest.fn(),
-}));
 
 jest.mock('../../../app/functions/spark', () => {
   const actual = jest.requireActual('../../../app/functions/spark');
@@ -133,7 +126,8 @@ const QUOTE = {
   transactionId: 'onchain-txid-1',
   outputIndex: 1,
   creditAmountSats: 1000,
-  signature: 'ssp-sig',
+  signature: '',
+  feeSats: 100,
 };
 
 const completeTransfer = {
@@ -256,7 +250,7 @@ describe('claimDepositUtxo — quote phase', () => {
     );
   });
 
-  test('matching quote: claims with the quote fields, UTXO vout and deposit address', async () => {
+  test('matching quote: claims with the UTXO vout, capped at the quoted fee', async () => {
     mockGetQuote.mockResolvedValue({ didWork: true, quote: QUOTE });
     mockClaim.mockResolvedValue({
       didWork: true,
@@ -270,11 +264,9 @@ describe('claimDepositUtxo — quote phase', () => {
 
     expect(mockClaim).toHaveBeenCalledWith({
       transactionId: 'onchain-txid-1',
-      creditAmountSats: 1000,
-      sspSignature: 'ssp-sig',
       outputIndex: 1,
       mnemonic: 'seed words here',
-      depositAddress: 'bc1deposit',
+      maxFeeSats: 100, // claim is capped at the accepted quote's fee
     });
     expect(result.didClaim).toBe(true);
   });

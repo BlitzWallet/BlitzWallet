@@ -59,13 +59,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
   removeItem: jest.fn(),
 }));
-jest.mock('../../../context-store/webViewContext', () => ({
-  OPERATION_TYPES: {},
-  sendWebViewRequestGlobal: jest.fn(),
-  getHandshakeComplete: jest.fn(),
-  getIsNativeRuntime: jest.fn(() => false),
-  setForceReactNative: jest.fn(),
-}));
+jest.mock('../../../app/functions/spark/walletRuntime', () => ({}));
 
 const { getSparkPaymentStatus } = require('../../../app/functions/spark');
 
