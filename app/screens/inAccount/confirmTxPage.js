@@ -46,6 +46,9 @@ export default function ConfirmTxPage(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const contentWidth = useContentWidth();
   const [isAddingContact, setIsAddingContact] = useState(false);
+  // Set by a send whose outcome could not be confirmed. Non-final: the payment
+  // may still have gone through, so there is no resend until it is checked.
+  const isUnknownOutcome = props.route.params?.paymentStatus === 'unknown';
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
   const paymentInformation = transaction?.details || {};
@@ -157,6 +160,43 @@ export default function ConfirmTxPage(props) {
   useEffect(() => {
     animationRef.current?.play();
   }, []);
+
+  if (isUnknownOutcome) {
+    return (
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
+        <CustomScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+        >
+          <LottieView
+            ref={animationRef}
+            source={errorAnimation}
+            renderMode="SOFTWARE"
+            loop={false}
+            style={styles.lottie}
+          />
+
+          <ThemeText
+            styles={[styles.status, { color: tokens.muted }]}
+            content={t('screens.inAccount.confirmTxPage.statusUnknownMessage')}
+          />
+        </CustomScrollView>
+        <View style={[styles.footer, { width: contentWidth }]}>
+          <CustomButton
+            size="regular"
+            actionFunction={() => {
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  navigate.popToTop();
+                });
+              });
+            }}
+            textContent={buttonText}
+          />
+        </View>
+      </GlobalThemeView>
+    );
+  }
 
   if (props.route.params?.isSplitPayment && props.route.params?.isRequset) {
     return (

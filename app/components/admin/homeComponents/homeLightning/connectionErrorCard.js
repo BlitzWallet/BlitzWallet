@@ -5,11 +5,9 @@ import { openComposer } from 'react-native-email-link';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import { useKeysContext } from '../../../../../context-store/keys';
 import { useToast } from '../../../../../context-store/toastManager';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useTheme } from '../../../../../context-store/theme';
-import { initWallet } from '../../../../functions/initiateWalletConnection';
 import { copyToClipboard } from '../../../../functions';
 import { touchAccountBalanceSnapshot } from '../../../../functions/spark/balanceSnapshots';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -34,14 +32,9 @@ export default function ConnectionErrorCard({ visible }) {
   const navigate = useNavigation();
   const { tokens } = useTheme();
   const { showToast } = useToast();
-  const { accountMnemoinc } = useKeysContext();
   const { isConnectedToTheInternet } = useAppStatus();
-  const {
-    sparkInformation,
-    sparkConnectionError,
-    setSparkInformation,
-    filterAndSetTransactions,
-  } = useSparkWallet();
+  const { sparkInformation, sparkConnectionError, connectToSparkWallet } =
+    useSparkWallet();
   const [isRetrying, setIsRetrying] = useState(false);
   const [didRetryFail, setDidRetryFail] = useState(false);
   const [connectedAt, setConnectedAt] = useState(null);
@@ -87,16 +80,9 @@ export default function ConnectionErrorCard({ visible }) {
     }
     setIsRetrying(true);
     try {
-      const { didWork } = await initWallet({
-        setSparkInformation,
-        filterAndSetTransactions,
-        mnemonic: accountMnemoinc,
-        hasRestoreCompleted: false,
-      });
-      // initWallet sets didConnect before its last step can fail.
-      if (!didWork) {
-        setSparkInformation(prev => ({ ...prev, didConnect: false }));
-      }
+      const { didWork } = await connectToSparkWallet(
+        sparkInformation.identityPubKey,
+      );
       setDidRetryFail(!didWork);
     } catch (err) {
       console.log('home connection retry error', err);

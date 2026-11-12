@@ -21,7 +21,7 @@ const schedulePersist = () => {
 };
 
 // Load the previous sessions' lines; anything logged meanwhile stays after them.
-AsyncStorage.getItem(STORAGE_KEY)
+Promise.resolve(AsyncStorage.getItem(STORAGE_KEY))
   .then(stored => {
     const previous = stored ? JSON.parse(stored) : [];
     if (!Array.isArray(previous) || !previous.length) return;

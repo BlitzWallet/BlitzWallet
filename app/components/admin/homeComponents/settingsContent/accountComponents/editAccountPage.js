@@ -32,7 +32,7 @@ import { formatBalanceAmount } from '../../../../../functions';
 import {
   disposeSparkWallet,
   getSparkIdentityPubKey,
-  initializeSparkWallet,
+  openDerivedWallet,
 } from '../../../../../functions/spark';
 import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
 import {
@@ -182,14 +182,11 @@ export default function EditAccountPage(props) {
           }
         }
 
-        const initRes = await (initPromiseRef.current = initializeSparkWallet(
-          mnemonic,
-          false,
-          {
-            maxRetries: 4,
-            shouldCancel: () => cancelled,
-          },
-        ));
+        const initRes = await (initPromiseRef.current =
+          openDerivedWallet(mnemonic));
+
+        // A wallet something else already holds open is not ours to dispose.
+        if (initRes.borrowed) mnemonicRef.current = null;
         if (cancelled) return;
         if (!initRes?.isConnected && !paintedFromSnapshotRef.current) {
           setAccountBalance(p => ({ ...p, status: 'error' }));
@@ -534,11 +531,15 @@ export default function EditAccountPage(props) {
               accessibilityRole={canEditAvatar ? 'button' : undefined}
               accessibilityLabel={
                 canEditAvatar
-                  ? t('settings.accountComponents.editAccountPage.editAvatarLabel')
+                  ? t(
+                      'settings.accountComponents.editAccountPage.editAvatarLabel',
+                    )
                   : undefined
               }
             >
-              <View style={[styles.avatar, { backgroundColor: tokens.surface }]}>
+              <View
+                style={[styles.avatar, { backgroundColor: tokens.surface }]}
+              >
                 <AccountProfileImage
                   imageSize={80}
                   account={accountInformation}

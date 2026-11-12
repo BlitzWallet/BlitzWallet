@@ -33,17 +33,22 @@ export async function saveAccountBalanceSnapshot(
   identityPubKey,
   balance,
   tokensObj,
+  verifiedAt = null,
 ) {
   try {
     const db = await ensureSparkDatabaseReady();
+    // updatedAt = last commit; verifiedAt = last time Breez confirmed the value
+    // (kept across commits that don't pass one).
     await db.runAsync(
-      `INSERT OR REPLACE INTO ${TABLE} (identityPubKey, balance, tokens, updatedAt)
-       VALUES (?, ?, ?, ?)`,
+      `INSERT OR REPLACE INTO ${TABLE} (identityPubKey, balance, tokens, updatedAt, verifiedAt)
+       VALUES (?, ?, ?, ?, COALESCE(?, (SELECT verifiedAt FROM ${TABLE} WHERE identityPubKey = ?), 0))`,
       [
         identityPubKey,
         balance,
         JSON.stringify(tokensObj ?? {}, bigIntSafeReplacer),
         Date.now(),
+        verifiedAt,
+        identityPubKey,
       ],
     );
   } catch (err) {
@@ -93,7 +98,7 @@ export async function getAccountBalanceSnapshot(identityPubKey) {
   try {
     const db = await ensureSparkDatabaseReady();
     const row = await db.getFirstAsync(
-      `SELECT balance, tokens, updatedAt FROM ${TABLE} WHERE identityPubKey = ?`,
+      `SELECT balance, tokens, updatedAt, verifiedAt FROM ${TABLE} WHERE identityPubKey = ?`,
       [identityPubKey],
     );
     if (!row) return null;
@@ -101,6 +106,7 @@ export async function getAccountBalanceSnapshot(identityPubKey) {
       balance: row.balance,
       tokens: JSON.parse(row.tokens),
       balanceUpdatedAt: row.updatedAt,
+      balanceVerifiedAt: row.verifiedAt || 0,
     };
   } catch (err) {
     console.log('Error reading account balance snapshot', err);
@@ -114,8 +120,8 @@ export async function touchAccountBalanceSnapshot(identityPubKey) {
   try {
     const db = await ensureSparkDatabaseReady();
     await db.runAsync(
-      `UPDATE ${TABLE} SET updatedAt = ? WHERE identityPubKey = ?`,
-      [Date.now(), identityPubKey],
+      `UPDATE ${TABLE} SET updatedAt = ?, verifiedAt = ? WHERE identityPubKey = ?`,
+      [Date.now(), Date.now(), identityPubKey],
     );
   } catch (err) {
     console.log('Error updating account balance snapshot time', err);

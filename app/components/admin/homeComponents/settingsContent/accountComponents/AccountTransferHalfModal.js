@@ -10,7 +10,6 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useToast } from '../../../../../../context-store/toastManager';
 
@@ -49,7 +48,7 @@ import {
 import {
   disposeSparkWallet,
   getSparkIdentityPubKey,
-  initializeSparkWallet,
+  openDerivedWallet,
 } from '../../../../../functions/spark';
 import { subscribeToSparkBalance } from '../../../../../functions/spark/awaitBalanceChange';
 import {
@@ -96,7 +95,6 @@ export default function AccountTransferHalfModal({
     bitcoinBalance: activeBitcoinBalance,
     dollarBalanceToken: activeDollarBalance,
   } = useUserBalanceContext();
-  const { sendWebViewRequest } = useWebView();
   const { screenDimensions } = useAppStatus();
   const { showToast } = useToast();
 
@@ -194,10 +192,11 @@ export default function AccountTransferHalfModal({
           sourceAccount?.uuid !== currentAccount?.uuid
             ? mnemonic
             : null;
-        await (initPromiseRef.current = initializeSparkWallet(mnemonic, false, {
-          maxRetries: 4,
-          shouldCancel: () => cancelled,
-        }));
+        const opened = await (initPromiseRef.current =
+          openDerivedWallet(mnemonic));
+        // A wallet something else already holds open is never ours to dispose.
+        if (opened.borrowed) disposableMnemonicRef.current = null;
+        if (!opened.isConnected) throw new Error('Source wallet unavailable');
         if (cancelled) return;
         subscription = subscribeToSparkBalance({
           mnemonic,
@@ -434,7 +433,6 @@ export default function AccountTransferHalfModal({
         const feeResponse = await getAccountTransferFee({
           amountSats,
           mnemonic: accountMnemoinc,
-          sendWebViewRequest,
         });
         if (feeReqRef.current !== reqId) return;
         if (!feeResponse?.didWork) {
@@ -452,7 +450,7 @@ export default function AccountTransferHalfModal({
           feeError: false,
         });
       },
-      [getAccountTransferFee, accountMnemoinc, sendWebViewRequest],
+      [getAccountTransferFee, accountMnemoinc],
     ),
     500,
   );
@@ -503,7 +501,6 @@ export default function AccountTransferHalfModal({
         fromBalance: isUsdAsset ? sourceUsdMicros : sourceBtcSats,
         masterInfoObject,
         getAccountMnemonic,
-        sendWebViewRequest,
         t,
         asset,
       });
@@ -598,7 +595,6 @@ export default function AccountTransferHalfModal({
     accountMnemoinc,
     contactsPrivateKey,
     getAccountMnemonic,
-    sendWebViewRequest,
     t,
   ]);
   const candidates = custodyAccountsList

@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView } from '../../../../../../functions/CustomElements';
@@ -24,6 +19,7 @@ import {
   previewUnilateralExit,
   runUnilateralExit,
 } from '../../../../../../functions/spark';
+import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
 
 export default function UnilateralExitReview(props) {
   const { address, feeRate } = props.route.params;
@@ -98,6 +94,17 @@ export default function UnilateralExitReview(props) {
     ? { tone: 'info', text: t('settings.unilateralExit.reviewNote') }
     : null;
 
+  if (!preview && !error) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <TopBar title={t('settings.unilateralExit.reviewTitle')} />
+        <View style={[styles.container, { width: contentWidth }]}>
+          <FullLoadingScreen />
+        </View>
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
@@ -106,7 +113,6 @@ export default function UnilateralExitReview(props) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {!preview && !error && <ActivityIndicator style={styles.hero} />}
           {preview && (
             <>
               <View style={styles.hero}>

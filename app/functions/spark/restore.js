@@ -1,55 +1,31 @@
+import { querySparkHodlLightningPayments } from '.';
+import { acquire } from './walletRuntime';
 import {
-  getSingleTxDetails,
-  getSparkBitcoinPaymentRequest,
-  getSparkLightningPaymentStatus,
-  getSparkLightningSendRequest,
-  getSparkPaymentStatus,
-  getSparkTransactions,
-  querySparkHodlLightningPayments,
-  sparkPaymentType,
-} from '.';
-// Inline status constants so the WebView path never imports @buildonspark/spark-sdk
-const SparkCoopExitRequestStatus = {
-  FAILED: 'FAILED',
-  EXPIRED: 'EXPIRED',
-};
-import {
-  IS_BITCOIN_REQUEST_ID,
-  IS_SPARK_ID,
-  IS_SPARK_REQUEST_ID,
-} from '../../constants';
-import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+  isStuckPendingLightning,
+  markFullPassDone,
+  getMigrationMarker,
+  projectBreezPayments,
+} from './paymentIngest';
 import {
   bulkUpdateSparkTransactions,
-  deleteSparkTransaction,
   deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
-  getAllSparkTransactions,
-  getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
   getAllUnpaidHoldInvoicesFromTxs,
-  getBitcoinPaymentsByTxid,
-  getBitcoinTransactionByOnChainTxid,
-  getBulkPaymentGroupTransferIds,
 } from './transactions';
-import { transformTxToPaymentObject } from './transformTxToPayment';
-import sha256Hash from '../hash';
 import fetchBackend from '../../../db/handleBackend';
 import i18next from 'i18next';
 
-const RESTORE_STATE_KEY = 'spark_tx_restore_state';
-const MAX_BATCH_SIZE = 100;
-const DEFAULT_BATCH_SIZE = 5;
-const INCREMENTAL_SAVE_THRESHOLD = 200;
-// Max consecutive failed/suspicious page fetches before a restore run gives up.
-const MAX_RESTORE_FETCH_RETRIES = 5;
-// Base backoff between retries, scaled by the current consecutive-failure count.
-const RESTORE_RETRY_DELAY_MS = 1500;
-// An outgoing transfer left in its initial in-flight state (TRANSFER_STATUS_SENDER_INITIATED)
-// past this window is wedged — the server dropped the swap or the app died right
-// after dispatch. Mark it failed instead of re-querying it every 10s forever
-// (and so a stuck Lightning send can be retried). RETURNED/EXPIRED are already
-// terminal failures via getSparkPaymentStatus and are left untouched here.
+const PAGE_SIZE = 100;
+// Breather between pages so a big history doesn't flood the SDK and SQLite.
+const PAGE_PAUSE_MS = 400;
+const SYNC_TIMEOUT_MS = 60000;
+// Newest payments inspected by the pending-status sweep (local Breez DB read).
+const PENDING_SWEEP_WINDOW = 100;
+
+// Legacy age gate for the pre-Breez SENDER_INITIATED detector. Kept exported
+// (Breez statuses are authoritative now; the 16-day rule lives in
+// paymentIngest.isStuckPendingLightning).
 const STUCK_SENDER_INITIATED_MS = 16 * 24 * 60 * 60 * 1000;
 
 // Age gate for the SENDER_INITIATED stuck-detector. Returns 'failed' only when
@@ -83,380 +59,10 @@ export function stuckInFlightStatus(
   return 'failed';
 }
 
-/**
- * Get the current restore state for an account
- */
-async function getRestoreState(accountId, numSavedTxs) {
-  try {
-    const stateJson = await getLocalStorageItem(
-      `${RESTORE_STATE_KEY}_${accountId}`,
-    );
-
-    if (!stateJson) {
-      // We assume if a user has over 400 saved txs, they are fully restored
-      return {
-        isFullyRestored: numSavedTxs > 400 ? true : false,
-        lastProcessedOffset: 0,
-        lastProcessedTxId: null,
-        restoredTxCount: 0,
-      };
-    }
-    return JSON.parse(stateJson);
-  } catch (error) {
-    console.error('Error getting restore state:', error);
-    return {
-      isFullyRestored: false,
-      lastProcessedOffset: 0,
-      lastProcessedTxId: null,
-      restoredTxCount: 0,
-    };
-  }
-}
-
-/**
- * Update the restore state for an account
- */
-async function updateRestoreState(accountId, state) {
-  try {
-    await setLocalStorageItem(
-      `${RESTORE_STATE_KEY}_${accountId}`,
-      JSON.stringify(state),
-    );
-  } catch (error) {
-    console.error('Error updating restore state:', error);
-  }
-}
-
-/**
- * Mark restoration as complete for an account
- */
-async function markRestoreComplete(accountId) {
-  await updateRestoreState(accountId, {
-    isFullyRestored: true,
-    lastProcessedOffset: 0,
-    lastProcessedTxId: null,
-    restoredTxCount: 0,
-    completedAt: Date.now(),
-  });
-}
-
-const restoreSparkTxState = async (
-  BATCH_SIZE,
-  identityPubKey,
-  isSendingPayment,
-  mnemonic,
-  accountId,
-  onProgressSave = null,
-) => {
-  const restoredTxs = [];
-
-  try {
-    const [savedTxs, pendingTxs] = await Promise.all([
-      getAllSparkTransactions({ accountId: identityPubKey, idsOnly: true }),
-      getAllPendingSparkPayments(accountId),
-    ]);
-
-    let savedIds = new Set(savedTxs);
-
-    const bulkTransferIds = await getBulkPaymentGroupTransferIds(
-      identityPubKey,
-    );
-    if (bulkTransferIds.size > 0) {
-      savedIds = new Set([...savedIds, ...bulkTransferIds]);
-    }
-
-    const txsByType = {
-      lightning: pendingTxs.response.filter(
-        tx => tx.paymentType === 'lightning',
-      ),
-      bitcoin: pendingTxs.response.filter(tx => tx.paymentType === 'bitcoin'),
-    };
-    const restoreState = await getRestoreState(accountId, savedIds.size);
-
-    const isRestoring = !restoreState.isFullyRestored;
-    let offset = isRestoring ? restoreState.lastProcessedOffset : 0;
-    const localBatchSize = isRestoring ? MAX_BATCH_SIZE : BATCH_SIZE;
-
-    console.log(
-      `Restore mode: ${
-        isRestoring ? 'ACTIVE' : 'NORMAL'
-      }, batch size: ${localBatchSize}`,
-    );
-
-    const donationPubKey = process.env.BLITZ_SPARK_PUBLICKEY;
-
-    const newTxsAtFront = [];
-    if (isRestoring && offset > 0) {
-      console.log('Checking for new transactions at the front...');
-      try {
-        const recentTxs = await getSparkTransactions(BATCH_SIZE, 0, mnemonic);
-        const recentBatch = recentTxs.transfers || [];
-
-        for (const tx of recentBatch) {
-          if (savedIds.has(tx.id)) break;
-          // Filter donations and active sends
-          if (
-            tx.transferDirection === 'OUTGOING' &&
-            tx.receiverIdentityPublicKey === donationPubKey
-          ) {
-            continue;
-          }
-          if (tx.transferDirection === 'OUTGOING' && isSendingPayment) continue;
-
-          const type = sparkPaymentType(tx);
-
-          // Check against pending transactions
-          if (type === 'bitcoin') {
-            const duplicate = txsByType.bitcoin.find(item => {
-              const details = JSON.parse(item.details);
-              return (
-                tx.transferDirection === details.direction &&
-                tx.totalValue === details.amount &&
-                details.time - new Date(tx.createdTime) < 1000 * 60 * 10
-              );
-            });
-            if (duplicate) continue;
-          } else if (type === 'lightning') {
-            const duplicate = txsByType.lightning.find(item => {
-              const details = JSON.parse(item.details);
-              return (
-                tx.transferDirection === details.direction &&
-                details?.createdAt - new Date(tx.createdTime) < 1000 * 30 &&
-                details.amount === tx.totalValue
-              );
-            });
-            if (duplicate) continue;
-          }
-
-          newTxsAtFront.push(tx);
-        }
-
-        if (newTxsAtFront.length > 0) {
-          console.log(
-            `Found ${newTxsAtFront.length} new transactions at the front`,
-          );
-          restoredTxs.push(...newTxsAtFront);
-          // Add these new tx IDs to savedIds to avoid duplicates
-          newTxsAtFront.forEach(tx => savedIds.add(tx.id));
-        }
-      } catch (error) {
-        console.error('Error checking for new transactions:', error);
-      }
-    }
-
-    let batchCounter = 0;
-    let foundOverlap = false;
-
-    // Track consecutive failed/suspicious fetches so a single transient error
-    // doesn't discard the whole run. We retry the SAME offset with a short
-    // backoff and only give up (throw) after MAX_RESTORE_FETCH_RETRIES in a row,
-    // keeping the loop bounded so it can't hang.
-    let consecutiveFailures = 0;
-    const handleRetryableFailure = async reason => {
-      consecutiveFailures++;
-      if (consecutiveFailures >= MAX_RESTORE_FETCH_RETRIES) {
-        // Give up. Throw (NOT markRestoreComplete) so isFullyRestored stays
-        // false and the restore re-runs on the next connect/launch — same
-        // safety as before.
-        throw new Error(
-          `Failed to fetch transactions during restore after ${consecutiveFailures} attempts: ${reason}`,
-        );
-      }
-      await new Promise(r =>
-        setTimeout(r, RESTORE_RETRY_DELAY_MS * consecutiveFailures),
-      );
-    };
-
-    while (true) {
-      const txs = await getSparkTransactions(localBatchSize, offset, mnemonic);
-
-      if (!txs.success) {
-        // The fetch failed (network/WebView error). This is indistinguishable
-        // from an empty wallet at the .transfers level, so we must NOT fall
-        // through to markRestoreComplete — doing so would persist
-        // isFullyRestored:true and stop the restore poller from ever
-        // re-scanning this session. Retry the same offset rather than aborting
-        // the whole run on the first transient failure.
-        await handleRetryableFailure('fetch failed');
-        continue;
-      }
-
-      const batchTxs = txs.transfers || [];
-
-      if (!batchTxs.length) {
-        // A successful, empty batch normally means we've reached the end of
-        // history. But if we've discovered zero transactions in total and the
-        // wallet still reports a positive balance, the empty result is almost
-        // certainly a bad/incomplete fetch — you cannot hold a balance with no
-        // transactions. Treat that as a retryable failure rather than marking
-        // the restore complete on a wallet that clearly has history.
-        console.log('No more transactions found, ending restore.');
-        await markRestoreComplete(accountId);
-        break;
-      }
-
-      // Genuine batch of transfers — reset the consecutive-failure streak so the
-      // cap only ever counts failures that happen back-to-back.
-      consecutiveFailures = 0;
-
-      // Process batch and check for overlap simultaneously
-      const newBatchTxs = [];
-      for (const tx of batchTxs) {
-        const type = sparkPaymentType(tx);
-
-        const lnRequsestId = type === 'lightning' ? tx?.userRequest?.id : null;
-        const paymentId = tx.id;
-        // Check for overlap first (most likely to break early)
-        if (
-          savedIds.has(paymentId) ||
-          (lnRequsestId && savedIds.has(lnRequsestId))
-        ) {
-          foundOverlap = true;
-          console.log(
-            'Found overlap with saved transactions, stopping restore.',
-          );
-          break;
-        }
-
-        // Filter out donation payments while processing
-        if (
-          tx.transferDirection === 'OUTGOING' &&
-          tx.receiverIdentityPublicKey === donationPubKey
-        ) {
-          continue;
-        }
-
-        // This would cause a double transaction to be listed untill the pending items were clear
-        if (tx.transferDirection === 'OUTGOING' && isSendingPayment) continue;
-
-        if (type === 'bitcoin') {
-          const response = txsByType.bitcoin.find(item => {
-            const details = JSON.parse(item.details);
-            return (
-              tx.transferDirection === details.direction &&
-              tx.totalValue === details.amount &&
-              details.time - new Date(tx.createdTime) < 1000 * 60 * 10
-            );
-          });
-
-          if (response) continue;
-        } else if (type === 'lightning') {
-          const response = txsByType.lightning.find(item => {
-            const details = JSON.parse(item.details);
-            return (
-              tx.transferDirection === details.direction &&
-              details?.createdAt - new Date(tx.createdTime) < 1000 * 30 &&
-              details.amount === tx.totalValue
-            );
-          });
-
-          if (response) continue;
-        }
-
-        newBatchTxs.push(tx);
-      }
-
-      // Add filtered transactions to result
-      restoredTxs.push(...newBatchTxs);
-      batchCounter++;
-
-      if (isRestoring && restoredTxs.length >= INCREMENTAL_SAVE_THRESHOLD) {
-        console.log(`Incremental save: ${restoredTxs.length} transactions`);
-
-        await updateRestoreState(accountId, {
-          isFullyRestored: false,
-          lastProcessedOffset: offset + localBatchSize,
-          lastProcessedTxId: newBatchTxs[newBatchTxs.length - 1]?.id || null,
-          restoredTxCount: restoreState.restoredTxCount + restoredTxs.length,
-        });
-
-        if (onProgressSave) {
-          await onProgressSave(restoredTxs.slice());
-        }
-
-        restoredTxs.length = 0;
-      }
-
-      if (foundOverlap) {
-        await markRestoreComplete(accountId);
-        break;
-      }
-
-      offset += localBatchSize;
-    }
-
-    console.log(`Total restored transactions: ${restoredTxs.length}`);
-
-    return {
-      txs: restoredTxs,
-      isRestoreComplete: !isRestoring || foundOverlap,
-    };
-  } catch (error) {
-    console.error('Error in spark restore history state:', error);
-    return { txs: [], isRestoreComplete: false };
-  }
-};
-
-/**
- * Resolve a single transfer's details, preferring a pre-fetched batch cache so we
- * don't fire one getSingleTxDetails request per pending tx. Falls back to
- * getSingleTxDetails when the id isn't in the batch window (or no cache was built).
- */
-async function resolveTransferDetails(id, mnemonic, transferCache) {
-  const cached = transferCache?.get(id);
-  if (cached) return cached;
-  return await getSingleTxDetails(mnemonic, id);
-}
-
-// Helper function to split array into chunks
-function chunkArray(array, chunkSize) {
-  const chunks = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
-    chunks.push(array.slice(i, i + chunkSize));
-  }
-  return chunks;
-}
-
-// Process a single chunk of transactions
-async function processTransactionChunk(
-  txChunk,
-  sparkAddress,
-  unpaidInvoices,
-  identityPubKey,
-  numberOfRestoredTxs,
-  unpaidContactInvoices,
-  mnemonic,
-) {
-  const chunkPaymentObjects = [];
-
-  for (const tx of txChunk) {
-    try {
-      const paymentObject = await transformTxToPaymentObject(
-        tx,
-        sparkAddress,
-        undefined,
-        true,
-        unpaidInvoices,
-        identityPubKey,
-        numberOfRestoredTxs,
-        undefined,
-        unpaidContactInvoices,
-        mnemonic,
-      );
-      if (paymentObject) {
-        chunkPaymentObjects.push(paymentObject);
-      }
-    } catch (err) {
-      console.error('Error transforming tx:', tx.id, err);
-    }
-  }
-
-  return chunkPaymentObjects;
-}
 let isRestoringState = false;
 // Latest restore requested while one was running: run it once afterwards so a
 // balance commit that lands mid-restore (e.g. a spend from another device)
-// still gets a pass that can see its transfer.
+// still gets a pass that can see its payment.
 let queuedRestore = null;
 export async function fullRestoreSparkState(options) {
   if (isRestoringState) {
@@ -468,145 +74,53 @@ export async function fullRestoreSparkState(options) {
   } finally {
     const next = queuedRestore;
     queuedRestore = null;
-    if (next) fullRestoreSparkState(next);
+    if (next) setTimeout(() => fullRestoreSparkState(next), PAGE_PAUSE_MS * 5);
   }
 }
 
+// Connect-time diff between Breez history and the Blitz table. Breez imports
+// history silently on its first sync after a restart (no events), so this
+// paged listPayments pass is what makes that history visible. Newest first;
+// once a complete pass has happened, a page with nothing to write ends the run.
+// Returns the number of rows written (false on failure).
 async function runFullRestoreSparkState({
-  sparkAddress,
-  batchSize = DEFAULT_BATCH_SIZE,
-  chunkSize = 100,
-  maxConcurrentChunks = 3, // Reduced for better responsiveness
-  yieldInterval = 50, // Yield every N milliseconds
-  onProgress = null, // Optional progress callback
   isSendingPayment,
   mnemonic,
   identityPubKey,
-  isInitialRestore,
+  isInitialRestore = true,
 }) {
   isRestoringState = true;
   try {
-    console.log('running');
+    const handle = await acquire(mnemonic, { mode: 'client', borrow: true });
+    // A timed-out sync still leaves the local Breez store readable.
+    if (isInitialRestore) await handle.sync(SYNC_TIMEOUT_MS);
 
-    const handleProgressSave = async txBatch => {
-      if (!txBatch.length) return;
-
-      const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
-        getAllUnpaidSparkLightningInvoices(),
-        getAllSparkContactInvoices(),
-      ]);
-
-      const paymentObjects = [];
-      for (const tx of txBatch) {
-        try {
-          const paymentObject = await transformTxToPaymentObject(
-            tx,
-            sparkAddress,
-            undefined,
-            true,
-            unpaidInvoices,
-            identityPubKey,
-            txBatch.length,
-            undefined,
-            unpaidContactInvoices,
-            mnemonic,
-          );
-          if (paymentObject) {
-            paymentObjects.push(paymentObject);
-          }
-        } catch (err) {
-          console.error(
-            'Error transforming tx during incremental save:',
-            tx.id,
-            err,
-          );
-        }
+    const marker = await getMigrationMarker(identityPubKey);
+    let offset = 0;
+    let written = 0;
+    let reachedEnd = false;
+    for (;;) {
+      const page = await handle.listPayments({ limit: PAGE_SIZE, offset });
+      if (!page.length) {
+        reachedEnd = true;
+        break;
       }
-
-      if (paymentObjects.length) {
-        await bulkUpdateSparkTransactions(paymentObjects, 'incrementalRestore');
-        console.log(
-          `Incrementally saved ${paymentObjects.length} transactions`,
-        );
+      const result = await projectBreezPayments(page, {
+        accountId: identityPubKey,
+        updateType: 'transactions',
+        skipOutgoing: isSendingPayment,
+      });
+      written += result.written;
+      offset += page.length;
+      if (page.length < PAGE_SIZE) {
+        reachedEnd = true;
+        break;
       }
-    };
-
-    const restored = await restoreSparkTxState(
-      batchSize,
-      identityPubKey,
-      isSendingPayment,
-      mnemonic,
-      identityPubKey,
-      handleProgressSave,
-    );
-    if (!restored.txs.length) return;
-    const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
-      getAllUnpaidSparkLightningInvoices(),
-      getAllSparkContactInvoices(),
-    ]);
-    const txChunks = chunkArray(restored.txs, chunkSize);
-
-    console.log(
-      `Processing ${restored.txs.length} transactions in ${txChunks.length} chunks`,
-    );
-
-    const allPaymentObjects = [];
-    let processedChunks = 0;
-
-    // Process chunks in smaller batches with yields
-    for (let i = 0; i < txChunks.length; i += maxConcurrentChunks) {
-      const batchChunks = txChunks.slice(i, i + maxConcurrentChunks);
-
-      // Process this batch of chunks in parallel
-      const chunkPromises = batchChunks.map(chunk =>
-        processTransactionChunk(
-          chunk,
-          sparkAddress,
-          unpaidInvoices,
-          identityPubKey,
-          restored.txs.length,
-          unpaidContactInvoices,
-          mnemonic,
-        ),
-      );
-
-      try {
-        const batchResults = await Promise.all(chunkPromises);
-        allPaymentObjects.push(...batchResults.flat());
-        processedChunks += batchChunks.length;
-
-        // Call progress callback if provided
-        if (onProgress) {
-          onProgress({
-            processed: processedChunks,
-            total: txChunks.length,
-            percentage: Math.round((processedChunks / txChunks.length) * 100),
-          });
-        }
-
-        console.log(`Processed ${processedChunks}/${txChunks.length} chunks`);
-
-        // Yield control back to main thread between batches
-        if (i + maxConcurrentChunks < txChunks.length) {
-          await new Promise(resolve => setTimeout(resolve, yieldInterval));
-        }
-      } catch (err) {
-        console.error('Error processing chunk batch:', err);
-      }
+      if (marker.fullPassDone && result.records.length === 0) break;
+      await new Promise(r => setTimeout(r, PAGE_PAUSE_MS));
     }
-
-    console.log(
-      `Transformed ${allPaymentObjects.length}/${restored.txs.length} transactions`,
-    );
-
-    if (allPaymentObjects.length) {
-      await bulkUpdateSparkTransactions(
-        allPaymentObjects,
-        `fullUpdate-waitBalance`,
-      );
-    }
-
-    return allPaymentObjects.length;
+    if (reachedEnd) await markFullPassDone(identityPubKey);
+    return written;
   } catch (err) {
     console.log('full restore spark state error', err);
     return false;
@@ -739,6 +253,10 @@ export async function checkFlashnetStablecoinStatusLogic(
 }
 
 let isUpdatingSparkTxStatus = false;
+// Resolves pending rows against Breez: direct lookup by payment id, plus the
+// newest payments (catches legacy rows keyed by SSP request ids / txids), all
+// through the same projection as live events. Applies the 16-day rule to
+// outgoing Lightning rows that never resolve.
 export const updateSparkTxStatus = async (
   mnemoninc,
   accountId,
@@ -752,15 +270,11 @@ export const updateSparkTxStatus = async (
       return { shouldCheck: false };
     }
     isUpdatingSparkTxStatus = true;
-    // Get all saved transactions
-    console.log('running pending payments');
     const { didWork, response } = await getAllPendingSparkPayments(accountId);
 
     // sparkIDs the DB currently reports as pending, threaded back so callers can
     // detect a stale in-memory "pending" row after a lost SPARK_TX_UPDATE event.
-    // undefined (not []) when the DB read itself failed: callers skip the drift
-    // backstop on a non-array, so a transient SQLite error can't trigger a
-    // spurious reprojection that blanks the displayed transaction list.
+    // undefined when the DB read itself failed: callers skip the drift backstop.
     const pendingIds = didWork ? response.map(tx => tx.sparkID) : undefined;
 
     if (!response.length)
@@ -769,87 +283,82 @@ export const updateSparkTxStatus = async (
         shouldCheck: true,
         pendingIds: didWork ? response : undefined,
       };
-    const txsByType = {
-      lightning: response.filter(tx => tx.paymentType === 'lightning'),
-      bitcoin: response.filter(tx => tx.paymentType === 'bitcoin'),
-      spark: response.filter(
-        tx => tx.paymentType === 'spark' || tx.paymentType === 'unknown',
-      ),
-    };
 
-    const [unpaidInvoices] = await Promise.all([
-      txsByType.lightning.length
-        ? getAllUnpaidSparkLightningInvoices()
-        : Promise.resolve([]),
-    ]);
+    const rows = response.map(row => ({
+      row,
+      details: JSON.parse(row.details || '{}'),
+    }));
+    const flashnetUpdates = [];
 
-    const unpaidInvoicesByAmount = new Map();
-    unpaidInvoices.forEach(invoice => {
-      const amount = invoice.amount;
-      if (!unpaidInvoicesByAmount.has(amount)) {
-        unpaidInvoicesByAmount.set(amount, []);
-      }
-      unpaidInvoicesByAmount.get(amount).push(invoice);
-    });
-
-    // For large pending sets, fetch the recent transfers once and look ids up
-    // locally instead of one getSingleTxDetails request per pending tx. Only
-    // 25 transfers since this runs every ~10s and each transfer is encrypted.
-    let transferCache = null;
-    if (response.length > 5) {
-      try {
-        const { transfers = [] } = await getSparkTransactions(
-          25,
-          undefined,
-          mnemoninc,
+    // Stablecoin sends via Flashnet orchestration have their own checker.
+    if (contactsPrivateKey && publicKey) {
+      for (const { row, details } of rows) {
+        if (!details.isFlashnetStablecoin) continue;
+        const update = await checkFlashnetStablecoinStatusLogic(
+          row,
+          contactsPrivateKey,
+          publicKey,
         );
-        transferCache = new Map(transfers.map(t => [t.id, t]));
-      } catch (err) {
-        console.error(
-          'Error prefetching transfers for batch tx status update:',
-          err,
-        );
+        if (update) flashnetUpdates.push(update);
       }
     }
 
-    // Process different transaction types in parallel
-    const [lightningUpdates, bitcoinUpdates, sparkUpdates] = await Promise.all([
-      processLightningTransactions(
-        txsByType.lightning,
-        unpaidInvoicesByAmount,
-        mnemoninc,
-        accountId,
-        transferCache,
-      ),
-      processBitcoinTransactions(
-        txsByType.bitcoin,
-        mnemoninc,
-        accountId,
-        forceRefresh,
-        transferCache,
-      ),
-      processSparkTransactions(
-        txsByType.spark,
-        mnemoninc,
-        contactsPrivateKey,
-        publicKey,
-        transferCache,
-      ),
-    ]);
+    const handle = await acquire(mnemoninc, { mode: 'client', borrow: true });
+    const candidates = new Map();
+    for (const { row, details } of rows) {
+      if (details.isFlashnetStablecoin || details.isHoldInvoice) continue;
+      // Incoming placeholders are resolved by the payment event itself.
+      if (row.paymentType === 'unknown' && !details.amount) continue;
+      try {
+        const payment = await handle.getPayment(
+          details.breezPaymentId || row.sparkID,
+        );
+        if (payment) candidates.set(payment.id, payment);
+      } catch (err) {
+        console.log('pending payment lookup error', row.sparkID, err);
+      }
+    }
+    try {
+      for (const payment of await handle.listPayments({
+        limit: PENDING_SWEEP_WINDOW,
+      })) {
+        candidates.set(payment.id, payment);
+      }
+    } catch (err) {
+      console.log('pending sweep list error', err);
+    }
 
-    const updatedTxs = [
-      ...lightningUpdates,
-      ...bitcoinUpdates,
-      ...sparkUpdates.updatedTxs,
-    ];
+    const projected = await projectBreezPayments([...candidates.values()], {
+      accountId,
+      updateType: 'txStatusUpdate',
+    });
+    // Still pending after the sweep: apply the wedged-Lightning-send rule.
+    const resolved = new Set(projected.records.map(r => r.tempId || r.id));
+    const stuck = rows
+      .filter(
+        ({ row, details }) =>
+          !resolved.has(row.sparkID) &&
+          isStuckPendingLightning(
+            details.direction,
+            row.paymentType,
+            row.paymentStatus,
+            details.time ?? details.createdAt,
+          ),
+      )
+      .map(({ row, details }) => ({
+        id: row.sparkID,
+        tempId: row.sparkID,
+        paymentStatus: 'failed',
+        paymentType: row.paymentType,
+        accountId: row.accountId,
+        details,
+      }));
 
-    if (!updatedTxs.length)
-      return { updated: [], shouldCheck: false, pendingIds };
+    const direct = [...flashnetUpdates, ...stuck];
+    if (direct.length)
+      await bulkUpdateSparkTransactions(direct, 'txStatusUpdate');
 
-    await bulkUpdateSparkTransactions(
-      updatedTxs,
-      sparkUpdates.includesGift ? 'fullUpdate-waitBalance' : 'txStatusUpdate',
-    );
+    const updatedTxs = [...projected.records, ...direct];
     return { updated: updatedTxs, shouldCheck: false, pendingIds };
   } catch (error) {
     console.error('Error in spark restore:', error);
@@ -858,507 +367,6 @@ export const updateSparkTxStatus = async (
     isUpdatingSparkTxStatus = false;
   }
 };
-
-async function processLightningTransactions(
-  lightningTxs,
-  unpaidInvoicesByAmount,
-  mnemonic,
-  accountId,
-  transferCache,
-) {
-  const CONCURRENCY_LIMIT = 5;
-  const updatedTxs = [];
-
-  // Process in batches to avoid overwhelming the API
-  for (let i = 0; i < lightningTxs.length; i += CONCURRENCY_LIMIT) {
-    const batch = lightningTxs.slice(i, i + CONCURRENCY_LIMIT);
-
-    const batchPromises = batch.map(tx =>
-      processLightningTransaction(
-        tx,
-        unpaidInvoicesByAmount,
-        mnemonic,
-        transferCache,
-      ).catch(err => {
-        console.error('Error processing lightning tx:', tx.sparkID, err);
-        return null;
-      }),
-    );
-
-    const results = await Promise.all(batchPromises);
-    const validResults = results.filter(Boolean);
-    updatedTxs.push(...validResults);
-  }
-
-  let newTxs = [];
-
-  for (const result of updatedTxs) {
-    if (!result.lookThroughTxHistory) {
-      newTxs.push(result);
-      continue;
-    }
-
-    const findTxResponse = await resolveTransferDetails(
-      result.id,
-      mnemonic,
-      transferCache,
-    );
-
-    if (!findTxResponse) {
-      // If no transaction is found just call it completed
-      const details = JSON.parse(result.txStateUpdate.details);
-      newTxs.push({
-        tempId: result.txStateUpdate.sparkID,
-        useTempId: true,
-        ...result.txStateUpdate,
-        details,
-        paymentStatus: 'completed',
-      });
-      continue;
-    }
-
-    const bitcoinTransfer = findTxResponse;
-
-    const paymentStatus = getSparkPaymentStatus(bitcoinTransfer.status);
-    const expiryDate = new Date(bitcoinTransfer.expiryTime);
-
-    // remove any stale invoices or failed payments
-    if (
-      (paymentStatus === 'pending' && expiryDate < Date.now()) ||
-      (bitcoinTransfer.transferDirection === 'OUTGOING' &&
-        bitcoinTransfer.status === 'TRANSFER_STATUS_SENDER_KEY_TWEAK_PENDING')
-    ) {
-      await deleteSparkTransaction(result.id);
-      continue;
-    }
-
-    const transformedObject = await transformTxToPaymentObject(
-      bitcoinTransfer,
-      undefined,
-      undefined,
-      false,
-      [],
-      accountId,
-      1,
-      false,
-      [],
-      mnemonic,
-    );
-
-    newTxs.push(transformedObject);
-  }
-
-  return newTxs;
-}
-
-async function processLightningTransaction(
-  txStateUpdate,
-  unpaidInvoicesByAmount,
-  mnemonic,
-  transferCache,
-) {
-  const details = JSON.parse(txStateUpdate.details);
-  const possibleOptions = unpaidInvoicesByAmount.get(details.amount) || [];
-
-  if (details.isHoldInvoice) {
-    console.warn('Hold invoice do not check');
-    return;
-  }
-  if (
-    !IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID) &&
-    !possibleOptions.length
-  ) {
-    console.log(txStateUpdate);
-    // goes to be handled later by transform tx to payment
-    return {
-      id: txStateUpdate.sparkID,
-      paymentStatus: '',
-      paymentType: 'lightning',
-      accountId: txStateUpdate.accountId,
-      lookThroughTxHistory: true,
-      txStateUpdate,
-    };
-  }
-
-  if (!IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID)) {
-    // Process invoice matching with retry logic
-    const tx = await resolveTransferDetails(
-      txStateUpdate.sparkID,
-      mnemonic,
-      transferCache,
-    );
-
-    if (!tx) return false;
-
-    const userRequest = tx.userRequest;
-
-    if (!userRequest?.id) return false;
-
-    const savedInvoice = possibleOptions.find(
-      item => item.sparkID === userRequest?.id,
-    );
-
-    const savedDetails = savedInvoice?.details
-      ? JSON.parse(savedInvoice.details)
-      : {};
-
-    if (
-      savedInvoice &&
-      (!savedDetails.performSwaptoUSD ||
-        (savedDetails.performSwaptoUSD && savedDetails.completedSwaptoUSD))
-    ) {
-      console.log(
-        'Deleting lightning payment that was swapped to USD or a nomral LN payment that is now used',
-      );
-      deleteUnpaidSparkLightningTransaction(savedInvoice.sparkID);
-    }
-
-    if (savedDetails.performSwaptoUSD && !savedDetails.completedSwaptoUSD)
-      return false;
-
-    const isSendRequest = userRequest?.typename === 'LightningSendRequest';
-    const invoice = userRequest
-      ? isSendRequest
-        ? userRequest?.encodedInvoice
-        : userRequest.invoice?.encodedInvoice
-      : '';
-    const preimage = userRequest ? userRequest?.paymentPreimage || '' : '';
-
-    return {
-      useTempId: true,
-      tempId: txStateUpdate.sparkID,
-      id: tx.id ? tx.id : txStateUpdate.sparkID,
-      paymentStatus:
-        stuckInFlightStatus(
-          tx.status,
-          details,
-          details.direction,
-          'lightning',
-        ) || getSparkPaymentStatus(tx.status),
-      paymentType: 'lightning',
-      accountId: txStateUpdate.accountId,
-      details: {
-        ...savedDetails,
-        description: savedInvoice?.description || '',
-        address: invoice,
-        preimage: preimage,
-        shouldNavigate: savedInvoice?.shouldNavigate ?? 0,
-        isLNURL: savedDetails?.isLNURL || false,
-      },
-    };
-  }
-
-  // Handle spark request IDs
-  const sparkResponse =
-    details.direction === 'INCOMING'
-      ? await getSparkLightningPaymentStatus({
-          lightningInvoiceId: txStateUpdate.sparkID,
-          mnemonic,
-        })
-      : await getSparkLightningSendRequest(txStateUpdate.sparkID, mnemonic);
-
-  const paymentStatus = getSparkPaymentStatus(sparkResponse.status);
-  // Stuck-detector: still SENDER_INITIATED long after the row was created is a
-  // wedged send (server dropped the swap / app killed after dispatch) — mark it
-  // failed so the poller stops re-querying it every 10s and the user can resend.
-  const stuckFailed = stuckInFlightStatus(
-    sparkResponse.status,
-    details,
-    details.direction,
-    'lightning',
-  );
-
-  if (
-    details.direction === 'OUTGOING' &&
-    (paymentStatus === 'failed' || stuckFailed)
-  )
-    return {
-      ...txStateUpdate,
-      useTempId: true,
-      tempId: txStateUpdate.sparkID,
-      id: sparkResponse.transfer?.sparkId || txStateUpdate.sparkID,
-      details: {
-        ...details,
-      },
-      paymentStatus: 'failed',
-    };
-
-  if (!sparkResponse?.transfer) return null;
-
-  // const fee =
-  //   sparkResponse.fee.originalValue /
-  //   (sparkResponse.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1);
-
-  const preimage = sparkResponse.paymentPreimage || '';
-
-  if (!preimage) return null;
-
-  return {
-    useTempId: true,
-    tempId: txStateUpdate.sparkID,
-    id: sparkResponse.transfer.sparkId,
-    paymentStatus:
-      paymentStatus === 'completed' || preimage ? 'completed' : paymentStatus,
-    paymentType: 'lightning',
-    accountId: txStateUpdate.accountId,
-    details: {
-      ...details,
-      // fee: Math.round(fee),
-      // totalFee: Math.round(fee) + (details.supportFee || 0),
-      preimage: preimage,
-    },
-  };
-}
-
-async function processBitcoinTransactions(
-  bitcoinTxs,
-  mnemonic,
-  accountId,
-  forceRefresh,
-  transferCache,
-) {
-  const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
-
-  const now = Date.now();
-  const cooldownPeriod = 1000 * 60; // 60 seconds
-  let shouldBlockSendCheck = null;
-
-  if (lastRun && now - JSON.parse(lastRun) < cooldownPeriod && !forceRefresh) {
-    console.log('Blocking bitcoin transaction processing');
-    shouldBlockSendCheck = true;
-    return [];
-  } else {
-    console.log('Updating bitcoin transaction processing last run time');
-    shouldBlockSendCheck = false;
-    await setLocalStorageItem('lastRunBitcoinTxUpdate', JSON.stringify(now));
-  }
-  const updatedTxs = [];
-
-  for (const txStateUpdate of bitcoinTxs) {
-    const details = JSON.parse(txStateUpdate.details);
-
-    if (
-      details.direction === 'INCOMING' ||
-      !IS_BITCOIN_REQUEST_ID.test(txStateUpdate.sparkID)
-    ) {
-      if (!IS_SPARK_ID.test(txStateUpdate.sparkID)) {
-        const oldDetails = JSON.parse(txStateUpdate.details);
-        const txid = oldDetails.onChainTxid || txStateUpdate.sparkID;
-        const vout = oldDetails.vout;
-        const compositeKey =
-          vout !== null && vout !== undefined
-            ? `${txid}:${String(vout)}`
-            : null;
-        const paymentsByTxid = await getBitcoinPaymentsByTxid(accountId);
-        let foundPayment = null;
-        if (compositeKey) foundPayment = paymentsByTxid.get(compositeKey);
-        if (!foundPayment) foundPayment = paymentsByTxid.get(txid);
-        // Fallback: direct vout-scoped DB lookup when map missed (e.g., completed
-        // row's onChainTxid was empty originally but later fixed). This is the
-        // deterministic source for multi-output same-txid deposits.
-        if (!foundPayment || foundPayment.sparkID === txStateUpdate.sparkID) {
-          try {
-            const direct = await getBitcoinTransactionByOnChainTxid(
-              txid,
-              accountId,
-              vout,
-            );
-            if (direct && direct.sparkID !== txStateUpdate.sparkID) {
-              foundPayment = direct;
-            }
-          } catch {}
-        }
-        if (foundPayment && foundPayment.sparkID !== txStateUpdate.sparkID) {
-          const newDetails =
-            typeof foundPayment.details === 'string'
-              ? JSON.parse(foundPayment.details)
-              : foundPayment.details;
-          // Guard cross-vout collapse for multi-output same-txid: both rows
-          // carry vout, they must match.
-          if (
-            vout !== null &&
-            vout !== undefined &&
-            newDetails?.vout !== null &&
-            newDetails?.vout !== undefined &&
-            Number(newDetails.vout) !== Number(vout)
-          ) {
-            continue;
-          }
-
-          if (
-            sha256Hash(JSON.stringify(foundPayment)) ===
-            sha256Hash(JSON.stringify(txStateUpdate))
-          )
-            continue;
-
-          updatedTxs.push({
-            useTempId: true,
-            tempId: txStateUpdate.sparkID,
-            id: foundPayment.sparkID,
-            paymentStatus: foundPayment.paymentStatus,
-            paymentType: 'bitcoin',
-            accountId: foundPayment.accountId,
-            details: {
-              ...newDetails,
-              address: oldDetails.address || '',
-              description: oldDetails.description || '',
-            },
-          });
-        }
-        continue;
-      }
-
-      const transfer = await resolveTransferDetails(
-        txStateUpdate.sparkID,
-        mnemonic,
-        transferCache,
-      );
-
-      if (!transfer) continue;
-
-      const newPaymentStatus =
-        stuckInFlightStatus(
-          transfer.status,
-          details,
-          details.direction,
-          'bitcoin',
-        ) || getSparkPaymentStatus(transfer.status);
-      if (txStateUpdate.paymentStatus === newPaymentStatus) continue;
-
-      updatedTxs.push({
-        id: txStateUpdate.sparkID,
-        paymentStatus: newPaymentStatus,
-        paymentType: 'bitcoin',
-        accountId: txStateUpdate.accountId,
-      });
-    } else {
-      if (shouldBlockSendCheck) continue;
-      const sparkResponse = await getSparkBitcoinPaymentRequest(
-        txStateUpdate.sparkID,
-        mnemonic,
-      );
-
-      if (!sparkResponse?.transfer) {
-        if (
-          sparkResponse?.coopExitTxid &&
-          (!details.onChainTxid || !details.expiresAt)
-        ) {
-          updatedTxs.push({
-            useTempId: true,
-            tempId: txStateUpdate.sparkID,
-            id: txStateUpdate.sparkID,
-            paymentStatus: 'pending',
-            paymentType: 'bitcoin',
-            accountId: txStateUpdate.accountId,
-            details: {
-              ...details,
-              onChainTxid: sparkResponse.coopExitTxid,
-              expiresAt: sparkResponse.expiresAt || '',
-            },
-          });
-        }
-
-        if (
-          sparkResponse.status === SparkCoopExitRequestStatus.EXPIRED ||
-          sparkResponse.status === SparkCoopExitRequestStatus.FAILED
-        ) {
-          updatedTxs.push({
-            id: txStateUpdate.sparkID,
-            paymentStatus: 'failed',
-            paymentType: 'bitcoin',
-            accountId: txStateUpdate.accountId,
-            details,
-          });
-        }
-        continue;
-      }
-
-      updatedTxs.push({
-        useTempId: true,
-        tempId: txStateUpdate.sparkID,
-        id: sparkResponse.transfer.sparkId,
-        paymentStatus: getSparkPaymentStatus(sparkResponse.status),
-        paymentType: 'bitcoin',
-        accountId: txStateUpdate.accountId,
-        details: {
-          ...details,
-          onChainTxid: sparkResponse.coopExitTxid,
-        },
-      });
-    }
-  }
-
-  return updatedTxs;
-}
-
-async function processSparkTransactions(
-  sparkTxs,
-  mnemonic,
-  contactsPrivateKey = null,
-  publicKey = null,
-  transferCache,
-) {
-  let includesGift = false;
-  let updatedTxs = [];
-  for (const txStateUpdate of sparkTxs) {
-    const details = JSON.parse(txStateUpdate.details);
-
-    // Stablecoin sends via Flashnet orchestration — delegate to status checker
-    if (details.isFlashnetStablecoin) {
-      if (contactsPrivateKey && publicKey) {
-        const update = await checkFlashnetStablecoinStatusLogic(
-          txStateUpdate,
-          contactsPrivateKey,
-          publicKey,
-        );
-        if (update) updatedTxs.push(update);
-      }
-      continue;
-    }
-
-    if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
-      // This means the placeholder tx is created and we should defer this action to the debouceHandlIncomePayment function
-      if (txStateUpdate.paymentType === 'unknown' && !details.amount) continue;
-      const findTxResponse = await resolveTransferDetails(
-        txStateUpdate.sparkID,
-        mnemonic,
-        transferCache,
-      );
-
-      if (!findTxResponse) continue;
-
-      if (details.isGift) {
-        includesGift = true;
-      }
-
-      updatedTxs.push({
-        id: txStateUpdate.sparkID,
-        paymentStatus:
-          stuckInFlightStatus(
-            findTxResponse.status,
-            details,
-            details.direction,
-            'spark',
-          ) || getSparkPaymentStatus(findTxResponse.status),
-        paymentType: 'spark',
-        accountId: txStateUpdate.accountId,
-      });
-    } else {
-      if (details.isGift) {
-        // dont process lrc20 pending gift payments, will be handled by getLRC20Transactions function that loops every 10s
-        continue;
-      }
-      updatedTxs.push({
-        id: txStateUpdate.sparkID,
-        paymentStatus: 'completed',
-        paymentType: 'spark',
-        accountId: txStateUpdate.accountId,
-      });
-    }
-  }
-
-  return { updatedTxs, includesGift };
-}
 
 export const checkHodlInvoicePaymentStatuses = async (
   mnemonic,

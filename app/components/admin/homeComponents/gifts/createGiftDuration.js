@@ -43,12 +43,16 @@ import { createGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import {
-  generateSparkInvoiceFromAddress,
-  fufillSparkInvoices,
+  sendSparkPayment,
   batchSendTokens,
   getSingleTxDetails,
   getSparkPaymentStatus,
 } from '../../../../functions/spark/index';
+import {
+  beginBulkGroup,
+  listBulkItems,
+  setBulkItemState,
+} from '../../../../functions/spark/sendIntents';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
@@ -72,6 +76,10 @@ import { useTheme } from '../../../../../context-store/theme';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
 import customUUID from '../../../../functions/customUUID';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import {
+  isSendingPayingEventEmiiter,
+  SENDING_PAYMENT_EVENT_NAME,
+} from '../../../../../context-store/sparkContext';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
 import Note from '../../../../functions/CustomElements/redesign/Note';
@@ -590,6 +598,17 @@ export default function CreateGiftDuration(props) {
 
       allGiftData.forEach(g => savedGiftIds.push(g.storageObject.uuid));
 
+      // Reserve the derive-index range before any network call: docs that end
+      // up funded (or unknown) must never have their index reused.
+      toggleMasterInfoObject({
+        currentDerivedGiftIndex: currentDerivedGiftIndex + N,
+      });
+      // Only docs still 'planned' (nothing sent) may be deleted on failure.
+      const markSendStarted = id => {
+        const idx = savedGiftIds.indexOf(id);
+        if (idx !== -1) savedGiftIds.splice(idx, 1);
+      };
+
       setLoadingMessage(
         t('screens.inAccount.giftPages.createGift.startProcess3'),
       );
@@ -715,59 +734,69 @@ export default function CreateGiftDuration(props) {
       }
 
       // ── Block 2: Bulk payment ─────────────────
+      // Hide per-child rows from ingest until the group record is written.
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
       if (giftDenomination === 'BTC') {
-        const invoiceBatch = [];
-        for (const giftData of allGiftData) {
-          const invoiceResult = await generateSparkInvoiceFromAddress({
-            address: giftData.sparkAddress,
+        // Durable rows + per-item idempotency keys, then sequential address sends.
+        const bulkGroupId = customUUID();
+        await beginBulkGroup({
+          groupId: bulkGroupId,
+          accountId: sparkInfoRef.current.identityPubKey || '',
+          kind: 'gift',
+          asset: 'BTC',
+          rows: allGiftData.map(g => ({
+            recipient: g.sparkAddress,
+            amount: convertedSatAmount,
+            refId: g.storageObject.uuid,
+          })),
+        });
+        const items = await listBulkItems(bulkGroupId);
+
+        const successful = [];
+        const fundedGiftData = [];
+        const failedIds = [];
+        let unknownCount = 0;
+        for (let i = 0; i < allGiftData.length; i++) {
+          const giftId = allGiftData[i].storageObject.uuid;
+          markSendStarted(giftId);
+          await setBulkItemState(bulkGroupId, i, 'sending');
+          const res = await sendSparkPayment({
+            receiverSparkAddress: items[i].recipient,
             amountSats: convertedSatAmount,
             mnemonic: currentWalletMnemoinc,
+            intentId: items[i].idempotency_key,
           });
-          if (!invoiceResult.didWork || !invoiceResult.invoice)
-            throw new Error(invoiceResult.error || 'Invoice generation failed');
-          invoiceBatch.push({
-            invoice: invoiceResult.invoice,
-            amount: BigInt(convertedSatAmount),
-          });
+          if (res.didWork) {
+            const transferId = res.response?.id ?? res.payment?.id;
+            await setBulkItemState(bulkGroupId, i, 'sent', {
+              paymentId: transferId,
+            });
+            successful.push(transferId);
+            fundedGiftData.push(allGiftData[i]);
+          } else if (res.outcome === 'unknown') {
+            // May have been sent: keep the gift doc.
+            unknownCount += 1;
+            await setBulkItemState(bulkGroupId, i, 'unknown', {
+              error: res.error,
+            });
+          } else {
+            await setBulkItemState(bulkGroupId, i, 'planned', {
+              error: res.error,
+            });
+            failedIds.push(giftId);
+          }
         }
 
-        const fulfillResult = await fufillSparkInvoices({
-          mnemonic: currentWalletMnemoinc,
-          invoices: invoiceBatch,
-        });
-        if (!fulfillResult.didWork)
-          throw new Error(fulfillResult.error || 'Batch payment failed');
-
-        const sdkResult = fulfillResult;
-        const successful =
-          sdkResult.satsTransactionSuccess.map(s => s?.transferResponse?.id) ||
-          [];
-        const failedInvoiceStrings = new Set([
-          ...(sdkResult?.satsTransactionErrors ?? []).map(e => e.invoice),
-          ...(sdkResult?.invalidInvoices ?? []).map(e => e.invoice),
-        ]);
-
-        if (failedInvoiceStrings.size > 0) {
-          const failedIds = [];
-          invoiceBatch.forEach((inv, i) => {
-            if (failedInvoiceStrings.has(inv.invoice))
-              failedIds.push(allGiftData[i].storageObject.uuid);
-          });
+        if (failedIds.length > 0) {
           await bulkDeleteGiftsFromCloudAndLocal(failedIds);
-          failedIds.forEach(id => {
-            const idx = savedGiftIds.indexOf(id);
-            if (idx !== -1) savedGiftIds.splice(idx, 1);
-          });
         }
-
-        const fundedGiftData = invoiceBatch
-          .map((inv, i) =>
-            failedInvoiceStrings.has(inv.invoice) ? null : allGiftData[i],
-          )
-          .filter(Boolean);
 
         if (fundedGiftData.length === 0)
-          throw new Error('All batch payments failed');
+          throw new Error(
+            unknownCount > 0
+              ? t('errormessages.paymentError')
+              : 'All batch payments failed',
+          );
 
         allGiftData.length = 0;
         fundedGiftData.forEach(g => allGiftData.push(g));
@@ -797,14 +826,47 @@ export default function CreateGiftDuration(props) {
           tokenAmount: BigInt(Math.round(trueFiatAmount)),
         }));
 
+        // Rows are persisted as 'sending' before the one batch; never retried.
+        const bulkGroupId = customUUID();
+        await beginBulkGroup({
+          groupId: bulkGroupId,
+          accountId: sparkInfoRef.current.identityPubKey || '',
+          kind: 'gift',
+          asset: 'USD',
+          rows: allGiftData.map(g => ({
+            recipient: g.sparkAddress,
+            amount: BigInt(Math.round(trueFiatAmount)),
+            tokenId: USDB_TOKEN_ID,
+            refId: g.storageObject.uuid,
+          })),
+        });
+        const setAll = (state, patch) =>
+          Promise.all(
+            allGiftData.map((_, i) =>
+              setBulkItemState(bulkGroupId, i, state, patch),
+            ),
+          );
+        const plannedIds = allGiftData.map(g => g.storageObject.uuid);
+        plannedIds.forEach(markSendStarted);
+        await setAll('sending');
+
         const fulfillResult = await batchSendTokens({
           mnemonic: currentWalletMnemoinc,
           invoices: tokenInvoices,
         });
-        if (!fulfillResult?.didWork)
-          throw new Error(fulfillResult.error || 'Batch token send failed');
+        if (!fulfillResult?.didWork) {
+          if (fulfillResult?.outcome === 'unknown') {
+            // May have been sent: keep the docs and the rows.
+            await setAll('unknown', { error: fulfillResult.error });
+          } else {
+            await setAll('planned', { error: fulfillResult?.error });
+            savedGiftIds.push(...plannedIds);
+          }
+          throw new Error(fulfillResult?.error || 'Batch token send failed');
+        }
 
         const txHash = fulfillResult.invoice;
+        await setAll('sent', { paymentId: txHash });
         if (!txHash) {
           console.log(
             'bulkSparkPayment: no txHash in batchSendTokens response',
@@ -833,10 +895,6 @@ export default function CreateGiftDuration(props) {
         };
       }
 
-      toggleMasterInfoObject({
-        currentDerivedGiftIndex: currentDerivedGiftIndex + N,
-      });
-
       await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0).catch(
         err =>
           console.log(
@@ -855,6 +913,8 @@ export default function CreateGiftDuration(props) {
         await bulkDeleteGiftsFromCloudAndLocal(savedGiftIds);
       }
       throw err;
+    } finally {
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
     }
   };
 

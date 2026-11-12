@@ -31,6 +31,11 @@ export const isSparkTxDatabaseOpen = () => sparkTxDB.isOpen();
 
 export const ensureSparkDatabaseReady = () => sparkTxDB.ensureReady();
 
+export const getSparkDatabase = async () => {
+  await ensureSparkDatabaseReady();
+  return sqlLiteDB;
+};
+
 const isConcretePaymentType = paymentType =>
   Boolean(paymentType) && paymentType !== 'unknown';
 
@@ -196,6 +201,50 @@ export const initializeSparkDatabase = async () => {
         updatedAt      INTEGER NOT NULL
       );
 
+      CREATE TABLE IF NOT EXISTS breez_send_intents (
+        intent_id TEXT PRIMARY KEY,
+        account_id TEXT NOT NULL,
+        rail TEXT NOT NULL,
+        request_hash TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_id TEXT,
+        created_at INTEGER NOT NULL,
+        state TEXT NOT NULL,
+        payment_id TEXT,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_breez_send_intents_account_state
+      ON breez_send_intents (account_id, state);
+
+      CREATE TABLE IF NOT EXISTS breez_bulk_groups (
+        group_id TEXT PRIMARY KEY,
+        account_id TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        asset TEXT NOT NULL,
+        state TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS breez_bulk_items (
+        group_id TEXT NOT NULL,
+        item_index INTEGER NOT NULL,
+        account_id TEXT NOT NULL,
+        recipient TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_id TEXT,
+        idempotency_key TEXT NOT NULL UNIQUE,
+        ref_id TEXT,
+        state TEXT NOT NULL,
+        payment_id TEXT,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (group_id, item_index)
+      );
+
       CREATE INDEX IF NOT EXISTS idx_spark_tx_lightning_invoice_address
       ON ${SPARK_TRANSACTIONS_TABLE_NAME} (
         paymentType,
@@ -213,6 +262,15 @@ export const initializeSparkDatabase = async () => {
         json_extract(details, '$.time')
       );
     `);
+
+    const snapshotColumns = await sqlLiteDB.getAllAsync(
+      'PRAGMA table_info(account_balance_snapshots)',
+    );
+    if (!snapshotColumns.some(col => col.name === 'verifiedAt')) {
+      await sqlLiteDB.execAsync(
+        'ALTER TABLE account_balance_snapshots ADD COLUMN verifiedAt INTEGER NOT NULL DEFAULT 0',
+      );
+    }
 
     // Shared connection so the spend-and-replace discovery JOIN works.
     await createSpendAndReplaceTable(sqlLiteDB);
@@ -1282,7 +1340,22 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
       const processedTransactions = new Map();
 
       // First pass: collect and merge transactions by final sparkID
-      for (const tx of transactions) {
+      for (const rawTx of transactions) {
+        // New SDK returns BigInt amounts/fees; JSON.stringify throws on them.
+        // Number is safe for sat-scale values; fall back to string beyond 2^53.
+        const tx = {
+          ...rawTx,
+          details: JSON.parse(
+            JSON.stringify(rawTx.details ?? {}, (_, v) =>
+              typeof v === 'bigint'
+                ? v <= BigInt(Number.MAX_SAFE_INTEGER) &&
+                  v >= BigInt(Number.MIN_SAFE_INTEGER)
+                  ? Number(v)
+                  : v.toString()
+                : v,
+            ),
+          ),
+        };
         const finalSparkId = tx.id;
         const accountId = tx.accountId;
         const tempSparkId = tx.useTempId ? tx.tempId : tx.id;

@@ -22,6 +22,7 @@ import {
   completeSwapConfirmation,
   retryPendingSwapConfirmations,
   SEND_AMOUNT_INCREASE_BUFFER,
+  isSwapInFlight,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -545,6 +546,7 @@ export function FlashnetProvider({ children }) {
       if (appState !== 'active') return;
       if (!sparkInformation.didConnectToFlashnet) return;
       if (!currentWalletMnemoincRef.current) return;
+      if (isSwapInFlight()) return;
 
       const refundableTransfers = await listClawbackableTransfers(
         currentWalletMnemoincRef.current,

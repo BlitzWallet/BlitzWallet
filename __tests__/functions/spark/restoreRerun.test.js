@@ -56,6 +56,8 @@ const deferred = () => {
   return { promise, resolve };
 };
 const flush = () => new Promise(res => setImmediate(res));
+// The rerun is deferred ~2000 ms (PAGE_PAUSE_MS * 5 in restore.js).
+const waitForRerun = () => new Promise(res => setTimeout(res, 2300));
 
 beforeEach(() => {
   mockListPayments.mockReset();
@@ -80,7 +82,7 @@ test('a restore requested while one runs gets one more pass afterwards', async (
 
   first.resolve([]);
   await running;
-  for (let i = 0; i < 10; i++) await flush();
+  await waitForRerun();
 
   // Exactly one coalesced rerun, not one per request.
   expect(mockListPayments).toHaveBeenCalledTimes(2);
@@ -89,6 +91,6 @@ test('a restore requested while one runs gets one more pass afterwards', async (
 test('no request while running → no extra pass', async () => {
   mockListPayments.mockResolvedValue([]);
   await fullRestoreSparkState(ARGS);
-  for (let i = 0; i < 10; i++) await flush();
+  await waitForRerun();
   expect(mockListPayments).toHaveBeenCalledTimes(1);
 });

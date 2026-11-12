@@ -33,6 +33,14 @@ import {
 } from './transactions';
 import { getLocalStorageItem } from '../localStorage';
 
+// Carries the send outcome ('failed' | 'unknown') and intent id from a facade
+// result up to the catch below so the UI can tell an ambiguous failure apart.
+const sendError = (response, fallback) =>
+  Object.assign(new Error(response.error || fallback), {
+    outcome: response.outcome,
+    intentId: response.intentId,
+  });
+
 export const sparkPaymenWrapper = async ({
   getFee = false,
   address = '',
@@ -48,7 +56,6 @@ export const sparkPaymenWrapper = async ({
   usingZeroAmountInvoice = false,
   seletctedToken = 'Bitcoin',
   mnemonic,
-  sendWebViewRequest,
   contactInfo,
   fromMainSendScreen = false,
   usablePaymentMethod = 'BTC',
@@ -57,9 +64,12 @@ export const sparkPaymenWrapper = async ({
   fiatValueConvertedSendAmount,
   poolInfoRef,
   extraDetails = {},
+  intentId,
 }) => {
+  let fundsMoved = false;
   try {
     console.log('Begining spark payment');
+    let sendIntentId = intentId;
     let isSpendAndReplaceEnabled;
     try {
       isSpendAndReplaceEnabled = JSON.parse(
@@ -145,10 +155,11 @@ export const sparkPaymenWrapper = async ({
         });
 
         if (!swapPaymentResponse.didWork)
-          throw new Error(
-            swapPaymentResponse.error ||
-              'Error when sending lightning payment from USD balance',
+          throw sendError(
+            swapPaymentResponse,
+            'Error when sending lightning payment from USD balance',
           );
+        fundsMoved = true;
 
         const now = Date.now();
         const tx = {
@@ -208,14 +219,17 @@ export const sparkPaymenWrapper = async ({
           invoice: address,
           amountSats: usingZeroAmountInvoice ? Number(amountSats) : undefined,
           mnemonic,
+          intentId,
         });
 
         if (!lightningPayResponse.didWork)
-          throw new Error(
-            lightningPayResponse.error ||
-              'Error when sending lightning payment',
+          throw sendError(
+            lightningPayResponse,
+            'Error when sending lightning payment',
           );
 
+        fundsMoved = true;
+        sendIntentId = lightningPayResponse.intentId || sendIntentId;
         const data = lightningPayResponse.paymentResponse;
 
         // check if lightning payment used LN or handled over spark
@@ -271,7 +285,7 @@ export const sparkPaymenWrapper = async ({
               supportFee: supportFee,
               amount: amountSats,
               address: address,
-              time: new Date(data.updatedTime).getTime(),
+              time: new Date(data.updatedTime || data.updatedAt).getTime(),
               direction: 'OUTGOING',
               description: memo || '',
               senderIdentityPublicKey: data.receiverIdentityPublicKey,
@@ -310,13 +324,17 @@ export const sparkPaymenWrapper = async ({
         feeQuote,
         deductFeeFromWithdrawalAmount: deductFeeFromAmount,
         mnemonic,
+        intentId,
       });
 
       if (!onChainPayResponse.didWork)
-        throw new Error(
-          onChainPayResponse.error || 'Error when sending bitcoin payment',
+        throw sendError(
+          onChainPayResponse,
+          'Error when sending bitcoin payment',
         );
 
+      fundsMoved = true;
+      sendIntentId = onChainPayResponse.intentId || sendIntentId;
       const data = onChainPayResponse.response;
 
       const tx = {
@@ -389,7 +407,8 @@ export const sparkPaymenWrapper = async ({
         }
 
         if (!executionResponse.didWork)
-          throw new Error(executionResponse.error);
+          throw sendError(executionResponse, executionResponse.error);
+        fundsMoved = true;
 
         const outboundTransferId = executionResponse.swap.outboundTransferId;
         setFlashnetTransfer(outboundTransferId);
@@ -434,6 +453,7 @@ export const sparkPaymenWrapper = async ({
             tokenAmount: Number(Math.ceil(usdbAmount)),
             receiverSparkAddress: address,
             mnemonic,
+            intentId,
           });
         } else if (seletctedToken !== 'Bitcoin') {
           useLRC20Format = true;
@@ -442,6 +462,7 @@ export const sparkPaymenWrapper = async ({
             tokenAmount: Number(amountSats),
             receiverSparkAddress: address,
             mnemonic,
+            intentId,
           });
         } else {
           const finalSatAmount = isSwap
@@ -454,18 +475,19 @@ export const sparkPaymenWrapper = async ({
             receiverSparkAddress: address,
             amountSats: Number(finalSatAmount),
             mnemonic,
+            intentId,
           });
         }
 
         if (!sparkPayResponse.didWork) {
-          throw new Error(
-            sparkPayResponse.error || 'Error when sending spark payment',
-          );
+          throw sendError(sparkPayResponse, 'Error when sending spark payment');
         }
       }
 
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
+      fundsMoved = true;
+      sendIntentId = sparkPayResponse.intentId || sendIntentId;
       const data = sparkPayResponse.response;
 
       const formattedToken =
@@ -550,6 +572,12 @@ export const sparkPaymenWrapper = async ({
       response = tx;
     }
 
+    if (sendIntentId) {
+      response = {
+        ...response,
+        details: { ...response.details, intentId: sendIntentId },
+      };
+    }
     console.log(
       response,
       'resonse in send function',
@@ -575,7 +603,12 @@ export const sparkPaymenWrapper = async ({
     };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return { didWork: false, error: err.message };
+    return {
+      didWork: false,
+      error: err.message,
+      outcome: err.outcome || (fundsMoved ? 'unknown' : 'failed'),
+      intentId: err.intentId,
+    };
   } finally {
     // Only emit if we processed a payment and have identityPubKey (will handle situation with no identiy pubkey on send screen)
     if (
@@ -594,7 +627,6 @@ export const sparkReceivePaymentWrapper = async ({
   paymentType,
   shouldNavigate,
   mnemoinc,
-  sendWebViewRequest,
   performSwaptoUSD = false,
   includeSparkAddress = true,
   expirySeconds,

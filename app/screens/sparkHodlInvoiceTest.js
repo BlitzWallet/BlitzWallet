@@ -22,7 +22,6 @@ import {
   getSparkLightningPaymentFeeEstimate,
   getSparkLightningSendRequest,
   getSparkLightningPaymentStatus,
-  getWallet,
   querySparkHodlLightningPayments,
   receiveSparkHodlLightningPayment,
   sendSparkLightningPayment,
@@ -35,13 +34,6 @@ const HODL_STATUS = {
   1: 'Claimed / completed',
   2: 'Failed / canceled',
 };
-
-const CANCEL_METHODS = [
-  'cancelLightningHodlInvoice',
-  'cancelHodlInvoice',
-  'cancelHTLC',
-  'failHTLC',
-];
 
 function safeJson(value) {
   try {
@@ -272,28 +264,13 @@ export default function SparkHodlInvoiceTest() {
         throw new Error('Create a HODL invoice first');
       }
 
-      const wallet = await getWallet(currentWalletMnemoinc);
-      const methodName = CANCEL_METHODS.find(
-        candidate => typeof wallet?.[candidate] === 'function',
-      );
-
-      if (!methodName) {
-        return {
-          didWork: false,
-          unsupported: true,
-          message:
-            'This Spark SDK build does not expose a receiver-side HODL cancel method.',
-          probedMethods: CANCEL_METHODS,
-        };
-      }
-
-      const response = await wallet[methodName]({
-        id: receiveRequest?.id,
-        paymentHash,
-      });
-
-      await refreshBalance('Balance after cancel');
-      return { didWork: true, methodName, response };
+      // Breez exposes no receiver-side HODL cancel.
+      return {
+        didWork: false,
+        unsupported: true,
+        message:
+          'Breez Spark SDK does not expose a receiver-side HODL cancel method.',
+      };
     });
   }
 

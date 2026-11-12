@@ -9,7 +9,7 @@ import { derivePoolWallet } from '../../../../functions/pools/derivePoolWallet';
 import {
   sendSparkPayment,
   getSparkAddress,
-  initializeSparkWallet,
+  openDerivedWallet,
   disposeSparkWallet,
 } from '../../../../functions/spark';
 import { awaitSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
@@ -46,6 +46,7 @@ export default function ClosePoolConfirmation({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const isMounted = useRef(true);
+  const poolMnemonicRef = useRef(null);
   const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +63,8 @@ export default function ClosePoolConfirmation({
   useEffect(() => {
     return () => {
       isMounted.current = false;
+      // Never leave the pool wallet open if the sheet closes mid-flow.
+      if (poolMnemonicRef.current) disposeSparkWallet(poolMnemonicRef.current);
     };
   }, []);
 
@@ -84,11 +87,10 @@ export default function ClosePoolConfirmation({
 
       // 2. Initialize the pool wallet
       setStep('connecting');
-      const initResult = await initializeSparkWallet(poolMnemonic, false, {
-        maxRetries: 4,
-      });
+      poolMnemonicRef.current = poolMnemonic;
+      const initResult = await openDerivedWallet(poolMnemonic);
 
-      if (!initResult) {
+      if (!initResult.isConnected) {
         throw new Error(t('wallet.pools.unableToConnect'));
       }
 
@@ -115,6 +117,10 @@ export default function ClosePoolConfirmation({
       const poolBalance = Number(balanceResponse.balance);
 
       if (poolBalance <= 0) {
+        // A failed sync can read 0: never close the pool on that.
+        if (initResult.synced === false) {
+          throw new Error(t('wallet.pools.unableToGetBalance'));
+        }
         if (autoStart) {
           handleBackPressFunction(() => {
             navigate.replace('ErrorScreen', {

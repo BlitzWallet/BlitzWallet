@@ -1,103 +1,123 @@
-import { loadSparkNative } from '../spark/lazySpark';
+import { documentDirectory } from 'expo-file-system/legacy';
 import { retrieveData } from '../secureStore';
 import { NWC_SECURE_STORE_MNEMOINC } from '../../constants';
+import { acquire, release, identityFor, peek } from '../spark/walletRuntime';
+import { legacyTransfer } from '../spark/breezNormalize';
+import { asSendResult, classifyBreezError } from '../spark/breezErrors';
+import { decode as decodeBolt11 } from '../decodeBolt11';
+
+// JS NWC fallback on the Breez runtime. Every call opens the NWC identity in
+// SERVER mode (sync + request + TTL release) unless the main app already holds
+// it as the active client wallet, in which case that handle is reused. Storage
+// is `breez-nwc/<identity>`, never the native handler's store (Android
+// <filesDir>/SQLite/breez-0.28, iOS app-group nwc/breez-0.28) or the main `breez/` dir.
+// Results keep the old Spark-SDK shapes so backgroundNofifications.js is
+// unchanged.
+
+// Truthy once initializeNWCWallet succeeded (the handler only tests presence).
 export let nwcWallet = null;
 
-let nwcWalletViewer = null;
-let nwcViewerSparkAddress = null;
-let nwcViewerIdentityPublicKey = null;
+const NWC_TTL_MS = 20000;
+const SYNC_MIN_INTERVAL_MS = 15000;
+const DEFAULT_PAGE = 50;
+
+let seedCache = null;
+const lastSyncAt = new Map(); // identity -> ms of last successful sync
+
+const nwcStorageDir = identity =>
+  documentDirectory
+    ? `${decodeURIComponent(
+        documentDirectory.replace(/^file:\/\//, ''),
+      )}breez-nwc/${identity}`
+    : `blitz-breez-nwc/${identity}`;
+
+async function getSeed() {
+  if (seedCache) return seedCache;
+  const seed = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
+  if (!seed) throw new Error('No seed created');
+  seedCache = seed;
+  return seed;
+}
+
+async function withNwcWallet(fn) {
+  const mnemonic = await getSeed();
+  const identity = await identityFor(mnemonic);
+
+  // Active account: the main client wallet is already live and synced.
+  const live = peek(identity);
+  if (live?.mode === 'client') return fn(live);
+
+  const handle = await acquire(mnemonic, {
+    mode: 'server',
+    storageDir: nwcStorageDir(identity),
+  });
+  try {
+    if (Date.now() - (lastSyncAt.get(identity) || 0) > SYNC_MIN_INTERVAL_MS) {
+      const synced = await handle.sync();
+      // A failed sync must not be served as a (stale) answer.
+      if (synced.timedOut || synced.error) {
+        throw new Error(synced.error?.message || 'Wallet sync failed');
+      }
+      lastSyncAt.set(identity, Date.now());
+    }
+    return await fn(handle);
+  } finally {
+    release(handle, { ttlMs: NWC_TTL_MS });
+  }
+}
+
+const errMsg = err => classifyBreezError(err).message;
+const fieldsOf = method => method?.inner ?? method;
+
+// Amountless invoices need an explicit amount; fixed ones must not get one.
+const explicitAmount = (invoice, amount) => {
+  try {
+    if (decodeBolt11(invoice).satoshis != null) return undefined;
+  } catch {}
+  return amount ? Number(amount) : undefined;
+};
+
+const lightningTag = (invoice, name) => {
+  try {
+    return decodeBolt11(invoice).tags.find(t => t.tagName === name)?.data;
+  } catch {
+    return undefined;
+  }
+};
+
+// Payment by Breez id, else by payment hash (stored as the invoice's id).
+async function findPayment(h, id) {
+  const p = await h.getPayment(id);
+  if (p || !/^[0-9a-f]{64}$/i.test(String(id))) return p;
+  const recent = await h.listPayments({ limit: 200 });
+  return recent.find(x => x.details?.htlcDetails?.paymentHash === id) || null;
+}
+
+const preimageOf = p =>
+  p?.details?.htlcDetails?.preimage || p?.details?.preimage || '';
 
 export const initializeNWCWallet = async () => {
   try {
-    if (nwcWallet) {
-      return { isConnected: true };
-    }
-    const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
-
-    if (!NWCMnemoinc) throw new Error('No seed created');
-
-    const { SparkWallet } = await loadSparkNative();
-    const { wallet } = await SparkWallet.initialize({
-      mnemonicOrSeed: NWCMnemoinc,
-      options: {
-        network: 'MAINNET',
-        optimizationOptions: {
-          multiplicity: 2,
-        },
-      },
-    });
-
-    console.log('Connected to new nwc wallet');
-    nwcWallet = wallet;
-
+    if (nwcWallet) return { isConnected: true };
+    await withNwcWallet(h => h.getInfo());
+    console.log('Connected to nwc wallet');
+    nwcWallet = { ready: true };
     return { isConnected: true };
   } catch (err) {
     console.log('Initialize spark wallet error nwc', err);
     nwcWallet = null;
-    return { isConnected: false, error: err.message };
+    return { isConnected: false, error: errMsg(err) };
   }
 };
 
-// Watch-only (readonly) client for read paths (get_balance, list_transactions).
-// It answers balance/transfer queries without initializing the full SparkWallet
-// (no leaf sync, no transfer claims), which is much cheaper in a background task.
-export const initializeNWCWalletViewer = async () => {
-  try {
-    if (nwcWalletViewer) {
-      return { isConnected: true };
-    }
-    const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
-
-    if (!NWCMnemoinc) throw new Error('No seed created');
-
-    const { DefaultSparkSigner, SparkReadonlyClient, encodeSparkAddress } =
-      await loadSparkNative();
-    const signer = new DefaultSparkSigner();
-    // MAINNET wallets live at account 1 (SparkWallet.initialize and
-    // SparkReadonlyClient.createWithMasterKey both default MAINNET to 1).
-    // Without this, the seed derives account 0's address — a different,
-    // empty wallet — so balance/transactions come back 0/empty.
-    const identityPublicKey = await signer.createSparkWalletFromSeed(
-      await signer.mnemonicToSeed(NWCMnemoinc),
-      1,
-    );
-
-    nwcWalletViewer = await SparkReadonlyClient.createWithMasterKey(
-      {
-        network: 'MAINNET',
-      },
-      NWCMnemoinc,
-    );
-    nwcViewerIdentityPublicKey = identityPublicKey;
-    nwcViewerSparkAddress = encodeSparkAddress({
-      identityPublicKey,
-      network: 'MAINNET',
-    });
-
-    console.log(
-      'Connected to nwc wallet viewer',
-      nwcViewerIdentityPublicKey,
-      nwcViewerSparkAddress,
-    );
-
-    return { isConnected: true };
-  } catch (err) {
-    console.log('Initialize spark wallet viewer error nwc', err);
-    nwcWalletViewer = null;
-    nwcViewerSparkAddress = null;
-    nwcViewerIdentityPublicKey = null;
-    return { isConnected: false, error: err.message };
-  }
-};
+// Breez has no read-only client: balance reads use the same server-mode open.
+export const initializeNWCWalletViewer = initializeNWCWallet;
 
 export const getNWCSparkViewerBalance = async () => {
   try {
-    if (!nwcWalletViewer)
-      throw new Error('spark wallet viewer not initialized');
-    const balance = await nwcWalletViewer.getAvailableBalance(
-      nwcViewerSparkAddress,
-    );
-    return { balance: Number(balance) };
+    return await withNwcWallet(async h => ({
+      balance: Number((await h.getInfo()).balanceSats),
+    }));
   } catch (err) {
     console.log('Get spark viewer balance error', err);
     return 0;
@@ -106,123 +126,199 @@ export const getNWCSparkViewerBalance = async () => {
 
 export const getNWCSparkIdentityPubKey = async () => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    return await nwcWallet.getIdentityPublicKey();
+    return await withNwcWallet(async h => (await h.getInfo()).identityPubkey);
   } catch (err) {
     console.log('Get spark balance error', err);
   }
 };
+
 export const getNWCSparkBalance = async () => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    return await nwcWallet.getBalance();
+    return await withNwcWallet(async h => (await h.getInfo()).balanceSats);
   } catch (err) {
     console.log('Get spark balance error', err);
     return 0;
   }
 };
+
 export const getNWCSparkAddress = async () => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    const response = await nwcWallet.getSparkAddress();
+    const response = await withNwcWallet(
+      async h => (await h.receive({ type: 'sparkAddress' })).request,
+    );
     return { didWork: true, response };
   } catch (err) {
     console.log('Get spark address error', err);
-    return { didWork: false, error: err.message };
+    return { didWork: false, error: errMsg(err) };
   }
 };
+
 export const getNWCSparkLightningPaymentFeeEstimate = async (
   invoice,
   amountSat,
 ) => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    const response = await nwcWallet.getLightningSendFeeEstimate({
-      encodedInvoice: invoice,
-      amountSats: amountSat,
+    const lowered = invoice.toLowerCase();
+    const response = await withNwcWallet(async h => {
+      const prep = await h.prepare(lowered, {
+        amount: explicitAmount(lowered, amountSat),
+      });
+      return Number(fieldsOf(prep.paymentMethod).lightningFeeSats);
     });
     return { didWork: true, response };
   } catch (err) {
     console.log('Get lightning payment fee error', err);
-    return { didWork: false, error: err.message };
+    return { didWork: false, error: errMsg(err) };
   }
 };
+
 export const receiveNWCSparkLightningPayment = async ({
   amountSats,
   memo,
   expirySeconds = 60 * 60 * 12,
 }) => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    const response = await nwcWallet.createLightningInvoice({
-      amountSats,
-      memo,
-      expirySeconds, // 12 hour invoice expiry
+    const response = await withNwcWallet(async h => {
+      const { request } = await h.receive({
+        type: 'bolt11Invoice',
+        description: memo || '',
+        amountSats,
+        expirySecs: expirySeconds,
+      });
+      const paymentHash = lightningTag(request, 'payment_hash');
+      const createdAt = Date.now();
+      return {
+        // The payment hash doubles as the lookup id (Breez has no SSP id).
+        id: paymentHash,
+        invoice: {
+          encodedInvoice: request,
+          paymentHash,
+          createdAt: new Date(createdAt).toISOString(),
+          expiresAt: new Date(createdAt + expirySeconds * 1000).toISOString(),
+        },
+      };
     });
     return { didWork: true, response };
   } catch (err) {
     console.log('Receive lightning payment error', err);
-    return { didWork: false, error: err.message };
+    return { didWork: false, error: errMsg(err) };
   }
 };
 
+// No idempotency key on purpose: the handler's payment_hash claim is the guard
+// (a fixed per-invoice key would replay an old failed payment).
 export const sendNWCSparkLightningPayment = async ({ invoice, amountSats }) => {
+  let sendStarted = false;
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-
-    const paymentResponse = await nwcWallet.payLightningInvoice({
-      invoice,
-      amountSatsToSend: amountSats,
+    const lowered = invoice.toLowerCase();
+    const paymentResponse = await withNwcWallet(async h => {
+      const prep = await h.prepare(lowered, {
+        amount: explicitAmount(lowered, amountSats),
+      });
+      sendStarted = true;
+      const payment = await h.send(prep, {
+        bolt11: { preferSpark: false, completionTimeoutSecs: 20 },
+      });
+      return {
+        id: payment.id,
+        status: payment.status,
+        paymentPreimage: preimageOf(payment),
+        fee: { originalValue: Number(payment.fees), originalUnit: 'SATOSHI' },
+      };
     });
     return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return { didWork: false, error: err.message };
+    // A throw once sendPayment started may still have paid: report unknown so
+    // the handler keeps the budget reservation and the pending marker.
+    return {
+      didWork: false,
+      error: errMsg(err),
+      outcome: sendStarted ? asSendResult(err).outcome : 'failed',
+    };
   }
 };
-export const NWCSparkLightningPaymentStatus = async id => {
+
+const paymentStatus = async id => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    const paymentResponse = await nwcWallet.getLightningSendRequest(id);
-    return { didWork: true, paymentResponse };
-  } catch (err) {
-    console.log('Send lightning payment error', err);
-    return { didWork: false, error: err.message };
-  }
-};
-export const getNWCLightningReceiveRequest = async lightningInvoiceId => {
-  try {
-    if (!nwcWallet) throw new Error('nwcWallet not initialized');
-    const paymentResponse = await nwcWallet.getLightningReceiveRequest(
-      lightningInvoiceId,
-    );
+    const paymentResponse = await withNwcWallet(async h => {
+      const p = await findPayment(h, id);
+      if (!p) throw new Error('Payment not found');
+      return { id: p.id, status: p.status, paymentPreimage: preimageOf(p) };
+    });
     return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Get lightning payment status error', err);
-    return { didWork: false, error: err.message };
+    return { didWork: false, error: errMsg(err) };
   }
 };
+
+export const NWCSparkLightningPaymentStatus = paymentStatus;
+// An unpaid incoming invoice has no SDK payment yet: report it as pending.
+export const getNWCLightningReceiveRequest = async id => {
+  const res = await paymentStatus(id);
+  if (!res.didWork && res.error === 'Payment not found')
+    return { didWork: true, paymentResponse: { status: 'pending' } };
+  return res;
+};
+
+// Old SDK transfer shape; lightning payments also carry `userRequest`.
+// Plain Spark transfers come back as type 'TRANSFER' and are dropped by the
+// handler, so page counts keep their old meaning.
 export const getNWCSparkTransactions = async (
-  transferCount = 100,
-  offsetIndex,
+  transferCount = DEFAULT_PAGE,
+  offsetIndex = 0,
 ) => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    return await nwcWallet.getTransfers(transferCount, offsetIndex);
+    return await withNwcWallet(async h => {
+      const payments = await h.listPayments({
+        offset: offsetIndex,
+        limit: transferCount,
+      });
+      return {
+        transfers: payments.map(p => {
+          const t = legacyTransfer(p);
+          if (p.method !== 'lightning') return t;
+          const invoice = p.details?.invoice;
+          const isSend = p.paymentType === 'send';
+          return {
+            ...t,
+            expiryTime: p.status === 'completed' ? t.createdTime : undefined,
+            userRequest: isSend
+              ? {
+                  typename: 'LightningSendRequest',
+                  id: p.id,
+                  encodedInvoice: invoice,
+                  paymentPreimage: preimageOf(p),
+                  fee: {
+                    originalValue: Number(p.fees),
+                    originalUnit: 'SATOSHI',
+                  },
+                }
+              : {
+                  typename: 'LightningReceiveRequest',
+                  id: p.id,
+                  invoice: { encodedInvoice: invoice },
+                  paymentPreimage: preimageOf(p),
+                },
+          };
+        }),
+      };
+    });
   } catch (err) {
     console.log('get spark transactions error', err);
   }
 };
+
 export const sendNWCSparkPayment = async (amount, address) => {
   try {
-    if (!nwcWallet) throw new Error('sparkWallet not initialized');
-    const paymentResponse = await nwcWallet.transfer({
-      receiverSparkAddress: address,
-      amountSats: amount,
+    const paymentResponse = await withNwcWallet(async h => {
+      const prep = await h.prepare(address.toLowerCase(), { amount });
+      return legacyTransfer(await h.send(prep, {}));
     });
     return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return { didWork: false, error: err.message };
+    return { didWork: false, error: errMsg(err) };
   }
 };

@@ -33,7 +33,7 @@ import { FONT } from '../../../../constants/theme';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
-  initializeSparkWallet,
+  openDerivedWallet,
   disposeSparkWallet,
 } from '../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
@@ -292,7 +292,7 @@ export default function WithdrawFromSavingsHalfModal({
   // Fires once when the balanceType page first mounts. A full-screen loader
   // shows until the balance has stabilized, so the user never watches it climb.
   //
-  //  1. initializeSparkWallet   — full init needed before any send can execute.
+  //  1. openDerivedWallet       — server-mode open + sync needed before any send can execute.
   //  2. subscribeToSparkBalance — immediate read, then live balance:update
   //                               events refine it while the modal is open (no
   //                               polling). The page is revealed only once the
@@ -338,11 +338,7 @@ export default function WithdrawFromSavingsHalfModal({
           setCachedBalance(balance);
         }
         const savingsMnemonic = await getSavingsWalletMnemonic();
-        const initResponse = await initializeSparkWallet(
-          savingsMnemonic,
-          false,
-          { maxRetries: 4 },
-        );
+        const initResponse = await openDerivedWallet(savingsMnemonic);
 
         if (cancelled) return;
 
@@ -489,14 +485,8 @@ export default function WithdrawFromSavingsHalfModal({
 
       // Interest withdrawal path — savings wallet sends BTC sats (not USDB)
       if (selectedBalanceType === 'interest') {
-        // initializeSparkWallet already called on balanceType page; returns fast
-        const initResponse = await initializeSparkWallet(
-          savingsMnemonic,
-          false,
-          {
-            maxRetries: 4,
-          },
-        );
+        // openDerivedWallet already ran on the balanceType page; re-acquire is cheap
+        const initResponse = await openDerivedWallet(savingsMnemonic);
         if (!initResponse?.isConnected)
           throw new Error(t('savings.savingsWalletError'));
 
@@ -588,9 +578,7 @@ export default function WithdrawFromSavingsHalfModal({
         dollarsToSats(confirmMicros / 1_000_000, poolInfoRef.currentPriceAInB),
       );
 
-      const initResponse = await initializeSparkWallet(savingsMnemonic, false, {
-        maxRetries: 4,
-      });
+      const initResponse = await openDerivedWallet(savingsMnemonic);
 
       if (!initResponse?.isConnected) {
         throw new Error(t('savings.savingsWalletError'));

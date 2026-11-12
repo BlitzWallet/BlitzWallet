@@ -28,7 +28,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import {
   getSparkPaymentFeeEstimate,
-  initializeSparkWallet,
+  openDerivedWallet,
   sendSparkPayment,
   sendSparkTokens,
   disposeSparkWallet,
@@ -73,6 +73,7 @@ export default function ClaimGiftScreen({
 
   // Store the initialization promise and result
   const walletInitPromise = useRef(null);
+  const giftSeedRef = useRef(null);
   const walletInitResult = useRef(null);
   const isClaimingRef = useRef(false);
   const denomination = giftDetails?.denomination || 'BTC';
@@ -159,9 +160,10 @@ export default function ClaimGiftScreen({
           : await deriveClaimGiftSeed();
 
       setGiftDetails(details);
+      giftSeedRef.current = details.giftSeed;
 
       // Pre-initialize wallet in background
-      walletInitPromise.current = initializeSparkWallet(details.giftSeed)
+      walletInitPromise.current = openDerivedWallet(details.giftSeed)
         .then(result => {
           walletInitResult.current = result;
           return result;
@@ -243,13 +245,11 @@ export default function ClaimGiftScreen({
         initResult = await walletInitPromise.current;
       }
 
-      if (!initResult) {
-        initResult = await initializeSparkWallet(giftSeed, false, {
-          maxRetries: 4,
-        });
+      if (!initResult?.isConnected) {
+        initResult = await openDerivedWallet(giftSeed);
       }
 
-      if (!initResult) {
+      if (!initResult?.isConnected) {
         throw new Error(
           t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
         );
@@ -261,7 +261,7 @@ export default function ClaimGiftScreen({
   );
 
   const calculatePaymentAmount = useCallback(
-    async (giftSeed, giftAmount) => {
+    async (giftSeed, giftAmount, synced) => {
       const walletBalance = await getBalanceWithStatusRetry(
         giftSeed,
         expertMode ? undefined : giftAmount,
@@ -281,6 +281,12 @@ export default function ClaimGiftScreen({
       let fromBalance;
       if (expertMode) {
         if (!bitcoinBalance && !dollarBalance) {
+          // A failed sync can read 0: don't call the gift empty.
+          if (synced === false) {
+            throw new Error(
+              t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
+            );
+          }
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert'),
           );
@@ -311,6 +317,12 @@ export default function ClaimGiftScreen({
         formattedWalletBalance - (fromBalance === 'USD' ? 0 : fees);
 
       if (sendingAmount <= 0) {
+        // A failed sync can read 0: never mark the gift reclaimed on that.
+        if (synced === false) {
+          throw new Error(
+            t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
+          );
+        }
         if (claimType === 'reclaim' && !expertMode) {
           await deleteGift(giftDetails.uuid);
           await updateGiftLocal(giftDetails.uuid, {
@@ -428,12 +440,13 @@ export default function ClaimGiftScreen({
         t('screens.inAccount.giftPages.claimPage.claimingGiftMessage1'),
       );
 
-      await ensureWalletInitialized(giftDetails.giftSeed);
+      const initResult = await ensureWalletInitialized(giftDetails.giftSeed);
 
       const receivingAddress = sparkInformation.sparkAddress;
       const { sendingAmount, fees, fromBalance } = await calculatePaymentAmount(
         giftDetails.giftSeed,
         denomination === 'BTC' ? giftDetails.amount : giftDetails.dollarAmount,
+        initResult?.synced,
       );
 
       setClaimStatus(
@@ -519,6 +532,9 @@ export default function ClaimGiftScreen({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      // Pre-initialized gift wallet must not outlive the screen.
+      if (giftSeedRef.current) disposeSparkWallet(giftSeedRef.current);
+      giftSeedRef.current = null;
       walletInitPromise.current = null;
       walletInitResult.current = null;
       isClaimingRef.current = false;
