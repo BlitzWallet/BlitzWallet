@@ -87,7 +87,7 @@ export function mapBreezPayment(payment, ctx = {}) {
     record.details.preimage = details.htlcDetails?.preimage || '';
     record.details.paymentHash = details.htlcDetails?.paymentHash || '';
     record.details.htlcStatus = details.htlcDetails?.status;
-  } else if (details?.type === 'token') {
+  } else if (details?.type === 'token' || payment.method === 'token') {
     record.details.isLRC20Payment = true;
     record.details.LRC20Token = details.metadata?.identifier || USDB_TOKEN_ID;
     record.details.description =

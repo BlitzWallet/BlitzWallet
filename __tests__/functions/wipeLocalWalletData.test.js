@@ -94,9 +94,6 @@ jest.mock('../../app/functions/secureStore', () => ({
 }));
 
 const {
-  initLeavesDb,
-} = require('../../app/functions/spark/leavesStorage');
-const {
   NWCInvoiceManager,
 } = require('../../app/functions/nwc/cachedNWCTxs');
 const {
@@ -142,9 +139,6 @@ const TABLES = [
   ['SAVED_SAVINGS.db', 'savings_goals'],
   ['SAVED_SAVINGS.db', 'savings_transactions'],
   ['SAVED_SAVINGS.db', 'savings_payouts'],
-  ['WALLET_LEAVES.db', 'wallet_leaves'],
-  ['WALLET_LEAVES.db', 'wallet_leaf_exit_nodes'],
-  ['WALLET_LEAVES.db', 'leaves_meta'],
   ['ROOTSTOCK_SWAPS.db', 'saved_rootstock_swaps'],
   ['nwc_invoices.db', 'invoices'],
   ['nwc_event_ledger.db', 'handled_events'],
@@ -192,12 +186,6 @@ const SEEDS = [
     "INSERT INTO provider_places (source, native_id, lat, lon, icon, name, category) VALUES ('src', 'n', 0, 0, '', 'name', NULL)"],
   ["btcmap.db", "btcmap_meta",
     "INSERT INTO btcmap_meta (key, value) VALUES ('k', 'v')"],
-  ["WALLET_LEAVES.db", "wallet_leaves",
-    "INSERT INTO wallet_leaves (id, treeId, value, status, parentNodeId, data, updatedAt) VALUES ('l', 't', 1, 'UNKNOWN', NULL, '{}', 1)"],
-  ["WALLET_LEAVES.db", "wallet_leaf_exit_nodes",
-    "INSERT INTO wallet_leaf_exit_nodes (ownerIdentityPubKey, leafId, id, treeId, value, status, data, snapshotVersion, updatedAt) VALUES (NULL, 'l', 'e', 't', 1, 's', '{}', 0, 1)"],
-  ["WALLET_LEAVES.db", "leaves_meta",
-    "INSERT INTO leaves_meta (ownerIdentityPubKey, snapshotVersion) VALUES ('pk', 0)"],
   ["ROOTSTOCK_SWAPS.db", "saved_rootstock_swaps",
     "INSERT INTO saved_rootstock_swaps (id, type, data) VALUES ('id', 'submarine', '{}')"],
   ["nwc_invoices.db", "invoices",
@@ -225,7 +213,6 @@ function tableExists(dbName, table) {
 // Opens every db file (creating all tables) so seeds have real schemas.
 async function openAllDatabases() {
   await initializeAllDatabases();
-  await initLeavesDb(); // leaves tables already covered above; kept for clarity
   await getLastModified(); // opens btcmap.db (lazy, not in initializeAllDatabases)
   await NWCInvoiceManager.resetDatabase();
   await nwcEventLedger.resetDatabase();

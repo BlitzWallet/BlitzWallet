@@ -333,18 +333,6 @@ jest.mock('../../app/constants', () => ({
   __esModule: true,
   USDB_TOKEN_ID: 'usdb',
 }));
-jest.mock('../../app/functions/spark/leavesStorage', () => ({
-  __esModule: true,
-  replaceAllLeaves: async () => {},
-  getGlobalLeafStats: async () => ({
-    totalLeaves: 0,
-    totalValue: 0,
-    lastSyncedAt: 0,
-  }),
-  getPendingExitNodeLeafIds: async () => [],
-  saveExitNodesForLeaf: async () => false,
-  getExitNodeSyncProgress: async () => ({ pending: 0, complete: 0 }),
-}));
 jest.mock('../../app/functions/lrc20', () => ({
   __esModule: true,
   getLRC20Transactions: async () => {

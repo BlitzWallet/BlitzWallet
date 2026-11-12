@@ -5,7 +5,12 @@ import {
   identityFor,
   peek,
 } from './walletRuntime';
-import { getIntent, markIntent, withSendIntent } from './sendIntents';
+import {
+  getIntent,
+  listClaimedPaymentIds,
+  markIntent,
+  withSendIntent,
+} from './sendIntents';
 import { classifyBreezError } from './breezErrors';
 import { legacyLightningSend, legacyTransfer } from './breezNormalize';
 import { createBreezFlashnetWallet } from './breezFlashnetWallet';
@@ -1043,6 +1048,9 @@ export const sendSparkBitcoinPayment = async ({
 // Breez persists the payment before sendPayment returns, so none by then means
 // the send never happened.
 const INTENT_NOT_FOUND_GRACE_MS = 15 * 60 * 1000;
+// A send's payment row is stamped when sendPayment runs, seconds after the
+// intent row; anything much later is a different send.
+const INTENT_MATCH_WINDOW_SECS = 5 * 60;
 
 /**
  * Resolves an 'unknown' send: looks the intent up, then its Breez payment (or
@@ -1070,11 +1078,19 @@ export const checkSendIntentStatus = async ({ intentId }) => {
     if (!payment) {
       const s = await h.sync();
       synced = !s.timedOut && !s.error;
-      const since = intent.created_at / 1000 - 5;
-      const recent = await h.listPayments({ typeFilter: ['send'], limit: 50 });
+      // Only sends made right around this intent, and none another intent
+      // already owns: a same-amount send elsewhere must not be adopted. The
+      // window replaces a fixed page size that a busy wallet could overflow.
+      const since = Math.floor(intent.created_at / 1000) - 5;
+      const claimed = await listClaimedPaymentIds(intent.account_id, intentId);
+      const recent = await h.listPayments({
+        typeFilter: ['send'],
+        fromTimestamp: since,
+        toTimestamp: since + INTENT_MATCH_WINDOW_SECS,
+      });
       payment =
         recent.find(p => {
-          if (p.timestamp < since) return false;
+          if (claimed.has(p.id)) return false;
           if (intent.rail === 'bolt11') {
             return p.details?.invoice?.toLowerCase() === intent.request_hash;
           }

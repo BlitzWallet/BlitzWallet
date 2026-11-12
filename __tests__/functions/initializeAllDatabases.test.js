@@ -50,15 +50,12 @@ jest.mock('../../app/functions/pools/poolsStorage', () => ({
 jest.mock('../../app/functions/savings/savingsStorage', () => ({
   initSavingsDb: jest.fn(),
 }));
-jest.mock('../../app/functions/spark/leavesStorage', () => ({
-  initLeavesDb: jest.fn(),
-}));
 
 describe('initializeAllDatabases on web', () => {
   let databases;
   let AppState;
   let initializeDatabase;
-  let initLeavesDb;
+  let initializeSparkDatabase;
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -74,11 +71,10 @@ describe('initializeAllDatabases on web', () => {
       require('../../app/functions/gift/giftsStorage').initGiftDb,
       require('../../app/functions/pools/poolsStorage').initPoolDb,
       require('../../app/functions/savings/savingsStorage').initSavingsDb,
-      require('../../app/functions/spark/leavesStorage').initLeavesDb,
     ];
     initializers.forEach(init => init.mockResolvedValue(true));
     initializeDatabase = initializers[0];
-    initLeavesDb = initializers[8];
+    initializeSparkDatabase = initializers[3];
     databases = require('../../app/functions/initializeAllDatabases');
   });
 
@@ -145,7 +141,7 @@ describe('initializeAllDatabases on web', () => {
   });
 
   it('lets a later call retry after a startup-critical database fails to open', async () => {
-    initLeavesDb.mockResolvedValueOnce(false);
+    initializeSparkDatabase.mockResolvedValueOnce(false);
     const first = databases.initializeAllDatabases();
     track(first);
     await jest.advanceTimersByTimeAsync(1000);

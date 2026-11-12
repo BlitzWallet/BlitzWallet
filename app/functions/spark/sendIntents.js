@@ -57,6 +57,18 @@ export async function getIntent(intentId) {
   );
 }
 
+// Payment ids already recorded on some other intent: the resolver must not
+// adopt one of these for a second intent.
+export async function listClaimedPaymentIds(accountId, exceptIntentId) {
+  const db = await getSparkDatabase();
+  const rows = await db.getAllAsync(
+    `SELECT payment_id FROM breez_send_intents
+     WHERE account_id = ? AND intent_id != ? AND payment_id IS NOT NULL`,
+    [accountId, exceptIntentId],
+  );
+  return new Set(rows.map(r => r.payment_id));
+}
+
 export async function listOpenIntents(accountId) {
   const db = await getSparkDatabase();
   return db.getAllAsync(
@@ -143,6 +155,22 @@ export async function listBulkItems(groupId) {
 // that provably sent nothing is 'abandoned'; anything else stays 'unknown'.
 export async function withSendIntent(params, run) {
   const intentId = await beginSendIntent(params);
+  // A reused intent id whose send already went out (or may have) must not run
+  // again: token rails have no SDK idempotency key to catch it.
+  if (params.intentId) {
+    const prior = await getIntent(intentId);
+    if (['sent', 'done', 'unknown'].includes(prior?.state)) {
+      return {
+        ok: false,
+        result: {
+          didWork: false,
+          error: 'This payment was already sent or may still be in flight',
+          outcome: 'unknown',
+          intentId,
+        },
+      };
+    }
+  }
   let payment;
   try {
     payment = await run(intentId);

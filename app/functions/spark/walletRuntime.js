@@ -203,14 +203,17 @@ function makeHandle(entry) {
       return { request: res.paymentRequest, feeSats: BigInt(res.fee) };
     },
     async prepare(input, opts = {}) {
-      return sdk
-        .prepareSendPayment({
-          paymentRequest: new PaymentRequest.Input({ input }),
-          amount: opts.amount != null ? BigInt(opts.amount) : undefined,
-          tokenIdentifier: opts.tokenIdentifier,
-          conversionOptions: undefined,
-          feePolicy: opts.feesIncluded ? FeePolicy.FeesIncluded : undefined,
-        })
+      // Built inside .then so a bad amount (BigInt throws) is tagged preSend too.
+      return Promise.resolve()
+        .then(() =>
+          sdk.prepareSendPayment({
+            paymentRequest: new PaymentRequest.Input({ input }),
+            amount: opts.amount != null ? BigInt(opts.amount) : undefined,
+            tokenIdentifier: opts.tokenIdentifier,
+            conversionOptions: undefined,
+            feePolicy: opts.feesIncluded ? FeePolicy.FeesIncluded : undefined,
+          }),
+        )
         .catch(tagPreSend);
     },
     async send(prepared, opts = {}) {

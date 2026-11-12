@@ -1,7 +1,6 @@
 import {
   decodeSparkAddress,
   encodeBech32mTokenIdentifier,
-  getNetworkFromSparkAddress,
 } from './sparkAddressCodec';
 
 /**
@@ -12,7 +11,7 @@ import {
  * validation); no wallet is involved. Breez has no public decoder for this shape.
  */
 export async function decodeSparkInvoice(sparkAddress) {
-  const network = getNetworkFromSparkAddress(sparkAddress);
+  const network = 'MAINNET';
   const decoded = decodeSparkAddress(sparkAddress, network);
   const fields = decoded.sparkInvoiceFields;
   const payment = fields?.paymentType;

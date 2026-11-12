@@ -25,7 +25,6 @@ import {
   deleteSavingsPayoutsTable,
   deleteSavingsTransactionsTable,
 } from './savings/savingsStorage';
-import { deleteLeavesTable } from './spark/leavesStorage';
 import { deleteRootstockSwapTable } from './boltz/rootstock/swapDb';
 import { NWCInvoiceManager } from './nwc/cachedNWCTxs';
 import { nwcEventLedger } from './nwc/eventLedger';
@@ -78,7 +77,6 @@ const tableDeletes = [
   deleteSavingsGoalsTable,
   deleteSavingsTransactionsTable,
   deleteSavingsPayoutsTable,
-  deleteLeavesTable,
   deleteRootstockSwapTable,
   () => NWCInvoiceManager.resetDatabase(),
   () => nwcEventLedger.resetDatabase(),
