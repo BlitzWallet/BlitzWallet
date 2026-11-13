@@ -20,6 +20,12 @@ const RN_TAGS = {
   Generic: 'generic',
 };
 
+// RN errors set `message` to the placeholder 'SdkError.<Variant>' and carry the
+// SDK's text in `inner` (inner[0] for tuple variants, inner.message/reason for
+// records); the text wins over the placeholder. WASM errors and app-made errors
+// have a real `message` and keep it.
+const RN_PLACEHOLDER = /^SdkError\.\w+$/;
+
 function messageOf(error) {
   if (!error) return 'Unknown error';
   const inner = error.inner;
@@ -28,7 +34,10 @@ function messageOf(error) {
     : inner && typeof inner === 'object'
     ? inner.message || inner.reason
     : undefined;
-  return String(error.message || innerMsg || error);
+  const placeholder = RN_PLACEHOLDER.test(String(error.message));
+  return String(
+    (placeholder && innerMsg) || error.message || innerMsg || error,
+  );
 }
 
 // Hermes has no WebAssembly global.
@@ -54,6 +63,13 @@ export function classifyBreezError(error) {
     else if (/^SparkSdkError:/i.test(message)) kind = 'sparkError';
     else if (/^Error:/i.test(message)) kind = 'generic';
     else kind = 'unknown';
+  }
+
+  if (
+    kind === 'sparkError' &&
+    /^Tree service error: insufficient funds$/.test(message)
+  ) {
+    kind = 'insufficientFunds';
   }
 
   return {

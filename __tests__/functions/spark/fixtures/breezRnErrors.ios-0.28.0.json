@@ -1,0 +1,191 @@
+{
+  "_about": "Real error objects thrown by the Breez Spark RN SDK, captured from the running app (no hand-written shapes). Unfunded throwaway wallet, mainnet, server mode. preSend=true means walletRuntime.prepare tagged it. beforeFix = what classifyBreezError/asSendResult returned for it before the messageOf fix.",
+  "sdk": "@breeztech/breez-sdk-spark-react-native 0.28.0",
+  "platform": "iOS simulator (iPhone 13), Hermes",
+  "resolvedWithoutError": [
+    "prepare(spark address, 1000 sats, empty wallet)",
+    "prepare(own bolt11 invoice, empty wallet)"
+  ],
+  "cases": [
+    {
+      "call": "getPayment(unknown uuid)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "StorageError",
+        "message": "SdkError.StorageError",
+        "inner": [
+          "Underlying implementation error: Query returned no rows"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "storage",
+        "message": "SdkError.StorageError",
+        "sendOutcome": "unknown",
+        "isMissingPayment": true
+      }
+    },
+    {
+      "call": "prepare(garbage destination)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "InvalidInput",
+        "message": "SdkError.InvalidInput",
+        "inner": [
+          "invalid input"
+        ],
+        "preSend": true
+      },
+      "beforeFix": {
+        "kind": "invalidInput",
+        "message": "SdkError.InvalidInput",
+        "sendOutcome": "failed",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "prepare(bitcoin address, 100 sats, empty wallet)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "InvalidInput",
+        "message": "SdkError.InvalidInput",
+        "inner": [
+          "Amount is below the minimum of 294 sats required for this address"
+        ],
+        "preSend": true
+      },
+      "beforeFix": {
+        "kind": "invalidInput",
+        "message": "SdkError.InvalidInput",
+        "sendOutcome": "failed",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "prepare(bitcoin address, 100000 sats, empty wallet)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "SparkError",
+        "message": "SdkError.SparkError",
+        "inner": [
+          "Tree service error: insufficient funds"
+        ],
+        "preSend": true
+      },
+      "beforeFix": {
+        "kind": "sparkError",
+        "message": "SdkError.SparkError",
+        "sendOutcome": "unknown",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "fetchClaimDepositQuote(unknown txid)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "ChainServiceError",
+        "message": "SdkError.ChainServiceError",
+        "inner": [
+          "Not found: Status error: 404 - Transaction not found"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "chainService",
+        "message": "SdkError.ChainServiceError",
+        "sendOutcome": "unknown",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "claimDeposit(unknown txid)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "ChainServiceError",
+        "message": "SdkError.ChainServiceError",
+        "inner": [
+          "Not found: Status error: 404 - Transaction not found"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "chainService",
+        "message": "SdkError.ChainServiceError",
+        "sendOutcome": "unknown",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "importUnilateralExitState(garbage)",
+      "capturedAt": "2026-11-13T16:10:43.123Z",
+      "error": {
+        "tag": "InvalidInput",
+        "message": "SdkError.InvalidInput",
+        "inner": [
+          "Invalid exit state: expected ident at line 1 column 2"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "invalidInput",
+        "message": "SdkError.InvalidInput",
+        "sendOutcome": "failed",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "send(spark address 1000 sats, empty wallet, uuid key)",
+      "capturedAt": "2026-11-13T16:11:02.052Z",
+      "error": {
+        "tag": "SparkError",
+        "message": "SdkError.SparkError",
+        "inner": [
+          "Tree service error: insufficient funds"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "sparkError",
+        "message": "SdkError.SparkError",
+        "sendOutcome": "unknown",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "send(spark address 1000 sats, empty wallet, non-uuid key)",
+      "capturedAt": "2026-11-13T16:11:02.052Z",
+      "error": {
+        "tag": "Generic",
+        "message": "SdkError.Generic",
+        "inner": [
+          "Invalid TransferId format"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "generic",
+        "message": "SdkError.Generic",
+        "sendOutcome": "unknown",
+        "isMissingPayment": false
+      }
+    },
+    {
+      "call": "send(own bolt11 invoice, empty wallet)",
+      "capturedAt": "2026-11-13T16:11:02.052Z",
+      "error": {
+        "tag": "SparkError",
+        "message": "SdkError.SparkError",
+        "inner": [
+          "Tree service error: insufficient funds"
+        ],
+        "preSend": false
+      },
+      "beforeFix": {
+        "kind": "sparkError",
+        "message": "SdkError.SparkError",
+        "sendOutcome": "unknown",
+        "isMissingPayment": false
+      }
+    }
+  ]
+}
