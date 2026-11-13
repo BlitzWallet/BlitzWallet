@@ -3,7 +3,11 @@ import { retrieveData } from '../secureStore';
 import { NWC_SECURE_STORE_MNEMOINC } from '../../constants';
 import { acquire, release, identityFor, peek } from '../spark/walletRuntime';
 import { legacyTransfer } from '../spark/breezNormalize';
-import { asSendResult, classifyBreezError } from '../spark/breezErrors';
+import {
+  asSendResult,
+  classifyBreezError,
+  isMissingPaymentError,
+} from '../spark/breezErrors';
 import { decode as decodeBolt11 } from '../decodeBolt11';
 
 // JS NWC fallback on the Breez runtime. Every call opens the NWC identity in
@@ -86,17 +90,6 @@ const lightningTag = (invoice, name) => {
 };
 
 // Payment by Breez id, else by payment hash (stored as the invoice's id).
-// Breez reports a missing payment as a storage error, not invalidInput: native
-// "Query returned no rows", web "Payment with id '<id>' not found". Matched
-// exactly so another storage fault never reads as "payment absent".
-const isMissingPayment = e => {
-  const c = classifyBreezError(e);
-  return (
-    c.kind === 'storage' &&
-    /Query returned no rows|Payment with id '[^']*' not found/.test(c.message)
-  );
-};
-
 // sinceSecs: invoice creation time. Incoming invoices are looked up by payment
 // hash, so scan every receive since then rather than a fixed recent page.
 async function findPayment(h, id, sinceSecs) {
@@ -104,7 +97,7 @@ async function findPayment(h, id, sinceSecs) {
   try {
     p = await h.getPayment(id);
   } catch (e) {
-    if (!isMissingPayment(e)) throw e;
+    if (!isMissingPaymentError(e)) throw e;
   }
   if (p || !/^[0-9a-f]{64}$/i.test(String(id))) return p;
   const recent = await h.listPayments(

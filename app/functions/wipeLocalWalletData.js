@@ -8,6 +8,7 @@ import { PENDING_PARENT_CONTACT_KEY } from '../constants';
 import { deleteTable } from './messaging/cachedMessages';
 import { deletePOSTransactionsTable } from './pos';
 import {
+  deleteBreezIntentTables,
   deleteSparkContactsTransactionsTable,
   deleteSparkTransactionTable,
   deleteSpendAndReplaceTable,
@@ -29,6 +30,7 @@ import { deleteRootstockSwapTable } from './boltz/rootstock/swapDb';
 import { NWCInvoiceManager } from './nwc/cachedNWCTxs';
 import { nwcEventLedger } from './nwc/eventLedger';
 import { clearNativeNWCState } from './nwc/sharedStorage';
+import { wipeAllBreezStorage } from './spark/walletRuntime';
 import {
   initializeAllDatabases,
   resetDatabaseInitialization,
@@ -81,6 +83,10 @@ const tableDeletes = [
   () => NWCInvoiceManager.resetDatabase(),
   () => nwcEventLedger.resetDatabase(),
   () => clearNativeNWCState(),
+  deleteBreezIntentTables,
+  // Closes every live Breez wallet first (no instance may outlive a reset or
+  // the RNRestart after it), then deletes its stores.
+  wipeAllBreezStorage,
 ];
 
 export async function deleteAllLocalWalletTables() {

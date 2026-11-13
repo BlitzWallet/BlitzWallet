@@ -8,7 +8,7 @@ import { createWebTreeStore } from '../../../node_modules/@breeztech/breez-sdk-s
 import sha256Hash from '../hash';
 import { deriveSparkIdentityKey } from '../gift/deriveGiftWallet';
 import { applyBlitzConfig } from './breezConfig';
-import { classifyBreezError } from './breezErrors';
+import { classifyBreezError, isMissingPaymentError } from './breezErrors';
 import {
   normalizeClaimOutcome,
   normalizeClaimQuote,
@@ -292,10 +292,7 @@ function makeHandle(entry) {
         const res = await call(() => sdk.getPayment({ paymentId: id }));
         return normalizePayment(res.payment, false);
       } catch (e) {
-        const c = classifyBreezError(e);
-        if (c.kind === 'invalidInput' && /not found/i.test(c.message)) {
-          return null;
-        }
+        if (isMissingPaymentError(e)) return null;
         throw e;
       }
     },
@@ -652,6 +649,20 @@ export async function disposeIdentity(mnemonic, opts = {}) {
     const entry = handles.get(`${mode}:${identity}`);
     if (entry) await disposeEntry(entry, opts);
   }
+}
+
+// Closes every live wallet (all identities and modes, in-flight connects too).
+export async function disposeAll() {
+  await Promise.all([...acquiring.values()].map(p => p.catch(() => {})));
+  await Promise.all([...handles.values()].map(e => disposeEntry(e)));
+}
+
+// Factory reset / wallet wipe: close everything, then delete every Breez store
+// (main wallets and the JS NWC fallback, see nwc/wallet.js).
+export async function wipeAllBreezStorage() {
+  await disposeAll();
+  await deleteWebStorage('blitz-breez');
+  await deleteWebStorage('blitz-breez-nwc');
 }
 
 // Live handle for an identity in any mode (no reference taken), else null.

@@ -1749,6 +1749,22 @@ export const deleteSparkTransactionTable = async () => {
   }
 };
 
+// Breez send-intent ledger + bulk send groups (see sendIntents.js).
+export const deleteBreezIntentTables = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    await sqlLiteDB.execAsync(`
+      DROP TABLE IF EXISTS breez_send_intents;
+      DROP TABLE IF EXISTS breez_bulk_items;
+      DROP TABLE IF EXISTS breez_bulk_groups;
+    `);
+    return true;
+  } catch (error) {
+    console.error('Error deleting breez intent tables:', error);
+    return false;
+  }
+};
+
 export const deleteSparkContactsTransactionsTable = async () => {
   try {
     await ensureSparkDatabaseReady();

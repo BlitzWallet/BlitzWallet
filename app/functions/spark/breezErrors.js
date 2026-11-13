@@ -65,6 +65,22 @@ export function classifyBreezError(error) {
   };
 }
 
+// getPayment on an id Breez does not hold. Native and web report it as a
+// storage error ("Query returned no rows" / "Payment with id '<id>' not
+// found"), not invalidInput; matched exactly so other storage faults still
+// throw. invalidInput "not found" is Breez's mapping of StorageError::NotFound.
+// RN errors carry the text in `inner` ({ message: 'SdkError.StorageError',
+// inner: ['Underlying implementation error: Query returned no rows'] }).
+export function isMissingPaymentError(error) {
+  const c = classifyBreezError(error);
+  const text = [c.message, ...[].concat(error?.inner ?? [])].join(' ');
+  return (
+    (c.kind === 'storage' &&
+      /Query returned no rows|Payment with id '[^']*' not found/.test(text)) ||
+    (c.kind === 'invalidInput' && /not found/i.test(text))
+  );
+}
+
 // Kinds that prove the SDK refused before anything was sent.
 const DEFINITIVE_SEND_FAILURES = new Set([
   'insufficientFunds',

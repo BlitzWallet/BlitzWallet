@@ -26,7 +26,7 @@ import {
 import sha256Hash from '../hash';
 import { deriveSparkIdentityKey } from '../gift/deriveGiftWallet';
 import { applyBlitzConfig, storageRootFromDocumentDir } from './breezConfig';
-import { classifyBreezError } from './breezErrors';
+import { classifyBreezError, isMissingPaymentError } from './breezErrors';
 import {
   normalizeClaimOutcome,
   normalizeClaimQuote,
@@ -280,10 +280,7 @@ function makeHandle(entry) {
         const res = await sdk.getPayment({ paymentId: id });
         return normalizePayment(res.payment, true);
       } catch (e) {
-        const c = classifyBreezError(e);
-        if (c.kind === 'invalidInput' && /not found/i.test(c.message)) {
-          return null;
-        }
+        if (isMissingPaymentError(e)) return null;
         throw e;
       }
     },
@@ -630,6 +627,23 @@ export async function disposeIdentity(mnemonic, opts = {}) {
   for (const mode of ['client', 'server']) {
     const entry = handles.get(`${mode}:${identity}`);
     if (entry) await disposeEntry(entry, opts);
+  }
+}
+
+// Closes every live wallet (all identities and modes, in-flight connects too).
+// Required before a same-process JS reload: an instance left running calls back
+// into the new JS runtime with stale handles, and panic=abort kills the app.
+export async function disposeAll() {
+  await Promise.all([...acquiring.values()].map(p => p.catch(() => {})));
+  await Promise.all([...handles.values()].map(e => disposeEntry(e)));
+}
+
+// Factory reset / wallet wipe: close everything, then delete every Breez store
+// the JS runtime writes (main wallets and the JS NWC fallback).
+export async function wipeAllBreezStorage() {
+  await disposeAll();
+  for (const dir of ['breez/', 'breez-nwc/']) {
+    await deleteAsync(`${documentDirectory}${dir}`, { idempotent: true });
   }
 }
 

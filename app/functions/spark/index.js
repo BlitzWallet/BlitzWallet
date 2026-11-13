@@ -1051,10 +1051,19 @@ const INTENT_NOT_FOUND_GRACE_MS = 15 * 60 * 1000;
 // A send's payment row is stamped when sendPayment runs, seconds after the
 // intent row; anything much later is a different send.
 const INTENT_MATCH_WINDOW_SECS = 5 * 60;
+// Rails that pass the intent id to Breez as the idempotency key. Breez stores
+// the payment under that id (it becomes the Spark TransferId), so the id alone
+// decides; only token rails (no key) fall back to the window match.
+const KEYED_INTENT_RAILS = new Set([
+  'sparkAddress',
+  'bolt11',
+  'bitcoinAddress',
+  'flashnet-sats',
+]);
 
 /**
- * Resolves an 'unknown' send: looks the intent up, then its Breez payment (or
- * a matching recent payment when no payment id was recorded). Never resends.
+ * Resolves an 'unknown' send: looks the intent up, then its Breez payment by
+ * id (token rails: a matching recent payment). Never resends.
  * @returns {Promise<{status: 'completed'|'pending'|'failed'|'unknown'}>}
  *   'failed' is definitive: a new send is safe.
  */
@@ -1070,14 +1079,18 @@ export const checkSendIntentStatus = async ({ intentId }) => {
     }
     if (!mnemonic) return { status: 'unknown' };
     const h = await handleFor(mnemonic);
-    let payment = intent.payment_id
-      ? await h.getPayment(intent.payment_id)
-      : null;
+    const keyed = KEYED_INTENT_RAILS.has(intent.rail);
+    const lookupId = intent.payment_id || (keyed ? intent.intent_id : null);
+    let payment = lookupId ? await h.getPayment(lookupId) : null;
 
     let synced = false;
     if (!payment) {
       const s = await h.sync();
       synced = !s.timedOut && !s.error;
+    }
+    if (!payment && keyed) {
+      payment = await h.getPayment(intent.intent_id);
+    } else if (!payment) {
       // Only sends made right around this intent, and none another intent
       // already owns: a same-amount send elsewhere must not be adopted. The
       // window replaces a fixed page size that a busy wallet could overflow.
@@ -1089,19 +1102,12 @@ export const checkSendIntentStatus = async ({ intentId }) => {
         toTimestamp: since + INTENT_MATCH_WINDOW_SECS,
       });
       payment =
-        recent.find(p => {
-          if (claimed.has(p.id)) return false;
-          if (intent.rail === 'bolt11') {
-            return p.details?.invoice?.toLowerCase() === intent.request_hash;
-          }
-          if (intent.token_id) {
-            return (
-              p.details?.metadata?.identifier === intent.token_id &&
-              String(p.amount) === intent.amount
-            );
-          }
-          return String(p.amount) === intent.amount;
-        }) || null;
+        recent.find(
+          p =>
+            !claimed.has(p.id) &&
+            p.details?.metadata?.identifier === intent.token_id &&
+            String(p.amount) === intent.amount,
+        ) || null;
     }
 
     if (!payment) {
