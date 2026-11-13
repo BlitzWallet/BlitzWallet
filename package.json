@@ -25,7 +25,6 @@
     "@branta-ops/branta": "^3.2.1",
     "@breeztech/breez-sdk-spark": "^0.28.0",
     "@breeztech/breez-sdk-spark-react-native": "^0.28.0",
-    "@buildonspark/spark-sdk": "^0.8.8",
     "@craftzdog/react-native-buffer": "^6.1.0",
     "@expo/metro-runtime": "~6.1.2",
     "@flashnet/sdk": "^0.5.7",

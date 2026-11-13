@@ -10,54 +10,6 @@ const mockGetChainAmount = jest.fn();
 
 // Stub the native SDK/storage bundles so the real getSparkPaymentStatus
 // mapping (imported via requireActual) can run under Jest.
-jest.mock('@buildonspark/spark-sdk', () => ({ SparkWallet: {}, Network: {} }));
-jest.mock('@buildonspark/spark-sdk/types', () => ({
-  LightningSendRequestStatus: {
-    TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
-    PREIMAGE_PROVIDED: 'PREIMAGE_PROVIDED',
-    LIGHTNING_PAYMENT_SUCCEEDED: 'LIGHTNING_PAYMENT_SUCCEEDED',
-    USER_SWAP_RETURNED: 'USER_SWAP_RETURNED',
-    LIGHTNING_PAYMENT_FAILED: 'LIGHTNING_PAYMENT_FAILED',
-    TRANSFER_FAILED: 'TRANSFER_FAILED',
-    USER_TRANSFER_VALIDATION_FAILED: 'USER_TRANSFER_VALIDATION_FAILED',
-    PREIMAGE_PROVIDING_FAILED: 'PREIMAGE_PROVIDING_FAILED',
-    USER_SWAP_RETURN_FAILED: 'USER_SWAP_RETURN_FAILED',
-  },
-  SparkCoopExitRequestStatus: {
-    SUCCEEDED: 'SUCCEEDED',
-    FAILED: 'FAILED',
-    EXPIRED: 'EXPIRED',
-  },
-  LightningReceiveRequestStatus: {
-    TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
-    LIGHTNING_PAYMENT_RECEIVED: 'LIGHTNING_PAYMENT_RECEIVED',
-    TRANSFER_FAILED: 'TRANSFER_FAILED',
-    PAYMENT_PREIMAGE_RECOVERING_FAILED: 'PAYMENT_PREIMAGE_RECOVERING_FAILED',
-    REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED:
-      'REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED',
-    REFUND_SIGNING_FAILED: 'REFUND_SIGNING_FAILED',
-    TRANSFER_CREATION_FAILED: 'TRANSFER_CREATION_FAILED',
-  },
-  SparkLeavesSwapRequestStatus: {
-    SUCCEEDED: 'SUCCEEDED',
-    FAILED: 'FAILED',
-    EXPIRED: 'EXPIRED',
-  },
-  SparkUserRequestStatus: {
-    SUCCEEDED: 'SUCCEEDED',
-    FAILED: 'FAILED',
-    CANCELED: 'CANCELED',
-  },
-  ClaimStaticDepositStatus: {
-    TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
-    SPEND_TX_BROADCAST: 'SPEND_TX_BROADCAST',
-    TRANSFER_CREATION_FAILED: 'TRANSFER_CREATION_FAILED',
-    REFUND_SIGNING_FAILED: 'REFUND_SIGNING_FAILED',
-    UTXO_SWAPPING_FAILED: 'UTXO_SWAPPING_FAILED',
-    REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED:
-      'REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED',
-  },
-}));
 jest.mock('@flashnet/sdk', () => ({ FlashnetClient: class {} }));
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn() }));
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -132,7 +84,7 @@ const QUOTE = {
 
 const completeTransfer = {
   id: 'transfer-1',
-  status: 'TRANSFER_STATUS_COMPLETED',
+  status: 'completed',
   totalValue: 980,
 };
 
@@ -425,7 +377,7 @@ describe('claimDepositUtxo — settle + persist phase', () => {
   test('transfer still sender-initiated: stays pending, never fabricated completed', async () => {
     mockGetSingleTxDetails.mockResolvedValue({
       id: 'transfer-1',
-      status: 'TRANSFER_STATUS_SENDER_INITIATED',
+      status: 'pending',
       totalValue: 980,
     });
 

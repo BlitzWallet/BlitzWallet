@@ -23,42 +23,6 @@ const SYNC_TIMEOUT_MS = 60000;
 // Newest payments inspected by the pending-status sweep (local Breez DB read).
 const PENDING_SWEEP_WINDOW = 100;
 
-// Legacy age gate for the pre-Breez SENDER_INITIATED detector. Kept exported
-// (Breez statuses are authoritative now; the 16-day rule lives in
-// paymentIngest.isStuckPendingLightning).
-const STUCK_SENDER_INITIATED_MS = 16 * 24 * 60 * 60 * 1000;
-
-// Age gate for the SENDER_INITIATED stuck-detector. Returns 'failed' only when
-// the CURRENT spark status is still the initial in-flight state AND the row has
-// been pending past the generous window; anything else returns null so normal
-// in-flight classification is unchanged. OUTGOING only: SENDER_INITIATED is
-// also the initial state of incoming transfers waiting to be claimed, so an old
-// incoming row must stay pending (the claim can still arrive) rather than being
-// written 'failed' — the poller only revisits pending rows, so a lost claim
-// event would leave received money marked failed forever.
-// Spark-to-spark transfers can legitimately sit SENDER_INITIATED >72h until the
-// receiver claims (offline). Auto-failing them would tell the user it failed →
-// resend → double-pay if the original is later claimed. Gate to Lightning only.
-export function stuckInFlightStatus(
-  rawStatus,
-  details,
-  direction,
-  paymentType,
-) {
-  if (direction?.toLowerCase() !== 'outgoing') return null;
-  if (rawStatus !== 'TRANSFER_STATUS_SENDER_INITIATED') return null;
-  if (paymentType && paymentType !== 'lightning') return null;
-  const created = Number(
-    details?.time ??
-      details?.createdAt ??
-      details?.createdTime ??
-      details?.dateAddedToDb ??
-      0,
-  );
-  if (!created || Date.now() - created < STUCK_SENDER_INITIATED_MS) return null;
-  return 'failed';
-}
-
 let isRestoringState = false;
 // Latest restore requested while one was running: run it once afterwards so a
 // balance commit that lands mid-restore (e.g. a spend from another device)
