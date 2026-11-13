@@ -1201,6 +1201,53 @@ export const createTokensInvoice = async (
   }
 };
 
+// Inline status enums so the WebView path never evaluates @buildonspark/spark-sdk
+const LightningSendRequestStatus = {
+  TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
+  PREIMAGE_PROVIDED: 'PREIMAGE_PROVIDED',
+  LIGHTNING_PAYMENT_SUCCEEDED: 'LIGHTNING_PAYMENT_SUCCEEDED',
+  LIGHTNING_PAYMENT_RECEIVED: 'LIGHTNING_PAYMENT_RECEIVED',
+  USER_SWAP_RETURNED: 'USER_SWAP_RETURNED',
+  LIGHTNING_PAYMENT_FAILED: 'LIGHTNING_PAYMENT_FAILED',
+  TRANSFER_FAILED: 'TRANSFER_FAILED',
+  USER_TRANSFER_VALIDATION_FAILED: 'USER_TRANSFER_VALIDATION_FAILED',
+  PREIMAGE_PROVIDING_FAILED: 'PREIMAGE_PROVIDING_FAILED',
+  USER_SWAP_RETURN_FAILED: 'USER_SWAP_RETURN_FAILED',
+};
+const SparkCoopExitRequestStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+};
+const LightningReceiveRequestStatus = {
+  TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
+  LIGHTNING_PAYMENT_RECEIVED: 'LIGHTNING_PAYMENT_RECEIVED',
+  TRANSFER_FAILED: 'TRANSFER_FAILED',
+  PAYMENT_PREIMAGE_RECOVERING_FAILED: 'PAYMENT_PREIMAGE_RECOVERING_FAILED',
+  REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED:
+    'REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED',
+  REFUND_SIGNING_FAILED: 'REFUND_SIGNING_FAILED',
+  TRANSFER_CREATION_FAILED: 'TRANSFER_CREATION_FAILED',
+};
+const SparkLeavesSwapRequestStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+};
+const SparkUserRequestStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+};
+const ClaimStaticDepositStatus = {
+  TRANSFER_COMPLETED: 'TRANSFER_COMPLETED',
+  SPEND_TX_BROADCAST: 'SPEND_TX_BROADCAST',
+  TRANSFER_CREATION_FAILED: 'TRANSFER_CREATION_FAILED',
+  REFUND_SIGNING_FAILED: 'REFUND_SIGNING_FAILED',
+  UTXO_SWAPPING_FAILED: 'UTXO_SWAPPING_FAILED',
+  REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED:
+    'REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED',
+};
 export const getCachedSparkTransactions = async (limit, identifyPubKey) => {
   try {
     const txResponse = await getAllSparkTransactions({
@@ -1230,10 +1277,57 @@ export const sparkPaymentType = tx => {
   }
 };
 
-export const getSparkPaymentStatus = status =>
-  // Breez payments already carry the normalized status; anything else is
-  // not yet settled.
-  status === 'completed' || status === 'failed' ? status : 'pending';
+export const getSparkPaymentStatus = status => {
+  // Breez payments already carry the normalized status.
+  if (status === 'completed' || status === 'failed' || status === 'pending')
+    return status;
+  return status === 'TRANSFER_STATUS_COMPLETED' ||
+    status === LightningSendRequestStatus.TRANSFER_COMPLETED ||
+    status === SparkCoopExitRequestStatus.SUCCEEDED ||
+    status === LightningReceiveRequestStatus.TRANSFER_COMPLETED ||
+    status === LightningSendRequestStatus.PREIMAGE_PROVIDED ||
+    status === SparkLeavesSwapRequestStatus.SUCCEEDED ||
+    status === SparkUserRequestStatus.SUCCEEDED ||
+    status === ClaimStaticDepositStatus.TRANSFER_COMPLETED ||
+    status === ClaimStaticDepositStatus.SPEND_TX_BROADCAST ||
+    status === LightningSendRequestStatus.LIGHTNING_PAYMENT_SUCCEEDED ||
+    status == LightningReceiveRequestStatus.LIGHTNING_PAYMENT_RECEIVED
+    ? 'completed'
+    : status === 'TRANSFER_STATUS_RETURNED' ||
+      status === 'TRANSFER_STATUS_EXPIRED' ||
+      // TRANSFER_STATUS_SENDER_INITIATED is the initial in-flight state of
+      // every transfer (claims, incoming Spark payments, LN sends) — it is
+      // NOT a terminal failure. Only RETURNED/EXPIRED are. Classifying it as
+      // 'failed' here wedged fresh claim transfers: the 10s poller flipped the
+      // pending row to failed while the UTXO swap was still settling, and
+      // updateSparkTxStatus only revisits pending rows.
+      status === LightningSendRequestStatus.USER_SWAP_RETURNED ||
+      status === LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED ||
+      status === LightningSendRequestStatus.TRANSFER_FAILED ||
+      status === LightningSendRequestStatus.USER_TRANSFER_VALIDATION_FAILED ||
+      status === LightningSendRequestStatus.PREIMAGE_PROVIDING_FAILED ||
+      status === LightningSendRequestStatus.USER_SWAP_RETURN_FAILED ||
+      status === SparkCoopExitRequestStatus.FAILED ||
+      status === SparkCoopExitRequestStatus.EXPIRED ||
+      status === LightningReceiveRequestStatus.TRANSFER_FAILED ||
+      status ===
+        LightningReceiveRequestStatus.PAYMENT_PREIMAGE_RECOVERING_FAILED ||
+      status ===
+        LightningReceiveRequestStatus.REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED ||
+      status === LightningReceiveRequestStatus.REFUND_SIGNING_FAILED ||
+      status === LightningReceiveRequestStatus.TRANSFER_CREATION_FAILED ||
+      status === SparkLeavesSwapRequestStatus.FAILED ||
+      status === SparkLeavesSwapRequestStatus.EXPIRED ||
+      status === SparkUserRequestStatus.FAILED ||
+      status === SparkUserRequestStatus.CANCELED ||
+      status === ClaimStaticDepositStatus.TRANSFER_CREATION_FAILED ||
+      status === ClaimStaticDepositStatus.REFUND_SIGNING_FAILED ||
+      status === ClaimStaticDepositStatus.UTXO_SWAPPING_FAILED ||
+      status ===
+        ClaimStaticDepositStatus.REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED
+    ? 'failed'
+    : 'pending';
+};
 
 export const getSingleTxDetails = async (mnemonic, id) => {
   try {
