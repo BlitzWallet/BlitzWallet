@@ -520,7 +520,13 @@ export function AddContactContent({
           <View style={styles.address}>
             <ListCard style={styles.card}>
               <ListRow
-                lead={<Disc icon={'AtSign'} size={44} tone="white" />}
+                lead={
+                  isPhoneNumber ? (
+                    <ContactAvatar address={searchInput} size={44} />
+                  ) : (
+                    <Disc icon={'AtSign'} size={44} tone="white" />
+                  )
+                }
                 title={searchInput}
                 titleStyle={styles.rowTitle}
                 minHeight={76}

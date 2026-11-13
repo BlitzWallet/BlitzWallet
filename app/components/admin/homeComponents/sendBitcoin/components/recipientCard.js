@@ -72,6 +72,7 @@ export function resolveRecipientDisplay({
     return {
       kind: 'contact',
       displayName: contactName,
+      address: lnurlAddress,
       uuid: contactInfo?.uuid,
       imageUri: contactInfo.imageData?.localUri,
       imageUpdated: contactInfo.imageData?.updated,
@@ -159,9 +160,9 @@ export function RecipientAvatar({ resolved, size = 40, backgroundColor }) {
   if (resolved?.kind === 'phone') {
     return (
       <View style={circle}>
-        {/* The flag renders 1.6x wider than `size`, so scale it to fit the
-        circle's diameter instead of getting cropped by the border radius. */}
-        <CountryFlag isoCode={resolved.isoCode} size={Math.round(size / 1.6)} />
+        {/* Fill the circle like the mobile-money country list: the flag's
+        height matches the diameter (+1 hides edge seams) and its sides crop. */}
+        <CountryFlag isoCode={resolved.isoCode} size={size + 1} />
       </View>
     );
   }
@@ -229,6 +230,8 @@ export function RecipientAvatar({ resolved, size = 40, backgroundColor }) {
         seed={resolved.uuid}
         uri={resolved?.imageUri}
         updated={resolved?.imageUpdated}
+        address={resolved?.address}
+        size={size}
       />
     );
   }

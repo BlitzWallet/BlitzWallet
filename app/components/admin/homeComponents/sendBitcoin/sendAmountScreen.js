@@ -276,6 +276,7 @@ export default function SendAmountScreen(props) {
       description: details.combinedPaymentDescription,
       displayAmount: snapshot?.displayAmount,
       displayDenomination: snapshot?.displayDenomination,
+      displayCurrency: snapshot?.displayCurrency,
       lnInvoiceData: null,
     };
     setIsPreparing(true);

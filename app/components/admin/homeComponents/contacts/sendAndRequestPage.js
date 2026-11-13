@@ -228,6 +228,7 @@ export default function SendAndRequestPage(props) {
       seed={selectedContact?.uuid}
       updated={imageData?.updated}
       uri={imageData?.localUri}
+      address={selectedContact?.receiveAddress}
       size={size}
       fontSize={size / 3}
     />

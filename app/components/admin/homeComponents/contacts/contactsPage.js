@@ -295,6 +295,7 @@ const PinnedContactElement = memo(
           seed={contact.uuid}
           uri={imageEntry?.localUri}
           updated={imageEntry?.updated}
+          address={contact.receiveAddress}
           size={56}
           fontSize={18}
         />
@@ -341,6 +342,7 @@ const ContactElement = memo(
             seed={contact.uuid}
             uri={imageEntry?.localUri}
             updated={imageEntry?.updated}
+            address={contact.receiveAddress}
           />
         }
         title={displayName}

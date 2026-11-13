@@ -52,6 +52,7 @@ export default function ExpandedMessageHalfModal({
             <ContactAvatar
               name={name}
               seed={selectedContact?.uuid}
+              address={selectedContact?.receiveAddress}
               size={40}
               fontSize={14}
             />

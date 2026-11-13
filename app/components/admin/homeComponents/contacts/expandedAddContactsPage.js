@@ -34,6 +34,7 @@ const SharedHeader = memo(({ selectedContact, imageData, isContactAdded }) => {
           seed={selectedContact.uuid}
           uri={imageData?.localUri}
           updated={imageData?.updated}
+          address={selectedContact.receiveAddress}
           size={size}
           fontSize={fontSize}
         />

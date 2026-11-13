@@ -184,6 +184,7 @@ export default function ExpandedContactsPage(props) {
             seed={selectedContact?.uuid}
             updated={imageData?.updated}
             uri={imageData?.localUri}
+            address={selectedContact?.receiveAddress}
             size={88}
             fontSize={88 / 3}
           />

@@ -1,9 +1,27 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { COLORS } from '../../../../../constants';
 import ThemeText from '../../../../../functions/CustomElements/textTheme';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import ContactProfileImage from './profileImage';
+import {
+  getPhonePaymentCandidates,
+  getPhonePaymentCountry,
+  getPhonePostProvider,
+} from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
+
+// Country of a mobile-money recipient, from either its provider address
+// (639…@zapremit.com) or the raw number typed when adding it.
+function getMobileMoneyCountry(address) {
+  if (!address) return null;
+  return (
+    getPhonePaymentCountry(address) ||
+    getPhonePaymentCountry(getPhonePaymentCandidates(address)[0]) ||
+    getPhonePostProvider(address)?.country ||
+    null
+  );
+}
 
 // Pastel discs from the People designs (People.dc.html). Same in every mode,
 // so the letters stay dark ink.
@@ -26,7 +44,8 @@ function pickPastel(seed = '') {
 // Round contact avatar: their photo when there is one, else initials on a
 // pastel disc (stable per `seed`), else the generic user glyph. `fill` sizes it
 // to its parent instead (ContactRingAvatar animates its children's size), with
-// the initials scaled to the measured width.
+// the initials scaled to the measured width. A mobile-money contact with no
+// photo shows its country flag filling the disc, like the phone-pay country list.
 export default function ContactAvatar({
   name,
   uri,
@@ -35,9 +54,11 @@ export default function ContactAvatar({
   size = 40,
   fontSize = 14,
   fill = false,
+  address,
 }) {
   const { tokens } = useGlobalThemeContext();
-  const initials = uri ? '' : getInitials(name);
+  const flagIsoCode = uri ? null : getMobileMoneyCountry(address);
+  const initials = uri || flagIsoCode ? '' : getInitials(name);
   const [fillWidth, setFillWidth] = useState(0);
   return (
     <View
@@ -61,7 +82,17 @@ export default function ContactAvatar({
         },
       ]}
     >
-      {initials ? (
+      {flagIsoCode ? (
+        // Same flagcdn image react-native-country-flag uses, at 320px so large
+        // avatars stay sharp. Covers the disc; the sides crop.
+        <Image
+          style={styles.flag}
+          source={{
+            uri: `https://flagcdn.com/w320/${flagIsoCode.toLowerCase()}.png`,
+          }}
+          contentFit="cover"
+        />
+      ) : initials ? (
         <ThemeText
           content={initials}
           CustomNumberOfLines={fill ? 1 : null}
@@ -86,4 +117,5 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   fill: { width: '100%', height: '100%', borderRadius: 9999 },
+  flag: { width: '100%', height: '100%' },
 });

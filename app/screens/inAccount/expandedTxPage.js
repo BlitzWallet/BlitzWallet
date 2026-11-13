@@ -457,6 +457,7 @@ export default function ExpandedTx({
             seed={selectedContact?.uuid}
             updated={cache[sendingContactUUID]?.updated}
             uri={contactImage}
+            address={selectedContact?.receiveAddress}
             size={56}
             fontSize={56 / 3}
           />

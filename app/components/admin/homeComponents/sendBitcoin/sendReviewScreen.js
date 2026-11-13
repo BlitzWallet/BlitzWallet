@@ -473,7 +473,10 @@ export default function SendReviewScreen(props) {
           (fromPage === 'contacts' && paymentResponse.response?.id) ||
           fromPage === 'paylink'
         ) {
-          effectivePublishMessageFunc(paymentResponse.response.id);
+          effectivePublishMessageFunc(
+            paymentResponse.response.id,
+            convertedSendAmount,
+          );
         }
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
