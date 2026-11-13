@@ -92,8 +92,13 @@ async function runFullRestoreSparkState({
   isRestoringState = true;
   try {
     const handle = await acquire(mnemonic, { mode: 'client', borrow: true });
-    // A timed-out sync still leaves the local Breez store readable.
-    if (isInitialRestore) await handle.sync(SYNC_TIMEOUT_MS);
+    // A timed-out sync still leaves the local Breez store readable, but only a
+    // complete sync may mark the full pass done.
+    let syncIncomplete = false;
+    if (isInitialRestore) {
+      const syncResult = await handle.sync(SYNC_TIMEOUT_MS);
+      syncIncomplete = !!(syncResult?.timedOut || syncResult?.error);
+    }
 
     const marker = await getMigrationMarker(identityPubKey);
     let offset = 0;
@@ -119,7 +124,7 @@ async function runFullRestoreSparkState({
       if (marker.fullPassDone && result.records.length === 0) break;
       await new Promise(r => setTimeout(r, PAGE_PAUSE_MS));
     }
-    if (reachedEnd) await markFullPassDone(identityPubKey);
+    if (reachedEnd && !syncIncomplete) await markFullPassDone(identityPubKey);
     return written;
   } catch (err) {
     console.log('full restore spark state error', err);

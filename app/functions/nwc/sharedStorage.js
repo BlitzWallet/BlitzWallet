@@ -120,6 +120,6 @@ export function clearNativeNWCState() {
   if (!dir) return;
   const config = new File(dir, CONFIG_FILE);
   if (config.exists) config.delete();
-  const breez = new Directory(dir, 'breez');
+  const breez = new Directory(dir, 'breez-0.28');
   if (breez.exists) breez.delete();
 }
