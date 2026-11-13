@@ -44,6 +44,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import {
   sendSparkPayment,
+  getSparkPaymentFeeEstimate,
   batchSendTokens,
   getSingleTxDetails,
   getSparkPaymentStatus,
@@ -489,6 +490,21 @@ export default function CreateGiftDuration(props) {
         );
       }
 
+      if (determinePaymentMethod === 'BTC' && giftDenomination === 'BTC') {
+        // Each gift is its own Spark transfer, and Spark charges its fee on top.
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          sparkInformation.sparkAddress,
+          convertedSatAmount,
+          currentWalletMnemoinc,
+        );
+        if (!feeResponse.didWork)
+          throw new Error(
+            feeResponse.error || 'Unable to get Spark fee estimation',
+          );
+        if (totalNeeded + feeResponse.response * giftQuantity > bitcoinBalance)
+          throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
+      }
+
       if (giftQuantity === 1) {
         await createSingleGift();
       } else {
@@ -756,6 +772,7 @@ export default function CreateGiftDuration(props) {
         const fundedGiftData = [];
         const failedIds = [];
         let unknownCount = 0;
+        let giftSparkFees = 0;
         for (let i = 0; i < allGiftData.length; i++) {
           const giftId = allGiftData[i].storageObject.uuid;
           markSendStarted(giftId);
@@ -773,6 +790,7 @@ export default function CreateGiftDuration(props) {
             });
             successful.push(transferId);
             fundedGiftData.push(allGiftData[i]);
+            giftSparkFees += Number(res.payment?.fees ?? 0);
           } else if (res.outcome === 'unknown') {
             // May have been sent: keep the gift doc.
             unknownCount += 1;
@@ -809,8 +827,8 @@ export default function CreateGiftDuration(props) {
             isBulkPayment: true,
             direction: 'OUTGOING',
             amount: Math.round(convertedSatAmount * fundedGiftData.length),
-            fee: swapFee,
-            totalFee: swapFee,
+            fee: swapFee + giftSparkFees,
+            totalFee: swapFee + giftSparkFees,
             time: Date.now(),
             description: t('screens.inAccount.giftPages.fundGiftMessage'),
             isLRC20Payment: false,

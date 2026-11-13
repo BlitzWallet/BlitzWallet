@@ -113,6 +113,7 @@ export async function bulkSparkPayment(
 
   const failed = [];
   const successful = [];
+  let sparkFeesTotal = 0;
   let groupId;
   let transaction;
 
@@ -144,12 +145,15 @@ export async function bulkSparkPayment(
         amountCents: amountCents ?? null,
         currency: currency ?? 'BTC',
       };
-      const pushSuccess = transferId =>
+      const pushSuccess = (transferId, feeSats = 0) => {
+        sparkFeesTotal += feeSats;
         successful.push({
           ...base,
           transferId,
+          feeSats,
           transfer: { id: transferId },
         });
+      };
 
       try {
         if (!item) throw new Error('Bulk item row missing');
@@ -168,7 +172,7 @@ export async function bulkSparkPayment(
             await setBulkItemState(bulkId, i, 'sent', {
               paymentId: check.payment?.id,
             });
-            pushSuccess(check.payment?.id);
+            pushSuccess(check.payment?.id, Number(check.payment?.fees ?? 0));
             continue;
           }
           if (check.status !== 'failed') {
@@ -192,7 +196,7 @@ export async function bulkSparkPayment(
         if (res.didWork) {
           const transferId = res.response?.id ?? res.payment?.id;
           await setBulkItemState(bulkId, i, 'sent', { paymentId: transferId });
-          pushSuccess(transferId);
+          pushSuccess(transferId, Number(res.payment?.fees ?? 0));
         } else {
           await setBulkItemState(
             bulkId,
@@ -307,8 +311,8 @@ export async function bulkSparkPayment(
           isBulkPayment: true,
           direction: 'OUTGOING',
           amount: successful.reduce((sum, s) => sum + s.amountSats, 0),
-          fee: swapFee,
-          totalFee: swapFee,
+          fee: swapFee + sparkFeesTotal,
+          totalFee: swapFee + sparkFeesTotal,
           time: Date.now(),
           description: memo || '',
           isLRC20Payment: false,

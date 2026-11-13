@@ -9,6 +9,7 @@ import { derivePoolWallet } from '../../../../functions/pools/derivePoolWallet';
 import {
   sendSparkPayment,
   getSparkAddress,
+  getSparkPaymentFeeEstimate,
   openDerivedWallet,
   disposeSparkWallet,
 } from '../../../../functions/spark';
@@ -116,7 +117,38 @@ export default function ClosePoolConfirmation({
 
       const poolBalance = Number(balanceResponse.balance);
 
-      if (poolBalance <= 0) {
+      let mainSparkAddress = null;
+      let poolSendAmount = poolBalance;
+
+      // Spark pays the transfer fee on top of the amount, so a full-balance
+      // transfer has to reserve it or the send fails.
+      if (poolBalance > 0) {
+        const mainAddressResponse = await getSparkAddress(
+          currentWalletMnemoinc,
+        );
+
+        if (!mainAddressResponse?.didWork) {
+          throw new Error(t('wallet.pools.unableToGetAddress'));
+        }
+
+        mainSparkAddress = mainAddressResponse.response;
+
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          mainSparkAddress,
+          poolBalance,
+          poolMnemonic,
+        );
+
+        if (!feeResponse.didWork) {
+          throw new Error(
+            feeResponse.error || t('wallet.pools.unableToGetBalance'),
+          );
+        }
+
+        poolSendAmount = poolBalance - feeResponse.response;
+      }
+
+      if (poolSendAmount <= 0) {
         // A failed sync can read 0: never close the pool on that.
         if (initResult.synced === false) {
           throw new Error(t('wallet.pools.unableToGetBalance'));
@@ -149,19 +181,11 @@ export default function ClosePoolConfirmation({
         return;
       }
 
-      const mainAddressResponse = await getSparkAddress(currentWalletMnemoinc);
-
-      if (!mainAddressResponse?.didWork) {
-        throw new Error(t('wallet.pools.unableToGetAddress'));
-      }
-
-      const mainSparkAddress = mainAddressResponse.response;
-
       // 5. Transfer all funds from pool wallet to creator's main wallet
       setStep('transfering');
       const transferResponse = await sendSparkPayment({
         receiverSparkAddress: mainSparkAddress,
-        amountSats: poolBalance,
+        amountSats: poolSendAmount,
         mnemonic: poolMnemonic,
       });
 
@@ -203,7 +227,7 @@ export default function ClosePoolConfirmation({
           fee: 0,
           totalFee: 0,
           supportFee: 0,
-          amount: poolBalance,
+          amount: poolSendAmount,
           address: mainSparkAddress,
           time: new Date().getTime(),
           direction: 'INCOMING',

@@ -8,6 +8,7 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
+import { getSparkPaymentFeeEstimate } from '../../../../functions/spark';
 import { addContributionWithTransaction } from '../../../../../db';
 import { v4 as uuidv4 } from 'uuid';
 import PresetAmountGrid from './presetAmountGrid';
@@ -214,6 +215,21 @@ export default function ContributeToPoolHalfModal({
         };
       }
 
+      // Spark charges its fee on top of the amount, so the balance must cover both.
+      let sparkFee;
+      if (paymentMethod === 'BTC') {
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          pool.sparkAddress,
+          paymentAmountSats,
+          currentWalletMnemoinc,
+        );
+        if (!feeResponse.didWork)
+          throw new Error(feeResponse.error || t('wallet.pools.paymentFailed'));
+        sparkFee = feeResponse.response;
+        if (paymentAmountSats + sparkFee > bitcoinBalance)
+          throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
+      }
+
       const paymentResponse = await sparkPaymenWrapper({
         address: pool.sparkAddress,
         paymentType: 'spark',
@@ -228,6 +244,7 @@ export default function ContributeToPoolHalfModal({
         poolInfoRef,
         usablePaymentMethod: paymentMethod,
         swapPaymentQuote,
+        fee: sparkFee,
         extraDetails: { isPoolPayment: true },
       });
 

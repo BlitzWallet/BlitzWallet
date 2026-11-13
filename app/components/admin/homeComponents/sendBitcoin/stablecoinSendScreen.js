@@ -42,7 +42,11 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 import fetchBackend from '../../../../../db/handleBackend';
-import { sendSparkPayment, sendSparkTokens } from '../../../../functions/spark';
+import {
+  sendSparkPayment,
+  sendSparkTokens,
+  getSparkPaymentFeeEstimate,
+} from '../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import {
   calculateFlashnetAmountIn,
@@ -411,10 +415,26 @@ export default function StablecoinSendScreen() {
     try {
       let result;
       if (sourceMethod === 'BTC') {
+        // Spark charges its fee on top of the amount, so the balance must cover both.
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          quote.depositAddress,
+          Number(quote.amountIn),
+          currentWalletMnemoinc,
+        );
+        if (!feeResponse.didWork)
+          throw new Error(
+            feeResponse.error || 'Unable to get Spark fee estimation',
+          );
+        if (
+          Number(quote.amountIn) + feeResponse.response >
+          Number(balanceRef.current.bitcoin)
+        )
+          throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
         result = await sendSparkPayment({
           receiverSparkAddress: quote.depositAddress,
           amountSats: Number(quote.amountIn),
           mnemonic: currentWalletMnemoinc,
+          maxFeeSats: feeResponse.response,
         });
       } else {
         // USDb: quote.amountIn is in token micro-units (e.g. 1_000_000 = $1)

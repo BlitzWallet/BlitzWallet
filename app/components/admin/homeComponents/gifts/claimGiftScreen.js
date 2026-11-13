@@ -276,6 +276,19 @@ export default function ClaimGiftScreen({
         : 0;
       const dollarGiftAmount = giftAmount * Math.pow(10, 6);
 
+      const estimateBtcFee = async amount => {
+        // An empty gift must still reach the reclaim branch below.
+        if (!(amount > 0)) return 0;
+        const fee = await getSparkPaymentFeeEstimate(
+          sparkInformation.sparkAddress,
+          amount,
+          giftSeed,
+        );
+        if (!fee.didWork)
+          throw new Error(fee.error || 'Unable to get Spark fee estimation');
+        return fee.response;
+      };
+
       let formattedWalletBalance;
       let fees;
       let fromBalance;
@@ -295,7 +308,7 @@ export default function ClaimGiftScreen({
         fromBalance = bitcoinBalance ? 'BTC' : 'USD';
         fees = await (denomination === 'USD'
           ? Promise.resolve(0)
-          : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
+          : estimateBtcFee(formattedWalletBalance));
       } else {
         formattedWalletBalance = walletBalance?.didWork
           ? denomination === 'BTC'
@@ -309,7 +322,7 @@ export default function ClaimGiftScreen({
                 ? dollarGiftAmount - formattedWalletBalance
                 : 0,
             )
-          : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
+          : estimateBtcFee(formattedWalletBalance));
         fromBalance = denomination;
       }
 
@@ -357,6 +370,7 @@ export default function ClaimGiftScreen({
       giftDetails.uuid,
       t,
       denomination,
+      sparkInformation.sparkAddress,
     ],
   );
 

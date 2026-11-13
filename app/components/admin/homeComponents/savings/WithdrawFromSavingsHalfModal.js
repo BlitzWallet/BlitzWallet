@@ -35,6 +35,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import {
   openDerivedWallet,
   disposeSparkWallet,
+  getSparkPaymentFeeEstimate,
 } from '../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { subscribeToSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
@@ -492,6 +493,21 @@ export default function WithdrawFromSavingsHalfModal({
 
         const amountSats = isSendMax ? interestSats : localSatAmount;
 
+        // Spark charges the transfer fee on top of the amount. A send-max has to
+        // reserve it, otherwise the SDK refuses the payment.
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          mainSparkAddress,
+          amountSats,
+          savingsMnemonic,
+        );
+        if (!feeResponse.didWork)
+          throw new Error(feeResponse.error || t('savings.savingsWalletError'));
+        const sendAmountSats = isSendMax
+          ? amountSats - feeResponse.response
+          : amountSats;
+        if (sendAmountSats <= 0)
+          throw new Error(t('savings.savingsWalletError'));
+
         const elapsed1 = Date.now() - step1Start;
         if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
 
@@ -502,7 +518,7 @@ export default function WithdrawFromSavingsHalfModal({
         const sendResponse = await sparkPaymenWrapper({
           address: mainSparkAddress,
           paymentType: 'spark',
-          amountSats,
+          amountSats: sendAmountSats,
           masterInfoObject,
           memo: t('savings.withdraw.interestPaymentLabel'),
           userBalance: 0,
@@ -525,7 +541,7 @@ export default function WithdrawFromSavingsHalfModal({
         // post-withdrawal balance without needing to re-poll.
         const remainingBalance = Math.max(
           0,
-          (walletBTCBalance ?? 0) - amountSats,
+          (walletBTCBalance ?? 0) - sendAmountSats - feeResponse.response,
         );
         setLocalStorageItem(
           SAVINGS_INTEREST_POLL_CACHE_KEY,
@@ -546,7 +562,7 @@ export default function WithdrawFromSavingsHalfModal({
                 fee: 0,
                 totalFee: 0,
                 supportFee: 0,
-                amount: amountSats,
+                amount: sendAmountSats,
                 description: t('savings.withdraw.interestPaymentLabel'),
                 address: sparkInformation.sparkAddress,
                 time: Date.now(),

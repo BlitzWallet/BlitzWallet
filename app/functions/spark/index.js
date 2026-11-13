@@ -17,7 +17,6 @@ import { createBreezFlashnetWallet } from './breezFlashnetWallet';
 import { decode as decodeBolt11 } from '../decodeBolt11';
 import { FlashnetClient } from '@flashnet/sdk';
 import { getAllSparkTransactions } from './transactions';
-import { SPARK_TO_SPARK_FEE } from '../../constants/math';
 import {
   mergeTokensWithCache,
   migrateCachedTokens,
@@ -475,6 +474,7 @@ export const sendSparkPayment = async ({
   amountSats,
   mnemonic,
   intentId,
+  maxFeeSats,
 }) => {
   try {
     const h = await handleFor(mnemonic);
@@ -489,6 +489,13 @@ export const sendSparkPayment = async ({
       },
       async id => {
         const prep = await h.prepare(to, { amount: amountSats });
+        const fee = Number(fieldsOf(prep.paymentMethod).fee ?? 0);
+        if (maxFeeSats != null && fee > maxFeeSats) {
+          throw Object.assign(
+            new Error(`Prepared fee ${fee} exceeds max ${maxFeeSats}`),
+            { tag: 'InvalidInput' },
+          );
+        }
         return h.send(prep, { intentId: id });
       },
     );
@@ -703,8 +710,26 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
   }
 };
 
-// Spark-to-Spark sends are free.
-export const getSparkPaymentFeeEstimate = async () => SPARK_TO_SPARK_FEE;
+// Spark-to-Spark sends are free today, but the SDK already quotes their fee in
+// the prepared payment method. Read it from there so an operator fee is picked
+// up automatically instead of being hardcoded to zero.
+export const getSparkPaymentFeeEstimate = async (
+  address,
+  amountSats,
+  mnemonic,
+) => {
+  try {
+    const h = await handleFor(mnemonic);
+    const prep = await h.prepare(address, { amount: amountSats });
+    return {
+      didWork: true,
+      response: Number(fieldsOf(prep.paymentMethod).fee ?? 0),
+    };
+  } catch (err) {
+    console.log('Get spark payment fee estimate error', err);
+    return { didWork: false, error: errMsg(err) };
+  }
+};
 
 export const receiveSparkLightningPayment = async ({
   amountSats,

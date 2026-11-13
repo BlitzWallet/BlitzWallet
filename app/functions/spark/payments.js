@@ -121,10 +121,15 @@ export const sparkPaymenWrapper = async ({
       } else {
         // Spark payments
         const feeResponse = await getSparkPaymentFeeEstimate(
+          address,
           amountSats,
           mnemonic,
         );
-        calculatedFee = feeResponse;
+        if (!feeResponse.didWork)
+          throw new Error(
+            feeResponse.error || 'Unable to get Spark fee estimation',
+          );
+        calculatedFee = feeResponse.response;
       }
       return {
         didWork: true,
@@ -234,13 +239,12 @@ export const sparkPaymenWrapper = async ({
 
         // check if lightning payment used LN or handled over spark
         const paymentType = !!data?.type ? 'spark' : 'lightning';
+        const realPaymentFee = data?.fee?.originalValue
+          ? data?.fee?.originalValue /
+            (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
+          : initialFee;
 
         if (paymentType === 'lightning') {
-          const realPaymentFee = data?.fee?.originalValue
-            ? data?.fee?.originalValue /
-              (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
-            : initialFee;
-
           const tx = {
             id: data.id,
             paymentStatus: 'pending',
@@ -280,8 +284,8 @@ export const sparkPaymenWrapper = async ({
             accountId: sparkInformation.identityPubKey,
             details: {
               sendingUUID,
-              fee: 0,
-              totalFee: 0 + supportFee,
+              fee: realPaymentFee,
+              totalFee: realPaymentFee + supportFee,
               supportFee: supportFee,
               amount: amountSats,
               address: address,
@@ -476,6 +480,11 @@ export const sparkPaymenWrapper = async ({
             amountSats: Number(finalSatAmount),
             mnemonic,
             intentId,
+            // After a swap `fee` is the swap fee, not the Spark fee.
+            maxFeeSats:
+              !isSwap && Number.isFinite(fee)
+                ? Math.round(fee - supportFee)
+                : undefined,
           });
         }
 
@@ -497,6 +506,12 @@ export const sparkPaymenWrapper = async ({
           ? USDB_TOKEN_ID
           : '';
 
+      // Token fees are denominated in token base units, so this sats-denominated
+      // row keeps 0 for them. Sats sends record what the SDK actually charged.
+      const realSparkFee = useLRC20Format
+        ? 0
+        : Number(sparkPayResponse.payment?.fees ?? fee ?? 0);
+
       const tx = {
         id: useLRC20Format ? data : data.id,
         paymentStatus: 'completed',
@@ -504,8 +519,8 @@ export const sparkPaymenWrapper = async ({
         accountId: sparkInformation.identityPubKey,
         details: {
           sendingUUID,
-          fee: 0,
-          totalFee: 0 + supportFee,
+          fee: realSparkFee,
+          totalFee: realSparkFee + supportFee,
           supportFee: supportFee,
           amount: amountSats,
           address: address,
