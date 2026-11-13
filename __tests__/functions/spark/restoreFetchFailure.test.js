@@ -72,6 +72,9 @@ describe('fullRestoreSparkState — restore-complete gating', () => {
 
     await runRestore();
 
-    expect(mockMarkFullPassDone).toHaveBeenCalledWith(ACCOUNT_ID);
+    expect(mockMarkFullPassDone).toHaveBeenCalledWith(ACCOUNT_ID, {
+      count: 0,
+      newestTs: 0,
+    });
   });
 });

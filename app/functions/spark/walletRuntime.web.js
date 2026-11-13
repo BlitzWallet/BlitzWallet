@@ -293,12 +293,7 @@ function makeHandle(entry) {
         return normalizePayment(res.payment, false);
       } catch (e) {
         const c = classifyBreezError(e);
-        // Breez reports a missing row as invalidInput "Not found" or as a storage
-        // error ("Query returned no rows" native, "... not found" web).
-        if (
-          (c.kind === 'invalidInput' || c.kind === 'storage') &&
-          /not found|no rows/i.test(c.message)
-        ) {
+        if (c.kind === 'invalidInput' && /not found/i.test(c.message)) {
           return null;
         }
         throw e;

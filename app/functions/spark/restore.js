@@ -92,23 +92,25 @@ async function runFullRestoreSparkState({
   isRestoringState = true;
   try {
     const handle = await acquire(mnemonic, { mode: 'client', borrow: true });
-    // A timed-out sync still leaves the local Breez store readable, but only a
-    // complete sync may mark the full pass done.
-    let syncIncomplete = false;
-    if (isInitialRestore) {
-      const syncResult = await handle.sync(SYNC_TIMEOUT_MS);
-      syncIncomplete = !!(syncResult?.timedOut || syncResult?.error);
-    }
+    // A timed-out sync still leaves the local Breez store readable.
+    if (isInitialRestore) await handle.sync(SYNC_TIMEOUT_MS);
 
     const marker = await getMigrationMarker(identityPubKey);
+    let lastWalk = marker.fullPassDone ? marker.fullWalk : null;
     let offset = 0;
     let written = 0;
     let reachedEnd = false;
+    let newestTs = 0;
+    let newerSeen = 0;
     for (;;) {
       const page = await handle.listPayments({ limit: PAGE_SIZE, offset });
       if (!page.length) {
         reachedEnd = true;
         break;
+      }
+      if (!offset) newestTs = page[0].timestamp;
+      if (lastWalk) {
+        newerSeen += page.filter(p => p.timestamp > lastWalk.newestTs).length;
       }
       const result = await projectBreezPayments(page, {
         accountId: identityPubKey,
@@ -121,10 +123,26 @@ async function runFullRestoreSparkState({
         reachedEnd = true;
         break;
       }
-      if (marker.fullPassDone && result.records.length === 0) break;
+      if (lastWalk && result.records.length === 0) {
+        const surplus = await handle.listPayments({
+          limit: 1,
+          offset: lastWalk.count + newerSeen,
+        });
+        if (!surplus.length) {
+          // Store size confirmed: record it so the next pass compares from here.
+          await markFullPassDone(identityPubKey, {
+            count: lastWalk.count + newerSeen,
+            newestTs,
+          });
+          break;
+        }
+        lastWalk = null; // gap below: walk to the end
+      }
       await new Promise(r => setTimeout(r, PAGE_PAUSE_MS));
     }
-    if (reachedEnd && !syncIncomplete) await markFullPassDone(identityPubKey);
+    if (reachedEnd) {
+      await markFullPassDone(identityPubKey, { count: offset, newestTs });
+    }
     return written;
   } catch (err) {
     console.log('full restore spark state error', err);

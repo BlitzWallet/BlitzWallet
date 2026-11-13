@@ -519,6 +519,7 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
     if (invoiceWithoutSparkID.type === 'INCOMING') {
       sparkPaymentResponse = await wallet.getNWCLightningReceiveRequest(
         sparkID,
+        invoiceWithoutSparkID.created_at,
       );
     } else {
       sparkPaymentResponse = await wallet.NWCSparkLightningPaymentStatus(

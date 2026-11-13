@@ -83,10 +83,12 @@ export function getMigrationMarker(accountId) {
   return markers.get(accountId);
 }
 
-export async function markFullPassDone(accountId) {
+// walk: { count, newestTs } of the Breez store at the end of that full pass,
+// used by the history diff to detect rows Breez inserted below known ones.
+export async function markFullPassDone(accountId, walk) {
   const marker = await getMigrationMarker(accountId);
-  if (marker.fullPassDone) return;
   marker.fullPassDone = true;
+  marker.fullWalk = walk;
   await setLocalStorageItem(markerKey(accountId), JSON.stringify(marker));
 }
 

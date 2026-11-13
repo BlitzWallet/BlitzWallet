@@ -86,10 +86,32 @@ const lightningTag = (invoice, name) => {
 };
 
 // Payment by Breez id, else by payment hash (stored as the invoice's id).
-async function findPayment(h, id) {
-  const p = await h.getPayment(id);
+// Breez reports a missing payment as a storage error, not invalidInput: native
+// "Query returned no rows", web "Payment with id '<id>' not found". Matched
+// exactly so another storage fault never reads as "payment absent".
+const isMissingPayment = e => {
+  const c = classifyBreezError(e);
+  return (
+    c.kind === 'storage' &&
+    /Query returned no rows|Payment with id '[^']*' not found/.test(c.message)
+  );
+};
+
+// sinceSecs: invoice creation time. Incoming invoices are looked up by payment
+// hash, so scan every receive since then rather than a fixed recent page.
+async function findPayment(h, id, sinceSecs) {
+  let p = null;
+  try {
+    p = await h.getPayment(id);
+  } catch (e) {
+    if (!isMissingPayment(e)) throw e;
+  }
   if (p || !/^[0-9a-f]{64}$/i.test(String(id))) return p;
-  const recent = await h.listPayments({ limit: 200 });
+  const recent = await h.listPayments(
+    sinceSecs != null
+      ? { typeFilter: ['receive'], fromTimestamp: sinceSecs }
+      : { limit: 200 },
+  );
   return recent.find(x => x.details?.htlcDetails?.paymentHash === id) || null;
 }
 
@@ -239,10 +261,10 @@ export const sendNWCSparkLightningPayment = async ({ invoice, amountSats }) => {
   }
 };
 
-const paymentStatus = async id => {
+const paymentStatus = async (id, sinceSecs) => {
   try {
     const paymentResponse = await withNwcWallet(async h => {
-      const p = await findPayment(h, id);
+      const p = await findPayment(h, id, sinceSecs);
       if (!p) throw new Error('Payment not found');
       return { id: p.id, status: p.status, paymentPreimage: preimageOf(p) };
     });
@@ -255,8 +277,12 @@ const paymentStatus = async id => {
 
 export const NWCSparkLightningPaymentStatus = paymentStatus;
 // An unpaid incoming invoice has no SDK payment yet: report it as pending.
-export const getNWCLightningReceiveRequest = async id => {
-  const res = await paymentStatus(id);
+// createdAtMs: the stored invoice created_at; 60s slack for clock skew.
+export const getNWCLightningReceiveRequest = async (id, createdAtMs) => {
+  const res = await paymentStatus(
+    id,
+    createdAtMs ? Math.floor(createdAtMs / 1000) - 60 : undefined,
+  );
   if (!res.didWork && res.error === 'Payment not found')
     return { didWork: true, paymentResponse: { status: 'pending' } };
   return res;
