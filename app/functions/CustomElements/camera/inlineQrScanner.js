@@ -7,7 +7,7 @@ import {
 } from 'react-native-vision-camera';
 import useQrScannerOutput from '../../../hooks/useQrScannerOutput';
 import { useFocusEffect } from '@react-navigation/native';
-import NoContentScreen from '../noContentScreen';
+import CameraUnavailable from './cameraUnavailable';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
@@ -81,17 +81,19 @@ export default function InlineQrScanner({
 
   if (!hasPermission) {
     return (
-      <NoContentScreen
-        iconName="Camera"
-        titleText={t('wallet.cameraModal.noCamera')}
-        subTitleText={
+      <CameraUnavailable
+        inline
+        title={t('wallet.cameraModal.noCamera')}
+        sub={
           showPermissionRetry
             ? t('wallet.cameraModal.permissionDismissed')
             : t('wallet.cameraModal.settingsText')
         }
-        showButton={showPermissionRetry}
-        buttonText={t('wallet.cameraModal.allowCamera')}
-        buttonFunction={requestPermission}
+        buttonText={
+          showPermissionRetry ? t('wallet.cameraModal.allowCamera') : ''
+        }
+        onPress={requestPermission}
+        iconTone="secondary"
       />
     );
   }
@@ -100,23 +102,24 @@ export default function InlineQrScanner({
   // whose getUserMedia asks again.
   if (status === 'busy') {
     return (
-      <NoContentScreen
-        iconName="Camera"
-        titleText={t('wallet.cameraModal.cameraBusy')}
-        subTitleText={t('wallet.cameraModal.cameraBusySub')}
-        showButton={true}
+      <CameraUnavailable
+        inline
+        title={t('wallet.cameraModal.cameraBusy')}
+        sub={t('wallet.cameraModal.cameraBusySub')}
         buttonText={t('constants.tryAgain')}
-        buttonFunction={requestPermission}
+        onPress={requestPermission}
+        iconTone="secondary"
       />
     );
   }
 
   if (device == null) {
     return (
-      <NoContentScreen
-        iconName="Camera"
-        titleText={t('wallet.cameraPage.noCameraDevice')}
-        subTitleText={t('wallet.cameraPage.noCameraDeviceSub')}
+      <CameraUnavailable
+        inline
+        title={t('wallet.cameraPage.noCameraDevice')}
+        sub={t('wallet.cameraPage.noCameraDeviceSub')}
+        iconTone="secondary"
       />
     );
   }

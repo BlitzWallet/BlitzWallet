@@ -19,7 +19,6 @@ import {
   or,
   orderBy,
   deleteDoc,
-  increment,
   updateDoc,
   runTransaction,
   serverTimestamp,
@@ -27,7 +26,6 @@ import {
   onSnapshot,
   deleteField,
 } from '@react-native-firebase/firestore';
-import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
@@ -220,26 +218,6 @@ export async function isUniqueNameAvailable(uid, lower) {
     return false;
   }
 }
-
-const saveToLocalDB = async dataObject => {
-  try {
-    const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
-    let userData = existingData ? JSON.parse(existingData) : {};
-
-    // Merge new data with existing local user data
-    userData = { ...userData, ...dataObject };
-
-    // Save back to AsyncStorage
-    await setLocalStorageItem(
-      LOCAL_STORED_USER_DATA_KEY,
-      JSON.stringify(userData),
-    );
-    return true;
-  } catch (error) {
-    console.error('Error writing document:', error);
-    throw error;
-  }
-};
 
 export async function getDataFromCollection(collectionName, uuid) {
   try {

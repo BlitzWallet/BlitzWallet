@@ -299,16 +299,19 @@ function sasCellLabel(t, idx, row, column) {
   return label.join(', ');
 }
 
-export default function SasPatternGrid({ sas, cellSize = 74 }) {
+// `fill`: full-width 3×3 of white r20 tiles, 96 high, 40 pt shapes
+// (audit/design OnboardingMore Verify pattern). cellSize is ignored.
+export default function SasPatternGrid({ sas, cellSize = 74, fill = false }) {
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, tokens } = GetThemeColors();
   const chars = String(sas || '').split('');
-  const shapeSize = Math.round(cellSize * 0.6);
+  const shapeSize = fill ? 40 : Math.round(cellSize * 0.6);
+  const cellBackground = fill ? tokens.surface : backgroundOffset;
 
   return (
-    <View style={styles.grid}>
+    <View style={fill ? styles.gridFill : styles.grid}>
       {[0, 3, 6].map((rowStart, row) => (
-        <View key={rowStart} style={styles.row}>
+        <View key={rowStart} style={[styles.row, fill && styles.rowFill]}>
           {chars.slice(rowStart, rowStart + 3).map((char, i) => {
             // Fail closed: only 0-t are valid shape indices. Anything else
             // renders a blank cell — visibly wrong — instead of defaulting to
@@ -321,11 +324,10 @@ export default function SasPatternGrid({ sas, cellSize = 74 }) {
                 accessibilityLabel={sasCellLabel(t, idx, row + 1, i + 1)}
                 style={[
                   styles.cell,
-                  {
-                    width: cellSize,
-                    height: cellSize,
-                    backgroundColor: backgroundOffset,
-                  },
+                  fill
+                    ? styles.cellFill
+                    : { width: cellSize, height: cellSize },
+                  { backgroundColor: cellBackground },
                 ]}
               >
                 <Svg width={shapeSize} height={shapeSize} viewBox="0 0 100 100">
@@ -333,8 +335,8 @@ export default function SasPatternGrid({ sas, cellSize = 74 }) {
                     <Shape
                       base={idx >> 1}
                       filled={(idx & 1) === 1}
-                      color={textColor}
-                      bg={backgroundOffset}
+                      color={fill ? tokens.ink : textColor}
+                      bg={cellBackground}
                     />
                   )}
                 </Svg>
@@ -357,6 +359,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
+  gridFill: { gap: 10 },
+  rowFill: { gap: 10 },
+  cellFill: { flex: 1, minHeight: 96, borderRadius: 20 },
   cell: {
     borderRadius: 16,
     alignItems: 'center',

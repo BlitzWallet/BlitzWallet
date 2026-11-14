@@ -10,8 +10,6 @@ import LoginSecurity from './loginSecurity';
 import BlitzSocialOptions from './socialOptions';
 import PosSettingsPage from './posPath/settings';
 import FastPay from './fastPay';
-import ViewPOSTransactions from './posPath/transactions';
-import TotalTipsScreen from './posPath/totalTipsScreen';
 import CrashReportingSettingsPage from './crashReporting';
 import SparkInfo from './sparkInfo';
 import NotificationPreferances from './notifications';
@@ -19,7 +17,7 @@ import BlitzFeeInformation from './feeInformation';
 import CreateCustodyAccounts from './accounts';
 import ViewSwapsHome from './viewAllSwapsHome';
 import SpendAndReplace from './spendAndReplace';
-import WalletLeaves from './leaves';
+import SdkLogs from './sdkLogs';
 
 export {
   AboutPage,
@@ -35,13 +33,11 @@ export {
   ViewSwapsHome,
   PosSettingsPage,
   FastPay,
-  ViewPOSTransactions,
-  TotalTipsScreen,
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
   SparkInfo,
   NotificationPreferances,
   BlitzFeeInformation,
   SpendAndReplace,
-  WalletLeaves,
+  SdkLogs,
 };

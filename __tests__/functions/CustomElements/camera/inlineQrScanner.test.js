@@ -80,11 +80,11 @@ jest.mock('../../../../app/constants', () => ({
   SIZES: { smedium: 14 },
 }));
 
-jest.mock('../../../../app/functions/CustomElements/noContentScreen', () => {
+jest.mock('../../../../app/functions/CustomElements/camera/cameraUnavailable', () => {
   const R = require('react');
   return {
     __esModule: true,
-    default: props => R.createElement('MockNoContentScreen', props),
+    default: props => R.createElement('MockCameraUnavailable', props),
   };
 });
 
@@ -205,15 +205,15 @@ describe('inlineQrScanner — permission fallbacks', () => {
     mockHasAttemptedPermission = true;
     const renderer = renderScanner();
 
-    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    const screens = renderer.root.findAllByType('MockCameraUnavailable');
     expect(screens).toHaveLength(1);
-    expect(screens[0].props.showButton).toBe(true);
+    expect(!!screens[0].props.buttonText).toBe(true);
     expect(screens[0].props.buttonText).toBe('wallet.cameraModal.allowCamera');
-    expect(screens[0].props.subTitleText).toBe(
+    expect(screens[0].props.sub).toBe(
       'wallet.cameraModal.permissionDismissed',
     );
 
-    act(() => screens[0].props.buttonFunction());
+    act(() => screens[0].props.onPress());
     expect(mockRequestPermission).toHaveBeenCalled();
   });
 
@@ -226,8 +226,8 @@ describe('inlineQrScanner — permission fallbacks', () => {
     mockHasAttemptedPermission = undefined;
     const renderer = renderScanner();
 
-    const screens = renderer.root.findAllByType('MockNoContentScreen');
-    expect(screens[0].props.showButton).toBe(true);
+    const screens = renderer.root.findAllByType('MockCameraUnavailable');
+    expect(!!screens[0].props.buttonText).toBe(true);
     expect(screens[0].props.buttonText).toBe('wallet.cameraModal.allowCamera');
   });
 
@@ -237,16 +237,16 @@ describe('inlineQrScanner — permission fallbacks', () => {
     const renderer = renderScanner();
 
     expect(renderer.root.findAllByType('MockCamera')).toHaveLength(0);
-    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    const screens = renderer.root.findAllByType('MockCameraUnavailable');
     expect(screens).toHaveLength(1);
-    expect(screens[0].props.titleText).toBe('wallet.cameraModal.cameraBusy');
-    expect(screens[0].props.subTitleText).toBe(
+    expect(screens[0].props.title).toBe('wallet.cameraModal.cameraBusy');
+    expect(screens[0].props.sub).toBe(
       'wallet.cameraModal.cameraBusySub',
     );
-    expect(screens[0].props.showButton).toBe(true);
+    expect(!!screens[0].props.buttonText).toBe(true);
     expect(screens[0].props.buttonText).toBe('constants.tryAgain');
 
-    act(() => screens[0].props.buttonFunction());
+    act(() => screens[0].props.onPress());
     expect(mockRequestPermission).toHaveBeenCalled();
   });
 
@@ -256,21 +256,21 @@ describe('inlineQrScanner — permission fallbacks', () => {
     mockHasAttemptedPermission = true;
     const renderer = renderScanner();
 
-    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    const screens = renderer.root.findAllByType('MockCameraUnavailable');
     expect(screens).toHaveLength(1);
-    expect(screens[0].props.titleText).toBe('wallet.cameraModal.noCamera');
-    expect(screens[0].props.subTitleText).toBe(
+    expect(screens[0].props.title).toBe('wallet.cameraModal.noCamera');
+    expect(screens[0].props.sub).toBe(
       'wallet.cameraModal.settingsText',
     );
-    expect(screens[0].props.showButton).toBe(false);
+    expect(!!screens[0].props.buttonText).toBe(false);
   });
 
   test('no back device renders the noCameraDevice NoContentScreen', () => {
     mockDevice = null;
     const renderer = renderScanner();
 
-    const screens = renderer.root.findAllByType('MockNoContentScreen');
+    const screens = renderer.root.findAllByType('MockCameraUnavailable');
     expect(screens).toHaveLength(1);
-    expect(screens[0].props.titleText).toBe('wallet.cameraPage.noCameraDevice');
+    expect(screens[0].props.title).toBe('wallet.cameraPage.noCameraDevice');
   });
 });

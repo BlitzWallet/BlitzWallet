@@ -1,0 +1,43 @@
+diff --git a/node_modules/@breeztech/breez-sdk-spark-react-native/lib/module/generated/breez_sdk_spark.js b/node_modules/@breeztech/breez-sdk-spark-react-native/lib/module/generated/breez_sdk_spark.js
+--- a/node_modules/@breeztech/breez-sdk-spark-react-native/lib/module/generated/breez_sdk_spark.js
++++ b/node_modules/@breeztech/breez-sdk-spark-react-native/lib/module/generated/breez_sdk_spark.js
+@@ -169,7 +169,7 @@
+ const FfiConverterTypeEventListener=new FfiConverterCallback();// Put the implementation in a struct so we don't pollute the top-level namespace
+ const uniffiCallbackInterfaceLogger={// Create the VTable using a series of closures.
+ // ts automatically converts these into C callback functions.
+-vtable:{log:(uniffiHandle,l)=>{const uniffiMakeCall=()=>{const jsCallback=FfiConverterTypeLogger.lift(uniffiHandle);return jsCallback.log(FfiConverterTypeLogEntry.lift(l));};const uniffiResult=UniffiResult.ready();const uniffiHandleSuccess=obj=>{};const uniffiHandleError=(code,errBuf)=>{UniffiResult.writeError(uniffiResult,code,errBuf);};uniffiTraitInterfaceCall(/*makeCall:*/uniffiMakeCall,/*handleSuccess:*/uniffiHandleSuccess,/*handleError:*/uniffiHandleError,/*lowerString:*/FfiConverterString.lower);return uniffiResult;},uniffiFree:uniffiHandle=>{// Logger: this will throw a stale handle error if the handle isn't found.
++vtable:{log:(uniffiHandle,l)=>{const uniffiMakeCall=()=>{let jsCallback;try{jsCallback=FfiConverterTypeLogger.lift(uniffiHandle);}catch(e){return;}/* stale handle after a same-process JS reload: drop the line, an error here aborts the app (panic=abort) */return jsCallback.log(FfiConverterTypeLogEntry.lift(l));};const uniffiResult=UniffiResult.ready();const uniffiHandleSuccess=obj=>{};const uniffiHandleError=(code,errBuf)=>{UniffiResult.writeError(uniffiResult,code,errBuf);};uniffiTraitInterfaceCall(/*makeCall:*/uniffiMakeCall,/*handleSuccess:*/uniffiHandleSuccess,/*handleError:*/uniffiHandleError,/*lowerString:*/FfiConverterString.lower);return uniffiResult;},uniffiFree:uniffiHandle=>{// Logger: this will throw a stale handle error if the handle isn't found.
+ FfiConverterTypeLogger.drop(uniffiHandle);}},register:()=>{nativeModule().ubrn_uniffi_breez_sdk_spark_fn_init_callback_vtable_logger(uniffiCallbackInterfaceLogger.vtable);}};// FfiConverter protocol for callback interfaces
+ const FfiConverterTypeLogger=new FfiConverterCallback();/**
+  * Request to add a new contact.
+diff --git a/node_modules/@breeztech/breez-sdk-spark-react-native/lib/commonjs/generated/breez_sdk_spark.js b/node_modules/@breeztech/breez-sdk-spark-react-native/lib/commonjs/generated/breez_sdk_spark.js
+--- a/node_modules/@breeztech/breez-sdk-spark-react-native/lib/commonjs/generated/breez_sdk_spark.js
++++ b/node_modules/@breeztech/breez-sdk-spark-react-native/lib/commonjs/generated/breez_sdk_spark.js
+@@ -169,7 +169,7 @@
+ const FfiConverterTypeEventListener=new _uniffiBindgenReactNative.FfiConverterCallback();// Put the implementation in a struct so we don't pollute the top-level namespace
+ const uniffiCallbackInterfaceLogger={// Create the VTable using a series of closures.
+ // ts automatically converts these into C callback functions.
+-vtable:{log:(uniffiHandle,l)=>{const uniffiMakeCall=()=>{const jsCallback=FfiConverterTypeLogger.lift(uniffiHandle);return jsCallback.log(FfiConverterTypeLogEntry.lift(l));};const uniffiResult=_uniffiBindgenReactNative.UniffiResult.ready();const uniffiHandleSuccess=obj=>{};const uniffiHandleError=(code,errBuf)=>{_uniffiBindgenReactNative.UniffiResult.writeError(uniffiResult,code,errBuf);};(0,_uniffiBindgenReactNative.uniffiTraitInterfaceCall)(/*makeCall:*/uniffiMakeCall,/*handleSuccess:*/uniffiHandleSuccess,/*handleError:*/uniffiHandleError,/*lowerString:*/FfiConverterString.lower);return uniffiResult;},uniffiFree:uniffiHandle=>{// Logger: this will throw a stale handle error if the handle isn't found.
++vtable:{log:(uniffiHandle,l)=>{const uniffiMakeCall=()=>{let jsCallback;try{jsCallback=FfiConverterTypeLogger.lift(uniffiHandle);}catch(e){return;}/* stale handle after a same-process JS reload: drop the line, an error here aborts the app (panic=abort) */return jsCallback.log(FfiConverterTypeLogEntry.lift(l));};const uniffiResult=_uniffiBindgenReactNative.UniffiResult.ready();const uniffiHandleSuccess=obj=>{};const uniffiHandleError=(code,errBuf)=>{_uniffiBindgenReactNative.UniffiResult.writeError(uniffiResult,code,errBuf);};(0,_uniffiBindgenReactNative.uniffiTraitInterfaceCall)(/*makeCall:*/uniffiMakeCall,/*handleSuccess:*/uniffiHandleSuccess,/*handleError:*/uniffiHandleError,/*lowerString:*/FfiConverterString.lower);return uniffiResult;},uniffiFree:uniffiHandle=>{// Logger: this will throw a stale handle error if the handle isn't found.
+ FfiConverterTypeLogger.drop(uniffiHandle);}},register:()=>{(0,_breez_sdk_sparkFfi.default)().ubrn_uniffi_breez_sdk_spark_fn_init_callback_vtable_logger(uniffiCallbackInterfaceLogger.vtable);}};// FfiConverter protocol for callback interfaces
+ const FfiConverterTypeLogger=new _uniffiBindgenReactNative.FfiConverterCallback();/**
+  * Request to add a new contact.
+diff --git a/node_modules/@breeztech/breez-sdk-spark-react-native/src/generated/breez_sdk_spark.ts b/node_modules/@breeztech/breez-sdk-spark-react-native/src/generated/breez_sdk_spark.ts
+--- a/node_modules/@breeztech/breez-sdk-spark-react-native/src/generated/breez_sdk_spark.ts
++++ b/node_modules/@breeztech/breez-sdk-spark-react-native/src/generated/breez_sdk_spark.ts
+@@ -879,7 +879,14 @@
+   vtable: {
+     log: (uniffiHandle: bigint, l: Uint8Array) => {
+       const uniffiMakeCall = (): void => {
+-        const jsCallback = FfiConverterTypeLogger.lift(uniffiHandle);
++        // Stale handle after a same-process JS reload: drop the line. An error
++        // here makes Rust panic, and panic=abort kills the app.
++        let jsCallback: Logger;
++        try {
++          jsCallback = FfiConverterTypeLogger.lift(uniffiHandle);
++        } catch (e) {
++          return;
++        }
+         return jsCallback.log(FfiConverterTypeLogEntry.lift(l));
+       };
+       const uniffiResult = UniffiResult.ready<void>();

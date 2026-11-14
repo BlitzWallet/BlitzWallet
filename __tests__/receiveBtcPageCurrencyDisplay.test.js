@@ -89,10 +89,6 @@ jest.mock('../context-store/nodeContext', () => ({
   useNodeContext: () => ({ fiatStats: mockFiatStats }),
 }));
 
-jest.mock('../context-store/webViewContext', () => ({
-  useWebView: () => ({ sendWebViewRequest: jest.fn() }),
-}));
-
 jest.mock('../context-store/theme', () => ({
   useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
 }));
@@ -179,6 +175,7 @@ jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   backgroundColor: '#ffffff',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../app/functions/CustomElements', () => {
@@ -200,16 +197,6 @@ jest.mock(
       const MockReact = require('react');
       const RN = require('react-native');
       return MockReact.createElement(RN.View, null);
-    },
-);
-
-jest.mock(
-  '../app/functions/CustomElements/QrWrapper',
-  () =>
-    function MockQrCodeWrapper({ QRData }) {
-      const MockReact = require('react');
-      const RN = require('react-native');
-      return MockReact.createElement(RN.Text, null, QRData);
     },
 );
 

@@ -5,6 +5,7 @@ import { COLORS, ICONS, USDB_TOKEN_ID } from '../../../../../constants';
 import ContactProfileImage from '../../contacts/internalComponents/profileImage';
 import { getPhonePaymentDisplay } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import i18next from 'i18next';
+import ContactAvatar from '../../contacts/internalComponents/contactAvatar';
 
 // LNURL/lightning-address domain → ICONS key for the provider brand logo. When a
 // domain matches, the logo conveys the provider so we drop the "@host" and show
@@ -71,6 +72,8 @@ export function resolveRecipientDisplay({
     return {
       kind: 'contact',
       displayName: contactName,
+      address: lnurlAddress,
+      uuid: contactInfo?.uuid,
       imageUri: contactInfo.imageData?.localUri,
       imageUpdated: contactInfo.imageData?.updated,
     };
@@ -146,13 +149,7 @@ export function resolveRecipientDisplay({
 // Renders the circular avatar for a resolved recipient: branta/contact profile
 // image, provider brand logo, mobile-money country flag, or the standard user-icon
 // fallback for plain lightning addresses.
-export function RecipientAvatar({
-  resolved,
-  theme,
-  darkModeType,
-  size = 40,
-  backgroundColor,
-}) {
+export function RecipientAvatar({ resolved, size = 40, backgroundColor }) {
   const isProvider = resolved?.kind === 'provider';
   const circle = [
     styles.circle,
@@ -163,9 +160,9 @@ export function RecipientAvatar({
   if (resolved?.kind === 'phone') {
     return (
       <View style={circle}>
-        {/* The flag renders 1.6x wider than `size`, so scale it to fit the
-        circle's diameter instead of getting cropped by the border radius. */}
-        <CountryFlag isoCode={resolved.isoCode} size={Math.round(size / 1.6)} />
+        {/* Fill the circle like the mobile-money country list: the flag's
+        height matches the diameter (+1 hides edge seams) and its sides crop. */}
+        <CountryFlag isoCode={resolved.isoCode} size={size + 1} />
       </View>
     );
   }
@@ -213,10 +210,7 @@ export function RecipientAvatar({
         style={[
           circle,
           {
-            backgroundColor:
-              theme && darkModeType
-                ? backgroundColor
-                : COLORS[isDollar ? 'dollarGreen' : 'bitcoinOrange'],
+            backgroundColor: COLORS[isDollar ? 'dollarGreen' : 'bitcoinOrange'],
           },
         ]}
       >
@@ -229,15 +223,26 @@ export function RecipientAvatar({
     );
   }
 
-  // branta / contact / lightning fallback all go through ContactProfileImage,
+  if (resolved?.kind === 'contact') {
+    return (
+      <ContactAvatar
+        name={resolved.displayName}
+        seed={resolved.uuid}
+        uri={resolved?.imageUri}
+        updated={resolved?.imageUpdated}
+        address={resolved?.address}
+        size={size}
+      />
+    );
+  }
+
+  // branta / lightning fallback all go through ContactProfileImage,
   // which renders the user-icon fallback when there is no uri.
   return (
     <View style={circle}>
       <ContactProfileImage
         uri={resolved?.imageUri}
         updated={resolved?.imageUpdated}
-        darkModeType={darkModeType}
-        theme={theme}
       />
     </View>
   );

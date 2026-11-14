@@ -49,7 +49,7 @@ final class NwcWallet {
       request: ReceivePaymentRequest(
         paymentMethod: .bolt11Invoice(
           description: description, amountSats: amountSats, expirySecs: expirySeconds,
-          paymentHash: nil, receiverIdentityPublicKey: nil))
+          paymentHash: nil, receiverIdentityPublicKey: nil, preimage: nil))
     ).paymentRequest
   }
 

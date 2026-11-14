@@ -23,7 +23,6 @@ export async function payPOSLNURL({
   description,
   sparkInformation,
   currentWalletMnemoinc,
-  sendWebViewRequest,
 }) {
   try {
     // Parse the LNURL address first as it's needed for all payment methods
@@ -49,7 +48,6 @@ export async function payPOSLNURL({
       fee: 0,
       description: '',
       mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
     });
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
 
@@ -69,7 +67,6 @@ export async function payPOSLNURL({
       sparkInformation,
       userBalance: sparkInformation.balance,
       mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');
@@ -103,7 +100,6 @@ export async function payPOSContact({
   // webViewRef,
   sparkInformation,
   currentWalletMnemoinc,
-  sendWebViewRequest,
 }) {
   try {
     const address = blitzContact.contacts.myProfile.sparkAddress;
@@ -116,7 +112,6 @@ export async function payPOSContact({
       fee: 0,
       description: '',
       mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
     });
 
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
@@ -137,7 +132,6 @@ export async function payPOSContact({
       sparkInformation,
       userBalance: sparkInformation.balance,
       mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');

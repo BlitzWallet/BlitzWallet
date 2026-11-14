@@ -10,7 +10,6 @@ import {
   addDataToCollection,
   getDataFromCollection,
   getSingleContact,
-  syncDatabasePayment,
 } from '../db';
 import {
   decryptMessage,

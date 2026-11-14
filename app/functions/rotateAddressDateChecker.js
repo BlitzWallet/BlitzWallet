@@ -1,23 +1,3 @@
-function isMoreThan7DaysPast(date) {
-  // Get today's date and set time to midnight for accurate comparison
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Set the time of the input date to midnight for accurate comparison
-  const inputDate = new Date(date);
-  inputDate.setHours(0, 0, 0, 0);
-
-  // Calculate the difference in time between today and the input date
-  const timeDifference = today - inputDate;
-
-  // Convert the time difference from milliseconds to days
-  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
-
-  // Return true if the difference is greater than 7 days
-
-  return daysDifference > 7;
-}
-
 function getCurrentDateFormatted() {
   const today = new Date();
 
@@ -49,33 +29,6 @@ function isMoreThanADayOld(date) {
   // Return true if the difference is greater than 1 days
 
   return daysDifference > 1;
-}
-function isMoreThan21Days(date) {
-  try {
-    // Get today's date and set time to midnight for accurate comparison
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Set the time of the input date to midnight for accurate comparison
-    const inputDate = new Date(date);
-    inputDate.setHours(0, 0, 0, 0);
-
-    // Calculate the difference in time between today and the input date
-    const timeDifference = today - inputDate;
-
-    // Convert the time difference from milliseconds to days
-    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
-
-    // Return true if the difference is greater than 7 days
-
-    if (isNaN(daysDifference)) {
-      return true;
-    }
-
-    return daysDifference > 21;
-  } catch (err) {
-    return true;
-  }
 }
 function isMoreThan40MinOld(date) {
   try {
@@ -112,29 +65,6 @@ function getTwoWeeksAgoDate() {
 
   return twoWeeksAgoTimestamp;
 }
-const formatDateToDayMonthYearTime = timestamp => {
-  const date = new Date(timestamp);
-  const location = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
-  return new Intl.DateTimeFormat(location, {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  }).format(date);
-};
-
-const formatDateToDayMonthYear = timestamp => {
-  const date = new Date(timestamp);
-  const location = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
-  return new Intl.DateTimeFormat(location, {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-};
 
 const isNewDaySince = lastDate => {
   const now = new Date();
@@ -144,14 +74,10 @@ const isNewDaySince = lastDate => {
 };
 
 export {
-  isMoreThan7DaysPast,
   getCurrentDateFormatted,
   isMoreThanADayOld,
-  isMoreThan21Days,
   isMoreThan40MinOld,
   getDateXDaysAgo,
   getTwoWeeksAgoDate,
-  formatDateToDayMonthYearTime,
-  formatDateToDayMonthYear,
   isNewDaySince,
 };

@@ -15,16 +15,10 @@ import {
   getSingleTxDetails,
   getSparkLightningPaymentStatus,
   initializeFlashnet,
-  selectSparkRuntime,
   sendSparkTokens,
-  validateWebViewResponse,
 } from '.';
 import { getPublicKey } from 'nostr-tools';
 import i18next from 'i18next';
-import {
-  OPERATION_TYPES,
-  sendWebViewRequestGlobal,
-} from '../../../context-store/webViewContext';
 import {
   FLASHNET_ERROR_CODE_REGEX,
   FLASHNET_REFUND_REGEX,
@@ -35,10 +29,7 @@ import {
   setFlashnetTransfer,
 } from './handleFlashnetTransferIds';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
-import {
-  bulkUpdateSparkTransactions,
-  getSingleSparkLightningRequest,
-} from './transactions';
+import { bulkUpdateSparkTransactions } from './transactions';
 import { decode } from '../decodeBolt11';
 import fetchBackend from '../../../db/handleBackend';
 import { privateKeyFromSeedWords } from '../nostrCompatability';
@@ -174,48 +165,33 @@ export const findBestPool = async (
   options = {},
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
+    console.log(client, tokenAAddress, tokenBAddress);
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.findBestPool,
-        {
-          mnemonic,
+    const pools = await client.listPools({
+      assetAAddress: tokenAAddress,
+      assetBAddress: tokenBAddress,
+      sort: 'TVL_DESC', // Prefer highest TVL (best liquidity)
+      minTvl: options.minTvl || 1000,
+      limit: options.limit || 10,
+    });
+    console.log(pools, 'test');
+
+    if (!pools.pools || pools.pools.length === 0) {
+      throw new Error(
+        i18next.t('screens.inAccount.swapsPage.noPoolsFoundError', {
           tokenAAddress,
           tokenBAddress,
-          options,
-        },
+        }),
       );
-      return validateWebViewResponse(response, 'Not able to find best pool');
-    } else {
-      const client = getFlashnetClient(mnemonic);
-      console.log(client, tokenAAddress, tokenBAddress);
-
-      const pools = await client.listPools({
-        assetAAddress: tokenAAddress,
-        assetBAddress: tokenBAddress,
-        sort: 'TVL_DESC', // Prefer highest TVL (best liquidity)
-        minTvl: options.minTvl || 1000,
-        limit: options.limit || 10,
-      });
-      console.log(pools, 'test');
-
-      if (!pools.pools || pools.pools.length === 0) {
-        throw new Error(
-          i18next.t('screens.inAccount.swapsPage.noPoolsFoundError', {
-            tokenAAddress,
-            tokenBAddress,
-          }),
-        );
-      }
-
-      // Return the best pool (highest TVL)
-      return {
-        didWork: true,
-        pool: pools.pools[0],
-        totalAvailable: pools.totalCount,
-      };
     }
+
+    // Return the best pool (highest TVL)
+    return {
+      didWork: true,
+      pool: pools.pools[0],
+      totalAvailable: pools.totalCount,
+    };
   } catch (error) {
     const formatted = formatError(error, 'findBestPool');
     console.warn('Find best pool error:', formatError(error, 'findBestPool'));
@@ -238,36 +214,23 @@ export const findBestPool = async (
  */
 export const getPoolDetails = async (mnemonic, poolId) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
+    const pool = await client.getPool(poolId);
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.getPoolDetails,
-        {
-          mnemonic,
-          poolId,
+    return {
+      didWork: true,
+      pool,
+      marketData: {
+        tvl: pool.tvlAssetB,
+        volume24h: pool.volume24hAssetB,
+        priceChange24h: pool.priceChangePercent24h,
+        currentPrice: pool.currentPriceAInB,
+        reserves: {
+          assetA: pool.assetAReserve,
+          assetB: pool.assetBReserve,
         },
-      );
-      return validateWebViewResponse(response, 'Not able to get pool detials');
-    } else {
-      const client = getFlashnetClient(mnemonic);
-      const pool = await client.getPool(poolId);
-
-      return {
-        didWork: true,
-        pool,
-        marketData: {
-          tvl: pool.tvlAssetB,
-          volume24h: pool.volume24hAssetB,
-          priceChange24h: pool.priceChangePercent24h,
-          currentPrice: pool.currentPriceAInB,
-          reserves: {
-            assetA: pool.assetAReserve,
-            assetB: pool.assetBReserve,
-          },
-        },
-      };
-    }
+      },
+    };
   } catch (error) {
     console.warn(
       'Get pool details error:',
@@ -289,36 +252,23 @@ export const getPoolDetails = async (mnemonic, poolId) => {
  */
 export const listAllPools = async (mnemonic, filters = {}) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.listAllPools,
-        {
-          mnemonic,
-          filters,
-        },
-      );
-      return validateWebViewResponse(response, 'Not able to list all pools');
-    } else {
-      const client = getFlashnetClient(mnemonic);
+    const response = await client.listPools({
+      minTvl: filters.minTvl || 0,
+      minVolume24h: filters.minVolume24h || 0,
+      sort: filters.sort || 'TVL_DESC',
+      limit: filters.limit || 50,
+      offset: filters.offset || 0,
+      hostNames: filters.hostNames,
+      curveTypes: filters.curveTypes,
+    });
 
-      const response = await client.listPools({
-        minTvl: filters.minTvl || 0,
-        minVolume24h: filters.minVolume24h || 0,
-        sort: filters.sort || 'TVL_DESC',
-        limit: filters.limit || 50,
-        offset: filters.offset || 0,
-        hostNames: filters.hostNames,
-        curveTypes: filters.curveTypes,
-      });
-
-      return {
-        didWork: true,
-        pools: response.pools,
-        totalCount: response.totalCount,
-      };
-    }
+    return {
+      didWork: true,
+      pools: response.pools,
+      totalCount: response.totalCount,
+    };
   } catch (error) {
     console.warn('List pools error:', formatError(error, 'listAllPools'));
     return {
@@ -337,28 +287,15 @@ export const listAllPools = async (mnemonic, filters = {}) => {
  */
 export const minFlashnetSwapAmounts = async (mnemonic, assetHex) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
+    const minMap = await client.getMinAmountsMap();
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.minFlashnetSwapAmounts,
-        { mnemonic, assetHex },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to get min flashnet swap limits',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
-      const minMap = await client.getMinAmountsMap();
+    const assetData = minMap.get(assetHex.toLowerCase());
 
-      const assetData = minMap.get(assetHex.toLowerCase());
-
-      return {
-        didWork: true,
-        assetData: assetData,
-      };
-    }
+    return {
+      didWork: true,
+      assetData: assetData,
+    };
   } catch (error) {
     console.warn(
       'List pools error:',
@@ -393,45 +330,26 @@ export const simulateSwap = async (
   },
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.simulateSwap,
-        {
-          mnemonic,
-          poolId,
-          assetInAddress,
-          assetOutAddress,
-          amountIn,
-          integratorFeeRateBps,
-        },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to simulate flashnet swap',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
+    const client = getFlashnetClient(mnemonic);
 
-      const simulation = await client.simulateSwap({
-        poolId,
-        assetInAddress,
-        assetOutAddress,
-        amountIn: amountIn.toString(),
-        integratorBps: integratorFeeRateBps,
-      });
+    const simulation = await client.simulateSwap({
+      poolId,
+      assetInAddress,
+      assetOutAddress,
+      amountIn: amountIn.toString(),
+      integratorBps: integratorFeeRateBps,
+    });
 
-      return {
-        didWork: true,
-        simulation: {
-          expectedOutput: simulation.amountOut,
-          executionPrice: simulation.executionPrice,
-          priceImpact: simulation.priceImpactPct,
-          poolId: simulation.poolId,
-          feePaidAssetIn: simulation.feePaidAssetIn,
-        },
-      };
-    }
+    return {
+      didWork: true,
+      simulation: {
+        expectedOutput: simulation.amountOut,
+        executionPrice: simulation.executionPrice,
+        priceImpact: simulation.priceImpactPct,
+        poolId: simulation.poolId,
+        feePaidAssetIn: simulation.feePaidAssetIn,
+      },
+    };
   } catch (error) {
     console.warn('Simulate swap error:', formatError(error, 'simulateSwap'));
     return {
@@ -441,6 +359,11 @@ export const simulateSwap = async (
     };
   }
 };
+
+const SWAP_IN_FLIGHT_MS = 120000;
+let lastSwapStartedAt = 0;
+export const isSwapInFlight = () =>
+  Date.now() - lastSwapStartedAt < SWAP_IN_FLIGHT_MS;
 
 /**
  * Execute a token swap with slippage protection
@@ -461,75 +384,51 @@ export const executeSwap = async (
   },
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.executeSwap,
-        {
-          mnemonic,
-          poolId,
-          assetInAddress,
-          assetOutAddress,
-          amountIn,
-          minAmountOut,
-          maxSlippageBps,
-          integratorFeeRateBps,
-        },
-      );
-      if (!response.didWork) {
-        if (assetInAddress === BTC_ASSET_ADDRESS) {
-          const id = getRefundTxidFromErrormessage(response.error);
-          if (id) {
-            setFlashnetTransfer(id);
-          }
-        }
-        const error = formatAndReturnWebviewError(response);
-        return error;
-      }
-      return validateWebViewResponse(response, 'Not able to executeSwap');
-    } else {
-      const client = getFlashnetClient(mnemonic);
+    const client = getFlashnetClient(mnemonic);
 
-      // Simulate first if minAmountOut not provided
-      let calculatedMinOut = minAmountOut;
-      if (!calculatedMinOut) {
-        const simulation = await client.simulateSwap({
-          poolId,
-          assetInAddress,
-          assetOutAddress,
-          amountIn: amountIn.toString(),
-          integratorBps: integratorFeeRateBps,
-        });
-        calculatedMinOut = calculateMinOutput(
-          simulation.amountOut,
-          maxSlippageBps,
-        );
-      }
-
-      // Execute the swap
-      const swap = await client.executeSwap({
+    // Simulate first if minAmountOut not provided
+    let calculatedMinOut = minAmountOut;
+    if (!calculatedMinOut) {
+      const simulation = await client.simulateSwap({
         poolId,
         assetInAddress,
         assetOutAddress,
         amountIn: amountIn.toString(),
-        minAmountOut: calculatedMinOut.toString(),
-        maxSlippageBps,
-        integratorFeeRateBps,
-        integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
+        integratorBps: integratorFeeRateBps,
       });
-
-      return {
-        didWork: true,
-        swap: {
-          amountOut: swap.amountOut,
-          executionPrice: swap.executionPrice,
-          feeAmount: swap.feeAmount,
-          flashnetRequestId: swap.flashnetRequestId,
-          outboundTransferId: swap.outboundTransferId,
-          poolId: swap.poolId,
-        },
-      };
+      calculatedMinOut = calculateMinOutput(
+        simulation.amountOut,
+        maxSlippageBps,
+      );
     }
+
+    // Breez's startup reconcile claws back this identity's old transfers;
+    // the refund monitor stays out of the way while a swap is fresh.
+    lastSwapStartedAt = Date.now();
+
+    // Execute the swap
+    const swap = await client.executeSwap({
+      poolId,
+      assetInAddress,
+      assetOutAddress,
+      amountIn: amountIn.toString(),
+      minAmountOut: calculatedMinOut.toString(),
+      maxSlippageBps,
+      integratorFeeRateBps,
+      integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
+    });
+
+    return {
+      didWork: true,
+      swap: {
+        amountOut: swap.amountOut,
+        executionPrice: swap.executionPrice,
+        feeAmount: swap.feeAmount,
+        flashnetRequestId: swap.flashnetRequestId,
+        outboundTransferId: swap.outboundTransferId,
+        poolId: swap.poolId,
+      },
+    };
   } catch (error) {
     const errorDetails = formatError(error, 'executeSwap');
     console.warn('Execute swap error:', errorDetails);
@@ -554,6 +453,8 @@ export const executeSwap = async (
     return {
       didWork: false,
       error: error.message,
+      ...(error?.outcome && { outcome: error.outcome }),
+      ...(error?.intentId && { intentId: error.intentId }),
       details: errorDetails,
     };
   }
@@ -579,54 +480,27 @@ export const swapBitcoinToToken = async (
   },
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.swapBitcoinToToken,
-        {
-          mnemonic,
-          tokenAddress,
-          amountSats,
-          poolId,
-          maxSlippageBps,
-        },
+    // Find best pool if not provided
+    let targetPoolId = poolId;
+    if (!targetPoolId) {
+      const poolResult = await findBestPool(
+        mnemonic,
+        BTC_ASSET_ADDRESS,
+        tokenAddress,
       );
-
-      if (!response.didWork) {
-        const id = getRefundTxidFromErrormessage(response.error);
-        if (id) {
-          setFlashnetTransfer(id);
-        }
-        const error = formatAndReturnWebviewError(response);
-        return error;
+      if (!poolResult.didWork) {
+        throw new Error('No suitable pool found for BTC/' + tokenAddress);
       }
-      return validateWebViewResponse(
-        response,
-        'Not able to swapBitcoinToToken',
-      );
-    } else {
-      // Find best pool if not provided
-      let targetPoolId = poolId;
-      if (!targetPoolId) {
-        const poolResult = await findBestPool(
-          mnemonic,
-          BTC_ASSET_ADDRESS,
-          tokenAddress,
-        );
-        if (!poolResult.didWork) {
-          throw new Error('No suitable pool found for BTC/' + tokenAddress);
-        }
-        targetPoolId = poolResult.pool.lpPublicKey;
-      }
-
-      return await executeSwap(mnemonic, {
-        poolId: targetPoolId,
-        assetInAddress: BTC_ASSET_ADDRESS,
-        assetOutAddress: tokenAddress,
-        amountIn: amountSats,
-        maxSlippageBps,
-      });
+      targetPoolId = poolResult.pool.lpPublicKey;
     }
+
+    return await executeSwap(mnemonic, {
+      poolId: targetPoolId,
+      assetInAddress: BTC_ASSET_ADDRESS,
+      assetOutAddress: tokenAddress,
+      amountIn: amountSats,
+      maxSlippageBps,
+    });
   } catch (error) {
     console.warn(
       'Swap BTC to token error:',
@@ -656,52 +530,27 @@ export const swapTokenToBitcoin = async (
   },
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.swapTokenToBitcoin,
-        {
-          mnemonic,
-          tokenAddress,
-          tokenAmount,
-          poolId,
-          maxSlippageBps,
-        },
+    // Find best pool if not provided
+    let targetPoolId = poolId;
+    if (!targetPoolId) {
+      const poolResult = await findBestPool(
+        mnemonic,
+        tokenAddress,
+        BTC_ASSET_ADDRESS,
       );
-
-      if (!response.didWork) {
-        const error = formatAndReturnWebviewError(response);
-        return error;
+      if (!poolResult.didWork) {
+        throw new Error('No suitable pool found for ' + tokenAddress + '/BTC');
       }
-      return validateWebViewResponse(
-        response,
-        'Not able to swapTokenToBitcoin',
-      );
-    } else {
-      // Find best pool if not provided
-      let targetPoolId = poolId;
-      if (!targetPoolId) {
-        const poolResult = await findBestPool(
-          mnemonic,
-          tokenAddress,
-          BTC_ASSET_ADDRESS,
-        );
-        if (!poolResult.didWork) {
-          throw new Error(
-            'No suitable pool found for ' + tokenAddress + '/BTC',
-          );
-        }
-        targetPoolId = poolResult.pool.lpPublicKey;
-      }
-
-      return await executeSwap(mnemonic, {
-        poolId: targetPoolId,
-        assetInAddress: tokenAddress,
-        assetOutAddress: BTC_ASSET_ADDRESS,
-        amountIn: tokenAmount,
-        maxSlippageBps,
-      });
+      targetPoolId = poolResult.pool.lpPublicKey;
     }
+
+    return await executeSwap(mnemonic, {
+      poolId: targetPoolId,
+      assetInAddress: tokenAddress,
+      assetOutAddress: BTC_ASSET_ADDRESS,
+      amountIn: tokenAmount,
+      maxSlippageBps,
+    });
   } catch (error) {
     console.warn(
       'Swap token to BTC error:',
@@ -710,6 +559,8 @@ export const swapTokenToBitcoin = async (
     return {
       didWork: false,
       error: error.message,
+      ...(error?.outcome && { outcome: error.outcome }),
+      ...(error?.intentId && { intentId: error.intentId }),
       details: formatError(error, 'swapTokenToBitcoin'),
     };
   }
@@ -869,7 +720,13 @@ export const payLightningWithToken = async (
     });
 
     if (!tokenPayment.didWork) {
-      throw new Error(tokenPayment.error || 'Unable to send USDB deposit');
+      return {
+        didWork: false,
+        error: tokenPayment.error || 'Unable to send USDB deposit',
+        outcome: tokenPayment.outcome,
+        intentId: tokenPayment.intentId,
+        details: { operation: 'payLightningWithToken' },
+      };
     }
 
     const sparkTxHash = tokenPayment.response;
@@ -940,38 +797,22 @@ export const payLightningWithToken = async (
  */
 export const getUserSwapHistory = async (mnemonic, limit = 50, offset) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.getUserSwapHistory,
-        {
-          mnemonic,
-          limit,
-          offset,
-        },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to getUserSwapHistory',
-      );
+    const client = getFlashnetClient(mnemonic);
+
+    let result;
+    if (offset) {
+      result = await client.getUserSwaps(undefined, { limit, offset });
     } else {
-      const client = getFlashnetClient(mnemonic);
-
-      let result;
-      if (offset) {
-        result = await client.getUserSwaps(undefined, { limit, offset });
-      } else {
-        result = await client.getUserSwaps(undefined, { limit });
-      }
-
-      console.log('User swap history response:', result);
-
-      return {
-        didWork: true,
-        swaps: result.swaps || [],
-        totalCount: result.totalCount || 0,
-      };
+      result = await client.getUserSwaps(undefined, { limit });
     }
+
+    console.log('User swap history response:', result);
+
+    return {
+      didWork: true,
+      swaps: result.swaps || [],
+      totalCount: result.totalCount || 0,
+    };
   } catch (error) {
     console.warn(
       'Get swap history error:',
@@ -1583,29 +1424,6 @@ const getRefundTxidFromErrormessage = message => {
   }
 };
 
-/**
- * Format and return errormessage from webview
- * @param {Object} error - The error to check
- * @returns {Object} error response
- */
-
-const formatAndReturnWebviewError = receivedError => {
-  try {
-    if (receivedError.formatted) {
-      console.log(receivedError.formatted.errorCode);
-      const error = handleFlashnetError(receivedError.formatted);
-
-      return {
-        didWork: false,
-        error: receivedError.error,
-        details: error,
-      };
-    }
-  } catch (err) {
-    console.log('error getting txid from error message', err);
-  }
-};
-
 // ============================================
 // MANUAL CLAWBACK & RECOVERY
 // ============================================
@@ -1623,47 +1441,37 @@ export const requestManualClawback = async (
   poolId,
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.requestClawback,
-        { mnemonic, sparkTransferId, poolId },
-      );
-      return validateWebViewResponse(response, 'Not able to request clawback');
+    console.log({
+      sparkTransferId,
+      poolId,
+    });
+    const result = await client.clawback({
+      sparkTransferId,
+      lpIdentityPublicKey: poolId,
+    });
+
+    if (!result || result.error) {
+      return {
+        didWork: false,
+        error: result?.error || 'Clawback request failed',
+      };
+    }
+
+    if (result.accepted) {
+      return {
+        didWork: true,
+        accepted: true,
+        message: 'Clawback request accepted',
+        internalRequestId: result.internalRequestId,
+      };
     } else {
-      const client = getFlashnetClient(mnemonic);
-
-      console.log({
-        sparkTransferId,
-        poolId,
-      });
-      const result = await client.clawback({
-        sparkTransferId,
-        lpIdentityPublicKey: poolId,
-      });
-
-      if (!result || result.error) {
-        return {
-          didWork: false,
-          error: result?.error || 'Clawback request failed',
-        };
-      }
-
-      if (result.accepted) {
-        return {
-          didWork: true,
-          accepted: true,
-          message: 'Clawback request accepted',
-          internalRequestId: result.internalRequestId,
-        };
-      } else {
-        return {
-          didWork: false,
-          accepted: false,
-          error: result.error || 'Clawback request rejected by pool',
-        };
-      }
+      return {
+        didWork: false,
+        accepted: false,
+        error: result.error || 'Clawback request rejected by pool',
+      };
     }
   } catch (error) {
     console.warn(
@@ -1686,39 +1494,26 @@ export const requestManualClawback = async (
  */
 export const checkClawbackEligibility = async (mnemonic, sparkTransferId) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.checkClawbackEligibility,
-        { mnemonic, sparkTransferId },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to checkClawbackEligibility',
-      );
+    const eligibility = await client.checkClawbackEligibility({
+      sparkTransferId,
+    });
+
+    if (eligibility.accepted) {
+      console.log('Transfer is eligible for clawback');
+      return {
+        didWork: true,
+        error: null,
+        response: true,
+      };
     } else {
-      const client = getFlashnetClient(mnemonic);
-
-      const eligibility = await client.checkClawbackEligibility({
-        sparkTransferId,
-      });
-
-      if (eligibility.accepted) {
-        console.log('Transfer is eligible for clawback');
-        return {
-          didWork: true,
-          error: null,
-          response: true,
-        };
-      } else {
-        console.log('Cannot clawback:', eligibility.error);
-        return {
-          didWork: true,
-          error: eligibility.error,
-          response: false,
-        };
-      }
+      console.log('Cannot clawback:', eligibility.error);
+      return {
+        didWork: true,
+        error: eligibility.error,
+        response: false,
+      };
     }
   } catch (error) {
     console.warn(
@@ -1741,26 +1536,13 @@ export const checkClawbackEligibility = async (mnemonic, sparkTransferId) => {
  */
 export const requestBatchClawback = async (mnemonic, transferIds, poolId) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
+    const result = await client.clawbackMultiple(transferIds, poolId);
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.requestBatchClawback,
-        { mnemonic, transferIds, poolId },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to check clawback status',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
-      const result = await client.clawbackMultiple(transferIds, poolId);
-
-      return {
-        didWork: true,
-        result,
-      };
-    }
+    return {
+      didWork: true,
+      result,
+    };
   } catch (error) {
     console.warn(
       'Batch clawback error:',
@@ -1785,26 +1567,13 @@ export const listClawbackableTransfers = async (
   offset,
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
+    const client = getFlashnetClient(mnemonic);
+    const resposne = await client.listClawbackableTransfers({ limit });
 
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.listClawbackableTransfers,
-        { mnemonic, limit },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to listClawbackableTransfers',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
-      const resposne = await client.listClawbackableTransfers({ limit });
-
-      return {
-        didWork: true,
-        resposne: resposne,
-      };
-    }
+    return {
+      didWork: true,
+      resposne: resposne,
+    };
   } catch (error) {
     console.warn(
       'Check clawback status error:',

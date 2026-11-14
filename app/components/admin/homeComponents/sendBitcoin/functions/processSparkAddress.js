@@ -21,7 +21,6 @@ export default async function processSparkAddress(input, context) {
     fiatStats,
     seletctedToken,
     currentWalletMnemoinc,
-    sendWebViewRequest,
     sparkInformation,
     t,
     usablePaymentMethod,
@@ -206,7 +205,6 @@ export default async function processSparkAddress(input, context) {
             amountSats: Math.round(amountMsat / (isLRC20 ? 1 : 1000)),
             masterInfoObject,
             mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
           }).then(result => ({ type: 'btcFee', result })),
         );
       }

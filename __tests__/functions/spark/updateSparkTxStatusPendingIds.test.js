@@ -18,10 +18,6 @@ jest.mock('../../../app/functions/spark', () => ({
   sparkPaymentType: jest.fn(),
 }));
 
-jest.mock('@buildonspark/spark-sdk/types', () => ({
-  LightningSendRequestStatus: {},
-  SparkCoopExitRequestStatus: {},
-}));
 
 jest.mock('../../../app/constants', () => ({
   IS_BITCOIN_REQUEST_ID: /^btc/,

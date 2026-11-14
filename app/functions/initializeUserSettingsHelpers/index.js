@@ -5,7 +5,6 @@ import {
 } from '../../constants';
 import { BLITZ_FEE_PERCET, BLITZ_FEE_SATS } from '../../constants/math';
 import { getMultipleItems } from '../localStorage';
-import { isNewDaySince } from '../rotateAddressDateChecker';
 import { getLastStatsUpdateUtcMs } from '../timeFormatter';
 
 const keys = [

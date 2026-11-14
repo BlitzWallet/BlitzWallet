@@ -163,21 +163,6 @@ jest.mock(
 );
 
 jest.mock(
-  '../app/functions/CustomElements/currencySwitchButton',
-  () =>
-    function MockCurrencySwitchButton({ displayCurrency, onPress }) {
-      const MockReact = require('react');
-      const { Text, TouchableOpacity } = require('react-native');
-
-      return MockReact.createElement(
-        TouchableOpacity,
-        { testID: 'currency-switch', onPress },
-        MockReact.createElement(Text, null, displayCurrency),
-      );
-    },
-);
-
-jest.mock(
   '../app/functions/CustomElements/searchInput',
   () =>
     function MockCustomSearchInput({

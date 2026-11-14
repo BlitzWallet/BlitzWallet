@@ -30,7 +30,6 @@ import {
 
 import { GlobalContextProvider } from './context-store/context';
 
-import { WebViewProvider } from './context-store/webViewContext';
 import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
@@ -104,8 +103,8 @@ import { InsetsProvider } from './context-store/insetsProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider } from './context-store/toastManager';
 import { ToastContainer } from './context-store/toastContainer';
+import ShareTouchBlocker from './app/functions/CustomElements/shareTouchBlocker';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
-import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
@@ -153,36 +152,34 @@ function App(): JSX.Element {
                           <GlobalContactsList>
                             <GlobalContextProvider>
                               <ActiveCustodyAccountProvider>
-                                <WebViewProvider>
-                                  <SparkWalletProvider>
-                                    <GLobalNodeContextProider>
-                                      <GlobalAppDataProvider>
-                                        <PushNotificationProvider>
-                                          <LiquidEventProvider>
-                                            <RootstockSwapProvider>
-                                              <ImageCacheProvider>
-                                                <GlobalServerTimeProvider>
-                                                  <FlashnetProvider>
-                                                    <UserBalanceProvider>
-                                                      <AnalyticsNumbersProvider>
-                                                        <SpendAndReplaceProvider>
-                                                          {/* <Suspense
+                                <SparkWalletProvider>
+                                  <GLobalNodeContextProider>
+                                    <GlobalAppDataProvider>
+                                      <PushNotificationProvider>
+                                        <LiquidEventProvider>
+                                          <RootstockSwapProvider>
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                <FlashnetProvider>
+                                                  <UserBalanceProvider>
+                                                    <AnalyticsNumbersProvider>
+                                                      <SpendAndReplaceProvider>
+                                                        {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                          <ResetStack />
-                                                        </SpendAndReplaceProvider>
-                                                      </AnalyticsNumbersProvider>
-                                                    </UserBalanceProvider>
-                                                  </FlashnetProvider>
-                                                  {/* </Suspense> */}
-                                                </GlobalServerTimeProvider>
-                                              </ImageCacheProvider>
-                                            </RootstockSwapProvider>
-                                          </LiquidEventProvider>
-                                        </PushNotificationProvider>
-                                      </GlobalAppDataProvider>
-                                    </GLobalNodeContextProider>
-                                  </SparkWalletProvider>
-                                </WebViewProvider>
+                                                        <ResetStack />
+                                                      </SpendAndReplaceProvider>
+                                                    </AnalyticsNumbersProvider>
+                                                  </UserBalanceProvider>
+                                                </FlashnetProvider>
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                          </RootstockSwapProvider>
+                                        </LiquidEventProvider>
+                                      </PushNotificationProvider>
+                                    </GlobalAppDataProvider>
+                                  </GLobalNodeContextProider>
+                                </SparkWalletProvider>
                               </ActiveCustodyAccountProvider>
                             </GlobalContextProvider>
                           </GlobalContactsList>
@@ -879,7 +876,7 @@ function ResetStack(): JSX.Element | null {
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <ToastContainer />
-      <SparkConnectionManager />
+      <ShareTouchBlocker />
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Splash"

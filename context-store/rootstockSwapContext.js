@@ -1,12 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { Platform } from 'react-native';
+import React, { createContext, useMemo } from 'react';
 
 // import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
 // import {

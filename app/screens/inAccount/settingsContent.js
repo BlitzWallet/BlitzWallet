@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   AboutPage,
   LoginSecurity,
@@ -16,29 +16,69 @@ import {
   NotificationPreferances,
   BlitzFeeInformation,
   ViewSwapsHome,
-  WalletLeaves,
+  SdkLogs,
 } from '../../components/admin/homeComponents/settingsContent';
-import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { EditMyProfilePage } from '../../components/admin';
 
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 import { useTranslation } from 'react-i18next';
 import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
 
 export default function SettingsContentIndex(props) {
-  const navigate = useNavigation();
-
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
 
   const extraData = props?.route?.params?.extraData;
+
+  const page = selectedPage?.toLowerCase();
+  const isChunk19Page =
+    page === 'display currency' ||
+    page === 'language' ||
+    page === 'display options' ||
+    page === 'fast pay' ||
+    page === 'spend and replace' ||
+    page === 'notifications';
+
+  if (isChunk19Page) {
+    return (
+      <>
+        {page === 'display currency' && <FiatCurrencyPage theme={theme} />}
+        {page === 'language' && <ChooseLangugae />}
+        {page === 'display options' && <DisplayOptions theme={theme} />}
+        {page === 'fast pay' && <FastPay />}
+        {page === 'spend and replace' && <SpendAndReplace />}
+        {page === 'notifications' && <NotificationPreferances />}
+      </>
+    );
+  }
+
+  const isChunk21Page =
+    page === 'spark info' ||
+    page === 'crash reports' ||
+    page === 'about' ||
+    page === 'blitz fee details' ||
+    page === 'blitz stats';
+
+  if (isChunk21Page) {
+    return (
+      <>
+        {page === 'spark info' && <SparkInfo />}
+        {page === 'crash reports' && <CrashReportingSettingsPage />}
+        {page === 'about' && <AboutPage />}
+        {page === 'blitz fee details' && <BlitzFeeInformation />}
+        {page === 'blitz stats' && <ExploreUsers />}
+      </>
+    );
+  }
 
   return (
     <>
@@ -47,7 +87,7 @@ export default function SettingsContentIndex(props) {
       selectedPage?.toLowerCase() === 'edit contact profile' ||
       selectedPage?.toLowerCase() === 'accounts' ||
       selectedPage?.toLowerCase() === 'viewallswaps' ||
-      selectedPage?.toLowerCase() === 'wallet leaves' ? (
+      selectedPage?.toLowerCase() === 'logs' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -67,27 +107,27 @@ export default function SettingsContentIndex(props) {
               swapType={props?.route?.params?.swapType}
             />
           )}
-          {selectedPage?.toLowerCase() === 'wallet leaves' && <WalletLeaves />}
+          {selectedPage?.toLowerCase() === 'logs' && <SdkLogs />}
         </>
       ) : (
         <GlobalThemeView useStandardWidth={true}>
-          <CustomSettingsTopBar
-            label={t(
-              `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
-            )}
-          />
-          <View style={styles.largeDeviceWrapper}>
-            {selectedPage?.toLowerCase() === 'about' && (
-              <AboutPage theme={theme} />
-            )}
-            {selectedPage?.toLowerCase() === 'language' && <ChooseLangugae />}
+          <View style={[styles.largeDeviceWrapper, { width: contentWidth }]}>
+            <TopBar
+              title={
+                selectedPage?.toLowerCase() === 'backup wallet'
+                  ? ''
+                  : selectedPage?.toLowerCase() === 'show seed phrase' &&
+                    extraData?.mnemonic
+                  ? t('settings.seedPhrase.accountTitle')
+                  : t(
+                      `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
+                    )
+              }
+            />
 
             {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />
             )} */}
-            {selectedPage?.toLowerCase() === 'display options' && (
-              <DisplayOptions theme={theme} />
-            )}
             {/* {selectedPage?.toLowerCase() === 'support our work' && (
               <SupportWorkPage />
             )} */}
@@ -95,21 +135,6 @@ export default function SettingsContentIndex(props) {
             {/* {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )} */}
-
-            {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
-            {selectedPage?.toLowerCase() === 'spend and replace' && (
-              <SpendAndReplace />
-            )}
-            {selectedPage?.toLowerCase() === 'blitz fee details' && (
-              <BlitzFeeInformation />
-            )}
-            {selectedPage?.toLowerCase() === 'crash reports' && (
-              <CrashReportingSettingsPage />
-            )}
-            {selectedPage?.toLowerCase() === 'notifications' && (
-              <NotificationPreferances />
-            )}
-            {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
             {selectedPage?.toLowerCase() === 'nostr' && (
               <NostrHome theme={theme} />
@@ -127,9 +152,6 @@ export default function SettingsContentIndex(props) {
             )}
             {selectedPage?.toLowerCase() === 'show seed phrase' && (
               <SeedPhrasePage extraData={extraData} theme={theme} />
-            )}
-            {selectedPage?.toLowerCase() === 'spark info' && (
-              <SparkInfo theme={theme} />
             )}
 
             {/* {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />} */}

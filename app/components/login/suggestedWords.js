@@ -21,7 +21,7 @@ export default function SuggestedWordContainer({
   setInputedKey,
   keyRefs,
 }) {
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, tokens } = GetThemeColors();
   const searchingWord = inputedKey[`key${selectedKey}`] || '';
   const [debouncedSearchword, setDebouncedSearchWord] = useState('');
   const searchTrackerRef = useRef(null);
@@ -171,7 +171,11 @@ export default function SuggestedWordContainer({
     );
   };
 
-  return <View style={styles.wordsContainer}>{renderSuggestions()}</View>;
+  return (
+    <View style={[styles.wordsContainer, { backgroundColor: tokens.surface }]}>
+      {renderSuggestions()}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -186,7 +190,6 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
   },
   wordsContainer: {
-    backgroundColor: COLORS.darkModeText,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
@@ -199,7 +202,6 @@ const styles = StyleSheet.create({
   keyElementText: {
     textTransform: 'capitalize',
     fontSize: SIZES.large,
-    color: COLORS.lightModeText,
     includeFontPadding: false,
   },
 });

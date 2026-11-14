@@ -1,82 +1,52 @@
-// Web only: the single place a tab lands when another tab owns the wallet.
+// Web only: shown when another tab of this browser owns the wallet database.
 // Reached at boot (App.tsx, displaced or takeover timed out) and from the
 // loading screen on a tab conflict. "Use here" reloads as a normal tab, which
 // takes over and sends the other tab here.
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-
 import { GlobalThemeView, ThemeText } from '../functions/CustomElements';
 import CustomButton from '../functions/CustomElements/button';
-import IconActionCircle from '../functions/CustomElements/actionCircleContainer';
-import { CENTER, SIZES } from '../constants';
-import { WINDOWWIDTH } from '../constants/theme';
-import { useGlobalThemeContext } from '../../context-store/theme';
-import GetThemeColors from '../hooks/themeColors';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../constants';
+import { useTheme } from '../../context-store/theme';
 import { takeOverFromOtherTab } from '../functions/webDatabaseOwnership';
+import Disc from '../functions/CustomElements/redesign/Disc';
 
 export default function TabInUse() {
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const { tokens } = useTheme();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.contentContainer}>
-        <ThemeText
-          styles={styles.header}
-          content={t('tabInUse.title', 'Blitz is open in another tab')}
-        />
-        <ThemeText
-          styles={styles.description}
-          content={t(
-            'tabInUse.description',
-            'Your wallet can only be open in one tab at a time. Use it here to close it in the other tab.',
-          )}
-        />
-        <View style={styles.iconContainer}>
-          <IconActionCircle
-            customBackgroundColor={
-              theme && darkModeType ? backgroundOffset : 'rgba(3,117,246,0.1)'
-            }
-            icon={'AppWindow'}
-            size={130}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <View style={styles.centered}>
+          <Disc icon="AppWindow" size={88} iconSize={36} tone="whiteAccent" />
+          <ThemeText
+            variant="title"
+            styles={styles.title}
+            content={t('tabInUse.title')}
+          />
+          <ThemeText
+            variant="body"
+            styles={[styles.subtitle, { color: tokens.muted }]}
+            content={t('tabInUse.description')}
           />
         </View>
-        <View style={styles.buttonContainer}>
-          <CustomButton
-            textContent={t('tabInUse.button', 'Use here')}
-            actionFunction={takeOverFromOtherTab}
-          />
-        </View>
+        <CustomButton
+          textContent={t('tabInUse.button', 'Use here')}
+          actionFunction={takeOverFromOtherTab}
+          size={'regular'}
+        />
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    flex: 1,
-    width: WINDOWWIDTH,
-    ...CENTER,
-  },
-  header: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  description: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-  },
-  iconContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    marginTop: 'auto',
-    width: '100%',
-  },
+  container: { flex: 1, ...CENTER },
+  // Disc top sits 220 pt from the screen top (54 pt of it is the top inset).
+  centered: { flex: 1, alignItems: 'center', paddingTop: 166 },
+  title: { marginTop: 28, textAlign: 'center' },
+  subtitle: { marginTop: 8, textAlign: 'center' },
 });

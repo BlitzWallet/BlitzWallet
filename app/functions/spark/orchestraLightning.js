@@ -90,11 +90,11 @@ export function isUsableOrchestraQuote(quote) {
 }
 
 export function isOrchestraSwapFailed(tx) {
-  let details;
-  try {
-    details = JSON.parse(tx.details);
-  } catch {
-    details = tx.details;
+  let details = tx?.details;
+  if (typeof details === 'string') {
+    try {
+      details = JSON.parse(details);
+    } catch {}
   }
 
   return (

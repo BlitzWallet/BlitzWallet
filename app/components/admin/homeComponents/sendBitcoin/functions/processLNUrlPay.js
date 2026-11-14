@@ -23,6 +23,7 @@ import {
   PROVIDER_COUNTRY_CURRENCY,
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
+import getLNURLDetails from '../../../../../functions/lnurl/getLNURLDetails';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -33,7 +34,6 @@ export default async function processLNUrlPay(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     t,
-    sendWebViewRequest,
     fromPage,
     contactInfo,
     globalContactsInformation,
@@ -41,7 +41,6 @@ export default async function processLNUrlPay(input, context) {
     bitcoinBalance,
     dollarBalanceSat,
     convertedSendAmount,
-    min_usd_swap_amount,
     poolInfoRef,
     contactsPrivateKey,
     publicKey,
@@ -79,11 +78,43 @@ export default async function processLNUrlPay(input, context) {
     !!input.data.minSendable &&
     input.data.minSendable === input.data.maxSendable;
 
-  const enteredAmount = enteredPaymentInfo.amount
+  // Surface any LNURL-advertised currency + the phone-payment provider country so
+  // the send screen can default the amount input to the local fiat currency.
+  const lnurlCurrency = normalizeLNURLCurrency(input.data);
+  const phonePaymentCountry = getPhonePaymentCountry(input.data.address);
+
+  let enteredAmount = enteredPaymentInfo.amount
     ? enteredPaymentInfo.amount * 1000
     : isFixedAmount
     ? input.data.minSendable
     : convertedSendAmount * 1000;
+  let isRequoted = false;
+
+  // Amount typed in the provider's own currency (e.g. zapremit PHP): the
+  // provider credits floor(sats / its live rate), and that rate moves by the
+  // minute. Re-quote now, right before the invoice is minted, and round up so
+  // the recipient gets at least what was typed.
+  if (
+    comingFromAccept &&
+    lnurlCurrency &&
+    enteredPaymentInfo.displayDenomination === 'fiat' &&
+    enteredPaymentInfo.displayCurrency?.toUpperCase() === lnurlCurrency.code &&
+    Number(enteredPaymentInfo.displayAmount) > 0
+  ) {
+    const fresh = normalizeLNURLCurrency(
+      (await getLNURLDetails(input.data.address)) || {},
+    );
+    const { multiplier, decimals } =
+      fresh?.code === lnurlCurrency.code ? fresh : lnurlCurrency;
+    enteredAmount =
+      Math.ceil(
+        (Number(enteredPaymentInfo.displayAmount) *
+          Math.pow(10, decimals) *
+          multiplier) /
+          1000,
+      ) * 1000;
+    isRequoted = true;
+  }
 
   const amountMsat =
     comingFromAccept || paymentInfo.sendAmount || isFixedAmount
@@ -120,11 +151,6 @@ export default async function processLNUrlPay(input, context) {
     // malformed JSON, default stays []
   }
 
-  // Surface any LNURL-advertised currency + the phone-payment provider country so
-  // the send screen can default the amount input to the local fiat currency.
-  const lnurlCurrency = normalizeLNURLCurrency(input.data);
-  const phonePaymentCountry = getPhonePaymentCountry(input.data.address);
-
   // For phone-number payments whose LNURL advertises no usable rate, the send
   // screen switches the input to the provider country's local fiat currency and
   // fetches that rate, surfacing a loading state on the input page. Warm the
@@ -143,9 +169,19 @@ export default async function processLNUrlPay(input, context) {
         ).catch(() => {})
       : null;
 
-  const preEstimatedInvoiceData = enteredPaymentInfo?.lnInvoiceData ?? null;
-  const preEstimatedSwapQuote = enteredPaymentInfo?.swapQuote ?? null;
-  const preEstimatedBtcFee = enteredPaymentInfo?.lnFeeEstimate ?? null;
+  // A contact send may carry an invoice (and its fee quotes) minted while the
+  // amount was typed, at that moment's provider rate. After a re-quote, mint a
+  // fresh one so the provider credits at the rate just used.
+  const isPreEstimateStale = isRequoted;
+  const preEstimatedInvoiceData = isPreEstimateStale
+    ? null
+    : enteredPaymentInfo?.lnInvoiceData ?? null;
+  const preEstimatedSwapQuote = isPreEstimateStale
+    ? null
+    : enteredPaymentInfo?.swapQuote ?? null;
+  const preEstimatedBtcFee = isPreEstimateStale
+    ? null
+    : enteredPaymentInfo?.lnFeeEstimate ?? null;
 
   if (comingFromAccept || paymentInfo.sendAmount || isFixedAmount) {
     // Use invoice pre-fetched during fee estimation to avoid a duplicate network call.
@@ -272,7 +308,6 @@ export default async function processLNUrlPay(input, context) {
           paymentType: !!decoded.data.usingSparkAddress ? 'spark' : 'lightning',
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
         }),
       );
     }
@@ -349,7 +384,7 @@ export default async function processLNUrlPay(input, context) {
 
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
-      ? enteredPaymentInfo.amount
+      ? enteredAmount / 1000 // the re-quoted amount when it was re-quoted above
       : masterInfoObject.userBalanceDenomination != 'fiat'
       ? amountSat
       : canEditPayment

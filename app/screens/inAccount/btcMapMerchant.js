@@ -9,17 +9,13 @@ import {
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, COLORS, ICONS, SIZES } from '../../constants';
-import { useGlobalThemeContext } from '../../../context-store/theme';
+import { FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
-import ThemeImage from '../../functions/CustomElements/themeImage';
-import AdaptiveButtonRow from '../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import Skeleton from '../../functions/CustomElements/redesign/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 
@@ -30,8 +26,7 @@ export default function BTCMapMerchantContent({
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
   const { getPlaceDetail } = useBTCMap();
   const { t } = useTranslation();
 
@@ -49,7 +44,7 @@ export default function BTCMapMerchantContent({
 
   useEffect(() => {
     const contactRows = [phone, website, email].filter(Boolean).length;
-    setContentHeight(425 + contactRows * 48);
+    setContentHeight(444 + contactRows * 52);
   }, [setContentHeight, phone, website, email]);
 
   useEffect(() => {
@@ -83,42 +78,69 @@ export default function BTCMapMerchantContent({
   const payBTN = t('screens.btcMap.merchant.pay');
 
   if (detailLoading) {
-    return <FullLoadingScreen showText={false} />;
+    // Hero, contact lines and the two action buttons as grey placeholders.
+    return (
+      <View style={styles.content}>
+        <View style={styles.scrollView}>
+          <Skeleton>
+            <View style={styles.hero}>
+              <View style={styles.skeletonIcon} />
+              <View style={styles.skeletonName} />
+              <View style={styles.skeletonAddress} />
+            </View>
+          </Skeleton>
+          <View
+            style={[styles.contactSection, { backgroundColor: tokens.ground }]}
+          >
+            <Skeleton>
+              {[0, 1].map(key => (
+                <View key={key} style={styles.contactRow}>
+                  <View style={styles.skeletonContactIcon} />
+                  <View style={styles.skeletonContactText} />
+                </View>
+              ))}
+            </Skeleton>
+          </View>
+        </View>
+        <View style={styles.actionRow}>
+          <Skeleton>
+            <View style={styles.skeletonButton} />
+            <View style={styles.skeletonButton} />
+          </Skeleton>
+        </View>
+      </View>
+    );
   }
 
   return (
     <View style={styles.content}>
       <CustomScrollView
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-          ]}
-        >
-          <ThemeIcon size={25} iconName={getBtcMapIcon(place?.icon)} />
-        </View>
-        <ThemeText content={name} styles={styles.name} />
-        {!!address && (
-          <View style={styles.addressBlock}>
-            <ThemeText content={address} styles={styles.addressLine} />
+        <View style={styles.hero}>
+          <View
+            style={[styles.iconContainer, { backgroundColor: tokens.disc }]}
+          >
+            <ThemeIcon
+              redesign
+              size={24}
+              iconName={getBtcMapIcon(place?.icon)}
+            />
           </View>
-        )}
+          <ThemeText content={name} styles={styles.name} />
+          {!!address && (
+            <ThemeText
+              content={address}
+              styles={[styles.addressLine, { color: tokens.muted }]}
+            />
+          )}
+        </View>
 
         {hasContact && (
           <View
-            style={[
-              styles.contactSection,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
+            style={[styles.contactSection, { backgroundColor: tokens.ground }]}
           >
             {[
               {
@@ -143,153 +165,167 @@ export default function BTCMapMerchantContent({
             ]
               .filter(item => item.value)
               .map((item, index, arr) => (
-                <TouchableOpacity
-                  key={item.icon}
-                  style={[
-                    styles.contactRow,
-                    index < arr.length - 1 && styles.contactSeparator,
-                  ]}
-                  onPress={item.onPress}
-                  activeOpacity={0.6}
-                >
-                  <ThemeIcon
-                    iconName={item.icon}
-                    size={18}
-                    // styles={{opacity: 0.6}}
-                  />
-                  <ThemeText
-                    content={item.value}
-                    styles={styles.contactText}
-                    numberOfLines={1}
-                  />
-                  <ThemeIcon
-                    iconName="ChevronRight"
-                    size={16}
-                    styles={{ opacity: 0.35 }}
-                  />
-                </TouchableOpacity>
+                <React.Fragment key={item.icon}>
+                  <TouchableOpacity
+                    style={styles.contactRow}
+                    onPress={item.onPress}
+                    activeOpacity={0.6}
+                  >
+                    <ThemeIcon
+                      redesign
+                      iconName={item.icon}
+                      size={18}
+                      colorOverride={tokens.muted}
+                    />
+                    <ThemeText
+                      content={item.value}
+                      styles={[styles.contactText, { color: tokens.ink }]}
+                      CustomNumberOfLines={1}
+                    />
+                    <ThemeIcon
+                      redesign
+                      iconName="ArrowUpRight"
+                      size={16}
+                      colorOverride={tokens.muted}
+                    />
+                  </TouchableOpacity>
+                  {index < arr.length - 1 && (
+                    <View
+                      style={[
+                        styles.contactSeparator,
+                        { backgroundColor: tokens.divider },
+                      ]}
+                    />
+                  )}
+                </React.Fragment>
               ))}
           </View>
         )}
       </CustomScrollView>
-      <AdaptiveButtonRow
-        labels={[directionsBTN, payBTN]}
-        containerStyle={styles.actionRow}
-      >
-        {({ buttonStyle }) => (
-          <>
-            <CustomButton
-              buttonStyles={[
-                styles.actionBtn,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-                buttonStyle,
-              ]}
-              textStyles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-              }}
-              enableElipsis={false}
-              textContent={directionsBTN}
-              actionFunction={handleDirections}
-            />
-            <CustomButton
-              buttonStyles={[
-                styles.actionBtn,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-                buttonStyle,
-              ]}
-              textStyles={{
-                color:
-                  theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText,
-              }}
-              enableElipsis={false}
-              textContent={payBTN}
-              actionFunction={handlePay}
-            />
-          </>
-        )}
-      </AdaptiveButtonRow>
+      <View style={styles.actionRow}>
+        <CustomButton
+          buttonStyles={[styles.actionBtn, { backgroundColor: tokens.ground }]}
+          textStyles={{ color: tokens.ink }}
+          enableElipsis={false}
+          textContent={directionsBTN}
+          actionFunction={handleDirections}
+          size="regular"
+          tone="secondary"
+        />
+        <CustomButton
+          buttonStyles={[styles.actionBtn, { backgroundColor: tokens.accent }]}
+          textStyles={{ color: tokens.onAccent }}
+          enableElipsis={false}
+          textContent={payBTN}
+          actionFunction={handlePay}
+          size="regular"
+          tone="primary"
+        />
+      </View>
 
       <ThemeText
         content={t('screens.btcMap.merchant.dataMessage', { source })}
-        styles={styles.attribution}
+        styles={[styles.attribution, { color: tokens.muted }]}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { flexGrow: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
+  content: { flex: 1 },
+  scrollView: { flex: 1 },
+  hero: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
   iconContainer: {
-    width: 60,
-    height: 60,
+    width: 64,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
-    marginBottom: 10,
+    borderRadius: 32,
+    marginBottom: 12,
   },
   name: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: 8,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 22,
+    lineHeight: 28,
+    textAlign: 'center',
+    marginBottom: 2,
     includeFontPadding: false,
   },
-  addressBlock: { marginBottom: 20, includeFontPadding: false },
-  addressLine: { fontSize: SIZES.smedium, opacity: 0.5, lineHeight: 22 },
+  addressLine: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+  skeletonIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 12,
+  },
+  skeletonName: { width: 180, height: 22, borderRadius: 11, marginVertical: 3 },
+  skeletonAddress: {
+    width: 240,
+    height: 15,
+    borderRadius: 8,
+    marginTop: 2,
+    marginBottom: 3,
+  },
+  skeletonContactIcon: { width: 18, height: 18, borderRadius: 9 },
+  skeletonContactText: { flex: 1, height: 15, borderRadius: 8 },
+  skeletonButton: {
+    width: '100%',
+    height: 52,
+    borderRadius: 26,
+    marginBottom: 12,
+  },
   contactSection: {
     width: '100%',
-    borderRadius: 14,
+    borderRadius: 20,
     overflow: 'hidden',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    marginTop: 20,
   },
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    minHeight: 52,
+    gap: 12,
   },
   contactSeparator: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(150,150,150,0.15)',
+    height: 1,
+    marginLeft: 30,
   },
   contactText: {
     flex: 1,
-    marginLeft: 12,
-    fontSize: SIZES.smedium,
+    minWidth: 0,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
-  paymentSection: { marginBottom: 28, gap: 16, marginTop: 'auto' },
-  paymentRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  paymentInfo: { flex: 1, marginLeft: 12 },
-  lightningIcon: { width: 15, height: 20 },
-  paymentLabel: { fontWeight: 500, includeFontPadding: false, marginBottom: 2 },
-  paymentDesc: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-    lineHeight: 18,
+  actionRow: {
+    width: '100%',
+    marginTop: 'auto',
+    gap: 12,
   },
-  actionRow: { width: '100%', marginBottom: 15 },
   actionBtn: {
-    flex: 1,
-    height: 52,
-    borderRadius: 26,
+    width: '100%',
+    minHeight: 52,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },
   attribution: {
-    fontSize: SIZES.xSmall,
+    fontFamily: FONT.Title_Regular,
+    fontSize: SIZES.small,
+    lineHeight: 18,
+    marginTop: 12,
     textAlign: 'center',
-    opacity: 0.35,
     includeFontPadding: false,
   },
 });

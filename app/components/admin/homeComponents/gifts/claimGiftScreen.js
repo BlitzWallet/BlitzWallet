@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { deleteGift, getGiftCard } from '../../../../../db';
 import { parseGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
@@ -8,22 +8,27 @@ import { getPublicKey } from 'nostr-tools';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
-  CENTER,
-  SIZES,
+  FONT,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
   WEBSITE_REGEX,
 } from '../../../../constants';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import { useTheme } from '../../../../../context-store/theme';
+import AnimatedStep, {
+  useStepSheetHeight,
+} from '../../../../functions/CustomElements/redesign/AnimatedStep';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import { AssetDisc, SheetResult } from '../savings/savingsSheetParts';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import { giftAsset } from './giftDisplay';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import {
   getSparkPaymentFeeEstimate,
-  initializeSparkWallet,
+  openDerivedWallet,
   sendSparkPayment,
   sendSparkTokens,
   disposeSparkWallet,
@@ -35,17 +40,14 @@ import {
   getGiftByUuid,
   updateGiftLocal,
 } from '../../../../functions/gift/giftsStorage';
-import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
-import { getConfirmTxAnimation } from '../../../../functions/lottieAnimations';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import LottieView from 'lottie-react-native';
 import {
   deriveGiftRestoreKey,
   deriveSparkGiftMnemonic,
 } from '../../../../functions/gift/deriveGiftWallet';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import Spinner from '../../../../functions/CustomElements/redesign/Spinner';
 
 export default function ClaimGiftScreen({
   url,
@@ -53,6 +55,8 @@ export default function ClaimGiftScreen({
   expertMode,
   customGiftIndex,
   handleBackPressFunction,
+  setContentHeight,
+  setDismissLocked,
 }) {
   const { poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
@@ -60,17 +64,17 @@ export default function ClaimGiftScreen({
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = useTheme();
   const [giftDetails, setGiftDetails] = useState({});
   const [isClaiming, setIsClaiming] = useState(false);
   const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const [didClaim, setDidClaim] = useState(false);
-  const animationRef = useRef(null);
+  const [claimedExpert, setClaimedExpert] = useState(null);
   const [claimStatus, setClaimStatus] = useState('');
 
   // Store the initialization promise and result
   const walletInitPromise = useRef(null);
+  const giftSeedRef = useRef(null);
   const walletInitResult = useRef(null);
   const isClaimingRef = useRef(false);
   const denomination = giftDetails?.denomination || 'BTC';
@@ -157,9 +161,10 @@ export default function ClaimGiftScreen({
           : await deriveClaimGiftSeed();
 
       setGiftDetails(details);
+      giftSeedRef.current = details.giftSeed;
 
       // Pre-initialize wallet in background
-      walletInitPromise.current = initializeSparkWallet(details.giftSeed)
+      walletInitPromise.current = openDerivedWallet(details.giftSeed)
         .then(result => {
           walletInitResult.current = result;
           return result;
@@ -241,13 +246,11 @@ export default function ClaimGiftScreen({
         initResult = await walletInitPromise.current;
       }
 
-      if (!initResult) {
-        initResult = await initializeSparkWallet(giftSeed, false, {
-          maxRetries: 4,
-        });
+      if (!initResult?.isConnected) {
+        initResult = await openDerivedWallet(giftSeed);
       }
 
-      if (!initResult) {
+      if (!initResult?.isConnected) {
         throw new Error(
           t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
         );
@@ -259,7 +262,7 @@ export default function ClaimGiftScreen({
   );
 
   const calculatePaymentAmount = useCallback(
-    async (giftSeed, giftAmount) => {
+    async (giftSeed, giftAmount, synced) => {
       const walletBalance = await getBalanceWithStatusRetry(
         giftSeed,
         expertMode ? undefined : giftAmount,
@@ -274,11 +277,30 @@ export default function ClaimGiftScreen({
         : 0;
       const dollarGiftAmount = giftAmount * Math.pow(10, 6);
 
+      const estimateBtcFee = async amount => {
+        // An empty gift must still reach the reclaim branch below.
+        if (!(amount > 0)) return 0;
+        const fee = await getSparkPaymentFeeEstimate(
+          sparkInformation.sparkAddress,
+          amount,
+          giftSeed,
+        );
+        if (!fee.didWork)
+          throw new Error(fee.error || 'Unable to get Spark fee estimation');
+        return fee.response;
+      };
+
       let formattedWalletBalance;
       let fees;
       let fromBalance;
       if (expertMode) {
         if (!bitcoinBalance && !dollarBalance) {
+          // A failed sync can read 0: don't call the gift empty.
+          if (synced === false) {
+            throw new Error(
+              t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
+            );
+          }
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert'),
           );
@@ -287,7 +309,7 @@ export default function ClaimGiftScreen({
         fromBalance = bitcoinBalance ? 'BTC' : 'USD';
         fees = await (denomination === 'USD'
           ? Promise.resolve(0)
-          : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
+          : estimateBtcFee(formattedWalletBalance));
       } else {
         formattedWalletBalance = walletBalance?.didWork
           ? denomination === 'BTC'
@@ -301,7 +323,7 @@ export default function ClaimGiftScreen({
                 ? dollarGiftAmount - formattedWalletBalance
                 : 0,
             )
-          : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
+          : estimateBtcFee(formattedWalletBalance));
         fromBalance = denomination;
       }
 
@@ -309,6 +331,12 @@ export default function ClaimGiftScreen({
         formattedWalletBalance - (fromBalance === 'USD' ? 0 : fees);
 
       if (sendingAmount <= 0) {
+        // A failed sync can read 0: never mark the gift reclaimed on that.
+        if (synced === false) {
+          throw new Error(
+            t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
+          );
+        }
         if (claimType === 'reclaim' && !expertMode) {
           await deleteGift(giftDetails.uuid);
           await updateGiftLocal(giftDetails.uuid, {
@@ -343,6 +371,7 @@ export default function ClaimGiftScreen({
       giftDetails.uuid,
       t,
       denomination,
+      sparkInformation.sparkAddress,
     ],
   );
 
@@ -426,12 +455,13 @@ export default function ClaimGiftScreen({
         t('screens.inAccount.giftPages.claimPage.claimingGiftMessage1'),
       );
 
-      await ensureWalletInitialized(giftDetails.giftSeed);
+      const initResult = await ensureWalletInitialized(giftDetails.giftSeed);
 
       const receivingAddress = sparkInformation.sparkAddress;
       const { sendingAmount, fees, fromBalance } = await calculatePaymentAmount(
         giftDetails.giftSeed,
         denomination === 'BTC' ? giftDetails.amount : giftDetails.dollarAmount,
+        initResult?.synced,
       );
 
       setClaimStatus(
@@ -464,6 +494,12 @@ export default function ClaimGiftScreen({
         fees,
         fromBalance,
       );
+      if (expertMode) {
+        setClaimedExpert({
+          amount: fromBalance === 'USD' ? sendingAmount / 1e6 : sendingAmount,
+          denomination: fromBalance,
+        });
+      }
       setDidClaim(true);
     } catch (err) {
       console.log('Error claiming gift:', err);
@@ -508,195 +544,195 @@ export default function ClaimGiftScreen({
     loadGiftDetails,
   ]);
 
-  useEffect(() => {
-    if (didClaim) {
-      animationRef.current?.play();
-    }
-  }, [didClaim]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      // Pre-initialized gift wallet must not outlive the screen.
+      if (giftSeedRef.current) disposeSparkWallet(giftSeedRef.current);
+      giftSeedRef.current = null;
       walletInitPromise.current = null;
       walletInitResult.current = null;
       isClaimingRef.current = false;
     };
   }, []);
 
-  const confirmAnimation = getConfirmTxAnimation(theme, darkModeType);
+  const isConnected =
+    sparkInformation.identityPubKey && sparkInformation.didConnect;
+  const hasDetails = !!Object.keys(giftDetails).length;
+  const isReclaim = claimType === 'reclaim';
+  const page =
+    !isConnected || !hasDetails
+      ? 'loading'
+      : didClaim
+      ? 'claimed'
+      : isClaiming
+      ? 'claiming'
+      : 'details';
 
-  const containerBackgroundColor = useMemo(() => {
-    return theme && darkModeType ? backgroundColor : backgroundOffset;
-  }, [theme, darkModeType, backgroundColor, backgroundOffset]);
+  // One height for every page: resizing the sheet while a step slides in
+  // leaves the step's touch area out of sync (Accept stopped responding).
+  useStepSheetHeight(setContentHeight, 460);
 
-  if (!sparkInformation.identityPubKey || !sparkInformation.didConnect) {
-    return (
-      <FullLoadingScreen
-        text={t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage')}
-      />
-    );
-  }
+  // Funds are moving: block hardware back and the sheet dismiss.
+  useHandleBackPressNew(isClaiming ? () => true : null);
+  useEffect(() => {
+    setDismissLocked?.(isClaiming);
+    return () => setDismissLocked?.(false);
+  }, [isClaiming, setDismissLocked]);
 
-  if (!Object.keys(giftDetails).length) {
-    return <FullLoadingScreen showText={false} />;
-  }
+  const amountProps = (amount, isUSD) => ({
+    amount,
+    fiatStats,
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: isUSD
+        ? 'fiat'
+        : masterInfoObject.userBalanceDenomination,
+    },
+    forceCurrency: isUSD ? 'USD' : false,
+    convertAmount: !isUSD,
+  });
 
-  if (didClaim) {
-    return (
-      <View style={styles.tempClaimMessageContainer}>
-        <LottieView
-          ref={animationRef}
-          source={confirmAnimation}
-          loop={false}
-          style={styles.lottieView}
-        />
-        <ThemeText
-          styles={styles.confirmMessage}
-          content={t('screens.inAccount.giftPages.claimPage.confirmMessage')}
-        />
-        <CustomButton
-          actionFunction={handleBackPressFunction}
-          textContent={t('constants.done')}
-        />
-      </View>
-    );
-  }
+  const giftAmountProps = amountProps(
+    denomination === 'BTC' ? giftDetails.amount : giftDetails?.dollarAmount,
+    denomination === 'USD',
+  );
 
-  const amountDisplay = expertMode
-    ? customGiftIndex
-    : displayCorrectDenomination({
-        amount:
-          denomination === 'BTC'
-            ? giftDetails.amount
-            : giftDetails?.dollarAmount,
-        masterInfoObject: {
-          ...masterInfoObject,
-          userBalanceDenomination:
-            denomination === 'USD'
-              ? 'fiat'
-              : masterInfoObject.userBalanceDenomination,
-        },
-        fiatStats,
-        forceCurrency: denomination === 'USD' ? 'USD' : false,
-        convertAmount: denomination !== 'USD',
-      });
-
-  const headerText =
-    claimType === 'reclaim'
-      ? t('screens.inAccount.giftPages.claimPage.reclaimHead')
-      : t('screens.inAccount.giftPages.claimPage.claimHead');
-
-  const amountHeaderText =
-    claimType === 'reclaim'
-      ? expertMode
-        ? t('screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert')
-        : t('screens.inAccount.giftPages.claimPage.reclaimAmountHead')
-      : t('screens.inAccount.giftPages.claimPage.claimAmountHead');
-
-  const amountDescriptionText = expertMode
+  const feeText = expertMode
     ? t('screens.inAccount.giftPages.claimPage.networkFeeWarningExpert')
+    : isReclaim
+    ? t('screens.inAccount.giftPages.claimPage.reclaimFeeWarning')
     : t('screens.inAccount.giftPages.claimPage.networkFeeWarning');
 
-  const buttonText = isClaiming
-    ? t('screens.inAccount.giftPages.claimPage.buttonTextClaiming')
-    : claimType === 'reclaim'
-    ? t('screens.inAccount.giftPages.claimPage.reclaimButton')
-    : t('screens.inAccount.giftPages.claimPage.claimButton');
-
-  const loadingText =
-    claimStatus ||
-    (claimType === 'reclaim'
-      ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')
-      : t('screens.inAccount.giftPages.claimPage.claimLoading'));
+  const topLine = isReclaim
+    ? expertMode
+      ? t('screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert')
+      : t('screens.inAccount.giftPages.claimPage.reclaimAmountHead')
+    : giftDetails.description;
 
   return (
     <View style={styles.container}>
-      <ThemeText styles={styles.header} content={headerText} />
-      <View
-        style={[styles.border, { backgroundColor: containerBackgroundColor }]}
-      />
-
-      {isClaiming ? (
+      {page === 'loading' && (
         <FullLoadingScreen
-          textStyles={styles.claimingMessage}
-          text={loadingText}
+          showText={!isConnected}
+          text={t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage')}
         />
-      ) : (
-        <>
-          <View
-            style={[
-              styles.amountContainer,
-              { backgroundColor: containerBackgroundColor },
-            ]}
-          >
-            <ThemeText
-              styles={styles.amountHeader}
-              content={amountHeaderText}
-            />
-            <ThemeText styles={styles.amount} content={amountDisplay} />
-            <ThemeText
-              styles={styles.amountDescription}
-              content={amountDescriptionText}
-            />
-          </View>
-          <CustomButton
-            buttonStyles={styles.buttonContainer}
-            textContent={buttonText}
-            actionFunction={handleClaim}
-          />
-        </>
       )}
+
+      {/* Fade only: details replaces the spinner while the sheet is still
+          sliding up, and a sideways slide on top of that looked jittery. */}
+      <AnimatedStep active={page === 'details'} direction={1} fadeOnly>
+        {isReclaim && <TopBar onBack={() => handleBackPressFunction()} />}
+        <View style={styles.center}>
+          <AssetDisc asset={expertMode ? 'bitcoin' : giftAsset(giftDetails)} />
+          {!!topLine && (
+            <ThemeText
+              variant={'body'}
+              styles={[styles.note, { color: tokens.muted }]}
+              content={topLine}
+            />
+          )}
+          {expertMode ? (
+            <ThemeText
+              styles={styles.amount}
+              content={t(
+                'screens.inAccount.giftPages.claimPage.expertGiftLabel',
+                {
+                  number: customGiftIndex,
+                },
+              )}
+            />
+          ) : (
+            <AmountHero {...giftAmountProps} amountSize={40} />
+          )}
+        </View>
+        <ThemeText
+          variant={'hint'}
+          styles={[styles.fee, { color: tokens.muted }]}
+          content={feeText}
+        />
+        <CustomButton
+          buttonStyles={styles.button}
+          textContent={
+            isReclaim
+              ? t('screens.inAccount.giftPages.claimPage.reclaimButton')
+              : t('screens.inAccount.giftPages.claimPage.claimButton')
+          }
+          actionFunction={handleClaim}
+          size={'regular'}
+        />
+      </AnimatedStep>
+
+      <AnimatedStep active={page === 'claiming'} direction={1} fadeOnly>
+        <View style={styles.claiming}>
+          <Spinner size="large" />
+          <ThemeText
+            styles={styles.title}
+            content={
+              isReclaim
+                ? t('screens.inAccount.giftPages.claimPage.reclaimingTitle')
+                : t('screens.inAccount.giftPages.claimPage.claimingTitle')
+            }
+          />
+          <ThemeText
+            variant={'body'}
+            styles={[styles.sub, { color: tokens.muted }]}
+            content={t('screens.inAccount.giftPages.claimPage.stayInApp')}
+          />
+        </View>
+      </AnimatedStep>
+
+      <AnimatedStep active={page === 'claimed'} direction={1} fadeOnly>
+        <SheetResult
+          label={
+            isReclaim
+              ? t('screens.inAccount.giftPages.claimPage.reclaimedTitle')
+              : t('screens.inAccount.giftPages.claimPage.claimedTitle')
+          }
+          amountProps={
+            expertMode && claimedExpert
+              ? amountProps(
+                  claimedExpert.amount,
+                  claimedExpert.denomination === 'USD',
+                )
+              : giftAmountProps
+          }
+          line={t('screens.inAccount.giftPages.claimPage.claimedSub')}
+          buttonText={t('constants.done')}
+          onDone={handleBackPressFunction}
+        />
+      </AnimatedStep>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-  header: {
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-    fontWeight: 500,
-  },
-  border: {
-    height: 3,
-    marginVertical: 20,
-  },
-  amountContainer: {
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  amountHeader: {
-    textAlign: 'center',
-  },
+  container: { flex: 1 },
+  center: { marginTop: 24, alignItems: 'center' },
+  note: { marginTop: 14, textAlign: 'center' },
   amount: {
+    fontFamily: FONT.Title_Medium,
+    fontSize: 40,
+    lineHeight: 48,
+    marginTop: 14,
     textAlign: 'center',
-    fontSize: SIZES.xxLarge,
-    marginVertical: 10,
+    includeFontPadding: false,
   },
-  amountDescription: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    opacity: 0.6,
-  },
-  buttonContainer: {
-    marginTop: 'auto',
-    alignSelf: 'center',
-  },
-  tempClaimMessageContainer: {
+  fee: { marginTop: 'auto', marginBottom: 12, textAlign: 'center' },
+  button: { width: '100%' },
+  claiming: {
     flex: 1,
     alignItems: 'center',
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    justifyContent: 'center',
+    paddingBottom: 40,
   },
-  confirmMessage: { textAlign: 'center', marginBottom: 'auto' },
-  claimingMessage: {
+  title: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 20,
+    lineHeight: 26,
+    marginTop: 24,
     textAlign: 'center',
-    width: INSET_WINDOW_WIDTH,
-    minHeight: 80,
+    includeFontPadding: false,
   },
-  lottieView: {
-    width: 150,
-    height: 150,
-  },
+  sub: { marginTop: 6, textAlign: 'center' },
 });

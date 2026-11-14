@@ -17,7 +17,6 @@ import {
   DEFAULT_ANIMATION_DURATION,
   RESET_AFTER_SUCCESS_DEFAULT_DELAY,
 } from './constants';
-import {COLORS} from '../../../constants';
 
 const borderWidth = 3;
 const margin = 2;
@@ -47,7 +46,7 @@ export const SwipeThumb = ({
   handleSwipeProgress,
   theme,
 }) => {
-  const {backgroundColor} = GetThemeColors();
+  const {backgroundColor, tokens} = GetThemeColors();
   const paddingAndMarginsOffset = borderWidth + 2 * margin;
   const defaultContainerWidth = thumbIconHeight;
   const maxWidth = layoutWidth - paddingAndMarginsOffset;
@@ -160,8 +159,8 @@ export const SwipeThumb = ({
     const dynamicStyles = {
       height: thumbIconHeight,
       width: iconWidth,
-      backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-      borderColor: theme ? backgroundColor : COLORS.darkModeText,
+      backgroundColor: theme ? backgroundColor : tokens.onAccent,
+      borderColor: theme ? backgroundColor : tokens.onAccent,
       overflow: 'hidden',
       ...thumbIconStyles,
     };
@@ -192,8 +191,8 @@ export const SwipeThumb = ({
           enableReverseSwipe ? thumbStyles.containerRTL : thumbStyles.container,
           animatedStyle,
           {
-            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-            borderColor: theme ? backgroundColor : COLORS.darkModeText,
+            backgroundColor: theme ? backgroundColor : tokens.onAccent,
+            borderColor: theme ? backgroundColor : tokens.onAccent,
             ...railStyles,
           },
         ]}

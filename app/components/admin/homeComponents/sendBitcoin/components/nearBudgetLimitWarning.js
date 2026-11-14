@@ -1,44 +1,39 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useAnalyticsNumbers } from '../../../../../../context-store/analyticsContext';
-import { CENTER, COLORS, SIZES } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import { ThemeText } from '../../../../../functions/CustomElements';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import { computeBudgetWarning } from '../../../../../hooks/useBudgetWarning';
 import { useTranslation } from 'react-i18next';
+import KeyValueRow from '../../../../../functions/CustomElements/redesign/KeyValueRow';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { HIDDEN_BALANCE_CLOSE } from '../../../../../constants';
 
+// SendLimits.dc.html "Heads up · budget": warn disc, one line, the over/left
+// amount and the monthly budget, Continue. Shown on the first slide.
 export default function BudgetWarningModal({
   handleBackPressFunction,
   sendingAmount = 0,
+  setContentHeight,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const { spentTotal } = useAnalyticsNumbers();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
+  useEffect(() => {
+    setContentHeight?.(430);
+  }, [setContentHeight]);
+
   const budget = masterInfoObject?.monthlyBudget ?? null;
-  const { isOverBudget, leftToSpend } = computeBudgetWarning(
-    budget,
-    spentTotal,
-  );
+  const { isOverBudget } = computeBudgetWarning(budget, spentTotal);
 
   const willExceedBudget =
     !isOverBudget && spentTotal + sendingAmount > budget?.amount;
-  const isRed = isOverBudget || willExceedBudget;
-
-  const accentColor =
-    theme && darkModeType
-      ? COLORS.darkModeText
-      : isRed
-      ? COLORS.cancelRed
-      : COLORS.primary;
 
   const subheader = isOverBudget
     ? t('analytics.budget.overBudgetWarning')
@@ -47,105 +42,65 @@ export default function BudgetWarningModal({
     : t('analytics.budget.nearBudgetWarning');
 
   const amountAfterSend = budget?.amount - (spentTotal + sendingAmount);
-
-  const displayAmount = Math.abs(amountAfterSend);
-
   const amountLabel =
     isOverBudget || willExceedBudget
       ? t('analytics.overBy')
       : t('analytics.remaining');
 
+  const isBalanceHidden =
+    masterInfoObject?.userBalanceDenomination === 'hidden';
+  const overByAmountText = isBalanceHidden
+    ? HIDDEN_BALANCE_CLOSE
+    : displayCorrectDenomination({
+        amount: Math.abs(amountAfterSend),
+        masterInfoObject,
+        fiatStats,
+      });
+
+  const budgetAmountText = isBalanceHidden
+    ? HIDDEN_BALANCE_CLOSE
+    : displayCorrectDenomination({
+        amount: budget?.amount || 0,
+        masterInfoObject,
+        fiatStats,
+      });
+
   return (
-    <View style={[styles.sheet]}>
-      {/* Icon */}
-      <View style={styles.iconContainer}>
-        <ThemeIcon
-          iconName={'TriangleAlert'}
-          colorOverride={accentColor}
-          size={40}
+    <View style={styles.sheet}>
+      <Disc icon="TriangleAlert" size={56} iconSize={24} tone="warm" />
+      <View style={styles.header}>
+        <SheetHeader
+          afterIcon
+          centered
+          title={t('analytics.budget.budgetWarningHeadsUp')}
+          sub={subheader}
         />
       </View>
-
-      {/* Header */}
-      <ThemeText
-        styles={styles.header}
-        content={t('analytics.budget.budgetWarningHeadsUp')}
-      />
-
-      {/* Subheader */}
-      <ThemeText styles={styles.subheader} content={subheader} />
-
-      {/* Amount remaining */}
-      <View
-        style={[
-          styles.amountContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
-        <ThemeText styles={styles.amountLabel} content={amountLabel} />
-        <FormattedSatText
-          containerStyles={styles.amountValue}
-          styles={{ fontSize: SIZES.xLarge }}
-          balance={displayAmount}
+      <ListCard style={styles.card}>
+        <KeyValueRow
+          mono={false}
+          label={amountLabel}
+          value={overByAmountText}
         />
-      </View>
-
-      {/* Continue button */}
+        <KeyValueRow
+          mono={false}
+          label={t('analytics.budget.monthlyBudget')}
+          value={budgetAmountText}
+        />
+      </ListCard>
       <CustomButton
-        buttonStyles={styles.continueButton}
+        size="regular"
+        buttonStyles={styles.button}
         textContent={t('constants.continue')}
-        actionFunction={handleBackPressFunction}
+        actionFunction={() => handleBackPressFunction()}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    flex: 1,
-  },
-
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  header: {
-    fontSize: SIZES.xLarge,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subheader: {
-    fontSize: SIZES.medium,
-    textAlign: 'center',
-    opacity: 0.7,
-    marginBottom: 24,
-    lineHeight: 22,
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-  },
-  amountContainer: {
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 'auto',
-  },
-  amountLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    marginBottom: 4,
-  },
-  amountValue: {
-    alignSelf: 'center',
-  },
-  continueButton: {
-    alignSelf: 'center',
-  },
+  sheet: { flex: 1, alignItems: 'center', marginTop: 15 },
+  header: { alignSelf: 'stretch' },
+  card: { alignSelf: 'stretch' },
+  button: { marginTop: 'auto' },
 });

@@ -1,4 +1,4 @@
-import { COLORS, FONT, SHADOWS, SIZES } from './theme';
+import { COLORS, SHADOWS } from './theme';
 
 const CENTER = { marginRight: 'auto', marginLeft: 'auto' };
 
@@ -14,18 +14,6 @@ const BTN = {
   ...SHADOWS.small,
 };
 
-const headerText = {
-  fontSize: SIZES.large,
-  marginRight: 'auto',
-  marginLeft: 'auto',
-
-  fontFamily: FONT.Title_Bold,
-};
-const backArrow = {
-  width: 30,
-  height: 30,
-};
-
 const Background = {
   flex: 1,
   backgroundColor: COLORS.lightModeBackground,
@@ -33,12 +21,4 @@ const Background = {
 
 const ANDROIDSAFEAREA = 10;
 const KEYBOARDTIMEOUT = 300;
-export {
-  CENTER,
-  BTN,
-  Background,
-  headerText,
-  backArrow,
-  ANDROIDSAFEAREA,
-  KEYBOARDTIMEOUT,
-};
+export { CENTER, BTN, Background, ANDROIDSAFEAREA, KEYBOARDTIMEOUT };

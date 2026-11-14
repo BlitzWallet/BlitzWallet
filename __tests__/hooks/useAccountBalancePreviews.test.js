@@ -84,7 +84,7 @@ describe('useAccountBalancePreviews.computeLastUpdated', () => {
       },
     ];
     const hookResult = await renderHook();
-    expect(hookResult.computeLastUpdated({ uuid: 'acct-1' })).toBe('8/22/2024');
+    expect(hookResult.computeLastUpdated({ uuid: 'acct-1' })).toBe('Aug 22, 2024');
   });
 
   test('returns null for the active account even when a snapshot exists', async () => {

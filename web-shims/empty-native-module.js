@@ -3,7 +3,6 @@
 // to a no-op function or a null-rendering component, so screens that import
 // these compile and only fail if the user actually navigates to them — and
 // those entry points are hidden on web (navigation/settings filters).
-import React from 'react';
 
 const noop = () => {};
 // A callable that also renders its children when used as a JSX component.

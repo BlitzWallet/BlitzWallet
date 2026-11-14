@@ -11,7 +11,6 @@ export default async function sendStorePayment({
   userBalance,
   sparkInformation,
   currentWalletMnemoinc,
-  sendWebViewRequest,
 }) {
   try {
     crashlyticsLogReport('Begining store payment process');
@@ -26,7 +25,6 @@ export default async function sendStorePayment({
       userBalance,
       sparkInformation,
       mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
     });
     if (!response.didWork) throw new Error(response.error);
     return response;

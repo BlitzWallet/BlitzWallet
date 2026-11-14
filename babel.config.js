@@ -8,7 +8,11 @@ module.exports = api => {
   const isWeb = platform === 'web';
 
   return {
-    presets: ['babel-preset-expo'],
+    // import.meta in the Breez wasm glue would otherwise white-screen the web
+    // bundle (classic script). Clear the Metro cache when this changes.
+    presets: [
+      ['babel-preset-expo', { web: { unstable_transformImportMeta: true } }],
+    ],
     plugins: [
       ['module:react-native-dotenv'],
       ['@babel/plugin-transform-class-static-block'],

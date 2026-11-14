@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   SafeAreaView,
   StyleSheet,
@@ -15,33 +14,26 @@ import * as Crypto from 'expo-crypto';
 import { sha256 } from '@noble/hashes/sha2';
 import { bytesToHex } from '@noble/hashes/utils';
 
-import QrCodeWrapper from '../functions/CustomElements/QrWrapper';
+import QrCard from '../functions/CustomElements/redesign/QrCard';
 import {
   claimSparkHodlLightningPayment,
   getSparkBalance,
   getSparkLightningPaymentFeeEstimate,
   getSparkLightningSendRequest,
   getSparkLightningPaymentStatus,
-  getWallet,
   querySparkHodlLightningPayments,
   receiveSparkHodlLightningPayment,
   sendSparkLightningPayment,
 } from '../functions/spark';
 import { useActiveCustodyAccount } from '../../context-store/activeAccount';
 import CustomSettingsTopBar from '../functions/CustomElements/settingsTopBar';
+import Spinner from '../functions/CustomElements/redesign/Spinner';
 
 const HODL_STATUS = {
   0: 'Pending / held',
   1: 'Claimed / completed',
   2: 'Failed / canceled',
 };
-
-const CANCEL_METHODS = [
-  'cancelLightningHodlInvoice',
-  'cancelHodlInvoice',
-  'cancelHTLC',
-  'failHTLC',
-];
 
 function safeJson(value) {
   try {
@@ -272,28 +264,13 @@ export default function SparkHodlInvoiceTest() {
         throw new Error('Create a HODL invoice first');
       }
 
-      const wallet = await getWallet(currentWalletMnemoinc);
-      const methodName = CANCEL_METHODS.find(
-        candidate => typeof wallet?.[candidate] === 'function',
-      );
-
-      if (!methodName) {
-        return {
-          didWork: false,
-          unsupported: true,
-          message:
-            'This Spark SDK build does not expose a receiver-side HODL cancel method.',
-          probedMethods: CANCEL_METHODS,
-        };
-      }
-
-      const response = await wallet[methodName]({
-        id: receiveRequest?.id,
-        paymentHash,
-      });
-
-      await refreshBalance('Balance after cancel');
-      return { didWork: true, methodName, response };
+      // Breez exposes no receiver-side HODL cancel.
+      return {
+        didWork: false,
+        unsupported: true,
+        message:
+          'Breez Spark SDK does not expose a receiver-side HODL cancel method.',
+      };
     });
   }
 
@@ -393,7 +370,7 @@ export default function SparkHodlInvoiceTest() {
         <View style={styles.section}>
           <View style={styles.rowBetween}>
             <Text style={styles.sectionTitle}>Wallet</Text>
-            {loading ? <ActivityIndicator /> : null}
+            {loading ? <Spinner size="small" /> : null}
           </View>
           <Text style={styles.muted}>
             Active wallet: {canUseWallet ? 'available' : 'missing'}
@@ -471,11 +448,12 @@ export default function SparkHodlInvoiceTest() {
 
           {invoice ? (
             <View style={styles.invoiceArea}>
-              <QrCodeWrapper
-                QRData={invoice}
-                qrSize={250}
-                outerContainerStyle={styles.qrOuter}
-                innerContainerStyle={styles.qrInner}
+              <QrCard
+                value={invoice}
+                size={250}
+                quietZone={15}
+                badgeSize={50}
+                style={styles.qrCard}
               />
               <Text selectable style={styles.invoiceText}>
                 {invoice}
@@ -784,14 +762,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 12,
   },
-  qrOuter: {
-    width: 282,
-    minHeight: 282,
+  qrCard: {
+    borderWidth: 0,
+    padding: 0,
     marginBottom: 12,
-  },
-  qrInner: {
-    width: 250,
-    height: 250,
   },
   invoiceText: {
     color: '#111827',

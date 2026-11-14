@@ -49,5 +49,22 @@ allprojects {
     }
 }
 
+// The RN Breez package and the NWC AAR (same 0.28.0) both contain
+// technology.breez.spark.passkey.core.CredentialManagerPrfCore (byte-identical
+// source). Compile the RN module against the AAR's copy so only one is dexed.
+subprojects { p ->
+    if (p.projectDir.path.contains('@breeztech/breez-sdk-spark-react-native')) {
+        p.afterEvaluate {
+            p.dependencies { compileOnly('breez_sdk_spark:bindings-android:0.28.0') }
+            // Drop its libbreez_sdk_spark_bindings.so so the AAR's superset copy is
+            // the only one packaged (pickFirst would keep this local copy).
+            p.android.sourceSets.main.jniLibs.srcDirs = []
+            p.tasks.matching { it.name ==~ /compile.*Kotlin/ }.configureEach {
+                exclude 'technology/breez/spark/passkey/core/**'
+            }
+        }
+    }
+}
+
 apply plugin: "com.facebook.react.rootproject"
 apply plugin: "expo-root-project"

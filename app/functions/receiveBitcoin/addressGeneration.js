@@ -1,5 +1,4 @@
 import {
-  BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   GENERATED_BITCOIN_ADDRESSES,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
   SATSPERBITCOIN,
@@ -37,8 +36,7 @@ function updateRetryCount(requestID, retryCount) {
 }
 
 export async function initializeAddressProcess(wolletInfo) {
-  const { setAddressState, selectedRecieveOption, sendWebViewRequest } =
-    wolletInfo;
+  const { setAddressState, selectedRecieveOption } = wolletInfo;
 
   const requestUUID = wolletInfo.requestUUID || customUUID();
   const retryCount = wolletInfo.retryCount || 0;
@@ -131,7 +129,6 @@ export async function initializeAddressProcess(wolletInfo) {
           amountSats: uniqueAmount,
           memo: wolletInfo.description,
           mnemoinc: wolletInfo.currentWalletMnemoinc,
-          sendWebViewRequest,
           isHoldInvoice: true,
           paymentHash,
           holdExpirySeconds: wolletInfo.holdExpirySeconds,
@@ -158,7 +155,6 @@ export async function initializeAddressProcess(wolletInfo) {
               : uniqueAmount,
             memo: wolletInfo.description,
             mnemoinc: wolletInfo.currentWalletMnemoinc,
-            sendWebViewRequest,
             performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
             expirySeconds:
               wolletInfo.endReceiveType === 'USD' && !isZeroAmountUSD
@@ -218,7 +214,6 @@ export async function initializeAddressProcess(wolletInfo) {
           amountSats: wolletInfo.receivingAmount,
           memo: wolletInfo.description,
           mnemoinc: wolletInfo.currentWalletMnemoinc,
-          sendWebViewRequest,
         });
 
         if (!response.didWork) {
@@ -260,7 +255,6 @@ export async function initializeAddressProcess(wolletInfo) {
             amountSats: wolletInfo.receivingAmount,
             memo: wolletInfo.description,
             mnemoinc: wolletInfo.currentWalletMnemoinc,
-            sendWebViewRequest,
           });
 
           if (!response.didWork) {

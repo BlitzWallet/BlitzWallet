@@ -519,6 +519,7 @@ const handleLookupInvoice = async (requestParams, selectedNWCAccount) => {
     if (invoiceWithoutSparkID.type === 'INCOMING') {
       sparkPaymentResponse = await wallet.getNWCLightningReceiveRequest(
         sparkID,
+        invoiceWithoutSparkID.created_at,
       );
     } else {
       sparkPaymentResponse = await wallet.NWCSparkLightningPaymentStatus(
@@ -772,6 +773,15 @@ const handlePayInvoice = async (
   });
 
   console.log(invoice);
+  if (!invoice.didWork && invoice.outcome === 'unknown') {
+    // It may have paid: keep the reservation and the pending marker for the
+    // retry reconcile. Never release budget here.
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Payment status unknown',
+    );
+  }
   if (!invoice.didWork) {
     // Payment never left — release the reservation and mark the attempt failed.
     await adjustBudget(-reservedMsat);

@@ -1,36 +1,17 @@
 import {
-  getIsNativeRuntime,
-  OPERATION_TYPES,
-  sendWebViewRequestGlobal,
-} from '../../../context-store/webViewContext';
-import { getSparkAddressUtils } from './lazySpark';
-import { validateWebViewResponse } from '.';
+  decodeSparkAddress,
+  encodeBech32mTokenIdentifier,
+} from './sparkAddressCodec';
 
 /**
  * Decode a Spark address / invoice into the flattened shape the send flow
  * consumes (see buildSparkInvoiceDecode).
  *
- * Runtime-split so the WebView path never evaluates @buildonspark/spark-sdk:
- * on WebView we dispatch to the in-page bundle (which already holds the SDK);
- * on native we lazy-load the SDK's canonical decoder (protobuf + bech32m +
- * secp256k1 validation). Both return the same flattened object.
+ * Pure offline decode via sparkAddressCodec (protobuf + bech32m + secp256k1
+ * validation); no wallet is involved. Breez has no public decoder for this shape.
  */
 export async function decodeSparkInvoice(sparkAddress) {
-  if (!getIsNativeRuntime()) {
-    const response = await sendWebViewRequestGlobal(
-      OPERATION_TYPES.decodeSparkInvoice,
-      { sparkAddress },
-    );
-    return validateWebViewResponse(response, 'Not able to decode spark invoice');
-  }
-
-  const {
-    decodeSparkAddress,
-    getNetworkFromSparkAddress,
-    encodeBech32mTokenIdentifier,
-  } = await getSparkAddressUtils();
-
-  const network = getNetworkFromSparkAddress(sparkAddress);
+  const network = 'MAINNET';
   const decoded = decodeSparkAddress(sparkAddress, network);
   const fields = decoded.sparkInvoiceFields;
   const payment = fields?.paymentType;

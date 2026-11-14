@@ -1,12 +1,17 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  PERSISTED_LOGIN_COUNT_KEY,
+} from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
-import { GlobalThemeView } from '../../functions/CustomElements';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
 import {
   StackActions,
@@ -26,9 +31,6 @@ import { removeLocalStorageItem } from '../../functions/localStorage';
 import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshots';
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
-import { useWebView } from '../../../context-store/webViewContext';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -38,12 +40,15 @@ import {
 } from '../../functions/initializeAllDatabases';
 import { isTabConflictError } from '../../functions/webDatabaseOwnership';
 import openWebBrowser from '../../functions/openWebBrowser';
-import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
 import wipeLocalWalletData from '../../functions/wipeLocalWalletData';
 import { isWipeInProgress } from '../../functions/secureStore';
-import i18next from 'i18next';
+import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import ResultAnimation from '../../functions/CustomElements/redesign/ResultAnimation';
+import CustomButton from '../../functions/CustomElements/button';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useReducedMotion } from '../../constants/motion';
 
 export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
@@ -60,16 +65,18 @@ export default function ConnectingToNodeLoadingScreen() {
     preloadedUserData,
     setPreLoadedUserData,
   } = useGlobalContextProvider();
-  const { didRunHandshakeRef } = useWebView();
   const { connectToSparkWallet, setSparkInformation } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
-  const { theme } = useGlobalThemeContext();
+  const { theme, tokens } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const { screenDimensions, toggleDidGetToHomepage } = useAppStatus();
   const { toggleFiatStats } = useNodeContext();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
+  const reducedMotion = useReducedMotion();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const didRunConnectionRef = useRef(null);
   // Latched once startConnectProcess has fully settled (navigated, or errored
   // into the recoverable UI). The watchdog below keys off this, NOT off
@@ -126,33 +133,22 @@ export default function ConnectingToNodeLoadingScreen() {
           await new Promise(res => setTimeout(res, 1000));
         }
 
-        phaseRef.current = 'deriving keys + webview handshake + db init';
+        phaseRef.current = 'deriving keys + db init';
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
 
-        // ── Phase 1: Derive keys + wait for webview handshake in parallel ──
-        const waitForHandshake = async () => {
-          if (didRunHandshakeRef.current) return;
-          console.warn('Webview has not finished setting up: wait here');
-          for (let i = 0; i < 10; i++) {
-            if (didRunHandshakeRef.current) break;
-            console.log('Waiting for webview to finish. Retry number:', i);
-            await new Promise(res => setTimeout(res, 1000));
-          }
-        };
-
+        // ── Phase 1: Derive keys + init databases in parallel ──
         // initializeAllDatabases is awaited here (it's fired non-blocking from
         // the splash screen) so every local table exists before connecting or
-        // reading cached data. Runs in parallel with key derivation/handshake.
+        // reading cached data. Runs in parallel with key derivation.
         const [[privateKey, identityPubKey]] = await Promise.all([
           Promise.all([
             privateKeyFromSeedWords(accountMnemoinc),
             deriveSparkIdentityKey(accountMnemoinc),
           ]),
-          waitForHandshake(),
           initializeAllDatabases(),
         ]);
 
-        crashlyticsLogReport('Derived keys, webview handshake and db ready');
+        crashlyticsLogReport('Derived keys and db ready');
         phaseRef.current = 'loading user settings + cached balance/txs';
 
         // Start wallet connection after keys are derived — passes identityPubKey
@@ -168,23 +164,21 @@ export default function ConnectingToNodeLoadingScreen() {
         const hasSavedInfo = Object.keys(masterInfoObject || {}).length > 5;
 
         // ── Phase 2: Cache reads + settings init all in parallel ──────────
-        const [placeholderTxs, balanceSnapshot, didLoadUserSettings] =
-          await Promise.all([
-            getCachedSparkTransactions(20, identityPubKey.publicKeyHex),
-            getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
-            hasSavedInfo
-              ? Promise.resolve({ didWork: true })
-              : initializeUserSettingsFromHistory({
-                  setMasterInfoObject,
-                  toggleGlobalContactsInformation,
-                  toggleGlobalAppDataInformation,
-                  accountMnemoinc,
-                  preloadedData: preloadedUserData.data,
-                  setPreLoadedUserData,
-                  privateKey,
-                  publicKey,
-                }),
-          ]);
+        const [balanceSnapshot, didLoadUserSettings] = await Promise.all([
+          getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
+          hasSavedInfo
+            ? Promise.resolve({ didWork: true })
+            : initializeUserSettingsFromHistory({
+                setMasterInfoObject,
+                toggleGlobalContactsInformation,
+                toggleGlobalAppDataInformation,
+                accountMnemoinc,
+                preloadedData: preloadedUserData.data,
+                setPreLoadedUserData,
+                privateKey,
+                publicKey,
+              }),
+        ]);
 
         if (!hasSavedInfo) {
           crashlyticsLogReport('Opened all SQL lite tables');
@@ -199,14 +193,13 @@ export default function ConnectingToNodeLoadingScreen() {
         //https://github.com/firebase/firebase-ios-sdk/issues/15974#issuecomment-4155423268
         //https://github.com/firebase/firebase-ios-sdk/pull/15991
         toggleContactsPrivateKey(privateKey);
-        console.log(balanceSnapshot, placeholderTxs, 'balance and tx snapshot');
+        console.log(balanceSnapshot, 'balance snapshot');
         crashlyticsLogReport('Loaded user settings and cached balance/txs');
         phaseRef.current = 'applying cached state + navigating home';
 
         // ── Phase 3: Apply cached balance ─────────────────────────────────
         setSparkInformation(prev => ({
           ...prev,
-          transactions: placeholderTxs,
           ...(balanceSnapshot ?? {}),
         }));
 
@@ -333,28 +326,44 @@ export default function ConnectingToNodeLoadingScreen() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.globalContainer}>
+      <View style={[styles.container, { width: contentWidth }]}>
         {hasError ? (
-          <>
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('SettingsHome', { isDoomsday: true })
-              }
-              style={styles.doomsday}
-            >
-              <ThemeIcon iconName={'Settings'} />
-            </TouchableOpacity>
-            <NoContentScreen
-              iconName="TriangleAlert"
-              titleText={hasError.title}
-              subTitleText={hasError.subtitle}
-              showButton={true}
-              buttonText={
+          <Animated.View
+            key="error"
+            entering={FadeIn.duration(200)}
+            style={styles.innerContainer}
+          >
+            <View style={styles.settingsButton}>
+              <IconButton
+                icon={'Settings'}
+                label={'screens.inAccount.settingsContent.settings'}
+                iconSize={20}
+                onPress={() =>
+                  navigate.navigate('SettingsHome', { isDoomsday: true })
+                }
+              />
+            </View>
+            <View style={styles.centered}>
+              <ResultAnimation type="error" />
+              <ThemeText
+                variant="title"
+                styles={styles.title}
+                content={hasError.title}
+              />
+              <ThemeText
+                variant="body"
+                styles={[styles.subtitle, { color: tokens.muted }]}
+                content={hasError.subtitle}
+              />
+            </View>
+            <CustomButton
+              textContent={
                 hasError.reloadOnRetry
                   ? t('constants.retry')
                   : t('constants.recover')
               }
-              buttonFunction={
+              size={'regular'}
+              actionFunction={
                 hasError.reloadOnRetry
                   ? () => window.location.reload()
                   : () =>
@@ -364,17 +373,30 @@ export default function ConnectingToNodeLoadingScreen() {
                       })
               }
             />
-          </>
+          </Animated.View>
         ) : (
-          <LottieView
-            source={transformedAnimation}
-            autoPlay
-            loop={true}
-            style={{
-              width: Math.min(screenDimensions.width * 0.4, 400),
-              height: Math.min(screenDimensions.width * 0.4, 400),
-            }}
-          />
+          <Animated.View
+            key="loading"
+            exiting={FadeOut.duration(200)}
+            style={styles.loadingContainer}
+            accessible
+            accessibilityLabel={t(
+              'screens.inAccount.loadingScreen.loadingMessage2',
+            )}
+          >
+            <LottieView
+              source={transformedAnimation}
+              colorFilters={[
+                { keypath: '**', color: theme ? tokens.ink : tokens.accent },
+              ]}
+              autoPlay={!reducedMotion}
+              loop={true}
+              style={{
+                width: Math.min(screenDimensions.width * 0.4, 400),
+                height: Math.min(screenDimensions.width * 0.4, 400),
+              }}
+            />
+          </Animated.View>
         )}
       </View>
     </GlobalThemeView>
@@ -382,14 +404,18 @@ export default function ConnectingToNodeLoadingScreen() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
+  container: {
     flex: 1,
+    ...CENTER,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  doomsday: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
+  innerContainer: { flex: 1 },
+  settingsButton: { position: 'absolute', top: 0, right: 0, zIndex: 1 },
+  centered: { flex: 1, alignItems: 'center', paddingTop: 166 },
+  title: { marginTop: 28, textAlign: 'center' },
+  subtitle: { marginTop: 8, textAlign: 'center' },
 });

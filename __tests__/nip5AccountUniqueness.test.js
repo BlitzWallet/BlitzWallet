@@ -28,6 +28,24 @@ jest.mock('../context-store/toastManager', () => ({
   }),
 }));
 
+jest.mock('../context-store/theme', () => ({
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: {
+      danger: '#ff0000',
+      accent: '#0000ff',
+      divider: '#cccccc',
+      ground: '#ffffff',
+      field: '#ffffff',
+      onField: '#000000',
+      surface: '#eeeeee',
+      ink: '#000000',
+      scrim: '#000000',
+    },
+  }),
+}));
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: key => key,
@@ -45,8 +63,9 @@ jest.mock('../app/functions', () => ({
   copyToClipboard: jest.fn(),
 }));
 
-jest.mock('../app/functions/customNavigation', () => ({
-  keyboardGoBack: jest.fn(),
+jest.mock('../app/functions/getClipboardText', () => ({
+  __esModule: true,
+  default: jest.fn(async () => ({ didWork: true, data: '' })),
 }));
 
 // Emulate Firestore exact-match semantics on the `nameLower` field:
@@ -64,17 +83,27 @@ jest.mock('../app/functions/CustomElements', () => {
   return {
     GlobalThemeView: ({ children }) =>
       MockReact.createElement(RN.View, null, children),
-    ThemeText: ({ content }) =>
-      MockReact.createElement(RN.Text, null, content),
+    ThemeText: ({ content }) => MockReact.createElement(RN.Text, null, content),
     CustomKeyboardAvoidingView: ({ children }) =>
       MockReact.createElement(RN.View, null, children),
   };
 });
 
 jest.mock(
-  '../app/functions/CustomElements/settingsTopBar',
+  '../app/functions/CustomElements/redesign/TopBar',
   () =>
-    function MockCustomSettingsTopBar() {
+    function MockTopBar() {
+      const MockReact = require('react');
+      const RN = require('react-native');
+
+      return MockReact.createElement(RN.View, null);
+    },
+);
+
+jest.mock(
+  '../app/functions/CustomElements/redesign/IconButton',
+  () =>
+    function MockIconButton() {
       const MockReact = require('react');
       const RN = require('react-native');
 
@@ -85,7 +114,11 @@ jest.mock(
 jest.mock(
   '../app/functions/CustomElements/searchInput',
   () =>
-    function MockCustomSearchInput({ inputText, setInputText, placeholderText }) {
+    function MockCustomSearchInput({
+      inputText,
+      setInputText,
+      placeholderText,
+    }) {
       const MockReact = require('react');
       const RN = require('react-native');
 
@@ -123,9 +156,11 @@ jest.mock(
     },
 );
 
-const Nip5VerificationPage = require('../app/components/admin/homeComponents/settingsContent/nip5/nip5Account')
-  .default;
+const Nip5VerificationPage =
+  require('../app/components/admin/homeComponents/settingsContent/nip5/nip5Account').default;
 const { isValidNip5Name, addNip5toCollection } = require('../db');
+
+const renderers = [];
 
 async function renderPage() {
   let renderer;
@@ -135,8 +170,15 @@ async function renderPage() {
     await Promise.resolve();
   });
 
+  renderers.push(renderer);
   return renderer;
 }
+
+afterEach(() => {
+  while (renderers.length) {
+    act(() => renderers.pop().unmount());
+  }
+});
 
 function findInput(renderer, placeholderKey) {
   return renderer.root.findByProps({ testID: `input-${placeholderKey}` });
@@ -168,8 +210,16 @@ describe('Nip5VerificationPage', () => {
   test('rejects a whitespace-padded name whose trimmed form is already registered', async () => {
     const renderer = await renderPage();
 
-    await typeInto(renderer, 'settings.nip5.usernameInputPlaceholder', 'satoshi ');
-    await typeInto(renderer, 'settings.nip5.publicKeyPlaceholder', 'aa'.repeat(32));
+    await typeInto(
+      renderer,
+      'settings.nip5.usernameInputPlaceholder',
+      'satoshi ',
+    );
+    await typeInto(
+      renderer,
+      'settings.nip5.publicKeyPlaceholder',
+      'aa'.repeat(32),
+    );
 
     await saveName(renderer);
 
@@ -181,7 +231,11 @@ describe('Nip5VerificationPage', () => {
     const renderer = await renderPage();
 
     await typeInto(renderer, 'settings.nip5.usernameInputPlaceholder', 'bob');
-    await typeInto(renderer, 'settings.nip5.publicKeyPlaceholder', 'aa'.repeat(32));
+    await typeInto(
+      renderer,
+      'settings.nip5.publicKeyPlaceholder',
+      'aa'.repeat(32),
+    );
 
     await saveName(renderer);
 

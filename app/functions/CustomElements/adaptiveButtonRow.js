@@ -9,6 +9,9 @@ import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
 //
 // The child receives `{ shouldStack, buttonStyle }`; spread `buttonStyle` onto each
 // button so it gets `flex:1` in a row or `width:'100%'` when stacked.
+//
+// `pill` (ButtonPair, opt-in) measures labels against the redesign
+// CustomButton pill (16 px side padding, no min width) instead of today's.
 export default function AdaptiveButtonRow({
   labels,
   children,
@@ -17,10 +20,19 @@ export default function AdaptiveButtonRow({
   buttonHorizontalPadding,
   minWidth,
   textStyle,
+  pill = false,
 }) {
   const { shouldStack, containerProps, measureElement } = useAdaptiveButtonLayout(
     labels,
-    { gap, buttonHorizontalPadding, minWidth, textStyle },
+    {
+      gap,
+      buttonHorizontalPadding:
+        pill && buttonHorizontalPadding === undefined
+          ? 32
+          : buttonHorizontalPadding,
+      minWidth: pill && minWidth === undefined ? 0 : minWidth,
+      textStyle,
+    },
   );
 
   const buttonStyle = shouldStack ? styles.buttonStacked : styles.buttonColumn;

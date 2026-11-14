@@ -1,87 +1,32 @@
 import { IS_SPARK_ID } from '../../constants';
-import {
-  getSingleTxDetails,
-  getSparkPaymentStatus,
-  isOptimizationInProgress,
-} from './index';
-import { subscribeToSparkBalance } from './awaitBalanceChange';
+import { acquire } from './walletRuntime';
 
-// Attempt cap for waiting on a Flashnet swap's outbound Spark transfer. With
-// exponential backoff (1.5s doubling to 10s) this keeps the worst-case wait
-// around ~60s while bounding traffic to 8 polls instead of a fixed-interval
-// spam loop, so a stuck or hostile node can't keep the device polling forever.
-export const MAX_POLL_ATTEMPTS = 8;
-export const MAX_STABILITY_ATTEMPTS = 20;
+const SWAP_WAIT_MS = 60000;
+const POLL_MS = 1500;
 
-// A completed transfer can still leave the SDK temporarily unable to spend the
-// full balance while it optimizes the received leaves. Observe live balance
-// changes and require two quiet, non-optimizing windows before the caller sends.
-const waitForBalanceStabilization = async mnemonic => {
-  let balanceRevision = 0;
-  let consecutiveStableChecks = 0;
-  const subscription = subscribeToSparkBalance({
-    mnemonic,
-    onUpdate: result => {
-      if (result?.didWork) balanceRevision += 1;
-    },
-  });
-
-  try {
-    await subscription.ready;
-
-    for (let attempt = 0; attempt < MAX_STABILITY_ATTEMPTS; attempt++) {
-      const revisionBeforeWait = balanceRevision;
-      await new Promise(res => setTimeout(res, 1500));
-
-      if (revisionBeforeWait !== balanceRevision) {
-        consecutiveStableChecks = 0;
-        continue;
-      }
-
-      const optimizationStatus = await isOptimizationInProgress({ mnemonic });
-      if (
-        revisionBeforeWait !== balanceRevision ||
-        !optimizationStatus?.didWork ||
-        optimizationStatus.isOptimizing
-      ) {
-        consecutiveStableChecks = 0;
-        continue;
-      }
-
-      consecutiveStableChecks += 1;
-      if (consecutiveStableChecks === 2) return;
-    }
-
-    throw new Error('Swap balance stabilization timeout');
-  } finally {
-    subscription.unsubscribe();
-  }
-};
-
+// Waits for the pool's outbound transfer to land. Spark transfer ids resolve
+// through getPayment; token transfers arrive as a bare tx hash and are matched
+// against recent received payments by details.txHash.
 export const waitForSwapCompletion = async (mnemonic, outboundTransferId) => {
-  let pollIntervalMs = 1500;
+  const handle = await acquire(mnemonic, { mode: 'client', borrow: true });
+  const isSparkId = IS_SPARK_ID.test(outboundTransferId);
+  const txHash = String(outboundTransferId).split(':')[0];
+  const deadline = Date.now() + SWAP_WAIT_MS;
 
-  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-    if (!IS_SPARK_ID.test(outboundTransferId)) {
-      await new Promise(res => setTimeout(res, 2500));
-      await waitForBalanceStabilization(mnemonic);
-      return;
-    }
+  while (Date.now() < deadline) {
+    const payment = isSparkId
+      ? await handle.getPayment(outboundTransferId)
+      : (
+          await handle.listPayments({
+            typeFilter: ['receive'],
+            fromTimestamp: Math.floor(Date.now() / 1000) - 600,
+          })
+        ).find(p => p.details?.txHash === txHash);
 
-    const sparkTransferResponse = await getSingleTxDetails(
-      mnemonic,
-      outboundTransferId,
-    );
+    if (payment?.status === 'completed') return;
+    if (payment?.status === 'failed') throw new Error('Swap failed');
 
-    const status = getSparkPaymentStatus(sparkTransferResponse?.status);
-    if (status === 'completed') {
-      await waitForBalanceStabilization(mnemonic);
-      return;
-    }
-    if (status === 'failed') throw new Error('Swap failed');
-
-    await new Promise(res => setTimeout(res, pollIntervalMs));
-    pollIntervalMs = Math.min(pollIntervalMs * 2, 10000);
+    await new Promise(res => setTimeout(res, POLL_MS));
   }
 
   throw new Error('Swap completion timeout');

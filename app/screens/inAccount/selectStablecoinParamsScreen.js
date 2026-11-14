@@ -1,25 +1,21 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useState, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../functions/CustomElements/redesign/ListRow';
+import PickRow from '../../functions/CustomElements/redesign/PickRow';
+import Note from '../../functions/CustomElements/redesign/Note';
+import { middleEllipsis } from '../../functions/CustomElements/redesign/KeyValueRow';
+import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
 import GetThemeColors from '../../hooks/themeColors';
-import {
-  CENTER,
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-  FONT,
-  ICONS,
-  SIZES,
-} from '../../constants';
-import { useGlobalThemeContext } from '../../../context-store/theme';
+import { CENTER, ICONS } from '../../constants';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { Image } from 'expo-image';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 const EVM_CHAINS = [
   'Base',
@@ -40,9 +36,9 @@ export default function SelectStablecoinParamsScreen() {
   const route = useRoute();
   const { address, chainFamily, unsupportedTokenMessage } = route.params;
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
+  const contentWidth = useContentWidth();
 
   const isTron = chainFamily === 'Tron';
   const isSolana = chainFamily === 'Solana';
@@ -71,38 +67,31 @@ export default function SelectStablecoinParamsScreen() {
     [navigate, address],
   );
 
-  const cardBg = backgroundOffset;
+  const isNonEvm = isTron || isSolana;
+  const shortAddress = middleEllipsis(address, 6, 4);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('wallet.stablecoinSend.sendStablecoins')}
-        containerStyles={{ marginBottom: 0 }}
-      />
-      <ThemeText
-        styles={styles.sectionTitle}
-        content={t(
-          isTron || isSolana
-            ? 'wallet.stablecoinSend.selectAsset'
-            : 'wallet.stablecoinSend.selectChain',
-        )}
-      />
-      {!!unsupportedTokenMessage && (
-        <View
-          style={[
-            { backgroundColor: backgroundOffset },
-            styles.unsupportedTokenBanner,
-          ]}
-        >
-          <ThemeIcon iconName={'TriangleAlert'} />
-
-          <ThemeText
-            styles={styles.unsupportedTokenBannerText}
-            content={unsupportedTokenMessage}
-          />
-        </View>
-      )}
-      <View style={styles.innerContainer}>
+    <GlobalThemeView useStandardWidth={false}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={t(
+            isNonEvm
+              ? 'wallet.stablecoinSend.selectAsset'
+              : 'wallet.stablecoinSend.selectChain',
+          )}
+        />
+        <ThemeText
+          variant="body"
+          styles={[styles.sub, { color: tokens.muted }]}
+          content={
+            isNonEvm
+              ? t('wallet.stablecoinSend.sendingToOn', {
+                  address: shortAddress,
+                  chain: chainFamily,
+                })
+              : t('wallet.stablecoinSend.sendingTo', { address: shortAddress })
+          }
+        />
         <CustomScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
@@ -110,67 +99,57 @@ export default function SelectStablecoinParamsScreen() {
             { paddingBottom: bottomPadding + 20 },
           ]}
         >
-          <View style={styles.section}>
-            <View style={styles.grid}>
-              {isTron || isSolana
-                ? (isTron ? TRON_ASSETS : SOLANA_ASSETS).map(asset => (
-                    <TouchableOpacity
-                      key={asset.id}
-                      style={[
-                        styles.card,
-                        { backgroundColor: cardBg, borderColor: cardBg },
-                      ]}
-                      onPress={() => handleNonEvmAssetSelect(asset.id)}
-                      activeOpacity={0.7}
-                    >
+          <ListCard>
+            {isNonEvm
+              ? (isTron ? TRON_ASSETS : SOLANA_ASSETS).map(asset => (
+                  <ListRow
+                    key={asset.id}
+                    onPress={() => handleNonEvmAssetSelect(asset.id)}
+                    lead={
                       <Image
                         style={styles.cardIcon}
                         source={asset.icon}
                         contentFit="contain"
                       />
-                      <ThemeText
-                        styles={styles.cardLabel}
-                        content={asset.label}
+                    }
+                    title={asset.label}
+                    showChevron
+                  />
+                ))
+              : chains.map(chain => (
+                  <PickRow
+                    key={chain}
+                    selected={selectedChain === chain}
+                    onPress={() => setSelectedChain(chain)}
+                    lead={
+                      <Image
+                        style={styles.cardIcon}
+                        source={ICONS[`chain_${chain.toLowerCase()}`]}
+                        contentFit="contain"
                       />
-                    </TouchableOpacity>
-                  ))
-                : chains.map(chain => {
-                    const isSelected = selectedChain === chain;
-                    return (
-                      <TouchableOpacity
-                        key={chain}
-                        style={[
-                          styles.card,
-                          { backgroundColor: cardBg, borderColor: cardBg },
-                          isSelected && {
-                            borderColor:
-                              theme && darkModeType
-                                ? COLORS.darkModeText
-                                : COLORS.primary,
-                          },
-                        ]}
-                        onPress={() => setSelectedChain(chain)}
-                        activeOpacity={0.7}
-                      >
-                        <Image
-                          style={styles.cardIcon}
-                          source={ICONS[`chain_${chain.toLowerCase()}`]}
-                          contentFit="contain"
-                        />
-                        <ThemeText styles={styles.cardLabel} content={chain} />
-                      </TouchableOpacity>
-                    );
-                  })}
-            </View>
-          </View>
+                    }
+                    title={chain}
+                  />
+                ))}
+          </ListCard>
         </CustomScrollView>
+
+        {!!unsupportedTokenMessage && (
+          <View style={styles.note}>
+            <Note text={unsupportedTokenMessage} />
+          </View>
+        )}
 
         {!isTron && !isSolana && (
           <CustomButton
+            size="regular"
             textContent={t('constants.continue')}
             actionFunction={handleContinue}
             disabled={!selectedChain}
-            buttonStyles={!selectedChain ? { opacity: 0.5 } : undefined}
+            buttonStyles={[
+              styles.button,
+              !selectedChain ? { opacity: 0.5 } : undefined,
+            ]}
           />
         )}
       </View>
@@ -179,61 +158,17 @@ export default function SelectStablecoinParamsScreen() {
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
+  container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  scrollContent: {
-    gap: 16,
-    paddingTop: 8,
-  },
-  section: {
-    gap: 8,
-  },
-  unsupportedTokenBanner: {
-    width: INSET_WINDOW_WIDTH,
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    gap: 10,
-  },
-  unsupportedTokenBannerText: {
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    includeFontPadding: false,
-  },
-  sectionTitle: {
-    fontSize: SIZES.medium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  card: {
-    width: '47%',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    gap: 10,
-    borderColor: 'transparent',
-    borderWidth: 1.5,
-  },
-
+  sub: { marginTop: 20, marginBottom: 16 },
+  scrollContent: { flexGrow: 1 },
+  note: { paddingVertical: 12, paddingHorizontal: 4 },
+  button: { ...CENTER },
   cardIcon: {
     width: 40,
     height: 40,
-  },
-  cardLabel: {
-    fontSize: SIZES.medium,
-    fontWeight: 500,
-    textAlign: 'center',
-    includeFontPadding: false,
+    borderRadius: 20,
   },
 });

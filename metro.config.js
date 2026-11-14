@@ -9,10 +9,6 @@ const EMPTY_NATIVE = shim('empty-native-module.js');
 // resolver so the browser bundle never pulls a native-only package. This is
 // the mechanism that lets the ~400 RN UI files build unchanged.
 const WEB_STUBS = {
-  '@buildonspark/spark-sdk': path.resolve(
-    __dirname,
-    'node_modules/@buildonspark/spark-sdk/dist/index.browser.js',
-  ),
   'react-native-quick-crypto': shim('quick-crypto.js'),
   crypto: shim('quick-crypto.js'),
   '@react-native-firebase/app': shim('firebase-app.js'),
@@ -34,7 +30,6 @@ const WEB_STUBS = {
   ),
   // Deferred-feature native deps: importable no-op stubs (entry points hidden
   // on web). They only fail if a hidden screen is actually reached.
-  '@breeztech/react-native-breez-sdk-liquid': EMPTY_NATIVE,
   'react-native-maps': EMPTY_NATIVE,
   'react-native-clusterer': shim('react-native-clusterer.js'),
   'expo-notifications': EMPTY_NATIVE,

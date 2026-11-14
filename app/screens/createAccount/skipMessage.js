@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +16,7 @@ import GetThemeColors from '../../hooks/themeColors';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function SkipCreateAccountPathMessage() {
-  const { transparentOveraly } = GetThemeColors();
+  const { transparentOveraly, tokens } = GetThemeColors();
   const blurViewAnimation = useSharedValue(0);
   const isInitialLoad = useRef(true);
   const navigate = useNavigation();
@@ -56,7 +56,9 @@ export default function SkipCreateAccountPathMessage() {
   return (
     <Animated.View style={[styles.absolute, animatedStyle]}>
       <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
-        <View style={styles.contentContainer}>
+        <View
+          style={[styles.contentContainer, { backgroundColor: tokens.surface }]}
+        >
           <TouchableOpacity
             onPress={() => setGoGack(true)}
             style={{ marginLeft: 'auto', marginBottom: 10 }}
@@ -75,10 +77,10 @@ export default function SkipCreateAccountPathMessage() {
           <CustomButton
             buttonStyles={{
               width: 'auto',
-              backgroundColor: COLORS.primary,
+              backgroundColor: tokens.accent,
             }}
             textStyles={{
-              color: COLORS.darkModeText,
+              color: tokens.onAccent,
             }}
             textContent={t('createAccount.skipMessage.btn')}
             actionFunction={() => {
@@ -108,7 +110,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     width: '70%',
     maxWidth: MAX_WEB_CONTENT_WIDTH,
-    backgroundColor: COLORS.darkModeText,
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',

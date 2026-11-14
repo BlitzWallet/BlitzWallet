@@ -1,251 +1,107 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useTheme } from '../../../../../context-store/theme';
 import { formatBalanceAmount } from '../../../../functions';
 import openWebBrowser from '../../../../functions/openWebBrowser';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { useNavigation } from '@react-navigation/native';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
+import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 
 export default function BlitzFeeInformation() {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-
+  const { tokens } = useTheme();
   const { t } = useTranslation();
-
-  return (
-    <CustomScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.feeContainer}
-    >
-      <ThemeText
-        styles={{ textAlign: 'center', marginBottom: 30 }}
-        content={t('settings.feeInformation.description')}
-      />
-      <FeeTable masterInfoObject={masterInfoObject} />
-
-      <TouchableOpacity
-        onPress={() =>
-          openWebBrowser({
-            link: 'https://docs.spark.money/wallets/estimate-fees',
-          })
-        }
-        activeOpacity={0.75}
-        style={[
-          styles.sparkPill,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}
-      >
-        <View style={styles.pillContentContainer}>
-          {/* Spark icon pill */}
-          <View
-            style={[
-              styles.pillIconContianer,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeImage
-              styles={{ height: 20, width: 20 }}
-              lightModeIcon={ICONS.receiptWhite}
-              darkModeIcon={ICONS.receiptWhite}
-              lightsOutIcon={ICONS.receiptWhite}
-            />
-          </View>
-          <View style={{ flexShrink: 1 }}>
-            <ThemeText
-              styles={{
-                fontSize: SIZES.small,
-                includeFontPadding: false,
-              }}
-              content={t('settings.feeInformation.othersFee')}
-            />
-            <ThemeText
-              styles={{
-                fontSize: SIZES.xSmall,
-                opacity: 0.55,
-                includeFontPadding: false,
-              }}
-              content={t('settings.feeInformation.networkFeeLinkDesc')}
-            />
-          </View>
-        </View>
-        <ThemeIcon iconName={'ChevronRight'} />
-      </TouchableOpacity>
-    </CustomScrollView>
-  );
-}
-
-function FeeTable({ masterInfoObject }) {
-  const { backgroundOffset } = GetThemeColors();
-  const { t } = useTranslation();
+  const navigate = useNavigation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const feeData = [
     {
-      transactionType: t('settings.feeInformation.sparkSwapType'),
-      fee: t('settings.feeInformation.swapsFee', {
+      label: t('settings.feeInformation.sparkSwapType'),
+      value: t('settings.feeInformation.swapsFee', {
         poolFee: formatBalanceAmount(0.05, false, masterInfoObject),
         blitzFee: 0.5,
       }),
     },
     {
-      transactionType: t('settings.feeInformation.chainSwapType'),
-      fee: t('settings.feeInformation.chainSwapFee'),
-    },
-    // {
-    //   transactionType: t('settings.feeInformation.liquid'),
-    //   fee: t('settings.feeInformation.liquidFee'),
-    // },
-    // {
-    //   transactionType: t('settings.feeInformation.rootstock'),
-    //   fee: t('settings.feeInformation.rootstockFee'),
-    // },
-    {
-      transactionType: t('settings.feeInformation.accumulationType'),
-      fee: t('settings.feeInformation.accumulationFee'),
+      label: t('settings.feeInformation.chainSwapType'),
+      value: t('settings.feeInformation.chainSwapFee'),
     },
     {
-      transactionType: t('settings.feeInformation.othersType'),
-      fee: t('settings.feeInformation.othersFee'),
+      label: t('settings.feeInformation.accumulationType'),
+      value: t('settings.feeInformation.accumulationFee'),
+    },
+    {
+      label: t('settings.feeInformation.othersType'),
+      value: t('settings.feeInformation.othersFee'),
     },
   ];
 
   return (
-    <View style={styles.container}>
-      {/* Header Row */}
-      <View style={[styles.headerRow, { backgroundColor: backgroundOffset }]}>
-        <ThemeText
-          styles={styles.headerCell}
-          content={t('settings.feeInformation.transactionType')}
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.content, { width: contentWidth }]}>
+        <TopBar
+          title={t('screens.inAccount.settingsContent.blitz fee details')}
         />
-        <ThemeText styles={styles.headerCell} content={t('constants.fee')} />
-      </View>
-      <View
-        style={[styles.dataRowContainer, { borderColor: backgroundOffset }]}
-      >
-        {/* Data Rows */}
-        {feeData.map((row, index) => (
-          <View
-            key={index}
-            style={[
-              styles.dataRow,
-              { borderColor: backgroundOffset },
-              index === feeData.length - 1 && styles.lastRow,
-            ]}
-          >
-            <View style={styles.dataCell}>
-              <ThemeText
-                styles={styles.cellText}
-                content={row.transactionType}
+        <CustomScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <ThemeText
+            content={t('settings.feeInformation.description')}
+            styles={[styles.intro, { color: tokens.muted }]}
+          />
+          <ListCard dividerInset={0} style={styles.card}>
+            {feeData.map(row => (
+              <KeyValueRow
+                key={row.label}
+                layout="stacked"
+                label={row.label}
+                value={row.value}
               />
-            </View>
-            <View style={styles.dataCell}>
-              <ThemeText styles={styles.cellText} content={row.fee} />
-              {row.subFee && (
-                <ThemeText
-                  styles={[styles.cellText, styles.subFeeText]}
-                  content={`(formula: ${row.subFee})`}
-                />
-              )}
-            </View>
+            ))}
+          </ListCard>
+          <View style={styles.linkWrap}>
+            <TextButton
+              text={t('settings.feeInformation.networkFeeLink')}
+              icon="ExternalLink"
+              textStyle={styles.linkText}
+              onPress={() =>
+                openWebBrowser({
+                  navigate,
+                  link: 'https://docs.spark.money/wallets/estimate-fees',
+                })
+              }
+            />
           </View>
-        ))}
+        </CustomScrollView>
       </View>
-    </View>
+    </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  feeContainer: {
-    paddingTop: 20,
-    alignItems: 'center',
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  contentContainer: {
-    width: '100%',
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
-
-  container: {
-    width: '100%',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-  },
-  headerCell: {
-    flex: 1,
-    fontSize: SIZES.small,
-    textAlign: 'left',
+  content: { alignSelf: 'center', flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  intro: {
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
+    marginTop: 16,
+    marginHorizontal: 4,
   },
-  dataRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderBottomWidth: 2,
-    gap: 10,
-  },
-  lastRow: {
-    borderBottomWidth: 0,
-  },
-  dataRowContainer: {
-    borderWidth: 2,
-    borderBottomRightRadius: 8,
-    borderBottomLeftRadius: 8,
-  },
-  dataCell: {
-    flex: 1,
-    justifyContent: 'center',
-    maxWidth: '50%',
-  },
-  cellText: {
-    fontSize: SIZES.small,
-    textAlign: 'left',
-  },
-  subFeeText: {
-    fontSize: SIZES.xSmall,
-    opacity: 0.7,
-    marginTop: 4,
-  },
-  sparkPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 24,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    gap: 15,
-  },
-  pillContentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexShrink: 1,
-    gap: 15,
-  },
-  pillIconContianer: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  card: { marginTop: 20 },
+  linkWrap: { marginTop: 8 },
+  linkText: { fontSize: 14, lineHeight: 20 },
 });

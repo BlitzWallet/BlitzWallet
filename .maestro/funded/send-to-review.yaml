@@ -1,0 +1,36 @@
+# Pastes a no-amount invoice, enters an amount and reaches Review. NEVER slides.
+#
+# Needs a logged-in, funded throwaway wallet with Fast Pay off. Lives outside the
+# .maestro root because `yarn e2e:*` runs flows there that clear the keychain.
+#
+# maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet -e INVOICE=lnbc1... \
+#   --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts \
+#   .maestro/funded/send-to-review.yaml
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: Send
+    timeout: 30000
+- tapOn: Send
+- tapOn:
+    text: .*address.*
+- inputText: ${INVOICE}
+# Sim text injection drops characters if the next action comes too soon.
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn: Next
+- extendedWaitUntil:
+    visible: Pay with
+    timeout: 30000
+- tapOn: '1'
+- tapOn: '0'
+- tapOn: '0'
+# Fast Pay labels this button Confirm and would send from Review, so this
+# step fails the flow before any send can start.
+- assertVisible: Review
+- tapOn: Review
+- extendedWaitUntil:
+    visible: Slide to send
+    timeout: 30000
+- takeScreenshot: send-review

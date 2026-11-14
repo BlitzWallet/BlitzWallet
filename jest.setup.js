@@ -82,6 +82,13 @@ jest.mock('expo-file-system', () => {
   return { Directory: Entry, File: Entry, Paths: { appleSharedContainers: {} } };
 });
 
+// walletRuntime (imported by app/functions/spark/index.js) reads the legacy
+// file-system API for the Breez storage dir; its native module is unavailable.
+jest.mock('expo-file-system/legacy', () => ({
+  documentDirectory: 'file:///mock/',
+  deleteAsync: jest.fn(async () => {}),
+}));
+
 // waitForForground() resolves only when AppState.currentState === 'active', which
 // is undefined under Jest, so it would hang forever. Tests run "in foreground";
 // resolve immediately for every caller (receive/send screens).
@@ -122,4 +129,65 @@ jest.mock('react-native-quick-crypto', () => {
     },
   };
   return { __esModule: true, default: api, ...api };
+});
+
+// Breez Spark SDK: native uniffi module, unavailable under Jest. Shape matches
+// what app/functions/spark/walletRuntime.js imports. Tests needing behaviour
+// override locally with jest.mock(...).
+jest.mock('@breeztech/breez-sdk-spark-react-native', () => {
+  const variant = tag =>
+    class {
+      constructor(inner) {
+        this.tag = tag;
+        this.inner = inner;
+      }
+    };
+  const union = (...tags) => Object.fromEntries(tags.map(t => [t, variant(t)]));
+  return {
+    Network: { Mainnet: 0, Regtest: 1, Signet: 2 },
+    PaymentType: { Send: 0, Receive: 1 },
+    PaymentStatus: { Completed: 0, Pending: 1, Failed: 2 },
+    OnchainConfirmationSpeed: { Fast: 0, Medium: 1, Slow: 2 },
+    Seed: union('Mnemonic', 'Entropy'),
+    Fee: union('Fixed', 'Rate'),
+    FeePolicy: { FeesExcluded: 0, FeesIncluded: 1 },
+    MaxOnchainFee: union('Fixed', 'Rate', 'NetworkRecommended'),
+    PaymentRequest: union('Input'),
+    SendPaymentOptions: union(
+      'BitcoinAddress',
+      'Bolt11Invoice',
+      'SparkAddress',
+    ),
+    ReceivePaymentMethod: union(
+      'SparkAddress',
+      'SparkInvoice',
+      'BitcoinAddress',
+      'Bolt11Invoice',
+    ),
+    ListPaymentsRequest: { create: jest.fn(v => v) },
+    defaultConfig: jest.fn(() => ({})),
+    defaultServerConfig: jest.fn(() => ({})),
+    defaultExternalSigners: jest.fn(() => ({
+      breezSigner: { signEcdsa: jest.fn() },
+      free: jest.fn(),
+    })),
+    connect: jest.fn(),
+  };
+});
+
+// The shared loader spins via Reanimated (ESM, not transformed here); every
+// screen that shows a spinner would otherwise fail to load. Tests that need
+// the real one can jest.unmock it.
+jest.mock('./app/functions/CustomElements/redesign/Spinner', () => {
+  const { View } = require('react-native');
+  const MockReact = require('react');
+  return {
+    __esModule: true,
+    default: ({ accessibilityLabel }) =>
+      MockReact.createElement(View, {
+        accessibilityRole: 'progressbar',
+        accessibilityLabel,
+        testID: 'spinner',
+      }),
+  };
 });

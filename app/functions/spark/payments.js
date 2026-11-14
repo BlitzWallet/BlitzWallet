@@ -9,7 +9,6 @@ import {
   sendSparkLightningPayment,
   sendSparkPayment,
   getSparkAddress,
-  sparkWallet,
   sendSparkTokens,
 } from '.';
 import { waitForSwapCompletion } from './waitForSwapCompletion';
@@ -17,13 +16,7 @@ import {
   isSendingPayingEventEmiiter,
   SENDING_PAYMENT_EVENT_NAME,
 } from '../../../context-store/sparkContext';
-import {
-  DEFAULT_PAYMENT_EXPIRY_SEC,
-  SPEND_AND_REPLACE_STORAGE_KEY,
-  USDB_TOKEN_ID,
-} from '../../constants';
-import sha256Hash from '../hash';
-import calculateProgressiveBracketFee from './calculateSupportFee';
+import { SPEND_AND_REPLACE_STORAGE_KEY, USDB_TOKEN_ID } from '../../constants';
 import {
   calculateFlashnetAmountIn,
   dollarsToSats,
@@ -40,6 +33,14 @@ import {
 } from './transactions';
 import { getLocalStorageItem } from '../localStorage';
 
+// Carries the send outcome ('failed' | 'unknown') and intent id from a facade
+// result up to the catch below so the UI can tell an ambiguous failure apart.
+const sendError = (response, fallback) =>
+  Object.assign(new Error(response.error || fallback), {
+    outcome: response.outcome,
+    intentId: response.intentId,
+  });
+
 export const sparkPaymenWrapper = async ({
   getFee = false,
   address = '',
@@ -55,7 +56,6 @@ export const sparkPaymenWrapper = async ({
   usingZeroAmountInvoice = false,
   seletctedToken = 'Bitcoin',
   mnemonic,
-  sendWebViewRequest,
   contactInfo,
   fromMainSendScreen = false,
   usablePaymentMethod = 'BTC',
@@ -64,9 +64,12 @@ export const sparkPaymenWrapper = async ({
   fiatValueConvertedSendAmount,
   poolInfoRef,
   extraDetails = {},
+  intentId,
 }) => {
+  let fundsMoved = false;
   try {
     console.log('Begining spark payment');
+    let sendIntentId = intentId;
     let isSpendAndReplaceEnabled;
     try {
       isSpendAndReplaceEnabled = JSON.parse(
@@ -118,10 +121,15 @@ export const sparkPaymenWrapper = async ({
       } else {
         // Spark payments
         const feeResponse = await getSparkPaymentFeeEstimate(
+          address,
           amountSats,
           mnemonic,
         );
-        calculatedFee = feeResponse;
+        if (!feeResponse.didWork)
+          throw new Error(
+            feeResponse.error || 'Unable to get Spark fee estimation',
+          );
+        calculatedFee = feeResponse.response;
       }
       return {
         didWork: true,
@@ -152,10 +160,11 @@ export const sparkPaymenWrapper = async ({
         });
 
         if (!swapPaymentResponse.didWork)
-          throw new Error(
-            swapPaymentResponse.error ||
-              'Error when sending lightning payment from USD balance',
+          throw sendError(
+            swapPaymentResponse,
+            'Error when sending lightning payment from USD balance',
           );
+        fundsMoved = true;
 
         const now = Date.now();
         const tx = {
@@ -215,25 +224,27 @@ export const sparkPaymenWrapper = async ({
           invoice: address,
           amountSats: usingZeroAmountInvoice ? Number(amountSats) : undefined,
           mnemonic,
+          intentId,
         });
 
         if (!lightningPayResponse.didWork)
-          throw new Error(
-            lightningPayResponse.error ||
-              'Error when sending lightning payment',
+          throw sendError(
+            lightningPayResponse,
+            'Error when sending lightning payment',
           );
 
+        fundsMoved = true;
+        sendIntentId = lightningPayResponse.intentId || sendIntentId;
         const data = lightningPayResponse.paymentResponse;
 
         // check if lightning payment used LN or handled over spark
         const paymentType = !!data?.type ? 'spark' : 'lightning';
+        const realPaymentFee = data?.fee?.originalValue
+          ? data?.fee?.originalValue /
+            (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
+          : initialFee;
 
         if (paymentType === 'lightning') {
-          const realPaymentFee = data?.fee?.originalValue
-            ? data?.fee?.originalValue /
-              (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
-            : initialFee;
-
           const tx = {
             id: data.id,
             paymentStatus: 'pending',
@@ -273,12 +284,12 @@ export const sparkPaymenWrapper = async ({
             accountId: sparkInformation.identityPubKey,
             details: {
               sendingUUID,
-              fee: 0,
-              totalFee: 0 + supportFee,
+              fee: realPaymentFee,
+              totalFee: realPaymentFee + supportFee,
               supportFee: supportFee,
               amount: amountSats,
               address: address,
-              time: new Date(data.updatedTime).getTime(),
+              time: new Date(data.updatedTime || data.updatedAt).getTime(),
               direction: 'OUTGOING',
               description: memo || '',
               senderIdentityPublicKey: data.receiverIdentityPublicKey,
@@ -317,13 +328,17 @@ export const sparkPaymenWrapper = async ({
         feeQuote,
         deductFeeFromWithdrawalAmount: deductFeeFromAmount,
         mnemonic,
+        intentId,
       });
 
       if (!onChainPayResponse.didWork)
-        throw new Error(
-          onChainPayResponse.error || 'Error when sending bitcoin payment',
+        throw sendError(
+          onChainPayResponse,
+          'Error when sending bitcoin payment',
         );
 
+      fundsMoved = true;
+      sendIntentId = onChainPayResponse.intentId || sendIntentId;
       const data = onChainPayResponse.response;
 
       const tx = {
@@ -396,7 +411,8 @@ export const sparkPaymenWrapper = async ({
         }
 
         if (!executionResponse.didWork)
-          throw new Error(executionResponse.error);
+          throw sendError(executionResponse, executionResponse.error);
+        fundsMoved = true;
 
         const outboundTransferId = executionResponse.swap.outboundTransferId;
         setFlashnetTransfer(outboundTransferId);
@@ -441,6 +457,7 @@ export const sparkPaymenWrapper = async ({
             tokenAmount: Number(Math.ceil(usdbAmount)),
             receiverSparkAddress: address,
             mnemonic,
+            intentId,
           });
         } else if (seletctedToken !== 'Bitcoin') {
           useLRC20Format = true;
@@ -449,6 +466,7 @@ export const sparkPaymenWrapper = async ({
             tokenAmount: Number(amountSats),
             receiverSparkAddress: address,
             mnemonic,
+            intentId,
           });
         } else {
           const finalSatAmount = isSwap
@@ -461,18 +479,24 @@ export const sparkPaymenWrapper = async ({
             receiverSparkAddress: address,
             amountSats: Number(finalSatAmount),
             mnemonic,
+            intentId,
+            // After a swap `fee` is the swap fee, not the Spark fee.
+            maxFeeSats:
+              !isSwap && Number.isFinite(fee)
+                ? Math.round(fee - supportFee)
+                : undefined,
           });
         }
 
         if (!sparkPayResponse.didWork) {
-          throw new Error(
-            sparkPayResponse.error || 'Error when sending spark payment',
-          );
+          throw sendError(sparkPayResponse, 'Error when sending spark payment');
         }
       }
 
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
+      fundsMoved = true;
+      sendIntentId = sparkPayResponse.intentId || sendIntentId;
       const data = sparkPayResponse.response;
 
       const formattedToken =
@@ -482,6 +506,12 @@ export const sparkPaymenWrapper = async ({
           ? USDB_TOKEN_ID
           : '';
 
+      // Token fees are denominated in token base units, so this sats-denominated
+      // row keeps 0 for them. Sats sends record what the SDK actually charged.
+      const realSparkFee = useLRC20Format
+        ? 0
+        : Number(sparkPayResponse.payment?.fees ?? fee ?? 0);
+
       const tx = {
         id: useLRC20Format ? data : data.id,
         paymentStatus: 'completed',
@@ -489,8 +519,8 @@ export const sparkPaymenWrapper = async ({
         accountId: sparkInformation.identityPubKey,
         details: {
           sendingUUID,
-          fee: 0,
-          totalFee: 0 + supportFee,
+          fee: realSparkFee,
+          totalFee: realSparkFee + supportFee,
           supportFee: supportFee,
           amount: amountSats,
           address: address,
@@ -557,6 +587,12 @@ export const sparkPaymenWrapper = async ({
       response = tx;
     }
 
+    if (sendIntentId) {
+      response = {
+        ...response,
+        details: { ...response.details, intentId: sendIntentId },
+      };
+    }
     console.log(
       response,
       'resonse in send function',
@@ -582,7 +618,12 @@ export const sparkPaymenWrapper = async ({
     };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return { didWork: false, error: err.message };
+    return {
+      didWork: false,
+      error: err.message,
+      outcome: err.outcome || (fundsMoved ? 'unknown' : 'failed'),
+      intentId: err.intentId,
+    };
   } finally {
     // Only emit if we processed a payment and have identityPubKey (will handle situation with no identiy pubkey on send screen)
     if (
@@ -601,7 +642,6 @@ export const sparkReceivePaymentWrapper = async ({
   paymentType,
   shouldNavigate,
   mnemoinc,
-  sendWebViewRequest,
   performSwaptoUSD = false,
   includeSparkAddress = true,
   expirySeconds,
@@ -709,26 +749,3 @@ export const sparkReceivePaymentWrapper = async ({
     return { didWork: false, error: err.message };
   }
 };
-
-async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
-  try {
-    if (!supportFee) return;
-    if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
-      // const txPromise = sendSparkPayment({
-      //   receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
-      //   amountSats: supportFee,
-      //   mnemonic,
-      // });
-      // await Promise.race([
-      //   txPromise,
-      //   new Promise(res => setTimeout(res, 30000)),
-      // ]);
-      // txPromise.catch(err =>
-      //   console.log('Error sending support payment (late)', err),
-      // );
-      // await new Promise(res => setTimeout(res, 800)); // wait a bit
-    }
-  } catch (err) {
-    console.log('Error sending support payment', err);
-  }
-}

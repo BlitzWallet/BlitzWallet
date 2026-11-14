@@ -23,6 +23,7 @@ import {
 } from './swipeButton/constants';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
+import RedesignSwipe from './swipeButton/redesignSwipe';
 import { useAutoFitFontSize } from './textTheme.web';
 
 const BORDER_WIDTH = 3;
@@ -62,11 +63,12 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   width = 0.95,
   maxWidth = 375,
   shouldDisplaySuccessState = false,
+  titleStyles,
 }) {
   console.log('RUNNIG SLIDER BUTTON WEB');
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, tokens } = GetThemeColors();
   const windowDimensions = screenDimensions.width * width;
   const layoutWidth = windowDimensions > maxWidth ? maxWidth : windowDimensions;
   const { t } = useTranslation();
@@ -183,6 +185,9 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   const finishRemainingSwipe = () => {
     setThumbWidth(cfg.current.thumbMaxWidth, DEFAULT_ANIMATION_DURATION);
     setTitleProgress(1, 200);
+    // Read at swipe time, like native: a prop that flips while the delay runs
+    // (SendReview's one-time budget warning) must not cancel this reset.
+    const shouldReset = cfg.current.shouldResetAfterSuccess;
     invokeOnSwipeSuccess();
     const resetDelay =
       DEFAULT_ANIMATION_DURATION +
@@ -190,7 +195,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
         ? cfg.current.resetAfterSuccessAnimDelay
         : RESET_AFTER_SUCCESS_DEFAULT_DELAY);
     setTimeout(() => {
-      if (cfg.current.shouldResetAfterSuccess) resetAll();
+      if (shouldReset) resetAll();
     }, resetDelay);
   };
 
@@ -302,23 +307,30 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
         ? COLORS.darkModeText
         : theme
         ? COLORS.darkModeText
-        : COLORS.primary,
+        : tokens.accent,
       borderColor: showLoadingIcon
         ? COLORS.darkModeText
         : theme
         ? backgroundOffset
         : backgroundColor,
     }),
-    [theme, darkModeType, showLoadingIcon, backgroundColor, backgroundOffset],
+    [
+      theme,
+      darkModeType,
+      tokens,
+      showLoadingIcon,
+      backgroundColor,
+      backgroundOffset,
+    ],
   );
 
   const titleDynamicStyles = useMemo(
-    () => ({ color: theme ? backgroundColor : COLORS.darkModeText }),
-    [theme, darkModeType, backgroundColor],
+    () => ({ color: theme ? backgroundColor : tokens.onAccent }),
+    [theme, darkModeType, tokens, backgroundColor],
   );
 
   const iconWidth = thumbIconWidth || height;
-  const thumbColor = theme ? backgroundColor : COLORS.darkModeText;
+  const thumbColor = theme ? backgroundColor : tokens.onAccent;
 
   return (
     <View
@@ -352,6 +364,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
               { left: height + 10, right: height + 10 },
               { fontSize: titleFontSize },
               titleDynamicStyles,
+              titleStyles,
             ]}
           >
             {titleText}
@@ -436,4 +449,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SwipeButtonNew;
+const SwipeButton = props =>
+  props.variant === 'redesign' ? (
+    <RedesignSwipe Inner={SwipeButtonNew} {...props} />
+  ) : (
+    <SwipeButtonNew {...props} />
+  );
+
+export default SwipeButton;

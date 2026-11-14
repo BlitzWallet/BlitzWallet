@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, View } from 'react-native';
@@ -16,6 +14,7 @@ export default function ChildQRWaiting() {
     <View style={styles.container}>
       <LottieView
         source={confirmAnimation}
+        renderMode="SOFTWARE"
         loop={false}
         autoPlay={true}
         style={styles.animation}

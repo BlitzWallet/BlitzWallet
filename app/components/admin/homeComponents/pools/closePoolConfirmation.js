@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, FONT, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -12,15 +9,30 @@ import { derivePoolWallet } from '../../../../functions/pools/derivePoolWallet';
 import {
   sendSparkPayment,
   getSparkAddress,
-  initializeSparkWallet,
+  getSparkPaymentFeeEstimate,
+  openDerivedWallet,
   disposeSparkWallet,
 } from '../../../../functions/spark';
 import { awaitSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
 import { updatePoolInDatabase } from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import StepProgress from '../../../../functions/CustomElements/redesign/StepProgress';
+
+const STEP_MESSAGES = {
+  preparing: 'wallet.pools.preparingTransfer',
+  connecting: 'wallet.pools.connectingToPool',
+  balance: 'wallet.pools.gettingBalance',
+  transfering: 'wallet.pools.transferringFunds',
+  closing: 'wallet.pools.closingPool',
+};
 
 export default function ClosePoolConfirmation({
   pool,
@@ -32,16 +44,28 @@ export default function ClosePoolConfirmation({
   const { accountMnemoinc } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const isMounted = useRef(true);
+  const poolMnemonicRef = useRef(null);
   const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [step, setStep] = useState('');
+  const [skipped, setSkipped] = useState([]);
+
+  const closeButton = t('wallet.pools.closePool');
+  const cancelButton = t('constants.cancel');
 
   useEffect(() => {
-    setContentHeight(400);
+    if (isLoading) setContentHeight(500);
+  }, [isLoading]);
+
+  useEffect(() => {
     return () => {
       isMounted.current = false;
+      // Never leave the pool wallet open if the sheet closes mid-flow.
+      if (poolMnemonicRef.current) disposeSparkWallet(poolMnemonicRef.current);
     };
   }, []);
 
@@ -53,7 +77,7 @@ export default function ClosePoolConfirmation({
 
     try {
       setIsLoading(true);
-      setLoadingMessage(t('wallet.pools.preparingTransfer'));
+      setStep('preparing');
 
       // 1. Re-derive pool mnemonic from account mnemonic + derivation index
       const derivedWallet = await derivePoolWallet(
@@ -63,12 +87,11 @@ export default function ClosePoolConfirmation({
       poolMnemonic = derivedWallet.mnemonic;
 
       // 2. Initialize the pool wallet
-      setLoadingMessage(t('wallet.pools.connectingToPool'));
-      const initResult = await initializeSparkWallet(poolMnemonic, false, {
-        maxRetries: 4,
-      });
+      setStep('connecting');
+      poolMnemonicRef.current = poolMnemonic;
+      const initResult = await openDerivedWallet(poolMnemonic);
 
-      if (!initResult) {
+      if (!initResult.isConnected) {
         throw new Error(t('wallet.pools.unableToConnect'));
       }
 
@@ -81,7 +104,9 @@ export default function ClosePoolConfirmation({
           const balance = Number(result.balance);
           return autoStart ? balance > 0 : balance >= pool.currentAmount;
         },
-        onStatus: () => setLoadingMessage(t('wallet.pools.gettingBalance')),
+        onStatus: () => {
+          setStep('balance');
+        },
       });
 
       if (!isMounted.current) return;
@@ -92,7 +117,42 @@ export default function ClosePoolConfirmation({
 
       const poolBalance = Number(balanceResponse.balance);
 
-      if (poolBalance <= 0) {
+      let mainSparkAddress = null;
+      let poolSendAmount = poolBalance;
+
+      // Spark pays the transfer fee on top of the amount, so a full-balance
+      // transfer has to reserve it or the send fails.
+      if (poolBalance > 0) {
+        const mainAddressResponse = await getSparkAddress(
+          currentWalletMnemoinc,
+        );
+
+        if (!mainAddressResponse?.didWork) {
+          throw new Error(t('wallet.pools.unableToGetAddress'));
+        }
+
+        mainSparkAddress = mainAddressResponse.response;
+
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          mainSparkAddress,
+          poolBalance,
+          poolMnemonic,
+        );
+
+        if (!feeResponse.didWork) {
+          throw new Error(
+            feeResponse.error || t('wallet.pools.unableToGetBalance'),
+          );
+        }
+
+        poolSendAmount = poolBalance - feeResponse.response;
+      }
+
+      if (poolSendAmount <= 0) {
+        // A failed sync can read 0: never close the pool on that.
+        if (initResult.synced === false) {
+          throw new Error(t('wallet.pools.unableToGetBalance'));
+        }
         if (autoStart) {
           handleBackPressFunction(() => {
             navigate.replace('ErrorScreen', {
@@ -102,7 +162,9 @@ export default function ClosePoolConfirmation({
           return;
         }
         // No funds to transfer — just close the pool
-        setLoadingMessage(t('wallet.pools.closingPool'));
+        setStep('closing');
+        setSkipped(['transfering']);
+
         const closedPool = {
           ...pool,
           status: 'closed',
@@ -119,21 +181,11 @@ export default function ClosePoolConfirmation({
         return;
       }
 
-      // 4. Get creator's main spark address
-      setLoadingMessage(t('wallet.pools.gettingAddress'));
-      const mainAddressResponse = await getSparkAddress(currentWalletMnemoinc);
-
-      if (!mainAddressResponse?.didWork) {
-        throw new Error(t('wallet.pools.unableToGetAddress'));
-      }
-
-      const mainSparkAddress = mainAddressResponse.response;
-
       // 5. Transfer all funds from pool wallet to creator's main wallet
-      setLoadingMessage(t('wallet.pools.transferringFunds'));
+      setStep('transfering');
       const transferResponse = await sendSparkPayment({
         receiverSparkAddress: mainSparkAddress,
-        amountSats: poolBalance,
+        amountSats: poolSendAmount,
         mnemonic: poolMnemonic,
       });
 
@@ -146,7 +198,7 @@ export default function ClosePoolConfirmation({
       const transferTxId = transferResponse.response?.id || null;
 
       // 6. Update pool status to closed
-      setLoadingMessage(t('wallet.pools.closingPool'));
+      setStep('closing');
       const closedPool = {
         ...pool,
         status: 'closed',
@@ -175,7 +227,7 @@ export default function ClosePoolConfirmation({
           fee: 0,
           totalFee: 0,
           supportFee: 0,
-          amount: poolBalance,
+          amount: poolSendAmount,
           address: mainSparkAddress,
           time: new Date().getTime(),
           direction: 'INCOMING',
@@ -200,7 +252,8 @@ export default function ClosePoolConfirmation({
     } catch (err) {
       console.log('Error closing pool:', err);
       setIsLoading(false);
-      setLoadingMessage('');
+      setSkipped([]);
+      setStep('');
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
     } finally {
       // Tear down the pool wallet session/listeners once we're done with it.
@@ -218,41 +271,82 @@ export default function ClosePoolConfirmation({
     if (autoStart) handleClosePool();
   }, [autoStart]);
 
+  const stepOrder = [
+    'preparing',
+    'connecting',
+    'balance',
+    'transfering',
+    'closing',
+  ];
+  const activeIndex = stepOrder.indexOf(step);
+  const steps = stepOrder.map((key, index) => ({
+    key,
+    label: t(STEP_MESSAGES[key]),
+    state: skipped.includes(key)
+      ? 'skipped'
+      : index < activeIndex
+      ? 'done'
+      : index === activeIndex
+      ? 'active'
+      : 'pending',
+  }));
+
   if (isLoading) {
     return (
-      <FullLoadingScreen
-        containerStyles={styles.container}
-        textStyles={{ textAlign: 'center' }}
-        text={loadingMessage}
-      />
+      <View style={[styles.container, { marginTop: 40 }]}>
+        <StepProgress
+          title={t('wallet.pools.closePoolLoadingTitle')}
+          subtitle={t('wallet.pools.closePoolLoadingSub')}
+          steps={steps}
+        />
+      </View>
     );
   }
 
   if (!pool) {
     return (
       <View style={styles.centerContainer}>
-        <ThemeText content={t('wallet.pools.notFound')} />
+        <EmptyState
+          icon={'CircleAlert'}
+          iconTone="danger"
+          title={t('wallet.pools.couldNotFindTitle')}
+          sub={t('wallet.pools.couldNotFindSub')}
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('wallet.pools.closePoolTitle')}
+    <View
+      style={styles.confirmContainer}
+      onLayout={e =>
+        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+      }
+    >
+      <Disc icon={'ArchiveX'} iconSize={24} size={56} />
+      <SheetHeader
+        afterIcon
+        title={t('wallet.pools.closePoolTitle')}
+        sub={t('wallet.pools.closePoolWarning', {
+          amount: displayCorrectDenomination({
+            amount: pool.currentAmount,
+            masterInfoObject,
+            fiatStats,
+          }),
+        })}
       />
-
-      <ThemeText
-        styles={styles.description}
-        content={t('wallet.pools.closePoolWarning')}
-      />
-
       <View style={styles.buttonContainer}>
         <CustomButton
-          buttonStyles={styles.closeButton}
-          textContent={t('wallet.pools.closePool')}
+          textContent={cancelButton}
+          actionFunction={handleBackPressFunction}
+          size={'regular'}
+          tone="secondary"
+        />
+        <CustomButton
+          textContent={closeButton}
           actionFunction={handleClosePool}
+          size={'regular'}
         />
       </View>
     </View>
@@ -262,57 +356,19 @@ export default function ClosePoolConfirmation({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    marginTop: 10,
+  },
+  confirmContainer: {
+    marginTop: 10,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: SIZES.xLarge,
-    fontFamily: FONT.Title_Regular,
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  detailsBox: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
-    marginBottom: 32,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: SIZES.medium,
-    opacity: 0.6,
-  },
-  detailValue: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Bold,
-    maxWidth: '60%',
-    textAlign: 'right',
-  },
+
   buttonContainer: {
-    width: '100%',
-    gap: 12,
-    marginTop: 'auto',
-  },
-  closeButton: {
-    ...CENTER,
-  },
-  cancelButton: {
-    width: '100%',
-    opacity: 0.6,
+    gap: 10,
+    marginTop: 24,
   },
 });

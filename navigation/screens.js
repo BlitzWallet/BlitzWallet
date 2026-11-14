@@ -2,7 +2,6 @@ import { Platform } from 'react-native';
 import {
   AddOrDeleteContactImage,
   CameraModal,
-  ContactsPageLongPressActions,
   EditReceivePaymentInformation,
   ErrorScreen,
   SendPaymentScreen,
@@ -18,7 +17,6 @@ import SMSMessagingSendPage from '../app/components/admin/homeComponents/apps/sm
 import SMSMessagingSendPhonePage from '../app/components/admin/homeComponents/apps/sms4sats/sendPhonePage';
 import SMSMessagingReceiveCountryPage from '../app/components/admin/homeComponents/apps/sms4sats/receiveCountryPage';
 import SMSMessagingSendDescriptionPage from '../app/components/admin/homeComponents/apps/sms4sats/sendDescriptionPage';
-import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
   AddFriendsToSplit,
   CreateSplitBill,
@@ -28,9 +26,9 @@ import {
   ExpandedContactsPage,
   // MyContactProfilePage,
   SendAndRequestPage,
+  ViewAllGiftCards,
+  ViewGiftCardCodePage,
 } from '../app/components/admin/homeComponents/contacts';
-import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
-import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightning/backupSeedWarning';
 
 import {
   ConfirmActionPage,
@@ -57,15 +55,18 @@ import CreateNWCAmount from '../app/components/admin/homeComponents/settingsCont
 import NWCAccountPage from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountPage';
 import NWCAccountCreated from '../app/components/admin/homeComponents/settingsContent/nwc/nwcAccountCreated';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
+import EditStoreNamePage from '../app/components/admin/homeComponents/settingsContent/posPath/editStoreName';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
+import ProfilePrintPage from '../app/functions/CustomElements/profilePrintPage';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
 import PoolsStack from './PoolsStack';
 import GiftsStack from './GiftsStack';
 import SavingsStack from './SavingsStack';
+import UnilateralExitStack from './UnilateralExitStack';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -79,16 +80,13 @@ import {
   AdminHomeIndex,
   AppStorePageIndex,
   ConfirmTxPage,
-  ExpandedTx,
   ReceivePaymentHome,
   SendPaymentHome,
   SettingsContentIndex,
   SettingsIndex,
-  TechnicalTransactionDetails,
   ViewAllTxPage,
   ManagedAccountActivityPage,
   SettingsHub,
-  SparkReceivePage,
 } from '../app/screens/inAccount';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
 import StablecoinSendScreen from '../app/components/admin/homeComponents/sendBitcoin/stablecoinSendScreen';
@@ -98,23 +96,30 @@ import AnalyticsStack from './analyticsStack';
 import BTCMapScreen from '../app/screens/inAccount/btcMap';
 import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
 import SparkHodlInvoiceTest from '../app/screens/sparkHodlInvoiceTest';
+import ConfirmDialog from '../app/functions/CustomElements/redesign/ConfirmDialog';
+import ReceiveHomeRedesign from '../app/screens/inAccount/ReceiveHomeRedesign';
+import ReceiveAddressPage from '../app/screens/inAccount/receiveAddressPage';
+import ReceiveStablecoinNetworks from '../app/screens/inAccount/receiveStablecoinNetworks';
+import ConfirmPaymentRequest from '../app/components/admin/homeComponents/contacts/confirmRequestPage';
+import SendList from '../app/screens/inAccount/sendList';
+import SendAmountScreen from '../app/components/admin/homeComponents/sendBitcoin/sendAmountScreen';
+import SendDescriptionScreen from '../app/components/admin/homeComponents/sendBitcoin/sendDescriptionScreen';
+import SendReviewScreen from '../app/components/admin/homeComponents/sendBitcoin/sendReviewScreen';
+import BalancePage from '../app/components/admin/homeComponents/homeLightning/balancePage';
+import TokensPage from '../app/components/admin/homeComponents/homeLightning/tokensPage';
+import AllTokensPage from '../app/components/admin/homeComponents/homeLightning/allTokensPage';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
+  { name: 'ProfilePrintPage', component: ProfilePrintPage },
   { name: 'SendBTC', component: SendPaymentHome },
 
-  { name: 'ExpandedTx', component: ExpandedTx },
-  {
-    name: 'TechnicalTransactionDetails',
-    component: TechnicalTransactionDetails,
-  },
   // {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
   {
     name: 'EditReceivePaymentInformation',
     component: EditReceivePaymentInformation,
   },
 
-  { name: 'ViewAllTxPage', component: ViewAllTxPage },
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
   { name: 'ShowProfileQr', component: ShowProfileQr },
@@ -136,6 +141,21 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     component: SendPaymentScreen,
     options: { gestureEnabled: false },
   },
+  {
+    name: 'SendAmount',
+    component: SendAmountScreen,
+    options: { gestureEnabled: false },
+  },
+  {
+    name: 'SendDescription',
+    component: SendDescriptionScreen,
+    options: { gestureEnabled: false },
+  },
+  {
+    name: 'SendReview',
+    component: SendReviewScreen,
+    options: { gestureEnabled: false },
+  },
   { name: 'ExpandedContactsPage', component: ExpandedContactsPage },
   { name: 'ReceiveBTC', component: ReceivePaymentHome },
   // { name: 'MyContactProfilePage', component: MyContactProfilePage },
@@ -145,6 +165,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SendAndRequestPage', component: SendAndRequestPage },
   { name: 'AddFriendsToSplit', component: AddFriendsToSplit },
   { name: 'CreateSplitBill', component: CreateSplitBill },
+  { name: 'ViewAllGiftCards', component: ViewAllGiftCards },
+  { name: 'ViewGiftCardCode', component: ViewGiftCardCodePage },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
   { name: 'POSInstructionsPath', component: POSInstructionsPath },
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
@@ -162,6 +184,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'RestoreWallet', component: RestoreWallet },
   // {name: 'EcashSettings', component: EcashSettings},
   { name: 'AddPOSItemsPage', component: AddPOSItemsPage },
+  { name: 'EditStoreNamePage', component: EditStoreNamePage },
   { name: 'CreateCustodyAccount', component: CreateCustodyAccountPage },
   { name: 'SelectCreateAccountType', component: SelectCreateAccountType },
   { name: 'RestoreDerivedAccount', component: RestoreDerivedAccountPage },
@@ -199,6 +222,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'PoolsStack', component: PoolsStack },
   { name: 'GiftsStack', component: GiftsStack },
   { name: 'SavingsStack', component: SavingsStack },
+  { name: 'UnilateralExitStack', component: UnilateralExitStack },
   {
     name: 'ConfirmSplitPayment',
     component: ConfirmSplitPayment,
@@ -215,22 +239,26 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'AccumulationAddressesHome', component: AccumulationAddressesHome },
   { name: 'AccumulationAddressDetail', component: AccumulationAddressDetail },
-  { name: 'SparkReceivePage', component: SparkReceivePage },
   { name: 'SparkHodlInvoiceTest', component: SparkHodlInvoiceTest },
   { name: 'AnalyticsStack', component: AnalyticsStack },
+  { name: 'ViewAllTxPage', component: ViewAllTxPage },
+  { name: 'ReceiveHomeRedesign', component: ReceiveHomeRedesign },
+  { name: 'ReceiveAddressPage', component: ReceiveAddressPage },
+  { name: 'ReceiveStablecoinNetworks', component: ReceiveStablecoinNetworks },
+  { name: 'ConfirmPaymentRequest', component: ConfirmPaymentRequest },
+  { name: 'SendList', component: SendList },
+  { name: 'BalancePage', component: BalancePage },
+  { name: 'TokensPage', component: TokensPage },
+  { name: 'AllTokensPage', component: AllTokensPage },
 ];
 
 const FADE_SCREENS = [
   { name: 'CustomHalfModal', component: CustomHalfModal },
   { name: 'ConfirmActionPage', component: ConfirmActionPage },
+  { name: 'ConfirmDialog', component: ConfirmDialog },
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
   { name: 'ErrorScreen', component: ErrorScreen },
-  { name: 'SparkErrorScreen', component: SparkErrorScreen },
   // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
-  {
-    name: 'ContactsPageLongPressActions',
-    component: ContactsPageLongPressActions,
-  },
   // {name: 'RestoreProofsPopup', component: RestoreProofsPopup},
   // {name: 'MigrateProofsPopup', component: MigrateProofsPopup},
   { name: 'AddOrDeleteContactImage', component: AddOrDeleteContactImage },
@@ -244,22 +272,14 @@ const FADE_SCREENS = [
   {
     name: 'HomeAdmin',
     component: AdminHomeIndex,
-    options: { gestureEnabled: false },
+    options: { gestureEnabled: false, animationDuration: 250 },
   },
   // {
   //   name: 'ViewCustodyKey',
   //   component: ViewCustodyKey,
   // },
   { name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode },
-  { name: 'ViewSMSReceiveCode', component: ViewSmsReceiveCode },
   { name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage },
-  { name: 'BackupSeedWarning', component: BackupSeedWarning },
-];
-const FADE_TRANSPARENT_MODAL_SCREENS = [
-  // {
-  //   name: 'RefundLiquidSwapPopup',
-  //   component: RefundLiquidSwapPopup,
-  // },
 ];
 const BITREFILL_SCREEN = {
   name: 'BitrefillShopModal',
@@ -269,10 +289,23 @@ const BITREFILL_SCREEN = {
 const MODAL_CARD_SCREENS = Platform.OS === 'web' ? [] : [BITREFILL_SCREEN];
 if (Platform.OS === 'web') SLIDE_FROM_RIGHT_SCREENS.push(BITREFILL_SCREEN);
 
+// Dev-only primitives gallery (audit/IMPLEMENTATION_PLAN.md §10 T9).
+if (__DEV__) {
+  const PrimitivesGallery =
+    require('../app/screens/dev/primitivesGallery').default;
+  SLIDE_FROM_RIGHT_SCREENS.push({
+    name: 'PrimitivesGallery',
+    component: PrimitivesGallery,
+  });
+  // Open it from the dev menu (Cmd+D in the simulator; no dev menu on web).
+  require('react-native').DevSettings?.addMenuItem('Primitives gallery', () =>
+    require('./navigationService').navigationRef.navigate('PrimitivesGallery'),
+  );
+}
+
 export {
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,
   FADE_SCREENS,
-  FADE_TRANSPARENT_MODAL_SCREENS,
   MODAL_CARD_SCREENS,
 };

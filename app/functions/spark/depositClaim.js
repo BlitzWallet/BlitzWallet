@@ -314,13 +314,13 @@ export const claimDepositUtxo = async ({
     };
   }
 
+  // Breez auto-claim is off: this is the single claim owner, and it caps the
+  // claim at exactly the fee of the quote it just fetched.
   const claimResult = await claimnSparkStaticDepositAddress({
     transactionId: quote.transactionId,
-    creditAmountSats: quote.creditAmountSats,
-    sspSignature: quote.signature,
     outputIndex: vout,
     mnemonic,
-    depositAddress: address,
+    maxFeeSats: quote.feeSats,
   });
 
   const claimTx = claimResult?.response;
@@ -328,7 +328,11 @@ export const claimDepositUtxo = async ({
     const pendingTx = await insertPendingIfNeeded(quote);
     return {
       didClaim: false,
-      error: claimResult?.error || 'Claim failed',
+      // submitted: accepted but not settled yet; the claimed-deposits event or
+      // the next sweep finishes it.
+      error: claimTx?.submitted
+        ? 'Claim submitted, waiting to settle'
+        : claimResult?.error || 'Claim failed',
       pendingTx,
     };
   }

@@ -3,12 +3,14 @@
 # ObjC module the extension does not use.
 Pod::Spec.new do |s|
   s.name = 'BreezSdkSpark'
-  s.version = '0.26.0'
+  s.version = '0.28.0'
   s.summary = 'Swift bindings to the Breez Spark SDK'
   s.homepage = 'https://breez.technology'
   s.license = { :type => 'MIT' }
   s.author = { 'Breez' => 'contact@breez.technology' }
-  s.source = { :git => 'https://github.com/breez/breez-sdk-spark-swift.git', :tag => s.version.to_s }
+  # Pinned by commit (tag 0.28.0 -> 09081e9f): a moved tag must not change the
+  # Swift compiled into the seed-holding extension.
+  s.source = { :git => 'https://github.com/breez/breez-sdk-spark-swift.git', :commit => '09081e9f2862a0359df154aa6813242d36a56275' }
   s.ios.deployment_target = '13.0'
   s.swift_version = '5.0'
   s.source_files = ['Sources/BreezSdkSpark/breez_sdk_spark.swift', 'Sources/BreezSdkSpark/breez_sdk_spark_bindings.swift']
