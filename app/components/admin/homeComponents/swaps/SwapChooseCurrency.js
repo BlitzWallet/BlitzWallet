@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import { SkeletonRow } from '../../../../functions/CustomElements/redesign/Skeleton';
 import CustomButton from '../../../../functions/CustomElements/button';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
@@ -53,7 +53,26 @@ export default function SwapChooseCurrency({
   }
 
   if (isLoadingPool) {
-    return <FullLoadingScreen showText={false} />;
+    return (
+      <>
+        <SheetHeader
+          title={t('screens.inAccount.swapsPage.chooseCurrencyTitle')}
+          first={true}
+        />
+        <ListCard dividerInset={68}>
+          {[0, 1].map(key => (
+            <SkeletonRow
+              key={key}
+              lead={44}
+              title={130}
+              sub={190}
+              trailing={0}
+              minHeight={84}
+            />
+          ))}
+        </ListCard>
+      </>
+    );
   }
 
   if (!poolInfo) {

@@ -15,9 +15,9 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../../../context-store/poolContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import PoolCard from './poolCard';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
 import InfoDropdown from '../../../../functions/CustomElements/redesign/InfoDropdown';
+import { SkeletonRow } from '../../../../functions/CustomElements/redesign/Skeleton';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
@@ -130,10 +130,74 @@ export default function PoolManagementScreen() {
     [handlePoolPress],
   );
 
+  // Static, so the loading state shows it too.
+  const infoDropdown = (
+    <InfoDropdown
+      icon="Info"
+      title={t('wallet.pools.info.title')}
+      infoComponenet={
+        <>
+          <ThemeText
+            styles={styles.sectionTitle}
+            content={t('wallet.pools.info.whatArePools')}
+          />
+
+          <ThemeText
+            styles={styles.bodyText}
+            content={t('wallet.pools.info.whatArePoolsBody')}
+          />
+
+          <ThemeText
+            styles={styles.sectionTitle}
+            content={t('wallet.pools.info.howItWorks')}
+          />
+
+          <ThemeText
+            styles={styles.bulletText}
+            content={t('wallet.pools.info.howStep1')}
+          />
+
+          <ThemeText
+            styles={styles.bulletText}
+            content={t('wallet.pools.info.howStep2')}
+          />
+
+          <ThemeText
+            styles={styles.bulletText}
+            content={t('wallet.pools.info.howStep3')}
+          />
+
+          <ThemeText
+            styles={styles.bulletText}
+            content={t('wallet.pools.info.howStep4')}
+          />
+        </>
+      }
+    />
+  );
+
   if (isRefreshing) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <FullLoadingScreen />
+        <View style={[styles.innerContainer, { width: contentWidth }]}>
+          <TopBar title={t('screens.inAccount.settingsContent.pools')} />
+          {infoDropdown}
+          <SectionHeader
+            title={t('wallet.pools.active')}
+            style={styles.firstHeader}
+          />
+          <ListCard>
+            {[0, 1, 2].map(key => (
+              <SkeletonRow
+                key={key}
+                lead={48}
+                title={130}
+                sub={90}
+                minHeight={72}
+              />
+            ))}
+          </ListCard>
+        </View>
       </GlobalThemeView>
     );
   }
@@ -158,50 +222,7 @@ export default function PoolManagementScreen() {
               />
             </View>
           }
-          ListHeaderComponent={
-            <InfoDropdown
-              icon="Info"
-              title={t('wallet.pools.info.title')}
-              infoComponenet={
-                <>
-                  <ThemeText
-                    styles={styles.sectionTitle}
-                    content={t('wallet.pools.info.whatArePools')}
-                  />
-
-                  <ThemeText
-                    styles={styles.bodyText}
-                    content={t('wallet.pools.info.whatArePoolsBody')}
-                  />
-
-                  <ThemeText
-                    styles={styles.sectionTitle}
-                    content={t('wallet.pools.info.howItWorks')}
-                  />
-
-                  <ThemeText
-                    styles={styles.bulletText}
-                    content={t('wallet.pools.info.howStep1')}
-                  />
-
-                  <ThemeText
-                    styles={styles.bulletText}
-                    content={t('wallet.pools.info.howStep2')}
-                  />
-
-                  <ThemeText
-                    styles={styles.bulletText}
-                    content={t('wallet.pools.info.howStep3')}
-                  />
-
-                  <ThemeText
-                    styles={styles.bulletText}
-                    content={t('wallet.pools.info.howStep4')}
-                  />
-                </>
-              }
-            />
-          }
+          ListHeaderComponent={infoDropdown}
         />
 
         <CustomButton

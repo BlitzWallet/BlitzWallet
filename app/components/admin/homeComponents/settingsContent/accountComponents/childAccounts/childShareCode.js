@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 import {
-  ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
@@ -24,6 +23,7 @@ import PageHeader from '../../../../../../functions/CustomElements/redesign/Page
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import { copyToClipboard } from '../../../../../../functions';
 import { useToast } from '../../../../../../../context-store/toastManager';
+import Spinner from '../../../../../../functions/CustomElements/redesign/Spinner';
 
 export default function ChildShareCode() {
   const navigate = useNavigation();
@@ -91,7 +91,7 @@ export default function ChildShareCode() {
               />
             </TouchableOpacity>
             <View style={styles.waiting}>
-              <ActivityIndicator size="small" color={tokens.muted} />
+              <Spinner size="small" color={tokens.muted} />
               <ThemeText
                 styles={[styles.hint, { color: tokens.muted }]}
                 content={t('settings.childAccounts.pairing.waiting')}

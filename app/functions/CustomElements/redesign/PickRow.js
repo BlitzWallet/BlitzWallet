@@ -1,8 +1,9 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 import { RowShell } from './ListRow';
+import Spinner from './Spinner';
 
 // Radio row: 24 radio, off = 2 px `grab` ring, on = accent + white check
 // 14 / stroke 3 (SHARED_FINDINGS C5).
@@ -39,7 +40,7 @@ export default function PickRow({
           ]}
         >
           {saving ? (
-            <ActivityIndicator size="small" color={tokens.accent} />
+            <Spinner size="small" />
           ) : (
             selected && (
               <ThemeIcon

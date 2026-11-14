@@ -30,6 +30,10 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import Skeleton, {
+  SkeletonButtons,
+  SkeletonRow,
+} from '../../../../functions/CustomElements/redesign/Skeleton';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
@@ -279,7 +283,45 @@ export default function PoolDetailScreen(props) {
       <GlobalThemeView useStandardWidth={true}>
         <View style={[styles.container, { width: contentWidth }]}>
           <TopBar title={t('wallet.pools.pool')} />
-          <FullLoadingScreen />
+          {/* Ring, creator line, contributors, buttons and activity. */}
+          <View style={styles.skeletonHero}>
+            {/* The ring's empty track, amount and goal as bars inside it. */}
+            <View
+              style={[styles.skeletonRing, { borderColor: tokens.divider }]}
+            >
+              <Skeleton>
+                <View style={styles.skeletonRingTexts}>
+                  <View style={styles.skeletonFunded} />
+                  <View style={styles.skeletonGoal} />
+                </View>
+              </Skeleton>
+            </View>
+            <Skeleton>
+              <View style={styles.skeletonRingTexts}>
+                <View style={styles.skeletonCreator} />
+                <View style={styles.skeletonContributors} />
+              </View>
+            </Skeleton>
+          </View>
+          <SkeletonButtons style={styles.buttonsContainer} />
+          <View style={styles.activitySection}>
+            <SectionHeader
+              title={t('wallet.pools.activitySection')}
+              first={true}
+            />
+            <ListCard>
+              {[0, 1, 2].map(key => (
+                <SkeletonRow
+                  key={key}
+                  lead={36}
+                  title={130}
+                  sub={0}
+                  trailing={60}
+                  minHeight={60}
+                />
+              ))}
+            </ListCard>
+          </View>
         </View>
       </GlobalThemeView>
     );
@@ -509,6 +551,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 4,
+  },
+  skeletonHero: { alignItems: 'center', marginTop: 10, marginBottom: 4 },
+  // CircularProgress 200 / stroke 10.
+  skeletonRing: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderWidth: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  skeletonRingTexts: { alignItems: 'center', gap: 10 },
+  skeletonFunded: { width: 80, height: 34, borderRadius: 12 },
+  skeletonGoal: { width: 64, height: 12, borderRadius: 6 },
+  skeletonCreator: {
+    width: 140,
+    height: 14,
+    borderRadius: 7,
+    marginTop: 16,
+  },
+  skeletonContributors: {
+    width: 170,
+    height: 32,
+    borderRadius: 16,
+    // Measured against the loaded avatar row on iOS.
+    marginTop: 9.5,
+    marginBottom: 2,
   },
   creatorText: {
     fontSize: SIZES.small,

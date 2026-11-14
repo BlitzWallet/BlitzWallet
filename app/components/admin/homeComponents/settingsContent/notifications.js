@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -20,6 +19,7 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import Spinner from '../../../../functions/CustomElements/redesign/Spinner';
 
 const SERVICE_ROWS = [
   { service: 'contactPayments', key: 'contact' },
@@ -78,7 +78,7 @@ export default function NotificationPreferances() {
       style={[styles.openButton, { backgroundColor: tokens.ground }]}
     >
       {isRegisteringPush || isUpdating ? (
-        <ActivityIndicator size="small" color={tokens.ink} />
+        <Spinner size="small" color={tokens.ink} />
       ) : (
         <ThemeIcon
           redesign

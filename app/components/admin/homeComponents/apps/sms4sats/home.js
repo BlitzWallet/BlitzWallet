@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +7,6 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { getLocalStorageItem, copyToClipboard } from '../../../../../functions';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
@@ -39,6 +32,9 @@ import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
+import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
+import SkeletonBar from '../../../../../functions/CustomElements/redesign/SkeletonBar';
+import Spinner from '../../../../../functions/CustomElements/redesign/Spinner';
 
 const RATE_LIMIT_WINDOW = 30000;
 const RATE_LIMIT_COUNT = 5;
@@ -307,7 +303,23 @@ export default function SMSMessagingHome() {
   );
 
   if (isBootstrapping && !decodedMessages) {
-    return <FullLoadingScreen />;
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('apps.appList.SMS')} />
+          <ListCard style={styles.card}>
+            {[0, 1, 2, 3].map(key => (
+              <SkeletonRow key={key} title={150} sub={110} trailing={64} />
+            ))}
+          </ListCard>
+          <View style={styles.spacer} />
+          <View style={styles.buttonContainer}>
+            <SkeletonBar width="100%" height={52} borderRadius={26} />
+            <SkeletonBar width="100%" height={52} borderRadius={26} />
+          </View>
+        </View>
+      </GlobalThemeView>
+    );
   }
 
   const actionButtons = (
@@ -422,7 +434,7 @@ function SMSHistoryRow({ item, onOpenReceive, showToast, t }) {
       subLines={3}
       trailing={
         isLoading ? (
-          <ActivityIndicator color={tokens.ink} />
+          <Spinner size="small" color={tokens.ink} />
         ) : hasAction ? (
           <TouchableOpacity
             onPress={() => onOpenReceive(item, setIsLoading)}

@@ -15,7 +15,7 @@ import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import Skeleton from '../../functions/CustomElements/redesign/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 
@@ -78,7 +78,38 @@ export default function BTCMapMerchantContent({
   const payBTN = t('screens.btcMap.merchant.pay');
 
   if (detailLoading) {
-    return <FullLoadingScreen showText={false} />;
+    // Hero, contact lines and the two action buttons as grey placeholders.
+    return (
+      <View style={styles.content}>
+        <View style={styles.scrollView}>
+          <Skeleton>
+            <View style={styles.hero}>
+              <View style={styles.skeletonIcon} />
+              <View style={styles.skeletonName} />
+              <View style={styles.skeletonAddress} />
+            </View>
+          </Skeleton>
+          <View
+            style={[styles.contactSection, { backgroundColor: tokens.ground }]}
+          >
+            <Skeleton>
+              {[0, 1].map(key => (
+                <View key={key} style={styles.contactRow}>
+                  <View style={styles.skeletonContactIcon} />
+                  <View style={styles.skeletonContactText} />
+                </View>
+              ))}
+            </Skeleton>
+          </View>
+        </View>
+        <View style={styles.actionRow}>
+          <Skeleton>
+            <View style={styles.skeletonButton} />
+            <View style={styles.skeletonButton} />
+          </Skeleton>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -89,7 +120,9 @@ export default function BTCMapMerchantContent({
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View style={styles.hero}>
-          <View style={[styles.iconContainer, { backgroundColor: tokens.disc }]}>
+          <View
+            style={[styles.iconContainer, { backgroundColor: tokens.disc }]}
+          >
             <ThemeIcon
               redesign
               size={24}
@@ -107,10 +140,7 @@ export default function BTCMapMerchantContent({
 
         {hasContact && (
           <View
-            style={[
-              styles.contactSection,
-              { backgroundColor: tokens.ground },
-            ]}
+            style={[styles.contactSection, { backgroundColor: tokens.ground }]}
           >
             {[
               {
@@ -174,10 +204,7 @@ export default function BTCMapMerchantContent({
       </CustomScrollView>
       <View style={styles.actionRow}>
         <CustomButton
-          buttonStyles={[
-            styles.actionBtn,
-            { backgroundColor: tokens.ground },
-          ]}
+          buttonStyles={[styles.actionBtn, { backgroundColor: tokens.ground }]}
           textStyles={{ color: tokens.ink }}
           enableElipsis={false}
           textContent={directionsBTN}
@@ -186,10 +213,7 @@ export default function BTCMapMerchantContent({
           tone="secondary"
         />
         <CustomButton
-          buttonStyles={[
-            styles.actionBtn,
-            { backgroundColor: tokens.accent },
-          ]}
+          buttonStyles={[styles.actionBtn, { backgroundColor: tokens.accent }]}
           textStyles={{ color: tokens.onAccent }}
           enableElipsis={false}
           textContent={payBTN}
@@ -236,6 +260,28 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+  skeletonIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 12,
+  },
+  skeletonName: { width: 180, height: 22, borderRadius: 11, marginVertical: 3 },
+  skeletonAddress: {
+    width: 240,
+    height: 15,
+    borderRadius: 8,
+    marginTop: 2,
+    marginBottom: 3,
+  },
+  skeletonContactIcon: { width: 18, height: 18, borderRadius: 9 },
+  skeletonContactText: { flex: 1, height: 15, borderRadius: 8 },
+  skeletonButton: {
+    width: '100%',
+    height: 52,
+    borderRadius: 26,
+    marginBottom: 12,
   },
   contactSection: {
     width: '100%',

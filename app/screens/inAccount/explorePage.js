@@ -24,11 +24,11 @@ import { useGlobalContextProvider } from '../../../context-store/context';
 import { useTheme } from '../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { LineChart } from 'react-native-wagmi-charts';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import fetchBackend from '../../../db/handleBackend';
 import { useKeysContext } from '../../../context-store/keys';
 import { useServerTimeOnly } from '../../../context-store/serverTime';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import Skeleton from '../../functions/CustomElements/redesign/Skeleton';
 import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
 import Segmented from '../../functions/CustomElements/redesign/Segmented';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
@@ -199,7 +199,49 @@ export default function ExploreUsers() {
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar title={t('screens.inAccount.settingsContent.blitz stats')} />
         {isLoading ? (
-          <FullLoadingScreen />
+          // Same layout as the loaded page: static text, the progress track,
+          // chart card, day labels and time-frame control are real; only the
+          // numbers are bars.
+          <View style={styles.scroll}>
+            <ThemeText
+              content={t('screens.inAccount.explorePage.title')}
+              styles={[styles.label, { color: tokens.muted }]}
+            />
+            <Skeleton>
+              <View style={styles.skeleton}>
+                <View style={styles.skeletonAmount} />
+                <View style={styles.skeletonGoal} />
+              </View>
+            </Skeleton>
+            <ProgressBar value={0} style={styles.progress} />
+            <Skeleton>
+              <View style={styles.skeleton}>
+                <View style={styles.skeletonToday} />
+              </View>
+            </Skeleton>
+            <View
+              style={[
+                styles.chartCard,
+                styles.skeletonChart,
+                { backgroundColor: tokens.surface },
+              ]}
+            />
+            <View style={styles.xLabelsRow}>
+              {xLabels.map((label, i) => (
+                <Text key={i} style={[styles.xLabel, { color: tokens.muted }]}>
+                  {label}
+                </Text>
+              ))}
+            </View>
+            <View style={styles.segmented}>
+              <Segmented
+                options={timeFrameOptions}
+                value={timeFrame}
+                onChange={setTimeFrame}
+                accessibilityLabel={t('screens.inAccount.explorePage.title')}
+              />
+            </View>
+          </View>
         ) : !hasData ? (
           <View style={styles.empty}>
             <EmptyState
@@ -370,6 +412,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   segmented: { marginTop: 12 },
+  skeleton: { alignItems: 'center' },
+  // Bars sit in slots as tall as the text lines they stand in for (amount
+  // line measured 67.5 on iOS, 14/20 lines) so nothing moves on load.
+  skeletonAmount: {
+    width: 190,
+    height: 46,
+    borderRadius: 14,
+    marginVertical: 10.75,
+  },
+  skeletonGoal: { width: 240, height: 14, borderRadius: 7, marginVertical: 3 },
+  skeletonToday: {
+    width: 150,
+    height: 14,
+    borderRadius: 7,
+    marginTop: 13,
+    marginBottom: 3,
+  },
+  // chartCard paddingTop 16 + the 178 pt line chart.
+  skeletonChart: { height: 194 },
   xLabelsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

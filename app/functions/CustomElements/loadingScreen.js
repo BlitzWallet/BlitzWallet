@@ -1,8 +1,9 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { COLORS, FONT } from '../../constants';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useInSheet } from './redesign/sheetSurface';
+import Spinner from './redesign/Spinner';
 
 export default function FullLoadingScreen({
   text,
@@ -27,7 +28,7 @@ export default function FullLoadingScreen({
       }}
     >
       {showLoadingIcon && (
-        <ActivityIndicator
+        <Spinner
           color={
             loadingColor
               ? loadingColor
@@ -35,9 +36,10 @@ export default function FullLoadingScreen({
               ? theme
                 ? COLORS.lightModeText
                 : COLORS.darkModeText
-              : tokens.ink
+              : undefined
           }
           size={size}
+          accessibilityLabel={showText ? text : undefined}
         />
       )}
       {showText && (

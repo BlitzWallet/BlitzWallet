@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { deleteGift, getGiftCard } from '../../../../../db';
 import { parseGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
 import { useNavigation } from '@react-navigation/native';
@@ -47,6 +47,7 @@ import {
 } from '../../../../functions/gift/deriveGiftWallet';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import Spinner from '../../../../functions/CustomElements/redesign/Spinner';
 
 export default function ClaimGiftScreen({
   url,
@@ -664,7 +665,7 @@ export default function ClaimGiftScreen({
 
       <AnimatedStep active={page === 'claiming'} direction={1} fadeOnly>
         <View style={styles.claiming}>
-          <ActivityIndicator size="large" color={tokens.accent} />
+          <Spinner size="large" />
           <ThemeText
             styles={styles.title}
             content={

@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
@@ -444,7 +444,18 @@ function CountryPickerPage({
       />
 
       {loadingCountries ? (
-        <FullLoadingScreen showText={false} />
+        <ListCard style={styles.countryListCard}>
+          {[0, 1, 2, 3, 4, 5, 6].map(key => (
+            <SkeletonRow
+              key={key}
+              lead={36}
+              title={130}
+              sub={0}
+              trailing={0}
+              minHeight={56}
+            />
+          ))}
+        </ListCard>
       ) : (
         <ListCard style={styles.countryListCard}>
           <FlatList

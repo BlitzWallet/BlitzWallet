@@ -1,9 +1,4 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -34,6 +29,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { useTranslation } from 'react-i18next';
+import Spinner from '../../../../../functions/CustomElements/redesign/Spinner';
 
 const FIELD_CONFIG = {
   name: {
@@ -337,7 +333,7 @@ export default function EditProfileFieldPage(props) {
             {fieldKey === 'uniquename' && (
               <View style={styles.usernameIcon}>
                 {usernameState === USERNAME_STATE.CHECKING ? (
-                  <ActivityIndicator size="small" color={tokens.muted} />
+                  <Spinner size="small" color={tokens.muted} />
                 ) : usernameState === USERNAME_STATE.AVAILABLE ? (
                   <ThemeIcon
                     redesign

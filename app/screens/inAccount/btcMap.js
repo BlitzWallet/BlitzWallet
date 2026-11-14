@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
-  ActivityIndicator,
   StyleSheet,
   Platform,
   InteractionManager,
@@ -28,6 +27,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import Spinner from '../../functions/CustomElements/redesign/Spinner';
 
 const DEFAULT_ZOOM = 13;
 const DISABLED_MAP_PROPS = {
@@ -518,7 +518,7 @@ export default function BTCMapScreen() {
               { bottom: pillBottom, backgroundColor: tokens.surface },
             ]}
           >
-            <ActivityIndicator size="small" color={tokens.accent} />
+            <Spinner size="small" />
             <ThemeText
               content={t('screens.btcMap.map.loadingMerchants')}
               styles={styles.countText}

@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../hooks/themeColors';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
@@ -22,6 +21,7 @@ import SheetHeader from '../../functions/CustomElements/redesign/SheetHeader';
 import ListCard, {
   ListDivider,
 } from '../../functions/CustomElements/redesign/ListCard';
+import { SkeletonRow } from '../../functions/CustomElements/redesign/Skeleton';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 
 const MAX_ROWS = 60;
@@ -128,7 +128,25 @@ export default function BTCMapListContent({
   };
 
   if (!places) {
-    return <FullLoadingScreen showText={false} />;
+    return (
+      <View style={styles.container}>
+        <SheetHeader
+          first
+          title={t('screens.btcMap.map.placesHere', { count: placeCount })}
+        />
+        <ListCard style={styles.card} dividerInset={72}>
+          {[0, 1, 2, 3, 4, 5].map(key => (
+            <SkeletonRow
+              key={key}
+              lead={44}
+              title={160}
+              sub={90}
+              trailing={48}
+            />
+          ))}
+        </ListCard>
+      </View>
+    );
   }
 
   return (

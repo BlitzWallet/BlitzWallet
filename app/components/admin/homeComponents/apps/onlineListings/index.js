@@ -11,7 +11,6 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import { getNormalizedWebsiteUrl } from '../../../../../functions/getNormalizedWebsiteUrl';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   useGlobalThemeContext,
@@ -29,6 +28,7 @@ import { useGlobalAppData } from '../../../../../../context-store/appData';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
+import Skeleton from '../../../../../functions/CustomElements/redesign/Skeleton';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
@@ -260,9 +260,29 @@ export default function ViewOnlineListings({ removeUserLocal }) {
             title={t('apps.onlineListings.topBarLabel')}
             onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
           />
-          <FullLoadingScreen
-            text={t('apps.onlineListings.loadingShopMessage')}
-          />
+          <Skeleton>
+            <View style={styles.stickySearchHeader}>
+              <View style={styles.skeletonSearch} />
+            </View>
+          </Skeleton>
+          {[0, 1, 2, 3].map(key => (
+            <ListCard key={key} style={styles.card}>
+              <Skeleton>
+                <View style={styles.cardHeader}>
+                  <View style={styles.businessCopy}>
+                    <View style={styles.skeletonTitle} />
+                    <View style={styles.skeletonDesc} />
+                  </View>
+                  <View style={styles.skeletonPill} />
+                </View>
+              </Skeleton>
+              <Skeleton>
+                <View style={styles.button}>
+                  <View style={styles.skeletonLink} />
+                </View>
+              </Skeleton>
+            </ListCard>
+          ))}
         </View>
       </CustomKeyboardAvoidingView>
     );
@@ -489,6 +509,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     includeFontPadding: false,
   },
+  skeletonTitle: { width: 150, height: 16, borderRadius: 8 },
+  skeletonDesc: { width: 220, height: 14, borderRadius: 7, marginTop: 8 },
+  skeletonPill: { width: 70, height: 28, borderRadius: 14 },
+  skeletonSearch: { width: '100%', height: 52, borderRadius: 26 },
+  skeletonLink: { width: 110, height: 14, borderRadius: 7 },
   filterButton: {
     position: 'relative',
   },

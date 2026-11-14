@@ -17,7 +17,12 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import SavingsActivityContainer from './SavingsActivityContainer';
 import SavingsActionButtons from './SavingsActionButtons';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import {
+  SkeletonAmount,
+  SkeletonButtons,
+  SkeletonRow,
+} from '../../../../functions/CustomElements/redesign/Skeleton';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
@@ -83,7 +88,27 @@ export default function SavingsHome() {
               />
             }
           />
-          <FullLoadingScreen showText={false} />
+          {/* Same layout as the loaded page: hero, buttons, goals, activity. */}
+          <View style={styles.heroCard}>
+            <SkeletonAmount />
+          </View>
+          <SkeletonButtons />
+          <View style={styles.goalsCard}>
+            <ListCard>
+              <SkeletonRow sub={100} trailing={0} minHeight={72} />
+            </ListCard>
+          </View>
+          <View>
+            <SectionHeader
+              title={t('savings.activity.title')}
+              style={styles.skeletonActivityHeader}
+            />
+            <ListCard dividerInset={68}>
+              {[0, 1, 2].map(key => (
+                <SkeletonRow key={key} />
+              ))}
+            </ListCard>
+          </View>
         </View>
       </GlobalThemeView>
     );
@@ -239,6 +264,8 @@ const styles = StyleSheet.create({
   goalsCard: {
     marginTop: 20,
   },
+  // Same spacing as SavingsActivityContainer's header.
+  skeletonActivityHeader: { marginTop: 20, marginBottom: 8 },
   rowTitle: {
     fontSize: 15,
     lineHeight: 21,

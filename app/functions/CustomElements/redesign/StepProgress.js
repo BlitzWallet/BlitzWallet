@@ -1,66 +1,9 @@
-import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
-import Svg, { Circle } from 'react-native-svg';
 import { FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
-
-// Spinning ring: 56 header (stroke 5) or 20 active step (stroke 5), ~30 % arc.
-function Ring({ size, strokeWidth, color, track }) {
-  const reducedMotion = useReducedMotion();
-  const rotation = useSharedValue(0);
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    rotation.value = withRepeat(
-      withTiming(360, { duration: 900, easing: Easing.linear }),
-      -1,
-      false,
-    );
-  }, [reducedMotion, rotation]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
-
-  return (
-    <Animated.View style={[{ width: size, height: size }, animatedStyle]}>
-      <Svg width={size} height={size}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={track}
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference * 0.7}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-    </Animated.View>
-  );
-}
+import Spinner from './Spinner';
 
 // D297 export progress: ring header, 20/26 title, 15/22 sub, 36 pt step rows.
 // steps: [{ key, label, state: 'done' | 'active' | 'pending' | 'skipped' }]
@@ -70,12 +13,7 @@ export default function StepProgress({ title, subtitle, steps = [] }) {
   const visibleSteps = steps.filter(step => step.state !== 'skipped');
   return (
     <View style={styles.container}>
-      <Ring
-        size={56}
-        strokeWidth={5}
-        color={tokens.accent}
-        track={tokens.divider}
-      />
+      <Spinner accessibilityLabel={title} />
       <ThemeText content={title} styles={styles.title} />
       {!!subtitle && (
         <ThemeText
@@ -103,12 +41,7 @@ export default function StepProgress({ title, subtitle, steps = [] }) {
                     />
                   </View>
                 ) : step.state === 'active' ? (
-                  <Ring
-                    size={20}
-                    strokeWidth={5}
-                    color={tokens.accent}
-                    track={tokens.divider}
-                  />
+                  <Spinner size={20} strokeWidth={5} />
                 ) : (
                   <View
                     style={[

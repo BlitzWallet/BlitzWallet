@@ -50,7 +50,11 @@ import Animated, {
 import { BalanceDots } from '../../homeLightning/balanceDots';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import {
+  SkeletonAmount,
+  SkeletonButtons,
+  SkeletonRow,
+} from '../../../../../functions/CustomElements/redesign/Skeleton';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
@@ -465,7 +469,38 @@ export default function EditAccountPage(props) {
       <GlobalThemeView useStandardWidth={true}>
         <View style={[styles.container, { width: contentWidth }]}>
           <TopBar title={accountInformation.name} />
-          <FullLoadingScreen showText={false} />
+          {/* Same layout as the loaded page, balances and rows as bars. */}
+          <View style={styles.avatarContainer}>
+            <View style={[styles.avatar, { backgroundColor: tokens.surface }]}>
+              <AccountProfileImage
+                imageSize={80}
+                account={accountInformation}
+              />
+            </View>
+          </View>
+          <View style={styles.skeletonHero}>
+            <SkeletonAmount />
+          </View>
+          {(isChild || custodyAccountsList?.length >= 2) && (
+            <SkeletonButtons style={styles.buttonRow} />
+          )}
+          {[detailRows, manageRows].map(
+            (rows, index) =>
+              !!rows.length && (
+                <ListCard key={index} style={styles.card}>
+                  {rows.map(row => (
+                    <SkeletonRow
+                      key={row.key}
+                      lead={0}
+                      title={120}
+                      sub={0}
+                      trailing={0}
+                      minHeight={56}
+                    />
+                  ))}
+                </ListCard>
+              ),
+          )}
         </View>
       </GlobalThemeView>
     );
@@ -716,6 +751,12 @@ const styles = StyleSheet.create({
   pagerView: {
     width: '100%',
     height: 144,
+  },
+
+  // Matches the pager (144 high, amount 20 from the top) so nothing jumps.
+  skeletonHero: {
+    height: 144,
+    paddingTop: 20,
   },
 
   pageContainer: {

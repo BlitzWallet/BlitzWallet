@@ -6,7 +6,6 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import { useKeysContext } from '../../../../../context-store/keys';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {
   fetchAndCacheGiftCardData,
   saveGiftCardData,
@@ -21,6 +20,10 @@ import { useTranslation } from 'react-i18next';
 import { copyToClipboard } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import Skeleton, {
+  SkeletonAmount,
+  SkeletonRow,
+} from '../../../../functions/CustomElements/redesign/Skeleton';
 import DiscText from '../../../../functions/CustomElements/redesign/DiscText';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
@@ -101,9 +104,29 @@ export default function ViewGiftCardCodePage({ route }) {
       <GlobalThemeView useStandardWidth={true} styles={styles.page}>
         <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
           <TopBar title={title} />
-          <FullLoadingScreen
-            text={t('contacts.viewGiftCardCode.loadingMessage')}
-          />
+          <View style={styles.scrollContent}>
+            <View style={styles.hero}>
+              <Skeleton>
+                <View style={styles.skeletonHero}>
+                  <View style={styles.skeletonDisc} />
+                  <View style={styles.skeletonSub} />
+                </View>
+              </Skeleton>
+              {!isOutgoingPayment && <SkeletonAmount label={0} amount={190} />}
+            </View>
+            <SectionHeader
+              title={t('contacts.viewGiftCardCode.detailsHeader')}
+            />
+            <ListCard>
+              <SkeletonRow
+                lead={0}
+                title={90}
+                sub={220}
+                trailing={0}
+                minHeight={72}
+              />
+            </ListCard>
+          </View>
         </View>
       </GlobalThemeView>
     );
@@ -295,6 +318,15 @@ const styles = StyleSheet.create({
   inner: { flex: 1 },
   scrollContent: { paddingTop: 8, paddingBottom: 24 },
   hero: { alignItems: 'center' },
+  skeletonHero: { alignItems: 'center' },
+  skeletonDisc: { width: 72, height: 72, borderRadius: 36 },
+  skeletonSub: {
+    width: 200,
+    height: 16,
+    borderRadius: 8,
+    marginTop: 14,
+    marginBottom: 6,
+  },
   heroSub: { marginTop: 14, textAlign: 'center' },
   warning: { marginTop: 24 },
   messageCard: { marginTop: 24, borderRadius: 20, padding: 16 },

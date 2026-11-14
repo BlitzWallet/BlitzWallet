@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   SafeAreaView,
   StyleSheet,
@@ -28,6 +27,7 @@ import {
 } from '../functions/spark';
 import { useActiveCustodyAccount } from '../../context-store/activeAccount';
 import CustomSettingsTopBar from '../functions/CustomElements/settingsTopBar';
+import Spinner from '../functions/CustomElements/redesign/Spinner';
 
 const HODL_STATUS = {
   0: 'Pending / held',
@@ -370,7 +370,7 @@ export default function SparkHodlInvoiceTest() {
         <View style={styles.section}>
           <View style={styles.rowBetween}>
             <Text style={styles.sectionTitle}>Wallet</Text>
-            {loading ? <ActivityIndicator /> : null}
+            {loading ? <Spinner size="small" /> : null}
           </View>
           <Text style={styles.muted}>
             Active wallet: {canUseWallet ? 'available' : 'missing'}

@@ -174,3 +174,20 @@ jest.mock('@breeztech/breez-sdk-spark-react-native', () => {
     connect: jest.fn(),
   };
 });
+
+// The shared loader spins via Reanimated (ESM, not transformed here); every
+// screen that shows a spinner would otherwise fail to load. Tests that need
+// the real one can jest.unmock it.
+jest.mock('./app/functions/CustomElements/redesign/Spinner', () => {
+  const { View } = require('react-native');
+  const MockReact = require('react');
+  return {
+    __esModule: true,
+    default: ({ accessibilityLabel }) =>
+      MockReact.createElement(View, {
+        accessibilityRole: 'progressbar',
+        accessibilityLabel,
+        testID: 'spinner',
+      }),
+  };
+});

@@ -19,7 +19,10 @@ import {
   previewUnilateralExit,
   runUnilateralExit,
 } from '../../../../../../functions/spark';
-import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
+import {
+  SkeletonAmount,
+  SkeletonRow,
+} from '../../../../../../functions/CustomElements/redesign/Skeleton';
 
 export default function UnilateralExitReview(props) {
   const { address, feeRate } = props.route.params;
@@ -97,9 +100,32 @@ export default function UnilateralExitReview(props) {
   if (!preview && !error) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <TopBar title={t('settings.unilateralExit.reviewTitle')} />
         <View style={[styles.container, { width: contentWidth }]}>
-          <FullLoadingScreen />
+          <TopBar title={t('settings.unilateralExit.reviewTitle')} />
+          <View style={styles.scrollContent}>
+            <View style={styles.hero}>
+              <SkeletonAmount label={0} amount={190} />
+            </View>
+            <ListCard dividerInset={0} style={styles.block}>
+              {[0, 1, 2, 3, 4, 5].map(key => (
+                <SkeletonRow
+                  key={key}
+                  lead={0}
+                  title={90}
+                  sub={0}
+                  trailing={110}
+                  minHeight={44}
+                />
+              ))}
+            </ListCard>
+          </View>
+          <View style={styles.spacer} />
+          <CustomButton
+            disabled={true}
+            textContent={t('settings.unilateralExit.exitButton')}
+            actionFunction={() => {}}
+            size={'regular'}
+          />
         </View>
       </GlobalThemeView>
     );
@@ -209,4 +235,5 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 24 },
   hero: { marginTop: 24 },
   block: { marginTop: 16 },
+  spacer: { flex: 1 },
 });

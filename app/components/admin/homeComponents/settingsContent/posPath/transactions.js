@@ -8,7 +8,6 @@ import {
 import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePOSTransactions } from '../../../../../../context-store/pos';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -22,6 +21,7 @@ import ListCard, {
   ListDivider,
 } from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 
 export default function ViewPOSTransactions() {
@@ -84,7 +84,32 @@ export default function ViewPOSTransactions() {
     [masterInfoObject, fiatStats, t, navigate],
   );
 
-  if (isLoading) return <FullLoadingScreen />;
+  // Same shell as the loaded page so the header and search don't jump.
+  if (isLoading) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('settings.posPath.transactions.title')} />
+          {/* Shown, not usable, until transactions load. */}
+          <View style={styles.search} pointerEvents="none">
+            <SearchField
+              pill
+              value=""
+              onChangeText={() => {}}
+              placeholder={t(
+                'settings.posPath.transactions.empNamePlaceholder',
+              )}
+            />
+          </View>
+          <ListCard dividerInset={52} style={styles.card}>
+            {[0, 1, 2, 3, 4, 5].map(key => (
+              <SkeletonRow key={key} sub={90} trailing={18} />
+            ))}
+          </ListCard>
+        </View>
+      </GlobalThemeView>
+    );
+  }
 
   if (!groupedTxs.length) {
     return (

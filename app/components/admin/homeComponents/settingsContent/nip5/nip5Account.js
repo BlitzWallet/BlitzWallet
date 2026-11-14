@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
@@ -37,6 +36,7 @@ import { nip19 } from 'nostr-tools';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
+import Spinner from '../../../../../functions/CustomElements/redesign/Spinner';
 
 const NIP5_DOMAIN = '@blitzwalletapp.com';
 const MAX_NAME_LENGTH = 60;
@@ -283,7 +283,7 @@ export default function Nip5VerificationPage() {
                 />
               </View>
               {nameStatus === 'checking' ? (
-                <ActivityIndicator size="small" color={tokens.muted} />
+                <Spinner size="small" color={tokens.muted} />
               ) : nameStatus === 'available' && !isOwnName ? (
                 <ThemeIcon
                   redesign

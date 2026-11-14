@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { formatBalanceAmount } from '../../../../functions';
 import { FONT } from '../../../../constants';
@@ -164,11 +164,9 @@ function AmountField({ asset, label, amount, active, loading, onPress }) {
           content={label}
         />
         {loading ? (
-          <FullLoadingScreen
-            showText={false}
-            size="small"
-            containerStyles={styles.fieldLoading}
-          />
+          <View style={styles.fieldLoading}>
+            <SkeletonBar width={110} height={24} borderRadius={12} />
+          </View>
         ) : (
           <ThemeText
             CustomNumberOfLines={1}
@@ -264,6 +262,7 @@ const styles = StyleSheet.create({
     flex: 0,
     height: 34,
     alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   flipSlot: {
     height: 0,

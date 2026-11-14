@@ -13,7 +13,6 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
@@ -29,11 +28,19 @@ import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState
 import ListCard, {
   ListDivider,
 } from '../../../../functions/CustomElements/redesign/ListCard';
+import Skeleton from '../../../../functions/CustomElements/redesign/Skeleton';
 import ActivityRow, {
+  ActivityRowSkeleton,
   buildActivitySections,
 } from '../viewAllComponents/activityRow';
 
 const CHART_HEIGHT = 120;
+// One zero-value day per day of the current month, for the loading chart.
+const EMPTY_MONTH = () => {
+  const now = new Date();
+  const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  return Array.from({ length: days }, () => ({ value: 0 }));
+};
 const MAX_BAR_HEIGHT = 114;
 const DASH_HEIGHT = 4;
 
@@ -236,7 +243,23 @@ export default function AnalyticsMonthPage(props) {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t(isIncome ? 'constants.received' : 'constants.sent')} />
         {analytics.isLoading ? (
-          <FullLoadingScreen showText={false} />
+          <View>
+            {/* Hero label and amount as bars; the chart's day ticks and date
+                labels don't depend on the data, so draw them for real. */}
+            <Skeleton>
+              <View style={styles.skeletonHero}>
+                <View style={styles.skeletonLabel} />
+                <View style={styles.skeletonAmount} />
+              </View>
+            </Skeleton>
+            <DailyBars cumulativeData={EMPTY_MONTH()} />
+            <SectionHeader title={t('analytics.transactions')} />
+            <ListCard dividerInset={68}>
+              {[0, 1, 2, 3].map(key => (
+                <ActivityRowSkeleton key={key} />
+              ))}
+            </ListCard>
+          </View>
         ) : (
           <FlatList
             data={rows}
@@ -295,6 +318,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     includeFontPadding: false,
+  },
+  skeletonHero: { marginTop: 24 },
+  skeletonLabel: { width: 90, height: 14, borderRadius: 7, marginVertical: 3 },
+  skeletonAmount: {
+    width: 190,
+    height: 44,
+    borderRadius: 14,
+    marginVertical: 4,
   },
   empty: { marginTop: 48 },
   squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,7 @@ import { useTheme } from '../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { exportTransactionsCsv } from '../exportTransactions/exportTracker';
 import TxFilterHalfModal from '../homeLightning/txFilterHalfModal';
+import Spinner from '../../../../functions/CustomElements/redesign/Spinner';
 
 // Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
 const SHEET_CHROME = 49;
@@ -96,7 +97,9 @@ export default function ExportOrFilterHalfModal({
             title={t('screens.inAccount.viewAllTxPage.exportTitle')}
             onPress={handleExport}
             showChevron={!isExporting}
-            trailing={isExporting && <ActivityIndicator color={tokens.muted} />}
+            trailing={
+              isExporting && <Spinner size="small" color={tokens.muted} />
+            }
           />
           <ListDivider inset={68} />
           <ListRow

@@ -1,8 +1,9 @@
-import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 import { useTheme } from '../../../../context-store/theme';
 import { useInSheet } from './sheetSurface';
+import Spinner from './Spinner';
 
 export default function BudgetCurrencyButton({
   label,
@@ -26,7 +27,7 @@ export default function BudgetCurrencyButton({
     >
       <ThemeText content={label} styles={styles.currencyLabel} />
       {disabled ? (
-        <ActivityIndicator size="small" color={tokens.ink} />
+        <Spinner size="small" color={tokens.ink} />
       ) : (
         <ThemeIcon
           redesign

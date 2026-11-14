@@ -30,6 +30,7 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { KeyboardController } from 'react-native-keyboard-controller';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import Skeleton from '../../../../../functions/CustomElements/redesign/Skeleton';
 import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import DiscText from '../../../../../functions/CustomElements/redesign/DiscText';
@@ -67,6 +68,8 @@ const popularRank = code => {
   const index = POPULAR_SERVICES.indexOf(code);
   return index === -1 ? POPULAR_SERVICES.length : index;
 };
+
+const SKELETON_ROWS = [0, 1, 2, 3];
 
 export default function SMSMessagingReceivedPage(props) {
   const selectedCountry = props.route.params?.selectedCountry ?? {
@@ -368,9 +371,26 @@ export default function SMSMessagingReceivedPage(props) {
           pill
         />
         {isLoadingServices ? (
-          <FullLoadingScreen
-            text={t('apps.sms4sats.receivePage.locationLoadingMessage')}
-          />
+          // Real tile cards (3 per row, like the list), disc + name as bars.
+          <View style={styles.skeletonGrid}>
+            {SKELETON_ROWS.map(row => (
+              <View key={row} style={styles.skeletonRow}>
+                {SKELETON_ROWS.slice(0, 3).map(col => (
+                  <View
+                    key={col}
+                    style={[styles.tile, { backgroundColor: tokens.surface }]}
+                  >
+                    <Skeleton>
+                      <View style={styles.skeletonTileInner}>
+                        <View style={styles.skeletonDisc} />
+                        <View style={styles.skeletonName} />
+                      </View>
+                    </Skeleton>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
         ) : filteredList.length === 0 ? (
           <View style={styles.empty}>
             <EmptyState
@@ -506,6 +526,12 @@ const styles = StyleSheet.create({
   row: {
     gap: 10,
   },
+  // Same paddingTop / gaps as the FlatList; name bar sits in the 12 pt line.
+  skeletonGrid: { paddingTop: 16, gap: 10 },
+  skeletonRow: { flexDirection: 'row', gap: 10 },
+  skeletonTileInner: { alignItems: 'center', gap: 10 },
+  skeletonDisc: { width: 40, height: 40, borderRadius: 20 },
+  skeletonName: { width: 64, height: 12, borderRadius: 6, marginBottom: 3 },
   tile: {
     flex: 1 / 3,
     alignItems: 'center',

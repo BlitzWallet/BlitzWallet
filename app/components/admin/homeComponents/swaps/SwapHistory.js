@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import { SkeletonRow } from '../../../../functions/CustomElements/redesign/Skeleton';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { ListDivider } from '../../../../functions/CustomElements/redesign/ListCard';
@@ -151,7 +151,19 @@ export default function SwapHistory({ onBack }) {
 
   let body;
   if (isLoading) {
-    body = <FullLoadingScreen showText={false} />;
+    body = (
+      <View
+        style={[
+          styles.list,
+          styles.listContent,
+          { backgroundColor: tokens.ground },
+        ]}
+      >
+        {[0, 1, 2, 3, 4, 5].map(key => (
+          <SkeletonRow key={key} title={150} sub={90} />
+        ))}
+      </View>
+    );
   } else if (loadFailed || !swapHistory.swaps.length) {
     body = (
       <View style={styles.empty}>

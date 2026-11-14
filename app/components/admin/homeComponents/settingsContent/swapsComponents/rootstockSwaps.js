@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { loadSwaps } from '../../../../../functions/boltz/rootstock/swapDb';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -16,6 +15,7 @@ import { FONT } from '../../../../../constants';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
 import SupportMessage from './supportMessage';
 
 export default function RoostockSwapsPage() {
@@ -54,10 +54,11 @@ export default function RoostockSwapsPage() {
 
   if (swapList === null) {
     return (
-      <FullLoadingScreen
-        textStyles={styles.loadingText}
-        text={t('settings.viewRoostockSwaps.loadingMessage')}
-      />
+      <ListCard dividerInset={0} style={styles.card}>
+        {[0, 1, 2, 3, 4, 5].map(key => (
+          <SkeletonRow key={key} lead={0} title={110} sub={200} trailing={90} />
+        ))}
+      </ListCard>
     );
   }
   if (!swapList?.length) {
@@ -154,8 +155,5 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     flexShrink: 1,
     textAlign: 'right',
-  },
-  loadingText: {
-    textAlign: 'center',
   },
 });

@@ -16,12 +16,13 @@ import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useAnalytics } from '../../../context-store/analyticsContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import Skeleton from '../../functions/CustomElements/redesign/Skeleton';
+import SkeletonBar from '../../functions/CustomElements/redesign/SkeletonBar';
 import Segmented from '../../functions/CustomElements/redesign/Segmented';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import Disc from '../../functions/CustomElements/redesign/Disc';
@@ -99,181 +100,191 @@ export default function AnalyticsPage() {
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('analytics.home.title')} />
-        {isLoading ? (
-          <FullLoadingScreen showText={false} />
-        ) : (
-          <CustomScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: bottomPadding }}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.segmentRow}>
-              <Segmented
-                fit
-                value={localDenomination}
-                onChange={setLocalDenomination}
-                options={[
-                  { value: 'sats', label: t('constants.bitcoin_upper') },
-                  { value: 'fiat', label: t('constants.dollars_upper') },
-                ]}
-              />
-            </View>
-
-            <View style={styles.balanceCard}>
-              <BalancePieChart isBalanceHidden={isBalanceHidden} />
-            </View>
-
-            <SectionHeader title={monthName} style={styles.sectionHeader} />
-            <Animated.View
-              key={localDenomination}
-              entering={FadeIn.duration(200)}
-              style={styles.metricsRow}
-            >
-              {metricCards.map(card => (
-                <TouchableOpacity
-                  key={card.key}
-                  style={[
-                    styles.metricCard,
-                    { backgroundColor: tokens.surface },
-                  ]}
-                  onPress={() =>
-                    navigate.navigate(card.route, { localDenomination })
-                  }
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.metricTop}>
-                    <Disc icon={card.icon} size={32} iconSize={16} />
-                    <ThemeIcon
-                      redesign
-                      iconName="ChevronRight"
-                      size={18}
-                      colorOverride={tokens.muted}
-                    />
-                  </View>
-                  <ThemeText
-                    styles={[styles.metricLabel, { color: tokens.muted }]}
-                    content={card.label}
-                  />
-                  {isReloading ? (
-                    <FullLoadingScreen size="small" showText={false} />
-                  ) : (
-                    <>
-                      <ThemeText
-                        CustomNumberOfLines={1}
-                        adjustsFontSizeToFit={true}
-                        styles={styles.metricAmount}
-                        content={formatMonthAmount(card.amount)}
-                      />
-                      <ThemeText
-                        styles={[styles.metricSub, { color: tokens.muted }]}
-                        content={
-                          card.count === 0
-                            ? card.emptyText
-                            : t('analytics.numberOfTxs', { count: card.count })
-                        }
-                      />
-                    </>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </Animated.View>
-
-            <SectionHeader
-              title={t('analytics.home.budget')}
-              style={styles.sectionHeader}
+        {/* Balances and the budget setting are already known, so the page
+            renders at once; only this month's figures wait for analytics. */}
+        <CustomScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.segmentRow}>
+            <Segmented
+              fit
+              value={localDenomination}
+              onChange={setLocalDenomination}
+              options={[
+                { value: 'sats', label: t('constants.bitcoin_upper') },
+                { value: 'fiat', label: t('constants.dollars_upper') },
+              ]}
             />
-            {!budget ? (
+          </View>
+
+          <View style={styles.balanceCard}>
+            <BalancePieChart isBalanceHidden={isBalanceHidden} />
+          </View>
+
+          <SectionHeader title={monthName} style={styles.sectionHeader} />
+          <Animated.View
+            key={localDenomination}
+            entering={FadeIn.duration(200)}
+            style={styles.metricsRow}
+          >
+            {metricCards.map(card => (
               <TouchableOpacity
-                style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
-                onPress={() => navigate.navigate('AnalyticsCreateBudgetPage')}
+                key={card.key}
+                style={[styles.metricCard, { backgroundColor: tokens.surface }]}
+                onPress={() =>
+                  navigate.navigate(card.route, { localDenomination })
+                }
                 activeOpacity={0.8}
               >
-                <View style={styles.budgetTitleRow}>
-                  <View style={styles.budgetTitleTexts}>
+                <View style={styles.metricTop}>
+                  <Disc icon={card.icon} size={32} iconSize={16} />
+                  <ThemeIcon
+                    redesign
+                    iconName="ChevronRight"
+                    size={18}
+                    colorOverride={tokens.muted}
+                  />
+                </View>
+                <ThemeText
+                  styles={[styles.metricLabel, { color: tokens.muted }]}
+                  content={card.label}
+                />
+                {isLoading || isReloading ? (
+                  // Same height as the amount + sub text it stands in for.
+                  <View style={styles.metricSkeleton}>
+                    <SkeletonBar width={90} height={22} borderRadius={11} />
+                    <SkeletonBar width={70} height={12} borderRadius={6} />
+                  </View>
+                ) : (
+                  <>
                     <ThemeText
-                      styles={styles.budgetTitle}
-                      content={t('analytics.home.noBudgetTitle')}
+                      CustomNumberOfLines={1}
+                      adjustsFontSizeToFit={true}
+                      styles={styles.metricAmount}
+                      content={formatMonthAmount(card.amount)}
                     />
                     <ThemeText
                       styles={[styles.metricSub, { color: tokens.muted }]}
-                      content={t('analytics.home.noBudgetSub')}
+                      content={
+                        card.count === 0
+                          ? card.emptyText
+                          : t('analytics.numberOfTxs', { count: card.count })
+                      }
                     />
-                  </View>
-                  <ThemeIcon
-                    redesign
-                    iconName="ChevronRight"
-                    size={18}
-                    colorOverride={tokens.muted}
-                  />
-                </View>
+                  </>
+                )}
               </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
-                onPress={() => navigate.navigate('AnalyticsBudgetPage')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.budgetTitleRow}>
+            ))}
+          </Animated.View>
+
+          <SectionHeader
+            title={t('analytics.home.budget')}
+            style={styles.sectionHeader}
+          />
+          {budget && isLoading ? (
+            // Left-to-spend and progress need this month's spending.
+            <View
+              style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
+            >
+              <Skeleton>
+                <View style={styles.budgetSkeleton}>
+                  <View style={styles.budgetSkeletonTitle} />
+                  <View style={styles.budgetSkeletonPill} />
+                  <View style={styles.budgetSkeletonBar} />
+                  <View style={styles.budgetSkeletonSub} />
+                </View>
+              </Skeleton>
+            </View>
+          ) : !budget ? (
+            <TouchableOpacity
+              style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
+              onPress={() => navigate.navigate('AnalyticsCreateBudgetPage')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.budgetTitleRow}>
+                <View style={styles.budgetTitleTexts}>
                   <ThemeText
-                    styles={[styles.budgetTitle, styles.budgetTitleTexts]}
-                    content={t('analytics.home.leftToSpend', {
-                      amount: displayCorrectDenomination({
-                        amount: leftToSpend,
-                        masterInfoObject,
-                        fiatStats,
-                      }),
-                    })}
+                    styles={styles.budgetTitle}
+                    content={t('analytics.home.noBudgetTitle')}
                   />
-                  <ThemeIcon
-                    redesign
-                    iconName="ChevronRight"
-                    size={18}
-                    colorOverride={tokens.muted}
+                  <ThemeText
+                    styles={[styles.metricSub, { color: tokens.muted }]}
+                    content={t('analytics.home.noBudgetSub')}
                   />
                 </View>
-                <View
-                  style={[
-                    styles.statusPill,
-                    { backgroundColor: budgetStatus.pillBg },
-                  ]}
-                >
-                  <ThemeText
-                    styles={[
-                      styles.statusText,
-                      { color: budgetStatus.pillText },
-                    ]}
-                    content={budgetStatus.label}
-                  />
-                </View>
-                <ProgressBar
-                  value={spentPercent}
-                  color={budgetStatus.color}
-                  style={styles.progressBar}
+                <ThemeIcon
+                  redesign
+                  iconName="ChevronRight"
+                  size={18}
+                  colorOverride={tokens.muted}
                 />
-                <View style={styles.progressLabels}>
-                  <ThemeText
-                    styles={[styles.metricSub, { color: tokens.muted }]}
-                    content={t('analytics.home.percentRemaining', {
-                      percent: Math.round(
-                        Math.min(Math.max(1 - spentPercent, 0) * 100, 100),
-                      ),
-                    })}
-                  />
-                  <ThemeText
-                    styles={[styles.metricSub, { color: tokens.muted }]}
-                    content={t('analytics.home.ofBudget', {
-                      amount: displayCorrectDenomination({
-                        amount: budgetAmount,
-                        masterInfoObject,
-                        fiatStats,
-                      }),
-                    })}
-                  />
-                </View>
-              </TouchableOpacity>
-            )}
-          </CustomScrollView>
-        )}
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
+              onPress={() => navigate.navigate('AnalyticsBudgetPage')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.budgetTitleRow}>
+                <ThemeText
+                  styles={[styles.budgetTitle, styles.budgetTitleTexts]}
+                  content={t('analytics.home.leftToSpend', {
+                    amount: displayCorrectDenomination({
+                      amount: leftToSpend,
+                      masterInfoObject,
+                      fiatStats,
+                    }),
+                  })}
+                />
+                <ThemeIcon
+                  redesign
+                  iconName="ChevronRight"
+                  size={18}
+                  colorOverride={tokens.muted}
+                />
+              </View>
+              <View
+                style={[
+                  styles.statusPill,
+                  { backgroundColor: budgetStatus.pillBg },
+                ]}
+              >
+                <ThemeText
+                  styles={[styles.statusText, { color: budgetStatus.pillText }]}
+                  content={budgetStatus.label}
+                />
+              </View>
+              <ProgressBar
+                value={spentPercent}
+                color={budgetStatus.color}
+                style={styles.progressBar}
+              />
+              <View style={styles.progressLabels}>
+                <ThemeText
+                  styles={[styles.metricSub, { color: tokens.muted }]}
+                  content={t('analytics.home.percentRemaining', {
+                    percent: Math.round(
+                      Math.min(Math.max(1 - spentPercent, 0) * 100, 100),
+                    ),
+                  })}
+                />
+                <ThemeText
+                  styles={[styles.metricSub, { color: tokens.muted }]}
+                  content={t('analytics.home.ofBudget', {
+                    amount: displayCorrectDenomination({
+                      amount: budgetAmount,
+                      masterInfoObject,
+                      fiatStats,
+                    }),
+                  })}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
+        </CustomScrollView>
       </View>
     </GlobalThemeView>
   );
@@ -289,6 +300,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   balanceCard: { marginTop: 16 },
+  budgetSkeleton: { gap: 12 },
+  budgetSkeletonTitle: { width: 180, height: 18, borderRadius: 9 },
+  budgetSkeletonPill: { width: 90, height: 24, borderRadius: 12 },
+  budgetSkeletonBar: { width: '100%', height: 8, borderRadius: 4 },
+  budgetSkeletonSub: { width: 120, height: 12, borderRadius: 6 },
+  // 28 + 2 + 18 = metricAmount + gap + metricSub line heights.
+  metricSkeleton: { height: 48, justifyContent: 'space-between' },
   sectionHeader: { marginTop: 20 },
   metricsRow: {
     flexDirection: 'row',

@@ -10,7 +10,6 @@ import { GlobalThemeView } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import CustomButton from '../../functions/CustomElements/button';
 import { useKeysContext } from '../../../context-store/keys';
@@ -35,10 +34,12 @@ import ListCard, {
   ListDivider,
 } from '../../functions/CustomElements/redesign/ListCard';
 import ActivityRow, {
+  ActivityRowSkeleton,
   buildActivitySections,
 } from '../../components/admin/homeComponents/viewAllComponents/activityRow';
 
 const PAGE = 20;
+const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
 
 // Rows sit in a per-row ListCard so the SectionList stays virtualised; only
 // the first/last row of a day keeps the card's rounded corners.
@@ -264,7 +265,11 @@ export default function ManagedAccountActivityPage() {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('settings.childAccounts.transactions.title')} />
         {isLoading ? (
-          <FullLoadingScreen />
+          <ListCard dividerInset={68} style={styles.first}>
+            {SKELETON_ROWS.map(key => (
+              <ActivityRowSkeleton key={key} />
+            ))}
+          </ListCard>
         ) : !sections.length ? (
           <View style={styles.emptyContainer}>
             <EmptyState

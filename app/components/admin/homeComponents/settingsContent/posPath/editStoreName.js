@@ -1,9 +1,4 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +22,7 @@ import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { canUsePOSName } from '../../../../../../db';
 import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
+import Spinner from '../../../../../functions/CustomElements/redesign/Spinner';
 
 const MAX_LENGTH = 30;
 
@@ -188,7 +184,7 @@ export default function EditStoreNamePage() {
               right={
                 <View style={styles.statusIcon}>
                   {nameState === NAME_STATE.CHECKING ? (
-                    <ActivityIndicator size="small" color={tokens.muted} />
+                    <Spinner size="small" color={tokens.muted} />
                   ) : nameState === NAME_STATE.AVAILABLE ? (
                     <ThemeIcon
                       redesign
