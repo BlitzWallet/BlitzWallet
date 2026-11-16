@@ -61,6 +61,10 @@ jest.mock('../app/constants', () => ({
   MAX_WEB_CONTENT_WIDTH: 500,
 }));
 jest.mock('expo-image', () => ({ Image: () => null }));
+jest.mock('../app/functions/unilateralExit/useBlockSendDuringExit', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
 jest.mock('react-native-country-flag', () => mockStub('flag'));
 jest.mock('../context-store/theme', () => ({
   useGlobalThemeContext: () => ({

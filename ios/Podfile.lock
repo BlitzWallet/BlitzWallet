@@ -1196,11 +1196,11 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.37):
     - BoringSSL-GRPC/Interface (= 0.0.37)
   - BoringSSL-GRPC/Interface (0.0.37)
-  - breez_sdk_sparkFFI (0.28.0)
-  - BreezSdkSpark (0.28.0):
-    - breez_sdk_sparkFFI (= 0.28.0)
+  - breez_sdk_sparkFFI (0.28.4)
+  - BreezSdkSpark (0.28.4):
+    - breez_sdk_sparkFFI (= 0.28.4)
     - Swift-BigInt (~> 2.4)
-  - BreezSdkSparkReactNative (0.28.0):
+  - BreezSdkSparkReactNative (0.28.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -1309,6 +1309,8 @@ PODS:
   - ExpoClipboard (8.0.7):
     - ExpoModulesCore
   - ExpoCrypto (15.0.7):
+    - ExpoModulesCore
+  - ExpoDocumentPicker (14.0.8):
     - ExpoModulesCore
   - ExpoFileSystem (19.0.24):
     - ExpoModulesCore
@@ -5105,6 +5107,7 @@ DEPENDENCIES:
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
+  - ExpoDocumentPicker (from `../node_modules/expo-document-picker/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
@@ -5309,6 +5312,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-clipboard/ios"
   ExpoCrypto:
     :path: "../node_modules/expo-crypto/ios"
+  ExpoDocumentPicker:
+    :path: "../node_modules/expo-document-picker/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -5560,9 +5565,9 @@ SPEC CHECKSUMS:
   BlitzSecp256k1: 27fe067d109185a14485c70d4758509d7ac41ace
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
-  breez_sdk_sparkFFI: 3761730f61a909b1247c187aad77f92ada8ce383
-  BreezSdkSpark: c48f3ea63987c50065ab06758e098ae0da73962e
-  BreezSdkSparkReactNative: 27ef4dee78414d5b9313f5000ae6519ca5f82bb6
+  breez_sdk_sparkFFI: c3312106fc32f626da9d6a2233901ec6f8d6419f
+  BreezSdkSpark: 96c4c8c5dbd4f04abc93d2a955e10c76af6e9102
+  BreezSdkSparkReactNative: 2b296f04efba1ef3f89709eab9aa9922e51d18e2
   Clusterer: 6b8e946e6d4593644d04acd9c1fca686e8d4f5cb
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EXApplication: 296622817d459f46b6c5fe8691f4aac44d2b79e7
@@ -5575,6 +5580,7 @@ SPEC CHECKSUMS:
   ExpoBlur: b90747a3f22a8b6ceffd9cb0dc41a4184efdc656
   ExpoClipboard: af650d14765f19c60ce2a1eaf9dfe6445eff7365
   ExpoCrypto: c1fbce112d1b6b79652bbe380b4fd4cc91676595
+  ExpoDocumentPicker: 7cd9e71a0f66fb19eb0a586d6f26eee1284692e0
   ExpoFileSystem: 8e87545aef1d8d31f244edbfdd0780df4e5bac2e
   ExpoFont: dfb7c572372b610da45b41e3b436321fd6a97215
   ExpoImage: 686f972bff29525733aa13357f6691dc90aa03d8

@@ -8,6 +8,7 @@ import { createWebTreeStore } from '../../../node_modules/@breeztech/breez-sdk-s
 import sha256Hash from '../hash';
 import { deriveSparkIdentityKey } from '../gift/deriveGiftWallet';
 import { applyBlitzConfig } from './breezConfig';
+import { hasActiveExit } from '../unilateralExit/exitStore';
 import { classifyBreezError, isMissingPaymentError } from './breezErrors';
 import {
   normalizeClaimOutcome,
@@ -16,7 +17,6 @@ import {
   normalizeEvent,
   normalizeInfo,
   normalizePayment,
-  normalizeRecoverPreview,
 } from './breezNormalize';
 import { sdkLogger } from './sdkLogs';
 import { acquireWebDatabaseOwnership } from '../webDatabaseOwnership.web';
@@ -149,15 +149,6 @@ function attach(sdk, entry) {
 
 function makeHandle(entry) {
   const sdk = entry.sdk;
-  const prepareRecover = (destination, feeRateSatPerVbyte) =>
-    call(() =>
-      sdk.prepareRecoverFunds({
-        feeRateSatPerVbyte: Number(feeRateSatPerVbyte),
-        fundingKind: { type: 'p2wpkh' },
-        destination,
-        selection: { type: 'all' },
-      }),
-    );
   return {
     _entry: entry,
     identity: entry.identity,
@@ -326,21 +317,40 @@ function makeHandle(entry) {
     async checkRecoverFunds(request) {
       return call(() => sdk.checkRecoverFunds(request));
     },
-    // Quote only: prepareRecoverFunds builds nothing and broadcasts nothing.
-    async previewRecoverFunds(destination, feeRateSatPerVbyte) {
-      const prepared = await prepareRecover(destination, feeRateSatPerVbyte);
-      return normalizeRecoverPreview(prepared, false);
+    async quoteExit({ destination, feeRate, leafIds, selection }) {
+      return call(() =>
+        sdk.prepareRecoverFunds({
+          feeRateSatPerVbyte: Number(feeRate),
+          fundingKind: { type: 'p2wpkh' },
+          destination,
+          selection:
+            selection === 'recoverableOnly'
+              ? { type: 'recoverableOnly' }
+              : leafIds
+              ? { type: 'specific', leafIds }
+              : { type: 'all' },
+        }),
+      );
     },
-    // Broadcasts. Only quotes with no outside CPFP funding: Blitz has no
-    // external UTXO signer, so a funded quote is refused before any signing.
-    async recoverFundsWithoutFunding(destination, feeRateSatPerVbyte) {
-      const prepared = await prepareRecover(destination, feeRateSatPerVbyte);
-      if (prepared.funding) throw new Error('Exit needs outside funding');
-      const res = await call(() => sdk.recoverFunds({ prepared }, null));
-      return {
-        txCount: res.transactions.length,
-        failedCount: res.failed.length,
-      };
+    async buildExit(prepared, fundingInputs, secretKey) {
+      return call(() =>
+        sdk.recoverFunds(
+          {
+            prepared,
+            fundingInputs: fundingInputs.map(i => ({
+              type: 'p2wpkh',
+              txid: i.txid,
+              vout: i.vout,
+              valueSats: i.valueSats,
+              pubkey: i.pubkey,
+            })),
+          },
+          breez.singleKeyCpfpSigner(secretKey),
+        ),
+      );
+    },
+    async checkExit(recovery) {
+      return call(() => sdk.checkRecoverFunds({ recovery }));
     },
     async recommendedFees() {
       const f = await call(() => sdk.recommendedFees());
@@ -429,7 +439,9 @@ async function createEntry(
     mode === 'server'
       ? breez.defaultServerConfig('mainnet')
       : breez.defaultConfig('mainnet');
-  const config = applyBlitzConfig(base, mode);
+  const config = applyBlitzConfig(base, mode, {
+    exitActive: await hasActiveExit(identity).catch(() => false),
+  });
   let connectPromise;
   let sdk;
   try {

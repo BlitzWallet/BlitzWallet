@@ -20,12 +20,15 @@ import {
   AssetFilter,
   CpfpFundingKind,
   ExitLeafSelection,
+  CpfpInput,
+  singleKeyCpfpSigner,
   initLogging,
 } from '@breeztech/breez-sdk-spark-react-native';
 
 import sha256Hash from '../hash';
 import { deriveSparkIdentityKey } from '../gift/deriveGiftWallet';
 import { applyBlitzConfig, storageRootFromDocumentDir } from './breezConfig';
+import { hasActiveExit } from '../unilateralExit/exitStore';
 import { classifyBreezError, isMissingPaymentError } from './breezErrors';
 import {
   normalizeClaimOutcome,
@@ -34,7 +37,6 @@ import {
   normalizeEvent,
   normalizeInfo,
   normalizePayment,
-  normalizeRecoverPreview,
 } from './breezNormalize';
 import { sdkLogger } from './sdkLogs';
 
@@ -142,14 +144,6 @@ function attach(sdk, entry) {
 
 function makeHandle(entry) {
   const sdk = entry.sdk;
-  const prepareRecover = (destination, feeRateSatPerVbyte) =>
-    sdk.prepareRecoverFunds({
-      feeRateSatPerVbyte: BigInt(feeRateSatPerVbyte),
-      fundingKind: new CpfpFundingKind.P2wpkh(),
-      fundingStrategy: undefined,
-      destination,
-      selection: new ExitLeafSelection.All(),
-    });
   return {
     _entry: entry,
     identity: entry.identity,
@@ -313,24 +307,39 @@ function makeHandle(entry) {
     async checkRecoverFunds(request) {
       return sdk.checkRecoverFunds(request);
     },
-    // Quote only: prepareRecoverFunds builds nothing and broadcasts nothing.
-    async previewRecoverFunds(destination, feeRateSatPerVbyte) {
-      const prepared = await prepareRecover(destination, feeRateSatPerVbyte);
-      return normalizeRecoverPreview(prepared, true);
+    async quoteExit({ destination, feeRate, leafIds, selection }) {
+      return sdk.prepareRecoverFunds({
+        feeRateSatPerVbyte: BigInt(feeRate),
+        fundingKind: new CpfpFundingKind.P2wpkh(),
+        fundingStrategy: undefined,
+        destination,
+        selection:
+          selection === 'recoverableOnly'
+            ? new ExitLeafSelection.RecoverableOnly()
+            : leafIds
+            ? new ExitLeafSelection.Specific({ leafIds })
+            : new ExitLeafSelection.All(),
+      });
     },
-    // Broadcasts. Only quotes with no outside CPFP funding: Blitz has no
-    // external UTXO signer, so a funded quote is refused before any signing.
-    async recoverFundsWithoutFunding(destination, feeRateSatPerVbyte) {
-      const prepared = await prepareRecover(destination, feeRateSatPerVbyte);
-      if (prepared.funding) throw new Error('Exit needs outside funding');
-      const res = await sdk.recoverFunds(
-        { prepared, fundingInputs: [] },
-        undefined,
+    async buildExit(prepared, fundingInputs, secretKey) {
+      return sdk.recoverFunds(
+        {
+          prepared,
+          fundingInputs: fundingInputs.map(
+            i =>
+              new CpfpInput.P2wpkh({
+                txid: i.txid,
+                vout: i.vout,
+                valueSats: BigInt(i.valueSats),
+                pubkey: i.pubkey,
+              }),
+          ),
+        },
+        singleKeyCpfpSigner(secretKey.slice().buffer),
       );
-      return {
-        txCount: res.transactions.length,
-        failedCount: res.failed.length,
-      };
+    },
+    async checkExit(recovery) {
+      return sdk.checkRecoverFunds({ recovery });
     },
     async recommendedFees() {
       const f = await sdk.recommendedFees();
@@ -422,7 +431,9 @@ async function createEntry(
     mode === 'server'
       ? defaultServerConfig(Network.Mainnet)
       : defaultConfig(Network.Mainnet);
-  const config = applyBlitzConfig(base, mode);
+  const config = applyBlitzConfig(base, mode, {
+    exitActive: await hasActiveExit(identity).catch(() => false),
+  });
   const storageDir = storageDirOverride || storageDirFor(identity);
 
   startLogging();

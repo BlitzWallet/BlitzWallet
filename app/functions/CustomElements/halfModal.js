@@ -82,7 +82,7 @@ import ChildMatchCodeConfirmation from '../../components/admin/homeComponents/se
 import LNURLAccountMangement from '../../components/admin/homeComponents/settingsContent/accountComponents/LNURLAccountMangement';
 import ProfilePhotoModal from '../../components/admin/homeComponents/contacts/profilePhotoModal';
 import { SocialLinksSheet } from '../../components/admin/homeComponents/settingsContent/socialOptions';
-import ExportOrFilterHalfModal from '../../components/admin/homeComponents/viewAllComponents/actionsHalfMoal';
+import ActionsHalfModal from '../../components/admin/homeComponents/actionsHalfModal';
 import { SheetSurface } from './redesign/sheetSurface';
 import ExpandedTx from '../../screens/inAccount/expandedTxPage';
 import WalletResetSheet from '../../components/admin/loginComponents/walletResetSheet';
@@ -91,6 +91,8 @@ import AddressSheet from '../../components/admin/homeComponents/sendBitcoin/comp
 import VerifiedSheet from '../../components/admin/homeComponents/sendBitcoin/components/verifiedSheet';
 import ReceiveAssetSheet from '../../components/admin/homeComponents/receiveBitcoin/ReceiveAssetSheet';
 import useContentWidth from './redesign/useContentWidth';
+import ExitFeeSheet from '../../components/admin/homeComponents/settingsContent/leaves/unilateralExit/feeSheet';
+import ExitTxSheet from '../../components/admin/homeComponents/settingsContent/leaves/unilateralExit/txSheet';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -712,13 +714,12 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
-      case 'ExportOrFilterHalfModal':
+      case 'ActionsHalfModal':
         return (
-          <ExportOrFilterHalfModal
+          <ActionsHalfModal
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
-            currentFilter={props?.route?.params?.currentFilter}
-            onSelectFilter={props?.route?.params?.onSelectFilter}
+            actions={props?.route?.params?.actions}
           />
         );
       case 'expandedTx':
@@ -728,6 +729,16 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             canEditMemo={props?.route?.params?.canEditMemo}
+          />
+        );
+      case 'exitFeeAddress':
+        return <ExitFeeSheet />;
+      case 'exitTxDetail':
+        return (
+          <ExitTxSheet
+            txid={props.route.params?.txid}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
       case 'walletReset':

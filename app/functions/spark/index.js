@@ -53,6 +53,8 @@ const handleFor = mnemonic => {
   return acquire(mnemonic, { mode: 'client', borrow: true });
 };
 
+export const getExitHandle = mnemonic => handleFor(mnemonic);
+
 const errMsg = err => classifyBreezError(err).message;
 
 // RN keeps fields under `.inner`, WASM has them directly.
@@ -889,38 +891,6 @@ export const sendSparkLightningPayment = async ({
   } catch (err) {
     console.log('Send lightning payment error', err);
     return preSendFailure(err);
-  }
-};
-
-// Unilateral exit, quote only: nothing is signed or broadcast.
-export const previewUnilateralExit = async ({
-  mnemonic,
-  destination,
-  feeRate,
-}) => {
-  try {
-    const h = await handleFor(mnemonic);
-    return {
-      didWork: true,
-      preview: await h.previewRecoverFunds(destination, feeRate),
-    };
-  } catch (err) {
-    console.log('Preview unilateral exit error', err);
-    return { didWork: false, error: errMsg(err) };
-  }
-};
-
-// Unilateral exit, BROADCASTS. Refuses quotes that need outside funding.
-export const runUnilateralExit = async ({ mnemonic, destination, feeRate }) => {
-  try {
-    const h = await handleFor(mnemonic);
-    return {
-      didWork: true,
-      result: await h.recoverFundsWithoutFunding(destination, feeRate),
-    };
-  } catch (err) {
-    console.log('Run unilateral exit error', err);
-    return { didWork: false, error: errMsg(err) };
   }
 };
 

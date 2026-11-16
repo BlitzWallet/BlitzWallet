@@ -14,12 +14,14 @@ import {
 } from './functions/sendFlow';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBlockSendDuringExit';
 
 const EMPTY_PAYMENT_INFO = {};
 
 // Route ConfirmPaymentScreen: every send entry point lands here. Decodes once,
 // then replaces itself with the page the payment needs.
 export default function SendPaymentScreen(props) {
+  useBlockSendDuringExit();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();

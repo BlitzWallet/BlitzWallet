@@ -237,11 +237,50 @@ export function normalizeRecoverPreview(p, rn = true) {
     fundingSats: p.funding ? num(p.funding.singleUtxoSats) : 0,
     cooperativeCount: methods.filter(m => m === 'cooperative').length,
     unilateralCount: methods.filter(m => m === 'unilateral').length,
+    leafIds: p.leaves.map(l => l.leafId),
+    leaves: p.leaves.map((l, i) => ({ leafId: l.leafId, method: methods[i] })),
+    stoppedLeafIds: p.exitChainState?.stoppedLeafIds ?? [],
     skipped: p.skipped.map(s => ({
+      leafId: s.leafId,
       valueSats: num(s.valueSats),
       reason: rn
         ? s.reason.tag.charAt(0).toLowerCase() + s.reason.tag.slice(1)
         : s.reason.type,
     })),
   };
+}
+
+export const normalizeExitQuote = normalizeRecoverPreview;
+
+const lowerFirst = t => t.charAt(0).toLowerCase() + t.slice(1);
+const EXIT_KINDS = ['cooperative', 'fanOut', 'node', 'refund', 'sweep'];
+
+// -> { txid, kind, status: { type, blockHeight?, spendableAtHeight? }, dependsOn,
+//      csvTimelockBlocks: number|null, txHex, cpfpTxHex: string|null }
+export function normalizeExitTx(tx, rn = true) {
+  const status = rn
+    ? { type: lowerFirst(tx.status.tag), ...tx.status.inner }
+    : { ...tx.status };
+  return {
+    txid: tx.txid,
+    kind: rn ? EXIT_KINDS[tx.kind] : tx.kind,
+    status,
+    dependsOn: tx.dependsOn,
+    nodeId: tx.nodeId ?? null,
+    csvTimelockBlocks: tx.csvTimelockBlocks ?? null,
+    txHex: tx.txHex,
+    cpfpTxHex: tx.cpfpTxHex ?? null,
+  };
+}
+
+// -> { type: 'valid'|'done'|'redo', reason? }
+export function normalizeVerdict(v, rn = true) {
+  if (!rn)
+    return v.type === 'redo'
+      ? { type: 'redo', reason: v.reason }
+      : { type: v.type };
+  const type = lowerFirst(v.tag);
+  return type === 'redo'
+    ? { type, reason: lowerFirst(['OnChainStateDiverged'][v.inner.reason]) }
+    : { type };
 }

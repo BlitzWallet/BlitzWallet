@@ -1802,21 +1802,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@breeztech/breez-sdk-spark-react-native@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@breeztech/breez-sdk-spark-react-native@npm:0.28.0"
+"@breeztech/breez-sdk-spark-react-native@npm:^0.28.4":
+  version: 0.28.4
+  resolution: "@breeztech/breez-sdk-spark-react-native@npm:0.28.4"
   dependencies:
     uniffi-bindgen-react-native: "git+https://github.com/breez/uniffi-bindgen-react-native.git#309bc8fa7fc56d4358dc75a78135a54d8225786b"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 0f68f40ac0fe5c19d097e11e3ba1c16f6a76b6f90fcd0c233bdaaeb853d699da78a27c59b02a85fd346d2fa4a72ae38c029a5255e86b1b8f6607572a824d283f
+  checksum: 77ba0c26f4ff73acc809ca2a576f2e90802b91c2e797bf20c1b7c7744e7f3e7067c17e553251d87770a303f7652f96b153c80016e3953449372d04e1a8068920
   languageName: node
   linkType: hard
 
-"@breeztech/breez-sdk-spark@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@breeztech/breez-sdk-spark@npm:0.28.0"
+"@breeztech/breez-sdk-spark@npm:^0.28.4":
+  version: 0.28.4
+  resolution: "@breeztech/breez-sdk-spark@npm:0.28.4"
   dependencies:
     better-sqlite3: ^12.2.0
     pg: ^8.18.0
@@ -1825,7 +1825,7 @@ __metadata:
       optional: true
     pg:
       optional: true
-  checksum: 9320d8f0adfc78ac21f74e07c416acb891b16f7d4a8878886a27a37b7103558fc8317690c01de1bb6b1664637f22e7694092564d8502eccead14a3fd7566320d
+  checksum: 378c673efb93d4728fe7b87438748e87321504107900051480af0038d372ee580fb1963f0e8ddaabbc2c5d101fe98cc2fb39602ad98f2c4479d8e896a1729c27
   languageName: node
   linkType: hard
 
@@ -5835,8 +5835,8 @@ __metadata:
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
     "@branta-ops/branta": ^3.2.1
-    "@breeztech/breez-sdk-spark": ^0.28.0
-    "@breeztech/breez-sdk-spark-react-native": ^0.28.0
+    "@breeztech/breez-sdk-spark": ^0.28.4
+    "@breeztech/breez-sdk-spark-react-native": ^0.28.4
     "@craftzdog/react-native-buffer": ^6.1.0
     "@expo/metro-runtime": ~6.1.2
     "@firebase/rules-unit-testing": ^5.0.1
@@ -5885,6 +5885,7 @@ __metadata:
     expo-blur: ~15.0.8
     expo-clipboard: ~8.0.7
     expo-crypto: ~15.0.7
+    expo-document-picker: ~14.0.8
     expo-file-system: ~19.0.24
     expo-image: ~3.0.8
     expo-image-manipulator: ~14.0.7
@@ -9442,6 +9443,15 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: b329e7113aad3f11083b4c35cc7b178d7a244e37b2b8d99e20058c0a3999157daf9b0a98cc10fc6c4d6e28ba1289dca45d00f821fdef2d9cddcb6812a37a08a9
+  languageName: node
+  linkType: hard
+
+"expo-document-picker@npm:~14.0.8":
+  version: 14.0.8
+  resolution: "expo-document-picker@npm:14.0.8"
+  peerDependencies:
+    expo: "*"
+  checksum: a9d1f80320cbcd9a5586266ad7d471ae428c41ec213e66d2a490c8cd6cd5219187312e9d84d742886c9dae7f97ae2e8a9b16997b2f01b38338cbf7a8b6f9a506
   languageName: node
   linkType: hard
 

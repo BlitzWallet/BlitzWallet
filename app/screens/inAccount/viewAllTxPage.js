@@ -28,6 +28,8 @@ import ActivityRow, {
   buildActivitySections,
 } from '../../components/admin/homeComponents/viewAllComponents/activityRow';
 import { FONT } from '../../constants/theme';
+import { exportTransactionsCsv } from '../../components/admin/homeComponents/exportTransactions/exportTracker';
+import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 
 const EMPTY_FILTER = { directions: [], dateRange: null, types: [] };
 const NS = 'screens.inAccount.viewAllTxPage';
@@ -84,6 +86,51 @@ export default function ViewAllTxPage() {
     setRawTxs(null);
     setCurrentFilter(filter);
   }, []);
+
+  const handleExport = async () => {
+    let errorMessage = null;
+    try {
+      const response = await exportTransactionsCsv({
+        accountId: sparkInformation.identityPubKey,
+        masterInfoObject,
+        t,
+      });
+      if (response && !response.success) errorMessage = response.error;
+    } catch (err) {
+      console.log(err);
+      errorMessage = 'errormessages.createTransactionsFileError';
+    }
+    if (!errorMessage) return;
+    return () =>
+      navigate.navigate('ErrorScreen', {
+        errorMessage,
+        useTranslationString: true,
+      });
+  };
+
+  const openActions = () =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'ActionsHalfModal',
+      actions: [
+        {
+          icon: 'Download',
+          title: t(`${NS}.exportTitle`),
+          onPress: handleExport,
+        },
+        {
+          icon: 'ListFilter',
+          title: t(`${NS}.filterTitle`),
+          stepHeight: 680,
+          renderStep: stepProps => (
+            <TxFilterHalfModal
+              currentFilter={currentFilter}
+              onSelectFilter={applyFilter}
+              {...stepProps}
+            />
+          ),
+        },
+      ],
+    });
 
   const hasActiveFilters =
     currentFilter.directions.length > 0 ||
@@ -154,13 +201,7 @@ export default function ViewAllTxPage() {
                 icon={'Ellipsis'}
                 label={`${NS}.moreOptionsLabel`}
                 showActiveDot={hasActiveFilters}
-                onPress={() =>
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'ExportOrFilterHalfModal',
-                    currentFilter,
-                    onSelectFilter: applyFilter,
-                  })
-                }
+                onPress={openActions}
               />
             </>
           }

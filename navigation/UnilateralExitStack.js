@@ -3,6 +3,9 @@ import UnilateralExitHome from '../app/components/admin/homeComponents/settingsC
 import UnilateralExitAddress from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/address';
 import UnilateralExitFee from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/fee';
 import UnilateralExitReview from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/review';
+import UnilateralExitPayFee from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/payFee';
+import UnilateralExitTracker from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/tracker';
+import UnilateralExitTree from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/tree';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +32,15 @@ export default function UnilateralExitStack() {
         name="UnilateralExitReview"
         component={UnilateralExitReview}
       />
+      <Stack.Screen
+        name="UnilateralExitPayFee"
+        component={UnilateralExitPayFee}
+      />
+      <Stack.Screen
+        name="UnilateralExitTracker"
+        component={UnilateralExitTracker}
+      />
+      <Stack.Screen name="UnilateralExitTree" component={UnilateralExitTree} />
     </Stack.Navigator>
   );
 }

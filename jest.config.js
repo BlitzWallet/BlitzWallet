@@ -23,6 +23,7 @@ module.exports = {
     '/node_modules/',
     '<rootDir>/.worktrees/',
     '<rootDir>/__tests__/firestore-rules/',
+    '<rootDir>/__tests__/functions/unilateralExit/fixtures/',
   ],
   transformIgnorePatterns: [`node_modules/(?!(${esModules})/)`],
   // Global mocks shared by every test (e.g. Firebase native modules).

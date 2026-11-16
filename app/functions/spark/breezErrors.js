@@ -55,7 +55,8 @@ export function classifyBreezError(error) {
   let kind = RN_TAGS[tag];
 
   if (!kind) {
-    if (/^Insufficient funds/i.test(message)) kind = 'insufficientFunds';
+    if (/^Insufficient CPFP funding/i.test(message)) kind = 'insufficientCpfp';
+    else if (/^Insufficient funds/i.test(message)) kind = 'insufficientFunds';
     else if (/^Invalid input:/i.test(message)) kind = 'invalidInput';
     else if (/^Invalid UUID/i.test(message)) kind = 'invalidInput';
     else if (/^Network error:/i.test(message)) kind = 'network';

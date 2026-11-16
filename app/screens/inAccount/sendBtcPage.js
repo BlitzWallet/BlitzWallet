@@ -24,8 +24,10 @@ import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendP
 import getClipboardText from '../../functions/getClipboardText';
 import CameraUnavailable from '../../functions/CustomElements/camera/cameraUnavailable';
 import ScannerView from '../../functions/CustomElements/camera/scannerView';
+import useBlockSendDuringExit from '../../functions/unilateralExit/useBlockSendDuringExit';
 
 export default function SendPaymentHome({ pageViewPage, from, route }) {
+  useBlockSendDuringExit();
   const navigate = useNavigation();
   const preSelectedPaymentMethod = route?.params?.preSelectedPaymentMethod;
   const isFocused = useIsFocused();

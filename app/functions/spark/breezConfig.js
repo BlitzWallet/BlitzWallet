@@ -2,7 +2,7 @@ export const BREEZ_SYNC_INTERVAL_SECS = 60;
 
 export const getBreezApiKey = () => process.env.LIQUID_BREEZ_KEY || '';
 
-export function applyBlitzConfig(base, mode = 'client') {
+export function applyBlitzConfig(base, mode = 'client', { exitActive = false } = {}) {
   if (!base) throw new Error('Breez config base missing');
   const config = {
     ...base,
@@ -21,7 +21,8 @@ export function applyBlitzConfig(base, mode = 'client') {
     privateEnabledDefault: mode === 'client',
     leafOptimizationConfig: {
       ...base.leafOptimizationConfig,
-      autoEnabled: mode === 'client',
+      // An active exit is moving these leaves; don't let the SDK swap them.
+      autoEnabled: mode === 'client' && !exitActive,
       multiplicity: 2,
     },
     tokenOptimizationConfig: {

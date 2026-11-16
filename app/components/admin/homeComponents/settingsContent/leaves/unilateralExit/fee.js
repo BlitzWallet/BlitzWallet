@@ -18,7 +18,7 @@ import {
   MAX_WEB_CONTENT_WIDTH,
 } from '../../../../../../constants';
 import { useTheme } from '../../../../../../../context-store/theme';
-import { useActiveCustodyAccount } from '../../../../../../../context-store/activeAccount';
+import { useKeysContext } from '../../../../../../../context-store/keys';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import Note from '../../../../../../functions/CustomElements/redesign/Note';
@@ -33,11 +33,11 @@ const SPEEDS = [
 ];
 
 export default function UnilateralExitFee(props) {
-  const { address } = props.route.params;
+  const { address, mode = 'exit' } = props.route.params;
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { tokens } = useTheme();
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { accountMnemoinc } = useKeysContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [speed, setSpeed] = useState('medium');
@@ -45,11 +45,11 @@ export default function UnilateralExitFee(props) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    getRecommendedOnchainFees(currentWalletMnemoinc).then(res => {
+    getRecommendedOnchainFees(accountMnemoinc).then(res => {
       if (res.didWork) setFees(res.fees);
       else setError(res.error);
     });
-  }, [currentWalletMnemoinc]);
+  }, [accountMnemoinc]);
 
   const selected = SPEEDS.find(s => s.value === speed);
   const feeRate = fees?.[selected.feeKey];
@@ -90,25 +90,37 @@ export default function UnilateralExitFee(props) {
                       { color: isSelected ? tokens.onAccent : tokens.ink },
                     ]}
                   />
+                  {fees && (
+                    <ThemeText
+                      content={t('settings.unilateralExit.rateValue', {
+                        rate: fees[option.feeKey],
+                      })}
+                      styles={[
+                        styles.costText,
+                        { color: isSelected ? tokens.onAccent : tokens.muted },
+                      ]}
+                    />
+                  )}
                 </TouchableOpacity>
               );
             })}
           </View>
-          <Note
-            tone={error ? 'warn' : 'info'}
-            text={
-              error ||
-              (fees
-                ? t(`settings.unilateralExit.${speed}Note`, { rate: feeRate })
-                : t('settings.unilateralExit.loadingFees'))
-            }
-          />
+          {(error || !fees) && (
+            <Note
+              tone={error ? 'warn' : 'info'}
+              text={error || t('settings.unilateralExit.loadingFees')}
+            />
+          )}
         </View>
         <CustomButton
           disabled={!feeRate}
           textContent={t('constants.review')}
           actionFunction={() =>
-            navigate.navigate('UnilateralExitReview', { address, feeRate })
+            navigate.navigate('UnilateralExitReview', {
+              address,
+              feeRate,
+              mode,
+            })
           }
           size={'regular'}
         />
@@ -124,13 +136,21 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: PILL_GAP,
     marginBottom: 24,
+    justifyContent: 'center',
   },
   pill: {
-    minHeight: 44,
+    minHeight: 56,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  costText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 12,
+    lineHeight: 16,
+    includeFontPadding: false,
   },
   pillText: {
     fontFamily: FONT.Title_Regular,

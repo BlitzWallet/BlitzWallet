@@ -86,7 +86,7 @@ def enableProguardInReleaseBuilds = false
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
-    // Breez Spark: the RN package and the NWC AAR (both 0.28.0) ship
+    // Breez Spark: the RN package and the NWC AAR (both 0.28.4) ship
     // libbreez_sdk_spark_bindings.so. The AAR's copy must win: it is a superset
     // (adds server-only MySQL/Postgres storage, which the Kotlin bindings check
     // at load) and all 213 shared uniffi checksums are identical. pickFirst can't
@@ -193,7 +193,7 @@ dependencies {
 
     // Native NWC handler (src/main/java/com/blitzwallet/nwc)
     // Must match @breeztech/breez-sdk-spark-react-native (see packaging below).
-    implementation("breez_sdk_spark:bindings-android:0.28.0")
+    implementation("breez_sdk_spark:bindings-android:0.28.4")
     // 0.22.x: newer releases need Kotlin 2.3 metadata (this app compiles with 2.1).
     implementation("fr.acinq.secp256k1:secp256k1-kmp:0.22.0")
     implementation("fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.22.0")

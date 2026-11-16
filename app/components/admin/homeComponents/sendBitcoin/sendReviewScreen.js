@@ -50,9 +50,11 @@ import {
   formatFeeText,
   formatSecondaryText,
 } from './functions/formatSendText';
+import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBlockSendDuringExit';
 
 // Route SendReview: shows a prepared payment and sends it.
 export default function SendReviewScreen(props) {
+  useBlockSendDuringExit();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const params = props.route.params;

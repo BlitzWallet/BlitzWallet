@@ -49,6 +49,7 @@ import ResultAnimation from '../../functions/CustomElements/redesign/ResultAnima
 import CustomButton from '../../functions/CustomElements/button';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useReducedMotion } from '../../constants/motion';
+import { startExitEngine } from '../../functions/unilateralExit/exitEngine';
 
 export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
@@ -233,8 +234,13 @@ export default function ConnectingToNodeLoadingScreen() {
             StackActions.replace('HomeAdmin', { screen: 'Home' }),
           );
         }
+        startExitEngine(accountMnemoinc).catch(() => {});
       } catch (err) {
         console.log('intializatiion error', err);
+        // a displaced web tab must never run exit passes beside the owning tab
+        if (!isTabConflictError(err)) {
+          startExitEngine(accountMnemoinc).catch(() => {});
+        }
         if (isTabConflictError(err)) {
           // Another web tab owns the wallet. TabInUse is the single place for
           // that; its "Use here" reloads, which recreates the SQLite worker.

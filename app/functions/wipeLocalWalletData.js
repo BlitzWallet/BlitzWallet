@@ -44,6 +44,7 @@ import {
   disarmWipeInProgress,
   wipeStaleWalletKeychain,
 } from './secureStore';
+import { clearInactiveExitData } from './unilateralExit/exitStore';
 import { Platform } from 'react-native';
 import { acquireWebDatabaseOwnership } from './webDatabaseOwnership';
 
@@ -87,6 +88,8 @@ const tableDeletes = [
   // Closes every live Breez wallet first (no instance may outlive a reset or
   // the RNRestart after it), then deletes its stores.
   wipeAllBreezStorage,
+  // Keeps exit records while an exit is live (deleting would strand it).
+  clearInactiveExitData,
 ];
 
 export async function deleteAllLocalWalletTables() {

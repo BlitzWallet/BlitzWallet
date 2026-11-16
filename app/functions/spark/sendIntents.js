@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getSparkDatabase } from './transactions';
+import i18next from 'i18next';
 import { asSendResult, classifyBreezError } from './breezErrors';
+import { hasActiveExit } from '../unilateralExit/exitStore';
 
 export const INTENT_STATES = {
   prepared: 'prepared',
@@ -154,6 +156,17 @@ export async function listBulkItems(groupId) {
 // asSendResult shape ({ didWork:false, error, outcome, intentId }). A refusal
 // that provably sent nothing is 'abandoned'; anything else stays 'unknown'.
 export async function withSendIntent(params, run) {
+  // Wallet is being recovered on-chain: no rail may spend from it.
+  if (await hasActiveExit(params.accountId).catch(() => false)) {
+    return {
+      ok: false,
+      result: {
+        didWork: false,
+        outcome: 'failed',
+        error: i18next.t('settings.unilateralExit.sendsBlocked'),
+      },
+    };
+  }
   const intentId = await beginSendIntent(params);
   // A reused intent id whose send already went out (or may have) must not run
   // again: token rails have no SDK idempotency key to catch it.

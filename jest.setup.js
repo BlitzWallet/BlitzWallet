@@ -9,6 +9,36 @@
 // still override these with their own jest.mock(...) when they need return values.
 const makeCallable = () => jest.fn(() => jest.fn(async () => ({ data: {} })));
 
+// expo-sqlite needs native modules at import time (EventEmitter). Anything that
+// transitively imports a SQLite-backed store gets this inert fake; tests that need
+// real answers override it with their own jest.mock('expo-sqlite', ...).
+jest.mock('expo-sqlite', () => ({
+  openDatabaseAsync: jest.fn(async () => ({
+    execAsync: jest.fn(async () => {}),
+    getFirstAsync: jest.fn(async () => null),
+    getAllAsync: jest.fn(async () => []),
+    runAsync: jest.fn(async () => ({})),
+  })),
+}));
+
+// Same for the expo modules that pull in expo-modules-core's native EventEmitter.
+jest.mock('expo-secure-store', () => ({
+  AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 'AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY',
+  getItemAsync: jest.fn(async () => null),
+  setItemAsync: jest.fn(async () => {}),
+  deleteItemAsync: jest.fn(async () => {}),
+}));
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(async () => ({ status: 'undetermined' })),
+  requestPermissionsAsync: jest.fn(async () => ({ status: 'undetermined' })),
+  scheduleNotificationAsync: jest.fn(async () => 'id'),
+  cancelScheduledNotificationAsync: jest.fn(async () => {}),
+  cancelAllScheduledNotificationsAsync: jest.fn(async () => {}),
+  getAllScheduledNotificationsAsync: jest.fn(async () => []),
+  setNotificationHandler: jest.fn(),
+  SchedulableTriggerInputTypes: { DATE: 'date', TIME_INTERVAL: 'timeInterval' },
+}));
+
 jest.mock('@react-native-firebase/app', () => ({
   __esModule: true,
   default: jest.fn(() => ({})),

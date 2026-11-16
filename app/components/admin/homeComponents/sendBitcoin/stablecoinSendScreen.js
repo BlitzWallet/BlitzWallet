@@ -69,6 +69,7 @@ import { Image } from 'expo-image';
 import { formatCountdown } from '../../../../functions/timeFormatter';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
+import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBlockSendDuringExit';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -78,6 +79,7 @@ function truncateAddress(addr) {
 }
 
 export default function StablecoinSendScreen() {
+  useBlockSendDuringExit();
   const navigate = useNavigation();
   const route = useRoute();
   const {
