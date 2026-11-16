@@ -21,7 +21,11 @@ import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import Note from '../../../../functions/CustomElements/redesign/Note';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
-import { clearSdkLogs, getSdkLogs } from '../../../../functions/spark/sdkLogs';
+import {
+  clearSdkLogs,
+  getSdkLogs,
+  getSdkLogsHeader,
+} from '../../../../functions/spark/sdkLogs';
 
 // Newest first; the share file has every buffered line.
 const VISIBLE_LINES = 300;
@@ -39,7 +43,7 @@ export default function SdkLogs() {
 
   const shareLogs = async () => {
     const res = await writeAndShareFileToFilesystem(
-      getSdkLogs().join('\n'),
+      `${getSdkLogsHeader()}\n${getSdkLogs().join('\n')}`,
       `blitz-logs-${Date.now()}.txt`,
       'text/plain',
     );
