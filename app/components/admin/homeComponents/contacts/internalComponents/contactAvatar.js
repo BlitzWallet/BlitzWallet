@@ -57,8 +57,13 @@ export default function ContactAvatar({
   address,
 }) {
   const { tokens } = useGlobalThemeContext();
-  const flagIsoCode = uri ? null : getMobileMoneyCountry(address);
-  const initials = uri || flagIsoCode ? '' : getInitials(name);
+  // A uri that fails to load (web: a dead blob:/remote URL kept in the cache;
+  // native drops missing files up front) is treated as no photo, so we show
+  // initials instead of the generic user glyph.
+  const [failedUri, setFailedUri] = useState(null);
+  const hasPhoto = uri && failedUri !== uri;
+  const flagIsoCode = hasPhoto ? null : getMobileMoneyCountry(address);
+  const initials = hasPhoto || flagIsoCode ? '' : getInitials(name);
   const [fillWidth, setFillWidth] = useState(0);
   return (
     <View
@@ -103,7 +108,11 @@ export default function ContactAvatar({
           }}
         />
       ) : (
-        <ContactProfileImage updated={updated} uri={uri} />
+        <ContactProfileImage
+          updated={updated}
+          uri={uri}
+          onLoadFailed={() => setFailedUri(uri)}
+        />
       )}
     </View>
   );

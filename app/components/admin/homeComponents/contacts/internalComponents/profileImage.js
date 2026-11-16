@@ -15,6 +15,7 @@ export default function ContactProfileImage({
   uri,
   updated,
   fromCustomQR = false,
+  onLoadFailed,
 }) {
   const [loadError, setLoadError] = useState(false);
   const failedImageLoadURI = useRef('');
@@ -56,8 +57,9 @@ export default function ContactProfileImage({
 
       setLoadError(true);
       failedImageLoadURI.current = customURI;
+      onLoadFailed?.();
     },
-    [customURI],
+    [customURI, onLoadFailed],
   );
 
   const onLoad = useCallback(() => {
