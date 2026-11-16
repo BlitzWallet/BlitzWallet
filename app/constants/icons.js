@@ -7,7 +7,6 @@ import sparkLogoLight from '../assets/icons/sparkLogoLight.png';
 import liquidLogo from '../assets/icons/liquidLogo.png';
 import dollarIcon from '../assets/icons/dollarIcon.png';
 import bitcoinIcon from '../assets/icons/bitcoinIcon.png';
-import nwcLogo from '../assets/icons/nwcLogo.png';
 import chain_arbitrum from '../assets/icons/chain-arbitrum.svg';
 import chain_base from '../assets/icons/chain-base.svg';
 import chain_ethereum from '../assets/icons/chain-ethereum.svg';
@@ -53,7 +52,6 @@ export default {
 
   dollarIcon,
   bitcoinIcon,
-  nwcLogo,
 
   // chain logos
   chain_arbitrum,

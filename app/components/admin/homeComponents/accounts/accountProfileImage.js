@@ -1,14 +1,9 @@
-import { Image } from 'expo-image';
 import { StyleSheet, View, Text } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useChildAccountEmoji } from '../../../../functions/accounts/childAccountEmojis';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {
-  ICONS,
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-} from '../../../../constants';
+import { MAIN_ACCOUNT_UUID, NWC_ACCOUNT_UUID } from '../../../../constants';
 import { tintStyle } from '../../../../functions/webTintColor';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
@@ -68,13 +63,7 @@ export default function AccountProfileImage({
           fill
         />
       ) : account.uuid === NWC_ACCOUNT_UUID ? (
-        <Image
-          style={{
-            aspectRatio: 1,
-            width: '60%',
-          }}
-          source={ICONS.nwcLogo}
-        />
+        <ThemeIcon iconName={'Plug'} redesign size={imageSize / 2.5} />
       ) : profileEmoji ? (
         emojiFontSize !== null && (
           <Text
