@@ -152,9 +152,13 @@ jest.mock('../app/functions/CustomElements/button', () => ({
 }));
 jest.mock('../app/functions/passkeyMnemonic', () => ({}));
 
-jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
-}));
+jest.mock('../context-store/theme', () => {
+  const tokens = require('../app/constants/themes').MODES.light;
+  return {
+    useGlobalThemeContext: () => ({ theme: false, darkModeType: false, tokens }),
+    useTheme: () => ({ theme: false, darkModeType: false, tokens }),
+  };
+});
 
 jest.mock('../context-store/appStatus', () => ({
   useAppStatus: () => ({ screenDimensions: { width: 400, height: 800 } }),

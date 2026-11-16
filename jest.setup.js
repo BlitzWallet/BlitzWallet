@@ -119,6 +119,144 @@ jest.mock('expo-file-system/legacy', () => ({
   deleteAsync: jest.fn(async () => {}),
 }));
 
+// react-native-device-info builds a native EventEmitter at import time, which is
+// null under Jest. sdkLogs.js and the settings "about" screen only need static
+// strings; tests that care can override this locally.
+jest.mock('react-native-device-info', () => {
+  const api = {
+    getBuildNumber: jest.fn(() => '1'),
+    getBundleId: jest.fn(() => 'com.blitzwallet'),
+    getModel: jest.fn(() => 'Jest'),
+    getSystemVersion: jest.fn(() => '1.0'),
+    getVersion: jest.fn(() => '1.0.0'),
+    isEmulatorSync: jest.fn(() => false),
+  };
+  return { __esModule: true, default: api, ...api };
+});
+
+// expo-local-authentication (biometric gate) and expo-sharing (file share) read
+// expo-modules-core's EventEmitter, which has no native backing under Jest.
+// Defaults: no biometrics hardware/profile, sharing available. Tests that need
+// different answers override locally with jest.mock(...).
+jest.mock('expo-local-authentication', () => ({
+  hasHardwareAsync: jest.fn(async () => false),
+  isEnrolledAsync: jest.fn(async () => false),
+  supportedAuthenticationTypesAsync: jest.fn(async () => []),
+  authenticateAsync: jest.fn(async () => ({ success: false })),
+}));
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn(async () => true),
+  shareAsync: jest.fn(async () => {}),
+}));
+
+// expo-image / expo-clipboard also import expo-modules-core's EventEmitter.
+// Images render as RN's Image; clipboard calls succeed so copy/read flows load.
+jest.mock('expo-image', () => ({
+  Image: require('react-native').Image,
+  prefetch: jest.fn(async () => true),
+}));
+jest.mock('expo-clipboard', () => ({
+  setStringAsync: jest.fn(async () => true),
+  getStringAsync: jest.fn(async () => ''),
+  hasStringAsync: jest.fn(async () => false),
+}));
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(async () => ({ canceled: true })),
+}));
+jest.mock('expo-image-manipulator', () => ({
+  ImageManipulator: { manipulateAsync: jest.fn(async () => ({})) },
+  manipulateAsync: jest.fn(async () => ({})),
+  SaveFormat: { JPEG: 'jpeg', PNG: 'png' },
+}));
+
+// expo-network reads expo-modules-core's EventEmitter at import time; appStatus
+// only polls the current network state.
+jest.mock('expo-network', () => ({
+  getNetworkStateAsync: jest.fn(async () => ({
+    isConnected: true,
+    isInternetReachable: true,
+    type: 'WIFI',
+  })),
+  addNetworkStateListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
+
+// react-native-reanimated ships untranspiled ESM and needs its native module.
+// Every animated helper collapses to the identity so components render (and are
+// testable); tests that assert on animation behaviour mock it locally.
+jest.mock('react-native-reanimated', () => {
+  const { ScrollView, Text, View } = require('react-native');
+  const identity = value => value;
+  const Easing = {
+    linear: identity,
+    ease: identity,
+    cubic: identity,
+    bezier: () => identity,
+    in: fn => fn,
+    out: fn => fn,
+    inOut: fn => fn,
+  };
+  // FadeIn.duration(200).delay(50): any property is a chainable builder.
+  const layoutAnimation = new Proxy(
+    {},
+    { get: () => () => layoutAnimation },
+  );
+  return {
+    __esModule: true,
+    default: {
+      View,
+      Text,
+      ScrollView,
+      createAnimatedComponent: component => component,
+    },
+    createAnimatedComponent: component => component,
+    useSharedValue: value => ({ value }),
+    useAnimatedStyle: callback => callback(),
+    useAnimatedProps: callback => callback(),
+    useAnimatedScrollHandler: handler =>
+      typeof handler === 'function' ? handler : () => {},
+    useEvent: handler => handler,
+    useHandler: () => ({ context: {}, doDependenciesDiffer: false }),
+    useReducedMotion: () => false,
+    interpolate: (_value, _input, output) => output[0],
+    interpolateColor: (_value, _input, output) => output[0],
+    Extrapolation: { CLAMP: 'clamp', EXTEND: 'extend', IDENTITY: 'identity' },
+    Easing,
+    withTiming: identity,
+    withSpring: identity,
+    withDelay: (_delay, value) => value,
+    withRepeat: value => value,
+    withSequence: (...values) => values[values.length - 1],
+    cancelAnimation: () => {},
+    FadeIn: layoutAnimation,
+    FadeOut: layoutAnimation,
+    LinearTransition: layoutAnimation,
+    SlideInLeft: layoutAnimation,
+    SlideInRight: layoutAnimation,
+    SlideOutLeft: layoutAnimation,
+    SlideOutRight: layoutAnimation,
+    LayoutAnimationConfig: ({ children }) => children,
+  };
+});
+
+// react-native-keyboard-controller requires its native module (it reads
+// KeyboardController off the JSI binding at import time). UI only dismisses or
+// queries the keyboard, and KeyboardAvoidingView degrades to a plain View.
+jest.mock('react-native-keyboard-controller', () => {
+  const { View } = require('react-native');
+  return {
+    KeyboardProvider: ({ children }) => children,
+    KeyboardAvoidingView: View,
+    KeyboardController: {
+      dismiss: jest.fn(async () => {}),
+      isVisible: jest.fn(() => false),
+      state: jest.fn(() => undefined),
+    },
+    KeyboardEvents: {
+      addListener: jest.fn(() => ({ remove: jest.fn() })),
+    },
+  };
+});
+
 // waitForForground() resolves only when AppState.currentState === 'active', which
 // is undefined under Jest, so it would hang forever. Tests run "in foreground";
 // resolve immediately for every caller (receive/send screens).

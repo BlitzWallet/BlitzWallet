@@ -33,6 +33,14 @@ jest.mock('../app/functions/CustomElements', () => ({
     require('react').createElement('MockText', { children: props.content }),
 }));
 
+// PageTitle/PageHeader import ThemeText from the module directly, not via the
+// CustomElements index, so their titles need the same MockText treatment.
+jest.mock('../app/functions/CustomElements/textTheme', () => ({
+  __esModule: true,
+  default: props =>
+    require('react').createElement('MockText', { children: props.content }),
+}));
+
 jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: props => require('react').createElement('MockButton', props),

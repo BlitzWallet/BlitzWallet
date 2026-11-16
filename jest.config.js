@@ -12,6 +12,13 @@ const esModules = [
   // suites that reach them through the app import graph either transform
   // them here or stub them with a local jest.mock (see jest.setup.js).
   'expo(-.*)?',
+  'bitcoin-address-parser',
+  'bip21',
+  'query-string',
+  'decode-uri-component',
+  'split-on-first',
+  'filter-obj',
+  'base58-js',
 ].join('|');
 
 module.exports = {
@@ -31,6 +38,9 @@ module.exports = {
   // for; the mock resolves the same icon files through a plain require.
   moduleNameMapper: {
     '^\\./lucideIcons$': '<rootDir>/__mocks__/lucideIcons.js',
+    // base58-js exposes only an `import` condition, which Jest's CommonJS
+    // resolver cannot follow, so point it at the file directly.
+    '^base58-js$': '<rootDir>/node_modules/base58-js/index.js',
   },
   setupFiles: ['<rootDir>/jest.setup.js'],
 };

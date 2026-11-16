@@ -181,6 +181,11 @@ function methodRow(renderer, label) {
 const hasRow = (renderer, label) =>
   renderer.root.findAll(n => n.props?.accessibilityLabel === label).length > 0;
 
+const rowSelected = (renderer, label) =>
+  renderer.root.findAll(
+    n => n.props?.accessibilityLabel === label && n.props?.accessibilityState,
+  )[0]?.props.accessibilityState.checked;
+
 async function pressRow(renderer, label) {
   await act(async () => {
     methodRow(renderer, label).props.onPress();
@@ -253,8 +258,10 @@ describe('password wallet', () => {
       type: 'clipboard',
       title: 'settings.loginSecurity.passkeyCreated',
     });
-    // Re-read: the screen now shows the passkey wallet state.
-    expect(texts(renderer)).toContain('settings.loginSecurity.passkeyTitle');
+    // Re-read: the screen now shows the passkey wallet state (passkey method
+    // selected, no password controls).
+    expect(rowSelected(renderer, 'settings.loginSecurity.text4')).toBe(true);
+    expect(renderer.root.findAllByType('MockInput')).toHaveLength(0);
   });
 
   test('a wrong current password never opens a passkey prompt', async () => {
@@ -360,19 +367,14 @@ describe('passkey wallet', () => {
     mockGetStoredPasskeyInfo.mockResolvedValue(PASSKEY_INFO);
   });
 
-  test('shows the passkey card: title, created date, saved-as name', async () => {
+  test('shows the passkey wallet: passkey selected, no password controls', async () => {
     const renderer = await mount();
 
-    expect(texts(renderer)).toEqual(
-      expect.arrayContaining([
-        'settings.loginSecurity.passkeyTitle',
-        'settings.loginSecurity.passkeyCreatedOn',
-        'settings.loginSecurity.passkeySavedAs',
-      ]),
-    );
+    expect(rowSelected(renderer, 'settings.loginSecurity.text4')).toBe(true);
     expect(
       methodRow(renderer, 'settings.loginSecurity.passwordMethod'),
     ).toBeDefined();
+    expect(renderer.root.findAllByType('MockInput')).toHaveLength(0);
     expect(texts(renderer)).not.toContain(
       'settings.loginSecurity.currentPasswordSubtitle',
     );
@@ -460,7 +462,7 @@ test('a failed settings read offers retry without exposing password controls', a
   expect(renderer.root.findAllByType('MockInput')).toHaveLength(0);
   mockGetStoredPasskeyInfo.mockResolvedValue(PASSKEY_INFO);
   await press(renderer, 'createAccount.keySetup.passkey.tryAgain');
-  expect(texts(renderer)).toContain('settings.loginSecurity.passkeyTitle');
+  expect(rowSelected(renderer, 'settings.loginSecurity.text4')).toBe(true);
 });
 
 test('double tapping passkey verification opens one prompt', async () => {

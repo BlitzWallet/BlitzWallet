@@ -28,6 +28,18 @@ jest.mock('../../../context-store/nodeContext', () => ({
   }),
 }));
 
+jest.mock('../../../context-store/theme', () => {
+  const tokens = require('../../../app/constants/themes').MODES.light;
+  return {
+    useGlobalThemeContext: () => ({
+      theme: false,
+      darkModeType: false,
+      tokens,
+    }),
+    useTheme: () => ({ tokens }),
+  };
+});
+
 jest.mock('../../../context-store/flashnetContext', () => ({
   useFlashnet: () => ({
     swapUSDPriceDollars: 100000000,
@@ -37,6 +49,12 @@ jest.mock('../../../context-store/flashnetContext', () => ({
 
 jest.mock('../../../app/functions/displayCurrency', () => ({
   getDefaultDisplayCurrency: () => 'SATS',
+  SATS_DISPLAY_CURRENCY: 'SATS',
+  normalizeDisplayCurrency: currency => {
+    if (!currency) return 'SATS';
+    const normalized = String(currency).toUpperCase();
+    return normalized === 'BTC' ? 'SATS' : normalized;
+  },
   resolveUsdFiatStats: (fiatStats, swapUSDPriceDollars) =>
     fiatStats?.coin?.toUpperCase() === 'USD'
       ? fiatStats

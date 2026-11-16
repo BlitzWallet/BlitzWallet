@@ -10,6 +10,7 @@ const mockNavigation = {
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => mockNavigation,
+  createNavigationContainerRef: () => ({ current: null, isReady: () => false }),
 }));
 
 jest.mock('../context-store/context', () => ({
@@ -29,10 +30,26 @@ jest.mock('../context-store/nodeContext', () => ({
   }),
 }));
 
+jest.mock('../context-store/theme', () => {
+  const tokens = require('../app/constants/themes').MODES.light;
+  return {
+    useGlobalThemeContext: () => ({
+      theme: false,
+      darkModeType: false,
+      tokens,
+    }),
+    useTheme: () => ({ tokens }),
+  };
+});
+
 jest.mock('../context-store/flashnetContext', () => ({
   useFlashnet: () => ({
     swapUSDPriceDollars: 100000000,
   }),
+}));
+
+jest.mock('../context-store/activeAccount', () => ({
+  useActiveCustodyAccount: () => ({ isUsingAltAccount: false }),
 }));
 
 jest.mock('../context-store/insetsProvider', () => ({
@@ -46,8 +63,8 @@ jest.mock('react-i18next', () => ({
     t: (key, params) => {
       const translations = {
         'constants.back': 'Back',
-        'constants.request': 'Request',
-        'constants.paymentDescriptionPlaceholder': 'Payment description',
+        'receive.createInvoice': 'Request',
+        'receive.whatFor': 'Payment description',
         'wallet.receivePages.editPaymentInfo.editAmount': 'Edit amount',
         'wallet.receivePages.editPaymentInfo.minUSDSwap': `Minimum ${params?.amount}`,
       };
@@ -100,11 +117,13 @@ jest.mock('../app/hooks/useCurrencyDisplay', () => {
 
 jest.mock('../app/functions/CustomElements', () => {
   const MockReact = require('react');
-  const { View } = require('react-native');
+  const { Text, View } = require('react-native');
 
   return {
     CustomKeyboardAvoidingView: ({ children }) =>
       MockReact.createElement(View, { testID: 'keyboard-view' }, children),
+    ThemeText: ({ content, textContent }) =>
+      MockReact.createElement(Text, null, content || textContent),
   };
 });
 
@@ -128,23 +147,27 @@ jest.mock(
 );
 
 jest.mock(
-  '../app/functions/CustomElements/formattedBalanceInput',
+  '../app/functions/CustomElements/redesign/AmountHero',
   () =>
-    function MockFormattedBalanceInput({
-      amountValue,
-      placeholderAmountValue,
-      inputDenomination,
-    }) {
+    function MockAmountHero({ amount, masterInfoObject }) {
       const MockReact = require('react');
       const { Text } = require('react-native');
 
       return MockReact.createElement(
         Text,
         { testID: 'amount-display' },
-        amountValue || placeholderAmountValue || '',
-        inputDenomination ? ` ${inputDenomination}` : '',
+        `${amount} ${
+          masterInfoObject?.userBalanceDenomination === 'fiat' ? 'fiat' : 'sats'
+        }`,
       );
     },
+);
+
+jest.mock('../app/functions/CustomElements/redesign/TopBar', () => () => null);
+
+jest.mock(
+  '../app/functions/CustomElements/redesign/CurrencyButton',
+  () => () => null,
 );
 
 jest.mock(
@@ -163,21 +186,17 @@ jest.mock(
 );
 
 jest.mock(
-  '../app/functions/CustomElements/searchInput',
+  '../app/functions/CustomElements/redesign/UserInput',
   () =>
-    function MockCustomSearchInput({
-      inputText,
-      setInputText,
-      placeholderText,
-    }) {
+    function MockUserInput({ value, placeholder, onChangeText }) {
       const MockReact = require('react');
       const { TextInput } = require('react-native');
 
       return MockReact.createElement(TextInput, {
         testID: 'description-input',
-        value: inputText,
-        placeholder: placeholderText,
-        onChangeText: setInputText,
+        value,
+        placeholder,
+        onChangeText,
       });
     },
 );
@@ -388,7 +407,7 @@ describe('EditReceivePaymentInformation', () => {
         description: 'Coffee',
       });
 
-      expect(textByTestId(renderer, 'amount-display')).toBe('5000 sats');
+      expect(textByTestId(renderer, 'amount-display')).toBe('5,000 sats');
       expect(descriptionInput(renderer).value).toBe('Coffee');
       expect(descriptionInput(renderer).placeholder).toBe(
         'Payment description',
@@ -590,6 +609,9 @@ describe('EditReceivePaymentInformation', () => {
       });
 
       enterAmount(renderer, '1999');
+      // Below the minimum is only blocked when a note forces a real invoice
+      // (the Lightning address path can't carry a description).
+      enterDescription(renderer, 'Coffee');
 
       expect(textByTestId(renderer, 'submit-button-text')).toBe('Request');
 
