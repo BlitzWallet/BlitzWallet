@@ -10,6 +10,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  QUICK_PAY_STORAGE_KEY,
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
@@ -38,6 +39,8 @@ import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContactAvatar from './internalComponents/contactAvatar';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -51,6 +54,7 @@ export default function SendAndRequestPage(props) {
 
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
+  const { sparkInformation } = useSparkWallet();
   const { tokens } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
@@ -71,6 +75,15 @@ export default function SendAndRequestPage(props) {
     lockInitialPaymentMethod: true,
     t,
   });
+
+  // Contact sends are never LRC20; same fast-pay rule as sendAmountScreen.
+  const { shouldWarn } = useBudgetWarning(payment.convertedSendAmount);
+  const isFastPayEligible =
+    sparkInformation.didConnect &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
+      payment.convertedSendAmount &&
+    !shouldWarn;
 
   const contactName =
     selectedContact?.name || selectedContact?.uniqueName || '';
@@ -418,9 +431,11 @@ export default function SendAndRequestPage(props) {
                   useLoading={payment.isLoading}
                   actionFunction={handleSubmit}
                   textContent={
-                    paymentType === 'send'
-                      ? t('constants.review')
-                      : t('constants.request')
+                    paymentType !== 'send'
+                      ? t('constants.request')
+                      : isFastPayEligible
+                      ? t('constants.confirm')
+                      : t('constants.review')
                   }
                 />
               </View>
