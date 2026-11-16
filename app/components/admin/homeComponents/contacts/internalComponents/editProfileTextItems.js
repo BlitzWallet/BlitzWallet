@@ -5,8 +5,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 
 /**
  * Labelled field for the edit-contact form (People.dc.html "Edit contact"):
- * small uppercase label, a white 52 input (96 for the multiline bio) and an
- * optional "n / max" counter underneath.
+ * small uppercase label and a 52 input.
  *
  * @param {Object} props
  * @param {string} props.label - Label shown above the input
@@ -17,8 +16,6 @@ import { ThemeText } from '../../../../../functions/CustomElements';
  * @param {function} props.onBlur - Callback when input loses focus
  * @param {React.RefObject} props.inputRef - Ref for the TextInput
  * @param {number} props.maxLength - Maximum character length
- * @param {boolean} props.multiline - Whether input supports multiple lines
- * @param {boolean} props.showCount - Show the "n / max" counter
  * @param {boolean} props.isFirst - First field: more space above the label
  * @param {Object} props.tokens - Theme tokens
  */
@@ -31,8 +28,6 @@ export default function EditProfileTextInput({
   onBlur,
   inputRef,
   maxLength = 30,
-  multiline = false,
-  showCount = false,
   isFirst = false,
   tokens,
 }) {
@@ -51,11 +46,9 @@ export default function EditProfileTextInput({
         placeholderTextColor={`${tokens.onField}A6`}
         ref={inputRef}
         editable={true}
-        multiline={multiline}
-        textAlignVertical={multiline ? 'top' : 'center'}
+        textAlignVertical="center"
         style={[
           styles.input,
-          multiline && styles.multiline,
           {
             backgroundColor: tokens.field,
             color: isOverLimit ? tokens.danger : tokens.onField,
@@ -66,17 +59,6 @@ export default function EditProfileTextInput({
         onBlur={onBlur}
         onFocus={onFocus}
       />
-
-      {showCount && (
-        <ThemeText
-          variant="hint"
-          styles={[
-            styles.count,
-            { color: isOverLimit ? tokens.danger : tokens.muted },
-          ]}
-          content={`${value.length} / ${maxLength}`}
-        />
-      )}
     </View>
   );
 }
@@ -104,15 +86,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-  },
-  multiline: {
-    height: 96,
-    paddingTop: 14,
-    paddingBottom: 14,
-    lineHeight: 24,
-  },
-  count: {
-    marginHorizontal: 4,
-    marginTop: 8,
   },
 });

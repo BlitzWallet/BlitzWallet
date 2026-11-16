@@ -123,7 +123,10 @@ export default function CustomHalfModal(props) {
     !CONTENT_TYPES_WITH_MOUNT_FOCUS.has(contentType);
 
   const translateY = useSharedValue(screenDimensions.height);
-  const animatedHeight = useSharedValue(screenDimensions.height * slideHeight);
+  const maxHeight = screenDimensions.height * 0.95;
+  const animatedHeight = useSharedValue(
+    Math.min(maxHeight, screenDimensions.height * slideHeight),
+  );
 
   const slideIn = useCallback(() => {
     translateY.value = withTiming(0, { duration: 200 });
@@ -135,9 +138,11 @@ export default function CustomHalfModal(props) {
 
   useEffect(() => {
     if (contentHeight) {
-      animatedHeight.value = withTiming(contentHeight, { duration: 200 });
+      animatedHeight.value = withTiming(Math.min(contentHeight, maxHeight), {
+        duration: 200,
+      });
     }
-  }, [contentHeight]);
+  }, [contentHeight, maxHeight]);
 
   useFocusEffect(
     useCallback(() => {
@@ -794,7 +799,7 @@ export default function CustomHalfModal(props) {
           animatedStyle,
           {
             backgroundColor: 'black',
-            marginTop: topPadding,
+            marginTop: topPadding + CONTENT_KEYBOARD_OFFSET,
           },
           Platform.OS === 'web' && styles.webContentConteiner,
         ]}

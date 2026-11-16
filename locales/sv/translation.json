@@ -1567,7 +1567,6 @@
       "uniqueNameInputPlaceholder": "Ange ditt användarnamn",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Ange en kort biografi",
-      "addContactBTN": " Lägg till kontakt",
       "unqiueNameRegexError": "Ditt användarnamn får bara innehålla bokstäver, siffror eller understreck och måste innehålla minst 1 bokstav.",
       "usernameAlreadyExistsError": "Detta användarnamn finns redan, vänligen välj ett annat.",
       "unableToSaveError": "Det gick inte att spara profilbilden, försök igen.",
@@ -3316,6 +3315,7 @@
           "inputLabel": "Gåvonummer",
           "hint_one": "Du har skapat {{count}} gåva. Ange ett nummer från 1 till {{count}}.",
           "hint_other": "Du har skapat {{count}} gåvor. Ange ett nummer från 1 till {{count}}.",
+          "hintNoCount": "Ange numret på gåvan du vill återställa, med start från 1.",
           "howItWorks": "Varje gåva är en egen liten plånbok skapad från din, så pengar som blir kvar kan komma tillbaka till dig."
         },
         "claimPage": {

@@ -47,6 +47,7 @@ export default function ListRow({
           : undefined
       }
       isHidden={tone === 'hidden'}
+      middleStyle={trailing === 'value' ? styles.middleWithValue : undefined}
       trailing={
         <View
           style={[
@@ -96,7 +97,9 @@ export default function ListRow({
         </View>
       }
     >
-      <View style={styles.texts}>
+      <View
+        style={[styles.texts, trailing === 'value' && styles.textsWithValue]}
+      >
         <ThemeText
           CustomNumberOfLines={titleLines}
           content={title}
@@ -131,6 +134,7 @@ export function RowShell({
   accessibilityLabel,
   children,
   isHidden,
+  middleStyle,
 }) {
   return (
     <TouchableOpacity
@@ -146,7 +150,7 @@ export function RowShell({
       ]}
     >
       {lead}
-      <View style={styles.middle}>{children}</View>
+      <View style={[styles.middle, middleStyle]}>{children}</View>
       {trailing}
     </TouchableOpacity>
   );
@@ -165,7 +169,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     columnGap: 12,
   },
+  // Title wins the row: up to 70% wide and never shrinks; the value
+  // takes (and truncates in) whatever is left.
+  // flex: 0 resets styles.middle's flex: 1 (basis 0) so it sizes to content.
+  middleWithValue: {
+    flex: 0,
+    flexShrink: 0,
+    flexWrap: 'nowrap',
+    maxWidth: '70%',
+  },
   texts: { flexGrow: 1, flexShrink: 1 },
+  textsWithValue: { flexGrow: 0 },
   title: {
     fontFamily: FONT.Title_Regular,
     fontSize: 17,
@@ -173,7 +187,5 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  // Cap the value so a long trailing string can never squeeze the title/sub
-  // out. The value shrinks and wraps inside this width instead.
-  trailingValue: { flexShrink: 1, maxWidth: '60%' },
+  trailingValue: { flexGrow: 1, flexShrink: 1, justifyContent: 'flex-end' },
 });

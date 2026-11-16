@@ -232,6 +232,7 @@ export default function ContactsPage({ navigation }) {
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}
+          keyboardShouldPersistTaps="handled"
         >
           {pinnedContacts.length !== 0 && filteredContacts.length !== 0 && (
             <>

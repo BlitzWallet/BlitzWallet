@@ -70,6 +70,7 @@ export default function SendList() {
           <ContactAvatarDisc
             name={contact.name || contact.uniqueName}
             seed={contact.uuid}
+            address={contact.receiveAddress}
             updated={cache[contact.uuid]?.updated}
             uri={cache[contact.uuid]?.localUri}
           />

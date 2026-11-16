@@ -957,6 +957,7 @@ function SplitAvatars({ contacts = [] }) {
           <ContactAvatar
             name={contact?.name || contact?.uniqueName}
             seed={contact?.uuid}
+            address={contact?.receiveAddress}
             updated={cache[contact?.uuid]?.updated}
             uri={cache[contact?.uuid]?.localUri}
             size={32}

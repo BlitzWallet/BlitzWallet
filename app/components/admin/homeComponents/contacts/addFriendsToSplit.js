@@ -38,6 +38,7 @@ function ContactAvatar({ contact, size }) {
     <ContactAvatarDisc
       name={contact.name || contact.uniqueName}
       seed={contact.uuid}
+      address={contact.receiveAddress}
       uri={cache[contact.uuid]?.localUri}
       updated={cache[contact.uuid]?.updated}
       size={size}

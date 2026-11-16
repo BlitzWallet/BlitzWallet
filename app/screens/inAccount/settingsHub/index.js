@@ -20,6 +20,7 @@ import ListRow from '../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../functions/CustomElements/redesign/Disc';
 import IconButton from '../../../functions/CustomElements/redesign/IconButton';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
+import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 
 const DOOMSDAY_ROW = [
   {
@@ -49,6 +50,7 @@ export default function SettingsHub(props) {
   const { isConnectedToTheInternet } = useAppStatus();
   const { tokens } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
+  const { bottomPadding } = useGlobalInsets();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const isDoomsday = props?.route?.params?.isDoomsday;
@@ -204,7 +206,7 @@ export default function SettingsHub(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <View style={{ width: contentWidth, ...CENTER }}>
+      <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           title={t('settings.index.profileHead')}
           right={
@@ -215,8 +217,10 @@ export default function SettingsHub(props) {
             />
           }
         />
-
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView
+          styles={{ paddingBottom: bottomPadding }}
+          showsVerticalScrollIndicator={false}
+        >
           <ProfileCard
             profileImage={myProfileImage}
             name={myContact?.name}
@@ -251,6 +255,7 @@ const styles = StyleSheet.create({
   globalContainer: {
     paddingBottom: 0,
   },
+  container: { flex: 1, ...CENTER },
   rowsCard: { marginTop: 12, marginBottom: 20 },
   rowTitle: { fontSize: 15, lineHeight: 22 },
   doomedayContianer: {

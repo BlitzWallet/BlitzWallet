@@ -180,8 +180,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   search: { marginTop: 16 },
   card: { marginTop: 16, flexShrink: 1 },
-  title: { fontSize: 15, lineHeight: 21 },
-  sub: { fontSize: 13, lineHeight: 19 },
+  title: { fontSize: 15 },
+  sub: { fontSize: 13 },
   empty: { flex: 1, justifyContent: 'center' },
   emptyText: {
     textAlign: 'center',

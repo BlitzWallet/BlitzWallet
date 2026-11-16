@@ -28,17 +28,21 @@ export default function AdvancedGiftClaim() {
   const { t } = useTranslation();
   const { tokens } = useTheme();
 
+  const num = parseInt(giftNumber, 10);
+  // A count of 0 can also mean the backend index didn't load (it defaults to
+  // 1), so never use it as an upper bound or users get locked out of restoring.
+  const hasCount = giftCount > 0;
+  const isValid = num >= 1 && (!hasCount || num <= giftCount);
+  const showError = giftNumber && !isValid;
+  const invalidText = hasCount
+    ? t('screens.inAccount.giftPages.advancedMode.invalidGiftNum', {
+        currentGiftIndex: giftCount,
+      })
+    : t('screens.inAccount.giftPages.advancedMode.hintNoCount');
+
   const handleClaim = async () => {
-    const num = parseInt(giftNumber);
-    if (!giftNumber || num < 1 || num > giftCount) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t(
-          'screens.inAccount.giftPages.advancedMode.invalidGiftNum',
-          {
-            currentGiftIndex: giftCount,
-          },
-        ),
-      });
+    if (!isValid) {
+      navigate.navigate('ErrorScreen', { errorMessage: invalidText });
       return;
     }
     setGiftNumber('');
@@ -51,12 +55,6 @@ export default function AdvancedGiftClaim() {
       }),
     );
   };
-
-  const isValid =
-    giftNumber &&
-    parseInt(giftNumber) >= 1 &&
-    parseInt(giftNumber) <= giftCount;
-  const showError = giftNumber && !isValid;
 
   return (
     <CustomKeyboardAvoidingView
@@ -96,12 +94,12 @@ export default function AdvancedGiftClaim() {
             ]}
             content={
               showError
-                ? t('screens.inAccount.giftPages.advancedMode.invalidGiftNum', {
-                    currentGiftIndex: giftCount,
-                  })
-                : t('screens.inAccount.giftPages.advancedMode.hint', {
+                ? invalidText
+                : hasCount
+                ? t('screens.inAccount.giftPages.advancedMode.hint', {
                     count: giftCount,
                   })
+                : t('screens.inAccount.giftPages.advancedMode.hintNoCount')
             }
           />
         </CustomScrollView>

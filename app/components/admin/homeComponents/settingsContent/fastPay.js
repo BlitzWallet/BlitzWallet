@@ -13,6 +13,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import {
+  CONTENT_KEYBOARD_OFFSET,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   QUICK_PAY_STORAGE_KEY,
@@ -123,10 +124,6 @@ export default function FastPay() {
         <CustomScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: isEditing ? 360 : 40 },
-          ]}
         >
           <ListCard style={styles.firstCard}>
             <ListRow
@@ -241,7 +238,6 @@ export default function FastPay() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
   firstCard: { marginTop: 16 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   thresholdHeader: { marginTop: 20 },
@@ -271,11 +267,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   editTray: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     gap: 12,
+    paddingTop: CONTENT_KEYBOARD_OFFSET,
   },
   buttonRow: { width: '100%' },
   actionButton: { flex: 1, width: 'auto' },

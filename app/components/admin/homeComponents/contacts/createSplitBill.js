@@ -445,6 +445,7 @@ export default function CreateSplitBill(props) {
             <ContactAvatarDisc
               name={contactName}
               seed={contact.uuid}
+              address={contact.receiveAddress}
               uri={cache[contact.uuid]?.localUri}
               updated={cache[contact.uuid]?.updated}
               size={40}

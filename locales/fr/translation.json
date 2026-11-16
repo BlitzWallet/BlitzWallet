@@ -1567,7 +1567,6 @@
       "uniqueNameInputPlaceholder": "Entrez votre nom d'utilisateur",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Saisissez une courte biographie",
-      "addContactBTN": " Ajouter un contact",
       "unqiueNameRegexError": "Votre nom d'utilisateur ne peut contenir que des lettres, des chiffres ou des traits de soulignement, et doit comporter au moins une lettre.",
       "usernameAlreadyExistsError": "Ce nom d'utilisateur existe déjà, veuillez en choisir un autre.",
       "unableToSaveError": "Impossible d'enregistrer l'image du profil, veuillez réessayer.",
@@ -3316,6 +3315,7 @@
           "inputLabel": "Numéro du cadeau",
           "hint_one": "Vous avez créé {{count}} cadeau. Saisissez un nombre de 1 à {{count}}.",
           "hint_other": "Vous avez créé {{count}} cadeaux. Saisissez un nombre de 1 à {{count}}.",
+          "hintNoCount": "Saisissez le numéro du cadeau à restaurer, à partir de 1.",
           "howItWorks": "Chaque cadeau est un petit portefeuille distinct créé à partir du vôtre, ainsi l'argent qui y reste peut vous revenir."
         },
         "claimPage": {

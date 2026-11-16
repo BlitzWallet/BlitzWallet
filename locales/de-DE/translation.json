@@ -1567,7 +1567,6 @@
       "uniqueNameInputPlaceholder": "Geben Sie Ihren Benutzernamen ein.",
       "bioInputDesc": "Biografie",
       "bioInputPlaceholder": "Geben Sie eine kurze Biografie ein.",
-      "addContactBTN": "Kontakte hinzufügen",
       "unqiueNameRegexError": "Ihr Benutzername darf nur Buchstaben, Zahlen oder Unterstriche enthalten und muss mindestens einen Buchstaben enthalten.",
       "usernameAlreadyExistsError": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
       "unableToSaveError": "Profilbild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
@@ -3316,6 +3315,7 @@
           "inputLabel": "Geschenknummer",
           "hint_one": "Sie haben {{count}} Geschenk erstellt. Geben Sie eine Zahl von 1 bis {{count}} ein.",
           "hint_other": "Sie haben {{count}} Geschenke erstellt. Geben Sie eine Zahl von 1 bis {{count}} ein.",
+          "hintNoCount": "Geben Sie die Nummer des Geschenks ein, das Sie wiederherstellen möchten, beginnend bei 1.",
           "howItWorks": "Jedes Geschenk ist eine eigene kleine Wallet, die aus Ihrer erstellt wurde, sodass Geld, das darin verbleibt, zu Ihnen zurückkommen kann."
         },
         "claimPage": {

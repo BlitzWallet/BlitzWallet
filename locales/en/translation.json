@@ -1566,7 +1566,6 @@
       "uniqueNameInputPlaceholder": "Enter your username",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Enter a short bio",
-      "addContactBTN": " Add contact",
       "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and it must contain at least 1 letter.",
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
       "unableToSaveError": "Unable to save profile image, please try again.",
@@ -3315,6 +3314,7 @@
           "inputLabel": "Gift number",
           "hint_one": "You’ve made {{count}} gift. Enter a number from 1 to {{count}}.",
           "hint_other": "You’ve made {{count}} gifts. Enter a number from 1 to {{count}}.",
+          "hintNoCount": "Enter the number of the gift you want to restore, starting from 1.",
           "howItWorks": "Each gift is its own small wallet made from yours, so money left in it can come back to you."
         },
         "claimPage": {

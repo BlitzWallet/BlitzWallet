@@ -1567,7 +1567,6 @@
       "uniqueNameInputPlaceholder": "Digite seu perfil",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Escreva uma introdução curta",
-      "addContactBTN": " Adicionar contato",
       "unqiueNameRegexError": "O perfil só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
       "usernameAlreadyExistsError": "Este perfil já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
@@ -3316,6 +3315,7 @@
           "inputLabel": "Número do presente",
           "hint_one": "Você criou {{count}} presente. Insira um número de 1 a {{count}}.",
           "hint_other": "Você criou {{count}} presentes. Insira um número de 1 a {{count}}.",
+          "hintNoCount": "Insira o número do presente que você quer recuperar, começando em 1.",
           "howItWorks": "Cada presente é uma pequena carteira própria criada a partir da sua, então o dinheiro que sobrar pode voltar para você."
         },
         "claimPage": {

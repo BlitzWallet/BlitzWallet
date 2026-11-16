@@ -15,7 +15,7 @@ import {
   VALID_NAME_BIO_REGEX,
 } from '../../../../constants';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -62,8 +62,7 @@ export default function EditMyProfilePage(props) {
   const fromSettings = props.fromSettings || props.route?.params?.fromSettings;
   const isEditingMyProfile = pageType.toLowerCase() === 'myprofile';
   const providedContact =
-    !isEditingMyProfile &&
-    (props?.selectedAddedContact || props.route?.params?.selectedAddedContact);
+    !isEditingMyProfile && props.route?.params?.selectedAddedContact;
   const myContact = globalContactsInformation.myProfile;
   const isFirstTimeEditing = myContact.didEditProfile;
 
@@ -90,25 +89,23 @@ export default function EditMyProfilePage(props) {
     ]),
   );
 
-  const selectedAddedContact = props.fromInitialAdd
-    ? providedContact
-    : decodedAddedContacts.find(
-        contact => contact.uuid === providedContact?.uuid,
-      );
+  const selectedAddedContact = decodedAddedContacts.find(
+    contact => contact.uuid === providedContact?.uuid,
+  );
 
-  const deleteUser = shouldDelete => {
-    if (shouldDelete) {
-      deleteContact(selectedAddedContact);
-      navigate.popTo('HomeAdmin');
-    }
+  const deleteUser = () => {
+    deleteContact(selectedAddedContact);
+    navigate.popTo('HomeAdmin');
   };
 
   return (
     <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
+      // Only the contact path has text inputs to dismiss; the myProfile path
+      // is a long scroller and the wrapper steals its touches.
+      useTouchableWithoutFeedback={!isEditingMyProfile}
       useStandardWidth={true}
     >
-      <View style={{ flex: 1, width: contentWidth, ...CENTER }}>
+      <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           title={
             isEditingMyProfile
@@ -135,7 +132,7 @@ export default function EditMyProfilePage(props) {
                     ),
                     confirmLabel: t('constants.delete'),
                     cancelLabel: t('constants.cancel'),
-                    onConfirm: () => deleteUser(true),
+                    onConfirm: deleteUser,
                   })
                 }
               />
@@ -145,7 +142,6 @@ export default function EditMyProfilePage(props) {
         <InnerContent
           isEditingMyProfile={isEditingMyProfile}
           selectedAddedContact={selectedAddedContact}
-          fromInitialAdd={props.fromInitialAdd}
           fromSettings={fromSettings}
         />
       </View>
@@ -294,11 +290,10 @@ function CopyDisc({ value, label }) {
 function InnerContent({
   isEditingMyProfile,
   selectedAddedContact,
-  fromInitialAdd,
   fromSettings,
 }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { cache, refreshCacheObject } = useImageCache();
+  const { cache } = useImageCache();
   const { backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const {
@@ -321,16 +316,12 @@ function InnerContent({
   const myContact = globalContactsInformation.myProfile;
 
   const selectedAddedContactName = selectedAddedContact?.name || '';
-  const selectedAddedContactBio = selectedAddedContact?.bio || '';
-  const selectedAddedContactUniqueName = selectedAddedContact?.uniqueName || '';
   const selectedAddedContactReceiveAddress =
     selectedAddedContact?.receiveAddress || '';
 
   const [isSaving, setIsSaving] = useState(false);
   const [inputs, setInputs] = useState(() => ({
     name: selectedAddedContactName || '',
-    bio: selectedAddedContactBio || '',
-    uniquename: selectedAddedContactUniqueName || '',
     receiveAddress: selectedAddedContactReceiveAddress || '',
   }));
 
@@ -366,10 +357,7 @@ function InnerContent({
   const hasChangedInfo = isEditingMyProfile
     ? tempImage.uri || tempImage.shouldDelete
     : selectedAddedContactName !== inputs.name ||
-      selectedAddedContactBio !== inputs.bio ||
-      selectedAddedContactUniqueName !== inputs.uniquename ||
       selectedAddedContactReceiveAddress !== inputs.receiveAddress ||
-      fromInitialAdd ||
       tempImage.uri ||
       tempImage.shouldDelete;
 
@@ -396,13 +384,6 @@ function InnerContent({
     didCallImagePicker.current = false;
   };
 
-  useEffect(() => {
-    if (!fromInitialAdd) return;
-    if (hasImage) return;
-    // Making sure to update UI for new contacts image
-    refreshCacheObject();
-  }, []);
-
   // Props for ProfileInputFields (contact path)
   const inputFieldsProps = {
     inputs,
@@ -426,11 +407,7 @@ function InnerContent({
       >
         <CustomScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-            width: '100%',
-            alignItems: 'center',
-          }}
+          contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
           {/* Profile image */}
@@ -513,7 +490,7 @@ function InnerContent({
             title={t('contacts.editMyProfilePage.share')}
           />
 
-          <ListCard style={{ width: '100%' }}>
+          <ListCard style={{ width: '100%', marginBottom: 16 }}>
             {[
               {
                 key: 'lnAddress',
@@ -562,12 +539,7 @@ function InnerContent({
   // ── Contact path (PeopleAdd/People.dc.html "Edit contact") ──────────────────
   const canEditPhoto = !!selectedAddedContact.isLNURL;
   return (
-    <View
-      style={[
-        styles.innerContainer,
-        fromSettings && { maxWidth: MAX_WEB_CONTENT_WIDTH, width: '100%' },
-      ]}
-    >
+    <View style={styles.innerContainer}>
       <CustomScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contactScrollContent}
@@ -585,13 +557,12 @@ function InnerContent({
               await new Promise(resolve => setTimeout(resolve, 250));
             }
             if (!hasImage) {
-              addProfilePicture(isEditingMyProfile, selectedAddedContact);
+              addProfilePicture();
               return;
             }
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'ProfilePhotoModal',
-              addPhoto: () =>
-                addProfilePicture(isEditingMyProfile, selectedAddedContact),
+              addPhoto: () => addProfilePicture(),
               deletePhoto: handleDeleteProfilePicture,
               hasImage: hasImage,
             });
@@ -608,6 +579,7 @@ function InnerContent({
                   selectedAddedContact?.name || selectedAddedContact?.uniqueName
                 }
                 seed={selectedAddedContact?.uuid}
+                address={selectedAddedContact?.receiveAddress}
                 updated={
                   tempImage.shouldDelete
                     ? null
@@ -658,11 +630,7 @@ function InnerContent({
           actionFunction={saveChanges}
           useLoading={isSaving}
           textContent={
-            hasChangedInfo
-              ? fromInitialAdd
-                ? t('contacts.editMyProfilePage.addContactBTN')
-                : t('constants.save')
-              : t('constants.back')
+            hasChangedInfo ? t('constants.save') : t('constants.back')
           }
           size={'regular'}
         />
@@ -695,9 +663,7 @@ function InnerContent({
 
       // ── Contact path (unchanged) ──────────────────────────────────────────
       if (
-        // Bio is not editable for contacts, so it is not validated here.
         inputs.name.length >= 30 ||
-        inputs.uniquename.length >= 30 ||
         (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
       )
         return;
@@ -733,55 +699,7 @@ function InnerContent({
         }
       }
 
-      if (fromInitialAdd) {
-        let tempContact = JSON.parse(JSON.stringify(selectedAddedContact));
-        tempContact.name = inputs.name.trim();
-        tempContact.nameLower = inputs.name.trim().toLowerCase();
-        tempContact.bio = inputs.bio;
-        tempContact.isAdded = true;
-        tempContact.unlookedTransactions = 0;
-        if (selectedAddedContact.isLNURL) {
-          tempContact.receiveAddress = inputs.receiveAddress;
-        }
-
-        let newAddedContacts = JSON.parse(JSON.stringify(decodedAddedContacts));
-        const isContactInAddedContacts = newAddedContacts.filter(
-          addedContact => addedContact.uuid === tempContact.uuid,
-        ).length;
-
-        if (isContactInAddedContacts) {
-          newAddedContacts = newAddedContacts.map(addedContact => {
-            if (addedContact.uuid === tempContact.uuid) {
-              return {
-                ...addedContact,
-                name: tempContact.name,
-                nameLower: tempContact.nameLower,
-                bio: tempContact.bio,
-                unlookedTransactions: 0,
-                isAdded: true,
-              };
-            } else return addedContact;
-          });
-        } else newAddedContacts.push(tempContact);
-
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
-            },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-          },
-          true,
-        );
-
-        return;
-      }
       if (
-        selectedAddedContact?.bio === inputs.bio &&
         selectedAddedContact?.name === inputs.name &&
         selectedAddedContact?.receiveAddress === inputs.receiveAddress
       ) {
@@ -796,7 +714,6 @@ function InnerContent({
 
         contact['name'] = inputs.name.trim();
         contact['nameLower'] = inputs.name.trim().toLowerCase();
-        contact['bio'] = inputs.bio.trim();
         if (
           selectedAddedContact.isLNURL &&
           selectedAddedContact?.receiveAddress !== inputs.receiveAddress
@@ -831,6 +748,12 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     width: '100%',
+  },
+  container: { flex: 1, ...CENTER },
+  scrollContainer: {
+    flexGrow: 1,
+    width: '100%',
+    alignItems: 'center',
   },
   contactScrollContent: {
     flexGrow: 1,

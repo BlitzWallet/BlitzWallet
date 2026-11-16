@@ -421,6 +421,10 @@ export default function ExpandedTx({
                 <ContactAvatar
                   name={name || t('constants.annonName')}
                   seed={entry.contactUUID}
+                  address={
+                    decodedAddedContacts?.find(c => c.uuid === entry.contactUUID)
+                      ?.receiveAddress
+                  }
                   updated={cache[entry.contactUUID]?.updated}
                   uri={cache[entry.contactUUID]?.localUri}
                   size={56}

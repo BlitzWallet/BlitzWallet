@@ -1567,7 +1567,6 @@
       "uniqueNameInputPlaceholder": "Introduce tu nombre de usuario",
       "bioInputDesc": "Biografía",
       "bioInputPlaceholder": "Introduce una biografía corta",
-      "addContactBTN": " Añadir contacto",
       "unqiueNameRegexError": "Solo puedes usar letras, números o guiones bajos en tu nombre de usuario, y debe contener al menos 1 letra.",
       "usernameAlreadyExistsError": "Este nombre de usuario ya existe, elige otro.",
       "unableToSaveError": "No se pudo guardar la imagen de perfil, intenta de nuevo.",
@@ -3316,6 +3315,7 @@
           "inputLabel": "Número de regalo",
           "hint_one": "Has creado {{count}} regalo. Introduce un número del 1 al {{count}}.",
           "hint_other": "Has creado {{count}} regalos. Introduce un número del 1 al {{count}}.",
+          "hintNoCount": "Introduce el número del regalo que quieres restaurar, empezando por el 1.",
           "howItWorks": "Cada regalo es una pequeña cartera propia creada a partir de la tuya, así que el dinero que quede en ella puede volver a ti."
         },
         "claimPage": {
