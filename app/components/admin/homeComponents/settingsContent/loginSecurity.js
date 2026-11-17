@@ -726,7 +726,9 @@ function LoginSecurityNative({ extraData }) {
           setShowSecurityChoice(false);
         } else {
           // Navigate to PIN setup
-          navigate.navigate('ConfirmPinForLoginMode');
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'confirmPinForLoginMode',
+          });
           return;
         }
       } catch (err) {
@@ -767,7 +769,9 @@ function LoginSecurityNative({ extraData }) {
           if (!success)
             throw new Error(t('settings.loginSecurity.biometricSignInError'));
         } else {
-          navigate.navigate('ConfirmPinForLoginMode');
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'confirmPinForLoginMode',
+          });
           return;
         }
 

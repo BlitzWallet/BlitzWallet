@@ -93,6 +93,7 @@ import ReceiveAssetSheet from '../../components/admin/homeComponents/receiveBitc
 import useContentWidth from './redesign/useContentWidth';
 import ExitFeeSheet from '../../components/admin/homeComponents/settingsContent/leaves/unilateralExit/feeSheet';
 import ExitTxSheet from '../../components/admin/homeComponents/settingsContent/leaves/unilateralExit/txSheet';
+import ConfirmPinForLoginMode from '../../components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
@@ -752,6 +753,13 @@ export default function CustomHalfModal(props) {
             title={props.route.params?.title}
             message={props.route.params?.message}
             confirmFunction={props.route.params?.confirmFunction}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'confirmPinForLoginMode':
+        return (
+          <ConfirmPinForLoginMode
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
           />

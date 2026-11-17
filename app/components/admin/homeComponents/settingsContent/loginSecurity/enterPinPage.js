@@ -1,286 +1,183 @@
-import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../../functions/CustomElements';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, SIZES } from '../../../../../constants';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { useCallback, useEffect, useState } from 'react';
-import PinDot from '../../../../../functions/CustomElements/pinDot';
-import KeyForKeyboard from '../../../../../functions/CustomElements/key';
-import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
+  withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
+import KeyForKeyboard from '../../../../../functions/CustomElements/key';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
+import { LoginPinDot } from '../../../loginComponents/pinPage';
+import { useTheme } from '../../../../../../context-store/theme';
 
-export default function ConfirmPinForLoginMode() {
+const KEYBOARD_LAYOUT = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+  ['C', 0, 'back'],
+];
+const EMPTY_PIN = [null, null, null, null];
+const SHAKE_SEQUENCE = [8, -8, 8, -8, 8, 0];
+const isDigit = n => typeof n === 'number';
+
+// Digits always fill left to right, so the digit count is the next free slot.
+// id: digit = append, null = backspace, anything else ('C') = clear.
+function nextPin(pin, id) {
+  if (id !== null && !isDigit(id)) return EMPTY_PIN;
+  const count = pin.filter(isDigit).length;
+  const next = [...pin];
+  if (id === null) {
+    if (count) next[count - 1] = null;
+  } else if (count < 4) {
+    next[count] = id;
+  }
+  return next;
+}
+
+export default function ConfirmPinForLoginMode({
+  setContentHeight,
+  handleBackPressFunction,
+}) {
   const navigate = useNavigation();
-  const { backgroundOffset, transparentOveraly, tokens } = GetThemeColors();
-  const [pinSettings, setPinSettings] = useState({
-    enteredPin: [null, null, null, null],
-    savedPin: [null, null, null, null],
-  });
-  const { screenDimensions } = useAppStatus();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
+  const [pinSettings, setPinSettings] = useState({
+    enteredPin: EMPTY_PIN,
+    savedPin: EMPTY_PIN,
+  });
   const [errorMessage, setErrorMessage] = useState('');
-
-  const { bottomPadding } = useGlobalInsets();
-
-  const translateY = useSharedValue(screenDimensions.height);
-  const panY = useSharedValue(0);
-
-  const handleBackPressFunction = useCallback(() => {
-    slideOut();
-
-    setTimeout(() => {
-      navigate.goBack();
-    }, 100);
-  }, [navigate]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      slideIn();
-    }, 100);
-  }, []);
-  const slideIn = () => {
-    translateY.value = withTiming(0, { duration: 200 });
-  };
-
-  const slideOut = () => {
-    translateY.value = withTiming(screenDimensions.height * 2, {
-      duration: 200,
-    });
-  };
-
-  const panGesture = Gesture.Pan()
-    .onUpdate(e => {
-      if (e.translationY > 0) {
-        panY.value = e.translationY;
-      }
-    })
-    .onEnd(e => {
-      if (e.translationY > 100) {
-        scheduleOnRN(handleBackPressFunction);
-      } else {
-        panY.value = withTiming(0, { duration: 200 });
-      }
-    });
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value + panY.value }],
+  // Read by addPin so the key handler stays referentially stable.
+  const isErrorRef = useRef(false);
+  const errorTimerRef = useRef(null);
+  const dotsShake = useSharedValue(0);
+  const dotsShakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: dotsShake.value }],
   }));
 
-  useEffect(() => {
-    const filteredPin = pinSettings.enteredPin.filter(Boolean);
-    const savedPin = pinSettings.savedPin.filter(Boolean);
+  useEffect(() => () => clearTimeout(errorTimerRef.current), []);
 
-    if (savedPin.length !== 4 && filteredPin.length === 4) {
-      // here we need to switch fildterd pin to saved pin and clear filteerd poin
-      setPinSettings({
-        savedPin: pinSettings.enteredPin,
-        enteredPin: [null, null, null, null],
-      });
+  useEffect(() => {
+    const { enteredPin, savedPin } = pinSettings;
+    if (enteredPin.filter(isDigit).length !== 4) return;
+
+    if (savedPin.filter(isDigit).length !== 4) {
+      // First entry done: move it to savedPin and clear for the confirmation.
+      setPinSettings({ savedPin: enteredPin, enteredPin: EMPTY_PIN });
       return;
     }
 
-    if (filteredPin.length === 4 && savedPin.length === 4) {
-      if (
-        pinSettings.enteredPin.toString() === pinSettings.savedPin.toString()
-      ) {
-        // navigte back to login mode and pass pin to switch function
+    if (enteredPin.join() === savedPin.join()) {
+      // navigte back to login mode and pass pin to switch function
+      handleBackPressFunction(() =>
         navigate.popTo('SettingsContentHome', {
           for: 'Login Mode',
-          extraData: { pin: pinSettings.enteredPin },
-        });
-      } else {
-        setErrorMessage(t('settings.loginSecurity.invalidPinconfirmation'));
-        setPinSettings({
-          savedPin: [null, null, null, null],
-          enteredPin: [null, null, null, null],
-        });
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 800);
-      }
+          extraData: { pin: enteredPin },
+        }),
+      );
+    } else {
+      isErrorRef.current = true;
+      setErrorMessage(t('settings.loginSecurity.invalidPinconfirmation'));
+      setPinSettings({ savedPin: EMPTY_PIN, enteredPin: EMPTY_PIN });
+      dotsShake.value = withSequence(
+        ...SHAKE_SEQUENCE.map(x => withTiming(x, { duration: 40 })),
+      );
+      errorTimerRef.current = setTimeout(() => {
+        isErrorRef.current = false;
+        setErrorMessage('');
+      }, 800);
     }
   }, [pinSettings]);
 
-  return (
-    <View
-      style={[styles.globalContainer, { backgroundColor: transparentOveraly }]}
-    >
-      <TouchableWithoutFeedback onPress={handleBackPressFunction}>
-        <View style={styles.container} />
-      </TouchableWithoutFeedback>
-      <Animated.View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: backgroundOffset,
-            paddingBottom: bottomPadding,
-          },
-          animatedStyle,
-        ]}
-      >
-        <GestureDetector gesture={panGesture}>
-          <View style={styles.topBarContainer}>
-            <View
-              style={[
-                styles.topBar,
-                {
-                  backgroundColor: tokens.grab,
-                },
-              ]}
-            />
-          </View>
-        </GestureDetector>
-        <View
-          style={{
-            ...styles.pinContentContainer,
-            maxHeight: screenDimensions.height * 0.7,
-          }}
-        >
-          <CustomScrollView
-            contentContainerStyle={{ marginBottom: 80 }}
-            showsVerticalScrollIndicator={true}
-          >
-            <ThemeText
-              styles={styles.headerText}
-              content={
-                errorMessage
-                  ? errorMessage
-                  : t('settings.loginSecurity.createPinPageHeader', {
-                      type: pinSettings.savedPin.filter(Boolean).length
-                        ? t('constants.verify')
-                        : t('constants.create'),
-                    })
-              }
-            />
-            <View style={styles.dotContainer}>
-              <PinDot pin={pinSettings.enteredPin} dotNum={0} />
-              <PinDot pin={pinSettings.enteredPin} dotNum={1} />
-              <PinDot pin={pinSettings.enteredPin} dotNum={2} />
-              <PinDot pin={pinSettings.enteredPin} dotNum={3} />
-            </View>
-          </CustomScrollView>
+  useEffect(() => {
+    setContentHeight(500);
+  }, []);
 
-          <View style={styles.keyboardContainer}>
-            <View style={styles.keyboard_row}>
-              <KeyForKeyboard num={1} addPin={addPin} />
-              <KeyForKeyboard num={2} addPin={addPin} />
-              <KeyForKeyboard num={3} addPin={addPin} />
-            </View>
-            <View style={styles.keyboard_row}>
-              <KeyForKeyboard num={4} addPin={addPin} />
-              <KeyForKeyboard num={5} addPin={addPin} />
-              <KeyForKeyboard num={6} addPin={addPin} />
-            </View>
-            <View style={styles.keyboard_row}>
-              <KeyForKeyboard num={7} addPin={addPin} />
-              <KeyForKeyboard num={8} addPin={addPin} />
-              <KeyForKeyboard num={9} addPin={addPin} />
-            </View>
-            <View style={styles.keyboard_row}>
-              <KeyForKeyboard num={'C'} addPin={addPin} />
-              <KeyForKeyboard num={0} addPin={addPin} />
-              <KeyForKeyboard num={'back'} addPin={addPin} />
-            </View>
+  const addPin = useCallback(id => {
+    if (isErrorRef.current) return;
+    setPinSettings(prev => ({
+      ...prev,
+      enteredPin: nextPin(prev.enteredPin, id),
+    }));
+  }, []);
+
+  // addPin is stable, so the pad is built once and never re-renders per digit.
+  const keyboard = useMemo(
+    () => (
+      <View style={styles.keyboardContainer}>
+        {KEYBOARD_LAYOUT.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.keyboard_row}>
+            {row.map(num => (
+              <KeyForKeyboard
+                key={num}
+                num={num}
+                addPin={addPin}
+                redesign
+                pinPad
+              />
+            ))}
           </View>
-        </View>
-      </Animated.View>
-    </View>
+        ))}
+      </View>
+    ),
+    [addPin],
   );
 
-  function addPin(id) {
-    if (errorMessage) return;
-    if (typeof id != 'number') {
-      if (id === null) {
-        setPinSettings(prev => {
-          let prePin = prev.enteredPin;
-          const nullIndex = prePin.indexOf(null);
-          const newPin = prePin.map((item, id) => {
-            if (id === nullIndex - 1) {
-              return null;
-            } else if (nullIndex === -1 && id === 3) {
-              return null;
-            } else return item;
-          });
-          return { ...prev, enteredPin: newPin };
-        });
-      } else {
-        setPinSettings(prev => ({
-          ...prev,
-          enteredPin: [null, null, null, null],
-        }));
-      }
-    } else {
-      setPinSettings(prev => {
-        let prePin = prev.enteredPin;
-        const nullIndex = prePin.indexOf(null);
-        const newPin = prePin.map((number, count) => {
-          if (count === nullIndex) {
-            return id;
-          } else return number;
-        });
-        return { ...prev, enteredPin: newPin };
-      });
-    }
-  }
+  return (
+    <View style={styles.container}>
+      <SheetHeader
+        first
+        centered
+        title={
+          errorMessage
+            ? errorMessage
+            : t('settings.loginSecurity.createPinPageHeader', {
+                type: pinSettings.savedPin.some(isDigit)
+                  ? t('constants.verify')
+                  : t('constants.create'),
+              })
+        }
+      />
+      <Animated.View
+        accessible={true}
+        accessibilityRole="image"
+        accessibilityLabel={`${
+          pinSettings.enteredPin.filter(isDigit).length
+        } of 4`}
+        style={[styles.dotContainer, dotsShakeStyle]}
+      >
+        {pinSettings.enteredPin.map((digit, index) => (
+          <LoginPinDot
+            key={index}
+            filled={isDigit(digit)}
+            filledColor={tokens.accent}
+            emptyColor={tokens.tabPill}
+          />
+        ))}
+      </Animated.View>
+      {keyboard}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
   container: { flex: 1 },
-  topBarContainer: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  topBar: {
-    width: 120,
-    height: 8,
-    marginTop: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  contentContainer: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  pinContentContainer: {},
-  headerText: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-  },
   dotContainer: {
-    width: 150,
-    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    ...CENTER,
-    marginTop: 30,
-    marginBottom: 20,
+    gap: 24,
+    alignSelf: 'center',
+    marginTop: 32,
+    marginBottom: 40,
   },
   keyboardContainer: {
     width: '100%',
-    maxWidth: 400,
+    gap: 10,
     marginTop: 'auto',
-    alignSelf: 'center',
   },
   keyboard_row: {
-    width: '100%',
-    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
+    gap: 10,
   },
 });

@@ -47,7 +47,6 @@ import ChildSpendingLimit from '../app/components/admin/homeComponents/settingsC
 import ChildPairingStack from './ChildPairingStack';
 import ChildClaimStack from './ChildClaimStack';
 import SeedPhraseWarning from '../app/components/admin/homeComponents/settingsContent/seedPhraseWarning';
-import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNWCName from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCName';
 import CreateNWCPermissions from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCPermissions';
@@ -282,7 +281,6 @@ const FADE_SCREENS = [
   //   name: 'ViewCustodyKey',
   //   component: ViewCustodyKey,
   // },
-  { name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode },
   { name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage },
 ];
 const BITREFILL_SCREEN = {

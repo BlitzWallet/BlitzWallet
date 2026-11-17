@@ -406,7 +406,7 @@ export default function PinPage() {
 }
 
 // Each digit fills its dot over 120 ms with the same 1.1 bounce as PinDot.
-function LoginPinDot({ filled, filledColor, emptyColor }) {
+export function LoginPinDot({ filled, filledColor, emptyColor }) {
   const scale = useSharedValue(1);
   useEffect(() => {
     if (!filled) return;
