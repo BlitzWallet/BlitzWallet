@@ -15,7 +15,6 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
-  CENTER,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
   MAX_WEB_CONTENT_WIDTH,
@@ -133,7 +132,15 @@ export default function BitrefillShopModal() {
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  // Non-webview content is inset to the standard content width; the WebView
+  // itself stays full-bleed.
+  const contentStyle = useMemo(
+    () => ({
+      width: isWeb ? '100%' : Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40,
+      alignSelf: 'center',
+    }),
+    [width],
+  );
   const { poolInfoRef } = useFlashnet();
   const { fiatStats } = useNodeContext();
   const isSendingPayment = useRef(false);
@@ -519,18 +526,24 @@ export default function BitrefillShopModal() {
   return (
     <GlobalThemeView
       styles={
-        isWeb ? undefined : { ...styles.emailOverlayInner, width: contentWidth }
+        isWeb
+          ? undefined
+          : showEmailScreen
+          ? styles.emailOverlayInner
+          : styles.webViewPage
       }
     >
-      <TopBar
-        onBack={handleBack}
-        title={showEmailScreen ? '' : t('apps.appList.shop')}
-        right={
-          !showEmailScreen && (
-            <IconButton icon={'Settings'} onPress={handleEditEmail} />
-          )
-        }
-      />
+      <View style={contentStyle}>
+        <TopBar
+          onBack={handleBack}
+          title={showEmailScreen ? '' : t('apps.appList.shop')}
+          right={
+            !showEmailScreen && (
+              <IconButton icon={'Settings'} onPress={handleEditEmail} />
+            )
+          }
+        />
+      </View>
       <View style={styles.overlayContainr}>
         {/* WebView — lazy-mounted only when step === 'webview' to save ~20–40 MB renderer until user shops */}
         <Animated.View style={[styles.webViewWrapper, webViewStyle]}>
@@ -572,7 +585,7 @@ export default function BitrefillShopModal() {
             {pendingPaymentIntent &&
               !isProcessingPayment &&
               !showEmailScreen && (
-                <View style={styles.repayOverlay}>
+                <View style={[styles.repayOverlay, contentStyle]}>
                   <CustomButton
                     actionFunction={openPaymentMethodSelection}
                     textContent={t('screens.bitrefill.completePayment')}
@@ -587,7 +600,12 @@ export default function BitrefillShopModal() {
         {showEmailScreen && (
           <TouchableWithoutFeedback onPress={KeyboardController.dismiss}>
             <Animated.View
-              style={[styles.emailOverlay, { backgroundColor }, emailAnimStyle]}
+              style={[
+                styles.emailOverlay,
+                contentStyle,
+                { backgroundColor },
+                emailAnimStyle,
+              ]}
             >
               <PageHeader
                 title={
@@ -659,8 +677,6 @@ const styles = StyleSheet.create({
   },
   webViewContainer: {
     flex: 1,
-    marginTop: 16,
-    borderRadius: 24,
     overflow: 'hidden',
   },
   webView: {
@@ -673,22 +689,24 @@ const styles = StyleSheet.create({
   },
   repayOverlay: {
     position: 'absolute',
-    left: 0,
-    right: 0,
     bottom: CONTENT_KEYBOARD_OFFSET,
   },
   // ── Email overlay ──
   emailOverlay: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 0,
     bottom: 0,
     zIndex: 10,
+    width: '100%',
+    height: '100%',
   },
   emailOverlayInner: {
     paddingTop: 30,
-    ...CENTER,
+  },
+  // WebView step: run the page to the bottom edge too.
+  webViewPage: {
+    paddingTop: 30,
+    paddingBottom: 0,
   },
   helperText: {
     marginTop: 10,
