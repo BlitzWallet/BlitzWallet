@@ -23,10 +23,8 @@ function getMobileMoneyCountry(address) {
   );
 }
 
-// Pastel discs from the People designs (People.dc.html). Same in every mode,
-// so the letters stay dark ink.
-const PASTELS = ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'];
-
+// Pastel discs from the People designs (People.dc.html): `tokens.pastels`.
+// Light in every mode, so the letters stay dark ink.
 export function getInitials(name = '') {
   const words = String(name).trim().split(/\s+/).filter(Boolean);
   if (!words.length) return '';
@@ -35,10 +33,10 @@ export function getInitials(name = '') {
   return (first + last).toUpperCase();
 }
 
-function pickPastel(seed = '') {
+function pickPastel(pastels, seed = '') {
   let sum = 0;
   for (let i = 0; i < seed.length; i++) sum += seed.charCodeAt(i);
-  return PASTELS[sum % PASTELS.length];
+  return pastels[sum % pastels.length];
 }
 
 // Round contact avatar: their photo when there is one, else initials on a
@@ -82,7 +80,7 @@ export default function ContactAvatar({
         },
         {
           backgroundColor: initials
-            ? pickPastel(seed || name || '')
+            ? pickPastel(tokens.pastels, seed || name || '')
             : tokens.disc,
         },
       ]}

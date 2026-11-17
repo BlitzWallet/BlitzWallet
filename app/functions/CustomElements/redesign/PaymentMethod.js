@@ -1,16 +1,11 @@
 import ListCard from './ListCard';
 import ListRow from './ListRow';
 import GetThemeColors from '../../../hooks/themeColors';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import displayCorrectDenomination from '../../displayCorrectDenomination';
 import formatBalanceAmount from '../../formatNumber';
-import {
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  SIZES,
-} from '../../../constants';
-import ThemeImage from '../themeImage';
+import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../constants';
+import CurrencyIcon from './CurrencyIcon';
 
 export default function PaymentMethod({
   determinePaymentMethod,
@@ -28,15 +23,9 @@ export default function PaymentMethod({
   title,
 }) {
   const { tokens } = GetThemeColors();
-  const icon =
-    determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
-      ? 'bitcoinIcon'
-      : 'dollarIcon';
-
-  const iconBackgroundColor =
-    determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
-      ? 'bitcoinOrange'
-      : 'dollarGreen';
+  const isBitcoin =
+    determinePaymentMethod === 'BTC' ||
+    determinePaymentMethod === 'user-choice';
 
   const showHiddenBalance =
     masterInfoObject.userBalanceDenomination === 'hidden';
@@ -77,23 +66,7 @@ export default function PaymentMethod({
     >
       <ListRow
         onPress={!showBitcoinCardOnly && handleSelectPaymentMethod}
-        lead={
-          <View
-            style={[
-              styles.iconContainer,
-              {
-                backgroundColor: COLORS[iconBackgroundColor],
-              },
-            ]}
-          >
-            <ThemeImage
-              styles={{ width: 20, height: 20 }}
-              lightModeIcon={ICONS[icon]}
-              darkModeIcon={ICONS[icon]}
-              lightsOutIcon={ICONS[icon]}
-            />
-          </View>
-        }
+        lead={<CurrencyIcon size={40} isBitcoin={isBitcoin} />}
         title={
           title ?? (isSend ? t('constants.payWith') : t('constants.receiveAs'))
         }
@@ -121,13 +94,6 @@ export default function PaymentMethod({
 }
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   titeStyle: {
     fontSize: SIZES.smedium,
   },

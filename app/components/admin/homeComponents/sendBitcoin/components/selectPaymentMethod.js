@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ICONS } from '../../../../../constants';
-import { COLORS } from '../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { formatBalanceAmount } from '../../../../../functions';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
@@ -76,23 +74,7 @@ export default function SelectPaymentMethod({
 
       <ListCard>
         <PickRow
-          lead={
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: COLORS.bitcoinOrange,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 24, height: 24 }}
-                lightModeIcon={ICONS.bitcoinIcon}
-                darkModeIcon={ICONS.bitcoinIcon}
-                lightsOutIcon={ICONS.bitcoinIcon}
-              />
-            </View>
-          }
+          lead={<CurrencyIcon size={44} isBitcoin />}
           minHeight={76}
           title={t('constants.bitcoin_upper')}
           sub={t('constants.amountAvailable', {
@@ -116,23 +98,7 @@ export default function SelectPaymentMethod({
           }
         />
         <PickRow
-          lead={
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 24, height: 24 }}
-                lightModeIcon={ICONS.dollarIcon}
-                darkModeIcon={ICONS.dollarIcon}
-                lightsOutIcon={ICONS.dollarIcon}
-              />
-            </View>
-          }
+          lead={<CurrencyIcon size={44} />}
           minHeight={76}
           title={t('constants.dollars_upper')}
           sub={t('constants.amountAvailable', {
@@ -176,11 +142,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   confirmButton: { marginTop: 'auto' },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
 });

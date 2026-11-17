@@ -1,3 +1,4 @@
+import { useTheme } from '../../../../../context-store/theme';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -8,6 +9,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -106,51 +108,46 @@ export function ReceiveQrCard({
 // Round QR centre badge: a coloured disc with a white glyph, or a logo image
 // with an optional small chain logo on its corner.
 export function QrBadge({ kind, image, chainImage, size = 44 }) {
+  const { tokens, mode } = useTheme();
+  const lightsOut = mode === 'lightsOut';
   const disc = { width: size, height: size, borderRadius: size / 2 };
   const glyph = size * 0.55;
   let inner;
-  if (kind === 'lightning' || kind === 'bitcoin' || kind === 'dollar') {
-    const icon =
-      kind === 'lightning'
-        ? ICONS.lightningReceiveIcon
-        : kind === 'bitcoin'
-        ? ICONS.bitcoinIcon
-        : ICONS.dollarIcon;
+  if (kind === 'bitcoin' || kind === 'dollar') {
+    inner = <CurrencyIcon size={size} isBitcoin={kind === 'bitcoin'} />;
+  } else if (kind === 'lightning') {
     inner = (
       <View
         style={[
           styles.badge,
           disc,
           {
-            backgroundColor:
-              kind === 'lightning'
-                ? COLORS.bitcoinOrange
-                : kind === 'bitcoin'
-                ? COLORS.bitcoinOrange
-                : COLORS.dollarGreen,
+            backgroundColor: lightsOut ? tokens.disc : tokens.bitcoin,
           },
         ]}
       >
         <ThemeImage
-          styles={
-            kind === 'lightning'
-              ? [styles.bolt, { width: glyph * 0.6, height: glyph }]
-              : { width: glyph, height: glyph }
-          }
-          lightModeIcon={icon}
-          darkModeIcon={icon}
-          lightsOutIcon={icon}
+          styles={[styles.bolt, { width: glyph * 0.6, height: glyph }]}
+          lightModeIcon={ICONS.lightningReceiveIcon}
+          darkModeIcon={ICONS.lightningReceiveIcon}
+          lightsOutIcon={ICONS.lightningReceiveIcon}
         />
       </View>
     );
   } else if (kind === 'tokens') {
     inner = (
-      <View style={[styles.badge, disc, { backgroundColor: LIGHT.disc }]}>
+      <View
+        style={[
+          styles.badge,
+          disc,
+          { backgroundColor: lightsOut ? tokens.disc : LIGHT.disc },
+        ]}
+      >
         <ThemeIcon
           redesign
           iconName="Layers"
           size={glyph * 0.8}
-          colorOverride={LIGHT.ink}
+          colorOverride={lightsOut ? tokens.ink : LIGHT.ink}
         />
       </View>
     );

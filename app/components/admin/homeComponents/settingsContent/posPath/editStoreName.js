@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   CENTER,
-  COLORS,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   VALID_USERNAME_REGEX,
@@ -190,7 +189,7 @@ export default function EditStoreNamePage() {
                       redesign
                       iconName="CircleCheck"
                       size={20}
-                      colorOverride={COLORS.nostrGreen}
+                      colorOverride={tokens.nostr}
                     />
                   ) : isError ? (
                     <ThemeIcon

@@ -1,11 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
-import { COLORS, FONT, ICONS } from '../../../../constants';
+import { FONT } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 
 // Shared pieces of the Add money and Withdraw sheets (SavingsMove.dc.html,
@@ -21,28 +21,7 @@ export function EmojiDisc({ emoji }) {
 }
 
 export function AssetDisc({ asset, size = 40 }) {
-  const icon = asset === 'dollar' ? ICONS.dollarIcon : ICONS.bitcoinIcon;
-  return (
-    <View
-      style={[
-        styles.disc,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor:
-            asset === 'dollar' ? COLORS.dollarGreen : COLORS.bitcoinOrange,
-        },
-      ]}
-    >
-      <ThemeImage
-        styles={{ width: size * 0.55, height: size * 0.55 }}
-        lightModeIcon={icon}
-        darkModeIcon={icon}
-        lightsOutIcon={icon}
-      />
-    </View>
-  );
+  return <CurrencyIcon size={size} isBitcoin={asset !== 'dollar'} />;
 }
 
 // Empty state with a Back button pinned to the bottom of the sheet.

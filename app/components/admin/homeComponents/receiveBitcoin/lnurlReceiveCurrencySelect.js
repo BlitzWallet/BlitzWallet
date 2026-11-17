@@ -1,10 +1,8 @@
 import { StyleSheet, View } from 'react-native';
-import { ICONS } from '../../../../constants';
-import { COLORS } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import { useTranslation } from 'react-i18next';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -69,15 +67,12 @@ export default function LnurlReceiveCurrencySelect({
       value: 'btc',
       title: t('constants.bitcoin_upper'),
       sub: t('contacts.remotePaymentCurrencySelect.arriveAsSats'),
-      icon: ICONS.bitcoinIcon,
-      color: COLORS.bitcoinOrange,
+      isBitcoin: true,
     },
     {
       value: 'usd',
       title: t('constants.dollars_upper'),
       sub: t('contacts.remotePaymentCurrencySelect.arriveAsDollars'),
-      icon: ICONS.dollarIcon,
-      color: COLORS.dollarGreen,
     },
   ];
 
@@ -102,23 +97,7 @@ export default function LnurlReceiveCurrencySelect({
               key={option.value}
               minHeight={76}
               titleStyle={styles.optionTitle}
-              lead={
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor: option.color,
-                    },
-                  ]}
-                >
-                  <ThemeImage
-                    styles={styles.icon}
-                    lightModeIcon={option.icon}
-                    darkModeIcon={option.icon}
-                    lightsOutIcon={option.icon}
-                  />
-                </View>
-              }
+              lead={<CurrencyIcon size={44} isBitcoin={option.isBitcoin} />}
               title={option.title}
               sub={option.sub}
               selected={selectedCurrency === option.value}
@@ -156,14 +135,6 @@ export default function LnurlReceiveCurrencySelect({
 }
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: { width: 24, height: 24 },
   optionTitle: { fontSize: 15, lineHeight: 21 },
   note: { marginTop: 20, paddingHorizontal: 4 },
 });

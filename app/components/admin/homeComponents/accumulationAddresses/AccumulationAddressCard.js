@@ -2,8 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import { Image } from 'expo-image';
-import { COLORS, ICONS } from '../../../../constants';
+import { ICONS } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import GetThemeColors from '../../../../hooks/themeColors';
 
@@ -20,13 +21,7 @@ export function CoinChainLogo({
   return (
     <View style={{ width: size, height: size }}>
       {isBitcoin ? (
-        <View style={styles.bitcoinContainer}>
-          <Image
-            style={{ width: size / 1.75, height: size / 1.75 }}
-            source={ICONS.bitcoinIcon}
-            contentFit="contain"
-          />
-        </View>
+        <CurrencyIcon size={size} isBitcoin />
       ) : (
         <Image
           style={{ width: size, height: size, borderRadius: size / 2 }}
@@ -117,12 +112,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: { fontSize: 15, lineHeight: 21 },
-  bitcoinContainer: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.bitcoinOrange,
-    borderRadius: 999,
-  },
 });

@@ -1,8 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import { COLORS, ICONS } from '../../../../../constants';
+import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
@@ -40,23 +39,7 @@ export default function SelectContactRequestCurrency({
       <SheetHeader first title={t('contacts.selectCurrencyToRequest.header')} />
       <ListCard>
         <PickRow
-          lead={
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: COLORS.bitcoinOrange,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={styles.icon}
-                lightModeIcon={ICONS.bitcoinIcon}
-                darkModeIcon={ICONS.bitcoinIcon}
-                lightsOutIcon={ICONS.bitcoinIcon}
-              />
-            </View>
-          }
+          lead={<CurrencyIcon size={48} isBitcoin />}
           onPress={() => selectSendingBalance('BTC')}
           title={t('constants.bitcoin_upper')}
           sub={t('contacts.selectCurrencyToRequest.paidInSats')}
@@ -64,23 +47,7 @@ export default function SelectContactRequestCurrency({
           minHeight={76}
         />
         <PickRow
-          lead={
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={styles.icon}
-                lightModeIcon={ICONS.dollarIcon}
-                darkModeIcon={ICONS.dollarIcon}
-                lightsOutIcon={ICONS.dollarIcon}
-              />
-            </View>
-          }
+          lead={<CurrencyIcon size={48} />}
           onPress={() => selectSendingBalance('USD')}
           title={t('constants.dollars_upper')}
           sub={t('contacts.selectCurrencyToRequest.paidInUsd')}
@@ -95,14 +62,5 @@ export default function SelectContactRequestCurrency({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-  },
-  icon: { width: 24, height: 24 },
-
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

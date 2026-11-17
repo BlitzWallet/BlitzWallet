@@ -62,6 +62,11 @@ const CustomToggleSwitch = ({
   }));
   const circleStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: 2 + animatedValue.value * 20 }],
+    backgroundColor: interpolateColor(
+      animatedValue.value,
+      [0, 1],
+      ['#FFFFFF', tokens.onAccent],
+    ),
   }));
 
   return (
@@ -98,7 +103,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FFFFFF',
     position: 'absolute',
     top: 2,
     left: 0,

@@ -10,6 +10,7 @@ const WEB_TINT_FILTERS = {
     'brightness(0) saturate(100%) invert(33%) sepia(97%) saturate(3256%) hue-rotate(202deg) brightness(102%) contrast(98%)',
   [COLORS.darkModeText]: 'brightness(0) invert(1)', // white
   [COLORS.lightModeText]: 'brightness(0) invert(15%)', // #262626
+  '#000000': 'brightness(0)', // Lights out onAccent
 };
 
 // Platform-correct tint style fragment. Spread into an Image style.

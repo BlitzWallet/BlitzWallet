@@ -48,6 +48,7 @@ export default function ReceiveAssetSheet({
   handleBackPressFunction,
   isHalfModal = false,
 }) {
+  const { mode } = useTheme();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [step, setStep] = useState('options');
@@ -135,7 +136,12 @@ export default function ReceiveAssetSheet({
                   />,
                   <ListRow
                     key="networks"
-                    lead={<Disc icon="Ellipsis" />}
+                    lead={
+                      <Disc
+                        tone={mode === 'light' ? 'white' : undefined}
+                        icon="Ellipsis"
+                      />
+                    }
                     title={t('receive.otherNetworks')}
                     sub={BTC_SOURCES.map(source =>
                       t(`receive.btcSource_${source.chain}`),
@@ -210,7 +216,14 @@ function StablecoinRow({ coin, onPress }) {
 }
 
 // Row with chain/type pills under the title, e.g. Create invoice · [Lightning].
-function PillRow({ lead, title, pills = [], more, onPress, accessibilityLabel }) {
+function PillRow({
+  lead,
+  title,
+  pills = [],
+  more,
+  onPress,
+  accessibilityLabel,
+}) {
   const { tokens } = useTheme();
   return (
     <RowShell

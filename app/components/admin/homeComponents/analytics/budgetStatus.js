@@ -1,4 +1,4 @@
-import { COLORS, NEAR_BUDGET_LIMIT, OVER_BUDGET_LIMIT } from '../../../../constants';
+import { NEAR_BUDGET_LIMIT, OVER_BUDGET_LIMIT } from '../../../../constants';
 
 // Shared by the Analytics budget card and the Budget page.
 export default function getBudgetStatus(spentPercent, t, tokens) {
@@ -12,7 +12,7 @@ export default function getBudgetStatus(spentPercent, t, tokens) {
   if (spentPercent >= NEAR_BUDGET_LIMIT)
     return {
       label: t('analytics.nearLimit'),
-      color: COLORS.bitcoinOrange,
+      color: tokens.bitcoin,
       pillBg: tokens.warnBg,
       pillText: tokens.warn,
     };

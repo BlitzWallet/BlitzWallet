@@ -283,13 +283,16 @@ export const SliderProgressAnimation = ({
       <View
         style={[
           styles.progressBarContainer,
-          { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+          // Track/bar follow textColor (tokens.onAccent) so they contrast with
+          // the accent fill in every mode. textColor must be a 6-digit hex:
+          // '33' = 20% alpha, 'CC' = 80%.
+          { backgroundColor: `${textColor}33` },
         ]}
       >
         <Animated.View
           style={[
             styles.progressBar,
-            { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+            { backgroundColor: `${textColor}CC` },
             progressBarStyle,
           ]}
         />

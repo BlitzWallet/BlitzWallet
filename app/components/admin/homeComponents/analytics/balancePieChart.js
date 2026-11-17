@@ -8,7 +8,7 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { COLORS, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
+import { HIDDEN_BALANCE_CLOSE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -91,13 +91,13 @@ export default function BalancePieChart({ isBalanceHidden }) {
         btcValue > 0 && {
           key: 'btc',
           label: t('constants.bitcoin_upper'),
-          color: COLORS.bitcoinOrange,
+          color: tokens.bitcoin,
           value: btcValue,
         },
         dollarValue > 0 && {
           key: 'dollar',
           label: t('constants.dollars_upper'),
-          color: COLORS.dollarGreen,
+          color: tokens.dollar,
           // Truncate like the Home and Dollars balances, so all three agree.
           value: Number(truncateToTwoDecimals(dollarValueuUSD)),
         },
@@ -111,7 +111,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
           cx={SIZE / 2}
           cy={SIZE / 2}
           r={RADIUS}
-          stroke={isEmpty ? tokens.disc : COLORS.dollarGreen}
+          stroke={isEmpty ? tokens.disc : tokens.dollar}
           strokeWidth={STROKE_WIDTH}
           fill="none"
         />
@@ -120,7 +120,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke={COLORS.bitcoinOrange}
+            stroke={tokens.bitcoin}
             strokeWidth={STROKE_WIDTH}
             fill="none"
             strokeDasharray={CIRCUMFERENCE}

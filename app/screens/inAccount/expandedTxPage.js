@@ -10,9 +10,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image as ExpoImage } from 'expo-image';
 import {
   APPROXIMATE_SYMBOL,
-  COLORS,
   FONT,
-  ICONS,
   TOKEN_TICKER_MAX_LENGTH,
   USDB_TOKEN_ID,
 } from '../../constants';
@@ -21,6 +19,7 @@ import { ThemeText } from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import CurrencyIcon from '../../functions/CustomElements/redesign/CurrencyIcon';
 import UserInput from '../../functions/CustomElements/redesign/UserInput';
 import AdaptiveButtonRow from '../../functions/CustomElements/adaptiveButtonRow';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -422,8 +421,9 @@ export default function ExpandedTx({
                   name={name || t('constants.annonName')}
                   seed={entry.contactUUID}
                   address={
-                    decodedAddedContacts?.find(c => c.uuid === entry.contactUUID)
-                      ?.receiveAddress
+                    decodedAddedContacts?.find(
+                      c => c.uuid === entry.contactUUID,
+                    )?.receiveAddress
                   }
                   updated={cache[entry.contactUUID]?.updated}
                   uri={cache[entry.contactUUID]?.localUri}
@@ -496,25 +496,8 @@ export default function ExpandedTx({
       );
     }
 
-    return (
-      <View
-        style={[
-          styles.heroIcon,
-          {
-            backgroundColor: isUSDBPayment
-              ? COLORS.dollarGreen
-              : COLORS.bitcoinOrange,
-          },
-        ]}
-      >
-        <ExpoImage
-          source={isUSDBPayment ? ICONS.dollarIcon : ICONS.bitcoinIcon}
-          style={styles.heroAssetLogo}
-          contentFit="contain"
-          transition={0}
-        />
-      </View>
-    );
+    // The half-modal body is a surface.
+    return <CurrencyIcon size={56} isBitcoin={!isUSDBPayment} />;
   };
 
   const renderSuccessAction = () => {
@@ -874,7 +857,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heroImage: { width: '100%', height: '100%' },
-  heroAssetLogo: { width: 30, height: 30 },
   splitAvatars: { flexDirection: 'row' },
   splitAvatar: { borderWidth: 2 },
   amountContainer: { marginTop: 14, alignSelf: 'center' },

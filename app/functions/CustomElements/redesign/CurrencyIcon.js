@@ -1,8 +1,15 @@
 import { StyleSheet, View } from 'react-native';
-import { COLORS, ICONS } from '../../../constants';
-import ThemeImage from '../themeImage';
+import { Image as ExpoImage } from 'expo-image';
+import { ICONS } from '../../../constants';
+import { useTheme } from '../../../../context-store/theme';
+import { tintStyle } from '../../webTintColor';
 
+// The one Bitcoin / Dollar coin. Light and Dim: bitcoin orange / dollar green
+// disc with the white glyph. Lights out (no colour): the same `disc` grey as
+// every other icon disc, with an ink glyph.
 export default function CurrencyIcon({ size = 48, isBitcoin }) {
+  const { tokens, mode } = useTheme();
+  const lightsOut = mode === 'lightsOut';
   return (
     <View
       style={[
@@ -11,17 +18,22 @@ export default function CurrencyIcon({ size = 48, isBitcoin }) {
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: isBitcoin
-            ? COLORS.bitcoinOrange
-            : COLORS.dollarGreen,
+          backgroundColor: lightsOut
+            ? tokens.disc
+            : isBitcoin
+            ? tokens.bitcoin
+            : tokens.dollar,
         },
       ]}
     >
-      <ThemeImage
-        styles={{ width: size / 1.75, height: size / 1.75 }}
-        lightModeIcon={ICONS[isBitcoin ? 'bitcoinIcon' : 'dollarIcon']}
-        darkModeIcon={ICONS[isBitcoin ? 'bitcoinIcon' : 'dollarIcon']}
-        lightsOutIcon={ICONS[isBitcoin ? 'bitcoinIcon' : 'dollarIcon']}
+      <ExpoImage
+        source={ICONS[isBitcoin ? 'bitcoinIcon' : 'dollarIcon']}
+        style={[
+          { width: size / 1.8, height: size / 1.8 },
+          lightsOut && tintStyle(tokens.ink),
+        ]}
+        contentFit="contain"
+        transition={0}
       />
     </View>
   );

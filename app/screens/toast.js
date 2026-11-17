@@ -14,6 +14,7 @@ import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { SIZES, WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
+import { useGlobalThemeContext } from '../../context-store/theme';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
 import ThemeIcon from '../functions/CustomElements/themeIcon';
@@ -28,6 +29,9 @@ export function Toast({
   const { topPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { backgroundColor, tokens } = GetThemeColors();
+  const { mode } = useGlobalThemeContext();
+  // Toast card is always white; Lights out's accent is white too, so use dark ink.
+  const iconColor = mode === 'lightsOut' ? COLORS.lightModeText : tokens.accent;
 
   // shared values
   const slideY = useSharedValue(50);
@@ -131,35 +135,35 @@ export function Toast({
           <View style={styles.toastContent}>
             {toast.type === 'clipboard' ? (
               <ThemeIcon
-                colorOverride={tokens.accent}
+                colorOverride={iconColor}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Copy'}
               />
             ) : toast.type === 'confirmTx' ? (
               <ThemeIcon
-                colorOverride={tokens.accent}
+                colorOverride={iconColor}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Info'}
               />
             ) : toast.type === 'handleSwap' ? (
               <ThemeIcon
-                colorOverride={tokens.accent}
+                colorOverride={iconColor}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'ArrowUpDown'}
               />
             ) : toast.type === 'error' ? (
               <ThemeIcon
-                colorOverride={tokens.accent}
+                colorOverride={iconColor}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Info'}
               />
             ) : toast.type === 'success' ? (
               <ThemeIcon
-                colorOverride={tokens.accent}
+                colorOverride={iconColor}
                 size={25}
                 styles={{ marginRight: 15 }}
                 iconName={'Check'}

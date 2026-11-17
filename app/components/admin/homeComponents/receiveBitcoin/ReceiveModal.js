@@ -35,7 +35,7 @@ const DURATION = 250;
 export default function ReceiveModal({ contentWidth }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { tokens } = useTheme();
+  const { tokens, mode } = useTheme();
   const { bottomPadding } = useGlobalInsets();
   const { showTokensInformation } = useSparkWallet();
 
@@ -171,7 +171,12 @@ export default function ReceiveModal({ contentWidth }) {
                     fromTokens: true,
                   })
                 }
-                lead={<Disc icon="Layers" tone="white" />}
+                lead={
+                  <Disc
+                    icon="Layers"
+                    tone={mode === 'lightsOut' ? 'default' : 'white'}
+                  />
+                }
                 title={t('constants.tokens')}
                 showChevron
               />

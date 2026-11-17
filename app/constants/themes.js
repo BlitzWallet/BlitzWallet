@@ -1,6 +1,8 @@
 // Redesign colour tokens per mode (audit/IMPLEMENTATION_PLAN.md §10 T2).
 // Dim and Lights out derive from today's dark palette in ./theme.js.
 // Inside sheets, `field` uses `ground` instead (context, applied by callers).
+// Every colour the app renders should come from here (useTheme().tokens).
+// Lights out is strictly monochrome: only neutral greys, no hue anywhere.
 export const MODES = {
   light: {
     ground: '#F0F0F2',
@@ -26,6 +28,10 @@ export const MODES = {
     tabPill: '#E6E6EA',
     tabIdle: '#75767D',
     accentPastel: '#D6E4F5',
+    bitcoin: '#FFAC30',
+    dollar: '#60D263',
+    nostr: '#29C467',
+    pastels: ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'],
     scheme: 'light',
   },
   dim: {
@@ -53,6 +59,10 @@ export const MODES = {
     tabPill: '#1F4A79',
     tabIdle: '#99A8B8',
     accentPastel: '#D6E4F5',
+    bitcoin: '#FFAC30',
+    dollar: '#60D263',
+    nostr: '#29C467',
+    pastels: ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'],
     scheme: 'dark',
   },
   lightsOut: {
@@ -67,18 +77,22 @@ export const MODES = {
     scrim: 'rgba(0,0,0,.6)',
     grab: '#5F5F5F',
     skel: '#323232',
-    accent: '#0375F6',
-    onAccent: '#FFFFFF',
+    accent: '#FFFFFF',
+    onAccent: '#000000',
     link: '#FFFFFF',
-    danger: '#E20000',
-    dangerFill: '#E20000',
-    dangerBg: '#360A07',
-    warn: '#FEF0C7',
-    warnBg: '#3B1605',
-    success: '#0375F6',
+    danger: '#FFFFFF',
+    dangerFill: '#FFFFFF',
+    dangerBg: '#2D2D2D',
+    warn: '#D9D9D9',
+    warnBg: '#2D2D2D',
+    success: '#FFFFFF',
     tabPill: '#363636',
     tabIdle: '#999999',
-    accentPastel: '#D6E4F5',
+    accentPastel: '#E0E0E0',
+    bitcoin: '#8C8C8C',
+    dollar: '#5A5A5A',
+    nostr: '#8C8C8C',
+    pastels: ['#E6E6E6', '#D9D9D9', '#CCCCCC', '#F0F0F0', '#DDDDDD'],
     scheme: 'dark',
   },
 };

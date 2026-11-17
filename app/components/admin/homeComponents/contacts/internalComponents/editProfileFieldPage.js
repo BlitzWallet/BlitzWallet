@@ -2,7 +2,6 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-  COLORS,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   VALID_USERNAME_REGEX,
@@ -339,7 +338,7 @@ export default function EditProfileFieldPage(props) {
                     redesign
                     iconName="CircleCheck"
                     size={20}
-                    colorOverride={COLORS.nostrGreen}
+                    colorOverride={tokens.nostr}
                   />
                 ) : usernameState === USERNAME_STATE.INVALID ||
                   usernameState === USERNAME_STATE.TAKEN ? (

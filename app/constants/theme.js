@@ -43,8 +43,6 @@ const COLORS = {
   darkModePlaceholder: '#FFFFFFA6',
   lightModePlaceholder: MODES.light.muted,
 
-  nostrGreen: '#29C467',
-
   failedTransaction: '#FF0000',
 
   expandedTXLightModePending: '#00000080', //50%,
@@ -71,9 +69,6 @@ const COLORS = {
   walletHomeLightModeOffset: MODES.light.surface,
   walletHomeDarkModeOffset: MODES.dim.surface,
   walletHomeLightsOutOffset: MODES.lightsOut.surface,
-
-  bitcoinOrange: '#FFAC30',
-  dollarGreen: '#60D263',
 
   tabsBorderLightsout: MODES.lightsOut.divider,
   tabsBorderDim: MODES.dim.divider,

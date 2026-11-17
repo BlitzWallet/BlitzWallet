@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { COLORS, ICONS } from '../../../../constants';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
@@ -14,6 +13,7 @@ import {
   normalizeDisplayCurrency,
 } from '../../../../functions/displayCurrency';
 import CurrencyCoin from './currencyCoin';
+import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard, {
@@ -88,8 +88,7 @@ export default function DisplayCurrencySelect({
         id: SATS_DISPLAY_CURRENCY,
         title: t('constants.bitcoin_upper'),
         subtitle: 'Sats',
-        iconImage: ICONS.bitcoinIcon,
-        coinBg: COLORS.bitcoinOrange,
+        isBitcoin: true,
       },
       {
         id: 'USD',
@@ -131,12 +130,15 @@ export default function DisplayCurrencySelect({
       key={row.id}
       onPress={() => onSelect(row.id)}
       lead={
-        <CurrencyCoin
-          iconImage={row.iconImage}
-          symbol={row.symbol}
-          backgroundColor={row.coinBg || tokens.surface}
-          size={36}
-        />
+        row.isBitcoin ? (
+          <CurrencyIcon size={36} isBitcoin />
+        ) : (
+          <CurrencyCoin
+            symbol={row.symbol}
+            backgroundColor={tokens.disc}
+            size={36}
+          />
+        )
       }
       title={row.title}
       sub={row.subtitle}
@@ -166,7 +168,7 @@ export default function DisplayCurrencySelect({
             lead={
               <CurrencyCoin
                 symbol={getCurrencySymbol(item.id)}
-                backgroundColor={tokens.surface}
+                backgroundColor={tokens.disc}
                 size={36}
               />
             }

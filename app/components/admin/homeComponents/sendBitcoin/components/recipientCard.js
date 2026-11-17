@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
+import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 import CountryFlag from 'react-native-country-flag';
 import { COLORS, ICONS, USDB_TOKEN_ID } from '../../../../../constants';
 import ContactProfileImage from '../../contacts/internalComponents/profileImage';
@@ -204,23 +205,7 @@ export function RecipientAvatar({ resolved, size = 40, backgroundColor }) {
   }
 
   if (resolved?.kind === 'asset') {
-    const isDollar = resolved.asset === 'dollar';
-    return (
-      <View
-        style={[
-          circle,
-          {
-            backgroundColor: COLORS[isDollar ? 'dollarGreen' : 'bitcoinOrange'],
-          },
-        ]}
-      >
-        <Image
-          style={styles.assetIcon}
-          source={ICONS[isDollar ? 'dollarIcon' : 'bitcoinIcon']}
-          contentFit="contain"
-        />
-      </View>
-    );
+    return <CurrencyIcon size={size} isBitcoin={resolved.asset !== 'dollar'} />;
   }
 
   if (resolved?.kind === 'contact') {
@@ -261,9 +246,5 @@ const styles = StyleSheet.create({
   fill: {
     width: '100%',
     height: '100%',
-  },
-  assetIcon: {
-    width: '50%',
-    height: '50%',
   },
 });

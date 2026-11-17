@@ -961,7 +961,6 @@ export default function CreateGiftDuration(props) {
                   accessibilityState={{ selected }}
                   style={[
                     styles.pill,
-                    { width: (contentWidth - PILL_GAP * 2) / 3 },
                     {
                       backgroundColor: selected
                         ? tokens.accent
@@ -1019,6 +1018,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   pill: {
+    flexGrow: 1,
+    flexBasis: '30%',
     minHeight: 44,
     paddingHorizontal: 12,
     borderRadius: 999,
