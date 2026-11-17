@@ -132,7 +132,7 @@ function MyTabBar({ state, navigation }) {
         <IconButton
           icon="Clock"
           label="tabs.activity"
-          size={TAB_ITEM_HEIGHT}
+          size={TAB_ITEM_HEIGHT - 2}
           iconSize={ICON_SIZE}
           onPress={() => navigation.navigate('ViewAllTxPage')}
         />
