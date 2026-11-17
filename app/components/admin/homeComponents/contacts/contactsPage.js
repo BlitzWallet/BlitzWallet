@@ -56,6 +56,10 @@ export default function ContactsPage({ navigation }) {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+
+  const pinnedAvatarSize = Math.round(
+    Math.max(52, Math.min(65, contentWidth / 4 - 16)),
+  );
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const navigate = useNavigation();
@@ -96,9 +100,10 @@ export default function ContactsPage({ navigation }) {
           hasUnlookedTransaction={contact.hasUnlookedTransaction}
           tokens={tokens}
           navigateToExpandedContact={navigateToExpandedContact}
+          avatarSize={pinnedAvatarSize}
         />
       ));
-  }, [contactInfoList, tokens, navigateToExpandedContact]);
+  }, [contactInfoList, tokens, navigateToExpandedContact, pinnedAvatarSize]);
 
   const contactElements = useMemo(() => {
     return filteredContacts.map(item => (
@@ -279,7 +284,13 @@ export default function ContactsPage({ navigation }) {
 // Round 56 avatar over a first name, 72 wide (People.dc.html "Favorites").
 // The unread dot sits beside the name.
 const PinnedContactElement = memo(
-  ({ contact, hasUnlookedTransaction, tokens, navigateToExpandedContact }) => {
+  ({
+    contact,
+    hasUnlookedTransaction,
+    tokens,
+    navigateToExpandedContact,
+    avatarSize,
+  }) => {
     const imageEntry = useImageCacheEntry(contact.uuid);
     const displayName = formatDisplayName(contact);
 
@@ -302,8 +313,8 @@ const PinnedContactElement = memo(
           uri={imageEntry?.localUri}
           updated={imageEntry?.updated}
           address={contact.receiveAddress}
-          size={56}
-          fontSize={18}
+          size={avatarSize}
+          fontSize={Math.round(avatarSize * 0.32)}
         />
         <View style={memoizedStyles.pinnedContactNameRow}>
           {hasUnlookedTransaction && (
@@ -399,13 +410,13 @@ const memoizedStyles = StyleSheet.create({
   },
   pinnedContactsContainer: {
     flexDirection: 'row',
-    gap: 16,
+    rowGap: 16,
     paddingTop: 4,
-    paddingHorizontal: 6,
     flexWrap: 'wrap',
   },
   pinnedContact: {
-    width: 72,
+    width: '25%',
+    paddingHorizontal: 4,
     alignItems: 'center',
     gap: 8,
   },
