@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useRef } from 'react';
-import { FONT } from '../../../constants';
+import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import IconButton from './IconButton';
@@ -36,6 +36,7 @@ export default function TopBar({
     <View
       style={[
         styles.bar,
+        !inSheet && styles.pageGap,
         scrolled && [styles.scrolled, { borderBottomColor: tokens.divider }],
       ]}
     >
@@ -79,6 +80,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  // Standard gap between the navbar and whatever sits below it (page content,
+  // skeleton, empty state) so every state lines up. Sheets own their own gutter.
+  pageGap: { marginBottom: CONTENT_KEYBOARD_OFFSET },
   right: { justifyContent: 'flex-end' },
   hidden: { opacity: 0 },
   scrolled: { borderBottomWidth: 1 },

@@ -6,7 +6,11 @@ import {
   View,
 } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -232,6 +236,7 @@ export default function ContactsPage({ navigation }) {
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}
+          style={{ marginTop: CONTENT_KEYBOARD_OFFSET }}
           keyboardShouldPersistTaps="handled"
         >
           {pinnedContacts.length !== 0 && filteredContacts.length !== 0 && (
