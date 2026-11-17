@@ -102,15 +102,19 @@ jest.mock('../app/functions/CustomElements', () => {
   };
 });
 
-jest.mock('../app/functions/CustomElements/settingsTopBar', () => () => null);
+jest.mock('../app/functions/CustomElements/redesign/TopBar', () => () => null);
+jest.mock(
+  '../app/functions/CustomElements/redesign/PageHeader',
+  () => () => null,
+);
 
-jest.mock('../app/functions/CustomElements/searchInput', () => {
+jest.mock('../app/functions/CustomElements/redesign/UserInput', () => {
   const MockReact = require('react');
-  return function MockSearchInput({ inputText, setInputText }) {
+  return function MockUserInput({ value, onChangeText }) {
     return MockReact.createElement('search-input', {
       testID: 'name-input',
-      value: inputText,
-      onChangeText: setInputText,
+      value,
+      onChangeText,
     });
   };
 });

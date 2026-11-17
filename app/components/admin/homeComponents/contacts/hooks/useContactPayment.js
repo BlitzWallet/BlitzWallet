@@ -12,7 +12,6 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
-import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { publishMessage } from '../../../../../functions/messaging/publishMessage';
 import customUUID from '../../../../../functions/customUUID';
@@ -75,7 +74,6 @@ export default function useContactPayment({
   const getServerTime = useServerTimeOnly();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToast();
-  const { sendWebViewRequest } = useWebView();
 
   const explicitPaymentMethod =
     paymentType === 'send' ? selectedPaymentMethod : selectedRequestMethod;
@@ -102,6 +100,9 @@ export default function useContactPayment({
     useState(false);
   const lnurlParsedRef = useRef(null);
   const appliedLocalCurrencyRef = useRef(null);
+  // Phone pays: the internal-rate load started from the address domain, so the
+  // provider's own LNURL rate can be seeded once it settles.
+  const phoneRateLoadRef = useRef(null);
   // Monotonic token guarding the auto-resolve loading flag. The resolving fetch
   // itself mutates currencyRates/hasUserSelected mid-flight (re-running the
   // effects), so a per-run cancellation flag would wrongly suppress the final
@@ -348,7 +349,7 @@ export default function useContactPayment({
     const token = ++autoResolveTokenRef.current;
     const startedAt = Date.now();
     setIsLoadingAutoCurrencyRate(true);
-    loadAndSetCurrency(code).finally(() => {
+    phoneRateLoadRef.current = loadAndSetCurrency(code).finally(() => {
       const remaining = Math.max(
         0,
         AUTO_RESOLVE_MIN_LOADING_MS - (Date.now() - startedAt),
@@ -365,6 +366,28 @@ export default function useContactPayment({
     hasUserSelectedDisplayCurrency,
     loadAndSetCurrency,
   ]);
+
+  // Phone pays whose provider advertises its own rate (zapremit PHP, bitzed
+  // ZMW): the provider credits at that rate, so swap it in for the internal
+  // rate the effect above loaded, once that load settles (or it would
+  // overwrite this). Same rate the main send flow uses.
+  useEffect(() => {
+    if (!lnurlPayData || paymentType !== 'send') return;
+    const address = selectedContact?.receiveAddress;
+    if (
+      !phoneRateLoadRef.current ||
+      appliedLocalCurrencyRef.current !== address
+    )
+      return;
+    const descriptor = normalizeLNURLCurrency(lnurlPayData.data);
+    const rate = lnurlCurrencyToRate(descriptor);
+    if (!rate) return;
+    const pending = phoneRateLoadRef.current;
+    phoneRateLoadRef.current = null;
+    pending.then(() =>
+      injectRate(descriptor.code, rate, { setAsDisplay: true }),
+    );
+  }, [lnurlPayData, paymentType, selectedContact?.receiveAddress, injectRate]);
 
   // Once the LNURL payRequest resolves, if it advertises a fiat currency (LUD-21),
   // default the input to it. Phone-pay currencies are handled synchronously above.
@@ -510,7 +533,6 @@ export default function useContactPayment({
             masterInfoObject,
             sparkInformation,
             mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
           });
           if (!feeResult.didWork) throw new Error('Fee estimation failed');
           const fee = feeResult.fee;
@@ -556,7 +578,6 @@ export default function useContactPayment({
       poolInfoRef,
       selectedContact?.isLNURL,
       selectedContact?.receiveAddress,
-      sendWebViewRequest,
       showToast,
       sparkInformation,
       t,
@@ -821,6 +842,7 @@ export default function useContactPayment({
             amount: convertedSendAmount,
             displayAmount: snapshot.displayAmount,
             displayDenomination: snapshot.displayDenomination,
+            displayCurrency: snapshot.displayCurrency,
             description: base.myProfileMessage,
             endReceiveType: resolvedEndReceiveType,
             lnFeeEstimate: selectedContact?.isLNURL ? lnFeeEstimate : null,
@@ -838,12 +860,18 @@ export default function useContactPayment({
           preSelectedPaymentMethod: paymentMethod,
           selectedPaymentMethod: paymentMethod,
           fromPage: 'contacts',
-          publishMessageFunc: txid =>
+          // sentAmountSat: what the invoice actually charged. For a phone
+          // contact it can differ by a sat from this page's amount once the
+          // provider rate is re-quoted at mint time.
+          publishMessageFunc: (txid, sentAmountSat) =>
             publishMessage({
               toPubKey: selectedContact.uuid,
               fromPubKey: globalContactsInformation.myProfile.uuid,
               data: {
                 ...sendObject,
+                ...(selectedContact?.isLNURL && sentAmountSat
+                  ? { amountMsat: sentAmountSat * 1000 }
+                  : {}),
                 txid,
                 name:
                   globalContactsInformation.myProfile.name ||
@@ -976,6 +1004,7 @@ export default function useContactPayment({
     paymentValidation,
     canProceed,
     canReview,
+    getValidationErrorResult,
     primaryDisplay,
     conversionFiatStats,
     convertedSendAmount,

@@ -6,7 +6,6 @@ import { initRootstockSwapDB } from './boltz/rootstock/swapDb';
 import { initGiftDb } from './gift/giftsStorage';
 import { initPoolDb } from './pools/poolsStorage';
 import { initSavingsDb } from './savings/savingsStorage';
-import { initLeavesDb } from './spark/leavesStorage';
 import { documentDirectory, makeDirectoryAsync } from 'expo-file-system/legacy';
 import { AppState, Platform } from 'react-native';
 import { acquireWebDatabaseOwnership } from './webDatabaseOwnership';
@@ -71,7 +70,7 @@ function rejectAfterForegroundTime(ms) {
 }
 
 // Sequential — one openDatabaseAsync + CREATE TABLE at a time.
-// Startup-critical DBs (0, 3, 8) are opened first so a retry clears the
+// Startup-critical DBs (0, 3) are opened first so a retry clears the
 // memoized promise sooner if they fail; optional feature DBs follow.
 async function openWebDatabases() {
   const results = [];
@@ -90,8 +89,6 @@ async function openWebDatabases() {
   results[6] = await initPoolDb();
   await new Promise(res => setTimeout(res, 50));
   results[7] = await initSavingsDb();
-  await new Promise(res => setTimeout(res, 50));
-  results[8] = await initLeavesDb(); // startup-critical
   return results;
 }
 
@@ -131,10 +128,10 @@ export function initializeAllDatabases() {
           timeout.cancel();
         }
 
-        // Only the three startup-critical DBs (messages, spark, leaves) must
+        // Only the two startup-critical DBs (messages, spark) must
         // succeed to load the wallet. Optional feature DBs self-init on first
         // use, so a failure here must not block login or the memoized retry.
-        if (!results[0] || !results[3] || !results[8]) {
+        if (!results[0] || !results[3]) {
           initPromise = null; // allow a later retry to re-attempt
           throw new Error('dbInitError');
         }
@@ -150,12 +147,11 @@ export function initializeAllDatabases() {
         initGiftDb(),
         initPoolDb(),
         initSavingsDb(),
-        initLeavesDb(), // 8 — startup-critical
       ]);
-      // Only the three startup-critical DBs (messages, spark, leaves) must
+      // Only the two startup-critical DBs (messages, spark) must
       // succeed to load the wallet. Optional feature DBs self-init on first
       // use, so a failure here must not block login or the memoized retry.
-      if (!results[0] || !results[3] || !results[8]) {
+      if (!results[0] || !results[3]) {
         initPromise = null; // allow a later retry to re-attempt
         throw new Error('dbInitError');
       }

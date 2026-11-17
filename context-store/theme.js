@@ -7,6 +7,7 @@ import {
   useCallback,
 } from 'react';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+import {MODES, SKINS, ACTIVE_SKIN} from '../app/constants/themes';
 
 // Initiate context
 const ThemeContextManager = createContext(null);
@@ -14,6 +15,8 @@ const ThemeContextManager = createContext(null);
 const GlobalThemeProvider = ({children}) => {
   const [theme, setTheme] = useState(null);
   const [darkModeType, setDarkModeType] = useState(null);
+  // Dev-only skin (gallery switcher). Release builds always use ACTIVE_SKIN.
+  const [devSkin, setDevSkin] = useState(ACTIVE_SKIN);
 
   const toggleDarkModeType = useCallback(param => {
     const mode = param ? 'dim' : 'lights-out';
@@ -42,14 +45,34 @@ const GlobalThemeProvider = ({children}) => {
     })();
   }, []);
 
+  // Same mapping as GetThemeColors: theme=true is dark, darkModeType=true is Lights out.
+  const mode = theme ? (darkModeType ? 'lightsOut' : 'dim') : 'light';
+  const activeSkin = __DEV__ ? devSkin : ACTIVE_SKIN;
+  const tokens = useMemo(
+    () => ({...MODES[mode], ...SKINS[activeSkin]?.overrides?.[mode]}),
+    [mode, activeSkin],
+  );
+
   const contextValue = useMemo(
     () => ({
       theme,
       toggleTheme,
       darkModeType,
       toggleDarkModeType,
+      mode,
+      skin: activeSkin,
+      setSkin: __DEV__ ? setDevSkin : undefined,
+      tokens,
     }),
-    [theme, toggleTheme, darkModeType, toggleDarkModeType],
+    [
+      theme,
+      toggleTheme,
+      darkModeType,
+      toggleDarkModeType,
+      mode,
+      activeSkin,
+      tokens,
+    ],
   );
 
   return (
@@ -69,4 +92,14 @@ function useGlobalThemeContext() {
   return context;
 }
 
-export {ThemeContextManager, GlobalThemeProvider, useGlobalThemeContext};
+function useTheme() {
+  const {tokens, mode} = useGlobalThemeContext();
+  return {tokens, mode, scheme: tokens.scheme};
+}
+
+export {
+  ThemeContextManager,
+  GlobalThemeProvider,
+  useGlobalThemeContext,
+  useTheme,
+};

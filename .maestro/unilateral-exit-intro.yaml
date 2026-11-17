@@ -1,0 +1,51 @@
+# Wallet recovery intro: Continue is gated by the consent row; Details shows Save/Restore exit data.
+# Brand-new empty wallet only. Run with `yarn e2e:ios` / `yarn e2e:android`.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: deny
+- extendedWaitUntil:
+    visible: Get Started
+    timeout: 60000
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# Create PIN, then Confirm Pin.
+- repeat:
+    times: 8
+    commands:
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: '(?i)total balance'
+    timeout: 90000
+# Home top-right profile icon -> SettingsHub (no text/testID; same tap as
+# nwc-account-gate.yaml). VERIFY on first run.
+- tapOn:
+    point: 90%,8%
+# VERIFY: the "Wallet recovery" row may sit below the fold in the hub.
+- scrollUntilVisible:
+    element: Wallet recovery
+- tapOn: Wallet recovery
+- assertVisible: Take your money out yourself
+# VERIFY: Maestro `enabled: false` matches the disabled CustomButton on both
+# platforms; if not, replace with tapOn Continue + assertVisible Take your money out yourself.
+- assertVisible:
+    text: Continue
+    enabled: false
+- tapOn: "I understand this is a last resort.*"
+- assertVisible:
+    text: Continue
+    enabled: true
+# VERIFY: InfoDropdown toggles on tapping its "Details" title.
+- tapOn: Details
+- assertVisible: Save exit data
+- assertVisible: Restore exit data
+- takeScreenshot: unilateral-exit-intro

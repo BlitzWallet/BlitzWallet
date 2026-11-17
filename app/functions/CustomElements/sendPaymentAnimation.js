@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,6 +12,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import ThemeText from './textTheme';
 import FullLoadingScreen from './loadingScreen';
+import { FONT } from '../../constants';
 
 // Custom easing function: very fast start to reach ~20% in 2 seconds, then smooth deceleration
 const initialEasing = Easing.bezier(0.29, 0.93, 0.85, 0.29); // Steep initial slope for fast 0-20%
@@ -339,7 +340,7 @@ const styles = StyleSheet.create({
   },
   percentageText: {
     minWidth: 50,
-    fontWeight: '500',
+    fontFamily: FONT.Title_Medium,
     includeFontPadding: false,
     textAlign: 'right',
   },

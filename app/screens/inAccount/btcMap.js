@@ -7,11 +7,11 @@ import {
   InteractionManager,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
-import { ICONS, SIZES } from '../../constants';
+import { FONT, ICONS, SIZES } from '../../constants';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -26,6 +26,8 @@ import {
 } from '../../functions/btcMap/btcMapClusterCache';
 import { useTranslation } from 'react-i18next';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import Spinner from '../../functions/CustomElements/redesign/Spinner';
 
 const DEFAULT_ZOOM = 13;
 const DISABLED_MAP_PROPS = {
@@ -42,8 +44,8 @@ const DISABLED_MAP_PROPS = {
 export default function BTCMapScreen() {
   const navigate = useNavigation();
   const { screenDimensions } = useAppStatus();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { tokens } = GetThemeColors();
+  const { theme, mode } = useGlobalThemeContext();
   const { topPadding, bottomPadding } = useGlobalInsets();
   const {
     isLoading: storeLoading,
@@ -67,10 +69,12 @@ export default function BTCMapScreen() {
   });
 
   const loading = storeLoading || !isClusteringReady;
-  const markerBg = theme && darkModeType ? backgroundColor : COLORS.primary;
   const isFilterActive =
     filter.categories.length > 0 || filter.distanceUnit !== 'auto';
-  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+  // Design sits the count pill 6 below the safe area (40 total on iPhone)
+  // and the control stack 78 above that (118 total).
+  const pillBottom = bottomPadding + 6;
+  const fabBottom = pillBottom + 78;
 
   const SCREEN_ASPECT_RATIO = screenDimensions.width / screenDimensions.height;
   const activeLocation = userLocation ?? DEFAULT_LOCATION;
@@ -205,6 +209,9 @@ export default function BTCMapScreen() {
 
     if (!points.length) {
       clusterManagerRef.current = null;
+      // Reset dedupe refs so the next non-empty build isn't skipped as "same"
+      lastRenderedMarkersRef.current = [];
+      lastRenderedCountRef.current = 0;
       setMarkers([]);
       setPlaceCount(0);
       setIsClusteringReady(true);
@@ -213,7 +220,7 @@ export default function BTCMapScreen() {
 
     const cacheGranularity = z >= 14 ? 20 : z >= 10 ? 10 : 5;
     const manager = getOrBuildBTCMapClusterManager(
-      `btcmap:v${dataVersion}:${z}:${
+      `btcmap:v${dataVersion}:${[...filter.categories].sort().join(',')}:${z}:${
         Math.round(lat * cacheGranularity) / cacheGranularity
       }:${Math.round(lon * cacheGranularity) / cacheGranularity}`,
       points,
@@ -441,7 +448,7 @@ export default function BTCMapScreen() {
           >
             {markers.slice(0, 200).map(m => {
               if (m.type === 'cluster') {
-                const size = m.count < 10 ? 40 : m.count < 100 ? 50 : 60;
+                const size = m.count < 10 ? 44 : m.count < 100 ? 50 : 60;
                 return (
                   <Marker
                     key={m.id}
@@ -449,6 +456,9 @@ export default function BTCMapScreen() {
                       latitude: m.latitude,
                       longitude: m.longitude,
                     }}
+                    accessibilityLabel={t('screens.btcMap.map.placesHere', {
+                      count: m.count,
+                    })}
                     onPress={() => handleMarkerPress(m)}
                   >
                     <View
@@ -458,13 +468,13 @@ export default function BTCMapScreen() {
                           width: size,
                           height: size,
                           borderRadius: size / 2,
-                          backgroundColor: markerBg,
+                          backgroundColor: tokens.surface,
                         },
                       ]}
                     >
                       <ThemeText
                         content={String(m.count)}
-                        styles={styles.clusterText}
+                        styles={[styles.clusterText, { color: tokens.ink }]}
                       />
                     </View>
                   </Marker>
@@ -474,9 +484,20 @@ export default function BTCMapScreen() {
                 <Marker
                   key={m.id}
                   coordinate={{ latitude: m.latitude, longitude: m.longitude }}
+                  accessibilityLabel={t('screens.btcMap.map.a11y.place')}
                   onPress={() => handleMarkerPress(m)}
                 >
-                  <View style={[styles.marker, { backgroundColor: markerBg }]}>
+                  <View
+                    style={[
+                      styles.marker,
+                      {
+                        backgroundColor:
+                          mode !== 'light'
+                            ? COLORS.lightModeText
+                            : tokens.accent,
+                      },
+                    ]}
+                  >
                     <ThemeImage
                       styles={{ width: 16, height: 16 }}
                       lightModeIcon={ICONS.bitcoinIcon}
@@ -491,84 +512,85 @@ export default function BTCMapScreen() {
         )}
 
         {isMapReady && loading && (
-          <View style={styles.loadingBadge}>
+          <View
+            style={[
+              styles.countPill,
+              { bottom: pillBottom, backgroundColor: tokens.surface },
+            ]}
+          >
+            <Spinner size="small" />
             <ThemeText
               content={t('screens.btcMap.map.loadingMerchants')}
-              styles={styles.loadingText}
+              styles={styles.countText}
             />
           </View>
         )}
 
-        <View style={[styles.fabStack, { bottom: bottomPadding }]}>
-          <TouchableOpacity
+        <View style={[styles.fabStack, { bottom: fabBottom }]}>
+          <IconButton
+            icon="LocateFixed"
+            label="screens.btcMap.map.a11y.myLocation"
+            tone="floating"
             onPress={handleMyLocation}
-            style={[styles.fab, { backgroundColor: backgroundOffset }]}
-          >
-            <ThemeIcon
-              colorOverride={iconColor}
-              size={20}
-              iconName="LocateFixed"
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
+            size={44}
+            iconSize={20}
+            activeOpacity={0.8}
+          />
+          <IconButton
+            icon="Plus"
+            label="screens.btcMap.map.a11y.zoomIn"
+            tone="floating"
             onPress={handleZoomIn}
-            style={[styles.fab, { backgroundColor: backgroundOffset }]}
-          >
-            <ThemeIcon colorOverride={iconColor} size={20} iconName="Plus" />
-          </TouchableOpacity>
-          <TouchableOpacity
+            size={44}
+            iconSize={20}
+            activeOpacity={0.8}
+          />
+          <IconButton
+            icon="Minus"
+            label="screens.btcMap.map.a11y.zoomOut"
+            tone="floating"
             onPress={handleZoomOut}
-            style={[styles.fab, { backgroundColor: backgroundOffset }]}
-          >
-            <ThemeIcon colorOverride={iconColor} size={20} iconName="Minus" />
-          </TouchableOpacity>
+            size={44}
+            iconSize={20}
+            activeOpacity={0.8}
+          />
         </View>
 
         {/* Floating pill navbar */}
         <View style={[styles.navbar, { top: topPadding }]}>
-          <TouchableOpacity
+          <IconButton
+            icon="ArrowLeft"
+            label="constants.back"
+            tone="floating"
+            onPress={navigate.goBack}
+            size={44}
+            iconSize={20}
             activeOpacity={0.8}
-            onPress={() => navigate.goBack()}
-            style={[styles.navCircle, { backgroundColor }]}
-          >
-            <ThemeIcon
-              colorOverride={iconColor}
-              size={22}
-              iconName="ArrowLeft"
-            />
-          </TouchableOpacity>
+          />
 
-          <View style={[styles.navTitlePill, { backgroundColor }]}>
+          <View
+            style={[styles.navTitlePill, { backgroundColor: tokens.surface }]}
+          >
             <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
               styles={styles.navTitle}
               content={t('screens.btcMap.map.title')}
             />
           </View>
 
-          <TouchableOpacity
-            activeOpacity={0.8}
+          <IconButton
+            icon="SlidersHorizontal"
+            label={
+              isFilterActive
+                ? 'screens.btcMap.map.a11y.filterOn'
+                : 'screens.btcMap.map.a11y.filter'
+            }
+            tone="floating"
             onPress={openFilter}
-            style={[styles.navCircle, { backgroundColor }]}
-          >
-            <ThemeIcon
-              colorOverride={iconColor}
-              size={22}
-              iconName="SlidersHorizontal"
-            />
-            {isFilterActive && (
-              <View
-                style={[
-                  styles.filterBadge,
-                  {
-                    backgroundColor: iconColor,
-                    borderColor: backgroundColor,
-                  },
-                ]}
-              />
-            )}
-          </TouchableOpacity>
+            size={44}
+            iconSize={20}
+            showActiveDot={isFilterActive}
+            activeOpacity={0.8}
+          />
         </View>
 
         {/* Bottom place-count pill — opens the list view */}
@@ -578,10 +600,10 @@ export default function BTCMapScreen() {
             onPress={openList}
             style={[
               styles.countPill,
-              { bottom: bottomPadding, backgroundColor },
+              { bottom: pillBottom, backgroundColor: tokens.surface },
             ]}
           >
-            <ThemeIcon colorOverride={textColor} size={16} iconName="List" />
+            <ThemeIcon redesign size={18} iconName="List" />
             <ThemeText
               styles={styles.countText}
               content={t('screens.btcMap.map.placesHere', {
@@ -606,99 +628,59 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
-  navCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...SHADOWS.small,
-  },
   navTitlePill: {
     flex: 1,
-    minHeight: 45,
-    borderRadius: 26,
+    minHeight: 44,
+    borderRadius: 999,
     paddingHorizontal: 20,
     justifyContent: 'center',
-    ...SHADOWS.small,
+    ...SHADOWS.ring,
   },
   navTitle: {
+    fontFamily: FONT.Title_Regular,
     fontSize: SIZES.medium,
+    lineHeight: 22,
     textAlign: 'center',
     includeFontPadding: false,
   },
-  navSubtitle: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
-    includeFontPadding: false,
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    borderWidth: 1.5,
-  },
   countPill: {
-    minHeight: 44,
+    minHeight: 48,
     position: 'absolute',
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: 18,
-    borderRadius: 24,
-    ...SHADOWS.small,
+    paddingHorizontal: 20,
+    borderRadius: 999,
+    ...SHADOWS.ring,
   },
   countText: {
-    fontSize: SIZES.smedium,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
-  fabStack: { position: 'absolute', right: 16, gap: 8 },
-  fab: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...SHADOWS.small,
-  },
-  loadingBadge: {
-    position: 'absolute',
-    bottom: 60,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  loadingText: {
-    fontSize: SIZES.small,
-    color: COLORS.darkModeText,
-    includeFontPadding: false,
-  },
+  fabStack: { position: 'absolute', right: 16, gap: 10 },
   marker: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     borderWidth: 1,
     borderColor: '#fff',
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    ...SHADOWS.small,
+    ...SHADOWS.pin,
   },
   clusterMarker: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
+    ...SHADOWS.ring,
   },
   clusterText: {
-    fontSize: SIZES.smedium,
-    fontFamily: 'Poppins-Bold',
-    color: COLORS.darkModeText,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
 });

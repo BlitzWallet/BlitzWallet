@@ -7,7 +7,12 @@ jest.mock('../../../app/functions/spark/index', () => ({
   getSparkAddress: jest.fn(),
   getSparkBalance: jest.fn(),
   getSparkIdentityPubKey: jest.fn(),
-  initializeSparkWallet: jest.fn(),
+  openDerivedWallet: jest.fn(),
+  disposeSparkWallet: jest.fn(),
+}));
+jest.mock('../../../app/functions/spark/walletRuntime', () => ({
+  identityFor: jest.fn(async m => `pk-${m}`),
+  peek: jest.fn(() => null),
 }));
 jest.mock('../../../app/functions/spark/transactions', () => ({
   bulkUpdateSparkTransactions: jest.fn(),
@@ -18,7 +23,7 @@ const {
   getSparkAddress,
   getSparkBalance,
   getSparkIdentityPubKey,
-  initializeSparkWallet,
+  openDerivedWallet,
 } = require('../../../app/functions/spark/index');
 const {
   bulkUpdateSparkTransactions,
@@ -50,7 +55,7 @@ beforeEach(() => {
   }));
   getSparkIdentityPubKey.mockImplementation(async mn => `pk-${mn}`);
   getSparkBalance.mockResolvedValue({ didWork: true, balance: 100000n });
-  initializeSparkWallet.mockResolvedValue(undefined);
+  openDerivedWallet.mockResolvedValue({ isConnected: true });
   sparkPaymenWrapper.mockResolvedValue({
     didWork: true,
     response: { id: 'tx1', details: { direction: 'OUTGOING', fee: 10 } },

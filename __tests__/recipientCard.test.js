@@ -11,11 +11,16 @@ jest.mock('react-native-country-flag', () => ({
   __esModule: true,
   default: () => null,
 }));
-jest.mock('../app/constants', () => ({
-  COLORS: {},
-  ICONS: {},
-  USDB_TOKEN_ID: 'usdb-token-id',
-}));
+jest.mock('../app/constants', () => {
+  const { FONT, SIZES } = jest.requireActual('../app/constants/theme');
+  return {
+    COLORS: {},
+    ICONS: {},
+    FONT,
+    SIZES,
+    USDB_TOKEN_ID: 'usdb-token-id',
+  };
+});
 jest.mock(
   '../app/components/admin/homeComponents/contacts/internalComponents/profileImage',
   () => ({ __esModule: true, default: () => null }),

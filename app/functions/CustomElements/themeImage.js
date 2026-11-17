@@ -1,7 +1,6 @@
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useMemo } from 'react';
 import { Image } from 'expo-image';
-import { COLORS } from '../../constants';
 import { tintStyle } from '../webTintColor';
 
 export default function ThemeImage({
@@ -14,18 +13,18 @@ export default function ThemeImage({
   source,
   disableTint = false,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { theme, darkModeType, tokens } = useGlobalThemeContext();
 
   const tintColor = useMemo(() => {
     if (disableTint) return undefined;
 
     if (theme) {
       // Dark mode enabled
-      return darkModeType ? COLORS.darkModeText : COLORS.primary;
+      return darkModeType ? tokens.ink : tokens.accent;
     }
     // Light mode
-    return COLORS.primary;
-  }, [theme, darkModeType, disableTint]);
+    return tokens.accent;
+  }, [theme, darkModeType, tokens, disableTint]);
 
   const imageStyles = useMemo(() => {
     const baseStyles = { width: 30, height: 30 };

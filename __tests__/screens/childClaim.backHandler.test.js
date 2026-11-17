@@ -68,7 +68,10 @@ jest.mock('../../app/functions/accounts/childPairing', () => ({
 
 jest.mock('../../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#000000' }),
+  default: () => ({
+    backgroundOffset: '#000000',
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('../../app/functions/CustomElements', () => ({
@@ -86,10 +89,6 @@ jest.mock('../../app/functions/CustomElements/button', () => ({
   default: () => null,
 }));
 jest.mock('../../app/functions/CustomElements/searchInput', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-jest.mock('../../app/functions/CustomElements/wordsQrToggle', () => ({
   __esModule: true,
   default: () => null,
 }));
@@ -112,7 +111,14 @@ jest.mock('../../app/functions/CustomElements/segmentedCodeInput', () => ({
 
 // childQRWaiting (imported, not rendered on the idle screen) pulls these in.
 jest.mock('../../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: null }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: null,
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({
+    tokens: require('../../app/constants/themes').MODES.light,
+  }),
 }));
 jest.mock('lottie-react-native', () => 'LottieView');
 jest.mock('../../app/functions/lottieAnimations', () => ({

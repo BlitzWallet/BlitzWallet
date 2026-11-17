@@ -5,17 +5,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { View, StyleSheet } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
+  FONT,
   IS_SPARK_ID,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -38,23 +43,22 @@ import { createGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import {
-  generateSparkInvoiceFromAddress,
-  fufillSparkInvoices,
+  sendSparkPayment,
+  getSparkPaymentFeeEstimate,
   batchSendTokens,
   getSingleTxDetails,
   getSparkPaymentStatus,
 } from '../../../../functions/spark/index';
+import {
+  beginBulkGroup,
+  listBulkItems,
+  setBulkItemState,
+} from '../../../../functions/spark/sendIntents';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
-import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import {
   BTC_ASSET_ADDRESS,
   calculateFlashnetAmountIn,
@@ -69,11 +73,20 @@ import {
 } from '../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
-import GetThemeColors from '../../../../hooks/themeColors';
-import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import { useTheme } from '../../../../../context-store/theme';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
 import customUUID from '../../../../functions/customUUID';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import {
+  isSendingPayingEventEmiiter,
+  SENDING_PAYMENT_EVENT_NAME,
+} from '../../../../../context-store/sparkContext';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import Note from '../../../../functions/CustomElements/redesign/Note';
+
+// Three equal columns (Gifts.dc.html "Gift length").
+const PILL_GAP = 10;
 
 export default function CreateGiftDuration(props) {
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -86,7 +99,6 @@ export default function CreateGiftDuration(props) {
     bulkDeleteGiftsFromCloudAndLocal,
   } = useGifts();
   const [duration, setDuration] = useState({ label: '7 Days', value: '7' });
-  const { theme } = useGlobalThemeContext();
   const { sparkInformation, sparkInfoRef } = useSparkWallet();
   const navigate = useNavigation();
   const { accountMnemoinc } = useKeysContext();
@@ -94,8 +106,10 @@ export default function CreateGiftDuration(props) {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const simulationPromiseRef = useRef(null);
   const [simulationResult, setSimulationResult] = useState(null);
@@ -476,6 +490,21 @@ export default function CreateGiftDuration(props) {
         );
       }
 
+      if (determinePaymentMethod === 'BTC' && giftDenomination === 'BTC') {
+        // Each gift is its own Spark transfer, and Spark charges its fee on top.
+        const feeResponse = await getSparkPaymentFeeEstimate(
+          sparkInformation.sparkAddress,
+          convertedSatAmount,
+          currentWalletMnemoinc,
+        );
+        if (!feeResponse.didWork)
+          throw new Error(
+            feeResponse.error || 'Unable to get Spark fee estimation',
+          );
+        if (totalNeeded + feeResponse.response * giftQuantity > bitcoinBalance)
+          throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
+      }
+
       if (giftQuantity === 1) {
         await createSingleGift();
       } else {
@@ -584,6 +613,17 @@ export default function CreateGiftDuration(props) {
         throw new Error(t('screens.inAccount.giftPages.createGift.saveError'));
 
       allGiftData.forEach(g => savedGiftIds.push(g.storageObject.uuid));
+
+      // Reserve the derive-index range before any network call: docs that end
+      // up funded (or unknown) must never have their index reused.
+      toggleMasterInfoObject({
+        currentDerivedGiftIndex: currentDerivedGiftIndex + N,
+      });
+      // Only docs still 'planned' (nothing sent) may be deleted on failure.
+      const markSendStarted = id => {
+        const idx = savedGiftIds.indexOf(id);
+        if (idx !== -1) savedGiftIds.splice(idx, 1);
+      };
 
       setLoadingMessage(
         t('screens.inAccount.giftPages.createGift.startProcess3'),
@@ -710,59 +750,71 @@ export default function CreateGiftDuration(props) {
       }
 
       // ── Block 2: Bulk payment ─────────────────
+      // Hide per-child rows from ingest until the group record is written.
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
       if (giftDenomination === 'BTC') {
-        const invoiceBatch = [];
-        for (const giftData of allGiftData) {
-          const invoiceResult = await generateSparkInvoiceFromAddress({
-            address: giftData.sparkAddress,
+        // Durable rows + per-item idempotency keys, then sequential address sends.
+        const bulkGroupId = customUUID();
+        await beginBulkGroup({
+          groupId: bulkGroupId,
+          accountId: sparkInfoRef.current.identityPubKey || '',
+          kind: 'gift',
+          asset: 'BTC',
+          rows: allGiftData.map(g => ({
+            recipient: g.sparkAddress,
+            amount: convertedSatAmount,
+            refId: g.storageObject.uuid,
+          })),
+        });
+        const items = await listBulkItems(bulkGroupId);
+
+        const successful = [];
+        const fundedGiftData = [];
+        const failedIds = [];
+        let unknownCount = 0;
+        let giftSparkFees = 0;
+        for (let i = 0; i < allGiftData.length; i++) {
+          const giftId = allGiftData[i].storageObject.uuid;
+          markSendStarted(giftId);
+          await setBulkItemState(bulkGroupId, i, 'sending');
+          const res = await sendSparkPayment({
+            receiverSparkAddress: items[i].recipient,
             amountSats: convertedSatAmount,
             mnemonic: currentWalletMnemoinc,
+            intentId: items[i].idempotency_key,
           });
-          if (!invoiceResult.didWork || !invoiceResult.invoice)
-            throw new Error(invoiceResult.error || 'Invoice generation failed');
-          invoiceBatch.push({
-            invoice: invoiceResult.invoice,
-            amount: BigInt(convertedSatAmount),
-          });
+          if (res.didWork) {
+            const transferId = res.response?.id ?? res.payment?.id;
+            await setBulkItemState(bulkGroupId, i, 'sent', {
+              paymentId: transferId,
+            });
+            successful.push(transferId);
+            fundedGiftData.push(allGiftData[i]);
+            giftSparkFees += Number(res.payment?.fees ?? 0);
+          } else if (res.outcome === 'unknown') {
+            // May have been sent: keep the gift doc.
+            unknownCount += 1;
+            await setBulkItemState(bulkGroupId, i, 'unknown', {
+              error: res.error,
+            });
+          } else {
+            await setBulkItemState(bulkGroupId, i, 'planned', {
+              error: res.error,
+            });
+            failedIds.push(giftId);
+          }
         }
 
-        const fulfillResult = await fufillSparkInvoices({
-          mnemonic: currentWalletMnemoinc,
-          invoices: invoiceBatch,
-        });
-        if (!fulfillResult.didWork)
-          throw new Error(fulfillResult.error || 'Batch payment failed');
-
-        const sdkResult = fulfillResult;
-        const successful =
-          sdkResult.satsTransactionSuccess.map(s => s?.transferResponse?.id) ||
-          [];
-        const failedInvoiceStrings = new Set([
-          ...(sdkResult?.satsTransactionErrors ?? []).map(e => e.invoice),
-          ...(sdkResult?.invalidInvoices ?? []).map(e => e.invoice),
-        ]);
-
-        if (failedInvoiceStrings.size > 0) {
-          const failedIds = [];
-          invoiceBatch.forEach((inv, i) => {
-            if (failedInvoiceStrings.has(inv.invoice))
-              failedIds.push(allGiftData[i].storageObject.uuid);
-          });
+        if (failedIds.length > 0) {
           await bulkDeleteGiftsFromCloudAndLocal(failedIds);
-          failedIds.forEach(id => {
-            const idx = savedGiftIds.indexOf(id);
-            if (idx !== -1) savedGiftIds.splice(idx, 1);
-          });
         }
-
-        const fundedGiftData = invoiceBatch
-          .map((inv, i) =>
-            failedInvoiceStrings.has(inv.invoice) ? null : allGiftData[i],
-          )
-          .filter(Boolean);
 
         if (fundedGiftData.length === 0)
-          throw new Error('All batch payments failed');
+          throw new Error(
+            unknownCount > 0
+              ? t('errormessages.paymentError')
+              : 'All batch payments failed',
+          );
 
         allGiftData.length = 0;
         fundedGiftData.forEach(g => allGiftData.push(g));
@@ -775,8 +827,8 @@ export default function CreateGiftDuration(props) {
             isBulkPayment: true,
             direction: 'OUTGOING',
             amount: Math.round(convertedSatAmount * fundedGiftData.length),
-            fee: swapFee,
-            totalFee: swapFee,
+            fee: swapFee + giftSparkFees,
+            totalFee: swapFee + giftSparkFees,
             time: Date.now(),
             description: t('screens.inAccount.giftPages.fundGiftMessage'),
             isLRC20Payment: false,
@@ -792,14 +844,47 @@ export default function CreateGiftDuration(props) {
           tokenAmount: BigInt(Math.round(trueFiatAmount)),
         }));
 
+        // Rows are persisted as 'sending' before the one batch; never retried.
+        const bulkGroupId = customUUID();
+        await beginBulkGroup({
+          groupId: bulkGroupId,
+          accountId: sparkInfoRef.current.identityPubKey || '',
+          kind: 'gift',
+          asset: 'USD',
+          rows: allGiftData.map(g => ({
+            recipient: g.sparkAddress,
+            amount: BigInt(Math.round(trueFiatAmount)),
+            tokenId: USDB_TOKEN_ID,
+            refId: g.storageObject.uuid,
+          })),
+        });
+        const setAll = (state, patch) =>
+          Promise.all(
+            allGiftData.map((_, i) =>
+              setBulkItemState(bulkGroupId, i, state, patch),
+            ),
+          );
+        const plannedIds = allGiftData.map(g => g.storageObject.uuid);
+        plannedIds.forEach(markSendStarted);
+        await setAll('sending');
+
         const fulfillResult = await batchSendTokens({
           mnemonic: currentWalletMnemoinc,
           invoices: tokenInvoices,
         });
-        if (!fulfillResult?.didWork)
-          throw new Error(fulfillResult.error || 'Batch token send failed');
+        if (!fulfillResult?.didWork) {
+          if (fulfillResult?.outcome === 'unknown') {
+            // May have been sent: keep the docs and the rows.
+            await setAll('unknown', { error: fulfillResult.error });
+          } else {
+            await setAll('planned', { error: fulfillResult?.error });
+            savedGiftIds.push(...plannedIds);
+          }
+          throw new Error(fulfillResult?.error || 'Batch token send failed');
+        }
 
         const txHash = fulfillResult.invoice;
+        await setAll('sent', { paymentId: txHash });
         if (!txHash) {
           console.log(
             'bulkSparkPayment: no txHash in batchSendTokens response',
@@ -828,10 +913,6 @@ export default function CreateGiftDuration(props) {
         };
       }
 
-      toggleMasterInfoObject({
-        currentDerivedGiftIndex: currentDerivedGiftIndex + N,
-      });
-
       await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0).catch(
         err =>
           console.log(
@@ -850,6 +931,8 @@ export default function CreateGiftDuration(props) {
         await bulkDeleteGiftsFromCloudAndLocal(savedGiftIds);
       }
       throw err;
+    } finally {
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
     }
   };
 
@@ -859,60 +942,67 @@ export default function CreateGiftDuration(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('screens.inAccount.giftPages.createGift.header')}
-      />
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('screens.inAccount.giftPages.createGift.durationTitle')}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('screens.inAccount.giftPages.createGift.durationSubtitle')}
-        />
-        <DropdownMenu
-          customButtonStyles={{
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          }}
-          selectedValue={t(
-            'screens.inAccount.giftPages.createGift.durationText',
-            { numDays: duration.value },
-          )}
-          translateLabelText={true}
-          onSelect={handleSelectProcess}
-          options={GIFT_DURATIONS}
-          showClearIcon={false}
-          showVerticalArrowsAbsolute={true}
-        />
-        <NoContentSceen
-          iconName="AlertTriangle"
-          titleText={t('screens.inAccount.giftPages.createGift.warningTitle')}
-          subTitleText={t(
-            'screens.inAccount.giftPages.createGift.warningSubtitle',
-            {
+      <View style={[styles.container, { width: contentWidth }]}>
+        <View style={styles.container}>
+          <TopBar title={t('screens.inAccount.giftPages.createGift.header')} />
+          <PageHeader
+            title={t('screens.inAccount.giftPages.createGift.durationTitle')}
+            sub={t('screens.inAccount.giftPages.createGift.durationSubtitle')}
+          />
+          <View style={styles.pills}>
+            {GIFT_DURATIONS.map(option => {
+              const selected = option.value === duration.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  activeOpacity={0.7}
+                  onPress={() => handleSelectProcess(option)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  style={[
+                    styles.pill,
+                    { width: (contentWidth - PILL_GAP * 2) / 3 },
+                    {
+                      backgroundColor: selected
+                        ? tokens.accent
+                        : tokens.surface,
+                    },
+                  ]}
+                >
+                  <ThemeText
+                    content={option.label}
+                    styles={[
+                      styles.pillText,
+                      { color: selected ? tokens.onAccent : tokens.ink },
+                    ]}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Note
+            text={t('screens.inAccount.giftPages.createGift.warningText', {
               numDays: duration.value,
-            },
-          )}
+            })}
+          />
+        </View>
+        <CustomButton
+          disabled={!isGiftValid}
+          buttonStyles={{
+            opacity: !isGiftValid ? HIDDEN_OPACITY : 1,
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+          }}
+          textContent={
+            giftQuantity > 1
+              ? t('screens.inAccount.giftPages.createGift.bulkButton', {
+                  count: giftQuantity,
+                })
+              : t('screens.inAccount.giftPages.createGift.button')
+          }
+          actionFunction={createGift}
+          size={'regular'}
         />
       </View>
-      <CustomButton
-        disabled={!isGiftValid}
-        buttonStyles={{
-          opacity: !isGiftValid ? HIDDEN_OPACITY : 1,
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-        }}
-        textContent={
-          giftQuantity > 1
-            ? t('screens.inAccount.giftPages.createGift.bulkButton', {
-                count: giftQuantity,
-              })
-            : t('screens.inAccount.giftPages.createGift.button')
-        }
-        actionFunction={createGift}
-      />
     </GlobalThemeView>
   );
 }
@@ -920,28 +1010,25 @@ export default function CreateGiftDuration(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    justifyContent: 'space-between',
-    paddingBottom: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
+  pills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: PILL_GAP,
+    marginBottom: 24,
+  },
+  pill: {
+    minHeight: 44,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: 15,
+    lineHeight: 21,
     includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  disclaimer: {
-    textAlign: 'center',
-    opacity: 0.6,
-    fontSize: SIZES.small,
-    marginTop: 16,
   },
 });

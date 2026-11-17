@@ -3,17 +3,15 @@ import { USDB_TOKEN_ID } from '../../constants';
 import {
   getSparkAddress,
   getSparkIdentityPubKey,
-  initializeSparkWallet,
+  openDerivedWallet,
+  disposeSparkWallet,
 } from './index';
+import { identityFor, peek } from './walletRuntime';
 import { bulkUpdateSparkTransactions } from './transactions';
 
 // Fee for an account-to-account spark transfer. Uses the support address purely
 // as a placeholder to price a spark send (mirrors accountPaymentPage).
-export async function getAccountTransferFee({
-  amountSats,
-  mnemonic,
-  sendWebViewRequest,
-}) {
+export async function getAccountTransferFee({ amountSats, mnemonic }) {
   const feeResponse = await sparkPaymenWrapper({
     getFee: true,
     address: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
@@ -21,7 +19,6 @@ export async function getAccountTransferFee({
     memo: 'Accounts Swap',
     amountSats,
     mnemonic,
-    sendWebViewRequest,
   });
 
   if (!feeResponse?.didWork) return { didWork: false };
@@ -45,7 +42,6 @@ export async function executeAccountTransfer({
   fromBalance,
   masterInfoObject,
   getAccountMnemonic,
-  sendWebViewRequest,
   t,
   asset = 'BTC',
 }) {
@@ -93,85 +89,95 @@ export async function executeAccountTransfer({
     getAccountMnemonic(toAccount),
   ]);
 
-  // Ensure the spending wallet is initialized. A prefilled `from` never passes
-  // through the account picker, and the runtime can't spend from an uninited
-  // wallet. Idempotent, so it's a no-op when already synced.
-  await initializeSparkWallet(fromMnemonic, false, { maxRetries: 4 });
-
-  const toSparkAddress = await getSparkAddress(toMnemonic);
-  if (!toSparkAddress.didWork) {
-    throw new Error(
-      t('settings.accountComponents.accountPaymentPage.noSendAddressError'),
-    );
+  // The spending wallet must be open. The active account is already the live
+  // main (client) wallet and is never reopened here; any other FROM wallet that
+  // nothing else holds open is opened in server mode and closed in `finally`.
+  let openedFromHere = false;
+  if (!peek(await identityFor(fromMnemonic))) {
+    const opened = await openDerivedWallet(fromMnemonic);
+    if (!opened.isConnected) {
+      throw new Error(t('errormessages.paymentError'));
+    }
+    openedFromHere = true;
   }
 
-  const [accountIdentifyPubKey, toAccountIdentityPubKey] = await Promise.all([
-    getSparkIdentityPubKey(fromMnemonic),
-    getSparkIdentityPubKey(toMnemonic),
-  ]);
+  try {
+    const toSparkAddress = await getSparkAddress(toMnemonic);
+    if (!toSparkAddress.didWork) {
+      throw new Error(
+        t('settings.accountComponents.accountPaymentPage.noSendAddressError'),
+      );
+    }
 
-  if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {
-    throw new Error(
-      t('settings.accountComponents.accountPaymentPage.noAccountInformation'),
-    );
-  }
+    const [accountIdentifyPubKey, toAccountIdentityPubKey] = await Promise.all([
+      getSparkIdentityPubKey(fromMnemonic),
+      getSparkIdentityPubKey(toMnemonic),
+    ]);
 
-  // The uuid check above misses two accounts that share a wallet (e.g. an
-  // imported account whose mnemonic duplicates a derived one). Sending to your
-  // own spark address would make the INCOMING mirror collide with the OUTGOING
-  // entry on the same `${id}_${accountId}` dedupe key.
-  if (accountIdentifyPubKey === toAccountIdentityPubKey) {
-    throw new Error(
-      t('settings.accountComponents.accountPaymentPage.sameAccountError'),
-    );
-  }
+    if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {
+      throw new Error(
+        t('settings.accountComponents.accountPaymentPage.noAccountInformation'),
+      );
+    }
 
-  // Default transfer descriptions name the counterparty: the sender's ledger
-  // shows "Sent to {to}" and the receiving account's mirror shows
-  // "Received from {from}". A caller-supplied memo wins on both sides.
-  const fromDescription =
-    memo ||
-    t('settings.accountComponents.transferModal.transferComplete', {
-      name: toAccount?.name || '',
-    });
-  const toDescription =
-    memo ||
-    t('settings.accountComponents.transferModal.receivedFrom', {
-      name: fromAccount?.name || '',
-    });
+    // The uuid check above misses two accounts that share a wallet (e.g. an
+    // imported account whose mnemonic duplicates a derived one). Sending to your
+    // own spark address would make the INCOMING mirror collide with the OUTGOING
+    // entry on the same `${id}_${accountId}` dedupe key.
+    if (accountIdentifyPubKey === toAccountIdentityPubKey) {
+      throw new Error(
+        t('settings.accountComponents.accountPaymentPage.sameAccountError'),
+      );
+    }
 
-  const sendingResponse = await sparkPaymenWrapper({
-    address: toSparkAddress.response,
-    paymentType: 'spark',
-    amountSats,
-    masterInfoObject,
-    fee,
-    memo: fromDescription,
-    userBalance: fromBalance,
-    sparkInformation: {
-      identityPubKey: accountIdentifyPubKey,
-    },
-    mnemonic: fromMnemonic,
-    sendWebViewRequest,
-    ...(asset === 'USD' ? { seletctedToken: USDB_TOKEN_ID } : {}),
-  });
+    // Default transfer descriptions name the counterparty: the sender's ledger
+    // shows "Sent to {to}" and the receiving account's mirror shows
+    // "Received from {from}". A caller-supplied memo wins on both sides.
+    const fromDescription =
+      memo ||
+      t('settings.accountComponents.transferModal.transferComplete', {
+        name: toAccount?.name || '',
+      });
+    const toDescription =
+      memo ||
+      t('settings.accountComponents.transferModal.receivedFrom', {
+        name: fromAccount?.name || '',
+      });
 
-  if (!sendingResponse.didWork) {
-    throw new Error(t('errormessages.paymentError'));
-  }
-
-  bulkUpdateSparkTransactions([
-    {
-      ...sendingResponse.response,
-      accountId: toAccountIdentityPubKey,
-      details: {
-        ...sendingResponse.response.details,
-        direction: 'INCOMING',
-        fee: 0,
-        description: toDescription,
+    const sendingResponse = await sparkPaymenWrapper({
+      address: toSparkAddress.response,
+      paymentType: 'spark',
+      amountSats,
+      masterInfoObject,
+      fee,
+      memo: fromDescription,
+      userBalance: fromBalance,
+      sparkInformation: {
+        identityPubKey: accountIdentifyPubKey,
       },
-    },
-  ]).catch(err => console.log('error saving account transfer', err));
+      mnemonic: fromMnemonic,
+      ...(asset === 'USD' ? { seletctedToken: USDB_TOKEN_ID } : {}),
+    });
 
-  return { didWork: true, response: sendingResponse.response };
+    if (!sendingResponse.didWork) {
+      throw new Error(t('errormessages.paymentError'));
+    }
+
+    bulkUpdateSparkTransactions([
+      {
+        ...sendingResponse.response,
+        accountId: toAccountIdentityPubKey,
+        details: {
+          ...sendingResponse.response.details,
+          direction: 'INCOMING',
+          fee: 0,
+          description: toDescription,
+        },
+      },
+    ]).catch(err => console.log('error saving account transfer', err));
+
+    return { didWork: true, response: sendingResponse.response };
+  } finally {
+    if (openedFromHere) await disposeSparkWallet(fromMnemonic);
+  }
 }

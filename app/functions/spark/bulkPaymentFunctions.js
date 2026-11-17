@@ -1,8 +1,9 @@
 import {
-  generateSparkInvoiceFromAddress,
-  fufillSparkInvoices,
+  sendSparkPayment,
   batchSendTokens,
+  checkSendIntentStatus,
 } from './index';
+import { beginBulkGroup, listBulkItems, setBulkItemState } from './sendIntents';
 import {
   dollarsToSats,
   getUserSwapHistory,
@@ -21,8 +22,11 @@ const MAX_RECIPIENTS = 10;
 
 /**
  * Send BTC to multiple Spark contacts sequentially.
- * Uses generateSparkInvoiceFromAddress + fulfillSparkInvoice per recipient.
- * Failures are captured individually — one failure does NOT abort the batch.
+ * One Spark address send per recipient, each with its own durable
+ * breez_bulk_items row and idempotency key. Failures are captured individually
+ * — one failure does NOT abort the batch. Pass options.groupId to resume a
+ * group: 'sent' items are never re-sent, 'sending'/'unknown' items are
+ * reconciled (never blindly re-sent), only provably-unsent items are sent.
  *
  * @param {string} mnemonic - Active wallet mnemonic
  * @param {Array<{contact: object, amountSats: number}>} recipients
@@ -39,6 +43,7 @@ export async function bulkSparkPayment(
   notifyParams,
   paymentCurrency,
   swapFee,
+  options = {},
 ) {
   // ── Validation ────────────────────────────────────────────────────────────
   if (!Array.isArray(recipients) || recipients.length === 0) {
@@ -108,158 +113,121 @@ export async function bulkSparkPayment(
 
   const failed = [];
   const successful = [];
+  let sparkFeesTotal = 0;
   let groupId;
   let transaction;
 
   if (paymentCurrency === 'BTC') {
-    // ── Phase 1: Generate all invoices sequentially ───────────────────────────
-    // Each entry: { contact, amountSats, invoice } — or gets pushed to failed
-    const invoiceBatch = []; // [{ contact, amountSats, invoice }]
+    // ── Phase 1: Persist the plan (rows + idempotency keys) before any send ──
+    const bulkId = options.groupId || customUUID();
+    await beginBulkGroup({
+      groupId: bulkId,
+      accountId: accountId || '',
+      kind: 'contacts',
+      asset: 'BTC',
+      rows: recipients.map(r => ({
+        recipient: r.contact.receiveAddress,
+        amount: r.amountSats,
+        refId: r.contact.uuid,
+      })),
+    });
+    const items = await listBulkItems(bulkId);
 
-    for (const {
-      contact,
-      amountSats,
-      contactFull,
-      amountCents,
-      currency,
-    } of recipients) {
-      try {
-        const invoiceResult = await generateSparkInvoiceFromAddress({
-          address: contact.receiveAddress,
-          amountSats,
-          mnemonic,
+    // ── Phase 2: Sequential address sends ─────────────────────────────────────
+    for (let i = 0; i < recipients.length; i++) {
+      const { contact, amountSats, contactFull, amountCents, currency } =
+        recipients[i];
+      const item = items[i];
+      const base = {
+        contact,
+        amountSats,
+        contactFull,
+        amountCents: amountCents ?? null,
+        currency: currency ?? 'BTC',
+      };
+      const pushSuccess = (transferId, feeSats = 0) => {
+        sparkFeesTotal += feeSats;
+        successful.push({
+          ...base,
+          transferId,
+          feeSats,
+          transfer: { id: transferId },
         });
-        console.log(invoiceResult, 'invoice result for', contact.uniqueName);
+      };
 
-        if (!invoiceResult.didWork || !invoiceResult.invoice) {
-          failed.push({
-            contact,
-            amountSats,
-            error: invoiceResult.error || 'Invoice generation failed',
-            contactFull,
-            amountCents: amountCents ?? null,
-            currency: currency ?? 'BTC',
-          });
+      try {
+        if (!item) throw new Error('Bulk item row missing');
+
+        if (item.state === 'sent') {
+          pushSuccess(item.payment_id);
           continue;
         }
 
-        invoiceBatch.push({
-          contact,
-          amountSats,
-          invoice: invoiceResult.invoice,
-          contactFull,
-          amountCents: amountCents ?? null,
-          currency: currency ?? 'BTC',
+        // A previous run may have sent this item. Look before resending.
+        if (item.state === 'sending' || item.state === 'unknown') {
+          const check = await checkSendIntentStatus({
+            intentId: item.idempotency_key,
+          });
+          if (check.status === 'completed' || check.status === 'pending') {
+            await setBulkItemState(bulkId, i, 'sent', {
+              paymentId: check.payment?.id,
+            });
+            pushSuccess(check.payment?.id, Number(check.payment?.fees ?? 0));
+            continue;
+          }
+          if (check.status !== 'failed') {
+            failed.push({
+              ...base,
+              error: item.last_error || 'Payment status unknown',
+              outcome: 'unknown',
+            });
+            continue;
+          }
+        }
+
+        await setBulkItemState(bulkId, i, 'sending');
+        const res = await sendSparkPayment({
+          receiverSparkAddress: item.recipient,
+          amountSats: Number(item.amount),
+          mnemonic,
+          intentId: item.idempotency_key,
         });
+
+        if (res.didWork) {
+          const transferId = res.response?.id ?? res.payment?.id;
+          await setBulkItemState(bulkId, i, 'sent', { paymentId: transferId });
+          pushSuccess(transferId, Number(res.payment?.fees ?? 0));
+        } else {
+          await setBulkItemState(
+            bulkId,
+            i,
+            res.outcome === 'unknown' ? 'unknown' : 'planned',
+            { error: res.error },
+          );
+          failed.push({
+            ...base,
+            error: res.error || 'Payment failed',
+            outcome: res.outcome,
+          });
+        }
       } catch (err) {
         console.log(
-          'bulkSparkPayment: invoice generation failed for',
+          'bulkSparkPayment: send failed for',
           contact?.uniqueName,
           err,
         );
-        failed.push({
-          contact,
-          amountSats,
-          error: err.message,
-          contactFull,
-          amountCents: amountCents ?? null,
-          currency: currency ?? 'BTC',
-        });
+        failed.push({ ...base, error: err.message });
       }
     }
 
-    // Nothing to fulfill if every invoice failed to generate
-    if (invoiceBatch.length === 0) {
+    if (successful.length === 0) {
       return {
         successful: [],
         failed,
         totalPaid: 0,
-        groupId: null,
-        error: failed[0].error,
+        groupId: bulkId,
+        error: failed[0]?.error,
       };
-    }
-
-    // ── Phase 2: Single batch fulfill ─────────────────────────────────────────
-    let fulfillResult;
-    try {
-      const invoices = invoiceBatch.map(({ invoice, amountSats }) => ({
-        invoice,
-        amount: BigInt(amountSats),
-      }));
-      fulfillResult = await fufillSparkInvoices({ mnemonic, invoices });
-    } catch (err) {
-      console.log('bulkSparkPayment: fulfillSparkInvoice threw', err);
-      // Mark every queued invoice as failed
-      for (const entry of invoiceBatch) {
-        failed.push({
-          contact: entry.contact,
-          amountSats: entry.amountSats,
-          error: err.message,
-        });
-      }
-      return { successful: [], failed, totalPaid: 0, groupId: null };
-    }
-
-    if (!fulfillResult || !fulfillResult?.didWork)
-      return {
-        successful: [],
-        failed,
-        totalPaid: 0,
-        groupId: null,
-        error: fulfillResult.error,
-      };
-
-    // ── Phase 3: Match results back to recipients ──────────────────────────────
-    // The SDK returns { invoice, transferResponse } / { invoice, error } in each
-    // bucket — match on the invoice string, not by positional index.
-    const successByInvoice = new Map(
-      (fulfillResult.satsTransactionSuccess ?? []).map(e => [
-        e.invoice,
-        e.transferResponse,
-      ]),
-    );
-    const errorByInvoice = new Map([
-      ...(fulfillResult.satsTransactionErrors ?? []).map(e => [
-        e.invoice,
-        e.error?.message ?? 'Fulfillment failed',
-      ]),
-      ...(fulfillResult.invalidInvoices ?? []).map(e => [
-        e.invoice,
-        e.error?.message ?? 'Invalid invoice',
-      ]),
-    ]);
-
-    for (const {
-      contact,
-      amountSats,
-      invoice,
-      contactFull,
-      amountCents,
-      currency,
-    } of invoiceBatch) {
-      const transfer = successByInvoice.get(invoice);
-
-      if (!transfer) {
-        failed.push({
-          contactFull,
-          contact,
-          amountSats,
-          error:
-            errorByInvoice.get(invoice) ??
-            'Fulfillment produced no success result',
-        });
-        continue;
-      }
-
-      successful.push({
-        contact,
-        amountSats,
-        amountCents: amountCents ?? null,
-        currency: currency ?? 'BTC',
-        transferId: transfer.id,
-        transfer,
-        contactFull,
-      });
     }
 
     // ── Phase 4: Notify contacts ───────────────────────────────────────────────
@@ -317,8 +285,8 @@ export async function bulkSparkPayment(
     }
 
     // ── Phase 5: Persist to SQLite ─────────────────────────────────────────────
+    groupId = bulkId;
     if (accountId) {
-      groupId = customUUID();
       const allBTCRecipients = [
         ...successful.map(s => ({
           contactUUID: s.contact.uuid,
@@ -343,8 +311,8 @@ export async function bulkSparkPayment(
           isBulkPayment: true,
           direction: 'OUTGOING',
           amount: successful.reduce((sum, s) => sum + s.amountSats, 0),
-          fee: swapFee,
-          totalFee: swapFee,
+          fee: swapFee + sparkFeesTotal,
+          totalFee: swapFee + sparkFeesTotal,
           time: Date.now(),
           description: memo || '',
           isLRC20Payment: false,
@@ -389,33 +357,84 @@ export async function bulkSparkPayment(
       return { successful: [], failed, totalPaid: 0, groupId: null };
     }
 
-    // ── Phase 2: Single batch fulfill ─────────────────────────────────────────
+    // ── Phase 2: Persist rows as 'sending', then ONE token batch (never retried) ──
+    const bulkId = options.groupId || customUUID();
+    const tokenAmounts = invoiceBatch.map(
+      ({ amountCents }) => BigInt(amountCents) * 10_000n, //not 1_000_000 since value is in cents an 100c = $1
+    );
+    await beginBulkGroup({
+      groupId: bulkId,
+      accountId: accountId || '',
+      kind: 'contacts',
+      asset: 'USD',
+      rows: invoiceBatch.map(({ invoice, contact }, i) => ({
+        recipient: invoice,
+        amount: tokenAmounts[i],
+        tokenId: USDB_TOKEN_ID,
+        refId: contact.uuid,
+      })),
+    });
+    const existing = await listBulkItems(bulkId);
+    // A resumed group never re-sends: report what the rows say.
+    if (existing.some(r => r.state !== 'planned')) {
+      return {
+        successful: [],
+        failed: invoiceBatch.map(e => ({
+          ...e,
+          error: 'Token batch already attempted; check payment history',
+          outcome: 'unknown',
+        })),
+        totalPaid: 0,
+        groupId: bulkId,
+        error: 'Token batch already attempted',
+      };
+    }
+    const setAll = (state, patch) =>
+      Promise.all(
+        invoiceBatch.map((_, i) => setBulkItemState(bulkId, i, state, patch)),
+      );
+    await setAll('sending');
+
     let fulfillResult;
     try {
-      const invoices = invoiceBatch.map(({ invoice, amountCents }) => ({
+      const invoices = invoiceBatch.map(({ invoice }, i) => ({
         tokenIdentifier: USDB_TOKEN_ID,
         receiverSparkAddress: invoice,
-        tokenAmount: BigInt(amountCents) * 10_000n, //not 1_000_000 since value is in cents an 100c = $1
+        tokenAmount: tokenAmounts[i],
       }));
-      console.log(invoices, 'token invoices');
       fulfillResult = await batchSendTokens({ mnemonic, invoices });
     } catch (err) {
-      console.log('bulkSparkPayment: fulfillSparkInvoice threw', err);
-      // Mark every queued invoice as failed
+      console.log('bulkSparkPayment: batchSendTokens threw', err);
+      // Thrown after the call started: outcome unknown, rows stay 'sending'.
       for (const entry of invoiceBatch) {
         failed.push({
           contact: entry.contact,
           amountSats: entry.amountSats,
           error: err.message,
+          outcome: 'unknown',
         });
       }
-      return { successful: [], failed, totalPaid: 0, groupId: null };
+      return { successful: [], failed, totalPaid: 0, groupId: bulkId };
     }
 
-    if (!fulfillResult || !fulfillResult?.didWork)
-      return { successful: [], failed, totalPaid: 0, groupId: null };
+    if (!fulfillResult?.didWork) {
+      await setAll(
+        fulfillResult?.outcome === 'unknown' ? 'unknown' : 'planned',
+        {
+          error: fulfillResult?.error,
+        },
+      );
+      return {
+        successful: [],
+        failed,
+        totalPaid: 0,
+        groupId: bulkId,
+        error: fulfillResult?.error,
+      };
+    }
 
     const txHash = fulfillResult.invoice;
+    await setAll('sent', { paymentId: txHash });
     if (!txHash) {
       console.log(
         'bulkSparkPayment: no txHash in batchSendTokens response',

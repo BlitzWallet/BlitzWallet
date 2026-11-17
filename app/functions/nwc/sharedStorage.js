@@ -46,7 +46,10 @@ export function migrateNWCDatabase(name) {
   const target = new File(dir, name);
   if (target.exists) return;
   for (const suffix of ['', '-journal', '-wal', '-shm']) {
-    const legacy = new File(`file://${defaultDatabaseDirectory}`, name + suffix);
+    const legacy = new File(
+      `file://${defaultDatabaseDirectory}`,
+      name + suffix,
+    );
     if (legacy.exists) legacy.move(new File(dir, name + suffix));
   }
 }
@@ -120,6 +123,8 @@ export function clearNativeNWCState() {
   if (!dir) return;
   const config = new File(dir, CONFIG_FILE);
   if (config.exists) config.delete();
-  const breez = new Directory(dir, 'breez');
-  if (breez.exists) breez.delete();
+  for (const name of ['breez', 'breez-0.28']) {
+    const breez = new Directory(dir, name);
+    if (breez.exists) breez.delete();
+  }
 }

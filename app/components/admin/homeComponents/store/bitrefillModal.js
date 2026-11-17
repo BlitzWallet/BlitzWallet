@@ -3,6 +3,7 @@ import {
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import WebView from 'react-native-webview';
@@ -11,19 +12,16 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../functions/CustomElements/button';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
+  MAX_WEB_CONTENT_WIDTH,
   SIZES,
 } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useKeysContext } from '../../../../../context-store/keys';
@@ -41,7 +39,6 @@ import { parseInput } from 'bitcoin-address-parser';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import { useWebView } from '../../../../../context-store/webViewContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import {
@@ -51,6 +48,13 @@ import {
 } from '../../../../functions/spark/flashnet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
+import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
+import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 
 const BITREFILL_REFERRAL_TOKEN = 'blitzwallet_brtoken_26';
 const BITREFILL_PAYMENT_METHODS = ['lightning'].join(',');
@@ -117,7 +121,8 @@ true;
 export default function BitrefillShopModal() {
   const naivgate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor, tokens } =
+    GetThemeColors();
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -127,8 +132,10 @@ export default function BitrefillShopModal() {
     useUserBalanceContext();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sendWebViewRequest } = useWebView();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { poolInfoRef } = useFlashnet();
+  const { fiatStats } = useNodeContext();
   const isSendingPayment = useRef(false);
   const paidPaymentUris = useRef(new Set());
   const initialLoadDone = useRef(false);
@@ -275,7 +282,6 @@ export default function BitrefillShopModal() {
             paymentType: 'lightning',
             masterInfoObject,
             mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
           });
 
           if (!btcFeeResult.didWork) {
@@ -342,7 +348,6 @@ export default function BitrefillShopModal() {
           userBalance: bitcoinBalance,
           sparkInformation,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
           usablePaymentMethod: method,
           swapPaymentQuote,
           fromMainSendScreen: false,
@@ -372,7 +377,6 @@ export default function BitrefillShopModal() {
     [
       masterInfoObject,
       currentWalletMnemoinc,
-      sendWebViewRequest,
       bitcoinBalance,
       dollarBalanceToken,
       dollarBalanceSat,
@@ -385,12 +389,22 @@ export default function BitrefillShopModal() {
   );
 
   const openPaymentMethodSelection = useCallback(() => {
+    const amount = displayCorrectDenomination({
+      amount: pendingPaymentIntentRef.current?.amountSats || 0,
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'sats',
+      },
+      fiatStats,
+    });
     naivgate.navigate('CustomHalfModal', {
       wantedContent: 'SelectPaymentMethod',
       selectedPaymentMethod: null,
+      sub: t('screens.bitrefill.orderAmount', { amount }),
+      confirmText: `${t('constants.pay')} ${amount}`,
       onSelectMethod: method => payWithMethod(method),
     });
-  }, [naivgate, payWithMethod]);
+  }, [naivgate, payWithMethod, t, masterInfoObject, fiatStats]);
 
   const handleMessage = async e => {
     let data;
@@ -484,8 +498,11 @@ export default function BitrefillShopModal() {
     setStep('webview');
   };
   const handleEditEmail = () => {
+    // The WebView remounts on return; show the themed loader again.
+    initialLoadDone.current = false;
     setEmailValue(decryptedEmail);
     setStep('emailEdit');
+    setIsLoading(true);
   };
 
   const handleBack = useCallback(() => {
@@ -500,14 +517,19 @@ export default function BitrefillShopModal() {
   useHandleBackPressNew(handleBack);
 
   return (
-    <GlobalThemeView styles={isWeb ? undefined : styles.emailOverlayInner}>
-      <CustomSettingsTopBar
-        customBackFunction={handleBack}
-        containerStyles={styles.topBar}
-        label={showEmailScreen ? '' : t('apps.appList.shop')}
-        showLeftImage={!showEmailScreen}
-        iconNew="Settings"
-        leftImageFunction={handleEditEmail}
+    <GlobalThemeView
+      styles={
+        isWeb ? undefined : { ...styles.emailOverlayInner, width: contentWidth }
+      }
+    >
+      <TopBar
+        onBack={handleBack}
+        title={showEmailScreen ? '' : t('apps.appList.shop')}
+        right={
+          !showEmailScreen && (
+            <IconButton icon={'Settings'} onPress={handleEditEmail} />
+          )
+        }
       />
       <View style={styles.overlayContainr}>
         {/* WebView — lazy-mounted only when step === 'webview' to save ~20–40 MB renderer until user shops */}
@@ -554,6 +576,7 @@ export default function BitrefillShopModal() {
                   <CustomButton
                     actionFunction={openPaymentMethodSelection}
                     textContent={t('screens.bitrefill.completePayment')}
+                    size={'regular'}
                   />
                 </View>
               )}
@@ -566,71 +589,58 @@ export default function BitrefillShopModal() {
             <Animated.View
               style={[styles.emailOverlay, { backgroundColor }, emailAnimStyle]}
             >
-              <View style={styles.emailContent}>
-                <View style={styles.emailTopSection}>
-                  <ThemeText
-                    styles={styles.emailTitle}
-                    content={
-                      step === 'emailEdit' && decryptedEmail.length > 0
-                        ? t('screens.bitrefill.editEmail')
-                        : t('screens.bitrefill.addEmail')
-                    }
-                  />
-                  <ThemeText
-                    styles={styles.emailDescription}
-                    content={
-                      step === 'emailEdit' && decryptedEmail.length > 0
-                        ? t('screens.bitrefill.editEmailDesc')
-                        : t('screens.bitrefill.addEmailDesc')
-                    }
-                  />
+              <PageHeader
+                title={
+                  step === 'emailEdit' && decryptedEmail.length > 0
+                    ? t('screens.bitrefill.editEmail')
+                    : t('screens.bitrefill.addEmail')
+                }
+                sub={
+                  step === 'emailEdit' && decryptedEmail.length > 0
+                    ? t('screens.bitrefill.editEmailDesc')
+                    : t('screens.bitrefill.addEmailDesc')
+                }
+              />
 
-                  <ThemeText
-                    styles={styles.inputLabel}
-                    content={t('screens.bitrefill.textInputDescriptor')}
-                  />
-                  <View style={styles.inputCard}>
-                    <CustomSearchInput
-                      inputText={emailValue}
-                      setInputText={setEmailValue}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      placeholderText={t('screens.bitrefill.emailplaceholder')}
-                    />
-                  </View>
+              <UserInput
+                value={emailValue}
+                onChangeText={setEmailValue}
+                keyboardType="email-address"
+                placeholder={t('screens.bitrefill.emailplaceholder')}
+              />
+              <ThemeText
+                content={t('screens.bitrefill.emailHelper')}
+                variant={'hint'}
+                styles={styles.helperText}
+              />
 
-                  {emailValue.length > 0 && !isValidEmail && (
-                    <ThemeText
-                      styles={[
-                        styles.statusText,
-                        {
-                          color:
-                            theme && darkModeType
-                              ? COLORS.darkModeText
-                              : COLORS.cancelRed,
-                        },
-                      ]}
-                      content={t('screens.bitrefill.emailError')}
-                    />
-                  )}
-                </View>
+              {emailValue.length > 0 && !isValidEmail && (
+                <ThemeText
+                  styles={[
+                    styles.statusText,
+                    {
+                      color: tokens.danger,
+                    },
+                  ]}
+                  content={t('screens.bitrefill.emailError')}
+                />
+              )}
 
-                <View style={styles.buttonRow}>
-                  {step === 'emailReminder' && (
-                    <CustomButton
-                      buttonStyles={styles.halfButton}
-                      actionFunction={handleSkip}
-                      textContent={t('constants.skip')}
-                    />
-                  )}
-                  <CustomButton
-                    buttonStyles={styles.halfButton}
-                    actionFunction={handleSave}
-                    useLoading={isSaving}
-                    disabled={emailValue.length > 0 && !isValidEmail}
-                    textContent={t('constants.save')}
+              <View style={styles.buttonRow}>
+                <CustomButton
+                  actionFunction={handleSave}
+                  useLoading={isSaving}
+                  disabled={emailValue.length > 0 && !isValidEmail}
+                  textContent={t('constants.save')}
+                  size={'regular'}
+                />
+                {step === 'emailReminder' && (
+                  <TextButton
+                    text={t('constants.skip')}
+                    align="center"
+                    onPress={handleSkip}
                   />
-                </View>
+                )}
               </View>
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -641,26 +651,16 @@ export default function BitrefillShopModal() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 30,
-    paddingBottom: 0,
-  },
   overlayContainr: {
     flex: 1,
-    // Web: embedded page spans the full content column.
-    width: isWeb ? '100%' : WINDOWWIDTH,
-    position: 'relative',
-    ...CENTER,
-  },
-  topBar: {
-    width: WINDOWWIDTH,
-    ...CENTER,
   },
   webViewWrapper: {
     flex: 1,
   },
   webViewContainer: {
     flex: 1,
+    marginTop: 16,
+    borderRadius: 24,
     overflow: 'hidden',
   },
   webView: {
@@ -672,24 +672,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   repayOverlay: {
-    alignItems: 'center',
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-  },
-  editEmailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    // paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  editEmailText: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-  },
-  editEmailLink: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-    textDecorationLine: 'underline',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: CONTENT_KEYBOARD_OFFSET,
   },
   // ── Email overlay ──
   emailOverlay: {
@@ -702,58 +688,20 @@ const styles = StyleSheet.create({
   },
   emailOverlayInner: {
     paddingTop: 30,
-    width: WINDOWWIDTH,
     ...CENTER,
   },
-  emailContent: {
-    flex: 1,
-    ...(isWeb && { width: INSET_WINDOW_WIDTH, ...CENTER }),
-    // paddingHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-  emailTopSection: {
-    flex: 1,
-  },
-  emailTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
+  helperText: {
     marginTop: 10,
-    marginBottom: 8,
-  },
-  emailDescription: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-    opacity: 0.6,
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.55,
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    marginTop: 16,
-  },
-  inputCard: {
-    borderRadius: 12,
-    marginTop: 8,
-    justifyContent: 'center',
+    marginHorizontal: 4,
   },
   statusText: {
     fontSize: SIZES.small,
     includeFontPadding: false,
     marginTop: 8,
+    marginHorizontal: 4,
   },
   buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  halfButton: {
-    flex: 1,
-  },
-  skipButton: {
-    opacity: 0.5,
+    marginTop: 'auto',
+    gap: 10,
   },
 });

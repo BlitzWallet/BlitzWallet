@@ -5,7 +5,10 @@ import ThemeIcon from '../../../app/functions/CustomElements/themeIcon';
 
 // Avoid pulling the native secure-store chain through context-store/theme.
 jest.mock('../../../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    tokens: require('../../../app/constants/themes').MODES.light,
+  }),
 }));
 
 // themeIcon.js loads icons through './lucideIcons', which jest maps to

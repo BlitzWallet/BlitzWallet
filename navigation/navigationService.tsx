@@ -5,6 +5,9 @@ type RootStackParamList = {
   Details: { someParam?: string };
   ExpandedAddContactsPage: { newContact: object };
   ConfirmPaymentScreen: { btcAdress: string; fromPage?: string };
+  SendAmount: { btcAdress: string; paymentInfo: object; lockedAmount?: boolean };
+  SendDescription: { btcAdress: string; paymentInfo: object };
+  SendReview: { btcAdress: string; paymentInfo: object; description?: string };
   ErrorScreen: { errorMessage: string; useTranslationString?: boolean };
   WebUpdate: undefined;
   CustomHalfModal: {

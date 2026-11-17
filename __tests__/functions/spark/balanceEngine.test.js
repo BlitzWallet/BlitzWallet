@@ -1,14 +1,13 @@
 /* eslint-env jest */
 // ---------------------------------------------------------------------------
 // balanceEngine: the one mechanism that decides the displayed sats balance.
-// Written before the engine (AGENTS.md rule 5). Failure modes covered:
-//  E1  an increase event is not painted within the coalesce window
-//  E2  a burst commits more than once, or not with the last value
-//  E3  a sustained burst never commits (no max wait)
-//  E4  a non-finite event commits
-//  E5  an optimization dip shows (optimizationLocked not counted)
+// Breez events carry no balance: each one only triggers a coalesced read, and
+// the newest read wins. Failure modes covered:
+//  E1  an event does not lead to a painted read within the coalesce window
+//  E2  a burst reads more than once, or not with the last value
+//  E3  a sustained burst never reads (no max wait)
+//  E4  an event without a known type triggers a read
 //  E6  a real decrease outside a send is held
-//  E7  an event equal to the display commits (spurious reconcile)
 //  E8  an event lands while sending (mid-send leaf-lock dip shown)
 //  E9  a send's end never lands what was held
 //  E10 a send's end lands a held event older than the send's settle read
@@ -22,7 +21,6 @@
 //  E18 dispose() leaves timers or lets later input write
 //  E19 a failed settle read is never retried (missed change stays hidden)
 //  E20 settle retries never stop
-//  E21 a settle read that lost to a newer event is retried (wasted reads)
 //  E22 a retry reads during a send, or survives invalidate()
 // ---------------------------------------------------------------------------
 
@@ -66,68 +64,51 @@ beforeEach(() => jest.useFakeTimers());
 afterEach(() => jest.useRealTimers());
 
 describe('events', () => {
-  test('E1: an increase is painted within the coalesce window', async () => {
+  test('E1: an event leads to a painted read within the coalesce window', async () => {
     const { world, engine } = setup();
-    engine.onEvent({ available: 6000 });
-    await advance(400);
+    world.sdkRead = 6000;
+    engine.onEvent({ type: 'synced' });
+    await advance(600);
     expect(world.displayed).toBe(6000);
   });
 
-  test('E2: a burst commits once, with the last value', async () => {
+  test('E2: a burst reads once, with the last value', async () => {
     const { world, engine } = setup();
     for (let i = 1; i <= 5; i++) {
-      engine.onEvent({ available: 5000 + i * 10 });
+      world.sdkRead = 5000 + i * 10;
+      engine.onEvent({ type: 'paymentSucceeded' });
       await advance(50);
     }
     await advance(1000);
+    expect(world.reads).toBe(1);
     expect(world.commits.map(c => c.value)).toEqual([5050]);
   });
 
-  test('E3: a sustained burst still commits by the max wait', async () => {
+  test('E3: a sustained burst still reads by the max wait', async () => {
     const { world, engine } = setup();
+    world.sdkRead = 5001;
     for (let i = 1; i <= 20; i++) {
-      engine.onEvent({ available: 5000 + i });
+      engine.onEvent({ type: 'paymentPending' });
       await advance(100);
     }
     expect(world.commits.length).toBeGreaterThanOrEqual(1);
   });
 
-  test('E4: a non-finite event is ignored', async () => {
+  test('E4: an event without a known type triggers no read', async () => {
     const { world, engine } = setup();
-    engine.onEvent({ available: NaN });
-    engine.onEvent({ available: undefined });
+    engine.onEvent({ available: 6000 });
+    engine.onEvent({ type: 'autoOptimization' });
     await advance(2000);
+    expect(world.reads).toBe(0);
     expect(world.commits).toEqual([]);
-  });
-
-  test('E5: optimization-locked leaves count (device trace 2026-09-30)', async () => {
-    const { world, engine } = setup();
-    world.displayed = 81864;
-    engine.onEvent({ available: 49096, optimizationLocked: 32768 });
-    await advance(2000);
-    expect(world.commits).toEqual([]);
-    expect(world.displayed).toBe(81864);
-  });
-
-  test('E5b: a missing optimizationLocked counts as 0', async () => {
-    const { world, engine } = setup();
-    engine.onEvent({ available: 4000 });
-    await advance(400);
-    expect(world.displayed).toBe(4000);
   });
 
   test('E6: a real decrease outside a send lands', async () => {
     const { world, engine } = setup();
-    engine.onEvent({ available: 1000, optimizationLocked: 0 });
-    await advance(400);
+    world.sdkRead = 1000;
+    engine.onEvent({ type: 'paymentSucceeded' });
+    await advance(600);
     expect(world.displayed).toBe(1000);
-  });
-
-  test('E7: an event equal to the display does not commit', async () => {
-    const { world, engine } = setup();
-    engine.onEvent({ available: 5000 });
-    await advance(2000);
-    expect(world.commits).toEqual([]);
   });
 });
 
@@ -135,26 +116,30 @@ describe('sends', () => {
   test('E8: an event while sending is held', async () => {
     const { world, engine } = setup();
     world.sending = true;
-    engine.onEvent({ available: 0 });
+    world.sdkRead = 0;
+    engine.onEvent({ type: 'paymentPending' });
     await advance(2000);
+    expect(world.reads).toBe(0);
     expect(world.displayed).toBe(5000);
   });
 
   test('E9: the send end lands the newest held event', async () => {
     const { world, engine } = setup();
     world.sending = true;
-    engine.onEvent({ available: 0 });
-    engine.onEvent({ available: 4000 });
+    engine.onEvent({ type: 'paymentPending' });
+    engine.onEvent({ type: 'paymentSucceeded' });
     await advance(2000);
+    world.sdkRead = 4000;
     world.sending = false;
-    await engine.onSendingChange(false);
+    await Promise.all([engine.onSendingChange(false), advance(500)]);
     expect(world.commits.map(c => c.value)).toEqual([4000]);
   });
 
   test("E10: the send's settle read beats an event held before it", async () => {
     const { world, engine } = setup();
     world.sending = true;
-    engine.onEvent({ available: 0 }); // mid-send dip
+    world.sdkRead = 0;
+    engine.onEvent({ type: 'paymentPending' }); // mid-send dip, held
     await advance(400);
     world.sdkRead = 4000;
     await Promise.all([
@@ -163,9 +148,10 @@ describe('sends', () => {
     ]);
     expect(world.displayed).toBe(4000);
     world.sending = false;
-    await engine.onSendingChange(false);
+    await Promise.all([engine.onSendingChange(false), advance(500)]);
     await advance(2000);
-    expect(world.commits.map(c => c.value)).toEqual([4000]);
+    expect(world.displayed).toBe(4000);
+    expect(world.commits.every(c => c.value === 4000)).toBe(true);
   });
 
   test('E10b: an event after the settle read lands at the send end', async () => {
@@ -176,10 +162,11 @@ describe('sends', () => {
       engine.settle({ allowDuringSend: true }),
       advance(300),
     ]);
-    engine.onEvent({ available: 4100 });
+    world.sdkRead = 4100;
+    engine.onEvent({ type: 'paymentSucceeded' });
     await advance(2000);
     world.sending = false;
-    await engine.onSendingChange(false);
+    await Promise.all([engine.onSendingChange(false), advance(500)]);
     expect(world.commits.map(c => c.value)).toEqual([4000, 4100]);
   });
 
@@ -195,7 +182,7 @@ describe('sends', () => {
     });
     await advance(100);
     expect(released).toBe(false);
-    await advance(200);
+    await advance(500);
     expect(released).toBe(true);
     expect(world.displayed).toBe(4000);
   });
@@ -214,22 +201,12 @@ describe('reads', () => {
     world.sdkRead = 3000;
     const landed = engine.read();
     await advance(50);
-    engine.onEvent({ available: 7000 });
+    world.sdkRead = 7000;
+    engine.onEvent({ type: 'paymentSucceeded' });
     await advance(1000);
-    await expect(landed).resolves.toBe(false);
+    await landed;
     expect(world.displayed).toBe(7000);
-  });
-
-  test('E12b: a read clears an older staged event', async () => {
-    const { world, engine } = setup();
-    engine.onEvent({ available: 6000 });
-    world.sdkRead = 6500;
-    // Read starts after the event arrived but lands inside its coalesce window
-    world.readDelay = 100;
-    const landed = engine.read();
-    await advance(1000);
-    await expect(landed).resolves.toBe(true);
-    expect(world.commits.map(c => c.value)).toEqual([6500]);
+    expect(world.commits.map(c => c.value)).not.toContain(3000);
   });
 
   test('E13: a landed read commits its tokens', async () => {
@@ -237,9 +214,15 @@ describe('reads', () => {
     world.sdkRead = 5000;
     const landed = engine.read();
     await advance(300);
-    await expect(landed).resolves.toBe(true);
+    await expect(landed).resolves.toEqual({ landed: true });
     expect(world.commits).toEqual([
-      { value: 5000, source: 'read', tokens: { t: 1 } },
+      {
+        value: 5000,
+        source: 'read',
+        tokens: { t: 1 },
+        verified: false,
+        lastVerifiedAt: 0,
+      },
     ]);
   });
 
@@ -257,7 +240,7 @@ describe('reads', () => {
     world.readFails = true;
     const landed = engine.read();
     await advance(300);
-    await expect(landed).resolves.toBe(false);
+    await expect(landed).resolves.toEqual({ landed: false });
     expect(world.commits).toEqual([]);
   });
 
@@ -267,7 +250,7 @@ describe('reads', () => {
     world.sdkRead = 9000;
     const landed = engine.read();
     await advance(300);
-    await expect(landed).resolves.toBe(false);
+    await expect(landed).resolves.toEqual({ landed: false });
     expect(world.displayed).toBe(5000);
   });
 
@@ -280,8 +263,8 @@ describe('reads', () => {
     world.sdkRead = 2222;
     const fresh = engine.read();
     await advance(1000);
-    await expect(stale).resolves.toBe(false);
-    await expect(fresh).resolves.toBe(true);
+    await expect(stale).resolves.toEqual({ landed: false });
+    await expect(fresh).resolves.toEqual({ landed: true });
     expect(world.commits.map(c => c.value)).toEqual([2222]);
   });
 });
@@ -309,16 +292,6 @@ describe('settle retries', () => {
     expect(reads).toBeLessThanOrEqual(4);
   });
 
-  test('E21: a settle read that lost to a newer event is not retried', async () => {
-    const { world, engine } = setup();
-    engine.settle();
-    await advance(50);
-    engine.onEvent({ available: 7000 });
-    await advance(60000);
-    expect(world.reads).toBe(1);
-    expect(world.displayed).toBe(7000);
-  });
-
   test('E22: no retry while sending', async () => {
     const { world, engine } = setup();
     world.readFails = true;
@@ -343,9 +316,9 @@ describe('settle retries', () => {
 describe('lifecycle', () => {
   test('E18: dispose clears timers and ignores later input', async () => {
     const { world, engine } = setup();
-    engine.onEvent({ available: 6000 });
+    engine.onEvent({ type: 'paymentSucceeded' });
     engine.dispose();
-    engine.onEvent({ available: 7000 });
+    engine.onEvent({ type: 'paymentSucceeded' });
     await expect(engine.settle()).resolves.toBe(false);
     await advance(5000);
     expect(world.commits).toEqual([]);
@@ -353,10 +326,11 @@ describe('lifecycle', () => {
   });
 
   test('version() bumps on every commit', async () => {
-    const { engine } = setup();
+    const { world, engine } = setup();
     const v = engine.version();
-    engine.onEvent({ available: 6000 });
-    await advance(400);
+    world.sdkRead = 6000;
+    engine.onEvent({ type: 'paymentSucceeded' });
+    await advance(600);
     expect(engine.version()).toBe(v + 1);
   });
 });

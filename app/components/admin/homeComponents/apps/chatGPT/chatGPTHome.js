@@ -2,32 +2,28 @@ import { useNavigation } from '@react-navigation/native';
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
   TextInput,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
-  COLORS,
   FONT,
-  ICONS,
+  MAX_WEB_CONTENT_WIDTH,
   SATSPERBITCOIN,
-  SIZES,
 } from '../../../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { copyToClipboard } from '../../../../../functions';
-import ContextMenu from 'react-native-context-menu-view';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { HIDDEN_OPACITY, SHADOWS } from '../../../../../constants/theme';
-import ExampleGPTSearchCard from './exampleSearchCards';
+import { SHADOWS } from '../../../../../constants/theme';
+import QuestionDiscoveryGrid from './questionDiscoveryGrid';
 import saveChatGPTChat from './functions/saveChat';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import { getAIModels } from './contants/modelCache';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -37,105 +33,104 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
-import { tintStyle } from '../../../../../functions/webTintColor';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import { KeyboardController } from 'react-native-keyboard-controller';
 
-// Extract ChatMessage component for better performance
-const ChatMessage = ({
-  item,
-  onCopy,
-  onEdit,
-  backgroundOffset,
-  theme,
-  darkModeType,
-  textColor,
-  blitzLogoFilter,
-  screenDimensions,
-  t,
-}) => (
-  <ContextMenu
-    onPress={e => {
-      const targetEvent = e.nativeEvent.name;
-      if (targetEvent === t('constants.copy')) {
-        onCopy(item.content);
-      } else {
-        onEdit(item.content);
-      }
-    }}
-    previewBackgroundColor={backgroundOffset}
-    actions={[{ title: t('constants.copy') }, { title: t('constants.edit') }]}
-  >
-    <View style={[chatObjectStyles.container, { flexDirection: 'column' }]}>
+function MessageAction({ icon, label, onPress, tokens }) {
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      onPress={onPress}
+      style={styles.messageAction}
+    >
+      <ThemeIcon
+        redesign
+        iconName={icon}
+        size={16}
+        colorOverride={tokens.muted}
+      />
+      <ThemeText
+        styles={[styles.messageActionText, { color: tokens.muted }]}
+        content={label}
+      />
+    </TouchableOpacity>
+  );
+}
+
+// Avatar + name, the message, then Copy (and Edit on your own messages).
+const ChatMessage = ({ item, onCopy, onEdit, userInitial, t, tokens }) => {
+  const isUser = item.role === 'user';
+  const isError =
+    item.content?.toLowerCase() ===
+    t('errormessages.requestError').toLowerCase();
+  return (
+    <View style={styles.message}>
       <View style={styles.chatHeader}>
         <View
-          style={{
-            ...chatObjectStyles.profileIcon,
-            backgroundColor: theme
-              ? COLORS.darkModeText
-              : COLORS.lightModeBackgroundOffset,
-          }}
+          style={[
+            styles.avatar,
+            { backgroundColor: isUser ? tokens.accentPastel : tokens.disc },
+          ]}
         >
-          {item.role === 'user' ? (
-            <Image
-              style={[chatObjectStyles.logoIcon, tintStyle(blitzLogoFilter)]}
-              source={ICONS.logoIcon}
-            />
+          {isUser ? (
+            <ThemeText styles={styles.avatarText} content={userInitial} />
           ) : (
-            <ThemeIcon
-              colorOverride={COLORS.lightModeText}
-              size={15}
-              iconName={'Bot'}
-            />
+            <ThemeIcon redesign size={16} iconName={'Bot'} />
           )}
         </View>
         <ThemeText
-          styles={chatObjectStyles.userLabel}
+          styles={styles.userLabel}
           content={
-            item.role === 'user'
+            isUser
               ? t('apps.chatGPT.chatGPTHome.youText')
               : item?.responseBot || 'ChatGPT'
           }
         />
       </View>
-      <View style={styles.chatContent}>
-        {item.content ? (
+      {item.content ? (
+        <>
           <ThemeText
-            styles={{
-              color:
-                item.content.toLowerCase() ===
-                t('errormessages.requestError').toLowerCase()
-                  ? theme && darkModeType
-                    ? textColor
-                    : COLORS.cancelRed
-                  : textColor,
-              includeFontPadding: false,
-            }}
+            styles={[styles.messageText, isError && { color: tokens.danger }]}
             content={item.content}
           />
-        ) : (
-          <View style={{ width: screenDimensions.width * 0.95 * 0.95 - 35 }}>
-            <FullLoadingScreen size="small" showText={false} />
+          <View style={styles.messageActions}>
+            <MessageAction
+              icon="Copy"
+              label={t('constants.copy')}
+              onPress={() => onCopy(item.content)}
+              tokens={tokens}
+            />
+            {isUser && (
+              <MessageAction
+                icon="Pencil"
+                label={t('constants.edit')}
+                onPress={() => onEdit(item.content)}
+                tokens={tokens}
+              />
+            )}
           </View>
-        )}
-      </View>
+        </>
+      ) : (
+        <View style={styles.messageLoading}>
+          <FullLoadingScreen size="small" showText={false} />
+        </View>
+      )}
     </View>
-  </ContextMenu>
-);
+  );
+};
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
   const { showToast } = useToast();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { fiatStats } = useNodeContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset } = GetThemeColors();
-  const { screenDimensions } = useAppStatus();
+  const { theme, tokens } = useGlobalThemeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
 
   const chatHistoryFromProps = props.route.params?.chatHistory;
@@ -167,6 +162,11 @@ export default function ChatGPTHome(props) {
     () => [...chatHistory.conversation, ...newChats],
     [chatHistory.conversation, newChats],
   );
+  const modelName = aiModels.find(item => item.id === model)?.name || model;
+  const myProfile = globalContactsInformation?.myProfile || {};
+  const userInitial = (myProfile.name || myProfile.uniqueName || '?')
+    .charAt(0)
+    .toUpperCase();
 
   useEffect(() => {
     getAIModels().then(freshModels => {
@@ -183,13 +183,9 @@ export default function ChatGPTHome(props) {
     setChatHistory(JSON.parse(JSON.stringify(chatHistoryFromProps)));
   }, [chatHistoryFromProps]);
 
-  const blitzLogoFilter = useMemo(() => {
-    return theme && darkModeType ? COLORS.lightModeText : COLORS.primary;
-  }, [theme, darkModeType]);
-
   const handleCopy = useCallback(
     content => {
-      copyToClipboard(content, showToast, 'ChatGPT');
+      copyToClipboard(content, showToast);
     },
     [showToast],
   );
@@ -214,9 +210,10 @@ export default function ChatGPTHome(props) {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'switchGenerativeAiModel',
       setSelectedModel: setSearchModel,
+      currentModel: model,
       sliderHight: 0.7,
     });
-  }, [navigate]);
+  }, [navigate, model]);
 
   const openDrawer = useCallback(async () => {
     await KeyboardController.dismiss();
@@ -396,33 +393,15 @@ export default function ChatGPTHome(props) {
         item={item}
         onCopy={handleCopy}
         onEdit={handleEdit}
-        backgroundOffset={backgroundOffset}
-        theme={theme}
-        darkModeType={darkModeType}
-        textColor={textColor}
-        blitzLogoFilter={blitzLogoFilter}
-        screenDimensions={screenDimensions}
+        userInitial={userInitial}
         t={t}
+        tokens={tokens}
       />
     ));
-  }, [
-    conjoinedLists,
-    handleCopy,
-    handleEdit,
-    backgroundOffset,
-    theme,
-    darkModeType,
-    textColor,
-    blitzLogoFilter,
-    screenDimensions,
-    t,
-  ]);
+  }, [conjoinedLists, handleCopy, handleEdit, userInitial, t, tokens]);
 
   const hasNoChats = conjoinedLists.length === 0;
-  const showExampleCards =
-    chatHistory.conversation.length === 0 &&
-    userChatText.length === 0 &&
-    newChats.length === 0;
+  const canSend = !!userChatText.trim().length;
 
   return (
     <CustomKeyboardAvoidingView
@@ -430,182 +409,156 @@ export default function ChatGPTHome(props) {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        customBackFunction={() => keyboardNavigate(closeChat)}
-        containerStyles={{ marginBottom: 15 }}
-        centerContent={
+      <View style={[styles.content, { width: contentWidth }]}>
+        <View style={styles.topBar}>
+          <IconButton
+            icon="ArrowLeft"
+            label="constants.back"
+            onPress={() => keyboardNavigate(closeChat)}
+          />
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t('apps.chatGPT.switchModel.chooseModel')}
             onPress={openModelSelector}
-            style={[styles.switchModel, { backgroundColor: backgroundOffset }]}
+            style={[styles.modelPill, { backgroundColor: tokens.surface }]}
           >
             <ThemeText
               CustomNumberOfLines={1}
-              styles={styles.topBarText}
-              content={model}
+              styles={styles.modelPillText}
+              content={modelName}
             />
-            <ThemeIcon
-              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              iconName={'ChevronUp'}
-              size={20}
-            />
+            <ThemeIcon redesign iconName={'ChevronDown'} size={16} />
           </TouchableOpacity>
-        }
-        rightContent={
-          <TouchableOpacity onPress={openDrawer}>
-            <ThemeIcon iconName={'Menu'} />
-          </TouchableOpacity>
-        }
-      />
-
-      <ThemeText
-        styles={styles.creditsText}
-        content={t('apps.chatGPT.chatGPTHome.availableCredits', {
-          credits: totalAvailableCredits.toFixed(2),
-        })}
-      />
-
-      <View style={styles.container}>
-        {hasNoChats ? (
-          <View style={styles.emptyStateContainer}>
-            <View
-              style={[
-                styles.noChatHistoryImgContainer,
-                {
-                  backgroundColor: theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeBackgroundOffset,
-                },
-              ]}
-            >
-              <Image
-                style={[styles.emptyStateLogo, tintStyle(blitzLogoFilter)]}
-                source={ICONS.logoIcon}
-              />
-            </View>
-          </View>
-        ) : (
-          <View style={styles.flasListContianer}>
-            <CustomScrollView
-              style={styles.invertedScroll}
-              horizontal={false}
-              onScroll={handleScroll}
-              ref={flatListRef}
-              scrollEventThrottle={16}
-            >
-              <View style={styles.invertedContainer}>{userChatHistory}</View>
-            </CustomScrollView>
-            {showScrollBottomIndicator && (
-              <TouchableOpacity
-                activeOpacity={1}
-                onPress={scrollToBottom}
-                style={[
-                  styles.scrollToBottom,
-                  { backgroundColor: backgroundOffset },
-                ]}
-              >
-                <ThemeIcon size={20} iconName={'ArrowDown'} />
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-      </View>
-
-      {showExampleCards && (
-        <ExampleGPTSearchCard submitChaMessage={submitChaMessage} />
-      )}
-
-      <View style={styles.bottomBarContainer}>
-        <TextInput
-          keyboardAppearance={theme ? 'dark' : 'light'}
-          onChangeText={setUserChatText}
-          autoFocus={true}
-          placeholder={t('apps.chatGPT.chatGPTHome.inputPlaceholder', {
-            gptName: model,
-          })}
-          multiline={true}
-          placeholderTextColor={textColor}
-          style={[
-            styles.bottomBarTextInput,
-            { color: textColor, borderColor: textColor },
-          ]}
-          value={userChatText}
-          onFocus={() => setIsKeyboardFocused(true)}
-          onBlur={() => setIsKeyboardFocused(false)}
-        />
-        <TouchableOpacity
-          onPress={() => userChatText.length && submitChaMessage(userChatText)}
-          disabled={!userChatText.length}
-          style={[
-            styles.sendButton,
-            {
-              opacity: !userChatText.length ? HIDDEN_OPACITY : 1,
-              backgroundColor: theme
-                ? COLORS.lightModeBackground
-                : COLORS.lightModeText,
-            },
-          ]}
-        >
-          <ThemeIcon
-            colorOverride={
-              theme
-                ? darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.darkModeBackground
-                : COLORS.lightModeBackground
-            }
-            iconName={'ArrowUp'}
+          <IconButton
+            icon="Menu"
+            label="apps.chatGPT.chats"
+            onPress={openDrawer}
           />
-        </TouchableOpacity>
+        </View>
+
+        <ThemeText
+          styles={[styles.creditsText, { color: tokens.muted }]}
+          content={t('apps.chatGPT.chatGPTHome.creditsLeft', {
+            credits: totalAvailableCredits.toFixed(2),
+          })}
+        />
+
+        <View style={styles.container}>
+          {hasNoChats ? (
+            <CustomScrollView
+              keyboardShouldPersistTaps="always"
+              showsVerticalScrollIndicator={false}
+            >
+              <QuestionDiscoveryGrid onSelect={submitChaMessage} />
+            </CustomScrollView>
+          ) : (
+            <View style={styles.flasListContianer}>
+              <CustomScrollView
+                style={styles.invertedScroll}
+                horizontal={false}
+                onScroll={handleScroll}
+                ref={flatListRef}
+                scrollEventThrottle={16}
+              >
+                <View style={styles.invertedContainer}>{userChatHistory}</View>
+              </CustomScrollView>
+              {showScrollBottomIndicator && (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPress={scrollToBottom}
+                  style={[
+                    styles.scrollToBottom,
+                    { backgroundColor: tokens.surface },
+                  ]}
+                >
+                  <ThemeIcon redesign size={20} iconName={'ArrowDown'} />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </View>
+
+        <View style={styles.bottomBarContainer}>
+          <TextInput
+            keyboardAppearance={theme ? 'dark' : 'light'}
+            onChangeText={setUserChatText}
+            autoFocus={true}
+            placeholder={t('apps.chatGPT.chatGPTHome.inputPlaceholder', {
+              gptName: modelName,
+            })}
+            multiline={true}
+            placeholderTextColor={tokens.muted}
+            style={[
+              styles.bottomBarTextInput,
+              { color: tokens.ink, backgroundColor: tokens.surface },
+            ]}
+            value={userChatText}
+            onFocus={() => setIsKeyboardFocused(true)}
+            onBlur={() => setIsKeyboardFocused(false)}
+          />
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t('constants.send')}
+            onPress={() => canSend && submitChaMessage(userChatText)}
+            disabled={!canSend}
+            style={[
+              styles.sendButton,
+              { opacity: canSend ? 1 : 0.4, backgroundColor: tokens.accent },
+            ]}
+          >
+            <ThemeIcon
+              redesign
+              colorOverride={tokens.onAccent}
+              iconName={'ArrowUp'}
+              size={22}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+    ...CENTER,
+  },
   container: {
     flex: 1,
   },
-  switchModel: {
+  topBar: {
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    ...CENTER,
+    justifyContent: 'space-between',
+    gap: 8,
   },
-  topBarText: {
+  modelPill: {
     flexShrink: 1,
-    fontSize: SIZES.large,
-    marginRight: 5,
+    minHeight: 44,
+    paddingLeft: 16,
+    paddingRight: 14,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  modelPillText: {
+    flexShrink: 1,
+    fontSize: 15,
     includeFontPadding: false,
   },
-  topBarIcon: {
-    transform: [{ rotate: '90deg' }],
-    width: 20,
-    height: 20,
-  },
   creditsText: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 8,
     textAlign: 'center',
-  },
-  emptyStateContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noChatHistoryImgContainer: {
-    width: 50,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-  },
-  emptyStateLogo: {
-    width: '50%',
-    height: '50%',
+    includeFontPadding: false,
   },
   flasListContianer: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 8,
     position: 'relative',
   },
   invertedScroll: {
@@ -613,6 +566,8 @@ const styles = StyleSheet.create({
   },
   invertedContainer: {
     transform: [{ scaleY: -1 }],
+    gap: 16,
+    paddingVertical: 16,
   },
   scrollToBottom: {
     width: 40,
@@ -626,70 +581,82 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -20 }],
     ...SHADOWS.small,
   },
-  scrollToBottomIcon: {
-    width: 20,
-    height: 20,
-    transform: [{ rotate: '270deg' }],
+  message: {
+    width: '100%',
   },
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    gap: 8,
   },
-  chatContent: {
-    flex: 1,
-    paddingLeft: 40,
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 12,
+    includeFontPadding: false,
+  },
+  userLabel: {
+    fontSize: 14,
+    includeFontPadding: false,
+  },
+  messageText: {
+    fontSize: 15,
+    lineHeight: 23,
+    marginTop: 6,
+    marginLeft: 36,
+    includeFontPadding: false,
+  },
+  messageActions: {
+    flexDirection: 'row',
+    marginLeft: 36,
+  },
+  messageAction: {
+    minHeight: 44,
+    paddingHorizontal: 12,
+    marginLeft: -12,
+    marginRight: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  messageActionText: {
+    fontSize: 13,
+    includeFontPadding: false,
+  },
+  messageLoading: {
+    marginLeft: 36,
+    marginTop: 6,
+    alignItems: 'flex-start',
   },
   bottomBarContainer: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    ...CENTER,
-    marginTop: 5,
+    alignItems: 'flex-end',
+    gap: 10,
+    marginTop: 8,
   },
   bottomBarTextInput: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    minHeight: 52,
     maxHeight: 150,
-    borderRadius: 20,
-    borderWidth: 1,
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingHorizontal: 18,
+    borderRadius: 26,
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
+    fontSize: 15,
     includeFontPadding: false,
   },
   sendButton: {
-    width: 45,
-    height: 45,
+    width: 52,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 40,
-    marginLeft: 10,
-  },
-});
-
-const chatObjectStyles = StyleSheet.create({
-  container: {
-    width: '100%',
-    flexDirection: 'row',
-    marginVertical: 10,
-  },
-  profileIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 5,
-  },
-  logoIcon: {
-    height: '50%',
-    width: '50%',
-  },
-  userLabel: {
-    fontWeight: '500',
-    marginLeft: 5,
-    includeFontPadding: false,
+    borderRadius: 26,
   },
 });

@@ -13,10 +13,9 @@ export default function ContactProfileImage({
   priority = 'high',
   contentFit = 'cover',
   uri,
-  darkModeType,
-  theme,
   updated,
   fromCustomQR = false,
+  onLoadFailed,
 }) {
   const [loadError, setLoadError] = useState(false);
   const failedImageLoadURI = useRef('');
@@ -27,11 +26,7 @@ export default function ContactProfileImage({
     failedImageLoadURI.current = '';
   }, [uri, updated]);
 
-  const fallbackIcon = fromCustomQR
-    ? ICONS.logoWithPadding
-    : darkModeType && theme
-    ? ICONS.userWhite
-    : ICONS.userIcon;
+  const fallbackIcon = fromCustomQR ? ICONS.logoWithPadding : ICONS.userIcon;
 
   const customURI = useMemo(() => {
     if (!uri) return null;
@@ -62,8 +57,9 @@ export default function ContactProfileImage({
 
       setLoadError(true);
       failedImageLoadURI.current = customURI;
+      onLoadFailed?.();
     },
-    [customURI],
+    [customURI, onLoadFailed],
   );
 
   const onLoad = useCallback(() => {

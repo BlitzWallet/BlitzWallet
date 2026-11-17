@@ -1,0 +1,64 @@
+# Wallet recovery address -> fee -> review on an empty wallet. Never taps Start recovery.
+# Brand-new empty wallet only. Run with `yarn e2e:ios` / `yarn e2e:android`.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: deny
+- extendedWaitUntil:
+    visible: Get Started
+    timeout: 60000
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# Create PIN, then Confirm Pin.
+- repeat:
+    times: 8
+    commands:
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: '(?i)total balance'
+    timeout: 90000
+# Home top-right profile icon -> SettingsHub (no text/testID; same tap as
+# nwc-account-gate.yaml). VERIFY on first run.
+- tapOn:
+    point: 90%,8%
+# VERIFY: the "Wallet recovery" row may sit below the fold in the hub.
+- scrollUntilVisible:
+    element: Wallet recovery
+- tapOn: Wallet recovery
+- assertVisible: Take your money out yourself
+- tapOn: "I understand this is a last resort.*"
+- tapOn: Continue
+- assertVisible: Where should the funds go?
+# VERIFY: the input is found by its placeholder text "bc1..."; hint text may
+# not be selectable on every platform (fallback: tapOn the input by point).
+- tapOn: 'bc1\.\.\.'
+- inputText: notanaddress
+- tapOn: Next
+- assertVisible: That isn't a valid Bitcoin address.
+- eraseText: 40
+- inputText: bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu
+- tapOn: Next
+- assertVisible: Choose a network fee
+# Fee rates load from the network; the Review button enables once they arrive.
+- extendedWaitUntil:
+    visible:
+      text: Review
+      enabled: true
+    timeout: 60000
+- tapOn: Review
+- extendedWaitUntil:
+    visible: Nothing can be exited right now.*
+    timeout: 60000
+- assertNotVisible:
+    text: Start recovery
+    enabled: true
+- takeScreenshot: unilateral-exit-address-review

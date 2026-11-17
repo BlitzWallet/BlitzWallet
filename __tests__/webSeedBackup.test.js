@@ -9,6 +9,9 @@ const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: mockNavigate }),
 }));
+jest.mock('react-native-keyboard-controller', () => ({
+  KeyboardController: { dismiss: jest.fn() },
+}));
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: key => key }),
 }));
@@ -43,7 +46,6 @@ jest.mock('../app/functions/CustomElements', () => ({
 jest.mock('../app/components/login', () => ({
   KeyContainer: props => require('react').createElement('MockKeys', props),
 }));
-jest.mock('../app/components/login/navBar', () => () => null);
 jest.mock(
   '../app/functions/CustomElements/button',
   () => props => require('react').createElement('MockButton', props),

@@ -2,7 +2,6 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useReducer,
   useEffect,
   useMemo,
   useRef,
@@ -13,11 +12,8 @@ import {
   findBestPool,
   USD_ASSET_ADDRESS,
   swapBitcoinToToken,
-  getUserSwapHistory,
   minFlashnetSwapAmounts,
-  checkClawbackEligibility,
   requestManualClawback,
-  dollarsToSats,
   currentPriceAinBToPriceDollars,
   addActiveSwap,
   removeActiveSwap,
@@ -25,6 +21,7 @@ import {
   completeSwapConfirmation,
   retryPendingSwapConfirmations,
   SEND_AMOUNT_INCREASE_BUFFER,
+  isSwapInFlight,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -34,7 +31,6 @@ import {
   getSparkPaymentStatus,
   initializeFlashnet,
 } from '../app/functions/spark';
-import { USDB_TOKEN_ID } from '../app/constants';
 import {
   bulkUpdateSparkTransactions,
   deleteUnpaidSparkLightningTransaction,
@@ -47,9 +43,7 @@ import {
 import {
   isFlashnetTransfer,
   loadSavedTransferIds,
-  setFlashnetTransfer,
 } from '../app/functions/spark/handleFlashnetTransferIds';
-import { useToast } from './toastManager';
 import { useAuthContext } from './authContext';
 import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
@@ -65,7 +59,6 @@ const poolInfoChanged = (next, prev) =>
   POOL_WATCHED_KEYS.some(k => next?.[k] !== prev?.[k]);
 
 export function FlashnetProvider({ children }) {
-  const { showToast } = useToast();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { appState } = useAppStatus();
   const { sparkInformation, sparkInfoRef, setSparkInformation } =
@@ -552,6 +545,7 @@ export function FlashnetProvider({ children }) {
       if (appState !== 'active') return;
       if (!sparkInformation.didConnectToFlashnet) return;
       if (!currentWalletMnemoincRef.current) return;
+      if (isSwapInFlight()) return;
 
       const refundableTransfers = await listClawbackableTransfers(
         currentWalletMnemoincRef.current,
@@ -573,23 +567,19 @@ export function FlashnetProvider({ children }) {
       for (const transfer of uniqueTransfers) {
         const transferId = transfer.id;
 
-        const eligibility = await checkClawbackEligibility(
+        const createdAt = Date.parse(transfer.createdAt);
+        if (createdAt && Date.now() - createdAt > 23 * 60 * 60 * 1000) continue;
+
+        console.warn('[Flashnet Refund Monitor] Refundable', transferId);
+
+        const response = await requestManualClawback(
           currentWalletMnemoincRef.current,
           transferId,
+          transfer.lpIdentityPublicKey,
         );
 
-        if (eligibility.didWork && eligibility.response) {
-          console.warn('[Flashnet Refund Monitor] Refundable', transferId);
-
-          const response = await requestManualClawback(
-            currentWalletMnemoincRef.current,
-            transferId,
-            transfer.lpIdentityPublicKey,
-          );
-
-          if (response.didWork && response.accepted) {
-            await new Promise(res => setTimeout(res, 500));
-          }
+        if (response.didWork && response.accepted) {
+          await new Promise(res => setTimeout(res, 500));
         }
       }
     } catch (err) {

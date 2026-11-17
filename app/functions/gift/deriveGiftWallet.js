@@ -2,7 +2,7 @@ import { HDKey } from '@scure/bip32';
 import { entropyToMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { mnemonicToSeedAsync } from '../nostrCompatability';
-import { bech32m } from 'bech32';
+import { encodeSparkAddress } from '../spark/sparkAddressCodec';
 import { GIFT_DERIVE_PATH_CUTOFF } from '../../constants';
 import { deriveKeyFromMnemonic } from '../seed';
 
@@ -140,27 +140,9 @@ export function deriveSparkAddress(identityPublicKey) {
       );
     }
 
-    const hrp = 'spark';
-    const pubKeyLength = identityPublicKey.length; // 33 (0x21 in hex)
-
-    // 1. Create the Protobuf-like payload
-    // The total payload length is 1 (tag) + 1 (length byte) + 33 (pub key) = 35 bytes
-    const dataPayload = new Uint8Array(2 + pubKeyLength);
-
-    // Byte 0: Protobuf Tag (Field 1, Wire Type 2: Length-delimited) = 0x0A
-    dataPayload[0] = 0x0a;
-
-    // Byte 1: Length of the data (33 bytes / 0x21)
-    dataPayload[1] = pubKeyLength;
-
-    // Bytes 2-34: The 33-byte compressed public key
-    dataPayload.set(identityPublicKey, 2);
-
-    // 2. Convert the 35-byte payload to 5-bit words
-    const words = bech32m.toWords(dataPayload);
-
-    // 3. Encode with Bech32m
-    const address = bech32m.encode(hrp, words);
+    const address = encodeSparkAddress({
+      identityPublicKey: Buffer.from(identityPublicKey).toString('hex'),
+    });
 
     return {
       success: true,

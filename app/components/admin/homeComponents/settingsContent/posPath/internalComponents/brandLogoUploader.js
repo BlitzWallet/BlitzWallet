@@ -1,6 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../../../context-store/imageCache';
 import { useMemo, useState } from 'react';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -10,14 +9,11 @@ import {
   setDatabaseIMG,
 } from '../../../../../../../db/photoStorage';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, SIZES } from '../../../../../../constants';
 import { Image } from 'expo-image';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
 import { ThemeText } from '../../../../../../functions/CustomElements';
-import CustomButton from '../../../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
-import { HIDDEN_OPACITY } from '../../../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
+import { useTheme } from '../../../../../../../context-store/theme';
 
 export default function BrandLogoUploader({
   onLogoChange,
@@ -28,9 +24,8 @@ export default function BrandLogoUploader({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { refreshCache, removeProfileImageFromCache } = useImageCache();
-  const { theme } = useGlobalThemeContext();
+  const { tokens } = useTheme();
   const [isUploading, setIsUploading] = useState(false);
 
   const getPOSImageKey = () => `${masterInfoObject.uuid}_POS`;
@@ -157,114 +152,126 @@ export default function BrandLogoUploader({
   }, [brandLogoUri, brandLogoUpdated]);
 
   return (
-    <View style={styles.logoSection}>
-      <ThemeText
-        styles={styles.sectionCardLabel}
-        content={t('settings.posPath.settings.brandLogo')}
-      />
-      <View
-        style={[styles.logoContainer, { backgroundColor: backgroundOffset }]}
-      >
-        {isUploading ? (
-          <FullLoadingScreen
-            showText={false}
-            containerStyles={{ minHeight: 100 }}
+    <View>
+      {isUploading ? (
+        <View style={[styles.emptyCard, { backgroundColor: tokens.surface }]}>
+          <FullLoadingScreen showText={false} />
+        </View>
+      ) : brandLogoSource ? (
+        <View style={[styles.card, { backgroundColor: tokens.surface }]}>
+          <Image
+            source={{ uri: brandLogoSource }}
+            style={[styles.logoImage, { backgroundColor: tokens.disc }]}
+            contentFit="cover"
           />
-        ) : brandLogoSource ? (
-          <View style={styles.logoPreviewContainer}>
-            <View style={styles.logoPreview}>
-              <Image
-                source={{ uri: brandLogoSource }}
-                style={styles.logoImage}
-                contentFit="contain"
-              />
-            </View>
+          <View style={styles.logoInfo}>
+            <ThemeText
+              styles={styles.title}
+              content={t('settings.posPath.settings.brandLogo')}
+            />
             <View style={styles.logoButtons}>
-              <CustomButton
-                buttonStyles={styles.logoButton}
-                actionFunction={pickImage}
-                textContent={t('settings.posPath.settings.changeLogo')}
-              />
-              <CustomButton
-                buttonStyles={styles.logoButton}
-                actionFunction={handleRemoveLogo}
-                textContent={t('settings.posPath.settings.removeLogo')}
-              />
+              <TouchableOpacity
+                accessibilityRole="button"
+                onPress={pickImage}
+                style={[styles.pill, { backgroundColor: tokens.disc }]}
+              >
+                <ThemeText
+                  styles={styles.pillText}
+                  content={t('settings.posPath.settings.changeLogo')}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                accessibilityRole="button"
+                onPress={handleRemoveLogo}
+                style={styles.pill}
+              >
+                <ThemeText
+                  styles={[styles.pillText, { color: tokens.muted }]}
+                  content={t('settings.posPath.settings.removeLogo')}
+                />
+              </TouchableOpacity>
             </View>
           </View>
-        ) : (
-          <TouchableOpacity
-            style={[
-              styles.logoUploadPlaceholder,
-              { borderColor: COLORS.opaicityGray },
-            ]}
-            onPress={pickImage}
-            disabled={isUploading}
-          >
-            <ThemeIcon iconName={'Image'} size={48} />
-            <ThemeText
-              styles={styles.logoUploadText}
-              content={t('settings.posPath.settings.uploadLogo')}
-            />
-            <ThemeText styles={styles.logoSizeText} content={'400 × 400 px'} />
-          </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      ) : (
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[
+            styles.emptyCard,
+            { backgroundColor: tokens.surface, borderColor: tokens.divider },
+          ]}
+          onPress={pickImage}
+        >
+          <ThemeIcon
+            redesign
+            iconName={'Image'}
+            size={24}
+            colorOverride={tokens.muted}
+          />
+          <ThemeText
+            styles={styles.title}
+            content={t('settings.posPath.settings.addLogo')}
+          />
+          <ThemeText
+            styles={[styles.sizeText, { color: tokens.muted }]}
+            content={t('settings.posPath.settings.logoSize')}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
 const styles = StyleSheet.create({
-  logoSection: {
-    // marginTop: 20,
-  },
-  sectionCardLabel: {
-    fontSize: SIZES.small,
-    textTransform: 'uppercase',
-    opacity: 0.7,
-    includeFontPadding: false,
-    marginBottom: 8,
-  },
-  logoContainer: {
-    borderRadius: 8,
+  card: {
+    borderRadius: 20,
     padding: 16,
-  },
-  logoPreviewContainer: {
-    gap: 12,
-  },
-  logoPreview: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 14,
   },
   logoImage: {
-    width: 128,
-    height: 128,
-    borderRadius: 8,
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+  },
+  logoInfo: { flex: 1, minWidth: 0 },
+  title: {
+    fontSize: 15,
+    lineHeight: 21,
+    includeFontPadding: false,
   },
   logoButtons: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
+    marginTop: 6,
   },
-  logoButton: {
-    flex: 1,
+  pill: {
+    minHeight: 44,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    justifyContent: 'center',
   },
-  logoUploadPlaceholder: {
-    paddingVertical: 32,
+  pillText: {
+    fontSize: 14,
+    lineHeight: 20,
+    includeFontPadding: false,
+  },
+  emptyCard: {
+    minHeight: 112,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
   },
-  logoUploadText: {
-    marginTop: 8,
-    fontSize: SIZES.small,
-    textAlign: 'center',
-  },
-  logoSizeText: {
-    marginTop: 8,
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
+  sizeText: {
+    fontSize: 13,
+    lineHeight: 19,
+    includeFontPadding: false,
     textAlign: 'center',
   },
 });

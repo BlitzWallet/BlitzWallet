@@ -3,11 +3,10 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
-import { CENTER } from '../../../../../constants';
+import { SIZES } from '../../../../../constants/theme';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import createNWCConnectionString, {
@@ -15,10 +14,13 @@ import createNWCConnectionString, {
 } from '../../../../../functions/nwc/createConnectionString';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useTranslation } from 'react-i18next';
-import CustomButton from '../../../../../functions/CustomElements/button';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 
 export default function NWCAccountPage(props) {
   const navigate = useNavigation();
@@ -27,8 +29,10 @@ export default function NWCAccountPage(props) {
   const accountID = props?.route?.params?.accountID;
   const savedData = masterInfoObject?.NWC?.accounts?.[accountID] || {};
   const { fiatStats } = useNodeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const handleDelete = () => {
     const updatedAccounts = { ...(masterInfoObject?.NWC?.accounts || {}) };
@@ -42,7 +46,9 @@ export default function NWCAccountPage(props) {
   ).filter(Boolean).length;
 
   const renewalPeriod = savedData?.budgetRenewalSettings?.option
-    ? t(`timeLabels.${savedData.budgetRenewalSettings.option.toLowerCase()}`)
+    ? t(
+        `settings.nwc.authRequest.period.${savedData.budgetRenewalSettings.option.toLowerCase()}`,
+      )
     : '';
 
   const budgetSummary =
@@ -51,7 +57,7 @@ export default function NWCAccountPage(props) {
           amount: savedData.budgetRenewalSettings.amount,
           masterInfoObject,
           fiatStats,
-        })}${renewalPeriod ? ` / ${renewalPeriod}` : ''}`
+        })}${renewalPeriod ? ` ${renewalPeriod}` : ''}`
       : t('constants.unlimited');
 
   const connectionString = createNWCConnectionString({
@@ -69,6 +75,7 @@ export default function NWCAccountPage(props) {
       label: t('settings.nwc.accountPage.nameLabel'),
       value: savedData.accountName,
       screen: 'CreateNWCName',
+      icon: 'Pencil',
     },
     {
       key: 'permissions',
@@ -78,30 +85,59 @@ export default function NWCAccountPage(props) {
       }),
       screen: 'CreateNWCPermissions',
       name: savedData.accountName,
+      icon: 'ShieldCheck',
     },
     {
       key: 'budget',
       label: t('settings.nwc.accountPage.amountLabel'),
       value: budgetSummary,
       screen: 'CreateNWCAmount',
+      icon: 'Target',
     },
   ];
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('settings.nwc.accountPage.title')} />
-      <CustomScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          {editableItems.map((item, index) => (
-            <View key={item.key}>
-              {index > 0 && (
-                <View style={[styles.divider, { backgroundColor }]} />
-              )}
-              <TouchableOpacity
-                style={styles.row}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={savedData.accountName}
+          right={
+            <IconButton
+              icon={'Trash2'}
+              label={'settings.nwc.accountPage.deleteAccount'}
+              onPress={() => {
+                navigate.navigate('ConfirmDialog', {
+                  title: t('settings.nwc.deleteDialog.title'),
+                  message: t('settings.nwc.deleteDialog.message', {
+                    name: savedData.accountName,
+                  }),
+                  cancelLabel: t('constants.cancel'),
+                  confirmLabel: t('constants.delete'),
+                  onConfirm: handleDelete,
+                });
+              }}
+            />
+          }
+        />
+
+        <CustomScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <ListCard>
+            {editableItems.map((item, index) => (
+              <ListRow
+                key={item.key}
+                lead={<Disc icon={item.icon} />}
+                title={item.label}
+                trailing={
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={[styles.rowValue, { color: tokens.muted }]}
+                    content={item.value}
+                  />
+                }
+                showChevron={true}
                 onPress={() =>
                   navigate.navigate(item.screen, {
                     accountID,
@@ -109,101 +145,43 @@ export default function NWCAccountPage(props) {
                     accountName: item.name,
                   })
                 }
-              >
-                <ThemeText styles={styles.rowLabel} content={item.label} />
-                <View style={styles.rowRight}>
-                  <ThemeText
-                    CustomNumberOfLines={1}
-                    styles={styles.rowValue}
-                    content={item.value}
-                  />
-                  <ThemeIcon iconName="ChevronRight" size={18} />
-                </View>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-
-        {/* Connections an app created itself (NWC-08) have no secret to show. */}
-        {!!savedData.secret && (
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <TouchableOpacity
-              style={styles.row}
-              onPress={() => {
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'customQrCode',
-                  data: connectionString,
-                });
-              }}
-            >
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t('settings.nwc.accountPage.viewSecretLabel')}
               />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          </View>
-        )}
-      </CustomScrollView>
-      <CustomButton
-        actionFunction={() => {
-          navigate.navigate('ConfirmActionPage', {
-            confirmFunction: handleDelete,
-            confirmMessage: t('settings.nwc.confirmDelete'),
-          });
-        }}
-        textContent={t('settings.nwc.accountPage.deleteAccount')}
-        buttonStyles={styles.buttonStyles}
-      />
+            ))}
+          </ListCard>
+
+          {/* Connections an app created itself (NWC-08) have no secret to show. */}
+          {!!savedData.secret && (
+            <ListCard style={{ marginTop: 10 }}>
+              <ListRow
+                lead={<Disc icon={'QrCode'} />}
+                title={t('settings.nwc.accountPage.viewSecretLabel')}
+                showChevron={true}
+                onPress={() => {
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'nwcConnectionString',
+                    data: connectionString,
+                    accountName: savedData.accountName,
+                  });
+                }}
+              />
+            </ListCard>
+          )}
+        </CustomScrollView>
+      </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    ...CENTER,
+  },
   scrollContent: {
-    paddingTop: 10,
+    paddingTop: 20,
     flexGrow: 1,
   },
-  card: {
-    alignSelf: 'center',
-    width: INSET_WINDOW_WIDTH,
-    borderRadius: 16,
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    gap: 15,
-    minHeight: 50,
-  },
-  rowLabel: {
-    width: '100%',
-    flexShrink: 1,
-    includeFontPadding: false,
-  },
-  rowRight: {
-    width: '100%',
-    flexShrink: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
   rowValue: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    flexShrink: 1,
-    includeFontPadding: false,
-  },
-  divider: {
-    height: 2,
-    marginLeft: 16,
-  },
-  buttonStyles: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    fontSize: SIZES.smedium,
   },
 });

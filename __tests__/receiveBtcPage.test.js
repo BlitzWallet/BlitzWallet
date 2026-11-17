@@ -69,6 +69,14 @@ jest.mock('../app/functions/spark/flashnet', () => ({
   satsToDollars: jest.fn(sats => sats / 2000),
 }));
 
+jest.mock('../app/functions/handleShare', () => ({
+  shareMessage: jest.fn(async () => ({ success: true })),
+}));
+
+jest.mock('../db', () => ({
+  addDataToCollection: jest.fn(async () => true),
+}));
+
 jest.mock('../context-store/context', () => ({
   useGlobalContextProvider: () => ({
     masterInfoObject: {
@@ -86,17 +94,18 @@ jest.mock('../context-store/nodeContext', () => ({
   }),
 }));
 
-jest.mock('../context-store/webViewContext', () => ({
-  useWebView: () => ({
-    sendWebViewRequest: jest.fn(),
-  }),
+// QrCard reads the profile image cache; the real provider isn't mounted here.
+jest.mock('../context-store/imageCache', () => ({
+  useImageCache: () => ({ cache: {} }),
 }));
 
 jest.mock('../context-store/theme', () => ({
   useGlobalThemeContext: () => ({
     theme: false,
     darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
   }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../context-store/flashnetContext', () => ({
@@ -199,6 +208,7 @@ jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   backgroundColor: '#ffffff',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../app/hooks/usePaymentInputDisplay', () => {
@@ -250,37 +260,6 @@ jest.mock('../app/functions/CustomElements', () => {
       MockReact.createElement(RN.Text, { testID: `text-${content}` }, content),
   };
 });
-
-jest.mock(
-  '../app/functions/CustomElements/settingsTopBar',
-  () =>
-    function MockCustomSettingsTopBar({ label, leftImageFunction }) {
-      const MockReact = require('react');
-      const RN = require('react-native');
-
-      return MockReact.createElement(
-        RN.View,
-        { testID: 'settings-top-bar' },
-        MockReact.createElement(RN.Text, { testID: 'top-bar-label' }, label),
-        MockReact.createElement(
-          RN.TouchableOpacity,
-          { testID: 'top-bar-edit', onPress: leftImageFunction },
-          MockReact.createElement(RN.Text, null, 'Top bar edit'),
-        ),
-      );
-    },
-);
-
-jest.mock(
-  '../app/functions/CustomElements/QrWrapper',
-  () =>
-    function MockQrCodeWrapper({ QRData }) {
-      const MockReact = require('react');
-      const RN = require('react-native');
-
-      return MockReact.createElement(RN.Text, { testID: 'qr-data' }, QRData);
-    },
-);
 
 jest.mock(
   '../app/functions/CustomElements/loadingScreen',
@@ -342,6 +321,10 @@ jest.mock('react-native-worklets', () => ({
 }));
 
 const { copyToClipboard } = require('../app/functions');
+const { addDataToCollection } = require('../db');
+const { shareMessage } = require('../app/functions/handleShare');
+const QrCard =
+  require('../app/functions/CustomElements/redesign/QrCard').default;
 const ReceivePaymentHome =
   require('../app/screens/inAccount/receiveBtcPage').default;
 
@@ -378,8 +361,18 @@ function allText(renderer) {
     .filter(Boolean);
 }
 
+// The address/invoice is shown as the QR card's value (there is no address
+// caption under it any more); `' '` is the "not ready" placeholder.
+function qrValue(renderer) {
+  return renderer.root.findAllByType(QrCard)[0]?.props.value.trim() || '';
+}
+
 function expectText(renderer, text) {
   expect(allText(renderer)).toContain(text);
+}
+
+function expectTextIncluding(renderer, text) {
+  expect(allText(renderer).some(line => line.includes(text))).toBe(true);
 }
 
 function queryText(renderer, text) {
@@ -389,10 +382,9 @@ function queryText(renderer, text) {
 function findTouchableByText(renderer, text) {
   const touchables = renderer.root.findAllByType(TouchableOpacity);
   const match = touchables.find(node => {
-    return node.findAllByType(Text).some(textNode => {
-      console.log(flattenText(textNode.props.children), 'text node', text);
-      return flattenText(textNode.props.children).includes(text);
-    });
+    return node
+      .findAllByType(Text)
+      .some(textNode => flattenText(textNode.props.children).includes(text));
   });
 
   if (!match) {
@@ -419,7 +411,7 @@ function findTouchableByExactText(renderer, text) {
 
 function press(node) {
   act(() => {
-    node.props.onPress();
+    node.props.onPress?.();
   });
 }
 
@@ -427,17 +419,40 @@ function pressText(renderer, text) {
   press(findTouchableByText(renderer, text));
 }
 
-function advanceToggleDebounce() {
-  act(() => {
-    jest.advanceTimersByTime(300);
+// Sharing builds a paylink (await db write) before opening the share sheet, so
+// let the promise chain settle inside act.
+async function pressShare(renderer) {
+  await act(async () => {
+    findTouchableByText(renderer, 'receive.share').props.onPress?.();
+    for (let i = 0; i < 5; i++) await Promise.resolve();
   });
 }
 
-function latestCustomHalfModalParams() {
-  const call = [...mockNavigation.navigate.mock.calls]
-    .reverse()
-    .find(([screen]) => screen === 'CustomHalfModal');
-  return call?.[1];
+function sharedMessages() {
+  return shareMessage.mock.calls.map(([content]) => content.message);
+}
+
+function sharedPaylinkURL(callIndex = -1) {
+  const messages =
+    callIndex < 0
+      ? sharedMessages()
+      : sharedMessages().slice(callIndex, callIndex + 1);
+  return messages[messages.length - 1];
+}
+
+function pressQrCard(renderer) {
+  const card = renderer.root.findAllByType(QrCard)[0];
+  press(card.findAllByType(TouchableOpacity)[0]);
+}
+
+function pressTopBarEdit(renderer) {
+  const editButton = renderer.root.findAll(
+    n =>
+      n.props?.accessibilityLabel === 'constants.edit' &&
+      typeof n.props?.onPress === 'function',
+  )[0];
+  if (!editButton) throw new Error('Could not find the top bar edit button');
+  press(editButton);
 }
 
 describe('ReceivePaymentHome', () => {
@@ -458,8 +473,8 @@ describe('ReceivePaymentHome', () => {
       const renderer = await renderReceive();
 
       expect(mockInitializeAddressProcess).not.toHaveBeenCalled();
-      expectText(renderer, 'alice-e40605@blitzwalletapp.com');
-      expectText(renderer, 'No description');
+      expect(qrValue(renderer)).toBe('alice-e40605@blitzwalletapp.com');
+      expectText(renderer, 'receive.anyAmountSub');
       expect(queryText(renderer, 'Minimum USD swap 2000 sats')).toBe(false);
     });
 
@@ -467,7 +482,7 @@ describe('ReceivePaymentHome', () => {
       const renderer = await renderReceive({ endReceiveType: 'USD' });
 
       expect(mockInitializeAddressProcess).not.toHaveBeenCalled();
-      expectText(renderer, 'alice-d60fbd@blitzwalletapp.com');
+      expect(qrValue(renderer)).toBe('alice-d60fbd@blitzwalletapp.com');
       expectText(renderer, 'Minimum USD swap 2000 fiat USD');
       expect(queryText(renderer, '0 fiat USD')).toBe(false);
     });
@@ -485,7 +500,7 @@ describe('ReceivePaymentHome', () => {
     test('copy invoice copies the LNURL address', async () => {
       const renderer = await renderReceive();
 
-      pressText(renderer, 'screens.inAccount.receiveBtcPage.copy');
+      pressText(renderer, 'constants.copy');
 
       expect(copyToClipboard).toHaveBeenCalledWith(
         'alice-e40605@blitzwalletapp.com',
@@ -496,73 +511,12 @@ describe('ReceivePaymentHome', () => {
     test('pressing the QR area copies the displayed address', async () => {
       const renderer = await renderReceive();
 
-      pressText(renderer, 'alice-e40605@blitzwalletapp.com');
+      pressQrCard(renderer);
 
       expect(copyToClipboard).toHaveBeenCalledWith(
         'alice-e40605@blitzwalletapp.com',
         mockShowToast,
       );
-    });
-  });
-
-  describe('toggle behavior', () => {
-    test('toggling from BTC to USD preserves a zero amount and debounces setParams', async () => {
-      const renderer = await renderReceive();
-
-      pressText(renderer, 'DOLLARS');
-
-      expect(mockNavigation.setParams).not.toHaveBeenCalled();
-
-      advanceToggleDebounce();
-
-      expect(mockNavigation.setParams).toHaveBeenCalledWith({
-        endReceiveType: 'USD',
-        receiveAmount: 0,
-        uuid: 'route-uuid',
-      });
-    });
-
-    test('pressing the currently selected BTC toggle does not update route params', async () => {
-      const renderer = await renderReceive({ endReceiveType: 'BTC' });
-
-      pressText(renderer, 'BITCOIN');
-      advanceToggleDebounce();
-
-      expect(mockNavigation.setParams).not.toHaveBeenCalled();
-    });
-
-    test('toggling from USD to BTC preserves the existing receive amount', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 5000,
-      });
-
-      pressText(renderer, 'BITCOIN');
-      advanceToggleDebounce();
-
-      expect(mockNavigation.setParams).toHaveBeenCalledWith({
-        endReceiveType: 'BTC',
-        receiveAmount: 5000,
-        uuid: 'route-uuid',
-      });
-    });
-
-    test('rapid toggles only apply the last requested asset', async () => {
-      const renderer = await renderReceive({ receiveAmount: 5000 });
-
-      pressText(renderer, 'DOLLARS');
-      act(() => {
-        jest.advanceTimersByTime(150);
-      });
-      pressText(renderer, 'DOLLARS');
-      advanceToggleDebounce();
-
-      expect(mockNavigation.setParams).toHaveBeenCalledTimes(1);
-      expect(mockNavigation.setParams).toHaveBeenCalledWith({
-        endReceiveType: 'USD',
-        receiveAmount: 5000,
-        uuid: 'route-uuid',
-      });
     });
   });
 
@@ -579,21 +533,8 @@ describe('ReceivePaymentHome', () => {
       );
       expectText(renderer, '1999 sats');
       expectText(renderer, '1999 fiat');
-      expectText(renderer, 'invoice-BTC-1999-none');
+      expect(qrValue(renderer)).toBe('invoice-BTC-1999-none');
       expect(queryText(renderer, 'Minimum USD swap 2000 sats')).toBe(false);
-    });
-
-    test('toggling a BTC amount below 2000 to dollars preserves the sats amount in route params', async () => {
-      const renderer = await renderReceive({ receiveAmount: 1999 });
-
-      pressText(renderer, 'DOLLARS');
-      advanceToggleDebounce();
-
-      expect(mockNavigation.setParams).toHaveBeenCalledWith({
-        endReceiveType: 'USD',
-        receiveAmount: 1999,
-        uuid: 'route-uuid',
-      });
     });
 
     test('shows LNURL and the minimum notice for a USD amount below the swap minimum without a description', async () => {
@@ -603,7 +544,7 @@ describe('ReceivePaymentHome', () => {
       });
 
       expect(mockInitializeAddressProcess).not.toHaveBeenCalled();
-      expectText(renderer, 'alice-d60fbd@blitzwalletapp.com');
+      expect(qrValue(renderer)).toBe('alice-d60fbd@blitzwalletapp.com');
       expectText(renderer, 'Minimum USD swap 2000 fiat USD');
       expect(queryText(renderer, '1999 fiat USD')).toBe(false);
     });
@@ -623,9 +564,9 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expect(queryText(renderer, '1999 fiat USD')).toBe(false);
-      expectText(renderer, 'Minimum USD swap 2000 fiat USD');
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-USD-0-Coffee');
+      expectTextIncluding(renderer, 'Minimum USD swap 2000 fiat USD');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-USD-0-Coffee');
     });
 
     test('generates an invoice when only a description is provided', async () => {
@@ -638,9 +579,9 @@ describe('ReceivePaymentHome', () => {
           endReceiveType: 'BTC',
         }),
       );
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-BTC-0-Coffee');
-      expect(queryText(renderer, 'No description')).toBe(false);
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-BTC-0-Coffee');
+      expect(queryText(renderer, 'receive.anyAmountSub')).toBe(false);
     });
 
     test('generates and displays an invoice when amount and description are both provided', async () => {
@@ -657,8 +598,8 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '5000 sats');
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-BTC-5000-Coffee');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-BTC-5000-Coffee');
     });
   });
 
@@ -676,8 +617,7 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '2000 fiat USD');
-      expectText(renderer, '2000 sats');
-      expectText(renderer, 'invoice-USD-2000-none');
+      expect(qrValue(renderer)).toBe('invoice-USD-2000-none');
     });
 
     test('generates and displays a USD invoice above the minimum amount', async () => {
@@ -693,7 +633,7 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '5000 fiat USD');
-      expectText(renderer, 'invoice-USD-5000-none');
+      expect(qrValue(renderer)).toBe('invoice-USD-5000-none');
     });
 
     test('shows an amountless USD invoice when an alternate account cannot use LNURL', async () => {
@@ -707,10 +647,8 @@ describe('ReceivePaymentHome', () => {
           endReceiveType: 'USD',
         }),
       );
-      expectText(renderer, 'invoice-USD-0-none');
-      expect(queryText(renderer, 'alice-d60fbd@blitzwalletapp.com')).toBe(
-        false,
-      );
+      expect(qrValue(renderer)).toBe('invoice-USD-0-none');
+      expect(qrValue(renderer)).not.toBe('alice-d60fbd@blitzwalletapp.com');
     });
 
     test('shows an amountless BTC invoice when an alternate account cannot use LNURL', async () => {
@@ -724,10 +662,8 @@ describe('ReceivePaymentHome', () => {
           endReceiveType: 'BTC',
         }),
       );
-      expectText(renderer, 'invoice-BTC-0-none');
-      expect(queryText(renderer, 'alice-e40605@blitzwalletapp.com')).toBe(
-        false,
-      );
+      expect(qrValue(renderer)).toBe('invoice-BTC-0-none');
+      expect(qrValue(renderer)).not.toBe('alice-e40605@blitzwalletapp.com');
     });
 
     test('generates an alternate-account USD invoice with amount and description', async () => {
@@ -747,8 +683,8 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '5000 fiat USD');
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-USD-5000-Coffee');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-USD-5000-Coffee');
     });
   });
 
@@ -773,8 +709,8 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expect(queryText(renderer, '5000 sats')).toBe(false);
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-BTC-0-Coffee');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-BTC-0-Coffee');
     });
 
     test('adding a description via edit preserves the existing amount', async () => {
@@ -793,8 +729,8 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '5000 sats');
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-BTC-5000-Coffee');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-BTC-5000-Coffee');
     });
 
     test('adding an amount via edit preserves the existing description', async () => {
@@ -813,8 +749,8 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '5000 sats');
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-BTC-5000-Coffee');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-BTC-5000-Coffee');
     });
 
     test('switching to USD after edit keeps both amount and description', async () => {
@@ -838,8 +774,8 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expectText(renderer, '5000 fiat USD');
-      expectText(renderer, 'Coffee');
-      expectText(renderer, 'invoice-USD-5000-Coffee');
+      expectTextIncluding(renderer, 'Coffee');
+      expect(qrValue(renderer)).toBe('invoice-USD-5000-Coffee');
     });
   });
 
@@ -851,32 +787,14 @@ describe('ReceivePaymentHome', () => {
         endReceiveType: 'BTC',
       });
 
-      press(renderer.root.findByProps({ testID: 'top-bar-edit' }));
-
-      expect(mockGuardedNavigate).toHaveBeenCalledWith(
-        'EditReceivePaymentInformation',
-        {
-          from: 'receivePage',
-          receiveType: 'Lightning',
-          endReceiveType: 'BTC',
-          userReceiveAmount: 5000,
-          description: 'Coffee',
-        },
-      );
-    });
-
-    test('description pill opens the same edit screen as the top bar edit button', async () => {
-      const renderer = await renderReceive({
-        receiveAmount: 5000,
-        description: 'Coffee',
-        endReceiveType: 'BTC',
-      });
-
-      press(findTouchableByExactText(renderer, 'Coffee'));
+      pressTopBarEdit(renderer);
 
       expect(mockGuardedNavigate).toHaveBeenCalledWith(
         'EditReceivePaymentInformation',
         expect.objectContaining({
+          from: 'receivePage',
+          receiveType: 'Lightning',
+          endReceiveType: 'BTC',
           userReceiveAmount: 5000,
           description: 'Coffee',
         }),
@@ -887,7 +805,7 @@ describe('ReceivePaymentHome', () => {
       mockInitializeMode = 'pending';
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
-      press(renderer.root.findByProps({ testID: 'top-bar-edit' }));
+      pressTopBarEdit(renderer);
 
       expect(mockGuardedNavigate).not.toHaveBeenCalled();
     });
@@ -898,7 +816,7 @@ describe('ReceivePaymentHome', () => {
         receiveAmount: 1999,
       });
 
-      press(renderer.root.findByProps({ testID: 'top-bar-edit' }));
+      pressTopBarEdit(renderer);
 
       expect(mockGuardedNavigate).toHaveBeenCalledWith(
         'EditReceivePaymentInformation',
@@ -915,7 +833,7 @@ describe('ReceivePaymentHome', () => {
     test('copy invoice copies a generated invoice address', async () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
-      pressText(renderer, 'screens.inAccount.receiveBtcPage.copy');
+      pressText(renderer, 'constants.copy');
 
       expect(copyToClipboard).toHaveBeenCalledWith(
         'invoice-BTC-5000-none',
@@ -923,126 +841,135 @@ describe('ReceivePaymentHome', () => {
       );
     });
 
-    test('share invoice opens the paylink modal with BTC amount details', async () => {
+    test('share invoice creates and shares a BTC paylink', async () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
-      pressText(renderer, 'Share invoice');
+      await pressShare(renderer);
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith(
-        'CustomHalfModal',
+      expect(addDataToCollection).toHaveBeenCalledTimes(1);
+      const [paylinkDoc, collection, docId] = addDataToCollection.mock.calls[0];
+      expect(collection).toBe('blitzPaylinks');
+      expect(docId).toBe(paylinkDoc.payLinkId);
+      expect(paylinkDoc).toEqual(
         expect.objectContaining({
-          wantedContent: 'shareInvoicePaylink',
+          amount: 5000,
           rawAmount: 5000,
+          displayAmount: 5000,
           currencyType: 'BTC',
-          sharePayLinkCache: null,
+          name: 'alice',
         }),
+      );
+      expect(sharedPaylinkURL()).toBe(
+        `https://blitzwalletapp.com/paylink/${paylinkDoc.payLinkId}`,
       );
     });
 
-    test('share invoice opens the paylink modal with USD amount details', async () => {
+    test('share invoice creates and shares a USD paylink', async () => {
       const renderer = await renderReceive({
         receiveAmount: 5000,
         endReceiveType: 'USD',
       });
 
-      pressText(renderer, 'Share invoice');
+      await pressShare(renderer);
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith(
-        'CustomHalfModal',
+      const [paylinkDoc] = addDataToCollection.mock.calls[0];
+      expect(paylinkDoc).toEqual(
         expect.objectContaining({
+          amount: 5000,
           rawAmount: 5000,
+          displayAmount: 2.5,
           currencyType: 'USD',
         }),
       );
-    });
-
-    test('share paylink creation caches the paylink for the next share', async () => {
-      const renderer = await renderReceive({ receiveAmount: 5000 });
-
-      pressText(renderer, 'Share invoice');
-
-      const firstParams = latestCustomHalfModalParams();
-      expect(firstParams.sharePayLinkCache).toBe(null);
-
-      act(() => {
-        firstParams.onCreated('paylink-1');
-      });
-
-      mockNavigation.navigate.mockClear();
-      pressText(renderer, 'Share invoice');
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith(
-        'CustomHalfModal',
-        expect.objectContaining({
-          sharePayLinkCache: {
-            payLinkId: 'paylink-1',
-            amount: 5000,
-            currencyType: 'BTC',
-          },
-        }),
+      expect(sharedPaylinkURL()).toBe(
+        `https://blitzwalletapp.com/paylink/${paylinkDoc.payLinkId}`,
       );
     });
 
-    test('share paylink cache is not reused after the amount changes', async () => {
+    test('share reuses the cached paylink for the same amount and currency', async () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
-      pressText(renderer, 'Share invoice');
-      act(() => {
-        latestCustomHalfModalParams().onCreated('paylink-1');
-      });
+      await pressShare(renderer);
+      const firstURL = sharedPaylinkURL();
+
+      await pressShare(renderer);
+
+      expect(addDataToCollection).toHaveBeenCalledTimes(1);
+      expect(sharedMessages()).toEqual([firstURL, firstURL]);
+    });
+
+    test('share creates a new paylink after the amount changes', async () => {
+      const renderer = await renderReceive({ receiveAmount: 5000 });
+
+      await pressShare(renderer);
+      const firstURL = sharedPaylinkURL();
 
       await updateReceive(renderer, {
         receiveAmount: 7500,
         uuid: 'changed-amount',
       });
+      await pressShare(renderer);
 
-      mockNavigation.navigate.mockClear();
-      pressText(renderer, 'Share invoice');
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith(
-        'CustomHalfModal',
+      expect(addDataToCollection).toHaveBeenCalledTimes(2);
+      const [paylinkDoc] = addDataToCollection.mock.calls[1];
+      expect(paylinkDoc).toEqual(
         expect.objectContaining({
+          amount: 7500,
           rawAmount: 7500,
           currencyType: 'BTC',
-          sharePayLinkCache: null,
         }),
       );
+      expect(sharedPaylinkURL()).not.toBe(firstURL);
     });
 
-    test('share paylink cache is not reused after the currency changes', async () => {
+    test('share creates a new paylink after the currency changes', async () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
-      pressText(renderer, 'Share invoice');
-      act(() => {
-        latestCustomHalfModalParams().onCreated('paylink-1');
-      });
+      await pressShare(renderer);
+      const firstURL = sharedPaylinkURL();
 
       await updateReceive(renderer, {
         receiveAmount: 5000,
         endReceiveType: 'USD',
         uuid: 'changed-currency',
       });
+      await pressShare(renderer);
 
-      mockNavigation.navigate.mockClear();
-      pressText(renderer, 'Share invoice');
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith(
-        'CustomHalfModal',
-        expect.objectContaining({
-          rawAmount: 5000,
-          currencyType: 'USD',
-          sharePayLinkCache: null,
-        }),
+      expect(addDataToCollection).toHaveBeenCalledTimes(2);
+      const [paylinkDoc] = addDataToCollection.mock.calls[1];
+      expect(paylinkDoc).toEqual(
+        expect.objectContaining({ currencyType: 'USD' }),
       );
+      expect(sharedPaylinkURL()).not.toBe(firstURL);
     });
 
-    test('share invoice requires an amount for description-only invoices', async () => {
+    test('share sends the lightning address as text for any-amount receives', async () => {
+      const renderer = await renderReceive();
+
+      await pressShare(renderer);
+
+      expect(addDataToCollection).not.toHaveBeenCalled();
+      expect(sharedMessages()).toEqual(['alice-e40605@blitzwalletapp.com']);
+    });
+
+    test('share sends a description-only invoice as text', async () => {
       const renderer = await renderReceive({ description: 'Coffee' });
 
-      pressText(renderer, 'Share invoice');
+      await pressShare(renderer);
 
+      expect(addDataToCollection).not.toHaveBeenCalled();
+      expect(sharedMessages()).toEqual(['invoice-BTC-0-Coffee']);
+    });
+
+    test('share reports paylink save failures instead of sharing', async () => {
+      addDataToCollection.mockResolvedValueOnce(false);
+      const renderer = await renderReceive({ receiveAmount: 5000 });
+
+      await pressShare(renderer);
+
+      expect(shareMessage).not.toHaveBeenCalled();
       expect(mockNavigation.navigate).toHaveBeenCalledWith('ErrorScreen', {
-        errorMessage: 'Amount required',
+        errorMessage: 'screens.inAccount.receiveBtcPage.paylinkSaveError',
       });
     });
 
@@ -1050,7 +977,7 @@ describe('ReceivePaymentHome', () => {
       mockInitializeMode = 'pending';
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
-      pressText(renderer, 'screens.inAccount.receiveBtcPage.copy');
+      pressText(renderer, 'constants.copy');
 
       expect(copyToClipboard).not.toHaveBeenCalled();
     });
@@ -1066,7 +993,7 @@ describe('ReceivePaymentHome', () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
       expectText(renderer, 'Invoice error');
-      expect(queryText(renderer, 'invoice-BTC-5000-none')).toBe(false);
+      expect(qrValue(renderer)).toBe('');
     });
 
     test('renders a warning while still keeping QR data visible', async () => {
@@ -1078,7 +1005,7 @@ describe('ReceivePaymentHome', () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
       expectText(renderer, 'Invoice error');
-      expectText(renderer, 'invoice-BTC-5000-none');
+      expect(qrValue(renderer)).toBe('invoice-BTC-5000-none');
     });
 
     test('clears a blocking error after a later successful route update', async () => {
@@ -1097,7 +1024,7 @@ describe('ReceivePaymentHome', () => {
       });
 
       expect(queryText(renderer, 'Invoice error')).toBe(false);
-      expectText(renderer, 'invoice-BTC-6000-none');
+      expect(qrValue(renderer)).toBe('invoice-BTC-6000-none');
     });
   });
 
@@ -1139,15 +1066,15 @@ describe('ReceivePaymentHome', () => {
         await Promise.resolve();
       });
 
-      expectText(renderer, 'invoice-BTC-2000-none');
+      expect(qrValue(renderer)).toBe('invoice-BTC-2000-none');
 
       await act(async () => {
         pendingGenerations[0].resolve();
         await Promise.resolve();
       });
 
-      expectText(renderer, 'invoice-BTC-2000-none');
-      expect(queryText(renderer, 'invoice-BTC-1000-none')).toBe(false);
+      expect(qrValue(renderer)).toBe('invoice-BTC-2000-none');
+      expect(qrValue(renderer)).not.toBe('invoice-BTC-1000-none');
     });
   });
 });

@@ -227,7 +227,9 @@ export function BTCMapProvider({ children }) {
 
   const refreshLocation = useCallback(async () => {
     try {
-      const loc = await Location.getCurrentPositionAsync({});
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Lowest,
+      });
       if (!loc) return null;
       const coords = {
         latitude: loc.coords.latitude,

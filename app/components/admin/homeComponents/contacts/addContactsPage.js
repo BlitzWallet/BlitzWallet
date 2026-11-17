@@ -1,15 +1,15 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
+import { FONT } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+
 export default function AddContactsPage({ selectedContact }) {
   const newContact = selectedContact;
-  const { textInputBackground, textInputColor } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const { addContact } = useGlobalContactsInfo();
   const { t } = useTranslation();
 
@@ -17,125 +17,68 @@ export default function AddContactsPage({ selectedContact }) {
   const username = newContact?.uniqueName;
   const lnurl = newContact?.isLNURL ? newContact?.receiveAddress : null;
   const bio = newContact?.bio?.trim() || t('constants.noBioSet');
+  // Lightning address contacts have no username, so their address goes there.
+  const subtitle = username ? `@${username}` : lnurl;
 
   return (
     <View style={styles.container}>
       <ThemeText styles={styles.nameText} content={name} />
 
-      {username && (
-        <ThemeText styles={styles.usernameText} content={`@${username}`} />
+      {!!subtitle && (
+        <ThemeText
+          variant="body"
+          styles={[styles.subtitleText, { color: tokens.muted }]}
+          content={subtitle}
+        />
       )}
 
-      {lnurl && (
-        <View style={styles.infoContainer}>
-          <ThemeText
-            styles={styles.infoLabel}
-            content={t('contacts.editMyProfilePage.addContactLightningAddress')}
-          />
-          <ThemeText styles={styles.infoValue} content={lnurl} />
-        </View>
-      )}
-
-      <View
-        style={[styles.bioContainer, { backgroundColor: textInputBackground }]}
-      >
+      <View style={[styles.bioCard, { backgroundColor: tokens.surface }]}>
+        <ThemeText
+          variant="hint"
+          content={t('contacts.editMyProfilePage.bioInputDesc')}
+        />
         <CustomScrollView
-          contentContainerStyle={{
-            alignItems: 'center',
-            flexGrow: 1,
-          }}
+          style={styles.bioScroll}
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
         >
-          <ThemeText
-            styles={[styles.bioText, { color: textInputColor }]}
-            content={bio}
-          />
+          <ThemeText variant="body" content={bio} />
         </CustomScrollView>
       </View>
       <CustomButton
         actionFunction={() => {
           addContact(newContact);
         }}
-        buttonStyles={{ marginTop: 'auto', width: INSET_WINDOW_WIDTH }}
-        textContent={t('contacts.editMyProfilePage.addContactBTN')}
+        buttonStyles={styles.addButton}
+        textContent={t('contacts.addContactsHalfModal.title')}
+        size={'regular'}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, alignItems: 'center' },
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  backButtonContainer: {
-    marginRight: 'auto',
-  },
-
-  scrollBody: {
-    alignItems: 'center',
-    paddingBottom: 40,
-    flexGrow: 1,
-  },
-
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 125,
-    overflow: 'hidden',
-    marginBottom: 12,
-    ...CENTER,
-  },
-
+  container: { flexGrow: 1, width: '100%' },
   nameText: {
-    fontSize: SIZES.large,
+    marginTop: 14,
+    fontFamily: FONT.Title_Regular,
+    fontSize: 22,
+    lineHeight: 30,
+    letterSpacing: -0.22,
     textAlign: 'center',
-    opacity: 0.6,
-    marginBottom: 5,
     includeFontPadding: false,
   },
-  usernameText: {
-    fontSize: SIZES.medium,
+  subtitleText: {
     textAlign: 'center',
-    marginBottom: 15,
-    includeFontPadding: false,
   },
-
-  infoContainer: {
-    width: '90%',
-    alignItems: 'center',
-    marginBottom: 12,
+  bioCard: {
+    marginTop: 28,
+    marginBottom: 20,
+    width: '100%',
+    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  infoLabel: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 4,
-    includeFontPadding: false,
-  },
-
-  infoValue: {
-    includeFontPadding: false,
-    marginBottom: 10,
-  },
-
-  bioContainer: {
-    width: '90%',
-    minHeight: 60,
-    maxHeight: 80,
-    borderRadius: 8,
-    padding: 10,
-    backgroundColor: COLORS.darkModeText,
-    ...CENTER,
-  },
-
-  bioText: {
-    textAlign: 'center',
-    marginBottom: 'auto',
-    marginTop: 'auto',
-    includeFontPadding: false,
-  },
+  bioScroll: { maxHeight: 120, marginTop: 2 },
+  addButton: { marginTop: 'auto' },
 });

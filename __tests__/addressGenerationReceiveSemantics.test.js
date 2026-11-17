@@ -1,10 +1,6 @@
 const mockSparkReceivePaymentWrapper = jest.fn();
 const mockSimulateSwap = jest.fn();
 
-jest.mock('../app/functions/breezLiquid', () => ({
-  breezLiquidReceivePaymentWrapper: jest.fn(),
-}));
-
 jest.mock('react-native-quick-crypto', () => ({
   randomBytes: jest.fn(() => Buffer.alloc(32, 1)),
 }));
@@ -21,10 +17,6 @@ jest.mock('../app/functions/spark/payments', () => ({
 
 jest.mock('../app/functions/messaging/encodingAndDecodingMessages', () => ({
   encriptMessage: jest.fn(() => 'encrypted-message'),
-}));
-
-jest.mock('../app/functions/boltz/rootstock/submarineSwap', () => ({
-  getRootstockAddress: jest.fn(),
 }));
 
 jest.mock('../app/functions/spark/handleBip21SparkAddress', () => ({

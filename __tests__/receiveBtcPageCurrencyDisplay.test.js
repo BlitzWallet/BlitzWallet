@@ -89,12 +89,18 @@ jest.mock('../context-store/nodeContext', () => ({
   useNodeContext: () => ({ fiatStats: mockFiatStats }),
 }));
 
-jest.mock('../context-store/webViewContext', () => ({
-  useWebView: () => ({ sendWebViewRequest: jest.fn() }),
+// QrCard reads the profile image cache; the real provider isn't mounted here.
+jest.mock('../context-store/imageCache', () => ({
+  useImageCache: () => ({ cache: {} }),
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../context-store/flashnetContext', () => ({
@@ -179,6 +185,7 @@ jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   backgroundColor: '#ffffff',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../app/functions/CustomElements', () => {
@@ -200,16 +207,6 @@ jest.mock(
       const MockReact = require('react');
       const RN = require('react-native');
       return MockReact.createElement(RN.View, null);
-    },
-);
-
-jest.mock(
-  '../app/functions/CustomElements/QrWrapper',
-  () =>
-    function MockQrCodeWrapper({ QRData }) {
-      const MockReact = require('react');
-      const RN = require('react-native');
-      return MockReact.createElement(RN.Text, null, QRData);
     },
 );
 
@@ -260,10 +257,18 @@ jest.mock('react-native-worklets', () => ({
 
 const ReceivePaymentHome = require('../app/screens/inAccount/receiveBtcPage')
   .default;
+const QrCard =
+  require('../app/functions/CustomElements/redesign/QrCard').default;
+
+function qrValue(renderer) {
+  return renderer.root.findAllByType(QrCard)[0]?.props.value.trim() || '';
+}
 
 function flattenText(value) {
   if (Array.isArray(value)) return value.map(flattenText).join('');
-  if (React.isValidElement(value)) return flattenText(value.props.children);
+  if (React.isValidElement(value)) {
+    return flattenText(value.props.content ?? value.props.children);
+  }
   return value === null || value === undefined ? '' : String(value);
 }
 
@@ -296,35 +301,22 @@ function expectText(renderer, text) {
   expect(allText(renderer)).toContain(text);
 }
 
+// The page joins the amount conversion and description into one subline, so
+// assertions on that line match on a substring.
+function expectTextIncluding(renderer, text) {
+  expect(allText(renderer).some(line => line.includes(text))).toBe(true);
+}
+
 function queryText(renderer, text) {
   const lines = allText(renderer);
   if (text instanceof RegExp) return lines.some(line => text.test(line));
   return lines.includes(text);
 }
 
-// Amount-only lines; strips navigation labels and static chrome so assertions
-// read clearly (e.g. ['32.23 USD', '29,65 EUR']).
+// Amount-only lines (e.g. ['32.23 USD', '29,65 EUR']); page chrome, labels and
+// icons are filtered out so assertions read clearly.
 function amountLines(renderer) {
-  return allText(renderer).filter(
-    t =>
-      !t.includes('@blitzwalletapp.com') &&
-      !t.startsWith('invoice-') &&
-      ![
-        'BITCOIN',
-        'DOLLARS',
-        'Receive',
-        'Copy invoice',
-        'Copy address',
-        'Share invoice',
-      ].includes(t) &&
-      !t.startsWith('Minimum USD swap') &&
-      !t.startsWith('No description') &&
-      t !== 'Loading' &&
-      t !== 'Edit' &&
-      t !== 'image' &&
-      t !== 'Copy' &&
-      t !== 'Share',
-  );
+  return allText(renderer).filter(t => /^[\d.,]+\s*[A-Z]{3}$/.test(t));
 }
 
 const { resolveFiatStatsForCurrency } = require('../app/functions/displayCurrency');
@@ -429,8 +421,8 @@ describe('ReceivePaymentHome currency display', () => {
     jest.useRealTimers();
   });
 
-  describe('USD receive with device currency EUR (rates loaded)', () => {
-    test('USD entered shows USD literal and a converted (different) EUR secondary', async () => {
+  describe('USD receive (device currency EUR)', () => {
+    test('shows the entered USD amount and no converted secondary line', async () => {
       const renderer = await renderReceive({
         endReceiveType: 'USD',
         receiveAmount: 32230,
@@ -438,13 +430,14 @@ describe('ReceivePaymentHome currency display', () => {
         paymentDisplayAmount: '32.23',
       });
 
-      // $32.23 entered; 32,230 sats = €29.65 at the EUR rate — never €32.23.
+      // $32.23 entered; a USD receive shows the entered figure and "arrives as
+      // dollars", never the same sats re-priced under another currency label.
       expectText(renderer, '32.23 USD');
-      expectText(renderer, '29,65 EUR');
-      expect(queryText(renderer, '32,23 EUR')).toBe(false);
+      expectText(renderer, 'receive.arrivesAsDollars');
+      expect(queryText(renderer, /EUR/)).toBe(false);
     });
 
-    test('EUR entered shows EUR literal and a converted (different) USD primary', async () => {
+    test('an EUR entry shows the USD amount instead of a relabeled EUR figure', async () => {
       const renderer = await renderReceive({
         endReceiveType: 'USD',
         receiveAmount: 35032,
@@ -453,37 +446,11 @@ describe('ReceivePaymentHome currency display', () => {
       });
 
       expectText(renderer, '35.03 USD');
-      expectText(renderer, '32,23 EUR');
+      expect(queryText(renderer, '32,23 EUR')).toBe(false);
       expect(queryText(renderer, '32.23 USD')).toBe(false);
     });
 
-    test('device-USD user entering EUR shows converted USD primary and EUR literal', async () => {
-      mockMasterInfo = {
-        fiatCurrency: 'USD',
-        satDisplay: 'word',
-        thousandsSeperator: 'comma',
-        userBalanceDenomination: 'sats',
-      };
-      mockFiatStats = { coin: 'USD', value: 100000 };
-
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 35032,
-        paymentDisplayCurrency: 'EUR',
-        paymentDisplayAmount: '32.23',
-      });
-
-      expectText(renderer, '35.03 USD');
-      expectText(renderer, '32,23 EUR');
-    });
-
-    test('device-USD user entering USD shows USD literal and sats secondary', async () => {
-      mockMasterInfo = {
-        fiatCurrency: 'USD',
-        satDisplay: 'word',
-        thousandsSeperator: 'comma',
-        userBalanceDenomination: 'sats',
-      };
+    test('a stale device rate never fabricates a conversion under another currency', async () => {
       mockFiatStats = { coin: 'USD', value: 100000 };
 
       const renderer = await renderReceive({
@@ -494,158 +461,19 @@ describe('ReceivePaymentHome currency display', () => {
       });
 
       expectText(renderer, '32.23 USD');
-      expectText(renderer, '32,230 SAT');
-      expect(queryText(renderer, '32,23 EUR')).toBe(false);
-    });
-  });
-
-  describe('stale / missing device rate (regression: same numeric under another currency)', () => {
-    // The node context starts with { coin: 'USD', value: 100000 } and only
-    // swaps to the device currency after the rate fetch completes (or stays
-    // USD forever if the fetch fails). Rendering with a stale USD fiatStats
-    // while the device currency is EUR used to produce €32.23 next to $32.23.
-    beforeEach(() => {
-      mockFiatStats = { coin: 'USD', value: 100000 };
-    });
-
-    test('USD entered never renders the USD conversion under the EUR label', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-      });
-
-      expectText(renderer, '32.23 USD');
-      expect(queryText(renderer, '32,23 EUR')).toBe(false);
-      // The EUR rate is genuinely unavailable — no fabricated EUR number.
-      expect(queryText(renderer, /EUR/)).toBe(false);
-    });
-
-    test('EUR entered still shows its literal even when the device rate is stale', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 35032,
-        paymentDisplayCurrency: 'EUR',
-        paymentDisplayAmount: '32.23',
-      });
-
-      expectText(renderer, '32,23 EUR');
-      // USD primary converts from invoice sats with the USD pool price.
-      expectText(renderer, '35.03 USD');
-    });
-
-    test('BTC receive never renders a USD-rate conversion under the EUR label', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'BTC',
-        receiveAmount: 32230,
-      });
-
-      expectText(renderer, '32,230 SAT');
       expect(queryText(renderer, '32,23 EUR')).toBe(false);
       expect(queryText(renderer, /EUR/)).toBe(false);
     });
 
-    test('EUR secondary appears once the device rate loads', async () => {
+    test('updating the amount shows the new literal instead of the old one', async () => {
       const renderer = await renderReceive({
         endReceiveType: 'USD',
         receiveAmount: 32230,
         paymentDisplayCurrency: 'USD',
         paymentDisplayAmount: '32.23',
-      });
-
-      expect(queryText(renderer, '29,65 EUR')).toBe(false);
-
-      mockFiatStats = { coin: 'EUR', value: 92000 };
-      await updateReceive(renderer, {
-        endReceiveType: 'USD',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-        uuid: 'rate-loaded',
       });
 
       expectText(renderer, '32.23 USD');
-      expectText(renderer, '29,65 EUR');
-    });
-  });
-
-  describe('pinned entry rate (paymentDisplayFiatStats)', () => {
-    test('uses the pinned entry rate when the literal is absent instead of the device rate', async () => {
-      mockMasterInfo = {
-        fiatCurrency: 'USD',
-        satDisplay: 'word',
-        thousandsSeperator: 'comma',
-        userBalanceDenomination: 'sats',
-      };
-      mockFiatStats = { coin: 'USD', value: 100000 };
-
-      // 50,000 sats = €46.00 at the pinned EUR rate, but $50.00 at the device
-      // USD rate. The entered-currency line must use the EUR rate.
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 50000,
-        paymentDisplayCurrency: 'EUR',
-        paymentDisplayAmount: '',
-        paymentDisplayFiatStats: { coin: 'EUR', value: 92000 },
-      });
-
-      expectText(renderer, '46,00 EUR');
-      expectText(renderer, '50.00 USD');
-      expect(queryText(renderer, '50,00 EUR')).toBe(false);
-    });
-
-    test('pinned USD rate does not leak into the device EUR conversion', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-        paymentDisplayFiatStats: { coin: 'USD', value: 100000 },
-      });
-
-      // Secondary EUR still converts with the live EUR rate, not the pinned
-      // USD rate.
-      expectText(renderer, '32.23 USD');
-      expectText(renderer, '29,65 EUR');
-      expect(queryText(renderer, '32,23 EUR')).toBe(false);
-    });
-  });
-
-  describe('BTC receive mode', () => {
-    test('shows sats primary and converted device-currency secondary', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'BTC',
-        receiveAmount: 32230,
-      });
-
-      expectText(renderer, '32,230 SAT');
-      expectText(renderer, '29,65 EUR');
-    });
-
-    test('shows entered USD literal as secondary when the user typed USD', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'BTC',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-      });
-
-      expectText(renderer, '32,230 SAT');
-      expectText(renderer, '32.23 USD');
-    });
-  });
-
-  describe('amount updates and repeated state changes', () => {
-    test('updating the amount re-converts the secondary line and updates the literal', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-      });
-
-      expectText(renderer, '29,65 EUR');
 
       await updateReceive(renderer, {
         endReceiveType: 'USD',
@@ -656,12 +484,10 @@ describe('ReceivePaymentHome currency display', () => {
       });
 
       expectText(renderer, '40.00 USD');
-      expectText(renderer, '36,80 EUR');
       expect(queryText(renderer, '32.23 USD')).toBe(false);
-      expect(queryText(renderer, '29,65 EUR')).toBe(false);
     });
 
-    test('description-only updates preserve the literal and the conversion', async () => {
+    test('a description-only update preserves the literal and the note', async () => {
       const renderer = await renderReceive({
         endReceiveType: 'USD',
         receiveAmount: 32230,
@@ -679,141 +505,109 @@ describe('ReceivePaymentHome currency display', () => {
       });
 
       expectText(renderer, '32.23 USD');
-      expectText(renderer, '29,65 EUR');
-      expectText(renderer, 'Coffee');
+      expectTextIncluding(renderer, 'Coffee');
     });
+  });
 
-    test('switching between USD/BTC and re-entering never reuses a prior conversion', async () => {
+  describe('BTC receive (device currency EUR)', () => {
+    test('shows sats primary and converted device-currency secondary', async () => {
       const renderer = await renderReceive({
-        endReceiveType: 'USD',
+        endReceiveType: 'BTC',
         receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
       });
 
-      expectText(renderer, '32.23 USD');
-      expectText(renderer, '29,65 EUR');
+      expectText(renderer, '32,230 SAT');
+      expectTextIncluding(renderer, '29,65 EUR');
+    });
 
-      // Toggle to BTC: setParams merges, so the USD literal persists.
-      await updateReceive(renderer, {
+    test('shows the entered USD literal as secondary when the user typed USD', async () => {
+      const renderer = await renderReceive({
         endReceiveType: 'BTC',
         receiveAmount: 32230,
         paymentDisplayCurrency: 'USD',
         paymentDisplayAmount: '32.23',
-        uuid: 'toggled-btc',
       });
 
       expectText(renderer, '32,230 SAT');
-      expectText(renderer, '32.23 USD');
-      expect(queryText(renderer, '29,65 EUR')).toBe(false);
+      expectTextIncluding(renderer, '32.23 USD');
+      expect(queryText(renderer, /EUR/)).toBe(false);
+    });
 
-      // Re-enter in EUR: 46,000 sats = €42.32 at the EUR rate, $46.00 USD.
-      await updateReceive(renderer, {
-        endReceiveType: 'USD',
+    test('shows the entered EUR literal verbatim instead of re-converting it', async () => {
+      const renderer = await renderReceive({
+        endReceiveType: 'BTC',
         receiveAmount: 46000,
         paymentDisplayCurrency: 'EUR',
         paymentDisplayAmount: '42.32',
-        uuid: 're-entered-eur',
       });
 
-      expectText(renderer, '46.00 USD');
-      expectText(renderer, '42,32 EUR');
-      expect(queryText(renderer, '32.23 USD')).toBe(false);
-      expect(queryText(renderer, '32,230 SAT')).toBe(false);
-    });
-  });
-
-  describe('exchange-rate changes and invalid rates', () => {
-    test('live rate changes re-convert the secondary while the literal stays verbatim', async () => {
-      const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-      });
-
-      expectText(renderer, '29,65 EUR');
-
-      mockFiatStats = { coin: 'EUR', value: 86000 };
-      await updateReceive(renderer, {
-        endReceiveType: 'USD',
-        receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
-        uuid: 'rate-moved',
-      });
-
-      expectText(renderer, '32.23 USD');
-      expectText(renderer, '27,72 EUR');
-      expect(queryText(renderer, '29,65 EUR')).toBe(false);
+      expectText(renderer, '46,000 SAT');
+      expectTextIncluding(renderer, '42,32 EUR');
     });
 
-    test('an invalid-rate coin mismatch hides the device line instead of relabeling', async () => {
+    test('hides the secondary line when the device rate coin does not match', async () => {
       mockFiatStats = { coin: 'GBP', value: 80000 };
 
       const renderer = await renderReceive({
-        endReceiveType: 'USD',
+        endReceiveType: 'BTC',
         receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
       });
 
-      expectText(renderer, '32.23 USD');
-      expect(queryText(renderer, /EUR/)).toBe(false);
+      expectText(renderer, '32,230 SAT');
       expect(queryText(renderer, /GBP/)).toBe(false);
+      expect(queryText(renderer, /EUR/)).toBe(false);
     });
 
-    test('pinned stats with a lowercase coin still match the entered currency', async () => {
-      mockMasterInfo = {
-        fiatCurrency: 'USD',
-        satDisplay: 'word',
-        thousandsSeperator: 'comma',
-        userBalanceDenomination: 'sats',
-      };
-      mockFiatStats = { coin: 'USD', value: 100000 };
-
+    test('live rate changes re-convert the secondary line', async () => {
       const renderer = await renderReceive({
-        endReceiveType: 'USD',
-        receiveAmount: 50000,
-        paymentDisplayCurrency: 'EUR',
-        paymentDisplayAmount: '',
-        paymentDisplayFiatStats: { coin: 'eur', value: 92000 },
+        endReceiveType: 'BTC',
+        receiveAmount: 32230,
       });
 
-      expectText(renderer, '46,00 EUR');
-      expect(queryText(renderer, '50,00 EUR')).toBe(false);
+      expectTextIncluding(renderer, '29,65 EUR');
+
+      mockFiatStats = { coin: 'EUR', value: 86000 };
+      await updateReceive(renderer, {
+        endReceiveType: 'BTC',
+        receiveAmount: 32230,
+        uuid: 'rate-moved',
+      });
+
+      expectText(renderer, '32,230 SAT');
+      expectTextIncluding(renderer, '27,72 EUR');
+      expect(queryText(renderer, '29,65 EUR')).toBe(false);
     });
   });
 
   describe('loading and amountless states', () => {
-    test('amount lines render while the invoice is still generating', async () => {
+    test('amounts render while the invoice is still generating', async () => {
       mockInitializeMode = 'pending';
 
       const renderer = await renderReceive({
-        endReceiveType: 'USD',
+        endReceiveType: 'BTC',
         receiveAmount: 32230,
-        paymentDisplayCurrency: 'USD',
-        paymentDisplayAmount: '32.23',
       });
 
-      expectText(renderer, '32.23 USD');
-      expectText(renderer, '29,65 EUR');
+      expectText(renderer, '32,230 SAT');
+      expectTextIncluding(renderer, '29,65 EUR');
     });
 
     test('amountless USD receive shows no amount lines at all', async () => {
       const renderer = await renderReceive({ endReceiveType: 'USD' });
 
+      expectText(renderer, 'receive.anyAmount');
       expect(amountLines(renderer)).toEqual([]);
     });
 
-    test('below-minimum USD receive shows LNURL and no amount lines', async () => {
+    test('below-minimum USD receive shows the LNURL and no amount lines', async () => {
       const renderer = await renderReceive({
         endReceiveType: 'USD',
         receiveAmount: 1999,
       });
 
-      expectText(renderer, 'alice-d60fbd@blitzwalletapp.com');
-      expect(queryText(renderer, '32.23 USD')).toBe(false);
+      expect(qrValue(renderer)).toBe('alice-d60fbd@blitzwalletapp.com');
+      expectText(renderer, 'receive.anyAmount');
+      expect(amountLines(renderer)).toEqual([]);
     });
   });
 });

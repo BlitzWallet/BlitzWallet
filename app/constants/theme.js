@@ -1,3 +1,6 @@
+import { Platform } from 'react-native';
+import { MODES } from './themes';
+
 const COLORS = {
   primary: '#0375F6',
   secondary: '#21374F',
@@ -14,22 +17,22 @@ const COLORS = {
 
   background: '#F8F8F8',
 
-  lightModeBackground: '#EBEBEB',
-  darkModeBackground: '#00254E',
-  lightsOutBackground: '#000000',
+  lightModeBackground: MODES.light.ground,
+  darkModeBackground: MODES.dim.ground,
+  lightsOutBackground: MODES.lightsOut.ground,
 
-  lightModeText: '#262626',
-  darkModeText: 'white',
+  lightModeText: MODES.light.ink,
+  darkModeText: MODES.dim.ink,
 
   lightsOutModeOpacityInput: '#3C3C3C',
 
   offsetBackground: '#cbcbcb',
-  lightModeBackgroundOffset: '#E3E3E3',
-  darkModeBackgroundOffset: '#013167',
-  lightsOutBackgroundOffset: '#1B1B1B',
+  lightModeBackgroundOffset: MODES.light.surface,
+  darkModeBackgroundOffset: MODES.dim.surface,
+  lightsOutBackgroundOffset: MODES.lightsOut.surface,
 
-  halfModalBackgroundColor: 'rgba(0, 0, 0, 0.3)',
-  halfModalBackgroundColorLightsout: 'rgba(0, 0, 0, 0.6)',
+  halfModalBackgroundColor: MODES.light.scrim,
+  halfModalBackgroundColorLightsout: MODES.lightsOut.scrim,
   opaicityGray: '#767676b8',
   cameraOverlay: '#0000002e',
   cancelRed: '#e20000',
@@ -38,15 +41,15 @@ const COLORS = {
   notConnectedNodeColor: '#ff0000',
 
   darkModePlaceholder: '#FFFFFFA6',
-  lightModePlaceholder: '#9CA3AF',
+  lightModePlaceholder: MODES.light.muted,
 
   nostrGreen: '#29C467',
 
   failedTransaction: '#FF0000',
 
   expandedTXLightModePending: '#00000080', //50%,
-  expandedTXLightModeFailed: '#D4393940', //25%
-  expandedTXLightModeConfirmd: '#0078FF40', // 25%
+  expandedTXLightModeFailed: MODES.light.dangerBg,
+  expandedTXLightModeConfirmd: MODES.light.disc,
 
   expandedTXDarkModeConfirmd: '#FFFFFF40',
 
@@ -65,16 +68,16 @@ const COLORS = {
   giftcardlightsout3: '#676767',
 
   lightBlueForGiftCards: '#a7d1ff',
-  walletHomeLightModeOffset: '#E4E4E4',
-  walletHomeDarkModeOffset: '#002146',
-  walletHomeLightsOutOffset: '#0d0d0d',
+  walletHomeLightModeOffset: MODES.light.surface,
+  walletHomeDarkModeOffset: MODES.dim.surface,
+  walletHomeLightsOutOffset: MODES.lightsOut.surface,
 
   bitcoinOrange: '#FFAC30',
   dollarGreen: '#60D263',
 
-  tabsBorderLightsout: 'rgba(255,255,255,0.2)',
-  tabsBorderDim: 'rgba(255,255,255,0.1)',
-  tabsBorderLight: '#e5e7eb',
+  tabsBorderLightsout: MODES.lightsOut.divider,
+  tabsBorderDim: MODES.dim.divider,
+  tabsBorderLight: MODES.light.divider,
 };
 
 const FONT = {
@@ -93,7 +96,11 @@ const FONT = {
   Other_Medium: 'Poppins-Medium',
   Other_Regular: 'Poppins-Regular',
   Other_Bold: 'Poppins-Bold',
-  Asterisk: 'Blitzicons1',
+  mono: Platform.select({
+    ios: 'Menlo',
+    android: 'monospace',
+    default: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+  }),
 };
 
 const SIZES = {
@@ -108,27 +115,42 @@ const SIZES = {
   userSatText: 30,
 };
 
+const makeShadow = (color, offsetY, opacity, radius, offsetX = 0) => {
+  if (Platform.OS !== 'android') {
+    return {
+      shadowColor: color,
+      shadowOffset: { width: offsetX, height: offsetY },
+      shadowOpacity: opacity,
+      shadowRadius: radius,
+    };
+  }
+  if (Platform.Version < 31) return {};
+  const hex =
+    color.length === 4 ? color.replace(/\w/g, '$&$&').slice(1) : color.slice(1);
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.substr(i, 2), 16));
+  return {
+    boxShadow: [
+      {
+        offsetX,
+        offsetY,
+        blurRadius: radius,
+        color: `rgba(${r},${g},${b},${opacity})`,
+      },
+    ],
+  };
+};
+
 const SHADOWS = {
-  small: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 2,
+  small: makeShadow('#000', 2, 0.25, 3.84),
+  medium: makeShadow('#000', 2, 0.25, 5.84),
+  // Hairline outline for controls floating over the map (design:
+  // 0 0 0 1px rgba(21,22,26,.08)).
+  ring: {
+    borderWidth: 1,
+    borderColor: 'rgba(21,22,26,0.08)',
   },
-  medium: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 5.84,
-    elevation: 5,
-  },
+  // Drop shadow under map pins (design: 0 6px 18px -6px rgba(21,22,26,.45)).
+  pin: makeShadow('#15161A', 6, 0.45, 9),
 };
 const WINDOWWIDTH = '95%';
 const INSET_WINDOW_WIDTH = '90%';
@@ -145,18 +167,8 @@ const AVATAR_COLORS = [
   '#AFC2D6', // very light neutral blue
 ];
 
-const AVATAR_COLORS_LIGHTS_OUT = [
-  '#E6E6E6',
-  '#CCCCCC',
-  '#B3B3B3',
-  '#999999',
-  '#808080',
-  '#666666',
-  '#4D4D4D',
-  '#333333',
-];
-
 export {
+  makeShadow,
   COLORS,
   FONT,
   SIZES,
@@ -165,5 +177,4 @@ export {
   INSET_WINDOW_WIDTH,
   HIDDEN_OPACITY,
   AVATAR_COLORS,
-  AVATAR_COLORS_LIGHTS_OUT,
 };

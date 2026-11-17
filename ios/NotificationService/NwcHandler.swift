@@ -278,7 +278,10 @@ final class NwcHandler: @unchecked Sendable {
     guard let mnemonic = config.mnemonic, !config.breezApiKey.isEmpty else {
       throw NwcError.handOff("wallet credentials unavailable")
     }
-    let directory = NwcShared.directory!.appendingPathComponent("breez", isDirectory: true)
+    // Versioned: Breez migrates its store forward only, so 0.28 gets its own dir
+    // and the 0.26 store stays readable by an older build.
+    let directory = NwcShared.directory!.appendingPathComponent(
+      "breez-0.28", isDirectory: true)
     let start = Date()
     let wallet = try await withTimeout(remaining) {
       try await NwcWallet.connect(
