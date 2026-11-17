@@ -13,7 +13,6 @@ import {
   USD_ASSET_ADDRESS,
   swapBitcoinToToken,
   minFlashnetSwapAmounts,
-  checkClawbackEligibility,
   requestManualClawback,
   currentPriceAinBToPriceDollars,
   addActiveSwap,
@@ -568,23 +567,19 @@ export function FlashnetProvider({ children }) {
       for (const transfer of uniqueTransfers) {
         const transferId = transfer.id;
 
-        const eligibility = await checkClawbackEligibility(
+        const createdAt = Date.parse(transfer.createdAt);
+        if (createdAt && Date.now() - createdAt > 23 * 60 * 60 * 1000) continue;
+
+        console.warn('[Flashnet Refund Monitor] Refundable', transferId);
+
+        const response = await requestManualClawback(
           currentWalletMnemoincRef.current,
           transferId,
+          transfer.lpIdentityPublicKey,
         );
 
-        if (eligibility.didWork && eligibility.response) {
-          console.warn('[Flashnet Refund Monitor] Refundable', transferId);
-
-          const response = await requestManualClawback(
-            currentWalletMnemoincRef.current,
-            transferId,
-            transfer.lpIdentityPublicKey,
-          );
-
-          if (response.didWork && response.accepted) {
-            await new Promise(res => setTimeout(res, 500));
-          }
+        if (response.didWork && response.accepted) {
+          await new Promise(res => setTimeout(res, 500));
         }
       }
     } catch (err) {

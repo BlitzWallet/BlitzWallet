@@ -133,6 +133,10 @@ const formatError = (error, operation) => {
   return {
     operation,
     message: error?.message || String(error),
+    // Bare HTTP errors: which endpoint, and what it said.
+    status: error?.status,
+    url: error?.request?.url,
+    body: error?.response?.data,
   };
 };
 
@@ -1482,48 +1486,6 @@ export const requestManualClawback = async (
       didWork: false,
       error: error.message,
       details: formatError(error, 'requestManualClawback'),
-    };
-  }
-};
-
-/**
- * Manually request clawback Eligibility
- * @param {string} mnemonic - Wallet mnemonic
- * @param {string} sparkTransferId - Transfer ID to recover
- * @returns {Promise<object>} Clawback result
- */
-export const checkClawbackEligibility = async (mnemonic, sparkTransferId) => {
-  try {
-    const client = getFlashnetClient(mnemonic);
-
-    const eligibility = await client.checkClawbackEligibility({
-      sparkTransferId,
-    });
-
-    if (eligibility.accepted) {
-      console.log('Transfer is eligible for clawback');
-      return {
-        didWork: true,
-        error: null,
-        response: true,
-      };
-    } else {
-      console.log('Cannot clawback:', eligibility.error);
-      return {
-        didWork: true,
-        error: eligibility.error,
-        response: false,
-      };
-    }
-  } catch (error) {
-    console.warn(
-      'Manual clawback error:',
-      formatError(error, 'requestManualClawback'),
-    );
-    return {
-      didWork: false,
-      error: error.message,
-      response: false,
     };
   }
 };

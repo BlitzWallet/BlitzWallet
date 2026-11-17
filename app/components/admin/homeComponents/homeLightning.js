@@ -256,7 +256,10 @@ export default function HomeLightning({ navigation }) {
                   key={isHidden ? 'hidden' : 'shown'}
                   entering={FadeIn.duration(isHidden ? 150 : 250)}
                 >
-                  <TouchableOpacity onPress={handleBalanceChange}>
+                  <TouchableOpacity
+                    testID="home-total-balance"
+                    onPress={handleBalanceChange}
+                  >
                     <AmountHero
                       amountSize={60}
                       amount={totalSatValue}
