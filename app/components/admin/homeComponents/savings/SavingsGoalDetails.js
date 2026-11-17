@@ -19,6 +19,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import GetThemeColors from '../../../../hooks/themeColors';
+import useAfterTransition from '../../../../hooks/useAfterTransition';
 
 export default function SavingsGoalDetails(props) {
   const navigate = useNavigation();
@@ -45,14 +46,18 @@ export default function SavingsGoalDetails(props) {
   const goalBalanceMicros = selectedGoal
     ? getGoalBalanceMicros(selectedGoal.id)
     : 0;
-  const goalTransactions = selectedGoal
-    ? allSavingsTransactions.filter(tx => tx.goalId === selectedGoal.id)
-    : [];
+  // Tx filter and the refresh wait for this screen's push animation.
+  const isReady = useAfterTransition();
+  const goalTransactions =
+    selectedGoal && isReady
+      ? allSavingsTransactions.filter(tx => tx.goalId === selectedGoal.id)
+      : [];
 
   useFocusEffect(
     useCallback(() => {
+      if (!isReady) return;
       refreshSavings();
-    }, [refreshSavings]),
+    }, [refreshSavings, isReady]),
   );
 
   if (!selectedGoal) {
@@ -141,7 +146,9 @@ export default function SavingsGoalDetails(props) {
               showChevron={true}
             />
           </ListCard>
-          <SavingsActivityContainer transactions={goalTransactions} />
+          {isReady && (
+            <SavingsActivityContainer transactions={goalTransactions} />
+          )}
         </CustomScrollView>
       </View>
     </GlobalThemeView>

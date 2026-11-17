@@ -29,6 +29,7 @@ import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import useAfterTransition from '../../../../hooks/useAfterTransition';
 
 export default function SavingsHome() {
   const navigate = useNavigation();
@@ -47,16 +48,23 @@ export default function SavingsHome() {
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
+  // SavingsHome animates 'none' inside SavingsStack; the real push is the
+  // parent's, so wait on that.
+  const isReady = useAfterTransition(navigate.getParent());
+
   useFocusEffect(
     useCallback(() => {
+      if (!isReady) return;
       initializeSavings({ force: true });
-    }, [initializeSavings]),
+    }, [initializeSavings, isReady]),
   );
 
   const combinedTransactions = useMemo(
     () =>
-      mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts, t),
-    [allSavingsTransactions, interestPayouts, t],
+      isReady
+        ? mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts, t)
+        : [],
+    [allSavingsTransactions, interestPayouts, t, isReady],
   );
 
   const formatUsd = amount =>
@@ -228,7 +236,9 @@ export default function SavingsHome() {
             )}
           </View>
 
-          <SavingsActivityContainer transactions={combinedTransactions} />
+          {isReady && (
+            <SavingsActivityContainer transactions={combinedTransactions} />
+          )}
 
           <ThemeText
             styles={[styles.disclaimer, { color: tokens.muted }]}

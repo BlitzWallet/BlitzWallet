@@ -30,6 +30,7 @@ import ActivityRow, {
 import { FONT } from '../../constants/theme';
 import { exportTransactionsCsv } from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
+import useAfterTransition from '../../hooks/useAfterTransition';
 
 const EMPTY_FILTER = { directions: [], dateRange: null, types: [] };
 const NS = 'screens.inAccount.viewAllTxPage';
@@ -59,16 +60,19 @@ export default function ViewAllTxPage() {
   const { t } = useTranslation();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
+  // Skeleton shows while the push animation runs; the SQL read waits for it.
+  const isReady = useAfterTransition();
+
   // txsVersion bumps on every new or updated payment: the reload signal.
   useEffect(() => {
-    if (!sparkInformation.identityPubKey) return;
+    if (!sparkInformation.identityPubKey || !isReady) return;
     const requestId = ++requestIdRef.current;
     getFilteredTransactions(currentFilter, {
       accountId: sparkInformation.identityPubKey,
     }).then(result => {
       if (requestId === requestIdRef.current) setRawTxs(result || []);
     });
-  }, [currentFilter, sparkInformation.identityPubKey, txsVersion]);
+  }, [currentFilter, sparkInformation.identityPubKey, txsVersion, isReady]);
 
   const sections = useMemo(
     () =>

@@ -61,6 +61,7 @@ import IconButton from '../../../../../functions/CustomElements/redesign/IconBut
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
+import useAfterTransition from '../../../../../hooks/useAfterTransition';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -149,9 +150,11 @@ export default function EditAccountPage(props) {
   const paintedFromSnapshotRef = useRef(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [showSlowConnectUI, setShowSlowConnectUI] = useState(false);
+  // The wallet connect waits for the push animation (status stays 'connecting').
+  const isReady = useAfterTransition();
 
   useEffect(() => {
-    if (isActive) return; // active account uses live context (below)
+    if (isActive || !isReady) return; // active account uses live context (below)
     let cancelled = false;
     paintedFromSnapshotRef.current = false;
 
@@ -241,7 +244,14 @@ export default function EditAccountPage(props) {
       mnemonicRef.current = null;
       pubkeyRef.current = null;
     };
-  }, [isActive, accountInformation.uuid, isChild, accountMnemoinc, reloadKey]);
+  }, [
+    isActive,
+    accountInformation.uuid,
+    isChild,
+    accountMnemoinc,
+    reloadKey,
+    isReady,
+  ]);
 
   const isConnecting = isActive
     ? false

@@ -13,6 +13,7 @@ import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { getWalletTokens } from '../../../../functions/lrc20/utils';
 import TokenRow from './tokenRow';
+import useAfterTransition from '../../../../hooks/useAfterTransition';
 
 export default function AllTokensPage() {
   const { sparkInformation } = useSparkWallet();
@@ -21,7 +22,11 @@ export default function AllTokensPage() {
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [search, setSearch] = useState('');
 
+  // Filter/sort and row render wait for the push animation to finish.
+  const isReady = useAfterTransition();
+
   const tokens = useMemo(() => {
+    if (!isReady) return [];
     const query = search.trim().toLowerCase();
     return getWalletTokens(sparkInformation.tokens)
       .filter(([, { tokenMetadata }]) =>
@@ -35,7 +40,7 @@ export default function AllTokensPage() {
           String(b[1]?.tokenMetadata?.tokenName),
         ),
       );
-  }, [sparkInformation.tokens, search]);
+  }, [sparkInformation.tokens, search, isReady]);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -52,7 +57,7 @@ export default function AllTokensPage() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {tokens.length ? (
+          {!isReady ? null : tokens.length ? (
             <ListCard dividerInset={68} style={styles.card}>
               {tokens.map(token => (
                 <TokenRow key={token[0]} token={token} />

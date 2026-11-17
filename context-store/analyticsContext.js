@@ -14,6 +14,7 @@ import {
   deriveAnalytics,
 } from '../app/functions/analytics/deriveAnalytics';
 import { useAppStatus } from './appStatus';
+import useAfterTransition from '../app/hooks/useAfterTransition';
 
 // --- Global numbers provider: always mounted. Computes ONLY spentTotal, the one
 // value budget hooks need outside the analytics stack. The heavy analytics-only
@@ -123,8 +124,11 @@ export function AnalyticsArraysProvider({ children }) {
   const [outTxsUSD, setOutTxsUSD] = useState([]);
   const [derived, setDerived] = useState(DERIVED_DEFAULTS);
   const [isLoading, setIsLoading] = useState(true);
+  // The stack's push animation runs first; the 4 SQL reads wait for it.
+  const isReady = useAfterTransition();
 
   useEffect(() => {
+    if (!isReady) return;
     async function load() {
       if (!sparkInformation.identityPubKey) {
         setIsLoading(false);
@@ -170,7 +174,7 @@ export function AnalyticsArraysProvider({ children }) {
       }
     }
     load();
-  }, [txsHashKey, sparkInformation.identityPubKey]);
+  }, [txsHashKey, sparkInformation.identityPubKey, isReady]);
 
   const value = useMemo(
     () => ({

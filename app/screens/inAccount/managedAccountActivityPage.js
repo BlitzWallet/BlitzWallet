@@ -27,6 +27,7 @@ import {
 import { USDB_TOKEN_ID } from '../../constants';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
+import useAfterTransition from '../../hooks/useAfterTransition';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
@@ -157,7 +158,11 @@ export default function ManagedAccountActivityPage() {
     }
   }, []);
 
+  // Wallet viewer connect + first page wait for the push animation.
+  const isReady = useAfterTransition();
+
   useEffect(() => {
+    if (!isReady) return;
     let isMounted = true;
     (async () => {
       try {
@@ -188,6 +193,7 @@ export default function ManagedAccountActivityPage() {
     isChild,
     accountInformation?.uuid,
     loadNextPage,
+    isReady,
   ]);
 
   // Same rows and day sections as the Activity page. The account's token

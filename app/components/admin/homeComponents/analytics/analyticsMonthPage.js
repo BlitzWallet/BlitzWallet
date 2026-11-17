@@ -20,6 +20,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useAnalytics } from '../../../../../context-store/analyticsContext';
+import useAfterTransition from '../../../../hooks/useAfterTransition';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import formatDate from '../../../../functions/formatDate';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
@@ -142,6 +143,8 @@ export default function AnalyticsMonthPage(props) {
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const analytics = useAnalytics();
+  // Row build and FlatList mount wait for the push animation; skeleton shows.
+  const isReady = useAfterTransition();
 
   const isFiat = localDenomination === 'fiat';
   const suffix = isFiat ? 'USD' : 'BTC';
@@ -154,15 +157,17 @@ export default function AnalyticsMonthPage(props) {
   // Flatten the day sections; the day becomes each row's subtitle.
   const rows = useMemo(
     () =>
-      buildActivitySections({
-        transactions: txs,
-        tokens: sparkInformation.tokens,
-        enabledLRC20: showTokensInformation,
-        t,
-      }).flatMap(section =>
-        section.data.map(item => ({ ...item, dateLabel: section.title })),
-      ),
-    [txs, sparkInformation.tokens, showTokensInformation, t],
+      !isReady
+        ? []
+        : buildActivitySections({
+            transactions: txs,
+            tokens: sparkInformation.tokens,
+            enabledLRC20: showTokensInformation,
+            t,
+          }).flatMap(section =>
+            section.data.map(item => ({ ...item, dateLabel: section.title })),
+          ),
+    [txs, sparkInformation.tokens, showTokensInformation, t, isReady],
   );
 
   const renderItem = useCallback(
@@ -242,7 +247,7 @@ export default function AnalyticsMonthPage(props) {
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t(isIncome ? 'constants.received' : 'constants.sent')} />
-        {analytics.isLoading ? (
+        {analytics.isLoading || !isReady ? (
           <View>
             {/* Hero label and amount as bars; the chart's day ticks and date
                 labels don't depend on the data, so draw them for real. */}

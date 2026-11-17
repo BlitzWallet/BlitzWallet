@@ -12,6 +12,7 @@ import {
   getAllSparkTransactions,
   getTokenSparkTransactions,
 } from '../../../../functions/spark/transactions';
+import useAfterTransition from '../../../../hooks/useAfterTransition';
 import ActivityRow, {
   ActivityRowSkeleton,
   dayStart,
@@ -50,8 +51,11 @@ export default function ActivityCard({ scrollPosition, emptyText, style }) {
       limit: ROW_LIMIT,
     });
 
+  // Skeleton shows while the push animation runs; the SQL read waits for it.
+  const isReady = useAfterTransition();
+
   useEffect(() => {
-    if (!identityPubKey) return;
+    if (!identityPubKey || !isReady) return;
     let isCurrent = true;
     (async () => {
       if (onlyTokens) return getTokenSparkTransactions(identityPubKey);
@@ -74,7 +78,7 @@ export default function ActivityCard({ scrollPosition, emptyText, style }) {
     return () => {
       isCurrent = false;
     };
-  }, [onlyTokens, scrollPosition, identityPubKey, txsVersion]);
+  }, [onlyTokens, scrollPosition, identityPubKey, txsVersion, isReady]);
 
   // Depends on the tx list and token map only, so balance ticks don't rebuild it.
   const rows = useMemo(() => {
