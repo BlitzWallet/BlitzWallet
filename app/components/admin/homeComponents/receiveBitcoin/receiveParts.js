@@ -19,6 +19,12 @@ import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 
 const LIGHT = MODES.light;
 
+// BOLT11 and bech32 LNURL are case-insensitive; uppercase QRs use the denser
+// alphanumeric mode. Addresses (@), links (: / .) and bare chain addresses are untouched.
+export function toLightningQrValue(value) {
+  return /^ln[0-9a-z]+$/i.test(value) ? value.toUpperCase() : value;
+}
+
 // White QR card. While the address is loading (or failed) the QR area keeps
 // its size so the page doesn't jump. `caption` is the truncated address.
 export function ReceiveQrCard({
@@ -27,6 +33,7 @@ export function ReceiveQrCard({
   loading,
   errorText,
   caption,
+  hint,
   rows,
   onPress,
   removeCard,
@@ -37,7 +44,6 @@ export function ReceiveQrCard({
     <QrCard
       value={ready ? value : ' '}
       size={size}
-      badgeSize={44}
       onPress={ready ? onPress : undefined}
       accessibilityLabel={t('constants.copy')}
       style={[!removeCard && styles.card]}
@@ -56,6 +62,13 @@ export function ReceiveQrCard({
           CustomNumberOfLines={1}
           styles={styles.caption}
           content={caption}
+        />
+      )}
+      {!!hint && ready && (
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.hint}
+          content={hint}
         />
       )}
       {!!rows?.length && (
@@ -254,6 +267,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
     includeFontPadding: false,
+  },
+  hint: {
+    marginTop: 16,
+    color: LIGHT.ink,
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
   },
   rows: { alignSelf: 'stretch', marginTop: 10 },
   row: {

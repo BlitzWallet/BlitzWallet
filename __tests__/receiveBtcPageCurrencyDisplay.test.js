@@ -437,6 +437,20 @@ describe('ReceivePaymentHome currency display', () => {
       expect(queryText(renderer, /EUR/)).toBe(false);
     });
 
+    test('shows the invoice sats under the dollar amount', async () => {
+      const renderer = await renderReceive({
+        endReceiveType: 'USD',
+        receiveAmount: 32230,
+        paymentDisplayCurrency: 'USD',
+        paymentDisplayAmount: '32.23',
+      });
+
+      expectText(renderer, '32.23 USD');
+      expectText(renderer, '32,230 SAT');
+      expectText(renderer, 'receive.arrivesAsDollars');
+      expect(queryText(renderer, /EUR/)).toBe(false);
+    });
+
     test('an EUR entry shows the USD amount instead of a relabeled EUR figure', async () => {
       const renderer = await renderReceive({
         endReceiveType: 'USD',

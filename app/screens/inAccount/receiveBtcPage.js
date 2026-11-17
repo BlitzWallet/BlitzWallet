@@ -1,15 +1,13 @@
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import {
   CENTER,
   FONT,
-  MAX_WEB_CONTENT_WIDTH,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
   SATSPERBITCOIN,
 } from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { copyToClipboard } from '../../functions';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
@@ -17,7 +15,6 @@ import { useNodeContext } from '../../../context-store/nodeContext';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
-import { useToast } from '../../../context-store/toastManager';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useSparkWallet } from '../../../context-store/sparkContext';
@@ -30,6 +27,7 @@ import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
 import { useTheme } from '../../../context-store/theme';
 import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
 import useGuardedNavigation from '../../hooks/useGuardedNavigation';
+import useQrSize from '../../hooks/useQrSize';
 import {
   SATS_DISPLAY_CURRENCY,
   normalizeDisplayCurrency,
@@ -44,6 +42,8 @@ import Note from '../../functions/CustomElements/redesign/Note';
 import {
   ReceiveActions,
   ReceiveQrCard,
+  shortAddress,
+  toLightningQrValue,
 } from '../../components/admin/homeComponents/receiveBitcoin/receiveParts';
 import {
   buildPaylinkDoc,
@@ -64,7 +64,6 @@ export default function ReceivePaymentHome(props) {
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
-  const { width } = useWindowDimensions();
   // const { signer } = useRootstockProvider();
   const signer = null;
   const { t } = useTranslation();
@@ -74,9 +73,7 @@ export default function ReceivePaymentHome(props) {
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
   const { createAddress } = useAccumulationAddresses();
   const { bottomPadding } = useGlobalInsets();
-  const { showToast } = useToast();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const qrSize = Math.min(contentWidth - 60, 290);
+  const { qrSize, cardWidth, contentWidth } = useQrSize();
 
   const routeParams = props.route?.params || {};
   const paymentDescription = routeParams.description;
@@ -117,6 +114,7 @@ export default function ReceivePaymentHome(props) {
   // Append a currency suffix to signal receive method to backend.
   const lnurlSuffix = endReceiveType === 'USD' ? '-d60fbd' : '-e40605';
   const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}${lnurlSuffix}@blitzwalletapp.com`;
+  const lnurlIdentity = `${globalContactsInformation?.myProfile?.uniqueName}${lnurlSuffix}`;
 
   const minUsdSats = Math.round(
     Math.max(
@@ -308,28 +306,26 @@ export default function ReceivePaymentHome(props) {
   });
 
   const isUSD = endReceiveType === 'USD';
-  const subLine = [
-    !displayedReceiveAmount
-      ? isUSD
-        ? t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
-            amount: displayCorrectDenomination({
-              amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              fiatStats: resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-              forceCurrency: 'USD',
-            }),
-          })
-        : !paymentDescription && t('receive.anyAmountSub')
-      : isUSD
-      ? t('receive.arrivesAsDollars')
-      : secondary,
+  const noAmountText = !displayedReceiveAmount
+    ? isUSD
+      ? t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
+          amount: displayCorrectDenomination({
+            amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'fiat',
+            },
+            fiatStats: resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+            forceCurrency: 'USD',
+          }),
+        })
+      : !paymentDescription && t('receive.anyAmountSub')
+    : '';
+  const smallLines = [
+    noAmountText,
+    !!displayedReceiveAmount && isUSD && t('receive.arrivesAsDollars'),
     paymentDescription,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  ].filter(Boolean);
 
   const errorMessage = addressState.errorMessageText;
   const isWarning = errorMessage?.type === 'warning' && !!errorMessage?.text;
@@ -338,6 +334,20 @@ export default function ReceivePaymentHome(props) {
     : isUSD
     ? t('receive.conversionNote')
     : '';
+
+  const openAddressSheet = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'sendAddress',
+      address: address,
+      isReceive: true,
+      title: t(
+        `receive.address_share_${
+          !!primary ? 'lightningInvoice' : 'lightningAddress'
+        }`,
+      ),
+      sliderHight: 0.6,
+    });
+  };
 
   return (
     <GlobalThemeView useStandardWidth={false} styles={styles.screen}>
@@ -348,7 +358,7 @@ export default function ReceivePaymentHome(props) {
         ]}
       >
         <TopBar
-          title={t('receive.invoice')}
+          title=""
           right={
             <IconButton
               icon="Pencil"
@@ -361,32 +371,60 @@ export default function ReceivePaymentHome(props) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scroll}
         >
-          <View style={styles.amount}>
+          {/* Match the QR card's width so the text lines up with it. */}
+          <View style={[styles.amount, { width: cardWidth }]}>
             {primary ? (
-              <AmountHero amount={primary} formatAmount={false} splitCents />
+              <AmountHero
+                amount={primary}
+                formatAmount={false}
+                amountSize={48}
+                align="left"
+              />
             ) : (
               <ThemeText
                 styles={styles.anyAmount}
+                CustomNumberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.5}
                 content={t('receive.anyAmount')}
               />
             )}
-            {!!subLine && (
+            {!!displayedReceiveAmount && (isUSD || !!secondary) && (
               <ThemeText
-                CustomNumberOfLines={2}
-                styles={[styles.sub, { color: tokens.muted }]}
-                content={subLine}
+                styles={[styles.bigSecondary, { color: tokens.muted }]}
+                content={
+                  isUSD
+                    ? displayCorrectDenomination({
+                        amount: displayedReceiveAmount,
+                        masterInfoObject: {
+                          ...masterInfoObject,
+                          userBalanceDenomination: 'sats',
+                        },
+                        fiatStats,
+                      })
+                    : secondary
+                }
               />
             )}
+            {smallLines.map((line, i) => (
+              <ThemeText
+                key={i}
+                CustomNumberOfLines={2}
+                styles={[styles.sub, { color: tokens.muted }]}
+                content={line}
+              />
+            ))}
           </View>
           <View style={styles.qr}>
             <ReceiveQrCard
-              value={displayAddress}
+              value={toLightningQrValue(displayAddress)}
               size={qrSize}
               loading={addressState.isGeneratingInvoice}
               errorText={
                 errorMessage?.text && !isWarning ? t(errorMessage.text) : ''
               }
-              onPress={() => copyToClipboard(displayAddress, showToast)}
+              hint={!!primary ? shortAddress(displayAddress) : lnurlIdentity}
+              onPress={openAddressSheet}
               removeCard
             />
           </View>
@@ -512,19 +550,24 @@ const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   scroll: { flexGrow: 1, paddingVertical: 24 },
-  amount: { alignItems: 'center', marginBottom: 24 },
-  qr: { flex: 1, justifyContent: 'center' },
+  amount: { alignItems: 'flex-start', alignSelf: 'center' },
+  qr: { alignItems: 'center', marginTop: 22 },
   anyAmount: {
     fontFamily: FONT.Title_Medium,
+    fontSize: 48,
+    lineHeight: 56,
+    letterSpacing: -1,
+    includeFontPadding: false,
+  },
+  bigSecondary: {
+    fontFamily: FONT.Title_Medium,
     fontSize: 28,
-    lineHeight: 34,
+    lineHeight: 36,
     includeFontPadding: false,
   },
   sub: {
-    marginTop: 6,
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'center',
+    fontSize: 15,
+    lineHeight: 22,
     includeFontPadding: false,
   },
   note: { marginBottom: 16 },

@@ -452,7 +452,6 @@ export default function SparkHodlInvoiceTest() {
                 value={invoice}
                 size={250}
                 quietZone={15}
-                badgeSize={50}
                 style={styles.qrCard}
               />
               <Text selectable style={styles.invoiceText}>

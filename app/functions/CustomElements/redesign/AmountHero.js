@@ -28,6 +28,7 @@ export default function AmountHero({
   lineHeight,
   amountFont = FONT.Title_Medium,
   fractionFont = FONT.Title_Regular,
+  align = 'center',
 }) {
   const { tokens } = useTheme();
   const { masterInfoObject: contextMasterInfoObject } =
@@ -48,7 +49,7 @@ export default function AmountHero({
 
   return (
     <View
-      style={styles.row}
+      style={[styles.row, align === 'left' && { justifyContent: 'flex-start' }]}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="text"
     >

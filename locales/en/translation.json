@@ -4113,6 +4113,7 @@
     "tokensWarning": "Send only Spark tokens to this address. They show up in Tokens.",
     "invoice": "Invoice",
     "anyAmount": "Any amount",
+    "scanWithLightningWallet": "Scan with any Lightning wallet",
     "anyAmountSub": "The sender chooses how much to pay.",
     "arrivesAsDollars": "Arrives as Dollars",
     "conversionNote": "The final amount can vary slightly with the price during the conversion.",
@@ -4120,6 +4121,8 @@
     "share": "Share",
     "address_share_bitcoin": "Bitcoin address",
     "address_share_stablecoin": "Stablecoin address",
-    "address_share_tokens": "Tokens address"
+    "address_share_tokens": "Tokens address",
+    "address_share_lightningAddress": "Lightning address",
+    "address_share_lightningInvoice": "Lightning invoice"
   }
 }

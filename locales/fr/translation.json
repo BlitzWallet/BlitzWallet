@@ -4114,6 +4114,7 @@
     "tokensWarning": "Envoyez uniquement des jetons Spark à cette adresse. Ils apparaissent dans Jetons.",
     "invoice": "Facture",
     "anyAmount": "Montant libre",
+    "scanWithLightningWallet": "Scannez avec n'importe quel portefeuille Lightning",
     "anyAmountSub": "L'expéditeur choisit le montant à payer.",
     "arrivesAsDollars": "Arrive en dollars",
     "conversionNote": "Le montant final peut varier légèrement selon le prix pendant la conversion.",
@@ -4121,6 +4122,8 @@
     "share": "Partager",
     "address_share_bitcoin": "Adresse Bitcoin",
     "address_share_stablecoin": "Adresse de stablecoin",
-    "address_share_tokens": "Adresse des jetons"
+    "address_share_tokens": "Adresse des jetons",
+    "address_share_lightningAddress": "Adresse Lightning",
+    "address_share_lightningInvoice": "Facture Lightning"
   }
 }

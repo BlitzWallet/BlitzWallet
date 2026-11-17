@@ -4114,6 +4114,7 @@
     "tokensWarning": "Skicka endast Spark-tokens till den här adressen. De visas under Tokens.",
     "invoice": "Faktura",
     "anyAmount": "Valfritt belopp",
+    "scanWithLightningWallet": "Skanna med valfri Lightning-plånbok",
     "anyAmountSub": "Avsändaren väljer hur mycket som ska betalas.",
     "arrivesAsDollars": "Anländer som dollar",
     "conversionNote": "Det slutliga beloppet kan variera något med priset under konverteringen.",
@@ -4121,6 +4122,8 @@
     "share": "Dela",
     "address_share_bitcoin": "Bitcoin-adress",
     "address_share_stablecoin": "Stablecoin-adress",
-    "address_share_tokens": "Token-adress"
+    "address_share_tokens": "Token-adress",
+    "address_share_lightningAddress": "Lightning-adress",
+    "address_share_lightningInvoice": "Lightning-faktura"
   }
 }

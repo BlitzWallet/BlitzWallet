@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER } from '../../constants';
 import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
@@ -12,6 +12,7 @@ import { initializeAddressProcess } from '../../functions/receiveBitcoin/address
 import { shareMessage } from '../../functions/handleShare';
 import { ACCUMULATION_CHAINS } from '../../constants/accumulationAddresses';
 import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
+import useQrSize from '../../hooks/useQrSize';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
@@ -39,7 +40,6 @@ export default function ReceiveAddressPage(props) {
 
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { width } = useWindowDimensions();
   const { bottomPadding } = useGlobalInsets();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -49,8 +49,7 @@ export default function ReceiveAddressPage(props) {
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
   const { createAddress, addressesForOption } = useAccumulationAddresses();
 
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const qrSize = Math.min(contentWidth - 60, 290);
+  const { qrSize, contentWidth } = useQrSize();
   const chain = ACCUMULATION_CHAINS.find(c => c.id === config.sourceChain);
 
   const [addressState, setAddressState] = useState({
@@ -257,6 +256,7 @@ export default function ReceiveAddressPage(props) {
             }
             caption={shortAddress(address)}
             rows={rows}
+            removeCard
           />
         </CustomScrollView>
         <View style={styles.warning}>
@@ -274,6 +274,11 @@ export default function ReceiveAddressPage(props) {
 const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingVertical: 24 },
+  scroll: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
   warning: { marginBottom: 16 },
 });

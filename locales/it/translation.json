@@ -4114,6 +4114,7 @@
     "tokensWarning": "Invia solo token Spark a questo indirizzo. Appaiono in Token.",
     "invoice": "Fattura",
     "anyAmount": "Qualsiasi importo",
+    "scanWithLightningWallet": "Scansiona con qualsiasi wallet Lightning",
     "anyAmountSub": "Il mittente sceglie quanto pagare.",
     "arrivesAsDollars": "Arriva in dollari",
     "conversionNote": "L'importo finale può variare leggermente in base al prezzo durante la conversione.",
@@ -4121,6 +4122,8 @@
     "share": "Condividi",
     "address_share_bitcoin": "Indirizzo Bitcoin",
     "address_share_stablecoin": "Indirizzo stablecoin",
-    "address_share_tokens": "Indirizzo token"
+    "address_share_tokens": "Indirizzo token",
+    "address_share_lightningAddress": "Indirizzo Lightning",
+    "address_share_lightningInvoice": "Fattura Lightning"
   }
 }

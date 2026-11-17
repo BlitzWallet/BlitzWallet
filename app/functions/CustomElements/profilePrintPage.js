@@ -11,11 +11,12 @@ import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import QrCard from './redesign/QrCard';
 import CustomButton from './button';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER, FONT } from '../../constants';
 import { MODES } from '../../constants/themes';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useToast } from '../../../context-store/toastManager';
 import { isFileSharingAvailable, shareFile } from '../handleShare';
+import useQrSize from '../../hooks/useQrSize';
 
 const normalizeFileUri = path =>
   path.startsWith('file://') ? path : `file://${path}`;
@@ -29,7 +30,8 @@ export default function ProfilePrintPage() {
   const { showToast } = useToast();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  // Card padding is 16 (styles.card); the QR has none of its own here.
+  const { qrSize, cardWidth, contentWidth } = useQrSize({ cardPadding: 20 });
   const viewShotRef = useRef(null);
 
   const { name, uniqueName } = globalContactsInformation.myProfile;
@@ -87,7 +89,7 @@ export default function ProfilePrintPage() {
           options={{ format: 'jpg', quality: 0.9 }}
           style={styles.shot}
         >
-          <View style={styles.card}>
+          <View style={[styles.card, { width: cardWidth }]}>
             <ThemeText
               CustomNumberOfLines={2}
               styles={styles.name}
@@ -98,13 +100,7 @@ export default function ProfilePrintPage() {
               styles={styles.uniqueName}
               content={`@${uniqueName}`}
             />
-            <QrCard
-              value={lnurl}
-              size={160}
-              badgeSize={30}
-              style={styles.qr}
-              showBadge={false}
-            />
+            <QrCard value={lnurl} size={qrSize} style={styles.qr} />
             <ThemeText styles={styles.address} content={lnurl} />
           </View>
           <ThemeText
@@ -146,7 +142,6 @@ const styles = StyleSheet.create({
     backgroundColor: MODES.light.surface,
   },
   card: {
-    width: 220,
     paddingTop: 18,
     paddingHorizontal: 16,
     paddingBottom: 16,
@@ -193,5 +188,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: MODES.light.ink,
     includeFontPadding: false,
+    marginTop: Platform.OS === 'web' ? 15 : 0,
   },
 });

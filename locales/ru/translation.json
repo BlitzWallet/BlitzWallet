@@ -4153,6 +4153,7 @@
     "tokensWarning": "Отправляйте на этот адрес только токены Spark. Они появятся в разделе «Токены».",
     "invoice": "Счёт",
     "anyAmount": "Любая сумма",
+    "scanWithLightningWallet": "Сканируйте любым Lightning-кошельком",
     "anyAmountSub": "Отправитель выбирает сумму.",
     "arrivesAsDollars": "Поступит в долларах",
     "conversionNote": "Итоговая сумма может немного меняться в зависимости от цены во время конвертации.",
@@ -4160,6 +4161,8 @@
     "share": "Поделиться",
     "address_share_bitcoin": "Bitcoin-адрес",
     "address_share_stablecoin": "Адрес стейблкоина",
-    "address_share_tokens": "Адрес токенов"
+    "address_share_tokens": "Адрес токенов",
+    "address_share_lightningAddress": "Lightning-адрес",
+    "address_share_lightningInvoice": "Инвойс Lightning"
   }
 }

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import ViewShot from 'react-native-view-shot';
 import QrCard from './redesign/QrCard';
 import copyToClipboard from '../copyToClipboard';
@@ -9,7 +9,6 @@ import {
   CENTER,
   EMAIL_REGEX,
   FONT,
-  MAX_WEB_CONTENT_WIDTH,
   VALID_URL_REGEX,
 } from '../../constants';
 import ThemeText from './textTheme';
@@ -23,6 +22,7 @@ import { shareFile, shareMessage } from '../handleShare';
 import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import CustomButton from './button';
+import useQrSize from '../../hooks/useQrSize';
 
 // D158: one code (your Lightning address, OQ-40) on a white card with your
 // name. Tap copies; Print + Share sit in the top bar.
@@ -32,9 +32,8 @@ export default function ShowProfileQr(props) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const navigate = useNavigation();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const qrSize = Math.min(280, contentWidth - 48);
+  // Card padding is 24 (styles.card); the card hugs the QR so the name lines up with its edges.
+  const { qrSize, cardWidth, contentWidth } = useQrSize({ cardPadding: 24 });
   const viewShotRef = useRef(null);
 
   const name = globalContactsInformation.myProfile.name;
@@ -184,7 +183,7 @@ export default function ShowProfileQr(props) {
               size={qrSize}
               onPress={handleCopy}
               accessibilityLabel={t('contacts.showProfileQr.copyAddress')}
-              style={styles.card}
+              style={[styles.card, { width: cardWidth }]}
             >
               <View style={styles.cardHeader}>
                 <ThemeText
@@ -227,13 +226,13 @@ const styles = StyleSheet.create({
   cardWrapper: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 20,
   },
   viewShot: { borderRadius: 28, overflow: 'hidden' },
   // QrCard renders children under the code; column-reverse puts the name
   // block on top as drawn.
   card: {
-    width: '100%',
     padding: 24,
     paddingTop: 24,
     paddingBottom: 24,

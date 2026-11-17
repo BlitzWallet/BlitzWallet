@@ -13,7 +13,7 @@ let mockIsUsingAltAccount = false;
 let mockInitializeMode = 'success';
 let mockAddressError = null;
 
-const mockInitializeAddressProcess = jest.fn(async info => {
+const mockDefaultInitialize = async info => {
   if (mockInitializeMode === 'pending') return new Promise(() => {});
   if (mockInitializeMode === 'skipState') return undefined;
 
@@ -33,7 +33,9 @@ const mockInitializeAddressProcess = jest.fn(async info => {
   }));
 
   return undefined;
-});
+};
+
+const mockInitializeAddressProcess = jest.fn(mockDefaultInitialize);
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => mockNavigation,
@@ -459,6 +461,7 @@ describe('ReceivePaymentHome', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.clearAllMocks();
+    mockInitializeAddressProcess.mockImplementation(mockDefaultInitialize);
     mockIsUsingAltAccount = false;
     mockInitializeMode = 'success';
     mockAddressError = null;
@@ -841,6 +844,33 @@ describe('ReceivePaymentHome', () => {
       );
     });
 
+    test('copy keeps the lowercase invoice while the QR shows uppercase', async () => {
+      mockInitializeAddressProcess.mockImplementationOnce(async info => {
+        info.setAddressState(prev => ({
+          ...prev,
+          isGeneratingInvoice: false,
+          generatedAddress: 'lnbc50n1pqqtest',
+          errorMessageText: { type: null, text: '' },
+        }));
+      });
+      const renderer = await renderReceive({ receiveAmount: 50 });
+
+      expect(qrValue(renderer)).toBe('LNBC50N1PQQTEST');
+
+      pressText(renderer, 'constants.copy');
+      expect(copyToClipboard).toHaveBeenLastCalledWith(
+        'lnbc50n1pqqtest',
+        mockShowToast,
+      );
+
+      copyToClipboard.mockClear();
+      pressQrCard(renderer);
+      expect(copyToClipboard).toHaveBeenCalledWith(
+        'lnbc50n1pqqtest',
+        mockShowToast,
+      );
+    });
+
     test('share invoice creates and shares a BTC paylink', async () => {
       const renderer = await renderReceive({ receiveAmount: 5000 });
 
@@ -1076,5 +1106,22 @@ describe('ReceivePaymentHome', () => {
       expect(qrValue(renderer)).toBe('invoice-BTC-2000-none');
       expect(qrValue(renderer)).not.toBe('invoice-BTC-1000-none');
     });
+  });
+
+  test('never renders the invoice or lightning address as text', async () => {
+    const states = [
+      {},
+      { receiveAmount: 5000, description: 'Coffee' },
+      { endReceiveType: 'USD', receiveAmount: 2000 },
+    ];
+    for (const state of states) {
+      const renderer = await renderReceive(state);
+      allText(renderer).forEach(line => {
+        expect(line).not.toContain('@blitzwalletapp.com');
+        expect(line).not.toContain('invoice-');
+      });
+      expectText(renderer, 'receive.scanWithLightningWallet');
+      act(() => renderer.unmount());
+    }
   });
 });
