@@ -102,6 +102,8 @@ import ReceiveAddressPage from '../app/screens/inAccount/receiveAddressPage';
 import ReceiveStablecoinNetworks from '../app/screens/inAccount/receiveStablecoinNetworks';
 import ConfirmPaymentRequest from '../app/components/admin/homeComponents/contacts/confirmRequestPage';
 import SendList from '../app/screens/inAccount/sendList';
+import MobileMoneyCountryScreen from '../app/components/admin/homeComponents/homeLightning/mobileMoneyCountryScreen';
+import MobileMoneyPhoneScreen from '../app/components/admin/homeComponents/homeLightning/mobileMoneyPhoneScreen';
 import SendAmountScreen from '../app/components/admin/homeComponents/sendBitcoin/sendAmountScreen';
 import SendDescriptionScreen from '../app/components/admin/homeComponents/sendBitcoin/sendDescriptionScreen';
 import SendReviewScreen from '../app/components/admin/homeComponents/sendBitcoin/sendReviewScreen';
@@ -247,6 +249,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'ReceiveStablecoinNetworks', component: ReceiveStablecoinNetworks },
   { name: 'ConfirmPaymentRequest', component: ConfirmPaymentRequest },
   { name: 'SendList', component: SendList },
+  { name: 'MobileMoneyCountryScreen', component: MobileMoneyCountryScreen },
+  { name: 'MobileMoneyPhoneScreen', component: MobileMoneyPhoneScreen },
   { name: 'BalancePage', component: BalancePage },
   { name: 'TokensPage', component: TokensPage },
   { name: 'AllTokensPage', component: AllTokensPage },

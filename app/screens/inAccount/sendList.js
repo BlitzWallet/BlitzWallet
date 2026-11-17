@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { CustomKeyboardAvoidingView } from '../../functions/CustomElements';
 import { CENTER } from '../../constants';
@@ -8,9 +8,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import SendModal from '../../components/admin/homeComponents/sendBitcoin/sendModal';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
-import MobileMoneySendOverlay from '../../components/admin/homeComponents/homeLightning/mobileMoneySendOverlay';
-import { useTheme } from '../../../context-store/theme';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { useProcessedContacts } from '../../components/admin/homeComponents/contacts/contactsPageComponents/hooks';
@@ -21,19 +18,12 @@ import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader
 import ContactAvatarDisc from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
 
-const noop = () => {};
-const runCallback = callback => callback();
-
 export default function SendList() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   // Set when Send was opened from the Bitcoin or Dollars page.
   const preSelectedPaymentMethod = useRoute().params?.preSelectedPaymentMethod;
-  const { tokens } = useTheme();
-  const { topPadding } = useGlobalInsets();
   const contentWidth = useContentWidth();
-  const [showMobileMoney, setShowMobileMoney] = useState(false);
-  const [backNav, setBackNav] = useState(null);
   const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
   const { cache } = useImageCache();
 
@@ -90,8 +80,11 @@ export default function SendList() {
     ));
   }, [sortedContacts, cache, navigate, t, preSelectedPaymentMethod]);
 
-  const openMobileMoney = useCallback(() => setShowMobileMoney(true), []);
-  const closeMobileMoney = useCallback(() => setShowMobileMoney(false), []);
+  const openMobileMoney = useCallback(() => {
+    navigate.navigate('MobileMoneyCountryScreen', {
+      preSelectedPaymentMethod,
+    });
+  }, [navigate, preSelectedPaymentMethod]);
   const openAddContact = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'addContacts',
@@ -133,29 +126,6 @@ export default function SendList() {
         onPhonePress={openMobileMoney}
         preSelectedPaymentMethod={preSelectedPaymentMethod}
       />
-      {showMobileMoney && (
-        <View
-          style={[
-            styles.overlay,
-            { backgroundColor: tokens.ground, paddingTop: topPadding },
-          ]}
-        >
-          <View style={[styles.overlayTopBar, { width: contentWidth }]}>
-            <TopBar title="" onBack={backNav?.onPress} />
-          </View>
-          <View style={styles.overlayBody}>
-            <MobileMoneySendOverlay
-              visible={true}
-              onClose={closeMobileMoney}
-              handleBackPressFunction={runCallback}
-              navigate={navigate}
-              preSelectedPaymentMethod={preSelectedPaymentMethod}
-              setBackNav={setBackNav}
-              setContentHeight={noop}
-            />
-          </View>
-        </View>
-      )}
     </CustomKeyboardAvoidingView>
   );
 }
@@ -164,7 +134,4 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   list: { paddingBottom: 24 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  overlay: { ...StyleSheet.absoluteFillObject, zIndex: 10 },
-  overlayTopBar: { ...CENTER },
-  overlayBody: { flex: 1 },
 });
