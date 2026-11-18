@@ -5,6 +5,7 @@ export function clearEnrichedTxCache() {
   enrichedTxCache.clear();
 }
 
+// paymentDetails is optional: omitted, the JSON is parsed only on a cache miss.
 export function getStableTx(currentTransaction, paymentDetails) {
   const sparkID = currentTransaction.sparkID;
   const sig = `${currentTransaction.paymentStatus}:${currentTransaction.status}:${currentTransaction.details}`;
@@ -14,7 +15,10 @@ export function getStableTx(currentTransaction, paymentDetails) {
     enrichedTxCache.set(sparkID, hit);
     return hit.obj;
   }
-  const obj = { ...currentTransaction, details: paymentDetails };
+  const obj = {
+    ...currentTransaction,
+    details: paymentDetails ?? JSON.parse(currentTransaction.details),
+  };
   enrichedTxCache.set(sparkID, { sig, obj });
   while (enrichedTxCache.size > ENRICHED_TX_CACHE_LIMIT) {
     const oldestKey = enrichedTxCache.keys().next().value;

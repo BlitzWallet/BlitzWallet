@@ -15,8 +15,8 @@
     "name": "Blitz Wallet",
     "shortName": "Blitz",
     "lang": "en",
-    "themeColor": "#EBEBEB",
-    "backgroundColor": "#EBEBEB",
+    "themeColor": "#F0F0F2",
+    "backgroundColor": "#F0F0F2",
     "display": "standalone",
     "startUrl": "."
   }

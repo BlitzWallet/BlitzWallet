@@ -1,45 +1,35 @@
-// Coalesce a burst of balance:update events into one commit.
+// Trigger -> read engine. Breez events (synced / payment* / claimedDeposits)
+// carry no balance, so each one only triggers a coalesced getInfo read; the
+// newest read wins. While a send is in flight nothing lands except the send's
+// own settle read, and follow-up reads after a send catch a late-landing change.
 const COALESCE_MS = 300;
 const MAX_WAIT_MS = 1000;
-// A settle read that failed (timeout, bridge error) is retried; one that lost
-// to a newer event is not (the event is newer).
 const RETRY_MS = [2000, 8000, 30000];
+const ZERO_RECHECK_MS = 8000;
+const FOLLOW_UP_MS = [1500, 4000, 10000];
 
-/**
- * Decides the displayed sats balance.
- *
- * The SDK's in-memory `available`
- * plus the leaves locked for optimization (a swap returns the same amount),
- * without the leaves being spent. An optimization never dips it; a real spend
- * always does, so there are no hold rules.
- *
- * - balance:update events are coalesced, then the newest value commits.
- * - read() (getBalance: syncs leaves with the operators, then reports the
- *   same in-memory value) repairs events missed while backgrounded,
- *   disconnected or sending, and carries the token balances. Events and reads
- *   describe one state, so the newest arrival wins: a read loses to any event
- *   that arrived while it was in flight. A failed settle read is retried a
- *   bounded number of times.
- * - While a send is in flight nothing lands (its leaf locks dip the value),
- *   except the send's own settle read; the newest held event lands at the end.
- */
 export function createBalanceEngine({
   getDisplayed,
   commit,
-  read: readBalance,
+  read,
   isSending,
   isActive,
+  syncIntervalSecs = 60,
+  onConnectivity = () => {},
 }) {
   let disposed = false;
-  let version = 0; // bumps on every commit
-  let arrivals = 0; // bumps on every event and landed read
-  let staged = null; // newest event value not committed yet
+  let version = 0;
+  let arrivals = 0;
   let trailing = null;
   let deadline = null;
   let inFlight = null;
   let rerun = false;
   let readFailed = false;
   let retry = null;
+  let lastVerifiedAt = 0;
+  let sessionVerified = false;
+  let expectChange = null;
+  let followUpTimer = null;
 
   const clearCoalesce = () => {
     clearTimeout(trailing);
@@ -53,46 +43,57 @@ export function createBalanceEngine({
     commit(value, info);
   };
 
-  const flush = () => {
-    clearCoalesce();
-    if (disposed || staged === null || isSending()) return;
-    const value = staged;
-    staged = null;
-    if (value !== getDisplayed()) doCommit(value, { source: 'event' });
+  const trigger = () => {
+    if (disposed) return;
+    arrivals += 1;
+    clearTimeout(trailing);
+    trailing = setTimeout(flush, COALESCE_MS);
+    if (!deadline) deadline = setTimeout(flush, MAX_WAIT_MS);
   };
 
-  const read = () => {
-    if (disposed) return Promise.resolve(false);
+  const readOnce = async () => {
+    if (disposed) return { landed: false };
     if (inFlight) {
       rerun = true;
       return inFlight;
     }
     const run = (async () => {
       let landed = false;
+      const runStart = Date.now();
       do {
         rerun = false;
-        const startArrivals = arrivals;
+        const start = arrivals;
         let result = null;
         try {
-          result = await readBalance();
+          result = await read();
         } catch {}
-        // invalidate()/dispose() while in flight: this run is void.
-        if (disposed || inFlight !== run) return false;
+        if (disposed || inFlight !== run) return { landed: false };
         const value = Number(result?.balance);
         readFailed = !result?.didWork || !Number.isFinite(value);
-        landed =
-          arrivals === startArrivals &&
-          isActive() &&
-          !!result?.didWork &&
-          Number.isFinite(value);
-        if (landed) {
-          arrivals += 1;
-          staged = null; // older than this read
-          clearCoalesce();
-          doCommit(value, { source: 'read', tokens: result.tokensObj });
+        if (!readFailed && isActive()) {
+          if (value === 0 && getDisplayed() > 0 && !sessionVerified) {
+            readFailed = true;
+            retry = setTimeout(() => {
+              retry = null;
+              if (!disposed && !isSending()) readOnce();
+            }, ZERO_RECHECK_MS);
+          } else {
+            landed = arrivals === start;
+            if (!landed) rerun = true;
+            // A burst faster than one read must not freeze the display: after
+            // MAX_WAIT_MS commit the newest successful read and keep re-reading.
+            if (landed || Date.now() - runStart >= MAX_WAIT_MS) {
+              doCommit(value, {
+                source: 'read',
+                tokens: result.tokensObj,
+                verified: sessionVerified,
+                lastVerifiedAt,
+              });
+            }
+          }
         }
       } while (rerun);
-      return landed;
+      return { landed };
     })();
     inFlight = run;
     run.finally(() => {
@@ -101,68 +102,107 @@ export function createBalanceEngine({
     return run;
   };
 
-  const cancelRetry = () => {
-    clearTimeout(retry);
-    retry = null;
+  const flush = () => {
+    clearCoalesce();
+    if (disposed || isSending()) return;
+    readOnce();
   };
 
-  const settleAttempt = n =>
-    read().then(landed => {
-      if (!landed && readFailed && !disposed && n < RETRY_MS.length) {
-        retry = setTimeout(() => {
-          retry = null;
-          if (!disposed && !isSending()) settleAttempt(n + 1);
-        }, RETRY_MS[n]);
-      }
-      return landed;
-    });
+  const scheduleFollowUp = () => {
+    if (!expectChange || disposed) return;
+    const { from, tries } = expectChange;
+    if (getDisplayed() !== from || tries >= FOLLOW_UP_MS.length) {
+      expectChange = null;
+      return;
+    }
+    followUpTimer = setTimeout(async () => {
+      followUpTimer = null;
+      if (disposed || isSending()) return;
+      expectChange = { from, tries: tries + 1 };
+      await readOnce();
+      if (getDisplayed() === from) scheduleFollowUp();
+    }, FOLLOW_UP_MS[tries]);
+  };
+
+  const settle = async ({ allowDuringSend = false } = {}) => {
+    if (disposed || (isSending() && !allowDuringSend)) return false;
+    clearTimeout(retry);
+    retry = null;
+    let n = 0;
+    let landed = false;
+    do {
+      const out = await readOnce();
+      landed = out.landed;
+      if (!landed && readFailed && n < RETRY_MS.length) {
+        await new Promise(res => {
+          retry = setTimeout(res, RETRY_MS[n]);
+        });
+        n += 1;
+      } else break;
+    } while (!disposed && !isSending());
+    return landed;
+  };
 
   return {
     version: () => version,
+    lastVerifiedAt: () => lastVerifiedAt || null,
 
-    onEvent(snapshot) {
-      if (disposed) return;
-      const value =
-        Number(snapshot?.available) + Number(snapshot?.optimizationLocked ?? 0);
-      if (!Number.isFinite(value)) return;
-      arrivals += 1;
-      staged = value;
-      clearTimeout(trailing);
-      trailing = setTimeout(flush, COALESCE_MS);
-      if (!deadline) deadline = setTimeout(flush, MAX_WAIT_MS);
-    },
-
-    read,
-
-    // Funds moved or events may have been missed: read now. While sending,
-    // only the send's own settle read runs; the send end covers the rest.
-    settle({ allowDuringSend = false } = {}) {
-      if (disposed || (isSending() && !allowDuringSend)) {
-        return Promise.resolve(false);
+    onEvent(event) {
+      if (disposed || !event) return;
+      switch (event.type) {
+        case 'synced':
+        case 'paymentSucceeded':
+        case 'claimedDeposits':
+          lastVerifiedAt = Date.now();
+          sessionVerified = true;
+          onConnectivity('online');
+          trigger();
+          break;
+        case 'paymentPending':
+        case 'paymentFailed':
+        case 'recoverableFunds':
+          trigger();
+          break;
+        case 'autoOptimization':
+        case 'unilateralExitStateChanged':
+        case 'unclaimedDeposits':
+        case 'newDeposits':
+          break;
+        default:
+          break;
       }
-      cancelRetry();
-      return settleAttempt(0);
     },
 
-    // Resolves once what the send held has landed. An in-flight settle read
-    // lands first, so sats and tokens reach the screen together.
+    read: readOnce,
+    trigger,
+    settle,
+
     onSendingChange(sending) {
       if (disposed || sending) return Promise.resolve();
-      return Promise.resolve(inFlight).then(flush);
+      return Promise.resolve(inFlight).then(async () => {
+        expectChange = { from: getDisplayed(), tries: 0 };
+        await settle();
+        scheduleFollowUp();
+      });
     },
 
-    // Background / reconnect: an in-flight read may never settle; void it so
-    // the next settle starts fresh.
     invalidate() {
-      cancelRetry();
+      clearTimeout(retry);
+      clearTimeout(followUpTimer);
+      retry = null;
+      followUpTimer = null;
       inFlight = null;
       rerun = false;
+      expectChange = null;
     },
 
     dispose() {
       disposed = true;
       clearCoalesce();
-      cancelRetry();
+      clearTimeout(retry);
+      clearTimeout(followUpTimer);
+      retry = null;
+      followUpTimer = null;
       inFlight = null;
     },
   };

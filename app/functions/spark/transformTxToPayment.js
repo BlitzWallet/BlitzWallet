@@ -7,7 +7,6 @@ import {
   getActiveAutoSwapByAmount,
   updateSparkTransactionDetails,
 } from './transactions';
-import i18next from 'i18next';
 import {
   FLASHNET_POOL_IDENTITY_KEY,
   getActiveSwapTransferIds,

@@ -4,7 +4,11 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 import useAdaptiveButtonLayout from '../app/hooks/useAdaptiveButtonLayout';
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 // Renders a probe that exposes the hook's return value and mounts its hidden

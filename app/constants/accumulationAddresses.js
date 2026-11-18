@@ -20,8 +20,8 @@ export const ACCUMULATION_BTC_SOURCES = [
   { chain: 'base', asset: 'cbBTC', name: 'Coinbase BTC' },
 ];
 
-export const CHAIN_ASSET_ROW_HEIGHT = 65;
-export const CHAIN_EXPAND_PADDING = 26;
+export const CHAIN_ASSET_ROW_HEIGHT = 52;
+export const CHAIN_EXPAND_PADDING = 0;
 export const getChainExpandHeight = chainId => {
   const chain = ACCUMULATION_CHAINS.find(c => c.id === chainId);
   if (!chain) return null;

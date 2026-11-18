@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
+import { StyleSheet, View } from 'react-native';
+import { CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 
 export default function NumberInputSendPage({
   setPaymentInfo,
@@ -66,19 +68,25 @@ export default function NumberInputSendPage({
   );
 
   return (
-    <CustomNumberKeyboard
-      showDot={
-        (inputDenomination === 'fiat' && selectedLRC20Asset === 'Bitcoin') ||
-        selectedLRC20Asset !== 'Bitcoin' ||
-        primaryDisplay.denomination === 'fiat'
-      }
-      setInputValue={handleSetAmount}
-      usingForBalance={true}
-      fiatStats={fiatStats}
-      useMaxBalance={selectedLRC20Asset === 'Bitcoin'}
-      customFunction={
-        selectedLRC20Asset !== 'Bitcoin' ? lrc20InputFunction : null
-      }
-    />
+    <View style={styles.keyboard}>
+      <CustomNumberKeyboard
+        showDot={
+          (inputDenomination === 'fiat' && selectedLRC20Asset === 'Bitcoin') ||
+          selectedLRC20Asset !== 'Bitcoin' ||
+          primaryDisplay.denomination === 'fiat'
+        }
+        setInputValue={handleSetAmount}
+        usingForBalance={true}
+        fiatStats={fiatStats}
+        useMaxBalance={selectedLRC20Asset === 'Bitcoin'}
+        customFunction={
+          selectedLRC20Asset !== 'Bitcoin' ? lrc20InputFunction : null
+        }
+        redesign
+      />
+    </View>
   );
 }
+const styles = StyleSheet.create({
+  keyboard: { marginTop: CONTENT_KEYBOARD_OFFSET },
+});

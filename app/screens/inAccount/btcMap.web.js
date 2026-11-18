@@ -12,7 +12,6 @@ import { useBTCMap } from '../../../context-store/btcMapContext';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { SIZES } from '../../constants';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
@@ -65,8 +64,8 @@ function buildMarkerEl(m, markerBg) {
 export default function BTCMapScreen() {
   const navigate = useNavigation();
   const { screenDimensions } = useAppStatus();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset, backgroundColor, tokens } =
+    GetThemeColors();
   const { topPadding, bottomPadding } = useGlobalInsets();
   const {
     isLoading: storeLoading,
@@ -90,10 +89,10 @@ export default function BTCMapScreen() {
   });
 
   const loading = storeLoading || !isClusteringReady;
-  const markerBg = theme && darkModeType ? backgroundColor : COLORS.primary;
+  const markerBg = tokens.accent;
   const isFilterActive =
     filter.categories.length > 0 || filter.distanceUnit !== 'auto';
-  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+  const iconColor = tokens.accent;
 
   const SCREEN_ASPECT_RATIO = screenDimensions.width / screenDimensions.height;
   const activeLocation = userLocation ?? DEFAULT_LOCATION;
@@ -226,6 +225,9 @@ export default function BTCMapScreen() {
 
     if (!points.length) {
       clusterManagerRef.current = null;
+      // Reset dedupe refs so the next non-empty build isn't skipped as "same"
+      lastRenderedMarkersRef.current = [];
+      lastRenderedCountRef.current = 0;
       setMarkers([]);
       setPlaceCount(0);
       setIsClusteringReady(true);
@@ -234,7 +236,7 @@ export default function BTCMapScreen() {
 
     const cacheGranularity = z >= 14 ? 20 : z >= 10 ? 10 : 5;
     const manager = getOrBuildBTCMapClusterManager(
-      `btcmap:v${dataVersion}:${z}:${
+      `btcmap:v${dataVersion}:${[...filter.categories].sort().join(',')}:${z}:${
         Math.round(lat * cacheGranularity) / cacheGranularity
       }:${Math.round(lon * cacheGranularity) / cacheGranularity}`,
       points,

@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Linking, Platform, View } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { getBundleId } from 'react-native-device-info';
 import {
   getAPNSToken,
@@ -21,8 +21,6 @@ import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import { checkGooglePlayServices } from '../app/functions/checkGoogleServices';
 import {
-  addNotificationReceivedListener,
-  addNotificationResponseReceivedListener,
   AndroidImportance,
   getExpoPushTokenAsync,
   getPermissionsAsync,
@@ -31,8 +29,6 @@ import {
   setNotificationChannelAsync,
 } from 'expo-notifications';
 import sha256Hash from '../app/functions/hash';
-import { getLocalStorageItem } from '../app/functions';
-import displayCorrectDenomination from '../app/functions/displayCorrectDenomination';
 
 const firebaseMessaging = getMessaging();
 

@@ -168,9 +168,4 @@ function useServerTimeOnly() {
   return getServerTime;
 }
 
-export {
-  ServerTimeManager,
-  GlobalServerTimeProvider,
-  useServerTime,
-  useServerTimeOnly,
-};
+export { GlobalServerTimeProvider, useServerTimeOnly };

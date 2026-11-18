@@ -57,6 +57,13 @@ jest.mock('../app/hooks/themeColors', () => () => ({
   themeBackgroundOffset: '#eee',
   textInputBackground: '#fff',
   transparentOveraly: 'transparent',
+  tokens: {
+    ink: '#000',
+    muted: '#666',
+    danger: '#f00',
+    field: '#fff',
+    onField: '#000',
+  },
 }));
 
 jest.mock('../app/hooks/useHandleBackPressNew', () => () => {});
@@ -88,7 +95,7 @@ jest.mock('../app/functions/CustomElements', () => {
 });
 
 jest.mock(
-  '../app/functions/CustomElements/settingsTopBar',
+  '../app/functions/CustomElements/redesign/TopBar',
   () => () => null,
 );
 jest.mock('../app/functions/CustomElements/themeIcon', () => () => null);

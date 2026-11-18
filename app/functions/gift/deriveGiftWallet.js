@@ -1,8 +1,10 @@
+import { bytesToHex } from '@noble/hashes/utils';
 import { HDKey } from '@scure/bip32';
 import { entropyToMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
+import sha256Hash from '../hash';
 import { mnemonicToSeedAsync } from '../nostrCompatability';
-import { bech32m } from 'bech32';
+import { encodeSparkAddress } from '../spark/sparkAddressCodec';
 import { GIFT_DERIVE_PATH_CUTOFF } from '../../constants';
 import { deriveKeyFromMnemonic } from '../seed';
 
@@ -124,6 +126,78 @@ export async function deriveSparkIdentityKey(sparkMnemonic, accountNumber = 1) {
   }
 }
 
+// Spark identity PUBLIC keys per mnemonic (account number + mnemonic hash, never
+// the mnemonic itself). The public half is not secret, so holding it for the
+// session costs nothing; the private half is never stored here. identityFor in
+// walletRuntime runs on every acquire — including the borrow path every facade
+// call takes — so this removes the repeated PBKDF2 + HDKey work from connect,
+// balance reads, the history diff and the pending sweep.
+const sparkIdentityPublicKeys = new Map();
+
+// sha256Hash returns false on failure; a shared "1:false" key would hand one
+// mnemonic's identity to every other, so a failed hash skips the cache.
+const identityCacheKey = (mnemonic, accountNumber) => {
+  const hash = sha256Hash(mnemonic);
+  return hash ? `${accountNumber}:${hash}` : null;
+};
+
+export async function getSparkIdentityPublicKey(mnemonic, accountNumber = 1) {
+  const key = identityCacheKey(mnemonic, accountNumber);
+  const cached = key && sparkIdentityPublicKeys.get(key);
+  if (cached) return cached;
+
+  const entry = deriveSparkIdentityKey(mnemonic, accountNumber).then(derived =>
+    derived?.publicKeyHex
+      ? { publicKeyHex: derived.publicKeyHex, publicKey: derived.publicKey }
+      : null,
+  );
+  if (!key) return entry;
+  // A miss must not stick: the next call retries the derivation.
+  entry.then(value => {
+    if (!value) sparkIdentityPublicKeys.delete(key);
+  });
+  sparkIdentityPublicKeys.set(key, entry);
+  return entry;
+}
+
+// Logout / reset; mirrors clearMnemonicCache in spark/index.js.
+export function clearSparkIdentityPublicKeyCache() {
+  sparkIdentityPublicKeys.clear();
+}
+
+/**
+ * The two keys the login path needs — the Nostr private key
+ * (m/44'/1237'/0'/0/0) and the Spark identity key (m/8797555'/account'/0') —
+ * from a single PBKDF2 pass. privateKeyFromSeedWords and deriveSparkIdentityKey
+ * each derive the same seed, so calling both (as the loading screen used to)
+ * runs PBKDF2 over the mnemonic twice. The seed is zeroed before returning: the
+ * mnemonic is already held by the app, its seed must not be held too.
+ */
+export async function deriveLoginKeys(mnemonic, accountNumber = 1) {
+  const seed = await mnemonicToSeedAsync(mnemonic);
+  try {
+    const masterKey = HDKey.fromMasterSeed(seed);
+    const nostrPrivateKey = masterKey.derive(`m/44'/1237'/0'/0/0`).privateKey;
+    if (!nostrPrivateKey) throw new Error('could not derive private key');
+
+    const identityKey = masterKey.derive(`m/8797555'/${accountNumber}'/0'`);
+    const identityPublicKey = {
+      publicKeyHex: Buffer.from(identityKey.publicKey).toString('hex'),
+      publicKey: identityKey.publicKey,
+    };
+    const key = identityCacheKey(mnemonic, accountNumber);
+    if (key)
+      sparkIdentityPublicKeys.set(key, Promise.resolve(identityPublicKey));
+
+    return {
+      privateKey: bytesToHex(nostrPrivateKey),
+      identityPubKeyHex: identityPublicKey.publicKeyHex,
+    };
+  } finally {
+    seed.fill(0);
+  }
+}
+
 /**
  * Derives the spark address from the identity key
  * @param {string} identityKey - The mnemonic that will be given to Spark
@@ -140,27 +214,9 @@ export function deriveSparkAddress(identityPublicKey) {
       );
     }
 
-    const hrp = 'spark';
-    const pubKeyLength = identityPublicKey.length; // 33 (0x21 in hex)
-
-    // 1. Create the Protobuf-like payload
-    // The total payload length is 1 (tag) + 1 (length byte) + 33 (pub key) = 35 bytes
-    const dataPayload = new Uint8Array(2 + pubKeyLength);
-
-    // Byte 0: Protobuf Tag (Field 1, Wire Type 2: Length-delimited) = 0x0A
-    dataPayload[0] = 0x0a;
-
-    // Byte 1: Length of the data (33 bytes / 0x21)
-    dataPayload[1] = pubKeyLength;
-
-    // Bytes 2-34: The 33-byte compressed public key
-    dataPayload.set(identityPublicKey, 2);
-
-    // 2. Convert the 35-byte payload to 5-bit words
-    const words = bech32m.toWords(dataPayload);
-
-    // 3. Encode with Bech32m
-    const address = bech32m.encode(hrp, words);
+    const address = encodeSparkAddress({
+      identityPublicKey: Buffer.from(identityPublicKey).toString('hex'),
+    });
 
     return {
       success: true,

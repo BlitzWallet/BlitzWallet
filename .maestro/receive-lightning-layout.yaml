@@ -1,0 +1,49 @@
+# Receive > Bitcoin > Lightning layout: amount stack, QR hint, no invoice/address text.
+# Brand-new empty wallet only (clears state and keychain). Run with `yarn e2e:ios` / `yarn e2e:android`.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: deny
+- extendedWaitUntil:
+    visible: Get Started
+    timeout: 60000
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# Create PIN, then Confirm Pin.
+- repeat:
+    times: 8
+    commands:
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: '(?i)total balance'
+    timeout: 90000
+- tapOn: Receive
+- tapOn: Bitcoin
+- tapOn: Create invoice # sheet row
+- tapOn: Create invoice # keypad screen button, amount 0
+- extendedWaitUntil:
+    visible: Scan with any Lightning wallet
+    timeout: 60000
+- assertVisible: Any amount
+- assertNotVisible: '.*@blitzwalletapp\.com.*'
+- takeScreenshot: receive-ln-any-amount
+- tapOn: Edit # pencil a11y label (constants.edit) - VERIFY on first run
+- tapOn: '5'
+- tapOn: '0'
+- tapOn: '0'
+- tapOn: '0'
+- tapOn: Create invoice # keypad CTA once an amount is entered
+- extendedWaitUntil:
+    visible: Scan with any Lightning wallet
+    timeout: 60000
+- assertNotVisible: '(?i).*lnbc.*'
+- takeScreenshot: receive-ln-amount

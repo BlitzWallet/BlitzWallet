@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, FONT, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
 export default function RemoveBudgetHalfModal({
   setContentHeight,
@@ -15,40 +14,46 @@ export default function RemoveBudgetHalfModal({
   const isMounted = useRef(true);
   const { t } = useTranslation();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const cancelButton = t('constants.cancel');
+  const removeButton = t('constants.remove');
 
   useEffect(() => {
-    setContentHeight(400);
     return () => {
       isMounted.current = false;
     };
   }, []);
 
   const removeBudget = async () => {
-    setIsLoading(true);
     await toggleMasterInfoObject({ monthlyBudget: null });
     handleBackPressFunction();
-    setIsLoading(false);
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('analytics.budget.removeBudgetTitle')}
+    <View
+      style={styles.container}
+      onLayout={e =>
+        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+      }
+    >
+      <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
+      <SheetHeader
+        afterIcon
+        title={t('analytics.budget.removeBudgetTitle')}
+        sub={t('analytics.budget.removeBudgetSub')}
       />
-
-      <ThemeText
-        styles={styles.description}
-        content={t('analytics.budget.removeBudgetSub')}
-      />
-
       <View style={styles.buttonContainer}>
         <CustomButton
-          buttonStyles={styles.closeButton}
-          textContent={t('constants.remove')}
+          textContent={cancelButton}
+          actionFunction={handleBackPressFunction}
+          size={'regular'}
+          tone="secondary"
+        />
+        <CustomButton
+          textContent={removeButton}
           actionFunction={removeBudget}
-          useLoading={isLoading}
+          size={'regular'}
+          tone="danger"
         />
       </View>
     </View>
@@ -57,58 +62,10 @@ export default function RemoveBudgetHalfModal({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: SIZES.xLarge,
-    fontFamily: FONT.Title_Regular,
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  detailsBox: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
-    marginBottom: 32,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: SIZES.medium,
-    opacity: 0.6,
-  },
-  detailValue: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Bold,
-    maxWidth: '60%',
-    textAlign: 'right',
+    paddingTop: 15,
   },
   buttonContainer: {
-    width: '100%',
-    gap: 12,
-    marginTop: 'auto',
-  },
-  closeButton: {
-    ...CENTER,
-  },
-  cancelButton: {
-    width: '100%',
-    opacity: 0.6,
+    gap: 10,
+    marginTop: 24,
   },
 });

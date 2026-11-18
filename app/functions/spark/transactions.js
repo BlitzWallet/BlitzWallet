@@ -7,6 +7,7 @@ import {
   SPEND_AND_REPLACE_TABLE,
 } from './spendAndReplaceStorage';
 import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
+import { isFlashnetTransfer } from './handleFlashnetTransferIds';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
@@ -30,6 +31,11 @@ const sqlLiteDB = sparkTxDB.db;
 export const isSparkTxDatabaseOpen = () => sparkTxDB.isOpen();
 
 export const ensureSparkDatabaseReady = () => sparkTxDB.ensureReady();
+
+export const getSparkDatabase = async () => {
+  await ensureSparkDatabaseReady();
+  return sqlLiteDB;
+};
 
 const isConcretePaymentType = paymentType =>
   Boolean(paymentType) && paymentType !== 'unknown';
@@ -196,6 +202,50 @@ export const initializeSparkDatabase = async () => {
         updatedAt      INTEGER NOT NULL
       );
 
+      CREATE TABLE IF NOT EXISTS breez_send_intents (
+        intent_id TEXT PRIMARY KEY,
+        account_id TEXT NOT NULL,
+        rail TEXT NOT NULL,
+        request_hash TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_id TEXT,
+        created_at INTEGER NOT NULL,
+        state TEXT NOT NULL,
+        payment_id TEXT,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_breez_send_intents_account_state
+      ON breez_send_intents (account_id, state);
+
+      CREATE TABLE IF NOT EXISTS breez_bulk_groups (
+        group_id TEXT PRIMARY KEY,
+        account_id TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        asset TEXT NOT NULL,
+        state TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS breez_bulk_items (
+        group_id TEXT NOT NULL,
+        item_index INTEGER NOT NULL,
+        account_id TEXT NOT NULL,
+        recipient TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_id TEXT,
+        idempotency_key TEXT NOT NULL UNIQUE,
+        ref_id TEXT,
+        state TEXT NOT NULL,
+        payment_id TEXT,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (group_id, item_index)
+      );
+
       CREATE INDEX IF NOT EXISTS idx_spark_tx_lightning_invoice_address
       ON ${SPARK_TRANSACTIONS_TABLE_NAME} (
         paymentType,
@@ -213,6 +263,15 @@ export const initializeSparkDatabase = async () => {
         json_extract(details, '$.time')
       );
     `);
+
+    const snapshotColumns = await sqlLiteDB.getAllAsync(
+      'PRAGMA table_info(account_balance_snapshots)',
+    );
+    if (!snapshotColumns.some(col => col.name === 'verifiedAt')) {
+      await sqlLiteDB.execAsync(
+        'ALTER TABLE account_balance_snapshots ADD COLUMN verifiedAt INTEGER NOT NULL DEFAULT 0',
+      );
+    }
 
     // Shared connection so the spend-and-replace discovery JOIN works.
     await createSpendAndReplaceTable(sqlLiteDB);
@@ -278,6 +337,26 @@ export const getSwapResultTransaction = async originalSparkId => {
     return null;
   }
 };
+// Newest token payments, without Dollars. For the Tokens page, whose rows can be
+// older than anything in the homepage projection.
+export const getTokenSparkTransactions = async (accountId, limit = 100) => {
+  try {
+    await ensureSparkDatabaseReady();
+    return await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+         AND json_extract(details, '$.isLRC20Payment') = 1
+         AND json_extract(details, '$.LRC20Token') != ?
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT ?`,
+      [String(accountId), USDB_TOKEN_ID, limit],
+    );
+  } catch (error) {
+    console.error('Error fetching token transactions:', error);
+    return [];
+  }
+};
+
 export const getAllSparkTransactions = async (options = {}) => {
   try {
     await ensureSparkDatabaseReady();
@@ -551,7 +630,7 @@ const TYPE_SQL = {
 };
 
 const EXCLUDE_SAVINGS_TRANSFER_SQL = `
-  AND COALESCE(json_extract(details, '$.isSavings'), 0) != 1
+  COALESCE(json_extract(details, '$.isSavings'), 0) != 1
 `;
 
 /**
@@ -661,6 +740,150 @@ export const getFilteredTransactions = async (filters, options = {}) => {
   }
 };
 
+// Payments Blitz creates itself while moving money between screens/wallets. They
+// are INCOMING rows but are not money arriving from outside the app, so the
+// activity indicator must ignore them.
+const INTERNAL_INCOMING_DETAIL_FLAGS = [
+  'isGift',
+  'isSavings',
+  'isPoolPayment',
+  'isAccountTransfer',
+  'isSARIncoming',
+  'isRootstockSwap',
+  'isLiquidSwap',
+  'isFlashnetStablecoin',
+  'isBlitzContactPayment',
+  'showSwapLabel',
+];
+
+const EXTERNAL_PAYMENT_TYPES = new Set(['spark', 'lightning', 'bitcoin']);
+
+// Completed money that arrived from outside Blitz. Contact payments are left out
+// on purpose: they already surface on the contacts tab.
+export const isExternalIncomingPayment = tx => {
+  if (!tx || tx.paymentStatus !== 'completed') return false;
+  if (!EXTERNAL_PAYMENT_TYPES.has(tx.paymentType)) return false;
+  // Hidden Flashnet swap legs are internal transfers even without a details flag.
+  if (isFlashnetTransfer(tx.sparkID)) return false;
+
+  let details;
+  try {
+    details =
+      typeof tx.details === 'string' ? JSON.parse(tx.details) : tx.details;
+  } catch {
+    return false;
+  }
+
+  if (!details || details.direction !== 'INCOMING') return false;
+  // Refunds from Blitz's own Spark identity are hidden from the activity list.
+  if (
+    process.env.SPARK_IDENTITY_PUBKEY &&
+    details.senderIdentityPublicKey === process.env.SPARK_IDENTITY_PUBKEY
+  )
+    return false;
+  if (details.sendingUUID) return false;
+  return !INTERNAL_INCOMING_DETAIL_FLAGS.some(flag => details[flag]);
+};
+
+// Newest completed incoming rows read per check. The activity indicator compares
+// the external ones against the set the user last saw, so a payment that
+// completes late with an older timestamp still counts while it is in this window.
+const EXTERNAL_INCOMING_WINDOW = 50;
+
+// sparkIDs of recent external incoming payments, newest first. null on failure
+// so callers never mistake a read error for "no payments".
+export const getRecentExternalIncomingIds = async accountId => {
+  if (!accountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT sparkID, paymentStatus, paymentType, details
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+       AND paymentStatus = 'completed'
+       AND paymentType IN ('spark', 'lightning', 'bitcoin')
+       AND json_valid(details)
+       AND json_extract(details, '$.direction') = 'INCOMING'
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT ?`,
+      [String(accountId), EXTERNAL_INCOMING_WINDOW],
+    );
+
+    return rows.filter(isExternalIncomingPayment).map(row => row.sparkID);
+  } catch (error) {
+    console.error('Error fetching external incoming payments:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch completed transactions in a half-open [startTime, endTime) range.
+ *
+ * One query serves both directions and both assets, which is what the analytics
+ * page needs: rows are split with getSatsFromTx / getDollarsFromTx, so a range
+ * read is never duplicated per filter. `startTime`/`endTime` null means no
+ * bound on that side (all time). Savings transfers are internal moves and are
+ * excluded, exactly like the monthly read.
+ *
+ * @param {object} options
+ * @param {string} options.accountId
+ * @param {number|null} [options.startTime] - inclusive, ms
+ * @param {number|null} [options.endTime] - exclusive, ms
+ * @param {'INCOMING'|'OUTGOING'|null} [options.direction]
+ * @param {'btc'|'usd'|null} [options.asset] - null keeps every asset
+ * @returns {Promise<Object[]>}
+ */
+export const getTransactionsInRange = async ({
+  accountId,
+  startTime = null,
+  endTime = null,
+  direction = null,
+  asset = null,
+  limit = null,
+} = {}) => {
+  try {
+    await ensureSparkDatabaseReady();
+    const conditions = [`accountId = ?`, `paymentStatus = 'completed'`];
+    const params = [String(accountId)];
+
+    if (startTime !== null) {
+      conditions.push(`json_extract(details, '$.time') >= ?`);
+      params.push(startTime);
+    }
+    if (endTime !== null) {
+      conditions.push(`json_extract(details, '$.time') < ?`);
+      params.push(endTime);
+    }
+    if (direction) {
+      conditions.push(`json_extract(details, '$.direction') = ?`);
+      params.push(direction);
+    }
+    if (asset === 'usd') {
+      conditions.push(`json_extract(details, '$.isLRC20Payment') = 1`);
+      conditions.push(`json_extract(details, '$.LRC20Token') = ?`);
+      params.push(USDB_TOKEN_ID);
+    } else if (asset === 'btc') {
+      conditions.push(`(
+        json_extract(details, '$.isLRC20Payment') IS NULL
+        OR json_extract(details, '$.isLRC20Payment') = 0
+      )`);
+    }
+
+    conditions.push(EXCLUDE_SAVINGS_TRANSFER_SQL);
+
+    const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY json_extract(details, '$.time') DESC${
+        limit ? ` LIMIT ${Number(limit)}` : ''
+      }`;
+    return (await sqlLiteDB.getAllAsync(query, params)) || [];
+  } catch (error) {
+    console.error('Error in getTransactionsInRange:', error);
+    return [];
+  }
+};
+
 /**
  * Fetch all completed transactions for the current calendar month.
  *
@@ -673,46 +896,14 @@ export const getMonthlyTransactions = async (
   direction = null,
   retriveUSDB,
 ) => {
-  try {
-    await ensureSparkDatabaseReady();
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    const monthEnd = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      1,
-    ).getTime();
-    const params = [String(accountId), monthStart, monthEnd];
-    let dirClause = '';
-    let typeClause = '';
-
-    if (direction) {
-      dirClause = `AND json_extract(details, '$.direction') = ?`;
-      params.push(direction);
-    }
-    if (retriveUSDB) {
-      typeClause = `AND json_extract(details, '$.isLRC20Payment') = 1 AND json_extract(details, '$.LRC20Token') = '${USDB_TOKEN_ID}'`;
-    } else {
-      typeClause = `
-        AND (
-          json_extract(details, '$.isLRC20Payment') IS NULL
-          OR json_extract(details, '$.isLRC20Payment') = 0
-        )`;
-    }
-    const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-      WHERE accountId = ?
-      AND paymentStatus = 'completed'
-      AND json_extract(details, '$.time') >= ?
-      AND json_extract(details, '$.time') < ?
-      ${EXCLUDE_SAVINGS_TRANSFER_SQL}
-      ${dirClause}
-      ${typeClause}
-      ORDER BY json_extract(details, '$.time') DESC`;
-    return await sqlLiteDB.getAllAsync(query, params);
-  } catch (error) {
-    console.error('Error in getMonthlyTransactions:', error);
-    return [];
-  }
+  const now = new Date();
+  return getTransactionsInRange({
+    accountId,
+    startTime: new Date(now.getFullYear(), now.getMonth(), 1).getTime(),
+    endTime: new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime(),
+    direction,
+    asset: retriveUSDB ? 'usd' : 'btc',
+  });
 };
 
 export const getBulkPaymentGroupTransferIds = async accountId => {
@@ -1262,7 +1453,22 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
       const processedTransactions = new Map();
 
       // First pass: collect and merge transactions by final sparkID
-      for (const tx of transactions) {
+      for (const rawTx of transactions) {
+        // New SDK returns BigInt amounts/fees; JSON.stringify throws on them.
+        // Number is safe for sat-scale values; fall back to string beyond 2^53.
+        const tx = {
+          ...rawTx,
+          details: JSON.parse(
+            JSON.stringify(rawTx.details ?? {}, (_, v) =>
+              typeof v === 'bigint'
+                ? v <= BigInt(Number.MAX_SAFE_INTEGER) &&
+                  v >= BigInt(Number.MIN_SAFE_INTEGER)
+                  ? Number(v)
+                  : v.toString()
+                : v,
+            ),
+          ),
+        };
         const finalSparkId = tx.id;
         const accountId = tx.accountId;
         const tempSparkId = tx.useTempId ? tx.tempId : tx.id;
@@ -1656,6 +1862,22 @@ export const deleteSparkTransactionTable = async () => {
   }
 };
 
+// Breez send-intent ledger + bulk send groups (see sendIntents.js).
+export const deleteBreezIntentTables = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    await sqlLiteDB.execAsync(`
+      DROP TABLE IF EXISTS breez_send_intents;
+      DROP TABLE IF EXISTS breez_bulk_items;
+      DROP TABLE IF EXISTS breez_bulk_groups;
+    `);
+    return true;
+  } catch (error) {
+    console.error('Error deleting breez intent tables:', error);
+    return false;
+  }
+};
+
 export const deleteSparkContactsTransactionsTable = async () => {
   try {
     await ensureSparkDatabaseReady();
@@ -1714,23 +1936,6 @@ export const cleanStalePendingSparkLightningTransactions = async () => {
     console.error('Error cleaning stale spark transactions:', error);
     return false;
   }
-};
-
-const formatDetailsJSON = tx => {
-  const newDetails = {
-    direction: tx.transferDirection ?? null,
-    fee: tx.fee ?? 0,
-    address: tx.address ?? '',
-    amount: tx.totalValue ?? 0,
-    paymentTime: tx.updatedTime ?? tx.createdTime ?? Date.now(),
-    description: tx.description ?? '',
-    status: tx.status ?? 'pending',
-    sparkID: tx.id ?? '',
-    l1TxId: tx.l1TxId ?? null,
-    preimage: tx.preimage ?? null,
-    paymentHash: tx.paymentHash ?? null,
-  };
-  return newDetails;
 };
 
 // Run an arbitrary spark-DB write through the same FIFO queue that serializes

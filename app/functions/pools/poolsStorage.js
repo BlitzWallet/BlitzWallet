@@ -58,7 +58,6 @@ const poolsDB = createSelfHealingDatabase({
   name: `${CACHED_POOLS}.db`,
   setup: setupPoolsSchema,
 });
-const sqlLiteDB = poolsDB.db;
 
 export const isPoolDatabaseOpen = () => poolsDB.isOpen();
 

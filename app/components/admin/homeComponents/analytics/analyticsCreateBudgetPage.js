@@ -1,18 +1,19 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
-import { CENTER } from '../../../../constants';
-import { GlobalThemeView } from '../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useMemo, useState } from 'react';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../constants/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
@@ -22,16 +23,21 @@ import {
   getDefaultDisplayCurrency,
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
-import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function AnalyticsCreateBudgetPage() {
   const navigate = useNavigation();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  const { swapUSDPriceDollars } = useFlashnet();
+  const { tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const existingBudget = masterInfoObject?.monthlyBudget;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
@@ -58,43 +64,23 @@ export default function AnalyticsCreateBudgetPage() {
     [masterInfoObject, fiatStats],
   );
 
-  const {
-    displayCurrency,
-    currencyRates,
-    isLoadingRate,
-    selectCurrency,
-  } = useDisplayCurrencyController({
+  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
     initialCurrency: initialDisplayCurrency,
     fiatStats,
     usdFiatStats,
     masterInfoObject,
   });
 
-  const {
-    primaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-  } = useCurrencyDisplay({
-    displayCurrency,
-    fiatStats,
-    usdFiatStats,
-    currencyRates,
-    masterInfoObject,
-  });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
 
   const localSatAmount = convertDisplayToSats(amountValue);
-
-  const openPicker = () =>
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'displayCurrencySelect',
-      sliderHight: 0.9,
-      currentCurrency: displayCurrency,
-      onSelectCurrency: async code => {
-        const response = await selectCurrency(code);
-        if (response?.didWork) setAmountValue('');
-        return response;
-      },
-    });
 
   async function handleSave() {
     if (!localSatAmount || localSatAmount <= 0) {
@@ -110,30 +96,25 @@ export default function AnalyticsCreateBudgetPage() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={
-          existingBudget
-            ? t('analytics.budget.editBudget')
-            : t('analytics.budget.createBudget')
-        }
-        rightContent={
-          <CurrencySwitchButton
-            displayCurrency={displayCurrency}
-            onPress={openPicker}
-            disabled={isLoadingRate}
-          />
-        }
-      />
-
-      <View style={styles.contentContainer}>
+      <View style={[styles.innerContainer, { width: contentWidth }]}>
+        <TopBar title={t('analytics.budget.monthlyBudget')} />
         {/* Amount input */}
         <View style={styles.container}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
-            forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
+          {/* AmountHero formats sats, so pass the converted amount, not the
+              typed value (a fiat entry was being read as sats). */}
+          <AmountHero
+            amount={localSatAmount}
+            fiatStats={conversionFiatStats}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: primaryDisplay.denomination,
+            }}
+            amountSize={60}
+            mutedValue={!localSatAmount}
+          />
+          <ThemeText
+            styles={[styles.resets, { color: tokens.muted }]}
+            content={t('analytics.budget.resetsMonthly')}
           />
         </View>
         {/* Keyboard */}
@@ -142,19 +123,16 @@ export default function AnalyticsCreateBudgetPage() {
           setInputValue={setAmountValue}
           showDot={primaryDisplay.denomination === 'fiat'}
           fiatStats={conversionFiatStats}
+          redesign
         />
         {/* Save button */}
         <CustomButton
-          buttonStyles={[
-            styles.saveButton,
-            {
-              opacity:
-                !localSatAmount || localSatAmount <= 0 ? HIDDEN_OPACITY : 1,
-            },
-          ]}
+          disabled={!localSatAmount || localSatAmount <= 0}
+          buttonStyles={[styles.saveButton]}
           textContent={t('constants.save')}
           actionFunction={handleSave}
           useLoading={isLoading}
+          size={'regular'}
         />
       </View>
     </GlobalThemeView>
@@ -162,19 +140,25 @@ export default function AnalyticsCreateBudgetPage() {
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
+  innerContainer: {
     flex: 1,
-    alignSelf: 'center',
+    ...CENTER,
   },
   container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
-    justifyContent: 'center',
-    ...CENTER,
+    paddingTop: 64,
+  },
+  resets: {
+    marginTop: 4,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
 
   saveButton: {
     alignSelf: 'center',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

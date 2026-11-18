@@ -1,0 +1,116 @@
+// Redesign colour tokens per mode (audit/IMPLEMENTATION_PLAN.md §10 T2).
+// Dim and Lights out derive from today's dark palette in ./theme.js.
+// Inside sheets, `field` uses `ground` instead (context, applied by callers).
+// Every colour the app renders should come from here (useTheme().tokens).
+// Lights out is strictly monochrome: only neutral greys, no hue anywhere.
+export const MODES = {
+  light: {
+    ground: '#F0F0F2',
+    surface: '#FFFFFF',
+    ink: '#15161A',
+    muted: '#66676E',
+    disc: '#EEEEF1',
+    divider: '#E8E8EB',
+    field: '#FFFFFF',
+    onField: '#15161A',
+    scrim: 'rgba(21,22,26,.30)',
+    grab: '#D3D4D9',
+    skel: '#E2E2E6',
+    accent: '#0375F6',
+    onAccent: '#FFFFFF',
+    link: '#0257BE',
+    danger: '#B42318',
+    dangerFill: '#B42318',
+    dangerBg: '#FDECEA',
+    warn: '#93370D',
+    warnBg: '#FEF0C7',
+    success: '#0375F6',
+    tabPill: '#E6E6EA',
+    tabIdle: '#75767D',
+    accentPastel: '#D6E4F5',
+    bitcoin: '#FFAC30',
+    dollar: '#60D263',
+    nostr: '#29C467',
+    pastels: ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'],
+    // Analytics kinds of spending (contacts, pools, gifts); "other" uses grab.
+    kinds: ['#0375F6', '#5F7FA3', '#8FA8C3'],
+    scheme: 'light',
+  },
+  dim: {
+    ground: '#00254E',
+    surface: '#013167',
+    ink: '#FFFFFF',
+    muted: '#A6B7CA',
+    disc: '#154173',
+    divider: '#1F4A79',
+    field: '#013167',
+    onField: '#FFFFFF',
+    scrim: 'rgba(0,0,0,.3)',
+    grab: '#4D6F95',
+    skel: '#1A4676',
+    accent: '#0375F6',
+    onAccent: '#FFFFFF',
+    link: '#FFFFFF',
+    // Lighter than dangerFill so text and icons stay readable on navy (AA).
+    danger: '#FF6B6B',
+    dangerFill: '#E20000',
+    dangerBg: '#36243E',
+    warn: '#FEF0C7',
+    warnBg: '#3B2C34',
+    success: '#0375F6',
+    tabPill: '#1F4A79',
+    tabIdle: '#99A8B8',
+    accentPastel: '#D6E4F5',
+    bitcoin: '#FFAC30',
+    dollar: '#60D263',
+    nostr: '#29C467',
+    pastels: ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'],
+    kinds: ['#0375F6', '#8FA8C3', '#D6E4F5'],
+    scheme: 'dark',
+  },
+  lightsOut: {
+    ground: '#000000',
+    surface: '#1B1B1B',
+    ink: '#FFFFFF',
+    muted: '#AFAFAF',
+    disc: '#2D2D2D',
+    divider: '#363636',
+    field: '#FFFFFF',
+    onField: '#262626',
+    scrim: 'rgba(0,0,0,.6)',
+    grab: '#5F5F5F',
+    skel: '#323232',
+    accent: '#FFFFFF',
+    onAccent: '#000000',
+    link: '#FFFFFF',
+    danger: '#FFFFFF',
+    dangerFill: '#FFFFFF',
+    dangerBg: '#2D2D2D',
+    warn: '#D9D9D9',
+    warnBg: '#2D2D2D',
+    success: '#FFFFFF',
+    tabPill: '#363636',
+    tabIdle: '#999999',
+    accentPastel: '#E0E0E0',
+    bitcoin: '#8C8C8C',
+    dollar: '#5A5A5A',
+    nostr: '#8C8C8C',
+    pastels: ['#E6E6E6', '#D9D9D9', '#CCCCCC', '#F0F0F0', '#DDDDDD'],
+    kinds: ['#FFFFFF', '#AFAFAF', '#7A7A7A'],
+    scheme: 'dark',
+  },
+};
+
+const CANARY = { ground: '#FF00FF', ink: '#00FF00' };
+
+export const SKINS = {
+  canary: {
+    id: 'canary',
+    name: 'Canary',
+    overrides: { light: CANARY, dim: CANARY, lightsOut: CANARY },
+  },
+};
+
+// Developer-only. Set DEV_SKIN to 'canary' locally; release builds always use null.
+const DEV_SKIN = null;
+export const ACTIVE_SKIN = __DEV__ ? DEV_SKIN : null;

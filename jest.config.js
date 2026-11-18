@@ -7,12 +7,18 @@ const esModules = [
   '@react-navigation',
   '@react-native-firebase',
   '@noble',
-  '@buildonspark/spark-sdk',
-  '@bufbuild/protobuf',
+  'uuid',
   // All Expo packages ship untranspiled ESM/TS and touch native modules;
   // suites that reach them through the app import graph either transform
   // them here or stub them with a local jest.mock (see jest.setup.js).
   'expo(-.*)?',
+  'bitcoin-address-parser',
+  'bip21',
+  'query-string',
+  'decode-uri-component',
+  'split-on-first',
+  'filter-obj',
+  'base58-js',
 ].join('|');
 
 module.exports = {
@@ -24,6 +30,7 @@ module.exports = {
     '/node_modules/',
     '<rootDir>/.worktrees/',
     '<rootDir>/__tests__/firestore-rules/',
+    '<rootDir>/__tests__/functions/unilateralExit/fixtures/',
   ],
   transformIgnorePatterns: [`node_modules/(?!(${esModules})/)`],
   // Global mocks shared by every test (e.g. Firebase native modules).
@@ -31,6 +38,9 @@ module.exports = {
   // for; the mock resolves the same icon files through a plain require.
   moduleNameMapper: {
     '^\\./lucideIcons$': '<rootDir>/__mocks__/lucideIcons.js',
+    // base58-js exposes only an `import` condition, which Jest's CommonJS
+    // resolver cannot follow, so point it at the file directly.
+    '^base58-js$': '<rootDir>/node_modules/base58-js/index.js',
   },
   setupFiles: ['<rootDir>/jest.setup.js'],
 };

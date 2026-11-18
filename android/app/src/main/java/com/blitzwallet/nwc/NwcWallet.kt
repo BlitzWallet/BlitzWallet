@@ -56,7 +56,7 @@ class NwcWallet private constructor(private val sdk: BreezSdk) {
   suspend fun createInvoice(amountSats: Long, description: String, expirySeconds: Long): String =
     sdk.receivePayment(
       ReceivePaymentRequest(
-        ReceivePaymentMethod.Bolt11Invoice(description, amountSats.toULong(), expirySeconds.toUInt(), null, null),
+        ReceivePaymentMethod.Bolt11Invoice(description, amountSats.toULong(), expirySeconds.toUInt(), null, null, null),
       ),
     ).paymentRequest
 

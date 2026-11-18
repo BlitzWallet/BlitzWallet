@@ -4,9 +4,7 @@ import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
-  FONT,
-  HIDDEN_BALANCE_TEXT,
-  SIZES,
+  HIDDEN_BALANCE_CLOSE,
 } from '../../constants';
 import ThemeText from './textTheme';
 import { formatCurrency } from '../formatCurrency';
@@ -108,57 +106,13 @@ export default function FormattedSatText({
       content={content}
     />
   );
-  const hiddenText = (content, key, extra = {}) => (
-    <ThemeText
-      CustomNumberOfLines={autoAdjustFontSize ? 1 : undefined}
-      adjustsFontSizeToFit={autoAdjustFontSize}
-      key={key}
-      reversed={reversed}
-      styles={{ includeFontPadding: false, ...styles, ...extra }}
-      content={content}
-    />
-  );
 
   let children = [];
 
   if (!shouldShowAmount) {
     children = [
       frontText && renderText(frontText),
-      hiddenText(HIDDEN_BALANCE_TEXT, 1, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.65 : 1)
-          : SIZES.xSmall * (useSizing ? 0.65 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 2, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.75 : 1)
-          : SIZES.xSmall * (useSizing ? 0.75 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 3, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.85 : 1)
-          : SIZES.xSmall * (useSizing ? 0.85 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 4, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.75 : 1)
-          : SIZES.xSmall * (useSizing ? 0.75 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
-      hiddenText(HIDDEN_BALANCE_TEXT, 5, {
-        fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.65 : 1)
-          : SIZES.xSmall * (useSizing ? 0.65 : 1),
-        fontFamily: FONT.Asterisk,
-        marginHorizontal: 2,
-      }),
+      renderText(HIDDEN_BALANCE_CLOSE),
       backText && renderText(backText),
     ];
   } else if (useCustomLabel) {

@@ -1,33 +1,25 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  USDB_TOKEN_ID,
-} from '../../../../../constants';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
+import { USDB_TOKEN_ID } from '../../../../../constants';
+import { useCallback, useMemo, useState } from 'react';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
-import { Image as ExpoImage } from 'expo-image';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useNavigation } from '@react-navigation/native';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import ListCard, {
+  ListDivider,
+} from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
+import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import { getTokenIcon } from '../../../../../functions/lrc20/utils';
+import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 
 export default function SelectLRC20Token({
   setIsKeyboardActive,
   handleBackPressFunction,
+  fromPage,
 }) {
   const navigate = useNavigation();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
@@ -35,9 +27,6 @@ export default function SelectLRC20Token({
   const assetsAvailable = sparkInformation?.tokens
     ? Object.entries(sparkInformation.tokens)
     : [];
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
 
   const handleSearch = term => {
@@ -47,7 +36,7 @@ export default function SelectLRC20Token({
   const selectToken = token => {
     handleBackPressFunction(() =>
       navigate.popTo(
-        'ConfirmPaymentScreen',
+        fromPage || 'ConfirmPaymentScreen',
         {
           masterTokenInfo: token,
         },
@@ -107,139 +96,87 @@ export default function SelectLRC20Token({
   }, [assetsAvailable, sparkInformation.balance, searchInput]);
 
   const AssetItem = useCallback(
-    ({ item, selectToken }) => {
+    ({ item }) => {
       const [tokenIdentifier, details] = item;
-      const imageUri = tokensImageCache[tokenIdentifier];
       return (
-        <TouchableOpacity
+        <ListRow
           onPress={() =>
             selectToken({
               tokenName: tokenIdentifier,
               details,
             })
           }
-          key={tokenIdentifier}
-          style={{
-            ...styles.assetContainer,
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
-          }}
-        >
-          <View
-            style={{
-              ...styles.tokenInitialContainer,
-              backgroundColor: imageUri
-                ? 'transparent'
-                : theme && darkModeType
-                ? COLORS.darkModeText
-                : tokenIdentifier === 'Bitcoin'
-                ? COLORS.bitcoinOrange
-                : COLORS.primary,
-            }}
-          >
-            {tokenIdentifier === 'Bitcoin' ? (
-              <View>
-                <ThemeImage
-                  styles={{
-                    width: 15,
-                    height: 20,
-                    tintColor:
-                      theme && darkModeType
-                        ? COLORS.lightModeText
-                        : COLORS.darkModeText,
-                  }}
-                  source={ICONS.bitcoinIcon}
-                  disableTint={true}
-                />
-              </View>
-            ) : imageUri ? (
-              <ExpoImage
-                source={{ uri: imageUri }}
-                style={styles.tokenImage}
-                contentFit="contain"
-                priority="normal"
-                transition={0}
-              />
+          lead={
+            tokenIdentifier === 'Bitcoin' ? (
+              <CurrencyIcon size={40} isBitcoin={true} />
             ) : (
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText
-                }
-                size={25}
-                iconName={'Coins'}
-              />
-            )}
-          </View>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.tickerText}
-            content={
-              details?.tokenMetadata?.tokenTicker === 'Bitcoin'
-                ? details?.tokenMetadata?.tokenTicker
-                : details?.tokenMetadata?.tokenTicker.toUpperCase()
-            }
-          />
-          <FormattedSatText
-            balance={
-              details?.tokenMetadata?.tokenTicker === 'Bitcoin'
-                ? details?.balance
-                : formatTokensNumber(
-                    details?.balance,
-                    details?.tokenMetadata?.decimals,
-                  )
-            }
-            useCustomLabel={details?.tokenMetadata?.tokenTicker !== 'Bitcoin'}
-            customLabel={''}
-            useMillionDenomination={true}
-            neverHideBalance={true}
-          />
-        </TouchableOpacity>
+              getTokenIcon(item, 40, tokensImageCache, 13)
+            )
+          }
+          title={
+            details?.tokenMetadata?.tokenTicker === 'Bitcoin'
+              ? details?.tokenMetadata?.tokenTicker
+              : details?.tokenMetadata?.tokenTicker.toUpperCase()
+          }
+          trailing={
+            <FormattedSatText
+              balance={
+                details?.tokenMetadata?.tokenTicker === 'Bitcoin'
+                  ? details?.balance
+                  : formatTokensNumber(
+                      details?.balance,
+                      details?.tokenMetadata?.decimals,
+                    )
+              }
+              useCustomLabel={details?.tokenMetadata?.tokenTicker !== 'Bitcoin'}
+              customLabel={''}
+              useMillionDenomination={true}
+              neverHideBalance={true}
+            />
+          }
+        />
       );
     },
-    [theme, darkModeType, tokensImageCache],
+    [selectToken],
   );
 
   return (
     <View style={styles.innerContainer}>
-      <CustomSearchInput
-        placeholderText={t(
-          'wallet.sendPages.selectLRC20Token.searchPlaceholder',
-        )}
-        setInputText={handleSearch}
-        inputText={searchInput}
-        containerStyles={styles.textInputContainer}
+      <SearchField
+        placeholder={t('wallet.sendPages.selectLRC20Token.searchPlaceholder')}
+        onChangeText={handleSearch}
+        value={searchInput}
         blurOnSubmit={false}
-        onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
       />
-
       {filteredData.length ? (
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={filteredData}
-          renderItem={({ item }) => (
-            <AssetItem
-              theme={theme}
-              darkModeType={darkModeType}
-              item={item}
-              selectToken={selectToken}
-              navigate={navigate}
-            />
-          )}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="none"
-          contentContainerStyle={{ paddingBottom: bottomPadding }}
-        />
+        <ListCard style={styles.card}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={filteredData}
+            renderItem={AssetItem}
+            ItemSeparatorComponent={ListDivider}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
+            ListEmptyComponent={
+              <ThemeText
+                styles={{ textAlign: 'center', marginTop: 10 }}
+                content={t(
+                  'wallet.sendPages.selectLRC20Token.noTokensFoundText',
+                )}
+              />
+            }
+          />
+        </ListCard>
       ) : (
-        <ThemeText
-          styles={{ textAlign: 'center', marginTop: 10 }}
-          content={t('wallet.sendPages.selectLRC20Token.noTokensFoundText')}
-        />
+        <View style={styles.empty}>
+          <EmptyState
+            icon={'Search'}
+            title={t('wallet.sendPages.selectLRC20Token.noTokensFoundText')}
+            sub={t('wallet.sendPages.selectLRC20Token.noTokensFoundSub')}
+          />
+        </View>
       )}
     </View>
   );
@@ -248,44 +185,8 @@ export default function SelectLRC20Token({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    marginTop: 15,
   },
-  textInputContainer: { marginBottom: CONTENT_KEYBOARD_OFFSET },
-
-  assetContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginVertical: 5,
-  },
-
-  tokenContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 5,
-  },
-
-  tickerText: { marginRight: 'auto', includeFontPadding: false },
-  balanceText: { includeFontPadding: false },
-  tokenInitialContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  tokenImage: {
-    width: 45,
-    height: 45,
-    flex: 1,
-  },
+  card: { flexShrink: 1, marginTop: 10 },
+  empty: { marginTop: 15 },
 });

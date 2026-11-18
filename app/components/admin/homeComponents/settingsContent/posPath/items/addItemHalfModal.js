@@ -1,29 +1,23 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
-import { ThemeText } from '../../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
-import { CENTER, COLORS, SIZES } from '../../../../../../constants';
-import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import customUUID from '../../../../../../functions/customUUID';
-import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
-import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../../constants/theme';
 import { normalizeNumber } from '../../../../../../functions';
+import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
+import UserInput from '../../../../../../functions/CustomElements/redesign/UserInput';
+import Note from '../../../../../../functions/CustomElements/redesign/Note';
 
 export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
   isKeyboardActive,
   initialSettings,
   handleBackPressFunction,
+  setContentHeight,
 }) {
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { t } = useTranslation();
@@ -32,7 +26,6 @@ export default function AddPOSItemHalfModal({
     price: initialSettings?.price || '',
   });
   const navigate = useNavigation();
-  const { textColor } = GetThemeColors();
 
   const nameInputRef = useRef(null);
   const priceInputRef = useRef(null);
@@ -114,96 +107,96 @@ export default function AddPOSItemHalfModal({
     }
   };
 
+  const storeCurrency = masterInfoObject?.posSettings?.storeCurrency;
+
+  useEffect(() => {
+    setContentHeight?.(
+      needsToUpdateCurrency ? 462 : initialSettings ? 392 : 412,
+    );
+  }, [needsToUpdateCurrency, initialSettings, setContentHeight]);
+
   return (
     <View style={styles.halfModalContainer}>
       <CustomScrollView
-        contentContainerStyle={{ paddingBottom: 10 }}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="none"
+        keyboardShouldPersistTaps="handled"
       >
-        <ThemeText
-          styles={{ fontSize: SIZES.large }}
-          content={
+        <SheetHeader
+          first
+          title={
             initialSettings
               ? t('settings.posPath.items.addItemHalfModal.editItem')
               : t('settings.posPath.items.addItemHalfModal.addItem')
           }
+          sub={
+            !initialSettings
+              ? t('settings.posPath.items.addItemHalfModal.pricesLabel', {
+                  currency: storeCurrency,
+                })
+              : undefined
+          }
         />
-        <ThemeText
-          styles={{ marginBottom: 10 }}
-          content={t('settings.posPath.items.addItemHalfModal.pricesLabel', {
-            currency: masterInfoObject?.posSettings?.storeCurrency,
-          })}
-        />
-        <ThemeText
-          styles={{ fontSize: SIZES.small }}
-          content={t('settings.posPath.items.addItemHalfModal.editMessage')}
-        />
-        <View style={styles.textInputContainer}>
-          <CustomSearchInput
-            textInputRef={nameInputRef}
-            textInputStyles={{
-              color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : itemInformation.name.length > 60
-                  ? COLORS.cancelRed
-                  : textColor,
-            }}
-            inputText={itemInformation.name}
-            setInputText={event => handleInput(event, 'name')}
-            placeholderText={t(
+        <View style={styles.fields}>
+          <UserInput
+            value={itemInformation.name}
+            onChangeText={event => handleInput(event, 'name')}
+            placeholder={t(
               'settings.posPath.items.addItemHalfModal.itemNamePlaceholder',
             )}
-            onFocusFunction={checkIfKeyboardShouldBeShown}
-            onBlurFunction={checkIfKeyboardShouldBeShown}
+            onFocus={checkIfKeyboardShouldBeShown}
+            onBlur={checkIfKeyboardShouldBeShown}
+            showTextCount={true}
+            maxLength={60}
+            focusRing={true}
           />
-          <ThemeText
-            styles={{
-              ...styles.inputCountText,
-              color:
-                theme && darkModeType
-                  ? textColor
-                  : itemInformation.name.length > 60
-                  ? COLORS.cancelRed
-                  : textColor,
-            }}
-            content={`${itemInformation.name.length}/60`}
-          />
-        </View>
-        <View style={styles.textInputContainer}>
-          <CustomSearchInput
-            textInputRef={priceInputRef}
-            inputText={String(itemInformation.price)}
-            setInputText={event => handleInput(event, 'price')}
-            keyboardType={'decimal-pad'}
-            placeholderText={t(
+          <UserInput
+            value={String(itemInformation.price)}
+            onChangeText={event => handleInput(event, 'price')}
+            placeholder={t(
               'settings.posPath.items.addItemHalfModal.pricePlaceholder',
-              { number: masterInfoObject?.posSettings?.storeCurrency },
+              { number: storeCurrency },
             )}
-            onFocusFunction={checkIfKeyboardShouldBeShown}
-            onBlurFunction={checkIfKeyboardShouldBeShown}
+            onFocus={checkIfKeyboardShouldBeShown}
+            onBlur={checkIfKeyboardShouldBeShown}
+            keyboardType={'decimal-pad'}
+            focusRing={true}
           />
         </View>
+        {needsToUpdateCurrency && (
+          <View style={styles.note}>
+            <Note
+              tone="warn"
+              text={t(
+                'settings.posPath.items.addItemHalfModal.currencyChangeNote',
+                {
+                  from: initialSettings.initialCurrency,
+                  amount: Number(
+                    normalizeNumber(itemInformation.price) || 0,
+                  ).toFixed(2),
+                  to: storeCurrency,
+                },
+              )}
+            />
+          </View>
+        )}
       </CustomScrollView>
       <CustomButton
-        buttonStyles={{
-          opacity:
-            !itemInformation.name || !itemInformation.price
-              ? HIDDEN_OPACITY
-              : 1,
-          ...CENTER,
-        }}
+        buttonStyles={styles.button}
+        disabled={!itemInformation.name || !itemInformation.price}
         actionFunction={addNewItem}
         textContent={
           initialSettings
             ? shouldShowCancel
               ? t('constants.cancel')
               : needsToUpdateCurrency
-              ? t('settings.posPath.items.addItemHalfModal.updateCurrency')
+              ? t('settings.posPath.items.addItemHalfModal.updateCurrency', {
+                  currency: storeCurrency,
+                })
               : t('constants.save')
             : t('settings.posPath.items.addItemHalfModal.addItemBTN')
         }
+        size={'regular'}
       />
     </View>
   );
@@ -212,18 +205,8 @@ export default function AddPOSItemHalfModal({
 const styles = StyleSheet.create({
   halfModalContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
   },
-  textInputContainer: {
-    marginTop: 20,
-    justifyContent: 'center',
-
-    position: 'relative',
-  },
-  inputCountText: {
-    marginTop: 5,
-    alignSelf: 'flex-end',
-    includeFontPadding: false,
-  },
+  fields: { gap: 10 },
+  note: { marginTop: 16 },
+  button: { width: '100%', marginTop: 12 },
 });

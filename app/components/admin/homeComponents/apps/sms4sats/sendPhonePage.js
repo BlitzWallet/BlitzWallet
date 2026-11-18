@@ -1,31 +1,34 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  SIZES,
+  MAX_WEB_CONTENT_WIDTH,
 } from '../../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { validateAndNormalizeSmsPhoneNumber } from './utils';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { AsYouType } from 'libphonenumber-js';
+import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import CountryFlag from 'react-native-country-flag';
+import GetThemeColors from '../../../../../hooks/themeColors';
+import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 
 export default function SMSMessagingSendPhonePage(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedCountry = props?.route?.params?.selectedCountry;
   const [phoneNumber, setPhoneNumber] = useState(
     props.route?.params?.phoneNumber || '',
@@ -65,26 +68,25 @@ export default function SMSMessagingSendPhonePage(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('constants.send')}
-        shouldDismissKeyboard={true}
-      />
-      <View style={styles.content}>
-        <ThemeText
-          styles={styles.title}
-          content={t('apps.sms4sats.sendPage.phoneStepTitle')}
-        />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('apps.sms4sats.sendPage.phoneStepSubtitle')}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={t('constants.send')} />
+
+        <PageHeader
+          title={t('apps.sms4sats.sendPage.phoneStepTitle')}
+          sub={t('apps.sms4sats.sendPage.phoneStepSubtitle')}
         />
 
-        <ThemeText
-          styles={{
-            ...styles.input,
-            opacity: phoneNumber.length === 0 ? HIDDEN_OPACITY : 1,
-          }}
-          content={
+        <View
+          style={[styles.locationDetails, { backgroundColor: tokens.surface }]}
+        >
+          <CountryFlag isoCode={selectedCountry.isoCode} size={12} />
+          <ThemeText content={selectedCountry.cc} />
+        </View>
+
+        <AmountHero
+          formatAmount={false}
+          mutedValue={phoneNumber.length === 0}
+          amount={
             phoneNumber.length > 15
               ? phoneNumber.slice(0, 15) + '...'
               : phoneNumber.length === 0
@@ -94,59 +96,46 @@ export default function SMSMessagingSendPhonePage(props) {
                 )}`
           }
         />
+
+        <View style={{ flex: 1 }} />
+
+        <CustomNumberKeyboard
+          setInputValue={setPhoneNumber}
+          frompage={'sendSMSPage'}
+          usingForBalance={false}
+          fiatStats={fiatStats}
+          showDot={false}
+          redesign
+        />
+
+        <CustomButton
+          disabled={!phoneNumber.length}
+          buttonStyles={[styles.button]}
+          textContent={t('constants.continue')}
+          actionFunction={handleContinue}
+          size={'regular'}
+        />
       </View>
-
-      <CustomNumberKeyboard
-        setInputValue={setPhoneNumber}
-        frompage={'sendSMSPage'}
-        usingForBalance={false}
-        fiatStats={fiatStats}
-        showDot={false}
-      />
-
-      <CustomButton
-        buttonStyles={[
-          styles.button,
-          { opacity: phoneNumber.length ? 1 : HIDDEN_OPACITY },
-        ]}
-        textContent={t('constants.continue')}
-        actionFunction={handleContinue}
-      />
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  container: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  input: {
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-  },
-  preview: {
-    width: '100%',
-    marginTop: 12,
-    textAlign: 'center',
+  locationDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    ...CENTER,
+    borderRadius: 99,
+    marginBottom: 15,
   },
   button: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

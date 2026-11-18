@@ -33,6 +33,14 @@ jest.mock('../app/functions/CustomElements', () => ({
     require('react').createElement('MockText', { children: props.content }),
 }));
 
+// PageTitle/PageHeader import ThemeText from the module directly, not via the
+// CustomElements index, so their titles need the same MockText treatment.
+jest.mock('../app/functions/CustomElements/textTheme', () => ({
+  __esModule: true,
+  default: props =>
+    require('react').createElement('MockText', { children: props.content }),
+}));
+
 jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: props => require('react').createElement('MockButton', props),
@@ -43,19 +51,13 @@ jest.mock('../app/components/admin/loginComponents/passwordCreateForm', () => ({
   default: props => require('react').createElement('MockPasswordForm', props),
 }));
 
-jest.mock('../app/components/admin/loginComponents/passkeyIcon', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
-jest.mock('../app/functions/CustomElements/actionCircleContainer', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 jest.mock('../app/hooks/themeColors', () => ({
   __esModule: true,
-  default: () => ({ backgroundOffset: '#111', backgroundColor: '#222' }),
+  default: () => ({
+    backgroundOffset: '#111',
+    backgroundColor: '#222',
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
 }));
 
 jest.mock('../app/functions/CustomElements/key', () => ({
@@ -88,7 +90,12 @@ jest.mock('../context-store/appStatus', () => ({
 }));
 
 jest.mock('../context-store/theme', () => ({
-  useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useGlobalThemeContext: () => ({
+    theme: false,
+    darkModeType: false,
+    tokens: require('../app/constants/themes').MODES.light,
+  }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../app/functions', () => ({

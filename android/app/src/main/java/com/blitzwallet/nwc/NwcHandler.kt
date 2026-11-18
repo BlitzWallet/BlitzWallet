@@ -243,7 +243,9 @@ class NwcHandler(
     if (mnemonic.isNullOrEmpty() || config.breezApiKey.isEmpty()) throw NwcHandOff("wallet credentials unavailable")
     val start = SystemClock.elapsedRealtime()
     return timed {
-      NwcWallet.connect(mnemonic, config.breezApiKey, File(NwcShared.directory(context), "breez"))
+      // Versioned: Breez migrates its store forward only, so 0.28 gets its own
+      // dir and the 0.26 store stays readable by an older build.
+      NwcWallet.connect(mnemonic, config.breezApiKey, File(NwcShared.directory(context), "breez-0.28"))
     }.also {
       Log.i(NWC_TAG, "wallet ready in ${SystemClock.elapsedRealtime() - start} ms")
       wallet = it

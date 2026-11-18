@@ -21,11 +21,9 @@ export default async function processBolt11Invoice(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     t,
-    sendWebViewRequest,
     usablePaymentMethod,
     bitcoinBalance,
     dollarBalanceSat,
-    min_usd_swap_amount,
     convertedSendAmount,
     poolInfoRef,
   } = context;
@@ -137,7 +135,6 @@ export default async function processBolt11Invoice(input, context) {
           paymentType: !!input.data.usingSparkAddress ? 'spark' : 'lightning',
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
-          sendWebViewRequest,
         }),
       );
     }

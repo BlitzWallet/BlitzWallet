@@ -4,6 +4,7 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 const mockNavigate = {
   popToTop: jest.fn(),
   replace: jest.fn(),
+  push: jest.fn(),
 };
 
 let mockSparkInformation = { tokens: {} };
@@ -97,10 +98,12 @@ jest.mock('../app/functions/sendBitcoin/getPhonePaymentAddress', () => ({
 jest.mock('../app/hooks/themeColors', () => () => ({
   backgroundOffset: '#eeeeee',
   textColor: '#111111',
+  tokens: require('../app/constants/themes').MODES.light,
 }));
 
 jest.mock('../context-store/theme', () => ({
   useGlobalThemeContext: () => ({ theme: false, darkModeType: false }),
+  useTheme: () => ({ tokens: require('../app/constants/themes').MODES.light }),
 }));
 
 jest.mock('../context-store/toastManager', () => ({
@@ -129,12 +132,21 @@ jest.mock('../app/functions/CustomElements', () => {
   };
 });
 
-jest.mock('../app/functions/CustomElements/button', () => ({
-  __esModule: true,
-  default: () => null,
-}));
+const mockRow = () => {
+  const MockReact = require('react');
+  const RN = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ children, ...props }) =>
+      MockReact.createElement(RN.View, props, children),
+  };
+};
+jest.mock('../app/functions/CustomElements/redesign/ListCard', () => mockRow());
+jest.mock('../app/functions/CustomElements/redesign/ListRow', () => mockRow());
+jest.mock('../app/functions/CustomElements/redesign/Disc', () => mockRow());
+jest.mock('../app/functions/CustomElements/redesign/TextButton', () => mockRow());
 
-jest.mock('../app/functions/CustomElements/dropdownMenu', () => ({
+jest.mock('../app/functions/CustomElements/button', () => ({
   __esModule: true,
   default: () => null,
 }));
@@ -156,7 +168,19 @@ jest.mock('../app/functions/CustomElements/satTextDisplay', () => {
   };
 });
 
-jest.mock('../app/functions/CustomElements/formattedBalanceInput', () => {
+jest.mock('../context-store/context', () => ({
+  useGlobalContextProvider: () => ({ masterInfoObject: {} }),
+}));
+
+jest.mock(
+  '../app/components/admin/homeComponents/sendBitcoin/functions/formatSendText',
+  () => ({
+    formatAmountText: (amount, details) => ({ amount, ...details }),
+  }),
+);
+
+// The hero's `amount` here is what formatAmountText was given.
+jest.mock('../app/functions/CustomElements/redesign/AmountHero', () => {
   const MockReact = require('react');
   const RN = require('react-native');
   return {
@@ -164,7 +188,7 @@ jest.mock('../app/functions/CustomElements/formattedBalanceInput', () => {
     default: props =>
       MockReact.createElement(
         RN.Text,
-        { testID: 'formatted-balance-input', componentProps: props },
+        { testID: 'formatted-balance-input', componentProps: props.amount },
         'balance-input',
       ),
   };
@@ -174,25 +198,99 @@ const ConfirmTxPage = require('../app/screens/inAccount/confirmTxPage').default;
 const CustomButton = require('../app/functions/CustomElements/button').default;
 const { openBrowserAsync } = require('expo-web-browser');
 
-test('opens a failed-payment email through a mailto URL on web', async () => {
-  const {Platform, Linking} = require('react-native');
-  const DropdownMenu = require('../app/functions/CustomElements/dropdownMenu').default;
-  const {openComposer} = require('react-native-email-link');
-  const originalOS = Platform.OS;
-  Platform.OS = 'web';
-  jest.spyOn(Linking, 'openURL').mockResolvedValue();
-  try {
-    const renderer = await renderConfirm({error: 'Failed: payment & retry'});
-    const menu = renderer.root.findByType(DropdownMenu);
-    await act(async () => menu.props.onSelect({value: 'email'}));
-    expect(Linking.openURL).toHaveBeenCalledWith(
-      'mailto:support@blitzwalletapp.com?subject=Payment%20Failed&body=Failed%3A%20payment%20%26%20retry',
+describe('reporting a failed payment', () => {
+  const error = 'Failed: payment & retry';
+
+  test('hands the sheet the error as plain text', async () => {
+    const renderer = await renderConfirm({ error });
+    const report = renderer.root.findByProps({
+      text: 'screens.inAccount.confirmTxPage.sendReport',
+    });
+    await act(async () => report.props.onPress());
+    expect(mockNavigate.push).toHaveBeenCalledWith(
+      'CustomHalfModal',
+      expect.objectContaining({
+        wantedContent: 'contactUs',
+        emailSubject:
+          'screens.inAccount.confirmTxPage.failedPaymentSupportSubject',
+        emailBody: error,
+        copyBody: true,
+      }),
     );
-    expect(openComposer).not.toHaveBeenCalled();
-  } finally {
-    Platform.OS = originalOS;
-    Linking.openURL.mockRestore();
-  }
+  });
+
+  test('shows one status line', async () => {
+    const renderer = await renderConfirm({ error });
+    const text = renderedText(renderer);
+    expect(text).toContain('screens.inAccount.confirmTxPage.failedToSend');
+    expect(text).not.toContain(
+      'screens.inAccount.confirmTxPage.paymentErrorMessage',
+    );
+  });
+
+  describe('contact sheet', () => {
+    const { Platform, Linking } = require('react-native');
+    const { openComposer } = require('react-native-email-link');
+    const { copyToClipboard } = require('../app/functions');
+    const ContactUsHalfModal =
+      require('../app/components/admin/homeComponents/contactUsHalfModal').default;
+    const originalOS = Platform.OS;
+
+    const renderSheet = async () => {
+      const handleBackPressFunction = jest.fn();
+      let renderer;
+      await act(async () => {
+        renderer = ReactTestRenderer.create(
+          <ContactUsHalfModal
+            emailSubject="Subject & more"
+            emailBody={error}
+            copyBody
+            handleBackPressFunction={handleBackPressFunction}
+          />,
+        );
+      });
+      return renderer;
+    };
+
+    const pressRow = (renderer, title) =>
+      act(async () =>
+        renderer.root.findByProps({ title }).props.onPress(),
+      );
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    });
+
+    afterEach(() => {
+      Platform.OS = originalOS;
+      Linking.openURL.mockRestore();
+    });
+
+    test('native email gets the plain body, the library encodes it', async () => {
+      const renderer = await renderSheet();
+      await pressRow(renderer, 'screens.inAccount.confirmTxPage.emailReport');
+      expect(openComposer).toHaveBeenCalledWith(
+        expect.objectContaining({ body: error }),
+      );
+    });
+
+    test('web email opens a mailto URL, encoded once', async () => {
+      Platform.OS = 'web';
+      const renderer = await renderSheet();
+      await pressRow(renderer, 'screens.inAccount.confirmTxPage.emailReport');
+      expect(Linking.openURL).toHaveBeenCalledWith(
+        'mailto:support@blitzwalletapp.com?subject=Subject%20%26%20more&body=Failed%3A%20payment%20%26%20retry',
+      );
+      expect(openComposer).not.toHaveBeenCalled();
+    });
+
+    test('copy carries the readable error', async () => {
+      const renderer = await renderSheet();
+      await pressRow(renderer, 'screens.inAccount.confirmTxPage.copyReport');
+      expect(copyToClipboard).toHaveBeenCalledWith(error, expect.anything());
+    });
+  });
 });
 
 describe('confirmation receipt links', () => {
@@ -293,7 +391,7 @@ describe('ConfirmTxPage amount rendering', () => {
     expect(satText.globalBalanceDenomination).toBeUndefined();
   });
 
-  test('renders FormattedBalanceInput with the reviewed displayAmount and paymentDisplay when both are present', async () => {
+  test('renders AmountHero with the reviewed displayAmount and paymentDisplay when both are present', async () => {
     const renderer = await renderConfirm({
       transaction: successfulOutgoingTx,
       displayAmount: '10.50',
@@ -303,10 +401,9 @@ describe('ConfirmTxPage amount rendering', () => {
     expect(satTextProps(renderer)).toBeNull();
     const props = balanceInputProps(renderer);
     expect(props).not.toBeNull();
-    expect(props.amountValue).toBe('10.50');
-    expect(props.inputDenomination).toBe('fiat');
-    expect(props.forceCurrency).toBe('EUR');
-    expect(props.maxDecimals).toBe(2);
+    expect(props.amount).toBe('10.50');
+    expect(props.primaryDisplay.denomination).toBe('fiat');
+    expect(props.primaryDisplay.forceCurrency).toBe('EUR');
   });
 
   test('falls back to FormattedSatText carrying paymentDisplay when displayAmount is absent', async () => {
@@ -324,7 +421,7 @@ describe('ConfirmTxPage amount rendering', () => {
     expect(props.forceCurrency).toBe('EUR');
   });
 
-  test('uses the send screen ticker for an LRC20 send rendered through FormattedBalanceInput', async () => {
+  test('uses the send screen ticker for an LRC20 send rendered through AmountHero', async () => {
     mockSparkInformation = {
       tokens: {
         'token-id': { tokenMetadata: { tokenTicker: 'USDB', decimals: 6 } },
@@ -350,8 +447,9 @@ describe('ConfirmTxPage amount rendering', () => {
 
     const props = balanceInputProps(renderer);
     expect(props).not.toBeNull();
-    expect(props.customCurrencyCode).toBe('USDB');
-    expect(props.maxDecimals).toBe(6);
+    expect(props.displayTokenTicker).toBe('USDB');
+    expect(props.isUsingLRC20).toBe(true);
+    expect(props.tokenDecimals).toBe(6);
   });
 
   test('keeps the fiat display for a USDB-funded send the send screen showed as fiat', async () => {
@@ -380,9 +478,9 @@ describe('ConfirmTxPage amount rendering', () => {
 
     const props = balanceInputProps(renderer);
     expect(props).not.toBeNull();
-    expect(props.customCurrencyCode).toBeFalsy();
-    expect(props.forceCurrency).toBe('USD');
-    expect(props.maxDecimals).toBe(2);
+    expect(props.displayTokenTicker).toBeFalsy();
+    expect(props.isUsingLRC20).toBe(false);
+    expect(props.primaryDisplay.forceCurrency).toBe('USD');
   });
 });
 

@@ -1,30 +1,30 @@
-import { Image } from 'expo-image';
 import { StyleSheet, View, Text } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useChildAccountEmoji } from '../../../../functions/accounts/childAccountEmojis';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {
-  ICONS,
-  MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
-} from '../../../../constants';
-import ContactProfileImage from '../contacts/internalComponents/profileImage';
+import { MAIN_ACCOUNT_UUID, NWC_ACCOUNT_UUID } from '../../../../constants';
 import { tintStyle } from '../../../../functions/webTintColor';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 import { useState, useCallback } from 'react';
+import ContactAvatar from '../contacts/internalComponents/contactAvatar';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function AccountProfileImage({
   account,
   imageSize,
   useStoredEmoji = true,
 }) {
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { masterInfoObject } = useGlobalContextProvider();
   const { textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [emojiFontSize, setEmojiFontSize] = useState(null);
+
+  const myProfile = globalContactsInformation.myProfile;
 
   // Managed (child) accounts keep their emoji in a local-only store; the
   // account object itself stays DB-clean. An explicit profileEmoji on the
@@ -54,15 +54,16 @@ export default function AccountProfileImage({
 
   return (
     <View style={styles.badge} onLayout={handleContainerLayout}>
-      {account.uuid === NWC_ACCOUNT_UUID ? (
-        <Image
-          style={{
-            aspectRatio: 1,
-            width: '60%',
-            ...tintStyle(theme && darkModeType ? textColor : undefined),
-          }}
-          source={ICONS.nwcLogo}
+      {account.uuid === MAIN_ACCOUNT_UUID ? (
+        <ContactAvatar
+          name={myProfile.name || myProfile?.uniqueName}
+          seed={myProfile.uuid}
+          uri={uri}
+          updated={updated}
+          fill
         />
+      ) : account.uuid === NWC_ACCOUNT_UUID ? (
+        <ThemeIcon iconName={'Plug'} redesign size={imageSize / 2.5} />
       ) : profileEmoji ? (
         emojiFontSize !== null && (
           <Text
@@ -78,12 +79,7 @@ export default function AccountProfileImage({
           </Text>
         )
       ) : (
-        <ContactProfileImage
-          uri={uri}
-          updated={updated}
-          theme={theme}
-          darkModeType={darkModeType}
-        />
+        <ThemeIcon iconName={'UsersRound'} redesign size={imageSize / 2.5} />
       )}
     </View>
   );

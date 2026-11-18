@@ -30,7 +30,6 @@ import {
 
 import { GlobalContextProvider } from './context-store/context';
 
-import { WebViewProvider } from './context-store/webViewContext';
 import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
@@ -92,6 +91,7 @@ import i18next from 'i18next';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
+import { ActivitySeenProvider } from './context-store/activitySeen';
 import { DropdownProvider } from './context-store/dropdownContext';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -104,8 +104,8 @@ import { InsetsProvider } from './context-store/insetsProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider } from './context-store/toastManager';
 import { ToastContainer } from './context-store/toastContainer';
+import ShareTouchBlocker from './app/functions/CustomElements/shareTouchBlocker';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
-import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
@@ -153,8 +153,8 @@ function App(): JSX.Element {
                           <GlobalContactsList>
                             <GlobalContextProvider>
                               <ActiveCustodyAccountProvider>
-                                <WebViewProvider>
-                                  <SparkWalletProvider>
+                                <SparkWalletProvider>
+                                  <ActivitySeenProvider>
                                     <GLobalNodeContextProider>
                                       <GlobalAppDataProvider>
                                         <PushNotificationProvider>
@@ -181,8 +181,8 @@ function App(): JSX.Element {
                                         </PushNotificationProvider>
                                       </GlobalAppDataProvider>
                                     </GLobalNodeContextProider>
-                                  </SparkWalletProvider>
-                                </WebViewProvider>
+                                  </ActivitySeenProvider>
+                                </SparkWalletProvider>
                               </ActiveCustodyAccountProvider>
                             </GlobalContextProvider>
                           </GlobalContactsList>
@@ -879,7 +879,7 @@ function ResetStack(): JSX.Element | null {
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <ToastContainer />
-      <SparkConnectionManager />
+      <ShareTouchBlocker />
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Splash"

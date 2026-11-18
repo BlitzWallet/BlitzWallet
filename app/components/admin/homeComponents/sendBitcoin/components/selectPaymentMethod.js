@@ -1,24 +1,17 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemeText } from '../../../../../functions/CustomElements';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { CENTER, ICONS } from '../../../../../constants';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-} from '../../../../../constants/theme';
 import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
-import CustomButton from '../../../../../functions/CustomElements/button';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { formatBalanceAmount } from '../../../../../functions';
+import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
+import CustomButton from '../../../../../functions/CustomElements/button';
 
 export default function SelectPaymentMethod({
   selectedPaymentMethod,
@@ -27,6 +20,9 @@ export default function SelectPaymentMethod({
   onSelectMethod,
   bitcoinBalance: btcOverride,
   dollarBalanceToken: usdOverride,
+  // Checkout mode (Bitrefill): rows only pick, the Pay button commits.
+  sub,
+  confirmText,
 }) {
   // Balances default to the active wallet, but a caller moving funds out of
   // another account passes that account's balances in.
@@ -37,9 +33,10 @@ export default function SelectPaymentMethod({
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
 
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const [picked, setPicked] = useState(
+    selectedPaymentMethod === 'USD' ? 'USD' : 'BTC',
+  );
 
   const selectSendingBalance = term => {
     if (onSelectMethod) {
@@ -65,7 +62,6 @@ export default function SelectPaymentMethod({
       ),
     );
   };
-  const hideBalance = fromPage === 'CreateGift';
 
   const headerText =
     fromPage === 'CreateGift'
@@ -74,122 +70,69 @@ export default function SelectPaymentMethod({
 
   return (
     <View style={styles.innerContainer}>
-      <ThemeText
-        styles={{ fontWeight: 500, fontSize: SIZES.large }}
-        content={headerText}
-      />
+      <SheetHeader first title={headerText} sub={sub} />
 
-      <TouchableOpacity
-        onPress={() => selectSendingBalance('BTC')}
-        style={styles.containerRow}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.bitcoinOrange,
-            },
-          ]}
-        >
-          <ThemeImage
-            styles={{ width: 25, height: 25 }}
-            lightModeIcon={ICONS.bitcoinIcon}
-            darkModeIcon={ICONS.bitcoinIcon}
-            lightsOutIcon={ICONS.bitcoinIcon}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.balanceTitle}
-            content={t(
-              hideBalance ? 'constants.bitcoin_upper' : 'constants.sat_balance',
-            )}
-          />
-          {!hideBalance && (
-            <ThemeText
-              styles={styles.amountText}
-              content={`${displayCorrectDenomination({
-                amount: bitcoinBalance,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'sats',
-                },
-                fiatStats,
-              })}`}
-            />
-          )}
-        </View>
-        <CheckMarkCircle
-          isActive={
-            selectedPaymentMethod === 'BTC' ||
-            selectedPaymentMethod === 'user-choice'
+      <ListCard>
+        <PickRow
+          lead={<CurrencyIcon size={44} isBitcoin />}
+          minHeight={76}
+          title={t('constants.bitcoin_upper')}
+          sub={t('constants.amountAvailable', {
+            amount: displayCorrectDenomination({
+              amount: bitcoinBalance,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'sats',
+              },
+              fiatStats,
+            }),
+          })}
+          selected={
+            confirmText
+              ? picked === 'BTC'
+              : selectedPaymentMethod === 'BTC' ||
+                selectedPaymentMethod === 'user-choice'
           }
-          containerSize={25}
-          switchDarkMode={theme && darkModeType ? true : false}
+          onPress={() =>
+            confirmText ? setPicked('BTC') : selectSendingBalance('BTC')
+          }
         />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => selectSendingBalance('USD')}
-        style={styles.containerRow}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.dollarGreen,
-            },
-          ]}
-        >
-          <ThemeImage
-            styles={{ width: 25, height: 25 }}
-            lightModeIcon={ICONS.dollarIcon}
-            darkModeIcon={ICONS.dollarIcon}
-            lightsOutIcon={ICONS.dollarIcon}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.balanceTitle}
-            content={t(
-              hideBalance ? 'constants.dollars_upper' : 'constants.usd_balance',
-            )}
-          />
-          {!hideBalance && (
-            <ThemeText
-              styles={styles.amountText}
-              content={`${displayCorrectDenomination({
-                amount: formatBalanceAmount(
-                  dollarBalanceToken,
-                  false,
-                  masterInfoObject,
-                ),
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'fiat',
-                },
-                forceCurrency: 'USD',
-                convertAmount: false,
-                fiatStats,
-              })}`}
-            />
-          )}
-        </View>
-        <CheckMarkCircle
-          isActive={selectedPaymentMethod === 'USD'}
-          containerSize={25}
-          switchDarkMode={theme && darkModeType ? true : false}
+        <PickRow
+          lead={<CurrencyIcon size={44} />}
+          minHeight={76}
+          title={t('constants.dollars_upper')}
+          sub={t('constants.amountAvailable', {
+            amount: displayCorrectDenomination({
+              amount: formatBalanceAmount(
+                dollarBalanceToken,
+                false,
+                masterInfoObject,
+              ),
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'fiat',
+              },
+              forceCurrency: 'USD',
+              convertAmount: false,
+              fiatStats,
+            }),
+          })}
+          selected={
+            confirmText ? picked === 'USD' : selectedPaymentMethod === 'USD'
+          }
+          onPress={() =>
+            confirmText ? setPicked('USD') : selectSendingBalance('USD')
+          }
         />
-      </TouchableOpacity>
+      </ListCard>
+      {confirmText && (
+        <CustomButton
+          buttonStyles={styles.confirmButton}
+          size={'regular'}
+          textContent={confirmText}
+          actionFunction={() => selectSendingBalance(picked)}
+        />
+      )}
     </View>
   );
 }
@@ -197,68 +140,6 @@ export default function SelectPaymentMethod({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    gap: 15,
   },
-
-  containerRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-
-    borderRadius: 8,
-    marginVertical: 5,
-  },
-  textContainer: {
-    width: '100%',
-    flexShrink: 1,
-    marginLeft: 15,
-  },
-  iconSize: {
-    fontSize: SIZES.xxLarge,
-  },
-  balanceTitle: {
-    fontWeight: 500,
-    fontSize: SIZES.large,
-    includeFontPadding: false,
-  },
-  amountText: {
-    opacity: 0.7,
-    includeFontPadding: false,
-  },
-
-  tokenContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 5,
-  },
-
-  tickerText: { marginRight: 'auto', includeFontPadding: false },
-  balanceText: { includeFontPadding: false },
-  tokenInitialContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  tokenImage: {
-    width: 45,
-    height: 45,
-    flex: 1,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  confirmButton: { marginTop: 'auto' },
 });
