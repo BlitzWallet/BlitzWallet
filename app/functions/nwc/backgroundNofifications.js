@@ -321,21 +321,42 @@ const handleGetTransactions = async requestParams => {
         1,
       );
 
+      const { address, preimage, fee, description } = transformedObjct.details;
+      const state =
+        transformedObjct.paymentStatus === 'completed'
+          ? 'settled'
+          : transformedObjct.paymentStatus === 'failed'
+          ? 'failed'
+          : 'pending';
+
+      let paymentHash = null;
+      try {
+        paymentHash =
+          bolt11
+            .decode(address)
+            .tags.find(tag => tag.tagName === 'payment_hash')?.data || null;
+      } catch (err) {}
+      if (!paymentHash && preimage) {
+        paymentHash = sha256Hash(Buffer.from(preimage, 'hex')) || null;
+      }
+
       return {
         type: tx.transferDirection?.toLowerCase(),
-        invoice: transformedObjct.details.address,
-        description: transformedObjct.details.description,
+        state,
+        invoice: address,
+        description,
         description_hash: null,
-        preimage: transformedObjct.details.preimage,
-        payment_hash: sha256Hash(transformedObjct.details.preimage),
+        preimage,
+        payment_hash: paymentHash,
         amount: tx.totalValue * 1000,
-        fees_paid: transformedObjct.details.fee,
+        fees_paid: Math.round(fee * 1000),
         created_at: tx.createdTime
           ? Math.floor(new Date(tx.createdTime).getTime() / 1000)
           : null,
-        settled_at: tx.expiryTime
-          ? Math.floor(new Date(tx.updatedTime).getTime() / 1000)
-          : null,
+        settled_at:
+          state === 'settled' && tx.updatedTime
+            ? Math.floor(new Date(tx.updatedTime).getTime() / 1000)
+            : null,
         metadata: {},
       };
     }),
@@ -418,9 +439,16 @@ const handleMakeInvoice = async (requestParams, selectedNWCAccount) => {
 
   return {
     result_type: 'make_invoice',
-    result: {
+    result: toNip47Transaction({
+      type: 'INCOMING',
+      status: 'pending',
       invoice: encodedInvoice,
-    },
+      description: requestParams.description,
+      payment_hash: response.invoice.paymentHash,
+      amount: amountSats,
+      created_at: new Date(response.invoice.createdAt).getTime(),
+      expires_at: new Date(response.invoice.expiresAt).getTime(),
+    }),
   };
 };
 

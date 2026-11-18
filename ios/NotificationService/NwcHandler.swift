@@ -326,7 +326,13 @@ final class NwcHandler: @unchecked Sendable {
     } catch {
       nwcLog.error("NWC native: failed to store created invoice")
     }
-    return ["result_type": method, "result": ["invoice": invoice]]
+    let row: [String: Any] = [
+      "type": "INCOMING", "status": "pending", "invoice": invoice, "description": description ?? "",
+      "payment_hash": details.paymentHash, "amount": amountSats,
+      "created_at": Int64(details.timestamp) * 1000,
+      "expires_at": Int64(details.timestamp + details.expiry) * 1000,
+    ]
+    return ["result_type": method, "result": Self.nip47Transaction(row)]
   }
 
   private func lookupInvoice(_ params: [String: Any], _ config: NwcConfig, _ invoices: NwcInvoices)
