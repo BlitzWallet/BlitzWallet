@@ -123,7 +123,7 @@
     "manage": "Emitidos",
     "reclaim": "Expirados",
     "optionalFlag": "(Opcional)",
-    "gift": "Cartão-presente",
+    "gift": "Vale-Blitz",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Cotação",
@@ -1412,7 +1412,7 @@
         "verifiedBody": "A Branta verificou que esta solicitação de pagamento realmente vem de {{merchantName}}, para você saber para quem está pagando.",
         "verifiedBodyNoName": "A Branta verificou que esta solicitação de pagamento é autêntica, para você saber para quem está pagando.",
         "checkAddress": "Verifique se corresponde ao que você recebeu.",
-        "checkAddress_receive": "Verifique se corresponde à que você compartilhou."
+        "checkAddress_receive": "Verifique se corresponde com o endereço compartilhado."
       }
     },
     "switchOption": {
@@ -4131,7 +4131,7 @@
   },
   "receive": {
     "requestFromContact": "Solicitar de um contato",
-    "fromAnotherWallet": "Receber de outra carteira ou exchange",
+    "fromAnotherWallet": "Receber de outra carteira ou corretora",
     "emptyTitle": "Receba pagamentos de pessoas que você conhece",
     "emptySub": "Adicione um contato para solicitar dinheiro a ele. Os contatos que você adicionar aparecerão aqui.",
     "addContact": "Adicionar contato",
@@ -4169,10 +4169,10 @@
     "anyAmountSub": "O remetente escolhe quanto pagar.",
     "arrivesAsDollars": "Chega como dólares",
     "conversionNote": "O valor final pode variar um pouco conforme o preço durante a conversão.",
-    "whatFor": "Para que serve",
+    "whatFor": "Adicione uma descrição",
     "share": "Compartilhar",
     "address_share_bitcoin": "Endereço Bitcoin",
-    "address_share_stablecoin": "Endereço de stablecoin",
+    "address_share_stablecoin": "Endereço Dólar Digital",
     "address_share_tokens": "Endereço de tokens",
     "address_share_lightningAddress": "Endereço Lightning",
     "address_share_lightningInvoice": "Fatura Lightning"
