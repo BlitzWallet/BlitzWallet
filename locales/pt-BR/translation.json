@@ -1193,7 +1193,6 @@
       "payment_other": "{{count}} pagamentos",
       "closed": "Encerrada ",
       "pool": "Pool",
-      "couldNotFind": "Não foi possível encontrar esta Vaquinha.",
       "createdBy": "Por ",
       "moneyTransferred": "Fundos transferidos para a conta principal",
       "contribute": "Contribuir",
@@ -1216,7 +1215,6 @@
       "late_pool_contribution_label": "Contribuição tardia para \"{{poolName}}\"",
       "activitySection": "Atividade",
       "active": "Abertas",
-      "savingPoolError": "Não foi possível criar esta Vaquinha. Tente novamente.",
       "info": {
         "title": "Entendendo as Vaquinhas",
         "whatArePools": "O que são Vaquinhas?",
@@ -1240,7 +1238,8 @@
       "savingPoolErrorTitle": "Não foi possível criar a Vaquinha",
       "savingPoolErrorSub": "Não foi possível criar esta Vaquinha. Tente novamente.",
       "viewActivityTitle": "Contribuições",
-      "activityInfoHeader": "{{numPeople}} pessoas pagaram {{contributionAmount}} de {{totalAmount}}.",
+      "activityInfoHeader_one": "{{numPeople}} pessoa pagou {{contributionAmount}} de {{totalAmount}}.",
+      "activityInfoHeader_other": "{{numPeople}} pessoas pagaram {{contributionAmount}} de {{totalAmount}}.",
       "closePoolLoadingTitle": "Encerrando Vaquinha",
       "closePoolLoadingSub": "Mantenha o app aberto até terminar.",
       "poolGoal": "Objetivo da Vaquinha",
@@ -2253,6 +2252,7 @@
           "yearly": "por ano"
         },
         "createdSubtitle": "O app está conectado. Você já pode voltar para ele.",
+        "returnToApp": "Voltar para {{name}}",
         "errorTitle": "Não foi possível conectar",
         "errors": {
           "invalid": "Este pedido de conexão não é válido.",
@@ -3699,7 +3699,8 @@
     "appStore": "Loja",
     "contacts": "Contatos",
     "money": "Dinheiro",
-    "activity": "Atividade"
+    "activity": "Atividade",
+    "activityUnseen": "Atividade, novos pagamentos recebidos"
   },
   "pushNotifications": {
     "paymentReceived": {

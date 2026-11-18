@@ -1193,7 +1193,6 @@
       "payment_other": "{{count}} pagos",
       "closed": "Cerrado ",
       "pool": "Fondo",
-      "couldNotFind": "No pudimos encontrar este fondo.",
       "createdBy": "Por ",
       "moneyTransferred": "Dinero transferido a la Wallet principal",
       "contribute": "Contribuir",
@@ -1216,7 +1215,6 @@
       "late_pool_contribution_label": "Contribución tardía a \"{{poolName}}\"",
       "activitySection": "Actividad",
       "active": "Activo",
-      "savingPoolError": "No se pudo crear este pool. Por favor, inténtalo de nuevo.",
       "info": {
         "title": "Acerca de los pools",
         "whatArePools": "¿Qué son los pools?",
@@ -1240,7 +1238,8 @@
       "savingPoolErrorTitle": "No se pudo crear el fondo",
       "savingPoolErrorSub": "No pudimos crear este fondo. Inténtalo de nuevo.",
       "viewActivityTitle": "Contribuciones",
-      "activityInfoHeader": "{{numPeople}} personas han pagado {{contributionAmount}} de {{totalAmount}}.",
+      "activityInfoHeader_one": "{{numPeople}} persona ha pagado {{contributionAmount}} de {{totalAmount}}.",
+      "activityInfoHeader_other": "{{numPeople}} personas han pagado {{contributionAmount}} de {{totalAmount}}.",
       "closePoolLoadingTitle": "Cerrando fondo",
       "closePoolLoadingSub": "Mantén la app abierta hasta que termine.",
       "poolGoal": "Objetivo del fondo",
@@ -2250,6 +2249,7 @@
           "yearly": "al año"
         },
         "createdSubtitle": "La app está conectada. Ya puedes volver a ella.",
+        "returnToApp": "Volver a {{name}}",
         "errorTitle": "No se pudo conectar",
         "errors": {
           "invalid": "Esta solicitud de conexión no es válida.",
@@ -3691,7 +3691,8 @@
     "appStore": "Tienda",
     "contacts": "Contactos",
     "money": "Dinero",
-    "activity": "Actividad"
+    "activity": "Actividad",
+    "activityUnseen": "Actividad, nuevos pagos recibidos"
   },
   "contexts": {
     "spark": {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Linking,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -208,6 +209,9 @@ export default function NWCAuthApproval({
     }
   };
 
+  // Only reachable from the success page, never after a decline or error.
+  const returnToApp = () => Linking.openURL(request.returnTo).catch(() => {});
+
   const toggleOptional = key =>
     setEnabledOptional(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -350,11 +354,21 @@ export default function NWCAuthApproval({
               content={page === 'error' ? t(errorMessage || '') : successText}
             />
           </View>
-          <CustomButton
-            actionFunction={handleBackPressFunction}
-            textContent={t('constants.done')}
-            size={'regular'}
-          />
+          {page === 'success' && request?.returnTo ? (
+            <CustomButton
+              actionFunction={returnToApp}
+              textContent={t('settings.nwc.authRequest.returnToApp', {
+                name: appName,
+              })}
+              size={'regular'}
+            />
+          ) : (
+            <CustomButton
+              actionFunction={handleBackPressFunction}
+              textContent={t('constants.done')}
+              size={'regular'}
+            />
+          )}
         </AnimatedStep>
       ))}
     </View>

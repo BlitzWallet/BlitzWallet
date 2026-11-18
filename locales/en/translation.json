@@ -2420,6 +2420,7 @@
           "yearly": "a year"
         },
         "createdSubtitle": "The app is connected. You can go back to it now.",
+        "returnToApp": "Return to {{name}}",
         "errorTitle": "Couldn't connect",
         "errors": {
           "invalid": "This connection request isn't valid.",

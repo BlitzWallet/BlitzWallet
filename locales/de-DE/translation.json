@@ -1193,7 +1193,6 @@
       "payment_other": "{{count}} Zahlungen",
       "closed": "Geschlossene Sparpools ",
       "pool": "Sparpools",
-      "couldNotFind": "Dieser Sparpool konnte nicht gefunden werden.",
       "createdBy": "Erstellt von ",
       "moneyTransferred": "Das Geld wurde an Ihre Haupt-Wallet übertragen.",
       "contribute": "Beitragen",
@@ -1216,7 +1215,6 @@
       "late_pool_contribution_label": "Verspäteter Beitrag zum Sparpool: „{{poolName}}“",
       "activitySection": "Aktivität",
       "active": "Aktive Sparpools",
-      "savingPoolError": "Dieser Sparpool konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
@@ -1240,7 +1238,8 @@
       "savingPoolErrorTitle": "Sparpool konnte nicht erstellt werden",
       "savingPoolErrorSub": "Wir konnten diesen Sparpool nicht erstellen. Bitte versuchen Sie es erneut.",
       "viewActivityTitle": "Beiträge",
-      "activityInfoHeader": "{{numPeople}} Personen haben {{contributionAmount}} von {{totalAmount}} beigetragen.",
+      "activityInfoHeader_one": "{{numPeople}} Person hat {{contributionAmount}} von {{totalAmount}} beigetragen.",
+      "activityInfoHeader_other": "{{numPeople}} Personen haben {{contributionAmount}} von {{totalAmount}} beigetragen.",
       "closePoolLoadingTitle": "Sparpool wird geschlossen",
       "closePoolLoadingSub": "Lassen Sie die App geöffnet, bis der Vorgang abgeschlossen ist.",
       "poolGoal": "Sparpool-Ziel",
@@ -2253,6 +2252,7 @@
           "yearly": "pro Jahr"
         },
         "createdSubtitle": "Die App ist verbunden. Sie können jetzt zu ihr zurückkehren.",
+        "returnToApp": "{{name}} öffnen",
         "errorTitle": "Verbindung fehlgeschlagen",
         "errors": {
           "invalid": "Diese Verbindungsanfrage ist ungültig.",
@@ -3699,7 +3699,8 @@
     "appStore": "Shop",
     "contacts": "Kontakte",
     "money": "Geld",
-    "activity": "Aktivität"
+    "activity": "Aktivität",
+    "activityUnseen": "Aktivität, neue Zahlungen erhalten"
   },
   "pushNotifications": {
     "paymentReceived": {

@@ -1193,7 +1193,6 @@
       "payment_other": "{{count}} betalningar",
       "closed": "Stängd ",
       "pool": "Pool",
-      "couldNotFind": "Vi kunde inte hitta denna pool.",
       "createdBy": "Av ",
       "moneyTransferred": "Pengar överförda till huvudplånboken",
       "contribute": "Bidra",
@@ -1216,7 +1215,6 @@
       "late_pool_contribution_label": "Sen inbetalning till \"{{poolName}}\"",
       "activitySection": "Aktivitet",
       "active": "Aktiv",
-      "savingPoolError": "Det gick inte att skapa denna pool. Försök igen.",
       "info": {
         "title": "Om pools",
         "whatArePools": "Vad är pools?",
@@ -1240,7 +1238,8 @@
       "savingPoolErrorTitle": "Det gick inte att skapa poolen",
       "savingPoolErrorSub": "Vi kunde inte skapa den här poolen. Försök igen.",
       "viewActivityTitle": "Bidrag",
-      "activityInfoHeader": "{{numPeople}} personer har betalat {{contributionAmount}} av {{totalAmount}}.",
+      "activityInfoHeader_one": "{{numPeople}} person har betalat {{contributionAmount}} av {{totalAmount}}.",
+      "activityInfoHeader_other": "{{numPeople}} personer har betalat {{contributionAmount}} av {{totalAmount}}.",
       "closePoolLoadingTitle": "Stänger poolen",
       "closePoolLoadingSub": "Håll appen öppen tills det är klart.",
       "poolGoal": "Poolens mål",
@@ -2253,6 +2252,7 @@
           "yearly": "per år"
         },
         "createdSubtitle": "Appen är ansluten. Du kan gå tillbaka till den nu.",
+        "returnToApp": "Gå tillbaka till {{name}}",
         "errorTitle": "Kunde inte ansluta",
         "errors": {
           "invalid": "Den här anslutningsförfrågan är ogiltig.",
@@ -3699,7 +3699,8 @@
     "appStore": "Butik",
     "contacts": "Kontaktpersoner",
     "money": "Pengar",
-    "activity": "Aktivitet"
+    "activity": "Aktivitet",
+    "activityUnseen": "Aktivitet, nya betalningar mottagna"
   },
   "pushNotifications": {
     "paymentReceived": {

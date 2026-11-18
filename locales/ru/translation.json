@@ -1193,7 +1193,6 @@
       "payment_other": "{{count}} платежей",
       "closed": "Закрыт ",
       "pool": "Пул",
-      "couldNotFind": "Мы не смогли найти этот пул.",
       "createdBy": "От ",
       "moneyTransferred": "Средства переведены в основной кошелёк",
       "contribute": "Внести вклад",
@@ -1216,7 +1215,6 @@
       "late_pool_contribution_label": "Поздний взнос в \"{{poolName}}\"",
       "activitySection": "Активность",
       "active": "Активный",
-      "savingPoolError": "Не удалось создать этот пул. Пожалуйста, попробуйте снова.",
       "info": {
         "title": "О пулах",
         "whatArePools": "Что такое пулы?",
@@ -1240,7 +1238,10 @@
       "savingPoolErrorTitle": "Не удалось создать пул",
       "savingPoolErrorSub": "Мы не смогли создать этот пул. Пожалуйста, попробуйте снова.",
       "viewActivityTitle": "Взносы",
-      "activityInfoHeader": "{{numPeople}} человек внесли {{contributionAmount}} из {{totalAmount}}.",
+      "activityInfoHeader_one": "{{numPeople}} человек внёс {{contributionAmount}} из {{totalAmount}}.",
+      "activityInfoHeader_few": "{{numPeople}} человека внесли {{contributionAmount}} из {{totalAmount}}.",
+      "activityInfoHeader_many": "{{numPeople}} человек внесли {{contributionAmount}} из {{totalAmount}}.",
+      "activityInfoHeader_other": "{{numPeople}} человека внесли {{contributionAmount}} из {{totalAmount}}.",
       "closePoolLoadingTitle": "Закрытие пула",
       "closePoolLoadingSub": "Держите приложение открытым до завершения.",
       "poolGoal": "Цель пула",
@@ -2257,6 +2258,7 @@
           "yearly": "в год"
         },
         "createdSubtitle": "Приложение подключено. Теперь вы можете вернуться в него.",
+        "returnToApp": "Вернуться в {{name}}",
         "errorTitle": "Не удалось подключиться",
         "errors": {
           "invalid": "Этот запрос на подключение недействителен.",
@@ -3736,7 +3738,8 @@
     "appStore": "Магазин",
     "contacts": "Контакты",
     "money": "Деньги",
-    "activity": "Активность"
+    "activity": "Активность",
+    "activityUnseen": "Активность, получены новые платежи"
   },
   "pushNotifications": {
     "paymentReceived": {
