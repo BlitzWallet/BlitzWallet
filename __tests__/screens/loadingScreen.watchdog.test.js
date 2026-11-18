@@ -148,6 +148,10 @@ jest.mock('../../app/functions/nostrCompatability', () => ({
 jest.mock('nostr-tools', () => ({ getPublicKey: () => 'pubkey' }));
 jest.mock('../../app/functions/gift/deriveGiftWallet', () => ({
   deriveSparkIdentityKey: jest.fn(async () => ({ publicKeyHex: 'abc' })),
+  deriveLoginKeys: jest.fn(async () => ({
+    privateKey: 'privkey',
+    identityPubKeyHex: 'abc',
+  })),
 }));
 jest.mock('../../app/functions/initializeAllDatabases', () => ({
   DB_INIT_TIMEOUT_ERROR: 'dbInitTimeout',

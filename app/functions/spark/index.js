@@ -27,6 +27,7 @@ import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import {
   deriveSparkAddress,
   deriveSparkIdentityKey,
+  clearSparkIdentityPublicKeyCache,
 } from '../gift/deriveGiftWallet';
 import { DEFAULT_PAYMENT_EXPIRY_SEC, USDB_TOKEN_ID } from '../../constants';
 
@@ -140,6 +141,7 @@ export const getFlashnetClient = mnemonic => {
 export const clearMnemonicCache = () => {
   const mnemonics = [...mnemonicHashCache.keys()];
   mnemonicHashCache.clear();
+  clearSparkIdentityPublicKeyCache();
   Object.keys(flashnetClients).forEach(key => delete flashnetClients[key]);
   return Promise.allSettled(mnemonics.map(m => disposeIdentity(m)));
 };

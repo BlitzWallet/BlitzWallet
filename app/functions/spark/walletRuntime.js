@@ -26,7 +26,7 @@ import {
 } from '@breeztech/breez-sdk-spark-react-native';
 
 import sha256Hash from '../hash';
-import { deriveSparkIdentityKey } from '../gift/deriveGiftWallet';
+import { getSparkIdentityPublicKey } from '../gift/deriveGiftWallet';
 import { applyBlitzConfig, storageRootFromDocumentDir } from './breezConfig';
 import { hasActiveExit } from '../unilateralExit/exitStore';
 import { classifyBreezError, isMissingPaymentError } from './breezErrors';
@@ -103,7 +103,9 @@ const tagPreSend = e => {
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
 async function identityFor(mnemonic) {
-  const d = await deriveSparkIdentityKey(mnemonic, 1);
+  // Cached public half: every acquire (including the borrow path every facade
+  // call takes) would otherwise re-run the PBKDF2 + HDKey derivation.
+  const d = await getSparkIdentityPublicKey(mnemonic, 1);
   if (!d?.publicKeyHex) throw new Error('Unable to derive Spark identity');
   return d.publicKeyHex;
 }

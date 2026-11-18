@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { ICONS } from '../../../../constants';
+import { FONT, ICONS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,7 @@ function MapPreview({ cardBackground, isDarkMode }) {
   const leftFade = [cardBackground, withAlpha(cardBackground, 0)];
   const topFade = [
     cardBackground,
-    withAlpha(cardBackground, 1),
+    withAlpha(cardBackground, 0.65),
     withAlpha(cardBackground, 0),
   ];
   // const rightFade = [
@@ -53,13 +53,13 @@ function MapPreview({ cardBackground, isDarkMode }) {
         style={{ width: '100%', height: '100%' }}
         source={ICONS[`${platform}_maps_${isDarkMode ? 'dark' : 'light'}`]}
       />
-      {/* <LinearGradient
+      <LinearGradient
         colors={leftFade}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={styles.leftFade}
         pointerEvents="none"
-      /> */}
+      />
 
       <LinearGradient
         colors={topFade}
@@ -138,6 +138,9 @@ const styles = StyleSheet.create({
     height: 320,
     overflow: 'hidden',
   },
+  mapWash: {
+    opacity: 1,
+  },
   textOverlay: {
     position: 'absolute',
     top: 26,
@@ -147,21 +150,44 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   overlayLabel: {
-    fontSize: 14,
+    fontSize: SIZES.medium,
     lineHeight: 20,
+    marginBottom: 8,
+    fontFamily: FONT.Title_SemiBold,
     opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
   },
   overlayTitle: {
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 34,
+    lineHeight: 38,
     includeFontPadding: false,
+  },
+  leftFade: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: '60%',
   },
   topFade: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: '60%',
+    height: '100%',
+  },
+  rightFade: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: '10%',
+  },
+  bottomFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '10%',
   },
 });

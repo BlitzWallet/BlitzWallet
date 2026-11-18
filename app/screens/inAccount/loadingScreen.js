@@ -29,9 +29,8 @@ import {
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { removeLocalStorageItem } from '../../functions/localStorage';
 import { getAccountBalanceSnapshot } from '../../functions/spark/balanceSnapshots';
-import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
-import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
+import { deriveLoginKeys } from '../../functions/gift/deriveGiftWallet';
 import sha256Hash from '../../functions/hash';
 import { useAppStatus } from '../../../context-store/appStatus';
 import {
@@ -141,20 +140,21 @@ export default function ConnectingToNodeLoadingScreen() {
         // initializeAllDatabases is awaited here (it's fired non-blocking from
         // the splash screen) so every local table exists before connecting or
         // reading cached data. Runs in parallel with key derivation.
-        const [[privateKey, identityPubKey]] = await Promise.all([
-          Promise.all([
-            privateKeyFromSeedWords(accountMnemoinc),
-            deriveSparkIdentityKey(accountMnemoinc),
-          ]),
+        // deriveLoginKeys derives both login keys (Nostr private key + Spark
+        // identity) from one PBKDF2 pass and caches the identity's public half,
+        // so the connect path below never re-derives it.
+        const [{ privateKey, identityPubKeyHex }] = await Promise.all([
+          deriveLoginKeys(accountMnemoinc),
           initializeAllDatabases(),
         ]);
 
         crashlyticsLogReport('Derived keys and db ready');
         phaseRef.current = 'loading user settings + cached balance/txs';
 
-        // Start wallet connection after keys are derived — passes identityPubKey
-        // so initializeSparkSession can skip getSparkBalance when snapshot exists
-        connectToSparkWallet(identityPubKey.publicKeyHex);
+        // Start wallet connection after keys are derived — passes the identity
+        // pubkey so initializeSparkSession can skip getSparkBalance when a
+        // snapshot exists.
+        connectToSparkWallet(identityPubKeyHex);
 
         const publicKey = privateKey ? getPublicKey(privateKey) : null;
         if (!privateKey || !publicKey)
@@ -166,7 +166,7 @@ export default function ConnectingToNodeLoadingScreen() {
 
         // ── Phase 2: Cache reads + settings init all in parallel ──────────
         const [balanceSnapshot, didLoadUserSettings] = await Promise.all([
-          getAccountBalanceSnapshot(identityPubKey.publicKeyHex),
+          getAccountBalanceSnapshot(identityPubKeyHex),
           hasSavedInfo
             ? Promise.resolve({ didWork: true })
             : initializeUserSettingsFromHistory({
