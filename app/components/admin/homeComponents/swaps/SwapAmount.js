@@ -71,7 +71,7 @@ export default function SwapAmount({
             <ThemeIcon
               redesign
               iconName="ArrowUpDown"
-              size={20}
+              size={17}
               colorOverride={tokens.ink}
             />
           </TouchableOpacity>
@@ -272,9 +272,9 @@ const styles = StyleSheet.create({
   },
   // 44 button inside a 4pt white gap and a hairline ring.
   flip: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
