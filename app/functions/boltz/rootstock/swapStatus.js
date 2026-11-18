@@ -87,3 +87,18 @@ export function isRootstockSwapPendingRefund(swap) {
   if (!refundState || refundState === 'completed') return false;
   return isRootstockSwapTerminalFailureStatus(getRootstockSwapStatus(swap));
 }
+
+// One rule for the refund affordance in the list and in the detail sheet:
+// failed and not refunded yet. Also covers swaps the disabled retry loop used
+// to re-drive (refundState 'retryable_error' without didSwapFail, or a swap
+// that never reached the lifecycle handler).
+export function canRefundRootstockSwap(swap) {
+  if (!swap) return false;
+  const data = swap.data || {};
+  return (
+    !data.refundTxHash &&
+    (data.didSwapFail ||
+      isRootstockSwapPendingRefund(swap) ||
+      isRootstockSwapTerminalFailureStatus(data.status))
+  );
+}

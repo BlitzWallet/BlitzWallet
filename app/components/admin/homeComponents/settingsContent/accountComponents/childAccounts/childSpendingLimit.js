@@ -1,15 +1,12 @@
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../../functions/CustomElements';
-import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
-import { StyleSheet, View } from 'react-native';
+import { GlobalThemeView } from '../../../../../../functions/CustomElements';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useRef, useState } from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import fetchBackend from '../../../../../../../db/handleBackend';
@@ -44,6 +41,8 @@ export default function ChildSpendingLimit(props) {
     editChild?.spendingLimit ? String(editChild.spendingLimit) : '',
   );
   const [isCreating, setIsCreating] = useState(false);
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const isCreatingRef = useRef(false);
 
   const parseLimit = useCallback(() => {
@@ -215,68 +214,51 @@ export default function ChildSpendingLimit(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('settings.childAccounts.tabs.children')} />
-
-      <View style={{ width: INSET_WINDOW_WIDTH, ...CENTER }}>
-        <ThemeText
-          styles={styles.title}
-          content={t('settings.childAccounts.spendingLimit.title')}
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar title={editChild?.name || name} />
+        <PageHeader
+          title={t('settings.childAccounts.spendingLimit.title')}
+          sub={t('settings.childAccounts.spendingLimit.subtitle')}
         />
-        <ThemeText
-          styles={styles.subtitle}
-          content={t('settings.childAccounts.spendingLimit.subtitle')}
+        <View style={styles.amount}>
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={limit}
+            inputDenomination={'sats'}
+            forceCurrency={null}
+            forceFiatStats={null}
+          />
+        </View>
+        <CustomNumberKeyboard
+          redesign
+          setInputValue={setLimit}
+          showDot={false}
+        />
+        <CustomButton
+          buttonStyles={styles.button}
+          useLoading={isCreating}
+          textContent={
+            editChild
+              ? t('constants.save')
+              : t('settings.childAccounts.spendingLimit.create')
+          }
+          actionFunction={handleCreate}
+          size={'regular'}
         />
       </View>
-
-      <View style={styles.container}>
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={limit}
-          inputDenomination={'sats'}
-          forceCurrency={null}
-          forceFiatStats={null}
-        />
-      </View>
-
-      <CustomNumberKeyboard setInputValue={setLimit} showDot={false} />
-      <CustomButton
-        buttonStyles={styles.buttonContainer}
-        useLoading={isCreating}
-        textContent={
-          editChild
-            ? t('constants.save')
-            : t('settings.childAccounts.spendingLimit.create')
-        }
-        actionFunction={handleCreate}
-      />
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, ...CENTER },
+  amount: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-    ...CENTER,
   },
-  title: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
-    includeFontPadding: false,
-    marginTop: 28,
-    marginBottom: 8,
-  },
-  subtitle: {
-    opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    width: 'auto',
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    ...CENTER,
+  button: {
+    width: '100%',
+    marginTop: 12,
   },
 });

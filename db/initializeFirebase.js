@@ -2,7 +2,6 @@ import {
   getAuth,
   signInAnonymously,
   signInWithCustomToken,
-  signOut,
 } from '@react-native-firebase/auth';
 import { getFirestore } from '@react-native-firebase/firestore';
 import {
@@ -10,7 +9,6 @@ import {
   getFunctions,
 } from '@react-native-firebase/functions';
 import fetchBackend from './handleBackend';
-import { Platform } from 'react-native';
 import { getStorage } from '@react-native-firebase/storage';
 
 export const db = getFirestore();

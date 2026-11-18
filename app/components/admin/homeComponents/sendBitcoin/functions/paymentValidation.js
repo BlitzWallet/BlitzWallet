@@ -60,6 +60,11 @@ export default function usePaymentValidation({
       needsUserChoice: false,
     };
 
+    if (!sparkInformation?.didConnect) {
+      result.errors.push('NOT_CONNECTED');
+      return result;
+    }
+
     // ─── Phase 1: UI state guards (passthrough — not real validation) ──────────
     // These check whether the UI is ready to validate, not whether payment is valid.
 
@@ -321,6 +326,7 @@ export default function usePaymentValidation({
     isDecoding,
     canEditAmount,
     sparkInformation?.didConnectToFlashnet,
+    sparkInformation?.didConnect,
   ]);
 
   /**
@@ -443,6 +449,9 @@ export default function usePaymentValidation({
       ),
       FLASHNET_NOT_INITIALIZED: t(
         'wallet.sendPages.acceptButton.flashnetOffineError',
+      ),
+      NOT_CONNECTED: t(
+        'wallet.sendPages.sendPaymentScreen.connectToSparkMessage',
       ),
     };
 

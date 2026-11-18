@@ -10,7 +10,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import jsQR from 'jsqr';
 
 const hasWebcam =
@@ -433,11 +433,27 @@ export function Camera({
     }),
     isActive &&
       !isStreaming &&
-      React.createElement(ActivityIndicator, {
-        size: 'large',
-        color: 'white',
-        style: { position: 'absolute' },
-      }),
+      // Own full-size overlay: a bare absolute spinner has no offsets and
+      // lands at its static position (a corner) in non-centered hosts.
+      React.createElement(
+        View,
+        {
+          pointerEvents: 'none',
+          style: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        },
+        React.createElement(ActivityIndicator, {
+          size: 'large',
+          color: 'white',
+        }),
+      ),
   );
 }
 

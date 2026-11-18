@@ -18,11 +18,9 @@ import {
 import { getTwoWeeksAgoDate } from '../app/functions/rotateAddressDateChecker';
 import {
   collection,
-  getDocs,
   onSnapshot,
   orderBy,
   query,
-  startAfter,
   where,
 } from '@react-native-firebase/firestore';
 // Initiate context
@@ -46,6 +44,7 @@ const POSTransactionsProvider = ({ children }) => {
       for (const tx of txList) {
         const serverName = tx.serverName?.toLowerCase()?.trim();
         let savedAccount = totals[serverName];
+        if (!savedAccount && !serverName?.length) continue;
         if (!savedAccount) {
           totals[serverName] = {
             totalTipAmount: 0,
@@ -171,8 +170,4 @@ function usePOSTransactions() {
   return context;
 }
 
-export {
-  POSTransactionsContextManager,
-  POSTransactionsProvider,
-  usePOSTransactions,
-};
+export { POSTransactionsProvider, usePOSTransactions };

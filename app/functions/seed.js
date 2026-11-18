@@ -1,8 +1,4 @@
-import {
-  entropyToMnemonic,
-  generateMnemonic,
-  mnemonicToSeedSync,
-} from '@scure/bip39';
+import { entropyToMnemonic, generateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { crashlyticsLogReport } from './crashlyticsLogs';
 import { IS_LETTER_REGEX } from '../constants';

@@ -7,7 +7,7 @@ Please follow the steps below to add a new language:
 
 ## 1. Create a Language Folder
 
-- Inside the `locals/` folder, create a new folder for your language.
+- Inside the `locales/` folder, create a new folder for your language.
 - The folder name must use the correct **language code** (ISO-style).
   - Examples:
     - English → `en`
@@ -20,12 +20,12 @@ Please follow the steps below to add a new language:
 
 - Go to the English folder:
   ```
-  locals/en/translation.json
+  locales/en/translation.json
   ```
 - Copy the file into your new language folder.  
   Example for Spanish:
   ```
-  locals/es/translation.json
+  locales/es/translation.json
   ```
 
 ---
@@ -48,9 +48,9 @@ Example:
 
 ---
 
-## 4. Add Your Language to `localeslist.js`
+## 4. Add Your Language to `locales/localeslist.js`
 
-Open `localeslist.js` and add your language entry:
+Open `locales/localeslist.js` and add your language entry:
 **The (languageName) property SHOULD be translated to the given langugae**
 
 ```js
@@ -58,21 +58,37 @@ Open `localeslist.js` and add your language entry:
   languageName: 'Español',
   fullySupported: true,
   translatedName: 'languages.spanish',
+  shortId: 'es',
   id: 'es',
   flagCode: 'es',
 },
 ```
 
+- `id` is the folder/locale id (e.g. `pt-BR`, `de-DE`).
+- `shortId` is the two-letter device language (`pt`, `de`). The app uses it to pick your language automatically on phones set to that language, so **do not leave it out**.
+
 ---
 
-## 5. Update `i18n.js`
+## 5. Add the Language Name Key
 
-Open `i18n.js` and do the following:
+`translatedName` points at a key under `languages` in the translation files. Add it to `locales/en/translation.json` (and ideally every other locale), otherwise the language list in Settings shows the raw key:
 
-1. **Import your translation file** at the top:
+```json
+"languages": {
+  "spanish": "Español"
+}
+```
+
+---
+
+## 6. Update `i18n.js`
+
+Translations are loaded lazily, so you do **not** import the JSON at the top of the file. Open `i18n.js` and do the following:
+
+1. **Add a loader** to `languageLoaders`:
 
    ```js
-   import esTranslation from './locals/es/translation.json';
+   es: () => import('./locales/es/translation.json'),
    ```
 
 2. **Add your language code** to `supportedLngs`:
@@ -81,14 +97,14 @@ Open `i18n.js` and do the following:
    supportedLngs: ['en', 'es'],
    ```
 
-3. **Add your translation to the `resources` object**:
-   ```js
-   resources: {
-     en: { translation: enTranslation },
-     es: { translation: esTranslation },
-   },
-   ```
+For an id with a region (e.g. `pt-BR`, `de-DE`), add **both** the short code and the full id to `languageLoaders` and `supportedLngs`, pointing at the same folder:
+
+```js
+pt: () => import('./locales/pt-BR/translation.json'),
+'pt-BR': () => import('./locales/pt-BR/translation.json'),
+```
 
 ---
+
 
 ✅ That’s it! Once you’ve confirmed it works, commit your changes and open a pull request.

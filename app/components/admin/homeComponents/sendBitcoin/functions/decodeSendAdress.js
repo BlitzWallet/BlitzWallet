@@ -1,5 +1,4 @@
 import { getLNAddressForLiquidPayment } from './payments';
-import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import processBitcoinAddress from './processBitcoinAddress';
 import processBolt11Invoice from './processBolt11Invoice';
 import processLNUrlAuth from './processLNUrlAuth';
@@ -55,7 +54,6 @@ export default async function decodeSendAddress(props) {
     seletctedToken,
     currentWalletMnemoinc,
     t,
-    sendWebViewRequest,
     contactInfo,
     globalContactsInformation,
     accountMnemoinc,
@@ -67,8 +65,6 @@ export default async function decodeSendAddress(props) {
     swapLimits,
     // usd_multiplier_coefiicent,
     min_usd_swap_amount,
-    conversionFiatStats,
-    primaryDisplay,
     contactsPrivateKey,
     publicKey,
   } = props;
@@ -374,7 +370,6 @@ export default async function decodeSendAddress(props) {
           seletctedToken,
           currentWalletMnemoinc,
           t,
-          sendWebViewRequest,
           contactInfo,
           sparkInformation,
           globalContactsInformation,

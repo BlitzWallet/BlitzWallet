@@ -3,9 +3,9 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
 } from 'react-native-reanimated';
-import { COLORS } from '../../../../constants';
+import { useTheme } from '../../../../../context-store/theme';
 
-const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
+const Dot = ({ scrollX, index, screenWidth }) => {
   const animatedStyle = useAnimatedStyle(() => {
     const progress = scrollX.value / screenWidth;
 
@@ -32,6 +32,7 @@ const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
 
     return { opacity, width, borderRadius };
   });
+  const { tokens } = useTheme();
 
   return (
     <Animated.View
@@ -39,8 +40,7 @@ const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
         styles.dot,
         animatedStyle,
         {
-          backgroundColor:
-            theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+          backgroundColor: tokens.accent,
         },
       ]}
     />
@@ -51,8 +51,6 @@ export const BalanceDots = ({
   scrollX,
   pageCount,
   screenWidth,
-  theme,
-  darkModeType,
   fromAccounts = false,
 }) => {
   return (
@@ -63,14 +61,7 @@ export const BalanceDots = ({
       ]}
     >
       {Array.from({ length: pageCount }).map((_, i) => (
-        <Dot
-          key={i}
-          scrollX={scrollX}
-          index={i}
-          screenWidth={screenWidth}
-          theme={theme}
-          darkModeType={darkModeType}
-        />
+        <Dot key={i} scrollX={scrollX} index={i} screenWidth={screenWidth} />
       ))}
     </View>
   );
@@ -89,10 +80,5 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 2.5,
     marginHorizontal: 2.5,
-  },
-
-  balanceLabel: {
-    textTransform: 'uppercase',
-    marginBottom: 8,
   },
 });

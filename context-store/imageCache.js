@@ -21,7 +21,7 @@ import {
   VALID_URL_REGEX,
 } from '../app/constants';
 import { useGlobalContextProvider } from './context';
-import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
+import { setLocalStorageItem } from '../app/functions';
 import { storage } from '../db/initializeFirebase';
 import {
   cacheDirectory,
@@ -83,7 +83,7 @@ const noopUnsubscribe = () => () => {};
 
 export function ImageCacheProvider({ children }) {
   const [cache, setCache] = useState({});
-  const { didGetToHomepage, appState } = useAppStatus();
+  const { didGetToHomepage } = useAppStatus();
   const { decodedAddedContacts } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(false);
@@ -252,7 +252,6 @@ export function ImageCacheProvider({ children }) {
           console.log('Refreshing image for', uuid);
           const key = `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
           let url;
-          let metadata;
           let updated;
 
           if (!hasDownloadURL) {

@@ -17,7 +17,6 @@ export default async function processBitcoinAddress(input, context) {
     fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
-    sendWebViewRequest,
     bitcoinBalance,
     t,
   } = context;
@@ -82,7 +81,6 @@ export default async function processBitcoinAddress(input, context) {
         amountSats: amountSat,
         masterInfoObject,
         mnemonic: currentWalletMnemoinc,
-        sendWebViewRequest,
       });
 
       if (!paymentFeeResponse.didWork)

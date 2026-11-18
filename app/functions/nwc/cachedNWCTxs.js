@@ -3,7 +3,6 @@ import { getNWCDatabaseDirectory, migrateNWCDatabase } from './sharedStorage';
 
 // Database configuration
 const DB_NAME = 'nwc_invoices.db';
-const DB_VERSION = 1;
 
 class InvoiceDatabase {
   constructor() {

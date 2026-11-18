@@ -1,11 +1,7 @@
 import { fullRestoreSparkState } from './spark/restore';
 import { getBalanceWithTimeout } from './spark/timeoutHelpers';
 
-export {
-  getBalanceWithTimeout,
-  getSparkLeavesWithTimeout,
-  getSparkExitNodesForLeavesWithTimeout,
-} from './spark/timeoutHelpers';
+export { getBalanceWithTimeout } from './spark/timeoutHelpers';
 
 /**
  * Generic polling utility with exponential backoff

@@ -1,19 +1,12 @@
 import * as Sharing from 'expo-sharing';
-import { Platform, Share } from 'react-native';
+import { Share } from 'react-native';
 import {
   documentDirectory,
   EncodingType,
-  StorageAccessFramework,
   writeAsStringAsync,
-  readAsStringAsync,
 } from 'expo-file-system/legacy';
 import writeAndShareFileToFilesystem from './writeFileToFilesystem';
-
-/**
- * Normalize file URI to ensure it starts with file://
- */
-const normalizeFileUri = uri =>
-  uri.startsWith('file://') ? uri : `file://${uri}`;
+import { withShareTouchBlock } from './CustomElements/shareTouchBlocker';
 
 /**
  * Determine encoding type based on file type
@@ -62,7 +55,7 @@ export async function shareFile(url, options = {}) {
     if (options.dialogTitle) sharingOptions.dialogTitle = options.dialogTitle;
     if (options.UTI) sharingOptions.UTI = options.UTI;
 
-    await Sharing.shareAsync(url, sharingOptions);
+    await withShareTouchBlock(() => Sharing.shareAsync(url, sharingOptions));
 
     return { success: true, error: null };
   } catch (error) {
@@ -107,7 +100,9 @@ export async function shareMessage(content, options = {}) {
       shareOptions.excludedActivityTypes = options.excludedActivityTypes;
     if (options.tintColor) shareOptions.tintColor = options.tintColor;
 
-    const result = await Share.share(shareContent, shareOptions);
+    const result = await withShareTouchBlock(() =>
+      Share.share(shareContent, shareOptions),
+    );
 
     return {
       success: true,

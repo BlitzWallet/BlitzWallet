@@ -22,5 +22,5 @@ export function utils() {
   return { playServicesAvailability: { isAvailable: false } };
 }
 
-export { initializeApp, getApp, getApps };
+export { initializeApp, getApp, getApps, utils as getUtils };
 export default { initializeApp, getApp, getApps, utils };

@@ -278,7 +278,10 @@ final class NwcHandler: @unchecked Sendable {
     guard let mnemonic = config.mnemonic, !config.breezApiKey.isEmpty else {
       throw NwcError.handOff("wallet credentials unavailable")
     }
-    let directory = NwcShared.directory!.appendingPathComponent("breez", isDirectory: true)
+    // Versioned: Breez migrates its store forward only, so 0.28 gets its own dir
+    // and the 0.26 store stays readable by an older build.
+    let directory = NwcShared.directory!.appendingPathComponent(
+      "breez-0.28", isDirectory: true)
     let start = Date()
     let wallet = try await withTimeout(remaining) {
       try await NwcWallet.connect(
@@ -323,7 +326,13 @@ final class NwcHandler: @unchecked Sendable {
     } catch {
       nwcLog.error("NWC native: failed to store created invoice")
     }
-    return ["result_type": method, "result": ["invoice": invoice]]
+    let row: [String: Any] = [
+      "type": "INCOMING", "status": "pending", "invoice": invoice, "description": description ?? "",
+      "payment_hash": details.paymentHash, "amount": amountSats,
+      "created_at": Int64(details.timestamp) * 1000,
+      "expires_at": Int64(details.timestamp + details.expiry) * 1000,
+    ]
+    return ["result_type": method, "result": Self.nip47Transaction(row)]
   }
 
   private func lookupInvoice(_ params: [String: Any], _ config: NwcConfig, _ invoices: NwcInvoices)

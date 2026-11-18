@@ -92,7 +92,11 @@ jest.mock('../app/functions/CustomElements', () => {
   };
 });
 
-jest.mock('../app/functions/CustomElements/settingsTopBar', () => () => null);
+jest.mock('../app/functions/CustomElements/redesign/TopBar', () => () => null);
+jest.mock(
+  '../app/functions/CustomElements/redesign/PageHeader',
+  () => () => null,
+);
 jest.mock(
   '../app/functions/CustomElements/customNumberKeyboard',
   () => () => null,

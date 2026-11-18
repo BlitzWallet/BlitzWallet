@@ -34,6 +34,7 @@ import {
 } from '../app/functions/localStorage';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
+import useAfterTransition from '../app/hooks/useAfterTransition';
 import { useAuthContext } from './authContext';
 import {
   computeGoalBalanceMicros,
@@ -708,10 +709,12 @@ export function SavingsProvider({ children }) {
     ],
   );
 
+  // Wallet viewer connect + history fetch wait for the push animation.
+  const isReady = useAfterTransition();
   useEffect(() => {
-    if (!didGetToHomepage) return;
+    if (!didGetToHomepage || !isReady) return;
     initializeSavings();
-  }, [initializeSavings, didGetToHomepage]);
+  }, [initializeSavings, didGetToHomepage, isReady]);
 
   const savingsBalanceMicros = useMemo(() => {
     // Live wallet balance is the source of truth (survives goal deletion)

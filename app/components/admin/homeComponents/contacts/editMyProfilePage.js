@@ -1,4 +1,10 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import {
+  AccessibilityInfo,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   CENTER,
@@ -6,28 +12,20 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
   MAX_WEB_CONTENT_WIDTH,
-  SIZES,
   VALID_NAME_BIO_REGEX,
 } from '../../../../constants';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import { isValidUniqueName } from '../../../../../db';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../context-store/keys';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
-import ContactProfileImage from './internalComponents/profileImage';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
@@ -37,6 +35,15 @@ import { areImagesSame } from './utils/imageComparison';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import { formatDisplayName } from './utils/formatListDisplayName';
+import ContactAvatar from './internalComponents/contactAvatar';
+import { useToast } from '../../../../../context-store/toastManager';
+import { copyToClipboard } from '../../../../functions';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -46,16 +53,16 @@ export default function EditMyProfilePage(props) {
     globalContactsInformation,
     deleteContact,
   } = useGlobalContactsInfo();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const { t } = useTranslation();
 
   const pageType = props?.pageType || props.route?.params?.pageType;
   const fromSettings = props.fromSettings || props.route?.params?.fromSettings;
-  const hideProfileImage = props?.hideProfileImage;
   const isEditingMyProfile = pageType.toLowerCase() === 'myprofile';
   const providedContact =
-    !isEditingMyProfile &&
-    (props?.selectedAddedContact || props.route?.params?.selectedAddedContact);
+    !isEditingMyProfile && props.route?.params?.selectedAddedContact;
   const myContact = globalContactsInformation.myProfile;
   const isFirstTimeEditing = myContact.didEditProfile;
 
@@ -82,68 +89,60 @@ export default function EditMyProfilePage(props) {
     ]),
   );
 
-  const selectedAddedContact = props.fromInitialAdd
-    ? providedContact
-    : decodedAddedContacts.find(
-        contact => contact.uuid === providedContact?.uuid,
-      );
+  const selectedAddedContact = decodedAddedContacts.find(
+    contact => contact.uuid === providedContact?.uuid,
+  );
 
-  const deleteUser = shouldDelete => {
-    if (shouldDelete) {
-      deleteContact(selectedAddedContact);
-      navigate.popTo('HomeAdmin');
-    }
+  const deleteUser = () => {
+    deleteContact(selectedAddedContact);
+    navigate.popTo('HomeAdmin');
   };
-
-  if (hideProfileImage) {
-    return (
-      <View style={{ flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER }}>
-        <InnerContent
-          isEditingMyProfile={isEditingMyProfile}
-          selectedAddedContact={selectedAddedContact}
-          fromInitialAdd={props.fromInitialAdd}
-          fromSettings={fromSettings}
-          hideProfileImage={true}
-        />
-      </View>
-    );
-  }
 
   return (
     <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
+      // Only the contact path has text inputs to dismiss; the myProfile path
+      // is a long scroller and the wrapper steals its touches.
+      useTouchableWithoutFeedback={!isEditingMyProfile}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={fromSettings ? t('contacts.editMyProfilePage.navTitle') : ''}
-        customBackFunction={() => keyboardGoBack(navigate)}
-        iconNew="Trash2"
-        leftImageFunction={() =>
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage: t('contacts.editMyProfilePage.deleteWarning'),
-            confirmFunction: () => deleteUser(true),
-            cancelFunction: () => deleteUser(false),
-          })
-        }
-        showLeftImage={
-          !isEditingMyProfile && !selectedAddedContact?.isParentContact
-        }
-      />
-      <View
-        style={{
-          flex: 1,
-          width: fromSettings ? '100%' : INSET_WINDOW_WIDTH,
-          ...CENTER,
-          alignItems: 'center',
-        }}
-      >
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          title={
+            isEditingMyProfile
+              ? fromSettings
+                ? t('contacts.editMyProfilePage.navTitle')
+                : ''
+              : t('contacts.expandedContactPage.editLabel')
+          }
+          shouldDismissKeyboard={true}
+          onBack={() => keyboardGoBack(navigate)}
+          right={
+            !isEditingMyProfile &&
+            !selectedAddedContact?.isParentContact && (
+              <IconButton
+                icon="Trash2"
+                label="contacts.editMyProfilePage.deleteContact"
+                onPress={() =>
+                  navigate.navigate('ConfirmDialog', {
+                    title: t('contacts.editMyProfilePage.deleteContactTitle', {
+                      name: formatDisplayName(selectedAddedContact),
+                    }),
+                    message: t(
+                      'contacts.editMyProfilePage.deleteContactMessage',
+                    ),
+                    confirmLabel: t('constants.delete'),
+                    cancelLabel: t('constants.cancel'),
+                    onConfirm: deleteUser,
+                  })
+                }
+              />
+            )
+          }
+        />
         <InnerContent
           isEditingMyProfile={isEditingMyProfile}
           selectedAddedContact={selectedAddedContact}
-          fromInitialAdd={props.fromInitialAdd}
           fromSettings={fromSettings}
-          hideProfileImage={false}
         />
       </View>
     </CustomKeyboardAvoidingView>
@@ -157,31 +156,19 @@ function ProfileInputFields({
   changeInputText,
   setIsKeyboardActive,
   nameRef,
-  bioRef,
   receiveAddressRef,
-  isEditingMyProfile,
   selectedAddedContact,
-  theme,
-  darkModeType,
-  textInputColor,
-  textInputBackground,
-  textColor,
-  navigate,
+  tokens,
   t,
 }) {
-  const hasLNURL = !isEditingMyProfile && selectedAddedContact?.isLNURL;
-  const bioIsLast = !isEditingMyProfile;
+  const hasLNURL = selectedAddedContact?.isLNURL;
 
   return (
     <>
       <EditProfileTextInput
         label={t('contacts.editMyProfilePage.nameInputDesc')}
         placeholder={t(
-          `contacts.editMyProfilePage.${
-            isEditingMyProfile
-              ? 'nameInputPlaceholder'
-              : 'addedContactnameInputPlaceholder'
-          }`,
+          'contacts.editMyProfilePage.addedContactnameInputPlaceholder',
         )}
         value={inputs.name}
         onChangeText={text => changeInputText(text, 'name')}
@@ -189,12 +176,8 @@ function ProfileInputFields({
         onBlur={() => setIsKeyboardActive(false)}
         inputRef={nameRef}
         maxLength={30}
-        theme={theme}
-        darkModeType={darkModeType}
-        textInputColor={textInputColor}
-        textInputBackground={textInputBackground}
-        textColor={textColor}
-        showDivider={true}
+        tokens={tokens}
+        isFirst={true}
       />
 
       {hasLNURL && (
@@ -207,153 +190,98 @@ function ProfileInputFields({
           onBlur={() => setIsKeyboardActive(false)}
           inputRef={receiveAddressRef}
           maxLength={200}
-          multiline={false}
-          minHeight={60}
-          theme={theme}
-          darkModeType={darkModeType}
-          textInputColor={textInputColor}
-          textInputBackground={textInputBackground}
-          textColor={textColor}
-          showDivider={true}
+          tokens={tokens}
         />
       )}
-
-      <EditProfileTextInput
-        label={t('contacts.editMyProfilePage.bioInputDesc')}
-        placeholder={t('contacts.editMyProfilePage.bioInputPlaceholder')}
-        value={inputs.bio}
-        onChangeText={text => changeInputText(text, 'bio')}
-        onFocus={() => setIsKeyboardActive(true)}
-        onBlur={() => setIsKeyboardActive(false)}
-        inputRef={bioRef}
-        maxLength={150}
-        multiline={true}
-        minHeight={60}
-        maxHeight={100}
-        theme={theme}
-        darkModeType={darkModeType}
-        textInputColor={textInputColor}
-        textInputBackground={textInputBackground}
-        textColor={textColor}
-        showDivider={!bioIsLast}
-      />
     </>
   );
 }
 
 // ─── My profile nav rows ──────────────────────────────────────────────────────
 
-function MyProfileRows({
-  myContact,
-  backgroundOffset,
-  textColor,
-  navigate,
-  masterInfoObject,
-  t,
-}) {
+function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
   const receiveCurrencyValue =
     masterInfoObject.lnurlReceiveCurrency === 'usd'
       ? t('constants.dollars_upper')
       : t('constants.bitcoin_upper');
 
   return (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: backgroundOffset, marginTop: 12 },
-      ]}
-    >
-      {/* Name */}
-      <TouchableOpacity
-        activeOpacity={0.7}
+    <ListCard style={{ width: '100%' }}>
+      <ListRow
+        title={t('contacts.editMyProfilePage.nameInputDesc')}
+        value={myContact?.name || t('contacts.splitBill.noName')}
+        trailing={'value'}
+        showChevron={true}
+        titleStyle={styles.rowTitle}
         onPress={() =>
           navigate.navigate('EditProfileFieldPage', { fieldKey: 'name' })
         }
-        style={styles.navRow}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.navRowValue}
-          content={t('contacts.editMyProfilePage.nameInputDesc')}
-        />
-        <ThemeText
-          styles={styles.navRowLabel}
-          content={myContact?.name || t('contacts.splitBill.noName')}
-          CustomNumberOfLines={1}
-          CustomEllipsizeMode="tail"
-        />
-        <ThemeIcon iconName="ChevronRight" size={16} />
-      </TouchableOpacity>
-
-      <View style={[styles.divider, { backgroundColor: textColor }]} />
-
-      {/* Username */}
-      <TouchableOpacity
-        activeOpacity={0.7}
+      />
+      <ListRow
+        title={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
+        value={myContact?.uniqueName || ''}
+        trailing={'value'}
+        showChevron={true}
+        titleStyle={styles.rowTitle}
         onPress={() =>
           navigate.navigate('EditProfileFieldPage', { fieldKey: 'uniquename' })
         }
-        style={styles.navRow}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.navRowValue}
-          content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
-        />
-        <ThemeText
-          styles={styles.navRowLabel}
-          content={myContact?.uniqueName || ''}
-          CustomNumberOfLines={1}
-          CustomEllipsizeMode="tail"
-        />
-        <ThemeIcon iconName="ChevronRight" size={16} />
-      </TouchableOpacity>
-
-      <View style={[styles.divider, { backgroundColor: textColor }]} />
-
-      {/* Bio */}
-      <TouchableOpacity
-        activeOpacity={0.7}
+      />
+      <ListRow
+        title={t('contacts.editMyProfilePage.bioInputDesc')}
+        value={myContact?.bio || t('constants.noBioSet')}
+        trailing={'value'}
+        showChevron={true}
+        titleStyle={styles.rowTitle}
         onPress={() =>
           navigate.navigate('EditProfileFieldPage', { fieldKey: 'bio' })
         }
-        style={styles.navRow}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.navRowValue}
-          content={t('contacts.editMyProfilePage.bioInputDesc')}
-        />
-        <ThemeText
-          styles={styles.navRowLabel}
-          content={myContact?.bio || t('constants.noBioSet')}
-          CustomNumberOfLines={1}
-          CustomEllipsizeMode="tail"
-        />
-        <ThemeIcon iconName="ChevronRight" size={16} />
-      </TouchableOpacity>
-
-      <View style={[styles.divider, { backgroundColor: textColor }]} />
-
-      {/* Lightning Address */}
-      <TouchableOpacity
-        activeOpacity={0.7}
+      />
+      <ListRow
+        title={t('contacts.remotePaymentCurrencySelect.title')}
+        value={receiveCurrencyValue}
+        trailing={'value'}
+        showChevron={true}
+        titleStyle={styles.rowTitle}
         onPress={() =>
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'lnurlReceiveCurrencySelect',
           })
         }
-        style={styles.navRow}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.navRowValue}
-          content={t('contacts.remotePaymentCurrencySelect.title')}
-        />
-        <ThemeText styles={styles.navRowLabel} content={receiveCurrencyValue} />
-        <ThemeIcon iconName="ChevronRight" size={16} />
-      </TouchableOpacity>
-    </View>
+      />
+    </ListCard>
+  );
+}
+
+// ─── Copy button ──────────────────────────────────────────────────────────────
+
+// 44 ground disc; the glyph morphs to a check for 1.5 s and screen readers
+// hear "Copied" (OQ-52). No toast.
+function CopyDisc({ value, label }) {
+  const { tokens } = useGlobalThemeContext();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
+
+  const handleCopy = async () => {
+    try {
+      await copyToClipboard(value, showToast);
+      AccessibilityInfo.announceForAccessibility(
+        t('toastmessages.confirmCopy'),
+      );
+    } catch {
+      AccessibilityInfo.announceForAccessibility(t('toastmessages.failedCopy'));
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={t(label)}
+      onPress={handleCopy}
+      style={[styles.copyDisc, { backgroundColor: tokens.ground }]}
+    >
+      <ThemeIcon redesign size={20} iconName={'Copy'} />
+    </TouchableOpacity>
   );
 }
 
@@ -362,15 +290,11 @@ function MyProfileRows({
 function InnerContent({
   isEditingMyProfile,
   selectedAddedContact,
-  fromInitialAdd,
   fromSettings,
-  hideProfileImage = false,
 }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { cache, refreshCacheObject } = useImageCache();
-  const { backgroundOffset, textInputColor, textInputBackground, textColor } =
-    GetThemeColors();
+  const { cache } = useImageCache();
+  const { backgroundOffset, tokens } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const {
     decodedAddedContacts,
@@ -387,22 +311,17 @@ function InnerContent({
 
   // Contact-mode refs (unused in myProfile path but kept for contact path)
   const nameRef = useRef(null);
-  const bioRef = useRef(null);
   const receiveAddressRef = useRef(null);
   const didCallImagePicker = useRef(null);
   const myContact = globalContactsInformation.myProfile;
 
   const selectedAddedContactName = selectedAddedContact?.name || '';
-  const selectedAddedContactBio = selectedAddedContact?.bio || '';
-  const selectedAddedContactUniqueName = selectedAddedContact?.uniqueName || '';
   const selectedAddedContactReceiveAddress =
     selectedAddedContact?.receiveAddress || '';
 
   const [isSaving, setIsSaving] = useState(false);
   const [inputs, setInputs] = useState(() => ({
     name: selectedAddedContactName || '',
-    bio: selectedAddedContactBio || '',
-    uniquename: selectedAddedContactUniqueName || '',
     receiveAddress: selectedAddedContactReceiveAddress || '',
   }));
 
@@ -438,10 +357,7 @@ function InnerContent({
   const hasChangedInfo = isEditingMyProfile
     ? tempImage.uri || tempImage.shouldDelete
     : selectedAddedContactName !== inputs.name ||
-      selectedAddedContactBio !== inputs.bio ||
-      selectedAddedContactUniqueName !== inputs.uniquename ||
       selectedAddedContactReceiveAddress !== inputs.receiveAddress ||
-      fromInitialAdd ||
       tempImage.uri ||
       tempImage.shouldDelete;
 
@@ -468,62 +384,17 @@ function InnerContent({
     didCallImagePicker.current = false;
   };
 
-  useEffect(() => {
-    if (!fromInitialAdd) return;
-    if (hasImage) return;
-    // Making sure to update UI for new contacts image
-    refreshCacheObject();
-  }, []);
-
-  // Shared props for ProfileInputFields
+  // Props for ProfileInputFields (contact path)
   const inputFieldsProps = {
     inputs,
     changeInputText,
     setIsKeyboardActive,
     nameRef,
-    bioRef,
     receiveAddressRef,
-    isEditingMyProfile,
     selectedAddedContact,
-    theme,
-    darkModeType,
-    textInputColor,
-    textInputBackground,
-    textColor,
-    navigate,
+    tokens,
     t,
   };
-
-  if (hideProfileImage) {
-    return (
-      <View style={styles.innerContainer}>
-        <View style={styles.hideProfileContainer}>
-          <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-            <ProfileInputFields {...inputFieldsProps} />
-          </View>
-        </View>
-        <CustomButton
-          buttonStyles={{
-            width: 'auto',
-            ...CENTER,
-            marginTop: 10,
-            marginBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : bottomPadding,
-          }}
-          useLoading={isSaving}
-          actionFunction={saveChanges}
-          textContent={
-            hasChangedInfo
-              ? fromInitialAdd
-                ? t('contacts.editMyProfilePage.addContactBTN')
-                : t('constants.save')
-              : t('constants.back')
-          }
-        />
-      </View>
-    );
-  }
 
   // ── myProfile path ──────────────────────────────────────────────────────────
   if (isEditingMyProfile) {
@@ -536,12 +407,7 @@ function InnerContent({
       >
         <CustomScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-            alignItems: 'center',
-            width: fromSettings ? INSET_WINDOW_WIDTH : '100%',
-            ...CENTER,
-          }}
+          contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
           {/* Profile image */}
@@ -557,23 +423,21 @@ function InnerContent({
                 addProfilePicture();
                 return;
               }
-              navigate.navigate('AddOrDeleteContactImage', {
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'ProfilePhotoModal',
                 addPhoto: () => addProfilePicture(),
                 deletePhoto: handleDeleteProfilePicture,
                 hasImage: hasImage,
               });
             }}
           >
-            <View
-              style={[
-                styles.profileImage,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
+            <View style={styles.profileImage}>
               {isAddingImage ? (
                 <FullLoadingScreen showText={false} />
               ) : (
-                <ContactProfileImage
+                <ContactAvatar
+                  name={myContact.name || myContact?.uniqueName}
+                  seed={myContact.uuid}
                   updated={
                     tempImage.shouldDelete
                       ? null
@@ -588,38 +452,74 @@ function InnerContent({
                       ? tempImage.comparison?.uri
                       : myProfileImage?.localUri
                   }
-                  darkModeType={darkModeType}
-                  theme={theme}
+                  size={96}
+                  fontSize={96 / 3}
                 />
               )}
             </View>
-            <View style={styles.selectFromPhotos}>
+            <View
+              style={[
+                styles.selectFromPhotos,
+                {
+                  backgroundColor: tokens.surface,
+                  borderColor: tokens.ground,
+                },
+              ]}
+            >
               <ThemeIcon
-                colorOverride={COLORS.lightModeText}
-                size={20}
+                redesign
+                size={18}
                 iconName={hasImage ? 'X' : 'Image'}
               />
             </View>
           </TouchableOpacity>
 
-          <ThemeText
-            styles={styles.sectionHeader}
-            content={t('contacts.editMyProfilePage.aboutYou')}
+          <SectionHeader
+            first={true}
+            style={styles.sectionHeader}
+            title={t('contacts.editMyProfilePage.aboutYou')}
           />
-
           <MyProfileRows
             myContact={myContact}
-            backgroundOffset={backgroundOffset}
-            textColor={textColor}
             navigate={navigate}
             masterInfoObject={masterInfoObject}
             t={t}
           />
+          <SectionHeader
+            style={styles.sectionHeader}
+            title={t('contacts.editMyProfilePage.share')}
+          />
+
+          <ListCard style={{ width: '100%', marginBottom: 16 }}>
+            {[
+              {
+                key: 'lnAddress',
+                title: t('contacts.editMyProfilePage.lightningAddress'),
+                value: `${myContact.uniqueName}@blitzwalletapp.com`,
+                label: 'contacts.editMyProfilePage.copyLightningAddress',
+              },
+              {
+                key: 'tips',
+                title: t('contacts.editMyProfilePage.tipPage'),
+                value: `blitzwalletapp.com/${myContact.uniqueName}`,
+                label: 'contacts.editMyProfilePage.copyTipPage',
+              },
+            ].map(item => (
+              <ListRow
+                key={item.key}
+                title={item.title}
+                sub={item.value}
+                minHeight={72}
+                trailing={<CopyDisc value={item.value} label={item.label} />}
+                titleStyle={{ ...styles.shareTitle, color: tokens.muted }}
+                subStyle={{ ...styles.shareSub, color: tokens.ink }}
+                subLines={1}
+              />
+            ))}
+          </ListCard>
 
           <CustomButton
             buttonStyles={{
-              width: '100%',
-              ...CENTER,
               marginTop: 'auto',
               marginBottom: bottomPadding,
             }}
@@ -628,76 +528,63 @@ function InnerContent({
             textContent={
               hasChangedInfo ? t('constants.save') : t('constants.back')
             }
+            size={'regular'}
+            tone={hasChangedInfo ? undefined : 'secondary'}
           />
         </CustomScrollView>
       </View>
     );
   }
 
-  // ── Contact path (unchanged) ────────────────────────────────────────────────
+  // ── Contact path (PeopleAdd/People.dc.html "Edit contact") ──────────────────
+  const canEditPhoto = !!selectedAddedContact.isLNURL;
   return (
-    <View
-      style={[
-        styles.innerContainer,
-        fromSettings && { maxWidth: MAX_WEB_CONTENT_WIDTH, width: '100%' },
-      ]}
-    >
+    <View style={styles.innerContainer}>
       <CustomScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          flexGrow: 1,
-          alignItems: 'center',
-          width: fromSettings ? INSET_WINDOW_WIDTH : '100%',
-          ...CENTER,
-        }}
+        contentContainerStyle={styles.contactScrollContent}
         keyboardShouldPersistTaps="handled"
       >
         {/* Profile image */}
         <TouchableOpacity
-          activeOpacity={
-            (isEditingMyProfile || selectedAddedContact.isLNURL) &&
-            !isAddingImage
-              ? 0.2
-              : 1
-          }
+          style={styles.contactPhoto}
+          activeOpacity={canEditPhoto && !isAddingImage ? 0.2 : 1}
           onPress={async () => {
-            if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
+            if (!canEditPhoto) return;
             if (isAddingImage) return;
             if (KeyboardController.isVisible()) {
               await KeyboardController.dismiss();
               await new Promise(resolve => setTimeout(resolve, 250));
             }
             if (!hasImage) {
-              addProfilePicture(isEditingMyProfile, selectedAddedContact);
+              addProfilePicture();
               return;
             }
-            navigate.navigate('AddOrDeleteContactImage', {
-              addPhoto: () =>
-                addProfilePicture(isEditingMyProfile, selectedAddedContact),
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'ProfilePhotoModal',
+              addPhoto: () => addProfilePicture(),
               deletePhoto: handleDeleteProfilePicture,
               hasImage: hasImage,
             });
           }}
         >
           <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
+            style={[styles.profileImage, { backgroundColor: backgroundOffset }]}
           >
             {isAddingImage ? (
               <FullLoadingScreen showText={false} />
             ) : (
-              <ContactProfileImage
+              <ContactAvatar
+                name={
+                  selectedAddedContact?.name || selectedAddedContact?.uniqueName
+                }
+                seed={selectedAddedContact?.uuid}
+                address={selectedAddedContact?.receiveAddress}
                 updated={
                   tempImage.shouldDelete
                     ? null
                     : tempImage.uri
                     ? tempImage.comparison?.updated
-                    : isEditingMyProfile
-                    ? myProfileImage?.updated
                     : selectedAddedContactImage?.updated
                 }
                 uri={
@@ -705,35 +592,36 @@ function InnerContent({
                     ? null
                     : tempImage.uri
                     ? tempImage.comparison?.uri
-                    : isEditingMyProfile
-                    ? myProfileImage?.localUri
                     : selectedAddedContactImage?.localUri
                 }
-                darkModeType={darkModeType}
-                theme={theme}
+                size={96}
+                fontSize={96 / 3}
               />
             )}
           </View>
-          {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
-            <View style={styles.selectFromPhotos}>
+          {canEditPhoto && (
+            <View
+              style={[
+                styles.selectFromPhotos,
+                {
+                  backgroundColor: tokens.surface,
+                  borderColor: tokens.ground,
+                },
+              ]}
+            >
               <ThemeIcon
-                colorOverride={COLORS.lightModeText}
-                size={20}
-                iconName={hasImage ? 'X' : 'Image'}
+                redesign
+                size={18}
+                iconName={hasImage ? 'X' : 'Camera'}
               />
             </View>
           )}
         </TouchableOpacity>
 
-        {/* Unified settings card */}
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          <ProfileInputFields {...inputFieldsProps} />
-        </View>
+        <ProfileInputFields {...inputFieldsProps} />
 
         <CustomButton
           buttonStyles={{
-            width: '100%',
-            ...CENTER,
             marginTop: 'auto',
             marginBottom: isKeyboardActive
               ? CONTENT_KEYBOARD_OFFSET
@@ -742,12 +630,9 @@ function InnerContent({
           actionFunction={saveChanges}
           useLoading={isSaving}
           textContent={
-            hasChangedInfo
-              ? fromInitialAdd
-                ? t('contacts.editMyProfilePage.addContactBTN')
-                : t('constants.save')
-              : t('constants.back')
+            hasChangedInfo ? t('constants.save') : t('constants.back')
           }
+          size={'regular'}
         />
       </CustomScrollView>
     </View>
@@ -779,16 +664,11 @@ function InnerContent({
       // ── Contact path (unchanged) ──────────────────────────────────────────
       if (
         inputs.name.length >= 30 ||
-        inputs.bio.length >= 150 ||
-        inputs.uniquename.length >= 30 ||
         (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
       )
         return;
 
-      if (
-        !VALID_NAME_BIO_REGEX.test(inputs.name) ||
-        !VALID_NAME_BIO_REGEX.test(inputs.bio)
-      ) {
+      if (!VALID_NAME_BIO_REGEX.test(inputs.name)) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('contacts.editMyProfilePage.invalidCharactersError'),
         });
@@ -819,55 +699,7 @@ function InnerContent({
         }
       }
 
-      if (fromInitialAdd) {
-        let tempContact = JSON.parse(JSON.stringify(selectedAddedContact));
-        tempContact.name = inputs.name.trim();
-        tempContact.nameLower = inputs.name.trim().toLowerCase();
-        tempContact.bio = inputs.bio;
-        tempContact.isAdded = true;
-        tempContact.unlookedTransactions = 0;
-        if (selectedAddedContact.isLNURL) {
-          tempContact.receiveAddress = inputs.receiveAddress;
-        }
-
-        let newAddedContacts = JSON.parse(JSON.stringify(decodedAddedContacts));
-        const isContactInAddedContacts = newAddedContacts.filter(
-          addedContact => addedContact.uuid === tempContact.uuid,
-        ).length;
-
-        if (isContactInAddedContacts) {
-          newAddedContacts = newAddedContacts.map(addedContact => {
-            if (addedContact.uuid === tempContact.uuid) {
-              return {
-                ...addedContact,
-                name: tempContact.name,
-                nameLower: tempContact.nameLower,
-                bio: tempContact.bio,
-                unlookedTransactions: 0,
-                isAdded: true,
-              };
-            } else return addedContact;
-          });
-        } else newAddedContacts.push(tempContact);
-
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
-            },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-          },
-          true,
-        );
-
-        return;
-      }
       if (
-        selectedAddedContact?.bio === inputs.bio &&
         selectedAddedContact?.name === inputs.name &&
         selectedAddedContact?.receiveAddress === inputs.receiveAddress
       ) {
@@ -882,7 +714,6 @@ function InnerContent({
 
         contact['name'] = inputs.name.trim();
         contact['nameLower'] = inputs.name.trim().toLowerCase();
-        contact['bio'] = inputs.bio.trim();
         if (
           selectedAddedContact.isLNURL &&
           selectedAddedContact?.receiveAddress !== inputs.receiveAddress
@@ -914,45 +745,44 @@ function InnerContent({
 }
 
 const styles = StyleSheet.create({
-  hideProfileContainer: {
-    flex: 1,
-    alignItems: 'center',
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-  },
   innerContainer: {
     flex: 1,
     width: '100%',
   },
-  card: {
+  container: { flex: 1, ...CENTER },
+  scrollContainer: {
+    flexGrow: 1,
     width: '100%',
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginTop: 16,
-    marginBottom: 20,
+    alignItems: 'center',
+  },
+  contactScrollContent: {
+    flexGrow: 1,
+    width: '100%',
+  },
+  contactPhoto: {
+    alignSelf: 'center',
+    marginTop: 4,
   },
   sectionHeader: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.55,
     alignSelf: 'flex-start',
-    marginTop: 24,
   },
+  // 44 disc + 3 px ground ring, hanging 6 off the avatar corner (D157).
   selectFromPhotos: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: COLORS.darkModeText,
+    borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    right: 12.5,
-    bottom: 12.5,
+    right: -9,
+    bottom: -9,
     zIndex: 2,
   },
   profileImage: {
-    width: 150,
-    height: 150,
+    width: 96,
+    height: 96,
     borderRadius: 125,
     ...CENTER,
     alignItems: 'center',
@@ -960,43 +790,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     overflow: 'hidden',
   },
-  navRow: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
+  rowTitle: { fontSize: 15, lineHeight: 22 },
+  shareTitle: { fontSize: 13, lineHeight: 19 },
+  shareSub: { fontSize: 15, lineHeight: 22 },
+  copyDisc: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
-    gap: 5,
-    minHeight: 60,
-  },
-  navRowLabelLine: {
-    marginRight: 'auto',
-    flexShrink: 1,
-  },
-  navRowLabel: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.55,
-    flexShrink: 1,
-    marginLeft: 10,
-  },
-  navRowValue: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-    marginRight: 'auto',
-  },
-  copyLinkRow: {
-    paddingVertical: 8,
-  },
-  copyLinkText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-    opacity: 0.55,
-    flex: 1,
-    marginRight: 4,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: 16,
-    opacity: 0.15,
+    justifyContent: 'center',
   },
 });

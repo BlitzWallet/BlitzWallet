@@ -27,6 +27,22 @@ const HTTPS_FORM =
 const HEX64 = /^[0-9a-f]{64}$/;
 const STATE = /^[0-9a-f]{32,128}$/;
 const MAX_RELAYS = 3;
+// return_to: an absolute URI with no whitespace/control chars. Apps use custom
+// schemes, so block the dangerous ones instead of allow-listing.
+// eslint-disable-next-line no-control-regex
+const RETURN_TO = /^([a-z][a-z0-9+.-]*):[^\s\u0000-\u001f\u007f]{1,2000}$/i;
+const BLOCKED_RETURN_SCHEMES = [
+  'javascript',
+  'data',
+  'file',
+  'blob',
+  'vbscript',
+  'about',
+  'content',
+  'intent',
+  'nostr+walletauth',
+  'nostr+walletconnect',
+];
 const LINK_EXPIRY_GRACE_MS = 60 * 1000; // phone and app clocks can disagree
 
 const invalid = {
@@ -122,6 +138,10 @@ export function parseNWCAuthRequest(text) {
     .trim()
     .slice(0, 40);
 
+  // Optional and non-fatal: a bad return_to just means no "return" button.
+  const returnTo = (params.get('return_to') || '').trim();
+  const scheme = returnTo.match(RETURN_TO)?.[1].toLowerCase();
+
   return {
     didWork: true,
     request: {
@@ -132,6 +152,8 @@ export function parseNWCAuthRequest(text) {
       permissions,
       optionalPermissions,
       budget,
+      returnTo:
+        scheme && !BLOCKED_RETURN_SCHEMES.includes(scheme) ? returnTo : null,
     },
   };
 }

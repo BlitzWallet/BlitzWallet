@@ -10,12 +10,10 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function AddOrDeleteContactImage(props) {
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, textColor, backgroundOffset } = GetThemeColors();
+  const { tokens } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -39,8 +37,7 @@ export default function AddOrDeleteContactImage(props) {
             style={[
               styles.modal,
               {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
+                backgroundColor: tokens.surface,
               },
             ]}
           >
@@ -48,17 +45,12 @@ export default function AddOrDeleteContactImage(props) {
               style={[
                 styles.iconWrap,
                 {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.expandedTXLightModeConfirmd,
+                  backgroundColor: COLORS.expandedTXLightModeConfirmd,
                 },
               ]}
             >
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={tokens.accent}
                 size={20}
                 iconName={'Image'}
               />
@@ -67,11 +59,9 @@ export default function AddOrDeleteContactImage(props) {
             <ThemeText
               styles={styles.message}
               content={t(
-                'contacts.internalComponents.addOrDeleteImageScreen.pageMessage',
-                {
-                  option: hasImage ? 'change' : 'add',
-                  option2: hasImage ? 'or delete your' : 'a',
-                },
+                hasImage
+                  ? 'contacts.internalComponents.addOrDeleteImageScreen.pageMessageHasImage'
+                  : 'contacts.internalComponents.addOrDeleteImageScreen.pageMessageNoImage',
               )}
             />
 
@@ -79,8 +69,7 @@ export default function AddOrDeleteContactImage(props) {
               style={[
                 styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  backgroundColor: tokens.divider,
                 },
               ]}
             />
@@ -95,10 +84,7 @@ export default function AddOrDeleteContactImage(props) {
                   styles={[
                     styles.primaryText,
                     {
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
+                      color: tokens.accent,
                     },
                   ]}
                   content={
@@ -111,10 +97,7 @@ export default function AddOrDeleteContactImage(props) {
                 style={[
                   styles.btnDivider,
                   {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
+                    backgroundColor: tokens.divider,
                   },
                 ]}
               />

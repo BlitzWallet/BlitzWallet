@@ -63,42 +63,19 @@ export function getTimeDisplay(
   timeDifferenceDays,
   timeDifferenceYears,
 ) {
-  const timeValue =
+  if (timeDifferenceMinutes < 1)
+    return i18next.t('transactionLabelText.txTime_just_now');
+
+  const [unit, count] =
     timeDifferenceMinutes <= 60
-      ? timeDifferenceMinutes < 1
-        ? ''
-        : Math.round(timeDifferenceMinutes)
+      ? ['minutes', timeDifferenceMinutes]
       : timeDifferenceHours <= 24
-      ? Math.round(timeDifferenceHours)
+      ? ['hours', timeDifferenceHours]
       : timeDifferenceDays <= 365
-      ? Math.round(timeDifferenceDays)
-      : Math.round(timeDifferenceYears);
+      ? ['days', timeDifferenceDays]
+      : ['years', timeDifferenceYears];
 
-  const timeUnit =
-    timeDifferenceMinutes <= 60
-      ? timeDifferenceMinutes < 1
-        ? i18next.t('transactionLabelText.txTime_just_now')
-        : Math.round(timeDifferenceMinutes) === 1
-        ? i18next.t('timeLabels.minute')
-        : i18next.t('timeLabels.minutes')
-      : timeDifferenceHours <= 24
-      ? Math.round(timeDifferenceHours) === 1
-        ? i18next.t('timeLabels.hour')
-        : i18next.t('timeLabels.hours')
-      : timeDifferenceDays <= 365
-      ? Math.round(timeDifferenceDays) === 1
-        ? i18next.t('timeLabels.day')
-        : i18next.t('timeLabels.days')
-      : Math.round(timeDifferenceYears) === 1
-      ? i18next.t('timeLabels.year')
-      : i18next.t('timeLabels.years');
-
-  const suffix =
-    timeDifferenceMinutes > 1
-      ? ` ${i18next.t('transactionLabelText.ago')}`
-      : '';
-
-  return `${timeValue}${
-    timeUnit === i18next.t('transactionLabelText.txTime_just_now') ? '' : ' '
-  }${timeUnit}${suffix}`;
+  // One key per unit with i18next plural suffixes, so each language controls
+  // its own word order and plural forms.
+  return i18next.t(`timeLabels.${unit}Ago`, { count: Math.round(count) });
 }

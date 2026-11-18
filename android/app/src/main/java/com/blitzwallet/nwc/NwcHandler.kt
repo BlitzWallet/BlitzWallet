@@ -243,7 +243,9 @@ class NwcHandler(
     if (mnemonic.isNullOrEmpty() || config.breezApiKey.isEmpty()) throw NwcHandOff("wallet credentials unavailable")
     val start = SystemClock.elapsedRealtime()
     return timed {
-      NwcWallet.connect(mnemonic, config.breezApiKey, File(NwcShared.directory(context), "breez"))
+      // Versioned: Breez migrates its store forward only, so 0.28 gets its own
+      // dir and the 0.26 store stays readable by an older build.
+      NwcWallet.connect(mnemonic, config.breezApiKey, File(NwcShared.directory(context), "breez-0.28"))
     }.also {
       Log.i(NWC_TAG, "wallet ready in ${SystemClock.elapsedRealtime() - start} ms")
       wallet = it
@@ -273,7 +275,13 @@ class NwcHandler(
         (details.timestamp + details.expiry).toLong() * 1000, "INCOMING",
       )
     }.onFailure { Log.w(NWC_TAG, "failed to store created invoice", it) }
-    return JSONObject().put("result_type", method).put("result", JSONObject().put("invoice", invoice))
+    val row = mapOf(
+      "type" to "INCOMING", "status" to "pending", "invoice" to invoice, "description" to description,
+      "payment_hash" to details.paymentHash, "amount" to amountSats,
+      "created_at" to details.timestamp.toLong() * 1000,
+      "expires_at" to (details.timestamp + details.expiry).toLong() * 1000,
+    )
+    return JSONObject().put("result_type", method).put("result", nip47Transaction(row))
   }
 
   private suspend fun lookupInvoice(params: JSONObject, config: NwcConfig, invoices: NwcInvoices): JSONObject {
