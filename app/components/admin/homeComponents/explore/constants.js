@@ -1,3 +1,4 @@
+const EXPLORE_TIMEFRAMES = ['day', 'week', 'month', 'year'];
 const WEEK_OPTIONS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const MONTH_GROUPING = [
@@ -20,6 +21,7 @@ const WEEK_IN_MILLS = 1000 * 60 * 60 * 24 * 7;
 const DAY_IN_MILLS = 1000 * 60 * 60 * 24;
 
 export {
+  EXPLORE_TIMEFRAMES,
   WEEK_OPTIONS,
   MONTH_GROUPING,
   YEAR_IN_MILLS,

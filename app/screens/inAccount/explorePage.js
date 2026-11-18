@@ -1,6 +1,7 @@
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Stop } from 'react-native-svg';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
@@ -30,13 +31,12 @@ import { useServerTimeOnly } from '../../../context-store/serverTime';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import Skeleton from '../../functions/CustomElements/redesign/Skeleton';
 import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
-import Segmented from '../../functions/CustomElements/redesign/Segmented';
+import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import formatDate from '../../functions/formatDate';
 
-const TIME_FRAMES = ['day', 'week', 'month', 'year'];
-
 export default function ExploreUsers() {
+  const navigate = useNavigation();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const [timeFrame, setTimeFrame] = useState('day');
   const [isLoading, setIsLoading] = useState(true);
@@ -171,17 +171,20 @@ export default function ExploreUsers() {
       const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
       return formatDate(
         new Date(endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index)),
+        'numeric',
       );
     });
   }, [timeFrame, t, currentTime]);
 
-  const timeFrameOptions = useMemo(
+  const openTimeFramePicker = useCallback(
     () =>
-      TIME_FRAMES.map(value => ({
-        value,
-        label: t(`constants.${value}`),
-      })),
-    [t],
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'exploreFilter',
+        sliderHight: 0.5,
+        timeframe: timeFrame,
+        onChange: setTimeFrame,
+      }),
+    [navigate, timeFrame],
   );
 
   const rawGoalPercent = (max / BLITZ_GOAL_USER_COUNT) * 100;
@@ -197,11 +200,21 @@ export default function ExploreUsers() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.settingsContent.blitz stats')} />
+        <TopBar
+          title={t('screens.inAccount.settingsContent.blitz stats')}
+          right={
+            hasData && (
+              <IconButton
+                icon="ListFilter"
+                label="screens.inAccount.explorePage.timePeriod"
+                onPress={openTimeFramePicker}
+              />
+            )
+          }
+        />
         {isLoading ? (
           // Same layout as the loaded page: static text, the progress track,
-          // chart card, day labels and time-frame control are real; only the
-          // numbers are bars.
+          // chart card and day labels are real; only the numbers are bars.
           <View style={styles.scroll}>
             <ThemeText
               content={t('screens.inAccount.explorePage.title')}
@@ -232,14 +245,6 @@ export default function ExploreUsers() {
                   {label}
                 </Text>
               ))}
-            </View>
-            <View style={styles.segmented}>
-              <Segmented
-                options={timeFrameOptions}
-                value={timeFrame}
-                onChange={setTimeFrame}
-                accessibilityLabel={t('screens.inAccount.explorePage.title')}
-              />
             </View>
           </View>
         ) : !hasData ? (
@@ -357,15 +362,6 @@ export default function ExploreUsers() {
                 </Text>
               ))}
             </View>
-
-            <View style={styles.segmented}>
-              <Segmented
-                options={timeFrameOptions}
-                value={timeFrame}
-                onChange={setTimeFrame}
-                accessibilityLabel={t('screens.inAccount.explorePage.title')}
-              />
-            </View>
           </CustomScrollView>
         )}
       </View>
@@ -411,7 +407,6 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     marginTop: 10,
   },
-  segmented: { marginTop: 12 },
   skeleton: { alignItems: 'center' },
   // Bars sit in slots as tall as the text lines they stand in for (amount
   // line measured 67.5 on iOS, 14/20 lines) so nothing moves on load.

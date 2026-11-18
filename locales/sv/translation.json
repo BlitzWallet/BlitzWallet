@@ -2957,6 +2957,7 @@
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
         "title": "Blitz-nedladdningar",
+      "timePeriod": "Tidsperiod",
         "goalUserCount": "av {{goalUserCount}} användare",
         "percentOfGoal": "{{goalPercent}} av målet",
         "numAddedUsers": "+{{numNewUsers}} användare idag",

@@ -2957,6 +2957,7 @@
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
         "title": "Blitz-Downloads",
+      "timePeriod": "Zeitraum",
         "goalUserCount": "von {{goalUserCount}} Nutzern",
         "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
         "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute",

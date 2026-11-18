@@ -9,6 +9,7 @@ import { uses24HourClock } from 'react-native-localize';
  *   formatDate(ts, style, now?)   ts: ms number or Date; falsy/invalid -> ''
  *
  *   date      Nov 3 | Nov 3, 2024   year only when not the current year
+ *   numeric   10/11 | 10/11/2024   same rule, digits in the language's order
  *   monthDay  Nov 3                 never a year (chart axes, short labels)
  *   time      9:35 PM | 21:35       12/24h from the phone's clock setting
  *   weekday   Mon                   short weekday (weekly chart axis)
@@ -22,6 +23,8 @@ import { uses24HourClock } from 'react-native-localize';
 const OPTIONS = {
   date: { month: 'short', day: 'numeric' },
   dateYear: { month: 'short', day: 'numeric', year: 'numeric' },
+  numeric: { month: 'numeric', day: 'numeric' },
+  numericYear: { month: 'numeric', day: 'numeric', year: 'numeric' },
   time: { hour: 'numeric', minute: '2-digit' },
   // hourCycle, not hour12:false, which prints midnight as "24:05" in some engines.
   time12: { hour: 'numeric', minute: '2-digit', hourCycle: 'h12' },
@@ -68,12 +71,14 @@ export default function formatDate(input, style = 'date', now = Date.now()) {
   if (isNaN(date)) return '';
 
   const today = new Date(now);
-  const smartDate = () =>
+  const smartDate = (thisYearKey = 'date', otherYearKey = 'dateYear') =>
     intl(
-      date.getFullYear() === today.getFullYear() ? 'date' : 'dateYear',
+      date.getFullYear() === today.getFullYear() ? thisYearKey : otherYearKey,
     ).format(date);
 
   switch (style) {
+    case 'numeric':
+      return smartDate('numeric', 'numericYear');
     case 'monthDay':
       return intl('date').format(date);
     case 'time':

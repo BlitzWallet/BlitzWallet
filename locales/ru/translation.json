@@ -2973,6 +2973,7 @@
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
         "title": "Загрузки Blitz",
+      "timePeriod": "Период",
         "goalUserCount": "из {{goalUserCount}} пользователей",
         "percentOfGoal": "{{goalPercent}}% от цели",
         "numAddedUsers": "+{{numNewUsers}} пользователей сегодня",

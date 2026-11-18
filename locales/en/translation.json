@@ -2956,6 +2956,7 @@
       "explorePage": {
         "timeLeft": "({{time}} left)",
         "title": "Blitz downloads",
+        "timePeriod": "Time period",
         "COMMENT": "Full sentence below = Number of totalUser users",
         "goalUserCount": "of {{goalUserCount}} users",
         "percentOfGoal": "{{goalPercent}}% of goal",

@@ -112,6 +112,13 @@ test('12. unreadable phone setting falls back to the language default', () => {
   expect(f(ts, 'time', NOW)).toBe('21:35');
 });
 
+test('numeric prints digits instead of month names, year rule unchanged', () => {
+  expect(f(new Date(2025, 9, 11), 'numeric', NOW)).toBe('10/11');
+  expect(f(new Date(2024, 11, 31), 'numeric', NOW)).toBe('12/31/2024');
+  mockLanguage = 'de-DE';
+  expect(f(new Date(2025, 9, 11), 'numeric', NOW)).toBe('11.10.');
+});
+
 test('dateTime joins date and time', () => {
   expect(f(new Date(2025, 10, 3, 21, 35), 'dateTime', NOW)).toBe(
     'Nov 3 · 9:35 PM',
