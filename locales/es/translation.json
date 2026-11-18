@@ -4029,8 +4029,39 @@
       "noSentTitle": "Sin pagos enviados",
       "noSentSub": "Envía un pago desde tu billetera para ver actividad"
     },
+    "chart": {
+      "titleSpent": "Gastado {{period}}",
+      "period": {
+        "today": "hoy",
+        "week": "esta semana",
+        "month": "este mes",
+        "year": "este año",
+        "all": "en total"
+      },
+      "yesterday": "ayer",
+      "lastWeek": "la semana pasada",
+      "lastMonth": "el mes pasado",
+      "lastYear": "el año pasado",
+      "previousTotal": "{{amount}} {{period}}"
+    },
+    "filter": {
+      "title": "Periodo de tiempo",
+      "timeframe_today": "Hoy",
+      "timeframe_week": "Esta semana",
+      "timeframe_month": "Este mes",
+      "timeframe_year": "Este año",
+      "timeframe_all": "Todo el historial"
+    },
+    "kinds": {
+      "title": "Tipos de gasto",
+      "contacts": "Amigos y contactos",
+      "pools": "Pools",
+      "gifts": "Regalos",
+      "other": "Todo lo demás"
+    },
     "budget": {
       "budget": "Presupuesto",
+      "monthBudget": "Presupuesto de {{month}}",
       "noAmount": "Ingresa un monto de presupuesto.",
       "editBudget": "Editar presupuesto",
       "createBudget": "Establecer presupuesto mensual",
@@ -4048,8 +4079,16 @@
       "leftToSpendRing": "queda por gastar",
       "monthlyBudget": "Presupuesto mensual",
       "resetsMonthly": "Se reinicia el día 1 de cada mes",
-      "removeBudgetLabel": "Eliminar presupuesto"
-    }
+      "removeBudgetLabel": "Eliminar presupuesto",
+      "amountLeft": "{{amount}} restantes",
+      "today": "Hoy",
+      "ofBudgetDaysLeft_one": "de {{amount}} · queda {{count}} día",
+      "ofBudgetDaysLeft_other": "de {{amount}} · quedan {{count}} días",
+      "perDay_one": "Te queda {{count}} día para gastar {{amount}} al día",
+      "perDay_other": "Te quedan {{count}} días para gastar {{amount}} al día"
+    },
+    "numberOfPayments_one": "{{count}} pago",
+    "numberOfPayments_other": "{{count}} pagos"
   },
   "tabInUse": {
     "title": "Blitz está abierto en otra pestaña",
@@ -4071,6 +4110,7 @@
     "spentIn": "Gastado en {{month}}",
     "today": "Hoy",
     "chartLabel": "Gasto diario en {{month}}",
+    "weeklyChartLabel": "Gasto semanal en {{month}}",
     "savingsGoals": "Metas en dólares",
     "goalProgress": "{{current}} de {{target}}",
     "poolsCollecting": "{{count}} recaudando",

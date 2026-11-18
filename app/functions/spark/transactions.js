@@ -630,7 +630,7 @@ const TYPE_SQL = {
 };
 
 const EXCLUDE_SAVINGS_TRANSFER_SQL = `
-  AND COALESCE(json_extract(details, '$.isSavings'), 0) != 1
+  COALESCE(json_extract(details, '$.isSavings'), 0) != 1
 `;
 
 /**
@@ -818,6 +818,73 @@ export const getRecentExternalIncomingIds = async accountId => {
 };
 
 /**
+ * Fetch completed transactions in a half-open [startTime, endTime) range.
+ *
+ * One query serves both directions and both assets, which is what the analytics
+ * page needs: rows are split with getSatsFromTx / getDollarsFromTx, so a range
+ * read is never duplicated per filter. `startTime`/`endTime` null means no
+ * bound on that side (all time). Savings transfers are internal moves and are
+ * excluded, exactly like the monthly read.
+ *
+ * @param {object} options
+ * @param {string} options.accountId
+ * @param {number|null} [options.startTime] - inclusive, ms
+ * @param {number|null} [options.endTime] - exclusive, ms
+ * @param {'INCOMING'|'OUTGOING'|null} [options.direction]
+ * @param {'btc'|'usd'|null} [options.asset] - null keeps every asset
+ * @returns {Promise<Object[]>}
+ */
+export const getTransactionsInRange = async ({
+  accountId,
+  startTime = null,
+  endTime = null,
+  direction = null,
+  asset = null,
+  limit = null,
+} = {}) => {
+  try {
+    await ensureSparkDatabaseReady();
+    const conditions = [`accountId = ?`, `paymentStatus = 'completed'`];
+    const params = [String(accountId)];
+
+    if (startTime !== null) {
+      conditions.push(`json_extract(details, '$.time') >= ?`);
+      params.push(startTime);
+    }
+    if (endTime !== null) {
+      conditions.push(`json_extract(details, '$.time') < ?`);
+      params.push(endTime);
+    }
+    if (direction) {
+      conditions.push(`json_extract(details, '$.direction') = ?`);
+      params.push(direction);
+    }
+    if (asset === 'usd') {
+      conditions.push(`json_extract(details, '$.isLRC20Payment') = 1`);
+      conditions.push(`json_extract(details, '$.LRC20Token') = ?`);
+      params.push(USDB_TOKEN_ID);
+    } else if (asset === 'btc') {
+      conditions.push(`(
+        json_extract(details, '$.isLRC20Payment') IS NULL
+        OR json_extract(details, '$.isLRC20Payment') = 0
+      )`);
+    }
+
+    conditions.push(EXCLUDE_SAVINGS_TRANSFER_SQL);
+
+    const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY json_extract(details, '$.time') DESC${
+        limit ? ` LIMIT ${Number(limit)}` : ''
+      }`;
+    return (await sqlLiteDB.getAllAsync(query, params)) || [];
+  } catch (error) {
+    console.error('Error in getTransactionsInRange:', error);
+    return [];
+  }
+};
+
+/**
  * Fetch all completed transactions for the current calendar month.
  *
  * @param {string} accountId
@@ -829,46 +896,14 @@ export const getMonthlyTransactions = async (
   direction = null,
   retriveUSDB,
 ) => {
-  try {
-    await ensureSparkDatabaseReady();
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    const monthEnd = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      1,
-    ).getTime();
-    const params = [String(accountId), monthStart, monthEnd];
-    let dirClause = '';
-    let typeClause = '';
-
-    if (direction) {
-      dirClause = `AND json_extract(details, '$.direction') = ?`;
-      params.push(direction);
-    }
-    if (retriveUSDB) {
-      typeClause = `AND json_extract(details, '$.isLRC20Payment') = 1 AND json_extract(details, '$.LRC20Token') = '${USDB_TOKEN_ID}'`;
-    } else {
-      typeClause = `
-        AND (
-          json_extract(details, '$.isLRC20Payment') IS NULL
-          OR json_extract(details, '$.isLRC20Payment') = 0
-        )`;
-    }
-    const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-      WHERE accountId = ?
-      AND paymentStatus = 'completed'
-      AND json_extract(details, '$.time') >= ?
-      AND json_extract(details, '$.time') < ?
-      ${EXCLUDE_SAVINGS_TRANSFER_SQL}
-      ${dirClause}
-      ${typeClause}
-      ORDER BY json_extract(details, '$.time') DESC`;
-    return await sqlLiteDB.getAllAsync(query, params);
-  } catch (error) {
-    console.error('Error in getMonthlyTransactions:', error);
-    return [];
-  }
+  const now = new Date();
+  return getTransactionsInRange({
+    accountId,
+    startTime: new Date(now.getFullYear(), now.getMonth(), 1).getTime(),
+    endTime: new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime(),
+    direction,
+    asset: retriveUSDB ? 'usd' : 'btc',
+  });
 };
 
 export const getBulkPaymentGroupTransferIds = async accountId => {

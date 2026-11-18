@@ -1,0 +1,59 @@
+# Analytics (sent only): date selector, dollar/bitcoin chart, kinds and budget, on a logged-in wallet
+# with some history (the chart itself is data-dependent, so only structure and
+# titles are asserted). Run with:
+#
+# maestro test --udid <simulator-udid> -e APP_ID=org.reactjs.native.example.BlitzWallet \
+#   .maestro/funded/analytics-insights.yaml
+#
+# Lives outside the .maestro root because `yarn e2e:*` runs flows that clear the
+# keychain. The optional unlock block matches the PIN the root flows create
+# (Create PIN / Confirm PIN: eight taps of 1). Edit it for a wallet with a
+# different PIN, or run the flow on a wallet without one.
+appId: ${APP_ID}
+---
+- launchApp
+# Wait for either the unlock screen or the tabs before choosing a path.
+- extendedWaitUntil:
+    visible: '(Good (morning|afternoon|evening)|Money)'
+    timeout: 30000
+# Unlock the standard Maestro test wallet (PIN 1-1-1-1). Skipped if unlocked.
+- runFlow:
+    when:
+      visible: 'Good (morning|afternoon|evening)'
+    commands:
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: '(?i)Money'
+    timeout: 3- tapOn: 'Spent in.*'
+- extendedWaitUntil:
+    visible: 'Spent this month'
+    timeout: 20000
+# Paired dollar/bitcoin chart with its legend; at least one asset is spent.
+- assertVisible: '.*payments?.*'
+- assertVisible: '(Dollars|Bitcoin)'
+- assertVisible: 'Budget'
+- takeScreenshot: analytics-default
+
+# Date selector: one card of radio rows, picking a row closes the sheet.
+- tapOn: 'Time period'
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: 'Today'
+- assertVisible: 'This week'
+- assertVisible: 'All time'
+- tapOn: 'This year'
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible: 'Spent this year'
+- assertNotVisible: 'All time'
+- takeScreenshot: analytics-this-year
+
+# Back to Money through the originating screen.
+- tapOn: 'Back'
+- extendedWaitUntil:
+    visible: 'Spent in.*'
+    timeout: 20000
+- takeScreenshot: analytics-back-on-money

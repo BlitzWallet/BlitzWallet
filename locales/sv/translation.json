@@ -4029,8 +4029,39 @@
       "noSentTitle": "Inga skickade betalningar",
       "noSentSub": "Skicka en betalning för att se aktivitet"
     },
+    "chart": {
+      "titleSpent": "Spenderat {{period}}",
+      "period": {
+        "today": "idag",
+        "week": "denna vecka",
+        "month": "denna månad",
+        "year": "i år",
+        "all": "totalt"
+      },
+      "yesterday": "igår",
+      "lastWeek": "förra veckan",
+      "lastMonth": "förra månaden",
+      "lastYear": "förra året",
+      "previousTotal": "{{amount}} {{period}}"
+    },
+    "filter": {
+      "title": "Tidsperiod",
+      "timeframe_today": "Idag",
+      "timeframe_week": "Denna vecka",
+      "timeframe_month": "Denna månad",
+      "timeframe_year": "I år",
+      "timeframe_all": "Totalt"
+    },
+    "kinds": {
+      "title": "Typer av utgifter",
+      "contacts": "Vänner och kontakter",
+      "pools": "Pooler",
+      "gifts": "Gåvor",
+      "other": "Allt annat"
+    },
     "budget": {
       "budget": "Budget",
+      "monthBudget": "{{month}}budget",
       "noAmount": "Ange ett budgetbelopp.",
       "editBudget": "Redigera budget",
       "createBudget": "Sätt månadsbudget",
@@ -4048,8 +4079,16 @@
       "leftToSpendRing": "kvar att spendera",
       "monthlyBudget": "Månadsbudget",
       "resetsMonthly": "Nollställs den 1:a varje månad",
-      "removeBudgetLabel": "Ta bort budget"
-    }
+      "removeBudgetLabel": "Ta bort budget",
+      "amountLeft": "{{amount}} kvar",
+      "today": "Idag",
+      "ofBudgetDaysLeft_one": "av {{amount}} · {{count}} dag kvar",
+      "ofBudgetDaysLeft_other": "av {{amount}} · {{count}} dagar kvar",
+      "perDay_one": "Du kan spendera {{amount}} per dag, {{count}} dag kvar",
+      "perDay_other": "Du kan spendera {{amount}} per dag, {{count}} dagar kvar"
+    },
+    "numberOfPayments_one": "{{count}} betalning",
+    "numberOfPayments_other": "{{count}} betalningar"
   },
   "tabInUse": {
     "title": "Blitz är öppet i en annan flik",
@@ -4071,6 +4110,7 @@
     "spentIn": "Spenderat i {{month}}",
     "today": "Idag",
     "chartLabel": "Dagliga utgifter i {{month}}",
+    "weeklyChartLabel": "Veckovisa utgifter i {{month}}",
     "savingsGoals": "Dollarmål",
     "goalProgress": "{{current}} av {{target}}",
     "poolsCollecting": "{{count}} samlar in",

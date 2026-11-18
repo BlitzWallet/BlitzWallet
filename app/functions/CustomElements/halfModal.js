@@ -69,6 +69,7 @@ import DisplayCurrencySelect from '../../components/admin/homeComponents/currenc
 import LnurlReceiveCurrencySelect from '../../components/admin/homeComponents/receiveBitcoin/lnurlReceiveCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
+import AnalyticsFilterHalfModal from '../../components/admin/homeComponents/analytics/analyticsFilterHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import BTCMapFilterContent from '../../screens/inAccount/btcMapFilter';
@@ -604,6 +605,14 @@ export default function CustomHalfModal(props) {
           <RemoveBudgetHalfModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+          />
+        );
+      case 'analyticsFilter':
+        return (
+          <AnalyticsFilterHalfModal
+            timeframe={props?.route?.params?.timeframe}
+            onChange={props?.route?.params?.onChange}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'nearBudgetLimitWarning':

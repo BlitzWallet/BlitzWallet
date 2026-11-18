@@ -32,6 +32,8 @@ export const MODES = {
     dollar: '#60D263',
     nostr: '#29C467',
     pastels: ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'],
+    // Analytics kinds of spending (contacts, pools, gifts); "other" uses grab.
+    kinds: ['#0375F6', '#5F7FA3', '#8FA8C3'],
     scheme: 'light',
   },
   dim: {
@@ -63,6 +65,7 @@ export const MODES = {
     dollar: '#60D263',
     nostr: '#29C467',
     pastels: ['#D6E4F5', '#F1D9D9', '#D5EBDD', '#F2E4C9', '#E3DDF3'],
+    kinds: ['#0375F6', '#8FA8C3', '#D6E4F5'],
     scheme: 'dark',
   },
   lightsOut: {
@@ -93,6 +96,7 @@ export const MODES = {
     dollar: '#5A5A5A',
     nostr: '#8C8C8C',
     pastels: ['#E6E6E6', '#D9D9D9', '#CCCCCC', '#F0F0F0', '#DDDDDD'],
+    kinds: ['#FFFFFF', '#AFAFAF', '#7A7A7A'],
     scheme: 'dark',
   },
 };

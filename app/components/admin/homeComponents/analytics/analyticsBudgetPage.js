@@ -14,7 +14,7 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { useAnalytics } from '../../../../../context-store/analyticsContext';
+import { useAnalyticsNumbers } from '../../../../../context-store/analyticsContext';
 import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
@@ -38,7 +38,7 @@ export default function AnalyticsBudgetPage() {
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
   const { tokens } = useGlobalThemeContext();
-  const { spentTotal, spentTxCountBTC, spentTxCountUSD } = useAnalytics();
+  const { spentTotal, spentTxCount } = useAnalyticsNumbers();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -189,7 +189,7 @@ export default function AnalyticsBudgetPage() {
               lead={<Disc icon={'Coins'} />}
               title={t('analytics.budget.spentThisMonth')}
               sub={t('analytics.numberOfTxs', {
-                count: spentTxCountUSD + spentTxCountBTC,
+                count: spentTxCount,
               })}
               trailing={
                 <FormattedSatText

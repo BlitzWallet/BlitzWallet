@@ -11,6 +11,9 @@ import { uses24HourClock } from 'react-native-localize';
  *   date      Nov 3 | Nov 3, 2024   year only when not the current year
  *   monthDay  Nov 3                 never a year (chart axes, short labels)
  *   time      9:35 PM | 21:35       12/24h from the phone's clock setting
+ *   weekday   Mon                   short weekday (weekly chart axis)
+ *   monthShort  Nov                  short month (longer histories)
+ *   monthNarrow J                    one letter (this year's chart axis)
  *   dateTime  Nov 3 · 9:35 PM       date (as above) + time
  *   day       Today | Yesterday | date   list section titles
  *   month     November
@@ -23,6 +26,9 @@ const OPTIONS = {
   // hourCycle, not hour12:false, which prints midnight as "24:05" in some engines.
   time12: { hour: 'numeric', minute: '2-digit', hourCycle: 'h12' },
   time24: { hour: 'numeric', minute: '2-digit', hourCycle: 'h23' },
+  weekday: { weekday: 'short' },
+  monthShort: { month: 'short' },
+  monthNarrow: { month: 'narrow' },
   month: { month: 'long' },
 };
 
@@ -72,6 +78,12 @@ export default function formatDate(input, style = 'date', now = Date.now()) {
       return intl('date').format(date);
     case 'time':
       return intl(timeKey()).format(date);
+    case 'weekday':
+      return intl('weekday').format(date);
+    case 'monthShort':
+      return intl('monthShort').format(date);
+    case 'monthNarrow':
+      return intl('monthNarrow').format(date);
     case 'month':
       return intl('month').format(date);
     case 'dateTime':

@@ -4066,8 +4066,39 @@
       "noSentTitle": "Нет отправленных платежей",
       "noSentSub": "Отправьте платеж, чтобы увидеть активность"
     },
+    "chart": {
+      "titleSpent": "Потрачено {{period}}",
+      "period": {
+        "today": "сегодня",
+        "week": "на этой неделе",
+        "month": "в этом месяце",
+        "year": "в этом году",
+        "all": "всего"
+      },
+      "yesterday": "вчера",
+      "lastWeek": "за прошлую неделю",
+      "lastMonth": "за прошлый месяц",
+      "lastYear": "за прошлый год",
+      "previousTotal": "{{amount}} {{period}}"
+    },
+    "filter": {
+      "title": "Период",
+      "timeframe_today": "Сегодня",
+      "timeframe_week": "Эта неделя",
+      "timeframe_month": "Этот месяц",
+      "timeframe_year": "Этот год",
+      "timeframe_all": "Всё время"
+    },
+    "kinds": {
+      "title": "Типы расходов",
+      "contacts": "Друзья и контакты",
+      "pools": "Пулы",
+      "gifts": "Подарки",
+      "other": "Всё остальное"
+    },
     "budget": {
       "budget": "Бюджет",
+      "monthBudget": "Бюджет на {{month}}",
       "noAmount": "Введите сумму бюджета.",
       "editBudget": "Редактировать бюджет",
       "createBudget": "Установить месячный бюджет",
@@ -4085,8 +4116,22 @@
       "leftToSpendRing": "осталось потратить",
       "monthlyBudget": "Месячный бюджет",
       "resetsMonthly": "Сбрасывается 1-го числа каждого месяца",
-      "removeBudgetLabel": "Удалить бюджет"
-    }
+      "removeBudgetLabel": "Удалить бюджет",
+      "amountLeft": "Осталось {{amount}}",
+      "today": "Сегодня",
+      "ofBudgetDaysLeft_one": "из {{amount}} · остался {{count}} день",
+      "ofBudgetDaysLeft_other": "из {{amount}} · осталось {{count}} дня",
+      "ofBudgetDaysLeft_few": "из {{amount}} · осталось {{count}} дня",
+      "ofBudgetDaysLeft_many": "из {{amount}} · осталось {{count}} дней",
+      "perDay_one": "Вы можете тратить {{amount}} в день в течение {{count}} дня",
+      "perDay_other": "Вы можете тратить {{amount}} в день в течение {{count}} дней",
+      "perDay_few": "Вы можете тратить {{amount}} в день в течение {{count}} дней",
+      "perDay_many": "Вы можете тратить {{amount}} в день в течение {{count}} дней"
+    },
+    "numberOfPayments_one": "{{count}} платёж",
+    "numberOfPayments_other": "{{count}} платежа",
+    "numberOfPayments_few": "{{count}} платежа",
+    "numberOfPayments_many": "{{count}} платежей"
   },
   "tabInUse": {
     "title": "Blitz открыт в другой вкладке",
@@ -4108,6 +4153,7 @@
     "spentIn": "Потрачено в {{month}}",
     "today": "Сегодня",
     "chartLabel": "Ежедневные расходы в {{month}}",
+    "weeklyChartLabel": "Недельные расходы за {{month}}",
     "savingsGoals": "Цели в долларах",
     "goalProgress": "{{current}} из {{target}}",
     "poolsCollecting": "{{count}} собирают",

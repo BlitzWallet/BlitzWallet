@@ -60,7 +60,17 @@ export function deriveAnalytics(
     spentTxCountUSD: outgoingUSD.length,
     cumulativeIncomeDataBTC: cumulative(incomingBTC, priceAInB, 'INCOMING'),
     cumulativeSpentDataBTC: cumulative(outgoingBTC, priceAInB, 'OUTGOING'),
-    cumulativeIncomeDataUSD: cumulative(incomingUSD, priceAInB, 'INCOMING', true),
-    cumulativeSpentDataUSD: cumulative(outgoingUSD, priceAInB, 'OUTGOING', true),
+    cumulativeIncomeDataUSD: cumulative(
+      incomingUSD,
+      priceAInB,
+      'INCOMING',
+      true,
+    ),
+    cumulativeSpentDataUSD: cumulative(
+      outgoingUSD,
+      priceAInB,
+      'OUTGOING',
+      true,
+    ),
   };
 }

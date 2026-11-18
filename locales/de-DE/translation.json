@@ -4029,8 +4029,39 @@
       "noSentTitle": "Keine gesendeten Zahlungen",
       "noSentSub": "Senden Sie eine Zahlung aus Ihrer Wallet, damit hier Aktivitäten angezeigt werden."
     },
+    "chart": {
+      "titleSpent": "{{period}} ausgegeben",
+      "period": {
+        "today": "Heute",
+        "week": "Diese Woche",
+        "month": "Diesen Monat",
+        "year": "Dieses Jahr",
+        "all": "Insgesamt"
+      },
+      "yesterday": "gestern",
+      "lastWeek": "letzte Woche",
+      "lastMonth": "letzten Monat",
+      "lastYear": "letztes Jahr",
+      "previousTotal": "{{amount}} {{period}}"
+    },
+    "filter": {
+      "title": "Zeitraum",
+      "timeframe_today": "Heute",
+      "timeframe_week": "Diese Woche",
+      "timeframe_month": "Diesen Monat",
+      "timeframe_year": "Dieses Jahr",
+      "timeframe_all": "Gesamter Zeitraum"
+    },
+    "kinds": {
+      "title": "Ausgabenarten",
+      "contacts": "Freunde & Kontakte",
+      "pools": "Sparpools",
+      "gifts": "Geschenke",
+      "other": "Alles andere"
+    },
     "budget": {
       "budget": "Budget",
+      "monthBudget": "{{month}}-Budget",
       "noAmount": "Bitte geben Sie einen Budgetbetrag ein.",
       "editBudget": "Budget bearbeiten",
       "createBudget": "Monatsbudget festlegen",
@@ -4048,8 +4079,16 @@
       "leftToSpendRing": "noch auszugeben",
       "monthlyBudget": "Monatliches Budget",
       "resetsMonthly": "Wird am 1. jedes Monats zurückgesetzt",
-      "removeBudgetLabel": "Budget entfernen"
-    }
+      "removeBudgetLabel": "Budget entfernen",
+      "amountLeft": "{{amount}} übrig",
+      "today": "Heute",
+      "ofBudgetDaysLeft_one": "von {{amount}} · noch {{count}} Tag",
+      "ofBudgetDaysLeft_other": "von {{amount}} · noch {{count}} Tage",
+      "perDay_one": "Sie können {{amount}} pro Tag ausgeben, noch {{count}} Tag lang.",
+      "perDay_other": "Sie können {{amount}} pro Tag ausgeben, noch {{count}} Tage lang."
+    },
+    "numberOfPayments_one": "{{count}} Zahlung",
+    "numberOfPayments_other": "{{count}} Zahlungen"
   },
   "tabInUse": {
     "title": "Blitz ist in einem anderen Tab geöffnet",
@@ -4071,6 +4110,7 @@
     "spentIn": "Ausgegeben im {{month}}",
     "today": "Heute",
     "chartLabel": "Tägliche Ausgaben im {{month}}",
+    "weeklyChartLabel": "Wöchentliche Ausgaben im {{month}}",
     "savingsGoals": "Dollar-Ziele",
     "goalProgress": "{{current}} von {{target}}",
     "poolsCollecting": "{{count}} sammeln",

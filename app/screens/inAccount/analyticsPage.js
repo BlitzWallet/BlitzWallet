@@ -5,185 +5,204 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import BalancePieChart from '../../components/admin/homeComponents/analytics/balancePieChart';
+import AnalyticsKinds from '../../components/admin/homeComponents/analytics/analyticsKinds';
 import getBudgetStatus from '../../components/admin/homeComponents/analytics/budgetStatus';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import { useAnalytics } from '../../../context-store/analyticsContext';
+import { useFlashnet } from '../../../context-store/flashnetContext';
+import { useAnalyticsNumbers } from '../../../context-store/analyticsContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import Skeleton from '../../functions/CustomElements/redesign/Skeleton';
 import SkeletonBar from '../../functions/CustomElements/redesign/SkeletonBar';
-import Segmented from '../../functions/CustomElements/redesign/Segmented';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
-import Disc from '../../functions/CustomElements/redesign/Disc';
+import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
+import BarChart from '../../functions/CustomElements/redesign/BarChart';
+import usePeriodAnalytics from '../../functions/analytics/usePeriodAnalytics';
 import formatDate from '../../functions/formatDate';
+import buildSpendingChart from '../../functions/analytics/spendingChart';
+import { ANALYTICS_TIMEFRAMES } from '../../functions/analytics/periods';
+import IconButton from '../../functions/CustomElements/redesign/IconButton';
+
+const CHART_HEIGHT = 120;
+// Timeframes with a period before them that is worth comparing against.
+const PREVIOUS_PERIOD_LABEL = {
+  [ANALYTICS_TIMEFRAMES.TODAY]: 'analytics.chart.yesterday',
+  [ANALYTICS_TIMEFRAMES.WEEK]: 'analytics.chart.lastWeek',
+  [ANALYTICS_TIMEFRAMES.MONTH]: 'analytics.chart.lastMonth',
+  [ANALYTICS_TIMEFRAMES.YEAR]: 'analytics.chart.lastYear',
+};
 
 export default function AnalyticsPage() {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const { poolInfoRef } = useFlashnet();
   const { bottomPadding } = useGlobalInsets();
   const { tokens } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
-  const {
-    spentTotal,
-    incomeTotalBTC,
-    incomeTotalUSD,
-    spentTotalBTC,
-    spentTotalUSD,
-    incomeTxCountBTC,
-    incomeTxCountUSD,
-    spentTxCountBTC,
-    spentTxCountUSD,
-    isLoading,
-    isReloading,
-  } = useAnalytics();
   const { t } = useTranslation();
-  const [localDenomination, setLocalDenomination] = useState('sats');
+  const { spentTotal, isLoading: isBudgetLoading } = useAnalyticsNumbers();
+  const [timeframe, setTimeframe] = useState(ANALYTICS_TIMEFRAMES.MONTH);
+  const analytics = usePeriodAnalytics(timeframe);
+  // Never sent anything: an empty state instead of a chart of zeros.
+  const isEmpty = analytics.hasSpending === false;
 
+  // Total, comparison, kinds and budget follow the global display setting.
+  const formatAmount = amount =>
+    displayCorrectDenomination({ amount, masterInfoObject, fiatStats });
+
+  const title = t('analytics.chart.titleSpent', {
+    period: t(`analytics.chart.period.${timeframe}`),
+  });
+
+  const previousLabelKey = PREVIOUS_PERIOD_LABEL[timeframe];
+  const contextText = [
+    t('analytics.numberOfPayments', { count: analytics.count }),
+    previousLabelKey
+      ? t('analytics.chart.previousTotal', {
+          period: t(previousLabelKey),
+          amount: formatAmount(analytics.previousTotal),
+        })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const chart = buildSpendingChart({
+    aggregated: analytics,
+    priceAInB: poolInfoRef.currentPriceAInB,
+    tokens,
+    t,
+    masterInfoObject,
+    fiatStats,
+  });
+
+  const openDatePicker = () =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'analyticsFilter',
+      sliderHight: 0.5,
+      timeframe,
+      onChange: setTimeframe,
+    });
+
+  // The budget always tracks the current month, whatever the chart timeframe.
+  const monthName = formatDate(new Date(), 'month');
   const budget = masterInfoObject?.monthlyBudget;
   const budgetAmount = budget?.amount || 0;
   const leftToSpend = Math.max(budgetAmount - spentTotal, 0);
   const spentPercent = budgetAmount > 0 ? spentTotal / budgetAmount : 0;
-  const isBalanceHidden =
-    masterInfoObject?.userBalanceDenomination === 'hidden';
   const budgetStatus = getBudgetStatus(spentPercent, t, tokens);
-  const isSats = localDenomination === 'sats';
-  const monthName = formatDate(Date.now(), 'month');
-
-  const formatMonthAmount = amount =>
-    displayCorrectDenomination({
-      amount,
-      masterInfoObject: {
-        ...masterInfoObject,
-        userBalanceDenomination: localDenomination,
-      },
-      fiatStats,
-      convertAmount: isSats,
-      forceCurrency: 'USD',
-    });
-
-  const metricCards = [
-    {
-      key: 'received',
-      icon: 'ArrowDown',
-      label: t('constants.received'),
-      amount: isSats ? incomeTotalBTC : incomeTotalUSD,
-      count: isSats ? incomeTxCountBTC : incomeTxCountUSD,
-      emptyText: t('analytics.home.noPaymentsReceived'),
-      route: 'AnalyticsIncomePage',
-    },
-    {
-      key: 'sent',
-      icon: 'ArrowUp',
-      label: t('constants.sent'),
-      amount: isSats ? spentTotalBTC : spentTotalUSD,
-      count: isSats ? spentTxCountBTC : spentTxCountUSD,
-      emptyText: t('analytics.home.noPaymentsSent'),
-      route: 'AnalyticsSpentPage',
-    },
-  ];
 
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('analytics.home.title')} />
-        {/* Balances and the budget setting are already known, so the page
-            renders at once; only this month's figures wait for analytics. */}
+        <TopBar
+          title={t('analytics.home.title')}
+          right={
+            !isEmpty && (
+              <IconButton icon={'ListFilter'} onPress={openDatePicker} />
+            )
+          }
+        />
         <CustomScrollView
-          style={{ flex: 1 }}
+          style={styles.scroll}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.segmentRow}>
-            <Segmented
-              fit
-              value={localDenomination}
-              onChange={setLocalDenomination}
-              options={[
-                { value: 'sats', label: t('constants.bitcoin_upper') },
-                { value: 'fiat', label: t('constants.dollars_upper') },
-              ]}
-            />
-          </View>
-
-          <View style={styles.balanceCard}>
-            <BalancePieChart isBalanceHidden={isBalanceHidden} />
-          </View>
-
-          <SectionHeader title={monthName} style={styles.sectionHeader} />
-          <Animated.View
-            key={localDenomination}
-            entering={FadeIn.duration(200)}
-            style={styles.metricsRow}
-          >
-            {metricCards.map(card => (
-              <TouchableOpacity
-                key={card.key}
-                style={[styles.metricCard, { backgroundColor: tokens.surface }]}
-                onPress={() =>
-                  navigate.navigate(card.route, { localDenomination })
-                }
-                activeOpacity={0.8}
+          {isEmpty ? (
+            <View style={styles.empty}>
+              <EmptyState
+                icon="ChartColumn"
+                title={t('analytics.breakdown.noSentTitle')}
+                sub={t('analytics.breakdown.noSentSub')}
+              />
+            </View>
+          ) : (
+            <>
+              <View
+                style={[styles.heroCard, { backgroundColor: tokens.surface }]}
               >
-                <View style={styles.metricTop}>
-                  <Disc icon={card.icon} size={32} iconSize={16} />
-                  <ThemeIcon
-                    redesign
-                    iconName="ChevronRight"
-                    size={18}
-                    colorOverride={tokens.muted}
-                  />
-                </View>
                 <ThemeText
-                  styles={[styles.metricLabel, { color: tokens.muted }]}
-                  content={card.label}
+                  content={title}
+                  styles={[styles.muted, { color: tokens.muted }]}
                 />
-                {isLoading || isReloading ? (
-                  // Same height as the amount + sub text it stands in for.
-                  <View style={styles.metricSkeleton}>
-                    <SkeletonBar width={90} height={22} borderRadius={11} />
-                    <SkeletonBar width={70} height={12} borderRadius={6} />
+                {analytics.isLoading ? (
+                  <View style={styles.heroSkeleton}>
+                    <SkeletonBar width={190} height={44} borderRadius={12} />
+                    <SkeletonBar width={140} height={13} borderRadius={7} />
                   </View>
                 ) : (
                   <>
                     <ThemeText
                       CustomNumberOfLines={1}
                       adjustsFontSizeToFit={true}
-                      styles={styles.metricAmount}
-                      content={formatMonthAmount(card.amount)}
+                      minimumFontScale={0.5}
+                      content={formatAmount(analytics.total)}
+                      styles={styles.heroAmount}
                     />
                     <ThemeText
-                      styles={[styles.metricSub, { color: tokens.muted }]}
-                      content={
-                        card.count === 0
-                          ? card.emptyText
-                          : t('analytics.numberOfTxs', { count: card.count })
-                      }
+                      content={contextText}
+                      styles={[styles.muted, { color: tokens.muted }]}
                     />
                   </>
                 )}
-              </TouchableOpacity>
-            ))}
-          </Animated.View>
+                <View style={styles.chart}>
+                  <BarChart
+                    series={analytics.isLoading ? [] : chart.series}
+                    labels={analytics.buckets.map(bucket => bucket.label)}
+                    legend={analytics.isLoading ? [] : chart.legend}
+                    height={CHART_HEIGHT}
+                    accessibilityLabel={`${title}. ${formatAmount(
+                      analytics.total,
+                    )}`}
+                  />
+                </View>
+              </View>
+
+              {analytics.isLoading ? (
+                <>
+                  <SectionHeader title={t('analytics.kinds.title')} />
+                  <View
+                    style={[styles.card, { backgroundColor: tokens.surface }]}
+                  >
+                    <Skeleton>
+                      <View style={styles.kindsSkeleton}>
+                        <View style={styles.skeletonBar} />
+                        <View style={styles.skeletonRow} />
+                        <View style={styles.skeletonRow} />
+                      </View>
+                    </Skeleton>
+                  </View>
+                </>
+              ) : (
+                analytics.kinds.length > 0 && (
+                  <>
+                    <SectionHeader title={t('analytics.kinds.title')} />
+                    <AnalyticsKinds
+                      kinds={analytics.kinds}
+                      formatAmount={formatAmount}
+                    />
+                  </>
+                )
+              )}
+            </>
+          )}
 
           <SectionHeader
-            title={t('analytics.home.budget')}
-            style={styles.sectionHeader}
+            title={t('analytics.budget.monthBudget', { month: monthName })}
           />
-          {budget && isLoading ? (
+          {budget && isBudgetLoading ? (
             // Left-to-spend and progress need this month's spending.
             <View
               style={[styles.budgetCard, { backgroundColor: tokens.surface }]}
@@ -210,7 +229,7 @@ export default function AnalyticsPage() {
                     content={t('analytics.home.noBudgetTitle')}
                   />
                   <ThemeText
-                    styles={[styles.metricSub, { color: tokens.muted }]}
+                    styles={[styles.muted, { color: tokens.muted }]}
                     content={t('analytics.home.noBudgetSub')}
                   />
                 </View>
@@ -232,11 +251,7 @@ export default function AnalyticsPage() {
                 <ThemeText
                   styles={[styles.budgetTitle, styles.budgetTitleTexts]}
                   content={t('analytics.home.leftToSpend', {
-                    amount: displayCorrectDenomination({
-                      amount: leftToSpend,
-                      masterInfoObject,
-                      fiatStats,
-                    }),
+                    amount: formatAmount(leftToSpend),
                   })}
                 />
                 <ThemeIcon
@@ -264,7 +279,7 @@ export default function AnalyticsPage() {
               />
               <View style={styles.progressLabels}>
                 <ThemeText
-                  styles={[styles.metricSub, { color: tokens.muted }]}
+                  styles={[styles.muted, { color: tokens.muted }]}
                   content={t('analytics.home.percentRemaining', {
                     percent: Math.round(
                       Math.min(Math.max(1 - spentPercent, 0) * 100, 100),
@@ -272,13 +287,9 @@ export default function AnalyticsPage() {
                   })}
                 />
                 <ThemeText
-                  styles={[styles.metricSub, { color: tokens.muted }]}
+                  styles={[styles.muted, { color: tokens.muted }]}
                   content={t('analytics.home.ofBudget', {
-                    amount: displayCorrectDenomination({
-                      amount: budgetAmount,
-                      masterInfoObject,
-                      fiatStats,
-                    }),
+                    amount: formatAmount(budgetAmount),
                   })}
                 />
               </View>
@@ -291,59 +302,43 @@ export default function AnalyticsPage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    ...CENTER,
+  container: { flex: 1, ...CENTER },
+  scroll: { flex: 1 },
+  datePill: {
+    height: 32,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    width: '100%',
+    flexShrink: 1,
   },
-  segmentRow: {
-    marginTop: 16,
-    alignSelf: 'center',
+  datePillText: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
+  empty: { paddingVertical: 48 },
+  heroCard: { marginTop: 8, borderRadius: 24, padding: 20 },
+  heroAmount: {
+    marginTop: 2,
+    fontFamily: FONT.Title_Medium,
+    fontSize: 40,
+    lineHeight: 48,
+    letterSpacing: -1.4,
+    fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
   },
-  balanceCard: { marginTop: 16 },
+  heroSkeleton: { marginTop: 6, gap: 10 },
+  chart: { marginTop: 20 },
+  muted: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
+  card: { borderRadius: 20, padding: 20 },
+  budgetCard: { borderRadius: 24, padding: 20 },
   budgetSkeleton: { gap: 12 },
   budgetSkeletonTitle: { width: 180, height: 18, borderRadius: 9 },
   budgetSkeletonPill: { width: 90, height: 24, borderRadius: 12 },
   budgetSkeletonBar: { width: '100%', height: 8, borderRadius: 4 },
   budgetSkeletonSub: { width: 120, height: 12, borderRadius: 6 },
-  // 28 + 2 + 18 = metricAmount + gap + metricSub line heights.
-  metricSkeleton: { height: 48, justifyContent: 'space-between' },
-  sectionHeader: { marginTop: 20 },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  metricCard: {
-    flex: 1,
-    borderRadius: 24,
-    padding: 16,
-    gap: 2,
-  },
-  metricTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  metricLabel: {
-    marginTop: 10,
-    fontSize: 14,
-    lineHeight: 20,
-    includeFontPadding: false,
-  },
-  metricAmount: {
-    fontSize: 22,
-    lineHeight: 28,
-    fontVariant: ['tabular-nums'],
-    includeFontPadding: false,
-  },
-  metricSub: {
-    fontSize: 13,
-    lineHeight: 18,
-    includeFontPadding: false,
-  },
-  budgetCard: {
-    borderRadius: 24,
-    padding: 20,
-  },
+  kindsSkeleton: { gap: 14 },
+  skeletonBar: { width: '100%', height: 10, borderRadius: 5 },
+  skeletonRow: { width: '100%', height: 18, borderRadius: 6 },
   budgetTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',

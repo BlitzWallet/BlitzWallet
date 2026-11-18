@@ -15,7 +15,7 @@ import PageTitle from '../../functions/CustomElements/redesign/PageTitle';
 import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
-import DailyBarChart from '../../functions/CustomElements/redesign/DailyBarChart';
+import BarChart from '../../functions/CustomElements/redesign/BarChart';
 import {
   FONT,
   HIDDEN_BALANCE_CLOSE,
@@ -31,11 +31,6 @@ import { useFlashnet } from '../../../context-store/flashnetContext';
 import { useTheme } from '../../../context-store/theme';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { getMonthlyTransactions } from '../../functions/spark/transactions';
-import { getDollarsFromTx, getSatsFromTx } from '../../functions/analytics';
-import {
-  convertToDecimals,
-  dollarsToSats,
-} from '../../functions/spark/swapAmountUtils';
 import {
   getAllSavingsTransactions,
   getSavingsGoals,
@@ -46,38 +41,28 @@ import {
 } from '../../components/admin/homeComponents/savings/utils';
 import { getAllLocalPools } from '../../functions/pools/poolsStorage';
 import { getAllLocalGifts } from '../../functions/gift/giftsStorage';
+import {
+  aggregatePeriod,
+  buildMonthWeekBuckets,
+} from '../../functions/analytics/periods';
+import buildSpendingChart from '../../functions/analytics/spendingChart';
 import formatDate from '../../functions/formatDate';
 
 const DONE_GIFT_STATES = ['Claimed', 'Reclaimed', 'Expired'];
 
-// Sats spent per day of the current month (same sums as computeSpentTotal).
-async function loadDailySpent(identityPubKey, priceAInB) {
+// This month's spending per week, split into dollars and bitcoin (same sums as
+// computeSpentTotal). priceAInB is kept so the bars share one unit.
+async function loadWeeklySpent(identityPubKey, priceAInB) {
   const [outgoingBTC, outgoingUSD] = await Promise.all([
     getMonthlyTransactions(identityPubKey, 'OUTGOING'),
     getMonthlyTransactions(identityPubKey, 'OUTGOING', true),
   ]);
-  const now = new Date();
-  const days = new Array(
-    new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(),
-  ).fill(0);
-  const add = (tx, sats) => {
-    try {
-      days[new Date(JSON.parse(tx.details).time).getDate() - 1] += sats;
-    } catch {
-      // skip malformed tx
-    }
-  };
-  outgoingBTC.forEach(tx => add(tx, getSatsFromTx(tx, priceAInB, 'OUTGOING')));
-  outgoingUSD.forEach(tx =>
-    add(
-      tx,
-      dollarsToSats(
-        convertToDecimals(getDollarsFromTx(tx, priceAInB, 'OUTGOING')),
-        priceAInB,
-      ),
-    ),
-  );
-  return days.map(Math.round);
+  const aggregated = aggregatePeriod({
+    txs: [...outgoingBTC, ...outgoingUSD],
+    priceAInB,
+    buckets: buildMonthWeekBuckets(new Date()),
+  });
+  return { aggregated, priceAInB };
 }
 
 async function loadRowValues(uuid) {
@@ -128,7 +113,7 @@ function useCountUp(target, duration, enabled) {
   return value;
 }
 
-function SpentCard({ dailySpent, onPress }) {
+function SpentCard({ weeklySpent, onPress }) {
   const { t } = useTranslation();
   const { tokens } = useTheme();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -136,17 +121,27 @@ function SpentCard({ dailySpent, onPress }) {
   const reduceMotion = useReducedMotion();
 
   const now = new Date();
-  const todayIndex = now.getDate() - 1;
-  const total = dailySpent ? dailySpent.reduce((a, b) => a + b, 0) : 0;
+  // Month labels don't need the data, so the axis is stable while it loads.
+  const labels = buildMonthWeekBuckets(now).map(bucket => bucket.label);
+  const total = weeklySpent?.aggregated.total || 0;
   const shown = useCountUp(
     total,
-    todayIndex * 30 + 500,
-    !!dailySpent && !reduceMotion,
+    labels.length * 120 + 400,
+    !!weeklySpent && !reduceMotion,
   );
   const isHidden = masterInfoObject.userBalanceDenomination === 'hidden';
-  const dayLabel = day =>
-    formatDate(new Date(now.getFullYear(), now.getMonth(), day), 'monthDay');
   const monthName = formatDate(now, 'month');
+  const chart =
+    weeklySpent &&
+    buildSpendingChart({
+      aggregated: weeklySpent.aggregated,
+      priceAInB: weeklySpent.priceAInB,
+      tokens,
+      t,
+      masterInfoObject,
+      fiatStats,
+      hideValues: isHidden,
+    });
 
   return (
     <TouchableOpacity
@@ -183,24 +178,13 @@ function SpentCard({ dailySpent, onPress }) {
         styles={styles.spentAmount}
       />
       <View style={styles.chart}>
-        <DailyBarChart
-          values={dailySpent || new Array(todayIndex + 1).fill(0)}
-          todayIndex={todayIndex}
-          accessibilityLabel={t('money.chartLabel', { month: monthName })}
+        <BarChart
+          series={chart?.series || []}
+          labels={labels}
+          legend={chart?.legend || []}
+          height={120}
+          accessibilityLabel={t('money.weeklyChartLabel', { month: monthName })}
         />
-      </View>
-      <View style={styles.axis}>
-        {[
-          dayLabel(1),
-          t('money.today'),
-          dayLabel(dailySpent?.length || 31),
-        ].map(label => (
-          <ThemeText
-            key={label}
-            content={label}
-            styles={[styles.axisLabel, { color: tokens.muted }]}
-          />
-        ))}
       </View>
     </TouchableOpacity>
   );
@@ -218,7 +202,7 @@ export default function MoneyTab({ navigation }) {
   const { sparkInformation, txsHashKey } = useSparkWallet();
   const { poolInfoRef } = useFlashnet();
   const scrollViewRef = useRef(null);
-  const [dailySpent, setDailySpent] = useState(null);
+  const [weeklySpent, setWeeklySpent] = useState(null);
   const [rowValues, setRowValues] = useState(null);
 
   useFocusEffect(
@@ -245,16 +229,22 @@ export default function MoneyTab({ navigation }) {
   useEffect(() => {
     if (!sparkInformation.identityPubKey) return;
     let cancelled = false;
-    loadDailySpent(
+    loadWeeklySpent(
       sparkInformation.identityPubKey,
       poolInfoRef.currentPriceAInB,
     )
-      .then(days => !cancelled && setDailySpent(days))
+      .then(spent => !cancelled && setWeeklySpent(spent))
       .catch(err => console.log('money tab spent error', err));
     return () => {
       cancelled = true;
     };
-  }, [txsHashKey, sparkInformation.identityPubKey]);
+    // The price is here because the dollar bars are converted to sats with it;
+    // a load before the pool price arrives would leave them at zero.
+  }, [
+    txsHashKey,
+    sparkInformation.identityPubKey,
+    poolInfoRef.currentPriceAInB,
+  ]);
 
   const formatUsd = micros =>
     displayCorrectDenomination({
@@ -334,7 +324,7 @@ export default function MoneyTab({ navigation }) {
           }}
         >
           <SpentCard
-            dailySpent={dailySpent}
+            weeklySpent={weeklySpent}
             onPress={() => navigate.navigate('AnalyticsStack')}
           />
           <ListCard dividerInset={84} style={styles.rowsCard}>
@@ -392,12 +382,6 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   chart: { marginTop: 20 },
-  axis: {
-    marginTop: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  axisLabel: { fontSize: 12, lineHeight: 18, includeFontPadding: false },
   rowsCard: { marginTop: 12 },
   rowTitle: { fontSize: 15, lineHeight: 22 },
   rowValue: { fontSize: 14, lineHeight: 21, marginRight: 4 },

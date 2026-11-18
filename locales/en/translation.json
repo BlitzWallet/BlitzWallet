@@ -4029,8 +4029,39 @@
       "noSentTitle": "No sent payments",
       "noSentSub": "Send a payment from your wallet to start seeing activity"
     },
+    "chart": {
+      "titleSpent": "Spent {{period}}",
+      "period": {
+        "today": "today",
+        "week": "this week",
+        "month": "this month",
+        "year": "this year",
+        "all": "in total"
+      },
+      "yesterday": "yesterday",
+      "lastWeek": "last week",
+      "lastMonth": "last month",
+      "lastYear": "last year",
+      "previousTotal": "{{amount}} {{period}}"
+    },
+    "filter": {
+      "title": "Time period",
+      "timeframe_today": "Today",
+      "timeframe_week": "This week",
+      "timeframe_month": "This month",
+      "timeframe_year": "This year",
+      "timeframe_all": "All time"
+    },
+    "kinds": {
+      "title": "Kinds of spending",
+      "contacts": "Friends & contacts",
+      "pools": "Pools",
+      "gifts": "Gifts",
+      "other": "Everything else"
+    },
     "budget": {
       "budget": "Budget",
+      "monthBudget": "{{month}} budget",
       "noAmount": "Please enter a budget amount.",
       "editBudget": "Edit budget",
       "createBudget": "Set monthly budget",
@@ -4048,8 +4079,16 @@
       "nearBudgetWarning": "You're close to your monthly spending limit",
       "overBudgetWarning": "You've already reached your monthly spending limit",
       "willExceedBudgetWarning": "Sending this payment will put you over your monthly spending limit",
-      "budgetWarningHeadsUp": "Heads up"
-    }
+      "budgetWarningHeadsUp": "Heads up",
+      "amountLeft": "{{amount}} left",
+      "today": "Today",
+      "ofBudgetDaysLeft_one": "of {{amount}} · {{count}} day left",
+      "ofBudgetDaysLeft_other": "of {{amount}} · {{count}} days left",
+      "perDay_one": "You can spend {{amount}} a day for the next {{count}} day",
+      "perDay_other": "You can spend {{amount}} a day for the next {{count}} days"
+    },
+    "numberOfPayments_one": "{{count}} payment",
+    "numberOfPayments_other": "{{count}} payments"
   },
   "tabInUse": {
     "title": "Blitz is open in another tab",
@@ -4071,6 +4110,7 @@
     "spentIn": "Spent in {{month}}",
     "today": "Today",
     "chartLabel": "Daily spending in {{month}}",
+    "weeklyChartLabel": "Weekly spending in {{month}}",
     "savingsGoals": "Dollar goals",
     "goalProgress": "{{current}} of {{target}}",
     "poolsCollecting": "{{count}} collecting",
