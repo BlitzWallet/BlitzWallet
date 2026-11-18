@@ -191,7 +191,23 @@
     "weekly": "Еженедельно",
     "monthly": "Ежемесячно",
     "yearly": "Ежегодно",
-    "noLimit": "Без лимита"
+    "noLimit": "Без лимита",
+    "minutesAgo_one": "{{count}} минуту назад",
+    "minutesAgo_few": "{{count}} минуты назад",
+    "minutesAgo_many": "{{count}} минут назад",
+    "minutesAgo_other": "{{count}} минуты назад",
+    "hoursAgo_one": "{{count}} час назад",
+    "hoursAgo_few": "{{count}} часа назад",
+    "hoursAgo_many": "{{count}} часов назад",
+    "hoursAgo_other": "{{count}} часа назад",
+    "daysAgo_one": "{{count}} день назад",
+    "daysAgo_few": "{{count}} дня назад",
+    "daysAgo_many": "{{count}} дней назад",
+    "daysAgo_other": "{{count}} дня назад",
+    "yearsAgo_one": "{{count}} год назад",
+    "yearsAgo_few": "{{count}} года назад",
+    "yearsAgo_many": "{{count}} лет назад",
+    "yearsAgo_other": "{{count}} года назад"
   },
   "transactionLabelText": {
     "notSent": "Платеж не отправлен",
@@ -1659,7 +1675,8 @@
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
-        "pageMessage": "Вы хотите {{option}} фото {{option2}}"
+        "pageMessageHasImage": "Вы хотите изменить или удалить своё фото?",
+        "pageMessageNoImage": "Вы хотите добавить фото?"
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} ваш запрос",

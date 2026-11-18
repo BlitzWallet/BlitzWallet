@@ -195,19 +195,6 @@ export default function SwapFlowHalfModal({
     (fromAsset === 'BTC' && Number(fromAmount) <= Number(bitcoinBalance)) ||
     (fromAsset === 'USD' && Number(fromAmount) <= Number(dollarBalanceToken));
 
-  const canSwap =
-    fromAmount &&
-    parseFloat(fromAmount) > 0 &&
-    toAmount &&
-    parseFloat(toAmount) > 0 &&
-    !isSimulating &&
-    !isSwapping &&
-    !isLoadingPool &&
-    poolInfo &&
-    (!error ||
-      error.includes(t('screens.inAccount.swapsPage.checkSwapMessage'))) &&
-    hasEnoughBalance;
-
   const canProceed =
     !fromAmount ||
     isSimulating ||

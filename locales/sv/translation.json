@@ -191,7 +191,15 @@
     "weekly": "Veckovis",
     "monthly": "Månadsvis",
     "yearly": "Årligen",
-    "noLimit": "Ingen gräns"
+    "noLimit": "Ingen gräns",
+    "minutesAgo_one": "för {{count}} minut sedan",
+    "minutesAgo_other": "för {{count}} minuter sedan",
+    "hoursAgo_one": "för {{count}} timme sedan",
+    "hoursAgo_other": "för {{count}} timmar sedan",
+    "daysAgo_one": "för {{count}} dag sedan",
+    "daysAgo_other": "för {{count}} dagar sedan",
+    "yearsAgo_one": "för {{count}} år sedan",
+    "yearsAgo_other": "för {{count}} år sedan"
   },
   "transactionLabelText": {
     "notSent": "Betalning inte skickad",
@@ -1657,7 +1665,8 @@
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
-        "pageMessage": "Vill du gå till {{option}} {{option2}} foto"
+        "pageMessageHasImage": "Vill du ändra eller ta bort ditt foto?",
+        "pageMessageNoImage": "Vill du lägga till ett foto?"
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} din förfrågan",

@@ -191,7 +191,15 @@
     "weekly": "Semanal",
     "monthly": "Mensual",
     "yearly": "Anual",
-    "noLimit": "Sin límite"
+    "noLimit": "Sin límite",
+    "minutesAgo_one": "hace {{count}} minuto",
+    "minutesAgo_other": "hace {{count}} minutos",
+    "hoursAgo_one": "hace {{count}} hora",
+    "hoursAgo_other": "hace {{count}} horas",
+    "daysAgo_one": "hace {{count}} día",
+    "daysAgo_other": "hace {{count}} días",
+    "yearsAgo_one": "hace {{count}} año",
+    "yearsAgo_other": "hace {{count}} años"
   },
   "transactionLabelText": {
     "notSent": "Pago no enviado",
@@ -1657,7 +1665,8 @@
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
-        "pageMessage": "¿Quieres {{option}} la foto {{option2}}?"
+        "pageMessageHasImage": "¿Quieres cambiar o eliminar tu foto?",
+        "pageMessageNoImage": "¿Quieres añadir una foto?"
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} tu solicitud",

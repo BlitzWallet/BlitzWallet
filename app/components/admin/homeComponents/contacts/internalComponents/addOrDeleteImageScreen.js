@@ -59,11 +59,9 @@ export default function AddOrDeleteContactImage(props) {
             <ThemeText
               styles={styles.message}
               content={t(
-                'contacts.internalComponents.addOrDeleteImageScreen.pageMessage',
-                {
-                  option: hasImage ? 'change' : 'add',
-                  option2: hasImage ? 'or delete your' : 'a',
-                },
+                hasImage
+                  ? 'contacts.internalComponents.addOrDeleteImageScreen.pageMessageHasImage'
+                  : 'contacts.internalComponents.addOrDeleteImageScreen.pageMessageNoImage',
               )}
             />
 
