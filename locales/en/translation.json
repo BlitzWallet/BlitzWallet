@@ -3697,7 +3697,8 @@
     "contacts": "People",
     "money": "Money",
     "appStore": "Explore",
-    "activity": "Activity"
+    "activity": "Activity",
+    "activityUnseen": "Activity, new payments received"
   },
   "pushNotifications": {
     "paymentReceived": {

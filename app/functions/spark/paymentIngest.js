@@ -11,6 +11,8 @@ import {
   getAllUnpaidSparkLightningInvoices,
   getBulkPaymentGroupTransferIds,
   getBulkSparkTransactions,
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
   updateSparkTransactionDetails,
 } from './transactions';
 
@@ -87,9 +89,27 @@ export function getMigrationMarker(accountId) {
 // used by the history diff to detect rows Breez inserted below known ones.
 export async function markFullPassDone(accountId, walk) {
   const marker = await getMigrationMarker(accountId);
+  const firstPass = !marker.fullPassDone;
   marker.fullPassDone = true;
   marker.fullWalk = walk;
   await setLocalStorageItem(markerKey(accountId), JSON.stringify(marker));
+  // An import that wrote nothing emits no tx event; the activity indicator
+  // needs one after the import to anchor its seen set.
+  if (firstPass) {
+    sparkTransactionsEventEmitter.emit(
+      SPARK_TX_UPDATE_ENVENT_NAME,
+      'transactions',
+    );
+  }
+}
+
+// Read-only check that never creates the marker (its startedAt must be set by
+// the connect-time history diff, not by an earlier reader).
+export async function hasFullHistoryPass(accountId) {
+  if (markers.has(accountId)) {
+    return !!(await markers.get(accountId)).fullPassDone;
+  }
+  return !!parse(await getLocalStorageItem(markerKey(accountId))).fullPassDone;
 }
 
 export function clearMigrationMarkerCache() {

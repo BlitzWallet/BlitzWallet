@@ -15,6 +15,7 @@ export default function IconButton({
   onPress,
   iconSize,
   iconColor,
+  backgroundColor,
   showActiveDot = false,
   activeOpacity = 0.2,
   testID,
@@ -36,7 +37,8 @@ export default function IconButton({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: tone === 'disc' ? tokens.disc : tokens.surface,
+          backgroundColor:
+            backgroundColor ?? (tone === 'disc' ? tokens.disc : tokens.surface),
         },
         floating && SHADOWS.ring,
       ]}

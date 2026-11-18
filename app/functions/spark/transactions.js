@@ -7,6 +7,7 @@ import {
   SPEND_AND_REPLACE_TABLE,
 } from './spendAndReplaceStorage';
 import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
+import { isFlashnetTransfer } from './handleFlashnetTransferIds';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
@@ -736,6 +737,83 @@ export const getFilteredTransactions = async (filters, options = {}) => {
       error,
     );
     return [];
+  }
+};
+
+// Payments Blitz creates itself while moving money between screens/wallets. They
+// are INCOMING rows but are not money arriving from outside the app, so the
+// activity indicator must ignore them.
+const INTERNAL_INCOMING_DETAIL_FLAGS = [
+  'isGift',
+  'isSavings',
+  'isPoolPayment',
+  'isAccountTransfer',
+  'isSARIncoming',
+  'isRootstockSwap',
+  'isLiquidSwap',
+  'isFlashnetStablecoin',
+  'isBlitzContactPayment',
+  'showSwapLabel',
+];
+
+const EXTERNAL_PAYMENT_TYPES = new Set(['spark', 'lightning', 'bitcoin']);
+
+// Completed money that arrived from outside Blitz. Contact payments are left out
+// on purpose: they already surface on the contacts tab.
+export const isExternalIncomingPayment = tx => {
+  if (!tx || tx.paymentStatus !== 'completed') return false;
+  if (!EXTERNAL_PAYMENT_TYPES.has(tx.paymentType)) return false;
+  // Hidden Flashnet swap legs are internal transfers even without a details flag.
+  if (isFlashnetTransfer(tx.sparkID)) return false;
+
+  let details;
+  try {
+    details =
+      typeof tx.details === 'string' ? JSON.parse(tx.details) : tx.details;
+  } catch {
+    return false;
+  }
+
+  if (!details || details.direction !== 'INCOMING') return false;
+  // Refunds from Blitz's own Spark identity are hidden from the activity list.
+  if (
+    process.env.SPARK_IDENTITY_PUBKEY &&
+    details.senderIdentityPublicKey === process.env.SPARK_IDENTITY_PUBKEY
+  )
+    return false;
+  if (details.sendingUUID) return false;
+  return !INTERNAL_INCOMING_DETAIL_FLAGS.some(flag => details[flag]);
+};
+
+// Newest completed incoming rows read per check. The activity indicator compares
+// the external ones against the set the user last saw, so a payment that
+// completes late with an older timestamp still counts while it is in this window.
+const EXTERNAL_INCOMING_WINDOW = 50;
+
+// sparkIDs of recent external incoming payments, newest first. null on failure
+// so callers never mistake a read error for "no payments".
+export const getRecentExternalIncomingIds = async accountId => {
+  if (!accountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT sparkID, paymentStatus, paymentType, details
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+       AND paymentStatus = 'completed'
+       AND paymentType IN ('spark', 'lightning', 'bitcoin')
+       AND json_valid(details)
+       AND json_extract(details, '$.direction') = 'INCOMING'
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT ?`,
+      [String(accountId), EXTERNAL_INCOMING_WINDOW],
+    );
+
+    return rows.filter(isExternalIncomingPayment).map(row => row.sparkID);
+  } catch (error) {
+    console.error('Error fetching external incoming payments:', error);
+    return null;
   }
 };
 

@@ -172,6 +172,7 @@ export async function executeAccountTransfer({
           direction: 'INCOMING',
           fee: 0,
           description: toDescription,
+          isAccountTransfer: true,
         },
       },
     ]).catch(err => console.log('error saving account transfer', err));

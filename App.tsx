@@ -91,6 +91,7 @@ import i18next from 'i18next';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
+import { ActivitySeenProvider } from './context-store/activitySeen';
 import { DropdownProvider } from './context-store/dropdownContext';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -153,32 +154,34 @@ function App(): JSX.Element {
                             <GlobalContextProvider>
                               <ActiveCustodyAccountProvider>
                                 <SparkWalletProvider>
-                                  <GLobalNodeContextProider>
-                                    <GlobalAppDataProvider>
-                                      <PushNotificationProvider>
-                                        <LiquidEventProvider>
-                                          <RootstockSwapProvider>
-                                            <ImageCacheProvider>
-                                              <GlobalServerTimeProvider>
-                                                <FlashnetProvider>
-                                                  <UserBalanceProvider>
-                                                    <AnalyticsNumbersProvider>
-                                                      <SpendAndReplaceProvider>
-                                                        {/* <Suspense
+                                  <ActivitySeenProvider>
+                                    <GLobalNodeContextProider>
+                                      <GlobalAppDataProvider>
+                                        <PushNotificationProvider>
+                                          <LiquidEventProvider>
+                                            <RootstockSwapProvider>
+                                              <ImageCacheProvider>
+                                                <GlobalServerTimeProvider>
+                                                  <FlashnetProvider>
+                                                    <UserBalanceProvider>
+                                                      <AnalyticsNumbersProvider>
+                                                        <SpendAndReplaceProvider>
+                                                          {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                        <ResetStack />
-                                                      </SpendAndReplaceProvider>
-                                                    </AnalyticsNumbersProvider>
-                                                  </UserBalanceProvider>
-                                                </FlashnetProvider>
-                                                {/* </Suspense> */}
-                                              </GlobalServerTimeProvider>
-                                            </ImageCacheProvider>
-                                          </RootstockSwapProvider>
-                                        </LiquidEventProvider>
-                                      </PushNotificationProvider>
-                                    </GlobalAppDataProvider>
-                                  </GLobalNodeContextProider>
+                                                          <ResetStack />
+                                                        </SpendAndReplaceProvider>
+                                                      </AnalyticsNumbersProvider>
+                                                    </UserBalanceProvider>
+                                                  </FlashnetProvider>
+                                                  {/* </Suspense> */}
+                                                </GlobalServerTimeProvider>
+                                              </ImageCacheProvider>
+                                            </RootstockSwapProvider>
+                                          </LiquidEventProvider>
+                                        </PushNotificationProvider>
+                                      </GlobalAppDataProvider>
+                                    </GLobalNodeContextProider>
+                                  </ActivitySeenProvider>
                                 </SparkWalletProvider>
                               </ActiveCustodyAccountProvider>
                             </GlobalContextProvider>

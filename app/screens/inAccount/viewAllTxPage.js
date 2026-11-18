@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import {
   SectionList,
   StyleSheet,
@@ -13,6 +13,7 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSparkWallet } from '../../../context-store/sparkContext';
+import { useActivitySeen } from '../../../context-store/activitySeen';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { getFilteredTransactions } from '../../functions/spark/transactions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
@@ -47,10 +48,12 @@ const ActivitySeparator = () => (
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
+  const isFocused = useIsFocused();
   const [currentFilter, setCurrentFilter] = useState(EMPTY_FILTER);
   const [rawTxs, setRawTxs] = useState(null);
   const { sparkInformation, showTokensInformation, txsVersion } =
     useSparkWallet();
+  const { hasUnseenActivity, markActivitySeen } = useActivitySeen();
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { tokens } = useGlobalThemeContext();
@@ -62,6 +65,12 @@ export default function ViewAllTxPage() {
 
   // Skeleton shows while the push animation runs; the SQL read waits for it.
   const isReady = useAfterTransition();
+
+  // Opening the activity list acknowledges external incoming payments.
+  // hasUnseenActivity re-runs this when another lands while the list is open.
+  useEffect(() => {
+    if (isFocused) markActivitySeen();
+  }, [isFocused, hasUnseenActivity, markActivitySeen]);
 
   // txsVersion bumps on every new or updated payment: the reload signal.
   useEffect(() => {

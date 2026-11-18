@@ -13,6 +13,7 @@ import { MAX_WEB_CONTENT_WIDTH } from '../../app/constants';
 import { makeShadow } from '../../app/constants/theme';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContactsMessages } from '../../context-store/globalContacts';
+import { useActivitySeen } from '../../context-store/activitySeen';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import ThemeIcon from '../../app/functions/CustomElements/themeIcon';
 import IconButton from '../../app/functions/CustomElements/redesign/IconButton';
@@ -60,6 +61,7 @@ function TabButton({ route, focused, showUnread, onPress, tokens, t }) {
 function MyTabBar({ state, navigation }) {
   const { tokens } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
+  const { hasUnseenActivity } = useActivitySeen();
   const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
@@ -126,14 +128,20 @@ function MyTabBar({ state, navigation }) {
         style={[
           styles.activity,
           styles.shadow,
-          { borderWidth: 1, borderColor: tokens.ground },
+          {
+            borderWidth: 1,
+            borderColor: hasUnseenActivity ? tokens.accent : tokens.ground,
+            backgroundColor: hasUnseenActivity ? tokens.accent : 'transparent',
+          },
         ]}
       >
         <IconButton
           icon="Clock"
-          label="tabs.activity"
+          label={hasUnseenActivity ? 'tabs.activityUnseen' : 'tabs.activity'}
           size={TAB_ITEM_HEIGHT - 2}
           iconSize={ICON_SIZE}
+          backgroundColor={hasUnseenActivity ? tokens.accent : undefined}
+          iconColor={hasUnseenActivity ? tokens.onAccent : undefined}
           onPress={() => navigation.navigate('ViewAllTxPage')}
         />
       </View>
