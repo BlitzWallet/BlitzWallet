@@ -42,7 +42,6 @@ export default function SelectContactRequestCurrency({
           lead={<CurrencyIcon size={48} isBitcoin />}
           onPress={() => selectSendingBalance('BTC')}
           title={t('constants.bitcoin_upper')}
-          sub={t('contacts.selectCurrencyToRequest.paidInSats')}
           selected={selectedRecieveOption === 'BTC'}
           minHeight={76}
         />
@@ -50,7 +49,6 @@ export default function SelectContactRequestCurrency({
           lead={<CurrencyIcon size={48} />}
           onPress={() => selectSendingBalance('USD')}
           title={t('constants.dollars_upper')}
-          sub={t('contacts.selectCurrencyToRequest.paidInUsd')}
           selected={selectedRecieveOption === 'USD'}
           minHeight={76}
         />
