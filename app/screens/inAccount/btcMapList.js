@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -156,6 +157,7 @@ export default function BTCMapListContent({
 
       <ListCard style={styles.card} dividerInset={72}>
         <FlatList
+          renderScrollComponent={props => <CustomScrollView {...props} />}
           data={data}
           renderItem={renderItem}
           keyExtractor={item => `${item.source}-${item.id}`}

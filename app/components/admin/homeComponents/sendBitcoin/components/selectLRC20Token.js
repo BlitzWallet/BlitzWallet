@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { USDB_TOKEN_ID } from '../../../../../constants';
 import { useCallback, useMemo, useState } from 'react';
@@ -153,6 +154,7 @@ export default function SelectLRC20Token({
       {filteredData.length ? (
         <ListCard style={styles.card}>
           <FlatList
+            renderScrollComponent={props => <CustomScrollView {...props} />}
             showsVerticalScrollIndicator={false}
             data={filteredData}
             renderItem={AssetItem}

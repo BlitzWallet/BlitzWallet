@@ -459,6 +459,7 @@ function CountryPickerPage({
       ) : (
         <ListCard style={styles.countryListCard}>
           <FlatList
+            renderScrollComponent={props => <CustomScrollView {...props} />}
             style={styles.countryFlatList}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}

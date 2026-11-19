@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -229,6 +230,7 @@ export default function DisplayCurrencySelect({
 
   return (
     <FlatList
+      renderScrollComponent={props => <CustomScrollView {...props} />}
       style={styles.list}
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={listHeader}
