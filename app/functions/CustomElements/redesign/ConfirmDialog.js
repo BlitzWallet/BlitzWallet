@@ -104,7 +104,7 @@ export function AlertDialog({
         >
           {!!icon && (
             <View style={styles.icon}>
-              <Disc icon={icon} size={44} iconSize={20} tone="accent" />
+              <Disc icon={icon} size={44} iconSize={20} />
             </View>
           )}
           {!!title && <ThemeText styles={styles.title} content={title} />}

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CENTER,
+  CONTENT_KEYBOARD_OFFSET,
   MAIN_ACCOUNT_UUID,
   MAX_WEB_CONTENT_WIDTH,
   NWC_ACCOUNT_UUID,
@@ -175,6 +176,7 @@ export default function CreateCustodyAccounts() {
               'settings.accountComponents.selectCreateAccountType.title',
             )}
             size={'regular'}
+            buttonStyles={styles.button}
           />
         )}
       </View>
@@ -186,18 +188,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   toggleWrap: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 10,
   },
   scrollContainer: {
     marginTop: 20,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 16,
   },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  button: {
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });
