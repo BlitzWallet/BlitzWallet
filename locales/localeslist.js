@@ -63,4 +63,12 @@ export const supportedLanguagesList = [
     id: 'ru',
     flagCode: 'ru',
   },
+  {
+    languageName: 'Wolof',
+    fullySupported: true,
+    translatedName: 'languages.wolof',
+    shortId: 'wo',
+    id: 'wo',
+    flagCode: 'sn',
+  },
 ];

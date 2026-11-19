@@ -153,7 +153,8 @@
     "german": "Deutsch",
     "french": "Français",
     "swedish": "Svenska",
-    "russian": "Русский"
+    "russian": "Русский",
+    "wolof": "Wolof"
   },
   "weekdays": {
     "Mon": "Lundi",
@@ -958,7 +959,7 @@
         "phoneStepSubtitle": "Saisissez le numéro complet sans l'indicatif pays (p. ex. 2025551234 pour (202) 555-1234).",
         "invalidMessageError": "Veuillez saisir un message avant de continuer",
         "descriptionStepTitle": "Ajoutez votre message",
-        "descriptionStepSubtitle": "SMS4Sats nécessite un message. Gardez-le court et sous 140 caractères.",
+        "descriptionStepSubtitle": "À {{phone}}. Gardez-le sous 140 caractères.",
         "descriptionInputPlaceholder": "Saisir un message",
         "confirmedSubtitle": "À {{phone}} · {{amount}}"
       },
@@ -999,7 +1000,7 @@
       "confirmCodePage": {
         "header": "Votre commande a été initiée avec succès",
         "phoneNumberLabel": "Votre numéro :",
-        "step1": "Cliquez sur l’icône de reçu en haut à droite pour consulter votre historique de commandes",
+        "step1": "Saisissez ce numéro dans {{title}}.",
         "step2": "Utilisez le bouton « Obtenir le code » sur la page d’accueil pour récupérer votre code de vérification après avoir ajouté le numéro au service",
         "step3": "Si aucun code n’est reçu, votre paiement sera automatiquement remboursé après 21 minutes",
         "automaticRefund": "Aucun numéro n’était disponible pour ce service. Vos fonds ont déjà été remboursés.",
@@ -1140,7 +1141,7 @@
       "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}",
       "depositFeeText": "Détails des frais",
       "depositFeePopup_bitcoin": "Les bitcoins envoyés à cette adresse entraînent de faibles frais de réseau à la réception. Ces frais sont déduits du montant reçu ; votre solde peut donc être légèrement inférieur au montant envoyé.",
-      "depositFeePopup_liquid": "Le Liquid Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais{{feeDisplay}}, déduits du montant reçu.",
+      "depositFeePopup_liquid": "Le Liquid Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais, déduits du montant reçu.",
       "depositFeePopup_rootstock": "Le Rootstock Bitcoin envoyé à cette adresse est échangé contre du Bitcoin utilisable par votre portefeuille. Cet échange entraîne de petits frais, déduits du montant reçu.",
       "depositFeePopup_stablecoins": "Les stablecoins envoyés à cette adresse sont convertis en dollars dans votre portefeuille. De petits frais de conversion d’environ 1 % sont déduits du montant reçu.",
       "depositFeePopup_accumulation_bitcoin": "Le Bitcoin envoyé à cette adresse est converti en bitcoin utilisable par votre portefeuille. De petits frais de conversion d’environ 1 % sont déduits du montant reçu."
@@ -1194,7 +1195,7 @@
       "failedToTransfer": "Échec du transfert des fonds de la cagnotte",
       "notFound": "Cagnotte introuvable",
       "closePoolTitle": "Fermer cette cagnotte ?",
-      "closePoolWarning": "Tous les fonds seront transférés vers votre portefeuille principal. Cette cagnotte n’acceptera plus de paiements et ne pourra pas être rouverte.",
+      "closePoolWarning": "Le montant de {{amount}} est transféré vers votre portefeuille principal. La cagnotte n’acceptera plus de paiements et ne pourra pas être rouverte.",
       "closePool": "Fermer la cagnotte",
       "goal": "Objectif : ",
       "payment_one": "{{count}} paiement",
@@ -1604,7 +1605,7 @@
       "title": "Devise de réception",
       "description": "Choisissez comment vous recevez les paiements de vos contacts et de votre adresse Lightning.",
       "futurePaymentsMessage": "Tous les paiements futurs seront reçus en {{option}}",
-      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin.",
+      "warningMessage": "Les paiements inférieurs à {{amount}} arrivent toujours en Bitcoin.",
       "changeSelectionError": "{{option}} est déjà sélectionné. Modifiez votre sélection pour mettre à jour votre paramètre.",
       "arriveAsSats": "Les paiements arrivent en sats",
       "arriveAsDollars": "Les paiements arrivent en dollars"
@@ -2543,7 +2544,7 @@
           "editMessage": "Modifier la devise d'affichage dans les paramètres du TPV.",
           "itemNamePlaceholder": "Nom de l'article",
           "pricePlaceholder": "Prix ({{number}})",
-          "updateCurrency": "Mise à jour de la monnaie",
+          "updateCurrency": "Enregistrer en {{currency}}",
           "addItemBTN": "Ajouter un article",
           "currencyChangeNote": "Ce prix a été défini en {{from}}. L'enregistrement facture {{amount}} en {{to}}."
         },
@@ -2838,7 +2839,7 @@
       },
       "transactions": {
         "title": "Activité",
-        "noTxHistorySub": "Les transactions du compte apparaîtront ici dès qu'ils enverront ou recevront une transaction."
+        "noTxHistorySub": "Les paiements de {{name}} apparaîtront ici dès qu’il en enverra ou en recevra un."
       },
       "page": {
         "title": "Compte enfant",

@@ -69,7 +69,7 @@ Blitz is powered by the [Spark](https://spark.info) Layer 2 network for instant,
 
 ### Localization
 
-Available in 8 languages: English, Spanish, French, German, Italian, Portuguese (Brazil), Swedish, and Russian.
+Available in 9 languages: English, Spanish, French, German, Italian, Portuguese (Brazil), Swedish, Russian, and Wolof.
 
 ## Release Notes
 

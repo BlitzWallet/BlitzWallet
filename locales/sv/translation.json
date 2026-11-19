@@ -153,7 +153,8 @@
     "german": "Deutsch",
     "french": "Français",
     "swedish": "Svenska",
-    "russian": "Русский"
+    "russian": "Русский",
+    "wolof": "Wolof"
   },
   "weekdays": {
     "Mon": "Måndag",
@@ -958,7 +959,7 @@
         "phoneStepSubtitle": "Ange det fullständiga numret utan landskod (t.ex. 2025551234 för (202) 555-1234).",
         "invalidMessageError": "Ange ett meddelande innan du fortsätter",
         "descriptionStepTitle": "Lägg till ditt meddelande",
-        "descriptionStepSubtitle": "SMS4Sats kräver ett meddelande. Håll det kort och under 140 tecken.",
+        "descriptionStepSubtitle": "Till {{phone}}. Håll det under 140 tecken.",
         "descriptionInputPlaceholder": "Skriv meddelande",
         "confirmedSubtitle": "Till {{phone}} · {{amount}}"
       },
@@ -999,7 +1000,7 @@
       "confirmCodePage": {
         "header": "Din beställning har startats framgångsrikt",
         "phoneNumberLabel": "Ditt nummer:",
-        "step1": "Klicka på kvittoikonen uppe till höger för att visa din orderhistorik",
+        "step1": "Ange det här numret i {{title}}.",
         "step2": "Använd knappen ”Hämta kod” på startsidan för att få din verifieringskod efter att du har lagt till numret i tjänsten",
         "step3": "Om ingen kod tas emot återbetalas din betalning automatiskt inom 21 minuter",
         "automaticRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel har redan återbetalats.",
@@ -1140,7 +1141,7 @@
       "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}",
       "depositFeeText": "Avgiftsinformation",
       "depositFeePopup_bitcoin": "Bitcoin som skickas till den här adressen medför en liten nätverksavgift för att tas emot. Avgiften dras av från beloppet du får, så ditt saldo kan bli något lägre än det skickade beloppet.",
-      "depositFeePopup_liquid": "Liquid Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift{{feeDisplay}}, som dras från beloppet du tar emot.",
+      "depositFeePopup_liquid": "Liquid Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift, som dras från beloppet du tar emot.",
       "depositFeePopup_rootstock": "Rootstock Bitcoin som skickas till den här adressen växlas till Bitcoin som din plånbok kan använda. Växlingen kostar en liten avgift, som dras från beloppet du tar emot.",
       "depositFeePopup_stablecoins": "Stablecoins som skickas till den här adressen omvandlas till dollar i din plånbok. En liten växlingsavgift på cirka 1 % dras från beloppet du tar emot.",
       "depositFeePopup_accumulation_bitcoin": "Bitcoin som skickas till den här adressen omvandlas till bitcoin som din plånbok kan använda. En liten växlingsavgift på cirka 1 % dras från beloppet du tar emot."
@@ -1194,7 +1195,7 @@
       "failedToTransfer": "Misslyckades med att överföra poolmedel",
       "notFound": "Poolen hittades inte",
       "closePoolTitle": "Stäng denna pool?",
-      "closePoolWarning": "Alla medel kommer att överföras till din huvudplånbok. Poolen slutar ta emot betalningar och kan inte öppnas igen.",
+      "closePoolWarning": "Alla {{amount}} flyttas till din huvudplånbok. Poolen slutar ta emot betalningar och kan inte öppnas igen.",
       "closePool": "Stäng pool",
       "goal": "Mål: ",
       "payment_one": "{{count}} betalning",
@@ -1604,7 +1605,7 @@
       "title": "Mottagningsvaluta",
       "description": "Välj hur du vill ta emot betalningar från kontakter och din Lightning-adress.",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
-      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin.",
+      "warningMessage": "Betalningar under {{amount}} kommer fortfarande in som Bitcoin.",
       "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen.",
       "arriveAsSats": "Betalningar kommer som sats",
       "arriveAsDollars": "Betalningar kommer som dollar"
@@ -2543,7 +2544,7 @@
           "editMessage": "Ändra visningsvalutan i POS-inställningarna.",
           "itemNamePlaceholder": "Artikelns namn",
           "pricePlaceholder": "Pris ({{number}})",
-          "updateCurrency": "Uppdatera valuta",
+          "updateCurrency": "Spara i {{currency}}",
           "addItemBTN": "Lägg till artikel",
           "currencyChangeNote": "Det här priset angavs i {{from}}. När du sparar debiteras {{amount}} i {{to}}."
         },
@@ -2838,7 +2839,7 @@
       },
       "transactions": {
         "title": "Aktivitet",
-        "noTxHistorySub": "Kontots transaktioner visas här när de skickar eller tar emot en."
+        "noTxHistorySub": "{{name}}s betalningar visas här när de skickar eller tar emot en."
       },
       "page": {
         "title": "Barnkonto",
