@@ -66,7 +66,9 @@ export default function SendList() {
           />
         }
         title={formatDisplayName(contact) || t('constants.annonName')}
-        sub={contact.isLNURL ? undefined : `@${contact.uniqueName}`}
+        sub={`${
+          contact.isLNURL ? contact.receiveAddress : '@' + contact.uniqueName
+        }`}
         onPress={() =>
           navigate.navigate('SendAndRequestPage', {
             selectedContact: contact,
@@ -106,7 +108,10 @@ export default function SendList() {
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.list}
           >
-            <SectionHeader title={t('screens.inAccount.sendList.contacts')} />
+            <SectionHeader
+              first
+              title={t('screens.inAccount.sendList.contacts')}
+            />
             {!!contactElements.length && <ListCard>{contactElements}</ListCard>}
           </CustomScrollView>
         ) : (

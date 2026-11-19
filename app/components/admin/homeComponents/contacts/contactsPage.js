@@ -363,7 +363,9 @@ const ContactElement = memo(
           />
         }
         title={displayName}
-        sub={!contact.isLNURL && `@${contact.uniqueName}`}
+        sub={`${
+          contact.isLNURL ? contact.receiveAddress : '@' + contact.uniqueName
+        }`}
         trailing={
           hasUnlookedTransaction && (
             <View

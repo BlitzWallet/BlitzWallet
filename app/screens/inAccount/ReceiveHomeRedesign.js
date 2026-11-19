@@ -100,7 +100,7 @@ export default function ReceiveHomeRedesign() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.list}
           >
-            <SectionHeader title={t('receive.requestFromContact')} />
+            <SectionHeader first title={t('receive.requestFromContact')} />
             {!!contactElements.length && <ListCard>{contactElements}</ListCard>}
           </CustomScrollView>
         ) : (
