@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
@@ -22,6 +22,7 @@ export default function TopBar({
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   const lastBackPressRef = useRef(0);
+  const [rightWidth, setRightWidth] = useState(44);
 
   // Same double-tap guard as CustomSettingsTopBar.
   const handleBack = useCallback(async () => {
@@ -41,7 +42,11 @@ export default function TopBar({
       ]}
     >
       <View
-        style={[styles.side, !showBack && styles.hidden]}
+        style={[
+          styles.side,
+          { minWidth: rightWidth },
+          !showBack && styles.hidden,
+        ]}
         pointerEvents={showBack ? 'auto' : 'none'}
         importantForAccessibility={showBack ? 'auto' : 'no-hide-descendants'}
         accessibilityElementsHidden={!showBack}
@@ -58,7 +63,12 @@ export default function TopBar({
         content={title || ''}
         styles={styles.title}
       />
-      <View style={[styles.side, styles.right]}>{right}</View>
+      <View
+        style={[styles.side, styles.right]}
+        onLayout={e => setRightWidth(e.nativeEvent.layout.width)}
+      >
+        {right}
+      </View>
     </View>
   );
 }
@@ -70,11 +80,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  // Equal-share sides keep the title centred (pattern from settingsTopBar.js).
+  // Sides size to their content and never shrink; only the title shrinks.
   side: {
-    flexGrow: 1,
     flexShrink: 0,
-    flexBasis: 0,
     minWidth: 44,
     flexDirection: 'row',
     alignItems: 'center',
@@ -91,7 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 20,
     textAlign: 'center',
-    flexShrink: 1,
+    flex: 1,
     minWidth: 0,
     marginHorizontal: 8,
     includeFontPadding: false,

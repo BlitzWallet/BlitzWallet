@@ -890,7 +890,7 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 999,
     marginTop: 0,
-    marginBottom: 0,
+    marginBottom: 5,
   },
 
   contentContainer: {

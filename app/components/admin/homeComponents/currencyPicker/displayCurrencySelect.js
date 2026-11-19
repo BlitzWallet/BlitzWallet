@@ -33,7 +33,7 @@ export default function DisplayCurrencySelect({
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { screenDimensions } = useAppStatus();
-  const { tokens } = GetThemeColors();
+  const { tokens, mode } = GetThemeColors();
   const normalizedCurrentCurrency = normalizeDisplayCurrency(currentCurrency);
   const deviceCurrency = (
     masterInfoObject?.fiatCurrency || 'USD'
@@ -135,7 +135,9 @@ export default function DisplayCurrencySelect({
         ) : (
           <CurrencyCoin
             symbol={row.symbol}
-            backgroundColor={tokens.disc}
+            backgroundColor={
+              mode === 'lightsOut' ? tokens.disc : tokens.surface
+            }
             size={36}
           />
         )
@@ -168,7 +170,9 @@ export default function DisplayCurrencySelect({
             lead={
               <CurrencyCoin
                 symbol={getCurrencySymbol(item.id)}
-                backgroundColor={tokens.disc}
+                backgroundColor={
+                  mode === 'lightsOut' ? tokens.disc : tokens.surface
+                }
                 size={36}
               />
             }
@@ -179,7 +183,7 @@ export default function DisplayCurrencySelect({
         </View>
       );
     },
-    [currencies.length, tokens, normalizedCurrentCurrency, onSelect],
+    [currencies.length, tokens, normalizedCurrentCurrency, onSelect, mode],
   );
 
   const listHeader = (
@@ -190,7 +194,7 @@ export default function DisplayCurrencySelect({
         {pinnedRows.map(renderPinnedRow)}
         <ListRow
           onPress={() => setExpanded(prev => !prev)}
-          lead={<Disc icon={'Globe'} />}
+          lead={<Disc icon={'Globe'} tone="white" />}
           title={t('settings.fiatCurrency.moreCurrencies')}
           sub={t('settings.fiatCurrency.currencyCount', {
             count: Math.floor(currencies.length / 10) * 10,
