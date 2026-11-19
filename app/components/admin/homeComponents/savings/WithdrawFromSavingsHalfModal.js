@@ -928,12 +928,8 @@ export default function WithdrawFromSavingsHalfModal({
         lead={<EmojiDisc emoji={emoji} />}
         title={title}
         titleStyle={styles.rowTitle}
-        trailing={
-          <ThemeText
-            styles={[styles.rowValue, { color: tokens.muted }]}
-            content={amount}
-          />
-        }
+        value={amount}
+        trailing="value"
         minHeight={64}
         showChevron={true}
         onPress={onPress}
@@ -1270,12 +1266,6 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: 15,
     lineHeight: 21,
-  },
-  rowValue: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontVariant: ['tabular-nums'],
-    includeFontPadding: false,
   },
   disabledRow: {
     opacity: 0.45,

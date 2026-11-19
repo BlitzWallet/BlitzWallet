@@ -1,11 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
+import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { SIZES } from '../../../../../constants/theme';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
@@ -13,7 +9,6 @@ import createNWCConnectionString, {
   getNWCLud16,
 } from '../../../../../functions/nwc/createConnectionString';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
@@ -29,7 +24,6 @@ export default function NWCAccountPage(props) {
   const accountID = props?.route?.params?.accountID;
   const savedData = masterInfoObject?.NWC?.accounts?.[accountID] || {};
   const { fiatStats } = useNodeContext();
-  const { tokens } = GetThemeColors();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -130,13 +124,8 @@ export default function NWCAccountPage(props) {
                 key={item.key}
                 lead={<Disc icon={item.icon} />}
                 title={item.label}
-                trailing={
-                  <ThemeText
-                    CustomNumberOfLines={1}
-                    styles={[styles.rowValue, { color: tokens.muted }]}
-                    content={item.value}
-                  />
-                }
+                value={item.value}
+                trailing="value"
                 showChevron={true}
                 onPress={() =>
                   navigate.navigate(item.screen, {
@@ -180,8 +169,5 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 20,
     flexGrow: 1,
-  },
-  rowValue: {
-    fontSize: SIZES.smedium,
   },
 });

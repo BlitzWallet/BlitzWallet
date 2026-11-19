@@ -115,14 +115,12 @@ export default function BTCMapListContent({
         }
         title={item.name || t('screens.btcMap.merchant.noName')}
         sub={t(CATEGORY_META[category].labelKey)}
-        trailing={
-          item.distance != null && (
-            <ThemeText
-              styles={[styles.rowDistance, { color: tokens.muted }]}
-              content={formatDistance(item.distance, distanceUnit)}
-            />
-          )
+        value={
+          item.distance != null
+            ? formatDistance(item.distance, distanceUnit)
+            : undefined
         }
+        trailing={item.distance != null ? 'value' : undefined}
       />
     );
   };

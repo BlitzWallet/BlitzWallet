@@ -11,7 +11,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { supportedLanguagesList } from '../../../locales/localeslist';
@@ -215,28 +214,14 @@ export default function SettingsIndex() {
           }
           tone={danger ? 'danger' : 'default'}
           onPress={() => handleSettingsRowPress(row)}
-          trailing={
-            danger ? undefined : (
-              <View style={styles.inlineTrailing}>
-                {!!value && (
-                  <ThemeText
-                    content={value}
-                    styles={[styles.inlineValue, { color: tokens.muted }]}
-                  />
-                )}
-                <ThemeIcon
-                  redesign
-                  iconName="ChevronRight"
-                  size={18}
-                  colorOverride={tokens.muted}
-                />
-              </View>
-            )
-          }
+          value={value}
+          trailing={!danger && value ? 'value' : undefined}
+          showChevron={!danger}
+          chevronSize={18}
         />
       );
     },
-    [getInlineValue, handleSettingsRowPress, t, tokens.muted],
+    [getInlineValue, handleSettingsRowPress, t],
   );
 
   const renderSection = useCallback(
@@ -321,8 +306,6 @@ const styles = StyleSheet.create({
   section: { width: '100%' },
   cardSpacing: { marginTop: 24 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
-  inlineTrailing: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  inlineValue: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
   footer: {
     marginTop: 20,
     flexDirection: 'row',

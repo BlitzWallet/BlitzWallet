@@ -277,18 +277,14 @@ export default function NWCAuthApproval({
                 <ListRow
                   title={t('settings.nwc.authRequest.limitTitle')}
                   titleStyle={styles.rowLabel}
-                  trailing={
-                    <ThemeText
-                      styles={[styles.limitValue, { color: tokens.muted }]}
-                      content={
-                        limit
-                          ? `${formatAmount(limit.amount)} ${t(
-                              `settings.nwc.authRequest.period.${limit.option.toLowerCase()}`,
-                            )}`
-                          : t('timeLabels.noLimit')
-                      }
-                    />
+                  value={
+                    limit
+                      ? `${formatAmount(limit.amount)} ${t(
+                          `settings.nwc.authRequest.period.${limit.option.toLowerCase()}`,
+                        )}`
+                      : t('timeLabels.noLimit')
                   }
+                  trailing="value"
                   showChevron={true}
                   onPress={() => goTo('limit')}
                 />
@@ -595,10 +591,6 @@ const styles = StyleSheet.create({
   spendingLimit: { marginTop: 10 },
   rowLabel: {
     fontSize: 15,
-    includeFontPadding: false,
-  },
-  limitValue: {
-    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   primaryButton: {

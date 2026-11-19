@@ -159,7 +159,8 @@ export default function PosSettingsPage() {
               title={t('settings.posPath.settings.storeNameInputDesc')}
               titleStyle={styles.rowTitle}
               minHeight={52}
-              trailing={<RowValue text={storeName} />}
+              value={storeName}
+              trailing="value"
               showChevron={true}
               chevronSize={18}
             />
@@ -173,7 +174,8 @@ export default function PosSettingsPage() {
               title={t('settings.posPath.settings.currency')}
               titleStyle={styles.rowTitle}
               minHeight={52}
-              trailing={<RowValue text={currentCurrency} />}
+              value={currentCurrency}
+              trailing="value"
               showChevron={true}
               chevronSize={18}
             />
@@ -232,15 +234,14 @@ export default function PosSettingsPage() {
               title={t('settings.posPath.settings.tipsToPay')}
               titleStyle={styles.rowTitle}
               minHeight={52}
-              trailing={
-                !!unpaidPeople && (
-                  <RowValue
-                    text={t('settings.posPath.settings.peopleCount', {
+              value={
+                unpaidPeople
+                  ? t('settings.posPath.settings.peopleCount', {
                       count: unpaidPeople,
-                    })}
-                  />
-                )
+                    })
+                  : undefined
               }
+              trailing={unpaidPeople ? 'value' : undefined}
               showChevron={true}
               chevronSize={18}
             />

@@ -17,7 +17,6 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function SparkInfo() {
   const navigate = useNavigation();
@@ -119,23 +118,10 @@ export default function SparkInfo() {
                   minHeight={56}
                   titleStyle={styles.rowTitle}
                   onPress={openTokenPicker}
-                  trailing={
-                    <View style={styles.valueRow}>
-                      <ThemeText
-                        content={defaultTokenName}
-                        styles={[
-                          styles.valueText,
-                          { color: themeTokens.muted },
-                        ]}
-                      />
-                      <ThemeIcon
-                        redesign
-                        iconName="ChevronRight"
-                        size={18}
-                        colorOverride={themeTokens.muted}
-                      />
-                    </View>
-                  }
+                  value={defaultTokenName}
+                  trailing="value"
+                  showChevron
+                  chevronSize={18}
                 />
               </Animated.View>
             )}
@@ -157,7 +143,5 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 40 },
   infoCard: { marginVertical: 6 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
-  valueRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  valueText: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
   note: { marginTop: 8, marginHorizontal: 4 },
 });

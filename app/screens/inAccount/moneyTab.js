@@ -336,15 +336,8 @@ export default function MoneyTab({ navigation }) {
                 minHeight={64}
                 paddingVertical={8}
                 lead={<Disc icon={row.icon} size={40} />}
-                trailing={
-                  row.value ? (
-                    <ThemeText
-                      content={row.value}
-                      CustomNumberOfLines={1}
-                      styles={[styles.rowValue, { color: tokens.muted }]}
-                    />
-                  ) : undefined
-                }
+                value={row.value ? row.value : undefined}
+                trailing={row.value ? 'value' : undefined}
                 showChevron
                 chevronSize={18}
                 onPress={() => navigate.navigate(row.route)}
