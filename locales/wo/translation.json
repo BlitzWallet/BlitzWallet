@@ -15,6 +15,7 @@
     "total_balance": "Sa xaalis lépp",
     "sat_balance": "Xaalis ci Bitcoin",
     "usd_balance": "Xaalis ci Dolaar",
+    "amountAvailable": "{{amount}} a am",
     "amount": "Limu xaalis",
     "sent": "Yónneeku na",
     "received": "Jotteeku na",
@@ -48,6 +49,8 @@
     "done": "Mat na",
     "continue": "Wéy",
     "back": "Dellu",
+    "clear": "Far",
+    "openInBrowser": "Ubbi ci navigateur",
     "close": "Tëj",
     "delete": "Far",
     "add": "Yokk",
@@ -57,6 +60,8 @@
     "retry": "Jéemaatal",
     "download": "Wàcce",
     "contactUs": "Jokkoo ak nun",
+    "copyEmail": "Kopi email bi",
+    "openInbox": "Ubbi email yi",
     "pay": "Fey",
     "processing": "Mingi dox",
     "support": "Ndimbal",
@@ -134,7 +139,11 @@
     "stablecoinRefundReceived": "Stablecoin dellu na",
     "payWith": "Fey ak",
     "receiveAs": "Jot ci",
-    "tokens": "Token yi"
+    "tokens": "Token yi",
+    "emailSupport": "Ndimbal ci email",
+    "noName": "Amul tur",
+    "noSearchResults": "Amul lu dëppoo",
+    "noSearchResultsSub": "Jéemal seet beneen mbind."
   },
   "languages": {
     "english": "English",
@@ -142,7 +151,7 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française",
+    "french": "Français",
     "swedish": "Svenska",
     "russian": "Русский",
     "wolof": "Wolof"
@@ -183,7 +192,15 @@
     "weekly": "Ayubés bu nekk",
     "monthly": "Weer wu nekk",
     "yearly": "At mu nekk",
-    "noLimit": "Amul fu mu yem"
+    "noLimit": "Amul fu mu yem",
+    "minutesAgo_one": "{{count}} minit ci ginnaaw",
+    "minutesAgo_other": "{{count}} minit ci ginnaaw",
+    "hoursAgo_one": "{{count}} waxtu ci ginnaaw",
+    "hoursAgo_other": "{{count}} waxtu ci ginnaaw",
+    "daysAgo_one": "{{count}} bés ci ginnaaw",
+    "daysAgo_other": "{{count}} bés ci ginnaaw",
+    "yearsAgo_one": "{{count}} at ci ginnaaw",
+    "yearsAgo_other": "{{count}} at ci ginnaaw"
   },
   "transactionLabelText": {
     "notSent": "Fey bi demul",
@@ -343,7 +360,16 @@
       "wrongPinError": "PIN bi baaxul, jéemaatal",
       "enterPinMessage": "Bindal PIN",
       "attemptsText": "Des na {{attempts}} jéem",
-      "biometricsHeader": "Ubbi ak baaraam walla kanam"
+      "biometricsHeader": "Ubbi ak baaraam walla kanam",
+      "goodMorning": "Subaa bu baax",
+      "goodAfternoon": "Ngoon bu baax",
+      "goodEvening": "Guddi bu baax",
+      "biometricsResetTitle": "Mënunu wóoral sa baaraam walla kanam",
+      "removeWalletLabel": "Dindi kalpe bi ci aparey bii"
+    },
+    "resetSheet": {
+      "deleteWalletData": "Far xibaari kalpe bi",
+      "message": "Ndax bëgg nga far xibaari kalpe bi yépp? Wéyal rekk su fekkee denc nga sa baati jotaat yi ci bérab bu wóor."
     },
     "passwordPage": {
       "enterPasswordMessage": "Bindal baati jàll",
@@ -354,12 +380,15 @@
       "forgotPassword": "Fàtte nga sa baati jàll?",
       "forgotPasswordConfirm": "Fàtte nga sa baati jàll? Yoon wi rekk mooy tàmbaliwaat te jotaat sa kalpe ak sa baati jotaat yi.\n\nNdax bëgg nga far xibaari kalpe bi yépp? Wéyal rekk su fekkee denc nga sa baati jotaat yi ci bérab bu wóor.",
       "storageError": "Mënunu jàng xibaari kalpe bu ñu denc. Jéemaatal.",
+      "forgotPasswordTitle": "Fàtte nga sa baati jàll?",
+      "forgotPasswordMessage": "Yoon wi rekk ngir jotaat mooy tàmbaliwaat te jotaat sa kalpe ak sa baati jotaat yi. Ndax bëgg nga far xibaari kalpe bi yépp? Wéyal rekk su fekkee denc nga sa baati jotaat yi ci bérab bu wóor.",
       "loginButton": "Dugg"
     },
     "passkeyPage": {
       "unlockButton": "Ubbi ak passkey",
       "unlockError": "Mënunu ubbi ak sa passkey",
       "lostPasskey": "Ñàkk nga sa passkey?",
+      "lostPasskeyMessage": "Yoon wi rekk ngir dugaat mooy tàmbaliwaat te jotaat sa kalpe ak sa baati jotaat yi. Ndax bëgg nga far xibaari kalpe bi yépp? Wéyal rekk su fekkee denc nga sa baati jotaat yi ci bérab bu wóor.",
       "lostPasskeyConfirm": "Ñàkk nga sa passkey? Yoon wi rekk ngir dugaat mooy tàmbaliwaat te jotaat sa kalpe ak sa baati jotaat yi.\n\nNdax bëgg nga far xibaari kalpe bi yépp? Wéyal rekk su fekkee denc nga sa baati jotaat yi ci bérab bu wóor."
     }
   },
@@ -442,6 +471,7 @@
     },
     "chatGPT": {
       "newChat": "Waxtaan bu bees",
+      "chats": "Waxtaan yi",
       "loadingMessage": "Mingi yeb waxtaan yi weesu",
       "addCreditsPage": {
         "title": "Yokk kredi",
@@ -468,12 +498,15 @@
       },
       "chatGPTHome": {
         "availableCredits": "Kredi yi des: {{credits}}",
+        "creditsLeft": "{{credits}} kredi yu des",
         "noAvailableCreditsError": "Sa kredi yi jeex nañu.",
         "inputPlaceholder": "Bindal {{gptName}}",
         "youText": "Yaw"
       },
       "confirmLeaveChat": {
-        "title": "Ndax bëgg nga denc sa waxtaan?"
+        "title": "Denc waxtaan wii?",
+        "message": "Waxtaan yi ñu denc dañuy des ci sa limu waxtaan, kon mën nga leen a jël ci kanam.",
+        "dontSave": "Bul denc"
       },
       "confirmationPage": {
         "title": "Dëggal njënd gi",
@@ -481,19 +514,27 @@
         "price": "Njëg: ",
         "fee": "Njëgu jëflante: ",
         "chooseAmount": "Tànnal limu xaalis",
+        "chooseAmountSub": "Kredi ngir waxtaan ak AI. Jënd bu benn yoon rekk.",
+        "custom": "Lu nga bëgg",
+        "buyCredits": "Jënd kredi AI",
+        "slideToPay": "Xëccal ngir fey",
+        "buying": "Mingi jënd {{amount}} ci kredi.",
+        "errorTitle": "Mënunu jënd kredi yi",
         "minimumAmountError": "Lim bi gën a tuuti mooy {{amount}}",
         "maximumAmountError": "Lim bi gën a bari mooy {{amount}}",
         "confirmMessage": "Yangi waaj a jënd ay kredi AI.",
-        "contributionWarning": "Fey bii mënuñu koo neenal. Duñu delloo xaalis bi, doonte jëfandikoowuloo kredi yi."
+        "contributionWarning": "Fey bii mënuñu koo neenal. Mënuñu koo delloo, doonte jëfandikowuloo kredi yi."
       },
       "switchModel": {
         "inputLabel": "Lu dugg: {{amount}}/M",
         "outputLabel": "Lu génnee: {{amount}}/M",
         "chooseModel": "Tànnal model",
+        "searchPlaceholder": "Seet model yi",
         "noModels": "Amul benn model bu am tur boobu. Seetaatal mbind mi walla jéemal beneen tur."
       },
       "exampleSearchCards": {
         "title": "Misaalu laaj yi",
+        "tryAsking": "Jéemal laaj",
         "examples": [
           {
             "topLine": "Naka laa mën a tàmbalee jàng React Native?",
@@ -881,14 +922,19 @@
       "home": {
         "pageDescription": "Yónnee te jot bataaxal SMS te doo joxe sa nimero telefon bu sutura.",
         "pricingError": "Mënunu am njëgu SMS yi",
-        "codeLabel": "Kood"
+        "codeLabel": "Kood",
+        "viewCode": "Xool kodu bi"
       },
       "confirmationSlideUp": {
-        "title": "Dëggal nimero bi",
+        "title": "Bataaxal SMS jëm ci",
         "price": "Njëg: ",
         "fee": "Njëgu jëflante: ",
         "invalidNumber": "Nimero telefon bi baaxul",
-        "receiveTitle": "Dëggal ngir jot"
+        "receiveTitle": "Nimero ngir",
+        "country": "Réew",
+        "refundNote": "Amul kodu ci 21 minit? Dañu la delloo boppam.",
+        "slideToPay": "Xëccal ngir fey",
+        "receivePlanType": "Kodu SMS"
       },
       "sendPage": {
         "startingSendingMessage": "Mingi sos ndigalu yónnee bi",
@@ -907,14 +953,15 @@
         "confirmedMessage": "Sa bataaxal mingi ci yoon",
         "noCountry": "War nga jëkk a tànn benn réew.",
         "countryStepTitle": "Tànnal benn réew",
-        "countryStepSubtitle": "Tànnal kodu réew bu nimero bi nga bëgg a yónnee SMS.",
+        "countryStepSubtitle": "Tànnal réewu nimero bi ngay yónnee SMS.",
         "countrySearchPlaceholder": "Seet réew yi",
         "phoneStepTitle": "Bindal nimero telefon bi",
-        "phoneStepSubtitle": "Bindal nimero bi yépp te bul ci boole kodu réew bi (misaal: 2025551234 ngir (202) 555-1234).",
+        "phoneStepSubtitle": "Bindal nimero bi te bul ci boole kodu réew bi.",
         "invalidMessageError": "Bindal benn bataaxal balaa ngay wéy",
         "descriptionStepTitle": "Bindal sa bataaxal",
-        "descriptionStepSubtitle": "SMS4Sats dafa soxla benn bataaxal. Na gàtt te bañ a weesu 140 araf.",
-        "descriptionInputPlaceholder": "Bindal bataaxal bi"
+        "descriptionStepSubtitle": "Jëm ci {{phone}}. Na gàtt te bañ a weesu 140 araf.",
+        "descriptionInputPlaceholder": "Bindal bataaxal bi",
+        "confirmedSubtitle": "Jëm ci {{phone}} · {{amount}}"
       },
       "sentPayments": {
         "titlesend": "Bataaxal yi nga yónnee",
@@ -928,16 +975,16 @@
         "retryClaim": "Jël kood bi",
         "fetchOrderError": "Mënunu jël taxawaayu ndigal bi",
         "failedUpdate": "Mënunu yeesal taxawaayu ndigal bi",
-        "refundedOrder": "Ndigal bi, delloo nañu ko; xaalis bi dina dellu ci sa kalpe boppam ginnaaw 21 minit",
-        "reclaimComplete": "Jéemaat bi jeex na. Su amul benn kood bu génn, dinañu la delloo sa xaalis ginnaaw 21 minit.",
-        "noCode": "Amul kood",
+        "refundedOrder": "Ndigal bii, delloo nañu ko. Fey bi dina dellu ci sa kalpe boppam.",
+        "reclaimComplete": "Amul kodu ba léegi. Su amul ci 21 minit, dañu la delloo boppam.",
+        "noCode": "Amul kodu ba léegi",
         "rateLimitError": "Laaj yi bari nañu lool. Mën nga def 5 laaj rekk ci 30 segond yu nekk. Xaaral balaa ngay jéemaat.",
         "noPurchasesTitle": "Amagul benn bataaxal SMS bu nga yónnee walla nga jot. Bu am, dinañu feeñ fii."
       },
       "receivePage": {
         "paymentMemo": "Bitig - Jot SMS",
         "selectCountry": "Tànnal réew",
-        "autoSelectInfoMessage": "Danuy la digal nga bàyyi ko ci 'Tànn boppam' ngir sistem bi tànn li gën a wóor.",
+        "autoSelectInfoMessage": "Tànnal réewu sa nimero. Tànn boppam dafay tànn li gën a wóor.",
         "autoSelect": "Tànn boppam",
         "inputPlaceholder": "Seet benn sarwiis",
         "locationLoadingMessage": "Mingi jël sarwiis yi aju ci sa bérab",
@@ -945,19 +992,26 @@
         "orderDetailsLoading": "Mingi jël leerali ndigal bi",
         "countryStepTitle": "Tànnal benn réew",
         "countrySearchPlaceholder": "Seet réew yi",
-        "fetchServicesError": "Mënunu yeb sarwiis SMS yi jàppandi"
+        "fetchServicesError": "Mënunu yeb sarwiis SMS yi jàppandi",
+        "recommended": "Ñu koy digal",
+        "serviceStepTitle": "Ban app la kodu bi ngir?",
+        "serviceStepSubtitle": "Dinga jot benn nimero ngir bind ci, te kodu bi dina feeñ fii."
       },
       "confirmCodePage": {
-        "header": "Sa ndigal tàmbali na bu baax",
+        "header": "Sa nimero pare na",
         "phoneNumberLabel": "Sa nimero:",
-        "step1": "Bësal nataalu resi bi ci kaw ci ndijoor ngir xool jaar-jaaru sa ndigal yi",
-        "step2": "Jëfandikool butoŋ 'Jël kood bi' ci xët wu njëkk wi ngir jël sa koodu wóoral, ginnaaw boo yokkee nimero bi ci sarwiis bi",
-        "step3": "Su ñu jotul benn kood, dinañu delloo sa fey boppam ci 21 minit",
-        "automaticRefund": "Amul benn nimero bu jàppandi ci sarwiis bii. Delloo nañu la sa xaalis ba noppi.",
-        "waitedRefund": "Amul benn nimero bu jàppandi ci sarwiis bii. Dinañu la delloo sa xaalis boppam ginnaaw 21 minit."
+        "step1": "Bindal nimero bii ci {{title}}.",
+        "step2": "Dellul te bësal Jël kodu bi ci SMS yi.",
+        "step3": "Amul kodu ci 21 minit? Dañu la delloo boppam.",
+        "automaticRefund": "Amul benn nimero bu jàppandi ci sarwiis bii. Fey bi dina dellu ci sa kalpe boppam.",
+        "waitedRefund": "Amul benn nimero bu jàppandi ci sarwiis bii. Dinañu la delloo sa xaalis boppam ginnaaw 21 minit.",
+        "paidSubtitle": "{{title}} · feyu nañu {{amount}}",
+        "stillAllocating": "Sa nimero paregul. Xool SMS yi ci benn minit. Su fekkee joxuñu la benn nimero, dañu la delloo boppam."
       },
       "viewSMSReceiveCode": {
-        "header": "Sa kood"
+        "header": "Sa kood",
+        "headerFor": "Sa kodu {{title}}",
+        "dontShare": "Bul séddoo kodu bii ak kenn."
       }
     },
     "onlineListings": {
@@ -1140,15 +1194,22 @@
       "transferringFunds": "Mingi jàllale xaalis bi...",
       "failedToTransfer": "Mënunu jàllale xaalisu koti bi",
       "notFound": "Gisunu koti bi",
+      "unknown": "Xamuñu ko",
+      "maxPoolsReached": "Yeg nga ci lim bi gën a bari ci koti yi",
+      "swapSimulationFailed": "Simulationu wecci bi jàppandiwul",
+      "paymentFailed": "Fey bi antuwul",
+      "blitzUser": "Jëfandikukat Blitz",
+      "ofAmount": "ci {{amount}}",
       "closePoolTitle": "Tëj koti bii?",
-      "closePoolWarning": "Xaalis bi yépp dinañu ko jàllale ci sa kalpe bu mag. Koti bii dina noppi nangu fey te mënuñu koo ubbiwaat.",
+      "closePoolWarning": "{{amount}} yépp dina jàllale ci sa kalpe bu mag. Koti bii dina noppi nangu fey te mënuñu koo ubbiwaat.",
       "closePool": "Tëj koti bi",
       "goal": "Jubluwaay: ",
       "payment_one": "{{count}} fey",
       "payment_other": "{{count}} fey",
       "closed": "Tëj nañu ko ",
       "pool": "Koti",
-      "couldNotFind": "Gisunu koti bii.",
+      "couldNotFindTitle": "Gisunu koti bi",
+      "couldNotFindSub": "Mën na ne dindi nañu koti bii walla amul léegi.",
       "createdBy": "Ki ko sos: ",
       "moneyTransferred": "Xaalis bi jàll na ci kalpe bu mag bi",
       "contribute": "Koti",
@@ -1161,7 +1222,7 @@
       "sendingContribution": "Mingi yónnee sa koti...",
       "contributionSent": "Sa koti dem na!",
       "contributeTo": "ci ",
-      "contributionWarning": "Fey bii mënuñu koo neenal. Duñu delloo koti yi, doonte jubluwaayu koti bi matul.",
+      "contributionWarning": "Fey bii mënuñu koo neenal. Mënuñu koo delloo koti yi, doonte koti bi matul jubluwaayam.",
       "chooseContributionAmount": "Tànnal limu sa koti",
       "organizer": "Ki koy jiite",
       "contributorCount_one": "{{count}} nit",
@@ -1171,7 +1232,8 @@
       "late_pool_contribution_label": "Koti bu yéex ci \"{{poolName}}\"",
       "activitySection": "Li xew",
       "active": "Ubbeeku na",
-      "savingPoolError": "Mënunu sos koti bii. Jéemaatal.",
+      "savingPoolErrorTitle": "Mënunu sos koti bi",
+      "savingPoolErrorSub": "Mënunu sos koti bii. Jéemaatal.",
       "info": {
         "title": "Ci mbirum koti yi",
         "whatArePools": "Lan mooy koti?",
@@ -1183,7 +1245,18 @@
         "howStep4": "• Tëjal koti bi boo pare ngir toxal xaalis bi ci sa kalpe"
       },
       "noPoolsTitle": "Amul koti bu ñu sos",
-      "noPoolsSubTitle": "Boo sosee koti, dina feeñ fii, muy bu ubbeeku walla bu ñu tëj."
+      "noPoolsSubTitle": "Boo sosee koti, dina feeñ fii, muy bu ubbeeku walla bu ñu tëj.",
+      "viewActivityTitle": "Sa koti yi",
+      "activityInfoHeader_one": "{{count}} nit fey na {{contributionAmount}} ci {{totalAmount}}.",
+      "activityInfoHeader_other": "{{count}} nit fey nañu {{contributionAmount}} ci {{totalAmount}}.",
+      "closePoolLoadingTitle": "Mingi tëj koti bi",
+      "closePoolLoadingSub": "Bàyyil app bi ubbi ba mu jeex.",
+      "poolGoal": "Jubluwaayu koti bi",
+      "other": "Yeneen",
+      "available": "Li am: {{amount}}",
+      "minimum": "Lu néew néew: {{amount}}",
+      "slideToContribute": "Xëccal ngir koti",
+      "sentTo": "Jëm ci {{name}}"
     },
     "cameraModal": {
       "noCamera": "Amul sañ-sañ ci kamera bi",
@@ -1196,7 +1269,10 @@
       "noFlash": " Aparey bi amul làmp",
       "scanningResponse": "Kodu QR rekk lañu nangu.",
       "qrDecodeError": "Njuumte ci jàngum kodu QR bi",
-      "scanHint": "Jublul sa kamera ci kodu QR bi"
+      "scanHint": "Jublul sa kamera ci kodu QR bi",
+      "chooseImage": "Tànnal nataal",
+      "pasteClipboard": "Taqal ci li nga kopi",
+      "flash": "Flash"
     },
     "confirmClipboard": {
       "clipboardContent": "Mbind mi, kopi nañu ko",
@@ -1300,10 +1376,27 @@
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minit"
       },
+      "reviewParts": {
+        "splitNamesOne": "{{first}}",
+        "splitNamesTwo": "{{first}} ak {{second}}",
+        "splitNamesThree": "{{first}}, {{second}} ak {{third}}",
+        "splitNamesMore": "{{first}}, {{second}}, {{third}} ak {{count}} yeneen",
+        "splitEach": "{{amount}} ku nekk",
+        "splitDifferent": "Lim yu wuute",
+        "sending": "Mingi yónnee",
+        "slideToSend": "Xëccal ngir yónnee",
+        "verified": "Wóoral na",
+        "viewAddress": "Xool adrees bi",
+        "verifiedBody": "Branta wóoral na ne laaju fey bii jóge ci {{merchantName}} dëgg, kon xam na ku ngay fey.",
+        "verifiedBodyNoName": "Branta wóoral na ne laaju fey bii dëgg la, kon xam na ku ngay fey.",
+        "checkAddress": "Xool ne dëppoo na ak bi ñu la jox.",
+        "checkAddress_receive": "Xool ne dëppoo na ak bi nga séddoo."
+      },
       "selectLRC20Token": {
         "title": "Tànnal token",
         "searchPlaceholder": "Turu token...",
-        "noTokensFoundText": "Gisunu benn token"
+        "noTokensFoundText": "Gisunu benn token",
+        "noTokensFoundSub": "Soppil sa seet ngir mën a jëfandikoo token bi."
       },
       "sendMaxComponent": {
         "sendMax": "Yónnee lépp",
@@ -1338,7 +1431,27 @@
         "receive": "Jot",
         "scan": "Sikaane",
         "swap": "Wecci",
-        "deposit": "Dugal"
+        "deposit": "Dugal",
+        "backupTitle": "Dencal sa kalpe",
+        "backupSub": "Dencal sa baati jotaat yi ci bérab bu wóor",
+        "connectionTitle": "Mënuloo lëkkaloo léegi",
+        "connectionSub": "Mingi wone sa xaalis ci {{time}}",
+        "tokensOne": "{{first}}",
+        "tokensTwo": "{{first}} ak {{second}}",
+        "tokensMore": "{{first}}, {{second}} ak {{count}} yeneen"
+      },
+      "balancePage": {
+        "receiveBitcoin": "Jot Bitcoin",
+        "receiveDollars": "Jot Dolaar",
+        "emptyBitcoin": "Bitcoin bi ngay yónnee ak bi ngay jot dina feeñ fii.",
+        "emptyDollars": "Dolaar yi ngay yónnee ak yi ngay jot dinañu feeñ fii.",
+        "emptyTokens": "Token yi ngay yónnee ak yi ngay jot dinañu feeñ fii.",
+        "balances": "Xaalis yi",
+        "viewAllTokens": "Xool {{count}} token yépp",
+        "allTokens": "Token yépp",
+        "searchTokens": "Seet token yi",
+        "tokenOnSpark": "Token ci Spark",
+        "ticker": "Ticker"
       },
       "lrc20Assets": {
         "actionText": "{{action}} token",
@@ -1381,6 +1494,10 @@
       "recipientGets": "Li mu ciy jot",
       "youSend": "Li ngay yónnee",
       "quoteExpiresIn": "Njëg gi dina jeex ci",
+      "bitcoinAmount": "Limu Bitcoin",
+      "usdAmount": "Limu USD",
+      "sendingTo": "Mingi yónnee ci {{address}}",
+      "sendingToOn": "Mingi yónnee ci {{address}} ci {{chain}}",
       "payWithUSDb": "Fey ak USDb",
       "chainNotSupportedForAsset": "Jàppandiwul ci rezo bii",
       "swapInProgress": "Fey bi mingi dox",
@@ -1391,7 +1508,7 @@
       "swapStatus": "Taxawaayu fey bi",
       "chainSwap": "Stablecoin",
       "assetPicker": {
-        "header": "Tànnal xeetu xaalis bi nga bëgg a yónnee.",
+        "header": "Tànnal xeetu xaalis",
         "notAvailable": "Jàppandiwul ci {{chain}}"
       },
       "networkLabel": "{{currency}} ci {{chain}}"
@@ -1409,11 +1526,15 @@
       "unknownSender": "Yónneekat bu ñu xamul",
       "noContactSearch": "Jokkoo bii nekkagul ci sa lim.",
       "notFound": "gisuñu ko.",
+      "favorites": "Yi nga bëgg",
+      "allContacts": "Jokkoo yépp",
+      "giftCards": "Kartu kado yi",
+      "newRequest": "Laaj bu bees",
       "noContent": {
         "editProfileTitle": "Soppil sa profil",
         "editProfileDescription": "Yokkal say leeral ngir ñeneen ñi mën la gis te fey la ci lu yomb.",
-        "addContactstitle": "Yokkuloo benn jokkoo",
-        "addContactsDescription": "Sa jokkoo yi dinañu feeñ fii boo yokkee benn"
+        "addContactstitle": "Amul jokkoo léegi",
+        "addContactsDescription": "Yokkal nit yi ngay fey ëpp. Seetal seen turu jëfandikukat walla sikaane seen kodu."
       }
     },
     "addContactsHalfModal": {
@@ -1424,12 +1545,20 @@
       "noProfilesFound": "Amul benn profil bu dëppoo ak seet bii",
       "startTypingMessage": "Seetal ak adreesu Lightning (misaal: name@service.com) walla turu jëfandikukat Blitz.",
       "loadingMessage": "Mingi seet jokkoo bi...",
-      "profileImage": "Mingi yeb nataalu profil bi..."
+      "profileImage": "Mingi yeb nataalu profil bi...",
+      "blitzUsers": "Jëfandikukat Blitz",
+      "noProfilesHint": "Xool mbind mi, walla seet seen adreesu Lightning.",
+      "lightningAddress": "Adreesu Lightning",
+      "noName": "Tur dencuñu ko",
+      "scanLabel": "Sikaane kodu QR bu jokkoo"
     },
     "expandedContactPage": {
       "loadingContactError": "Mënunu yeb jokkoo bi, jéemaatal.",
       "requestLNURLError": "Mën nga laaj xaalis rekk ci jokkoo yu Blitz, du ci adreesu Lightning.",
-      "noTransactions": "Yónneel walla laajal ab fey ngir gis sa jaar-jaaru jëflante."
+      "noTransactions": "Yónneel walla laajal ab fey ngir gis sa jaar-jaaru jëflante.",
+      "waitingOnYou": "Xaar na la",
+      "favoriteLabel": "Bëgg",
+      "editLabel": "Soppi jokkoo"
     },
     "expandedMessageHalfModal": {
       "title": "Bataaxal bi yépp",
@@ -1446,32 +1575,52 @@
       "uniqueNameInputPlaceholder": "Bindal sa turu jëfandikukat",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Bindal bio bu gàtt",
-      "addContactBTN": " Yokk jokkoo",
       "unqiueNameRegexError": "Sa turu jëfandikukat mën na am araf, nimero, walla underscore (_) rekk, te war na am 1 araf lu néew néew.",
       "usernameAlreadyExistsError": "Turu jëfandikukat bii am na ba noppi, tànnal beneen.",
       "unableToSaveError": "Mënunu denc nataalu profil bi, jéemaatal.",
       "deleteProfileImageError": "Mënunu far nataalu profil bi, jéemaatal.",
       "deleteWarning": "Ndax wóor na la ne bëgg nga far jokkoo bii? Bataaxal yu weesu ayubés, mënuñu leen a delloo.",
+      "deleteContact": "Far jokkoo bi",
+      "deleteContactTitle": "Far {{name}}?",
+      "deleteContactMessage": "Bataaxal yu gën a yàgg ayubés mënuñu leen a delloo.",
       "receiveCurrencyPillTitle": "Xaalis bi ngay jot",
       "receiveCurrencyPillDesc": "Tànnal naka ngay jote ak sa adreesu Lightning",
       "invalidCharactersError": "Tur ak bio mënuñu am araf yii: < > { } ` \\",
       "invalidReceiveAddressError": "Bindal adreesu Lightning bu baax (misaal: user@domain.com)",
       "aboutYou": "Ci sa mbir",
       "lightningAddress": "Adreesu Lightning",
-      "addContactLightningAddress": "Adreesu Lightning"
+      "addContactLightningAddress": "Adreesu Lightning",
+      "share": "Séddoo",
+      "tipPage": "Xëtu pourboire",
+      "shareHint": "Ñoom ñaar dañuy soppiku boo soppee sa turu jëfandikukat.",
+      "copyLightningAddress": "Kopi adreesu Lightning",
+      "copyTipPage": "Kopi lienu xëtu pourboire",
+      "profilePhoto": "Nataalu profil",
+      "choosePhoto": "Tànnal nataal bu bees",
+      "deletePhoto": "Far nataal bi",
+      "deletePhotoConfirm": "Far sa nataal?",
+      "delete": "Far"
     },
     "remotePaymentCurrencySelect": {
       "title": "Xaalis bi ngay jot",
       "description": "Tànnal naka ngay jote fey yu sa jokkoo yi ak sa adreesu Lightning.",
       "futurePaymentsMessage": "Jot ci {{option}}",
-      "warningMessage": "Boo tànnee {{option}}, lu néew néew mooy {{amount}}. Fey yu gën a tuuti dinga leen jot ci Bitcoin.",
+      "arriveAsSats": "Fey yi dañuy ñëw ci sats",
+      "arriveAsDollars": "Fey yi dañuy ñëw ci dolaar",
+      "warningMessage": "Fey yu gën a tuuti {{amount}} dañuy ñëw ci Bitcoin.",
       "changeSelectionError": "{{option}} tànn nañu ko ba noppi. Soppil sa tànn ngir yeesal sa tànneef."
     },
     "selectCurrencyToSend": {
       "header": "Lan nga bëgg a yónnee?"
     },
     "selectCurrencyToRequest": {
-      "header": "Lan nga bëgg a laaj?"
+      "header": "Lan nga bëgg a laaj?",
+      "paidInSats": "Feyu nañu ci sats",
+      "paidInUsd": "Feyu nañu ci USD"
+    },
+    "confirmRequestPage": {
+      "requestSent": "Laaj bi dem na",
+      "toName": "Jëm ci {{name}}"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Yónnee Bitcoin",
@@ -1494,7 +1643,10 @@
       "giftMessagePlaceholder": "Bindal bataaxalu sa kado fii...",
       "paymentSourceHeader": "Fi fey bi di jóge",
       "fiatRateLoading": "Mingi yeb njëgu wecci gi",
-      "fiatRateLoadFailed": "Mënunu yeb njëgu wecci gi"
+      "fiatRateLoadFailed": "Mënunu yeb njëgu wecci gi",
+      "splitWithMore": "Séddale ak ñeneen",
+      "noteFor": "ngir",
+      "notePlaceholder": "añ"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Mënunu yeb sa kartu kado léegi. Jéemaatal.",
@@ -1504,31 +1656,42 @@
       "openClaimText": "Ubbi kartu kado bi",
       "instructionsHeader": "Ndigal yi ngir jëfandikoo ko",
       "terms&conditions": "Sàrt yi",
-      "cardUUID": "UUID kart bi",
+      "cardUUID": "ID kart bi",
       "helpHeader": "Soxla nga ndimbal?",
-      "helpDesc": "Soo soxlaa ndimbal ci kartu kado bii, kopil UUID kart bi ci kaw te boole ko ci sa email bu ngay yónnee sunu ekibu ndimbal.",
+      "helpDesc": "Soxla nga ndimbal? Kopil ID kart bi te boole ko ci sa email jëm ci ndimbal.",
       "unpaidMessage": "Kart bii, feyuñu ko. Su fekkee fey nga waaye feeñul, jëfandikool email bi ci suuf ngir am ndimbal.",
       "messageLabel": "Bataaxal:",
       "claimed": "Jëfandikoo nañu ko",
-      "markAsClaimed": "Tegal ko ni lu ñu jëfandikoo"
+      "markAsClaimed": "Tegal ko ni lu ñu jëfandikoo",
+      "markAsUnclaimed": "Teg ko ni lu ñu jëfandikowul",
+      "title": "Kartu kado",
+      "detailsHeader": "Ay leeral",
+      "cardFrom": "{{card}} · Bawoo ci {{name}}"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
-        "pageMessage": "Ndax bëgg nga {{option}} {{option2}} nataal"
+        "pageMessageHasImage": "Ndax bëgg nga soppi walla far sa nataal?",
+        "pageMessageNoImage": "Ndax bëgg nga yokk ab nataal?"
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} sa laaj",
         "acceptProfileMessage": "Fey nga laaju {{name}}",
         "acceptPayingContactMessage": "{{name}} fey na sa laaj",
         "requestTitle": "Jot nga laaj bu {{amount}}",
+        "requestedAmount": "{{name}} laaj na {{amount}}",
+        "theySentYou": "{{name}} yónnee na la",
+        "youPaid": "Fey nga {{name}}",
         "send": "Yónnee"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Kartu kado",
         "noCardsText": "Sa kartu kado yi dinañu feeñ fii bu benn jokkoo yónneel la benn.",
-        "header": "Sa kartu kado yi",
+        "header": "Kartu kado yi",
         "cardsLengthSingular": "{{num}} kart",
-        "cardsLengthPlural": "{{num}} kart"
+        "cardsLengthPlural": "{{num}} kart",
+        "cardTitle": "Kartu kado {{store}}",
+        "fromDate": "Bawoo ci {{name}} · {{date}}",
+        "recoveryNote": "Mën nga jotaat kartu kado bi 7 bés ginnaaw bi ñu ko yónnee. Ginnaaw loolu, su nga farree app bi walla far xibaaram, dina réer."
       }
     },
     "showProfileQr": {
@@ -1538,21 +1701,27 @@
       "copyMessage": "Kopi nañu ko!",
       "lnurlCopy": "Kopi adrees bi",
       "blitzCopy": "Kopi lien bi",
-      "scanProfile": "Sikaane profil"
+      "scanProfile": "Sikaane profil",
+      "shareMessage": "Salaam, yokk ma ci Blitz! {{address}}",
+      "copyAddress": "Kopi sa adreesu Lightning",
+      "qrCode": "Kodu QR",
+      "printHint": "Sikaane kodu bii ngir fey ma walla yokk ma ci Blitz"
     },
     "splitBill": {
       "addFriendsTitle": "Yokk ay xarit",
-      "createBillTitle": "Sos",
+      "createBillTitle": "Séddale",
       "selectedCount": "Tànn nga {{count}} ci 10",
       "searchPlaceholder": "Seet jokkoo yi",
       "nextButton": "Ci kanam",
       "memoLabel": "Leeral",
       "memoPlaceholder": "Lii ngir lan la?",
       "totalAmountLabel": "Mboolem xaalis bi",
+      "totalSub": "{{amount}} lépp",
       "evenSplit": "Yem",
       "customSplit": "Lu nga bëgg",
       "remainderNote": "{{amount}} sat yi des dinañu des ci yaw",
       "perPerson": "{{amount}} / nit",
+      "personShare": "Wàllu {{name}}",
       "confirmButton": "Dëggal",
       "maxContactsWarning": "10 jokkoo rekk ci benn séddale",
       "insufficientFunds": "Sa xaalis doyul. Des na la {{shortfall}} sats.",
@@ -1586,6 +1755,11 @@
     "index": {
       "editProfile": "Soppi profil",
       "showQR": "Wone QR",
+      "changePhoto": "Soppi nataal",
+      "backup": "Denc",
+      "social": "Sociyal",
+      "pointOfSale": "Barabu jaay",
+      "nostr": "Nostr",
       "identiconMessage": "Nataal bii, sa kalpe rekk a ko am, te dina dimbali ñeneen ñi wóor ne yaw la dëgg bu ñuy yokk sa jokkoo.",
       "profileHead": "Profil",
       "settingsHead": "Tànneef yi",
@@ -1632,10 +1806,10 @@
       "light": "Leer",
       "lightsOut": "Lëndëm kukk",
       "dim": "Lëndëm tuuti",
-      "balDisplay": "Wone xaalis",
+      "balDisplay": "Xaalis",
       "prev": "Misaal",
-      "denomination": "Natt",
-      "displayForm": "Melo wone gi",
+      "denomination": "Wone xaalis ni",
+      "displayForm": "Melo Bitcoin",
       "homepage": "Xët wu njëkk",
       "txToDisplay": "Jëflante yi ñuy wone",
       "hideSmallPayments": "Nëbb fey yu tuuti",
@@ -1646,11 +1820,11 @@
       "transactionsLabel_30": "30 jëflante",
       "transactionsLabel_35": "35 jëflante",
       "transactionsLabel_40": "40 jëflante",
-      "privFeat": "Sutura & Jumtukaay",
+      "privFeat": "Sutura",
       "cameraSwipe": "Xëcc ngir ubbi kamera",
       "cameraSwipeDesc": "Xëccal sa baaraam ci ndijoor ci ekraan bu mag bu nekk ngir ubbi kamera bi.",
       "unkownSenders": "Nëbb yónneekat yu ñu xamul",
-      "unknownSenderDesc": "Nëbb jëflante yu jóge ci jokkoo yu ñu xamul",
+      "unknownSenderDesc": "Nëbb jëflante yu jóge ci nit yu dul sa jokkoo",
       "text1": "Melokaanu lëndëm",
       "text2": "Lëndëm kukk",
       "text3": "Lëndëm tuuti",
@@ -1673,22 +1847,24 @@
       "sliderTitle_enabled": "Wone token BTKN yi",
       "thousandsSeperator": "Xàjjale junni yi",
       "space": "Bérab bu neen",
-      "local": "Melo nimero yu réew mi"
+      "local": "Réew"
     },
     "fastPay": {
       "text1": "Njuumte ci yokk lim bi. Jéemaatal.",
       "text2": "Limu xaalis bi mënul a doon 0",
       "text3": "Doxal Fey bu gaaw",
       "text4": "Lim bu gën a bari ci Fey bu gaaw",
-      "text5": "Fey bu gaaw dafay may nga yónnee ci saa si fey yu gën a tuuti lim bi nga tànn, te doo soxla xëcc ngir dëggal.",
+      "text5": "Fey bu gaaw dafay yónnee fey yu gën a tuuti lim bii ci saa si, te doo soxla xëcc ngir dëggal.",
       "text6": "Léegi",
-      "text7": "Bu bees"
+      "text7": "Bu bees",
+      "editThresholdA11y": "Soppi lim bi"
     },
     "loginSecurity": {
       "text1": "Doxal kaaraangeg dugg",
-      "text2": "Xeetu kaaraange",
+      "text2": "Ubbi ak",
       "text3": "PIN",
       "text4": "Baaraam walla kanam",
+      "passwordMethod": "Baati jàll",
       "text5": "Aparey bi amul baaraam walla kanam bu ñu denc. Sosal ko ci Tànneefu aparey bi ngir wéy.",
       "text6": "Njuumte ci dugg ak baaraam walla kanam",
       "text7": "Aparey bi nanguwul dugg ak baaraam walla kanam",
@@ -1701,9 +1877,10 @@
       "createPinPageHeader": "{{type}} sa PIN Blitz",
       "invalidPinconfirmation": "PIN yi yemuñu. Jéemaatal!",
       "randomPinKeyboardToggle": "Jaxase klawie bi",
+      "randomPinKeyboardSubtitle": "Jaxase nimero PIN yi saa bu nekk boo ubbee.",
       "randomPinKeyboardInfo": "Doxal jumtukaay bii ngir jaxase nimero yi ci klawie bi saa yu ngay dugg. Dafay yokk kaaraange, ndax ku nekk ci sa wet du yomb mu xam naka ngay bind sa PIN.",
       "biometricsHead": "Ci mbirum baaraam ak kanam",
-      "biometricsSubHead": "Sa baati jotaat yi, baaraam walla kanam bi nga denc ci aparey bii moo leen aar. Soo leen soppee, Blitz Wallet du mën a jot ci sa baati jotaat yi te doo mën a dugg ci sa kalpe.",
+      "biometricsSubHead": "Sa baati jotaat yi, baaraam walla kanam bi ci telefon bii moo leen aar. Soo leen soppee, Blitz du mën a jot ci sa baati jotaat yi te doo mën a dugg ci sa kalpe.",
       "changePasswordTitle": "Soppi baati jàll",
       "currentPasswordSubtitle": "Bindal sa baati jàll bi ngay jëfandikoo léegi ngir soppi ko.",
       "currentPasswordPlaceholder": "Baati jàll bu léegi",
@@ -1727,8 +1904,9 @@
       "switchedToPassword": "Jàll nga ci baati jàll"
     },
     "seedPhrase": {
-      "header": "Dencal baati jotaat yii ci bérab bu wóor te sutura",
-      "headerDesc": "Bul leen séddoo ak kenn!",
+      "header": "Dencal baati jotaat yii ci bérab bu wóor",
+      "headerDesc": "Bul leen séddoo ak kenn.",
+      "accountTitle": "Baati jotaat",
       "qrWarning": "Ndax wóor na la ne bëgg nga wone kodu QR bii?\n\nSikaane sa baati jotaat yi dafa yomb, waaye wóoral ne aparey bu wóor te nga gëm ngay jëfandikoo. Loolu dafay aar sa kalpe.",
       "wordsText": "Baat yi",
       "qrText": "Kodu QR",
@@ -1739,8 +1917,8 @@
         "point2_accounts": "Ku leen am, mën na sàcc sa xaalis. Amul benn pexe ngir jotaat xaalis bu réer.",
         "point3_accounts": "Bul leen séddoo ak kenn mukk—du nit, du xëtu internet, du app.",
         "title_settings": "Nëbbal sa baati jotaat yi",
-        "point1_settings": "Sa baati jotaat yu sutura yi ñoo mel ni caabi ju mag ji ubbi sa kalpe.",
-        "point2_settings": "Ku leen am, mën na sàcc sa xaalis. Amul benn pexe ngir jotaat xaalis bu réer.",
+        "point1_settings": "Sa baati jotaat yi ñoo mel ni caabi ju mag ji ubbi sa kalpe.",
+        "point2_settings": "Ku leen am mën na jël sa xaalis, te xaalis bu réer mënuñu koo jotaat.",
         "point3_settings": "Bul leen séddoo ak kenn mukk—du nit, du xëtu internet, du app.",
         "checkbox": "Dégg naa ne séddoo sama baati jotaat yi mën na tax ma ñàkk sama xaalis ba fàww.",
         "continueButton": "Wéy"
@@ -1749,7 +1927,8 @@
     "crashReporting": {
       "crashreporting_enabled": "Xamleg njuumte, mingi dox",
       "crashreporting_disabled": "Xamleg njuumte, taxaw na",
-      "descriptionText": "Xibaari njuumte yi dañuy dimbali nu ngir gën a dëgëral te gaawal sunu app.\n\nBu app bi tasee, xibaar yi ci aparey bi ñuy denc boppam ñoo di:\n\n• Sistem bi: version OS, naka la aparey bi tëdde, ak ndax dañu ko jailbreak\n• Leerali aparey bi: model, naka la tëdde, ak RAM bi des\n• Xibaari njuumte gi: bésu njuumte gi ak version app bi"
+      "switchLabel": "Xamle njuumte",
+      "descriptionText": "Xibaari njuumte yi dañuy dimbali nu ngir gën a dëgëral te gaawal sunu app.\n\nBu app bi tasee, xibaar yi ci aparey bi ñuy denc boppam ñoo di:\n\n• Sistem bi: version OS ak ndax dañu ko jailbreak\n• Leerali aparey bi: model, naka la tëdde, ak RAM bi des\n• Xibaari njuumte gi: bésu njuumte gi ak version app bi"
     },
     "accounts": {
       "inputPlaceholder": "Seet kont bu am",
@@ -1817,6 +1996,7 @@
         "placeholder": "Turu kont bi",
         "next": "Ci kanam",
         "create": "Sos kont",
+        "managedSubtitle": "Dina doon kont bu ñu toppatoo. Joxal ko tur ngir nga mën koo xàmmee ci kanam.",
         "editTitle": "Soppi turu kont bi",
         "editSubtitle": "Tànnal tur bu bees ngir nga mën a xàmmee kont bii ci kanam."
       },
@@ -1842,7 +2022,7 @@
         "usernameLabel": "Sa turu jëfandikukat: {{name}}",
         "codeNavTitle": "Séddoo kood bi",
         "codeTitle": "Séddoo koodu lëkkale bii",
-        "codeSubtitle": "Séddoo kood bii ngir mu mën a bokk ci sa kalpe bu ñu séddoo.",
+        "codeSubtitle": "Séddoo kood bii ngir mu mën a bokk ci sa kalpe bu ñu toppatoo.",
         "waiting": "Mingi xaar mu bind kood bi…",
         "sasNavTitle": "Wóoral mandarga yi",
         "sasTitle": "Wóoral mandarga yi",
@@ -1876,7 +2056,7 @@
       },
       "transactions": {
         "title": "Li xew",
-        "noTxHistorySub": "Jëflante yu kont bi dinañu feeñ fii su amee lu ñu yónnee walla lu ñu jot."
+        "noTxHistorySub": "Fey yu {{name}} dinañu feeñ fii su yónnee walla jotee benn."
       },
       "page": {
         "title": "Kont bu ñuy toppatoo",
@@ -1953,13 +2133,17 @@
     "sparkInfo": {
       "title": "Xibaari kalpe bi",
       "sparkAddress": "Adreesu Spark",
-      "pubKey": "Caabi bu ubbeeku"
+      "pubKey": "Caabi bu ubbeeku",
+      "copyA11y": "Kopi {{label}}"
     },
     "sparkLrc20": {
       "balanceError": "Li nga am léegi ci sa kalpe mooy {{balance}}. Blitz dafay yokk njëg gu tollu ci {{fee}} ci fey BTKN yépp. Wóoral ne am nga tuuti Bitcoin ci sa kalpe ngir yónnee token.",
       "title": "Tànneefu Spark",
       "sliderTitle_enabled": "BTKN mingi dox",
       "sliderTitle_disabled": "BTKN taxaw na",
+      "switchLabel": "Token BTKN",
+      "switchSub": "Yónnee te jot token ci rezo Spark.",
+      "disclaimer": "Blitz ab kalpe Bitcoin la te du digal token yi. Lii nekk na ngir nga mën a jëfandikoo xarala bi nga tànn.",
       "sliderDesc": "BTKN mooy token bu Spark ci boppam. Soo doxalee BTKN, mën nga yónnee te jot token ci rezo Spark.\n\nBlitz ab kalpe la bu jublu ci Bitcoin. Duñu xiir walla digal jëfandikoo token. Jumtukaay bii am na ndax danu gëm ne jëfandikukat yi war nañu am sañ-sañu jëfandikoo xarala bi ñu bëgg.",
       "selectTokenHeader": "Token bu jëkk",
       "selectTokenInformationPopup": "Tànnal token bi nga bëgg a jëfandikoo ci kanam bu ngay yónnee fey. Bul jaaxle—mën nga koo soppi ci xëtu fey bi saa su la neexee."
@@ -1989,6 +2173,7 @@
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
+      "subtitle": "Jàllale Rootstock",
       "id": "ID",
       "swapDetails": "Leerali jàllale bi",
       "claimAddress": "Adreesu jël",
@@ -2030,27 +2215,30 @@
       "mainToggle": "Nangu xamle yi",
       "allowPush": "Nangu xamle push yi",
       "disablePush": "Tëj xamle push yi",
-      "updateInSettings": "Soppi ko ci tànneefu app bi",
+      "updateInSettings": "Soppi ko ci tànneefu telefon bi",
       "open": "Ubbi",
+      "openA11y": "Ubbi tànneefu aparey bi",
       "disabledTitle": "Xamle yi tëj nañu",
-      "disabledSubtitle": "Nangul xamle push yi ci kaw ngir tànn ban fey ak ban xew-xew ngay am xamle.",
-      "optionsTitle": "Tànneefu xamle yi",
-      "contact": "Jokkoo",
-      "contactDesc": "Fey yi nga jot ci sa jokkoo yi",
+      "disabledSubtitle": "Nangul xamle push yi ci kaw ngir tànn ban fey nga bëgg a xamle.",
+      "optionsTitle": "Xamle ma ci",
+      "contact": "Jokkoo yi",
+      "contactDesc": "Fey yi jóge ci sa jokkoo yi",
       "lnurl": "Adreesu Lightning",
-      "lnurlDesc": "Fey yi nga jot ci sa adreesu Lightning",
+      "lnurlDesc": "Fey yi ñu yónnee ci sa adreesu Lightning",
       "nostrZaps": "Zap yu Nostr",
-      "nostrZapsDesc": "Fey zap yi ñu yónnee ci sa profil Nostr",
+      "nostrZapsDesc": "Zap yi ñu yónnee ci sa profil Nostr",
       "nwc": "Wallet Connect",
-      "nwcDesc": "Xew-xew yi nga jot jaarale ko ci Wallet Connect",
+      "nwcDesc": "Xew-xew yi jóge ci Wallet Connect",
       "pos": "Barabu jaay",
-      "posDesc": "Fey yi nga jot ci sa barabu jaay"
+      "posDesc": "Fey yi ci sa barabu jaay"
     },
     "nostrHome": {
       "nip5Title": "Adreesu Nostr",
       "nip5Desc": "Wóoral ne yaw nga ci Nostr ci lu gaaw ak Blitz.",
       "nwcTitle": "Wallet Connect",
-      "nwcDesc": "Lëkkaleel sa Blitz Wallet ak ay app ci Nostr."
+      "nwcDesc": "Lëkkaleel sa Blitz Wallet ak ay app ci Nostr.",
+      "nwcCount_one": "{{count}} lëkkaloo",
+      "nwcCount_other": "{{count}} lëkkaloo"
     },
     "fiatCurrency": {
       "title": "Xeetu xaalis",
@@ -2064,7 +2252,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet dafay joxe jumtukaay yu amul njëg te seen kood ubbeeku ngir mboolooy Bitcoin.\n\nNgir dimbali liggéey bi mu mën a yàgg, dañuy teg njëgu jëflante gu tuuti ci fey bu nekk.\n\nSéddaleg njëg yi mingi ci suuf.",
+      "description": "Blitz Wallet dafay joxe jumtukaay yu amul njëg te seen kood ubbeeku ngir mboolooy Bitcoin.\n\nNgir dimbali liggéey bi mu mën a yàgg, dañuy teg njëgu jëflante gu tuuti ci wecci yi ak adreesu dajale yi.\n\nSéddaleg njëg yi mingi ci suuf.",
       "upTo": "Ba ci",
       "fixedFee": "Njëg gu dul soppiku",
       "percent": "Ci teemeer",
@@ -2074,7 +2262,7 @@
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% njëgu pool + {{blitzFee}}% njëgu Blitz",
       "sparkSwapType": "BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (ci rezo yu wuute)",
+      "chainSwapType": "BTC walla USDB ↔︎ stablecoin (ci rezo yu wuute)",
       "chainSwapFee": "0.5% njëgu Blitz + 0.1%+ njëgu Flashnet",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% njëgu Blitz + njëgu rezo",
@@ -2083,8 +2271,9 @@
       "accumulationType": "Adreesu dajale",
       "accumulationFee": "0.5% njëgu Blitz + 0.5% njëgu Flashnet",
       "othersType": "Yeneen yépp",
-      "othersFee": "Njëgu rezo",
-      "networkFeeLinkDesc": "Bësal ngir gis séddaleg njëgu rezo Spark"
+      "othersFee": "Njëgu rezo rekk",
+      "networkFeeLinkDesc": "Bësal ngir gis séddaleg njëgu rezo Spark",
+      "networkFeeLink": "Xool njëgu rezo Spark"
     },
     "nip5": {
       "noNameError": "Tur bi mënul a neen.",
@@ -2107,13 +2296,34 @@
         "invalidFormat": "Melo pubkey bi baaxul: war na doon mbind hex bu am 64 araf walla npub"
       },
       "saveAddress": "Denc adrees bi",
+      "available": "Jàppandi na",
+      "copyAddress": "Kopi adreesu Nostr",
       "infoText": "Adreesu Nostr dafay lëkkale adrees bu gàtt ni name@blitzwalletapp.com ak sa caabi bu ubbeeku ci Nostr (npub), ngir app yu Nostr mën a wóoral ne yaw nga.\n\nGinnaaw boo dencee, yokkal adrees bii ci bérabu adreesu Nostr ci sa profil Nostr. Lim bi benn yoon rekk lañu koy yeesal ci bés, kon wóoral bi mën na yàgg ba 24 waxtu.",
       "removeAddress": "Dindi adrees bi",
-      "removeWarning": "Dindi {{address}}?\n\nLii dina bàyyi turu jëfandikukat bi, kon ku nekk mën na koo jël te mën nga bañ koo jotaat. App yu Nostr mën nañu koy wone ba 24 waxtu."
+      "removeWarning": "Dindi {{address}}?\n\nLii dina bàyyi turu jëfandikukat bi, kon ku nekk mën na koo jël te mën nga bañ koo jotaat. App yu Nostr mën nañu koy wone ba 24 waxtu.",
+      "removeTitle": "Dindi {{address}}?",
+      "removeSub": "Ku nekk mën na jël tur bii ginnaaw, te mën na ne doo mën koo jotaat. App yu Nostr mën nañu koy wone ba 24 waxtu."
     },
     "nwc": {
       "pageTitle": "Wallet Connect",
-      "confirmDelete": "Ndax wóor na la ne bëgg nga far lëkkaloo bii?",
+      "accountBalance": {
+        "title": "Xaalisu kont bi",
+        "subtitle": "Lu app yi mën a fey"
+      },
+      "connectionsHeader": "Lëkkaloo yi",
+      "connectionSummary": {
+        "noBudget": "Amul budget",
+        "canSend": "Mën na yónnee {{amount}} {{period}}",
+        "cantSend": "Mënul a yónnee"
+      },
+      "deleteDialog": {
+        "title": "Far lëkkaloo bii?",
+        "message": "{{name}} dina noppi liggéey ak sa kalpe. Xaalis bi ci sa kontu Wallet Connect dina des fa."
+      },
+      "connectionString": {
+        "subtitle": "Sikaane ko ci {{name}}, walla kopi ko te taqal ko.",
+        "warning": "Ku am connection string bii mën na jëfandikoo sañ-sañ yi nga jox."
+      },
       "addAccount": "Yokk lëkkaloo",
       "empty": {
         "title": "Amagul benn lëkkaloo",
@@ -2123,14 +2333,14 @@
         "navTitle": "Tur",
         "title": "Tuddal lëkkaloo bii",
         "editTitle": "Soppi turu lëkkaloo bi",
-        "subtitle": "Joxal lëkkaloo bi tur ngir nga mën koo xàmmee ci kanam.",
+        "subtitle": "Joxal ko tur ngir nga mën koo xàmmee ci kanam.",
         "editSubtitle": "Tànnal tur bu bees ngir nga mën a xàmmee lëkkaloo bii ci kanam.",
         "placeholder": "Turu lëkkaloo bi"
       },
       "createNWCPermissions": {
         "title": "Sañ-sañ yi",
-        "pageTitle": "Yokk sañ-sañu lëkkaloo bi",
-        "pageSubtitle": "Tànnal lu {{name}} mën a def.",
+        "pageTitle": "Lan la {{name}} mën a def?",
+        "pageSubtitle": "Doxal rekk li app bi soxla.",
         "editTitle": "Soppi sañ-sañu lëkkaloo bi",
         "editSubtitle": "Soppil lu {{name}} mën a def."
       },
@@ -2141,12 +2351,21 @@
         "editTitle": "Soppi budget bu fey",
         "editSubtitle": "Soppil fu fey yi di yem ak kañ lay tàmbaliwaat. Bàyyil ko neen ngir amul fu mu yem.",
         "renewalPlaceholder": "Tànnal diiru yeesal bi",
-        "createButton": "Sos lëkkaloo"
+        "createButton": "Sos lëkkaloo",
+        "resetTitle": "Kañ lay tàmbaliwaat?",
+        "noLimit": "Amul fu mu yem",
+        "resetsDaily": "Dafay tàmbaliwaat bés bu nekk",
+        "resetsWeekly": "Dafay tàmbaliwaat ayubés bu nekk",
+        "resetsMonthly": "Dafay tàmbaliwaat weer wu nekk",
+        "resetsYearly": "Dafay tàmbaliwaat at mu nekk",
+        "resetHint": "Ubbi tànneefu diiru yeesal bi.",
+        "changeCurrency": "Soppi xeetu xaalis"
       },
       "accountCreated": {
         "title": "Sos nañu lëkkaloo bi",
-        "subtitle": "Sa lëkkaloo sos nañu ko; kopil connection string bi ngir tàmbali jëfandikoo ko.",
-        "copyConnection": "Kopi connection string bi"
+        "subtitle": "Kopi connection string bi te taqal ko ci {{connection}}.",
+        "copyConnection": "Kopi connection string bi",
+        "connectionStringLabel": "Connection string"
       },
       "accountPage": {
         "title": "Toppatoo lëkkaloo bi",
@@ -2155,7 +2374,7 @@
         "permissionsCount_one": "{{count}} sañ-sañ",
         "permissionsCount_other": "{{count}} sañ-sañ",
         "renewalLabel": "Diiru yeesal",
-        "amountLabel": "Limu budget bi",
+        "amountLabel": "Budget",
         "viewSecretLabel": "Connection string",
         "deleteAccount": "Far lëkkaloo bi"
       },
@@ -2180,7 +2399,8 @@
       },
       "noNotifications": {
         "title": "Soxla nañu xamle yi",
-        "subtitle": "Wallet Connect dafa soxla xamle push yi. Doxal leen ci Tànneef yi te jéemaat."
+        "subtitle": "Wallet Connect dafa soxla xamle push yi ngir tontu app yi. Doxal leen, ginnaaw loolu dellusil.",
+        "button": "Doxal xamle yi"
       },
       "showSeedPage": {
         "loadingMessage": "Mingi sos baati jotaat yi",
@@ -2210,6 +2430,7 @@
           "yearly": "at mu nekk"
         },
         "createdSubtitle": "App bi lëkkaloo na. Mën nga dellu ci moom léegi.",
+        "returnToApp": "Dellu ci {{name}}",
         "errorTitle": "Mënunu lëkkaloo",
         "errors": {
           "invalid": "Laaju lëkkaloo bii baaxul.",
@@ -2226,7 +2447,7 @@
         "row1Label": "Dugal xaalis",
         "row1Description": "Dugalal xaalis ci jot ko walla ci toxal ko bawoo ci sa kont bu mag.",
         "row2Label": "Kont bu wuute",
-        "row2Description": "Kont bii wuute na ak sa kont bu mag ngir yokk kaaraange.",
+        "row2Description": "Wuute na ak sa kont bu mag, kon app yi mën nañu fey rekk li nga dugal fii.",
         "row3Label": "Sañ-sañu app yi",
         "row3Description": "App yi lëkkaloo mën nañu jëfandikoo kont bii ngir fey.",
         "continueButton": "Tàmbali"
@@ -2278,6 +2499,7 @@
         "showRecoveryPhraseLabel": "Wone baati jotaat yi",
         "lightningAddressLabel": "Adreesu kont bi",
         "removeAccountLabel": "Dindi kont bi",
+        "stillConnectingLabel": "Xibaari lëkkaloo",
         "activeAccountError": "Mënuloo far kont bi ngay jëfandikoo léegi. Jàllal ci beneen kont balaa ngay far kont bii.",
         "account_pin": "Japp kont bi ci kaw",
         "account_unpin": "Bàyyi kont bi",
@@ -2299,6 +2521,9 @@
         "manageConnectionsLabel": "Toppatoo lëkkaloo yi",
         "loadError": "Mënunu yeb kont bi",
         "loadErrorDesc": "Jéemaatal. Su jafe-jafe bi wéyee, jokkool ak ndimbal.",
+        "bitcoinBalanceLabel": "Xaalisu Bitcoin",
+        "dollarBalanceLabel": "Xaalisu Dolaar",
+        "editAvatarLabel": "Tànnal avatar",
         "stillConnectingInfo": "Li ñu wone ci sa xaalis mën na bañ a dëppoo ak li am léegi, bi ñuy mottali lëkkale sa kont."
       },
       "removeAccountPage": {
@@ -2313,6 +2538,7 @@
         "importRecoveryPhraseTitle": "Indi baati jotaat",
         "importRecoveryPhraseDescription": "Indil kont yu sa bopp yu jóge ci beneen kalpe",
         "recoverRecoveryPhraseTitle": "Jotaat kont bu sa bopp",
+        "recoverNoneDescription": "Amul kont bu boppam bu ñu mën a jotaat",
         "recoverRecoveryPhraseDescription": "Jotaat benn kont bu sa bopp",
         "createNewAccountTitle": "Sos kont bu sa bopp",
         "createNewAccountDescription": "Sosal kalpe ngir sa bopp",
@@ -2331,6 +2557,8 @@
         "accountCardTitle": "Kont {{index}}",
         "accountCardSubtitle": "Nimeroy derivation: {{index}}",
         "restoreButton": "Jotaat",
+        "restoringLabel": "Mingi jotaat...",
+        "subtitle": "Kont yi nga dindi te sa baati jotaat yi mën a delloo.",
         "nameInputTitle": "Tuddal kont bii",
         "nameInputPlaceholder": "Kont {{index}}",
         "nameInputConfirm": "Jotaat kont bi",
@@ -2358,6 +2586,11 @@
         "selfTransfer": "Mënuloo jàllale ci sa bopp",
         "addFunds": "{{name}} dugal na xaalis",
         "withdrawFunds": "{{name}} génne na xaalis",
+        "sending": "Mingi yónnee...",
+        "sendingSubtitle": "{{amount}} bawoo ci {{from}} jëm ci {{to}}",
+        "sentSuccessfully": "Yónneeku na",
+        "fromTo": "Bawoo ci {{from}} jëm ci {{to}}",
+        "failedSubtitle": "Am na lu jàppandiwul bi ngay yónnee. Jéemaatal.",
         "balanceLoadError": "Mënunu yeb xaalisu kont bii. Jéemaatal."
       }
     },
@@ -2382,7 +2615,7 @@
     },
     "posPath": {
       "settings": {
-        "nameTakenError": "Turu barabu jaay bii, ñungi koy jëfandikoo ba noppi.",
+        "nameTakenError": "Tur bii, ñungi koy jëfandikoo ba noppi. Tànnal beneen.",
         "nameRegexError": "Tur bi mën na am araf ak nimero rekk.",
         "title": "Barabu jaay",
         "storeNameInputDesc": "Turu bitig bi",
@@ -2396,16 +2629,32 @@
         "addItem": "Yokk yëf",
         "openPos": "Ubbi POS",
         "brandLogo": "Logo bi",
-        "changeLogo": "Soppi logo bi",
+        "changeLogo": "Soppi",
         "removeLogo": "Dindi",
         "uploadLogo": "Bësal ngir yokk sa logo",
-        "addProducts": "Yokk ay yëf"
+        "addProducts": "Yokk ay yëf",
+        "addLogo": "Yokkal sa logo",
+        "logoSize": "Karé, lu néew néew 400 × 400 px",
+        "yourCheckout": "Sa xëtu fey: ",
+        "prices": "Njëg yi",
+        "currency": "Xeetu xaalis",
+        "items": "Yëf yi",
+        "itemsCount_one": "{{count}} yëf",
+        "itemsCount_other": "{{count}} yëf",
+        "itemsCurrencyWarning": "Ay yëf am nañu njëg ci beneen xeetu xaalis",
+        "runningTheStore": "Toppatoo bitig bi",
+        "tipsToPay": "Pourboire yu ñuy fey",
+        "peopleCount_one": "{{count}} nit",
+        "peopleCount_other": "{{count}} nit",
+        "staffSign": "Panewu liggéeykat yi",
+        "currencySheetTitle": "Xeetu xaalisu bitig bi"
       },
       "posInstructionsPath": {
-        "title": "Ndigal yi",
+        "title": "Panewu liggéeykat yi",
         "head1": "Naka ngay nangoo",
         "head2": "Fey yu Bitcoin",
-        "step1": "Sikaane kodu QR bi ak sa kamera"
+        "step1": "Sikaane kodu bii ak kamera bu telefon bi ngir ubbi xëtu fey bi.",
+        "share": "Séddoo lienu xëtu fey bi"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Jëfandikukat bi amul benn pourboire.",
@@ -2414,47 +2663,66 @@
         "notifyngMessage": "Mingi xamle...",
         "errorPaying": "Mënunu fey jokkoo Blitz bi. Jéemaatal ci kanam.",
         "invalidName": "Tur bi du adreesu Lightning, du jëfandikukat Blitz.",
-        "removeEmployeeWarning": "Ndax wóor na la ne bëgg nga dindi liggéeykat bii?",
+        "removeEmployeeWarning": "Dañuy far jaar-jaaru pourboireem ci telefon bii.",
         "startingPaymentProcessMessage": "Fey bi mingi tàmbali, bul génn ci xët wii walla ci app bi.",
         "goBack": "Dellu",
         "lastSale": "Jaay bu mujj:",
         "numTipsPaid": "Pourboire yi ñu fey:",
         "numUnpaidTips": "Pourboire yi ñu feyagul:",
         "tipBalance": "Xaalisu pourboire:",
-        "viewTips": "Xool pourboire yi"
+        "viewTips": "Xool pourboire yi",
+        "removeEmployeeTitle": "Dindi {{name}}?",
+        "removeEmployeeUnpaidWarning": "Dañuy far jaar-jaaru pourboireem ci aparey bii, ak {{amount}} yi ñu feyagul.",
+        "blitzUser": "Turu jëfandikukat Blitz",
+        "lightningAddress": "Adreesu Lightning",
+        "lastSaleSub": "{{type}} · jaay bu mujj {{date}}",
+        "toPay": "Lu ñuy fey",
+        "paidBefore": "{{amount}} feyu nañu ko ci kanam",
+        "tips": "Pourboire yi",
+        "payAmount": "Fey {{amount}}",
+        "payingTitle": "Mingi fey {{name}}...",
+        "notifyingTitle": "Mingi xamle {{name}}...",
+        "payingSub": "Mingi yónnee {{amount}}. Bàyyil app bi ubbi ba mu jeex.",
+        "markPaid": "Teg {{amount}} ni ñu fey na ko ci {{date}}",
+        "remove": "Dindi {{name}}"
       },
       "transactions": {
-        "unpaidtips": "Pourboire: {{number}}",
+        "unpaidtips": "{{number}} ñu feyagul",
         "title": "Pourboire yi ñuy fey",
         "empNamePlaceholder": "Turu liggéeykat bi",
         "noEmployees": "Amuloo léegi benn liggéeykat bu am pourboire yu ñu denc. Bu liggéeykat jëfandikoo barabu jaay bi, ay pourboiream dinañu feeñ fii ngir nga mën leen a fey.",
-        "noTips": "Liggéeykat bi amul pourboire",
+        "noTips": "Amul ku dëppoo ak sa seet.",
         "noEmployeeTitle": "Amul pourboire bu ñuy fey",
-        "noEmployeeSubTitle": "Amagul pourboire bu nga war a fey. Bu liggéeykat jotee pourboire, dina feeñ fii."
+        "noEmployeeSubTitle": "Su ku ci sa liggéeykat yi jotee pourboire ci xëtu fey bi, dina feeñ fii ngir nga mën koo fey.",
+        "allPaid": "Fey nañu lépp"
       },
       "items": {
         "addItemHalfModal": {
           "nameLengthError": "Turu yëf bi war na gën a gàtt 60 araf.",
           "addItemError": "Am na jafe-jafe bi ñuy yokk sa yëf ci POS bi. Jéemaatal.",
           "editItem": "Soppi yëf bi",
-          "addItem": "Yokk yëf bu bees",
-          "pricesLabel": "Njëg yi ñungi aju ci xeetu xaalis bi nga denc ({{currency}})",
+          "addItem": "Yokk yëf",
+          "pricesLabel": "Njëg yi ci {{currency}} lañu. Soppil xeetu xaalis bi ci Barabu jaay.",
           "editMessage": "Soppil xeetu xaalis bi ñuy wone ci tànneefu POS yi.",
           "itemNamePlaceholder": "Turu yëf bi",
-          "pricePlaceholder": "Njëg ({{number}})",
-          "updateCurrency": "Yeesal xeetu xaalis",
-          "addItemBTN": "Yokk yëf"
+          "pricePlaceholder": "Njëg ci {{number}}",
+          "updateCurrency": "Denc ci {{currency}}",
+          "addItemBTN": "Yokk yëf",
+          "currencyChangeNote": "Njëg bii ci {{from}} lañu ko tegle. Su nga dencee, dinañu la fey {{amount}} ci {{to}}."
         },
         "addPOSItemsPage": {
-          "denominationError": "Njëg gi ci {{currency1}} la, waaye xaalisu bitig bi {{currency2}} la.",
-          "deleteItemMessage": "Ndax wóor na la ne bëgg nga far yëf bii ci barabu jaay bi?",
-          "title": "Yëfu POS yi",
-          "itemSearchPlaceholder": "Turu yëf bi...",
+          "denominationError": "Njëg gi ci {{currency1}} la. Bitig bi dafay jëfandikoo {{currency2}}.",
+          "deleteItemMessage": "Liggéeykat yi duñu ko gis ci xëtu fey bi.",
+          "title": "Yëf yi",
+          "itemSearchPlaceholder": "Seet yëf yi",
           "noItemsSearch": "Amul yëf bu dëppoo ak sa seet.",
           "noItemsAdded": "Yokkal benn yëf ngir mu feeñ fii.",
           "ctaBTN": "Yokk yëf",
-          "noPosTitle": "Amul yëfu POS",
-          "noPosSub": "Amagul yëfu POS bu nga denc. Boo dencee benn, dina feeñ fii."
+          "noPosTitle": "Amul yëf léegi",
+          "noPosSub": "Yokkal li ngay jaay. Liggéeykat yi dinañu bësal yëf ngir fey, te duñu bind njëg gi.",
+          "deleteItemTitle": "Far {{name}}?",
+          "editItem": "Soppi {{name}}",
+          "deleteItem": "Far {{name}}"
         }
       },
       "internalComponents": {
@@ -2469,6 +2737,169 @@
         "defaultMessage": "Ndax wóor na la ne bëgg nga génne xaalis bi yépp ci sa kalpe?",
         "ctaBTN": "Wone ne {{option}}"
       }
+    },
+    "sdkLogs": {
+      "share": "Séddoo log yi",
+      "shareSub": "{{count}} yoon ci saa sii",
+      "clear": "Far log yi",
+      "privacyNote": "Log yi dañuy dimbali ndimbal bi ngir gis jafe-jafe yi. Duñu am sa baati jotaat yi, waaye mën nañu am leerali fey ni lim ak adrees.",
+      "emptyTitle": "Amul log léegi",
+      "emptySub": "Liggéeyu kalpe bi ci saa sii dina feeñ fii.",
+      "shareError": "Mënunu séddoo sa log yi. Jéemaatal."
+    },
+    "unilateralExit": {
+      "title": "Jotaatu kalpe",
+      "needFeesPlain": "Tuuti Bitcoin ci beneen kalpe ngir fey njëgu rezo yi",
+      "needTimePlain": "Ay bés yu néew. Blitz dina la xamle ngir ubbi app bi",
+      "unlockFirst": "Ubbil sa kalpe jëkk, ginnaaw loolu jéemaatal.",
+      "startButton": "Tàmbali jotaat gi",
+      "takesDays": "Ba ci ay bés walla ab weer",
+      "someLeftBehind": "Mënunu jotaat tuuti ci sa xaalis. Blitz dina leen wone fii.",
+      "recoverableFundsTitle": "Xaalis bu ñu mën a jotaat",
+      "recoverableFundsSub": "Xaalis bi génn ci sa xaalisu Spark. Bësal ngir jotaat ko.",
+      "recoveryInProgress": "Jotaat gi mingi dox",
+      "recoverReviewTitle": "Jotaat xaalis",
+      "recoverButton": "Jotaat",
+      "nothingToRecover": "Amul xaalis bu ñu mën a jotaat léegi.",
+      "recoverySent": "Yónneeku na jotaat gi. Dina jeex boppam.",
+      "errFinishExitFirst": "Jeexalal génn gi mi dox balaa ngay jotaat xaalis bii.",
+      "willReceive": "Dinga jot",
+      "fundingFromOther": "Dinga yónnee bawoo ci beneen kalpe",
+      "takesAbout": "Diiru jeex",
+      "addressInvalid": "Bii du adreesu Bitcoin bu baax.",
+      "restoreNothingNew": "Fichier bii amul lu bees. Sa kalpe am na ba noppi xibaari génn gi yépp.",
+      "restoreResult": "Jotaat nañu {{imported}} yëf. {{foreign}} jóge ci beneen kalpe te {{conflicting}} dañu wutu, kon dañu leen a rombu.",
+      "confirmStart": "Ndax tàmbali jotaat gi? Ci kanam dinga fey njëgu rezo gi bawoo ci beneen kalpe. Bu fey bi agsee, jotaat gi mënul a neenal.",
+      "reminderNextTitle": "Sa jotaatu kalpe soxla la",
+      "reminderNextBody": "Ubbi Blitz ngir mu mën a yónnee etap bi ci kanam.",
+      "reminderUrgentBody": "Ubbil Blitz léegi ngir jotaat gi wéy.",
+      "reminderCheckInBody": "Ubbi Blitz ngir sa jotaatu kalpe wéy.",
+      "reminderDoneBody": "Sa Bitcoin agsi na ci sa adrees.",
+      "sendsBlocked": "Yónnee tëj nañu ko ba jotaat gi di dox.",
+      "errExitInProgress": "Jotaat gi mingi dox ba noppi.",
+      "errBusy": "Blitz am na liggéey léegi. Jéemaatal ci kanam.",
+      "errCannotCancel": "Jotaat gii mënuñu koo neenal léegi.",
+      "errCoopUnavailable": "Spark mënul a bokk ci jotaat gii léegi. Blitz dina wéy jéema, walla mën nga neenal.",
+      "errCannotBump": "Mënuñu yokk njëgu rezo gi léegi.",
+      "errNothingToConfirm": "Amul etap bu xaar dëggal léegi.",
+      "errCorrupt": "Mënunu jàng sa xibaari jotaat yu ñu denc.",
+      "errStoreCorrupt": "Sa xibaari jotaat yu ñu denc, ñàkk nañu.",
+      "errStoreRecoveryDropped": "Blitz mënul a denc etap bu jotaat gi. Jéemaatal ci kanam.",
+      "errBroadcastFailed": "Mënunu yónnee jëflante ci rezo Bitcoin.",
+      "rowSub": "Génne on-chain te bañ a jaar ci Spark",
+      "destination": "Adreesu Bitcoin",
+      "addressPlaceholder": "bc1...",
+      "feeRate": "Njëgu rezo",
+      "fastPlain": "Gaaw",
+      "mediumPlain": "Dëpp",
+      "slowPlain": "Yàgg",
+      "networkFees": "Njëgu rezo yi",
+      "leaves": "Xob yi",
+      "leavesValue": "{{cooperative}} génn gu ñu bokk · {{unilateral}} génn ci boppam",
+      "skipped": "Mënunu jotaat",
+      "homeTitle": "Génne sa xaalis sa bopp",
+      "homeSub": "Toxal sa xaalis on-chain te bañ a jaar ci operator yu Spark.",
+      "lastResort": "Jëfandikoo ko rekk su Spark noppee liggéey. Lu mujj la, te mën na yàgg ay bés ngir jeex.",
+      "whatYouNeed": "Lu nga soxla",
+      "needAddress": "Adreesu Bitcoin ngir jot xaalis bi",
+      "consent": "Dégg naa ne lii lu mujj la, mën na yàgg ay bés, mën na soxla xaalis bawoo ci keneen ngir njëg yi, te su tàmbalee mënuñu koo neenal.",
+      "advanced": "Ci kanam",
+      "saveTitle": "Denc xibaari génn gi",
+      "saveSub": "Séddoo kopi bu jumtukaayu jotaat mën a jëfandikoo",
+      "restoreTitle": "Jotaat xibaari génn gi",
+      "restoreSub": "Kopi xibaari génn gi ñu denc, ginnaaw loolu bësal fii",
+      "restoreEmpty": "Kopil xibaari génn gi ñu denc, ginnaaw loolu bësal Jotaat.",
+      "restoreSuccess": "Jotaat nañu xibaari génn gi.",
+      "restoreError": "Mënunu jotaat sa xibaari génn gi. Xool ko te jéemaatal.",
+      "addressTitle": "Fan la xaalis bi war a dem?",
+      "addressSub": "Bindal adreesu Bitcoin boo yor.",
+      "feeTitle": "Tànnal njëgu rezo",
+      "feeSub": "Njëg gi, ci jëflante bu nekk ci sa génn gi lañu koy fey. Génn gi lépp dina yàgg ay bés ndax diiru xaar yi, te njëg gu nekk mënul leen a gàttal.",
+      "slowNote": "{{rate}} sat/vB. Njëg bi gën a néew. Etap bu nekk mën na yàgg ngir dëggal.",
+      "mediumNote": "{{rate}} sat/vB. Ñu koy digal. Yem ci njëg ak gaawte ci etap bu nekk.",
+      "fastNote": "{{rate}} sat/vB. Njëg bi gën a ëpp. Etap bu nekk dina dëggal ci lu gaaw.",
+      "loadingFees": "Mingi jël njëgu rezo yi léegi...",
+      "reviewTitle": "Seetaat génn gi",
+      "rateValue": "{{rate}} sat/vB",
+      "reviewNote": "Yónneguñu dara ba léegi. Lim bi lu jege la ci njëg bi nga tànn.",
+      "nothingToExit": "Mënuloo génn dara léegi. Sa xob yi tuuti lool ngir mën a fey njëgu on-chain yi.",
+      "waitingForPayment": "Mingi xaar sa fey",
+      "waitingForConfirmation": "Jot nañu fey bi. Mingi xaar 1 dëggal (ba ci 10 minit)",
+      "building": "Mingi waajal sa jotaat...",
+      "needMore": "Njëgu rezo yi yokku nañu. Yónnee {{amount}} yu dolli ngir wéy.",
+      "bumpNeedsMore": "Ngir fey njëg bi gën a ëpp, yónnee {{amount}} yu dolli ci sa adreesu njëg, ginnaaw loolu jéemaatal.",
+      "cancelNote": "Lu la yónnee ba léegi dina des ci adrees bii te sa jotaat bi ci kanam dina koo jëfandikoo.",
+      "phaseSending": "Mingi yónnee etap bi ci kanam",
+      "phaseWaitingConfirmation": "Mingi xaar rezo bi ngir dëggal",
+      "phaseWaitingTimelock": "Mingi xaar diiru xaar bu war",
+      "phaseUpdating": "Mingi yeesal boppam",
+      "phaseChainUnavailable": "Mënuloo jokkoo ak rezo Bitcoin. Blitz dina wéy jéema.",
+      "canClose": "Mën nga tëj Blitz. Dinañu la xamle su di waxtu ngir ubbi ko. Ubbil ko ci lu gaaw ginnaaw xamle bu nekk.",
+      "keepOpenWeb": "Bàyyil xët bii ubbi, walla ubbi Blitz beneen yoon yépp ay waxtu yu néew ba mu jeex.",
+      "remindersOff": "Xamle yi tëj nañu, kon Blitz mënul a la xamle. Ubbil Blitz ñaari yoon ci bés ba lii jeex.",
+      "doneTitle": "Jotaat nga {{amount}} ak jàmm",
+      "stepOf": "Etap {{done}} ci {{total}}",
+      "daysLeft_one": "Des na ba ci {{count}} bés",
+      "daysLeft_other": "Des na ba ci {{count}} bés",
+      "hoursLeft_one": "Des na ba ci {{count}} waxtu",
+      "hoursLeft_other": "Des na ba ci {{count}} waxtu",
+      "sendAtLeast": "Yónnee lu néew néew {{amount}} bawoo ci beneen kalpe jëm ci adrees bii.",
+      "cancelButton": "Neenal jotaat gi",
+      "feeAddress": "Adreesu njëg",
+      "txKind": "Xeet",
+      "txid": "ID jëflante",
+      "txRefused": "Bañ nañu ko",
+      "doneButton": "Mat na",
+      "recovering": "Mingi jotaat",
+      "receivingAddress": "Adreesu jot",
+      "satsLeft": "{{amount}} des",
+      "transactions": "Jëflante yi",
+      "confirmedOf": "{{done}} ci {{total}} dëggal nañu",
+      "leftInAddress": "Des ci adrees bi",
+      "feeSheetNote": "Njëgu rezo bu etap bu nekk jóge fii. Yónnee Bitcoin bawoo ci beneen kalpe ngir yokk ko.",
+      "share": "Séddoo",
+      "copyAddress": "Kopi adrees bi",
+      "treeNote": "Bësal etap ngir gis leeralam. Etap bu nekk mën na génn rekk ginnaaw bi ci kaw dëggal.",
+      "nodeRoot": "Reen",
+      "nodeBranch": "Baq",
+      "nodeLeaf": "Xob",
+      "nodeRefund": "Delloo",
+      "nodeSweep": "Jëm ci yaw",
+      "nodeFanOut": "Wàll",
+      "nodeCooperative": "Génn gi ñu bokk",
+      "nodeRootPlural": "Reen yi",
+      "nodeBranchPlural": "Baq yi",
+      "nodeLeafPlural": "Xob yi",
+      "nodeRefundPlural": "Delloo yi",
+      "nodeFanOutPlural": "Wàll yi",
+      "nodeSweepPlural": "Jëm ci yaw",
+      "nodeCooperativePlural": "Génn yi ñu bokk",
+      "subConfirmed": "Dëggal na",
+      "subConfirming": "Mingi dëggal",
+      "subWaiting": "Mingi xaar",
+      "statusConfirmed": "Dëggal na",
+      "statusReady": "Mingi xaar dëggal",
+      "statusTimelock": "Mingi xaar diiru xaar bu war",
+      "statusWaiting": "Mingi xaar etap yu jëkk",
+      "kindNode": "Jëflante garab",
+      "kindRefund": "Delloo (timelock)",
+      "kindSweep": "Toxal ci sa adrees",
+      "kindFanOut": "Jëflante wàll",
+      "kindCooperative": "Génn gi ñu bokk",
+      "confirmedInBlock": "Dëggal na ci blok",
+      "timelock": "Timelock",
+      "timelockValue": "{{count}} blok",
+      "unlocksAt": "Dafay ubbi ci blok",
+      "blocksToGo": "{{block}} · {{count}} des",
+      "waitsFor": "Dafay xaar",
+      "aboutHours_one": "Ba ci {{count}} waxtu",
+      "aboutHours_other": "Ba ci {{count}} waxtu",
+      "aboutDays_one": "Ba ci {{count}} bés",
+      "aboutDays_other": "Ba ci {{count}} bés",
+      "takingAWhile": "Dafay yàgg? Gaawal etap bii ak njëg bu ëpp.",
+      "confirmSpeedUp": "Fey {{rate}} sat/vB ba etap bii dëggal? Ginnaaw loolu, etap yi ci kanam dañuy dellu ci {{base}} sat/vB. Njëg bi dolli dina jóge ci sa adreesu njëg.",
+      "speedingUp": "Gaawal nañu ko ba {{rate}} sat/vB. Dina dellu ci {{base}} sat/vB su etap bii dëggalee.",
+      "viewOnMempool": "Xool ci mempool.space"
     }
   },
   "screens": {
@@ -2491,12 +2922,19 @@
         "confirmMessage": "{{direction}} antu na",
         "paymentErrorMessage": "Am na jafe-jafe ci yónnee fey bii, jéemaatal.",
         "sendReport": "Xamle jafe-jafe",
+        "failedPaymentSupportSubject": "Ndimbal ci fey bu antuwul",
         "lnurlAuthSuccess": "Dugg nga, lépp pare na.",
         "emailReport": "Yónnee ci Email",
         "copyReport": "Kopi ko",
         "confirmMessage_sent": "Yónnee bi antu na",
         "confirmMessage_received": "Jot bi antu na",
         "sendingInProgress": "Sa fey dem na. Xaaral ba ñu dëggal ko.",
+        "statusUnknown": "Xamuñu taxawaayu fey bi",
+        "statusUnknownMessage": "Mënunu wóoral ndax fey bii dox na. Bul ko yónneewaatal léegi. Xool taxawaay bi jëkk.",
+        "checkStatus": "Xool taxawaay bi",
+        "statusPending": "Sa fey bi mingi dox.",
+        "statusCompleted": "Sa fey bi dox na.",
+        "statusFailed": "Fey bii doxuwul. Mën nga koo yónneewaata te amul jafe-jafe.",
         "bulkSuccess": "Laaj yi dem nañu bu baax",
         "bulkPartialSuccess": "Benn laaj demul",
         "stablecoinDesc": "{{asset}} ci {{chain}}",
@@ -2518,15 +2956,23 @@
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
         "contactSupport": "Ndimbal",
-        "viewProgress": "Xool fu mu tollu"
+        "viewProgress": "Xool fu mu tollu",
+        "status": "Taxawaay",
+        "paymentFailed": "Fey bi antuwul",
+        "moreDetails": "Yeneen leeral",
+        "showLess": "Wone lu gën a néew",
+        "waitingForConfirmations": "Mingi xaar {{count}} dëggal",
+        "claimError": "Njuumte bi ñuy jël fey bi."
       },
       "explorePage": {
         "timeLeft": "({{time}} a des)",
         "title": "Ñi wàcce Blitz",
+        "timePeriod": "Diiru waxtu",
         "COMMENT": "Full sentence below = Number of totalUser users",
         "goalUserCount": "ci {{goalUserCount}} jëfandikukat.",
         "percentOfGoal": "{{goalPercent}}% ci jubluwaay bi",
-        "numAddedUsers": "+{{numNewUsers}} jëfandikukat tey"
+        "numAddedUsers": "+{{numNewUsers}} jëfandikukat tey",
+        "chartA11y": "Yeb yi ci {{period}} bi weesu"
       },
       "loadingScreen": {
         "loadingMessage1": "Bul tëj app bi",
@@ -2612,7 +3058,7 @@
         "backup wallet": "Denc baati jotaat yi",
         "show seed phrase": "Denc baati jotaat yi",
         "spark info": "Xibaari Spark",
-        "wallet leaves": "Xibaari kalpe bi",
+        "wallet recovery": "Jotaatu kalpe",
         "delete wallet": "Far kalpe bi",
         "general": "Tànneef yu mag",
         "preferences": "Li nga gën a bëgg",
@@ -2621,7 +3067,8 @@
         "experimental features": "Jumtukaay yu ñuy jéem",
         "settings": "Tànneef yi",
         "blitzRestore": "Jotaatu Blitz",
-        "point-of-sale": "Barabu jaay"
+        "point-of-sale": "Barabu jaay",
+        "logs": "Log yi"
       },
       "walletLeaves": {
         "sats": "sats",
@@ -2632,6 +3079,7 @@
         "showMore": "Wone yeneen",
         "exportButton": "Génne kopi bi",
         "noLeavesToExport": "Amagul xob yu ñuy génne.",
+        "noExitReadyLeaves": "Amagul xob bu mag ba mën a génn (ku nekk soxla {{min}} sats).",
         "exportError": "Mënunu génne sa xob yi. Jéemaatal.",
         "notReadyTitle": "Paregul ngir génn",
         "readyTitle": "Pare na ngir génn",
@@ -2663,6 +3111,7 @@
         },
         "progress": {
           "title": "Mingi génne kopi bi",
+          "keepOpen": "Bàyyil app bi ubbi ba mu jeex.",
           "gathering": "Mingi dajale xobi sa kalpe…",
           "saving": "Mingi denc kopi ci aparey bi…",
           "exit": "Mingi jël xibaari génn gi…",
@@ -2696,7 +3145,7 @@
         "bitrefillInvoiceId": "ID faktiir Bitrefill"
       },
       "viewAllTxPage": {
-        "title": "Jëflante yi",
+        "title": "Li xew",
         "filterAll": "Lépp",
         "filterLightning": "Lightning",
         "filterBitcoin": "Bitcoin",
@@ -2706,8 +3155,8 @@
         "filterSwaps": "Wecci yi",
         "filterSavings": "Jubluwaayu dolaar",
         "filterPools": "Koti yi",
-        "noTxHistoryTitle": "Amul jaar-jaaru jëflante",
-        "noTxHistorySub": "Sa jëflante yi dinañu feeñ fii su fekkee yónnee nga walla jot nga benn.",
+        "noTxHistoryTitle": "Amul jëflante léegi",
+        "noTxHistorySub": "Fey yi ngay yónnee ak yi ngay jot dañuy feeñ fii.",
         "searchPlaceholder": "Seet ci leeral yi",
         "noFilterResultsTitle": "Amul jëflante bu dëppoo",
         "noFilterResultsSub": "Amul jëflante bu dëppoo ak li nga segg. Soppil leen walla far leen.",
@@ -2723,7 +3172,13 @@
         "filterDate1y": "12 weer yi weesu",
         "filterTypeTitle": "Xeetu jëflante",
         "filterApply": "Doxal segg yi",
-        "filterClearAll": "Fomp lépp"
+        "filterClearAll": "Fomp lépp",
+        "exportTitle": "Génne CSV",
+        "filterTitle": "Segg jëflante yi",
+        "filterShowing": "Mingi wone",
+        "filterClear": "Far",
+        "insightsLabel": "Leeral ci njëg yi",
+        "moreOptionsLabel": "Yeneen tànn"
       },
       "lrc20HalfModal": {
         "title": "Seet token",
@@ -2752,7 +3207,7 @@
         "fundGiftMessage": "Mingi sos kado bi",
         "reclaimGiftMessage": "Mingi jotaat kado bi",
         "giftsHome": {
-          "title": "Kado yu Blitz",
+          "title": "Kado yi",
           "desc": "Séddoo Bitcoin walla Dolaar ak say xarit ak sa njaboot."
         },
         "balanceDenominationHeader": "Tànnal xeetu xaalis bu sa kado",
@@ -2764,7 +3219,23 @@
           "expired": "Diir bi jeex na",
           "unclaimed": "Kenn jëlagul ko",
           "reclaimed": "Jotaat nañu ko",
-          "noClaimURL": "Amul URL bu ñuy jële kado bii. Xaaral ba diiru kado bi jeex ngir jotaat sa xaalis."
+          "noClaimURL": "Amul URL bu ñuy jële kado bii. Xaaral ba diiru kado bi jeex ngir jotaat sa xaalis.",
+          "copyLink": "Kopi lien bi",
+          "pastGifts": "Kado yu weesu",
+          "noNote": "Amul bataaxal",
+          "activeCount": "Dox na · {{count}}",
+          "activeEndsIn": {
+            "days_one": "Dox na · dina jeex ci {{count}} bés",
+            "days_other": "Dox na · dina jeex ci {{count}} bés",
+            "hours_one": "Dox na · dina jeex ci {{count}} waxtu",
+            "hours_other": "Dox na · dina jeex ci {{count}} waxtu",
+            "minutes_one": "Dox na · dina jeex ci {{count}} minit",
+            "minutes_other": "Dox na · dina jeex ci {{count}} minit",
+            "lessThanMin": "Dox na · dina jeex ci suufu benn minit"
+          },
+          "endsOn": "dina jeex {{date}}",
+          "claimNoteSingle": "Dinga gis ndax jël nañu ko su jeexee {{date}}.",
+          "claimNoteMany": "Ku nekk dina wone ndax jël nañu ko su jeexee."
         },
         "createGift": {
           "noAmountError": "Bindal limu xaalis ngir sos sa kado.",
@@ -2776,7 +3247,7 @@
           "startProcess2": "Mingi defar lépp…",
           "startProcess3": "Mingi dugal xaalis ci sa kado…",
           "header": "Sos kado",
-          "inputPlaceholder": "Yokkal bataaxal walla leeral...",
+          "inputPlaceholder": "Bataaxal",
           "button": "Sos kado",
           "disclaimer": "Dañu koy téye {{numDays}} bés ngir ñu mën koo jël. Su ñu ko jëlul, mën nga jotaat sa xaalis.",
           "durationText": "{{numDays}} bés",
@@ -2785,20 +3256,28 @@
           "maxGiftsError": "Aggi nga ci limu kado bu gën a bari",
           "insufficientBalanceQuantity": "Sa xaalis doyul ngir {{count}} kado",
           "descriptionTitle": "Yokkal leeral",
-          "descriptionSubtitle": "Xamal ki ciy jot lan la kado bii.",
+          "descriptionSubtitle": "Xamal leen lan la kado bii ngir.",
           "swapError": "Simulation wecci bi jàppandiwul walla antuwul",
           "durationTitle": "Ñaata diir la kado bii war a yàgg?",
           "durationSubtitle": "Tànnal ñaata diir lañu ko mën a jël.",
           "warningTitle": "Xaalis bu ñu téye",
           "warningSubtitle": "Xaalis bu kenn jëlul, mën nga koo jotaat ginnaaw {{numDays}} bés.",
+          "warningText": "Xaalis bi dina des. Su fekkee kenn jëlul, mën nga koo jotaat ginnaaw {{numDays}} bés.",
+          "giftSummary_one": "1 kado · {{amount}}",
+          "giftSummary_other": "{{count}} kado × {{amount}}",
           "bulkButton": "Sos {{count}} kado",
           "maxQuantityHint": "20 kado rekk lañu nangu.",
           "amountPageHeader": "Bindal limu xaalis",
-          "amountPageDesc": "Bindal limu xaalis bu kado bu nekk, te tànn nattam."
+          "amountPageDesc": "Bindal limu xaalis bu kado bu nekk, te tànn nattam.",
+          "quantitySub": "Ku nekk {{amount}} la. Ba ci {{max}}.",
+          "quantityOther": "Yeneen",
+          "quantityCount_one": "{{count}} kado",
+          "quantityCount_other": "{{count}} kado",
+          "quantityMaxHint": "Ku nekk {{amount}} la. Ba ci {{max}} kado."
         },
         "giftConfirmation": {
           "header": "Sos nañu kado bi!",
-          "whatToDo": "Séddoo kado bii ak ku nekk ak kodu QR bi walla lien bi ci suuf",
+          "whatToDo": "Séddoo ko ak ku nekk ak lien bi walla kodu QR bi.",
           "details": "Leerali kado bi",
           "expire": "Dina jeex",
           "giftLink": "Lienu kado bi",
@@ -2807,24 +3286,30 @@
           "done": "Jeex na",
           "showQr": "Wone kodu QR",
           "bulkHeader": "Sos nañu {{count}} kado!",
-          "copyAllLinks": "Kopi lien yi yépp"
+          "copyAllLinks": "Kopi lien yi yépp",
+          "bulkDesc": "Yónneel lien bu nekk ci benn nit. Kado bu nekk mën nañu koo jël benn yoon.",
+          "bulkRowTitle": "Kado {{number}} · {{amount}}",
+          "scanToClaim": "Sikaane ngir jël",
+          "scanWarning": "Ku sikaanee bii jëkk, moom na kado bi."
         },
         "claimHome": {
           "header": "Bindal lienu kado bi",
-          "desc": "Taqal lienu kado bi nga jot walla sikaane kodu QR bi ngir jël sa kado",
-          "inputPlaceholder": "Bindal lienu kado bi",
+          "desc": "Taqal lienu kado bi nga jot walla sikaane kodu QR bi.",
+          "inputPlaceholder": "Lienu kado bi",
           "claim": "Jël kado bi",
           "noGiftLinkError": "Gisunu lienu kado. Sikaane walla taqal lien bi nga jot.",
           "invalidGiftFormat": "Lienu kado bi baaxul. Kopil lien bi yépp te jéemaat."
         },
         "reclaimPage": {
-          "header": "Jotaat sa kado",
-          "desc": "Bindal walla tànnal ID kado bi ngir delloo ci sa kalpe kado bu kenn jëlul te diiram jeex.",
+          "header": "Jotaat kado",
+          "desc": "Delloo ci sa kalpe kado bu kenn jëlul te diiram jeex.",
           "inputPlaceholder": "Bindal ID kado bi",
           "dropdownPlaceHolder": "Tànnal kado bu diiram jeex",
           "button": "Jotaat kado bi",
-          "noReclaimsMessage": "Amuloo kado bu diiram jeex léegi. Dellusil bu diiru benn kado jeexee ngir jotaat ko.",
-          "advancedModeBTN": "Mode bu xóot"
+          "noReclaimsMessage": "Amuloo kado bu diiram jeex léegi.",
+          "advancedModeBTN": "Mode bu xóot",
+          "title": "Jotaat",
+          "expiredOn": "{{amount}} · Jeex na {{date}}"
         },
         "advancedMode": {
           "header": "Mode bu xóot",
@@ -2833,9 +3318,16 @@
           "infoDesc1": "Kado yu Blitz dañuy jëfandikoo ay kalpe yu wuute yu ñu sos ci sa kalpe bu mag. Loolu dafay may nga jotaat xaalis bu kenn jëlul, te sa kalpe bu mag des ci kaaraange.",
           "infoDesc2": "Kado yu bari yu seen diir jeex, mën nga leen a jotaat ci xëtu jotaat bu ñu miin. Su fekkee kado jotul bu mat walla pexem jotaat bu ñu miin doxul, mën nga jëfandikoo xët wii ngir tànn benn kado te seet ndax xaalis des na ci.",
           "inputHead": "Bindal nimeroy kado bi",
-          "invalidGiftNum": "Bindal nimeroy kado bu baax ci diggante 1 ak {{currentGiftIndex}}",
+          "invalidGiftNum": "Bindal nimeroy kado bawoo ci 1 ba ci {{currentGiftIndex}}.",
           "restoreGiftBTN": "Jotaat kado bi",
-          "advancedWarning": "Jumtukaay bu xóot bii, jëfandikoo ko rekk bu pexem jotaat bu ñu miin doxul. Soo wóorul, jëkkal jéem xëtu jotaat bu ñu miin."
+          "advancedWarning": "Jumtukaay bu xóot bii, jëfandikoo ko rekk bu pexem jotaat bu ñu miin doxul. Soo wóorul, jëkkal jéem xëtu jotaat bu ñu miin.",
+          "title": "Jotaat kado ak nimero",
+          "sub": "Jëfandikoo ko rekk su Jotaat jàppandiwul.",
+          "inputLabel": "Nimero kado bi",
+          "hint_one": "Def nga {{count}} kado. Bindal nimero bawoo ci 1 ba ci {{count}}.",
+          "hint_other": "Def nga {{count}} kado. Bindal nimero bawoo ci 1 ba ci {{count}}.",
+          "hintNoCount": "Bindal nimero kado bi nga bëgg a jotaat, tàmbali ci 1.",
+          "howItWorks": "Kado bu nekk ab kalpe bu gàtt la bu ñu sos bawoo ci sa kalpe, kon xaalis bi des ci biir mën na dellu ci yaw."
         },
         "claimPage": {
           "parseError": "Mënunu jàng leerali kado bi ci lien bii.",
@@ -2854,10 +3346,10 @@
           "claimLoading": "Mingi jël sa kado… bul génn ci app bi.",
           "reclaimLoading": "Mingi delloo sa xaalis… bul génn ci app bi.",
           "claimAmountHead": "Lim bi ngay jot",
-          "reclaimAmountHead": "Lim bi ñu jotaat",
-          "reclaimAmountHeadExpert": "Nimeroy kado bi ñu jotaat",
-          "networkFeeWarningExpert": "Xaalis bu ñu gis, bu ñu wàññee njëgu rezo, dinañu ko yokk ci sa xaalis",
-          "networkFeeWarning": "Lim bii, bu ñu wàññee njëgu rezo, dinañu ko yokk ci sa xaalis",
+          "reclaimAmountHead": "Mingi jotaat kado bi",
+          "reclaimAmountHeadExpert": "Mingi jotaat kado bi",
+          "networkFeeWarningExpert": "Xaalis bu ñu gis, bu ñu wàññee njëgu rezo, dina dellu ci sa xaalis.",
+          "networkFeeWarning": "Njëgu rezo yi dañuy génne ci lim bii.",
           "buttonTextClaiming": "Mingi jël",
           "reclaimButton": "Jotaat kado bi",
           "claimButton": "Nangu kado bi",
@@ -2865,7 +3357,15 @@
           "defaultDesc": "Kado Blitz",
           "claimingGiftMessage1": "Mingi waajal kado bi...",
           "giftBalanceMessage": "Mingi dëggal xaalisu sa kado...",
-          "claimingGiftMessage4": "Mingi jël kado bi..."
+          "claimingGiftMessage4": "Mingi jël kado bi...",
+          "reclaimFeeWarning": "Lim bii, su ñu wàññee njëgu rezo yi, dina dellu ci sa xaalis.",
+          "expertGiftLabel": "Kado #{{number}}",
+          "claimingTitle": "Mingi jël sa kado...",
+          "reclaimingTitle": "Mingi delloo sa xaalis...",
+          "stayInApp": "Bàyyil app bi ubbi.",
+          "claimedTitle": "Jël nañu kado bi",
+          "reclaimedTitle": "Jotaat nañu kado bi",
+          "claimedSub": "Dina feeñ ci sa xaalis ci lu gaaw."
         }
       },
       "swapsPage": {
@@ -2909,7 +3409,7 @@
         "swapMessageButton": "Wecci {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Sarwiisu wecci yi, ay kompaañi yu wuute ñoo leen di joxe ci API.",
         "serviceUnavailableHead": "Sarwiis bi jàppandiwul",
-        "serviceUnavailableDesc": "Mënunu lëkkaloo ak sarwiisu wecci bi. Seetaatal sa internet te jéemaat.",
+        "serviceUnavailableDesc": "Mënuloo jokkoo ak sarwiisu wecci bi. Xoolal sa internet te jéemaatal.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
         "paymentDescription_outgoing": "{{swapDirection}}",
@@ -2939,27 +3439,42 @@
         "availableToSwapInto": "Mën nga wecci ba {{amount}} ci {{asset}}.",
         "enterAmountTitle": "Bindal lim bi ngay wecci.",
         "noContentTitle": "Amul xaalis bu jàppandi",
-        "noContentSubTittle": "Dugalal xaalis ci sa kalpe ngir tàmbali wecci ci diggante Dolaar ak Bitcoin.",
+        "noContentSubTittle": "Dugalal xaalis ci sa kalpe ngir tàmbali wecci.",
         "insufficientBTCToSwap": "Soxla nga {{amount}} lu néew néew ci Bitcoin ngir wecci Bitcoin.",
         "insufficientUSDToSwap": "Soxla nga {{amount}} lu néew néew ci Dolaar ngir wecci Dolaar.",
         "belowSwapLimitTitle": "Sa xaalis tuuti na lool ngir wecci",
         "belowSwapLimitBitcoin": "Sa xaalis ci Bitcoin des na ci suufu lim bi gën a tuuti ngir wecci. Yokkal {{btcMin}} lu néew néew ngir tàmbali wecci.",
         "belowSwapLimitDollar": "Sa xaalis ci Dolaar des na ci suufu lim bi gën a tuuti ngir wecci. Yokkal {{usdMin}} lu néew néew ngir tàmbali wecci.",
-        "belowSwapLimitBoth": "Sa xaalis des na ci suufu lim bi gën a tuuti ngir wecci. Soxla nga {{btcMin}} ci Bitcoin walla {{usdMin}} ci Dolaar lu néew néew ngir tàmbali wecci."
+        "belowSwapLimitBoth": "Soxla nga {{btcMin}} ci Bitcoin walla {{usdMin}} ci Dolaar lu néew néew ngir tàmbali wecci.",
+        "satsUnit": "sats",
+        "flipA11y": "Soppi wàllu wecci",
+        "minimumToSwap": "Soxla lu néew néew {{amount}} ngir wecci."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Mënunu yeb jaar-jaaru wecci yi. Jéemaatal ci kanam.",
-        "noHistoryTitle": "Amul jaar-jaaru wecci",
-        "noHistoryDesc": "Sa wecci yi dinañu feeñ fii",
+        "noHistoryTitle": "Amul wecci léegi",
+        "noHistoryDesc": "Sa wecci yi dinañu feeñ fii.",
+        "bitcoinToDollars": "Bitcoin → Dolaar",
+        "dollarsToBitcoin": "Dolaar → Bitcoin",
         "pageTitle": "Jaar-jaar"
       },
       "sparkReceivePage": {
         "header": "Adreesu Spark"
       },
+      "sendList": {
+        "phone": "Telefon",
+        "placeholder": "Bindal walla taqal adrees",
+        "placeholderEmpty": "Bindal adrees",
+        "emptyTitle": "Taqal walla sikaane ngir yónnee ci ku nekk",
+        "emptySub": "Jokkoo yi nga yokk dinañu feeñ fii.",
+        "contacts": "Yónnee ci jokkoo",
+        "contact": "Jokkoo"
+      },
       "sendAndReplace": {
         "slider": "Fey te wuutu: {{state}}",
         "userDollarAmount": "Xaalis bi nga am ci dolaar: {{dollarAmount}}",
-        "explainer": "Bu mu doxee, fey bu nekk bu Bitcoin bu génn, dinañu ko wuutu boppam ci wecci lim bu tolloo ak moom ci sa xaalisu dolaar. Su sa xaalisu dolaar gënee tuuti li nga fey, dinañu wecci sa xaalisu dolaar bépp. Duñu wecci dara su lim bi ñuy wuutu gënee tuuti {{minAmount}}.",
+        "userDollarAmountLabel": "Xaalisu dolaar bi am",
+        "explainer": "Fey bu nekk bu Bitcoin bu ngay yónnee, dinañu ko wuutu ci wecci lim bu tolloo ak moom ci sa xaalisu dolaar. Su sa xaalisu dolaar gënee tuuti, dinañu wecci bépp. Duñu wecci dara su lim bi ñuy wuutu gënee tuuti {{minAmount}}.",
         "fundingDescription": "Njëndu Fey te wuutu",
         "acceptingDescription": "Feesalaatu Fey te wuutu",
         "toastMessageTitle": "Sa xaalis ci Bitcoin, feesalaat nañu ko"
@@ -2994,14 +3509,16 @@
         "reindexError": "Mënunu seet adrees bii. Jéemaatal ci kanam.",
         "printQR": "Génne QR bi ci kayit",
         "deleteButton": "Far adrees bi",
-        "deleteConfirmTitle": "Far adrees bi?",
+        "deleteConfirmTitle": "Far adrees bii?",
         "deleteConfirmBody": "Soo faree adrees bii, fey yi ci kanam duñu leen jëmale ci sa kalpe, te mën nga ñàkk xaalis. Wóoral ne ñépp xam nañu ne doxatul balaa ngay ko dindi.",
         "chain": "Rezo",
         "source": "Fi mu jóge",
         "Destination": "Fi mu jëm",
         "selectAnotherOption": "Tànnal beneen",
         "selectAddress": "Tànnal adrees",
-        "viewAll": "Xool adrees yi yépp"
+        "viewAll": "Xool adrees yi yépp",
+        "selectAddressSub": "Am nga {{count}} adreesu {{asset}} ci {{chain}}.",
+        "created": "Sos nañu ko {{date}}"
       },
       "create": {
         "pickAsset": "Tànnal xeetu xaalis bu fey bi",
@@ -3009,9 +3526,12 @@
         "pickDestination": "Tànnal fi mu jëm",
         "confirm": "Dëggal adrees bi",
         "alreadyExists": "Am nga ba noppi adrees ngir boole bii",
-        "convertDesc": "Sa {{asset}} ci {{chain}} dinañu ko wecci ci {{receiveCurrency}}",
+        "convertDesc": "Sa {{asset}} ci {{chain}} dinañu ko wecci ci {{receiveCurrency}}.",
         "createNewAddress": "Sos adrees bu bees",
-        "limitReached": "Agsi nga ci limu adrees bu gën a bari ci tànneef bii."
+        "limitReached": "Agsi nga ci limu adrees bu gën a bari ci tànneef bii.",
+        "pickChainSub": "Fan la xaalis bi di jóge?",
+        "pickDestinationSub": "{{asset}} ci {{chain}} dafay soppiku jëm ci...",
+        "arrivesIn": "Dina agsi ci sa xaalisu {{currency}}"
       },
       "summary": {
         "chain": "Rezo",
@@ -3036,8 +3556,17 @@
         "zoomIn": "Jegeel kàrt bi ngir gis jaaykat yi yépp",
         "findAPlace": "Seet benn bérab",
         "placesHere": "{{count}} bérab fii",
+        "placesHere_one": "{{count}} bérab fii",
         "noPlaces": "Gisunu benn bérab",
-        "hasMorePlaces": "Ñungi wone {{num}} yi gën a jege. Jegeel kàrt bi ngir gis yeneen."
+        "hasMorePlaces": "Ñungi wone {{num}} yi gën a jege. Jegeel kàrt bi ngir gis yeneen.",
+        "a11y": {
+          "filter": "Segg",
+          "filterOn": "Segg, dox na",
+          "myLocation": "Sama bérab",
+          "zoomIn": "Jegeel",
+          "zoomOut": "Soreel",
+          "place": "Bérab"
+        }
       },
       "merchant": {
         "noName": "Jaaykat bu ñu xamul",
@@ -3046,6 +3575,7 @@
         "dataMessage": "Xibaar yi jóge ci {{source}}"
       },
       "filter": {
+        "title": "Segg bérab yi",
         "categoriesTitle": "Xeet yi",
         "distanceTitle": "Sore",
         "all": "Lépp",
@@ -3078,7 +3608,16 @@
       "textInputDescriptor": "EMAIL",
       "emailplaceholder": "you@example.com",
       "emailError": "Bindal adreesu email bu baax.",
-      "completePayment": "Matal fey bi"
+      "completePayment": "Matal fey bi",
+      "emailHelper": "Bitrefill dafay yónnee sa kodu ak resi yi fii.",
+      "orderAmount": "Njëndu Bitrefill · {{amount}}"
+    },
+    "webViewPopup": {
+      "allowedTitle": "Lien bu génn",
+      "allowedSub": "Lien bii dina ubbi ci xët bu bees bu navigateur bi.",
+      "notAllowedTitle": "Lien bi nanguwul",
+      "notAllowedSub": "Lien yi tàmbali ak http walla https rekk lañu mën a ubbi.",
+      "openLink": "Ubbi lien bi"
     }
   },
   "toastmessages": {
@@ -3166,9 +3705,12 @@
     "liquid": "LBTC <> BTC"
   },
   "tabs": {
-    "home": "Kalpe",
-    "appStore": "Bitig",
-    "contacts": "Jokkoo yi"
+    "home": "Kër",
+    "contacts": "Nit yi",
+    "money": "Xaalis",
+    "appStore": "Suug",
+    "activity": "Li xew",
+    "activityUnseen": "Li xew, fey yu bees jot nañu"
   },
   "pushNotifications": {
     "paymentReceived": {
@@ -3281,25 +3823,25 @@
       "earnInterest": "Tegal ay jubluwaay, topp fu nga tollu, te denc dolaar ni nga ko bëgge."
     },
     "goalEmoji": {
-      "screenTitle": "Tànnal emoji",
+      "screenTitle": "Jubluwaay bu bees",
       "title": "Tànnal emoji bu dëppoo ak sa jubluwaay",
       "subtitle": "Lan moo gën a melal sa jubluwaay?",
       "continueButton": "Tànn emoji"
     },
     "goalDescribe": {
-      "screenTitle": "Bindal leeral",
+      "screenTitle": "Jubluwaay bu bees",
       "title": "Leeral sa jubluwaay",
       "placeholder": "Xaalis bu dolli"
     },
     "goalAmount": {
-      "screenTitle": "Tegal jubluwaay",
+      "screenTitle": "Jubluwaay bu bees",
       "goalFallbackName": "Jubluwaay",
       "errors": {
         "unableToSetGoal": "Mënunu teg jubluwaay bi"
       }
     },
     "goalSuccess": {
-      "title": "Sa jubluwaay léegi mooy {{amount}}",
+      "title": "Teg nañu sa jubluwaay ci {{amount}}",
       "subtitle": "Tàmbalil dugal xaalis ngir agsi ci sa jubluwaay."
     },
     "goalDetails": {
@@ -3310,7 +3852,7 @@
     "updateGoal": {
       "screenTitle": "Yeesal jubluwaay",
       "title": "Yeesal jubluwaay bi",
-      "body": "Mën nga soppi xaalis bi nga denc ngir sa jubluwaay walla nga dindi ko.",
+      "body": "Soppil limu sa jubluwaay, walla dindi ko.",
       "removeButton": "Dindi jubluwaay bi",
       "updateButton": "Yeesal jubluwaay bi"
     },
@@ -3318,7 +3860,7 @@
       "screenTitle": "Dindi jubluwaay",
       "title": "Dindi jubluwaay bi",
       "warningProgressLost": "Dootuloo gis fu nga tollu ci sa jubluwaayu {{goalName}}.",
-      "warningMoneyReturned": "Xaalis bu nekk bu ñu jagleel jubluwaay bii, dinañu ko jàllale boppam ci sa xaalis bu mag.",
+      "warningMoneyReturned": "Xaalis bu nekk bu ñu jagleel jubluwaay bii dina jàllale boppam ci sa xaalis bu mag.",
       "removeButton": "Dindi jubluwaay bi",
       "errors": {
         "unableToRemoveGoal": "Mënunu dindi jubluwaay bi"
@@ -3349,8 +3891,8 @@
       "processing": "Mingi dox...",
       "steps": {
         "processing": "Mingi dox...",
-        "swapping": "Mingi wecci xaalis bi ci dolaar...",
-        "adding": "Mingi dugal ko ci kont bi...",
+        "swapping": "Mingi wecci xaalis bi ci dolaar",
+        "adding": "Mingi dugal ko ci sa jubluwaay",
         "complete": "Mat na."
       },
       "successTitle": "Dugal nañu xaalis bi",
@@ -3359,15 +3901,20 @@
       "errors": {
         "unableToCompleteTransfer": "Mënunu matal jàllale bi"
       },
-      "pageDescription": "Dugalal xaalis bawoo ci sa xaalisu {{fromBalance}} jëm ci sa xaalisu {{destination}}",
+      "pageDescription": "Dugalal xaalis bawoo ci sa {{fromBalanceLabel}} jëm ci sa jubluwaay {{destination}}.",
       "noSourceTitle": "Amul fu xaalis bi mën a jóge",
-      "noSourceSubtitle": "Dugalal Bitcoin walla Dolaar ci sa kalpe. Dugal xaalis bawoo ci Bitcoin dafa laaj {{amount}} lu néew néew.",
+      "noSourceSubtitle": "Dugalal Bitcoin walla Dolaar ci sa kalpe jëkk. Dugal xaalis bawoo ci Bitcoin dafa laaj {{amount}} lu néew néew.",
       "noUSDInfoMessage": "Soxla nga xaalis ci Dolaar bu ëpp {{amount}} ngir dugal xaalis ci sa jubluwaay.",
-      "noBTCInfoMessage": "Soxla nga xaalis ci Bitcoin bu ëpp lim bi gën a tuuti ngir wecci, {{amount}}, ngir dugal xaalis ci sa jubluwaay."
+      "noBTCInfoMessage": "Soxla nga xaalis ci Bitcoin bu ëpp lim bi gën a tuuti ngir wecci, {{amount}}, ngir dugal xaalis ci sa jubluwaay.",
+      "pageDescription_general": "Dugalal xaalis bawoo ci sa {{fromBalanceLabel}} jëm ci sa jubluwaay bu yaatu.",
+      "addingTo": "Mingi dugal ci {{destination}}",
+      "loadingTitle": "Mingi dugal xaalis...",
+      "loadingSubtitle": "{{amount}} jëm ci {{destination}}",
+      "successTo": "Jëm ci {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "Lan nga bëgg a génne?",
-      "interestOption": "Xaalis ci Bitcoin",
+      "interestOption": "Njariñ yu Bitcoin",
       "savingsOption": "Xaalisu jubluwaay yi",
       "interestZeroHint": "Amagul njariñ ci Bitcoin",
       "savingsZeroHint": "Amagul dara lu ñu denc",
@@ -3390,12 +3937,12 @@
       "availableHint": "Li am: {{amount}}",
       "minHint": "Lu néew néew: {{amount}}",
       "confirmTitle": "Dëggal génne xaalis bi",
-      "confirmSubtitle_interestAll": "Génne njariñ yu bitcoin yépp jëm ci sa {{destination}}",
-      "confirmSubtitle_interest": "Génne njariñ yu bitcoin jëm ci sa {{destination}}",
-      "confirmSubtitle_goalAll": "Génne lépp bawoo ci {{goalName}} jëm ci sa {{destination}}",
-      "confirmSubtitle_goal": "Génne bawoo ci {{goalName}} jëm ci sa {{destination}}",
-      "confirmSubtitle_generalAll": "Génne lépp bawoo ci xaalisu jubluwaay jëm ci sa {{destination}}",
-      "confirmSubtitle_general": "Génne bawoo ci xaalisu jubluwaay jëm ci sa {{destination}}",
+      "confirmSubtitle_interestAll": "Génne njariñ yu Bitcoin yépp jëm ci sa {{destinationLabel}}.",
+      "confirmSubtitle_interest": "Génne njariñ yu Bitcoin jëm ci sa {{destinationLabel}}.",
+      "confirmSubtitle_goalAll": "Génne lépp bawoo ci {{goalName}} jëm ci sa {{destinationLabel}}.",
+      "confirmSubtitle_goal": "Génne bawoo ci {{goalName}} jëm ci sa {{destinationLabel}}.",
+      "confirmSubtitle_generalAll": "Génne lépp bawoo ci xaalisu jubluwaay jëm ci sa {{destinationLabel}}.",
+      "confirmSubtitle_general": "Génne bawoo ci xaalisu jubluwaay jëm ci sa {{destinationLabel}}.",
       "estimatedSats": "≈ {{sats}} ginnaaw wecci bi",
       "confirmButton": "Dëggal",
       "processing": "Mingi génne xaalis bi...",
@@ -3412,7 +3959,11 @@
       "errors": {
         "unableToCompleteWithdrawal": "Mënunu matal génne xaalis bi"
       },
-      "withdrawlAll": "Génne lépp"
+      "withdrawlAll": "Génne lépp",
+      "interestEarned": "{{amount}} lu ñu jot",
+      "availableFrom": "Li am: {{amount}} · bawoo ci {{source}}",
+      "loadingSubtitle": "{{amount}} bawoo ci {{source}}",
+      "successTo": "Jëm ci sa {{destinationLabel}}"
     },
     "howItWorks": {
       "headline1": "Sa dolaar,",
@@ -3453,7 +4004,9 @@
     "savingsWalletError": "Kalpe bu jubluwaay bi paregul",
     "rewardsPayout": "Fey njariñ yu Bitcoin",
     "rewardsWithdrawal": "Génne njariñ yu Bitcoin",
-    "total_balance": "Sa xaalis lépp"
+    "total_balance": "Sa xaalis lépp",
+    "bitcoinBalance": "Xaalisu Bitcoin",
+    "dollarBalance": "Xaalisu Dolaar"
   },
   "analytics": {
     "overBudget": "Weesu na budget bi",
@@ -3479,6 +4032,7 @@
       "noBudgetSub": "Bësal ngir sos budget bu weer wu nekk",
       "leftToSpend": "Des na {{amount}} ngir fey",
       "percentRemaining": "{{percent}}% a des",
+      "ofBudget": "ci {{amount}}",
       "totalBalance": "Sa xaalis lépp"
     },
     "breakdown": {
@@ -3487,8 +4041,39 @@
       "noSentTitle": "Amul fey bu nga yónnee",
       "noSentSub": "Yónneel fey bawoo ci sa kalpe ngir tàmbali gis li xew"
     },
+    "chart": {
+      "titleSpent": "Ñu fey nañu {{period}}",
+      "period": {
+        "today": "tey",
+        "week": "ayubés bii",
+        "month": "weer wii",
+        "year": "at mii",
+        "all": "lépp"
+      },
+      "yesterday": "démb",
+      "lastWeek": "ayubés bi weesu",
+      "lastMonth": "weer wu weesu",
+      "lastYear": "at mu weesu",
+      "previousTotal": "{{amount}} {{period}}"
+    },
+    "filter": {
+      "title": "Diiru waxtu",
+      "timeframe_today": "Tey",
+      "timeframe_week": "Ayubés bii",
+      "timeframe_month": "Weer wii",
+      "timeframe_year": "At mii",
+      "timeframe_all": "Diir lépp"
+    },
+    "kinds": {
+      "title": "Xeetu njëg yi",
+      "contacts": "Xarit ak jokkoo",
+      "pools": "Koti yi",
+      "gifts": "Kado yi",
+      "other": "Yeneen yépp"
+    },
     "budget": {
       "budget": "Budget",
+      "monthBudget": "Budgetu {{month}}",
       "noAmount": "Bindal limu budget bi.",
       "editBudget": "Soppi budget bi",
       "createBudget": "Tegal budget bu weer wu nekk",
@@ -3496,14 +4081,26 @@
       "noBudgetSetSub": "Sosal budget bu weer wu nekk ngir topp li ngay fey",
       "noBudgetSetButton": "Sos budget",
       "leftToSpend": "Li des ngir fey",
+      "leftToSpendRing": "des na ngir fey",
+      "monthlyBudget": "Budgetu weer",
+      "resetsMonthly": "Dafay tàmbaliwaat ci 1 bu weer wu nekk",
+      "removeBudgetLabel": "Dindi budget bi",
       "spentThisMonth": "Li nga fey weer wii",
       "removeBudgetTitle": "Dindi sa budget?",
-      "removeBudgetSub": "Soo dindee budget bii, xamle yi ak toppte gi dinañu taxaw. Mën nga koo sosaat saa su la neexee.",
+      "removeBudgetSub": "Xamle yi ak toppte gi dinañu taxaw. Mën nga teg budget bu bees saa su la neexee.",
       "nearBudgetWarning": "Jege nga fu sa fey yu weer wi di yem",
       "overBudgetWarning": "Agsi nga ba noppi ci fu sa fey yu weer wi di yem",
       "willExceedBudgetWarning": "Bu nga yónnee fey bii, dinga weesu fu sa fey yu weer wi di yem",
-      "budgetWarningHeadsUp": "Moytul"
-    }
+      "budgetWarningHeadsUp": "Moytul",
+      "amountLeft": "{{amount}} des",
+      "today": "Tey",
+      "ofBudgetDaysLeft_one": "ci {{amount}} · {{count}} bés des",
+      "ofBudgetDaysLeft_other": "ci {{amount}} · {{count}} bés des",
+      "perDay_one": "Mën nga fey {{amount}} ci bés ngir {{count}} bés bi ñëw",
+      "perDay_other": "Mën nga fey {{amount}} ci bés ngir {{count}} bés yi ñëw"
+    },
+    "numberOfPayments_one": "{{count}} fey",
+    "numberOfPayments_other": "{{count}} fey"
   },
   "tabInUse": {
     "title": "Blitz ubbeeku na ci beneen onglet",
@@ -3519,5 +4116,66 @@
     "progress": "Mingi yeesal… {{percent}}%",
     "later": "Du léegi",
     "error": "Yeesal bi antuwul. Seetaatal sa internet te jéemaat."
+  },
+  "money": {
+    "title": "Xaalis",
+    "spentIn": "Ñu fey nañu ci {{month}}",
+    "today": "Tey",
+    "chartLabel": "Njëgu bés bu nekk ci {{month}}",
+    "weeklyChartLabel": "Njëgu ayubés ci {{month}}",
+    "savingsGoals": "Jubluwaayu dolaar",
+    "goalProgress": "{{current}} ci {{target}}",
+    "poolsCollecting": "{{count}} mingi dajale",
+    "giftsUnclaimed": "{{count}} ñu jëlul",
+    "connections_one": "{{count}} lëkkaloo",
+    "connections_other": "{{count}} lëkkaloo"
+  },
+  "receive": {
+    "requestFromContact": "Laaj ci jokkoo",
+    "fromAnotherWallet": "Jot bawoo ci beneen kalpe walla exchange",
+    "emptyTitle": "Ñu la fey ci nit yi nga xam",
+    "emptySub": "Yokkal jokkoo ngir laaj xaalis ci ñoom. Jokkoo yi nga yokk dañuy feeñ fii.",
+    "addContact": "Yokk jokkoo",
+    "showMyQr": "Wone sama kodu QR",
+    "receiveBitcoin": "Jot Bitcoin",
+    "receiveDollars": "Jot Dolaar",
+    "receiveAsset": "Jot {{asset}}",
+    "receiveTokens": "Jot token yi",
+    "createInvoice": "Sos faktiir",
+    "lightning": "Lightning",
+    "bitcoinAddress": "Adreesu Bitcoin",
+    "onChain": "On-chain",
+    "otherNetworks": "Rezo yeneen",
+    "otherNetworksSub": "Bitcoin bi ñu yónnee ci rezo yii dafay dugg ci sa xaalisu Bitcoin.",
+    "btcSource_base": "Bitcoin Coinbase",
+    "btcSource_solana": "Bitcoin Solana",
+    "pickNetworkSub": "Tànnal rezo bi yónneekat bi di jëfandikoo. Laaj ko su fekkee xamuñoo.",
+    "networkFee": "Njëgu rezo",
+    "fromTheAmount": "Ci lim bi",
+    "networkFeeInfo": "Bitcoin bi ñu yónnee ci adrees bii dafay soxla njëgu rezo gu tuuti ngir jot. Njëg gi dañuy génne ci lim bi ngay jot, kon sa xaalis mën na wone tuuti lu gën a néew ci bi ñu yónnee.",
+    "arrives": "Dina agsi",
+    "afterConfirmations": "Ginnaaw 3 dëggal",
+    "arrivesInfoBitcoin": "Bitcoin bi ñu yónnee ci adrees bii dafay feeñ ci sa xaalis su rezo Bitcoin dëggalee ko 3 yoon. Loolu dafay yàgg ba ci 30 minit.",
+    "inAFewMinutes": "Ci ay minit yu néew",
+    "arrivesInfoStable": "Fey yi dañuy feeñ ci sa xaalis su rezo {{chain}} dëggalee leen, ba ci ay minit yu néew.",
+    "minimum": "Lu néew néew",
+    "fee": "Njëg",
+    "aboutOnePercent": "Ba ci 1%",
+    "bitcoinWarning": "Njëgu rezo yi dañuy jël wàll bu ëpp ci lim yu tuuti. Ngir fey yu tuuti, Sos faktiir dafa gën a yomb.",
+    "stableWarning": "Yónneel {{asset}} rekk ci rezo {{chain}}. Xaalis walla rezo yeneen mën nañu réer.",
+    "tokensWarning": "Yónneel token yu Spark rekk ci adrees bii. Dañuy feeñ ci Token yi.",
+    "invoice": "Faktiir",
+    "anyAmount": "Lim bu nekk",
+    "scanWithLightningWallet": "Sikaane ak kalpe Lightning bu nekk",
+    "anyAmountSub": "Yónneekat bi moo tànnal li di fey.",
+    "arrivesAsDollars": "Dina agsi ci Dolaar",
+    "conversionNote": "Lim bi ci mujj mën na wuute tuuti ak njëg bi ci biir wecci bi.",
+    "whatFor": "Lan la ngir",
+    "share": "Séddoo",
+    "address_share_bitcoin": "Adreesu Bitcoin",
+    "address_share_stablecoin": "Adreesu stablecoin",
+    "address_share_tokens": "Adreesu token yi",
+    "address_share_lightningAddress": "Adreesu Lightning",
+    "address_share_lightningInvoice": "Faktiir Lightning"
   }
 }

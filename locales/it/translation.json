@@ -959,7 +959,7 @@
         "phoneStepSubtitle": "Inserisci il numero completo escludendo il prefisso paese (es. 2025551234 per (202) 555-1234).",
         "invalidMessageError": "Inserisci un messaggio prima di continuare",
         "descriptionStepTitle": "Aggiungi il tuo messaggio",
-        "descriptionStepSubtitle": "SMS4Sats richiede un messaggio. Tienilo breve e sotto i 140 caratteri.",
+        "descriptionStepSubtitle": "A {{phone}}. Tienilo sotto i 140 caratteri.",
         "descriptionInputPlaceholder": "Inserisci il messaggio",
         "confirmedSubtitle": "A {{phone}} · {{amount}}"
       },
@@ -1000,7 +1000,7 @@
       "confirmCodePage": {
         "header": "Il tuo ordine è stato avviato con successo",
         "phoneNumberLabel": "Il tuo numero:",
-        "step1": "Fai clic sull'icona della ricevuta in alto a destra per visualizzare la cronologia degli ordini",
+        "step1": "Inserisci questo numero in {{title}}.",
         "step2": "Usa il pulsante 'Ottieni codice' nella home page per recuperare il codice di verifica dopo aver aggiunto il numero al servizio",
         "step3": "Se non viene ricevuto alcun codice, il pagamento verrà rimborsato automaticamente entro 21 minuti",
         "automaticRefund": "Nessun numero disponibile per questo servizio. I tuoi fondi sono già stati rimborsati.",
@@ -1141,7 +1141,7 @@
       "depositMinimumStablecoin": "I pagamenti devono essere di almeno {{amount}}",
       "depositFeeText": "Dettagli delle commissioni",
       "depositFeePopup_bitcoin": "I Bitcoin inviati a questo indirizzo comportano una piccola commissione di rete per la ricezione. La commissione viene detratta dall'importo ricevuto, quindi il saldo potrebbe risultare leggermente inferiore rispetto all'importo inviato.",
-      "depositFeePopup_liquid": "I Liquid Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione{{feeDisplay}}, detratta dall'importo ricevuto.",
+      "depositFeePopup_liquid": "I Liquid Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione, detratta dall’importo ricevuto.",
       "depositFeePopup_rootstock": "I Rootstock Bitcoin inviati a questo indirizzo vengono cambiati in Bitcoin utilizzabili dal tuo portafoglio. Il cambio comporta una piccola commissione, detratta dall'importo ricevuto.",
       "depositFeePopup_stablecoins": "Le stablecoin inviate a questo indirizzo vengono convertite in dollari nel tuo portafoglio. Una piccola commissione di conversione di circa l'1% viene detratta dall'importo ricevuto.",
       "depositFeePopup_accumulation_bitcoin": "Il Bitcoin inviato a questo indirizzo viene convertito in bitcoin utilizzabile dal tuo portafoglio. Una piccola commissione di conversione di circa l'1% viene detratta dall'importo ricevuto."
@@ -1195,7 +1195,7 @@
       "failedToTransfer": "Trasferimento dei fondi del pool non riuscito",
       "notFound": "Pool non trovato",
       "closePoolTitle": "Chiudere questo pool?",
-      "closePoolWarning": "Tutti i fondi verranno trasferiti al tuo wallet principale. Questo pool non accetterà più pagamenti e non potrà essere riaperto.",
+      "closePoolWarning": "L’importo di {{amount}} viene trasferito al tuo wallet principale. Il pool non accetterà più pagamenti e non potrà essere riaperto.",
       "closePool": "Chiudi pool",
       "goal": "Obiettivo: ",
       "payment_one": "{{count}} pagamento",
@@ -1605,7 +1605,7 @@
       "title": "Valuta di ricezione",
       "description": "Scegli come ricevere pagamenti dai contatti e dal tuo indirizzo Lightning.",
       "futurePaymentsMessage": "Tutti i pagamenti futuri saranno ricevuti in {{option}}",
-      "warningMessage": "Se selezioni {{option}}, è previsto un minimo di {{amount}}. I pagamenti più piccoli saranno ricevuti in Bitcoin.",
+      "warningMessage": "I pagamenti inferiori a {{amount}} arrivano comunque in Bitcoin.",
       "changeSelectionError": "{{option}} è già selezionato. Modifica la selezione per aggiornare l’impostazione.",
       "arriveAsSats": "I pagamenti arrivano in sats",
       "arriveAsDollars": "I pagamenti arrivano in dollari"
@@ -2544,7 +2544,7 @@
           "editMessage": "Modifica la valuta di visualizzazione nelle impostazioni POS.",
           "itemNamePlaceholder": "Nome articolo",
           "pricePlaceholder": "Prezzo ({{number}})",
-          "updateCurrency": "Aggiorna Valuta",
+          "updateCurrency": "Salva in {{currency}}",
           "addItemBTN": "Aggiungi Articolo",
           "currencyChangeNote": "Questo prezzo è stato impostato in {{from}}. Salvando vengono addebitati {{amount}} in {{to}}."
         },
@@ -2839,7 +2839,7 @@
       },
       "transactions": {
         "title": "Attività",
-        "noTxHistorySub": "Le transazioni del conto appariranno qui una volta che invieranno o riceveranno una."
+        "noTxHistorySub": "I pagamenti di {{name}} appariranno qui quando ne invierà o riceverà uno."
       },
       "page": {
         "title": "Conto figlio",

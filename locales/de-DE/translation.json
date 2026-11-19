@@ -959,7 +959,7 @@
         "phoneStepSubtitle": "Geben Sie die vollständige Nummer ohne Ländervorwahl ein (z. B. 2025551234 für (202) 555-1234).",
         "invalidMessageError": "Bitte geben Sie eine Nachricht ein, bevor Sie fortfahren.",
         "descriptionStepTitle": "Ihre Nachricht hinzufügen",
-        "descriptionStepSubtitle": "SMS4Sats erfordert eine Nachricht. Halten Sie sie kurz und unter 140 Zeichen.",
+        "descriptionStepSubtitle": "An {{phone}}. Halten Sie es unter 140 Zeichen.",
         "descriptionInputPlaceholder": "Nachricht eingeben",
         "confirmedSubtitle": "An {{phone}} · {{amount}}"
       },
@@ -1000,7 +1000,7 @@
       "confirmCodePage": {
         "header": "Ihre Bestellung wurde erfolgreich gestartet",
         "phoneNumberLabel": "Ihre Nummer:",
-        "step1": "Tippen Sie auf das Beleg-Symbol oben rechts, um Ihren Bestellverlauf anzuzeigen.",
+        "step1": "Geben Sie diese Nummer in {{title}} ein.",
         "step2": "Verwenden Sie die Schaltfläche „Code abrufen“ auf der Startseite, um Ihren Bestätigungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben.",
         "step3": "Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet.",
         "automaticRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder wurden bereits zurückerstattet.",
@@ -1195,7 +1195,7 @@
       "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
-      "closePoolWarning": "Alle Gelder werden an Ihre Haupt-Wallet übertragen. Dieser Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
+      "closePoolWarning": "Alle {{amount}} werden in Ihre Haupt-Wallet übertragen. Der Pool nimmt keine Zahlungen mehr an und kann nicht wieder geöffnet werden.",
       "closePool": "Sparpool schließen",
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
@@ -1605,7 +1605,7 @@
       "title": "Empfangswährung",
       "description": "Wählen Sie, wie Sie Zahlungen von Kontakten und Ihrer Lightning-Adresse erhalten möchten.",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen.",
-      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in Bitcoin empfangen.",
+      "warningMessage": "Zahlungen unter {{amount}} kommen weiterhin als Bitcoin an.",
       "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern.",
       "arriveAsSats": "Zahlungen kommen als Sats an",
       "arriveAsDollars": "Zahlungen kommen als Dollar an"
@@ -2544,7 +2544,7 @@
           "editMessage": "Die Standardwährung können Sie in den POS-Einstellungen ändern.",
           "itemNamePlaceholder": "Artikelname",
           "pricePlaceholder": "Preis ({{number}})",
-          "updateCurrency": "Standardwährung aktualisieren",
+          "updateCurrency": "In {{currency}} speichern",
           "addItemBTN": "Artikel hinzufügen",
           "currencyChangeNote": "Dieser Preis wurde in {{from}} festgelegt. Beim Speichern werden {{amount}} in {{to}} berechnet."
         },
@@ -2839,7 +2839,7 @@
       },
       "transactions": {
         "title": "Aktivität",
-        "noTxHistorySub": "Die Transaktionen des verwalteten Kontos erscheinen hier, sobald eine Transaktion gesendet oder empfangen wurde."
+        "noTxHistorySub": "Die Zahlungen von {{name}} erscheinen hier, sobald eine gesendet oder empfangen wird."
       },
       "page": {
         "title": "Verwaltetes Konto",
