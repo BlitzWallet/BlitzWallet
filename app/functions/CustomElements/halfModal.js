@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { SheetDragContext } from './scrollView';
 import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import {
   KeyboardAvoidingView,
@@ -788,20 +795,43 @@ export default function CustomHalfModal(props) {
     }
   };
 
-  const panGesture = Gesture.Pan()
-    .enabled(!dismissLocked)
-    .onUpdate(e => {
-      if (e.translationY > 0) {
-        translateY.value = e.translationY;
-      }
-    })
-    .onEnd(e => {
-      if (e.translationY > 100) {
-        scheduleOnRN(handleBackPressFunction);
-      } else {
-        translateY.value = withSpring(0);
-      }
-    });
+  // Drag anywhere on the sheet to close. Scrollers in the sheet run alongside
+  // (CustomScrollView) and hold the sheet still while scrolled down; the drag
+  // counts from the moment the list reaches its top.
+  const scrollBlocksDrag = useSharedValue(false);
+  const dragStart = useSharedValue(null);
+  // ponytail: no momentum handoff and no scroll lock while the sheet is
+  // pulled down; add both if a list sheet feels off.
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!dismissLocked)
+        .activeOffsetY(10)
+        .failOffsetX([-15, 15])
+        .onUpdate(e => {
+          if (scrollBlocksDrag.value) {
+            dragStart.value = null;
+            return;
+          }
+          if (dragStart.value === null) dragStart.value = e.translationY;
+          translateY.value = Math.max(0, e.translationY - dragStart.value);
+        })
+        .onEnd(() => {
+          if (translateY.value > 100) {
+            scheduleOnRN(handleBackPressFunction);
+          } else {
+            translateY.value = withSpring(0);
+          }
+        })
+        .onFinalize(() => {
+          dragStart.value = null;
+        }),
+    [dismissLocked, handleBackPressFunction],
+  );
+  const sheetDrag = useMemo(
+    () => ({ panGesture, scrollBlocksDrag }),
+    [panGesture],
+  );
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -819,29 +849,29 @@ export default function CustomHalfModal(props) {
         disabled={dismissLocked}
         onPress={handleBackPressFunction}
       />
-      <Animated.View
-        style={[
-          styles.contentContainer,
-          animatedStyle,
-          {
-            backgroundColor: 'black',
-            marginTop: topPadding + CONTENT_KEYBOARD_OFFSET,
-          },
-          Platform.OS === 'web' && styles.webContentConteiner,
-        ]}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: tokens.surface,
-            ...(Platform.OS === 'web' && {
-              paddingLeft: leftPadding,
-              paddingRight: rightPadding,
-            }),
-            paddingBottom: bottomPadding,
-          }}
+      <GestureDetector gesture={panGesture}>
+        <Animated.View
+          style={[
+            styles.contentContainer,
+            animatedStyle,
+            {
+              backgroundColor: 'black',
+              marginTop: topPadding + CONTENT_KEYBOARD_OFFSET,
+            },
+            Platform.OS === 'web' && styles.webContentConteiner,
+          ]}
         >
-          <GestureDetector gesture={panGesture}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: tokens.surface,
+              ...(Platform.OS === 'web' && {
+                paddingLeft: leftPadding,
+                paddingRight: rightPadding,
+              }),
+              paddingBottom: bottomPadding,
+            }}
+          >
             <View style={styles.topBarContainer}>
               <View
                 style={[
@@ -852,14 +882,16 @@ export default function CustomHalfModal(props) {
                 ]}
               />
             </View>
-          </GestureDetector>
-          <SheetSurface>
-            <View style={[styles.gutter, { width: contentWidth }]}>
-              {renderContent()}
-            </View>
-          </SheetSurface>
-        </View>
-      </Animated.View>
+            <SheetDragContext.Provider value={sheetDrag}>
+              <SheetSurface>
+                <View style={[styles.gutter, { width: contentWidth }]}>
+                  {renderContent()}
+                </View>
+              </SheetSurface>
+            </SheetDragContext.Provider>
+          </View>
+        </Animated.View>
+      </GestureDetector>
     </KeyboardAvoidingView>
   );
 }

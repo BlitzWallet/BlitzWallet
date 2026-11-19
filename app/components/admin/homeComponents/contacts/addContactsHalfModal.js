@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { EMAIL_REGEX, VALID_URL_REGEX } from '../../../../constants';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
@@ -499,6 +500,7 @@ export function AddContactContent({
           />
           <ListCard dividerInset={LIST_DIVIDER_INSET} style={styles.results}>
             <FlatList
+              renderScrollComponent={props => <CustomScrollView {...props} />}
               showsVerticalScrollIndicator={false}
               data={users}
               ItemSeparatorComponent={ListDivider}

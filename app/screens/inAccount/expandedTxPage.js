@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Keyboard,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image as ExpoImage } from 'expo-image';
 import {
@@ -616,7 +611,7 @@ export default function ExpandedTx({
     : tokens.ink;
 
   return (
-    <ScrollView
+    <CustomScrollView
       ref={scrollRef}
       style={styles.scroll}
       showsVerticalScrollIndicator={false}
@@ -831,7 +826,7 @@ export default function ExpandedTx({
           </AdaptiveButtonRow>
         )}
       </View>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 
