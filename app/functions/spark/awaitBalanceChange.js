@@ -1,6 +1,6 @@
 import { AppState } from 'react-native';
 import { getSparkBalance } from './index';
-import { acquire } from './walletRuntime';
+import { acquire, identityFor, peek } from './walletRuntime';
 
 // Breez events that can change a balance. They carry no balance themselves, so
 // each one just triggers a fresh getSparkBalance read.
@@ -78,9 +78,14 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
       if (BALANCE_EVENTS.has(event?.type)) readBalance();
     });
 
-    // Events are missed while backgrounded: re-read on foreground.
+    // Events are missed while backgrounded, and a server-mode wallet never
+    // syncs itself: sync, then re-read on foreground.
     appStateSub = AppState.addEventListener('change', state => {
-      if (!cancelled && state === 'active') readBalance();
+      if (!cancelled && state === 'active')
+        handle
+          .sync()
+          .catch(() => {})
+          .then(readBalance);
     });
 
     // Pull operator state once, then read: anything that landed between the
@@ -146,6 +151,11 @@ export const awaitSparkBalance = ({
     timer = setTimeout(async () => {
       let finalResult = lastResult;
       try {
+        // A server-mode wallet only sees funds that landed after open once it
+        // syncs again.
+        await peek(await identityFor(mnemonic))
+          ?.sync()
+          .catch(() => {});
         const read = await getSparkBalance(mnemonic);
         if (read?.didWork) finalResult = read;
       } catch {}
