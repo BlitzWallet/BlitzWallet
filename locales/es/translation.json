@@ -3220,7 +3220,7 @@
           "unclaimed": "No canjeado",
           "reclaimed": "Recuperado",
           "noClaimURL": "No hay URL de reclamo disponible para este regalo. Por favor espera hasta que el regalo haya expirado para recuperar tu dinero.",
-          "copyLink": "Copiar enlace",
+          "viewGift": "Ver regalo",
           "pastGifts": "Regalos anteriores",
           "noNote": "Sin nota",
           "activeCount": "Activo · {{count}}",

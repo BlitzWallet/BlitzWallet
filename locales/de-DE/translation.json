@@ -3220,7 +3220,7 @@
           "unclaimed": "Nicht eingelöst",
           "reclaimed": "Zurückgeholt",
           "noClaimURL": "Kein Einlöse-Link für dieses Geschenk verfügbar. Bitte warten Sie, bis das Geschenk abgelaufen ist, um Ihr Geld zurückzuerhalten.",
-          "copyLink": "Link kopieren",
+          "viewGift": "Geschenk ansehen",
           "pastGifts": "Vergangene Geschenke",
           "noNote": "Keine Notiz",
           "activeCount": "Aktiv · {{count}}",

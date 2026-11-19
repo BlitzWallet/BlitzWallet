@@ -46,10 +46,8 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 import Note from '../../../../functions/CustomElements/redesign/Note';
-import {
-  destinationLabel,
-  shortenAddress,
-} from './AccumulationAddressCard';
+import { destinationLabel, shortenAddress } from './AccumulationAddressCard';
+import useQrSize from '../../../../hooks/useQrSize';
 
 function normalizeFileUri(uri) {
   return uri.startsWith('file://') ? uri : `file://${uri}`;
@@ -65,6 +63,7 @@ export default function AccumulationAddressDetail() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const { qrSize } = useQrSize();
   const { tokens } = GetThemeColors();
   const { addressesForOption, deleteAddress } = useAccumulationAddresses();
   const viewShotRef = useRef(null);
@@ -271,9 +270,7 @@ export default function AccumulationAddressDetail() {
               ref={viewShotRef}
               options={{ format: 'jpg', quality: 0.9 }}
             >
-              <QrCard
-                value={depositAddress}
-              >
+              <QrCard value={depositAddress} size={qrSize}>
                 <TouchableOpacity
                   disabled={!hasSeveral}
                   onPress={handleSelectAddress}

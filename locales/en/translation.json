@@ -3220,7 +3220,7 @@
           "unclaimed": "Unclaimed",
           "reclaimed": "Reclaimed",
           "noClaimURL": "No claim URL available for this gift. Please wait till the gift is expired to reclaim your money.",
-          "copyLink": "Copy link",
+          "viewGift": "View gift",
           "pastGifts": "Past gifts",
           "noNote": "No note",
           "activeCount": "Active · {{count}}",

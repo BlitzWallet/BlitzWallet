@@ -3220,7 +3220,7 @@
           "unclaimed": "Ej utkrävd",
           "reclaimed": "Återvunnen",
           "noClaimURL": "Ingen inlösnings-URL tillgänglig för detta present. Vänta tills presenten har gått ut för att återfå dina pengar.",
-          "copyLink": "Kopiera länk",
+          "viewGift": "Visa gåva",
           "pastGifts": "Tidigare gåvor",
           "noNote": "Ingen anteckning",
           "activeCount": "Aktiv · {{count}}",

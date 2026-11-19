@@ -726,6 +726,7 @@ export default function CustomHalfModal(props) {
           <LNURLAccountMangement
             account={props?.route?.params?.account}
             lnurlAddress={props?.route?.params?.lnurlAddress}
+            setContentHeight={setContentHeight}
           />
         );
       case 'ProfilePhotoModal':

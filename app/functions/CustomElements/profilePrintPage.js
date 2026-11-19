@@ -31,7 +31,7 @@ export default function ProfilePrintPage() {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { width } = useWindowDimensions();
   // Card padding is 16 (styles.card); the QR has none of its own here.
-  const { qrSize, cardWidth, contentWidth } = useQrSize({ cardPadding: 20 });
+  const { qrSize, cardWidth, contentWidth } = useQrSize({ cardPadding: 24 });
   const viewShotRef = useRef(null);
 
   const { name, uniqueName } = globalContactsInformation.myProfile;

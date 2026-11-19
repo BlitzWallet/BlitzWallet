@@ -28,6 +28,8 @@ import { useToast } from '../../../../../../../context-store/toastManager';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import Segmented from '../../../../../../functions/CustomElements/redesign/Segmented';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
+import useQrSize from '../../../../../../hooks/useQrSize';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 
 export default function ChildLinkCode(props) {
   const navigate = useNavigation();
@@ -48,6 +50,7 @@ export default function ChildLinkCode(props) {
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('code');
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const { qrSize } = useQrSize();
 
   const isQrTab = selectedDisplayOption === 'qr';
 
@@ -173,16 +176,14 @@ export default function ChildLinkCode(props) {
       </View>
     ) : (
       <View style={styles.tabContent}>
-        <PageHeader
-          title={t('settings.childAccounts.pairing.qrTitle')}
-          sub={t('settings.childAccounts.pairing.qrSubtitle')}
-        />
-        <QrCard
-          value={qrValue}
-          size={250}
-          style={styles.qrWrap}
-        />
-        {downloadPrompt}
+        <CustomScrollView showsVerticalScrollIndicator={false}>
+          <PageHeader
+            title={t('settings.childAccounts.pairing.qrTitle')}
+            sub={t('settings.childAccounts.pairing.qrSubtitle')}
+          />
+          <QrCard value={qrValue} size={qrSize} style={styles.qrWrap} />
+          {downloadPrompt}
+        </CustomScrollView>
       </View>
     );
 

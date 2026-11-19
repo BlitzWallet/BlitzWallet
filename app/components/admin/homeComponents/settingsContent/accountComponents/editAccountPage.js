@@ -418,7 +418,6 @@ export default function EditAccountPage(props) {
             wantedContent: 'LNURLAccountMangement',
             lnurlAddress: lnurlAddress,
             account: selectedAccount,
-            sliderHight: 0.7,
           }),
       },
   ].filter(Boolean);

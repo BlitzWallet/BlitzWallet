@@ -11,8 +11,6 @@ import ThemeText from '../../../../functions/CustomElements/textTheme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useToast } from '../../../../../context-store/toastManager';
-import { copyToClipboard } from '../../../../functions';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import ProgressBar from '../../../../functions/CustomElements/redesign/ProgressBar';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
@@ -40,7 +38,6 @@ export default function GiftsOverview() {
   const { giftsArray, checkForRefunds, updateGiftList } = useGifts();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { showToast } = useToast();
   const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -83,8 +80,13 @@ export default function GiftsOverview() {
     };
   }, [giftsArray]);
 
-  const copyLink = gift => {
-    if (gift.claimURL) copyToClipboard(gift.claimURL, showToast);
+  const viewGift = gift => {
+    if (gift.claimURL)
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'giftQrCode',
+        claimURL: gift.claimURL,
+        title: titleOf(gift),
+      });
     else
       navigate.navigate('ErrorScreen', {
         errorMessage: t(`${GIFT_T}.noClaimURL`),
@@ -156,7 +158,7 @@ export default function GiftsOverview() {
         styles={[styles.sub, styles.heroNote, mutedStyle]}
       />
       <Pressable
-        onPress={() => copyLink(gift)}
+        onPress={() => viewGift(gift)}
         accessibilityRole="button"
         style={({ pressed }) => [
           styles.copyButton,
@@ -164,8 +166,8 @@ export default function GiftsOverview() {
           pressed && { opacity: 0.6 },
         ]}
       >
-        <ThemeIcon redesign iconName="Copy" size={18} />
-        <ThemeText content={t(`${GIFT_T}.copyLink`)} styles={styles.copyText} />
+        <ThemeIcon redesign iconName="QrCode" size={18} />
+        <ThemeText content={t(`${GIFT_T}.viewGift`)} styles={styles.copyText} />
       </Pressable>
     </View>
   );
@@ -173,16 +175,16 @@ export default function GiftsOverview() {
   const renderCompact = gift => (
     <Pressable
       key={gift.uuid}
-      onPress={() => copyLink(gift)}
+      onPress={() => viewGift(gift)}
       style={({ pressed }) => [
         styles.compact,
         { backgroundColor: tokens.surface },
         pressed && { opacity: 0.6 },
       ]}
     >
-      <View style={styles.compactTop}>
+      <View style={[styles.compactTop, { gap: 0 }]}>
         <AssetDisc asset={giftAsset(gift)} />
-        <View style={styles.flex}>
+        <View style={[styles.flex, { marginHorizontal: 12 }]}>
           <ThemeText content={titleOf(gift)} styles={styles.title} />
           <ThemeText
             content={`${
@@ -196,7 +198,7 @@ export default function GiftsOverview() {
           />
         </View>
         <ThemeText content={amountOf(gift)} styles={styles.amount} />
-        <ThemeIcon redesign iconName="Copy" size={16} />
+        <ThemeIcon redesign iconName="ChevronRight" size={16} />
       </View>
       <ProgressBar
         value={progressOf(gift)}

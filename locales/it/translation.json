@@ -3220,7 +3220,7 @@
           "unclaimed": "Non riscattato",
           "reclaimed": "Recuperato",
           "noClaimURL": "Nessun URL di riscatto disponibile per questo regalo. Attendi che il regalo scada per recuperare il tuo denaro.",
-          "copyLink": "Copia link",
+          "viewGift": "Visualizza regalo",
           "pastGifts": "Regali passati",
           "noNote": "Nessuna nota",
           "activeCount": "Attivo · {{count}}",

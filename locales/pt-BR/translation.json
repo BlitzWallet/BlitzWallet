@@ -3220,7 +3220,7 @@
           "unclaimed": "Não resgatado",
           "reclaimed": "Reembolsado",
           "noClaimURL": "Nenhum URL de resgate disponível para este Vale-Blitz. Por favor, aguarde até que o presente expire para recuperar seu dinheiro.",
-          "copyLink": "Copiar link",
+          "viewGift": "Ver Vale-Blitz",
           "pastGifts": "Presentes anteriores",
           "noNote": "Sem nota",
           "activeCount": "Ativo · {{count}}",

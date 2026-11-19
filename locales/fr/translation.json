@@ -3220,7 +3220,7 @@
           "unclaimed": "Non réclamé",
           "reclaimed": "Récupéré",
           "noClaimURL": "Aucune URL de réclamation disponible pour ce cadeau. Veuillez attendre que le cadeau expire pour récupérer votre argent.",
-          "copyLink": "Copier le lien",
+          "viewGift": "Voir le cadeau",
           "pastGifts": "Cadeaux passés",
           "noNote": "Aucune note",
           "activeCount": "Actif · {{count}}",
