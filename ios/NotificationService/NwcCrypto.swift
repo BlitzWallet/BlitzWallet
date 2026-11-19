@@ -70,16 +70,21 @@ enum NwcCrypto {
   }
 
   // Unhashed x coordinate of secret * lift_x(publicKey), as used by NIP-04/44.
+  // Uses secp256k1_ecdh (constant time in the secret) with a hash function that
+  // copies x; secp256k1_ec_pubkey_tweak_mul is variable time in its scalar.
   static func sharedX(secret: [UInt8], publicKey: [UInt8]) throws -> [UInt8] {
     var point = secp256k1_pubkey()
+    var out = [UInt8](repeating: 0, count: 32)
     guard secret.count == 32, publicKey.count == 32,
       secp256k1_ec_pubkey_parse(ctx, &point, [0x02] + publicKey, 33) == 1,
-      secp256k1_ec_pubkey_tweak_mul(ctx, &point, secret) == 1
+      secp256k1_ecdh(
+        ctx, &out, &point, secret,
+        { output, x32, _, _ in
+          output!.update(from: x32!, count: 32)
+          return 1
+        }, nil) == 1
     else { throw NwcCryptoError.invalidKey }
-    var out = [UInt8](repeating: 0, count: 33)
-    var length = 33
-    secp256k1_ec_pubkey_serialize(ctx, &out, &length, &point, UInt32(SECP256K1_EC_COMPRESSED))
-    return Array(out[1..<33])
+    return out
   }
 
   // MARK: NIP-01 event id
