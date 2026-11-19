@@ -218,7 +218,12 @@ export default function TotalTipsScreen({
       } else throw new Error(t('settings.posPath.totalTipsScreen.invalidName'));
     } catch (err) {
       console.log('handle tips payment error', err);
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
+      navigate.navigate('ErrorScreen', {
+        errorMessage:
+          err.code === 'DUPLICATE_USERNAME'
+            ? t('errormessages.duplicateUsernameError')
+            : err.message,
+      });
     } finally {
       setIsNotifying(false);
       goTo('tips');

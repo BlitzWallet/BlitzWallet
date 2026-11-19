@@ -415,8 +415,12 @@ export default function ConfirmTxPage(props) {
                     isAdded: true,
                   };
                   navigate.replace('ExpandedAddContactsPage', { newContact });
-                } catch (_) {
+                } catch (err) {
                   setIsAddingContact(false);
+                  if (err.code === 'DUPLICATE_USERNAME')
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage: t('errormessages.duplicateUsernameError'),
+                    });
                 }
               } else {
                 const uuid = customUUID();

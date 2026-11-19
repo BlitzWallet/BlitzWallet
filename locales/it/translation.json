@@ -3649,6 +3649,7 @@
     "declinePaymentError": "C'è stato un problema nel rifiutare questo pagamento, riprova.",
     "payingContactError": "Non siamo riusciti a ottenere l'indirizzo del contatto, riprova.",
     "noUserFoundDeeplinkError": "Impossibile trovare un utente per questo username.",
+    "duplicateUsernameError": "C'è più di un utente con questo username, quindi non possiamo capire quale intendi. Chiedigli di cambiare username.",
     "cannotAddSelfError": "Non puoi aggiungerti come contatto.",
     "fullDeeplinkError": "Impossibile recuperare le informazioni del contatto, riprova.",
     "contactNotLoaded": "Impossibile caricare il contatto. Riprova.",

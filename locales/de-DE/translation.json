@@ -3649,6 +3649,7 @@
     "declinePaymentError": "Beim Ablehnen dieser Zahlung ist ein Problem aufgetreten. Bitte versuchen Sie es erneut.",
     "payingContactError": "Die Adresse des Kontakts konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
     "noUserFoundDeeplinkError": "Für diesen Benutzernamen konnte kein Benutzer gefunden werden.",
+    "duplicateUsernameError": "Mehrere Benutzer verwenden diesen Benutzernamen, daher können wir nicht erkennen, wen Sie meinen. Bitte bitten Sie sie, ihren Benutzernamen zu ändern.",
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
     "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
     "contactNotLoaded": "Kontakt konnte nicht geladen werden. Bitte versuchen Sie es erneut.",

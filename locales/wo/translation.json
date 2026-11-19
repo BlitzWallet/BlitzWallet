@@ -3649,6 +3649,7 @@
     "declinePaymentError": "Am na jafe-jafe ci bañ fey bii. Jéemaatal.",
     "payingContactError": "Mënunu am adreesu jokkoo bi. Jéemaatal.",
     "noUserFoundDeeplinkError": "Gisunu benn jëfandikukat ci turu jëfandikukat bii.",
+    "duplicateUsernameError": "Am nañu jëfandikukat yu ëpp benn yu am turu jëfandikukat bii, kon mënunu xam kan nga bëgg. Laal leen soppi seen turu jëfandikukat.",
     "cannotAddSelfError": "Mënuloo yokk sa bopp ni jokkoo.",
     "fullDeeplinkError": "Mënunu jël xibaari jokkoo bi. Jéemaatal.",
     "contactNotLoaded": "Yebunu jokkoo bi. Jéemaatal.",

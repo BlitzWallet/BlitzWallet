@@ -3649,6 +3649,7 @@
     "declinePaymentError": "Ocorreu um problema ao recusar este pagamento, tente novamente.",
     "payingContactError": "Não conseguimos obter o endereço de contato, tente novamente.",
     "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este perfil.",
+    "duplicateUsernameError": "Há mais de um usuário com este nome de usuário, então não podemos saber qual você quer dizer. Peça para ele mudar o nome de usuário.",
     "cannotAddSelfError": "Você não pode adicionar a si mesmo como um contato.",
     "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
     "contactNotLoaded": "Contato não carregado. Tente novamente.",
