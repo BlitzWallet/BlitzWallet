@@ -941,10 +941,7 @@ export default function WithdrawFromSavingsHalfModal({
       <>
         {backBar}
         <SheetHeader title={t('savings.withdraw.chooseGoalTitle')} />
-        <CustomScrollView
-          style={styles.list}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView style={styles.list}>
           <ListCard tone="flush">
             {/* Withdraw All — drains the entire savings wallet in one action */}
             {shouldShowWithdrawlAll &&

@@ -202,7 +202,6 @@ export default function ChildEnterCode() {
           <>
             <CustomScrollView
               style={styles.codeScroll}
-              showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.codeScrollContent}
               keyboardShouldPersistTaps="handled"
             >

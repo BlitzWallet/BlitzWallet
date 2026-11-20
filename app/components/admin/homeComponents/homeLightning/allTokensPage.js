@@ -53,10 +53,7 @@ export default function AllTokensPage() {
           placeholder={t('wallet.homeLightning.balancePage.searchTokens')}
           containerStyles={styles.search}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+        <CustomScrollView keyboardShouldPersistTaps="handled">
           {!isReady ? null : tokens.length ? (
             <ListCard dividerInset={68} style={styles.card}>
               {tokens.map(token => (

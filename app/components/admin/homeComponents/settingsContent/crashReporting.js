@@ -58,7 +58,6 @@ export default function CrashReportingSettingsPage() {
         <TopBar title={t('screens.inAccount.settingsContent.crash reports')} />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <ListCard style={styles.switchCard}>

@@ -138,7 +138,6 @@ export default function PosSettingsPage() {
             paddingTop: 16,
             paddingBottom: FADE,
           }}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           <BrandLogoUploader

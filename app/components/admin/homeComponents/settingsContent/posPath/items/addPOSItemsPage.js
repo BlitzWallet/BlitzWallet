@@ -181,10 +181,7 @@ export default function AddPOSItemsPage() {
             pill
           />
         </View>
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           {formattedElements.length ? (
             <ListCard>{formattedElements}</ListCard>
           ) : (

@@ -48,7 +48,6 @@ export default function SpendAndReplace() {
         />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <ListCard style={styles.firstCard}>

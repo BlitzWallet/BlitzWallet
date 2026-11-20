@@ -222,10 +222,7 @@ export default function SMSMessagingSendDescriptionPage(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('constants.send')} shouldDismissKeyboard={true} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <PageHeader
             title={t('apps.sms4sats.sendPage.descriptionStepTitle')}
             sub={t('apps.sms4sats.sendPage.descriptionStepSubtitle', {

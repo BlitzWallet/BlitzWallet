@@ -54,10 +54,7 @@ export default function GenerateKey() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
             title={t(

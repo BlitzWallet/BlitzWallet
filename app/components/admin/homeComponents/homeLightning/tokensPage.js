@@ -42,7 +42,7 @@ export default function TokensPage() {
     <GlobalThemeView styles={styles.page} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('constants.tokens')} />
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView>
           <ThemeText
             content={t('wallet.homeLightning.balancePage.balances')}
             variant={'hint'}

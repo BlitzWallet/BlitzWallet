@@ -353,7 +353,6 @@ export default function ExpandedContactsPage(props) {
           />
         ) : (
           <CustomScrollView
-            showsVerticalScrollIndicator={false}
             style={styles.flex}
             contentContainerStyle={styles.listContent}
           >

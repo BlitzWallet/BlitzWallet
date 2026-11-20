@@ -53,10 +53,7 @@ export default function AccumulationAddressSelectHalfModal({
           chain: chainLabel,
         })}
       />
-      <CustomScrollView
-        style={styles.list}
-        showsVerticalScrollIndicator={false}
-      >
+      <CustomScrollView style={styles.list}>
         <ListCard>
           {list.map(addr => {
             const date = createdDate(addr);

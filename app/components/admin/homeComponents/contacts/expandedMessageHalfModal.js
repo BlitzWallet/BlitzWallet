@@ -67,7 +67,6 @@ export default function ExpandedMessageHalfModal({
           styles.card,
           { backgroundColor: tokens.ground },
         ]}
-        showsVerticalScrollIndicator={false}
       >
         <ThemeText
           variant="body"

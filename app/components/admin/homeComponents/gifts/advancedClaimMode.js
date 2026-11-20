@@ -70,7 +70,7 @@ export default function AdvancedGiftClaim() {
           shouldDismissKeyboard={true}
         />
 
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView>
           <PageHeader
             title={t('screens.inAccount.giftPages.advancedMode.title')}
             sub={t('screens.inAccount.giftPages.advancedMode.sub')}

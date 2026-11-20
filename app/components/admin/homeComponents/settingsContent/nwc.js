@@ -64,10 +64,7 @@ export default function NosterWalletConnect({ route }) {
 
   return (
     <CustomPageWrapper>
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <CustomScrollView contentContainerStyle={styles.scrollContent}>
         {savedNWCAccountsList.length > 0 ? (
           <View style={styles.accountsList}>
             <ListCard>

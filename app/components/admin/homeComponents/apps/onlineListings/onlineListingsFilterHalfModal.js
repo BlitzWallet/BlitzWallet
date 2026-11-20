@@ -202,10 +202,7 @@ export default function OnlineListingsFilterHalfModal({
             style={styles.page}
           >
             <View style={[styles.mainContent]}>
-              <CustomScrollView
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={false}
-              >
+              <CustomScrollView style={styles.scrollView}>
                 <SheetHeader first title={filterTitle} />
 
                 <SectionHeader
@@ -462,7 +459,6 @@ function CountryPickerPage({
             renderScrollComponent={props => <CustomScrollView {...props} />}
             style={styles.countryFlatList}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={[styles.countryList]}
             ItemSeparatorComponent={CountryListDivider}
             data={filteredCountries}

@@ -75,7 +75,6 @@ export default function SeedPhraseWarning(props) {
       <CustomScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
       >
         <ThemeText
           styles={[styles.title, { color: tokens.ink }]}

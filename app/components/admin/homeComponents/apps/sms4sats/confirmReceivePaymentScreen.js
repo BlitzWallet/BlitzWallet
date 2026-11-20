@@ -68,7 +68,6 @@ export default function ConfirmSMSReceivePage(props) {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          showsVerticalScrollIndicator={false}
         >
           <View onLayout={handleContentLayout}>
             {/* Animation Section */}

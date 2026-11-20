@@ -97,7 +97,6 @@ export default function ReceiveHomeRedesign() {
         {sortedContacts.length ? (
           <CustomScrollView
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.list}
           >
             <SectionHeader first title={t('receive.requestFromContact')} />

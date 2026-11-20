@@ -254,7 +254,6 @@ export default function SettingsIndex() {
         <TopBar title={t('settings.index.settingsHead')} />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {renderSection(

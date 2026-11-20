@@ -435,10 +435,7 @@ export default function SendAmountScreen(props) {
             ) : null
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContainer}>
           <AmountHero
             amount={amountText}
             formatAmount={false}

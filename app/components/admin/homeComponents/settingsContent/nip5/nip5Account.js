@@ -225,7 +225,6 @@ export default function Nip5VerificationPage() {
           right={<IconButton icon={'Info'} onPress={openInfo} />}
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
           contentContainerStyle={styles.scrollContent}
         >

@@ -445,10 +445,7 @@ export default function ChatGPTHome(props) {
 
         <View style={styles.container}>
           {hasNoChats ? (
-            <CustomScrollView
-              keyboardShouldPersistTaps="always"
-              showsVerticalScrollIndicator={false}
-            >
+            <CustomScrollView keyboardShouldPersistTaps="always">
               <QuestionDiscoveryGrid onSelect={submitChaMessage} />
             </CustomScrollView>
           ) : (

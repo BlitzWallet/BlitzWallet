@@ -150,10 +150,7 @@ export default function UnilateralExitTracker() {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <View style={[styles.container, { width: contentWidth }]}>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.doneContent}
-          >
+          <CustomScrollView contentContainerStyle={styles.doneContent}>
             <LottieView
               source={getConfirmTxAnimation(theme, darkModeType)}
               renderMode="SOFTWARE"
@@ -196,10 +193,7 @@ export default function UnilateralExitTracker() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('settings.unilateralExit.title')} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.hero}>
             <ThemeText
               variant="hint"

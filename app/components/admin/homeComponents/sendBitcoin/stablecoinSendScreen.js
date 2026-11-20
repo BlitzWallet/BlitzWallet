@@ -763,7 +763,6 @@ export default function StablecoinSendScreen() {
         />
 
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
             !isConfirmMode && styles.scrollContentCentered,

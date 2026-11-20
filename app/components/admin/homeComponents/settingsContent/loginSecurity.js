@@ -142,7 +142,6 @@ function NewPasswordStep({
   const { tokens } = GetThemeColors();
   return (
     <CustomScrollView
-      showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={[
         styles.scrollContent,
@@ -357,7 +356,6 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
 
   return (
     <CustomScrollView
-      showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
@@ -567,7 +565,6 @@ function WebPasskeySettings({ passkeyInfo, onChanged }) {
 
   return (
     <CustomScrollView
-      showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >
@@ -811,7 +808,6 @@ function LoginSecurityNative({ extraData }) {
 
   return (
     <CustomScrollView
-      showsVerticalScrollIndicator={false}
       style={styles.innerContainer}
       contentContainerStyle={styles.scrollContent}
     >

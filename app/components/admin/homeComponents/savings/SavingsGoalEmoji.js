@@ -2,12 +2,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
@@ -54,10 +54,7 @@ export default function SavingsGoalEmoji() {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('savings.goalEmoji.screenTitle')} />
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             variant={'title'}
             styles={styles.title}
@@ -94,7 +91,7 @@ export default function SavingsGoalEmoji() {
               );
             })}
           </View>
-        </ScrollView>
+        </CustomScrollView>
 
         <BottomActions>
           <CustomButton

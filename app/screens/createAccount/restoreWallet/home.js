@@ -328,10 +328,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
       <View style={[styles.viewContainer, { width: contentWidth }]}>
         <TopBar />
         <View style={styles.keyContainer}>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.contentContainer}
-          >
+          <CustomScrollView contentContainerStyle={styles.contentContainer}>
             <PageHeader
               large
               title={t('createAccount.restoreWallet.home.header')}

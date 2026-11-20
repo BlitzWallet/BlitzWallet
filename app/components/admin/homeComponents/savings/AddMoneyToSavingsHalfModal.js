@@ -371,10 +371,7 @@ export default function AddMoneyToSavingsHalfModal({
   const renderChooseGoal = () => (
     <>
       <SheetHeader title={t('savings.addMoney.chooseGoalTitle')} first={true} />
-      <CustomScrollView
-        style={styles.list}
-        showsVerticalScrollIndicator={false}
-      >
+      <CustomScrollView style={styles.list}>
         <ListCard tone="flush">
           {/* General savings — always shown so users can deposit without a goal */}
           <ListRow

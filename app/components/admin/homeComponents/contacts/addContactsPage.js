@@ -37,11 +37,7 @@ export default function AddContactsPage({ selectedContact }) {
           variant="hint"
           content={t('contacts.editMyProfilePage.bioInputDesc')}
         />
-        <CustomScrollView
-          style={styles.bioScroll}
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}
-        >
+        <CustomScrollView style={styles.bioScroll} nestedScrollEnabled={true}>
           <ThemeText variant="body" content={bio} />
         </CustomScrollView>
       </View>

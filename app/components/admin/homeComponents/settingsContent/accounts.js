@@ -138,7 +138,6 @@ export default function CreateCustodyAccounts() {
         <CustomScrollView
           style={styles.scrollContainer}
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
         >
           {activeAccounts.length > 0 ? (
             <ListCard>

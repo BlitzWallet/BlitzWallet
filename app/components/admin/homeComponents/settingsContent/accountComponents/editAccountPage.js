@@ -564,10 +564,7 @@ export default function EditAccountPage(props) {
             )
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps={'handled'}
-        >
+        <CustomScrollView keyboardShouldPersistTaps={'handled'}>
           <View style={styles.avatarContainer}>
             <TouchableOpacity
               activeOpacity={canEditAvatar ? 0.2 : 1}

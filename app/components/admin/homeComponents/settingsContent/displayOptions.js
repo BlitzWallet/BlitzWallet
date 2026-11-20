@@ -74,7 +74,7 @@ export default function DisplayOptions() {
         <TopBar
           title={t('screens.inAccount.settingsContent.display options')}
         />
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView>
           <View
             style={[styles.previewCard, { backgroundColor: tokens.surface }]}
           >

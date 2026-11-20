@@ -29,10 +29,7 @@ export default function CombinedOnboardingWarning() {
 
   return (
     <View style={[styles.content, { width: contentWidth }]}>
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <CustomScrollView contentContainerStyle={styles.scrollContent}>
         <PageHeader
           title={t('settings.nwc.combinedOnboarding.infoTitle')}
           sub={t('settings.nwc.combinedOnboarding.infoSubtitle')}

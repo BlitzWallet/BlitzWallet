@@ -59,7 +59,6 @@ export default function UnilateralExitAddress(props) {
           shouldDismissKeyboard={true}
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
           contentContainerStyle={styles.scrollContent}
         >

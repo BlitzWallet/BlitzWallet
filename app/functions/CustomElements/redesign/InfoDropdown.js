@@ -67,10 +67,7 @@ export default function InfoDropdown({
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
-        <CustomScrollView
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView scrollEnabled={false}>
           <View
             onLayout={e => {
               console.log(e.nativeEvent.layout.height, 'content height,dd');

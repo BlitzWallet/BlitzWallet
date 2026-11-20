@@ -113,10 +113,7 @@ export default function UnilateralExitPayFee() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('settings.unilateralExit.title')} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           {!!feeAddress && (
             <View style={styles.block}>
               <QrCard

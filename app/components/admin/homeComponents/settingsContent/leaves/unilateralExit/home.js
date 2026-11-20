@@ -158,10 +158,7 @@ export default function UnilateralExitHome(props) {
           title={t('settings.unilateralExit.title')}
           right={<IconButton icon={'Ellipsis'} onPress={openActions} />}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             styles={styles.title}
             content={t('settings.unilateralExit.homeTitle')}

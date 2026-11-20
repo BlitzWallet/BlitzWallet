@@ -40,7 +40,7 @@ export default function BalancePage(props) {
         <TopBar
           title={t(`constants.${isBitcoin ? 'bitcoin' : 'dollars'}_upper`)}
         />
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView>
           <ThemeText
             content={t('constants.balance')}
             variant={'hint'}

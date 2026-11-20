@@ -68,7 +68,6 @@ export default function RoostockSwapsPage() {
   return (
     <CustomScrollView
       style={styles.container}
-      showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
     >
       <ListCard dividerInset={0} style={styles.card}>

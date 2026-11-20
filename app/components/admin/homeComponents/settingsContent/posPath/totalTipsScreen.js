@@ -345,10 +345,7 @@ export default function TotalTipsScreen({
             title={t('settings.posPath.totalTipsScreen.tips')}
             style={styles.tipsHeader}
           />
-          <CustomScrollView
-            style={styles.list}
-            showsVerticalScrollIndicator={false}
-          >
+          <CustomScrollView style={styles.list}>
             <ListCard>
               {sourtedTxs.map(item => (
                 <TipsTXItem

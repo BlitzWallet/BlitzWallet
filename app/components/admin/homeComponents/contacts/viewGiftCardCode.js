@@ -150,10 +150,7 @@ export default function ViewGiftCardCodePage({ route }) {
     <GlobalThemeView useStandardWidth={true} styles={styles.page}>
       <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
         <TopBar title={title} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.hero}>
             <DiscText
               text={storeName.trim().charAt(0).toUpperCase() || '?'}

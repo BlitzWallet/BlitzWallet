@@ -92,10 +92,7 @@ export default function SavingsGoalDetails(props) {
             selectedGoal?.name || t('savings.goalDetails.screenTitleFallback')
           }`}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.progressWrap}>
             <CircularProgress
               current={goalProgress * 100}

@@ -406,7 +406,6 @@ function InnerContent({
         ]}
       >
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
@@ -541,7 +540,6 @@ function InnerContent({
   return (
     <View style={styles.innerContainer}>
       <CustomScrollView
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contactScrollContent}
         keyboardShouldPersistTaps="handled"
       >

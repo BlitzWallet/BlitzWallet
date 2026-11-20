@@ -521,7 +521,6 @@ export default function CreateSplitBill(props) {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('contacts.splitBill.createBillTitle')} />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.scrollContent}
         >

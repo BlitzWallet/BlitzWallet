@@ -104,7 +104,6 @@ export default function SendList() {
         <TopBar title={t('constants.send')} />
         {sortedContacts.length ? (
           <CustomScrollView
-            showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.list}
           >

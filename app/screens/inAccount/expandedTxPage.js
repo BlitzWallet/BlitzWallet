@@ -614,7 +614,6 @@ export default function ExpandedTx({
     <CustomScrollView
       ref={scrollRef}
       style={styles.scroll}
-      showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
       <View

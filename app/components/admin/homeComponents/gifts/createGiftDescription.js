@@ -39,10 +39,7 @@ export default function CreateGiftDescription(props) {
           title={t('screens.inAccount.giftPages.createGift.header')}
           shouldDismissKeyboard={true}
         />
-        <CustomScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           <PageHeader
             title={t('screens.inAccount.giftPages.createGift.descriptionTitle')}
             sub={t(

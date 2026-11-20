@@ -169,10 +169,7 @@ export default function UnilateralExitReview(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t(`settings.unilateralExit.${titleKey}`)} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollPad}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollPad}>
           {preview && (
             <>
               <View style={styles.hero}>

@@ -259,10 +259,7 @@ export default function AccumulationAddressDetail() {
             />
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           {/* 200 ms cross-fade when another address in the group is picked */}
           <Animated.View
             key={selected.accumulationAddressId}

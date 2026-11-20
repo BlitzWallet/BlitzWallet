@@ -217,10 +217,7 @@ export default function SettingsHub(props) {
             />
           }
         />
-        <CustomScrollView
-          styles={{ paddingBottom: bottomPadding }}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView styles={{ paddingBottom: bottomPadding }}>
           <ProfileCard
             profileImage={myProfileImage}
             name={myContact?.name}

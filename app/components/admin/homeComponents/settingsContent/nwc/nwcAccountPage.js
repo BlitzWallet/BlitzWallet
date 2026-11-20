@@ -114,10 +114,7 @@ export default function NWCAccountPage(props) {
           }
         />
 
-        <CustomScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ListCard>
             {editableItems.map((item, index) => (
               <ListRow

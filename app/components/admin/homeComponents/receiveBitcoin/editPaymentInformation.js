@@ -295,7 +295,6 @@ export default function EditReceivePaymentInformation(props) {
         />
 
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.amountScrollContainer,
             { opacity: isKeyboardFocused ? HIDDEN_OPACITY : 1 },

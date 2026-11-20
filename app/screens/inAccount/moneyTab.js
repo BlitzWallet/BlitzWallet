@@ -318,7 +318,6 @@ export default function MoneyTab({ navigation }) {
         </View>
         <CustomScrollView
           ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}

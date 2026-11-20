@@ -362,7 +362,6 @@ export default function PoolDetailScreen(props) {
         />
         <CustomScrollView
           refreshControl={refreshControl}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {/* ── Section 1: Hero — Progress Ring ── */}

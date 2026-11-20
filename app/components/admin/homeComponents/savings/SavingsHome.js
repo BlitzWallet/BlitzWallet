@@ -143,7 +143,6 @@ export default function SavingsHome() {
           }
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.heroCard}>

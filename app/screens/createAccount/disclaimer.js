@@ -69,10 +69,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
             title={t('createAccount.disclaimerPage.header')}

@@ -121,10 +121,7 @@ export default function AccumulationAddressesHome() {
           title={t('screens.accumulationAddresses.sectionTitle')}
           style={styles.sectionHeader}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ListCard>
             {groups.map(item => (
               <AccumulationAddressCard

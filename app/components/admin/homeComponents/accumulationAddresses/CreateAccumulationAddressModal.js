@@ -178,7 +178,6 @@ export default function CreateAccumulationAddressModal({
           ref={scrollViewRef}
           style={styles.list}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
-          showsVerticalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
           onLayout={onLayout}

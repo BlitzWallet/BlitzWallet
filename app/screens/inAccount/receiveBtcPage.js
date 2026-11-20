@@ -365,10 +365,7 @@ export default function ReceivePaymentHome(props) {
             />
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           {/* Match the QR card's width so the text lines up with it. */}
           <View style={[styles.amount, { width: cardWidth }]}>
             {primary ? (

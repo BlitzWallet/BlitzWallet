@@ -237,10 +237,7 @@ export default function ReceiveAddressPage(props) {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={title} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           <ReceiveQrCard
             onPress={openAddressSheet}
             value={address}

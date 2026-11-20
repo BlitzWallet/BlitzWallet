@@ -207,7 +207,6 @@ export default function ChildEnterName(props) {
           title={t('settings.accountComponents.editAccountName.title')}
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
           contentContainerStyle={styles.scrollContent}
         >

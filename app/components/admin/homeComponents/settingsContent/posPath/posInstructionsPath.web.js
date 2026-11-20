@@ -181,10 +181,7 @@ export default function POSInstructionsPath() {
             />
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={signCardStyle} ref={cardRef}>
             <StaffSignCard
               posURL={posURL}

@@ -69,7 +69,6 @@ export default function SparkInfo() {
         <TopBar title={t('screens.inAccount.settingsContent.spark info')} />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <SectionHeader first title={t('settings.sparkInfo.title')} />

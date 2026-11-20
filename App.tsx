@@ -92,7 +92,6 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
 import { ActivitySeenProvider } from './context-store/activitySeen';
-import { DropdownProvider } from './context-store/dropdownContext';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import {
@@ -145,52 +144,50 @@ function App(): JSX.Element {
           <KeyboardProvider>
             <ToastProvider>
               <GlobalThemeProvider>
-                <DropdownProvider>
-                  <AppStatusProvider>
-                    <AuthStatusProvider>
-                      <KeysContextProvider>
-                        <BTCMapProvider>
-                          <GlobalContactsList>
-                            <GlobalContextProvider>
-                              <ActiveCustodyAccountProvider>
-                                <SparkWalletProvider>
-                                  <ActivitySeenProvider>
-                                    <GLobalNodeContextProider>
-                                      <GlobalAppDataProvider>
-                                        <PushNotificationProvider>
-                                          <LiquidEventProvider>
-                                            <RootstockSwapProvider>
-                                              <ImageCacheProvider>
-                                                <GlobalServerTimeProvider>
-                                                  <FlashnetProvider>
-                                                    <UserBalanceProvider>
-                                                      <AnalyticsNumbersProvider>
-                                                        <SpendAndReplaceProvider>
-                                                          {/* <Suspense
+                <AppStatusProvider>
+                  <AuthStatusProvider>
+                    <KeysContextProvider>
+                      <BTCMapProvider>
+                        <GlobalContactsList>
+                          <GlobalContextProvider>
+                            <ActiveCustodyAccountProvider>
+                              <SparkWalletProvider>
+                                <ActivitySeenProvider>
+                                  <GLobalNodeContextProider>
+                                    <GlobalAppDataProvider>
+                                      <PushNotificationProvider>
+                                        <LiquidEventProvider>
+                                          <RootstockSwapProvider>
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                <FlashnetProvider>
+                                                  <UserBalanceProvider>
+                                                    <AnalyticsNumbersProvider>
+                                                      <SpendAndReplaceProvider>
+                                                        {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                          <ResetStack />
-                                                        </SpendAndReplaceProvider>
-                                                      </AnalyticsNumbersProvider>
-                                                    </UserBalanceProvider>
-                                                  </FlashnetProvider>
-                                                  {/* </Suspense> */}
-                                                </GlobalServerTimeProvider>
-                                              </ImageCacheProvider>
-                                            </RootstockSwapProvider>
-                                          </LiquidEventProvider>
-                                        </PushNotificationProvider>
-                                      </GlobalAppDataProvider>
-                                    </GLobalNodeContextProider>
-                                  </ActivitySeenProvider>
-                                </SparkWalletProvider>
-                              </ActiveCustodyAccountProvider>
-                            </GlobalContextProvider>
-                          </GlobalContactsList>
-                        </BTCMapProvider>
-                      </KeysContextProvider>
-                    </AuthStatusProvider>
-                  </AppStatusProvider>
-                </DropdownProvider>
+                                                        <ResetStack />
+                                                      </SpendAndReplaceProvider>
+                                                    </AnalyticsNumbersProvider>
+                                                  </UserBalanceProvider>
+                                                </FlashnetProvider>
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                          </RootstockSwapProvider>
+                                        </LiquidEventProvider>
+                                      </PushNotificationProvider>
+                                    </GlobalAppDataProvider>
+                                  </GLobalNodeContextProider>
+                                </ActivitySeenProvider>
+                              </SparkWalletProvider>
+                            </ActiveCustodyAccountProvider>
+                          </GlobalContextProvider>
+                        </GlobalContactsList>
+                      </BTCMapProvider>
+                    </KeysContextProvider>
+                  </AuthStatusProvider>
+                </AppStatusProvider>
               </GlobalThemeProvider>
             </ToastProvider>
           </KeyboardProvider>

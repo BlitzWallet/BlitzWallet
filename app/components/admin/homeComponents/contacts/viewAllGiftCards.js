@@ -188,7 +188,6 @@ export default function ViewAllGiftCards() {
           </View>
         ) : (
           <CustomScrollView
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 20,
               paddingBottom: 20,

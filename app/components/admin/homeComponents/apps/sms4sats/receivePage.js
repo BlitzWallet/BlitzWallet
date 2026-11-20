@@ -439,10 +439,7 @@ function SMSNumberResult({ result, contentWidth, onDone, paidText, onCopy }) {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar onBack={onDone} />
         {isReady ? (
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.resultScroll}
-          >
+          <CustomScrollView contentContainerStyle={styles.resultScroll}>
             <PageHeader
               title={t('apps.sms4sats.confirmCodePage.header')}
               sub={t('apps.sms4sats.confirmCodePage.paidSubtitle', {

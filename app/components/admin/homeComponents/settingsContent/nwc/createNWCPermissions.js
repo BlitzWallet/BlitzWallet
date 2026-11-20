@@ -136,10 +136,7 @@ export default function CreateNWCPermissions(props) {
           />
         ) : (
           <>
-            <CustomScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
+            <CustomScrollView contentContainerStyle={styles.scrollContent}>
               <PageHeader
                 title={t(
                   isEditing

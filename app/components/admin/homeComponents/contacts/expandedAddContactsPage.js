@@ -150,7 +150,6 @@ export default function ExpandedAddContactsPage(props) {
             paddingBottom: isContactAdded ? bottomPadding : 0,
             flexGrow: 1,
           }}
-          showsVerticalScrollIndicator={false}
           scrollEnabled={isContactAdded && !!contactTransactions.length}
         >
           <SharedHeader

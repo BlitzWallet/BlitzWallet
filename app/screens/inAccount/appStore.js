@@ -59,7 +59,6 @@ export default function AppStore({ navigation }) {
         </View>
         <CustomScrollView
           ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40 },

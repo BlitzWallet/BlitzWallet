@@ -65,7 +65,6 @@ export default function SeedPhrasePage({ extraData, route }) {
     <View style={styles.container}>
       <CustomScrollView
         style={styles.scroll}
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <ThemeText

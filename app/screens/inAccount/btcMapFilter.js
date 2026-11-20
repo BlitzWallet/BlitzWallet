@@ -100,7 +100,6 @@ export default function BTCMapFilterContent({
     <View style={styles.container}>
       <CustomScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
       >
         <SheetHeader first title={t('screens.btcMap.filter.title')} />
 

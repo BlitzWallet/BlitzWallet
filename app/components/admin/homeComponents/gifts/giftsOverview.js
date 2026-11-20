@@ -246,7 +246,6 @@ export default function GiftsOverview() {
           style={styles.flex}
           contentContainerStyle={styles.scrollContent}
           refreshControl={refreshControl}
-          showsVerticalScrollIndicator={false}
         >
           {active.length === 1 && renderHero(active[0])}
           {active.length > 1 && (

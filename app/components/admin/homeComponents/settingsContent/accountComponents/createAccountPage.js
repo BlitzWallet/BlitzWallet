@@ -85,7 +85,6 @@ export default function CreateCustodyAccountPage() {
         />
 
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
           contentContainerStyle={styles.scrollContent}
         >

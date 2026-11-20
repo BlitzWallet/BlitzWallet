@@ -95,10 +95,7 @@ export default function CreateNWCName(props) {
           />
         ) : (
           <>
-            <CustomScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
+            <CustomScrollView contentContainerStyle={styles.scrollContent}>
               <PageHeader
                 title={t(
                   isEditing

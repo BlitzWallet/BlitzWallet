@@ -37,6 +37,9 @@ export default function CustomScrollView(props) {
       <ScrollView
         alwaysBounceVertical={!!props.refreshControl}
         alwaysBounceHorizontal={false}
+        // Off by default; a caller can still pass it (or true) to show a bar.
+        // Must stay above the spread so an explicit prop wins.
+        showsVerticalScrollIndicator={false}
         {...props}
       />
     );
@@ -57,6 +60,9 @@ export default function CustomScrollView(props) {
         alwaysBounceHorizontal={false}
         bounces={!!props.refreshControl}
         scrollEventThrottle={16}
+        // Off by default; a caller can still pass it (or true) to show a bar.
+        // Must stay above the spread so an explicit prop wins.
+        showsVerticalScrollIndicator={false}
         {...props}
         onScroll={onScroll}
       />

@@ -283,7 +283,6 @@ export default function SendAndRequestPage(props) {
             <View style={styles.step}>
               <CustomScrollView
                 style={styles.hero}
-                showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.heroContent}
               >
                 <View style={styles.avatarRow}>
@@ -379,7 +378,6 @@ export default function SendAndRequestPage(props) {
               <CustomScrollView
                 style={styles.hero}
                 keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.noteContent}
               >
                 <View style={styles.headline}>

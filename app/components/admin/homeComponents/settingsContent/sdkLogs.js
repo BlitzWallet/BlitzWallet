@@ -68,7 +68,6 @@ export default function SdkLogs() {
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={false}

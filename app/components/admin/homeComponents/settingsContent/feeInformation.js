@@ -54,7 +54,6 @@ export default function BlitzFeeInformation() {
         />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <ThemeText

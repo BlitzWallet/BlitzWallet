@@ -176,7 +176,7 @@ export default function ChildLinkCode(props) {
       </View>
     ) : (
       <View style={styles.tabContent}>
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView>
           <PageHeader
             title={t('settings.childAccounts.pairing.qrTitle')}
             sub={t('settings.childAccounts.pairing.qrSubtitle')}

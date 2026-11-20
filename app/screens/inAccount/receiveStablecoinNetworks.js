@@ -26,10 +26,7 @@ export default function ReceiveStablecoinNetworks(props) {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('receive.receiveAsset', { asset })} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           <ThemeText
             styles={[styles.sub, { color: tokens.muted }]}
             content={t('receive.pickNetworkSub')}

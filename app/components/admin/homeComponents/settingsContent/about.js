@@ -70,7 +70,6 @@ export default function AboutPage() {
       <View style={[styles.content, { width: contentWidth }]}>
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <SectionHeader first title={t('settings.about.licenseHeader')} />

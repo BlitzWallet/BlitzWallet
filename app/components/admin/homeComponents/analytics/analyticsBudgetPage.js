@@ -102,7 +102,6 @@ export default function AnalyticsBudgetPage() {
             styles.scrollContent,
             { paddingBottom: bottomPadding },
           ]}
-          showsVerticalScrollIndicator={false}
         >
           {/* Circular progress */}
           <View style={styles.circleContainer}>

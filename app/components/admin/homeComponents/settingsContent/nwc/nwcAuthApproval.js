@@ -234,10 +234,7 @@ export default function NWCAuthApproval({
     <View style={styles.container}>
       {!!request && (
         <AnimatedStep active={currentPage === 'request'} direction={direction}>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
+          <CustomScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
               <Disc icon={'Plug'} size={64} iconSize={28} />
 

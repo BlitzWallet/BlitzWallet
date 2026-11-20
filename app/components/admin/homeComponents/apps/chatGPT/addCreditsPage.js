@@ -33,10 +33,7 @@ export default function AddChatGPTCredits() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <PageTitle
             titleStyles={styles.unlockTitle}
             text={t('apps.chatGPT.addCreditsPage.unlockTitle')}

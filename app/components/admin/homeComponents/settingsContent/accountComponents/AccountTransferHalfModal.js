@@ -671,7 +671,6 @@ export default function AccountTransferHalfModal({
           first={true}
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           style={styles.accountList}
           contentContainerStyle={styles.accountListContent}
         >

@@ -72,10 +72,7 @@ export default function ViewContibutors(props) {
             }),
           })}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ListCard>
             {contributers.map((item, index) => {
               if (!item) return null;

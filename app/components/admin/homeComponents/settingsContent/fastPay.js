@@ -126,7 +126,6 @@ export default function FastPay() {
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
         >
           <ListCard style={styles.firstCard}>
             <ListRow

@@ -108,10 +108,7 @@ export default function POSInstructionsPath() {
             />
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ViewShot
             style={signCardStyle}
             ref={viewShotRef}

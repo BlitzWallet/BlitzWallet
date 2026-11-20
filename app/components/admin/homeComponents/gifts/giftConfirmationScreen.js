@@ -166,7 +166,6 @@ export default function GiftConfirmation(props) {
         <CustomScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
             <ResultAnimation />

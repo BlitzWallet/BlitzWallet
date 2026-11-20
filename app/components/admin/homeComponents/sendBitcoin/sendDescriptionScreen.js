@@ -206,7 +206,6 @@ export default function SendDescriptionScreen(props) {
         <CustomScrollView
           style={styles.hero}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.noteContent}
         >
           <View style={styles.headline}>

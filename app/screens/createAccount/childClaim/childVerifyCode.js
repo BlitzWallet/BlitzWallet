@@ -47,10 +47,7 @@ export default function ChildVerifyCode() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar onBack={handleNoMatch} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
             title={t('settings.childAccounts.claim.sasTitle')}

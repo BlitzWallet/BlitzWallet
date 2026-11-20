@@ -93,7 +93,6 @@ export default function SelectStablecoinParamsScreen() {
           }
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: FADE },

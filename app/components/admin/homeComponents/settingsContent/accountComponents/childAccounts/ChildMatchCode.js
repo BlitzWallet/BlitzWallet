@@ -77,10 +77,7 @@ export default function ChildMatchCode() {
           onBack={handleNoMatch}
           right={<PairingExpiryClock />}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             title={t('settings.childAccounts.pairing.sasTitle')}
             sub={t('settings.childAccounts.pairing.sasSubtitle')}

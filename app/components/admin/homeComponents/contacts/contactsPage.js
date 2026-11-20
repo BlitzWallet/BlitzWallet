@@ -237,7 +237,6 @@ export default function ContactsPage({ navigation }) {
         />
         <CustomScrollView
           ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}

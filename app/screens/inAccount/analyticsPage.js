@@ -118,7 +118,6 @@ export default function AnalyticsPage() {
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
-          showsVerticalScrollIndicator={false}
         >
           {isEmpty ? (
             <View style={styles.empty}>

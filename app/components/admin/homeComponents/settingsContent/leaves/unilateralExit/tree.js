@@ -227,10 +227,7 @@ export default function UnilateralExitTree() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('settings.unilateralExit.transactions')} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             variant="hint"
             content={t('settings.unilateralExit.treeNote')}
