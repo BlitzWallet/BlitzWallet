@@ -23,6 +23,7 @@ import {
 } from '../../constants';
 import { useReducedMotion } from '../../constants/motion';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../navigation/tabs/useTabScrollToTop';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -190,7 +191,7 @@ function SpentCard({ weeklySpent, onPress }) {
   );
 }
 
-export default function MoneyTab({ navigation }) {
+export default function MoneyTab() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = useTheme();
@@ -205,14 +206,7 @@ export default function MoneyTab({ navigation }) {
   const [weeklySpent, setWeeklySpent] = useState(null);
   const [rowValues, setRowValues] = useState(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation.addListener('tabPress', () => {
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   useFocusEffect(
     useCallback(() => {

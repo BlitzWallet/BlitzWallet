@@ -31,6 +31,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../../../navigation/tabs/useTabScrollToTop';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
 import PageTitle from '../../../../functions/CustomElements/redesign/PageTitle';
@@ -65,16 +66,7 @@ export default function ContactsPage({ navigation }) {
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = myProfile?.didEditProfile;
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation?.addListener('tabPress', () => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: 0, animated: true });
-        }
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   // Use custom hooks for processed data
   const contactInfoList = useProcessedContacts(

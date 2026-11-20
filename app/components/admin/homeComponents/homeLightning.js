@@ -7,7 +7,7 @@ import {
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import HomeNav from './navBar';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
@@ -35,6 +35,7 @@ import Animated, {
   LayoutAnimationConfig,
 } from 'react-native-reanimated';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../../navigation/tabs/useTabScrollToTop';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
 import AmountHero from '../../../functions/CustomElements/redesign/AmountHero';
 import { useNodeContext } from '../../../../context-store/nodeContext';
@@ -87,7 +88,7 @@ const MemoizedStickyNavbarContainer = memo(
   },
 );
 
-export default function HomeLightning({ navigation }) {
+export default function HomeLightning() {
   const { fiatStats } = useNodeContext();
   const {
     sparkInformation,
@@ -151,16 +152,7 @@ export default function HomeLightning({ navigation }) {
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation?.addListener('tabPress', () => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: 0, animated: true });
-        }
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {

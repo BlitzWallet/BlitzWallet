@@ -18,6 +18,7 @@ import { useGlobalInsets } from '../../context-store/insetsProvider';
 import ThemeIcon from '../../app/functions/CustomElements/themeIcon';
 import IconButton from '../../app/functions/CustomElements/redesign/IconButton';
 import BottomFade from '../../app/functions/CustomElements/redesign/BottomFade';
+import { requestTabScrollToTop } from './useTabScrollToTop';
 
 const Tab = createBottomTabNavigator();
 
@@ -104,8 +105,9 @@ function MyTabBar({ state, navigation }) {
                 canPreventDefault: true,
               });
 
-              if (!focused && !event.defaultPrevented) {
-                navigation.navigate(route.name, route.params);
+              if (!event.defaultPrevented) {
+                requestTabScrollToTop(route.name);
+                if (!focused) navigation.navigate(route.name, route.params);
               }
             };
 

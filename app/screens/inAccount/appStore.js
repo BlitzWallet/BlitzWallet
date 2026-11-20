@@ -1,11 +1,12 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../navigation/tabs/useTabScrollToTop';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
 import { useGlobalAppData } from '../../../context-store/appData';
 import PageTitle from '../../functions/CustomElements/redesign/PageTitle';
@@ -14,7 +15,7 @@ import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
 
-export default function AppStore({ navigation }) {
+export default function AppStore() {
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
   const { decodedChatGPT, decodedMessages } = useGlobalAppData();
@@ -40,16 +41,7 @@ export default function AppStore({ navigation }) {
     Platform.OS === 'android' ||
     Platform.OS === 'web';
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation?.addListener('tabPress', () => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: 0, animated: true });
-        }
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
