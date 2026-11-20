@@ -7,8 +7,7 @@ import { useCallback, useMemo } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
-import Disc from '../../../../../functions/CustomElements/redesign/Disc';
-import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import RemoveConfirmationHeader from '../../../../../functions/CustomElements/redesign/RemoveConfirmationHeader';
 
 export default function RemoveAccountPage(props) {
   const accountId = props?.route?.params?.accountId;
@@ -49,16 +48,16 @@ export default function RemoveAccountPage(props) {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar />
         <View style={styles.scrollContainer}>
-          {/* Icon */}
-          <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
-
-          <PageHeader
+          <RemoveConfirmationHeader
             title={`${t(
               'settings.accountComponents.removeAccountPage.title',
             )} ${selectedAccount.name}`}
-            sub={t('settings.accountComponents.removeAccountPage.explanation', {
-              context: selectedAccount?.accountType || 'imported',
-            })}
+            description={t(
+              'settings.accountComponents.removeAccountPage.explanation',
+              {
+                context: selectedAccount?.accountType || 'imported',
+              },
+            )}
           />
         </View>
 
@@ -86,10 +85,10 @@ export default function RemoveAccountPage(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContainer: {
-    paddingTop: 20,
+    paddingTop: 24,
     flexGrow: 1,
   },
   buttonsContainer: {
-    gap: 10,
+    gap: 12,
   },
 });
