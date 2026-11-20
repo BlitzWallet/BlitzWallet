@@ -1585,6 +1585,7 @@
       "invalidCharactersError": "Name und Biografie dürfen die Zeichen < > { } ` \\ nicht enthalten.",
       "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com).",
       "aboutYou": "Über Sie",
+      "receiveCurrencyPreference": "Währungspräferenz",
       "lightningAddress": "Lightning-Adresse",
       "addContactLightningAddress": "Lightning-Adresse",
       "deleteContact": "Kontakt löschen",

@@ -1,16 +1,11 @@
 import { useRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import ViewShot from 'react-native-view-shot';
 import QrCard from './redesign/QrCard';
 import copyToClipboard from '../copyToClipboard';
 import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';
-import {
-  CENTER,
-  EMAIL_REGEX,
-  FONT,
-  VALID_URL_REGEX,
-} from '../../constants';
+import { CENTER, EMAIL_REGEX, FONT, VALID_URL_REGEX } from '../../constants';
 import ThemeText from './textTheme';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +13,7 @@ import { MODES } from '../../constants/themes';
 import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { useNavigation } from '@react-navigation/native';
 import { getCachedProfileImage } from '../cachedImage';
-import { shareFile, shareMessage } from '../handleShare';
+import { share } from '../handleShare';
 import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import CustomButton from './button';
@@ -40,30 +35,13 @@ export default function ShowProfileQr(props) {
   const uniqueName = globalContactsInformation.myProfile.uniqueName;
 
   const lnurl = `${uniqueName}@blitzwalletapp.com`;
-  const shareText = t('contacts.showProfileQr.shareMessage', {
-    address: lnurl,
-  });
 
   const handleCopy = () => {
     copyToClipboard(lnurl, showToast);
   };
 
-  // Q12-11: the card as an image on native, plain text otherwise.
   const handleShare = async () => {
-    if (Platform.OS !== 'web') {
-      try {
-        const uri = await viewShotRef.current.capture();
-        const result = await shareFile(uri, {
-          mimeType: 'image/png',
-          UTI: 'public.png',
-          dialogTitle: shareText,
-        });
-        if (result.success) return;
-      } catch (err) {
-        console.log('profile QR image share error', err);
-      }
-    }
-    shareMessage({ message: shareText });
+    share({ url: `https://blitzwalletapp.com/${uniqueName}` });
   };
 
   const handleProfileScan = async data => {
@@ -184,19 +162,27 @@ export default function ShowProfileQr(props) {
               onPress={handleCopy}
               accessibilityLabel={t('contacts.showProfileQr.copyAddress')}
               style={[styles.card, { width: cardWidth }]}
+              header={
+                <View style={styles.cardHeader}>
+                  <ThemeText
+                    CustomNumberOfLines={2}
+                    styles={styles.name}
+                    content={name || t('constants.annonName')}
+                  />
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.uniqueName}
+                    content={`@${uniqueName}`}
+                  />
+                </View>
+              }
             >
-              <View style={styles.cardHeader}>
-                <ThemeText
-                  CustomNumberOfLines={2}
-                  styles={styles.name}
-                  content={name || t('constants.annonName')}
-                />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.uniqueName}
-                  content={`@${uniqueName}`}
-                />
-              </View>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.lnurl}
+                content={lnurl}
+                variant={'hint'}
+              />
             </QrCard>
           </ViewShot>
         </View>
@@ -230,15 +216,14 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   viewShot: { borderRadius: 28, overflow: 'hidden' },
-  // QrCard renders children under the code; column-reverse puts the name
-  // block on top as drawn.
+  // QrCard draws the header (name block) above the code and `children` under
+  // it, so the card just spaces its three parts.
   card: {
     padding: 24,
     paddingTop: 24,
     paddingBottom: 24,
     paddingHorizontal: 24,
     borderWidth: 0,
-    flexDirection: 'column-reverse',
     gap: 20,
   },
   cardHeader: { alignSelf: 'stretch' },

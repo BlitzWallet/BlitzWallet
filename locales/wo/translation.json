@@ -1588,6 +1588,7 @@
       "invalidCharactersError": "Tur ak bio mënuñu am araf yii: < > { } ` \\",
       "invalidReceiveAddressError": "Bindal adreesu Lightning bu baax (misaal: user@domain.com)",
       "aboutYou": "Ci sa mbir",
+      "receiveCurrencyPreference": "Xeetu xaalis bi nga gën a bëgg",
       "lightningAddress": "Adreesu Lightning",
       "addContactLightningAddress": "Adreesu Lightning",
       "share": "Séddoo",

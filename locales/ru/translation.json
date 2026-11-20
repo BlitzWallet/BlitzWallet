@@ -1595,6 +1595,7 @@
       "invalidCharactersError": "Имя и био не могут содержать символы < > { } ` \\",
       "invalidReceiveAddressError": "Введите корректный адрес Молнии (например, user@domain.com)",
       "aboutYou": "О вас",
+      "receiveCurrencyPreference": "Предпочитаемая валюта",
       "lightningAddress": "Lightning-адрес",
       "addContactLightningAddress": "Lightning-адрес",
       "deleteContact": "Удалить контакт",

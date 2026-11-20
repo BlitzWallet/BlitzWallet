@@ -1585,6 +1585,7 @@
       "invalidCharactersError": "Nome e bio non possono contenere i caratteri < > { } ` \\",
       "invalidReceiveAddressError": "Inserisci un indirizzo Lightning valido (es. utente@dominio.com)",
       "aboutYou": "Su di te",
+      "receiveCurrencyPreference": "Preferenza valuta",
       "lightningAddress": "Indirizzo Lightning",
       "addContactLightningAddress": "Indirizzo Lightning",
       "deleteContact": "Elimina contatto",

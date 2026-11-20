@@ -15,8 +15,8 @@ export const QR_BADGE_RATIO = 0.25;
 // QR card for sheets (Wallet Connect, Account address, Gift): white 28 card,
 // 1px divider ring, QR with the profile photo in the centre ring (Blitz logo
 // when there is none). The QR stays dark-on-white in every mode so it always
-// scans. `children` render under the QR (e.g. an address caption). `onPress`
-// makes the whole card tappable.
+// scans. `header` renders above the QR, `children` under it (e.g. an address
+// caption). `onPress` makes the whole card tappable.
 export default function QrCard({
   value,
   size = 216,
@@ -24,6 +24,7 @@ export default function QrCard({
   onPress,
   accessibilityLabel,
   style,
+  header,
   children,
   showBadge = true,
 }) {
@@ -50,6 +51,7 @@ export default function QrCard({
           : cardStyle
       }
     >
+      {header}
       <View style={{ width: size, height: size }}>
         <QRCode
           value={value}

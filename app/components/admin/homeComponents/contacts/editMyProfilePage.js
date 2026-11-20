@@ -199,12 +199,7 @@ function ProfileInputFields({
 
 // ─── My profile nav rows ──────────────────────────────────────────────────────
 
-function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
-  const receiveCurrencyValue =
-    masterInfoObject.lnurlReceiveCurrency === 'usd'
-      ? t('constants.dollars_upper')
-      : t('constants.bitcoin_upper');
-
+function MyProfileRows({ myContact, navigate, t }) {
   return (
     <ListCard style={{ width: '100%' }}>
       <ListRow
@@ -237,6 +232,20 @@ function MyProfileRows({ myContact, navigate, masterInfoObject, t }) {
           navigate.navigate('EditProfileFieldPage', { fieldKey: 'bio' })
         }
       />
+    </ListCard>
+  );
+}
+
+// ─── Receive currency row ─────────────────────────────────────────────────────
+
+function ReceiveCurrencyRow({ masterInfoObject, navigate, t }) {
+  const receiveCurrencyValue =
+    masterInfoObject.lnurlReceiveCurrency === 'usd'
+      ? t('constants.dollars_upper')
+      : t('constants.bitcoin_upper');
+
+  return (
+    <ListCard style={{ width: '100%' }}>
       <ListRow
         title={t('contacts.remotePaymentCurrencySelect.title')}
         value={receiveCurrencyValue}
@@ -478,44 +487,17 @@ function InnerContent({
             style={styles.sectionHeader}
             title={t('contacts.editMyProfilePage.aboutYou')}
           />
-          <MyProfileRows
-            myContact={myContact}
-            navigate={navigate}
-            masterInfoObject={masterInfoObject}
-            t={t}
-          />
+          <MyProfileRows myContact={myContact} navigate={navigate} t={t} />
+
           <SectionHeader
             style={styles.sectionHeader}
-            title={t('contacts.editMyProfilePage.share')}
+            title={t('contacts.editMyProfilePage.receiveCurrencyPreference')}
           />
-
-          <ListCard style={{ width: '100%', marginBottom: 16 }}>
-            {[
-              {
-                key: 'lnAddress',
-                title: t('contacts.editMyProfilePage.lightningAddress'),
-                value: `${myContact.uniqueName}@blitzwalletapp.com`,
-                label: 'contacts.editMyProfilePage.copyLightningAddress',
-              },
-              {
-                key: 'tips',
-                title: t('contacts.editMyProfilePage.tipPage'),
-                value: `blitzwalletapp.com/${myContact.uniqueName}`,
-                label: 'contacts.editMyProfilePage.copyTipPage',
-              },
-            ].map(item => (
-              <ListRow
-                key={item.key}
-                title={item.title}
-                sub={item.value}
-                minHeight={72}
-                trailing={<CopyDisc value={item.value} label={item.label} />}
-                titleStyle={{ ...styles.shareTitle, color: tokens.muted }}
-                subStyle={{ ...styles.shareSub, color: tokens.ink }}
-                subLines={1}
-              />
-            ))}
-          </ListCard>
+          <ReceiveCurrencyRow
+            masterInfoObject={masterInfoObject}
+            navigate={navigate}
+            t={t}
+          />
 
           <CustomButton
             buttonStyles={{
