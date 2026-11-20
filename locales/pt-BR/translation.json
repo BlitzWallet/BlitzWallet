@@ -1549,7 +1549,7 @@
       "noProfilesHint": "Verifique a ortografia ou pesquise o endereço Lightning dele.",
       "lightningAddress": "Endereço Lightning",
       "noName": "Sem nome definido",
-      "scanLabel": "Escaneie o QR code de um contato"
+      "scanLabel": "Leia o QR code de um contato"
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente",
@@ -1700,7 +1700,7 @@
       "shareMessage": "Olá, me adicione no Blitz! {{address}}",
       "copyAddress": "Copiar seu endereço Lightning",
       "qrCode": "Código QR",
-      "printHint": "Escaneie este código para me pagar ou me adicionar no Blitz"
+      "printHint": "Leia este código para me pagar ou me adicionar na Blitz"
     },
     "splitBill": {
       "addFriendsTitle": "Mais pessoas",
@@ -2148,7 +2148,7 @@
         "message": "{{name}} vai parar de funcionar com sua carteira. O dinheiro na sua conta Wallet Connect continua lá."
       },
       "connectionString": {
-        "subtitle": "Escaneie no {{name}} ou copie e cole.",
+        "subtitle": "Leia no {{name}} ou copie e cole.",
         "warning": "Quem tiver este código de conexão pode usar todas as permissões que você deu a ele."
       },
       "addAccount": "Nova conexão",
@@ -3288,7 +3288,7 @@
           "copyAllLinks": "Copiar todos os links",
           "bulkDesc": "Envie cada link para uma pessoa. Cada presente pode ser resgatado uma vez.",
           "bulkRowTitle": "Presente {{number}} · {{amount}}",
-          "scanToClaim": "Escaneie para resgatar",
+          "scanToClaim": "Leia para resgatar",
           "scanWarning": "Quem escanear primeiro resgata o presente."
         },
         "claimHome": {
@@ -3473,7 +3473,7 @@
         "phone": "Telefone",
         "placeholder": "Insira ou cole um endereço",
         "placeholderEmpty": "Insira um endereço",
-        "emptyTitle": "Cole ou escaneie para enviar para qualquer pessoa",
+        "emptyTitle": "Cole ou leia para enviar para qualquer pessoa",
         "emptySub": "Os contatos que você adicionar aparecerão aqui.",
         "contacts": "Enviar para um contato",
         "contact": "Contato"
