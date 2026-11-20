@@ -3,7 +3,11 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import { useTranslation } from 'react-i18next';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -51,7 +55,7 @@ export default function BalancePage(props) {
                 masterInfoObject,
                 fiatStats,
               })}
-              amountSize={60}
+              amountSize={AMOUNT_HERO_SIZE.primary}
               isHidden={masterInfoObject.userBalanceDenomination === 'hidden'}
             />
           </View>

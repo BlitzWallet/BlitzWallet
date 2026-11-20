@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   FONT,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
@@ -374,7 +375,7 @@ export default function ReceivePaymentHome(props) {
               <AmountHero
                 amount={primary}
                 formatAmount={false}
-                amountSize={48}
+                amountSize={AMOUNT_HERO_SIZE.secondary}
                 align="left"
               />
             ) : (

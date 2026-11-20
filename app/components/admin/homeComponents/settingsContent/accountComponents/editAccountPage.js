@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   MAIN_ACCOUNT_UUID,
   MAX_WEB_CONTENT_WIDTH,
@@ -624,7 +625,7 @@ export default function EditAccountPage(props) {
                     ...masterInfoObject,
                     userBalanceDenomination: 'sats',
                   }}
-                  amountSize={48}
+                  amountSize={AMOUNT_HERO_SIZE.secondary}
                 />
               </View>
               <View style={styles.pageContainer}>
@@ -646,7 +647,7 @@ export default function EditAccountPage(props) {
                   }}
                   forceCurrency={'USD'}
                   convertAmount={false}
-                  amountSize={48}
+                  amountSize={AMOUNT_HERO_SIZE.secondary}
                 />
               </View>
             </AnimatedPagerView>

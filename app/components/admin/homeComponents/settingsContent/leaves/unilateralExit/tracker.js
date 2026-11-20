@@ -13,6 +13,7 @@ import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
@@ -208,7 +209,7 @@ export default function UnilateralExitTracker() {
             <AmountHero
               amount={view.amountSats}
               fiatStats={fiatStats}
-              amountSize={44}
+              amountSize={AMOUNT_HERO_SIZE.secondary}
             />
           </View>
           <>

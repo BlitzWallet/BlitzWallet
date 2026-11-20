@@ -8,7 +8,11 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CircularProgress from '../pools/circularProgress';
 import { fromMicros, mergeAndSortSavingsActivity } from './utils';
@@ -156,7 +160,7 @@ export default function SavingsHome() {
               }}
               forceCurrency="USD"
               convertAmount={false}
-              amountSize={48}
+              amountSize={AMOUNT_HERO_SIZE.secondary}
             />
           </View>
 

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardController } from 'react-native-keyboard-controller';
 
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
@@ -326,6 +327,7 @@ export default function SendAndRequestPage(props) {
                       payment.primaryDisplay.denomination,
                   }}
                   mutedValue={!payment.amountValue}
+                  amountSize={AMOUNT_HERO_SIZE.primary}
                 />
               </CustomScrollView>
 

@@ -14,7 +14,11 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+} from '../../../../../constants';
 import { SIZES } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -502,7 +506,7 @@ function LimitStep({ appName, limit, onBack, onDone }) {
           amount={localSatAmount}
           fiatStats={conversionFiatStats}
           masterInfoObject={amountHeroMasterInfoObject}
-          amountSize={52}
+          amountSize={AMOUNT_HERO_SIZE.sheet}
           mutedValue={!hasBudget}
         />
         {hasBudget ? (

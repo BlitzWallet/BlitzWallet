@@ -18,7 +18,13 @@ import BalanceCard, { getAssetBalanceText } from './homeLightning/balanceCard';
 import BalanceActions from './homeLightning/balanceActions';
 import ConnectionErrorCard from './homeLightning/connectionErrorCard';
 import HomeCard from './homeLightning/homeCard';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+} from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 import Animated, {
   useSharedValue,
@@ -261,7 +267,7 @@ export default function HomeLightning({ navigation }) {
                     onPress={handleBalanceChange}
                   >
                     <AmountHero
-                      amountSize={60}
+                      amountSize={AMOUNT_HERO_SIZE.primary}
                       amount={totalSatValue}
                       fiatStats={fiatStats}
                       masterInfoObject={masterInfoObject}

@@ -56,7 +56,11 @@ import {
   optimisticallyUpdateBalanceSnapshot,
 } from '../../../../../functions/spark/balanceSnapshots';
 import { publishParentAccountTransferMessage } from '../../../../../functions/messaging/parentAccountTransferMessage';
-import { FONT, SATSPERBITCOIN } from '../../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  FONT,
+  SATSPERBITCOIN,
+} from '../../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
@@ -757,7 +761,7 @@ export default function AccountTransferHalfModal({
             }}
             forceCurrency={effectivePrimaryDisplay.forceCurrency}
             convertAmount={false}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
             mutedValue={!Number(amountValue)}
           />
         </View>

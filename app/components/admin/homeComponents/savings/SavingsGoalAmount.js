@@ -8,6 +8,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -91,7 +92,7 @@ export default function SavingsGoalAmount(props) {
             forceCurrency={primaryDisplay.forceCurrency}
             convertAmount={false}
             mutedValue={showCurrentTarget}
-            amountSize={60}
+            amountSize={AMOUNT_HERO_SIZE.primary}
           />
         </View>
 

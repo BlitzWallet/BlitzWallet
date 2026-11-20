@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../../../constants';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../../context-store/nodeContext';
@@ -175,7 +179,7 @@ export default function UnilateralExitReview(props) {
                 <AmountHero
                   amount={preview.receiveSats}
                   fiatStats={fiatStats}
-                  amountSize={44}
+                  amountSize={AMOUNT_HERO_SIZE.secondary}
                 />
               </View>
               <ListCard dividerInset={0} style={styles.block}>

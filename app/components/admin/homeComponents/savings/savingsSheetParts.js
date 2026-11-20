@@ -5,7 +5,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
-import { FONT } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, FONT } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 
 // Shared pieces of the Add money and Withdraw sheets (SavingsMove.dc.html,
@@ -70,7 +70,7 @@ export function SheetResult({ label, amountProps, line, buttonText, onDone }) {
           styles={[styles.resultLabel, { color: tokens.muted }]}
           content={label}
         />
-        <AmountHero {...amountProps} amountSize={48} />
+        <AmountHero {...amountProps} amountSize={AMOUNT_HERO_SIZE.secondary} />
         <ThemeText
           variant={'body'}
           styles={[styles.resultLine, { color: tokens.muted }]}

@@ -22,6 +22,7 @@ import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
+  AMOUNT_HERO_SIZE,
   APPROXIMATE_SYMBOL,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -781,7 +782,7 @@ export default function StablecoinSendScreen() {
               amount={amountText}
               formatAmount={false}
               mutedValue={!convertedSendAmount}
-              amountSize={60}
+              amountSize={AMOUNT_HERO_SIZE.primary}
             />
             <ThemeText
               variant="body"

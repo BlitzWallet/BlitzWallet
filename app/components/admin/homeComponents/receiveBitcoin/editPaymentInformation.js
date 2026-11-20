@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -310,7 +311,7 @@ export default function EditReceivePaymentInformation(props) {
               userBalanceDenomination: primaryDisplay.denomination,
             }}
             mutedValue={!amountValue}
-            amountSize={60}
+            amountSize={AMOUNT_HERO_SIZE.primary}
           />
         </CustomScrollView>
 

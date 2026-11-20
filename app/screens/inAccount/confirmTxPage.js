@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { FONT } from '../../constants';
+import { AMOUNT_HERO_SIZE, FONT } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -267,7 +267,7 @@ export default function ConfirmTxPage(props) {
                   displayTokenTicker,
                 })}
                 formatAmount={false}
-                amountSize={56}
+                amountSize={AMOUNT_HERO_SIZE.primary}
               />
             ) : (
               <FormattedSatText

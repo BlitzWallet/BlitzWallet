@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { InputTypes } from 'bitcoin-address-parser';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   QUICK_PAY_STORAGE_KEY,
@@ -656,7 +657,7 @@ export default function SendReviewScreen(props) {
                 <AmountHero
                   amount={amountText}
                   formatAmount={false}
-                  amountSize={60}
+                  amountSize={AMOUNT_HERO_SIZE.primary}
                 />
                 {!!secondaryText && (
                   <ThemeText

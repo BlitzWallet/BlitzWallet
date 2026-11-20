@@ -10,7 +10,7 @@ import {
   fetchAndCacheGiftCardData,
   saveGiftCardData,
 } from '../../../../functions/contacts/giftCardStorage';
-import { CENTER, FONT } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER, FONT } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -177,7 +177,7 @@ export default function ViewGiftCardCodePage({ route }) {
               <AmountHero
                 amount={codeInformation.amountSats}
                 fiatStats={fiatStats}
-                amountSize={48}
+                amountSize={AMOUNT_HERO_SIZE.secondary}
                 splitCents={true}
               />
             )}

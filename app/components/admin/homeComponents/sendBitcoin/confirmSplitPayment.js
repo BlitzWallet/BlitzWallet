@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -809,7 +809,7 @@ export default function ConfirmSplitPayment(props) {
               <AmountHero
                 amount={amountText}
                 formatAmount={false}
-                amountSize={60}
+                amountSize={AMOUNT_HERO_SIZE.primary}
               />
               {uiState === 'CONFIRM_PAYMENT' && !!secondaryText && (
                 <ThemeText

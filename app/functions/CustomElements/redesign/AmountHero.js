@@ -1,5 +1,9 @@
 import { StyleSheet, View } from 'react-native';
-import { FONT, HIDDEN_BALANCE_CLOSE } from '../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  FONT,
+  HIDDEN_BALANCE_CLOSE,
+} from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import displayCorrectDenomination from '../../displayCorrectDenomination';
@@ -16,7 +20,7 @@ export default function AmountHero({
   amount,
   fiatStats,
   masterInfoObject: masterInfoOverride,
-  amountSize = 44,
+  amountSize = AMOUNT_HERO_SIZE.secondary,
   accessibilityLabel,
   mutedValue = false,
   forceCurrency,

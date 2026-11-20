@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { AMOUNT_HERO_SIZE } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -57,7 +58,7 @@ export default function SwapReview({
         }}
         forceCurrency="USD"
         convertAmount={toBitcoin}
-        amountSize={48}
+        amountSize={AMOUNT_HERO_SIZE.secondary}
       />
 
       <ListCard style={styles.details}>

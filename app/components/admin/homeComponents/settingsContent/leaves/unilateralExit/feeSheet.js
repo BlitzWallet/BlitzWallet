@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AMOUNT_HERO_SIZE } from '../../../../../../constants';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../../../functions/CustomElements/button';
@@ -88,7 +89,11 @@ export default function ExitFeeSheet() {
           <SkeletonAmount label={0} amount={160} />
         </View>
       ) : (
-        <AmountHero amount={left} fiatStats={fiatStats} amountSize={44} />
+        <AmountHero
+          amount={left}
+          fiatStats={fiatStats}
+          amountSize={AMOUNT_HERO_SIZE.secondary}
+        />
       )}
       <QrCard
         value={feeAddress}

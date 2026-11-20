@@ -22,6 +22,7 @@ import { FONT } from '../../../../constants/theme';
 import { bulkPaymentRequest } from '../../../../functions/spark/bulkPaymentFunctions';
 import { getDocsByIds } from '../../../../../db';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -548,7 +549,7 @@ export default function CreateSplitBill(props) {
                 amount={isUSD ? totalHeroAmount : totalNative}
                 formatAmount={!isUSD}
                 splitCents={!isUSD}
-                amountSize={52}
+                amountSize={AMOUNT_HERO_SIZE.sheet}
                 mutedValue={totalNative <= 0}
               />
             </TouchableOpacity>

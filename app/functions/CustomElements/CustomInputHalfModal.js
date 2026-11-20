@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import { CONTENT_KEYBOARD_OFFSET } from '../../constants';
+import { AMOUNT_HERO_SIZE, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
 import { StyleSheet, View } from 'react-native';
@@ -168,6 +168,7 @@ export default function CustomInputHalfModal(props) {
           userBalanceDenomination: primaryDisplay.denomination,
         }}
         mutedValue={!amountValue}
+        amountSize={AMOUNT_HERO_SIZE.sheet}
       />
 
       <CustomNumberKeyboard
