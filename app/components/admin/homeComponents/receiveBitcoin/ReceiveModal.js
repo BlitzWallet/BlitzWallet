@@ -21,6 +21,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import { SheetSurface } from '../../../../functions/CustomElements/redesign/sheetSurface';
+import BottomFade from '../../../../functions/CustomElements/redesign/BottomFade';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { QrBadge } from './receiveParts';
 import ReceiveAssetSheet from './ReceiveAssetSheet';
@@ -120,6 +121,10 @@ export default function ReceiveModal({ contentWidth }) {
 
   return (
     <>
+      {/* Docked only: the expanded sheet floats over the page under a scrim. */}
+      {!asset && dockedHeight > 0 && (
+        <BottomFade height={dockedHeight} blockTouches={false} />
+      )}
       {!!asset && (
         <>
           <Animated.View
@@ -213,6 +218,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     ...SHADOWS.small,
+    zIndex: 10,
   },
   floating: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   // Matches halfModal's redesign sheet: grab on top, 34 below the content.

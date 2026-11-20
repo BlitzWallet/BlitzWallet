@@ -17,6 +17,7 @@ import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import ContactAvatarDisc from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
 
 export default function SendList() {
   const { t } = useTranslation();
@@ -136,6 +137,6 @@ export default function SendList() {
 const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  list: { paddingBottom: 24 },
+  list: { paddingBottom: FADE },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
