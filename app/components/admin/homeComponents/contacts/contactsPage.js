@@ -237,7 +237,10 @@ export default function ContactsPage({ navigation }) {
         >
           {pinnedContacts.length !== 0 && filteredContacts.length !== 0 && (
             <>
-              <SectionHeader title={t('contacts.contactsPage.favorites')} />
+              <SectionHeader
+                style={{ marginTop: 5 }}
+                title={t('contacts.contactsPage.favorites')}
+              />
               <View style={memoizedStyles.pinnedContactsContainer}>
                 {pinnedContacts}
               </View>
