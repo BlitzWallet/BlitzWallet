@@ -11,6 +11,8 @@ import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function EditAccountName(props) {
   const accountId = props?.route?.params?.accountId;
@@ -60,6 +62,7 @@ export default function EditAccountName(props) {
         <CustomScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={styles.scrollContent}
         >
           <PageHeader
             title={t('settings.childAccounts.enterName.editTitle')}
@@ -79,15 +82,18 @@ export default function EditAccountName(props) {
             focusRing
           />
         </CustomScrollView>
-        <CustomButton
-          textContent={canSave ? t('constants.save') : t('constants.back')}
-          actionFunction={handleNameUpage}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            textContent={canSave ? t('constants.save') : t('constants.back')}
+            actionFunction={handleNameUpage}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
 }
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
+  scrollContent: { paddingBottom: FADE },
 });

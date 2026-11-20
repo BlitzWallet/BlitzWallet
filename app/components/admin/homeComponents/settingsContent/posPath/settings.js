@@ -11,7 +11,6 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import { useTheme } from '../../../../../../context-store/theme';
-import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useImageCache } from '../../../../../../context-store/imageCache';
@@ -25,6 +24,8 @@ import SectionHeader from '../../../../../functions/CustomElements/redesign/Sect
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 const RowValue = ({ text, icon }) => {
   const { tokens } = useTheme();
@@ -57,8 +58,6 @@ export default function PosSettingsPage() {
 
   const brandLogoUri = cachedImageData?.localUri || null;
   const brandLogoUpdated = cachedImageData?.updated || null;
-
-  const { bottomPadding } = useGlobalInsets();
 
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
   const posItemsList = masterInfoObject?.posSettings?.items || [];
@@ -137,7 +136,7 @@ export default function PosSettingsPage() {
           style={styles.scrollView}
           contentContainerStyle={{
             paddingTop: 16,
-            paddingBottom: bottomPadding,
+            paddingBottom: FADE,
           }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -257,11 +256,13 @@ export default function PosSettingsPage() {
           </ListCard>
         </CustomScrollView>
 
-        <CustomButton
-          actionFunction={handleOpenPOS}
-          textContent={t('settings.posPath.settings.openPos')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={handleOpenPOS}
+            textContent={t('settings.posPath.settings.openPos')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );

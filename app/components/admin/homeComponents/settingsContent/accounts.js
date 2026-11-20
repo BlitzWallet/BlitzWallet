@@ -21,6 +21,8 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import Segmented from '../../../../functions/CustomElements/redesign/Segmented';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
@@ -170,14 +172,16 @@ export default function CreateCustodyAccounts() {
         </CustomScrollView>
 
         {!masterInfoObject.isChildAccount && (
-          <CustomButton
-            actionFunction={handleNavigateAddAccount}
-            textContent={t(
-              'settings.accountComponents.selectCreateAccountType.title',
-            )}
-            size={'regular'}
-            buttonStyles={styles.button}
-          />
+          <BottomActions>
+            <CustomButton
+              actionFunction={handleNavigateAddAccount}
+              textContent={t(
+                'settings.accountComponents.selectCreateAccountType.title',
+              )}
+              size={'regular'}
+              buttonStyles={styles.button}
+            />
+          </BottomActions>
         )}
       </View>
     </GlobalThemeView>
@@ -195,6 +199,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: FADE,
   },
   emptyContainer: {
     flex: 1,

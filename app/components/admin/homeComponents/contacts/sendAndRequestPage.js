@@ -41,6 +41,8 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -327,40 +329,42 @@ export default function SendAndRequestPage(props) {
                 />
               </CustomScrollView>
 
-              <PaymentMethod
-                determinePaymentMethod={payment.paymentMethod}
-                handleSelectPaymentMethod={handleSelectPaymentMethod}
-                bitcoinBalance={payment.balances.sparkBalance}
-                dollarBalanceToken={payment.balances.dollarBalanceToken}
-                masterInfoObject={payment.masterInfoObject}
-                fiatStats={payment.fiatStats}
-                t={t}
-                containerStyles={styles.selectContainer}
-                isSend={paymentType === 'send'}
-              />
+              <BottomActions>
+                <PaymentMethod
+                  determinePaymentMethod={payment.paymentMethod}
+                  handleSelectPaymentMethod={handleSelectPaymentMethod}
+                  bitcoinBalance={payment.balances.sparkBalance}
+                  dollarBalanceToken={payment.balances.dollarBalanceToken}
+                  masterInfoObject={payment.masterInfoObject}
+                  fiatStats={payment.fiatStats}
+                  t={t}
+                  containerStyles={styles.selectContainer}
+                  isSend={paymentType === 'send'}
+                />
 
-              <CustomNumberKeyboard
-                redesign
-                showDot={payment.primaryDisplay.denomination === 'fiat'}
-                frompage="sendContactsPage"
-                setInputValue={payment.setAmountValue}
-                usingForBalance={true}
-                fiatStats={payment.conversionFiatStats}
-                disabled={payment.isResolvingDisplayCurrency}
-                disabledMessage={t(
-                  'contacts.sendAndRequestPage.fiatRateLoading',
-                )}
-              />
-              <CustomButton
-                size="regular"
-                buttonStyles={{
-                  marginTop: CONTENT_KEYBOARD_OFFSET,
-                  opacity: payment.canReview ? 1 : HIDDEN_OPACITY,
-                }}
-                useLoading={payment.isLoading}
-                actionFunction={goToNote}
-                textContent={t('constants.next')}
-              />
+                <CustomNumberKeyboard
+                  redesign
+                  showDot={payment.primaryDisplay.denomination === 'fiat'}
+                  frompage="sendContactsPage"
+                  setInputValue={payment.setAmountValue}
+                  usingForBalance={true}
+                  fiatStats={payment.conversionFiatStats}
+                  disabled={payment.isResolvingDisplayCurrency}
+                  disabledMessage={t(
+                    'contacts.sendAndRequestPage.fiatRateLoading',
+                  )}
+                />
+                <CustomButton
+                  size="regular"
+                  buttonStyles={{
+                    marginTop: CONTENT_KEYBOARD_OFFSET,
+                    opacity: payment.canReview ? 1 : HIDDEN_OPACITY,
+                  }}
+                  useLoading={payment.isLoading}
+                  actionFunction={goToNote}
+                  textContent={t('constants.next')}
+                />
+              </BottomActions>
             </View>
           </AnimatedStep>
 
@@ -398,6 +402,7 @@ export default function SendAndRequestPage(props) {
                     content={t('contacts.sendAndRequestPage.noteFor')}
                   />
                   <TextInput
+                    // scrollEnabled={false}
                     autoFocus
                     multiline
                     maxLength={149}
@@ -415,30 +420,32 @@ export default function SendAndRequestPage(props) {
                 </View>
               </CustomScrollView>
 
-              <View style={styles.noteBar}>
-                <View style={styles.emojiBar}>
-                  <EmojiQuickBar
-                    description={payment.descriptionValue}
-                    onEmojiSelect={payment.setDescriptionValue}
-                    maxLength={149}
-                    removeMargin
-                    pill
+              <BottomActions>
+                <View style={styles.noteBar}>
+                  <View style={styles.emojiBar}>
+                    <EmojiQuickBar
+                      description={payment.descriptionValue}
+                      onEmojiSelect={payment.setDescriptionValue}
+                      maxLength={149}
+                      removeMargin
+                      pill
+                    />
+                  </View>
+                  <CustomButton
+                    size="fit"
+                    tone={'primary'}
+                    useLoading={payment.isLoading}
+                    actionFunction={handleSubmit}
+                    textContent={
+                      paymentType !== 'send'
+                        ? t('constants.request')
+                        : isFastPayEligible
+                        ? t('constants.confirm')
+                        : t('constants.review')
+                    }
                   />
                 </View>
-                <CustomButton
-                  size="fit"
-                  tone={'primary'}
-                  useLoading={payment.isLoading}
-                  actionFunction={handleSubmit}
-                  textContent={
-                    paymentType !== 'send'
-                      ? t('constants.request')
-                      : isFastPayEligible
-                      ? t('constants.confirm')
-                      : t('constants.review')
-                  }
-                />
-              </View>
+              </BottomActions>
             </View>
           </AnimatedStep>
         </View>
@@ -466,7 +473,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingTop: 12,
+    paddingBottom: FADE,
   },
   avatarRow: {
     flexDirection: 'row',
@@ -490,6 +498,7 @@ const styles = StyleSheet.create({
   noteContent: {
     flexGrow: 1,
     paddingTop: 24,
+    paddingBottom: FADE,
   },
   headline: {
     flexDirection: 'row',

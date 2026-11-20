@@ -6,7 +6,11 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { CENTER, FONT } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+} from '../../../../../constants';
 import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -37,6 +41,8 @@ import DiscText from '../../../../../functions/CustomElements/redesign/DiscText'
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 import {
   fetchReceiveOrder,
   fetchSms4Sats,
@@ -363,6 +369,7 @@ export default function SMSMessagingReceivedPage(props) {
           />
         </View>
         <SearchField
+          containerStyles={styles.searchContainer}
           value={searchInput}
           onChangeText={setSearchInput}
           onFocus={() => setIsKeyboardActive(true)}
@@ -411,7 +418,6 @@ export default function SMSMessagingReceivedPage(props) {
             maxToRenderPerBatch={21}
             windowSize={5}
             contentContainerStyle={{
-              paddingTop: 16,
               paddingBottom: bottomPadding,
               gap: 10,
             }}
@@ -494,11 +500,13 @@ function SMSNumberResult({ result, contentWidth, onDone, paidText, onCopy }) {
             />
           </View>
         )}
-        <CustomButton
-          size="regular"
-          textContent={t('constants.done')}
-          actionFunction={onDone}
-        />
+        <BottomActions>
+          <CustomButton
+            size="regular"
+            textContent={t('constants.done')}
+            actionFunction={onDone}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -509,6 +517,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
+  searchContainer: { marginBottom: CONTENT_KEYBOARD_OFFSET },
   countryPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -527,7 +536,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   // Same paddingTop / gaps as the FlatList; name bar sits in the 12 pt line.
-  skeletonGrid: { paddingTop: 16, gap: 10 },
+  skeletonGrid: { gap: 10 },
   skeletonRow: { flexDirection: 'row', gap: 10 },
   skeletonTileInner: { alignItems: 'center', gap: 10 },
   skeletonDisc: { width: 40, height: 40, borderRadius: 20 },
@@ -551,7 +560,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resultScroll: {
-    paddingBottom: 20,
+    paddingBottom: FADE,
   },
   numberCard: {
     alignItems: 'center',

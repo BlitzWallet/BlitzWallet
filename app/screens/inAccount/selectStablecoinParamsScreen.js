@@ -14,8 +14,9 @@ import { middleEllipsis } from '../../functions/CustomElements/redesign/KeyValue
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
 import GetThemeColors from '../../hooks/themeColors';
 import { CENTER, ICONS } from '../../constants';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { Image } from 'expo-image';
+import BottomActions from '../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
 
 const EVM_CHAINS = [
   'Base',
@@ -37,7 +38,6 @@ export default function SelectStablecoinParamsScreen() {
   const { address, chainFamily, unsupportedTokenMessage } = route.params;
   const { t } = useTranslation();
   const { tokens } = GetThemeColors();
-  const { bottomPadding } = useGlobalInsets();
   const contentWidth = useContentWidth();
 
   const isTron = chainFamily === 'Tron';
@@ -96,7 +96,7 @@ export default function SelectStablecoinParamsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: bottomPadding + 20 },
+            { paddingBottom: FADE },
           ]}
         >
           <ListCard>
@@ -134,24 +134,26 @@ export default function SelectStablecoinParamsScreen() {
           </ListCard>
         </CustomScrollView>
 
-        {!!unsupportedTokenMessage && (
-          <View style={styles.note}>
-            <Note text={unsupportedTokenMessage} />
-          </View>
-        )}
+        <BottomActions overlap={!unsupportedTokenMessage}>
+          {!!unsupportedTokenMessage && (
+            <View style={styles.note}>
+              <Note text={unsupportedTokenMessage} />
+            </View>
+          )}
 
-        {!isTron && !isSolana && (
-          <CustomButton
-            size="regular"
-            textContent={t('constants.continue')}
-            actionFunction={handleContinue}
-            disabled={!selectedChain}
-            buttonStyles={[
-              styles.button,
-              !selectedChain ? { opacity: 0.5 } : undefined,
-            ]}
-          />
-        )}
+          {!isTron && !isSolana && (
+            <CustomButton
+              size="regular"
+              textContent={t('constants.continue')}
+              actionFunction={handleContinue}
+              disabled={!selectedChain}
+              buttonStyles={[
+                styles.button,
+                !selectedChain ? { opacity: 0.5 } : undefined,
+              ]}
+            />
+          )}
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );

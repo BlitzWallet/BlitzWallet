@@ -23,6 +23,8 @@ import {
   startExitEngine,
   useUnilateralExit,
 } from '../../../../../../functions/unilateralExit/exitEngine';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function UnilateralExitPayFee() {
   const { t } = useTranslation();
@@ -134,42 +136,44 @@ export default function UnilateralExitPayFee() {
             />
           )}
         </CustomScrollView>
-        {needsMore && (
-          <View style={styles.block}>
-            <Note
-              tone="warn"
-              text={t('settings.unilateralExit.needMore', {
-                amount: format(view.feeNeededSats),
-              })}
-            />
-          </View>
-        )}
-        {!!status && (
-          <View style={styles.block}>
-            <Note text={t(`settings.unilateralExit.${status}`)} />
-          </View>
-        )}
-        {!!lastError && (
-          <View style={styles.block}>
-            <Note tone="warn" text={lastError} />
-          </View>
-        )}
-        <View style={styles.buttons}>
-          {record?.recovery === null && !running && (
+        <BottomActions>
+          {needsMore && (
+            <View style={styles.block}>
+              <Note
+                tone="warn"
+                text={t('settings.unilateralExit.needMore', {
+                  amount: format(view.feeNeededSats),
+                })}
+              />
+            </View>
+          )}
+          {!!status && (
+            <View style={styles.block}>
+              <Note text={t(`settings.unilateralExit.${status}`)} />
+            </View>
+          )}
+          {!!lastError && (
+            <View style={styles.block}>
+              <Note tone="warn" text={lastError} />
+            </View>
+          )}
+          <View style={styles.buttons}>
+            {record?.recovery === null && !running && (
+              <CustomButton
+                textContent={t('settings.unilateralExit.cancelButton')}
+                actionFunction={confirmCancel}
+                tone="danger"
+                size={'regular'}
+              />
+            )}
             <CustomButton
-              textContent={t('settings.unilateralExit.cancelButton')}
-              actionFunction={confirmCancel}
-              tone="danger"
+              textContent={t('constants.copy')}
+              actionFunction={() => copyToClipboard(feeAddress, showToast)}
+              tone="secondary"
               size={'regular'}
             />
-          )}
-          <CustomButton
-            textContent={t('constants.copy')}
-            actionFunction={() => copyToClipboard(feeAddress, showToast)}
-            tone="secondary"
-            size={'regular'}
-          />
-        </View>
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -177,7 +181,7 @@ export default function UnilateralExitPayFee() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 24 },
+  scrollContent: { paddingBottom: FADE },
   block: { marginTop: 16, gap: 12 },
   buttons: { marginTop: 16, gap: 12 },
   qr: { alignSelf: 'center' },

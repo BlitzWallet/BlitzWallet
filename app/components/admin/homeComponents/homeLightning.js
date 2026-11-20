@@ -220,7 +220,7 @@ export default function HomeLightning({ navigation }) {
   const scrollViewContainerStyles = useMemo(() => {
     return {
       flexGrow: 1,
-      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 10,
+      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 25,
     };
   }, [bottomPadding]);
 

@@ -20,6 +20,8 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 const GOAL_EMOJIS = [
   '💵',
@@ -52,7 +54,10 @@ export default function SavingsGoalEmoji() {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar title={t('savings.goalEmoji.screenTitle')} />
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
           <ThemeText
             variant={'title'}
             styles={styles.title}
@@ -91,14 +96,16 @@ export default function SavingsGoalEmoji() {
           </View>
         </ScrollView>
 
-        <CustomButton
-          buttonStyles={styles.button}
-          actionFunction={() =>
-            navigate.navigate('SavingsGoalDescribe', { emoji: selectedEmoji })
-          }
-          textContent={t('savings.goalEmoji.continueButton')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={styles.button}
+            actionFunction={() =>
+              navigate.navigate('SavingsGoalDescribe', { emoji: selectedEmoji })
+            }
+            textContent={t('savings.goalEmoji.continueButton')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -109,6 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
+  scrollContent: { paddingBottom: FADE },
   title: {
     marginTop: 20,
   },

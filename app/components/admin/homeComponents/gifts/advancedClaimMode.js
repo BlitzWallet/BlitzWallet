@@ -20,6 +20,7 @@ export default function AdvancedGiftClaim() {
   const navigate = useNavigation();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const [isKeyboardActive, setIsKeyboardActive] = useState(true);
   const [giftNumber, setGiftNumber] = useState('');
   const giftCount = Math.max(
     0,
@@ -61,6 +62,7 @@ export default function AdvancedGiftClaim() {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
       useLocalPadding={true}
+      isKeyboardActive={isKeyboardActive}
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
@@ -68,7 +70,7 @@ export default function AdvancedGiftClaim() {
           shouldDismissKeyboard={true}
         />
 
-        <CustomScrollView>
+        <CustomScrollView showsVerticalScrollIndicator={false}>
           <PageHeader
             title={t('screens.inAccount.giftPages.advancedMode.title')}
             sub={t('screens.inAccount.giftPages.advancedMode.sub')}
@@ -83,6 +85,8 @@ export default function AdvancedGiftClaim() {
             focusRing={true}
             autoFocus={true}
             keyboardType="number-pad"
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
           />
           <ThemeText
             variant={'hint'}

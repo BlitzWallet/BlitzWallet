@@ -16,6 +16,8 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function SeedPhraseWarning(props) {
   const routeMnemonic = props?.route?.params?.mnemonic || props?.mnemonic;
@@ -97,20 +99,22 @@ export default function SeedPhraseWarning(props) {
         </ListCard>
       </CustomScrollView>
 
-      <View style={styles.footer}>
-        <ConsentRow
-          checked={termsAccepted}
-          onPress={() => setTermsAccepted(value => !value)}
-          text={t('settings.seedPhrase.warning.checkbox')}
-        />
-        <CustomButton
-          size="regular"
-          tone="primary"
-          disabled={!termsAccepted}
-          textContent={t('settings.seedPhrase.warning.continueButton')}
-          actionFunction={handleContinue}
-        />
-      </View>
+      <BottomActions>
+        <View style={styles.footer}>
+          <ConsentRow
+            checked={termsAccepted}
+            onPress={() => setTermsAccepted(value => !value)}
+            text={t('settings.seedPhrase.warning.checkbox')}
+          />
+          <CustomButton
+            size="regular"
+            tone="primary"
+            disabled={!termsAccepted}
+            textContent={t('settings.seedPhrase.warning.continueButton')}
+            actionFunction={handleContinue}
+          />
+        </View>
+      </BottomActions>
     </View>
   );
 
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
   body: { flex: 1 },
   standalone: { flex: 1, alignSelf: 'center' },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 16, paddingBottom: 24 },
+  scrollContent: { paddingTop: 16, paddingBottom: FADE },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,

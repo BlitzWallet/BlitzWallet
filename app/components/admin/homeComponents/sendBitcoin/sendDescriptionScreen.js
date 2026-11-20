@@ -26,6 +26,8 @@ import {
   resolveRecipientDisplay,
 } from './components/recipientCard';
 import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 // Route SendDescription: the note, shown only when the recipient will see it.
 export default function SendDescriptionScreen(props) {
@@ -246,26 +248,30 @@ export default function SendDescriptionScreen(props) {
           </View>
         </CustomScrollView>
 
-        <View style={styles.noteBar}>
-          <View style={styles.emojiBar}>
-            <EmojiQuickBar
-              description={note}
-              onEmojiSelect={setNote}
-              maxLength={maxLength}
-              removeMargin
-              pill
+        <BottomActions>
+          <View style={styles.noteBar}>
+            <View style={styles.emojiBar}>
+              <EmojiQuickBar
+                description={note}
+                onEmojiSelect={setNote}
+                maxLength={maxLength}
+                removeMargin
+                pill
+              />
+            </View>
+            <CustomButton
+              size="fit"
+              tone={'primary'}
+              useLoading={isPreparing}
+              actionFunction={handleContinue}
+              textContent={
+                isFastPayEligible
+                  ? t('constants.confirm')
+                  : t('constants.review')
+              }
             />
           </View>
-          <CustomButton
-            size="fit"
-            tone={'primary'}
-            useLoading={isPreparing}
-            actionFunction={handleContinue}
-            textContent={
-              isFastPayEligible ? t('constants.confirm') : t('constants.review')
-            }
-          />
-        </View>
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -274,7 +280,7 @@ export default function SendDescriptionScreen(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, alignSelf: 'center' },
   hero: { flex: 1, minHeight: 0 },
-  noteContent: { flexGrow: 1, paddingTop: 24 },
+  noteContent: { flexGrow: 1, paddingTop: 24, paddingBottom: FADE },
   headline: {
     flexDirection: 'row',
     flexWrap: 'wrap',

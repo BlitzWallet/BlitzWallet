@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
 import { FONT } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
 
@@ -41,22 +40,16 @@ export default function ResetPage() {
 
   return (
     <View style={styles.container}>
-      <CustomScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <Disc icon="Trash2" size={56} iconSize={24} tone="danger" />
-        <ThemeText
-          styles={[styles.title, { color: tokens.ink }]}
-          content={t('settings.resetWallet.title')}
-        />
-        <ThemeText
-          variant="body"
-          styles={[styles.description, { color: tokens.muted }]}
-          content={t('settings.resetWallet.dataDeleteDesc')}
-        />
-      </CustomScrollView>
+      <Disc icon="Trash2" size={56} iconSize={24} tone="danger" />
+      <ThemeText
+        styles={[styles.title, { color: tokens.ink }]}
+        content={t('settings.resetWallet.title')}
+      />
+      <ThemeText
+        variant="body"
+        styles={[styles.description, { color: tokens.muted }]}
+        content={t('settings.resetWallet.dataDeleteDesc')}
+      />
 
       <View style={styles.footer}>
         <ConsentRow
@@ -78,9 +71,7 @@ export default function ResetPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scroll: { flex: 1 },
-  scrollContent: { paddingTop: 24, paddingBottom: 24 },
+  container: { flex: 1, marginTop: 24 },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,
@@ -94,6 +85,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: 12,
-    paddingTop: 12,
+    marginTop: 'auto',
   },
 });

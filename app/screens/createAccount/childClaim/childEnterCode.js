@@ -30,6 +30,8 @@ import ChildQRWaiting from './childQRWaiting';
 import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import Segmented from '../../../functions/CustomElements/redesign/Segmented';
 import UserInput from '../../../functions/CustomElements/redesign/UserInput';
+import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
 
 // Statuses in which the camera is live on the Scan tab. While joining /
 // awaiting the camera is stopped (isActive=false) and the status content
@@ -201,6 +203,7 @@ export default function ChildEnterCode() {
             <CustomScrollView
               style={styles.codeScroll}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.codeScrollContent}
               keyboardShouldPersistTaps="handled"
             >
               <ThemeText
@@ -225,13 +228,15 @@ export default function ChildEnterCode() {
               />
             </CustomScrollView>
 
-            <CustomButton
-              buttonStyles={styles.button}
-              textContent={t('settings.childAccounts.claim.next')}
-              actionFunction={goNext}
-              disabled={!isValid}
-              size={'regular'}
-            />
+            <BottomActions>
+              <CustomButton
+                buttonStyles={styles.button}
+                textContent={t('settings.childAccounts.claim.next')}
+                actionFunction={goNext}
+                disabled={!isValid}
+                size={'regular'}
+              />
+            </BottomActions>
           </>
         )}
       </View>
@@ -244,6 +249,7 @@ const styles = StyleSheet.create({
   toggleWrap: { width: '100%', marginTop: 12 },
   content: { flex: 1 },
   codeScroll: { flex: 1 },
+  codeScrollContent: { paddingBottom: FADE },
   title: {
     letterSpacing: -0.44,
     marginTop: 28,

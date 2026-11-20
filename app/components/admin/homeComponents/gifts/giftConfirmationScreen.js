@@ -34,6 +34,8 @@ import TextButton from '../../../../functions/CustomElements/redesign/TextButton
 import { useGifts } from '../../../../../context-store/giftContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { formatGiftAmount } from './giftDisplay';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 const K = 'screens.inAccount.giftPages.giftConfirmation.';
 
@@ -163,6 +165,7 @@ export default function GiftConfirmation(props) {
         />
         <CustomScrollView
           style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
@@ -228,22 +231,24 @@ export default function GiftConfirmation(props) {
           )}
         </CustomScrollView>
 
-        <View style={styles.bottomButtons}>
-          <CustomButton
-            size="regular"
-            actionFunction={handleGoHome}
-            textContent={t('constants.done')}
-          />
-          <CustomButton
-            size="regular"
-            tone="secondary"
-            icon={isBulk ? 'Copy' : undefined}
-            actionFunction={
-              isBulk ? handleCopyAllLinks : () => navigate.popTo('CreateGift')
-            }
-            textContent={t(isBulk ? K + 'copyAllLinks' : K + 'createAnother')}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.bottomButtons}>
+            <CustomButton
+              size="regular"
+              actionFunction={handleGoHome}
+              textContent={t('constants.done')}
+            />
+            <CustomButton
+              size="regular"
+              tone="secondary"
+              icon={isBulk ? 'Copy' : undefined}
+              actionFunction={
+                isBulk ? handleCopyAllLinks : () => navigate.popTo('CreateGift')
+              }
+              textContent={t(isBulk ? K + 'copyAllLinks' : K + 'createAnother')}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -252,6 +257,7 @@ export default function GiftConfirmation(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollView: { flex: 1 },
+  scrollContent: { paddingBottom: FADE },
   header: { alignItems: 'center', marginTop: 16, marginBottom: 28 },
   title: {
     marginTop: 16,

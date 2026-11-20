@@ -23,6 +23,8 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import DiscText from '../../../../functions/CustomElements/redesign/DiscText';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function NosterWalletConnect({ route }) {
   const navigate = useNavigation();
@@ -133,16 +135,18 @@ export default function NosterWalletConnect({ route }) {
           </View>
         )}
       </CustomScrollView>
-      <CustomButton
-        actionFunction={() => {
-          navigate.navigate('CreateNWCName');
-        }}
-        buttonStyles={{
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-        }}
-        size={'regular'}
-        textContent={t('settings.nwc.addAccount')}
-      />
+      <BottomActions>
+        <CustomButton
+          actionFunction={() => {
+            navigate.navigate('CreateNWCName');
+          }}
+          buttonStyles={{
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+          }}
+          size={'regular'}
+          textContent={t('settings.nwc.addAccount')}
+        />
+      </BottomActions>
     </CustomPageWrapper>
   );
 }
@@ -170,7 +174,7 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     paddingTop: 24,
-    paddingBottom: 20,
+    paddingBottom: FADE,
     flexGrow: 1,
   },
   accountsList: {

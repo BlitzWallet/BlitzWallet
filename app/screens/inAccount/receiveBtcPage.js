@@ -39,6 +39,8 @@ import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import AmountHero from '../../functions/CustomElements/redesign/AmountHero';
 import Note from '../../functions/CustomElements/redesign/Note';
+import BottomActions from '../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
 import {
   ReceiveActions,
   ReceiveQrCard,
@@ -350,13 +352,8 @@ export default function ReceivePaymentHome(props) {
   };
 
   return (
-    <GlobalThemeView useStandardWidth={false} styles={styles.screen}>
-      <View
-        style={[
-          styles.container,
-          { width: contentWidth, paddingBottom: bottomPadding },
-        ]}
-      >
+    <GlobalThemeView useStandardWidth={false}>
+      <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           title=""
           right={
@@ -429,16 +426,18 @@ export default function ReceivePaymentHome(props) {
             />
           </View>
         </CustomScrollView>
-        {!!noteText && (
-          <View style={styles.note}>
-            <Note tone="warn" text={noteText} />
-          </View>
-        )}
-        <ReceiveActions
-          value={displayAddress}
-          onShare={handleShareInvoice}
-          useLoading={isBuildingPaylink}
-        />
+        <BottomActions overlap={!noteText}>
+          {!!noteText && (
+            <View style={styles.note}>
+              <Note tone="warn" text={noteText} />
+            </View>
+          )}
+          <ReceiveActions
+            value={displayAddress}
+            onShare={handleShareInvoice}
+            useLoading={isBuildingPaylink}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -547,9 +546,8 @@ function useInvoiceAmountLines({
 }
 
 const styles = StyleSheet.create({
-  screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  scroll: { flexGrow: 1, paddingVertical: 24 },
+  scroll: { flexGrow: 1, paddingTop: 24, paddingBottom: FADE },
   amount: { alignItems: 'flex-start', alignSelf: 'center' },
   qr: { alignItems: 'center', marginTop: 22 },
   anyAmount: {

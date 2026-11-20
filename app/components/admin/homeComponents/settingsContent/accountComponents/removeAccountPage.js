@@ -1,6 +1,5 @@
 import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
@@ -49,10 +48,7 @@ export default function RemoveAccountPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar />
-        <CustomScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.scrollContainer}>
           {/* Icon */}
           <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
 
@@ -64,9 +60,8 @@ export default function RemoveAccountPage(props) {
               context: selectedAccount?.accountType || 'imported',
             })}
           />
-        </CustomScrollView>
+        </View>
 
-        {/* Buttons */}
         <View style={styles.buttonsContainer}>
           <CustomButton
             textContent={t(

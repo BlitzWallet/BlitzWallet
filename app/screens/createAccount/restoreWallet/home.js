@@ -30,6 +30,8 @@ import {
   KeyboardController,
   KeyboardEvents,
 } from 'react-native-keyboard-controller';
+import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
 
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -339,25 +341,27 @@ export default function RestoreWallet({ navigation: { reset } }) {
           </CustomScrollView>
 
           {!currentFocused && (
-            <View style={[styles.footer, { paddingBottom: bottomPadding }]}>
-              <CustomButton
-                size="regular"
-                tone="secondary"
-                icon="ScanLine"
-                textContent={t('createAccount.restoreWallet.home.scanQr')}
-                actionFunction={() =>
-                  navigate.navigate('CameraModal', {
-                    updateBitcoinAdressFunc: handleCameraScan,
-                    fromPage: 'addContact',
-                  })
-                }
-              />
-              <CustomButton
-                size="regular"
-                textContent={t('constants.restore')}
-                actionFunction={keyValidation}
-              />
-            </View>
+            <BottomActions style={{ paddingBottom: bottomPadding }}>
+              <View style={styles.footer}>
+                <CustomButton
+                  size="regular"
+                  tone="secondary"
+                  icon="ScanLine"
+                  textContent={t('createAccount.restoreWallet.home.scanQr')}
+                  actionFunction={() =>
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: handleCameraScan,
+                      fromPage: 'addContact',
+                    })
+                  }
+                />
+                <CustomButton
+                  size="regular"
+                  textContent={t('constants.restore')}
+                  actionFunction={keyValidation}
+                />
+              </View>
+            </BottomActions>
           )}
         </View>
       </View>
@@ -397,7 +401,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     width: '100%',
     ...CENTER,
-    paddingBottom: 20,
+    paddingBottom: FADE,
   },
   seedGrid: { marginTop: 28 },
   footer: {

@@ -17,6 +17,8 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { AssetDisc } from '../savings/savingsSheetParts';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import {
   formatGiftAmount,
   giftAsset,
@@ -278,22 +280,24 @@ export default function GiftsOverview() {
         </View>
       )}
 
-      <View style={styles.buttonGroup}>
-        <CustomButton
-          actionFunction={() => navigate.navigate('CreateGift')}
-          textContent={t(`${GIFT_T}.createGift`)}
-          size={'regular'}
-        />
-        <CustomButton
-          actionFunction={() =>
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'ClaimGiftHomeHalfModal',
-            })
-          }
-          textContent={t('screens.inAccount.giftPages.claimHome.claim')}
-          tone={'secondary'}
-        />
-      </View>
+      <BottomActions>
+        <View style={styles.buttonGroup}>
+          <CustomButton
+            actionFunction={() => navigate.navigate('CreateGift')}
+            textContent={t(`${GIFT_T}.createGift`)}
+            size={'regular'}
+          />
+          <CustomButton
+            actionFunction={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'ClaimGiftHomeHalfModal',
+              })
+            }
+            textContent={t('screens.inAccount.giftPages.claimHome.claim')}
+            tone={'secondary'}
+          />
+        </View>
+      </BottomActions>
     </View>
   );
 }
@@ -302,7 +306,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scrollContent: { flexGrow: 1, paddingTop: 4, paddingBottom: 16 },
+  scrollContent: { flexGrow: 1, paddingTop: 4, paddingBottom: FADE },
   buttonGroup: {
     gap: 10,
     marginTop: CONTENT_KEYBOARD_OFFSET,

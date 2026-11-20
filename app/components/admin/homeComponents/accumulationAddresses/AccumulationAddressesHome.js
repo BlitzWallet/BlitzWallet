@@ -19,6 +19,8 @@ import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function AccumulationAddressesHome() {
   const navigate = useNavigation();
@@ -119,7 +121,10 @@ export default function AccumulationAddressesHome() {
           title={t('screens.accumulationAddresses.sectionTitle')}
           style={styles.sectionHeader}
         />
-        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
           <ListCard>
             {groups.map(item => (
               <AccumulationAddressCard
@@ -130,11 +135,13 @@ export default function AccumulationAddressesHome() {
           </ListCard>
         </CustomScrollView>
 
-        <CustomButton
-          textContent={t('screens.accumulationAddresses.createButton')}
-          actionFunction={handleCreate}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            textContent={t('screens.accumulationAddresses.createButton')}
+            actionFunction={handleCreate}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -145,7 +152,7 @@ const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // InfoDropdown already leaves 16 below; design gap is 20.
   sectionHeader: { marginTop: 4 },
-  scrollContent: { paddingBottom: 16 },
+  scrollContent: { paddingBottom: FADE },
 
   sectionTitle: {
     fontSize: SIZES.smedium,

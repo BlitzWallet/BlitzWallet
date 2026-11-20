@@ -18,6 +18,8 @@ import GetThemeColors from '../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../constants/theme';
 import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../functions/CustomElements/redesign/PageHeader';
+import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
 
 export default function GenerateKey() {
   const { accountMnemoinc } = useKeysContext();
@@ -128,28 +130,30 @@ export default function GenerateKey() {
           )}
         </CustomScrollView>
 
-        <View style={styles.footer}>
-          <ThemeText
-            styles={[
-              isWeb ? styles.footerText : styles.disclaimer,
-              { color: tokens.muted },
-            ]}
-            content={t(
-              isWeb
-                ? 'createAccount.keySetup.generateKey.webSubHeader'
-                : 'createAccount.keySetup.generateKey.disclaimer',
-            )}
-          />
-          <CustomButton
-            buttonStyles={{
-              opacity: canContinue ? 1 : HIDDEN_OPACITY,
-            }}
-            textContent={t('constants.next')}
-            actionFunction={handleNextPress}
-            disabled={!canContinue}
-            size={'regular'}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <ThemeText
+              styles={[
+                isWeb ? styles.footerText : styles.disclaimer,
+                { color: tokens.muted },
+              ]}
+              content={t(
+                isWeb
+                  ? 'createAccount.keySetup.generateKey.webSubHeader'
+                  : 'createAccount.keySetup.generateKey.disclaimer',
+              )}
+            />
+            <CustomButton
+              buttonStyles={{
+                opacity: canContinue ? 1 : HIDDEN_OPACITY,
+              }}
+              textContent={t('constants.next')}
+              actionFunction={handleNextPress}
+              disabled={!canContinue}
+              size={'regular'}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -162,7 +166,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: FADE,
   },
   seedWrapper: {
     width: '100%',

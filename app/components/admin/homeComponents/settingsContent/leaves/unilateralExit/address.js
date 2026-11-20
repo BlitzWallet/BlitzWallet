@@ -12,6 +12,8 @@ import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../../../functions/CustomElements/redesign/UserInput';
 import Note from '../../../../../../functions/CustomElements/redesign/Note';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
 
 // Plain address or a bitcoin: link; anything else (invoice, LNURL) is refused.
 async function toBitcoinAddress(text) {
@@ -59,6 +61,7 @@ export default function UnilateralExitAddress(props) {
         <CustomScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={styles.scrollContent}
         >
           <PageHeader
             title={t('settings.unilateralExit.addressTitle')}
@@ -81,29 +84,31 @@ export default function UnilateralExitAddress(props) {
             </View>
           )}
         </CustomScrollView>
-        <View style={styles.footer}>
-          <CustomButton
-            tone="secondary"
-            icon="ScanLine"
-            textContent={t('constants.scan')}
-            actionFunction={() =>
-              navigate.navigate('CameraModal', {
-                updateBitcoinAdressFunc: data => {
-                  setAddress(String(data).trim());
-                  setError('');
-                },
-                fromPage: 'unilateralExit',
-              })
-            }
-            size={'regular'}
-          />
-          <CustomButton
-            disabled={!trimmed}
-            textContent={t('constants.next')}
-            actionFunction={() => next(trimmed)}
-            size={'regular'}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <CustomButton
+              tone="secondary"
+              icon="ScanLine"
+              textContent={t('constants.scan')}
+              actionFunction={() =>
+                navigate.navigate('CameraModal', {
+                  updateBitcoinAdressFunc: data => {
+                    setAddress(String(data).trim());
+                    setError('');
+                  },
+                  fromPage: 'unilateralExit',
+                })
+              }
+              size={'regular'}
+            />
+            <CustomButton
+              disabled={!trimmed}
+              textContent={t('constants.next')}
+              actionFunction={() => next(trimmed)}
+              size={'regular'}
+            />
+          </View>
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -111,6 +116,7 @@ export default function UnilateralExitAddress(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
+  scrollContent: { paddingBottom: FADE },
   error: { marginTop: 12 },
   footer: { gap: 12 },
 });

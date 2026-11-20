@@ -34,6 +34,8 @@ import {
   saveExitDataFile,
 } from '../../../../../../functions/unilateralExit/exitBackup';
 import IconButton from '../../../../../../functions/CustomElements/redesign/IconButton';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
 
 const NEEDS = [
   { icon: 'Wallet', key: 'needFeesPlain' },
@@ -248,19 +250,21 @@ export default function UnilateralExitHome(props) {
             </View>
           )}
         </CustomScrollView>
-        <View style={styles.footer}>
-          <ConsentRow
-            checked={termsAccepted}
-            onPress={() => setTermsAccepted(value => !value)}
-            text={t('settings.unilateralExit.consent')}
-          />
-          <CustomButton
-            textContent={t('constants.continue')}
-            actionFunction={() => navigate.navigate('UnilateralExitAddress')}
-            size={'regular'}
-            disabled={!termsAccepted || !accountMnemoinc}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <ConsentRow
+              checked={termsAccepted}
+              onPress={() => setTermsAccepted(value => !value)}
+              text={t('settings.unilateralExit.consent')}
+            />
+            <CustomButton
+              textContent={t('constants.continue')}
+              actionFunction={() => navigate.navigate('UnilateralExitAddress')}
+              size={'regular'}
+              disabled={!termsAccepted || !accountMnemoinc}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -268,7 +272,7 @@ export default function UnilateralExitHome(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingTop: 16, paddingBottom: 24 },
+  scrollContent: { paddingTop: 16, paddingBottom: FADE },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,

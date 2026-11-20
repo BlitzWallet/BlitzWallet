@@ -37,6 +37,8 @@ import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 // One grid row of 7. Each row is its own slice of the white card (first/last
 // rows round the corners) so the SectionList stays virtualised. `selected` is
@@ -303,11 +305,13 @@ export default function EmojiAvatarSelector(props) {
           onEmojiSelect={handleEmojiSelect}
           selectedEmoji={selectedEmoji}
         />
-        <CustomButton
-          actionFunction={handleSave}
-          textContent={saveLabel}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={handleSave}
+            textContent={saveLabel}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: FADE,
   },
   emojiRow: {
     flexDirection: 'row',

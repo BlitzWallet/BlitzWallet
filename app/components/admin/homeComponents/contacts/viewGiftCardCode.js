@@ -31,6 +31,8 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import Note from '../../../../functions/CustomElements/redesign/Note';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function ViewGiftCardCodePage({ route }) {
   const { giftCardInfo, isOutgoingPayment, message, senderName } =
@@ -288,25 +290,27 @@ export default function ViewGiftCardCodePage({ route }) {
         </CustomScrollView>
 
         {canUseCard && (
-          <View style={styles.actions}>
-            {canOpen && (
+          <BottomActions>
+            <View style={styles.actions}>
+              {canOpen && (
+                <CustomButton
+                  size="regular"
+                  textContent={t('contacts.viewGiftCardCode.openClaimText')}
+                  actionFunction={handleClaimPress}
+                />
+              )}
               <CustomButton
                 size="regular"
-                textContent={t('contacts.viewGiftCardCode.openClaimText')}
-                actionFunction={handleClaimPress}
+                tone={canOpen ? 'secondary' : undefined}
+                textContent={t(
+                  isUserMarkedClaimed
+                    ? 'contacts.viewGiftCardCode.markAsUnclaimed'
+                    : 'contacts.viewGiftCardCode.markAsClaimed',
+                )}
+                actionFunction={toggleClaimedStatus}
               />
-            )}
-            <CustomButton
-              size="regular"
-              tone={canOpen ? 'secondary' : undefined}
-              textContent={t(
-                isUserMarkedClaimed
-                  ? 'contacts.viewGiftCardCode.markAsUnclaimed'
-                  : 'contacts.viewGiftCardCode.markAsClaimed',
-              )}
-              actionFunction={toggleClaimedStatus}
-            />
-          </View>
+            </View>
+          </BottomActions>
         )}
       </View>
     </GlobalThemeView>
@@ -316,7 +320,7 @@ export default function ViewGiftCardCodePage({ route }) {
 const styles = StyleSheet.create({
   page: { width: '100%' },
   inner: { flex: 1 },
-  scrollContent: { paddingTop: 8, paddingBottom: 24 },
+  scrollContent: { paddingTop: 8, paddingBottom: FADE },
   hero: { alignItems: 'center' },
   skeletonHero: { alignItems: 'center' },
   skeletonDisc: { width: 72, height: 72, borderRadius: 36 },

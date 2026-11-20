@@ -44,6 +44,8 @@ import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ContactAvatarDisc from './internalComponents/contactAvatar';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function CreateSplitBill(props) {
   const navigate = useNavigation();
@@ -592,21 +594,23 @@ export default function CreateSplitBill(props) {
           />
         </CustomScrollView>
 
-        <CustomButton
-          buttonStyles={[
-            styles.confirmButton,
-            { opacity: canConfirm ? 1 : 0.5 },
-          ]}
-          actionFunction={handleConfirm}
-          disabled={isLoading}
-          useLoading={isLoading}
-          size="regular"
-          textContent={
-            paymentType === 'request'
-              ? t('constants.request')
-              : t('constants.review')
-          }
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={[
+              styles.confirmButton,
+              { opacity: canConfirm ? 1 : 0.5 },
+            ]}
+            actionFunction={handleConfirm}
+            disabled={isLoading}
+            useLoading={isLoading}
+            size="regular"
+            textContent={
+              paymentType === 'request'
+                ? t('constants.request')
+                : t('constants.review')
+            }
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -614,8 +618,8 @@ export default function CreateSplitBill(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 24 },
-  hero: { marginTop: 24, alignItems: 'center' },
+  scrollContent: { paddingBottom: FADE },
+  hero: { marginTop: 0, alignItems: 'center' },
   heroButton: { marginTop: 2, maxWidth: '100%' },
   heroCents: { fontFamily: FONT.Title_Regular, letterSpacing: 0 },
   muted: { textAlign: 'center' },

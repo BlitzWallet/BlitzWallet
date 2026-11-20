@@ -23,6 +23,8 @@ import {
   shareFile,
   shareMessage,
 } from '../../../../../functions/handleShare';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 const normalizeFileUri = path => {
   if (path.startsWith('file://')) return path;
@@ -123,11 +125,13 @@ export default function POSInstructionsPath() {
             />
           </ViewShot>
         </CustomScrollView>
-        <CustomButton
-          actionFunction={generatePDFFromView}
-          textContent={t('constants.print')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={generatePDFFromView}
+            textContent={t('constants.print')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -135,5 +139,5 @@ export default function POSInstructionsPath() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 16 },
+  scrollContent: { paddingBottom: FADE },
 });

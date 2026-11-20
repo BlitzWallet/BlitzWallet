@@ -35,6 +35,8 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ContactAvatar from './internalComponents/contactAvatar';
@@ -359,65 +361,66 @@ export default function ExpandedContactsPage(props) {
             {history}
           </CustomScrollView>
         )}
-
-        <AdaptiveButtonRow
-          pill
-          labels={[requestText, payText]}
-          containerStyle={styles.buttonContainer}
-        >
-          {({ buttonStyle }) => (
-            <>
-              <CustomButton
-                buttonStyles={buttonStyle}
-                enableElipsis={false}
-                textContent={requestText}
-                actionFunction={() => {
-                  if (selectedContact.isLNURL) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t(
-                        'contacts.expandedContactPage.requestLNURLError',
-                      ),
+        <BottomActions>
+          <AdaptiveButtonRow
+            pill
+            labels={[requestText, payText]}
+            containerStyle={styles.buttonContainer}
+          >
+            {({ buttonStyle }) => (
+              <>
+                <CustomButton
+                  buttonStyles={buttonStyle}
+                  enableElipsis={false}
+                  textContent={requestText}
+                  actionFunction={() => {
+                    if (selectedContact.isLNURL) {
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t(
+                          'contacts.expandedContactPage.requestLNURLError',
+                        ),
+                      });
+                      return;
+                    }
+                    if (!isConnectedToTheInternet) {
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t('errormessages.nointernet'),
+                      });
+                      return;
+                    }
+                    navigate.navigate('SendAndRequestPage', {
+                      selectedContact: selectedContact,
+                      paymentType: 'request',
+                      imageData,
                     });
-                    return;
-                  }
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.nointernet'),
+                  }}
+                  size={'regular'}
+                  tone={'secondary'}
+                />
+                <CustomButton
+                  buttonStyles={buttonStyle}
+                  enableElipsis={false}
+                  textContent={payText}
+                  actionFunction={() => {
+                    if (!isConnectedToTheInternet) {
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t('errormessages.nointernet'),
+                      });
+                      return;
+                    }
+                    navigate.navigate('SendAndRequestPage', {
+                      selectedContact: selectedContact,
+                      paymentType: 'send',
+                      imageData,
+                      endReceiveType: 'BTC',
                     });
-                    return;
-                  }
-                  navigate.navigate('SendAndRequestPage', {
-                    selectedContact: selectedContact,
-                    paymentType: 'request',
-                    imageData,
-                  });
-                }}
-                size={'regular'}
-                tone={'secondary'}
-              />
-              <CustomButton
-                buttonStyles={buttonStyle}
-                enableElipsis={false}
-                textContent={payText}
-                actionFunction={() => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.nointernet'),
-                    });
-                    return;
-                  }
-                  navigate.navigate('SendAndRequestPage', {
-                    selectedContact: selectedContact,
-                    paymentType: 'send',
-                    imageData,
-                    endReceiveType: 'BTC',
-                  });
-                }}
-                size={'regular'}
-              />
-            </>
-          )}
-        </AdaptiveButtonRow>
+                  }}
+                  size={'regular'}
+                />
+              </>
+            )}
+          </AdaptiveButtonRow>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -438,7 +441,7 @@ const styles = StyleSheet.create({
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   flex: { flex: 1 },
-  listContent: { paddingBottom: 16 },
+  listContent: { paddingBottom: FADE },
   header: { alignItems: 'center', marginTop: 8 },
   avatar: { ...CENTER },
   nameText: {

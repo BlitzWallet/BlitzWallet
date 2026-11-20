@@ -17,6 +17,8 @@ import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function CreateNWCName(props) {
   const navigate = useNavigation();
@@ -122,18 +124,20 @@ export default function CreateNWCName(props) {
               />
             </CustomScrollView>
 
-            <CustomButton
-              disabled={!accountName}
-              actionFunction={isEditing ? handleSave : handleContinue}
-              buttonStyles={{
-                ...CENTER,
-                marginTop: CONTENT_KEYBOARD_OFFSET,
-              }}
-              textContent={t(
-                isEditing ? 'constants.save' : 'constants.continue',
-              )}
-              size={'regular'}
-            />
+            <BottomActions>
+              <CustomButton
+                disabled={!accountName}
+                actionFunction={isEditing ? handleSave : handleContinue}
+                buttonStyles={{
+                  ...CENTER,
+                  marginTop: CONTENT_KEYBOARD_OFFSET,
+                }}
+                textContent={t(
+                  isEditing ? 'constants.save' : 'constants.continue',
+                )}
+                size={'regular'}
+              />
+            </BottomActions>
           </>
         )}
       </View>
@@ -142,6 +146,7 @@ export default function CreateNWCName(props) {
 }
 
 const styles = StyleSheet.create({
+  scrollContent: { paddingBottom: FADE },
   innerContainer: {
     flex: 1,
     ...CENTER,

@@ -19,6 +19,8 @@ import ListCard from '../../../../../functions/CustomElements/redesign/ListCard'
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function CreateNWCPermissions(props) {
   const navigate = useNavigation();
@@ -175,18 +177,20 @@ export default function CreateNWCPermissions(props) {
                 ))}
               </ListCard>
             </CustomScrollView>
-            <CustomButton
-              disabled={!hasAnyPermission}
-              actionFunction={isEditing ? handleSave : handleContinue}
-              buttonStyles={{
-                ...CENTER,
-                marginTop: CONTENT_KEYBOARD_OFFSET,
-              }}
-              textContent={t(
-                isEditing ? 'constants.save' : 'constants.continue',
-              )}
-              size={'regular'}
-            />
+            <BottomActions>
+              <CustomButton
+                disabled={!hasAnyPermission}
+                actionFunction={isEditing ? handleSave : handleContinue}
+                buttonStyles={{
+                  ...CENTER,
+                  marginTop: CONTENT_KEYBOARD_OFFSET,
+                }}
+                textContent={t(
+                  isEditing ? 'constants.save' : 'constants.continue',
+                )}
+                size={'regular'}
+              />
+            </BottomActions>
           </>
         )}
       </View>
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
-  scrollContent: { flexGrow: 1 },
+  scrollContent: { flexGrow: 1, paddingBottom: FADE },
   settingsItemLabel: {
     fontSize: SIZES.smedium,
     includeFontPadding: false,

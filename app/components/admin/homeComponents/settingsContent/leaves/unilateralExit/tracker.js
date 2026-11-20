@@ -48,6 +48,8 @@ import {
 } from '../../../../../../functions/unilateralExit/exitEngine';
 import { exitGraph, txState } from './tree';
 import { useFeeAddressBalance } from './feeSheet';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
 
 const PHASE_KEYS = {
   sending: 'phaseSending',
@@ -177,11 +179,13 @@ export default function UnilateralExitTracker() {
               </View>
             )}
           </CustomScrollView>
-          <CustomButton
-            textContent={t('settings.unilateralExit.doneButton')}
-            actionFunction={goBack}
-            size={'regular'}
-          />
+          <BottomActions>
+            <CustomButton
+              textContent={t('settings.unilateralExit.doneButton')}
+              actionFunction={goBack}
+              size={'regular'}
+            />
+          </BottomActions>
         </View>
       </GlobalThemeView>
     );
@@ -391,7 +395,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: FADE,
   },
   lottie: { width: 125, height: 125 },
   doneText: {

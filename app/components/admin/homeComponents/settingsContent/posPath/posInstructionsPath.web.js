@@ -16,6 +16,8 @@ import { useImageCache } from '../../../../../../context-store/imageCache';
 import { useMemo, useRef } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { shareMessage } from '../../../../../functions/handleShare';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 // Web-only variant of posInstructionsPath.js. Metro resolves this `.web.js`
 // over the native file on the web platform (same mechanism as
@@ -191,11 +193,13 @@ export default function POSInstructionsPath() {
             />
           </View>
         </CustomScrollView>
-        <CustomButton
-          actionFunction={shareViewAsImage}
-          textContent={t('constants.print')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={shareViewAsImage}
+            textContent={t('constants.print')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -203,5 +207,5 @@ export default function POSInstructionsPath() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 16 },
+  scrollContent: { paddingBottom: FADE },
 });

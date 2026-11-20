@@ -17,6 +17,8 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
@@ -320,13 +322,15 @@ export default function AccumulationAddressDetail() {
             )}
           </View>
         </CustomScrollView>
-        <CustomButton
-          buttonStyles={styles.bottomButton}
-          size="regular"
-          textContent={t('screens.accumulationAddresses.detail.reindex')}
-          actionFunction={handleAddressReindex}
-          useLoading={isCheckingBalance}
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={styles.bottomButton}
+            size="regular"
+            textContent={t('screens.accumulationAddresses.detail.reindex')}
+            actionFunction={handleAddressReindex}
+            useLoading={isCheckingBalance}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -339,7 +343,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: FADE,
   },
   addressRow: {
     flexDirection: 'row',

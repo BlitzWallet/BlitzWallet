@@ -70,6 +70,8 @@ import { formatCountdown } from '../../../../functions/timeFormatter';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
 import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBlockSendDuringExit';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -764,6 +766,7 @@ export default function StablecoinSendScreen() {
           contentContainerStyle={[
             styles.scrollContent,
             !isConfirmMode && styles.scrollContentCentered,
+            isConfirmMode && styles.scrollContentConfirm,
           ]}
           keyboardShouldPersistTaps="handled"
         >
@@ -872,69 +875,69 @@ export default function StablecoinSendScreen() {
 
         {/* Source method picker: shown in edit mode only */}
         {!isConfirmMode && (
-          <PaymentMethod
-            determinePaymentMethod={sourceMethod}
-            handleSelectPaymentMethod={handleMethodToggle}
-            bitcoinBalance={bitcoinBalance}
-            dollarBalanceToken={dollarBalanceToken}
-            masterInfoObject={masterInfoObject}
-            fiatStats={fiatStats}
-            uiState="EDIT_AMOUNT"
-            t={t}
-            containerStyles={{ marginTop: 5 }}
-          />
-        )}
-
-        {/* EDIT_AMOUNT: keyboard + Review button */}
-        {!isConfirmMode && (
-          <View style={styles.keyboard}>
-            <CustomNumberKeyboard
-              setInputValue={setRawInput}
-              showDot={primaryDisplay.denomination === 'fiat'}
-              fiatStats={conversionFiatStats}
-              usingForBalance={true}
-              redesign
+          <BottomActions>
+            <PaymentMethod
+              determinePaymentMethod={sourceMethod}
+              handleSelectPaymentMethod={handleMethodToggle}
+              bitcoinBalance={bitcoinBalance}
+              dollarBalanceToken={dollarBalanceToken}
+              masterInfoObject={masterInfoObject}
+              fiatStats={fiatStats}
+              uiState="EDIT_AMOUNT"
+              t={t}
+              containerStyles={{ marginTop: 5 }}
             />
-          </View>
-        )}
 
-        {!isConfirmMode && (
-          <CustomButton
-            size="regular"
-            textContent={t('constants.review')}
-            actionFunction={handleReview}
-            buttonStyles={{
-              ...CENTER,
-              opacity: canReview ? 1 : HIDDEN_OPACITY,
-            }}
-            useLoading={isQuoteLoading}
-          />
+            {/* EDIT_AMOUNT: keyboard + Review button */}
+            <View style={styles.keyboard}>
+              <CustomNumberKeyboard
+                setInputValue={setRawInput}
+                showDot={primaryDisplay.denomination === 'fiat'}
+                fiatStats={conversionFiatStats}
+                usingForBalance={true}
+                redesign
+              />
+            </View>
+
+            <CustomButton
+              size="regular"
+              textContent={t('constants.review')}
+              actionFunction={handleReview}
+              buttonStyles={{
+                ...CENTER,
+                opacity: canReview ? 1 : HIDDEN_OPACITY,
+              }}
+              useLoading={isQuoteLoading}
+            />
+          </BottomActions>
         )}
 
         {/* CONFIRM_PAYMENT: swipe button */}
         {isConfirmMode && (
-          <View style={styles.buttonContainer}>
-            {sending ? (
-              <SliderProgressAnimation
-                ref={progressAnimationRef}
-                isVisible={true}
-                textColor={tokens.onAccent}
-                backgroundColor={tokens.accent}
-                width={1}
-              />
-            ) : (
-              <SwipeButtonNew
-                variant="redesign"
-                title={t('wallet.sendPages.reviewParts.slideToSend')}
-                onSwipeSuccess={handleSend}
-                resetAfterSuccessAnimDuration={true}
-                shouldResetAfterSuccess={!sending}
-                containerStyles={{
-                  opacity: canConfirm ? 1 : HIDDEN_OPACITY,
-                }}
-              />
-            )}
-          </View>
+          <BottomActions>
+            <View style={styles.buttonContainer}>
+              {sending ? (
+                <SliderProgressAnimation
+                  ref={progressAnimationRef}
+                  isVisible={true}
+                  textColor={tokens.onAccent}
+                  backgroundColor={tokens.accent}
+                  width={1}
+                />
+              ) : (
+                <SwipeButtonNew
+                  variant="redesign"
+                  title={t('wallet.sendPages.reviewParts.slideToSend')}
+                  onSwipeSuccess={handleSend}
+                  resetAfterSuccessAnimDuration={true}
+                  shouldResetAfterSuccess={!sending}
+                  containerStyles={{
+                    opacity: canConfirm ? 1 : HIDDEN_OPACITY,
+                  }}
+                />
+              )}
+            </View>
+          </BottomActions>
         )}
       </View>
     </GlobalThemeView>
@@ -953,6 +956,7 @@ const styles = StyleSheet.create({
   },
   // Amount step: centred like SendAmount; the review keeps the top offset.
   scrollContentCentered: { paddingTop: 10, justifyContent: 'center' },
+  scrollContentConfirm: { paddingBottom: FADE },
   keyboard: { marginVertical: CONTENT_KEYBOARD_OFFSET },
   hero: { alignItems: 'center' },
   secondary: { marginTop: 4, textAlign: 'center' },
