@@ -1,6 +1,7 @@
 import { Children, createContext, Fragment, useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../context-store/theme';
+import { CARD_RADIUS } from '../../../constants';
 import { useInSheet } from './sheetSurface';
 
 const ListToneContext = createContext({ tone: 'grouped' });
@@ -67,6 +68,10 @@ export function ListDivider({ inset }) {
 }
 
 const styles = StyleSheet.create({
-  grouped: { borderRadius: 20, paddingHorizontal: 16, overflow: 'hidden' },
+  grouped: {
+    borderRadius: CARD_RADIUS,
+    paddingHorizontal: 16,
+    overflow: 'hidden',
+  },
   divider: { height: 1 },
 });

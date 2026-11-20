@@ -17,6 +17,7 @@ import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
 import BarChart from '../../functions/CustomElements/redesign/BarChart';
 import {
+  CARD_RADIUS,
   FONT,
   HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
     minHeight: 45,
     justifyContent: 'center',
   },
-  spentCard: { borderRadius: 24, padding: 20 },
+  spentCard: { borderRadius: CARD_RADIUS, padding: 20 },
   spentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

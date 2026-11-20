@@ -183,10 +183,13 @@ const AMOUNT_HERO_SIZE = {
   secondary: 48,
 };
 
+const CARD_RADIUS = 20;
+
 const BARCODE_FORMATS = ['qr-code'];
 
 export {
   AMOUNT_HERO_SIZE,
+  CARD_RADIUS,
   COLORS,
   FONT,
   SIZES,

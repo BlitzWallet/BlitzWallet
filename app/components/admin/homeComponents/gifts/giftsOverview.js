@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
-import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../../constants';
+import {
+  CARD_RADIUS,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+} from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
@@ -310,7 +314,7 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
-  hero: { borderRadius: 24, padding: 20, marginTop: 20 },
+  hero: { borderRadius: CARD_RADIUS, padding: 20, marginTop: 20 },
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   heroAmount: {
     fontFamily: FONT.Title_Medium,
@@ -346,7 +350,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   compactList: { gap: 8 },
-  compact: { borderRadius: 20, padding: 16 },
+  compact: { borderRadius: CARD_RADIUS, padding: 16 },
   compactTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   compactBar: { marginTop: 12 },
   manyNote: { marginTop: 12, marginHorizontal: 4 },

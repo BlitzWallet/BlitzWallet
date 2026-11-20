@@ -3,7 +3,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { FONT, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
+import { CARD_RADIUS, FONT, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
 import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
 import { splitAmountUnit } from '../../../../functions/CustomElements/redesign/AmountHero';
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minHeight: 152,
-    borderRadius: 24,
+    borderRadius: CARD_RADIUS,
     padding: 18,
     justifyContent: 'space-between',
   },

@@ -8,7 +8,7 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { HIDDEN_BALANCE_CLOSE } from '../../../../constants';
+import { CARD_RADIUS, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -165,7 +165,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
+    borderRadius: CARD_RADIUS,
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',

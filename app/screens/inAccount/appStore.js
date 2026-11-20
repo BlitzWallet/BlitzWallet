@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     minHeight: 45,
     justifyContent: 'center',
   },
-  card: { marginTop: 16 },
+  card: { marginTop: 12 },
   container: { paddingBottom: 0 },
 
   scrollContent: { flexGrow: 1, width: '100%' },
