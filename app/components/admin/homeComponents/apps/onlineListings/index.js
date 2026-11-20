@@ -398,6 +398,7 @@ const BusinessCard = React.memo(({ item, t }) => {
           <ThemeText content={item.name?.trim()} styles={styles.title} />
           {!!item.description && (
             <ThemeText
+              CustomNumberOfLines={3}
               content={item.description}
               styles={[styles.desc, { color: tokens.muted }]}
             />
