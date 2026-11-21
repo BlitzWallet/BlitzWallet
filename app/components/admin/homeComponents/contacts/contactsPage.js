@@ -5,12 +5,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -38,6 +33,7 @@ import PageTitle from '../../../../functions/CustomElements/redesign/PageTitle';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
+import HideOnScrollView from '../../../../functions/CustomElements/redesign/HideOnScrollView';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -221,19 +217,20 @@ export default function ContactsPage({ navigation }) {
       <View style={[memoizedStyles.container, { width: contentWidth }]}>
         {header}
 
-        <SearchField
-          placeholder={t('contacts.contactsPage.searchContactsPlaceholder')}
-          value={inputText}
-          onChangeText={setInputText}
-          pill
-        />
-        <CustomScrollView
+        <HideOnScrollView
           ref={scrollViewRef}
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}
-          style={{ marginTop: CONTENT_KEYBOARD_OFFSET }}
           keyboardShouldPersistTaps="handled"
+          header={
+            <SearchField
+              placeholder={t('contacts.contactsPage.searchContactsPlaceholder')}
+              value={inputText}
+              onChangeText={setInputText}
+              pill
+            />
+          }
         >
           {pinnedContacts.length !== 0 && filteredContacts.length !== 0 && (
             <>
@@ -269,7 +266,7 @@ export default function ContactsPage({ navigation }) {
               />
             </View>
           ) : null}
-        </CustomScrollView>
+        </HideOnScrollView>
       </View>
     </CustomKeyboardAvoidingView>
   );
