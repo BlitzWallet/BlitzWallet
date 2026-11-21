@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react';
-import { View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -8,20 +8,23 @@ import { useTheme } from '../../../../context-store/theme';
 import CustomScrollView from '../scrollView';
 import { CONTENT_KEYBOARD_OFFSET } from '../../../constants';
 
-// ScrollView whose `header` (usually a SearchField) pins to the top and
-// tracks the scroll 1:1: scrolling down pushes it up with the content,
-// scrolling up pulls it back in. iOS rubber-band bounce at either end never
-// moves it. Other props go to CustomScrollView (React 19 passes `ref` through
-// the spread).
+// A scroll view (or `ListComponent`: FlatList, SectionList…) with `header`
+// (usually a SearchField) floating over its top. The header tracks the scroll
+// 1:1: scrolling down pushes it up with the content, scrolling up pulls it
+// back in. iOS rubber-band bounce at either end never moves it. The list gets
+// top padding equal to the header so nothing starts underneath it. Other props
+// go to the list (React 19 passes `ref` through the spread).
 export default function HideOnScrollView({
   header,
+  ListComponent = CustomScrollView,
+  contentContainerStyle,
   onScroll,
-  children,
   ...props
 }) {
   const { tokens } = useTheme();
   const offset = useSharedValue(0);
-  const height = useRef(0);
+  const [height, setHeight] = useState(0);
+  const heightRef = useRef(0);
   const hiddenBy = useRef(0);
   const lastY = useRef(0);
 
@@ -42,7 +45,7 @@ export default function HideOnScrollView({
       // How far the header is pushed up, clamped to [0, its height].
       hiddenBy.current = Math.min(
         Math.max(hiddenBy.current + dy, 0),
-        height.current,
+        heightRef.current,
       );
       offset.value = -hiddenBy.current;
     },
@@ -50,33 +53,40 @@ export default function HideOnScrollView({
   );
 
   return (
-    <CustomScrollView
-      scrollEventThrottle={16}
-      {...props}
-      stickyHeaderIndices={[0]}
-      onScroll={handleScroll}
-    >
-      {/* The sticky child must stay a plain View: RN moves its style onto a
-          wrapper and freezes it, which crashes on a Reanimated style.
-          box-none lets taps reach rows under it once the header moves away. */}
-      <View style={{ pointerEvents: 'box-none' }}>
-        {/* Opaque so rows don't show through while it's pinned. */}
-        <Animated.View
-          onLayout={e => {
-            height.current = e.nativeEvent.layout.height;
-          }}
-          style={[
-            {
-              backgroundColor: tokens.ground,
-              paddingBottom: CONTENT_KEYBOARD_OFFSET,
-            },
-            animatedStyle,
-          ]}
-        >
-          {header}
-        </Animated.View>
-      </View>
-      {children}
-    </CustomScrollView>
+    // Clips the header as it slides up, so it disappears under the edge
+    // instead of over whatever sits above the list.
+    <View style={styles.clip}>
+      <ListComponent
+        scrollEventThrottle={16}
+        {...props}
+        contentContainerStyle={[contentContainerStyle, { paddingTop: height }]}
+        onScroll={handleScroll}
+      />
+      {/* Opaque so rows don't show through it. */}
+      <Animated.View
+        onLayout={e => {
+          heightRef.current = e.nativeEvent.layout.height;
+          setHeight(e.nativeEvent.layout.height);
+        }}
+        style={[
+          styles.header,
+          { backgroundColor: tokens.ground },
+          animatedStyle,
+        ]}
+      >
+        {header}
+      </Animated.View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  clip: { flex: 1, overflow: 'hidden' },
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
+  },
+});

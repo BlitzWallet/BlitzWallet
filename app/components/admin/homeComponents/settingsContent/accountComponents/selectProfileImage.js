@@ -36,6 +36,7 @@ import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import HideOnScrollView from '../../../../../functions/CustomElements/redesign/HideOnScrollView';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
@@ -87,7 +88,7 @@ const EmojiRow = memo(({ item, onEmojiSelect, selected, isFirst, isLast }) => {
   );
 });
 
-const EmojiGrid = memo(({ sections, onEmojiSelect, selectedEmoji }) => {
+const EmojiGrid = memo(({ header, sections, onEmojiSelect, selectedEmoji }) => {
   const { t } = useTranslation();
   const renderEmojiRow = useCallback(
     ({ item, index, section }) => (
@@ -112,7 +113,9 @@ const EmojiGrid = memo(({ sections, onEmojiSelect, selectedEmoji }) => {
   );
 
   return (
-    <SectionList
+    <HideOnScrollView
+      ListComponent={SectionList}
+      header={header}
       sections={sections}
       keyExtractor={(item, index) => `row-${index}`}
       renderItem={renderEmojiRow}
@@ -269,6 +272,22 @@ export default function EmojiAvatarSelector(props) {
     });
   }, [filteredSections]);
 
+  const searchField = useMemo(
+    () => (
+      <SearchField
+        placeholder={t(
+          'settings.accountComponents.selectProfileImage.searchPlaceholder',
+        )}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
+        pill
+      />
+    ),
+    [searchQuery, t],
+  );
+
   const saveLabel =
     selectedEmoji === initialEmoji
       ? t('constants.back')
@@ -290,17 +309,8 @@ export default function EmojiAvatarSelector(props) {
           selectedEmoji={selectedEmoji}
           onClear={handleClear}
         />
-        <SearchField
-          placeholder={t(
-            'settings.accountComponents.selectProfileImage.searchPlaceholder',
-          )}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onFocus={() => setIsKeyboardActive(true)}
-          onBlur={() => setIsKeyboardActive(false)}
-          pill
-        />
         <EmojiGrid
+          header={searchField}
           sections={sectionsWithRows}
           onEmojiSelect={handleEmojiSelect}
           selectedEmoji={selectedEmoji}

@@ -5,7 +5,7 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePOSTransactions } from '../../../../../../context-store/pos';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
@@ -17,9 +17,8 @@ import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
-import ListCard, {
-  ListDivider,
-} from '../../../../../functions/CustomElements/redesign/ListCard';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
+import HideOnScrollView from '../../../../../functions/CustomElements/redesign/HideOnScrollView';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
@@ -50,6 +49,7 @@ export default function ViewPOSTransactions() {
       if (!name || totalTipAmount === undefined) return null;
       return (
         <ListRow
+          key={name}
           lead={<Disc icon="Users" size={40} />}
           title={name}
           titleLines={1}
@@ -139,46 +139,39 @@ export default function ViewPOSTransactions() {
           title={t('settings.posPath.transactions.title')}
           shouldDismissKeyboard={true}
         />
-        <View style={styles.search}>
-          <SearchField
-            pill
-            value={employeeName}
-            onChangeText={setEmployeeName}
-            placeholder={t('settings.posPath.transactions.empNamePlaceholder')}
-          />
-        </View>
-        {filteredList.length ? (
-          <ListCard dividerInset={52} style={styles.card}>
-            <FlatList
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 4 }}
-              showsVerticalScrollIndicator={false}
-              data={filteredList}
-              renderItem={transactionItem}
-              keyExtractor={([name]) => name}
-              ItemSeparatorComponent={TipsSeparator}
+        <HideOnScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
+          header={
+            <SearchField
+              pill
+              value={employeeName}
+              onChangeText={setEmployeeName}
+              placeholder={t(
+                'settings.posPath.transactions.empNamePlaceholder',
+              )}
             />
-          </ListCard>
-        ) : (
-          <ThemeText
-            styles={styles.emptyText}
-            content={t('settings.posPath.transactions.noTips')}
-          />
-        )}
-        <View style={{ height: bottomPadding }} />
+          }
+        >
+          {filteredList.length ? (
+            <ListCard dividerInset={52}>
+              {filteredList.map(item => transactionItem({ item }))}
+            </ListCard>
+          ) : (
+            <ThemeText
+              styles={styles.emptyText}
+              content={t('settings.posPath.transactions.noTips')}
+            />
+          )}
+        </HideOnScrollView>
       </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
-function TipsSeparator() {
-  return <ListDivider inset={52} />;
-}
-
 const styles = StyleSheet.create({
   globalContainer: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  search: { marginTop: 16 },
   card: { marginTop: 16, flexShrink: 1 },
   title: { fontSize: 15 },
   sub: { fontSize: 13 },

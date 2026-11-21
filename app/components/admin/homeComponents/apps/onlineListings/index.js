@@ -33,6 +33,7 @@ import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import HideOnScrollView from '../../../../../functions/CustomElements/redesign/HideOnScrollView';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 
@@ -347,7 +348,9 @@ export default function ViewOnlineListings({ removeUserLocal }) {
           }
         />
 
-        <FlatList
+        <HideOnScrollView
+          ListComponent={FlatList}
+          header={renderListHeader}
           data={businesses}
           showsVerticalScrollIndicator={false}
           keyExtractor={keyExtractor}
@@ -357,8 +360,6 @@ export default function ViewOnlineListings({ removeUserLocal }) {
             styles.listContent,
             { paddingBottom: bottomPadding },
           ]}
-          stickyHeaderIndices={[0]}
-          ListHeaderComponent={renderListHeader}
           ListEmptyComponent={emptyComponent}
           renderItem={renderItem}
         />
@@ -448,8 +449,6 @@ const styles = StyleSheet.create({
   stickySearchHeader: {
     width: '100%',
     alignSelf: 'center',
-    paddingTop: 16,
-    paddingBottom: 12,
   },
   listContent: {
     paddingTop: 0,
