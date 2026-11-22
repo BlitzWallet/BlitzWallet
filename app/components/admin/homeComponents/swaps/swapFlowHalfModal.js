@@ -72,8 +72,17 @@ export default function SwapFlowHalfModal({
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
 
-  // Step state
-  const [currentStep, setCurrentStep] = useState('routeSelection');
+  // Step state. A balance page already picked the currency, so it opens at
+  // Amount (its button shows a loader while the pool loads) unless that side
+  // is under its swap minimum, which keeps Choose currency for the message.
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (!initialFromAsset) return 'routeSelection';
+    const isAboveMinimum =
+      initialFromAsset === 'BTC'
+        ? bitcoinBalance >= swapLimits.bitcoin
+        : dollarBalanceToken >= swapLimits.usd;
+    return isAboveMinimum ? 'amountInput' : 'routeSelection';
+  });
   const [stepDirection, setStepDirection] = useState(1);
 
   // Swap state (migrated from SwapsPage verbatim)
@@ -124,17 +133,11 @@ export default function SwapFlowHalfModal({
     [currentStep, heightFor, setContentHeight],
   );
 
-  // A balance page opens at Amount once the pool is ready; under that side's
-  // minimum it stays on Choose currency.
-  const didAutoOpenAmount = useRef(!initialFromAsset);
+  // No pool after loading: Amount can't work, so show Choose currency's retry.
   useEffect(() => {
-    if (didAutoOpenAmount.current || isLoadingPool || !poolInfo) return;
-    didAutoOpenAmount.current = true;
-    const isAboveMinimum =
-      initialFromAsset === 'BTC'
-        ? bitcoinBalance >= swapLimits.bitcoin
-        : dollarBalanceToken >= swapLimits.usd;
-    if (isAboveMinimum) navigateToStep('amountInput', 'forward');
+    if (isLoadingPool || poolInfo || !initialFromAsset) return;
+    if (currentStep === 'amountInput')
+      navigateToStep('routeSelection', 'backward');
   }, [isLoadingPool, poolInfo]);
 
   // Mirror of currentStep readable inside async handlers, so a swap/simulation
@@ -152,7 +155,8 @@ export default function SwapFlowHalfModal({
       return true;
     }
     if (currentStep === 'amountInput') {
-      navigateToStep('routeSelection', 'backward');
+      if (initialFromAsset) handleBackPressFunction();
+      else navigateToStep('routeSelection', 'backward');
       return true;
     }
     if (currentStep === 'review') {
@@ -160,7 +164,7 @@ export default function SwapFlowHalfModal({
       return true;
     }
     return false;
-  }, [currentStep, navigateToStep]);
+  }, [currentStep, navigateToStep, initialFromAsset, handleBackPressFunction]);
   useHandleBackPressNew(handleBackPressAndroid);
 
   // Derived state
@@ -990,6 +994,7 @@ export default function SwapFlowHalfModal({
           activePercentage={activePercentage}
           canProceed={canProceed}
           isBusy={isSwapping || isLoadingPool || isSimulating}
+          showBackRow={!initialFromAsset}
           onBack={goBack}
           onFieldPress={handleInputPress}
           onFlip={() => {

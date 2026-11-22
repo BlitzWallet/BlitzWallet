@@ -31,6 +31,7 @@ export default function SwapAmount({
   activePercentage,
   canProceed,
   isBusy,
+  showBackRow = true,
   onBack,
   onFieldPress,
   onFlip,
@@ -43,7 +44,7 @@ export default function SwapAmount({
 
   return (
     <>
-      <SwapBackRow onBack={onBack} title={balanceLabel} />
+      {showBackRow && <SwapBackRow onBack={onBack} title={balanceLabel} />}
 
       <View style={styles.fields}>
         <AmountField
