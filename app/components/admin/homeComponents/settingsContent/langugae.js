@@ -1,15 +1,18 @@
-import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
-import { GlobalThemeView } from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  GlobalThemeView,
+} from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { supportedLanguagesList } from '../../../../../locales/localeslist';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
-import ListCard, {
-  ListDivider,
-} from '../../../../functions/CustomElements/redesign/ListCard';
+import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import HideOnScrollView from '../../../../functions/CustomElements/redesign/HideOnScrollView';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 
@@ -18,7 +21,8 @@ export default function ChooseLangugae() {
     useGlobalContextProvider();
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
-  const { width, height } = useWindowDimensions();
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const selectedLanguage = masterInfoObject?.userSelectedLanguage;
 
@@ -42,36 +46,41 @@ export default function ChooseLangugae() {
   );
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      useLocalPadding={true}
+      isKeyboardActive={isKeyboardActive}
+      useStandardWidth={true}
+      useTouchableWithoutFeedback={true}
+    >
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.settingsContent.language')} />
-        <View style={styles.search}>
-          <SearchField
-            pill
-            value={searchInput}
-            onChangeText={setSearchInput}
-            placeholder={t(selectedLanguageText?.languageName)}
-          />
-        </View>
-        {filteredList.length === 0 ? (
-          <View style={styles.empty}>
-            <EmptyState
-              icon="Search"
-              title={t('constants.noSearchResults')}
-              sub={t('constants.noSearchResultsSub')}
+        <TopBar fade title={t('screens.inAccount.settingsContent.language')} />
+        <HideOnScrollView
+          topInset={FADE_TOP}
+          keyboardShouldPersistTaps="always"
+          header={
+            <SearchField
+              pill
+              value={searchInput}
+              onChangeText={setSearchInput}
+              placeholder={t(selectedLanguageText?.languageName)}
+              onFocus={() => setIsKeyboardActive(true)}
+              onBlur={() => setIsKeyboardActive(false)}
             />
-          </View>
-        ) : (
-          <ListCard dividerInset={0} style={styles.card}>
-            <FlatList
-              data={filteredList}
-              keyExtractor={keyExtractor}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="always"
-              style={{ maxHeight: height - 240 }}
-              ItemSeparatorComponent={LanguageSeparator}
-              renderItem={({ item }) => (
+          }
+        >
+          {filteredList.length === 0 ? (
+            <View style={styles.empty}>
+              <EmptyState
+                icon="Search"
+                title={t('constants.noSearchResults')}
+                sub={t('constants.noSearchResultsSub')}
+              />
+            </View>
+          ) : (
+            <ListCard dividerInset={0}>
+              {filteredList.map(item => (
                 <PickRow
+                  key={item.id}
                   title={t(item.translatedName)}
                   minHeight={52}
                   titleStyle={styles.rowTitle}
@@ -80,25 +89,17 @@ export default function ChooseLangugae() {
                   }
                   onPress={() => updateLanguageSetting(item)}
                 />
-              )}
-            />
-          </ListCard>
-        )}
+              ))}
+            </ListCard>
+          )}
+        </HideOnScrollView>
       </View>
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
-}
-
-const keyExtractor = item => item.id;
-
-function LanguageSeparator() {
-  return <ListDivider inset={0} />;
 }
 
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
-  search: { marginTop: 16 },
-  card: { marginTop: 16 },
   empty: { marginTop: 48 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
 });
