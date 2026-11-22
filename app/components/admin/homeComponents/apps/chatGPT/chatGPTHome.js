@@ -38,6 +38,10 @@ import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
+import TopHeader from '../../../../../functions/CustomElements/redesign/TopHeader';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 import { KeyboardController } from 'react-native-keyboard-controller';
 
 function MessageAction({ icon, label, onPress, tokens }) {
@@ -410,42 +414,47 @@ export default function ChatGPTHome(props) {
       useStandardWidth={true}
     >
       <View style={[styles.content, { width: contentWidth }]}>
-        <View style={styles.topBar}>
-          <IconButton
-            icon="ArrowLeft"
-            label="constants.back"
-            onPress={() => keyboardNavigate(closeChat)}
-          />
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={t('apps.chatGPT.switchModel.chooseModel')}
-            onPress={openModelSelector}
-            style={[styles.modelPill, { backgroundColor: tokens.surface }]}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.modelPillText}
-              content={modelName}
+        <TopHeader>
+          <View style={styles.topBar}>
+            <IconButton
+              icon="ArrowLeft"
+              label="constants.back"
+              onPress={() => keyboardNavigate(closeChat)}
             />
-            <ThemeIcon redesign iconName={'ChevronDown'} size={16} />
-          </TouchableOpacity>
-          <IconButton
-            icon="Menu"
-            label="apps.chatGPT.chats"
-            onPress={openDrawer}
-          />
-        </View>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={t('apps.chatGPT.switchModel.chooseModel')}
+              onPress={openModelSelector}
+              style={[styles.modelPill, { backgroundColor: tokens.surface }]}
+            >
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.modelPillText}
+                content={modelName}
+              />
+              <ThemeIcon redesign iconName={'ChevronDown'} size={16} />
+            </TouchableOpacity>
+            <IconButton
+              icon="Menu"
+              label="apps.chatGPT.chats"
+              onPress={openDrawer}
+            />
+          </View>
 
-        <ThemeText
-          styles={[styles.creditsText, { color: tokens.muted }]}
-          content={t('apps.chatGPT.chatGPTHome.creditsLeft', {
-            credits: totalAvailableCredits.toFixed(2),
-          })}
-        />
+          <ThemeText
+            styles={[styles.creditsText, { color: tokens.muted }]}
+            content={t('apps.chatGPT.chatGPTHome.creditsLeft', {
+              credits: totalAvailableCredits.toFixed(2),
+            })}
+          />
+        </TopHeader>
 
         <View style={styles.container}>
           {hasNoChats ? (
-            <CustomScrollView keyboardShouldPersistTaps="always">
+            <CustomScrollView
+              keyboardShouldPersistTaps="always"
+              contentContainerStyle={styles.plainScrollContent}
+            >
               <QuestionDiscoveryGrid onSelect={submitChaMessage} />
             </CustomScrollView>
           ) : (
@@ -475,42 +484,44 @@ export default function ChatGPTHome(props) {
           )}
         </View>
 
-        <View style={styles.bottomBarContainer}>
-          <TextInput
-            keyboardAppearance={theme ? 'dark' : 'light'}
-            onChangeText={setUserChatText}
-            autoFocus={true}
-            placeholder={t('apps.chatGPT.chatGPTHome.inputPlaceholder', {
-              gptName: modelName,
-            })}
-            multiline={true}
-            placeholderTextColor={tokens.muted}
-            style={[
-              styles.bottomBarTextInput,
-              { color: tokens.ink, backgroundColor: tokens.surface },
-            ]}
-            value={userChatText}
-            onFocus={() => setIsKeyboardFocused(true)}
-            onBlur={() => setIsKeyboardFocused(false)}
-          />
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={t('constants.send')}
-            onPress={() => canSend && submitChaMessage(userChatText)}
-            disabled={!canSend}
-            style={[
-              styles.sendButton,
-              { opacity: canSend ? 1 : 0.4, backgroundColor: tokens.accent },
-            ]}
-          >
-            <ThemeIcon
-              redesign
-              colorOverride={tokens.onAccent}
-              iconName={'ArrowUp'}
-              size={22}
+        <BottomActions>
+          <View style={styles.bottomBarContainer}>
+            <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
+              onChangeText={setUserChatText}
+              autoFocus={true}
+              placeholder={t('apps.chatGPT.chatGPTHome.inputPlaceholder', {
+                gptName: modelName,
+              })}
+              multiline={true}
+              placeholderTextColor={tokens.muted}
+              style={[
+                styles.bottomBarTextInput,
+                { color: tokens.ink, backgroundColor: tokens.surface },
+              ]}
+              value={userChatText}
+              onFocus={() => setIsKeyboardFocused(true)}
+              onBlur={() => setIsKeyboardFocused(false)}
             />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={t('constants.send')}
+              onPress={() => canSend && submitChaMessage(userChatText)}
+              disabled={!canSend}
+              style={[
+                styles.sendButton,
+                { opacity: canSend ? 1 : 0.4, backgroundColor: tokens.accent },
+              ]}
+            >
+              <ThemeIcon
+                redesign
+                colorOverride={tokens.onAccent}
+                iconName={'ArrowUp'}
+                size={22}
+              />
+            </TouchableOpacity>
+          </View>
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -564,7 +575,14 @@ const styles = StyleSheet.create({
   invertedContainer: {
     transform: [{ scaleY: -1 }],
     gap: 16,
-    paddingVertical: 16,
+    // Inverted: paddingTop is the visual bottom (under the input bar) and
+    // paddingBottom the visual top (under the header).
+    paddingTop: FADE,
+    paddingBottom: FADE_TOP,
+  },
+  plainScrollContent: {
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
   },
   scrollToBottom: {
     width: 40,
@@ -573,7 +591,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    bottom: 5,
+    // Kept clear of the bottom fade so the gradient doesn't dim it.
+    bottom: FADE + 5,
     left: '50%',
     transform: [{ translateX: -20 }],
     ...SHADOWS.small,
