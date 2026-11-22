@@ -2530,7 +2530,7 @@
         "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
         "noTips": "O funcionário não tem gorjetas",
         "noEmployeeTitle": "Nenhuma gorjeta a pagar",
-        "noEmployeeSubTitle": "Você ainda não tem gorjetas a pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui.",
+        "noEmployeeSubTitle": "Você ainda não tem gorjetas a pagar. Quando um funcionário receber uma gorjeta, ele aparecerá aqui.",
         "allPaid": "Tudo pago"
       },
       "items": {
@@ -4130,7 +4130,7 @@
     "connections_other": "{{count}} conexões"
   },
   "receive": {
-    "requestFromContact": "Solicitar de um contato",
+    "requestFromContact": "Receber de um contato",
     "fromAnotherWallet": "Receber de outra carteira ou corretora",
     "emptyTitle": "Receba pagamentos de pessoas que você conhece",
     "emptySub": "Adicione um contato para solicitar dinheiro a ele. Os contatos que você adicionar aparecerão aqui.",
